@@ -3,7 +3,7 @@
 /.idea/
 
 # bytecode compiled pyc files
-__pychache__/
+__pycache__/
 
 # development database
 db.sqlite3
