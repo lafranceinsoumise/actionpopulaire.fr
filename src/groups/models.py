@@ -27,6 +27,8 @@ class SupportGroup(APIResource, LocationMixin, ContactMixin):
 
     tags = models.ManyToManyField('SupportGroupTag', related_name='events', blank=True)
 
+    members = models.ManyToManyField('people.Person', related_name='support_groups', through='Membership', blank=True)
+
     class Meta:
         verbose_name = _("groupe d'appui")
         verbose_name_plural = _("groupes d'appui")
@@ -38,3 +40,14 @@ class SupportGroup(APIResource, LocationMixin, ContactMixin):
 class SupportGroupTag(AbstractLabel):
     class Meta:
         verbose_name = _('tag')
+
+
+class Membership(models.Model):
+    person = models.ForeignKey('people.Person', related_name='memberships', on_delete=models.CASCADE)
+    support_group = models.ForeignKey('SupportGroup', related_name='memberships', on_delete=models.CASCADE)
+    is_referent = models.BooleanField(_('membre référent'), default=False)
+
+    def __str__(self):
+        return _('{person} --> {support_group},  (référent = {is_referent})').format(
+            person=self.person, support_group=self.support_group, is_referent=self.is_referent
+        )

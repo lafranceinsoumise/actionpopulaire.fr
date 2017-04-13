@@ -49,3 +49,17 @@ class Calendar(NationBuilderResource, AbstractLabel):
     class Meta:
         verbose_name = 'agenda'
 
+
+class RSVP(models.Model):
+    person = models.ForeignKey('people.Person', related_name='rsvps', on_delete=models.CASCADE)
+    event = models.ForeignKey('Event', related_name='rsvps', on_delete=models.CASCADE)
+    guests = models.PositiveIntegerField(_("nombre d'invités supplémentaires"), default=0, null=False)
+
+    class Meta:
+        verbose_name = 'RSVP'
+        verbose_name_plural = 'RSVP'
+
+    def __str__(self):
+        return _('{person} --> {event} ({guests} invités').format(
+            person=self.person, event=self.event, guests=self.guests
+        )
