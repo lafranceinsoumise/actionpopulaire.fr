@@ -65,6 +65,8 @@ class Person(APIResource, AbstractBaseUser, PermissionsMixin, LocationMixin):
 
     email = models.EmailField(
         _('adresse email'),
+        unique=True,
+        blank=False,
         help_text=_("L'adresse email de la personne, utilisée comme identifiant")
     )
 
