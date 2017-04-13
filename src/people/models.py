@@ -86,6 +86,21 @@ class Person(APIResource, AbstractBaseUser, PermissionsMixin, LocationMixin):
 
     tags = models.ManyToManyField('PersonTag', related_name='people', blank=True)
 
+    is_staff = models.BooleanField(
+        _('est staff'),
+        default=False,
+        help_text=_("Indique si l'utilisateur peut se connecter au site admin."),
+    )
+    is_active = models.BooleanField(
+        _('est actif'),
+        default=True,
+        help_text=_(
+            'Indique si la personne devrait être traitée comme active. '
+            'Désélectionnez cette option plutôt que de supprimer la personne.'
+        ),
+    )
+
+
     USERNAME_FIELD = 'email'
 
     class Meta:
