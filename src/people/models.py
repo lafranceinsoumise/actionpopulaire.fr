@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 
-from lib.models import APIResource, LocationMixin, Tag
+from lib.models import APIResource, LocationMixin, AbstractLabel
 
 
 class PersonManager(BaseUserManager):
@@ -76,7 +76,7 @@ class Person(APIResource, AbstractBaseUser, PermissionsMixin, LocationMixin):
     USERNAME_FIELD = 'email'
 
 
-class PersonTag(Tag):
+class PersonTag(AbstractLabel):
     """
     Model that represents a tag that may be used to qualify people
     """

@@ -40,6 +40,9 @@ class LocationMixin(models.Model):
     """
     Mixin that adds location fields
     """
+    coordinates_lat = models.DecimalField(_('latitude géographique'), max_digits=9, decimal_places=6)
+    coordinates_lon = models.DecimalField(_('longitude géographique'), max_digits=9, decimal_places=6)
+
     location_name = models.CharField(_("nom du lieu"), max_length=255, blank=True)
     location_address = models.CharField(_('adresse complète'), max_length=255, blank=True)
     location_address1 = models.CharField(_("adresse (1ère ligne)"), max_length=100, blank=True)
@@ -65,9 +68,9 @@ class ContactMixin(models.Model):
         abstract = True
 
 
-class Tag(models.Model):
+class AbstractLabel(models.Model):
     """
-    Abstract base class for tag models
+    Abstract base class for all kinds of unique label (tags, categories, etc.)
     """
     name = models.CharField(_('tag'), max_length=30, unique=True, blank=False)
     description = models.TextField(_('description'), blank=True)
