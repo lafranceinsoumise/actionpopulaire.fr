@@ -27,6 +27,14 @@ class SupportGroup(APIResource, LocationMixin, ContactMixin):
 
     tags = models.ManyToManyField('SupportGroupTag', related_name='events', blank=True)
 
+    class Meta:
+        verbose_name = _("groupe d'appui")
+        verbose_name_plural = _("groupes d'appui")
+
+    def __str__(self):
+        return self.name
+
 
 class SupportGroupTag(AbstractLabel):
-    pass
+    class Meta:
+        verbose_name = _('tag')

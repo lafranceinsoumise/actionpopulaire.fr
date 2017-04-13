@@ -10,9 +10,18 @@ class Event(APIResource, LocationMixin, ContactMixin):
     """
     Model that represents an event
     """
-    name = models.CharField(_("nom"),  max_length=255, blank=False)
+    name = models.CharField(
+        _("nom"),
+        max_length=255,
+        blank=False,
+        help_text=_("Le nom du groupe de l'événement"),
+    )
 
-    description = models.TextField(_('description'), blank=True)
+    description = models.TextField(
+        _('description'),
+        blank=True,
+        help_text=_("Une description de l'événement, en MarkDown"),
+    )
 
     nb_path = models.CharField(_('NationBuilder path'), max_length=255, blank=True)
 
@@ -23,10 +32,20 @@ class Event(APIResource, LocationMixin, ContactMixin):
 
     calendar = models.ForeignKey('Calendar', related_name='events', blank=False)
 
+    class Meta:
+        verbose_name = _('événement')
+        verbose_name_plural = _('événements')
+
+    def __str__(self):
+        return self.name
+
 
 class EventTag(AbstractLabel):
-    pass
+    class Meta:
+        verbose_name = 'tag'
 
 
 class Calendar(NationBuilderResource, AbstractLabel):
-    pass
+    class Meta:
+        verbose_name = 'agenda'
+

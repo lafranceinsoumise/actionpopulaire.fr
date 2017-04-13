@@ -63,21 +63,40 @@ class Person(APIResource, AbstractBaseUser, PermissionsMixin, LocationMixin):
     """
     objects = PersonManager()
 
-    email = models.EmailField(_('adresse email'))
+    email = models.EmailField(
+        _('adresse email'),
+        help_text=_("L'adresse email de la personne, utilisée comme identifiant")
+    )
 
     first_name = models.CharField(_('prénom'), max_length=255, blank=True)
     last_name = models.CharField(_('nom de famille'), max_length=255, blank=True)
 
-    bounced = models.BooleanField(_('email rejeté', default=False))
-    bounced_date = models.DateTimeField(_("date de rejet de l'email"), null=True)
+    bounced = models.BooleanField(
+        _('email rejeté'),
+          default=False,
+        help_text=_("Indique que des mails envoyés ont été rejetés par le serveur distant")
+    )
+    bounced_date = models.DateTimeField(
+        _("date de rejet de l'email"),
+        null=True,
+        help_text=_("Si des mails ont été rejetés, indique la date du dernier rejet")
+    )
 
     tags = models.ManyToManyField('PersonTag', related_name='people', blank=True)
 
     USERNAME_FIELD = 'email'
+
+    class Meta:
+        verbose_name = _('personne')
+        verbose_name_plural = _('personnes')
+
+    def __str__(self):
+        return self.name
 
 
 class PersonTag(AbstractLabel):
     """
     Model that represents a tag that may be used to qualify people
     """
-    pass
+    class Meta:
+        verbose_name = _('tag')
