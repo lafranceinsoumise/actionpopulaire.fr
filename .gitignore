@@ -1,0 +1,10 @@
+# local configuration files
+.python-version
+/.idea/
+
+# bytecode compiled pyc files
+__pychache__/
+
+# development database
+db.sqlite3
+
