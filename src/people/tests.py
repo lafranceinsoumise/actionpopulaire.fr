@@ -20,3 +20,8 @@ class BasicPersonTestCase(TestCase):
 
         authenticated_user = authenticate(request=None, email='test1@domain.com', password='test')
         self.assertEqual(user, authenticated_user)
+
+    def test_person_represented_by_email(self):
+        person = Person.objects.create_user('test1@domain.com')
+
+        self.assertEqual(str(person), 'test1@domain.com')
