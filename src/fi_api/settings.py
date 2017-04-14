@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'people',
     'events',
     'groups',
+    'authentication',
     'lib',
 ]
 
