@@ -1,12 +1,13 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from model_utils.models import TimeStampedModel
 
 from lib.models import (
     BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin
 )
 
 
-class Event(BaseAPIResource, LocationMixin, ContactMixin):
+class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin):
     """
     Model that represents an event
     """
@@ -50,7 +51,12 @@ class Calendar(NationBuilderResource, AbstractLabel):
         verbose_name = 'agenda'
 
 
-class RSVP(models.Model):
+class RSVP(TimeStampedModel):
+    """
+    Model that represents a RSVP for one person for an event.
+    
+    An additional field indicates if the person is bringing any guests with her
+    """
     person = models.ForeignKey('people.Person', related_name='rsvps', on_delete=models.CASCADE)
     event = models.ForeignKey('Event', related_name='rsvps', on_delete=models.CASCADE)
     guests = models.PositiveIntegerField(_("nombre d'invités supplémentaires"), default=0, null=False)
@@ -58,6 +64,7 @@ class RSVP(models.Model):
     class Meta:
         verbose_name = 'RSVP'
         verbose_name_plural = 'RSVP'
+        unique_together = ('person', 'event',)
 
     def __str__(self):
         return _('{person} --> {event} ({guests} invités').format(

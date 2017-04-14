@@ -1,12 +1,13 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from model_utils.models import TimeStampedModel
 
 from lib.models import (
     BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin
 )
 
 
-class SupportGroup(BaseAPIResource, LocationMixin, ContactMixin):
+class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin):
     """
     Model that represents a support group 
     """
@@ -42,10 +43,20 @@ class SupportGroupTag(AbstractLabel):
         verbose_name = _('tag')
 
 
-class Membership(models.Model):
+class Membership(TimeStampedModel):
+    """
+    Model that represents the membership of a person in a support group
+    
+    This model also indicates if the person is referent for this support group
+    """
     person = models.ForeignKey('people.Person', related_name='memberships', on_delete=models.CASCADE)
     support_group = models.ForeignKey('SupportGroup', related_name='memberships', on_delete=models.CASCADE)
     is_referent = models.BooleanField(_('membre référent'), default=False)
+
+    class Meta:
+        verbose_name = _('adhésion')
+        verbose_name_plural = _('adhésions')
+        unique_together = ('person', 'support_group',)
 
     def __str__(self):
         return _('{person} --> {support_group},  (référent = {is_referent})').format(

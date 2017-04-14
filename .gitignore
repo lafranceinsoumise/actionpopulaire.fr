@@ -8,3 +8,5 @@ __pycache__/
 # development database
 db.sqlite3
 
+# coverage statistics
+.coverage

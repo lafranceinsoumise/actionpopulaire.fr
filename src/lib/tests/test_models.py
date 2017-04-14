@@ -48,13 +48,6 @@ class APIResourceTestCase(TestCase):
 
         self.assertIsInstance(instance.pk, uuid.UUID)
 
-    def test_can_have_nb_id(self):
-        instance_with_nb = models.APIResource.objects.create(nb_id=1)
-        instance_without_nb = models.APIResource.objects.create()
-
-        self.assertEqual(instance_with_nb.nb_id, 1)
-        self.assertIsNone(instance_without_nb.nb_id)
-
     def test_has_timestamps(self):
         instance = models.APIResource.objects.create()
 
