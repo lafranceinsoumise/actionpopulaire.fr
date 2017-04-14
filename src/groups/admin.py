@@ -1,3 +1,13 @@
 from django.contrib import admin
 
-# Register your models here.
+from . import models
+
+
+@admin.register(models.SupportGroup)
+class SupportGroupAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.SupportGroupTag)
+class SupportGroupTagAdmin(admin.ModelAdmin):
+    pass
