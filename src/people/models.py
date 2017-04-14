@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 
-from lib.models import APIResource, LocationMixin, AbstractLabel
+from lib.models import BaseAPIResource, LocationMixin, AbstractLabel
 
 
 class PersonManager(BaseUserManager):
@@ -50,7 +50,7 @@ class PersonManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class Person(APIResource, AbstractBaseUser, PermissionsMixin, LocationMixin):
+class Person(BaseAPIResource, AbstractBaseUser, PermissionsMixin, LocationMixin):
     """
     Model that represents a physical person that signed as a JLM2017 supporter
     

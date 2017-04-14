@@ -25,7 +25,7 @@ class NationBuilderResource(models.Model):
         abstract = True
 
 
-class APIResource(UUIDIdentified, NationBuilderResource, TimeStampedModel):
+class BaseAPIResource(UUIDIdentified, NationBuilderResource, TimeStampedModel):
     """
     Abstract base class for APIResource that also exist on NationBuilder
     

@@ -2,11 +2,11 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from lib.models import (
-    APIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin
+    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin
 )
 
 
-class Event(APIResource, LocationMixin, ContactMixin):
+class Event(BaseAPIResource, LocationMixin, ContactMixin):
     """
     Model that represents an event
     """
