@@ -100,7 +100,6 @@ class Person(BaseAPIResource, NationBuilderResource, AbstractBaseUser, Permissio
         ),
     )
 
-
     USERNAME_FIELD = 'email'
 
     class Meta:

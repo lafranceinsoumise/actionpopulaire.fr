@@ -5,6 +5,9 @@ from rest_framework.response import Response
 
 
 class LegacyPaginator(PageNumberPagination):
+    """
+    A legacy paginator that mocks the one from Eve Python
+    """
     page_size = 25
 
     def get_paginated_response(self, data):

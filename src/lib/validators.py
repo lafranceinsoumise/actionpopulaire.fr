@@ -8,6 +8,5 @@ class MaxLengthValidator():
 
     def __call__(self, value):
         if len(value) > self.max_length:
-            message = _('Ce champ a une longueur maximale de {max_length').format(max_length=self.max_length)
+            message = _('Ce champ a une longueur maximale de {max_length}').format(max_length=self.max_length)
             raise ValidationError(message)
-
