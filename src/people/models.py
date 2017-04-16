@@ -106,6 +106,7 @@ class Person(BaseAPIResource, NationBuilderResource, AbstractBaseUser, Permissio
     class Meta:
         verbose_name = _('personne')
         verbose_name_plural = _('personnes')
+        ordering = ('email',)
 
 
 class PersonTag(AbstractLabel):

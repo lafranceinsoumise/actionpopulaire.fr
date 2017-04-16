@@ -9,7 +9,12 @@ class UUIDIdentified(models.Model):
     """
     Mixin that replaces the default id by an UUID
     """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(
+        _('UUID'),
+        primary_key=True,
+        default=uuid.uuid4,
+        help_text=_("UUID interne à l'API pour identifier la ressource")
+    )
 
     class Meta:
         abstract = True
@@ -19,7 +24,12 @@ class NationBuilderResource(models.Model):
     """
     Mixin that add a `nb_id` field that can store the id of the corresponding resource on NationBuilder
     """
-    nb_id = models.IntegerField(_('identifiant sur NationBuilder'), null=True, unique=True)
+    nb_id = models.IntegerField(
+        _('ID sur NationBuilder'),
+        null=True,
+        unique=True,
+        help_text=_("L'identifiant de la ressource correspondante sur NationBuilder, si importé.")
+    )
 
     class Meta:
         abstract = True
