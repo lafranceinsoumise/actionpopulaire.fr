@@ -5,8 +5,6 @@ from . import models
 
 
 class LegacyPersonSerializer(LegacyBaseAPISerializer, serializers.HyperlinkedModelSerializer):
-    url_field_name = 'url'
-
     class Meta:
         model = models.Person
         fields = (

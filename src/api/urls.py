@@ -20,5 +20,6 @@ from . import routers
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^', include(routers.legacy_api.urls, namespace='legacy')),
+    url(r'^legacy/', include(routers.legacy_api.urls, namespace='legacy')),
+    url(r'^v1/', include(routers.v1_api.urls, namespace='v1')),
 ]
