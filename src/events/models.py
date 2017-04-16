@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
 from model_utils.models import TimeStampedModel
 
 from lib.models import (
@@ -33,12 +34,19 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
 
     calendar = models.ForeignKey('Calendar', related_name='events', blank=False)
 
+    attendees = models.ManyToManyField('people.Person', related_name='events', through='RSVP')
+
     class Meta:
         verbose_name = _('événement')
         verbose_name_plural = _('événements')
+        ordering = ('start_time', 'end_time')
 
     def __str__(self):
         return self.name
+
+    @property
+    def participants(self):
+        return self.rsvps.aggregate(participants=models.Sum(models.F('guests') + 1))['participants']
 
 
 class EventTag(AbstractLabel):
