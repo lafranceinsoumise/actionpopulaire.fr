@@ -1,11 +1,16 @@
 from django.test import TestCase
-from rest_framework.test import APIRequestFactory, APITestCase
-from rest_framework import status
-
 from django.contrib.auth import authenticate
+from django.utils import timezone
+
+from rest_framework.test import APIRequestFactory
+from rest_framework import status
+from rest_framework.reverse import reverse
+
 
 from .models import Person
 from .viewsets import LegacyPersonViewSet
+
+from events.models import Event, RSVP, Calendar
 
 
 class BasicPersonTestCase(TestCase):
@@ -38,6 +43,22 @@ class LegacyPersonEndpointTestCase(TestCase):
             last_name='Georges',
         )
 
+        calendar = Calendar.objects.create(label='calendar')
+
+        self.event = Event.objects.create(
+            name='event',
+            calendar=calendar,
+            start_time=timezone.now(),
+            end_time=timezone.now() + timezone.timedelta(hours=2)
+        )
+
+        self.rsvp = RSVP.objects.create(
+            person=self.person,
+            event=self.event
+        )
+
+        self.factory = APIRequestFactory()
+
         self.detail_view = LegacyPersonViewSet.as_view({
             'get': 'retrieve',
             'put': 'update',
@@ -50,7 +71,6 @@ class LegacyPersonEndpointTestCase(TestCase):
             'post': 'create'
         })
 
-        self.factory = APIRequestFactory()
 
     def test_contain_simple_fields(self):
         request = self.factory.get('')
@@ -103,3 +123,23 @@ class LegacyPersonEndpointTestCase(TestCase):
         self.assertIn('_meta', response.data)
 
         self.assertEqual(len(response.data['_items']), 1)
+
+    def test_can_see_events(self):
+        request = self.factory.get('')
+        response = self.detail_view(request, pk=self.person.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertIn('events', response.data)
+
+        self.assertCountEqual(response.data['events'], [self.event.pk])
+
+    def test_can_see_rsvps(self):
+        request = self.factory.get('')
+        response = self.detail_view(request, pk=self.person.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertIn('rsvps', response.data)
+
+        self.assertCountEqual(response.data['rsvps'], [reverse('legacy:rsvp-detail', kwargs={'pk': self.rsvp.pk}, request=request)])

@@ -11,7 +11,7 @@ class LegacyEventViewSet(ModelViewSet):
     """
     pagination_class = LegacyPaginator
     serializer_class = serializers.LegacyEventSerializer
-    queryset = models.Event.objects.all()
+    queryset = models.Event.objects.all().select_related('calendar').prefetch_related('tags')
 
 
 class CalendarViewSet(ModelViewSet):
@@ -20,3 +20,20 @@ class CalendarViewSet(ModelViewSet):
     """
     serializer_class = serializers.CalendarSerializer
     queryset = models.Calendar.objects.all()
+
+
+class EventTagViewSet(ModelViewSet):
+    """
+    EventTag viewset
+    """
+    serializer_class = serializers.EventTagSerializer
+    queryset = models.EventTag.objects.all()
+
+
+class RSVPViewSet(ModelViewSet):
+    """
+    
+    """
+
+    serializer_class = serializers.RSVPSerializer
+    queryset = models.RSVP.objects.select_related('event', 'person')

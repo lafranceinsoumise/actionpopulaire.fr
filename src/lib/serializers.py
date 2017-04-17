@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
+from rest_framework.utils.field_mapping import get_url_kwargs
 from django_countries.serializer_fields import CountryField
 
 
@@ -161,4 +162,4 @@ class LegacyLocationAndContactMixin(serializers.ModelSerializer):
         return super(LegacyLocationAndContactMixin, self).create(self._flatten_data(validated_data))
 
     def update(self, instance, validated_data):
-        return super(LegacyLocationAndContactMixin, self).create(self._flatten_data(validated_data))
+        return super(LegacyLocationAndContactMixin, self).update(instance, self._flatten_data(validated_data))

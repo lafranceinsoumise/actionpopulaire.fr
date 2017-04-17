@@ -12,3 +12,11 @@ class LegacyPersonViewSet(ModelViewSet):
     pagination_class = LegacyPaginator
     serializer_class = serializers.LegacyPersonSerializer
     queryset = models.Person.objects.all()
+
+
+class PersonTagViewSet(ModelViewSet):
+    """
+    Endpoint for person tags
+    """
+    serializer_class = serializers.PersonTagSerializer
+    queryset = models.PersonTag.objects.all()

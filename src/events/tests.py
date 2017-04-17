@@ -170,3 +170,16 @@ class LegacyEventViewSetTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['_id'], str(self.event.pk))
+
+    def test_can_modify_event(self):
+        request = self.factory.patch('', data={
+            'description': 'Plus mieux!'
+        })
+
+        response = self.detail_view(request, pk=self.event.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.event.refresh_from_db()
+
+        self.assertEqual(self.event.description, 'Plus mieux!')
