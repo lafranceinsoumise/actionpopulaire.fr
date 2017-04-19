@@ -106,6 +106,8 @@ class Person(BaseAPIResource, NationBuilderResource, AbstractBaseUser, Permissio
         verbose_name = _('personne')
         verbose_name_plural = _('personnes')
         ordering = ('email',)
+        # add permission 'view'
+        default_permissions = ('add', 'change', 'delete', 'view')
 
 
 class PersonTag(AbstractLabel):

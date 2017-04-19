@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'people',
     'events',
     'groups',
-    'authentication',
+    'clients',
     'lib',
 ]
 
@@ -139,10 +139,11 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.MultiPartParser'
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
+        'clients.authentication.AccessTokenAuthentication',
+        'clients.authentication.ClientAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'TEST_REQUEST_RENDERER_CLASSES': (
@@ -151,3 +152,9 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
 }
+
+# Access tokens
+
+AUTH_REDIS_URL = os.environ.get('AUTH_REDIS_URL', 'redis://localhost?db=0')
+AUTH_REDIS_MAX_CONNECTIONS = 5
+AUTH_REDIS_PREFIX = 'AccessToken:'
