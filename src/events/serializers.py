@@ -6,7 +6,7 @@ from . import models
 
 class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMixin, serializers.HyperlinkedModelSerializer):
     calendar = RelatedLabelField(queryset=models.Calendar.objects.all())
-    tags = RelatedLabelField(queryset=models.EventTag.objects.all(), many=True)
+    tags = RelatedLabelField(queryset=models.EventTag.objects.all(), many=True, required=False)
 
     class Meta:
         model = models.Event

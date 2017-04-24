@@ -4,7 +4,7 @@ from json.decoder import JSONDecodeError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from api.redis import get_redis_client
+from api.redis import get_auth_redis_client
 from .models import Client, Scope
 from people.models import Person
 
@@ -29,7 +29,7 @@ class AccessToken():
 
     @classmethod
     def get_token(cls, token):
-        client = get_redis_client()
+        client = get_auth_redis_client()
 
         serialized_token_info = client.get(token_redis_key(token))
 

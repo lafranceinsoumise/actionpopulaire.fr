@@ -1,6 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 
 from lib.pagination import LegacyPaginator
+from lib.permissions import RestrictViewPermissions
 
 from . import serializers, models
 
@@ -12,6 +13,7 @@ class LegacyPersonViewSet(ModelViewSet):
     pagination_class = LegacyPaginator
     serializer_class = serializers.LegacyPersonSerializer
     queryset = models.Person.objects.all()
+    permission_classes = (RestrictViewPermissions, )
 
 
 class PersonTagViewSet(ModelViewSet):
@@ -20,3 +22,4 @@ class PersonTagViewSet(ModelViewSet):
     """
     serializer_class = serializers.PersonTagSerializer
     queryset = models.PersonTag.objects.all()
+    permission_classes = (RestrictViewPermissions, )

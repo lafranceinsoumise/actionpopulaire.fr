@@ -40,11 +40,6 @@ class ClientAuthentication(BasicAuthentication):
     Client authentication
     """
     def authenticate_credentials(self, client_label, password):
-        credentials = {
-            'name': client_label,
-            'password': password
-        }
-
         try:
             client = Client.objects.get_by_natural_key(client_label)
         except Client.DoesNotExist:

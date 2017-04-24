@@ -5,6 +5,6 @@ from . import serializers, models
 
 
 class LegacyClientViewSet(ModelViewSet):
-    permission_classes = DjangoModelPermissions()
+    permission_classes = (DjangoModelPermissions,)
     serializer_class = serializers.LegacyClientSerializer
     queryset = models.Client.objects.all()

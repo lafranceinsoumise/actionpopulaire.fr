@@ -36,10 +36,15 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
 
     attendees = models.ManyToManyField('people.Person', related_name='events', through='RSVP')
 
+    organizers = models.ManyToManyField('people.Person', related_name='organized_events')
+
     class Meta:
         verbose_name = _('événement')
         verbose_name_plural = _('événements')
         ordering = ('start_time', 'end_time')
+        permissions = (
+            ('every_event', _('Peut éditer tous les événements')),
+        )
 
     def __str__(self):
         return self.name

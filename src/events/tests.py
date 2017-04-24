@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.db import IntegrityError, transaction
 from django.utils import timezone
-from rest_framework.test import APIRequestFactory
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
 from .models import Event, Calendar, RSVP
@@ -131,11 +133,31 @@ class LegacyEventViewSetTestCase(TestCase):
             calendar=self.calendar
         )
 
-        self.person = Person.objects.create(
+        self.unprivileged_person = Person.objects.create(
             email='jean.georges@domain.com',
             first_name='Jean',
             last_name='Georges',
         )
+
+        self.adder_person = Person.objects.create(
+            email='adder@adder.fr',
+        )
+
+        self.changer_person = Person.objects.create(
+            email='changer@changer.fr'
+        )
+
+        self.one_event_person = Person.objects.create(
+            email='event@event.com'
+        )
+
+        event_content_type = ContentType.objects.get_for_model(Event)
+        add_permission = Permission.objects.get(content_type=event_content_type, codename='add_event')
+        change_permission = Permission.objects.get(content_type=event_content_type, codename='change_event')
+
+        self.adder_person.user_permissions.add(add_permission)
+        self.changer_person.user_permissions.add(change_permission)
+        self.event.organizers.add(self.one_event_person)
 
         self.detail_view = LegacyEventViewSet.as_view({
             'get': 'retrieve',
@@ -149,9 +171,16 @@ class LegacyEventViewSetTestCase(TestCase):
             'post': 'create'
         })
 
+        self.new_event_data = {
+            'name': 'event 2',
+            'start_time': timezone.now().isoformat(),
+            'end_time': (timezone.now() + timezone.timedelta(hours=2)).isoformat(),
+            'calendar': 'calendar',
+        }
+
         self.factory = APIRequestFactory()
 
-    def test_can_list_event(self):
+    def test_can_list_event_while_unauthenticated(self):
         request = self.factory.get('')
         response = self.list_view(request)
 
@@ -164,17 +193,68 @@ class LegacyEventViewSetTestCase(TestCase):
         self.assertEqual(item['_id'], str(self.event.pk))
         self.assertEqual(item['name'], self.event.name)
 
-    def test_can_see_event_details(self):
+    def test_can_see_event_details_while_unauthenticated(self):
         request = self.factory.get('')
         response = self.detail_view(request, pk=self.event.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['_id'], str(self.event.pk))
 
-    def test_can_modify_event(self):
+    def test_cannot_create_event_while_unauthenticated(self):
+        request = self.factory.post('', data=self.new_event_data)
+
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_modify_event_while_unauthenticated(self):
+        request = self.factory.put('', data=self.new_event_data)
+
+        response = self.detail_view(request, pk=self.event.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_modify_event_without_permission(self):
+        request = self.factory.put('', data=self.new_event_data)
+        force_authenticate(request, self.unprivileged_person)
+
+        response = self.detail_view(request, pk=self.event.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_create_event_with_global_perm(self):
+        request = self.factory.post('', data=self.new_event_data)
+        force_authenticate(request, self.adder_person)
+
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        events = Event.objects.all()
+
+        self.assertEqual(len(events), 2)
+
+    def test_can_modify_event_with_global_perm(self):
         request = self.factory.patch('', data={
             'description': 'Plus mieux!'
         })
+
+        force_authenticate(request, user=self.changer_person)
+
+        response = self.detail_view(request, pk=self.event.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.event.refresh_from_db()
+
+        self.assertEqual(self.event.description, 'Plus mieux!')
+
+    def test_organizer_can_modify_event(self):
+        request = self.factory.patch('', data={
+            'description': 'Plus mieux!'
+        })
+
+        force_authenticate(request, user=self.one_event_person)
 
         response = self.detail_view(request, pk=self.event.pk)
 
