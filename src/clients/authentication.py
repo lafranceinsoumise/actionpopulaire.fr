@@ -16,7 +16,7 @@ class AccessTokenAuthentication(BaseAuthentication):
         """
         auth = get_authorization_header(request).split()
 
-        if not auth or auth[0].lower() != b'Bearer':
+        if not auth or auth[0].lower() != b'bearer':
             return None
 
         if len(auth) == 1:
@@ -27,8 +27,8 @@ class AccessTokenAuthentication(BaseAuthentication):
             raise exceptions.AuthenticationFailed(msg)
 
         try:
-            token = AccessToken.get_token(auth[1])
-        except InvalidTokenException:
+            token = AccessToken.get_token(auth[1].decode())
+        except (InvalidTokenException, UnicodeDecodeError):
             msg = _('Token invalide.')
             raise exceptions.AuthenticationFailed(msg)
 

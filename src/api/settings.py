@@ -143,7 +143,7 @@ REST_FRAMEWORK = {
         'clients.authentication.ClientAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'clients.permissions.PermissionsOrReadOnly',
+        'rest_framework.permissions.AllowAny',
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'TEST_REQUEST_RENDERER_CLASSES': (

@@ -27,6 +27,11 @@ class AccessToken():
         self.person = person
         self.scopes = scopes
 
+    def __eq__(self, other):
+        return (
+            self.token == other.token
+        )
+
     @classmethod
     def get_token(cls, token):
         client = get_auth_redis_client()
@@ -50,13 +55,13 @@ class AccessToken():
 
         try:
             client = Client.objects.get_by_natural_key(client_id)
-            person = Person.objects.get(UUID(person_id))
+            person = Person.objects.get(pk=UUID(person_id))
 
         except (ObjectDoesNotExist, ValueError):
             raise InvalidTokenException()
 
         # not too bad if ones of the scopes was deleted
-        scopes = Scope.objects.get(name__in=scope_names)
+        scopes = list(Scope.objects.filter(label__in=scope_names))
 
         if not scopes:
             raise InvalidTokenException()

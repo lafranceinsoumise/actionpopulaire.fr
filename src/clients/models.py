@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import Permission, Group
 from django.contrib.postgres.fields import ArrayField
 from model_utils.models import TimeStampedModel
 
@@ -10,6 +11,43 @@ from lib.models import BaseAPIResource, AbstractLabel
 class ClientManager(models.Manager):
     def get_by_natural_key(self, label):
         return self.get(label=label)
+
+    def _create_client(self, label, password, **extra_fields):
+        """
+        Creates and saves a client with the given label and password.
+        """
+        if not label:
+            raise ValueError('Label must be set')
+        client = self.model(label=label, **extra_fields)
+        client.set_password(password)
+        client.save(using=self._db)
+        return client
+
+    def create_client(self, label, password=None, **extra_fields):
+        """
+        Create a client 
+        :param label: the user's email
+        :param password: optional password that may be used to connect to the API
+        :param extra_fields: any other field
+        :return: 
+        """
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_client(label, password, **extra_fields)
+
+    def create_superclient(self, label, password, **extra_fields):
+        """
+        Create a super client
+        :param label: 
+        :param password: 
+        :param extra_fields: 
+        :return: 
+        """
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_client(label, password, **extra_fields)
 
 
 class Client(BaseAPIResource, AbstractBaseUser):
@@ -53,7 +91,36 @@ class Client(BaseAPIResource, AbstractBaseUser):
         help_text=_('La liste des scopes autorisés pour ce client.')
     )
 
-    USERNAME_FIELD = 'name'
+    # same fields as in PermissionsMixins
+    is_superuser = models.BooleanField(
+        _('superuser status'),
+        default=False,
+        help_text=_(
+            'Designates that this user has all permissions without '
+            'explicitly assigning them.'
+        ),
+    )
+    groups = models.ManyToManyField(
+        Group,
+        verbose_name=_('groups'),
+        blank=True,
+        help_text=_(
+            'The groups this user belongs to. A user will get all permissions '
+            'granted to each of their groups.'
+        ),
+        related_name="client_set",
+        related_query_name="client",
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        verbose_name=_('user permissions'),
+        blank=True,
+        help_text=_('Specific permissions for this user.'),
+        related_name="client_set",
+        related_query_name="client",
+    )
+
+    USERNAME_FIELD = 'label'
 
     class Meta:
         verbose_name = 'Client'
