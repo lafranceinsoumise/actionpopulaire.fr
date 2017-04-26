@@ -1,25 +1,36 @@
-from django.db import models
+from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 
-from lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource
+from lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource, RoleProxy
+from authentication.models import Role
 
 
-class PersonManager(BaseUserManager):
-    def _create_user(self, email, password, **extra_fields):
+class PersonManager(models.Manager):
+    def get_by_natural_key(self, email):
+        return self.select_related('role').get(email=email)
+
+    def _create_person(self, email, password, *, is_staff, is_superuser, is_active=True, **extra_fields):
         """
         Creates and saves a person with the given username, email and password.
         """
         if not email:
             raise ValueError('The given email must be set')
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
+        email = BaseUserManager.normalize_email(email)
 
-    def create_user(self, email, password=None, **extra_fields):
+        role = Role(type=Role.PERSON_ROLE, is_staff=is_staff, is_superuser=is_superuser, is_active=is_active)
+        role.set_password(password)
+
+        with transaction.atomic():
+            role.save()
+
+            person = self.model(email=email, role=role, **extra_fields)
+            person.save(using=self._db)
+
+        return person
+
+    def create_person(self, email, password=None, **extra_fields):
         """
         Create a user 
         :param email: the user's email
@@ -29,9 +40,9 @@ class PersonManager(BaseUserManager):
         """
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
-        return self._create_user(email, password, **extra_fields)
+        return self._create_person(email, password, **extra_fields)
 
-    def create_superuser(self, email, password, **extra_fields):
+    def create_superperson(self, email, password, **extra_fields):
         """
         Create a superuser
         :param email: 
@@ -47,10 +58,10 @@ class PersonManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self._create_user(email, password, **extra_fields)
+        return self._create_person(email, password, **extra_fields)
 
 
-class Person(BaseAPIResource, NationBuilderResource, AbstractBaseUser, PermissionsMixin, LocationMixin):
+class Person(RoleProxy, BaseAPIResource, NationBuilderResource, LocationMixin):
     """
     Model that represents a physical person that signed as a JLM2017 supporter
     
@@ -62,6 +73,8 @@ class Person(BaseAPIResource, NationBuilderResource, AbstractBaseUser, Permissio
     the API admin.
     """
     objects = PersonManager()
+
+    role = models.OneToOneField('authentication.Role', on_delete=models.PROTECT, related_name='person')
 
     email = models.EmailField(
         _('adresse email'),
@@ -86,28 +99,15 @@ class Person(BaseAPIResource, NationBuilderResource, AbstractBaseUser, Permissio
 
     tags = models.ManyToManyField('PersonTag', related_name='people', blank=True)
 
-    is_staff = models.BooleanField(
-        _('est staff'),
-        default=False,
-        help_text=_("Indique si l'utilisateur peut se connecter au site admin."),
-    )
-    is_active = models.BooleanField(
-        _('est actif'),
-        default=True,
-        help_text=_(
-            'Indique si la personne devrait être traitée comme active. '
-            'Désélectionnez cette option plutôt que de supprimer la personne.'
-        ),
-    )
-
-    USERNAME_FIELD = 'email'
-
     class Meta:
         verbose_name = _('personne')
         verbose_name_plural = _('personnes')
         ordering = ('email',)
         # add permission 'view'
         default_permissions = ('add', 'change', 'delete', 'view')
+
+    def __str__(self):
+        return self.email
 
 
 class PersonTag(AbstractLabel):

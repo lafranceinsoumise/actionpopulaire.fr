@@ -21,4 +21,8 @@ class LegacyClientSerializer(LegacyBaseAPISerializer):
 
     class Meta:
         model = models.Client
-        fields = ('_id', 'id', 'url', 'name', 'scopes', 'uris', 'trusted')
+        fields = ('_id', 'id', 'url', 'name', 'description', 'scopes', 'uris', 'trusted')
+        read_only_fields = ('_id', 'id', 'url')
+        extra_kwargs = {
+            'url': {'view_name': 'legacy:client-detail',}
+        }

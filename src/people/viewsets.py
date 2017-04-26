@@ -15,6 +15,11 @@ class LegacyPersonViewSet(ModelViewSet):
     queryset = models.Person.objects.all()
     permission_classes = (RestrictViewPermissions, )
 
+    def get_queryset(self):
+        if not self.request.user.has_perm('people.view_person'):
+            return self.queryset.filter(pk=self.request.user.pk)
+        return super(LegacyPersonViewSet, self).get_queryset()
+
 
 class PersonTagViewSet(ModelViewSet):
     """

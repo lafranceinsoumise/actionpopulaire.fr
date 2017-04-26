@@ -21,3 +21,9 @@ class SupportGroupTagSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.SupportGroupTag
         fields = ('url', 'id', 'label', 'description')
+
+
+class MembershipSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Membership
+        fields = ('url', 'person', 'support_group', 'is_referent',)

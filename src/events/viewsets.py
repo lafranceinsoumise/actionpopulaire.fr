@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
 
-from lib.permissions import ChangeGlobalOrObjectPermissions
+from lib.permissions import PermissionsOrReadOnly
 
 
 from lib.pagination import LegacyPaginator
@@ -12,7 +12,7 @@ class LegacyEventViewSet(ModelViewSet):
     """
     Legacy endpoint for events that imitates the endpoint from Eve Python
     """
-    permission_classes = (ChangeGlobalOrObjectPermissions, )
+    permission_classes = (PermissionsOrReadOnly,)
     pagination_class = LegacyPaginator
     serializer_class = serializers.LegacyEventSerializer
     queryset = models.Event.objects.all().select_related('calendar').prefetch_related('tags')

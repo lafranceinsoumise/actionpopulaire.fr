@@ -1,12 +1,14 @@
 import rules
 
+from authentication.models import Role
 
 @rules.predicate
-def is_organizer(user, event=None):
+def is_organizer(role, event=None):
     return (
         event is not None and
-        user.is_authenticated and
-        user.organized_events.filter(pk=event.pk).exists()
+        role.is_authenticated and
+        role.type == Role.PERSON_ROLE and
+        role.person.organized_events.filter(pk=event.pk).exists()
     )
 
 

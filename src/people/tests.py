@@ -11,17 +11,18 @@ from .models import Person
 from .viewsets import LegacyPersonViewSet
 
 from events.models import Event, RSVP, Calendar
+from groups.models import SupportGroup, Membership
 
 
 class BasicPersonTestCase(TestCase):
     def test_can_create_user_with_email(self):
-        user = Person.objects.create(email='test@domain.com')
+        user = Person.objects.create_person(email='test@domain.com')
 
         self.assertEqual(user.email, 'test@domain.com')
         self.assertEqual(user.pk, Person.objects.get_by_natural_key('test@domain.com').pk)
 
     def test_can_create_user_with_password_and_authenticate(self):
-        user = Person.objects.create_user('test1@domain.com', 'test')
+        user = Person.objects.create_person('test1@domain.com', 'test')
 
         self.assertEqual(user.email, 'test1@domain.com')
         self.assertEqual(user, Person.objects.get_by_natural_key('test1@domain.com'))
@@ -30,7 +31,7 @@ class BasicPersonTestCase(TestCase):
         self.assertEqual(user, authenticated_user)
 
     def test_person_represented_by_email(self):
-        person = Person.objects.create_user('test1@domain.com')
+        person = Person.objects.create_person('test1@domain.com')
 
         self.assertEqual(str(person), 'test1@domain.com')
 
@@ -40,21 +41,21 @@ class LegacyPersonEndpointTestCase(TestCase):
         force_authenticate(request, self.viewer_person)
 
     def setUp(self):
-        self.basic_person = Person.objects.create(
+        self.basic_person = Person.objects.create_person(
             email='jean.georges@domain.com',
             first_name='Jean',
             last_name='Georges',
         )
 
-        self.viewer_person = Person.objects.create(
+        self.viewer_person = Person.objects.create_person(
             email='viewer@viewer.fr'
         )
 
-        self.adder_person = Person.objects.create(
+        self.adder_person = Person.objects.create_person(
             email='adder@adder.fr',
         )
 
-        self.changer_person = Person.objects.create(
+        self.changer_person = Person.objects.create_person(
             email='changer@changer.fr'
         )
 
@@ -63,9 +64,9 @@ class LegacyPersonEndpointTestCase(TestCase):
         add_permission = Permission.objects.get(content_type=person_content_type, codename='add_person')
         change_permission = Permission.objects.get(content_type=person_content_type, codename='change_person')
 
-        self.viewer_person.user_permissions.add(view_permission)
-        self.adder_person.user_permissions.add(add_permission)
-        self.changer_person.user_permissions.add(change_permission)
+        self.viewer_person.role.user_permissions.add(view_permission)
+        self.adder_person.role.user_permissions.add(add_permission)
+        self.changer_person.role.user_permissions.add(view_permission, change_permission)
 
         calendar = Calendar.objects.create(label='calendar')
 
@@ -79,6 +80,15 @@ class LegacyPersonEndpointTestCase(TestCase):
         self.rsvp = RSVP.objects.create(
             person=self.basic_person,
             event=self.event
+        )
+
+        self.support_group = SupportGroup.objects.create(
+            name='Group',
+        )
+
+        self.membership = Membership.objects.create(
+            person=self.basic_person,
+            support_group=self.support_group
         )
 
         self.factory = APIRequestFactory()
@@ -101,12 +111,14 @@ class LegacyPersonEndpointTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_cannot_view_while_unprivileged(self):
+    def test_can_only_view_self_while_unprivileged(self):
         request = self.factory.get('')
         force_authenticate(request, self.basic_person)
         response = self.list_view(request)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['_items']), 1)
+        self.assertEqual(response.data['_items'][0]['_id'], str(self.basic_person.pk))
 
     def test_cannot_view_details_while_unauthenticated(self):
         request = self.factory.get('')
@@ -114,12 +126,19 @@ class LegacyPersonEndpointTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_cannot_view_details_while_unprivileged(self):
+    def test_can_see_self_while_unprivileged(self):
+        request = self.factory.get('')
+        force_authenticate(request, self.basic_person)
+        response = self.detail_view(request, pk=self.basic_person.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_cannot_view_others_details_while_unprivileged(self):
         request = self.factory.get('')
         force_authenticate(request, self.basic_person)
         response = self.detail_view(request, pk=self.viewer_person.pk)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_contain_simple_fields(self):
         request = self.factory.get('')
@@ -175,7 +194,19 @@ class LegacyPersonEndpointTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_can_modify_current_person(self):
+    def test_can_modify_self(self):
+        request = self.factory.patch('', data={
+            'first_name': 'Marc'
+        })
+        force_authenticate(request, self.basic_person)
+        response = self.detail_view(request, pk=self.basic_person.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.basic_person.refresh_from_db()
+        self.assertEqual(self.basic_person.first_name, 'Marc')
+
+    def test_can_modify_with_global_perm(self):
         request = self.factory.patch('', data={
             'first_name': 'Marc'
         })
@@ -223,3 +254,14 @@ class LegacyPersonEndpointTestCase(TestCase):
 
         self.assertCountEqual(response.data['rsvps'],
                               [reverse('legacy:rsvp-detail', kwargs={'pk': self.rsvp.pk}, request=request)])
+
+    def test_can_see_groups(self):
+        request = self.factory.get('')
+        force_authenticate(request, self.viewer_person)
+        response = self.detail_view(request, pk=self.basic_person.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertIn('groups', response.data)
+
+        self.assertCountEqual(response.data['groups'], [self.support_group.pk])

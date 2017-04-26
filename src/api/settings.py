@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rules.apps.AutodiscoverRulesConfig',
+    'authentication',
     'people',
     'events',
     'groups',
@@ -120,10 +121,12 @@ STATIC_URL = '/static/'
 
 # Authentication
 
-AUTH_USER_MODEL = 'people.Person'
+AUTH_USER_MODEL = 'authentication.Role'
 AUTHENTICATION_BACKENDS = (
+    'rules.permissions.ObjectPermissionBackend',
     'django.contrib.auth.backends.ModelBackend',
-    'rules.permissions.ObjectPermissionBackend'
+    'people.backend.PersonBackend',
+
 )
 
 # REST_FRAMEWORK
@@ -143,7 +146,7 @@ REST_FRAMEWORK = {
         'clients.authentication.ClientAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
+        'lib.permissions.PermissionsOrReadOnly',
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'TEST_REQUEST_RENDERER_CLASSES': (

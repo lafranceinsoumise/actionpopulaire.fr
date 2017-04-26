@@ -133,21 +133,21 @@ class LegacyEventViewSetTestCase(TestCase):
             calendar=self.calendar
         )
 
-        self.unprivileged_person = Person.objects.create(
+        self.unprivileged_person = Person.objects.create_person(
             email='jean.georges@domain.com',
             first_name='Jean',
             last_name='Georges',
         )
 
-        self.adder_person = Person.objects.create(
+        self.adder_person = Person.objects.create_person(
             email='adder@adder.fr',
         )
 
-        self.changer_person = Person.objects.create(
+        self.changer_person = Person.objects.create_person(
             email='changer@changer.fr'
         )
 
-        self.one_event_person = Person.objects.create(
+        self.one_event_person = Person.objects.create_person(
             email='event@event.com'
         )
 
@@ -155,8 +155,8 @@ class LegacyEventViewSetTestCase(TestCase):
         add_permission = Permission.objects.get(content_type=event_content_type, codename='add_event')
         change_permission = Permission.objects.get(content_type=event_content_type, codename='change_event')
 
-        self.adder_person.user_permissions.add(add_permission)
-        self.changer_person.user_permissions.add(change_permission)
+        self.adder_person.role.user_permissions.add(add_permission)
+        self.changer_person.role.user_permissions.add(change_permission)
         self.event.organizers.add(self.one_event_person)
 
         self.detail_view = LegacyEventViewSet.as_view({

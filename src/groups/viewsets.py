@@ -20,3 +20,12 @@ class SupportGroupTagViewSet(ModelViewSet):
     """
     serializer_class = serializers.SupportGroupTagSerializer
     queryset = models.SupportGroupTag.objects.all()
+
+
+class MembershipViewSet(ModelViewSet):
+    """
+
+    """
+
+    serializer_class = serializers.MembershipSerializer
+    queryset = models.Membership.objects.select_related('support_group', 'person')

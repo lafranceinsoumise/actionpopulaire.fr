@@ -7,7 +7,7 @@ from unittest import mock
 from django.test import TestCase
 from django.conf import settings
 
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import exceptions, status
 
 from . import models, authentication, tokens
@@ -18,7 +18,7 @@ from people.models import Person
 
 class TokenTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_user(email='test@test.com')
+        self.person = Person.objects.create_person(email='test@test.com')
         self.client = models.Client.objects.create_client('client')
         self.scope = models.Scope.objects.create(label='scope_test')
 
@@ -115,7 +115,8 @@ class ClientTestCase(TestCase):
 class LegacyClientViewSetTestCase(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.client1 = models.Client.objects.create_client('client', 'password')
+        self.client_unprivileged = models.Client.objects.create_client('unprivileged', 'password')
+        self.viewer_client = models.Client.objects.create_client('viewer', 'password')
 
         self.detail_view = LegacyClientViewSet.as_view({
             'get': 'retrieve',
@@ -135,5 +136,21 @@ class LegacyClientViewSetTestCase(TestCase):
         response = self.list_view(request)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        response = self.detail_view(request, pk=self.client1.pk)
+        response = self.detail_view(request, pk=self.client_unprivileged.pk)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_only_see_self_if_unprivileged(self):
+        request = self.factory.get('')
+        force_authenticate(request, self.client_unprivileged)
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['_items']), 1)
+        self.assertEqual(response.data['_items'][0]['id'], self.client_unprivileged.label)
+
+    def test_can_list_clients(self):
+        request = self.factory.get('')
+        force_authenticate(request, self.viewer_client)
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

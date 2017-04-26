@@ -2,6 +2,7 @@ from django.utils.translation import ugettext as _
 from rest_framework import exceptions
 from rest_framework.authentication import BaseAuthentication, BasicAuthentication, get_authorization_header
 
+from authentication.models import Role
 from clients.tokens import AccessToken, InvalidTokenException
 from clients.models import Client
 
@@ -45,10 +46,10 @@ class ClientAuthentication(BasicAuthentication):
         except Client.DoesNotExist:
             # Run the default password hasher once to reduce the timing
             # difference between an existing and a non-existing user (#20760).
-            Client().set_password(password)
+            Role().set_password(password)
             raise exceptions.AuthenticationFailed(_('Invalid username/password.'))
 
-        if not client.check_password(password):
+        if not client.role.check_password(password):
             raise exceptions.AuthenticationFailed(_('Invalid username/password.'))
 
         return client, None

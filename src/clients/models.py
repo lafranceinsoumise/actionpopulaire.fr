@@ -1,26 +1,31 @@
-from django.db import models
+from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import Permission, Group
 from django.contrib.postgres.fields import ArrayField
 from model_utils.models import TimeStampedModel
 
-from lib.models import BaseAPIResource, AbstractLabel
+from lib.models import BaseAPIResource, AbstractLabel, RoleProxy
+from authentication.models import Role
 
 
 class ClientManager(models.Manager):
     def get_by_natural_key(self, label):
-        return self.get(label=label)
+        return self.select_related('role').get(label=label)
 
-    def _create_client(self, label, password, **extra_fields):
+    def _create_client(self, label, password, *, is_superuser, is_active=True, **extra_fields):
         """
         Creates and saves a client with the given label and password.
         """
         if not label:
             raise ValueError('Label must be set')
-        client = self.model(label=label, **extra_fields)
-        client.set_password(password)
-        client.save(using=self._db)
+
+        role = Role(type=Role.CLIENT_ROLE, is_superuser=is_superuser, is_active=is_active)
+        role.set_password(password)
+
+        with transaction.atomic():
+            role.save()
+            client = self.model(label=label, role=role, **extra_fields)
+            client.save(using=self._db)
+
         return client
 
     def create_client(self, label, password=None, **extra_fields):
@@ -50,8 +55,10 @@ class ClientManager(models.Manager):
         return self._create_client(label, password, **extra_fields)
 
 
-class Client(BaseAPIResource, AbstractBaseUser):
+class Client(RoleProxy, BaseAPIResource):
     objects = ClientManager()
+
+    role = models.OneToOneField('authentication.Role', on_delete=models.PROTECT, related_name='client', null=False)
 
     label = models.CharField(
         _('identifiant du client'),
@@ -61,11 +68,17 @@ class Client(BaseAPIResource, AbstractBaseUser):
         help_text=_("L'identifiant du client, utilisé pour l'authentication.")
     )
 
-    verbose_name = models.CharField(
+    name = models.CharField(
         _('nom du client'),
         max_length=150,
         blank=False,
         help_text=_("Le nom du client, tel qu'affiché à l'utilisateur lorsqu'il autorise ce client.")
+    )
+
+    description = models.TextField(
+        _('description du client'),
+        blank=True,
+        help_text=_("Une description du client à l'intention des utilisateurs éventuels.")
     )
 
     trusted = models.BooleanField(
@@ -90,37 +103,6 @@ class Client(BaseAPIResource, AbstractBaseUser):
         blank=True,
         help_text=_('La liste des scopes autorisés pour ce client.')
     )
-
-    # same fields as in PermissionsMixins
-    is_superuser = models.BooleanField(
-        _('superuser status'),
-        default=False,
-        help_text=_(
-            'Designates that this user has all permissions without '
-            'explicitly assigning them.'
-        ),
-    )
-    groups = models.ManyToManyField(
-        Group,
-        verbose_name=_('groups'),
-        blank=True,
-        help_text=_(
-            'The groups this user belongs to. A user will get all permissions '
-            'granted to each of their groups.'
-        ),
-        related_name="client_set",
-        related_query_name="client",
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        verbose_name=_('user permissions'),
-        blank=True,
-        help_text=_('Specific permissions for this user.'),
-        related_name="client_set",
-        related_query_name="client",
-    )
-
-    USERNAME_FIELD = 'label'
 
     class Meta:
         verbose_name = 'Client'
