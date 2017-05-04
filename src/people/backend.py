@@ -11,12 +11,12 @@ class PersonBackend(object):
 
     def authenticate(self, request, email=None, password=None):
         try:
-            person = Person._default_manager.get_by_natural_key(email)
-        except Person.DoesNotExist:
+            role = Role._default_manager.select_related('person').get(person__email=email)
+        except Role.DoesNotExist:
             Role().set_password(password)
         else:
-            if person.role.check_password(password) and self.user_can_authenticate(person.role):
-                return person
+            if role.check_password(password) and self.user_can_authenticate(role):
+                return role
 
     def user_can_authenticate(self, role):
         """
@@ -25,3 +25,10 @@ class PersonBackend(object):
         """
         is_active = getattr(role, 'is_active', None)
         return is_active or is_active is None
+
+
+    def get_user(self, user_id):
+        try:
+            return Role.objects.select_related('person').get(pk=user_id)
+        except Role.DoesNotExist:
+            return None

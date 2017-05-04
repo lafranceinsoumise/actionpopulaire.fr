@@ -14,6 +14,7 @@ from . import models, authentication, tokens
 from .viewsets import LegacyClientViewSet
 
 from people.models import Person
+from authentication.models import Role
 
 
 class TokenTestCase(TestCase):
@@ -63,7 +64,8 @@ class TokenTestCase(TestCase):
 
         auth_user, auth_info = self.token_authentifier.authenticate(request=request)
 
-        self.assertEqual(auth_user, self.person)
+        self.assertEqual(auth_user.type, Role.PERSON_ROLE)
+        self.assertEqual(auth_user.person, self.person)
         self.assertIsInstance(auth_info, tokens.AccessToken)
         self.assertEqual(auth_info.client, self.client)
         self.assertCountEqual(auth_info.scopes, [self.scope])
@@ -95,9 +97,10 @@ class ClientTestCase(TestCase):
             HTTP_AUTHORIZATION=self.get_auth_header('client', 'password')
         )
 
-        authentified_client, auth_info = self.client_authentifier.authenticate(request=request)
+        authentified_user, auth_info = self.client_authentifier.authenticate(request=request)
 
-        self.assertEqual(authentified_client, self.client)
+        self.assertEqual(authentified_user.type, Role.CLIENT_ROLE)
+        self.assertEqual(authentified_user.client, self.client)
         self.assertIsNone(auth_info)
 
     def test_can_check_superclient_permissions(self):
@@ -106,10 +109,14 @@ class ClientTestCase(TestCase):
             HTTP_AUTHORIZATION=self.get_auth_header('superclient', 'password')
         )
 
-        authentified_client, auth_info = self.client_authentifier.authenticate(request=request)
+        authentified_user, auth_info = self.client_authentifier.authenticate(request=request)
 
-        self.assertEqual(authentified_client, self.superclient)
+        self.assertEqual(authentified_user.type, Role.CLIENT_ROLE)
+        self.assertEqual(authentified_user.client, self.superclient)
         self.assertIsNone(auth_info)
+
+        assert authentified_user.has_perm('people.view_person')
+        assert authentified_user.has_perm('events.change_event')
 
 
 class LegacyClientViewSetTestCase(TestCase):
@@ -141,7 +148,7 @@ class LegacyClientViewSetTestCase(TestCase):
 
     def test_can_only_see_self_if_unprivileged(self):
         request = self.factory.get('')
-        force_authenticate(request, self.client_unprivileged)
+        force_authenticate(request, self.client_unprivileged.role)
         response = self.list_view(request)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -150,7 +157,7 @@ class LegacyClientViewSetTestCase(TestCase):
 
     def test_can_list_clients(self):
         request = self.factory.get('')
-        force_authenticate(request, self.viewer_client)
+        force_authenticate(request, self.viewer_client.role)
         response = self.list_view(request)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

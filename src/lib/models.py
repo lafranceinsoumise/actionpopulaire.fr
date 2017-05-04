@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 from model_utils.models import TimeStampedModel
+from operator import attrgetter
 
 
 class UUIDIdentified(models.Model):
@@ -27,6 +28,7 @@ class NationBuilderResource(models.Model):
     nb_id = models.IntegerField(
         _('ID sur NationBuilder'),
         null=True,
+        blank=True,
         unique=True,
         help_text=_("L'identifiant de la ressource correspondante sur NationBuilder, si importé.")
     )
@@ -50,8 +52,8 @@ class LocationMixin(models.Model):
     """
     Mixin that adds location fields
     """
-    coordinates_lat = models.DecimalField(_('latitude géographique'), max_digits=9, decimal_places=6, null=True)
-    coordinates_lon = models.DecimalField(_('longitude géographique'), max_digits=9, decimal_places=6, null=True)
+    coordinates_lat = models.DecimalField(_('latitude géographique'), max_digits=9, decimal_places=6, null=True, blank=True)
+    coordinates_lon = models.DecimalField(_('longitude géographique'), max_digits=9, decimal_places=6, null=True, blank=True)
 
     location_name = models.CharField(_("nom du lieu"), max_length=255, blank=True)
     location_address = models.CharField(_('adresse complète'), max_length=255, blank=True)
@@ -97,50 +99,3 @@ class AbstractLabel(models.Model):
 
     def __str__(self):
         return self.label
-
-
-class RoleProxy(object):
-    def get_group_permissions(self, obj=None):
-        return self.role.get_group_permissions(obj)
-
-    def get_all_permission(self, obj=None):
-        return self.role.get_all_permissions(obj)
-
-    def has_perm(self, perm, obj=None):
-        """
-        Proxies to same method of role attribute
-        """
-        return self.role.has_perm(perm, obj)
-
-    def has_perms(self, perm_list, obj=None):
-        """
-        Proxies to same method of role attribute
-        """
-        return self.role.has_perms(perm_list, obj)
-
-    def has_module_perms(self, app_label):
-        """
-        Proxies to same method or role attribute
-        """
-        return self.role.has_module_perms(app_label)
-
-    @property
-    def is_superuser(self):
-        return self.role.is_superuser
-
-    @property
-    def is_active(self):
-        return self.role.is_active
-
-    @property
-    def is_authenticated(self):
-        return self.role.is_authenticated
-
-    @property
-    def groups(self):
-        return self.role.groups
-
-    @property
-    def user_permissions(self):
-        return self.role.user_permissions
-

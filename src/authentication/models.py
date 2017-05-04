@@ -38,3 +38,18 @@ class Role(PermissionsMixin, AbstractBaseUser):
             'Unselect this instead of deleting accounts.'
         ),
     )
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_short_name(self):
+        if self.type == self.PERSON_ROLE:
+            return self.person.get_short_name()
+        else:
+            return self.client.get_short_name()
+
+    def get_full_name(self):
+        if self.type == self.PERSON_ROLE:
+            return self.person.get_full_name()
+        else:
+            return self.client.get_full_name()

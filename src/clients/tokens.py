@@ -55,7 +55,7 @@ class AccessToken():
 
         try:
             client = Client.objects.get_by_natural_key(client_id)
-            person = Person.objects.get(pk=UUID(person_id))
+            person = Person.objects.select_related('role').get(pk=UUID(person_id))
 
         except (ObjectDoesNotExist, ValueError):
             raise InvalidTokenException()

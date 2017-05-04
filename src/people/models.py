@@ -1,9 +1,8 @@
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import PermissionsMixin
 
-from lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource, RoleProxy
+from lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource
 from authentication.models import Role
 
 
@@ -61,7 +60,7 @@ class PersonManager(models.Manager):
         return self._create_person(email, password, **extra_fields)
 
 
-class Person(RoleProxy, BaseAPIResource, NationBuilderResource, LocationMixin):
+class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
     """
     Model that represents a physical person that signed as a JLM2017 supporter
     
@@ -94,6 +93,7 @@ class Person(RoleProxy, BaseAPIResource, NationBuilderResource, LocationMixin):
     bounced_date = models.DateTimeField(
         _("date de rejet de l'email"),
         null=True,
+        blank=True,
         help_text=_("Si des mails ont été rejetés, indique la date du dernier rejet")
     )
 
@@ -108,6 +108,17 @@ class Person(RoleProxy, BaseAPIResource, NationBuilderResource, LocationMixin):
 
     def __str__(self):
         return self.email
+
+    def get_full_name(self):
+        """
+        Returns the first_name plus the last_name, with a space in between.
+        """
+        full_name = '%s %s' % (self.first_name, self.last_name)
+        return full_name.strip()
+
+    def get_short_name(self):
+        "Returns the short name for the user."
+        return self.first_name or self.email
 
 
 class PersonTag(AbstractLabel):

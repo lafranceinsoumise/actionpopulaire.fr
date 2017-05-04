@@ -33,7 +33,7 @@ class AccessTokenAuthentication(BaseAuthentication):
             msg = _('Token invalide.')
             raise exceptions.AuthenticationFailed(msg)
 
-        return token.person, token
+        return token.person.role, token
 
 
 class ClientAuthentication(BasicAuthentication):
@@ -42,14 +42,14 @@ class ClientAuthentication(BasicAuthentication):
     """
     def authenticate_credentials(self, client_label, password):
         try:
-            client = Client.objects.get_by_natural_key(client_label)
+            role = Role.objects.select_related('client').get(client__label=client_label)
         except Client.DoesNotExist:
             # Run the default password hasher once to reduce the timing
             # difference between an existing and a non-existing user (#20760).
             Role().set_password(password)
             raise exceptions.AuthenticationFailed(_('Invalid username/password.'))
 
-        if not client.role.check_password(password):
+        if not role.check_password(password):
             raise exceptions.AuthenticationFailed(_('Invalid username/password.'))
 
-        return client, None
+        return role, None

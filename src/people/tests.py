@@ -7,6 +7,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 from rest_framework.reverse import reverse
 
+from authentication.models import Role
 from .models import Person
 from .viewsets import LegacyPersonViewSet
 
@@ -28,7 +29,9 @@ class BasicPersonTestCase(TestCase):
         self.assertEqual(user, Person.objects.get_by_natural_key('test1@domain.com'))
 
         authenticated_user = authenticate(request=None, email='test1@domain.com', password='test')
-        self.assertEqual(user, authenticated_user)
+        self.assertIsNotNone(authenticated_user)
+        self.assertEqual(authenticated_user.type, Role.PERSON_ROLE)
+        self.assertEqual(user, authenticated_user.person)
 
     def test_person_represented_by_email(self):
         person = Person.objects.create_person('test1@domain.com')
@@ -38,7 +41,7 @@ class BasicPersonTestCase(TestCase):
 
 class LegacyPersonEndpointTestCase(TestCase):
     def as_viewer(self, request):
-        force_authenticate(request, self.viewer_person)
+        force_authenticate(request, self.viewer_person.role)
 
     def setUp(self):
         self.basic_person = Person.objects.create_person(
@@ -113,7 +116,7 @@ class LegacyPersonEndpointTestCase(TestCase):
 
     def test_can_only_view_self_while_unprivileged(self):
         request = self.factory.get('')
-        force_authenticate(request, self.basic_person)
+        force_authenticate(request, self.basic_person.role)
         response = self.list_view(request)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -128,14 +131,14 @@ class LegacyPersonEndpointTestCase(TestCase):
 
     def test_can_see_self_while_unprivileged(self):
         request = self.factory.get('')
-        force_authenticate(request, self.basic_person)
+        force_authenticate(request, self.basic_person.role)
         response = self.detail_view(request, pk=self.basic_person.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_cannot_view_others_details_while_unprivileged(self):
         request = self.factory.get('')
-        force_authenticate(request, self.basic_person)
+        force_authenticate(request, self.basic_person.role)
         response = self.detail_view(request, pk=self.viewer_person.pk)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -175,7 +178,7 @@ class LegacyPersonEndpointTestCase(TestCase):
             'first_name': 'Jean-Luc',
             'last_name': 'Mélenchon'
         })
-        force_authenticate(request, self.adder_person)
+        force_authenticate(request, self.adder_person.role)
         response = self.list_view(request)
 
         # assert it worked
@@ -198,7 +201,7 @@ class LegacyPersonEndpointTestCase(TestCase):
         request = self.factory.patch('', data={
             'first_name': 'Marc'
         })
-        force_authenticate(request, self.basic_person)
+        force_authenticate(request, self.basic_person.role)
         response = self.detail_view(request, pk=self.basic_person.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -210,7 +213,7 @@ class LegacyPersonEndpointTestCase(TestCase):
         request = self.factory.patch('', data={
             'first_name': 'Marc'
         })
-        force_authenticate(request, self.changer_person)
+        force_authenticate(request, self.changer_person.role)
         response = self.detail_view(request, pk=self.basic_person.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -234,7 +237,7 @@ class LegacyPersonEndpointTestCase(TestCase):
 
     def test_can_see_events(self):
         request = self.factory.get('')
-        force_authenticate(request, self.viewer_person)
+        self.as_viewer(request)
         response = self.detail_view(request, pk=self.basic_person.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -257,7 +260,7 @@ class LegacyPersonEndpointTestCase(TestCase):
 
     def test_can_see_groups(self):
         request = self.factory.get('')
-        force_authenticate(request, self.viewer_person)
+        self.as_viewer(request)
         response = self.detail_view(request, pk=self.basic_person.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -265,3 +268,40 @@ class LegacyPersonEndpointTestCase(TestCase):
         self.assertIn('groups', response.data)
 
         self.assertCountEqual(response.data['groups'], [self.support_group.pk])
+
+
+class LegacyEndpointLookupFilterTestCase(TestCase):
+    def as_superuser(self, request):
+        force_authenticate(request, self.superuser.role)
+        return request
+
+    def setUp(self):
+        self.superuser = Person.objects.create_superperson('super@user.fr', None)
+        self.person1 = Person.objects.create_person('person1@domain.fr')
+        self.person2 = Person.objects.create(email='person2@domain.fr', nb_id=12345)
+        self.person3 = Person.objects.create(email='person3@domain.fr', nb_id=67890)
+
+        self.detail_view = LegacyPersonViewSet.as_view({
+            'get': 'retrieve',
+            'put': 'update',
+            'patch': 'partial_update',
+            'delete': 'destroy'
+        })
+
+        self.factory = APIRequestFactory()
+
+    def test_can_query_by_pk(self):
+        request = self.as_superuser(self.factory.get(''))
+
+        response = self.detail_view(request, pk=self.person1.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['email'], self.person1.email)
+
+    def test_can_query_by_nb_id(self):
+        request = self.as_superuser(self.factory.get(''))
+
+        response = self.detail_view(request, pk=str(self.person2.nb_id))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['email'], self.person2.email)

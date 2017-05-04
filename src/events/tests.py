@@ -216,7 +216,7 @@ class LegacyEventViewSetTestCase(TestCase):
 
     def test_cannot_modify_event_without_permission(self):
         request = self.factory.put('', data=self.new_event_data)
-        force_authenticate(request, self.unprivileged_person)
+        force_authenticate(request, self.unprivileged_person.role)
 
         response = self.detail_view(request, pk=self.event.pk)
 
@@ -224,7 +224,7 @@ class LegacyEventViewSetTestCase(TestCase):
 
     def test_can_create_event_with_global_perm(self):
         request = self.factory.post('', data=self.new_event_data)
-        force_authenticate(request, self.adder_person)
+        force_authenticate(request, self.adder_person.role)
 
         response = self.list_view(request)
 
@@ -239,7 +239,7 @@ class LegacyEventViewSetTestCase(TestCase):
             'description': 'Plus mieux!'
         })
 
-        force_authenticate(request, user=self.changer_person)
+        force_authenticate(request, user=self.changer_person.role)
 
         response = self.detail_view(request, pk=self.event.pk)
 
@@ -254,7 +254,7 @@ class LegacyEventViewSetTestCase(TestCase):
             'description': 'Plus mieux!'
         })
 
-        force_authenticate(request, user=self.one_event_person)
+        force_authenticate(request, user=self.one_event_person.role)
 
         response = self.detail_view(request, pk=self.event.pk)
 

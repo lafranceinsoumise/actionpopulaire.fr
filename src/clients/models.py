@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 from model_utils.models import TimeStampedModel
 
-from lib.models import BaseAPIResource, AbstractLabel, RoleProxy
+from lib.models import BaseAPIResource, AbstractLabel
 from authentication.models import Role
 
 
@@ -55,7 +55,7 @@ class ClientManager(models.Manager):
         return self._create_client(label, password, **extra_fields)
 
 
-class Client(RoleProxy, BaseAPIResource):
+class Client(BaseAPIResource):
     objects = ClientManager()
 
     role = models.OneToOneField('authentication.Role', on_delete=models.PROTECT, related_name='client', null=False)

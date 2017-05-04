@@ -1,12 +1,21 @@
 from rest_framework.viewsets import ModelViewSet
+import django_filters
 
 from lib.pagination import LegacyPaginator
 from lib.permissions import RestrictViewPermissions
+from lib.views import NationBuilderViewMixin
+from authentication.models import Role
 
 from . import serializers, models
 
 
-class LegacyPersonViewSet(ModelViewSet):
+class PeopleFilter(django_filters.rest_framework.FilterSet):
+    class Meta:
+        model = models.Person
+        fields = ['email', 'tags']
+
+
+class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
     """
     Legacy endpoint for people that imitates the endpoint from Eve Python
     """
@@ -14,10 +23,14 @@ class LegacyPersonViewSet(ModelViewSet):
     serializer_class = serializers.LegacyPersonSerializer
     queryset = models.Person.objects.all()
     permission_classes = (RestrictViewPermissions, )
+    filter_class = PeopleFilter
 
     def get_queryset(self):
         if not self.request.user.has_perm('people.view_person'):
-            return self.queryset.filter(pk=self.request.user.pk)
+            if hasattr(self.request.user, 'type') and self.request.user.type == Role.PERSON_ROLE:
+                return self.queryset.filter(pk=self.request.user.person.pk)
+            else:
+                return self.queryset.none()
         return super(LegacyPersonViewSet, self).get_queryset()
 
 
