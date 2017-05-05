@@ -81,6 +81,18 @@ class Client(BaseAPIResource):
         help_text=_("Une description du client à l'intention des utilisateurs éventuels.")
     )
 
+    contact_email = models.EmailField(
+        _('email de contact'),
+        blank=True,
+        help_text=_("Une adresse email de contact pour ce client.")
+    )
+
+    oauth_enabled = models.BooleanField(
+        _('client OAuth'),
+        default=False,
+        help_text=("Indique si ce client peut obtenir des tokens d'accès OAuth pour le compte d'un utilisateur.")
+    )
+
     trusted = models.BooleanField(
         _('client de confiance'),
         default=False,
@@ -93,6 +105,7 @@ class Client(BaseAPIResource):
         verbose_name=_('URIs de redirection OAuth'),
         default=list,
         size=4,
+        blank=True,
         help_text=_("La liste des URIs auxquelles le serveur d'authentification acceptera de rediriger les "
                     "utilisateurs pendant la procédure OAuth.")
     )
@@ -109,6 +122,9 @@ class Client(BaseAPIResource):
         verbose_name_plural = 'Clients'
         ordering = ('label',)
         default_permissions = ('add', 'change', 'delete', 'view')
+
+    def __str__(self):
+        return self.label
 
 
 class Scope(AbstractLabel):

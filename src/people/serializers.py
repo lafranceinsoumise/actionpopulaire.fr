@@ -1,11 +1,22 @@
 from rest_framework import serializers
 
-from lib.serializers import LegacyBaseAPISerializer
+from lib.serializers import LegacyBaseAPISerializer, LegacyLocationMixin, CreatableSlugRelatedField
 
 from . import models
 
 
-class LegacyPersonSerializer(LegacyBaseAPISerializer):
+class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
+    tags = CreatableSlugRelatedField(
+        slug_field='label',
+        many=True,
+        required=False,
+        queryset=models.PersonTag.objects.all()
+    )
+
+    email_opt_in = serializers.BooleanField(
+        source='subscribed',
+        required=False,
+    )
     rsvps = serializers.HyperlinkedRelatedField(
         view_name='legacy:rsvp-detail',
         read_only=True,
@@ -26,8 +37,9 @@ class LegacyPersonSerializer(LegacyBaseAPISerializer):
         model = models.Person
         fields = (
             'url', '_id', 'id', 'email', 'first_name', 'last_name', 'bounced', 'bounced_date', '_created', '_updated',
-            'events', 'rsvps', 'groups', 'memberships'
+            'email_opt_in', 'events', 'rsvps', 'groups', 'memberships', 'tags', 'location',
         )
+        read_only_fields = ('url', '_id')
         extra_kwargs = {
             'url': {'view_name': 'legacy:person-detail',}
         }

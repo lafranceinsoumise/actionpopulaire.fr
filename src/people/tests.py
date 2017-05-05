@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 
 from authentication.models import Role
-from .models import Person
+from .models import Person, PersonTag
 from .viewsets import LegacyPersonViewSet
 
 from events.models import Event, RSVP, Calendar
@@ -39,7 +39,7 @@ class BasicPersonTestCase(TestCase):
         self.assertEqual(str(person), 'test1@domain.com')
 
 
-class LegacyPersonEndpointTestCase(TestCase):
+class LegacyPersonEndpointPermissionsTestCase(TestCase):
     def as_viewer(self, request):
         force_authenticate(request, self.viewer_person.role)
 
@@ -270,7 +270,88 @@ class LegacyPersonEndpointTestCase(TestCase):
         self.assertCountEqual(response.data['groups'], [self.support_group.pk])
 
 
+class LegacyEndpointFieldsTestCase(TestCase):
+    def get_request(self, path='', data=None, **extra):
+        return self.as_superuser(self.factory.get(path, data, **extra))
+
+    def patch_request(self, path='', data=None, **extra):
+        return self.as_superuser(self.factory.patch(path, data, **extra))
+
+    def as_superuser(self, request):
+        force_authenticate(request, self.superuser.role)
+        return request
+
+    def setUp(self):
+        self.superuser = Person.objects.create_superperson('super@user.fr', None)
+
+        self.tag = PersonTag.objects.create(label='tag1')
+
+        self.person1 = Person.objects.create_person('person1@domain.fr')
+        self.person2 = Person.objects.create(email='person2@domain.fr', nb_id=12345)
+        self.person3 = Person.objects.create(email='person3@domain.fr', nb_id=67890)
+
+        self.detail_view = LegacyPersonViewSet.as_view({
+            'get': 'retrieve',
+            'put': 'update',
+            'patch': 'partial_update',
+            'delete': 'destroy'
+        })
+
+        self.list_view = LegacyPersonViewSet.as_view({
+            'get': 'list',
+            'post': 'create',
+        })
+
+        self.factory = APIRequestFactory()
+
+    def test_can_add_existing_tag(self):
+        request = self.patch_request(data={'tags': ['tag1']})
+
+        response = self.detail_view(request, pk=self.person1.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.person1.refresh_from_db()
+
+        self.assertCountEqual(self.person1.tags.all(), [self.tag])
+
+    def test_can_add_new_tag(self):
+        request = self.patch_request(data={'tags': ['tag2']})
+
+        response = self.detail_view(request, pk=self.person1.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        qs = PersonTag.objects.filter(label='tag2')
+        self.person1.refresh_from_db()
+        self.assertEqual(len(qs), 1)
+        self.assertCountEqual(qs, self.person1.tags.all())
+
+    def test_can_update_location_fields(self):
+        request = self.patch_request(data={
+            'location': {
+                'address': '40 boulevard Auguste Blanqui, 75013 Paris, France',
+                'address1': '40 boulevard Auguste Blanqui',
+                'city': 'Paris',
+                'country_code': 'FR',
+                'zip': '75013',
+            }
+        })
+
+        response = self.detail_view(request, pk=self.person1.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.person1.refresh_from_db()
+
+        self.assertEqual(self.person1.location_address, '40 boulevard Auguste Blanqui, 75013 Paris, France')
+        self.assertEqual(self.person1.location_address1, '40 boulevard Auguste Blanqui')
+        self.assertEqual(self.person1.location_city, 'Paris')
+        self.assertEqual(self.person1.location_country.code, 'FR')
+        self.assertEqual(self.person1.location_zip, '75013')
+
+
 class LegacyEndpointLookupFilterTestCase(TestCase):
+    def get_request(self, path='', data=None, **extra):
+        return self.as_superuser(self.factory.get(path, data, **extra))
+
     def as_superuser(self, request):
         force_authenticate(request, self.superuser.role)
         return request
@@ -288,10 +369,15 @@ class LegacyEndpointLookupFilterTestCase(TestCase):
             'delete': 'destroy'
         })
 
+        self.list_view = LegacyPersonViewSet.as_view({
+            'get': 'list',
+            'post': 'create',
+        })
+
         self.factory = APIRequestFactory()
 
     def test_can_query_by_pk(self):
-        request = self.as_superuser(self.factory.get(''))
+        request = self.get_request()
 
         response = self.detail_view(request, pk=self.person1.pk)
 
@@ -299,9 +385,16 @@ class LegacyEndpointLookupFilterTestCase(TestCase):
         self.assertEqual(response.data['email'], self.person1.email)
 
     def test_can_query_by_nb_id(self):
-        request = self.as_superuser(self.factory.get(''))
+        request = self.get_request()
 
         response = self.detail_view(request, pk=str(self.person2.nb_id))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['email'], self.person2.email)
+
+    def test_can_filter_by_email(self):
+        request = self.get_request(data={'email': 'person1@domain.fr'})
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['_items']), 1)

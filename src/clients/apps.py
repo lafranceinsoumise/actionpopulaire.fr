@@ -1,5 +1,8 @@
 from django.apps import AppConfig
 
 
-class AuthConfig(AppConfig):
+class ClientsConfig(AppConfig):
     name = 'clients'
+
+    def ready(self):
+        from . import signals

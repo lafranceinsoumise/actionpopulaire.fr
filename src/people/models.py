@@ -82,6 +82,13 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         help_text=_("L'adresse email de la personne, utilisée comme identifiant")
     )
 
+    subscribed = models.BooleanField(
+        _('inscrit à la newsletter'),
+        default=True,
+        blank=True,
+        help_text=_("L'utilisateur souhaite-t-il recevoir les newsletters ?")
+    )
+
     first_name = models.CharField(_('prénom'), max_length=255, blank=True)
     last_name = models.CharField(_('nom de famille'), max_length=255, blank=True)
 

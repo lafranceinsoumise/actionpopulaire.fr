@@ -5,7 +5,14 @@ from . import models
 
 @admin.register(models.Client, site=admin_site)
 class ClientAdmin(admin.ModelAdmin):
-    pass
+    fieldsets = (
+        (None, {
+            'fields': ('label', 'name', 'description')
+        }),
+        ('OAuth', {
+            'fields': ('oauth_enabled', 'trusted', 'uris', 'scopes')
+        }),
+    )
 
 
 @admin.register(models.Scope, site=admin_site)

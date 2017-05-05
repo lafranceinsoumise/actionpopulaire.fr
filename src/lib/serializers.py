@@ -1,6 +1,5 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-from rest_framework.utils.field_mapping import get_url_kwargs
 from django_countries.serializer_fields import CountryField
 
 
@@ -138,28 +137,59 @@ class NestedLocationSerializer(serializers.Serializer):
     )
 
 
-class LegacyLocationAndContactMixin(serializers.ModelSerializer):
-    contact = NestedContactSerializer(
-        label=_('Informations du contact'),
-        required=False,
-    )
+class LegacyLocationMixin(serializers.ModelSerializer):
     location = NestedLocationSerializer(
         label=_('Lieu'),
         required=False,
     )
 
-    def _flatten_data(self, validated_data):
-        for field in ['contact', 'location']:
-            if field in validated_data:
-                field_content = validated_data.pop(field)
+    @staticmethod
+    def _flatten_location(validated_data):
+        if 'location' in validated_data:
+            field_content = validated_data.pop('location')
 
-                for key, value in field_content.items():
-                    validated_data[key] = value
+            for key, value in field_content.items():
+                validated_data[key] = value
 
         return validated_data
 
     def create(self, validated_data):
-        return super(LegacyLocationAndContactMixin, self).create(self._flatten_data(validated_data))
+        return super(LegacyLocationMixin, self).create(self._flatten_location(validated_data))
 
     def update(self, instance, validated_data):
-        return super(LegacyLocationAndContactMixin, self).update(instance, self._flatten_data(validated_data))
+        return super(LegacyLocationMixin, self).update(instance, self._flatten_location(validated_data))
+
+
+class LegacyContactMixin(serializers.ModelSerializer):
+    contact = NestedContactSerializer(
+        label=_('Informations du contact'),
+        required=False,
+    )
+
+    @staticmethod
+    def _flatten_contact(validated_data):
+        if 'contact' in validated_data:
+            field_content = validated_data.pop('contact')
+
+            for key, value in field_content.items():
+                validated_data[key] = value
+
+        return validated_data
+
+    def create(self, validated_data):
+        return super(LegacyContactMixin, self).create(self._flatten_contact(validated_data))
+
+    def update(self, instance, validated_data):
+        return super(LegacyContactMixin, self).update(instance, self._flatten_contact(validated_data))
+
+
+class LegacyLocationAndContactMixin(LegacyContactMixin, LegacyLocationMixin):
+    pass
+
+
+class CreatableSlugRelatedField(serializers.SlugRelatedField):
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get_or_create(**{self.slug_field: data})[0]
+        except (TypeError, ValueError):
+            self.fail('invalid')
