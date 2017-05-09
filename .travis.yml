@@ -6,8 +6,10 @@ services:
 addons:
   postgresql: "9.4"
 
+cache: pip
+
 before_install:
-  - export DATABASE_URL="postgres://postgres@localhost/api"
+  - export DATABASE_URL="postgis://postgres@localhost/api"
   - export PIP_USE_MIRRORS=true
 
 install: "pip install -r requirements.txt"
