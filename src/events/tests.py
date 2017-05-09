@@ -190,6 +190,7 @@ class LegacyEventViewSetTestCase(TestCase):
 
         self.assertEqual(item['_id'], str(self.event.pk))
         self.assertEqual(item['name'], self.event.name)
+        assert {'name', 'path', 'id', 'location', 'contact', 'tags', 'coordinates'}.issubset(item)
 
     def test_can_see_event_details_while_unauthenticated(self):
         request = self.factory.get('')
@@ -277,8 +278,6 @@ class FiltersTestCase(TestCase):
         calendar = Calendar.objects.create(label='Agenda')
 
         tz = timezone.get_default_timezone()
-
-
 
         self.paris_june_event = Event.objects.create(
             name='Paris+June',

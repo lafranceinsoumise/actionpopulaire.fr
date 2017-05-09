@@ -136,6 +136,9 @@ class NestedLocationSerializer(serializers.Serializer):
         source='location_country'
     )
 
+    def get_attribute(self, instance):
+        return instance
+
 
 class LegacyLocationMixin(serializers.ModelSerializer):
     location = NestedLocationSerializer(
@@ -183,5 +186,5 @@ class LegacyContactMixin(serializers.ModelSerializer):
         return super(LegacyContactMixin, self).update(instance, self._flatten_contact(validated_data))
 
 
-class LegacyLocationAndContactMixin(LegacyContactMixin, LegacyLocationMixin):
+class LegacyLocationAndContactMixin(LegacyLocationMixin, LegacyContactMixin, ):
     pass
