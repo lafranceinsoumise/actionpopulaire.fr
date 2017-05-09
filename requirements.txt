@@ -6,6 +6,7 @@ django-crispy-forms==1.6.1
 django-filter==1.0.2
 django-model-utils==2.6.1
 djangorestframework==3.6.2
+djangorestframework-gis==0.11.1
 hiredis==0.2.0
 psutil==5.2.2
 psycopg2==2.7.1
