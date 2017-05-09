@@ -1,6 +1,40 @@
 api-django
 ==========
 
+Configure PostgreSQL
+--------------------
+
+PostgreSQL server needs to be installed and started.
+
+On Ubuntu, this means installing the following packages:
+
+```bash
+apt install postgresql-9.6 postgis
+```
+
+For production, you need to create a database and a role with owner
+rights, and add the `postgis` extension to the database.
+
+```bash
+sudo -u postgres psql
+# the following commmands should be typed inside psql
+
+CREATE ROLE api;
+CREATE DATABASE api WITH owner api;
+USE api;
+CREATE EXTENSION postgis;
+```
+
+For testing, the `api` role need to be a superuser to be able to create
+a new test database with the `postgis` extension.
+
+```bash
+sudo -u postgres psql
+# the following commmands should be typed inside psql
+
+ALTER ROLE api WITH superuser;
+```
+
 Install requirements
 --------------------
 
@@ -47,4 +81,3 @@ c.role.set_password('client_password')
 c.role.is_superuser = True
 c.role.save()
 ```
-
