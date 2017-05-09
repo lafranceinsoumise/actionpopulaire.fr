@@ -45,6 +45,9 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
         permissions = (
             ('every_event', _('Peut éditer tous les événements')),
         )
+        indexes = (
+            models.Index(fields=['start_time', 'end_time'], name='datetime_index'),
+        )
 
     def __str__(self):
         return self.name

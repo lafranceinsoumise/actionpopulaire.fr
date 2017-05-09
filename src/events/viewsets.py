@@ -1,14 +1,25 @@
 from rest_framework.viewsets import ModelViewSet
+import django_filters
 
 from lib.permissions import PermissionsOrReadOnly
-
-
 from lib.pagination import LegacyPaginator
+from lib.filters import LegacyDistanceFilter
+from lib.views import NationBuilderViewMixin
 
 from . import serializers, models
 
 
-class LegacyEventViewSet(ModelViewSet):
+class EventFilterSet(django_filters.rest_framework.FilterSet):
+    closeTo = LegacyDistanceFilter(name='coordinates', lookup_expr='distance_lte')
+    after = django_filters.DateTimeFilter(name='start_time', lookup_expr='gte')
+    before = django_filters.DateTimeFilter(name='start_time', lookup_expr='lte')
+
+    class Meta:
+        model = models.Event
+        fields = ('contact_email', 'start_time', 'closeTo')
+
+
+class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     """
     Legacy endpoint for events that imitates the endpoint from Eve Python
     """
@@ -16,6 +27,7 @@ class LegacyEventViewSet(ModelViewSet):
     pagination_class = LegacyPaginator
     serializer_class = serializers.LegacyEventSerializer
     queryset = models.Event.objects.all().select_related('calendar').prefetch_related('tags')
+    filter_class = EventFilterSet
 
 
 class CalendarViewSet(ModelViewSet):

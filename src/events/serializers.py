@@ -12,7 +12,7 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
         model = models.Event
         fields = (
             'url', '_id', 'id', 'name', 'description', 'nb_path', 'start_time', 'end_time', 'calendar', 'contact',
-            'location', 'tags'
+            'location', 'tags', 'coordinates'
         )
         extra_kwargs = {
             'url': {'view_name': 'legacy:event-detail'}

@@ -37,7 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django.contrib.gis',
+    'rest_framework_gis',
     'rules.apps.AutodiscoverRulesConfig',
+    'crispy_forms',
+    'django_filters',
     'authentication',
     'people',
     'events',
@@ -80,7 +84,7 @@ WSGI_APPLICATION = 'api.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(default="postgresql://api:password@localhost/api")
+    'default': dj_database_url.config(default="postgis://api:password@localhost/api")
 }
 
 # Password validation

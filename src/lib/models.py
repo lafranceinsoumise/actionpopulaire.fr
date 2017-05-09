@@ -1,5 +1,5 @@
 import uuid
-from django.db import models
+from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 from model_utils.models import TimeStampedModel
@@ -52,8 +52,7 @@ class LocationMixin(models.Model):
     """
     Mixin that adds location fields
     """
-    coordinates_lat = models.DecimalField(_('latitude géographique'), max_digits=9, decimal_places=6, null=True, blank=True)
-    coordinates_lon = models.DecimalField(_('longitude géographique'), max_digits=9, decimal_places=6, null=True, blank=True)
+    coordinates = models.PointField(_('coordonnées'), geography=True, null=True, blank=True)
 
     location_name = models.CharField(_("nom du lieu"), max_length=255, blank=True)
     location_address = models.CharField(_('adresse complète'), max_length=255, blank=True)

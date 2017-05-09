@@ -46,6 +46,5 @@ c = Client.objects.create(label='client_login', name='Nom du client')
 c.role.set_password('client_password')
 c.role.is_superuser = True
 c.role.save()
-
 ```
 

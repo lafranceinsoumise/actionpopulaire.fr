@@ -3,6 +3,8 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.gis.geos import Point
+
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
@@ -263,3 +265,106 @@ class LegacyEventViewSetTestCase(TestCase):
         self.event.refresh_from_db()
 
         self.assertEqual(self.event.description, 'Plus mieux!')
+
+
+class FiltersTestCase(TestCase):
+    def get_request(self, path='', data=None, **extra):
+        return self.as_superuser(self.factory.get(path, data, **extra))
+
+    def as_superuser(self, request):
+        force_authenticate(request, self.superuser.role)
+        return request
+
+    def setUp(self):
+        self.superuser = Person.objects.create_superperson('super@user.fr', None)
+
+        calendar = Calendar.objects.create(label='Agenda')
+
+        tz = timezone.get_default_timezone()
+
+
+
+        self.paris_june_event = Event.objects.create(
+            name='Paris+June',
+            nb_id=1,
+            start_time=tz.localize(timezone.datetime(2017, 6, 15, 18)),
+            end_time=tz.localize(timezone.datetime(2017, 6, 15, 22)),
+            coordinates=Point(2.349722, 48.853056),  # ND de Paris
+            calendar=calendar
+        )
+
+        self.amiens_july_event = Event.objects.create(
+            name='Amiens+July',
+            start_time=tz.localize(timezone.datetime(2017, 7, 15, 18)),
+            end_time=tz.localize(timezone.datetime(2017, 7, 15, 22)),
+            coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
+            calendar=calendar
+        )
+
+        self.marseille_august_event = Event.objects.create(
+            name='Marseille+August',
+            start_time=tz.localize(timezone.datetime(2017, 8, 15, 18)),
+            end_time=tz.localize(timezone.datetime(2017, 8, 15, 22)),
+            coordinates=Point(5.36472, 43.30028),  # Saint-Marie-Majeure de Marseille
+            calendar=calendar
+        )
+
+        self.eiffel_coordinates = [2.294444, 48.858333]
+
+        self.factory = APIRequestFactory()
+        self.list_view = LegacyEventViewSet.as_view({
+            'get': 'list',
+            'post': 'create'
+        })
+
+        self.detail_view = LegacyEventViewSet.as_view({
+            'get': 'retrieve',
+            'put': 'update',
+            'patch': 'partial_update',
+            'delete': 'destroy',
+        })
+
+    def test_can_query_by_pk(self):
+        request = self.get_request()
+
+        response = self.detail_view(request, pk=self.paris_june_event.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], self.paris_june_event.name)
+
+    def test_can_query_by_nb_id(self):
+        request = self.get_request()
+
+        response = self.detail_view(request, pk=str(self.paris_june_event.nb_id))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['_id'], str(self.paris_june_event.pk))
+
+    def test_filter_coordinates_no_results(self):
+        # la tour eiffel est à plus d'un kilomètre de Notre-Dame
+        filter_string = '{"maxDistance": 1000, "coordinates": %r}' % (self.eiffel_coordinates,)
+
+        request = self.factory.get('', data={
+            'closeTo': filter_string
+        })
+
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('_items', response.data)
+        self.assertEqual(len(response.data['_items']), 0)
+
+    def test_filter_coordinates_one_result(self):
+        # la tour eiffel est à moins de 10 km de Notre-Dame
+        filter_string = '{"maxDistance": 10000, "coordinates": %r}' % (self.eiffel_coordinates,)
+
+        request = self.factory.get('', data={
+            'closeTo': filter_string,
+        })
+
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('_items', response.data)
+        self.assertEqual(len(response.data['_items']), 1)
+        self.assertEqual(response.data['_items'][0]['_id'], str(self.paris_june_event.pk))
