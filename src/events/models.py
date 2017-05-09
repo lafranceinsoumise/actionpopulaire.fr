@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import ValidationError
 from model_utils.models import TimeStampedModel
 
 from lib.models import (
@@ -47,6 +46,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
         )
         indexes = (
             models.Index(fields=['start_time', 'end_time'], name='datetime_index'),
+            models.Index(fields=['nb_path'], name='nb_path_index'),
         )
 
     def __str__(self):

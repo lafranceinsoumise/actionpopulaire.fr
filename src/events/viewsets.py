@@ -13,10 +13,11 @@ class EventFilterSet(django_filters.rest_framework.FilterSet):
     closeTo = LegacyDistanceFilter(name='coordinates', lookup_expr='distance_lte')
     after = django_filters.DateTimeFilter(name='start_time', lookup_expr='gte')
     before = django_filters.DateTimeFilter(name='start_time', lookup_expr='lte')
+    path = django_filters.CharFilter(name='nb_path', lookup_expr='exact')
 
     class Meta:
         model = models.Event
-        fields = ('contact_email', 'start_time', 'closeTo')
+        fields = ('contact_email', 'start_time', 'closeTo', 'path', )
 
 
 class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):

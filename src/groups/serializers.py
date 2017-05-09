@@ -5,12 +5,14 @@ from . import models
 
 
 class LegacySupportGroupSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMixin, serializers.HyperlinkedModelSerializer):
-    tags = RelatedLabelField(queryset=models.SupportGroupTag.objects.all(), many=True)
+    path = serializers.CharField(source='nb_path', required=False)
+    tags = RelatedLabelField(queryset=models.SupportGroupTag.objects.all(), many=True, required=False)
+
 
     class Meta:
         model = models.SupportGroup
         fields = (
-            'url', '_id', 'id', 'name', 'description', 'nb_path', 'contact', 'location', 'tags', 'coordinates'
+            'url', '_id', 'id', 'name', 'description', 'path', 'contact', 'location', 'tags', 'coordinates'
         )
         extra_kwargs = {
             'url': {'view_name': 'legacy:supportgroup-detail'}

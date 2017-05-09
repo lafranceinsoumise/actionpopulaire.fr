@@ -6,12 +6,13 @@ from . import models
 
 class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMixin, serializers.HyperlinkedModelSerializer):
     calendar = RelatedLabelField(queryset=models.Calendar.objects.all())
+    path = serializers.CharField(source='nb_path', required=False)
     tags = RelatedLabelField(queryset=models.EventTag.objects.all(), many=True, required=False)
 
     class Meta:
         model = models.Event
         fields = (
-            'url', '_id', 'id', 'name', 'description', 'nb_path', 'start_time', 'end_time', 'calendar', 'contact',
+            'url', '_id', 'id', 'name', 'description', 'path', 'start_time', 'end_time', 'calendar', 'contact',
             'location', 'tags', 'coordinates'
         )
         extra_kwargs = {

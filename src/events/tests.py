@@ -32,10 +32,6 @@ class BasicEventTestCase(TestCase):
 
         self.assertEqual(event, Event.objects.get(name='Event test'))
 
-    def test_cannot_create_without_name(self):
-        with self.assertRaises(IntegrityError):
-            Event.objects.create(start_time=self.start_time, end_time=self.end_time)
-
     def test_cannot_create_without_dates(self):
         with transaction.atomic():
             with self.assertRaises(IntegrityError):
@@ -295,6 +291,7 @@ class FiltersTestCase(TestCase):
 
         self.amiens_july_event = Event.objects.create(
             name='Amiens+July',
+            nb_path='/amiens_july',
             start_time=tz.localize(timezone.datetime(2017, 7, 15, 18)),
             end_time=tz.localize(timezone.datetime(2017, 7, 15, 22)),
             coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
@@ -368,3 +365,15 @@ class FiltersTestCase(TestCase):
         self.assertIn('_items', response.data)
         self.assertEqual(len(response.data['_items']), 1)
         self.assertEqual(response.data['_items'][0]['_id'], str(self.paris_june_event.pk))
+
+    def test_filter_by_path(self):
+        request = self.factory.get('', data={
+            'path': '/amiens_july',
+        })
+
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('_items', response.data)
+        self.assertEqual(len(response.data['_items']), 1)
+        self.assertEqual(response.data['_items'][0]['_id'], str(self.amiens_july_event.pk))

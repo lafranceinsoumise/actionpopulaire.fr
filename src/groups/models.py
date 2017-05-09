@@ -33,6 +33,9 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, Contac
     class Meta:
         verbose_name = _("groupe d'appui")
         verbose_name_plural = _("groupes d'appui")
+        indexes = (
+            models.Index(fields=['nb_path'], name='nb_path_index'),
+        )
 
     def __str__(self):
         return self.name
