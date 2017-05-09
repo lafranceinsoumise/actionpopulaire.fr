@@ -185,11 +185,3 @@ class LegacyContactMixin(serializers.ModelSerializer):
 
 class LegacyLocationAndContactMixin(LegacyContactMixin, LegacyLocationMixin):
     pass
-
-
-class CreatableSlugRelatedField(serializers.SlugRelatedField):
-    def to_internal_value(self, data):
-        try:
-            return self.get_queryset().get_or_create(**{self.slug_field: data})[0]
-        except (TypeError, ValueError):
-            self.fail('invalid')

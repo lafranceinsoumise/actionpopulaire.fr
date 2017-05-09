@@ -1,13 +1,12 @@
 from rest_framework import serializers
 
-from lib.serializers import LegacyBaseAPISerializer, LegacyLocationMixin, CreatableSlugRelatedField
+from lib.serializers import LegacyBaseAPISerializer, LegacyLocationMixin, RelatedLabelField
 
 from . import models
 
 
 class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
-    tags = CreatableSlugRelatedField(
-        slug_field='label',
+    tags = RelatedLabelField(
         many=True,
         required=False,
         queryset=models.PersonTag.objects.all()

@@ -36,6 +36,7 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, Contac
         indexes = (
             models.Index(fields=['nb_path'], name='nb_path_index'),
         )
+        ordering = ('-modified', )
 
     def __str__(self):
         return self.name
