@@ -1,7 +1,12 @@
+from django.db.models import Q
 from rest_framework.viewsets import ModelViewSet
+from rest_framework_extensions.mixins import NestedViewSetMixin
+from rest_framework.decorators import list_route
+from rest_framework.response import Response
+from authentication.models import Role
 import django_filters
 
-from lib.permissions import PermissionsOrReadOnly
+from lib.permissions import PermissionsOrReadOnly, RestrictViewPermissions, DjangoModelPermissions
 from lib.pagination import LegacyPaginator
 from lib.filters import LegacyDistanceFilter
 from lib.views import NationBuilderViewMixin
@@ -51,6 +56,50 @@ class RSVPViewSet(ModelViewSet):
     """
     
     """
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return self.creation_serializer_class
+        return self.serializer_class
 
     serializer_class = serializers.RSVPSerializer
+    creation_serializer_class = serializers.RSVPCreationSerializer
     queryset = models.RSVP.objects.select_related('event', 'person')
+
+
+class NestedRSVPViewSet(NestedViewSetMixin, RSVPViewSet):
+    """
+
+    """
+    permission_classes = (RestrictViewPermissions,)
+    creation_serializer_class = serializers.EventRSVPCreatableSerializer
+
+    def get_queryset(self):
+        queryset = super(NestedRSVPViewSet, self).get_queryset()
+
+        if not self.request.user.has_perm('rsvp.view_rsvp'):
+            if hasattr(self.request.user, 'type') and self.request.user.type == Role.PERSON_ROLE:
+                return queryset.filter(Q(person=self.request.user.person) | Q(event__organizers=self.request.user.person))
+            else:
+                return queryset.none()
+        return queryset
+
+    def get_serializer_context(self):
+        parents_query_dict = self.get_parents_query_dict()
+        context = super(NestedRSVPViewSet, self).get_serializer_context()
+        context.update(parents_query_dict)
+        return context
+
+    @list_route(methods=['PUT'], permission_classes=(DjangoModelPermissions,))
+    def bulk(self, request, *args, **kwargs):
+        parents_query_dict = self.get_parents_query_dict()
+        rsvps = models.RSVP.objects.filter(**parents_query_dict)
+
+        context = self.get_serializer_context()
+        context.update(parents_query_dict)
+
+        serializer = serializers.EventRSVPBulkSerializer(rsvps, data=request.data, many=True, context=context)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+        return Response(serializer.data)

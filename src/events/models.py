@@ -40,7 +40,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
     class Meta:
         verbose_name = _('événement')
         verbose_name_plural = _('événements')
-        ordering = ('start_time', 'end_time')
+        ordering = ('-start_time', '-end_time')
         permissions = (
             ('every_event', _('Peut éditer tous les événements')),
         )
@@ -80,7 +80,10 @@ class RSVP(TimeStampedModel):
     class Meta:
         verbose_name = 'RSVP'
         verbose_name_plural = 'RSVP'
-        unique_together = ('person', 'event',)
+        unique_together = ('event', 'person',)
+        permissions = (
+            ('view_rsvp', _('Peut afficher les RSVPs')),
+        )
 
     def __str__(self):
         return _('{person} --> {event} ({guests} invités').format(

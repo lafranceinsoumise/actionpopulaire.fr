@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
+from rest_framework.fields import empty
 from django_countries.serializer_fields import CountryField
 
 
@@ -75,8 +76,9 @@ class NestedContactSerializer(serializers.Serializer):
         source='contact_phone'
     )
 
-    def get_attribute(self, instance):
-        return instance
+    def __init__(self, instance=None, data=empty, **kwargs):
+        kwargs.setdefault('source', '*')
+        super().__init__(instance, data, **kwargs)
 
 
 class NestedLocationSerializer(serializers.Serializer):
@@ -136,8 +138,9 @@ class NestedLocationSerializer(serializers.Serializer):
         source='location_country'
     )
 
-    def get_attribute(self, instance):
-        return instance
+    def __init__(self, instance=None, data=empty, **kwargs):
+        kwargs.setdefault('source', '*')
+        super().__init__(instance, data, **kwargs)
 
 
 class LegacyLocationMixin(serializers.ModelSerializer):

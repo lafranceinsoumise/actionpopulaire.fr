@@ -109,7 +109,7 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
     class Meta:
         verbose_name = _('personne')
         verbose_name_plural = _('personnes')
-        ordering = ('email',)
+        ordering = ('-created',)
         # add permission 'view'
         default_permissions = ('add', 'change', 'delete', 'view')
 

@@ -9,6 +9,7 @@ class LegacyPaginator(PageNumberPagination):
     A legacy paginator that mocks the one from Eve Python
     """
     page_size = 25
+    page_size_query_param = "max_results"
 
     def get_paginated_response(self, data):
         links = OrderedDict()

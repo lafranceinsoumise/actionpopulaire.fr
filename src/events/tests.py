@@ -10,7 +10,7 @@ from rest_framework import status
 
 from .models import Event, Calendar, RSVP
 from people.models import Person
-from .viewsets import LegacyEventViewSet
+from .viewsets import LegacyEventViewSet, NestedRSVPViewSet
 
 
 class BasicEventTestCase(TestCase):
@@ -376,3 +376,139 @@ class FiltersTestCase(TestCase):
         self.assertIn('_items', response.data)
         self.assertEqual(len(response.data['_items']), 1)
         self.assertEqual(response.data['_items'][0]['_id'], str(self.amiens_july_event.pk))
+
+
+class RSVPEventEndpointTestCase(TestCase):
+    def get_request(self, path='', data=None, **extra):
+        return self.factory.get(path, data, **extra)
+
+    def as_privileged(self, request):
+        force_authenticate(request, self.privileged_user.role)
+        return request
+
+    def as_organizer(self, request):
+        force_authenticate(request, self.organizer.role)
+        return request
+
+    def as_unprivileged(self, request):
+        force_authenticate(request, self.unprivileged_person.role)
+        return request
+
+    def setUp(self):
+        self.privileged_user = Person.objects.create_superperson('super@user.fr', None)
+
+        self.organizer = Person.objects.create_person(
+            email='event@event.com'
+        )
+
+        self.unprivileged_person = Person.objects.create_person(
+            email='unprivileged@event.com',
+        )
+
+        calendar = Calendar.objects.create(label='Agenda')
+
+        tz = timezone.get_default_timezone()
+
+        self.event = Event.objects.create(
+            name='Paris+June',
+            nb_id=1,
+            start_time=tz.localize(timezone.datetime(2017, 6, 15, 18)),
+            end_time=tz.localize(timezone.datetime(2017, 6, 15, 22)),
+            coordinates=Point(2.349722, 48.853056),  # ND de Paris
+            calendar=calendar
+        )
+
+        self.secondary_event = Event.objects.create(
+            name='Amiens+July',
+            nb_path='/amiens_july',
+            start_time=tz.localize(timezone.datetime(2017, 7, 15, 18)),
+            end_time=tz.localize(timezone.datetime(2017, 7, 15, 22)),
+            coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
+            calendar=calendar
+        )
+
+        self.unprivileged_rsvp = RSVP.objects.create(
+            event=self.event,
+            person=self.unprivileged_person,
+            guests=0
+        )
+
+        self.organizer_rsvp = RSVP.objects.create(
+            event=self.event,
+            person=self.organizer,
+            guests=1,
+        )
+
+        self.other_rsvp = RSVP.objects.create(
+            event=self.secondary_event,
+            person=self.unprivileged_person
+        )
+
+        rsvp_content_type = ContentType.objects.get_for_model(RSVP)
+        add_permission = Permission.objects.get(content_type=rsvp_content_type, codename='add_rsvp')
+        change_permission = Permission.objects.get(content_type=rsvp_content_type, codename='change_rsvp')
+        delete_permission = Permission.objects.get(content_type=rsvp_content_type, codename='delete_rsvp')
+
+        self.privileged_user.role.user_permissions.add(add_permission, change_permission, delete_permission)
+        self.event.organizers.add(self.organizer)
+
+        self.factory = APIRequestFactory()
+
+        self.rsvp_list_view = NestedRSVPViewSet.as_view({
+            'get': 'list',
+            'post': 'create'
+        })
+
+        self.rsvp_detail_view = NestedRSVPViewSet.as_view({
+            'get'
+        })
+
+        self.rsvp_bulk_view = NestedRSVPViewSet.as_view({
+            'put': 'bulk'
+        })
+
+    def test_unauthenticated_cannot_see_any_rsvp(self):
+        request = self.get_request()
+
+        response = self.rsvp_list_view(request, parent_lookup_event=str(self.event.pk))
+
+        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_see_own_rsvps(self):
+        request = self.as_unprivileged(self.get_request())
+
+        response = self.rsvp_list_view(request, parent_lookup_event=str(self.event.pk))
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.data), 1)
+        self.assertEquals(response.data[0]['person'], self.unprivileged_person.id)
+
+    def test_can_see_rsvps_as_organizer(self):
+        request = self.as_organizer(self.get_request())
+
+        response = self.rsvp_list_view(request, parent_lookup_event=str(self.event.pk))
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.data), 2)
+        self.assertEquals(response.data[0]['person'], self.unprivileged_person.id)
+
+    def test_bulk_creation(self):
+        request = self.factory.put('', data=[
+            {
+                'person': str(self.unprivileged_person.id),
+                'guests': 3
+            },
+            {
+                'person': str(self.organizer.id),
+                'guests': 1
+            }
+        ])
+        self.as_privileged(request)
+
+        response = self.rsvp_bulk_view(request, parent_lookup_event=str(self.event.pk))
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        qs = self.event.rsvps.all()
+
+        self.assertEquals(len(qs), 2)
+        self.assertCountEqual([rsvp.person_id for rsvp in qs], [self.unprivileged_person.id, self.organizer.id])

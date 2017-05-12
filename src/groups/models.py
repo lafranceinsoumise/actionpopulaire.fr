@@ -36,7 +36,7 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, Contac
         indexes = (
             models.Index(fields=['nb_path'], name='nb_path_index'),
         )
-        ordering = ('-modified', )
+        ordering = ('-created', )
 
     def __str__(self):
         return self.name
@@ -53,14 +53,26 @@ class Membership(TimeStampedModel):
     
     This model also indicates if the person is referent for this support group
     """
-    person = models.ForeignKey('people.Person', related_name='memberships', on_delete=models.CASCADE)
-    support_group = models.ForeignKey('SupportGroup', related_name='memberships', on_delete=models.CASCADE)
+    person = models.ForeignKey(
+        'people.Person',
+        related_name='memberships',
+        on_delete=models.CASCADE,
+        editable=False
+    )
+
+    support_group = models.ForeignKey(
+        'SupportGroup',
+        related_name='memberships',
+        on_delete=models.CASCADE,
+        editable=False
+    )
+
     is_referent = models.BooleanField(_('membre référent'), default=False)
 
     class Meta:
         verbose_name = _('adhésion')
         verbose_name_plural = _('adhésions')
-        unique_together = ('person', 'support_group',)
+        unique_together = ('support_group', 'person')
 
     def __str__(self):
         return _('{person} --> {support_group},  (référent = {is_referent})').format(
