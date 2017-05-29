@@ -77,6 +77,8 @@ class RSVP(TimeStampedModel):
     event = models.ForeignKey('Event', related_name='rsvps', on_delete=models.CASCADE)
     guests = models.PositiveIntegerField(_("nombre d'invités supplémentaires"), default=0, null=False)
 
+    canceled = models.BooleanField(_('Annulé'), default=False)
+
     class Meta:
         verbose_name = 'RSVP'
         verbose_name_plural = 'RSVP'

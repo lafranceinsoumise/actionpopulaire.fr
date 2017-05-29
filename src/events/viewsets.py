@@ -9,7 +9,7 @@ import django_filters
 from lib.permissions import PermissionsOrReadOnly, RestrictViewPermissions, DjangoModelPermissions
 from lib.pagination import LegacyPaginator
 from lib.filters import LegacyDistanceFilter
-from lib.views import NationBuilderViewMixin
+from lib.views import NationBuilderViewMixin, CreationSerializerMixin
 
 from . import serializers, models
 
@@ -52,24 +52,32 @@ class EventTagViewSet(ModelViewSet):
     queryset = models.EventTag.objects.all()
 
 
-class RSVPViewSet(ModelViewSet):
+class RSVPViewSet(CreationSerializerMixin, ModelViewSet):
     """
     
     """
-    def get_serializer_class(self):
-        if self.request.method == 'POST':
-            return self.creation_serializer_class
-        return self.serializer_class
+    def get_queryset(self):
+        queryset = super(RSVPViewSet, self).get_queryset()
+
+        if not self.request.user.has_perm('events.view_rsvp'):
+            if hasattr(self.request.user, 'type') and self.request.user.type == Role.PERSON_ROLE:
+                return queryset.filter(person=self.request.user.person)
+            else:
+                return queryset.none()
+        return queryset
 
     serializer_class = serializers.RSVPSerializer
     creation_serializer_class = serializers.RSVPCreationSerializer
     queryset = models.RSVP.objects.select_related('event', 'person')
+    permission_classes = (RestrictViewPermissions, )
 
 
-class NestedRSVPViewSet(NestedViewSetMixin, RSVPViewSet):
+class NestedRSVPViewSet(CreationSerializerMixin, NestedViewSetMixin, ModelViewSet):
     """
 
     """
+    serializer_class = serializers.RSVPSerializer
+    queryset = models.RSVP.objects.select_related('event', 'person')
     permission_classes = (RestrictViewPermissions,)
     creation_serializer_class = serializers.EventRSVPCreatableSerializer
 

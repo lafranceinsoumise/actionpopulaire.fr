@@ -33,4 +33,4 @@ def is_event_rsvp(role, rsvp=None):
     )
 
 
-rules.add_perm('events.change_rsvp', is_own_rsvp | is_event_rsvp)
+rules.add_perm('events.change_rsvp', is_own_rsvp)

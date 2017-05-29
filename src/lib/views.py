@@ -32,3 +32,10 @@ class NationBuilderViewMixin(GenericAPIView):
         self.check_object_permissions(self.request, obj)
 
         return obj
+
+
+class CreationSerializerMixin(object):
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return self.creation_serializer_class
+        return self.serializer_class
