@@ -2,6 +2,8 @@ from rest_framework import serializers, exceptions
 from django.utils.translation import ugettext as _
 from lib.serializers import LegacyBaseAPISerializer, LegacyLocationAndContactMixin, RelatedLabelField
 
+from people.models import Person
+
 from . import models
 
 
@@ -93,8 +95,8 @@ class RSVPCreationSerializer(serializers.HyperlinkedModelSerializer):
         read_only_fields = ()
         extra_kwargs = {
             'url': {'view_name': 'legacy:rsvp-detail'},
-            'person': {'view_name': 'legacy:person-detail'},
-            'event': {'view_name': 'legacy:event-detail'},
+            'person': {'view_name': 'legacy:person-detail', 'read_only': False, 'queryset': Person.objects.all()},
+            'event': {'view_name': 'legacy:event-detail', 'read_only': False, 'queryset': models.Event.objects.all()},
         }
 
 
@@ -108,10 +110,8 @@ class EventRSVPBulkSerializer(serializers.HyperlinkedModelSerializer):
         model = models.RSVP
         fields = ('person', 'guests', 'canceled', )
         extra_kwargs = {
-            'person': {'view_name': 'legacy:person-detail'},
-            'event': {'view_name': 'legacy:event-detail'},
+            'person': {'view_name': 'legacy:person-detail', 'read_only': False, 'queryset': Person.objects.all()},
         }
-
 
 
 class EventRSVPCreatableSerializer(serializers.HyperlinkedModelSerializer):
@@ -122,7 +122,7 @@ class EventRSVPCreatableSerializer(serializers.HyperlinkedModelSerializer):
         model = models.RSVP
         fields = ('person', 'guests', 'canceled', )
         extra_kwargs = {
-            'person': {'view_name': 'legacy:person-detail'},
+            'person': {'view_name': 'legacy:person-detail', 'read_only': False, 'queryset': Person.objects.all()},
         }
 
     def validate_person(self, value):

@@ -1,5 +1,8 @@
-from rest_framework import serializers
+from django.utils.translation import ugettext as _
+from rest_framework import serializers, exceptions
 from lib.serializers import LegacyBaseAPISerializer, LegacyLocationAndContactMixin, RelatedLabelField
+
+from people.models import Person
 
 from . import models
 
@@ -25,7 +28,103 @@ class SupportGroupTagSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'label', 'description')
 
 
+class GroupMembershipListSerializer(serializers.ListSerializer):
+    def update(self, instance, validated_data):
+
+        supportgroup_id = self.context['supportgroup']
+        membership_mapping = {membership.person_id: membership for membership in instance}
+        try:
+            data_mapping = {item['person'].id: item for item in validated_data}
+        except KeyError:
+            raise exceptions.ValidationError(_('Données invalides en entrée'), code='invalid_data')
+
+        ret = []
+        for person_id, data in data_mapping.items():
+            membership = membership_mapping.get(person_id, None)
+            data['supportgroup_id'] = supportgroup_id
+
+            if membership is None:
+                ret.append(self.child.create(data))
+            else:
+                ret.append(self.child.update(membership, data))
+
+        for person_id, membership in membership_mapping.items():
+            if person_id not in data_mapping:
+                membership.delete()
+
+        return ret
+
+
 class MembershipSerializer(serializers.HyperlinkedModelSerializer):
+    """Basic Membership serializer used to show and edit existing Memberships
+
+    This serializer does not allow changing the person or support group. Instead, this membership should be deleted and
+    another one created.
+    """
+
     class Meta:
         model = models.Membership
-        fields = ('url', 'person', 'support_group', 'is_referent',)
+        fields = ('id', 'url', 'person', 'supportgroup', 'is_referent', )
+        read_only_fields = ('id', 'url', 'person', 'supportgroup', )
+        extra_kwargs = {
+            'url': {'view_name': 'legacy:rsvp-detail'},
+            'person': {'view_name': 'legacy:person-detail'},
+            'supportgroup': {'view_name': 'legacy:supportgroup-detail'},
+        }
+
+
+class MembershipCreationSerializer(serializers.HyperlinkedModelSerializer):
+    """Basic Membership serializer used to create Membership
+
+    Unlike the basic MembershipSerializer, it allows the user to set the ̀person` and `event` fields.
+    """
+
+    class Meta:
+        fields = ('person', 'supportgroup', 'is_referent',)
+        extra_kwargs = {
+            'url': {'view_name': 'legacy:rsvp-detail'},
+            'person': {'view_name': 'legacy:person-detail', 'read_only': False, 'queryset': Person.objects.all()},
+            'supportgroup': {'view_name': 'legacy:supportgroup-detail', 'read_only': False, 'queryset': models.SupportGroup.objects.all()},
+        }
+
+
+class GroupMembershipBulkSerializer(serializers.HyperlinkedModelSerializer):
+    """Membership serializer used to update Memberships in bulk for a specific group
+
+    Unlike the basic MembershipSerializer, it allows the user to set the ̀person` field. There is no `event` field, as
+    it is set from the URL.
+    """
+
+    class Meta:
+        model = models.Membership
+        list_serializer_class = GroupMembershipListSerializer
+        fields = ('person', 'is_referent', 'is_manager')
+        extra_kwargs = {
+            'person': {'view_name': 'legacy:person-detail', 'read_only': False, 'queryset': Person.objects.all()},
+        }
+
+
+class GroupMembershipCreatableSerializer(serializers.HyperlinkedModelSerializer):
+    """Membership serializer used to create new memberships for a given support group.
+
+    """
+
+    class Meta:
+        model = models.Membership
+        fields = ('person', 'is_referent',)
+        extra_kwargs = {
+            'person': {'view_name': 'legacy:person-detail'},
+        }
+
+    def validate_person(self, value):
+        supportgroup_id = self.context['supportgroup']
+        if models.Membership.objects.filter(supportgroup_id=supportgroup_id, person_id=value).exists():
+            raise exceptions.ValidationError(_('Un RSVP existe déjà pour ce couple événement/personne'),
+                                             code='unique_rsvp')
+
+        return value
+
+    def validate(self, attrs):
+        attrs['supportgroup_id'] = self.context['supportgroup']
+
+        return attrs

@@ -1,5 +1,6 @@
+from unittest import skip
 from django.test import TestCase
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 from django.utils import timezone
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -7,14 +8,15 @@ from django.contrib.gis.geos import Point
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
+from rest_framework.reverse import reverse
 
 from .models import SupportGroup, Membership
 from people.models import Person
-from .viewsets import LegacySupportGroupViewSet
+from .viewsets import LegacySupportGroupViewSet, MembershipViewSet, NestedMembershipViewSet
 
 
 class BasicSupportGroupTestCase(TestCase):
-    def test_can_create_support_group(self):
+    def test_can_create_supportgroup(self):
         group = SupportGroup.objects.create(
             name="Groupe d'appui",
         )
@@ -22,7 +24,7 @@ class BasicSupportGroupTestCase(TestCase):
 
 class MembershipTestCase(TestCase):
     def setUp(self):
-        self.support_group = SupportGroup.objects.create(
+        self.supportgroup = SupportGroup.objects.create(
             name='Test',
         )
 
@@ -32,17 +34,17 @@ class MembershipTestCase(TestCase):
 
     def test_can_create_membership(self):
         Membership.objects.create(
-            support_group=self.support_group,
+            supportgroup=self.supportgroup,
             person=self.person,
         )
 
     def test_cannot_create_without_person(self):
         with self.assertRaises(IntegrityError):
             Membership.objects.create(
-                support_group=self.support_group,
+                supportgroup=self.supportgroup,
             )
 
-    def test_cannot_create_without_support_group(self):
+    def test_cannot_create_without_supportgroup(self):
         with self.assertRaises(IntegrityError):
             Membership.objects.create(
                 person=self.person,
@@ -51,20 +53,20 @@ class MembershipTestCase(TestCase):
     def test_unique_membership(self):
         Membership.objects.create(
             person=self.person,
-            support_group=self.support_group
+            supportgroup=self.supportgroup
         )
 
         with self.assertRaises(IntegrityError):
             Membership.objects.create(
                 person=self.person,
-                support_group=self.support_group
+                supportgroup=self.supportgroup
             )
 
 
 class LegacySupportGroupViewSetTestCase(TestCase):
     def setUp(self):
-        self.support_group = SupportGroup.objects.create(
-            name='event',
+        self.supportgroup = SupportGroup.objects.create(
+            name='Groupe',
         )
 
         self.unprivileged_person = Person.objects.create_person(
@@ -81,20 +83,20 @@ class LegacySupportGroupViewSetTestCase(TestCase):
             email='changer@changer.fr'
         )
 
-        self.one_event_person = Person.objects.create_person(
-            email='event@event.com'
+        self.one_person_group = Person.objects.create_person(
+            email='group@group.com'
         )
 
-        event_content_type = ContentType.objects.get_for_model(SupportGroup)
-        add_permission = Permission.objects.get(content_type=event_content_type, codename='add_supportgroup')
-        change_permission = Permission.objects.get(content_type=event_content_type, codename='change_supportgroup')
+        group_content_type = ContentType.objects.get_for_model(SupportGroup)
+        add_permission = Permission.objects.get(content_type=group_content_type, codename='add_supportgroup')
+        change_permission = Permission.objects.get(content_type=group_content_type, codename='change_supportgroup')
 
         self.adder_person.role.user_permissions.add(add_permission)
         self.changer_person.role.user_permissions.add(change_permission)
 
         Membership.objects.create(
-            support_group=self.support_group,
-            person=self.one_event_person,
+            supportgroup=self.supportgroup,
+            person=self.one_person_group,
             is_referent=True,
         )
 
@@ -111,7 +113,7 @@ class LegacySupportGroupViewSetTestCase(TestCase):
         })
 
         self.new_group_data = {
-            'name': 'event 2',
+            'name': 'group 2',
         }
 
         self.factory = APIRequestFactory()
@@ -126,14 +128,14 @@ class LegacySupportGroupViewSetTestCase(TestCase):
 
         item = response.data['_items'][0]
 
-        self.assertEqual(item['_id'], str(self.support_group.pk))
+        self.assertEqual(item['_id'], str(self.supportgroup.pk))
 
     def test_can_see_group_details_while_unauthenticated(self):
         request = self.factory.get('')
-        response = self.detail_view(request, pk=self.support_group.pk)
+        response = self.detail_view(request, pk=self.supportgroup.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['_id'], str(self.support_group.pk))
+        self.assertEqual(response.data['_id'], str(self.supportgroup.pk))
 
     def test_cannot_create_group_while_unauthenticated(self):
         request = self.factory.post('', data=self.new_group_data)
@@ -145,7 +147,7 @@ class LegacySupportGroupViewSetTestCase(TestCase):
     def test_cannot_modify_group_while_unauthenticated(self):
         request = self.factory.put('', data=self.new_group_data)
 
-        response = self.detail_view(request, pk=self.support_group.pk)
+        response = self.detail_view(request, pk=self.supportgroup.pk)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -153,7 +155,7 @@ class LegacySupportGroupViewSetTestCase(TestCase):
         request = self.factory.put('', data=self.new_group_data)
         force_authenticate(request, self.unprivileged_person.role)
 
-        response = self.detail_view(request, pk=self.support_group.pk)
+        response = self.detail_view(request, pk=self.supportgroup.pk)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -165,9 +167,9 @@ class LegacySupportGroupViewSetTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        support_groups = SupportGroup.objects.all()
+        supportgroups = SupportGroup.objects.all()
 
-        self.assertEqual(len(support_groups), 2)
+        self.assertEqual(len(supportgroups), 2)
 
     def test_can_modify_group_with_global_perm(self):
         request = self.factory.patch('', data={
@@ -176,28 +178,28 @@ class LegacySupportGroupViewSetTestCase(TestCase):
 
         force_authenticate(request, user=self.changer_person.role)
 
-        response = self.detail_view(request, pk=self.support_group.pk)
+        response = self.detail_view(request, pk=self.supportgroup.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.support_group.refresh_from_db()
+        self.supportgroup.refresh_from_db()
 
-        self.assertEqual(self.support_group.description, 'Plus mieux!')
+        self.assertEqual(self.supportgroup.description, 'Plus mieux!')
 
     def test_referent_can_modify_group(self):
         request = self.factory.patch('', data={
             'description': 'Plus mieux!'
         })
 
-        force_authenticate(request, user=self.one_event_person.role)
+        force_authenticate(request, user=self.one_person_group.role)
 
-        response = self.detail_view(request, pk=self.support_group.pk)
+        response = self.detail_view(request, pk=self.supportgroup.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.support_group.refresh_from_db()
+        self.supportgroup.refresh_from_db()
 
-        self.assertEqual(self.support_group.description, 'Plus mieux!')
+        self.assertEqual(self.supportgroup.description, 'Plus mieux!')
 
 
 class FiltersTestCase(TestCase):
@@ -302,3 +304,233 @@ class FiltersTestCase(TestCase):
         self.assertIn('_items', response.data)
         self.assertEqual(len(response.data['_items']), 1)
         self.assertEqual(response.data['_items'][0]['_id'], str(self.amiens_group.pk))
+
+
+class MembershipEndpointTestCase(TestCase):
+    def get_request(self, path='', data=None, **extra):
+        return self.factory.get(path, data, **extra)
+
+    def as_privileged(self, request):
+        force_authenticate(request, self.privileged_user.role)
+        return request
+
+    def as_organizer(self, request):
+        force_authenticate(request, self.manager.role)
+        return request
+
+    def as_unprivileged(self, request):
+        force_authenticate(request, self.unprivileged_person.role)
+        return request
+
+    def setUp(self):
+        self.privileged_user = Person.objects.create_superperson('super@user.fr', None)
+
+        self.organizer = Person.objects.create_person(
+            email='supportgroup@supportgroup.com'
+        )
+
+        self.unprivileged_person = Person.objects.create_person(
+            email='unprivileged@supportgroup.com',
+        )
+
+        tz = timezone.get_default_timezone()
+
+        self.supportgroup = SupportGroup.objects.create(
+            name='Paris+June',
+            nb_id=1,
+            coordinates=Point(2.349722, 48.853056),  # ND de Paris
+        )
+
+        self.secondary_supportgroup = SupportGroup.objects.create(
+            name='Amiens+July',
+            nb_path='/amiens_july',
+            coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
+        )
+
+        self.unprivileged_membership = Membership.objects.create(
+            supportgroup=self.supportgroup,
+            person=self.unprivileged_person,
+        )
+
+        self.organizer_membership = Membership.objects.create(
+            supportgroup=self.supportgroup,
+            person=self.organizer,
+            is_referent=True,
+            is_manager=True
+        )
+
+        self.other_membership = Membership.objects.create(
+            supportgroup=self.secondary_supportgroup,
+            person=self.unprivileged_person
+        )
+
+        membership_content_type = ContentType.objects.get_for_model(Membership)
+        add_permission = Permission.objects.get(content_type=membership_content_type, codename='add_membership')
+        change_permission = Permission.objects.get(content_type=membership_content_type, codename='change_membership')
+        delete_permission = Permission.objects.get(content_type=membership_content_type, codename='delete_membership')
+
+        self.privileged_user.role.user_permissions.add(add_permission, change_permission, delete_permission)
+
+        self.factory = APIRequestFactory()
+
+        self.membership_list_view = MembershipViewSet.as_view({
+            'get': 'list',
+            'post': 'create'
+        })
+
+        self.membership_detail_view = MembershipViewSet.as_view({
+            'get'
+        })
+
+    def test_unauthenticated_cannot_see_any_memberships(self):
+        request = self.get_request()
+
+        response = self.membership_list_view(request)
+
+        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_see_own_memberships(self):
+        request = self.as_unprivileged(self.get_request())
+
+        response = self.membership_list_view(request)
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.data), 2)
+        assert all(
+            membership['person'].split('/')[-2] == str(self.unprivileged_person.id) for membership in response.data)
+        self.assertCountEqual([membership['supportgroup'].split('/')[-2] for membership in response.data],
+                              [str(self.supportgroup.id), str(self.secondary_supportgroup.id)])
+
+    @skip
+    def test_can_modify_own_membership(self):
+        pass
+
+
+class GroupMembershipEndpointTestCase(TestCase):
+    def get_request(self, path='', data=None, **extra):
+        return self.factory.get(path, data, **extra)
+
+    def as_privileged(self, request):
+        force_authenticate(request, self.privileged_user.role)
+        return request
+
+    def as_organizer(self, request):
+        force_authenticate(request, self.organizer.role)
+        return request
+
+    def as_unprivileged(self, request):
+        force_authenticate(request, self.unprivileged_person.role)
+        return request
+
+    def setUp(self):
+        self.privileged_user = Person.objects.create_superperson('super@user.fr', None)
+
+        self.organizer = Person.objects.create_person(
+            email='event@event.com'
+        )
+
+        self.unprivileged_person = Person.objects.create_person(
+            email='unprivileged@event.com',
+        )
+
+        tz = timezone.get_default_timezone()
+
+        self.supportgroup = SupportGroup.objects.create(
+            name='Paris',
+            nb_id=1,
+            coordinates=Point(2.349722, 48.853056),  # ND de Paris
+        )
+
+        self.secondary_supportgroup = SupportGroup.objects.create(
+            name='Amiens',
+            nb_path='/amiens',
+            coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
+        )
+
+        self.unprivileged_rsvp = Membership.objects.create(
+            supportgroup=self.supportgroup,
+            person=self.unprivileged_person,
+        )
+
+        self.organizer_rsvp = Membership.objects.create(
+            supportgroup=self.supportgroup,
+            person=self.organizer,
+            is_referent=True,
+            is_manager=True
+        )
+
+        self.other_rsvp = Membership.objects.create(
+            supportgroup=self.secondary_supportgroup,
+            person=self.unprivileged_person
+        )
+
+        membership_content_type = ContentType.objects.get_for_model(Membership)
+        add_permission = Permission.objects.get(content_type=membership_content_type, codename='add_membership')
+        change_permission = Permission.objects.get(content_type=membership_content_type, codename='change_membership')
+        delete_permission = Permission.objects.get(content_type=membership_content_type, codename='delete_membership')
+
+        self.privileged_user.role.user_permissions.add(add_permission, change_permission, delete_permission)
+
+        self.factory = APIRequestFactory()
+
+        self.membership_list_view = NestedMembershipViewSet.as_view({
+            'get': 'list',
+            'post': 'create'
+        })
+
+        self.membership_detail_view = NestedMembershipViewSet.as_view({
+            'get'
+        })
+
+        self.membership_bulk_view = NestedMembershipViewSet.as_view({
+            'put': 'bulk'
+        })
+
+    def test_unauthenticated_cannot_see_any_memberships(self):
+        request = self.get_request()
+
+        response = self.membership_list_view(request, parent_lookup_supportgroup=str(self.supportgroup.pk))
+
+        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_see_own_memberships(self):
+        request = self.as_unprivileged(self.get_request())
+
+        response = self.membership_list_view(request, parent_lookup_supportgroup=str(self.supportgroup.pk))
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.data), 1)
+        self.assertEquals(response.data[0]['person'].split('/')[-2], str(self.unprivileged_person.id))
+
+    def test_can_see_memberships_as_organizer(self):
+        request = self.as_organizer(self.get_request())
+
+        response = self.membership_list_view(request, parent_lookup_supportgroup=str(self.supportgroup.pk))
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.data), 2)
+        self.assertCountEqual(
+            [membership['person'].split('/')[-2] for membership in response.data],
+            [str(self.unprivileged_person.id), str(self.organizer.id)]
+        )
+
+    def test_bulk_creation(self):
+        request = self.factory.put('', data=[
+            {
+                'person': reverse('legacy:person-detail', kwargs={'pk': self.unprivileged_person.id}),
+            },
+            {
+                'person': reverse('legacy:person-detail', kwargs={'pk': self.organizer.id}),
+                'is_referent': True,
+                'is_manager': True
+            }
+        ])
+        self.as_privileged(request)
+
+        response = self.membership_bulk_view(request, parent_lookup_supportgroup=str(self.supportgroup.pk))
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        qs = self.supportgroup.memberships.all()
+
+        self.assertEquals(len(qs), 2)
+        self.assertCountEqual([membership.person_id for membership in qs], [self.unprivileged_person.id, self.organizer.id])

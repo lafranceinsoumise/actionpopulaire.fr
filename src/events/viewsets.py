@@ -84,7 +84,7 @@ class NestedRSVPViewSet(CreationSerializerMixin, NestedViewSetMixin, ModelViewSe
     def get_queryset(self):
         queryset = super(NestedRSVPViewSet, self).get_queryset()
 
-        if not self.request.user.has_perm('rsvp.view_rsvp'):
+        if not self.request.user.has_perm('events.view_rsvp'):
             if hasattr(self.request.user, 'type') and self.request.user.type == Role.PERSON_ROLE:
                 return queryset.filter(Q(person=self.request.user.person) | Q(event__organizers=self.request.user.person))
             else:

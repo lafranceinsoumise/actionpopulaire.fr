@@ -85,13 +85,13 @@ class LegacyPersonEndpointPermissionsTestCase(TestCase):
             event=self.event
         )
 
-        self.support_group = SupportGroup.objects.create(
+        self.supportgroup = SupportGroup.objects.create(
             name='Group',
         )
 
         self.membership = Membership.objects.create(
             person=self.basic_person,
-            support_group=self.support_group
+            supportgroup=self.supportgroup
         )
 
         self.factory = APIRequestFactory()
@@ -267,7 +267,7 @@ class LegacyPersonEndpointPermissionsTestCase(TestCase):
 
         self.assertIn('groups', response.data)
 
-        self.assertCountEqual(response.data['groups'], [self.support_group.pk])
+        self.assertCountEqual(response.data['groups'], [self.supportgroup.pk])
 
 
 class LegacyEndpointFieldsTestCase(TestCase):

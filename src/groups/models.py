@@ -28,7 +28,7 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, Contac
 
     tags = models.ManyToManyField('SupportGroupTag', related_name='events', blank=True)
 
-    members = models.ManyToManyField('people.Person', related_name='support_groups', through='Membership', blank=True)
+    members = models.ManyToManyField('people.Person', related_name='supportgroups', through='Membership', blank=True)
 
     class Meta:
         verbose_name = _("groupe d'appui")
@@ -60,7 +60,7 @@ class Membership(TimeStampedModel):
         editable=False
     )
 
-    support_group = models.ForeignKey(
+    supportgroup = models.ForeignKey(
         'SupportGroup',
         related_name='memberships',
         on_delete=models.CASCADE,
@@ -68,13 +68,17 @@ class Membership(TimeStampedModel):
     )
 
     is_referent = models.BooleanField(_('membre référent'), default=False)
+    is_manager = models.BooleanField(_('gestionnaire'), default=False)
 
     class Meta:
         verbose_name = _('adhésion')
         verbose_name_plural = _('adhésions')
-        unique_together = ('support_group', 'person')
+        unique_together = ('supportgroup', 'person')
+        permissions = (
+            ('view_membership', _('Peut afficher les adhésions')),
+        )
 
     def __str__(self):
-        return _('{person} --> {support_group},  (référent = {is_referent})').format(
-            person=self.person, support_group=self.support_group, is_referent=self.is_referent
+        return _('{person} --> {supportgroup},  (référent = {is_referent})').format(
+            person=self.person, supportgroup=self.supportgroup, is_referent=self.is_referent
         )

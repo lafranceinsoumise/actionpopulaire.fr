@@ -73,8 +73,8 @@ class RSVP(TimeStampedModel):
     
     An additional field indicates if the person is bringing any guests with her
     """
-    person = models.ForeignKey('people.Person', related_name='rsvps', on_delete=models.CASCADE)
-    event = models.ForeignKey('Event', related_name='rsvps', on_delete=models.CASCADE)
+    person = models.ForeignKey('people.Person', related_name='rsvps', on_delete=models.CASCADE, editable=False)
+    event = models.ForeignKey('Event', related_name='rsvps', on_delete=models.CASCADE, editable=False)
     guests = models.PositiveIntegerField(_("nombre d'invités supplémentaires"), default=0, null=False)
 
     canceled = models.BooleanField(_('Annulé'), default=False)

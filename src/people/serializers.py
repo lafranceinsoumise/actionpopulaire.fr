@@ -24,7 +24,7 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
     groups = serializers.PrimaryKeyRelatedField(
         read_only=True,
         many=True,
-        source='support_groups'
+        source='supportgroups'
     )
     memberships = serializers.HyperlinkedRelatedField(
         view_name='legacy:membership-detail',

@@ -1,3 +1,4 @@
+from unittest import skip
 from django.test import TestCase
 from django.db import IntegrityError, transaction
 from django.utils import timezone
@@ -467,10 +468,6 @@ class RSVPEndpointTestCase(TestCase):
             'get'
         })
 
-        self.rsvp_bulk_view = RSVPViewSet.as_view({
-            'put': 'bulk'
-        })
-
     def test_unauthenticated_cannot_see_any_rsvp(self):
         request = self.get_request()
 
@@ -487,6 +484,11 @@ class RSVPEndpointTestCase(TestCase):
         self.assertEquals(len(response.data), 2)
         assert all(rsvp['person'].split('/')[-2] == str(self.unprivileged_person.id) for rsvp in response.data)
         self.assertCountEqual([rsvp['event'].split('/')[-2] for rsvp in response.data], [str(self.event.id), str(self.secondary_event.id)])
+
+    @skip
+    def test_can_modify_own_rsvp(self):
+        pass
+
 
 
 class EventRSVPEndpointTestCase(TestCase):
