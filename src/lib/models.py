@@ -90,7 +90,7 @@ class AbstractLabel(models.Model):
     """
     objects = AbstractLabelManager()
 
-    label = models.CharField(_('nom'), max_length=30, unique=True, blank=False)
+    label = models.CharField(_('nom'), max_length=50, unique=True, blank=False)
     description = models.TextField(_('description'), blank=True)
 
     class Meta:

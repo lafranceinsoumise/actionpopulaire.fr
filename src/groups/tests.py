@@ -401,7 +401,7 @@ class MembershipEndpointTestCase(TestCase):
         self.assertCountEqual([membership['supportgroup'].split('/')[-2] for membership in response.data],
                               [str(self.supportgroup.id), str(self.secondary_supportgroup.id)])
 
-    @skip
+    @skip('TODO')
     def test_can_modify_own_membership(self):
         pass
 

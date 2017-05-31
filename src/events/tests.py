@@ -485,7 +485,15 @@ class RSVPEndpointTestCase(TestCase):
         assert all(rsvp['person'].split('/')[-2] == str(self.unprivileged_person.id) for rsvp in response.data)
         self.assertCountEqual([rsvp['event'].split('/')[-2] for rsvp in response.data], [str(self.event.id), str(self.secondary_event.id)])
 
-    @skip
+    @skip('TODO')
+    def test_cannot_create_rsvp_as_unauthenticated(self):
+        pass
+
+    @skip('TODO')
+    def test_can_create_rsvp_as_unprivileged(self):
+        pass
+
+    @skip('TODO')
     def test_can_modify_own_rsvp(self):
         pass
 
@@ -595,6 +603,14 @@ class EventRSVPEndpointTestCase(TestCase):
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(len(response.data), 1)
         self.assertEquals(response.data[0]['person'].split('/')[-2], str(self.unprivileged_person.id))
+
+    @skip('TODO')
+    def test_cannot_create_as_unauthenticated(self):
+        pass
+
+    @skip('TODO')
+    def test_can_create_rsvp_as_unprivileged(self):
+        pass
 
     def test_can_see_rsvps_as_organizer(self):
         request = self.as_organizer(self.get_request())

@@ -269,6 +269,19 @@ class LegacyPersonEndpointPermissionsTestCase(TestCase):
 
         self.assertCountEqual(response.data['groups'], [self.supportgroup.pk])
 
+    def test_can_post_users_with_empty_null_and_blank_fields(self):
+        request = self.factory.post('', data={
+            'email': "putain@demerde.com",
+            'location_address1': '',
+            'location_address2': None,
+            'country_code': None
+        })
+        force_authenticate(request, self.adder_person.role)
+
+        response = self.list_view(request)
+
+        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+
 
 class LegacyEndpointFieldsTestCase(TestCase):
     def get_request(self, path='', data=None, **extra):

@@ -4,6 +4,35 @@ from rest_framework.fields import empty
 from django_countries.serializer_fields import CountryField
 
 
+class NullAsBlankMixin:
+    """Field mixin that makes a null input be interpreted as the empty string instead.
+
+    This field is used to accept null values for char fields and still follow
+    Django convention of not using NULL values for text fields and to use the empty
+    string for "no data".
+
+    See: https://docs.djangoproject.com/en/1.11/ref/models/fields/#null
+
+    """
+    def get_value(self, dictionary):
+        value = super(NullAsBlankMixin, self).get_value(dictionary)
+        if value is None:
+            return ''
+        return value
+
+
+class NullableCharField(NullAsBlankMixin, serializers.CharField):
+    """CharField that interprets a `null` input as the empty string."""
+    def __init__(self, **kwargs):
+        kwargs.setdefault('allow_blank', True)
+        super(NullableCharField, self).__init__(**kwargs)
+
+
+class NullableCountryField(NullAsBlankMixin, CountryField):
+    """CharField that interprets a `null` input as the empty string."""
+    pass
+
+
 class LegacyBaseAPISerializer(serializers.ModelSerializer):
     """
     A legacy serializer that handles id fields (both internal and nationbuilder) and creation/modification time fields
@@ -39,6 +68,7 @@ class LegacyBaseAPISerializer(serializers.ModelSerializer):
 
 
 class RelatedLabelField(serializers.SlugRelatedField):
+    """A related field that shows a slug and can be used to create a new related model object"""
     def __init__(self, slug_field=None, **kwargs):
         if slug_field is None:
             slug_field = 'label'
@@ -53,6 +83,8 @@ class RelatedLabelField(serializers.SlugRelatedField):
 
 
 class NestedContactSerializer(serializers.Serializer):
+    """A nested serializer for the fields defined by :py:class:`lib.models.ContactMixin`
+    """
     name = serializers.CharField(
         label=_('Nom du contact'),
         required=False,
@@ -82,57 +114,54 @@ class NestedContactSerializer(serializers.Serializer):
 
 
 class NestedLocationSerializer(serializers.Serializer):
-    name = serializers.CharField(
+    """A nested serializer for the fields defined by :py:class:`lib.models.LocationMixin`
+
+    All these fields will be collected and serialized as a a JSON object.
+    """
+    name = NullableCharField(
         label=_("nom du lieu"),
         max_length=255,
         required=False,
-        allow_blank=True,
         source='location_name',
     )
-    address = serializers.CharField(
+    address = NullableCharField(
         label=_('adresse complète'),
         max_length=255,
         required=False,
-        allow_blank=True,
         source='location_address',
     )
-    address1 = serializers.CharField(
+    address1 = NullableCharField(
         label=_("adresse (1ère ligne)"),
         max_length=100,
         required=False,
-        allow_blank=True,
         source='location_address1',
     )
-    address2 = serializers.CharField(
+    address2 = NullableCharField(
         label=_("adresse (2ème ligne)"),
         max_length=100,
         required=False,
-        allow_blank=True,
         source='location_address2',
     )
-    city = serializers.CharField(
+    city = NullableCharField(
         label=_("ville"),
         max_length=100,
         required=False,
-        allow_blank=True,
         source='location_city',
     )
-    zip = serializers.CharField(
+    zip = NullableCharField(
         label=_("code postal"),
         max_length=20,
         required=False,
-        allow_blank=True,
         source='location_zip',
     )
-    state = serializers.CharField(
+    state = NullableCharField(
         label=_('état'),
         max_length=40,
         required=False,
-        allow_blank=True,
         source='location_state',
     )
 
-    country_code = CountryField(
+    country_code = NullableCountryField(
         label=_('pays'),
         required=False,
         source='location_country'
