@@ -1,5 +1,5 @@
 from rest_framework import exceptions
-from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.permissions import DjangoModelPermissions, BasePermission
 
 
 class GlobalOrObjectPermissionsMixin(object):
@@ -79,3 +79,10 @@ class PermissionsOrReadOnly(GlobalOrObjectPermissionsMixin, DjangoModelPermissio
         'PATCH': ['%(app_label)s.change_%(model_name)s'],
         'DELETE': [],
     }
+
+
+class HasSpecificPermissions(BasePermission):
+    permissions = []
+
+    def has_permission(self, request, view):
+        return request.user and request.user.has_perms(self.permissions)

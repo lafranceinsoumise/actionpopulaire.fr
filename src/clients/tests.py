@@ -6,8 +6,10 @@ from unittest import mock
 
 from django.test import TestCase
 from django.conf import settings
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 
-from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework import exceptions, status
 
 from . import models, authentication, tokens
@@ -125,6 +127,11 @@ class LegacyClientViewSetTestCase(TestCase):
         self.client_unprivileged = models.Client.objects.create_client('unprivileged', 'password')
         self.viewer_client = models.Client.objects.create_client('viewer', 'password')
 
+        client_content_type = ContentType.objects.get_for_model(models.Client)
+        view_permission = Permission.objects.get(content_type=client_content_type, codename='view_client')
+
+        self.viewer_client.role.user_permissions.add(view_permission)
+
         self.detail_view = LegacyClientViewSet.as_view({
             'get': 'retrieve',
             'put': 'update',
@@ -135,6 +142,10 @@ class LegacyClientViewSetTestCase(TestCase):
         self.list_view = LegacyClientViewSet.as_view({
             'get': 'list',
             'post': 'create'
+        })
+
+        self.authenticate_view = LegacyClientViewSet.as_view({
+            'post': 'authenticate_client'
         })
 
     def test_cannot_see_while_unauthenticated(self):
@@ -161,3 +172,49 @@ class LegacyClientViewSetTestCase(TestCase):
         response = self.list_view(request)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class AuthenticateClientViewTestCase(APITestCase):
+    """Test the authenticate_view route of the :py:class:`clients.viewsets.LegacyClientViewSet`
+
+    Additional routes with specific permission classes must be tested through the APIClient as the
+    permission classes won't be replaced by
+    """
+    def setUp(self):
+        self.client_unprivileged = models.Client.objects.create_client('unprivileged', 'password')
+        self.viewer_client = models.Client.objects.create_client('viewer', 'password')
+
+        client_content_type = ContentType.objects.get_for_model(models.Client)
+        view_permission = Permission.objects.get(content_type=client_content_type, codename='view_client')
+
+        self.viewer_client.role.user_permissions.add(view_permission)
+
+    def test_cannot_verify_client_if_unauthenticated(self):
+        response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'test', 'secret': 'test'})
+
+        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_verify_client_if_no_view_permission(self):
+        self.client.force_authenticate(user=self.client_unprivileged.role)
+        response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'test', 'secret': 'test'})
+
+        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_verify_client_with_view_permission(self):
+        self.client.force_authenticate(user=self.viewer_client.role)
+        response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'unprivileged', 'secret': 'password'})
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(response.data['_id'], str(self.client_unprivileged.id))
+
+    def test_unprocessable_entity_if_wrong_client_id(self):
+        self.client.force_authenticate(user=self.viewer_client.role)
+        response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'wrong', 'secret': 'wrong'})
+
+        self.assertEquals(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    def test_unprocessable_entity_if_wrong_client_secret(self):
+        self.client.force_authenticate(user=self.viewer_client.role)
+        response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'unprivileged', 'secret': 'wrong'})
+
+        self.assertEquals(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
