@@ -4,15 +4,29 @@ from rest_framework import serializers, exceptions
 from authentication.models import Role
 from . import models
 
-from lib.serializers import RelatedLabelField, LegacyBaseAPISerializer
+from lib.serializers import RelatedLabelField, LegacyBaseAPISerializer, UpdatableListSerializer
 
 
-class AuthorizationSerializer(serializers.ModelSerializer):
+class AuthorizationSerializer(serializers.HyperlinkedModelSerializer):
     scopes = RelatedLabelField(queryset=models.Scope.objects.all())
 
     class Meta:
         model = models.Authorization
         fields = ('url', 'id', 'person', 'client', 'scopes')
+        extra_kwargs = {
+            'url': {'view_name': 'legacy:authorization-detail'},
+            'person': {'view_name': 'legacy:person-detail'},
+            'client': {'view_name': 'legacy:client-detail'}
+        }
+
+
+class ScopeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Scope
+        fields = ('url', 'label', 'description')
+        extra_kwargs = {
+            'url': {'view_name': 'legacy:scope-detail'},
+        }
 
 
 class LegacyClientSerializer(LegacyBaseAPISerializer):
@@ -56,3 +70,19 @@ class ClientAuthenticationSerializer(serializers.Serializer):
             Role().set_password(secret)
 
         raise exceptions.ValidationError(_("Authentification incorrecte"))
+
+
+class PersonAuthorizationSerializer(serializers.HyperlinkedModelSerializer):
+    scopes = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='label',
+        many=True
+    )
+
+    class Meta:
+        model = models.Authorization
+        fields = ('url', 'client', 'scopes')
+        extra_kwargs = {
+            'url': {'view_name': 'legacy:authorization-detail'},
+            'client': {'view_name': 'legacy:client-detail',}
+        }

@@ -623,14 +623,17 @@ class EventRSVPEndpointTestCase(TestCase):
 
     def test_bulk_creation(self):
         request = self.factory.put('', data=[
+            # modification
             {
                 'person': reverse('legacy:person-detail', kwargs={'pk': self.unprivileged_person.id}),
                 'guests': 3
             },
+            # addition
             {
-                'person': reverse('legacy:person-detail', kwargs={'pk': self.organizer.id}),
+                'person': reverse('legacy:person-detail', kwargs={'pk': self.privileged_user.id}),
                 'guests': 1
             }
+            # deletion : no rsvp in this list for `self.organizer`
         ])
         self.as_privileged(request)
 
@@ -640,4 +643,4 @@ class EventRSVPEndpointTestCase(TestCase):
         qs = self.event.rsvps.all()
 
         self.assertEquals(len(qs), 2)
-        self.assertCountEqual([rsvp.person_id for rsvp in qs], [self.unprivileged_person.id, self.organizer.id])
+        self.assertCountEqual([rsvp.person_id for rsvp in qs], [self.unprivileged_person.id, self.privileged_user.id])

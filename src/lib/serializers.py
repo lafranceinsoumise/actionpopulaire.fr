@@ -1,5 +1,5 @@
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 from rest_framework.fields import empty
 from django_countries.serializer_fields import CountryField
 
@@ -220,3 +220,38 @@ class LegacyContactMixin(serializers.ModelSerializer):
 
 class LegacyLocationAndContactMixin(LegacyLocationMixin, LegacyContactMixin, ):
     pass
+
+
+class UpdatableListSerializer(serializers.ListSerializer):
+    matching_attr = None
+
+    def get_additional_fields(self):
+        return {}
+
+    def update(self, instances, validated_data):
+        instance_mapping = {getattr(instance, self.matching_attr): instance for instance in instances}
+        try:
+            data_mapping = {item[self.matching_attr]: item for item in validated_data}
+        except KeyError:
+            raise exceptions.ValidationError(_('Données invalides en entrée'), code='invalid_data')
+
+        ret = []
+
+        additional_fields = self.get_additional_fields()
+
+        for matching_value, data in data_mapping.items():
+            instance = instance_mapping.get(matching_value, None)
+
+            # add additional field to data before saving it
+            data.update(additional_fields)
+
+            if instance is None:
+                ret.append(self.child.create(data))
+            else:
+                ret.append(self.child.update(instance, data))
+
+        for matching_value, instance in instance_mapping.items():
+            if matching_value not in data_mapping:
+                instance.delete()
+
+        return ret

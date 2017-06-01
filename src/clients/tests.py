@@ -2,7 +2,7 @@ import base64
 import json
 import uuid
 from redislite import StrictRedis
-from unittest import mock
+from unittest import mock, skip
 
 from django.test import TestCase
 from django.conf import settings
@@ -218,3 +218,69 @@ class AuthenticateClientViewTestCase(APITestCase):
         response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'unprivileged', 'secret': 'wrong'})
 
         self.assertEquals(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+
+class ScopeViewSetTestCase(APITestCase):
+    """Test the Scope endpoint"""
+
+    def setUp(self):
+        self.scope1 = models.Scope.objects.create(label='scope1', description='Un super scope de ouf')
+        self.scope2 = models.Scope.objects.create(label='scope2', description='Un autre scope de ouf')
+
+    def test_can_see_scopes_while_unauthenticated(self):
+        response = self.client.get('/legacy/scopes/')
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual([s['label'] for s in response.data], ['scope1', 'scope2'])
+
+    @skip("TODO")
+    def test_can_see_specific_scope(self):
+        pass
+
+    @skip("TODO")
+    def test_cannot_modify_while_unprivileged(self):
+        pass
+
+    @skip("TODO")
+    def test_can_modify(self):
+        pass
+
+    @skip("TODO")
+    def test_cannot_delete(self):
+        pass
+
+
+class AuthorizationViewSetTestCase(APITestCase):
+    """Test the authorization endpoint
+    """
+
+    def setUp(self):
+        pass
+
+    @skip("TODO")
+    def test_cannot_see_authorization_while_unauthenticate(self):
+        pass
+
+    @skip("TODO")
+    def test_can_only_see_own_when_unprivileged(self):
+        pass
+
+    @skip("TODO")
+    def test_can_see_all_with_privileges(self):
+        pass
+
+    @skip("TODO")
+    def test_can_modify_own_when_unprivileged(self):
+        pass
+
+    @skip("TODO")
+    def test_cannot_modify_other_than_own_when_unprivileged(self):
+        pass
+
+    @skip("TODO")
+    def test_can_delete_own(self):
+        pass
+
+    @skip("TODO")
+    def test_cannot_delete_other_than_own(self):
+        pass

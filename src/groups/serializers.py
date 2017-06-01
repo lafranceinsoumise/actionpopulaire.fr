@@ -1,13 +1,16 @@
 from django.utils.translation import ugettext as _
 from rest_framework import serializers, exceptions
-from lib.serializers import LegacyBaseAPISerializer, LegacyLocationAndContactMixin, RelatedLabelField
+from lib.serializers import (
+    LegacyBaseAPISerializer, LegacyLocationAndContactMixin, RelatedLabelField, UpdatableListSerializer
+)
 
 from people.models import Person
 
 from . import models
 
 
-class LegacySupportGroupSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMixin, serializers.HyperlinkedModelSerializer):
+class LegacySupportGroupSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMixin,
+                                   serializers.HyperlinkedModelSerializer):
     path = serializers.CharField(source='nb_path', required=False)
     tags = RelatedLabelField(queryset=models.SupportGroupTag.objects.all(), many=True, required=False)
 
@@ -28,31 +31,13 @@ class SupportGroupTagSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'label', 'description')
 
 
-class GroupMembershipListSerializer(serializers.ListSerializer):
-    def update(self, instance, validated_data):
+class GroupMembershipListSerializer(UpdatableListSerializer):
+    matching_attr = 'person'
 
-        supportgroup_id = self.context['supportgroup']
-        membership_mapping = {membership.person_id: membership for membership in instance}
-        try:
-            data_mapping = {item['person'].id: item for item in validated_data}
-        except KeyError:
-            raise exceptions.ValidationError(_('Données invalides en entrée'), code='invalid_data')
-
-        ret = []
-        for person_id, data in data_mapping.items():
-            membership = membership_mapping.get(person_id, None)
-            data['supportgroup_id'] = supportgroup_id
-
-            if membership is None:
-                ret.append(self.child.create(data))
-            else:
-                ret.append(self.child.update(membership, data))
-
-        for person_id, membership in membership_mapping.items():
-            if person_id not in data_mapping:
-                membership.delete()
-
-        return ret
+    def get_additional_fields(self):
+        return {
+            'supportgroup_id': self.context['supportgroup']
+        }
 
 
 class MembershipSerializer(serializers.HyperlinkedModelSerializer):

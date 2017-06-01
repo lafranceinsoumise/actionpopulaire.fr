@@ -3,11 +3,12 @@ from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
 
 from authentication.models import Role
+from clients.models import Client, Scope
 from .models import Person, PersonTag
 from .viewsets import LegacyPersonViewSet
 

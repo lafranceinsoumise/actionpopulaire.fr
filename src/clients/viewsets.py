@@ -1,6 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import list_route
+from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 
 from lib.pagination import LegacyPaginator
 from lib.permissions import RestrictViewPermissions, HasSpecificPermissions
@@ -39,3 +40,23 @@ class LegacyClientViewSet(ModelViewSet):
         output_serializer = serializers.LegacyClientSerializer(instance=client, context=context)
 
         return Response(output_serializer.data)
+
+
+class ScopeViewSet(ModelViewSet):
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
+    serializer_class = serializers.ScopeSerializer
+    queryset = models.Scope.objects.all()
+
+
+class AuthorizationViewSet(ModelViewSet):
+    permission_classes = (RestrictViewPermissions, )
+    serializer_class = serializers.AuthorizationSerializer
+    queryset = models.Authorization.objects.all()
+
+    def get_queryset(self):
+        if not self.request.user.has_perm('clients.view_authorization'):
+            if hasattr(self.request.user, 'type') and self.request.user.type == Role.PERSON_ROLE:
+                return self.queryset.filter(person_id=self.request.user.person.pk)
+            else:
+                return self.queryset.none()
+        return super(AuthorizationViewSet, self).get_queryset()

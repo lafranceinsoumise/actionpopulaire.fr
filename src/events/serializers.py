@@ -1,6 +1,8 @@
 from rest_framework import serializers, exceptions
 from django.utils.translation import ugettext as _
-from lib.serializers import LegacyBaseAPISerializer, LegacyLocationAndContactMixin, RelatedLabelField
+from lib.serializers import (
+    LegacyBaseAPISerializer, LegacyLocationAndContactMixin, RelatedLabelField, UpdatableListSerializer
+)
 
 from people.models import Person
 
@@ -41,31 +43,13 @@ class EventTagSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
-class EventRSVPListSerializer(serializers.ListSerializer):
-    def update(self, instance, validated_data):
+class EventRSVPListSerializer(UpdatableListSerializer):
+    matching_attr = 'person'
 
-        event_id = self.context['event']
-        rsvp_mapping = {rsvp.person_id: rsvp for rsvp in instance}
-        try:
-            data_mapping = {item['person'].id: item for item in validated_data}
-        except KeyError:
-            raise exceptions.ValidationError(_('Données invalides en entrée'), code='invalid_data')
-
-        ret = []
-        for person_id, data in data_mapping.items():
-            rsvp = rsvp_mapping.get(person_id, None)
-            data['event_id'] = event_id
-
-            if rsvp is None:
-                ret.append(self.child.create(data))
-            else:
-                ret.append(self.child.update(rsvp, data))
-
-        for person_id, rsvp in rsvp_mapping.items():
-            if person_id not in data_mapping:
-                rsvp.delete()
-
-        return ret
+    def get_additional_fields(self):
+        return {
+            'event_id': self.context['event']
+        }
 
 
 class RSVPSerializer(serializers.HyperlinkedModelSerializer):

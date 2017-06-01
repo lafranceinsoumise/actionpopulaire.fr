@@ -415,7 +415,7 @@ class GroupMembershipEndpointTestCase(TestCase):
         return request
 
     def as_organizer(self, request):
-        force_authenticate(request, self.organizer.role)
+        force_authenticate(request, self.manager.role)
         return request
 
     def as_unprivileged(self, request):
@@ -425,7 +425,7 @@ class GroupMembershipEndpointTestCase(TestCase):
     def setUp(self):
         self.privileged_user = Person.objects.create_superperson('super@user.fr', None)
 
-        self.organizer = Person.objects.create_person(
+        self.manager = Person.objects.create_person(
             email='event@event.com'
         )
 
@@ -447,19 +447,19 @@ class GroupMembershipEndpointTestCase(TestCase):
             coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
         )
 
-        self.unprivileged_rsvp = Membership.objects.create(
+        self.unprivileged_membership = Membership.objects.create(
             supportgroup=self.supportgroup,
             person=self.unprivileged_person,
         )
 
-        self.organizer_rsvp = Membership.objects.create(
+        self.manager_membership = Membership.objects.create(
             supportgroup=self.supportgroup,
-            person=self.organizer,
+            person=self.manager,
             is_referent=True,
             is_manager=True
         )
 
-        self.other_rsvp = Membership.objects.create(
+        self.other_event_membership = Membership.objects.create(
             supportgroup=self.secondary_supportgroup,
             person=self.unprivileged_person
         )
@@ -511,19 +511,22 @@ class GroupMembershipEndpointTestCase(TestCase):
         self.assertEquals(len(response.data), 2)
         self.assertCountEqual(
             [membership['person'].split('/')[-2] for membership in response.data],
-            [str(self.unprivileged_person.id), str(self.organizer.id)]
+            [str(self.unprivileged_person.id), str(self.manager.id)]
         )
 
     def test_bulk_creation(self):
         request = self.factory.put('', data=[
+            # modification
             {
                 'person': reverse('legacy:person-detail', kwargs={'pk': self.unprivileged_person.id}),
             },
+            # addition
             {
-                'person': reverse('legacy:person-detail', kwargs={'pk': self.organizer.id}),
-                'is_referent': True,
+                'person': reverse('legacy:person-detail', kwargs={'pk': self.privileged_user.id}),
+                'is_referent': False,
                 'is_manager': True
             }
+            # deletion: no membership for `self.manager`
         ])
         self.as_privileged(request)
 
@@ -533,4 +536,4 @@ class GroupMembershipEndpointTestCase(TestCase):
         qs = self.supportgroup.memberships.all()
 
         self.assertEquals(len(qs), 2)
-        self.assertCountEqual([membership.person_id for membership in qs], [self.unprivileged_person.id, self.organizer.id])
+        self.assertCountEqual([membership.person_id for membership in qs], [self.unprivileged_person.id, self.privileged_user.id])

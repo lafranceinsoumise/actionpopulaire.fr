@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from lib.serializers import LegacyBaseAPISerializer, LegacyLocationMixin, RelatedLabelField
+from clients.serializers import PersonAuthorizationSerializer
 
 from . import models
 
@@ -32,13 +33,18 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         many=True
     )
 
+    authorizations = PersonAuthorizationSerializer(
+        many=True,
+        required=False
+    )
+
     class Meta:
         model = models.Person
         fields = (
             'url', '_id', 'id', 'email', 'first_name', 'last_name', 'bounced', 'bounced_date', '_created', '_updated',
-            'email_opt_in', 'events', 'rsvps', 'groups', 'memberships', 'tags', 'location',
+            'email_opt_in', 'events', 'rsvps', 'groups', 'memberships', 'tags', 'location', 'authorizations',
         )
-        read_only_fields = ('url', '_id')
+        read_only_fields = ('url', '_id', '_created', '_updated')
         extra_kwargs = {
             'url': {'view_name': 'legacy:person-detail',}
         }

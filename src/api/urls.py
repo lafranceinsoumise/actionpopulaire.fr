@@ -19,5 +19,4 @@ from . import routers, admin
 urlpatterns = [
     url(r'^admin/', admin.admin_site.urls),
     url(r'^legacy/', include(routers.legacy_api.urls, namespace='legacy')),
-    url(r'^/', include(routers.v1_api.urls)),
 ]

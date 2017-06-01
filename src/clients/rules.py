@@ -10,3 +10,13 @@ def is_client(role, obj):
 
 rules.add_perm('clients.view_client', is_client)
 rules.add_perm('clients.change_client', is_client)
+
+
+@rules.predicate
+def is_own_authorization(role, obj):
+    return obj and role.type == role.ROLE_TYPE and role.person_id == obj.person_id
+
+
+rules.add_perm('clients.view_authorization', is_own_authorization)
+rules.add_perm('clients.change_authorization', is_own_authorization)
+rules.add_perm('clients.delete_authorization', is_own_authorization)
