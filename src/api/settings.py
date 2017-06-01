@@ -160,7 +160,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
-    # 'EXCEPTION_HANDLER': 'api.handlers.exception_handler',
+    'EXCEPTION_HANDLER': 'api.handlers.exception_handler',
 }
 
 # Access tokens
