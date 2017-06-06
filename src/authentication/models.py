@@ -40,7 +40,12 @@ class Role(PermissionsMixin, AbstractBaseUser):
     )
 
     def __str__(self):
-        return str(self.id)
+        if self.type == self.CLIENT_ROLE:
+            return 'Client role -> %r' % self.client
+        elif self.type == self.PERSON_ROLE:
+            return 'Person role -> %r' % self.person
+        else:
+            return 'Unknown role %s' % self.pk
 
     def get_short_name(self):
         if self.type == self.PERSON_ROLE:

@@ -1,12 +1,11 @@
-from rest_framework_extensions.routers import ExtendedSimpleRouter
-from rest_framework import routers
+from rest_framework_extensions.routers import ExtendedDefaultRouter
 
 from people import viewsets as people_viewsets
 from events import viewsets as events_viewsets
 from groups import viewsets as groups_viewsets
 from clients import viewsets as clients_viewsets
 
-legacy_api = ExtendedSimpleRouter()
+legacy_api = ExtendedDefaultRouter()
 
 # people routes
 legacy_api.register('people', people_viewsets.LegacyPersonViewSet)

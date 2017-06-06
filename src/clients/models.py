@@ -126,6 +126,12 @@ class Client(BaseAPIResource):
     def __str__(self):
         return self.label
 
+    def get_short_name(self):
+        return self.label
+
+    def get_full_name(self):
+        return self.name
+
 
 class Scope(AbstractLabel):
     class Meta:

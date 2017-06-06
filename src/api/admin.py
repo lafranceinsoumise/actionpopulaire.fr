@@ -1,6 +1,6 @@
 from django.contrib.admin import AdminSite
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, admin as auth_admin
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
@@ -45,3 +45,6 @@ class APIAdminSite(AdminSite):
 
 
 admin_site = APIAdminSite()
+
+# register auth
+admin_site.register(auth_admin.Group, auth_admin.GroupAdmin)
