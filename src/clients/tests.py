@@ -22,8 +22,10 @@ from authentication.models import Role
 class TokenTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person(email='test@test.com')
-        self.client = models.Client.objects.create_client('client')
         self.scope = models.Scope.objects.create(label='scope_test')
+        self.other_scope = models.Scope.objects.create(label='other_scope')
+        self.client = models.Client.objects.create_client('client', scopes=[self.scope, self.other_scope])
+        self.one_scope_client = models.Client.objects.create_client('noscope', scopes=[self.other_scope])
 
         self.redis_instance = StrictRedis()
 
@@ -31,12 +33,24 @@ class TokenTestCase(TestCase):
         self.token_info = {
             'clientId':self.client.label,
             'userId': str(self.person.pk),
-            'scope': ['scope_test']
+            'scope': ['scope_test', 'other_scope']
+        }
+
+        self.wrong_scope_token = str(uuid.uuid4())
+        self.wrong_scope_token_info = {
+            'clientId': self.one_scope_client.label,
+            'userId': str(self.person.pk),
+            'scope': ['scope_test', 'other_scope']
         }
 
         self.redis_instance.set(
             '{prefix}{token}:payload'.format(prefix=settings.AUTH_REDIS_PREFIX, token=self.token),
             json.dumps(self.token_info)
+        )
+
+        self.redis_instance.set(
+            '{prefix}{token}:payload'.format(prefix=settings.AUTH_REDIS_PREFIX, token=self.wrong_scope_token),
+            json.dumps(self.wrong_scope_token_info)
         )
 
         self.redis_patcher = mock.patch('clients.tokens.get_auth_redis_client')
@@ -70,7 +84,18 @@ class TokenTestCase(TestCase):
         self.assertEqual(auth_user.person, self.person)
         self.assertIsInstance(auth_info, tokens.AccessToken)
         self.assertEqual(auth_info.client, self.client)
-        self.assertCountEqual(auth_info.scopes, [self.scope])
+        self.assertCountEqual(auth_info.scopes, [self.scope, self.other_scope])
+
+    def test_only_scopes_authorized_for_client_are_kept(self):
+        request = self.factory.get(
+            '',
+            HTTP_AUTHORIZATION="Bearer {token}".format(token=self.wrong_scope_token)
+        )
+
+        auth_user, auth_info = self.token_authentifier.authenticate(request=request)
+
+        self.assertEqual(auth_info.client, self.one_scope_client)
+        self.assertCountEqual(auth_info.scopes, [self.other_scope])
 
 
 class ClientTestCase(TestCase):
@@ -182,6 +207,7 @@ class AuthenticateClientViewTestCase(APITestCase):
     """
     def setUp(self):
         self.client_unprivileged = models.Client.objects.create_client('unprivileged', 'password')
+        self.client_oauth = models.Client.objects.create_client('oauth', 'password', oauth_enabled=True)
         self.viewer_client = models.Client.objects.create_client('viewer', 'password')
 
         client_content_type = ContentType.objects.get_for_model(models.Client)
@@ -200,12 +226,18 @@ class AuthenticateClientViewTestCase(APITestCase):
 
         self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_can_verify_client_with_view_permission(self):
+    def test_cannot_verify_non_oauth_client(self):
         self.client.force_authenticate(user=self.viewer_client.role)
         response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'unprivileged', 'secret': 'password'})
 
+        self.assertEquals(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    def test_can_verify_client_with_view_permission(self):
+        self.client.force_authenticate(user=self.viewer_client.role)
+        response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'oauth', 'secret': 'password'})
+
         self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(response.data['_id'], str(self.client_unprivileged.id))
+        self.assertEquals(response.data['_id'], str(self.client_oauth.id))
 
     def test_unprocessable_entity_if_wrong_client_id(self):
         self.client.force_authenticate(user=self.viewer_client.role)
