@@ -8,7 +8,12 @@ from lib.serializers import RelatedLabelField, LegacyBaseAPISerializer, Updatabl
 
 
 class AuthorizationSerializer(serializers.HyperlinkedModelSerializer):
-    scopes = RelatedLabelField(queryset=models.Scope.objects.all())
+    scopes = serializers.SlugRelatedField(
+        slug_field='label',
+        queryset=models.Scope.objects.all(),
+        read_only=False,
+        many=True
+    )
 
     class Meta:
         model = models.Authorization
@@ -33,6 +38,13 @@ class LegacyClientSerializer(LegacyBaseAPISerializer):
     id = serializers.CharField(
         read_only=True,
         source='label'
+    )
+
+    scopes = serializers.SlugRelatedField(
+        slug_field='label',
+        queryset=models.Scope.objects.all(),
+        read_only=False,
+        many=True
     )
 
     class Meta:
@@ -62,7 +74,7 @@ class ClientAuthenticationSerializer(serializers.Serializer):
         try:
             client = models.Client.objects.select_related('role').get(label=id)
 
-            if client.role.check_password(secret):
+            if client.role.check_password(secret) and client.oauth_enabled:
                 return {"client": client}
 
         except models.Client.DoesNotExist:

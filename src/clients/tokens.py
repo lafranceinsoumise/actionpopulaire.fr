@@ -60,8 +60,8 @@ class AccessToken():
         except (ObjectDoesNotExist, ValueError):
             raise InvalidTokenException()
 
-        # not too bad if ones of the scopes was deleted
-        scopes = list(Scope.objects.filter(label__in=scope_names))
+        # not too bad if ones of the scopes was deleted / also filter on scopes allowed for client
+        scopes = list(Scope.objects.filter(label__in=scope_names, clients=client))
 
         if not scopes:
             raise InvalidTokenException()

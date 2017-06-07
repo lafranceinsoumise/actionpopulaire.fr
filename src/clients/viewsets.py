@@ -1,3 +1,5 @@
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import list_route
@@ -27,6 +29,37 @@ class LegacyClientViewSet(ModelViewSet):
             else:
                 return self.queryset.none()
         return super(LegacyClientViewSet, self).get_queryset()
+
+    def get_object(self):
+        """
+        Returns the object the view is displaying.
+
+        You may want to override this if you need to provide non-standard
+        queryset lookups.  Eg if objects are referenced using multiple
+        keyword arguments in the url conf.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        assert lookup_url_kwarg in self.kwargs, (
+            'Expected view %s to be called with a URL keyword argument '
+            'named "%s". Fix your URL conf, or set the `.lookup_field` '
+            'attribute on the view correctly.' %
+            (self.__class__.__name__, lookup_url_kwarg)
+        )
+
+        try:
+            obj = queryset.get(**{self.lookup_field: self.kwargs[lookup_url_kwarg]})
+        except (ObjectDoesNotExist, ValidationError, TypeError, ValueError):
+            obj = get_object_or_404(queryset, label=self.kwargs[lookup_url_kwarg])
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
 
     @list_route(methods=["POST"], permission_classes=[HasViewClientPermission])
     def authenticate_client(self, request):
