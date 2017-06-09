@@ -263,7 +263,7 @@ class ScopeViewSetTestCase(APITestCase):
         response = self.client.get('/legacy/scopes/')
 
         self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertCountEqual([s['label'] for s in response.data], ['scope1', 'scope2'])
+        self.assertCountEqual([s['label'] for s in response.data], [s.label for s in models.Scope.objects.all()])
 
     @skip("TODO")
     def test_can_see_specific_scope(self):
