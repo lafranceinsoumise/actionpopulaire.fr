@@ -168,3 +168,24 @@ REST_FRAMEWORK = {
 AUTH_REDIS_URL = os.environ.get('AUTH_REDIS_URL', 'redis://localhost?db=0')
 AUTH_REDIS_MAX_CONNECTIONS = 5
 AUTH_REDIS_PREFIX = os.environ.get('AUTH_REDIS_PREFIX', 'AccessToken:')
+
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING')
+
+if not DEBUG:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'level': LOG_LEVEL,
+                'class': 'logging.StreamHandler'
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': True
+            }
+        }
+    }
