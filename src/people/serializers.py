@@ -17,16 +17,19 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         source='subscribed',
         required=False,
     )
+
     rsvps = serializers.HyperlinkedRelatedField(
         view_name='legacy:rsvp-detail',
         read_only=True,
         many=True
     )
+
     groups = serializers.PrimaryKeyRelatedField(
         read_only=True,
         many=True,
         source='supportgroups'
     )
+
     memberships = serializers.HyperlinkedRelatedField(
         view_name='legacy:membership-detail',
         read_only=True,
@@ -35,7 +38,7 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
 
     authorizations = PersonAuthorizationSerializer(
         many=True,
-        required=False
+        read_only=True
     )
 
     class Meta:
