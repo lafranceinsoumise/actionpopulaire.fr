@@ -1,6 +1,7 @@
 coverage==4.3.4
 dj-database-url==0.4.2
 Django==1.11
+django-cors-headers==2.1.0
 django-countries==4.4
 django-crispy-forms==1.6.1
 django-filter==1.0.2
