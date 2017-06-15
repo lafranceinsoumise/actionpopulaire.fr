@@ -14,6 +14,7 @@ class UUIDIdentified(models.Model):
         _('UUID'),
         primary_key=True,
         default=uuid.uuid4,
+        editable=False,
         help_text=_("UUID interne à l'API pour identifier la ressource")
     )
 
