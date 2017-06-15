@@ -193,7 +193,10 @@ if not DEBUG:
     }
 
 # SECURITY
-
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIAL = False
 CORS_URLS_REGEX = r'^/legacy/'
+
+if DEBUG:
+    INSTALLED_APPS += ['silk']
+    MIDDLEWARE += ['silk.middleware.SilkyMiddleware']

@@ -14,9 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
-from . import routers, admin
+from . import routers, admin, settings
 
 urlpatterns = [
     url(r'^admin/', admin.admin_site.urls),
     url(r'^legacy/', include(routers.legacy_api.urls, namespace='legacy')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += [url(r'^silk/', include('silk.urls', namespace='silk'))]
