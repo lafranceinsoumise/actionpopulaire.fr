@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db.models import Q
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
@@ -32,7 +33,8 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     permission_classes = (PermissionsOrReadOnly,)
     pagination_class = LegacyPaginator
     serializer_class = serializers.LegacyEventSerializer
-    queryset = models.Event.objects.all().select_related('calendar').prefetch_related('tags')
+    queryset = models.Event.objects.filter(end_time__date__gte=timezone.now()) \
+        .select_related('calendar').prefetch_related('tags')
     filter_class = EventFilterSet
 
 
@@ -54,7 +56,7 @@ class EventTagViewSet(ModelViewSet):
 
 class RSVPViewSet(CreationSerializerMixin, ModelViewSet):
     """
-    
+
     """
     def get_queryset(self):
         queryset = super(RSVPViewSet, self).get_queryset()
