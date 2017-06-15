@@ -13,7 +13,7 @@ class EventForm(forms.ModelForm):
         fields = (
             'name', 'description', 'start_time', 'end_time', 'calendar', 'tags', 'location_name', 'location_address1',
             'location_address2', 'location_city', 'location_zip', 'location_state', 'location_country', 'coordinates',
-            'contact_name', 'contact_email', 'contact_phone'
+            'contact_name', 'contact_email', 'contact_phone', 'nb_id', 'nb_path',
         )
         widgets = {
             'coordinates': OSMWidget
@@ -36,6 +36,9 @@ class EventAdmin(admin.ModelAdmin):
         (_('Contact'), {
             'fields': ('contact_name', 'contact_email', 'contact_phone')
         }),
+        (_('NationBuilder'), {
+            'fields': ('nb_id', 'nb_path',)
+        })
     )
 
     readonly_fields = ('id',)
