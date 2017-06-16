@@ -199,4 +199,4 @@ CORS_URLS_REGEX = r'^/legacy/'
 
 if DEBUG:
     INSTALLED_APPS += ['silk']
-    MIDDLEWARE += ['silk.middleware.SilkyMiddleware']
+    MIDDLEWARE.insert(0, 'silk.middleware.SilkyMiddleware')
