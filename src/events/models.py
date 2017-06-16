@@ -46,6 +46,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
         )
         indexes = (
             models.Index(fields=['start_time', 'end_time'], name='datetime_index'),
+            models.Index(fields=['end_time'], name='end_time_index'),
             models.Index(fields=['nb_path'], name='nb_path_index'),
         )
 
