@@ -25,6 +25,16 @@ class LegacySupportGroupSerializer(LegacyBaseAPISerializer, LegacyLocationAndCon
         }
 
 
+class SummaryGroupSerializer(serializers.ModelSerializer):
+    """Serializer used to generate the full list of groups (for the map for instance)
+    """
+    path = serializers.CharField(source='nb_path')
+
+    class Meta:
+        model = models.SupportGroup
+        fields = ('id', 'name', 'coordinates', 'path')
+
+
 class SupportGroupTagSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.SupportGroupTag

@@ -1,4 +1,3 @@
-from django.db.models import Q
 import django_filters
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -33,6 +32,16 @@ class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):
     serializer_class = serializers.LegacySupportGroupSerializer
     queryset = models.SupportGroup.objects.all().prefetch_related('tags')
     filter_class = SupportGroupFilterSet
+
+    @list_route(methods=['GET'])
+    def summary(self, request, *args, **kwargs):
+        supportgroups = models.SupportGroup.objects.all()
+        serializer = serializers.SummaryGroupSerializer(
+            instance=supportgroups,
+            many=True,
+            context=self.get_serializer_context()
+        )
+        return Response(data=serializer.data)
 
 
 class SupportGroupTagViewSet(ModelViewSet):

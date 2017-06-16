@@ -35,6 +35,12 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     queryset = models.Event.objects.all().select_related('calendar').prefetch_related('tags')
     filter_class = EventFilterSet
 
+    @list_route(methods=['GET'])
+    def summary(self, request, *args, **kwargs):
+        events = models.Event.objects.all()
+        serializer = serializers.SummaryEventSerializer(instance=events, many=True, context=self.get_serializer_context())
+        return Response(data=serializer.data)
+
 
 class CalendarViewSet(ModelViewSet):
     """
