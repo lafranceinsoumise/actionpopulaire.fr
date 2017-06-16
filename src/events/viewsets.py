@@ -40,7 +40,9 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     def summary(self, request, *args, **kwargs):
         events = models.Event.objects.filter(end_time__gt=timezone.now())
         serializer = serializers.SummaryEventSerializer(instance=events, many=True, context=self.get_serializer_context())
-        return Response(data=serializer.data)
+        response = Response(data=serializer.data)
+        response['Expires'] = '30s'
+        return response
 
 
 class CalendarViewSet(ModelViewSet):

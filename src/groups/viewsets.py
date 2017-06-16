@@ -41,7 +41,9 @@ class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):
             many=True,
             context=self.get_serializer_context()
         )
-        return Response(data=serializer.data)
+        response = Response(data=serializer.data)
+        response['Expires'] = '30s'
+        return response
 
 
 class SupportGroupTagViewSet(ModelViewSet):
