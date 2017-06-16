@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django.utils import timezone
+from django.views.decorators.cache import cache_control
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework.decorators import list_route
@@ -36,14 +37,12 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     queryset = models.Event.objects.all().select_related('calendar').prefetch_related('tags')
     filter_class = EventFilterSet
 
+
     @list_route(methods=['GET'])
     def summary(self, request, *args, **kwargs):
         events = models.Event.objects.filter(end_time__gt=timezone.now())
         serializer = serializers.SummaryEventSerializer(instance=events, many=True, context=self.get_serializer_context())
-        response = Response(data=serializer.data)
-        response['Expires'] = '30s'
-        response['Cache-control'] = 'public, max-age=30'
-        return response
+        return Response(data=serializer.data)
 
 
 class CalendarViewSet(ModelViewSet):
@@ -108,6 +107,7 @@ class NestedRSVPViewSet(CreationSerializerMixin, NestedViewSetMixin, ModelViewSe
         return context
 
     @list_route(methods=['PUT'], permission_classes=(DjangoModelPermissions,))
+    @cache_control(max_age=60, public=True)
     def bulk(self, request, *args, **kwargs):
         parents_query_dict = self.get_parents_query_dict()
         rsvps = models.RSVP.objects.filter(**parents_query_dict)

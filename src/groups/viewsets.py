@@ -1,4 +1,5 @@
 import django_filters
+from django.views.decorators.cache import cache_control
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
@@ -41,10 +42,7 @@ class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):
             many=True,
             context=self.get_serializer_context()
         )
-        response = Response(data=serializer.data)
-        response['Expires'] = '30s'
-        response['Cache-control'] = 'public, max-age=30'
-        return response
+        return Response(data=serializer.data)
 
 
 class SupportGroupTagViewSet(ModelViewSet):
@@ -104,6 +102,7 @@ class NestedMembershipViewSet(CreationSerializerMixin, NestedViewSetMixin, Model
         return context
 
     @list_route(methods=['PUT'], permission_classes=(DjangoModelPermissions,))
+    @cache_control(max_age=60, public=True)
     def bulk(self, request, *args, **kwargs):
         parents_query_dict = self.get_parents_query_dict()
         memberships = models.Membership.objects.filter(**parents_query_dict)
