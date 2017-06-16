@@ -42,6 +42,7 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
         serializer = serializers.SummaryEventSerializer(instance=events, many=True, context=self.get_serializer_context())
         response = Response(data=serializer.data)
         response['Expires'] = '30s'
+        response['Cache-control'] = 'public, max-age=30'
         return response
 
 
@@ -63,7 +64,7 @@ class EventTagViewSet(ModelViewSet):
 
 class RSVPViewSet(CreationSerializerMixin, ModelViewSet):
     """
-    
+
     """
     def get_queryset(self):
         queryset = super(RSVPViewSet, self).get_queryset()

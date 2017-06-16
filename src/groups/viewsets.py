@@ -43,6 +43,7 @@ class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):
         )
         response = Response(data=serializer.data)
         response['Expires'] = '30s'
+        response['Cache-control'] = 'public, max-age=30'
         return response
 
 
