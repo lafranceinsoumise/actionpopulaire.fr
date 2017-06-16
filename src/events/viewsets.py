@@ -40,7 +40,7 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
 
     @list_route(methods=['GET'])
     def summary(self, request, *args, **kwargs):
-        events = models.Event.objects.filter(end_time__gt=timezone.now())
+        events = models.Event.objects.filter(end_time__gt=timezone.now()).select_related('calendar')
         serializer = serializers.SummaryEventSerializer(instance=events, many=True, context=self.get_serializer_context())
         return Response(data=serializer.data)
 

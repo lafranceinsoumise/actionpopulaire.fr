@@ -27,10 +27,11 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
 
 class SummaryEventSerializer(serializers.ModelSerializer):
     path = serializers.CharField(source='nb_path')
+    calendar = serializers.SlugRelatedField('label', read_only=True)
 
     class Meta:
         model = models.Event
-        fields = ('id', 'name', 'coordinates', 'start_time', 'end_time', 'path')
+        fields = ('id', 'name', 'coordinates', 'start_time', 'end_time', 'path', 'calendar')
 
 
 class CalendarSerializer(serializers.HyperlinkedModelSerializer):
