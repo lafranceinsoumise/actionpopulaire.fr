@@ -39,6 +39,7 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
 
 
     @list_route(methods=['GET'])
+    @cache_control(max_age=60, public=True)
     def summary(self, request, *args, **kwargs):
         events = models.Event.objects.filter(end_time__gt=timezone.now()).select_related('calendar')
         serializer = serializers.SummaryEventSerializer(instance=events, many=True, context=self.get_serializer_context())
@@ -107,7 +108,6 @@ class NestedRSVPViewSet(CreationSerializerMixin, NestedViewSetMixin, ModelViewSe
         return context
 
     @list_route(methods=['PUT'], permission_classes=(DjangoModelPermissions,))
-    @cache_control(max_age=60, public=True)
     def bulk(self, request, *args, **kwargs):
         parents_query_dict = self.get_parents_query_dict()
         rsvps = models.RSVP.objects.filter(**parents_query_dict)

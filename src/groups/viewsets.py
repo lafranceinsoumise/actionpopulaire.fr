@@ -35,6 +35,7 @@ class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):
     filter_class = SupportGroupFilterSet
 
     @list_route(methods=['GET'])
+    @cache_control(max_age=60, public=True)
     def summary(self, request, *args, **kwargs):
         supportgroups = models.SupportGroup.objects.all()
         serializer = serializers.SummaryGroupSerializer(
@@ -102,7 +103,6 @@ class NestedMembershipViewSet(CreationSerializerMixin, NestedViewSetMixin, Model
         return context
 
     @list_route(methods=['PUT'], permission_classes=(DjangoModelPermissions,))
-    @cache_control(max_age=60, public=True)
     def bulk(self, request, *args, **kwargs):
         parents_query_dict = self.get_parents_query_dict()
         memberships = models.Membership.objects.filter(**parents_query_dict)
