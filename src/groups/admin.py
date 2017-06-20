@@ -1,27 +1,15 @@
 from django.contrib import admin
-from django import forms
-from django.contrib.gis.forms import OSMWidget
+from django.contrib.gis.admin import OSMGeoAdmin
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Count
 from api.admin import admin_site
 
+from lib.admin import CenterOnFranceMixin
 from . import models
 
 
-class SupportGroupForm(forms.ModelForm):
-    class Meta:
-        model = models.SupportGroup
-        fields = (
-            'name', 'description', 'tags', 'location_name', 'location_address1',
-            'location_address2', 'location_city', 'location_zip', 'location_state', 'location_country', 'coordinates',
-            'contact_name', 'contact_email', 'contact_phone', 'nb_id', 'nb_path',
-        )
-        widgets = {
-            'coordinates': OSMWidget
-        }
-
-
 @admin.register(models.SupportGroup, site=admin_site)
-class SupportGroupAdmin(admin.ModelAdmin):
+class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     fieldsets = (
         (None, {
             'fields': ('id', 'name',)
@@ -38,12 +26,30 @@ class SupportGroupAdmin(admin.ModelAdmin):
         }),
         (_('NationBuilder'), {
             'fields': ('nb_id', 'nb_path',)
-        })
+        }),
     )
-
     readonly_fields = ('id',)
 
-    form = SupportGroupForm
+    list_display = ('name', 'location_short', 'membership_count')
+
+    def location_short(self, object):
+        return _('{zip} {city}, {country}').format(
+            zip=object.location_zip,
+            city=object.location_city,
+            country=object.location_country.name
+        )
+    location_short.short_description = _("Lieu")
+    location_short.admin_order_field = 'location_zip'
+
+    def membership_count(self, object):
+        return object.membership_count
+    membership_count.short_description = _("Nombre de membres")
+    membership_count.admin_order_field = 'membership_count'
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+
+        return qs.annotate(membership_count=Count('memberships'))
 
 
 @admin.register(models.SupportGroupTag, site=admin_site)
