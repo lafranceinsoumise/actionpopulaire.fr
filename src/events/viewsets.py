@@ -7,17 +7,18 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from authentication.models import Role
 import django_filters
+from django_filters.rest_framework.backends import DjangoFilterBackend
 
 from lib.permissions import PermissionsOrReadOnly, RestrictViewPermissions, DjangoModelPermissions
 from lib.pagination import LegacyPaginator
-from lib.filters import LegacyDistanceFilter
+from lib.filters import DistanceFilter, OrderByDistanceToBackend
 from lib.views import NationBuilderViewMixin, CreationSerializerMixin
 
 from . import serializers, models
 
 
 class EventFilterSet(django_filters.rest_framework.FilterSet):
-    closeTo = LegacyDistanceFilter(name='coordinates', lookup_expr='distance_lte')
+    closeTo = DistanceFilter(name='coordinates', lookup_expr='distance_lte')
     after = django_filters.DateTimeFilter(name='start_time', lookup_expr='gte')
     before = django_filters.DateTimeFilter(name='start_time', lookup_expr='lte')
     path = django_filters.CharFilter(name='nb_path', lookup_expr='exact')
@@ -35,6 +36,7 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     pagination_class = LegacyPaginator
     serializer_class = serializers.LegacyEventSerializer
     queryset = models.Event.objects.all().select_related('calendar').prefetch_related('tags')
+    filter_backends = (DjangoFilterBackend, OrderByDistanceToBackend)
     filter_class = EventFilterSet
 
 

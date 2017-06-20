@@ -53,7 +53,7 @@ class LocationMixin(models.Model):
     """
     Mixin that adds location fields
     """
-    coordinates = models.PointField(_('coordonnées'), geography=True, null=True, blank=True)
+    coordinates = models.PointField(_('coordonnées'), geography=True, null=True, blank=True, spatial_index=True)
 
     location_name = models.CharField(_("nom du lieu"), max_length=255, blank=True)
     location_address = models.CharField(_('adresse complète'), max_length=255, blank=True)

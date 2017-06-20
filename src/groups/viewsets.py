@@ -1,4 +1,5 @@
 import django_filters
+from django_filters.rest_framework.backends import DjangoFilterBackend
 from django.views.decorators.cache import cache_control
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -7,7 +8,7 @@ from rest_framework.decorators import list_route
 
 from lib.permissions import PermissionsOrReadOnly, RestrictViewPermissions, DjangoModelPermissions
 from lib.pagination import LegacyPaginator
-from lib.filters import LegacyDistanceFilter
+from lib.filters import DistanceFilter, OrderByDistanceToBackend
 from lib.views import NationBuilderViewMixin, CreationSerializerMixin
 
 from authentication.models import Role
@@ -16,7 +17,7 @@ from . import serializers, models
 
 
 class SupportGroupFilterSet(django_filters.rest_framework.FilterSet):
-    closeTo = LegacyDistanceFilter(name='coordinates', lookup_expr='distance_lte')
+    closeTo = DistanceFilter(name='coordinates', lookup_expr='distance_lte')
     path = django_filters.CharFilter(name='nb_path', lookup_expr='exact')
 
     class Meta:
@@ -32,6 +33,7 @@ class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):
     pagination_class = LegacyPaginator
     serializer_class = serializers.LegacySupportGroupSerializer
     queryset = models.SupportGroup.objects.all().prefetch_related('tags')
+    filter_backends = (DjangoFilterBackend, OrderByDistanceToBackend)
     filter_class = SupportGroupFilterSet
 
     @list_route(methods=['GET'])
@@ -110,8 +112,12 @@ class NestedMembershipViewSet(CreationSerializerMixin, NestedViewSetMixin, Model
         context = self.get_serializer_context()
         context.update(parents_query_dict)
 
-        serializer = serializers.GroupMembershipBulkSerializer(memberships, data=request.data, many=True,
-                                                               context=context)
+        serializer = serializers.GroupMembershipBulkSerializer(
+            memberships,
+            data=request.data,
+            many=True,
+            context=context)
+
         serializer.is_valid(raise_exception=True)
 
         serializer.save()
