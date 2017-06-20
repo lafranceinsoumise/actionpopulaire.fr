@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'groups',
     'clients',
     'lib',
+    'front',
 ]
 
 MIDDLEWARE = [

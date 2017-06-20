@@ -16,9 +16,12 @@ Including another URLconf
 from django.conf.urls import url, include
 from . import routers, admin, settings
 
+import front.urls
+
 urlpatterns = [
     url(r'^admin/', admin.admin_site.urls),
     url(r'^legacy/', include(routers.legacy_api.urls, namespace='legacy')),
+    url(r'^', include(front.urls))
 ]
 
 if settings.DEBUG:
