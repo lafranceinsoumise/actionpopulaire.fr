@@ -13,7 +13,10 @@ def check_coordinates(coordinates):
     if not isinstance(coordinates, list) or len(coordinates) != 2:
         return False
 
-    if not isinstance(coordinates[0], float) or not isinstance(coordinates[1], float):
+    try:
+        for i, val in enumerate(coordinates):
+            coordinates[i] = float(val)
+    except ValueError:
         return False
 
     if not (-180. <= coordinates[0] <= 180.) or not (-90. <= coordinates[1] <= 90.):
@@ -46,8 +49,11 @@ class LegacyDistanceField(forms.Field):
         max_distance = obj['maxDistance']
         coordinates = obj['coordinates']
 
-        if not isinstance(max_distance, float):
+        try:
+            max_distance = float(max_distance)
+        except ValueError:
             raise DRFValidationError(self.default_error_messages['invalid_max_distance'], code='invalid_max_distance')
+
 
         if not check_coordinates(coordinates):
             raise DRFValidationError(self.default_error_messages['invalid_coordinates'], code='invalid_coordinates')

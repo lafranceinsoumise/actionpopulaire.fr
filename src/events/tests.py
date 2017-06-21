@@ -1,3 +1,4 @@
+import json
 from unittest import skip
 from django.test import TestCase
 from django.db import IntegrityError, transaction
@@ -6,7 +7,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.geos import Point
 
-from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework.reverse import reverse
 from rest_framework import status
 
@@ -24,7 +25,6 @@ class BasicEventTestCase(TestCase):
         cls.end_time = cls.start_time + timezone.timedelta(hours=2)
 
     def test_can_create_event(self):
-
         event = Event.objects.create(
             name='Event test',
             calendar=self.calendar,
@@ -37,11 +37,11 @@ class BasicEventTestCase(TestCase):
     def test_cannot_create_without_dates(self):
         with transaction.atomic():
             with self.assertRaises(IntegrityError):
-                    Event.objects.create(
-                        name='Event test',
-                        calendar=self.calendar,
-                        start_time=self.start_time
-                    )
+                Event.objects.create(
+                    name='Event test',
+                    calendar=self.calendar,
+                    start_time=self.start_time
+                )
 
         with transaction.atomic():
             with self.assertRaises(IntegrityError):
@@ -269,14 +269,7 @@ class LegacyEventViewSetTestCase(TestCase):
         self.assertEqual(self.event.description, 'Plus mieux!')
 
 
-class FiltersTestCase(TestCase):
-    def get_request(self, path='', data=None, **extra):
-        return self.as_superuser(self.factory.get(path, data, **extra))
-
-    def as_superuser(self, request):
-        force_authenticate(request, self.superuser.role)
-        return request
-
+class FiltersTestCase(APITestCase):
     def setUp(self):
         self.superuser = Person.objects.create_superperson('super@user.fr', None)
 
@@ -312,44 +305,26 @@ class FiltersTestCase(TestCase):
 
         self.eiffel_coordinates = [2.294444, 48.858333]
 
-        self.factory = APIRequestFactory()
-        self.list_view = LegacyEventViewSet.as_view({
-            'get': 'list',
-            'post': 'create'
-        })
-
-        self.detail_view = LegacyEventViewSet.as_view({
-            'get': 'retrieve',
-            'put': 'update',
-            'patch': 'partial_update',
-            'delete': 'destroy',
-        })
-
     def test_can_query_by_pk(self):
-        request = self.get_request()
-
-        response = self.detail_view(request, pk=self.paris_june_event.pk)
+        response = self.client.get('/legacy/events/%s/' % self.paris_june_event.id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], self.paris_june_event.name)
 
     def test_can_query_by_nb_id(self):
-        request = self.get_request()
-
-        response = self.detail_view(request, pk=str(self.paris_june_event.nb_id))
+        response = self.client.get('/legacy/events/%s/' % self.paris_june_event.nb_id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['_id'], str(self.paris_june_event.pk))
 
     def test_filter_coordinates_no_results(self):
         # la tour eiffel est à plus d'un kilomètre de Notre-Dame
-        filter_string = '{"maxDistance": 1000, "coordinates": %r}' % (self.eiffel_coordinates,)
-
-        request = self.factory.get('', data={
-            'closeTo': filter_string
+        filter_string = json.dumps({
+            "maxDistance": 1000,
+            "coordinates": self.eiffel_coordinates,
         })
 
-        response = self.list_view(request)
+        response = self.client.get('/legacy/events/?closeTo=%s' % filter_string)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('_items', response.data)
@@ -357,13 +332,12 @@ class FiltersTestCase(TestCase):
 
     def test_filter_coordinates_one_result(self):
         # la tour eiffel est à moins de 10 km de Notre-Dame
-        filter_string = '{"maxDistance": 10000, "coordinates": %r}' % (self.eiffel_coordinates,)
-
-        request = self.factory.get('', data={
-            'closeTo': filter_string,
+        filter_string = json.dumps({
+            "maxDistance": 10000,
+            "coordinates": self.eiffel_coordinates,
         })
 
-        response = self.list_view(request)
+        response = self.client.get('/legacy/events/?closeTo=%s' % filter_string)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('_items', response.data)
@@ -371,16 +345,23 @@ class FiltersTestCase(TestCase):
         self.assertEqual(response.data['_items'][0]['_id'], str(self.paris_june_event.pk))
 
     def test_filter_by_path(self):
-        request = self.factory.get('', data={
-            'path': '/amiens_july',
-        })
-
-        response = self.list_view(request)
+        response = self.client.get('/legacy/events/?path=/amiens_july')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('_items', response.data)
         self.assertEqual(len(response.data['_items']), 1)
         self.assertEqual(response.data['_items'][0]['_id'], str(self.amiens_july_event.pk))
+
+    def test_order_by_distance_to(self):
+        response = self.client.get('/legacy/events/?order_by_distance_to=%s' % json.dumps(self.eiffel_coordinates))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('_items', response.data)
+        self.assertEqual(len(response.data['_items']), 3)
+        self.assertEqual(
+            [item['_id'] for item in response.data['_items']],
+            [str(self.paris_june_event.id), str(self.amiens_july_event.id), str(self.marseille_august_event.id)]
+        )
 
 
 class RSVPEndpointTestCase(TestCase):
@@ -483,7 +464,8 @@ class RSVPEndpointTestCase(TestCase):
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(len(response.data), 2)
         assert all(rsvp['person'].split('/')[-2] == str(self.unprivileged_person.id) for rsvp in response.data)
-        self.assertCountEqual([rsvp['event'].split('/')[-2] for rsvp in response.data], [str(self.event.id), str(self.secondary_event.id)])
+        self.assertCountEqual([rsvp['event'].split('/')[-2] for rsvp in response.data],
+                              [str(self.event.id), str(self.secondary_event.id)])
 
     @skip('TODO')
     def test_cannot_create_rsvp_as_unauthenticated(self):
@@ -496,7 +478,6 @@ class RSVPEndpointTestCase(TestCase):
     @skip('TODO')
     def test_can_modify_own_rsvp(self):
         pass
-
 
 
 class EventRSVPEndpointTestCase(TestCase):
