@@ -5,7 +5,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 
-class APIAuthenticationForm(AuthenticationForm):
+class PersonAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(
         label=_('Adresse email'),
         widget=forms.EmailInput(attrs={'autofocus': True}),
@@ -20,7 +20,7 @@ class APIAuthenticationForm(AuthenticationForm):
     def __init__(self, request=None, *args, **kwargs):
         self.request = request
         self.user_cache = None
-        super(APIAuthenticationForm, self).__init__(*args, **kwargs)
+        super(PersonAuthenticationForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         email = self.cleaned_data.get('username')
@@ -41,7 +41,7 @@ class APIAuthenticationForm(AuthenticationForm):
 
 
 class APIAdminSite(AdminSite):
-    login_form = APIAuthenticationForm
+    login_form = PersonAuthenticationForm
 
 
 admin_site = APIAdminSite()

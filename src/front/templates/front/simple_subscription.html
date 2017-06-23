@@ -1,0 +1,21 @@
+{% extends "front/layout.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Rejoindre la France insoumise{% endblock %}
+
+{% block main %}
+    <div class="row">
+        <div class="col-xs-12 col-md-6 col-md-push-3 card">
+            <h3 class="text-center">Je rejoins la France insoumise</h3>
+            <div class="row">
+                    <div class="col-sm-12 form-group">
+                        {% crispy form %}
+                        <p class="col-xs-12">Je recevrai des informations de la France insoumise</p>
+                        <p class="text-right"><small>Si vous habitez hors de France,
+                        <a href="{% url "subscription_overseas" %}">cliquez-ici</a></small></p>
+                    </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

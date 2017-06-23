@@ -30,19 +30,35 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 # Application definition
 
 INSTALLED_APPS = [
+    # default contrib apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # security
     'corsheaders',
+
+    # rest_framework
     'rest_framework',
+
+    # geodjango
     'django.contrib.gis',
     'rest_framework_gis',
+
+    # rules
     'rules.apps.AutodiscoverRulesConfig',
+
+    # crispy forms
     'crispy_forms',
+
+    # django filters
     'django_filters',
+
+    #django_countries
+    'django_countries',
+    # fi apps
     'authentication',
     'people',
     'events',
@@ -201,3 +217,5 @@ CORS_URLS_REGEX = r'^/legacy/'
 if DEBUG:
     INSTALLED_APPS += ['silk']
     MIDDLEWARE.insert(0, 'silk.middleware.SilkyMiddleware')
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
