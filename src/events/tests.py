@@ -320,11 +320,11 @@ class FiltersTestCase(APITestCase):
     def test_filter_coordinates_no_results(self):
         # la tour eiffel est à plus d'un kilomètre de Notre-Dame
         filter_string = json.dumps({
-            "maxDistance": 1000,
+            "max_distance": 1000,
             "coordinates": self.eiffel_coordinates,
         })
 
-        response = self.client.get('/legacy/events/?closeTo=%s' % filter_string)
+        response = self.client.get('/legacy/events/?close_to=%s' % filter_string)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('_items', response.data)
@@ -333,11 +333,11 @@ class FiltersTestCase(APITestCase):
     def test_filter_coordinates_one_result(self):
         # la tour eiffel est à moins de 10 km de Notre-Dame
         filter_string = json.dumps({
-            "maxDistance": 10000,
+            "max_distance": 10000,
             "coordinates": self.eiffel_coordinates,
         })
 
-        response = self.client.get('/legacy/events/?closeTo=%s' % filter_string)
+        response = self.client.get('/legacy/events/?close_to=%s' % filter_string)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('_items', response.data)

@@ -17,12 +17,12 @@ from . import serializers, models
 
 
 class SupportGroupFilterSet(django_filters.rest_framework.FilterSet):
-    closeTo = DistanceFilter(name='coordinates', lookup_expr='distance_lte')
+    close_to = DistanceFilter(name='coordinates', lookup_expr='distance_lte')
     path = django_filters.CharFilter(name='nb_path', lookup_expr='exact')
 
     class Meta:
         model = models.SupportGroup
-        fields = ('contact_email', 'closeTo', 'path',)
+        fields = ('contact_email', 'close_to', 'path',)
 
 
 class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):

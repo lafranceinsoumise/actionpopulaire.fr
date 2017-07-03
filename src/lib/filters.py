@@ -28,8 +28,8 @@ def check_coordinates(coordinates):
 class LegacyDistanceField(forms.Field):
     default_error_messages = {
         'invalid_json': _('Saississez un object JSON valide'),
-        'invalid_fields': _("L'objet doit contenir les champs 'maxDistance' et 'coordinates'"),
-        'invalid_max_distance': _("'maxDistance' doit être de type numérique"),
+        'invalid_fields': _("L'objet doit contenir les champs 'max_distance' et 'coordinates'"),
+        'invalid_max_distance': _("'max_distance' doit être de type numérique"),
         'invalid_coordinates': _(
             "'coordinates' doit être un tableau de coordonnées géographiques [Longitude, Latitude]")
     }
@@ -43,10 +43,10 @@ class LegacyDistanceField(forms.Field):
         except JSONDecodeError:
             raise DRFValidationError(self.default_error_messages['invalid_json'], code='invalid_json')
 
-        if set(obj) != {'maxDistance', 'coordinates'}:
+        if set(obj) != {'max_distance', 'coordinates'}:
             raise DRFValidationError(self.default_error_messages['invalid_fields'], code='invalid_fields')
 
-        max_distance = obj['maxDistance']
+        max_distance = obj['max_distance']
         coordinates = obj['coordinates']
 
         try:

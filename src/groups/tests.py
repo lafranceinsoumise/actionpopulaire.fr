@@ -266,10 +266,10 @@ class FiltersTestCase(TestCase):
 
     def test_filter_coordinates_no_results(self):
         # la tour eiffel est à plus d'un kilomètre de Notre-Dame
-        filter_string = '{"maxDistance": 1000, "coordinates": %r}' % (self.eiffel_coordinates,)
+        filter_string = '{"max_distance": 1000, "coordinates": %r}' % (self.eiffel_coordinates,)
 
         request = self.factory.get('', data={
-            'closeTo': filter_string
+            'close_to': filter_string
         })
 
         response = self.list_view(request)
@@ -280,10 +280,10 @@ class FiltersTestCase(TestCase):
 
     def test_filter_coordinates_one_result(self):
         # la tour eiffel est à moins de 10 km de Notre-Dame
-        filter_string = '{"maxDistance": 10000, "coordinates": %r}' % (self.eiffel_coordinates,)
+        filter_string = '{"max_distance": 10000, "coordinates": %r}' % (self.eiffel_coordinates,)
 
         request = self.factory.get('', data={
-            'closeTo': filter_string,
+            'close_to': filter_string,
         })
 
         response = self.list_view(request)
