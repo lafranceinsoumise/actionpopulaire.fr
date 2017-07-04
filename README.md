@@ -109,6 +109,7 @@ Filters can be passed as query parameters, eg `https://api.lafranceinsoumise.fr/
 * `close_to` : find events close to a given location. Value must be a JSON Object with
     * `max_distance` : distance in meters
     * `coordinates` : array of coordinates [Longitude, Latitude]
+* `order_by_distance_to` : list all events, but by ordering them by distance to JSON array of [Longitude, Latitude]. By getting the first page, you get the 25 closest events.
 
 ## `events`
 
