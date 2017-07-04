@@ -20,9 +20,18 @@ import front.urls
 
 urlpatterns = [
     url(r'^admin/', admin.admin_site.urls),
-    url(r'^legacy/', include(routers.legacy_api.urls, namespace='legacy')),
-    url(r'^', include(front.urls))
 ]
+
+if settings.DEBUG or settings.ENABLE_API:
+    urlpatterns.append(
+        url(r'^legacy/', include(routers.legacy_api.urls, namespace='legacy'))
+    )
+
+if settings.DEBUG or settings.ENABLE_FRONT:
+    urlpatterns.append(
+        url(r'^', include(front.urls))
+    )
+
 
 if settings.DEBUG:
     urlpatterns += [url(r'^silk/', include('silk.urls', namespace='silk'))]
