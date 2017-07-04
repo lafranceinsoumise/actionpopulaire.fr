@@ -81,3 +81,35 @@ c.role.set_password('client_password')
 c.role.is_superuser = True
 c.role.save()
 ```
+
+# Public endpoints
+
+## `/events`
+
+The list of all published, upcoming events (paginated).
+
+To get the complete list in one request, use `/events/summary`.
+
+## `/groups`
+
+The list of all published groups.
+
+To get the complete list in one request, use `/groups/summary`.
+
+# Resources filters
+
+Each resource expose a series of filter that you can use to fetch a subset of the resource collection.
+
+Filters can be passed as query parameters, eg `https://api.lafranceinsoumise.fr/legacy/groups/?contact_email=example@example.com`
+
+## `groups` and `events`
+
+* `contact_email`
+* `nb_path` : path on legacy NationBuilder website
+* `close_to` : find events close to a given location. Value must be a JSON Object with
+    * `max_distance` : distance in meters
+    * `coordinates` : array of coordinates [Longitude, Latitude]
+
+## `events`
+
+* `start_time`: ISO 8601 Datetime, get only events starting after this date
