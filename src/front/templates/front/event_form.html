@@ -1,0 +1,88 @@
+{% extends "front/simple_layout.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block main %}
+    <h3 class="text-center">{{ title }}</h3>
+    <div class="row">
+        <div class="col-sm-12 form-group">
+            {% crispy form %}
+        </div>
+    </div>
+
+    <script>
+      $(function () {
+        var startTime = $("#id_start_time");
+        var endTime = $("#id_end_time");
+
+        var buttons = [1, 2, 4].map(function(i) {
+          return ' <button type="button" class="duration-btn btn btn-default btn-xs" data-number="'+i+'"><i class="fa fa-arrow-right"></i> ' + i + "h</button>";
+        }).join('');
+
+        $('#div_id_end_time').append('<span class="help-block"><span id="id_duration"></span>' + buttons + '</span>');
+
+        $('.duration-btn').on('click', function(e) {
+          var date = startTime.data('DateTimePicker').date();
+
+          if(date) {
+            endTime.data('DateTimePicker').date(date.add(+$(e.target).data('number'), 'hours'));
+          }
+        });
+
+        var durationHelpText = $('#id_duration');
+
+        var startTimeDate = startTime.data('DateTimePicker').date();
+        var endTimeDate = endTime.data("DateTimePicker").date();
+
+        startTime.on("dp.change", function (e) {
+          endTime.data("DateTimePicker").minDate(e.date);
+        });
+
+        if(startTimeDate) {
+          endTime.data("DateTimePicker").minDate(startTimeDate);
+        }
+
+        function pluralize(n, s) {
+          return n === 1 ? n + " " + s : n + " " + s + 's';
+        }
+
+        function humanizeDuration(duration) {
+            var days = Math.floor(duration.asDays());
+            var hours = Math.floor(duration.hours());
+            var minutes = Math.floor(duration.minutes());
+
+            if (days > 0) {
+              return days > 1 ? days + " jours" : "1 journée";
+            }
+
+            if (hours && minutes) {
+              return pluralize(hours, 'heure') + ' et ' + pluralize(minutes, 'minute');
+            }
+
+            if (hours) {
+              return pluralize(hours, 'heure');
+            }
+
+            return pluralize(minutes, 'minute');
+        }
+
+        function setDuration(startTimeDate, endTimeDate) {
+          if (startTimeDate && endTimeDate) {
+            var duration = moment.duration(endTimeDate.diff(startTimeDate, 'minutes'), 'minutes');
+            durationHelpText.text("Pour une durée de " + humanizeDuration(duration));
+          } else {
+            durationHelpText.text("");
+          }
+        }
+
+        setDuration(startTimeDate, endTimeDate);
+
+        $('#id_start_time, #id_end_time').on("dp.change", function (e) {
+            setDuration(startTime.data('DateTimePicker').date(), endTime.data('DateTimePicker').date());
+        });
+
+      })
+    </script>
+{% endblock %}

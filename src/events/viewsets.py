@@ -39,7 +39,6 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     filter_backends = (DjangoFilterBackend, OrderByDistanceToBackend)
     filter_class = EventFilterSet
 
-
     @list_route(methods=['GET'])
     @cache_control(max_age=60, public=True)
     def summary(self, request, *args, **kwargs):

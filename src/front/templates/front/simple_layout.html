@@ -1,0 +1,48 @@
+{% load static %}
+<!doctype html>
+<html lang="fr-FR" prefix="og: http://ogp.me/ns#">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}TITLE{% endblock %}</title>
+
+    {# TODO ADD OPENGRAPH / CANONICAL #}
+    <link rel="stylesheet" href="https://lafranceinsoumise.fr/app/themes/theme-wp/dist/styles/main-969502cb50.css"
+          type="text/css">
+    <link rel="icon" href="{% static "front/images/cropped-cropped-phi-32x32.png" %}" sizes="32x32"/>
+    <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>
+    <link rel="apple-touch-icon-precomposed" href="{% static "front/images/cropped-cropped-phi-180x180.png" %}"/>
+    <meta name="msapplication-TileImage" content="{% static "front/images/cropped-cropped-phi-270x270.png" %}"/>
+
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha256-3dkvEK0WLHRJ7/Csr0BZjAWxERc5WH7bdeUya2aXxdU= sha512-+L4yy6FRcDGbXJ9mPG8MT/3UCDzwR9gPeyFNMCtInsol++5m3bk2bXWKdZjvybmohrAsn3Ua5x8gfLnbE1YkOg==" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js">
+    </script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js">
+    </script>
+
+    {{ form.media }}
+
+    {% block additional_headers %}{% endblock %}
+</head>
+<body class="home archive">
+<!--[if IE]>
+      <div class="alert alert-warning">
+        Vous utilisez une version obsolète de votre navigateur. Veuillez le  <a href="http://browsehappy.com/">mettre à jour</a> pour visionner votre site correctement.      </div>
+    <![endif]-->
+<div class="wrap container" role="document">
+    <div class="content row">
+        <main class="main">
+            {% block main %}
+            {% endblock %}
+        </main>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/fr.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+
+</body>
+</html>

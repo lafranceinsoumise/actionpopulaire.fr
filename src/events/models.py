@@ -15,7 +15,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
         _("nom"),
         max_length=255,
         blank=False,
-        help_text=_("Le nom du groupe de l'événement"),
+        help_text=_("Le nom de l'événement"),
     )
 
     description = models.TextField(

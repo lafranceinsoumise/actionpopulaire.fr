@@ -66,6 +66,10 @@ class DistanceFilter(django_filters.Filter):
 
 
 class OrderByDistanceToBackend(object):
+    """
+
+    """
+
     error_message = _("le paramètre 'order_by_distance_to' devrait être un tableau JSON [lon, lat]")
 
     def filter_queryset(self, request, queryset, view):

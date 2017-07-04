@@ -58,6 +58,7 @@ INSTALLED_APPS = [
 
     #django_countries
     'django_countries',
+
     # fi apps
     'authentication',
     'people',
