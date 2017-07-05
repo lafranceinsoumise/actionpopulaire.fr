@@ -1,6 +1,15 @@
 api-django
 ==========
 
+1. Installation
+    1. [Configure PostgreSQL](#configure-postgresql)
+    2. [Install requirements](#install-requirements)
+    3. [Create super users](#create-super-user-person)
+2. [Usage : public endpoints](#public-endpoints)
+    1. [/events](#events)
+    1. [/groups](#groups)
+    2. [Resources filters](#resources-filters)
+
 Configure PostgreSQL
 --------------------
 
