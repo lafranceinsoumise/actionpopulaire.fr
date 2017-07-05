@@ -23,6 +23,7 @@ idna==2.5
 Jinja2==2.9.6
 kombu==4.1.0
 MarkupSafe==1.0
+oauthlib==2.0.2
 psutil==5.2.2
 psycopg2==2.7.1
 pycodestyle==2.3.1
@@ -32,6 +33,7 @@ pytz==2017.2
 redis==2.10.5
 redislite==3.2.311
 requests==2.18.1
+requests-oauthlib==0.8.0
 rules==1.2
 six==1.10.0
 sqlparse==0.2.3

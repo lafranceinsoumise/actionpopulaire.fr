@@ -6,6 +6,7 @@ from django.db import migrations
 
 
 basic_scopes = [
+    ('get_profile', 'Obtenir l\'url du profil'),
     ('view_profile', 'Voir mon profil'),
     ('edit_profile', 'Changer mon profil'),
     ('edit_event', 'Éditer mes événements'),

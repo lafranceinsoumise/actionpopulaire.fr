@@ -188,6 +188,7 @@ AUTHENTICATION_BACKENDS = (
     'rules.permissions.ObjectPermissionBackend',
     'django.contrib.auth.backends.ModelBackend',
     'people.backend.PersonBackend',
+    'front.backend.OAuth2Backend',
 )
 
 # REST_FRAMEWORK
@@ -280,3 +281,22 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CELERY_BROKER_URL = os.environ.get('BROKER_URL', 'redis://')
 # make sure celery does not mess with the root logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+
+# Front end configuration
+FRONT_OAUTH_CLIENT = 'api_front'
+FRONT_OAUTH_SECRET = 'incredible password'
+FRONT_OAUTH_AUTH_URL = 'http://localhost:4002/autoriser'
+FRONT_OAUTH_TOKEN_URL = 'http://localhost:4002/token'
+FRONT_OAUTH_REDIRECT_BASE_URL = 'http://localhost:8000'
+
+OAUTH = {
+    'client_id': os.environ.get('OAUTH_CLIENT_ID', 'api_front'),
+    'client_secret': os.environ.get('OAUTH_CLIENT_SECRET', 'incredible password'),
+    'authorization_url': os.environ.get('OAUTH_AUTHORIZATION_URL', 'http://localhost:4002/autoriser'),
+    'token_exchange_url': os.environ.get('OAUTH_TOKEN_URL', 'http://localhost:4002/token'),
+    'redirect_domain': os.environ.get('OAUTH_REDIRECT_DOMAIN', 'http://localhost:8000'),
+    'logoff_url': os.environ.get('OAUTH_LOGOFF_URL', 'http://localhost:4002/deconnexion'),
+}
+
+# allow insecure transports for OAUTHLIB in DEBUG mode
+os.environ.setdefault('OAUTHLIB_INSECURE_TRANSPORT', 'y' if DEBUG else '')
