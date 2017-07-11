@@ -27,8 +27,13 @@ class Command(BaseCommand):
             dest='generate_password',
             action='store_true'
         )
+        parser.add_argument(
+            '--oauth',
+            dest='oauth',
+            action='store_true'
+        )
 
-    def handle(self, *args, clientlabel, generate_password, groups, **options):
+    def handle(self, *args, clientlabel, generate_password, groups, oauth, **options):
         if generate_password:
             secret = generate_secret()
         else:
@@ -36,14 +41,30 @@ class Command(BaseCommand):
 
         client, created = Client.objects.get_or_create(label=clientlabel)
 
-        if secret:
+        if created:
+            self.stdout.write(self.style.SUCCESS('Created client'))
+
+        if secret and not client.role.check_password(secret):
             client.role.set_password(secret)
             client.role.save()
+            self.stdout.write('Set secret to new value')
+
+        if client.oauth_enabled != oauth:
+            client.oauth_enabled = oauth
+            client.save()
+            self.stdout.write('Enabled oauth for client' if oauth else 'Disabled oauth for client')
 
         current_groups = [group.name for group in client.role.groups.all()]
 
         for group in (groups or []):
             if group not in current_groups:
                 client.role.groups.add(Group.objects.get(name=group))
+                self.stdout.write('Added client to group %s' % group)
 
-        return secret or ''
+        for group in current_groups:
+            if group.name not in (groups or []):
+                client.role.groups.remove(group)
+                self.stdout.write('Removed client from group %s' % group.name)
+
+        if generate_password:
+            return secret
