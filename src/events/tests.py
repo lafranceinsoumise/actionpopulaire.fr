@@ -151,6 +151,10 @@ class LegacyEventViewSetTestCase(TestCase):
             email='event@event.com'
         )
 
+        self.attendee_person = Person.objects.create_person(
+            email='attendee@attendee.com'
+        )
+
         event_content_type = ContentType.objects.get_for_model(Event)
         add_permission = Permission.objects.get(content_type=event_content_type, codename='add_event')
         change_permission = Permission.objects.get(content_type=event_content_type, codename='change_event')
@@ -158,6 +162,11 @@ class LegacyEventViewSetTestCase(TestCase):
         self.adder_person.role.user_permissions.add(add_permission)
         self.changer_person.role.user_permissions.add(change_permission)
         self.event.organizers.add(self.one_event_person)
+        RSVP.objects.create(
+            person=self.attendee_person,
+            event=self.event,
+            guests=10
+        )
 
         self.detail_view = LegacyEventViewSet.as_view({
             'get': 'retrieve',
@@ -192,7 +201,8 @@ class LegacyEventViewSetTestCase(TestCase):
 
         self.assertEqual(item['_id'], str(self.event.pk))
         self.assertEqual(item['name'], self.event.name)
-        assert {'name', 'path', 'id', 'location', 'contact', 'tags', 'coordinates'}.issubset(item)
+        self.assertEqual(item['participants'], self.event.participants)
+        assert {'name', 'path', 'id', 'location', 'contact', 'tags', 'coordinates', 'participants'}.issubset(item)
 
     def test_can_see_event_details_while_unauthenticated(self):
         request = self.factory.get('')
