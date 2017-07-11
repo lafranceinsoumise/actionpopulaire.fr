@@ -1,0 +1,42 @@
+{% extends "front/simple_layout.html" %}
+
+{% block title %}Mes événements{% endblock title %}
+
+{% block main %}
+    <h2 class="text-center">Les événements que j'organise</h2>
+    {% for event in events %}
+        <div>
+            <h3>
+                {{ event.name }}
+                <small>
+                    &bull; <a href="{% url "edit_event" event.pk %}">Modifier</a>
+                </small>
+            </h3>
+            <div>{{ event.get_display_date }}</div>
+            <div>{{ event.location_name }}</div>
+        </div>
+    {% empty %}
+        <div>Vous n'avez organisé aucun événement.</div>
+    {% endfor %}
+
+    <h2 class="text-center">Les événements auxquels je participe</h2>
+    {% for rsvp in rsvps %}
+        <div>
+            <h3>
+                {{ rsvp.event.name }}
+                <small>
+                    &bull; <a href="#">Annuler</a>
+                </small>
+            </h3>
+            <div>{{ event.get_display_date }}</div>
+            <div>{{ event.location_name }}</div>
+            {% if rsvp.guests == 1 %}
+                <div>Je viens avec un&middot;e invité&middot;e</div>
+            {% elif rsvp.guests > 0 %}
+                <div>Je viens avec {{ rsvp.guests }} invité&middot;e&middot;s</div>
+            {% endif %}
+        </div>
+    {% empty %}
+        <div>Aucun événement en attente.</div>
+    {% endfor %}
+{% endblock %}

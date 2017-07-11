@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from crispy_forms.helper import FormHelper
 from django_countries import countries
@@ -197,8 +198,6 @@ class SupportGroupForm(LocationFormMixin, forms.ModelForm):
         self.helper.layout = Layout(
             Row(
                 Div('name', css_class='col-md-12'),
-                Div('start_time', css_class='col-md-6'),
-                Div('duration', css_class='col-md-6'),
                 Section(
                     _('Informations de contact'),
                     Div('contact_name', css_class='col-md-12'),

@@ -1,0 +1,17 @@
+{% extends "front/simple_layout.html" %}
+
+{% block title %}Quitter le groupe {{ group.name }}{% endblock %}
+
+{% block main %}
+    <h3 class="text-center">Quitter le groupe {{ group.name }}</h3>
+    <div class="row">
+        <div class="col-sm-12 form-group">
+            Souhaitez vous réellement quitter le groupe {{ group.name }} ?
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <a href="{{ success_url }}" class="btn btn-info">Retour</a>
+            <button type="submit" class="btn btn-danger">Quitter le groupe</button>
+        </form>
+    </div>
+{% endblock %}

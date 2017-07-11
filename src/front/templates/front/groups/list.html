@@ -1,0 +1,34 @@
+{% extends "front/simple_layout.html" %}
+
+{% block title %}Mes groupes d'appui{% endblock title %}
+
+{% block main %}
+    <h2 class="text-center">Les groupes dont je suis membre</h2>
+    {% for membership in memberships %}
+        <div>
+            <h3>
+                {{ membership.supportgroup.name }}
+                <small>
+                    {% if membership.is_manager %}
+                        &bull; <a href="{% url "edit_group" membership.supportgroup.pk %}">Modifier</a>
+                    {% endif %}
+                    {% if not membership.is_referent %}
+                        &bull; <a href="{% url "quit_group" membership.supportgroup.pk %}">Quitter</a>
+                    {% endif %}
+                </small>
+            </h3>
+            <div>
+                {% if membership.is_referent %}
+                    Membre référent
+                {% elif membership.is_manager %}
+                    Modérateur
+                {% else %}
+                    Membre
+                {% endif %}
+            </div>
+            <div>Lieu : {{ membership.supportgroup.location_name }}</div>
+        </div>
+    {% empty %}
+        <div>Vous n'êtes membre d'aucun groupe d'appui.</div>
+    {% endfor %}
+{% endblock %}

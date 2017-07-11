@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
 
@@ -67,6 +68,26 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
             return self._participants
         except AttributeError:
             return self.rsvps.aggregate(participants=models.Sum(models.F('guests') + 1))['participants']
+
+    def get_display_date(self):
+        tz = timezone.get_current_timezone()
+        start_time = self.start_time.astimezone(tz)
+        end_time = self.end_time.astimezone(tz)
+
+        if start_time.date() == end_time.date():
+            date = formats.date_format(start_time, 'DATE_FORMAT')
+            return _("Le {date}, de {start_hour} à {end_hour}").format(
+                date=date,
+                start_hour=formats.time_format(start_time, 'TIME_FORMAT'),
+                end_hour=formats.time_format(end_time, 'TIME_FORMAT')
+            )
+
+        return _("Du {start_date}, {start_time} au {end_date}, {end_time}").format(
+            start_date=formats.date_format(start_time, 'DATE_FORMAT'),
+            start_time=formats.date_format(start_time, 'TIME_FORMAT'),
+            end_date=formats.date_format(end_time, 'DATE_FORMAT'),
+            end_time=formats.date_format(end_time, 'TIME_FORMAT'),
+        )
 
 
 class EventTag(AbstractLabel):

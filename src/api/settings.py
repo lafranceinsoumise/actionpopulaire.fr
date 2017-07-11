@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 import dj_database_url
 import dj_email_url
+from django.contrib.messages import ERROR
 
 ENABLE_API = not os.environ.get('ENABLE_API', 'y').lower() in ['n', 'no', 'false']
 ENABLE_FRONT = os.environ.get('ENABLE_FRONT', 'n').lower() in ['y', 'yes', 'true']
@@ -110,6 +111,10 @@ TEMPLATES = [
     },
 ]
 
+MESSAGE_TAGS = {
+    ERROR: 'danger'
+}
+
 WSGI_APPLICATION = 'api.wsgi.application'
 
 # Database
@@ -169,7 +174,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'fr-fr'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 
@@ -302,4 +307,5 @@ OAUTH = {
 }
 
 # allow insecure transports for OAUTHLIB in DEBUG mode
-os.environ.setdefault('OAUTHLIB_INSECURE_TRANSPORT', 'y' if DEBUG else '')
+if DEBUG:
+    os.environ.setdefault('OAUTHLIB_INSECURE_TRANSPORT', 'y')
