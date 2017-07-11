@@ -55,7 +55,10 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
 
     @property
     def participants(self):
-        return self.rsvps.aggregate(participants=models.Sum(models.F('guests') + 1))['participants']
+        try:
+            return self._participants
+        except AttributeError:
+            return self.rsvps.aggregate(participants=models.Sum(models.F('guests') + 1))['participants']
 
 
 class EventTag(AbstractLabel):

@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Sum, F
 from django.utils import timezone
 from django.views.decorators.cache import cache_control
 from rest_framework.viewsets import ModelViewSet
@@ -35,7 +35,7 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     permission_classes = (PermissionsOrReadOnly,)
     pagination_class = LegacyPaginator
     serializer_class = serializers.LegacyEventSerializer
-    queryset = models.Event.objects.all().select_related('calendar').prefetch_related('tags')
+    queryset = models.Event.objects.all().select_related('calendar').prefetch_related('tags').annotate(_participants=Sum(F('rsvps__guests') + 1))
     filter_backends = (DjangoFilterBackend, OrderByDistanceToBackend)
     filter_class = EventFilterSet
 
