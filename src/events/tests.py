@@ -290,8 +290,8 @@ class FiltersTestCase(APITestCase):
         self.paris_june_event = Event.objects.create(
             name='Paris+June',
             nb_id=1,
-            start_time=tz.localize(timezone.datetime(2017, 6, 15, 18)),
-            end_time=tz.localize(timezone.datetime(2017, 6, 15, 22)),
+            start_time=tz.localize(timezone.datetime(timezone.now().year + 1, 6, 15, 18)),
+            end_time=tz.localize(timezone.datetime(timezone.now().year + 1, 6, 15, 22)),
             coordinates=Point(2.349722, 48.853056),  # ND de Paris
             calendar=calendar
         )
@@ -299,16 +299,16 @@ class FiltersTestCase(APITestCase):
         self.amiens_july_event = Event.objects.create(
             name='Amiens+July',
             nb_path='/amiens_july',
-            start_time=tz.localize(timezone.datetime(2017, 7, 15, 18)),
-            end_time=tz.localize(timezone.datetime(2017, 7, 15, 22)),
+            start_time=tz.localize(timezone.datetime(timezone.now().year + 1, 7, 15, 18)),
+            end_time=tz.localize(timezone.datetime(timezone.now().year + 1, 7, 15, 22)),
             coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
             calendar=calendar
         )
 
         self.marseille_august_event = Event.objects.create(
             name='Marseille+August',
-            start_time=tz.localize(timezone.datetime(2017, 8, 15, 18)),
-            end_time=tz.localize(timezone.datetime(2017, 8, 15, 22)),
+            start_time=tz.localize(timezone.datetime(timezone.now().year + 1, 8, 15, 18)),
+            end_time=tz.localize(timezone.datetime(timezone.now().year + 1, 8, 15, 22)),
             coordinates=Point(5.36472, 43.30028),  # Saint-Marie-Majeure de Marseille
             calendar=calendar
         )
