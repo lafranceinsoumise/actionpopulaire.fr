@@ -62,9 +62,9 @@ class Command(BaseCommand):
                 self.stdout.write('Added client to group %s' % group)
 
         for group in current_groups:
-            if group.name not in (groups or []):
-                client.role.groups.remove(group)
-                self.stdout.write('Removed client from group %s' % group.name)
+            if group not in (groups or []):
+                client.role.groups.remove(Group.objects.get(name=group))
+                self.stdout.write('Removed client from group %s' % group)
 
         if generate_password:
             return secret
