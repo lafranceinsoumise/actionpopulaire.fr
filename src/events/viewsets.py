@@ -35,9 +35,16 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     permission_classes = (PermissionsOrReadOnly,)
     pagination_class = LegacyPaginator
     serializer_class = serializers.LegacyEventSerializer
-    queryset = models.Event.objects.all().select_related('calendar').prefetch_related('tags').annotate(_participants=Sum(F('rsvps__guests') + 1))
     filter_backends = (DjangoFilterBackend, OrderByDistanceToBackend)
     filter_class = EventFilterSet
+
+    def get_queryset(self):
+        queryset = models.Event.objects.all()
+        after_query = self.request.query_params.get('after', None)
+        if after_query is None:
+            queryset = queryset.filter(end_time__gt=timezone.now())
+        return queryset.select_related('calendar').prefetch_related('tags').annotate(_participants=Sum(F('rsvps__guests') + 1))
+
 
     @list_route(methods=['GET'])
     @cache_control(max_age=60, public=True)
