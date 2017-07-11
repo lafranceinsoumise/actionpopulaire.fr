@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
+from ajax_select import urls as ajax_select_urls
 from . import routers, admin, settings
 
 import front.urls
@@ -22,6 +23,7 @@ import webhooks.urls
 urlpatterns = [
     url(r'^admin/', admin.admin_site.urls),
     url(r'^webhooks/', include(webhooks.urls)),
+    url(r'^ajax_select/', include(ajax_select_urls)),
 ]
 
 if settings.DEBUG or settings.ENABLE_API:

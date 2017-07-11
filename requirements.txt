@@ -8,6 +8,7 @@ coverage==4.3.4
 dj-database-url==0.4.2
 dj-email-url==0.0.10
 Django==1.11
+git+https://github.com/crucialfelix/django-ajax-selects.git@f31d866a7a8c14ff2c21b6d047cadd4e84006b41#egg=django-ajax-selects
 django-cors-headers==2.1.0
 django-countries==4.4
 django-crispy-forms==1.6.1

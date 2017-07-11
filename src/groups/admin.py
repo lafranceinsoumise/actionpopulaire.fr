@@ -3,6 +3,7 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Count
 from api.admin import admin_site
+from ajax_select import make_ajax_form
 
 from lib.admin import CenterOnFranceMixin
 from . import models
@@ -10,6 +11,7 @@ from . import models
 
 class MembershipInline(admin.TabularInline):
     model = models.Membership
+    form = make_ajax_form(models.Membership, {'person': 'people'})
     can_add = False
     fields = ('person', 'is_referent', 'is_manager')
     readonly_fields = ('person',)
@@ -42,7 +44,10 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     readonly_fields = ('id',)
     date_hierarchy = 'created'
 
+    inlines = (MembershipInline,)
+
     list_display = ('name', 'location_short', 'membership_count')
+    search_fields = ('name', 'location_city', 'location_country',)
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
 

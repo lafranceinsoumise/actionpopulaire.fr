@@ -4,6 +4,7 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import F, Sum
 from django.utils import timezone
 from api.admin import admin_site
+from ajax_select import make_ajax_form
 
 from lib.admin import CenterOnFranceMixin
 
@@ -41,7 +42,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('id', 'name',)
         }),
         (_('Informations'), {
-            'fields': ('description', 'start_time', 'end_time', 'calendar', 'tags', 'published')
+            'fields': ('description', 'start_time', 'end_time', 'calendar', 'tags', 'published', 'organizers'),
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
@@ -54,6 +55,11 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('nb_id', 'nb_path',)
         })
     )
+
+    form = make_ajax_form(models.Event, {'organizers': 'people'})
+
+    filter_horizontal = ('organizers',)
+
     readonly_fields = ('id',)
     date_hierarchy = 'created'
 

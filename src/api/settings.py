@@ -67,6 +67,9 @@ INSTALLED_APPS = [
     #django_countries
     'django_countries',
 
+    # ajax_select
+    'ajax_select',
+
     # fi apps
     'authentication',
     'people',
