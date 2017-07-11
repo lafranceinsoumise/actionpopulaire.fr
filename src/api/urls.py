@@ -17,9 +17,11 @@ from django.conf.urls import url, include
 from . import routers, admin, settings
 
 import front.urls
+import webhooks.urls
 
 urlpatterns = [
     url(r'^admin/', admin.admin_site.urls),
+    url(r'^webhooks/', include(webhooks.urls)),
 ]
 
 if settings.DEBUG or settings.ENABLE_API:
