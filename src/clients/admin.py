@@ -14,9 +14,13 @@ class ClientAdmin(admin.ModelAdmin):
         ('OAuth', {
             'fields': ('oauth_enabled', 'trusted', 'uris', 'scopes')
         }),
+        (_('Role correspondant'), {
+            'fields': ('role_link',)
+        })
     )
 
     list_display = ('label', 'name', 'role_link')
+    readonly_fields = ('created', 'modified', 'role_link')
 
     def role_link(self, obj):
         return '<a href="%s">%s</a>' % (
