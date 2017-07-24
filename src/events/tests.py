@@ -313,6 +313,14 @@ class FiltersTestCase(APITestCase):
             calendar=calendar
         )
 
+        self.past_event = Event.objects.create(
+            name="Past event in Strasbourg",
+            start_time=timezone.now() - timezone.timedelta(hours=15),
+            end_time=timezone.now() - timezone.timedelta(hours=13),
+            coordinates=Point(7.7779, 48.5752),  # ND de Strasbourg
+            calendar=calendar
+        )
+
         self.eiffel_coordinates = [2.294444, 48.858333]
 
     def test_can_query_by_pk(self):
@@ -372,6 +380,13 @@ class FiltersTestCase(APITestCase):
             [item['_id'] for item in response.data['_items']],
             [str(self.paris_june_event.id), str(self.amiens_july_event.id), str(self.marseille_august_event.id)]
         )
+
+    def test_can_directly_retrieve_past_event(self):
+        response = self.client.get('/legacy/events/%s/' % self.past_event.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('_id', response.data)
+        self.assertEqual(response.data['_id'], str(self.past_event.pk))
 
 
 class RSVPEndpointTestCase(TestCase):

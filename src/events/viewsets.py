@@ -25,7 +25,7 @@ class EventFilterSet(django_filters.rest_framework.FilterSet):
 
     class Meta:
         model = models.Event
-        fields = ('contact_email', 'start_time', 'close_to', 'path', )
+        fields = ('contact_email', 'start_time', 'close_to', 'path')
 
 
 class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
@@ -39,18 +39,28 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     filter_class = EventFilterSet
 
     def get_queryset(self):
-        queryset = models.Event.objects.all()
-        after_query = self.request.query_params.get('after', None)
-        if after_query is None:
-            queryset = queryset.filter(end_time__gt=timezone.now())
-        return queryset.select_related('calendar').prefetch_related('tags').annotate(_participants=Sum(F('rsvps__guests') + 1))
+        queryset = (models.Event.objects.all()
+                    .select_related('calendar')
+                    .prefetch_related('tags')
+                    .annotate(_participants=Sum(F('rsvps__guests') + 1))
+                    )
 
+        after_query = self.request.query_params.get('after', None)
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        # in the case there is no after_query parameters, and we are not on a single object page
+        # we set a default after value of today
+        if lookup_url_kwarg not in self.kwargs and after_query is None:
+            queryset = queryset.filter(end_time__gt=timezone.now())
+
+        return queryset
 
     @list_route(methods=['GET'])
     @cache_control(max_age=60, public=True)
     def summary(self, request, *args, **kwargs):
         events = models.Event.objects.filter(end_time__gt=timezone.now()).select_related('calendar')
-        serializer = serializers.SummaryEventSerializer(instance=events, many=True, context=self.get_serializer_context())
+        serializer = serializers.SummaryEventSerializer(instance=events, many=True,
+                                                        context=self.get_serializer_context())
         return Response(data=serializer.data)
 
 
@@ -74,6 +84,7 @@ class RSVPViewSet(CreationSerializerMixin, ModelViewSet):
     """
 
     """
+
     def get_queryset(self):
         queryset = super(RSVPViewSet, self).get_queryset()
 
@@ -87,7 +98,7 @@ class RSVPViewSet(CreationSerializerMixin, ModelViewSet):
     serializer_class = serializers.RSVPSerializer
     creation_serializer_class = serializers.RSVPCreationSerializer
     queryset = models.RSVP.objects.select_related('event', 'person')
-    permission_classes = (RestrictViewPermissions, )
+    permission_classes = (RestrictViewPermissions,)
 
 
 class NestedRSVPViewSet(CreationSerializerMixin, NestedViewSetMixin, ModelViewSet):
@@ -104,7 +115,8 @@ class NestedRSVPViewSet(CreationSerializerMixin, NestedViewSetMixin, ModelViewSe
 
         if not self.request.user.has_perm('events.view_rsvp'):
             if hasattr(self.request.user, 'type') and self.request.user.type == Role.PERSON_ROLE:
-                return queryset.filter(Q(person=self.request.user.person) | Q(event__organizers=self.request.user.person))
+                return queryset.filter(
+                    Q(person=self.request.user.person) | Q(event__organizers=self.request.user.person))
             else:
                 return queryset.none()
         return queryset
