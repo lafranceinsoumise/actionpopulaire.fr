@@ -224,10 +224,10 @@ X_FRAME_OPTIONS = 'DENY'
 
 if not DEBUG:
     # should be useless, but we never know
-    SECURE_SSL_REDIRECT = True
+    # SECURE_SSL_REDIRECT = True
+    # removed because it created problems with direct HTTP connections on localhost
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-
 
 
 if DEBUG:
