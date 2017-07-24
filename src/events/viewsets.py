@@ -15,6 +15,7 @@ from lib.filters import DistanceFilter, OrderByDistanceToBackend
 from lib.views import NationBuilderViewMixin, CreationSerializerMixin
 
 from . import serializers, models
+from .filters import CalendarFilter
 
 
 class EventFilterSet(django_filters.rest_framework.FilterSet):
@@ -22,6 +23,7 @@ class EventFilterSet(django_filters.rest_framework.FilterSet):
     after = django_filters.DateTimeFilter(name='start_time', lookup_expr='gte')
     before = django_filters.DateTimeFilter(name='start_time', lookup_expr='lte')
     path = django_filters.CharFilter(name='nb_path', lookup_expr='exact')
+    calendar = CalendarFilter()
 
     class Meta:
         model = models.Event

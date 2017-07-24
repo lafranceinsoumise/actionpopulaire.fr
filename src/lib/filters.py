@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance
 from django.contrib.gis.db.models.functions import Distance as DistanceFunction
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.exceptions import ValidationError as DRFValidationError
 
 
@@ -41,10 +42,10 @@ class LegacyDistanceField(forms.Field):
         try:
             obj = json.loads(value)
         except JSONDecodeError:
-            raise DRFValidationError(self.default_error_messages['invalid_json'], code='invalid_json')
+            raise DjangoValidationError(self.default_error_messages['invalid_json'], code='invalid_json')
 
         if set(obj) != {'max_distance', 'coordinates'}:
-            raise DRFValidationError(self.default_error_messages['invalid_fields'], code='invalid_fields')
+            raise DjangoValidationError(self.default_error_messages['invalid_fields'], code='invalid_fields')
 
         max_distance = obj['max_distance']
         coordinates = obj['coordinates']
@@ -52,11 +53,11 @@ class LegacyDistanceField(forms.Field):
         try:
             max_distance = float(max_distance)
         except ValueError:
-            raise DRFValidationError(self.default_error_messages['invalid_max_distance'], code='invalid_max_distance')
+            raise DjangoValidationError(self.default_error_messages['invalid_max_distance'], code='invalid_max_distance')
 
 
         if not check_coordinates(coordinates):
-            raise DRFValidationError(self.default_error_messages['invalid_coordinates'], code='invalid_coordinates')
+            raise DjangoValidationError(self.default_error_messages['invalid_coordinates'], code='invalid_coordinates')
 
         return Point(*coordinates), Distance(m=max_distance)
 
@@ -80,7 +81,6 @@ class OrderByDistanceToBackend(object):
             coordinates = json.loads(request.query_params['order_by_distance_to'])
         except JSONDecodeError:
             raise DRFValidationError(detail=self.error_message)
-
 
         if not check_coordinates(coordinates):
             raise DRFValidationError(detail=self.error_message)
