@@ -99,6 +99,10 @@ The list of all published, upcoming events (paginated).
 
 To get the complete list in one request, use `/events/summary`.
 
+## `/calendars`
+
+The list of all calendars. Events are part of one calendar.
+
 ## `/groups`
 
 The list of all published groups.
@@ -122,4 +126,6 @@ Filters can be passed as query parameters, eg `https://api.lafranceinsoumise.fr/
 
 ## `events`
 
-* `start_time`: ISO 8601 Datetime, get only events starting after this date
+* `after`: ISO 8601 Datetime, get only events *finishing* after this date
+* `before`: ISO 8601 Datetime, get only events *starting* before this date
+* `calendar`: String, get only events belonging to a specific calendar

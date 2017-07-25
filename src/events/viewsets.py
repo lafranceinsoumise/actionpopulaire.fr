@@ -20,14 +20,14 @@ from .filters import CalendarFilter
 
 class EventFilterSet(django_filters.rest_framework.FilterSet):
     close_to = DistanceFilter(name='coordinates', lookup_expr='distance_lte')
-    after = django_filters.DateTimeFilter(name='start_time', lookup_expr='gte')
-    before = django_filters.DateTimeFilter(name='start_time', lookup_expr='lte')
+    after = django_filters.IsoDateTimeFilter(name='end_time', lookup_expr='gte')
+    before = django_filters.IsoDateTimeFilter(name='start_time', lookup_expr='lte')
     path = django_filters.CharFilter(name='nb_path', lookup_expr='exact')
     calendar = CalendarFilter()
 
     class Meta:
         model = models.Event
-        fields = ('contact_email', 'start_time', 'close_to', 'path')
+        fields = ('contact_email', 'close_to', 'path', 'before', 'after')
 
 
 class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
@@ -48,11 +48,12 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
                     )
 
         after_query = self.request.query_params.get('after', None)
+        before_query = self.request.query_params.get('before', None)
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
         # in the case there is no after_query parameters, and we are not on a single object page
         # we set a default after value of today
-        if lookup_url_kwarg not in self.kwargs and after_query is None:
+        if lookup_url_kwarg not in self.kwargs and after_query is None and before_query is None:
             queryset = queryset.filter(end_time__gt=timezone.now())
 
         return queryset

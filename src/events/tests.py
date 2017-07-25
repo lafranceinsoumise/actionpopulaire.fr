@@ -3,6 +3,7 @@ from unittest import skip
 from django.test import TestCase
 from django.db import IntegrityError, transaction
 from django.utils import timezone
+from django.utils.http import urlquote_plus
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.geos import Point
@@ -283,57 +284,58 @@ class FiltersTestCase(APITestCase):
     def setUp(self):
         self.superuser = Person.objects.create_superperson('super@user.fr', None)
 
-        calendar = Calendar.objects.create(label='Agenda')
+        self.calendar1 = calendar1 = Calendar.objects.create(label='Agenda')
+        self.calendar2 = calendar2 = Calendar.objects.create(label='Agenda2')
 
         tz = timezone.get_default_timezone()
 
-        self.paris_june_event = Event.objects.create(
-            name='Paris+June',
+        self.paris_1_month_event = Event.objects.create(
+            name='Paris+1month',
             nb_id=1,
-            start_time=tz.localize(timezone.datetime(timezone.now().year + 1, 6, 15, 18)),
-            end_time=tz.localize(timezone.datetime(timezone.now().year + 1, 6, 15, 22)),
+            start_time=timezone.now() + timezone.timedelta(weeks=4),
+            end_time=timezone.now() + timezone.timedelta(weeks=4, hours=2),
             coordinates=Point(2.349722, 48.853056),  # ND de Paris
-            calendar=calendar
+            calendar=calendar1
         )
 
-        self.amiens_july_event = Event.objects.create(
-            name='Amiens+July',
+        self.amiens_2_months_event = Event.objects.create(
+            name='Amiens+2months',
             nb_path='/amiens_july',
-            start_time=tz.localize(timezone.datetime(timezone.now().year + 1, 7, 15, 18)),
-            end_time=tz.localize(timezone.datetime(timezone.now().year + 1, 7, 15, 22)),
+            start_time=timezone.now() + timezone.timedelta(weeks=8),
+            end_time=timezone.now() + timezone.timedelta(weeks=8, hours=2),
             coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
-            calendar=calendar
+            calendar=calendar1
         )
 
-        self.marseille_august_event = Event.objects.create(
-            name='Marseille+August',
-            start_time=tz.localize(timezone.datetime(timezone.now().year + 1, 8, 15, 18)),
-            end_time=tz.localize(timezone.datetime(timezone.now().year + 1, 8, 15, 22)),
+        self.marseille_3_months_event = Event.objects.create(
+            name='Marseille+3months',
+            start_time=timezone.now() + timezone.timedelta(weeks=12),
+            end_time=timezone.now() + timezone.timedelta(weeks=12, hours=2),
             coordinates=Point(5.36472, 43.30028),  # Saint-Marie-Majeure de Marseille
-            calendar=calendar
+            calendar=calendar2
         )
 
-        self.past_event = Event.objects.create(
-            name="Past event in Strasbourg",
+        self.strasbourg_yesterday = Event.objects.create(
+            name="Strasbourg+yesterday",
             start_time=timezone.now() - timezone.timedelta(hours=15),
             end_time=timezone.now() - timezone.timedelta(hours=13),
             coordinates=Point(7.7779, 48.5752),  # ND de Strasbourg
-            calendar=calendar
+            calendar=calendar2
         )
 
         self.eiffel_coordinates = [2.294444, 48.858333]
 
     def test_can_query_by_pk(self):
-        response = self.client.get('/legacy/events/%s/' % self.paris_june_event.id)
+        response = self.client.get('/legacy/events/%s/' % self.paris_1_month_event.id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['name'], self.paris_june_event.name)
+        self.assertEqual(response.data['name'], self.paris_1_month_event.name)
 
     def test_can_query_by_nb_id(self):
-        response = self.client.get('/legacy/events/%s/' % self.paris_june_event.nb_id)
+        response = self.client.get('/legacy/events/%s/' % self.paris_1_month_event.nb_id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['_id'], str(self.paris_june_event.pk))
+        self.assertEqual(response.data['_id'], str(self.paris_1_month_event.pk))
 
     def test_filter_coordinates_no_results(self):
         # la tour eiffel est à plus d'un kilomètre de Notre-Dame
@@ -360,7 +362,7 @@ class FiltersTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('_items', response.data)
         self.assertEqual(len(response.data['_items']), 1)
-        self.assertEqual(response.data['_items'][0]['_id'], str(self.paris_june_event.pk))
+        self.assertEqual(response.data['_items'][0]['_id'], str(self.paris_1_month_event.pk))
 
     def test_filter_by_path(self):
         response = self.client.get('/legacy/events/?path=/amiens_july')
@@ -368,7 +370,7 @@ class FiltersTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('_items', response.data)
         self.assertEqual(len(response.data['_items']), 1)
-        self.assertEqual(response.data['_items'][0]['_id'], str(self.amiens_july_event.pk))
+        self.assertEqual(response.data['_items'][0]['_id'], str(self.amiens_2_months_event.pk))
 
     def test_order_by_distance_to(self):
         response = self.client.get('/legacy/events/?order_by_distance_to=%s' % json.dumps(self.eiffel_coordinates))
@@ -378,15 +380,51 @@ class FiltersTestCase(APITestCase):
         self.assertEqual(len(response.data['_items']), 3)
         self.assertEqual(
             [item['_id'] for item in response.data['_items']],
-            [str(self.paris_june_event.id), str(self.amiens_july_event.id), str(self.marseille_august_event.id)]
+            [str(self.paris_1_month_event.id), str(self.amiens_2_months_event.id), str(self.marseille_3_months_event.id)]
         )
 
     def test_can_directly_retrieve_past_event(self):
-        response = self.client.get('/legacy/events/%s/' % self.past_event.pk)
+        response = self.client.get('/legacy/events/%s/' % self.strasbourg_yesterday.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('_id', response.data)
-        self.assertEqual(response.data['_id'], str(self.past_event.pk))
+        self.assertEqual(response.data['_id'], str(self.strasbourg_yesterday.pk))
+
+    def test_can_filter_by_date_after(self):
+        # make sure event in progress at the "after" date are included
+        response = self.client.get(
+            '/legacy/events/?after=%s' %
+            urlquote_plus((timezone.now() + timezone.timedelta(weeks=8, hours=1)).isoformat())
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('_items', response.data)
+        self.assertCountEqual(
+            [item['_id'] for item in response.data['_items']],
+            [str(self.amiens_2_months_event.id), str(self.marseille_3_months_event.id)]
+        )
+
+    def test_can_filter_by_date_before(self):
+        response = self.client.get(
+            '/legacy/events/?before=%s' % urlquote_plus((timezone.now() + timezone.timedelta(weeks=4, hours=1)).isoformat())
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('_items', response.data)
+        self.assertCountEqual(
+            [item['_id'] for item in response.data['_items']],
+            [str(self.strasbourg_yesterday.id), str(self.paris_1_month_event.id)]
+        )
+
+    def test_can_filter_by_calendar(self):
+        response = self.client.get('/legacy/events/?calendar=%s' % self.calendar1.label)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('_items', response.data)
+        self.assertCountEqual(
+            [item['_id'] for item in response.data['_items']],
+            [str(e.id) for e in Event.objects.filter(calendar=self.calendar1)]
+        )
 
 
 class RSVPEndpointTestCase(TestCase):
