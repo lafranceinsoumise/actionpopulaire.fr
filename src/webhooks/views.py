@@ -57,6 +57,10 @@ class BounceView(APIView):
             person.bounced = True
             person.save()
             return
+
+        if person.nb_id is not None:
+            requests.delete('https://plp.nationbuilder.com/api/v1/people/' + person.nb_id,
+            params={'access_token': settings.NB_API_KEY})
         person.delete()
 
 
