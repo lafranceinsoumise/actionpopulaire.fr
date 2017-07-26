@@ -6,6 +6,7 @@ from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import BasicAuthentication
+from rest_framework.parsers import JSONParser
 from rest_framework.permissions import BasePermission
 from rest_framework import exceptions
 
@@ -64,17 +65,22 @@ class BounceView(APIView):
         person.delete()
 
 
+class WrongContentTypeJSONParser(JSONParser):
+    media_type = 'text/plain'
+
+
 class SesBounceView(BounceView):
+    parser_classes = (WrongContentTypeJSONParser,)
+
     def post(self, request):
-        data = json.loads(request.data)
         response = Response({'status': 'Accepted'}, 202)
-        if (data['Type'] == 'SubscriptionConfirmation'):
-            requests(data['SubscribeURL'])
+        if (request.data['Type'] == 'SubscriptionConfirmation'):
+            requests.get(request.data['SubscribeURL'])
             return response
-        if (data['Type'] != 'Notification'):
+        if (request.data['Type'] != 'Notification'):
             return response
 
-        message = json.loads(data['Message'])
+        message = json.loads(request.data['Message'])
         if (message['notificationType'] != 'Bounce'):
             return response
         if (message['bounce']['bounceType'] != 'Permanent'):

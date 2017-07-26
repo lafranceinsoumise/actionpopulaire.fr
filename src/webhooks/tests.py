@@ -63,13 +63,13 @@ class WebhookTestCase(APITestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_amazon_bounce_old_user(self):
-        response = self.client.post('/webhooks/ses_bounce', self.ses_payload,
+        response = self.client.post('/webhooks/ses_bounce', self.ses_payload, content_type='text/plain; charset=UTF-8',
             HTTP_AUTHORIZATION='Basic ' + (base64.b64encode(b'fi:prout').decode('utf-8')))
         self.assertEqual(response.status_code, 202)
         self.assertEqual(True, Person.objects.get(email='old@bounce.com').bounced)
 
     def test_amazon_auth(self):
-        response = self.client.post('/webhooks/ses_bounce', self.ses_payload,
+        response = self.client.post('/webhooks/ses_bounce', self.ses_payload, content_type='text/plain; charset=UTF-8',
             HTTP_AUTHORIZATION='Basic ' + (base64.b64encode(b'fi:burp').decode('utf-8')))
         self.assertEqual(response.status_code, 401)
         response = self.client.post('/webhooks/ses_bounce', self.ses_payload)
