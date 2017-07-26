@@ -198,6 +198,7 @@ AUTH_REDIS_MAX_CONNECTIONS = 5
 AUTH_REDIS_PREFIX = os.environ.get('AUTH_REDIS_PREFIX', 'AccessToken:')
 
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING')
+LOG_FILE = os.environ.get('LOG_FILE', './errors.log')
 
 if not DEBUG:
     LOGGING = {
@@ -208,6 +209,13 @@ if not DEBUG:
                 'level': LOG_LEVEL,
                 'class': 'logging.StreamHandler'
             },
+            'file': {
+                'level': LOG_LEVEL,
+                'class': 'logging.handlers.RotatingFileHandler',
+                'filename': LOG_FILE,
+                'backupCount': 3,
+                'maxBytes': 5 * 1000 * 1000
+            }
         },
         'loggers': {
             'django': {
