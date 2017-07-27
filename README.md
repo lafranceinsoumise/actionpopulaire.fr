@@ -109,6 +109,12 @@ The list of all published groups.
 
 To get the complete list in one request, use `/groups/summary`.
 
+# Authenticated endpoints
+
+## `/people/me`
+
+Profile of the authenticated user.
+
 # Resources filters
 
 Each resource expose a series of filter that you can use to fetch a subset of the resource collection.
