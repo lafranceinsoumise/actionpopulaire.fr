@@ -40,7 +40,7 @@ class BasicPersonTestCase(TestCase):
         self.assertEqual(str(person), 'test1@domain.com')
 
 
-class LegacyPersonEndpointPermissionsTestCase(TestCase):
+class LegacyPersonEndpointPermissionsTestCase(APITestCase):
     def as_viewer(self, request):
         force_authenticate(request, self.viewer_person.role)
 
@@ -123,6 +123,18 @@ class LegacyPersonEndpointPermissionsTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['_items']), 1)
         self.assertEqual(response.data['_items'][0]['_id'], str(self.basic_person.pk))
+
+    def test_can_see_self_while_authenticated(self):
+        self.client.force_authenticate(self.basic_person.role)
+        response = self.client.get('/legacy/people/me/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['_id'], str(self.basic_person.pk))
+
+    def test_cannot_see_self_while_unauthenticated(self):
+        response = self.client.get('/legacy/people/me/')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_view_details_while_unauthenticated(self):
         request = self.factory.get('')
