@@ -21,7 +21,6 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
     Legacy endpoint for people that imitates the endpoint from Eve Python
     """
     pagination_class = LegacyPaginator
-    serializer_class = serializers.LegacyPersonSerializer
     queryset = models.Person.objects.all()
     permission_classes = (RestrictViewPermissions, )
     filter_class = PeopleFilter
@@ -38,6 +37,11 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
             else:
                 return self.queryset.none()
         return super(LegacyPersonViewSet, self).get_queryset()
+
+    def get_serializer_class(self):
+        if not self.request.user.has_perm('people.view_person'):
+            return serializers.LegacyUnprivilegedPersonSerializer
+        return serializers.LegacyPersonSerializer
 
 
 class PersonTagViewSet(ModelViewSet):

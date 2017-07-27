@@ -53,6 +53,17 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         }
 
 
+class LegacyUnprivilegedPersonSerializer(LegacyPersonSerializer):
+    class Meta:
+        model = models.Person
+        fields = ('url', '_id', 'email', 'first_name', 'last_name', 'email_opt_in',
+        'events', 'groups', 'location')
+        read_only_fields = ('url', '_id')
+        extra_kwargs = {
+            'url': {'view_name': 'legacy:person-detail', }
+        }
+
+
 class PersonTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.PersonTag

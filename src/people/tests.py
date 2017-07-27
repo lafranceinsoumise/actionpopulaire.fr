@@ -165,6 +165,14 @@ class LegacyPersonEndpointPermissionsTestCase(APITestCase):
 
         assert expected_fields.issubset(set(response.data))
 
+    def test_contains_only_whitelisted_fields_while_unprivileged(self):
+        self.client.force_authenticate(self.basic_person.role)
+        response = self.client.get('/legacy/people/me/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(('url', '_id', 'email', 'first_name', 'last_name', 'email_opt_in',
+        'events', 'groups', 'location'), response.data.keys())
+
     def test_return_correct_values(self):
         request = self.factory.get('')
         self.as_viewer(request)
