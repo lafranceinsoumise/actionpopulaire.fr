@@ -18,6 +18,8 @@ class LocationFormMixin():
 
 
 class SimpleSubscriptionForm(forms.ModelForm):
+    email = forms.EmailField()
+
     def __init__(self, *args, **kwargs):
         super(SimpleSubscriptionForm, self).__init__(*args, **kwargs)
 
@@ -56,6 +58,8 @@ class SimpleSubscriptionForm(forms.ModelForm):
 
 
 class OverseasSubscriptionForm(LocationFormMixin, forms.ModelForm):
+    email = forms.EmailField()
+
     def __init__(self, *args, **kwargs):
         super(OverseasSubscriptionForm, self).__init__(*args, **kwargs)
 

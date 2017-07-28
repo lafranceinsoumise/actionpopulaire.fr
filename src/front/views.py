@@ -1,8 +1,9 @@
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView, FormView, CreateView, UpdateView
 from django.core.urlresolvers import reverse_lazy
+from django.contrib.auth.base_user import BaseUserManager
 
-from people.models import Person
+from people.models import Person, PersonEmail
 from events.models import Event, Calendar
 
 from .forms import SimpleSubscriptionForm, OverseasSubscriptionForm, EventForm
@@ -16,14 +17,21 @@ class SubscriptionSuccessView(SuccessMessageView):
     """
 
 
-class SimpleSubscriptionView(CreateView):
+class PersonCreateView(CreateView):
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.emails.add(PersonEmail(address=BaseUserManager.normalize_email(form.cleaned_data['email'])), bulk=False)
+        return super().form_valid(form)
+
+
+class SimpleSubscriptionView(PersonCreateView):
     template_name = "front/simple_subscription.html"
     success_url = reverse_lazy('subscription_success')
     model = Person
     form_class = SimpleSubscriptionForm
 
 
-class OverseasSubscriptionView(CreateView):
+class OverseasSubscriptionView(PersonCreateView):
     template_name = "front/overseas_subscription.html"
     success_url = reverse_lazy('subscription_success')
     model = Person

@@ -11,7 +11,7 @@ class PersonBackend(object):
 
     def authenticate(self, request, email=None, password=None):
         try:
-            role = Role._default_manager.select_related('person').get(person__email=email)
+            role = Role._default_manager.select_related('person').get(person__emails__address=email)
         except Role.DoesNotExist:
             Role().set_password(password)
         else:

@@ -11,9 +11,11 @@ from . import serializers, models
 
 
 class PeopleFilter(django_filters.rest_framework.FilterSet):
+    email = django_filters.CharFilter(name='emails__address')
+
     class Meta:
         model = models.Person
-        fields = ['email', 'tags']
+        fields = ['tags']
 
 
 class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):

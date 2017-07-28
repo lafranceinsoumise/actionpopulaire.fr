@@ -18,6 +18,8 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         required=False,
     )
 
+    email = serializers.EmailField()
+
     rsvps = serializers.HyperlinkedRelatedField(
         view_name='legacy:rsvp-detail',
         read_only=True,
