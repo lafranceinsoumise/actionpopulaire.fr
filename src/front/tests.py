@@ -1,7 +1,8 @@
 from django.test import TestCase
-from django.utils import timezone
+from django.utils import timezone, formats
 from django.http import QueryDict
 from rest_framework import status
+from django.shortcuts import reverse
 
 from people.models import Person
 from events.models import Event, RSVP, Calendar
@@ -31,7 +32,7 @@ class OverseasSubscriptionForm(TestCase):
         self.assertEqual(person.location_city, 'Berlin')
 
 
-class BasicFunctionnalityTestCase(TestCase):
+class PagesLoadingTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person('test@test.com')
         self.client.force_login(self.person.role)
@@ -168,3 +169,91 @@ class EventPageTestCase(TestCase):
             end_time=now + 3 * day + 4 * hour,
             calendar=calendar
         )
+
+    def test_can_see_organized_event_modify_page(self):
+        self.client.force_login(self.person.role)
+        response = self.client.get(reverse('edit_event', kwargs={'pk': self.organized_event.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.post(
+            reverse('edit_event', kwargs={'pk': self.organized_event.pk}),
+            data={
+                'name': 'New Name',
+                'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
+                'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
+                'contact_name': 'Arthur',
+                'contact_email': 'a@ziefzji.fr',
+                'description': 'New description'
+            }
+        )
+
+        # the form redirects to the event list on success
+        self.assertRedirects(response, reverse('list_events'))
+
+    def test_cannot_modify_rsvp_event(self):
+        self.client.force_login(self.person.role)
+        response = self.client.get(reverse('edit_event', kwargs={'pk': self.rsvped_event.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_modify_other_event(self):
+        self.client.force_login(self.person.role)
+        response = self.client.get(reverse('edit_event', kwargs={'pk': self.other_event.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class GroupPageTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person('test@test.com')
+
+        self.referent_group = SupportGroup.objects.create(
+            name="Referent",
+        )
+        Membership.objects.create(
+            person=self.person,
+            supportgroup=self.referent_group,
+            is_referent=True
+        )
+
+        self.manager_group = SupportGroup.objects.create(
+            name="Manager"
+        )
+        Membership.objects.create(
+            person=self.person,
+            supportgroup=self.manager_group,
+            is_referent=False,
+            is_manager=True
+        )
+
+        self.member_group = SupportGroup.objects.create(
+            name="Member"
+        )
+        Membership.objects.create(
+            person=self.person,
+            supportgroup=self.member_group
+        )
+
+        self.client.force_login(self.person.role)
+
+    def test_can_modify_managed_group(self):
+        response = self.client.get(reverse('edit_group', kwargs={'pk': self.manager_group.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.post(
+            reverse('edit_group', kwargs={'pk': self.manager_group.pk}),
+            data={
+                'name': 'New name',
+                'contact_name': 'Arthur',
+                'contact_email': 'a@fhezfe.fr'
+            }
+        )
+
+        self.assertRedirects(response, reverse('list_groups'))
+
+    def test_cannot_modify_member_group(self):
+        response = self.client.get(reverse('edit_group', kwargs={'pk': self.member_group.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

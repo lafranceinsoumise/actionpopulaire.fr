@@ -56,7 +56,7 @@ class EventListView(LoginRequiredMixin, ListView):
 
 class CreateEventView(LoginRequiredMixin, CreateView):
     template_name = "front/form.html"
-    success_url = reverse_lazy("create_event_success")
+    success_url = reverse_lazy("list_events")
     model = Event
     form_class = EventForm
 
@@ -74,7 +74,7 @@ class CreateEventView(LoginRequiredMixin, CreateView):
 class UpdateEventView(LoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
     permissions_required = ('events.change_event',)
     template_name = "front/form.html"
-    success_url = reverse_lazy("update_event_success")
+    success_url = reverse_lazy("list_events")
     model = Event
     form_class = EventForm
 

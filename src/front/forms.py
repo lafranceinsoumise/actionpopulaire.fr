@@ -168,8 +168,19 @@ class EventForm(LocationFormMixin, forms.ModelForm):
                     Div('location_country', css_class='col-md-12'),
                 ),
                 Div('description', css_class='col-md-12'),
+                Div(HTML(
+                    "<strong>Cliquez sur sauvegarder et publier pour valider les changements effectués ci-dessous."
+                    " Les personnes inscrites à l'événement recevront un message pour les avertir des modifications "
+                    " réalisées.</strong>"
+                ), css_class='col-xs-12')
             )
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data['end_time'] <= cleaned_data['start_time']:
+            self.add_error('end_time', _("La fin de l'événément ne peut pas être avant son début."))
 
     class Meta:
         model = Event
@@ -221,6 +232,11 @@ class SupportGroupForm(LocationFormMixin, forms.ModelForm):
                     Div('location_country', css_class='col-md-12'),
                 ),
                 Div('description', css_class='col-md-12'),
+                Div(HTML(
+                    "<strong>Cliquez sur sauvegarder et publier pour valider les changements effectués ci-dessous."
+                    " Les membres de ce groupe recevront un message pour les avertir des modifications réalisées."
+                    "</strong>"
+                ))
             )
         )
 
