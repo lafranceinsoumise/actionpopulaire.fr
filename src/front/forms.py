@@ -18,16 +18,17 @@ class LocationFormMixin():
 
 
 class SimpleSubscriptionForm(forms.ModelForm):
-    email = forms.EmailField()
+    email = forms.EmailField(
+        label='Adresse email',
+        required=True,
+        error_messages={
+            'required': _("Vous devez saisir votre adresse email"),
+            'unique': _("Cette adresse email est déjà utilisée")
+        }
+    )
 
     def __init__(self, *args, **kwargs):
         super(SimpleSubscriptionForm, self).__init__(*args, **kwargs)
-
-        self.fields['email'].required = True
-        self.fields['email'].error_messages = {
-            'unique': _("Cette adresse email est déjà utilisée")
-        }
-        self.fields['email'].help_text = None
 
         self.fields['location_zip'].required = True
         self.fields['location_zip'].help_text = None
