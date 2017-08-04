@@ -529,6 +529,19 @@ class GroupMembershipEndpointTestCase(TestCase):
             [str(self.unprivileged_person.id), str(self.manager.id)]
         )
 
+    def test_creation(self):
+        request = self.factory.post('', data={
+            'person': reverse('legacy:person-detail', kwargs={'pk': self.privileged_user.id}),
+        })
+        self.as_privileged(request)
+
+        response = self.membership_list_view(request, parent_lookup_supportgroup=str(self.supportgroup.pk))
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        qs = self.supportgroup.memberships.all()
+
+        self.assertEquals(len(qs), 3)
+
     def test_bulk_creation(self):
         request = self.factory.put('', data=[
             # modification

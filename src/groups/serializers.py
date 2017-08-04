@@ -108,7 +108,7 @@ class GroupMembershipCreatableSerializer(serializers.HyperlinkedModelSerializer)
         model = models.Membership
         fields = ('person', 'is_referent',)
         extra_kwargs = {
-            'person': {'view_name': 'legacy:person-detail'},
+            'person': {'view_name': 'legacy:person-detail', 'read_only': False, 'queryset': Person.objects.all()}
         }
 
     def validate_person(self, value):
