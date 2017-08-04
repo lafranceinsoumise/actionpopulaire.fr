@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import dj_database_url
+import dj_email_url
 
 ENABLE_API = not os.environ.get('ENABLE_API', 'y').lower() in ['n', 'no', 'false']
 ENABLE_FRONT = os.environ.get('ENABLE_FRONT', 'n').lower() in ['y', 'yes', 'true']
@@ -114,6 +115,33 @@ WSGI_APPLICATION = 'api.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(default="postgis://api:password@localhost/api")
 }
+
+# Mails
+
+# by default configured for mailhog sending
+email_config = dj_email_url.parse(os.environ.get('SMTP_URL', 'smtp://localhost:1025/'))
+
+EMAIL_FILE_PATH = email_config['EMAIL_FILE_PATH']
+EMAIL_HOST_USER = email_config['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = email_config['EMAIL_HOST_PASSWORD']
+EMAIL_HOST = email_config['EMAIL_HOST']
+EMAIL_PORT = email_config['EMAIL_PORT']
+EMAIL_BACKEND = email_config['EMAIL_BACKEND']
+EMAIL_USE_TLS = email_config['EMAIL_USE_TLS']
+EMAIL_USE_SSL = email_config['EMAIL_USE_SSL']
+
+# fixed for now ==> maybe more flexible?
+EMAIL_TEMPLATES = {
+    # WELCOME_MAIL variables:
+    "WELCOME_MAIL": "https://mosaico.jlm2017.fr/emails/ac205f71-61a3-465b-8161-cec5729ecdbb.html",
+    # EVENT_CHANGED variables: EVENT_NAME, EVENT_CHANGES, EVENT_LINK, EVENT_QUIT_LINK
+    "EVENT_CHANGED": "https://mosaico.jlm2017.fr/emails/f8dfc882-4e7e-4ff2-bd8c-473fd41e54bf.html",
+    # GROUP_CHANGED variables: GROUP_NAME, GROUP_CHANGES, GROUP_LINK
+    "GROUP_CHANGED": "https://mosaico.jlm2017.fr/emails/3724b7ba-2a48-4954-9496-fc4c970a56b8.html",
+}
+
+
+EMAIL_FROM = os.environ.get('EMAIL_FROM', 'noreply@lafranceinsoumise.fr')
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -248,3 +276,6 @@ if DEBUG:
     MIDDLEWARE.insert(0, 'silk.middleware.SilkyMiddleware')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+# CELERY
+CELERY_BROKER_URL = os.environ.get('BROKER_URL', 'redis://')
