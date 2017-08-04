@@ -62,7 +62,7 @@ class MembershipSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'url', 'person', 'supportgroup', 'is_referent', )
         read_only_fields = ('id', 'url', 'person', 'supportgroup', )
         extra_kwargs = {
-            'url': {'view_name': 'legacy:rsvp-detail'},
+            'url': {'view_name': 'legacy:membership-detail'},
             'person': {'view_name': 'legacy:person-detail'},
             'supportgroup': {'view_name': 'legacy:supportgroup-detail'},
         }

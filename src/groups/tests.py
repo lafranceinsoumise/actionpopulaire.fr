@@ -6,7 +6,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.geos import Point
 
-from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
 
@@ -22,7 +22,7 @@ class BasicSupportGroupTestCase(TestCase):
         )
 
 
-class MembershipTestCase(TestCase):
+class MembershipTestCase(APITestCase):
     def setUp(self):
         self.supportgroup = SupportGroup.objects.create(
             name='Test',
@@ -32,11 +32,26 @@ class MembershipTestCase(TestCase):
             email='marc.machin@truc.com'
         )
 
+        self.privileged_user = Person.objects.create_superperson('super@user.fr', None)
+
     def test_can_create_membership(self):
         Membership.objects.create(
             supportgroup=self.supportgroup,
             person=self.person,
         )
+
+    def test_can_get_membership(self):
+        membership = Membership.objects.create(
+            supportgroup=self.supportgroup,
+            person=self.person,
+        )
+
+        self.client.force_authenticate(self.privileged_user.role)
+        path = '/legacy/memberships/' + str(membership.id) + '/'
+        response = self.client.get(path)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(path, str(response.data['url']))
 
     def test_cannot_create_without_person(self):
         with self.assertRaises(IntegrityError):
