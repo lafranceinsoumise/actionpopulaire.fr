@@ -17,21 +17,14 @@ class SubscriptionSuccessView(SuccessMessageView):
     """
 
 
-class PersonCreateView(CreateView):
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.emails.add(PersonEmail(address=BaseUserManager.normalize_email(form.cleaned_data['email'])), bulk=False)
-        return super().form_valid(form)
-
-
-class SimpleSubscriptionView(PersonCreateView):
+class SimpleSubscriptionView(CreateView):
     template_name = "front/simple_subscription.html"
     success_url = reverse_lazy('subscription_success')
     model = Person
     form_class = SimpleSubscriptionForm
 
 
-class OverseasSubscriptionView(PersonCreateView):
+class OverseasSubscriptionView(CreateView):
     template_name = "front/overseas_subscription.html"
     success_url = reverse_lazy('subscription_success')
     model = Person
