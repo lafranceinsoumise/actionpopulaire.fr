@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 
 from lib.serializers import LegacyBaseAPISerializer, LegacyLocationMixin, RelatedLabelField
@@ -18,7 +19,9 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         required=False,
     )
 
-    email = serializers.EmailField()
+    email = serializers.EmailField(
+        required=True
+    )
 
     rsvps = serializers.HyperlinkedRelatedField(
         view_name='legacy:rsvp-detail',
@@ -42,6 +45,18 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         many=True,
         read_only=True
     )
+
+    def update(self, instance, validated_data):
+        email = validated_data.pop('email', None)
+        with transaction.atomic():
+            super().update(instance, validated_data)
+            if email is not None:
+                models.PersonEmail.objects.update_or_create(
+                    address=email,
+                    person=instance
+                )
+
+        return instance
 
     class Meta:
         model = models.Person

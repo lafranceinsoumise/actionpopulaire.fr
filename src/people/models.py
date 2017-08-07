@@ -18,10 +18,10 @@ class PersonManager(models.Manager):
         warnings.warn('You shoud use create_person or create_superperson.', DeprecationWarning)
         if 'email' not in kwargs:
             raise ValueError('Email must be set')
-        email = kwargs['email']
-        del kwargs['email']
-        person = super().create(*args, **kwargs)
-        person.emails.add(PersonEmail.objects.create(address=BaseUserManager.normalize_email(email), person=person))
+        email = kwargs.pop('email')
+        with transaction.atomic():
+            person = super().create(*args, **kwargs)
+            PersonEmail.objects.create(address=BaseUserManager.normalize_email(email), person=person)
         return person
 
     def get_by_natural_key(self, email):
@@ -119,41 +119,27 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
     def email(self):
         if (len(self.emails.all()) < 1):
             return ''
-        return self.emails.all()[0].address
-
-    @email.setter
-    def email(self, value):
-        self.emails.add(PersonEmail.objects.create(address=value, person=person))
+        return self.emails.first().address
 
     @property
     def bounced(self):
-        return self.emails.all()[0].bounced
+        return self.emails.first().bounced
 
     @bounced.setter
     def bounced(self, value):
-        email = self.emails.all()[0]
+        email = self.emails.first()
         email.bounced = value
         email.save()
 
     @property
     def bounced_date(self):
-        return self.emails.all()[0].bounced_date
+        return self.emails.first().bounced_date
 
     @bounced_date.setter
     def bounced_date(self, value):
-        email = self.emails.all()[0]
+        email = self.emails.first()
         email.bounced_date = value
         email.save()
-
-    def save(self, *args, **kwargs):
-        """
-        Save the emails if they are not
-        """
-        super().save(*args, **kwargs)
-        for email in self.emails.all():
-            if email.person != self:
-                email.person = self
-                email.save()
 
     def get_full_name(self):
         """
