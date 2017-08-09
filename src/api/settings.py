@@ -227,29 +227,28 @@ AUTH_REDIS_PREFIX = os.environ.get('AUTH_REDIS_PREFIX', 'AccessToken:')
 
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING')
 LOG_FILE = os.environ.get('LOG_FILE', './errors.log')
+LOG_DISABLE_JOURNALD = os.environ.get('LOG_DISABLE_JOURNALD', '').lower() in ['y', 'yes', 'true']
 
 if not DEBUG:
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
         'handlers': {
-            'console': {
-                'level': LOG_LEVEL,
-                'class': 'logging.StreamHandler'
-            },
-            'file': {
-                'level': LOG_LEVEL,
-                'class': 'logging.handlers.RotatingFileHandler',
-                'filename': LOG_FILE,
-                'backupCount': 3,
-                'maxBytes': 5 * 1000 * 1000
+            'journald': {
+                'level': 'DEBUG',
+                'class': 'systemd.journal.JournaldLogHandler' if not LOG_DISABLE_JOURNALD else 'logging.StreamHandler',
             }
         },
         'loggers': {
             'django': {
-                'handlers': ['console'],
+                'handlers': ['journald'],
                 'level': 'DEBUG',
                 'propagate': True
+            },
+            'celery': {
+                'handlers': ['journald'],
+                'level': 'DEBUG',
+                'propagate': True,
             }
         }
     }
@@ -279,3 +278,5 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 # CELERY
 CELERY_BROKER_URL = os.environ.get('BROKER_URL', 'redis://')
+# make sure celery does not mess with the root logger
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False

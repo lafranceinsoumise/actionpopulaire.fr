@@ -9,6 +9,8 @@ addons:
     packages:
       - libgdal-dev
       - postgresql-9.6-postgis-2.3
+      - libsystemd-daemon-dev
+      - libsystemd-journal-dev
 dist: trusty
 sudo: required
 
@@ -17,7 +19,9 @@ cache: pip
 before_install:
   - export DATABASE_URL="postgis://postgres@localhost/api"
   - export PIP_USE_MIRRORS=true
+  - export LOG_DISABLE_JOURNALD=true
 
-install: "pip install -r requirements.txt"
+install: "grep -v systemd requirements.txt | pip install -r /dev/stdin"
 
 script: "cd src && python manage.py test"
+
