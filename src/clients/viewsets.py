@@ -79,6 +79,7 @@ class ScopeViewSet(ModelViewSet):
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
     serializer_class = serializers.ScopeSerializer
     queryset = models.Scope.objects.all()
+    lookup_field = 'label'
 
 
 class AuthorizationViewSet(ModelViewSet):

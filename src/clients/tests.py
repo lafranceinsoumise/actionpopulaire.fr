@@ -1,6 +1,8 @@
 import base64
 import json
 import uuid
+from urllib.parse import urlparse
+
 from redislite import StrictRedis
 from unittest import mock, skip
 
@@ -10,6 +12,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
+from rest_framework.reverse import reverse
 from rest_framework import exceptions, status
 
 from . import models, authentication, tokens
@@ -31,7 +34,7 @@ class TokenTestCase(TestCase):
 
         self.token = str(uuid.uuid4())
         self.token_info = {
-            'clientId':self.client.label,
+            'clientId': self.client.label,
             'userId': str(self.person.pk),
             'scope': ['scope_test', 'other_scope']
         }
@@ -205,6 +208,7 @@ class AuthenticateClientViewTestCase(APITestCase):
     Additional routes with specific permission classes must be tested through the APIClient as the
     permission classes won't be replaced by
     """
+
     def setUp(self):
         self.client_unprivileged = models.Client.objects.create_client('unprivileged', 'password')
         self.client_oauth = models.Client.objects.create_client('oauth', 'password', oauth_enabled=True)
@@ -228,7 +232,8 @@ class AuthenticateClientViewTestCase(APITestCase):
 
     def test_cannot_verify_non_oauth_client(self):
         self.client.force_authenticate(user=self.viewer_client.role)
-        response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'unprivileged', 'secret': 'password'})
+        response = self.client.post('/legacy/clients/authenticate_client/',
+                                    data={'id': 'unprivileged', 'secret': 'password'})
 
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
@@ -247,7 +252,8 @@ class AuthenticateClientViewTestCase(APITestCase):
 
     def test_unprocessable_entity_if_wrong_client_secret(self):
         self.client.force_authenticate(user=self.viewer_client.role)
-        response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'unprivileged', 'secret': 'wrong'})
+        response = self.client.post('/legacy/clients/authenticate_client/',
+                                    data={'id': 'unprivileged', 'secret': 'wrong'})
 
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
@@ -256,6 +262,13 @@ class ScopeViewSetTestCase(APITestCase):
     """Test the Scope endpoint"""
 
     def setUp(self):
+        self.scope_client = models.Client.objects.create_client('superclient')
+        self.basic_client = models.Client.objects.create_client('client')
+
+        permission_names = ['change_scope', 'add_scope', 'delete_scope']
+
+        self.scope_client.role.user_permissions.add(*(Permission.objects.get(codename=p) for p in permission_names))
+
         self.scope1 = models.Scope.objects.create(label='scope1', description='Un super scope de ouf')
         self.scope2 = models.Scope.objects.create(label='scope2', description='Un autre scope de ouf')
 
@@ -265,21 +278,58 @@ class ScopeViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual([s['label'] for s in response.data], [s.label for s in models.Scope.objects.all()])
 
-    @skip("TODO")
-    def test_can_see_specific_scope(self):
-        pass
+    def test_can_see_specific_scope_by_label(self):
+        response = self.client.get('/legacy/scopes/scope1/')
 
-    @skip("TODO")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['label'], self.scope1.label)
+        self.assertEqual(response.data['description'], self.scope1.description)
+
+    def test_cannot_modify_while_unauthenticated(self):
+        response = self.client.patch(
+            '/legacy/scopes/scope1/',
+            data={'description': 'Une autres description'}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_cannot_modify_while_unprivileged(self):
-        pass
+        self.client.force_login(self.basic_client.role)
+        response = self.client.patch(
+            '/legacy/scopes/scope1/',
+            data={'description': 'Une autres description'}
+        )
 
-    @skip("TODO")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_can_modify(self):
-        pass
+        self.client.force_login(self.scope_client.role)
+        response = self.client.patch(
+            '/legacy/scopes/scope1/',
+            data={'description': 'Une autre description'}
+        )
 
-    @skip("TODO")
-    def test_cannot_delete(self):
-        pass
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.scope1.refresh_from_db()
+        self.assertEqual(self.scope1.description, 'Une autre description')
+
+    def test_cannot_delete_when_unauthenticated(self):
+        response = self.client.delete('/legacy/scopes/scope1/')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_delete_when_unprivileged(self):
+        self.client.force_login(self.basic_client.role)
+        response = self.client.delete('/legacy/scopes/scope1/')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_delete_scope(self):
+        self.client.force_login(self.scope_client.role)
+        response = self.client.delete('/legacy/scopes/scope1/')
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
 class AuthorizationViewSetTestCase(APITestCase):
@@ -287,32 +337,97 @@ class AuthorizationViewSetTestCase(APITestCase):
     """
 
     def setUp(self):
-        pass
+        self.privileged_client = models.Client.objects.create_client('superclient')
+        self.unprivileged_client = models.Client.objects.create_client('client', oauth_enabled=True)
 
-    @skip("TODO")
-    def test_cannot_see_authorization_while_unauthenticate(self):
-        pass
+        self.oauth_client = models.Client.objects.create_client('oauth_client', oauth_enabled=True)
 
-    @skip("TODO")
-    def test_can_only_see_own_when_unprivileged(self):
-        pass
+        self.target_person = Person.objects.create_person('test@deomain.com')
+        self.other_person = Person.objects.create_person('test2@fzejfzeji.fr')
 
-    @skip("TODO")
+        permission_names = ['view_authorization', 'add_authorization', 'change_authorization', 'delete_authorization']
+
+        self.privileged_client.role.user_permissions.add(
+            *(Permission.objects.get(codename=p) for p in permission_names)
+        )
+
+        self.scope1 = models.Scope.objects.create(label='scope1', description='Un super scope de ouf')
+        self.scope2 = models.Scope.objects.create(label='scope2', description='Un autre scope de ouf')
+
+        self.auth_target_oauth = models.Authorization.objects.create(
+            person=self.target_person,
+            client=self.oauth_client
+        )
+        self.auth_target_oauth.scopes.add(self.scope1, self.scope2)
+
+        self.auth_other_oauth = models.Authorization.objects.create(
+            person=self.other_person,
+            client=self.oauth_client
+        )
+        self.auth_other_oauth.scopes.add(self.scope1)
+
+    def test_cannot_see_authorizations_while_unauthenticated(self):
+        response = self.client.get('/legacy/authorizations/')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_persons_can_see_own_when_unprivileged(self):
+        self.client.force_login(self.target_person.role)
+        response = self.client.get('/legacy/authorizations/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(
+            urlparse(response.data[0]['person']).path,
+            reverse('legacy:person-detail', kwargs={'pk': self.target_person.pk})
+        )
+
     def test_can_see_all_with_privileges(self):
-        pass
+        self.client.force_login(self.privileged_client.role)
+        response = self.client.get('/legacy/authorizations/')
 
-    @skip("TODO")
-    def test_can_modify_own_when_unprivileged(self):
-        pass
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
 
-    @skip("TODO")
+        obj_urls = [
+            (reverse('legacy:person-detail', kwargs={'pk': a.person.pk}),
+             reverse('legacy:client-detail', kwargs={'pk': a.client.pk}))
+            for a in [self.auth_target_oauth, self.auth_other_oauth]
+        ]
+
+        self.assertCountEqual(
+            [tuple(urlparse(url).path for url in [a['person'], a['client']]) for a in response.data],
+            obj_urls
+        )
+
+    def test_person_can_modify_own_when_unprivileged(self):
+        self.client.force_login(self.target_person.role)
+        response = self.client.patch(
+            '/legacy/authorizations/%d/' % self.auth_target_oauth.pk,
+            data={'scopes': ['scope1']}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.auth_target_oauth.refresh_from_db()
+
+        self.assertCountEqual(self.auth_target_oauth.scopes.all(), [self.scope1])
+
     def test_cannot_modify_other_than_own_when_unprivileged(self):
-        pass
+        self.client.force_login(self.target_person.role)
+        response = self.client.patch(
+            '/legacy/authorizations/%d/' % self.auth_other_oauth.pk,
+            data={'scopes': ['scope2']}
+        )
 
-    @skip("TODO")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_can_delete_own(self):
-        pass
+        self.client.force_login(self.target_person.role)
+        response = self.client.delete('/legacy/authorizations/%d/' % self.auth_target_oauth.pk)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-    @skip("TODO")
     def test_cannot_delete_other_than_own(self):
-        pass
+        self.client.force_login(self.target_person.role)
+        response = self.client.delete('/legacy/authorizations/%d/' % self.auth_other_oauth.pk)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

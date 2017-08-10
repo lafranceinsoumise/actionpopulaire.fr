@@ -14,7 +14,7 @@ rules.add_perm('clients.change_client', is_client)
 
 @rules.predicate
 def is_own_authorization(role, obj):
-    return obj and role.type == role.ROLE_TYPE and role.person_id == obj.person_id
+    return obj and role.type == role.PERSON_ROLE and role.person == obj.person
 
 
 rules.add_perm('clients.view_authorization', is_own_authorization)

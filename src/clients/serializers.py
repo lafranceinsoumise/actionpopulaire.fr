@@ -17,7 +17,7 @@ class AuthorizationSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Authorization
-        fields = ('url', 'id', 'person', 'client', 'scopes')
+        fields = ('url', 'person', 'client', 'scopes')
         extra_kwargs = {
             'url': {'view_name': 'legacy:authorization-detail'},
             'person': {'view_name': 'legacy:person-detail'},
@@ -30,7 +30,7 @@ class ScopeSerializer(serializers.ModelSerializer):
         model = models.Scope
         fields = ('url', 'label', 'description')
         extra_kwargs = {
-            'url': {'view_name': 'legacy:scope-detail'},
+            'url': {'view_name': 'legacy:scope-detail', 'lookup_field': 'label'},
         }
 
 
