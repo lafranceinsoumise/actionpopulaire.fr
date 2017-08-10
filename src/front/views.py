@@ -1,8 +1,9 @@
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView, FormView, CreateView, UpdateView
 from django.core.urlresolvers import reverse_lazy
+from django.contrib.auth.base_user import BaseUserManager
 
-from people.models import Person
+from people.models import Person, PersonEmail
 from events.models import Event, Calendar
 
 from .forms import SimpleSubscriptionForm, OverseasSubscriptionForm, EventForm

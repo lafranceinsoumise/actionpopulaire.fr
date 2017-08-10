@@ -220,6 +220,7 @@ class LegacyPersonEndpointPermissionsTestCase(APITestCase):
 
     def test_can_modify_self(self):
         request = self.factory.patch('', data={
+            'email': 'marcus@cool.md',
             'first_name': 'Marc'
         })
         force_authenticate(request, self.basic_person.role)
@@ -229,6 +230,7 @@ class LegacyPersonEndpointPermissionsTestCase(APITestCase):
 
         self.basic_person.refresh_from_db()
         self.assertEqual(self.basic_person.first_name, 'Marc')
+        self.assertTrue(self.basic_person.emails.filter(address='marcus@cool.md').exists())
 
     def test_can_modify_with_global_perm(self):
         request = self.factory.patch('', data={

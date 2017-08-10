@@ -1,3 +1,4 @@
+import warnings
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
@@ -7,8 +8,24 @@ from authentication.models import Role
 
 
 class PersonManager(models.Manager):
+    def get(self, *args, **kwargs):
+        if 'email' in kwargs:
+            kwargs['emails__address'] = kwargs['email']
+            del kwargs['email']
+        return super().get(*args, **kwargs)
+
+    def create(self, *args, **kwargs):
+        warnings.warn('You shoud use create_person or create_superperson.', DeprecationWarning)
+        if 'email' not in kwargs:
+            raise ValueError('Email must be set')
+        email = kwargs.pop('email')
+        with transaction.atomic():
+            person = super().create(*args, **kwargs)
+            PersonEmail.objects.create(address=BaseUserManager.normalize_email(email), person=person)
+        return person
+
     def get_by_natural_key(self, email):
-        return self.select_related('role').get(email=email)
+        return self.select_related('role').get(emails__address=email)
 
     def _create_person(self, email, password, *, is_staff, is_superuser, is_active=True, **extra_fields):
         """
@@ -16,7 +33,6 @@ class PersonManager(models.Manager):
         """
         if not email:
             raise ValueError('The given email must be set')
-        email = BaseUserManager.normalize_email(email)
 
         role = Role(type=Role.PERSON_ROLE, is_staff=is_staff, is_superuser=is_superuser, is_active=is_active)
         role.set_password(password)
@@ -24,18 +40,20 @@ class PersonManager(models.Manager):
         with transaction.atomic():
             role.save()
 
-            person = self.model(email=email, role=role, **extra_fields)
+            person = self.model(role=role, **extra_fields)
             person.save(using=self._db)
+
+            person.emails.add(PersonEmail.objects.create(address=BaseUserManager.normalize_email(email), person=person))
 
         return person
 
     def create_person(self, email, password=None, **extra_fields):
         """
-        Create a user 
+        Create a user
         :param email: the user's email
         :param password: optional password that may be used to connect to the adimn website
         :param extra_fields: any other field
-        :return: 
+        :return:
         """
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
@@ -44,10 +62,10 @@ class PersonManager(models.Manager):
     def create_superperson(self, email, password, **extra_fields):
         """
         Create a superuser
-        :param email: 
-        :param password: 
-        :param extra_fields: 
-        :return: 
+        :param email:
+        :param password:
+        :param extra_fields:
+        :return:
         """
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
@@ -63,24 +81,17 @@ class PersonManager(models.Manager):
 class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
     """
     Model that represents a physical person that signed as a JLM2017 supporter
-    
+
     A person is identified by the email address he's signed up with.
     He is associated with permissions that determine what he can and cannot do
     with the API.
-    
+
     He has an optional password, which will be only used to authenticate him with
     the API admin.
     """
     objects = PersonManager()
 
     role = models.OneToOneField('authentication.Role', on_delete=models.PROTECT, related_name='person')
-
-    email = models.EmailField(
-        _('adresse email'),
-        unique=True,
-        blank=False,
-        help_text=_("L'adresse email de la personne, utilisée comme identifiant")
-    )
 
     subscribed = models.BooleanField(
         _('inscrit à la newsletter'),
@@ -91,18 +102,6 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
 
     first_name = models.CharField(_('prénom'), max_length=255, blank=True)
     last_name = models.CharField(_('nom de famille'), max_length=255, blank=True)
-
-    bounced = models.BooleanField(
-        _('email rejeté'),
-          default=False,
-        help_text=_("Indique que des mails envoyés ont été rejetés par le serveur distant")
-    )
-    bounced_date = models.DateTimeField(
-        _("date de rejet de l'email"),
-        null=True,
-        blank=True,
-        help_text=_("Si des mails ont été rejetés, indique la date du dernier rejet")
-    )
 
     tags = models.ManyToManyField('PersonTag', related_name='people', blank=True)
 
@@ -115,6 +114,32 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
 
     def __str__(self):
         return self.email
+
+    @property
+    def email(self):
+        if (len(self.emails.all()) < 1):
+            return ''
+        return self.emails.first().address
+
+    @property
+    def bounced(self):
+        return self.emails.first().bounced
+
+    @bounced.setter
+    def bounced(self, value):
+        email = self.emails.first()
+        email.bounced = value
+        email.save()
+
+    @property
+    def bounced_date(self):
+        return self.emails.first().bounced_date
+
+    @bounced_date.setter
+    def bounced_date(self, value):
+        email = self.emails.first()
+        email.bounced_date = value
+        email.save()
 
     def get_full_name(self):
         """
@@ -134,3 +159,33 @@ class PersonTag(AbstractLabel):
     """
     class Meta:
         verbose_name = _('tag')
+
+
+class PersonEmail(models.Model):
+    """
+    Model that represent a person email address
+    """
+    address = models.EmailField(
+        _('adresse email'),
+        unique=True,
+        blank=False,
+        help_text=_("L'adresse email de la personne, utilisée comme identifiant")
+    )
+
+    bounced = models.BooleanField(
+        _('email rejeté'),
+        default=False,
+        help_text=_("Indique que des mails envoyés ont été rejetés par le serveur distant")
+    )
+
+    bounced_date = models.DateTimeField(
+        _("date de rejet de l'email"),
+        null=True,
+        blank=True,
+        help_text=_("Si des mails ont été rejetés, indique la date du dernier rejet")
+    )
+
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, null=False, related_name='emails')
+
+    class Meta:
+        order_with_respect_to = 'person'

@@ -5,7 +5,7 @@ from django_countries import countries
 
 from .form_components import *
 
-from people.models import Person
+from people.models import Person, PersonEmail
 from events.models import Event
 from groups.models import SupportGroup
 
@@ -17,15 +17,42 @@ class LocationFormMixin():
         self.fields['location_country'].choices = countries
 
 
-class SimpleSubscriptionForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(SimpleSubscriptionForm, self).__init__(*args, **kwargs)
-
-        self.fields['email'].required = True
-        self.fields['email'].error_messages = {
+class BaseSubscriptionForm(forms.ModelForm):
+    email = forms.EmailField(
+        label='Adresse email',
+        required=True,
+        error_messages={
+            'required': _("Vous devez saisir votre adresse email"),
             'unique': _("Cette adresse email est déjà utilisée")
         }
-        self.fields['email'].help_text = None
+    )
+
+    def clean_email(self):
+        """Ensures that the email address is not already in use"""
+        email = self.cleaned_data['email']
+
+        if PersonEmail.objects.filter(address=email).exists():
+            raise forms.ValidationError(self.fields['email'].error_messages['unique'], code="unique")
+
+        return email
+
+    def _save_m2m(self):
+        """Save the email
+
+        _save_m2m is called when the ModelForm instance is saved, whether it is made through
+        the form itself using `form.save(commit=True)` or later, using `instance = form.save(commit=False)`
+        and calling `instance.save()`later.
+        """
+        super()._save_m2m()
+        PersonEmail.objects.create(address=self.cleaned_data['email'], person=self.instance)
+
+    class Meta:
+        abstract = True
+
+
+class SimpleSubscriptionForm(BaseSubscriptionForm):
+    def __init__(self, *args, **kwargs):
+        super(SimpleSubscriptionForm, self).__init__(*args, **kwargs)
 
         self.fields['location_zip'].required = True
         self.fields['location_zip'].help_text = None
@@ -55,12 +82,10 @@ class SimpleSubscriptionForm(forms.ModelForm):
         fields = ('email', 'location_zip')
 
 
-class OverseasSubscriptionForm(LocationFormMixin, forms.ModelForm):
+class OverseasSubscriptionForm(LocationFormMixin, BaseSubscriptionForm):
+
     def __init__(self, *args, **kwargs):
         super(OverseasSubscriptionForm, self).__init__(*args, **kwargs)
-
-        self.fields['email'].required = True
-        self.fields['email'].help_text = None
 
         self.fields['location_country'].required = True
         self.fields['location_address1'].required = True
