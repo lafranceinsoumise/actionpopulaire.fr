@@ -402,15 +402,15 @@ class MembershipEndpointTestCase(TestCase):
 
         response = self.membership_list_view(request)
 
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_can_see_own_memberships(self):
         request = self.as_unprivileged(self.get_request())
 
         response = self.membership_list_view(request)
 
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(response.data), 2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
         assert all(
             membership['person'].split('/')[-2] == str(self.unprivileged_person.id) for membership in response.data)
         self.assertCountEqual([membership['supportgroup'].split('/')[-2] for membership in response.data],
@@ -506,24 +506,24 @@ class GroupMembershipEndpointTestCase(TestCase):
 
         response = self.membership_list_view(request, parent_lookup_supportgroup=str(self.supportgroup.pk))
 
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_can_see_own_memberships(self):
         request = self.as_unprivileged(self.get_request())
 
         response = self.membership_list_view(request, parent_lookup_supportgroup=str(self.supportgroup.pk))
 
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(response.data), 1)
-        self.assertEquals(response.data[0]['person'].split('/')[-2], str(self.unprivileged_person.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['person'].split('/')[-2], str(self.unprivileged_person.id))
 
     def test_can_see_memberships_as_organizer(self):
         request = self.as_organizer(self.get_request())
 
         response = self.membership_list_view(request, parent_lookup_supportgroup=str(self.supportgroup.pk))
 
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(response.data), 2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
         self.assertCountEqual(
             [membership['person'].split('/')[-2] for membership in response.data],
             [str(self.unprivileged_person.id), str(self.manager.id)]
@@ -540,7 +540,7 @@ class GroupMembershipEndpointTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         qs = self.supportgroup.memberships.all()
 
-        self.assertEquals(len(qs), 3)
+        self.assertEqual(len(qs), 3)
 
     def test_bulk_creation(self):
         request = self.factory.put('', data=[
@@ -560,8 +560,8 @@ class GroupMembershipEndpointTestCase(TestCase):
 
         response = self.membership_bulk_view(request, parent_lookup_supportgroup=str(self.supportgroup.pk))
 
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         qs = self.supportgroup.memberships.all()
 
-        self.assertEquals(len(qs), 2)
+        self.assertEqual(len(qs), 2)
         self.assertCountEqual([membership.person_id for membership in qs], [self.unprivileged_person.id, self.privileged_user.id])

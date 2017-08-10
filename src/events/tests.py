@@ -113,7 +113,7 @@ class RSVPTestCase(TestCase):
             guests=10
         )
 
-        self.assertEquals(self.event.participants, 11)
+        self.assertEqual(self.event.participants, 11)
 
         RSVP.objects.create(
             person=Person.objects.create(email='person2@domain.com'),
@@ -517,15 +517,15 @@ class RSVPEndpointTestCase(TestCase):
 
         response = self.rsvp_list_view(request)
 
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_can_see_own_rsvps(self):
         request = self.as_unprivileged(self.get_request())
 
         response = self.rsvp_list_view(request)
 
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(response.data), 2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
         assert all(rsvp['person'].split('/')[-2] == str(self.unprivileged_person.id) for rsvp in response.data)
         self.assertCountEqual([rsvp['event'].split('/')[-2] for rsvp in response.data],
                               [str(self.event.id), str(self.secondary_event.id)])
@@ -637,16 +637,16 @@ class EventRSVPEndpointTestCase(TestCase):
 
         response = self.rsvp_list_view(request, parent_lookup_event=str(self.event.pk))
 
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_can_see_own_rsvps(self):
         request = self.as_unprivileged(self.get_request())
 
         response = self.rsvp_list_view(request, parent_lookup_event=str(self.event.pk))
 
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(response.data), 1)
-        self.assertEquals(response.data[0]['person'].split('/')[-2], str(self.unprivileged_person.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['person'].split('/')[-2], str(self.unprivileged_person.id))
 
     @skip('TODO')
     def test_cannot_create_as_unauthenticated(self):
@@ -661,9 +661,9 @@ class EventRSVPEndpointTestCase(TestCase):
 
         response = self.rsvp_list_view(request, parent_lookup_event=str(self.event.pk))
 
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(response.data), 2)
-        self.assertEquals(response.data[0]['person'].split('/')[-2], str(self.unprivileged_person.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]['person'].split('/')[-2], str(self.unprivileged_person.id))
 
     def test_bulk_creation(self):
         request = self.factory.put('', data=[
@@ -683,8 +683,8 @@ class EventRSVPEndpointTestCase(TestCase):
 
         response = self.rsvp_bulk_view(request, parent_lookup_event=str(self.event.pk))
 
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         qs = self.event.rsvps.all()
 
-        self.assertEquals(len(qs), 2)
+        self.assertEqual(len(qs), 2)
         self.assertCountEqual([rsvp.person_id for rsvp in qs], [self.unprivileged_person.id, self.privileged_user.id])

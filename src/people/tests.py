@@ -303,7 +303,7 @@ class LegacyPersonEndpointPermissionsTestCase(APITestCase):
 
         response = self.list_view(request)
 
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class LegacyEndpointFieldsTestCase(TestCase):

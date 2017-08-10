@@ -218,38 +218,38 @@ class AuthenticateClientViewTestCase(APITestCase):
     def test_cannot_verify_client_if_unauthenticated(self):
         response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'test', 'secret': 'test'})
 
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_verify_client_if_no_view_permission(self):
         self.client.force_authenticate(user=self.client_unprivileged.role)
         response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'test', 'secret': 'test'})
 
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_verify_non_oauth_client(self):
         self.client.force_authenticate(user=self.viewer_client.role)
         response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'unprivileged', 'secret': 'password'})
 
-        self.assertEquals(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     def test_can_verify_client_with_view_permission(self):
         self.client.force_authenticate(user=self.viewer_client.role)
         response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'oauth', 'secret': 'password'})
 
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(response.data['_id'], str(self.client_oauth.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['_id'], str(self.client_oauth.id))
 
     def test_unprocessable_entity_if_wrong_client_id(self):
         self.client.force_authenticate(user=self.viewer_client.role)
         response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'wrong', 'secret': 'wrong'})
 
-        self.assertEquals(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     def test_unprocessable_entity_if_wrong_client_secret(self):
         self.client.force_authenticate(user=self.viewer_client.role)
         response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'unprivileged', 'secret': 'wrong'})
 
-        self.assertEquals(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 class ScopeViewSetTestCase(APITestCase):
@@ -262,7 +262,7 @@ class ScopeViewSetTestCase(APITestCase):
     def test_can_see_scopes_while_unauthenticated(self):
         response = self.client.get('/legacy/scopes/')
 
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual([s['label'] for s in response.data], [s.label for s in models.Scope.objects.all()])
 
     @skip("TODO")
