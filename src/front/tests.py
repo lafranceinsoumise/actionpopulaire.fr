@@ -1,3 +1,5 @@
+from unittest import mock
+
 from django.test import TestCase
 from django.utils import timezone, formats
 from django.http import QueryDict
@@ -170,7 +172,8 @@ class EventPageTestCase(TestCase):
             calendar=calendar
         )
 
-    def test_can_see_organized_event_modify_page(self):
+    @mock.patch("front.views.events.send_event_changed_notification")
+    def test_can_modify_organized_event(self, patched_send_notification):
         self.client.force_login(self.person.role)
         response = self.client.get(reverse('edit_event', kwargs={'pk': self.organized_event.pk}))
 
@@ -190,6 +193,20 @@ class EventPageTestCase(TestCase):
 
         # the form redirects to the event list on success
         self.assertRedirects(response, reverse('list_events'))
+
+        # accessing the messages: see https://stackoverflow.com/a/14909727/1122474
+        messages = list(response.wsgi_request._messages)
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].level_tag, 'success')
+
+        # send_support_group_changed_notification.delay should have been called once, with the pk of the group as
+        # first argument, and the changes as the second
+        patched_send_notification.delay.assert_called_once()
+        args = patched_send_notification.delay.call_args[0]
+
+        self.assertEqual(args[0], self.organized_event.pk)
+        self.assertCountEqual(args[1], ['contact', 'timing', 'information'])
 
     def test_cannot_modify_rsvp_event(self):
         self.client.force_login(self.person.role)
@@ -237,7 +254,8 @@ class GroupPageTestCase(TestCase):
 
         self.client.force_login(self.person.role)
 
-    def test_can_modify_managed_group(self):
+    @mock.patch("front.views.groups.send_support_group_changed_notification")
+    def test_can_modify_managed_group(self, patched_send_notification):
         response = self.client.get(reverse('edit_group', kwargs={'pk': self.manager_group.pk}))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -252,6 +270,20 @@ class GroupPageTestCase(TestCase):
         )
 
         self.assertRedirects(response, reverse('list_groups'))
+
+        # accessing the messages: see https://stackoverflow.com/a/14909727/1122474
+        messages = list(response.wsgi_request._messages)
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].level_tag, 'success')
+
+        # send_support_group_changed_notification.delay should have been called once, with the pk of the group as
+        # first argument, and the changes as the second
+        patched_send_notification.delay.assert_called_once()
+        args = patched_send_notification.delay.call_args[0]
+
+        self.assertEqual(args[0], self.manager_group.pk)
+        self.assertCountEqual(args[1], ['contact', 'information'])
 
     def test_cannot_modify_member_group(self):
         response = self.client.get(reverse('edit_group', kwargs={'pk': self.member_group.pk}))

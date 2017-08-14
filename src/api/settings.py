@@ -18,6 +18,10 @@ from django.contrib.messages import ERROR
 ENABLE_API = not os.environ.get('ENABLE_API', 'y').lower() in ['n', 'no', 'false']
 ENABLE_FRONT = os.environ.get('ENABLE_FRONT', 'n').lower() in ['y', 'yes', 'true']
 
+# these domain names are used when absolute URLs should be generated (e.g. to include in emails)
+API_DOMAIN = os.environ.get('API_DOMAIN', 'https://api.lafranceinsoumise.fr')
+FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', 'https://api.lafranceinsoumise.fr')
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

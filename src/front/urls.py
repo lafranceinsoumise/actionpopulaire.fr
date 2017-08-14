@@ -10,6 +10,7 @@ urlpatterns = [
     url('^evenements/$', views.EventListView.as_view(), name='list_events'),
     url('^evenements/creer/$', views.CreateEventView.as_view(), name='create_event'),
     url('^evenements/(?P<pk>[0-9a-f-]+)/modifier/$', views.UpdateEventView.as_view(), name='edit_event'),
+    url('^evenements/(?P<pk>[0-9a-f-]+)/quitter/$', views.QuitEventView.as_view(), name='quit_event'),
 
     url('^groupes/$', views.SupportGroupListView.as_view(), name='list_groups'),
     url('^groupes/creer/$', views.CreateSupportGroupView.as_view(), name='create_group'),

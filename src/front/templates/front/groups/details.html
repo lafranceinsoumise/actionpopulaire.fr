@@ -1,0 +1,24 @@
+{% extends "front/simple_layout.html" %}
+
+{% block title %}Détails du groupe {{ group.name }}{% endblock %}
+
+{% block main %}
+    <h2 class="text-center">{{ group.name }}</h2>
+
+    <h3>Liste des gestionnaires du groupe</h3>
+
+    <div class="list">
+        {% for membership in managers %}
+
+        {% empty %}
+        {% endfor %}
+    </div>
+
+    <h3>Liste des membres</h3>
+
+    <div class="list">
+        {% for membership in members %}
+
+        {% endfor %}
+    </div>
+{% endblock %}

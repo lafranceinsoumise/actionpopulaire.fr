@@ -1,31 +1,28 @@
 from collections import OrderedDict
-from urllib.parse import urljoin
 
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 from django.conf import settings
-from django.shortcuts import reverse
 
 from celery import shared_task
 
 from lib.mails import send_mosaico_email
 
-from .models import Event
+from .models import SupportGroup
 
 # encodes the preferred order when showing the messages
 CHANGE_DESCRIPTION = OrderedDict((
-    ("information", _("les informations générales de l'événement")),
-    ("location", _("le lieu de l'événement")),
-    ("timing", _("les horaires de l'événements")),
-    ("contact", _("les informations de contact des organisateurs"))
+    ("information", _("le nom ou la description du groupe")),
+    ("location", _("le lieu de rencontre du groupe d'appui")),
+    ("contact", _("les informations de contact des référents du groupe"))
 ))
 
 
 @shared_task
-def send_event_changed_notification(event_pk, changes):
-    event = Event.objects.get(pk=event_pk)
+def send_support_group_changed_notification(support_group_pk, changes):
+    group = SupportGroup.objects.get(pk=support_group_pk)
 
-    attendees = event.attendees.all()
+    attendees = group.attendees.all()
 
     change_descriptions = [desc for label, desc in CHANGE_DESCRIPTION.items() if label in changes]
     change_fragment = render_to_string(
@@ -35,16 +32,15 @@ def send_event_changed_notification(event_pk, changes):
 
     # TODO: find adequate way to set up domain names to use for these links
     bindings = {
-        "EVENT_CHANGES": change_fragment,
-        "EVENT_LINK": "#",
-        "EVENT_QUIT_LINK": urljoin(settings.FRONT_DOMAIN, reverse("quit_event"))
+        "GROUP_CHANGES": change_fragment,
+        "GROUP_LINK": "#",
     }
 
     recipients = [attendee.email for attendee in attendees]
 
     send_mosaico_email(
         code='',
-        subject=_("Les informations d'un événement auquel vous assistez ont été changées"),
+        subject=_("Les informations de votre groupe d'appui ont été changées"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
