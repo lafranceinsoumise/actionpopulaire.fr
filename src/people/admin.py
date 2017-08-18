@@ -9,7 +9,7 @@ from .models import Person, PersonTag
 @admin.register(Person, site=admin_site)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('email', 'subscribed', 'role_link')
-    search_fields = ('email', 'first_name', 'last_name',)
+    search_fields = ('emails__address', 'first_name', 'last_name',)
 
     fieldsets = (
         (None, {
