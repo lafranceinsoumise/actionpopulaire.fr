@@ -236,6 +236,31 @@ class LegacyPersonEndpointPermissionsTestCase(APITestCase):
         self.assertEqual(new_person.first_name, 'Jean-Luc')
         self.assertEqual(new_person.last_name, 'Mélenchon')
 
+    def test_can_update_email_list(self):
+        """
+        We test at the same time that we can replace the list,
+        and that we can set the primary email with the 'email' field
+        """
+        request = self.factory.patch('', data={
+            'emails': [
+                {
+                    'address': 'test@example.com',
+                    'bounced': False
+                },
+                {
+                    'address': 'testprimary@example.com',
+                    'bounced': False
+                }
+            ],
+            'email': 'testprimary@example.com'
+        })
+        force_authenticate(request, self.changer_person.role)
+        response = self.detail_view(request, pk=self.basic_person.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(self.basic_person.email, 'testprimary@example.com')
+
     def test_cannot_modify_while_unauthenticated(self):
         request = self.factory.patch('', data={
             'first_name': 'Marc'

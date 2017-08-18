@@ -156,7 +156,7 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         self.emails.add(PersonEmail.objects.create(address=BaseUserManager.normalize_email(email_address), person=self))
 
     def set_primary_email(self, email_address):
-        id = self.emails.get(address=email_address).id
+        id = self.emails.get(address=BaseUserManager.normalize_email(email_address)).id
         order = list(self.get_personemail_order())
         order.remove(id)
         order.insert(0, id)

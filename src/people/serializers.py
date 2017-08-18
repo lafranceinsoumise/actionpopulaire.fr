@@ -1,10 +1,35 @@
 from django.db import transaction
+from django.db.utils import IntegrityError
 from rest_framework import serializers
 
-from lib.serializers import LegacyBaseAPISerializer, LegacyLocationMixin, RelatedLabelField
+from lib.serializers import (
+    LegacyBaseAPISerializer, LegacyLocationMixin, RelatedLabelField, UpdatableListSerializer
+)
 from clients.serializers import PersonAuthorizationSerializer
 
 from . import models
+
+
+class PersonEmailListSerializer(UpdatableListSerializer):
+    matching_attr = 'address'
+
+    def get_additional_fields(self):
+        return {
+            'person_id': self.context['person']
+        }
+
+
+class PersonEmailSerializer(serializers.ModelSerializer):
+    """Basic PersonEmail serializer used to show and edit existing Memberships
+
+    This serializer does not allow changing the email address. Instead, this email should be deleted and
+    another one created.
+    """
+
+    class Meta:
+        model = models.PersonEmail
+        list_serializer_class = PersonEmailListSerializer
+        fields = ('address', 'bounced', 'bounced_date', )
 
 
 class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
@@ -22,6 +47,8 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
     email = serializers.EmailField(
         required=True
     )
+
+    emails = PersonEmailSerializer(many=True)
 
     rsvps = serializers.HyperlinkedRelatedField(
         view_name='legacy:rsvp-detail',
@@ -47,11 +74,17 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
     )
 
     def update(self, instance, validated_data):
+        emails = validated_data.pop('emails', None)
         email = validated_data.pop('email', None)
         with transaction.atomic():
             super().update(instance, validated_data)
+            if emails is not None:
+                for item in emails:
+                    instance.add_email(item['address'])
+
             if email is not None:
-                instance.add_email(email)
+                if emails is None or email not in [item['address'] for item in emails]:
+                    instance.add_email(email)
                 instance.set_primary_email(email)
 
         return instance
@@ -59,8 +92,9 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
     class Meta:
         model = models.Person
         fields = (
-            'url', '_id', 'id', 'email', 'first_name', 'last_name', 'bounced', 'bounced_date', '_created', '_updated',
-            'email_opt_in', 'events', 'rsvps', 'groups', 'memberships', 'tags', 'location', 'authorizations',
+            'url', '_id', 'id', 'email', 'emails', 'first_name', 'last_name', 'bounced', 'bounced_date',
+            '_created', '_updated', 'email_opt_in', 'events', 'rsvps', 'groups', 'memberships', 'tags',
+            'location', 'authorizations',
         )
         read_only_fields = ('url', '_id', '_created', '_updated')
         extra_kwargs = {
