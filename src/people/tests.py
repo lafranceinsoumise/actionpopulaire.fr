@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -30,6 +31,23 @@ class BasicPersonTestCase(TestCase):
 
         self.assertEqual(user.email, 'test@domain.com')
         self.assertEqual(user.emails.all()[1].address, 'test2@domain.com')
+
+    def test_can_set_primary_email(self):
+        user = Person.objects.create_person(email='test@domain.com')
+        user.add_email('test2@domain.com')
+        user.save()
+        user.set_primary_email('test2@domain.com')
+
+        self.assertEqual(user.email, 'test2@domain.com')
+        self.assertEqual(user.emails.all()[1].address, 'test@domain.com')
+
+    def test_cannot_set_non_existing_primary_email(self):
+        user = Person.objects.create_person(email='test@domain.com')
+        user.add_email('test2@domain.com')
+        user.save()
+
+        with self.assertRaises(ObjectDoesNotExist):
+            user.set_primary_email('test3@domain.com')
 
     def test_can_create_user_with_password_and_authenticate(self):
         user = Person.objects.create_person('test1@domain.com', 'test')
