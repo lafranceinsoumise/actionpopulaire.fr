@@ -43,7 +43,7 @@ class PersonManager(models.Manager):
             person = self.model(role=role, **extra_fields)
             person.save(using=self._db)
 
-            person.emails.add(PersonEmail.objects.create(address=BaseUserManager.normalize_email(email), person=person))
+            person.add_email(email)
 
         return person
 
@@ -151,6 +151,9 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
     def get_short_name(self):
         "Returns the short name for the user."
         return self.first_name or self.email
+
+    def add_email(self, email_address):
+        self.emails.add(PersonEmail.objects.create(address=BaseUserManager.normalize_email(email_address), person=self))
 
 
 class PersonTag(AbstractLabel):

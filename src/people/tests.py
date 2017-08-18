@@ -23,6 +23,14 @@ class BasicPersonTestCase(TestCase):
         self.assertEqual(user.email, 'test@domain.com')
         self.assertEqual(user.pk, Person.objects.get_by_natural_key('test@domain.com').pk)
 
+    def test_can_add_email(self):
+        user = Person.objects.create_person(email='test@domain.com')
+        user.add_email('test2@domain.com')
+        user.save()
+
+        self.assertEqual(user.email, 'test@domain.com')
+        self.assertEqual(user.emails.all()[1].address, 'test2@domain.com')
+
     def test_can_create_user_with_password_and_authenticate(self):
         user = Person.objects.create_person('test1@domain.com', 'test')
 
