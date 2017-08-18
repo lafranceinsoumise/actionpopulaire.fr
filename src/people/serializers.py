@@ -51,10 +51,8 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         with transaction.atomic():
             super().update(instance, validated_data)
             if email is not None:
-                models.PersonEmail.objects.update_or_create(
-                    address=email,
-                    person=instance
-                )
+                instance.add_email(email)
+                instance.set_primary_email(email)
 
         return instance
 
