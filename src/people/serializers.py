@@ -48,7 +48,7 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         required=True
     )
 
-    emails = PersonEmailSerializer(many=True)
+    emails = PersonEmailSerializer(many=True, required=False)
 
     rsvps = serializers.HyperlinkedRelatedField(
         view_name='legacy:rsvp-detail',

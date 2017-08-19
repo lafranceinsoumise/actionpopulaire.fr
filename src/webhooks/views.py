@@ -24,6 +24,7 @@ class NbAddPeopleView(APIView):
         if (request.data['token'] != settings.NB_WEBHOOK_KEY):
             return Response('Wrong token', 401)
         nb_person = request.data['payload']['person']
+        nb_person.pop('emails', None)
         nb_person_serializer = LegacyPersonSerializer(data=nb_person)
         if not nb_person_serializer.is_valid():
             return Response('Invalid payload', 400)
