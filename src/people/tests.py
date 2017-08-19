@@ -1,3 +1,4 @@
+import django.utils.timezone
 from django.test import TestCase
 from django.contrib.auth import authenticate
 from django.utils import timezone
@@ -26,11 +27,14 @@ class BasicPersonTestCase(TestCase):
 
     def test_can_add_email(self):
         user = Person.objects.create_person(email='test@domain.com')
-        user.add_email('test2@domain.com')
+        bounced_date = timezone.now()
+        user.add_email('test2@domain.com', bounced=True, bounced_date=bounced_date)
         user.save()
 
         self.assertEqual(user.email, 'test@domain.com')
         self.assertEqual(user.emails.all()[1].address, 'test2@domain.com')
+        self.assertEqual(user.emails.all()[1].bounced, True)
+        self.assertEqual(user.emails.all()[1].bounced_date, bounced_date)
 
     def test_can_set_primary_email(self):
         user = Person.objects.create_person(email='test@domain.com')
@@ -245,7 +249,7 @@ class LegacyPersonEndpointPermissionsTestCase(APITestCase):
             'emails': [
                 {
                     'address': 'test@example.com',
-                    'bounced': False
+                    'bounced': True
                 },
                 {
                     'address': 'testprimary@example.com',
@@ -258,8 +262,9 @@ class LegacyPersonEndpointPermissionsTestCase(APITestCase):
         response = self.detail_view(request, pk=self.basic_person.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
         self.assertEqual(self.basic_person.email, 'testprimary@example.com')
+        self.assertEqual(self.basic_person.emails.all()[2].address, 'test@example.com')
+        self.assertEqual(self.basic_person.emails.all()[2].bounced, True)
 
     def test_cannot_modify_while_unauthenticated(self):
         request = self.factory.patch('', data={

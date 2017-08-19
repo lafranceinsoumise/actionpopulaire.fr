@@ -80,7 +80,7 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
             super().update(instance, validated_data)
             if emails is not None:
                 for item in emails:
-                    instance.add_email(item['address'])
+                    instance.add_email(item['address'], bounced=item.get('bounced', None), bounced_date=item.get('bounced_date', None))
 
             if email is not None:
                 if emails is None or email not in [item['address'] for item in emails]:

@@ -152,8 +152,8 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         "Returns the short name for the user."
         return self.first_name or self.email
 
-    def add_email(self, email_address):
-        self.emails.add(PersonEmail.objects.create(address=BaseUserManager.normalize_email(email_address), person=self))
+    def add_email(self, email_address, **kwargs):
+        self.emails.add(PersonEmail.objects.create(address=BaseUserManager.normalize_email(email_address), person=self, **kwargs))
 
     def set_primary_email(self, email_address):
         id = self.emails.get(address=BaseUserManager.normalize_email(email_address)).id
