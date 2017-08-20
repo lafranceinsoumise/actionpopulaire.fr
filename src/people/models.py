@@ -2,6 +2,7 @@ import warnings
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
+from django.core.exceptions import ObjectDoesNotExist
 
 from lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource
 from authentication.models import Role

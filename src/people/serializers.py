@@ -1,6 +1,8 @@
+import uuid
 from django.db import transaction
 from django.db.utils import IntegrityError
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from lib.serializers import (
     LegacyBaseAPISerializer, LegacyLocationMixin, RelatedLabelField, UpdatableListSerializer
@@ -10,25 +12,28 @@ from clients.serializers import PersonAuthorizationSerializer
 from . import models
 
 
-class PersonEmailListSerializer(UpdatableListSerializer):
-    matching_attr = 'address'
-
-    def get_additional_fields(self):
-        return {
-            'person_id': self.context['person']
-        }
-
-
 class PersonEmailSerializer(serializers.ModelSerializer):
-    """Basic PersonEmail serializer used to show and edit existing Memberships
-
-    This serializer does not allow changing the email address. Instead, this email should be deleted and
-    another one created.
+    """Basic PersonEmail serializer used to show and edit PersonEmail
     """
+
+    def __init__(self, *args, **kwargs):
+        serializers.ModelSerializer.__init__(self, *args, **kwargs)
+        queryset = models.PersonEmail.objects.all()
+        try:
+            pk = self.context['view'].kwargs['pk']
+        except KeyError:
+            pk = None
+        if isinstance(pk, uuid.UUID):
+            queryset = queryset.exclude(person__id=pk)
+        elif uuid is not None:
+            queryset = queryset.exclude(person__nb_id=pk)
+
+        self.fields['address'] = serializers.EmailField(
+            max_length=254,
+            validators=[UniqueValidator(queryset=queryset)])
 
     class Meta:
         model = models.PersonEmail
-        list_serializer_class = PersonEmailListSerializer
         fields = ('address', 'bounced', 'bounced_date', )
 
 
@@ -47,8 +52,6 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
     email = serializers.EmailField(
         required=True
     )
-
-    emails = PersonEmailSerializer(many=True, required=False)
 
     rsvps = serializers.HyperlinkedRelatedField(
         view_name='legacy:rsvp-detail',
@@ -72,6 +75,11 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         many=True,
         read_only=True
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not isinstance(self, LegacyUnprivilegedPersonSerializer):
+            self.fields['emails'] = PersonEmailSerializer(required=False, many=True, context=self.context)
 
     def update(self, instance, validated_data):
         emails = validated_data.pop('emails', None)
