@@ -23,10 +23,11 @@ class PersonEmailSerializer(serializers.ModelSerializer):
             pk = self.context['view'].kwargs['pk']
         except KeyError:
             pk = None
-        if isinstance(pk, uuid.UUID):
-            queryset = queryset.exclude(person__id=pk)
-        elif uuid is not None:
-            queryset = queryset.exclude(person__nb_id=pk)
+        if pk is not None:
+            try:
+                queryset = queryset.exclude(person__id=pk)
+            except ValueError:
+                queryset = queryset.exclude(person__nb_id=pk)
 
         self.fields['address'] = serializers.EmailField(
             max_length=254,
