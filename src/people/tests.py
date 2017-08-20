@@ -258,6 +258,9 @@ class LegacyPersonEndpointPermissionsTestCase(APITestCase):
                 {
                     'address': 'testprimary@example.com',
                     'bounced': False
+                },
+                {
+                    'address': 'jean.georges@domain.com'
                 }
             ],
             'email': 'testprimary@example.com'
