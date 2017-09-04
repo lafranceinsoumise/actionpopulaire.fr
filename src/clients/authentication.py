@@ -4,7 +4,6 @@ from rest_framework.authentication import BaseAuthentication, BasicAuthenticatio
 
 from authentication.models import Role
 from clients.tokens import AccessToken, InvalidTokenException
-from clients.models import Client
 
 
 class AccessTokenAuthentication(BaseAuthentication):
@@ -43,7 +42,7 @@ class ClientAuthentication(BasicAuthentication):
     def authenticate_credentials(self, client_label, password):
         try:
             role = Role.objects.select_related('client').get(client__label=client_label)
-        except Client.DoesNotExist:
+        except Role.DoesNotExist:
             # Run the default password hasher once to reduce the timing
             # difference between an existing and a non-existing user (#20760).
             Role().set_password(password)
