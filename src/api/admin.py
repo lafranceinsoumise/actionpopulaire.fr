@@ -42,6 +42,9 @@ class PersonAuthenticationForm(AuthenticationForm):
 
 class APIAdminSite(AdminSite):
     login_form = PersonAuthenticationForm
+    site_header = 'France insoumise'
+    site_title = 'France insoumise'
+    index_title = 'Administration'
 
 
 admin_site = APIAdminSite()
