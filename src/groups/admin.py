@@ -8,6 +8,16 @@ from lib.admin import CenterOnFranceMixin
 from . import models
 
 
+class MembershipInline(admin.TabularInline):
+    model = models.Membership
+    can_add = False
+    fields = ('person', 'is_referent', 'is_manager')
+    readonly_fields = ('person',)
+
+    def has_add_permission(self, request):
+        return False
+
+
 @admin.register(models.SupportGroup, site=admin_site)
 class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     fieldsets = (
@@ -28,6 +38,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('nb_id', 'nb_path',)
         }),
     )
+    inlines = (MembershipInline,)
     readonly_fields = ('id',)
     date_hierarchy = 'created'
 
