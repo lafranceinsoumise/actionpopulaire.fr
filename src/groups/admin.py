@@ -29,6 +29,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         }),
     )
     readonly_fields = ('id',)
+    date_hierarchy = 'created'
 
     list_display = ('name', 'location_short', 'membership_count')
 

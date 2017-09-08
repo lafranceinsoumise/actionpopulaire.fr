@@ -55,6 +55,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         })
     )
     readonly_fields = ('id',)
+    date_hierarchy = 'created'
 
     list_display = ('name', 'location_short', 'attendee_count')
     list_filter = (EventStatusFilter,)
