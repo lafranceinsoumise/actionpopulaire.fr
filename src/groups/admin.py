@@ -44,6 +44,8 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     list_display = ('name', 'location_short', 'membership_count')
 
+    search_fields = ('name', 'description', 'location_city', 'location_country')
+
     def location_short(self, object):
         return _('{zip} {city}, {country}').format(
             zip=object.location_zip,
