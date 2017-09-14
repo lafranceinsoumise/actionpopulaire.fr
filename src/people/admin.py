@@ -13,13 +13,13 @@ class PersonAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('email', 'first_name', 'last_name',)
+            'fields': ('first_name', 'last_name',)
         }),
         (_('Dates'), {
             'fields': ('created', 'modified')
         }),
         (_('Paramètres mails'), {
-            'fields': ('subscribed', 'bounced', 'bounced_date',)
+            'fields': ('subscribed',)
         }),
         (_('Role correspondant'), {
             'fields': ('role_link',)
