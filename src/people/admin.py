@@ -28,6 +28,10 @@ class PersonAdmin(admin.ModelAdmin):
 
     readonly_fields = ('created', 'modified', 'role_link')
 
+    search_fields = ('emails__address', 'first_name', 'last_name', 'location_zip')
+
+    list_filter = ('tags',)
+
     def role_link(self, obj):
         return '<a href="%s">%s</a>' % (
             reverse('admin:authentication_role_change', args=[obj.role_id]),
