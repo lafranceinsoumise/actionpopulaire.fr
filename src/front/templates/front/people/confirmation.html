@@ -1,0 +1,31 @@
+{% extends "front/simple_layout.html" %}
+
+{% block title %}Merci !{% endblock %}
+
+{% block main %}
+    <h2 class="headline">Merci !</h2>
+    <div id="content">
+        <div class="text-content">
+            <p>
+                <span class="text-important">Merci de vous être inscrit·e comme volontaire</span> pour avec la France
+                insoumise. Les informations que nous vous avons communiquées nous permettront de vous proposer
+                régulièrement des actions répondant à vos attentes.
+            </p>
+            <p>
+                <!-- TODO add links -->
+                Vous pouvez d'ores et déjà aller plus loin, consulter notre programme, ou rejoindre un groupe d'appui
+                près de chez vous.
+            </p>
+
+            <h4 class="text-center">Si vous le souhaitez, vous pouvez également</h4>
+            <div class="row">
+                <div class="col-sm-6">
+                    <a class="btn btn-primary btn-block" href="https://dons.lafranceinsoumise.fr/">Faire un don</a>
+                </div>
+                <div class="col-sm-6">
+                    <a class="btn btn-primary btn-block" href="{{ action_link }}">{{ action_text }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

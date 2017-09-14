@@ -1,12 +1,14 @@
 from django import forms
-from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django.utils.html import format_html
 from crispy_forms.helper import FormHelper
 from django_countries import countries
 
 from .form_components import *
+from .form_mixins import TagMixin
 
-from people.models import Person, PersonEmail
+from people.models import Person, PersonEmail, PersonTag
+from people.tags import skills_tags, action_tags
 from events.models import Event
 from groups.models import SupportGroup
 
@@ -84,7 +86,6 @@ class SimpleSubscriptionForm(BaseSubscriptionForm):
 
 
 class OverseasSubscriptionForm(LocationFormMixin, BaseSubscriptionForm):
-
     def __init__(self, *args, **kwargs):
         super(OverseasSubscriptionForm, self).__init__(*args, **kwargs)
 
@@ -111,6 +112,143 @@ class OverseasSubscriptionForm(LocationFormMixin, BaseSubscriptionForm):
         model = Person
         fields = (
             'email', 'location_address1', 'location_zip', 'location_city', 'location_country'
+        )
+
+
+EmailFormSet = forms.inlineformset_factory(
+    parent_model=Person,
+    model=PersonEmail,
+    fields=('address',),
+    can_delete=True,
+    can_order=True,
+    min_num=1,
+)
+
+
+class ProfileForm(TagMixin, forms.ModelForm):
+    tags = skills_tags
+    tag_model_class = PersonTag
+    meta_fields = ['occupation', 'associations', 'unions', 'party', 'party_responsibility', 'other']
+
+    occupation = forms.CharField(max_length=200, label=_("Métier"), required=False)
+    associations = forms.CharField(max_length=200, label=_("Engagements associatifs"), required=False)
+    unions = forms.CharField(max_length=200, label=_("Engagements syndicaux"), required=False)
+    party = forms.CharField(max_length=60, label=_("Parti politique"), required=False)
+    party_responsibility = forms.CharField(max_length=100, label=False, required=False)
+    other = forms.CharField(max_length=200, label=_("Autres engagements"), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for f in self.meta_fields:
+            self.fields[f].initial = self.instance.meta.get(f)
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('submit', 'Enregistrer mes informations'))
+
+        self.fields['location_address1'].label = _("Adresse")
+        self.fields['location_address2'].label = False
+
+        self.helper.layout = Layout(
+            Row(
+                HalfCol(  # contact part
+                    Row(
+                        HalfCol('first_name'),
+                        HalfCol('last_name')
+                    ),
+                    Row(
+                        HalfCol('gender'),
+                        HalfCol('date_of_birth')
+                    ),
+                    Row(
+                        FullCol(
+                            Field('location_address1', placeholder=_('1ère ligne')),
+                            Field('location_address2', placeholder=_('2ème ligne'))
+                        )
+                    ),
+                    Row(
+                        HalfCol('location_zip'),
+                        HalfCol('location_city')
+                    ),
+                    Row(
+                        FullCol('location_country')
+                    ),
+                    Row(
+                        HalfCol('contact_phone'),
+                        HalfCol('occupation')
+                    ),
+                    Row(
+                        HalfCol('associations'),
+                        HalfCol('unions')
+                    ),
+                    Row(
+                        HalfCol(
+                            Field('party', placeholder='Nom du parti'),
+                            Field('party_responsibility', placeholder='Responsabilité')),
+                        HalfCol('other')
+                    )
+                ),
+                HalfCol(
+                    HTML('<label>Savoir-faire</label>'),
+                    *(tag for tag, desc in skills_tags)
+                )
+            )
+        )
+
+    def clean(self):
+        """Handles meta fields"""
+        cleaned_data = super().clean()
+
+        meta_update = {f: cleaned_data.pop(f) for f in self.meta_fields}
+        self.instance.meta.update(meta_update)
+
+        return cleaned_data
+
+    class Meta:
+        model = Person
+        fields = (
+            'first_name', 'last_name',
+            'location_address1', 'location_address2', 'location_city', 'location_zip', 'location_country',
+            'contact_phone'
+        )
+
+
+class VolunteerForm(TagMixin, forms.ModelForm):
+    tags = [
+        (tag, format_html('<strong>{}</strong><br><small><em>{}</em></small>', title, description))
+        for _, tags in action_tags.items() for tag, title, description in tags]
+    tag_model_class = PersonTag
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('submit', _("M'enregistrer comme volontaire")))
+
+        self.helper.layout = Layout(
+            Row(
+                HalfCol(
+                    HTML(format_html("<h4>{}</h4>", "Agir près de chez vous")),
+                    *(tag for tag, _, _ in action_tags['nearby'])
+                ),
+                HalfCol(
+                    HTML(format_html("<h4>{}</h4>", "Agir sur internet")),
+                    *(tag for tag, _, _ in action_tags['internet'])
+                ),
+            ),
+            Row(
+                HalfCol(
+                    'contact_phone'
+                )
+            )
+        )
+
+    class Meta:
+        model = Person
+        fields = (
+            'contact_phone',
         )
 
 
@@ -187,7 +325,8 @@ class EventForm(LocationFormMixin, forms.ModelForm):
         fields = (
             'name', 'start_time', 'end_time',
             'contact_name', 'contact_email', 'contact_phone',
-            'location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip', 'location_country',
+            'location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
+            'location_country',
             'description'
         )
 
@@ -245,6 +384,7 @@ class SupportGroupForm(LocationFormMixin, forms.ModelForm):
         fields = (
             'name',
             'contact_name', 'contact_email', 'contact_phone',
-            'location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip', 'location_country',
+            'location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
+            'location_country',
             'description'
         )

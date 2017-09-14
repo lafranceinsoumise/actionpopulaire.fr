@@ -62,7 +62,7 @@ class LocationMixin(models.Model):
     location_city = models.CharField(_("ville"), max_length=100, blank=True)
     location_zip = models.CharField(_("code postal"), max_length=20, blank=True)
     location_state = models.CharField(_('état'), max_length=40, blank=True)
-    location_country = CountryField(_('pays'), blank=True, blank_label=_('(sélectionner un pays'))
+    location_country = CountryField(_('pays'), blank=True, blank_label=_('(sélectionner un pays)'))
 
     class Meta:
         abstract = True

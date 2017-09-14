@@ -6,6 +6,9 @@ urlpatterns = [
     url('^inscription/$', views.SimpleSubscriptionView.as_view(), name='subscription'),
     url('^inscription/etranger/$', views.OverseasSubscriptionView.as_view(), name='subscription_overseas'),
     url('^inscription/succes/$', views.SubscriptionSuccessView.as_view(), name='subscription_success'),
+    url('^profil/$', views.ChangeProfileView.as_view(), name='profile_change'),
+    url('^agir/$', views.VolunteerPage.as_view(), name='volunteer'),
+    url('^merci/$', views.ProfileConfirmationPage.as_view(), name="confirmation"),
 
     url('^evenements/$', views.EventListView.as_view(), name='list_events'),
     url('^evenements/creer/$', views.CreateEventView.as_view(), name='create_event'),

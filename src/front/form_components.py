@@ -1,11 +1,7 @@
-from crispy_forms.layout import Layout, Submit, Div, Field, MultiField, HTML
+from crispy_forms.layout import Layout, Submit, Div, Field, MultiField, HTML, Row
 
 from django.forms.widgets import DateTimeBaseInput
 from django.utils import formats
-
-
-class Row(Div):
-    css_class = "row"
 
 
 class FullCol(Div):

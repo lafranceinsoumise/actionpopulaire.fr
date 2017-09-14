@@ -53,7 +53,7 @@ class OauthReturnView(RedirectView):
         token = client.fetch_token(
             token_url=settings.OAUTH['token_exchange_url'],
             authorization_response=self.request.build_absolute_uri(),
-            client_id=settings.OAUTH['client_id'], client_secret=settings.OAUTH['password_id']
+            client_id=settings.OAUTH['client_id'], client_secret=settings.OAUTH['client_secret']
         )
 
         if 'profile' not in token:
