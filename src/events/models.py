@@ -24,6 +24,13 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
         help_text=_("Une description de l'événement, en MarkDown"),
     )
 
+    published = models.BooleanField(
+        _('publié'),
+        default=True,
+        blank=False,
+        help_text=_('L\'évenement doit-il être visible publiquement.')
+    )
+
     nb_path = models.CharField(_('NationBuilder path'), max_length=255, blank=True)
 
     tags = models.ManyToManyField('EventTag', related_name='events', blank=True)
@@ -43,6 +50,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
         ordering = ('-start_time', '-end_time')
         permissions = (
             ('every_event', _('Peut éditer tous les événements')),
+            ('view_hidden_event', _('Peut voir les événements non publiés')),
         )
         indexes = (
             models.Index(fields=['start_time', 'end_time'], name='datetime_index'),

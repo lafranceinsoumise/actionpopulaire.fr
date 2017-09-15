@@ -36,6 +36,11 @@ class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):
     filter_backends = (DjangoFilterBackend, OrderByDistanceToBackend)
     filter_class = SupportGroupFilterSet
 
+    def get_queryset(self):
+        if not self.request.user.has_perm('groups.view_hidden_supportgroup'):
+            return self.queryset.filter(published=True)
+        return super(LegacySupportGroupViewSet, self).get_queryset()
+
     @list_route(methods=['GET'])
     @cache_control(max_age=60, public=True)
     def summary(self, request, *args, **kwargs):

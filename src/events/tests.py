@@ -156,12 +156,18 @@ class LegacyEventViewSetTestCase(TestCase):
             email='attendee@attendee.com'
         )
 
+        self.view_all_person = Person.objects.create_person(
+            email='viewer@viewer.fr'
+        )
+
         event_content_type = ContentType.objects.get_for_model(Event)
         add_permission = Permission.objects.get(content_type=event_content_type, codename='add_event')
         change_permission = Permission.objects.get(content_type=event_content_type, codename='change_event')
+        view_hidden_permission = Permission.objects.get(content_type=event_content_type, codename='view_hidden_event')
 
         self.adder_person.role.user_permissions.add(add_permission)
         self.changer_person.role.user_permissions.add(change_permission)
+        self.view_all_person.role.user_permissions.add(view_hidden_permission)
         self.event.organizers.add(self.one_event_person)
         RSVP.objects.create(
             person=self.attendee_person,
@@ -205,8 +211,37 @@ class LegacyEventViewSetTestCase(TestCase):
         self.assertEqual(item['participants'], self.event.participants)
         assert {'name', 'path', 'id', 'location', 'contact', 'tags', 'coordinates', 'participants'}.issubset(item)
 
+    def unpublish_event(self):
+        self.event.published = False
+        self.event.save()
+
+    def test_cannot_list_unpublished_events_while_unauthicated(self):
+        self.unpublish_event()
+        request = self.factory.get('')
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('_items', response.data)
+        self.assertEqual(len(response.data['_items']), 0)
+
     def test_can_see_event_details_while_unauthenticated(self):
         request = self.factory.get('')
+        response = self.detail_view(request, pk=self.event.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['_id'], str(self.event.pk))
+
+    def test_cannot_view_unpublished_events_while_unauthicated(self):
+        self.unpublish_event()
+        request = self.factory.get('')
+        response = self.detail_view(request, pk=self.event.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_can_view_unpublished_groups_with_correct_permissions(self):
+        self.unpublish_event()
+        request = self.factory.get('')
+        force_authenticate(request, self.view_all_person.role)
         response = self.detail_view(request, pk=self.event.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

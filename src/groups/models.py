@@ -24,6 +24,13 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, Contac
         help_text=_("Une description du groupe d'appui, en MarkDown"),
     )
 
+    published = models.BooleanField(
+        _('publié'),
+        default=True,
+        blank=False,
+        help_text=_('Le groupe doit-il être visible publiquement.')
+    )
+
     nb_path = models.CharField(_('NationBuilder path'), max_length=255, blank=True)
 
     tags = models.ManyToManyField('SupportGroupTag', related_name='events', blank=True)
@@ -37,6 +44,9 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, Contac
             models.Index(fields=['nb_path'], name='nb_path_index'),
         )
         ordering = ('-created', )
+        permissions = (
+            ('view_hidden_supportgroup', _('Peut afficher les groupes non publiés')),
+        )
 
     def __str__(self):
         return self.name

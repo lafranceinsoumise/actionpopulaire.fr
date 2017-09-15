@@ -98,6 +98,10 @@ class LegacySupportGroupViewSetTestCase(TestCase):
             email='changer@changer.fr'
         )
 
+        self.view_all_person = Person.objects.create_person(
+            email='viewer@viewer.fr'
+        )
+
         self.one_person_group = Person.objects.create_person(
             email='group@group.com'
         )
@@ -105,9 +109,11 @@ class LegacySupportGroupViewSetTestCase(TestCase):
         group_content_type = ContentType.objects.get_for_model(SupportGroup)
         add_permission = Permission.objects.get(content_type=group_content_type, codename='add_supportgroup')
         change_permission = Permission.objects.get(content_type=group_content_type, codename='change_supportgroup')
+        view_hidden_permission = Permission.objects.get(content_type=group_content_type, codename='view_hidden_supportgroup')
 
         self.adder_person.role.user_permissions.add(add_permission)
         self.changer_person.role.user_permissions.add(change_permission)
+        self.view_all_person.role.user_permissions.add(view_hidden_permission)
 
         Membership.objects.create(
             supportgroup=self.supportgroup,
@@ -145,8 +151,37 @@ class LegacySupportGroupViewSetTestCase(TestCase):
 
         self.assertEqual(item['_id'], str(self.supportgroup.pk))
 
+    def unpublish_group(self):
+        self.supportgroup.published = False
+        self.supportgroup.save()
+
+    def test_cannot_list_unpublished_groups_while_unauthicated(self):
+        self.unpublish_group()
+        request = self.factory.get('')
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('_items', response.data)
+        self.assertEqual(len(response.data['_items']), 0)
+
     def test_can_see_group_details_while_unauthenticated(self):
         request = self.factory.get('')
+        response = self.detail_view(request, pk=self.supportgroup.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['_id'], str(self.supportgroup.pk))
+
+    def test_cannot_view_unpublished_groups_while_unauthicated(self):
+        self.unpublish_group()
+        request = self.factory.get('')
+        response = self.detail_view(request, pk=self.supportgroup.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_can_view_unpublished_groups_with_correct_permissions(self):
+        self.unpublish_group()
+        request = self.factory.get('')
+        force_authenticate(request, self.view_all_person.role)
         response = self.detail_view(request, pk=self.supportgroup.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

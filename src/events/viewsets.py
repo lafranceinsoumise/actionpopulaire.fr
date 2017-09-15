@@ -46,6 +46,8 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
                     .prefetch_related('tags')
                     .annotate(_participants=Sum(F('rsvps__guests') + 1))
                     )
+        if not self.request.user.has_perm('events.view_hidden_event'):
+            queryset = queryset.filter(published=True)
 
         after_query = self.request.query_params.get('after', None)
         before_query = self.request.query_params.get('before', None)
