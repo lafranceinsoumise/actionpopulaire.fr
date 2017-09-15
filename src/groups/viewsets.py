@@ -44,7 +44,7 @@ class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):
     @list_route(methods=['GET'])
     @cache_control(max_age=60, public=True)
     def summary(self, request, *args, **kwargs):
-        supportgroups = models.SupportGroup.objects.all()
+        supportgroups = self.get_queryset().all()
         serializer = serializers.SummaryGroupSerializer(
             instance=supportgroups,
             many=True,
