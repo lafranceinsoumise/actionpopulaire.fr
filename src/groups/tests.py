@@ -133,7 +133,7 @@ class LegacySupportGroupViewSetTestCase(TestCase):
 
         self.factory = APIRequestFactory()
 
-    def can_list_groups_while_unauthenticated(self):
+    def test_can_list_groups_while_unauthenticated(self):
         request = self.factory.get('')
         response = self.list_view(request)
 
