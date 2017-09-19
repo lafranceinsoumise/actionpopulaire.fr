@@ -1,0 +1,13 @@
+{% extends "front/simple_layout.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block main %}
+    <h3 class="text-center">{{ title }}</h3>
+    <p>{{ message }}</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">{{ button_text }}</button>
+    </form>
+{% endblock %}

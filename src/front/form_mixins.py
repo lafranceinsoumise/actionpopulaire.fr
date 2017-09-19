@@ -1,4 +1,5 @@
 from django import forms
+from django_countries import countries
 
 
 class TagMixin:
@@ -38,3 +39,22 @@ class TagMixin:
         tags_excess = tags_out & current_tags
         if tags_excess:
             self.instance.tags.remove(*tags_excess)
+
+
+class LocationFormMixin():
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['location_country'].choices = countries
+
+        if not self.instance.location_country:
+            self.fields['location_country'].initial = 'FR'
+
+    def clean(self):
+        """Makes zip code compulsory for French address"""
+        cleaned_data = super().clean()
+
+        if cleaned_data['location_country'] == 'FR' and not cleaned_data['location_zip']:
+            self.add_error('location_zip', _('Le code postal est obligatoire pour les adresses françaises.'))
+
+        return cleaned_data

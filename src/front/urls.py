@@ -17,8 +17,11 @@ urlpatterns = [
 
     url('^groupes/$', views.SupportGroupListView.as_view(), name='list_groups'),
     url('^groupes/creer/$', views.CreateSupportGroupView.as_view(), name='create_group'),
+    url('^groupes/(?P<pk>[0-9a-f-]+)/$', views.SupportGroupManagementView.as_view(), name='manage_group'),
     url('^groupes/(?P<pk>[0-9a-f-]+)/modifier/$', views.UpdateSupportGroupView.as_view(), name='edit_group'),
     url('^groupes/(?P<pk>[0-9a-f-]+)/quitter/$', views.QuitSupportGroupView.as_view(), name='quit_group'),
+
+    url('^groupes/retirer_gestionnaire/(?P<pk>[0-9a-f-]+)/$', views.RemoveManagerView.as_view(), name='remove_manager'),
 
     url('^authentification/$', oauth.OauthRedirectView.as_view(), name='oauth_redirect_view'),
     url('^authentification/retour/$', oauth.OauthReturnView.as_view(), name='oauth_return_view'),

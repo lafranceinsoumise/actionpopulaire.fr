@@ -1,19 +1,43 @@
 from django.utils.translation import ugettext as _
-from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView
+from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView, TemplateView
 from django.contrib import messages
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.core.urlresolvers import reverse_lazy
+from django.db import transaction
 
 from groups.models import SupportGroup, Membership
 from groups.tasks import send_support_group_changed_notification
 
-from ..forms import SupportGroupForm
+from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm
 from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin
 
 __all__ = [
     "SupportGroupListView", "SupportGroupManagementView", "CreateSupportGroupView", "UpdateSupportGroupView",
-    "QuitSupportGroupView"
+    "QuitSupportGroupView", 'RemoveManagerView',
 ]
+
+
+class CheckMembershipMixin:
+    def user_is_referent(self):
+        if not hasattr(self, 'user_membership'):
+            self.set_up_membership()
+        return self.user_membership is not None and self.user_membership.is_referent
+
+    def user_is_manager(self):
+        if not hasattr(self, 'user_membership'):
+            self.set_up_membership()
+        return self.user_membership is not None and (self.user_membership.is_referent or self.user_membership.is_manager)
+
+    def set_up_membership(self):
+        if isinstance(self.object, SupportGroup):
+            group = self.object
+        else:
+            group = self.object.supportgroup
+
+        try:
+            self.user_membership = group.memberships.get(person=self.request.user.person)
+        except Membership.DoesNotExist:
+            self.user_membership = None
 
 
 class SupportGroupListView(LoginRequiredMixin, ListView):
@@ -28,8 +52,62 @@ class SupportGroupListView(LoginRequiredMixin, ListView):
             .select_related('supportgroup')
 
 
-class SupportGroupManagementView(DetailView):
+class SupportGroupManagementView(LoginRequiredMixin, CheckMembershipMixin, DetailView):
     template_name = "front/groups/details.html"
+    queryset = SupportGroup.objects.all().prefetch_related('memberships')
+
+    def get_forms(self):
+        kwargs = {}
+
+        if self.request.method in ('POST', 'PUT'):
+            kwargs.update({
+                'data': self.request.POST,
+            })
+
+        return {
+            'add_referent_form': AddReferentForm(self.object, **kwargs),
+            'add_manager_form': AddManagerForm(self.object, **kwargs),
+        }
+
+    def get_context_data(self, **kwargs):
+        referents = self.object.memberships.filter(is_referent=True).order_by('created')
+        managers = self.object.memberships.filter(is_manager=True, is_referent=False).order_by('created')
+        members = self.object.memberships.all().order_by('created')
+
+        return super().get_context_data(
+            referents=referents,
+            managers=managers,
+            members=members,
+            is_referent=self.user_membership is not None and self.user_membership.is_referent,
+            is_manager=self.user_membership is not None and (self.user_membership.is_referent or self.user_membership.is_manager),
+            **self.get_forms()
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        # only managers can access the page
+        if not self.user_is_manager():
+            return HttpResponseForbidden(b'Interdit')
+
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        # only referents can add referents and managers
+        if not self.user_is_referent():
+            return HttpResponseForbidden(b'Interdit')
+
+        forms = self.get_forms()
+        form_name = request.POST.get('form')
+        if form_name in forms:
+            form = forms[form_name]
+            if form.is_valid():
+                form.save()
+
+        return HttpResponseRedirect(reverse_lazy("manage_group", kwargs={'pk': self.object.pk}))
 
 
 class CreateSupportGroupView(LoginRequiredMixin, CreateView):
@@ -45,7 +123,14 @@ class CreateSupportGroupView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         # first get response to make sure there's no error when saving the model before adding message
-        res = super().form_valid(form)
+        with transaction.atomic():
+            res = super().form_valid(form)
+            Membership.objects.create(
+                supportgroup=self.object,
+                person=self.request.user.person,
+                is_referent=True,
+                is_manager=True,
+            )
 
         messages.add_message(
             request=self.request,
@@ -99,6 +184,49 @@ class UpdateSupportGroupView(LoginRequiredMixin, PermissionsRequiredMixin, Updat
             send_support_group_changed_notification.delay(form.instance.pk, changes)
 
         return res
+
+
+class RemoveManagerView(LoginRequiredMixin, CheckMembershipMixin, DetailView):
+    template_name = "front/confirm.html"
+    queryset = Membership.objects.all().select_related('supportgroup').select_related('person')
+
+    def get_context_data(self, **kwargs):
+        person = self.object.person
+
+        if person.first_name and person.last_name:
+            name = "{} {} <{}>".format(person.first_name, person.last_name, person.email)
+        else:
+            name = person.email
+
+        return super().get_context_data(
+            title=_("Confirmer le retrait du gestionnaire ?"),
+            message=_(f"""
+            Voulez-vous vraiment retirer {name} de la liste des gestionnaires de ce groupe ?
+            """),
+            button_text="Confirmer le retrait"
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if not self.user_is_referent():
+            return HttpResponseForbidden(b'Interdit!')
+
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        # user has to be referent, and target user cannot be a referent
+        if not self.user_is_referent() or self.object.is_referent:
+            return HttpResponseForbidden(b'Interdit')
+
+        self.object.is_manager = False
+        self.object.save()
+        return HttpResponseRedirect(
+            reverse_lazy('manage_group', kwargs={'pk': self.object.supportgroup_id})
+        )
 
 
 class QuitSupportGroupView(DeleteView):

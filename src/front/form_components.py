@@ -18,16 +18,8 @@ class FormGroup(Div):
 
 def Section(title, *args):
     return Div(
-        HTML(f'<h4 class="padtopmore padbottom col-xs-12">{title}</h4>'),
+        HTML(f'<h4 class="padtopmore padbottom">{title}</h4>'),
         *args
-    )
-
-
-def AddressField():
-    return Div(
-        HTML('<label for="id_location_address1">Adresse</label>'),
-        Field('location_address1', placeholder='1ère ligne'),
-        Field('location_address2', placeholder='2ème ligne (optionnel)'),
     )
 
 
