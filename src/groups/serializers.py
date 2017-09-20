@@ -59,7 +59,7 @@ class MembershipSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Membership
-        fields = ('id', 'url', 'person', 'supportgroup', 'is_referent', )
+        fields = ('id', 'url', 'person', 'supportgroup', 'is_referent', 'is_manager',)
         read_only_fields = ('id', 'url', 'person', 'supportgroup', )
         extra_kwargs = {
             'url': {'view_name': 'legacy:membership-detail'},
@@ -75,7 +75,7 @@ class MembershipCreationSerializer(serializers.HyperlinkedModelSerializer):
     """
 
     class Meta:
-        fields = ('person', 'supportgroup', 'is_referent',)
+        fields = ('person', 'supportgroup', 'is_referent', 'is_manager')
         extra_kwargs = {
             'url': {'view_name': 'legacy:rsvp-detail'},
             'person': {'view_name': 'legacy:person-detail', 'read_only': False, 'queryset': Person.objects.all()},
@@ -106,7 +106,7 @@ class GroupMembershipCreatableSerializer(serializers.HyperlinkedModelSerializer)
 
     class Meta:
         model = models.Membership
-        fields = ('person', 'is_referent',)
+        fields = ('person', 'is_referent', 'is_manager')
         extra_kwargs = {
             'person': {'view_name': 'legacy:person-detail', 'read_only': False, 'queryset': Person.objects.all()}
         }

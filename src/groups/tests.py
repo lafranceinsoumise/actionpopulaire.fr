@@ -567,6 +567,8 @@ class GroupMembershipEndpointTestCase(TestCase):
     def test_creation(self):
         request = self.factory.post('', data={
             'person': reverse('legacy:person-detail', kwargs={'pk': self.privileged_user.id}),
+            'is_manager': True,
+            'is_referent': True,
         })
         self.as_privileged(request)
 
@@ -576,6 +578,9 @@ class GroupMembershipEndpointTestCase(TestCase):
         qs = self.supportgroup.memberships.all()
 
         self.assertEqual(len(qs), 3)
+        self.assertEqual(qs[2].person_id, self.privileged_user.id)
+        self.assertEqual(qs[2].is_manager, True)
+        self.assertEqual(qs[2].is_referent, True)
 
     def test_bulk_creation(self):
         request = self.factory.put('', data=[
@@ -600,3 +605,5 @@ class GroupMembershipEndpointTestCase(TestCase):
 
         self.assertEqual(len(qs), 2)
         self.assertCountEqual([membership.person_id for membership in qs], [self.unprivileged_person.id, self.privileged_user.id])
+        self.assertCountEqual([membership.is_manager for membership in qs], [False, True])
+        self.assertCountEqual([membership.is_referent for membership in qs], [False, False])
