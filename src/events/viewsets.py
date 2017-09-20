@@ -60,6 +60,12 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
 
         return queryset
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        models.Event.objects.get(pk=response.data['_id']).organizers.add(request.user.person)
+
+        return response
+
     @list_route(methods=['GET'])
     @cache_control(max_age=60, public=True)
     def summary(self, request, *args, **kwargs):

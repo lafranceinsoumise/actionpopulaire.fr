@@ -41,6 +41,18 @@ class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):
             return self.queryset.filter(published=True)
         return super(LegacySupportGroupViewSet, self).get_queryset()
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        group = models.SupportGroup.objects.get(pk=response.data['_id'])
+        membership = models.Membership.objects.create(
+            person=request.user.person,
+            supportgroup=group,
+            is_manager=True,
+            is_referent=True,
+        )
+
+        return response
+
     @list_route(methods=['GET'])
     @cache_control(max_age=60, public=True)
     def summary(self, request, *args, **kwargs):

@@ -140,10 +140,6 @@ class LegacyEventViewSetTestCase(TestCase):
             last_name='Georges',
         )
 
-        self.adder_person = Person.objects.create_person(
-            email='adder@adder.fr',
-        )
-
         self.changer_person = Person.objects.create_person(
             email='changer@changer.fr'
         )
@@ -161,11 +157,9 @@ class LegacyEventViewSetTestCase(TestCase):
         )
 
         event_content_type = ContentType.objects.get_for_model(Event)
-        add_permission = Permission.objects.get(content_type=event_content_type, codename='add_event')
         change_permission = Permission.objects.get(content_type=event_content_type, codename='change_event')
         view_hidden_permission = Permission.objects.get(content_type=event_content_type, codename='view_hidden_event')
 
-        self.adder_person.role.user_permissions.add(add_permission)
         self.changer_person.role.user_permissions.add(change_permission)
         self.view_all_person.role.user_permissions.add(view_hidden_permission)
         self.event.organizers.add(self.one_event_person)
@@ -269,9 +263,9 @@ class LegacyEventViewSetTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_can_create_event_with_global_perm(self):
+    def test_can_create_event_whith_no_privilege(self):
         request = self.factory.post('', data=self.new_event_data)
-        force_authenticate(request, self.adder_person.role)
+        force_authenticate(request, self.unprivileged_person.role)
 
         response = self.list_view(request)
 
@@ -280,8 +274,10 @@ class LegacyEventViewSetTestCase(TestCase):
         new_id = response.data['_id']
 
         events = Event.objects.all()
+        event = Event.objects.get(pk=new_id)
 
         self.assertEqual(len(events), 2)
+        self.assertEqual(event.organizers.first(), self.unprivileged_person)
         self.assertIn(new_id, {str(e.id) for e in events})
 
     def test_can_modify_event_with_global_perm(self):

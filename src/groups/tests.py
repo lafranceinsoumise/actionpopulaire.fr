@@ -90,10 +90,6 @@ class LegacySupportGroupViewSetTestCase(TestCase):
             last_name='Georges',
         )
 
-        self.adder_person = Person.objects.create_person(
-            email='adder@adder.fr',
-        )
-
         self.changer_person = Person.objects.create_person(
             email='changer@changer.fr'
         )
@@ -107,11 +103,9 @@ class LegacySupportGroupViewSetTestCase(TestCase):
         )
 
         group_content_type = ContentType.objects.get_for_model(SupportGroup)
-        add_permission = Permission.objects.get(content_type=group_content_type, codename='add_supportgroup')
         change_permission = Permission.objects.get(content_type=group_content_type, codename='change_supportgroup')
         view_hidden_permission = Permission.objects.get(content_type=group_content_type, codename='view_hidden_supportgroup')
 
-        self.adder_person.role.user_permissions.add(add_permission)
         self.changer_person.role.user_permissions.add(change_permission)
         self.view_all_person.role.user_permissions.add(view_hidden_permission)
 
@@ -209,17 +203,23 @@ class LegacySupportGroupViewSetTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_can_create_group_with_global_perm(self):
+    def test_can_create_group_whith_no_privilege(self):
         request = self.factory.post('', data=self.new_group_data)
-        force_authenticate(request, self.adder_person.role)
+        force_authenticate(request, self.unprivileged_person.role)
 
         response = self.list_view(request)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('_id', response.data)
+        new_id = response.data['_id']
 
         supportgroups = SupportGroup.objects.all()
+        group = SupportGroup.objects.get(pk=new_id)
 
         self.assertEqual(len(supportgroups), 2)
+        self.assertEqual(group.memberships.first().person, self.unprivileged_person)
+        self.assertEqual(group.memberships.first().is_referent, True)
+        self.assertEqual(group.memberships.first().is_manager, True)
 
     def test_can_modify_group_with_global_perm(self):
         request = self.factory.patch('', data={
