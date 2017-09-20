@@ -1,11 +1,24 @@
-{% extends "front/simple_layout.html" %}
+{% extends "front/layout.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %}Gérer le groupe «&nbsp;{{ group.name }}&nbsp;»{% endblock %}
+{% block title %}Gérer le groupe «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
 
 {% block main %}
-    <h2 class="text-center">{{ group.name }}</h2>
+    <h2 class="text-center">{{ supportgroup.name }}</h2>
 
+    <h3>Les informations de mon groupe</h3>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>{{ supportgroup.name }}</strong></div>
+        <div class="panel-body">
+            <h6 class="subhead">Où</h6>
+            <p>{{ supportgroup.html_full_address }}</p>
+
+            <h6 class="subhead">Contact</h6>
+            <p>{{ supportgroup.html_full_contact }}</p>
+        </div>
+        <div class="panel-footer"><a href="{% url "edit_group" supportgroup.pk %}">Modifier ces informations</a></div>
+    </div>
     <h3>Les référents et gestionnaires</h3>
 
     <h4>Les référents du groupe</h4>
@@ -57,7 +70,7 @@
                         {% else %}
                             {{ person.email }}
                         {% endif %}
-                        <a href="{% url 'remove_manager' pk=membership.pk %}" aria-label="Retirer ce gestionnaire" >
+                        <a href="{% url 'remove_manager' pk=membership.pk %}" aria-label="Retirer ce gestionnaire">
                             <i class="fa fa-remove" aria-hidden="true" title="Retirer ce gestionnaire"></i>
                         </a>
                     </li>

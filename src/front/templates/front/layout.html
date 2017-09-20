@@ -8,8 +8,7 @@
     <title>{% block title %}TITLE{% endblock %}</title>
 
     {# TODO ADD OPENGRAPH / CANONICAL #}
-    <link rel="stylesheet" href="https://lafranceinsoumise.fr/app/themes/theme-wp/dist/styles/main-969502cb50.css"
-          type="text/css">
+    <link rel="stylesheet" href="{% static "front/css/main-26d0194863.css" %}" type="text/css">
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-32x32.png" %}" sizes="32x32"/>
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>
     <link rel="apple-touch-icon-precomposed" href="{% static "front/images/cropped-cropped-phi-180x180.png" %}"/>
@@ -30,7 +29,7 @@
                     Menu <span class="caret"></span>
                 </button>
                 <a href="/" class="custom-logo-link" rel="home" itemprop="url"><img
-                        width="497" height="121" src="{% static "front/images/170428_logoRectangle_transparent.png" %}"
+                        src="{% static "front/images/170428_logoRectangle_transparent.png" %}"
                         class="custom-logo" alt="La France insoumise" itemprop="logo"
                         srcset="{% static "front/images/170428_logoRectangle_transparent.png" %} 1038w, {% static "front/images/170428_logoRectangle_transparent-300x145.png" %} 300w, {% static "170428_logoRectangle_transparent-768x370.png" %} 768w, {% static "front/images/170428_logoRectangle_transparent-1024x493.png" %} 1024w"
                         sizes="(max-width: 1038px) 100vw, 1038px"/></a></div>
@@ -49,7 +48,7 @@
                       '&menu_class=' + menu_class + '&container=' + container +
                       (addBootstrapCSS ? '&bootstrap=1' : ''), true);
                     r.onreadystatechange = function () {
-                      if (r.readyState != 4 || r.status != 200)return;
+                      if (r.readyState != 4 || r.status != 200) return;
                       document.getElementById('menu-export').innerHTML = r.responseText;
                     };
                     r.send();
@@ -72,11 +71,13 @@
             <div id="supporter-nav-collapse" class="collapse navbar-collapse">
                 <div class="menu-menu-principal-container">
                     <ul id="menu-menu-principal" class="nav navbar-nav">
-                        <li class="menu-item"><a title="Je donne" href="https://dons.jlm2017.fr">Je donne</a></li>
-                        <li class="menu-item"><a title="Panier" href="https://materiel.jlm2017.fr/panier/">Panier</a>
+                        <li class="menu-item"><a title="Mes groupes" href="{% url "list_groups" %}">Mes groupes</a></li>
+                        <li class="menu-item"><a title="Mes événements" href="{% url "list_events" %}">Mes
+                            événements</a>
                         </li>
-                        <li class="menu-item"><a title="Retour sur JLM2017" href="http://www.jlm2017.fr">Retour sur
-                            JLM2017</a></li>
+                        <li class="menu-item"><a title="J'en dis plus sur moi" href="{% url "change_profile" %}">J'en
+                            dis plus sur moi</a></li>
+                        <li class="menu-item"><a title="J'agis" href="{% url "volunteer" %}">J'agis</a></li>
                     </ul>
                 </div>
             </div>
@@ -86,9 +87,19 @@
 <div class="wrap container" role="document">
     <div class="content row">
         <main class="main">
-            {% block main %}
-            {% endblock %}
-        </main>
+            <main class="main">
+                {% if messages %}
+                    <div style="margin-top: 1em;">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message|safe }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% block main %}
+                {% endblock %}
+            </main>
     </div>
 </div>
 </body>

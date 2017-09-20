@@ -1,4 +1,4 @@
-{% extends "front/simple_layout.html" %}
+{% extends "front/layout.html" %}
 
 {% block title %}Merci !{% endblock %}
 
@@ -12,9 +12,10 @@
                 régulièrement des actions répondant à vos attentes.
             </p>
             <p>
-                <!-- TODO add links -->
-                Vous pouvez d'ores et déjà aller plus loin, consulter notre programme, ou rejoindre un groupe d'appui
-                près de chez vous.
+                Vous pouvez d'ores et déjà aller plus loin en
+                <a href="https://avenirencommun.fr">consultant notre programme</a>, ou en
+                <a href="https://lafranceinsoumise.fr/groupes-appui/carte/">rejoindre un groupe
+                    d'appui près de chez vous</a>.
             </p>
 
             <h4 class="text-center">Si vous le souhaitez, vous pouvez également</h4>
@@ -23,7 +24,7 @@
                     <a class="btn btn-primary btn-block" href="https://dons.lafranceinsoumise.fr/">Faire un don</a>
                 </div>
                 <div class="col-sm-6">
-                    <a class="btn btn-primary btn-block" href="{{ action_link }}">{{ action_text }}</a>
+                    <a class="btn btn-primary btn-block" href="{% url "change_profile" %}">En dire plus sur moi</a>
                 </div>
             </div>
         </div>

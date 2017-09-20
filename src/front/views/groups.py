@@ -1,8 +1,8 @@
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ugettext_lazy
 from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView, TemplateView
 from django.contrib import messages
 from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.db import transaction
 
 from groups.models import SupportGroup, Membership
@@ -19,25 +19,25 @@ __all__ = [
 
 class CheckMembershipMixin:
     def user_is_referent(self):
-        if not hasattr(self, 'user_membership'):
-            self.set_up_membership()
         return self.user_membership is not None and self.user_membership.is_referent
 
     def user_is_manager(self):
-        if not hasattr(self, 'user_membership'):
-            self.set_up_membership()
         return self.user_membership is not None and (self.user_membership.is_referent or self.user_membership.is_manager)
 
-    def set_up_membership(self):
-        if isinstance(self.object, SupportGroup):
-            group = self.object
-        else:
-            group = self.object.supportgroup
+    @property
+    def user_membership(self):
+        if not hasattr(self, '_user_membership'):
+            if isinstance(self.object, SupportGroup):
+                group = self.object
+            else:
+                group = self.object.supportgroup
 
-        try:
-            self.user_membership = group.memberships.get(person=self.request.user.person)
-        except Membership.DoesNotExist:
-            self.user_membership = None
+            try:
+                self._user_membership = group.memberships.get(person=self.request.user.person)
+            except Membership.DoesNotExist:
+                self._user_membership = None
+
+        return self._user_membership
 
 
 class SupportGroupListView(LoginRequiredMixin, ListView):
@@ -55,6 +55,10 @@ class SupportGroupListView(LoginRequiredMixin, ListView):
 class SupportGroupManagementView(LoginRequiredMixin, CheckMembershipMixin, DetailView):
     template_name = "front/groups/details.html"
     queryset = SupportGroup.objects.all().prefetch_related('memberships')
+    messages = {
+        'add_referent_form': ugettext_lazy("{} est maintenant correctement signalé comme second·e référent·e"),
+        'add_manager_form': ugettext_lazy("{} a bien été ajouté·e comme gestionnaire pour ce groupe"),
+    }
 
     def get_forms(self):
         kwargs = {}
@@ -105,16 +109,24 @@ class SupportGroupManagementView(LoginRequiredMixin, CheckMembershipMixin, Detai
         if form_name in forms:
             form = forms[form_name]
             if form.is_valid():
-                form.save()
+                membership = form.save()
 
-        return HttpResponseRedirect(reverse_lazy("manage_group", kwargs={'pk': self.object.pk}))
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    self.messages[form_name].format(membership.person.email)
+                )
+
+        return HttpResponseRedirect(reverse("manage_group", kwargs={'pk': self.object.pk}))
 
 
 class CreateSupportGroupView(LoginRequiredMixin, CreateView):
     template_name = "front/form.html"
-    success_url = reverse_lazy("list_groups")
     model = SupportGroup
     form_class = SupportGroupForm
+
+    def get_success_url(self):
+        return reverse('manage_group', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -124,9 +136,9 @@ class CreateSupportGroupView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         # first get response to make sure there's no error when saving the model before adding message
         with transaction.atomic():
-            res = super().form_valid(form)
+            self.object = group = form.save()
             Membership.objects.create(
-                supportgroup=self.object,
+                supportgroup=group,
                 person=self.request.user.person,
                 is_referent=True,
                 is_manager=True,
@@ -138,13 +150,12 @@ class CreateSupportGroupView(LoginRequiredMixin, CreateView):
             message="Votre groupe a été correctement créé.",
         )
 
-        return res
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class UpdateSupportGroupView(LoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
     permissions_required = ('groups.change_supportgroup',)
     template_name = "front/form.html"
-    success_url = reverse_lazy("list_groups")
     model = SupportGroup
     form_class = SupportGroupForm
 
@@ -153,6 +164,7 @@ class UpdateSupportGroupView(LoginRequiredMixin, PermissionsRequiredMixin, Updat
         'contact_name': "contact",
         'contact_email': "contact",
         'contact_phone': "contact",
+        'contact_hide_phone': "contact",
         'location_name': "location",
         'location_address1': "location",
         'location_address2': "location",
@@ -162,6 +174,9 @@ class UpdateSupportGroupView(LoginRequiredMixin, PermissionsRequiredMixin, Updat
         'description': "information"
     }
 
+    def get_success_url(self):
+        return reverse("manage_group", kwargs={'pk': self.object.pk})
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _("Modifiez votre groupe d'appui")
@@ -169,7 +184,7 @@ class UpdateSupportGroupView(LoginRequiredMixin, PermissionsRequiredMixin, Updat
 
     def form_valid(self, form):
         # create set so that values are unique, but turns to list because set are not JSON-serializable
-        changes = list({self.CHANGES[field] for field in form.changed_data})
+        changes = list({self.CHANGES[field] for field in form.changed_data if field})
 
         # first get response to make sure there's no error when saving the model before adding message
         res = super().form_valid(form)
@@ -224,6 +239,13 @@ class RemoveManagerView(LoginRequiredMixin, CheckMembershipMixin, DetailView):
 
         self.object.is_manager = False
         self.object.save()
+
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            _("{} n'est plus un référent du groupe.").format(self.object.person.email)
+        )
+
         return HttpResponseRedirect(
             reverse_lazy('manage_group', kwargs={'pk': self.object.supportgroup_id})
         )
@@ -249,13 +271,24 @@ class QuitSupportGroupView(DeleteView):
         return context
 
     def delete(self, request, *args, **kwargs):
-        # first get response to make sure there's no error before adding message
-        res = super().delete(request, *args, **kwargs)
+        self.object = self.get_object()
+        success_url = self.get_success_url()
 
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            _("Vous avez bien quitté le groupe <em>%s</em>" % self.object.supportgroup.name)
-        )
+        # make sure user is not a referent who cannot quit groups
+        if self.object.is_referent:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                _("Les référents ne peuvent pas quitter un groupe sans avoir abandonné leur role.")
+            )
 
-        return res
+        else:
+            self.object.delete()
+
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Vous avez bien quitté le groupe <em>%s</em>" % self.object.supportgroup.name)
+            )
+
+        return HttpResponseRedirect(success_url)

@@ -1,9 +1,9 @@
 import uuid
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.utils.html import mark_safe, escape, format_html, format_html_join
 from django_countries.fields import CountryField
 from model_utils.models import TimeStampedModel
-from operator import attrgetter
 
 
 class UUIDIdentified(models.Model):
@@ -64,6 +64,26 @@ class LocationMixin(models.Model):
     location_state = models.CharField(_('état'), max_length=40, blank=True)
     location_country = CountryField(_('pays'), blank=True, blank_label=_('(sélectionner un pays)'))
 
+    def html_full_address(self):
+        res = []
+        for f in ['location_name', 'location_address1', 'location_address2', 'location_state']:
+            val = getattr(self, f, None)
+            if val:
+                res.append(val)
+
+        if self.location_zip and self.location_city:
+            res.append('{} {}'.format(self.location_zip, self.location_city))
+        else:
+            if self.location_zip:
+                res.append(self.location_zip)
+            if self.location_city:
+                res.append(self.location_city)
+
+        if self.location_country and str(self.location_country) != 'FR':
+            res.append(self.location_country.name)
+
+        return mark_safe('<br/>'.join(escape(line) for line in res))
+
     class Meta:
         abstract = True
 
@@ -75,6 +95,29 @@ class ContactMixin(models.Model):
     contact_name = models.CharField(_('nom du contact'), max_length=255, blank=True)
     contact_email = models.EmailField(_('adresse email du contact'), blank=True)
     contact_phone = models.CharField(_('numéro de téléphone du contact'), max_length=30, blank=True)
+    contact_hide_phone = models.BooleanField(_('Cacher mon numéro de téléphone'), default=False)
+
+    def html_full_contact(self):
+        parts = []
+
+        if self.contact_name and self.contact_email:
+            parts.append(format_html(
+                '{name} &lt;<a href="mailto:{email}">{email}</a>&gt;',
+                name=self.contact_name,
+                email=self.contact_email
+            ))
+        elif self.contact_name:
+            parts.append(self.contact_name)
+        elif self.contact_email:
+            parts.append(format_html('<a href="mailto:{email}">{email}</a>'))
+
+        if self.contact_phone and not self.contact_hide_phone:
+            parts.append(self.contact_phone)
+
+        if parts:
+            return format_html_join(mark_safe(" &mdash; "), '{}', ((part,) for part in parts))
+        else:
+            return format_html("<em>{}</em>", _("Pas d'informations de contact"))
 
     class Meta:
         abstract = True

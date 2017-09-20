@@ -40,7 +40,7 @@ class SupportGroupForm(LocationFormMixin, forms.ModelForm):
                 ),
                 Row(
                     HalfCol('contact_email', css_class='col-md-6'),
-                    HalfCol('contact_phone', css_class='col-md-6')
+                    HalfCol('contact_phone', 'contact_hide_phone', css_class='col-md-6')
                 )
             ),
             Section(
@@ -84,7 +84,7 @@ class SupportGroupForm(LocationFormMixin, forms.ModelForm):
         model = SupportGroup
         fields = (
             'name',
-            'contact_name', 'contact_email', 'contact_phone',
+            'contact_name', 'contact_email', 'contact_phone', 'contact_hide_phone',
             'location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
             'location_country',
             'description'

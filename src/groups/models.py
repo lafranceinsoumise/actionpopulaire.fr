@@ -66,13 +66,15 @@ class Membership(TimeStampedModel):
     person = models.ForeignKey(
         'people.Person',
         related_name='memberships',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        editable=False,
     )
 
     supportgroup = models.ForeignKey(
         'SupportGroup',
         related_name='memberships',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        editable=False,
     )
 
     is_referent = models.BooleanField(_('membre référent'), default=False)

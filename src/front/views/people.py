@@ -12,13 +12,7 @@ from ..view_mixins import SuccessMessageView, LoginRequiredMixin
 from ..forms import SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm, EmailFormSet, VolunteerForm
 
 __all__ = ["SubscriptionSuccessView", "SimpleSubscriptionView", "OverseasSubscriptionView", "ChangeProfileView",
-           "ProfileConfirmationPage", "VolunteerPage"]
-
-
-actions = {
-    "volunteer": [_("Agir"), reverse_lazy("volunteer")],
-    "profile": [_("Nous en dire plus sur nous"), reverse_lazy("profile_change")]
-}
+           "ChangeProfileConfirmationView", "VolunteerView", "VolunteerConfirmationView"]
 
 
 class SubscriptionSuccessView(SuccessMessageView):
@@ -26,6 +20,7 @@ class SubscriptionSuccessView(SuccessMessageView):
     message = """
     Votre soutien est bien enregistré. Vous serez tenu au courant de l'actualité du mouvement.
     """
+
 
 class SimpleSubscriptionView(CreateView):
     template_name = "front/simple_subscription.html"
@@ -44,33 +39,29 @@ class OverseasSubscriptionView(CreateView):
 class ChangeProfileView(LoginRequiredMixin, UpdateView):
     template_name = "front/people/profile.html"
     form_class = ProfileForm
-    success_url = string_concat(reverse_lazy("confirmation"), "?from=people")
+    success_url = reverse_lazy("confirmation_profile")
 
     def get_object(self, queryset=None):
         """Get the current user as the view object"""
         return self.request.user.person
 
 
-class ProfileConfirmationPage(TemplateView):
-    template_name = 'front/people/confirmation.html'
-
-    def get_context_data(self, **kwargs):
-        from_page = self.request.GET.get('from')
-
-        other_actions = [info for page, info in actions.items() if page != from_page]
-        action_text, action_link = choice(other_actions)
-
-        return super().get_context_data(action_text=action_text, action_link=action_link)
+class ChangeProfileConfirmationView(TemplateView):
+    template_name = 'front/people/confirmation_profile.html'
 
 
-class VolunteerPage(UpdateView):
-    template_name = "front/people/profile.html"
+class VolunteerView(UpdateView):
+    template_name = "front/people/volunteer.html"
     form_class = VolunteerForm
-    success_url = string_concat(reverse_lazy("confirmation"), "?from=volunteer")
+    success_url = reverse_lazy("confirmation_volunteer")
 
     def get_object(self, queryset=None):
         """Get the current user as the view object"""
         return self.request.user.person
+
+
+class VolunteerConfirmationView(TemplateView):
+    template_name = 'front/people/confirmation_volunteer.html'
 
 
 class OldChangeProfileView(LoginRequiredMixin, ModelFormMixin, TemplateView):

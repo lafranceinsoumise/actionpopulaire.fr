@@ -1,0 +1,33 @@
+{% extends "front/layout.html" %}
+
+{% block title %}Merci !{% endblock %}
+
+{% block main %}
+    <h2 class="headline">Merci !</h2>
+    <div id="content">
+        <div class="text-content">
+            <p>
+                <span class="text-important">
+                    Merci de nous en avoir dit plus sur vous. Les informations que vous nous
+                    avez communiquées nous permettront de vous contacter en fonction de vos talents et de vos
+                    savoir-faire professionnels.</span>
+            </p>
+            <p>
+                Vous pouvez d'ores et déjà aller plus loin en
+                <a href="https://avenirencommun.fr">consultant notre programme</a>, ou en
+                <a href="https://lafranceinsoumise.fr/groupes-appui/carte/">rejoindre un groupe
+                    d'appui près de chez vous</a>.
+            </p>
+
+            <h4 class="text-center">Si vous le souhaitez, vous pouvez également</h4>
+            <div class="row">
+                <div class="col-sm-6">
+                    <a class="btn btn-primary btn-block" href="https://dons.lafranceinsoumise.fr/">Faire un don</a>
+                </div>
+                <div class="col-sm-6">
+                    <a class="btn btn-primary btn-block" href="{% url "volunteer" %}">Agir</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
