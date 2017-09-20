@@ -18,7 +18,7 @@ class LegacySupportGroupSerializer(LegacyBaseAPISerializer, LegacyLocationAndCon
     class Meta:
         model = models.SupportGroup
         fields = (
-            'url', '_id', 'id', 'name', 'description', 'path', 'contact', 'location', 'tags', 'coordinates'
+            'url', '_id', 'id', 'name', 'description', 'path', 'contact', 'location', 'tags', 'coordinates', 'published'
         )
         extra_kwargs = {
             'url': {'view_name': 'legacy:supportgroup-detail'}

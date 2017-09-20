@@ -223,7 +223,8 @@ class LegacySupportGroupViewSetTestCase(TestCase):
 
     def test_can_modify_group_with_global_perm(self):
         request = self.factory.patch('', data={
-            'description': 'Plus mieux!'
+            'description': 'Plus mieux!',
+            'published': False,
         })
 
         force_authenticate(request, user=self.changer_person.role)
@@ -235,6 +236,7 @@ class LegacySupportGroupViewSetTestCase(TestCase):
         self.supportgroup.refresh_from_db()
 
         self.assertEqual(self.supportgroup.description, 'Plus mieux!')
+        self.assertEqual(self.supportgroup.published, False)
 
     def test_referent_can_modify_group(self):
         request = self.factory.patch('', data={

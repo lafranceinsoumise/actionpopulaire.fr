@@ -286,7 +286,8 @@ class LegacyEventViewSetTestCase(TestCase):
 
     def test_can_modify_event_with_global_perm(self):
         request = self.factory.patch('', data={
-            'description': 'Plus mieux!'
+            'description': 'Plus mieux!',
+            'published': False,
         })
 
         force_authenticate(request, user=self.changer_person.role)
@@ -298,6 +299,7 @@ class LegacyEventViewSetTestCase(TestCase):
         self.event.refresh_from_db()
 
         self.assertEqual(self.event.description, 'Plus mieux!')
+        self.assertEqual(self.event.published, False)
 
     def test_organizer_can_modify_event(self):
         request = self.factory.patch('', data={
