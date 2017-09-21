@@ -12,7 +12,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate, APITestCa
 from rest_framework.reverse import reverse
 from rest_framework import status
 
-from .models import Event, Calendar, RSVP
+from .models import Event, Calendar, RSVP, OrganizerConfig
 from people.models import Person
 from .viewsets import LegacyEventViewSet, RSVPViewSet, NestedRSVPViewSet
 
@@ -168,7 +168,13 @@ class LegacyEventViewSetTestCase(TestCase):
         self.adder_person.role.user_permissions.add(add_permission)
         self.changer_person.role.user_permissions.add(change_permission)
         self.view_all_person.role.user_permissions.add(view_hidden_permission)
-        self.event.organizers.add(self.one_event_person)
+
+        OrganizerConfig.objects.create(
+            event=self.event,
+            person=self.one_event_person,
+            is_creator=True
+        )
+
         RSVP.objects.create(
             person=self.attendee_person,
             event=self.event,
@@ -534,7 +540,12 @@ class RSVPEndpointTestCase(TestCase):
         delete_permission = Permission.objects.get(content_type=rsvp_content_type, codename='delete_rsvp')
 
         self.privileged_user.role.user_permissions.add(add_permission, change_permission, delete_permission)
-        self.event.organizers.add(self.organizer)
+
+        OrganizerConfig.objects.create(
+            event=self.event,
+            person=self.organizer,
+            is_creator=True
+        )
 
         self.factory = APIRequestFactory()
 
@@ -650,7 +661,12 @@ class EventRSVPEndpointTestCase(TestCase):
         delete_permission = Permission.objects.get(content_type=rsvp_content_type, codename='delete_rsvp')
 
         self.privileged_user.role.user_permissions.add(add_permission, change_permission, delete_permission)
-        self.event.organizers.add(self.organizer)
+
+        OrganizerConfig.objects.create(
+            event=self.event,
+            person=self.organizer,
+            is_creator=True
+        )
 
         self.factory = APIRequestFactory()
 

@@ -43,7 +43,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
 
     attendees = models.ManyToManyField('people.Person', related_name='events', through='RSVP')
 
-    organizers = models.ManyToManyField('people.Person', related_name='organized_events')
+    organizers = models.ManyToManyField('people.Person', related_name='organized_events', through="OrganizerConfig")
 
     class Meta:
         verbose_name = _('événement')
@@ -124,3 +124,11 @@ class RSVP(TimeStampedModel):
         return _('{person} --> {event} ({guests} invités').format(
             person=self.person, event=self.event, guests=self.guests
         )
+
+
+class OrganizerConfig(models.Model):
+    person = models.ForeignKey('people.Person', related_name='organizer_configs', on_delete=models.CASCADE, editable=False)
+    event = models.ForeignKey('Event', related_name='organizer_configs', on_delete=models.CASCADE, editable=False)
+
+    send_notifications = models.BooleanField(_('Recevoir les notifications'), default=True)
+    is_creator = models.BooleanField(_("Créateur de l'événement"), default=False)

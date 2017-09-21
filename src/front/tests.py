@@ -8,7 +8,7 @@ from django.shortcuts import reverse
 import django_countries
 
 from people.models import Person
-from events.models import Event, RSVP, Calendar
+from events.models import Event, RSVP, Calendar, OrganizerConfig
 from groups.models import SupportGroup, Membership
 
 
@@ -52,7 +52,12 @@ class PagesLoadingTestCase(TestCase):
             end_time=now + day + hour,
             calendar=calendar
         )
-        self.event.organizers.add(self.person)
+
+        OrganizerConfig.objects.create(
+            event=self.event,
+            person=self.person,
+            is_creator=True
+        )
 
         self.group = SupportGroup.objects.create(
             name="group",
@@ -153,7 +158,12 @@ class EventPageTestCase(TestCase):
             end_time=now + day + 4 * hour,
             calendar=calendar
         )
-        self.organized_event.organizers.add(self.person)
+
+        OrganizerConfig.objects.create(
+            event=self.organized_event,
+            person=self.person,
+            is_creator=True
+        )
 
         self.rsvped_event = Event.objects.create(
             name="RSVPed event",
