@@ -1,12 +1,20 @@
 from django.contrib import admin
+from django import forms
 from django.shortcuts import reverse
 from django.utils.translation import ugettext_lazy as _
 from api.admin import admin_site
 
 from . import models
+from .scopes import scopes
+
+
+class ClientForm(forms.ModelForm):
+    scopes = forms.MultipleChoiceField(choices=[(scope.name, scope.description) for scope in scopes])
+
 
 @admin.register(models.Client, site=admin_site)
 class ClientAdmin(admin.ModelAdmin):
+    form = ClientForm
     fieldsets = (
         (None, {
             'fields': ('label', 'name', 'description')
