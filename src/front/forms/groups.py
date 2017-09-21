@@ -3,27 +3,16 @@ from django.utils.translation import ugettext_lazy as _
 from crispy_forms.helper import FormHelper
 
 from ..form_components import *
-from ..form_mixins import LocationFormMixin
+from ..form_mixins import LocationFormMixin, ContactFormMixin
 
 from groups.models import SupportGroup
 
 __all__ = ['SupportGroupForm', 'AddReferentForm', 'AddManagerForm']
 
 
-class SupportGroupForm(LocationFormMixin, forms.ModelForm):
+class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SupportGroupForm, self).__init__(*args, **kwargs)
-
-        self.fields['location_name'].required = True
-
-        self.fields['location_address1'].label = _('Adresse')
-        self.fields['location_address1'].required = True
-
-        self.fields['location_address2'].label = False
-
-        self.fields['location_city'].required = True
-
-        self.fields['location_country'].required = True
 
         self.helper = FormHelper()
         self.helper.form_method = 'POST'

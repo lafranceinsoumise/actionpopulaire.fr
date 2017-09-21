@@ -5,6 +5,7 @@ from django.utils import timezone, formats
 from django.http import QueryDict
 from rest_framework import status
 from django.shortcuts import reverse
+import django_countries
 
 from people.models import Person
 from events.models import Event, RSVP, Calendar
@@ -187,7 +188,13 @@ class EventPageTestCase(TestCase):
                 'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
                 'contact_name': 'Arthur',
                 'contact_email': 'a@ziefzji.fr',
-                'description': 'New description'
+                'contact_phone': '06 06 06 06 06',
+                'location_name': 'somewhere',
+                'location_address1': 'over',
+                'location_zip': 'the',
+                'location_city': 'rainbow',
+                'location_country': 'FR',
+                'description': 'New description',
             }
         )
 
@@ -206,7 +213,7 @@ class EventPageTestCase(TestCase):
         args = patched_send_notification.delay.call_args[0]
 
         self.assertEqual(args[0], self.organized_event.pk)
-        self.assertCountEqual(args[1], ['contact', 'timing', 'information'])
+        self.assertCountEqual(args[1], ['contact', 'location', 'timing', 'information'])
 
     def test_cannot_modify_rsvp_event(self):
         self.client.force_login(self.person.role)
@@ -235,8 +242,13 @@ class GroupPageTestCase(TestCase):
         )
 
         self.manager_group = SupportGroup.objects.create(
-            name="Manager"
+            name="Manager",
+            location_name='location',
+            location_address1='somewhere',
+            location_city='Over',
+            location_country='DE'
         )
+
         Membership.objects.create(
             person=self.person,
             supportgroup=self.manager_group,
@@ -265,11 +277,16 @@ class GroupPageTestCase(TestCase):
             data={
                 'name': 'New name',
                 'contact_name': 'Arthur',
-                'contact_email': 'a@fhezfe.fr'
+                'contact_email': 'a@fhezfe.fr',
+                'contact_phone': '06 06 06 06 06',
+                'location_name': 'location',
+                'location_address1': 'somewhere',
+                'location_city': 'Over',
+                'location_country': 'DE'
             }
         )
 
-        self.assertRedirects(response, reverse('list_groups'))
+        self.assertRedirects(response, reverse('manage_group', kwargs={'pk': self.manager_group.pk}))
 
         # accessing the messages: see https://stackoverflow.com/a/14909727/1122474
         messages = list(response.wsgi_request._messages)

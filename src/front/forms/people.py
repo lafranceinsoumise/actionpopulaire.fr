@@ -84,11 +84,6 @@ class OverseasSubscriptionForm(LocationFormMixin, BaseSubscriptionForm):
     def __init__(self, *args, **kwargs):
         super(OverseasSubscriptionForm, self).__init__(*args, **kwargs)
 
-        self.fields['location_country'].required = True
-        self.fields['location_address1'].required = True
-        self.fields['location_zip'].required = True
-        self.fields['location_city'].required = True
-
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('submit', 'Appuyer'))
@@ -96,17 +91,27 @@ class OverseasSubscriptionForm(LocationFormMixin, BaseSubscriptionForm):
         self.helper.layout = Layout(
             Row(
                 FullCol('email'),
-                Div('location_address1', css_class='col-md-8'),
+            ),
+            Row(
+                FullCol(
+                    Field('location_address1', placeholder='Ligne 1*'),
+                    Field('location_address2', placeholder='Ligne 2'),
+                )
+
+            ),
+            Row(
                 Div('location_zip', css_class='col-md-4'),
-                HalfCol('location_city'),
-                HalfCol('location_country'),
+                Div('location_city', css_class='col-md-8'),
+            ),
+            Row(
+                FullCol('location_country'),
             )
         )
 
     class Meta:
         model = Person
         fields = (
-            'email', 'location_address1', 'location_zip', 'location_city', 'location_country'
+            'email', 'location_address1', 'location_address2', 'location_zip', 'location_city', 'location_country'
         )
 
 
