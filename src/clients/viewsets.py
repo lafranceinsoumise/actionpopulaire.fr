@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.shortcuts import get_object_or_404
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ViewSet, ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import list_route
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
@@ -10,6 +10,7 @@ from lib.permissions import RestrictViewPermissions, HasSpecificPermissions
 from authentication.models import Role
 
 from . import serializers, models
+from .scopes import scopes, Scope
 
 
 class HasViewClientPermission(HasSpecificPermissions):
@@ -75,11 +76,17 @@ class LegacyClientViewSet(ModelViewSet):
         return Response(output_serializer.data)
 
 
-class ScopeViewSet(ModelViewSet):
-    permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
-    serializer_class = serializers.ScopeSerializer
-    queryset = models.Scope.objects.all()
-    lookup_field = 'label'
+class ScopeViewSet(ViewSet):
+    permission_classes = []
+
+    def list(self, request):
+        output_serializer = serializers.ScopeSerializer(scopes, many=True)
+        return Response(output_serializer.data)
+
+    def retrieve(self, request, pk=None):
+        scope = scopes[[scope.name for scope in scopes].index(pk)]
+        output_serializer = serializers.ScopeSerializer(scope)
+        return Response(output_serializer.data)
 
 
 class AuthorizationViewSet(ModelViewSet):

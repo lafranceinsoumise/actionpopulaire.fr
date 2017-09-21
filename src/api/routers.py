@@ -26,5 +26,5 @@ groups_route.register('memberships', groups_viewsets.NestedMembershipViewSet, ba
 
 # client and auth routes
 legacy_api.register('clients', clients_viewsets.LegacyClientViewSet)
-legacy_api.register('scopes', clients_viewsets.ScopeViewSet)
+legacy_api.register('scopes', clients_viewsets.ScopeViewSet, base_name='scopes')
 legacy_api.register('authorizations', clients_viewsets.AuthorizationViewSet)

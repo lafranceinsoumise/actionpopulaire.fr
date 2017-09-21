@@ -29,7 +29,3 @@ class ClientAdmin(admin.ModelAdmin):
         )
     role_link.allow_tags = True
     role_link.short_description = _('Lien vers le rôle')
-
-@admin.register(models.Scope, site=admin_site)
-class ScopeAdmin(admin.ModelAdmin):
-    pass

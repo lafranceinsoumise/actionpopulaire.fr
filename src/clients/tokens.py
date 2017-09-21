@@ -5,7 +5,8 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from api.redis import get_auth_redis_client
-from .models import Client, Scope
+from .models import Client
+from .scopes import scopes as all_scopes
 from people.models import Person
 
 
@@ -60,8 +61,10 @@ class AccessToken():
         except (ObjectDoesNotExist, ValueError):
             raise InvalidTokenException()
 
+        def is_scope_valid(scope):
+            return (scope.name in client.scopes and scope.name in scope_names)
         # not too bad if ones of the scopes was deleted / also filter on scopes allowed for client
-        scopes = list(Scope.objects.filter(label__in=scope_names, clients=client))
+        scopes = list(filter(is_scope_valid, all_scopes))
 
         if not scopes:
             raise InvalidTokenException()

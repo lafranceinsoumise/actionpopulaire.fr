@@ -15,7 +15,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate, APITestCa
 from rest_framework.reverse import reverse
 from rest_framework import exceptions, status
 
-from . import models, authentication, tokens
+from . import models, authentication, tokens, scopes
 from .viewsets import LegacyClientViewSet
 
 from people.models import Person
@@ -25,10 +25,10 @@ from authentication.models import Role
 class TokenTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person(email='test@test.com')
-        self.scope = models.Scope.objects.create(label='scope_test')
-        self.other_scope = models.Scope.objects.create(label='other_scope')
-        self.client = models.Client.objects.create_client('client', scopes=[self.scope, self.other_scope])
-        self.one_scope_client = models.Client.objects.create_client('noscope', scopes=[self.other_scope])
+        self.scope = scopes.view_profile
+        self.other_scope = scopes.edit_profile
+        self.client = models.Client.objects.create_client('client', scopes=[self.scope.name, self.other_scope.name])
+        self.one_scope_client = models.Client.objects.create_client('noscope', scopes=[self.other_scope.name])
 
         self.redis_instance = StrictRedis()
 
@@ -36,14 +36,14 @@ class TokenTestCase(TestCase):
         self.token_info = {
             'clientId': self.client.label,
             'userId': str(self.person.pk),
-            'scope': ['scope_test', 'other_scope']
+            'scope': [self.scope.name, self.other_scope.name]
         }
 
         self.wrong_scope_token = str(uuid.uuid4())
         self.wrong_scope_token_info = {
             'clientId': self.one_scope_client.label,
             'userId': str(self.person.pk),
-            'scope': ['scope_test', 'other_scope']
+            'scope': [self.scope.name, self.other_scope.name]
         }
 
         self.redis_instance.set(
@@ -260,76 +260,26 @@ class AuthenticateClientViewTestCase(APITestCase):
 
 class ScopeViewSetTestCase(APITestCase):
     """Test the Scope endpoint"""
-
-    def setUp(self):
-        self.scope_client = models.Client.objects.create_client('superclient')
-        self.basic_client = models.Client.objects.create_client('client')
-
-        permission_names = ['change_scope', 'add_scope', 'delete_scope']
-
-        self.scope_client.role.user_permissions.add(*(Permission.objects.get(codename=p) for p in permission_names))
-
-        self.scope1 = models.Scope.objects.create(label='scope1', description='Un super scope de ouf')
-        self.scope2 = models.Scope.objects.create(label='scope2', description='Un autre scope de ouf')
-
     def test_can_see_scopes_while_unauthenticated(self):
         response = self.client.get('/legacy/scopes/')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertCountEqual([s['label'] for s in response.data], [s.label for s in models.Scope.objects.all()])
+        self.assertCountEqual([s['name'] for s in response.data], [
+            'view_profile',
+            'edit_profile',
+            'edit_event',
+            'edit_rsvp',
+            'edit_supportgroup',
+            'edit_membership',
+            'edit_authorization',
+        ])
 
     def test_can_see_specific_scope_by_label(self):
-        response = self.client.get('/legacy/scopes/scope1/')
+        response = self.client.get('/legacy/scopes/view_profile/')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['label'], self.scope1.label)
-        self.assertEqual(response.data['description'], self.scope1.description)
-
-    def test_cannot_modify_while_unauthenticated(self):
-        response = self.client.patch(
-            '/legacy/scopes/scope1/',
-            data={'description': 'Une autres description'}
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_cannot_modify_while_unprivileged(self):
-        self.client.force_login(self.basic_client.role)
-        response = self.client.patch(
-            '/legacy/scopes/scope1/',
-            data={'description': 'Une autres description'}
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_can_modify(self):
-        self.client.force_login(self.scope_client.role)
-        response = self.client.patch(
-            '/legacy/scopes/scope1/',
-            data={'description': 'Une autre description'}
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.scope1.refresh_from_db()
-        self.assertEqual(self.scope1.description, 'Une autre description')
-
-    def test_cannot_delete_when_unauthenticated(self):
-        response = self.client.delete('/legacy/scopes/scope1/')
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_cannot_delete_when_unprivileged(self):
-        self.client.force_login(self.basic_client.role)
-        response = self.client.delete('/legacy/scopes/scope1/')
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_can_delete_scope(self):
-        self.client.force_login(self.scope_client.role)
-        response = self.client.delete('/legacy/scopes/scope1/')
-
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.data['name'], 'view_profile')
+        self.assertEqual(response.data['description'], 'Voir mon profil')
 
 
 class AuthorizationViewSetTestCase(APITestCase):
@@ -351,20 +301,20 @@ class AuthorizationViewSetTestCase(APITestCase):
             *(Permission.objects.get(codename=p) for p in permission_names)
         )
 
-        self.scope1 = models.Scope.objects.create(label='scope1', description='Un super scope de ouf')
-        self.scope2 = models.Scope.objects.create(label='scope2', description='Un autre scope de ouf')
+        self.scope1 = scopes.view_profile
+        self.scope2 = scopes.edit_profile
 
         self.auth_target_oauth = models.Authorization.objects.create(
             person=self.target_person,
             client=self.oauth_client
         )
-        self.auth_target_oauth.scopes.add(self.scope1, self.scope2)
+        self.auth_target_oauth.scopes = [self.scope1.name, self.scope2.name]
 
         self.auth_other_oauth = models.Authorization.objects.create(
             person=self.other_person,
             client=self.oauth_client
         )
-        self.auth_other_oauth.scopes.add(self.scope1)
+        self.auth_other_oauth.scopes = [self.scope1.name]
 
     def test_cannot_see_authorizations_while_unauthenticated(self):
         response = self.client.get('/legacy/authorizations/')
@@ -404,14 +354,14 @@ class AuthorizationViewSetTestCase(APITestCase):
         self.client.force_login(self.target_person.role)
         response = self.client.patch(
             '/legacy/authorizations/%d/' % self.auth_target_oauth.pk,
-            data={'scopes': ['scope1']}
+            data={'scopes': [scopes.view_profile.name]}
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.auth_target_oauth.refresh_from_db()
 
-        self.assertCountEqual(self.auth_target_oauth.scopes.all(), [self.scope1])
+        self.assertCountEqual(self.auth_target_oauth.scopes, [self.scope1.name])
 
     def test_cannot_modify_other_than_own_when_unprivileged(self):
         self.client.force_login(self.target_person.role)

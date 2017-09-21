@@ -5,6 +5,7 @@ from model_utils.models import TimeStampedModel
 
 from lib.models import BaseAPIResource, AbstractLabel
 from authentication.models import Role
+from .scopes import scopes
 
 
 class ClientManager(models.Manager):
@@ -110,11 +111,11 @@ class Client(BaseAPIResource):
                     "utilisateurs pendant la procédure OAuth.")
     )
 
-    scopes = models.ManyToManyField(
-        'Scope',
-        related_name='clients',
+    scopes = ArrayField(
+        models.CharField(max_length=255, choices=[(scope.name, scope.description) for scope in scopes]),
+        help_text=_('La liste des scopes autorisés pour ce client.'),
         blank=True,
-        help_text=_('La liste des scopes autorisés pour ce client.')
+        default=list,
     )
 
     class Meta:
@@ -133,16 +134,15 @@ class Client(BaseAPIResource):
         return self.name
 
 
-class Scope(AbstractLabel):
-    class Meta:
-        verbose_name = _('scope')
-        verbose_name_plural = _('scopes')
-
-
 class Authorization(TimeStampedModel):
     person = models.ForeignKey('people.Person', related_name='authorizations')
     client = models.ForeignKey('Client', related_name='authorizations')
-    scopes = models.ManyToManyField('Scope', related_name='authorizations')
+    scopes = ArrayField(
+        models.CharField(max_length=255, choices=[(scope.name, scope.description) for scope in scopes]),
+        help_text=_('La liste des scopes autorisés.'),
+        blank=True,
+        default=list,
+    )
 
     class Meta:
         verbose_name = 'autorisation',

@@ -8,13 +8,6 @@ from lib.serializers import RelatedLabelField, LegacyBaseAPISerializer, Updatabl
 
 
 class AuthorizationSerializer(serializers.HyperlinkedModelSerializer):
-    scopes = serializers.SlugRelatedField(
-        slug_field='label',
-        queryset=models.Scope.objects.all(),
-        read_only=False,
-        many=True
-    )
-
     class Meta:
         model = models.Authorization
         fields = ('url', 'person', 'client', 'scopes')
@@ -25,26 +18,15 @@ class AuthorizationSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
-class ScopeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Scope
-        fields = ('url', 'label', 'description')
-        extra_kwargs = {
-            'url': {'view_name': 'legacy:scope-detail', 'lookup_field': 'label'},
-        }
+class ScopeSerializer(serializers.Serializer):
+    name = serializers.CharField(read_only=True)
+    description = serializers.CharField(read_only=True)
 
 
 class LegacyClientSerializer(LegacyBaseAPISerializer):
     id = serializers.CharField(
         read_only=True,
         source='label'
-    )
-
-    scopes = serializers.SlugRelatedField(
-        slug_field='label',
-        queryset=models.Scope.objects.all(),
-        read_only=False,
-        many=True
     )
 
     class Meta:
