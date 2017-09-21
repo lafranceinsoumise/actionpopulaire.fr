@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 
 from authentication.models import Role
-from clients.models import Client, Scope
+from clients.models import Client
 from .models import Person, PersonTag
 from .viewsets import LegacyPersonViewSet
 
