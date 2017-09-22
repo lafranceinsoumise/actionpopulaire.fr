@@ -33,7 +33,7 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
         return self.retrieve(request)
 
     def get_queryset(self):
-        if not self.request.user.has_perm('people.view_person'):
+        if not ('pk' in self.kwargs or self.request.user.has_perm('people.view_person')):
             if hasattr(self.request.user, 'type') and self.request.user.type == Role.PERSON_ROLE:
                 return self.queryset.filter(pk=self.request.user.person.pk)
             else:

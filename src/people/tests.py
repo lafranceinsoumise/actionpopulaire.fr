@@ -188,7 +188,7 @@ class LegacyPersonEndpointPermissionsTestCase(APITestCase):
         force_authenticate(request, self.basic_person.role)
         response = self.detail_view(request, pk=self.viewer_person.pk)
 
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_contain_simple_fields(self):
         request = self.factory.get('')
