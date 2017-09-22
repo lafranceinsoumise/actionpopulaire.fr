@@ -12,7 +12,7 @@ from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm
 from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin
 
 __all__ = [
-    "SupportGroupListView", "SupportGroupManagementView", "CreateSupportGroupView", "UpdateSupportGroupView",
+    "SupportGroupListView", "SupportGroupManagementView", "CreateSupportGroupView", "ModifySupportGroupView",
     "QuitSupportGroupView", 'RemoveManagerView',
 ]
 
@@ -121,7 +121,7 @@ class SupportGroupManagementView(LoginRequiredMixin, CheckMembershipMixin, Detai
 
 
 class CreateSupportGroupView(LoginRequiredMixin, CreateView):
-    template_name = "front/form.html"
+    template_name = "front/groups/create.html"
     model = SupportGroup
     form_class = SupportGroupForm
 
@@ -153,9 +153,9 @@ class CreateSupportGroupView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class UpdateSupportGroupView(LoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
+class ModifySupportGroupView(LoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
     permissions_required = ('groups.change_supportgroup',)
-    template_name = "front/form.html"
+    template_name = "front/groups/modify.html"
     model = SupportGroup
     form_class = SupportGroupForm
 
@@ -189,7 +189,7 @@ class UpdateSupportGroupView(LoginRequiredMixin, PermissionsRequiredMixin, Updat
         # first get response to make sure there's no error when saving the model before adding message
         res = super().form_valid(form)
 
-        if changes:
+        if changes and form.cleaned_data['notify']:
             messages.add_message(
                 request=self.request,
                 level=messages.SUCCESS,

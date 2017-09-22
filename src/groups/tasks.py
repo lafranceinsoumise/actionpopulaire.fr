@@ -45,3 +45,8 @@ def send_support_group_changed_notification(support_group_pk, changes):
         recipients=recipients,
         bindings=bindings,
     )
+
+
+@shared_task
+def send_someone_joined_notification(membership_pk):
+    pass

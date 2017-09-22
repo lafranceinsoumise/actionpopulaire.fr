@@ -7,10 +7,18 @@ from lib.models import (
 )
 
 
+class ActiveSupportGroupManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(published=True)
+
+
 class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin):
     """
     Model that represents a support group 
     """
+    objects = models.Manager()
+    active = ActiveSupportGroupManager()
+
     name = models.CharField(
         _("nom"),
         max_length=255,

@@ -18,6 +18,22 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('submit', 'Sauvegarder et publier'))
 
+        is_creation = self.instance._state.adding
+
+        if not is_creation:
+            self.fields['notify'] = forms.BooleanField(
+                required=False,
+                initial=False,
+                label=_("Signalez ces changements aux membres du groupe"),
+                help_text=_("Un email sera envoyé à la validation de ce formulaire. Merci de ne pas abuser de cette"
+                            " fonctionnalité.")
+            )
+            notify_field = [Row(
+                FullCol('notify')
+            )]
+        else:
+            notify_field = []
+
         self.helper.layout = Layout(
             Row(
                 FullCol('name'),
@@ -62,11 +78,7 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             Row(
                 FullCol('description'),
             ),
-            Div(HTML(
-                "<strong>"
-                "Cliquez sur sauvegarder et publier pour valider les changements effectués ci-dessous."
-                "</strong>"
-            ))
+            *notify_field
         )
 
     class Meta:
@@ -82,11 +94,7 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
 
 class MembershipChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        person = obj.person
-        if person.first_name and person.last_name:
-            return "{} {} <{}>".format(person.first_name, person.last_name, person.email)
-        else:
-            return person.email
+        return str(obj.person)
 
 
 class AddReferentForm(forms.Form):

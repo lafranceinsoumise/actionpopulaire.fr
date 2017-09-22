@@ -10,7 +10,7 @@ from celery import shared_task
 
 from lib.mails import send_mosaico_email
 
-from .models import Event
+from .models import Event, RSVP
 
 # encodes the preferred order when showing the messages
 CHANGE_DESCRIPTION = OrderedDict((
@@ -23,7 +23,11 @@ CHANGE_DESCRIPTION = OrderedDict((
 
 @shared_task
 def send_event_changed_notification(event_pk, changes):
-    event = Event.objects.get(pk=event_pk)
+    try:
+        event = Event.objects.get(pk=event_pk)
+    except Event.DoesNotExist:
+        # event does not exist anymore ?! nothing to do
+        return
 
     attendees = event.attendees.all()
 
@@ -49,3 +53,21 @@ def send_event_changed_notification(event_pk, changes):
         recipients=recipients,
         bindings=bindings,
     )
+
+
+@shared_task
+def send_rsvp_notification(rsvp_pk):
+    try:
+        rsvp = RSVP.objects.get(pk=rsvp_pk)
+    except RSVP.DoesNotExist:
+        # RSVP does not exist any more?!
+        return
+
+    person_name = str(rsvp.person)
+
+    # recipients = [organizer.email for organizer ]
+
+
+@shared_task
+def send_cancelation_notification(event_pk):
+    pass

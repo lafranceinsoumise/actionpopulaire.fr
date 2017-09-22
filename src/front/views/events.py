@@ -1,18 +1,25 @@
 from django.utils.translation import ugettext as _
-from django.views.generic import CreateView, UpdateView, ListView, DeleteView
-from django.core.urlresolvers import reverse_lazy
+from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib import messages
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
+from django.db import transaction
 
-from events.models import Event, Calendar, RSVP
-from events.tasks import send_event_changed_notification
+from events.models import Event, Calendar, RSVP, OrganizerConfig
+from events.tasks import send_event_changed_notification, send_cancelation_notification
 
-from ..forms import EventForm
+from ..forms import EventForm, AddOrganizerForm
 from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin
 
 __all__ = [
-    "EventListView", "CreateEventView", "UpdateEventView", "QuitEventView"
+    "EventListView", "CreateEventView", "ManageEventView", "ModifyEventView", "QuitEventView", "CancelEventView"
 ]
+
+
+class IsOrganiserMixin:
+    def is_organizer(self):
+        event = self.object if isinstance(self.object, Event) else self.object.event
+        return OrganizerConfig.objects.filter(person=self.request.user.person, event=event).exists()
 
 
 class EventListView(LoginRequiredMixin, ListView):
@@ -22,7 +29,7 @@ class EventListView(LoginRequiredMixin, ListView):
     template_name = 'front/events/list.html'
     context_object_name = 'events'
 
-    queryset = Event.objects.all()
+    queryset = Event.scheduled.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -36,11 +43,56 @@ class EventListView(LoginRequiredMixin, ListView):
         return RSVP.objects.select_related('event').filter(person=self.request.user.person)
 
 
+class ManageEventView(LoginRequiredMixin, IsOrganiserMixin, DetailView):
+    template_name = "front/events/details.html"
+    queryset = Event.scheduled.all()
+
+    def get_success_url(self):
+        return reverse('manage_event', kwargs={'pk': self.object.pk})
+
+    def get_form(self):
+        kwargs = {}
+
+        if self.request.method in ('POST', 'PUT'):
+            kwargs.update({
+                'data': self.request.POST,
+            })
+
+        return AddOrganizerForm(self.object, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            add_organizer_form=self.get_form(),
+            organizers=self.object.organizers.all(),
+            rsvps=self.object.rsvps.all()
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if not self.is_organizer():
+            return HttpResponseForbidden(b'Interdit')
+
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        form = self.get_form()
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(self.get_success_url())
+
+
 class CreateEventView(LoginRequiredMixin, CreateView):
-    template_name = "front/form.html"
-    success_url = reverse_lazy("list_events")
+    template_name = "front/events/create.html"
     model = Event
     form_class = EventForm
+
+    def get_success_url(self):
+        return reverse('manage_event', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -49,12 +101,30 @@ class CreateEventView(LoginRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
+
+        person = self.request.user.person
         kwargs['calendar'] = Calendar.objects.get(label='evenements_locaux')
+        kwargs['initial'] = {
+            'contact_name': person.get_full_name(),
+            'contact_email': person.email,
+            'contact_phone': person.contact_phone
+        }
         return kwargs
 
     def form_valid(self, form):
         # first get response to make sure there's no error when saving the model before adding message
-        res = super().form_valid(form)
+        with transaction.atomic():
+            self.object = form.save()
+
+            OrganizerConfig.objects.create(
+                person=self.request.user.person,
+                event=self.object
+            )
+
+            RSVP.objects.create(
+                person=self.request.user.person,
+                event=self.object,
+            )
 
         messages.add_message(
             request=self.request,
@@ -62,12 +132,12 @@ class CreateEventView(LoginRequiredMixin, CreateView):
             message="Votre événement a été correctement créé.",
         )
 
-        return res
+        return HttpResponseRedirect(self.get_success_url())
 
 
-class UpdateEventView(LoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
+class ModifyEventView(LoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
     permissions_required = ('events.change_event',)
-    template_name = "front/form.html"
+    template_name = "front/events/modify.html"
     success_url = reverse_lazy("list_events")
     model = Event
     form_class = EventForm
@@ -93,11 +163,6 @@ class UpdateEventView(LoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
         context['title'] = _('Modifiez votre événement')
         return context
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['calendar'] = self.object.calendar
-        return kwargs
-
     def form_valid(self, form):
         # create set so that values are unique, but turns to list because set are not JSON-serializable
         changes = list({self.CHANGES[field] for field in form.changed_data})
@@ -105,7 +170,7 @@ class UpdateEventView(LoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
         # first get response to make sure there's no error when saving the model before adding message
         res = super().form_valid(form)
 
-        if changes:
+        if changes and form.cleaned_data['notify']:
             messages.add_message(
                 request=self.request,
                 level=messages.SUCCESS,
@@ -117,7 +182,29 @@ class UpdateEventView(LoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
         return res
 
 
-class QuitEventView(DeleteView):
+class CancelEventView(LoginRequiredMixin, DetailView):
+    template_name = 'front/events/cancel.html'
+    queryset = Event.scheduled.all()
+    success_url = reverse_lazy('list_events')
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        self.object.published = False
+        self.object.save()
+
+        send_cancelation_notification.delay(self.object.pk)
+
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _("L'événement « {} » a bien été annulé.").format(self.object.name)
+        )
+
+        return HttpResponseRedirect(self.success_url)
+
+
+class QuitEventView(LoginRequiredMixin, DeleteView):
     template_name = "front/events/quit.html"
     success_url = reverse_lazy("list_events")
     model = RSVP
@@ -125,7 +212,10 @@ class QuitEventView(DeleteView):
 
     def get_object(self, queryset=None):
         try:
-            return self.get_queryset().select_related('event').get(event__pk=self.kwargs['pk'])
+            return self.get_queryset().select_related('event').get(
+                event__pk=self.kwargs['pk'],
+                person=self.request.user.person
+            )
         except RSVP.DoesNotExist:
             # TODO show specific 404 page maybe?
             raise Http404()
@@ -143,7 +233,7 @@ class QuitEventView(DeleteView):
         messages.add_message(
             request,
             messages.SUCCESS,
-            _("Vous ne participez plus à l'événement <em>%s</em>" % self.object.supportgroup.name)
+            _("Vous ne participez plus à l'événement <em>%s</em>" % self.object.event.name)
         )
 
         return res

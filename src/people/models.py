@@ -130,7 +130,10 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         default_permissions = ('add', 'change', 'delete', 'view')
 
     def __str__(self):
-        return self.email
+        if self.first_name and self.last_name:
+            return "{} {} <{}>".format(self.first_name, self.last_name, self.email)
+        else:
+            return self.email
 
     @property
     def email(self):

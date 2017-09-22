@@ -14,6 +14,14 @@
     <link rel="apple-touch-icon-precomposed" href="{% static "front/images/cropped-cropped-phi-180x180.png" %}"/>
     <meta name="msapplication-TileImage" content="{% static "front/images/cropped-cropped-phi-270x270.png" %}"/>
     {% block additional_headers %}{% endblock %}
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js">
+    </script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js">
+    </script>
+
+    {{ form.media }}
+
 </head>
 <body class="home archive">
 <!--[if IE]>
@@ -87,19 +95,18 @@
 <div class="wrap container" role="document">
     <div class="content row">
         <main class="main">
-            <main class="main">
-                {% if messages %}
-                    <div style="margin-top: 1em;">
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">
-                                {{ message|safe }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-                {% block main %}
-                {% endblock %}
-            </main>
+            {% if messages %}
+                <div style="margin-top: 1em;">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% block main %}
+            {% endblock %}
+        </main>
     </div>
 </div>
 </body>

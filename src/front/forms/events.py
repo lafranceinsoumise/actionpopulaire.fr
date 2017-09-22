@@ -5,9 +5,9 @@ from crispy_forms.helper import FormHelper
 from ..form_components import *
 from ..form_mixins import LocationFormMixin, ContactFormMixin
 
-from events.models import Event
+from events.models import Event, OrganizerConfig
 
-__all__ = ['EventForm']
+__all__ = ['EventForm', 'AddOrganizerForm']
 
 
 class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
@@ -20,6 +20,22 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
 
         self.fields['start_time'].widget = DateTimePickerWidget()
         self.fields['end_time'].widget = DateTimePickerWidget()
+
+        is_creation = self.instance._state.adding
+
+        if not is_creation:
+            self.fields['notify'] = forms.BooleanField(
+                required=False,
+                initial=False,
+                label=_("Signalez ces changements aux participants à l'événement"),
+                help_text=_("Un email sera envoyé à la validation de ce formulaire. Merci de ne pas abuser de cette"
+                            " fonctionnalité.")
+            )
+            notify_field = [Row(
+                FullCol('notify')
+            )]
+        else:
+            notify_field = []
 
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
@@ -75,15 +91,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             Row(
                 FullCol('description'),
             ),
-            Row(
-                FullCol(
-                    HTML(
-                        "<strong>Cliquez sur sauvegarder et publier pour valider les changements effectués ci-dessous."
-                        " Les personnes inscrites à l'événement recevront un message pour les avertir des modifications "
-                        " réalisées.</strong>"
-                    )
-                )
-            )
+            *notify_field,
         )
 
     def clean(self):
@@ -106,3 +114,36 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             'location_country',
             'description'
         )
+
+
+class RSVPChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return str(obj.person)
+
+
+class AddOrganizerForm(forms.Form):
+    form = forms.CharField(initial="add_organizer_form", widget=forms.HiddenInput())
+
+    def __init__(self, event, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.event = event
+
+        self.fields['organizer'] = RSVPChoiceField(
+            queryset=event.rsvps.exclude(person__organized_events=event), label=False
+        )
+
+        self.helper = FormHelper()
+        self.helper.add_input(Submit('submit', _('Ajouter comme co-organisateur')))
+
+    def save(self, commit=True):
+        rsvp = self.cleaned_data['organizer']
+
+        organizer_config = OrganizerConfig(
+            event=rsvp.event,
+            person=rsvp.person
+        )
+
+        if commit:
+            organizer_config.save()
+
+        return organizer_config

@@ -56,7 +56,7 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
         # in the case there is no after_query parameters, and we are not on a single object page
         # we set a default after value of today
         if lookup_url_kwarg not in self.kwargs and after_query is None and before_query is None:
-            queryset = queryset.filter(end_time__gt=timezone.now())
+            queryset = queryset.filter(end_time__gt=timezone.now() - timezone.timedelta(hours=12))
 
         return queryset
 

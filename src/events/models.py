@@ -8,10 +8,18 @@ from lib.models import (
 )
 
 
+class PublishedEventManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(published=True, end_time__gt=timezone.now() - timezone.timedelta(hours=12))
+
+
 class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin):
     """
     Model that represents an event
     """
+    objects = models.Manager()
+    scheduled = PublishedEventManager()
+
     name = models.CharField(
         _("nom"),
         max_length=255,
@@ -28,7 +36,6 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
     published = models.BooleanField(
         _('publié'),
         default=True,
-        blank=False,
         help_text=_('L\'évenement doit-il être visible publiquement.')
     )
 

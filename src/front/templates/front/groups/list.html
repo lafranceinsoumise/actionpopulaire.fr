@@ -6,7 +6,7 @@
     <h2>Les groupes dont je suis membre</h2>
     {% for membership in memberships %}
         <div>
-            <h3>
+            <strong>
                 {{ membership.supportgroup.name }}
                 <small>
                     {% if membership.is_manager or membership.is_referent %}
@@ -16,7 +16,7 @@
                         &bull; <a href="{% url "quit_group" membership.supportgroup.pk %}">Quitter</a>
                     {% endif %}
                 </small>
-            </h3>
+            </strong>
             <div>
                 {% if membership.is_referent %}
                     Membre référent
