@@ -9,6 +9,7 @@ from django.shortcuts import reverse
 from celery import shared_task
 
 from lib.mails import send_mosaico_email
+import front.urls as front_urls
 
 from .models import Event, RSVP
 
@@ -39,15 +40,16 @@ def send_event_changed_notification(event_pk, changes):
 
     # TODO: find adequate way to set up domain names to use for these links
     bindings = {
+        "EVENT_NAME": event.changes,
         "EVENT_CHANGES": change_fragment,
         "EVENT_LINK": "#",
-        "EVENT_QUIT_LINK": urljoin(settings.FRONT_DOMAIN, reverse("quit_event"))
+        "EVENT_QUIT_LINK": urljoin(settings.FRONT_DOMAIN, reverse("quit_event", urlconf=front_urls))
     }
 
     recipients = [attendee.email for attendee in attendees]
 
     send_mosaico_email(
-        code='',
+        code='EVENT_CHANGED',
         subject=_("Les informations d'un événement auquel vous assistez ont été changées"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
@@ -63,11 +65,53 @@ def send_rsvp_notification(rsvp_pk):
         # RSVP does not exist any more?!
         return
 
-    person_name = str(rsvp.person)
+    person_information = str(rsvp.person)
 
-    # recipients = [organizer.email for organizer ]
+    recipients = [organizer_config.person.email
+                  for organizer_config in rsvp.event.organizer_configs
+                  if organizer_config.send_notifications]
+
+    bindings = {
+        "EVENT_NAME": rsvp.event.name,
+        "PERSON_INFORMATION": person_information,
+        "MANAGE_EVENT_LINK": urljoin(
+            settings.FRONT_DOMAIN,
+            reverse("manage_event", kwargs={"pk": rsvp.event.pk}, urlconf=front_urls)
+        )
+    }
+
+    send_mosaico_email(
+        code='EVENT_RSVP_NOTIFICATION',
+        subject=_("Un nouveau participant à l'un de vos événements"),
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
+        bindings=bindings
+    )
 
 
 @shared_task
-def send_cancelation_notification(event_pk):
-    pass
+def send_cancellation_notification(event_pk):
+    try:
+        event = Event.objects.get(pk=event_pk)
+    except Event.DoesNotExist:
+        return
+
+    # check it is indeed cancelled
+    if event.published:
+        return
+
+    event_name = event.name
+
+    recipients = [rsvp.person.email for rsvp in event.rsvps.all()]
+
+    bindings = {
+        "EVENT_NAME": event_name
+    }
+
+    send_mosaico_email(
+        code='EVENT_CANCELLATION',
+        subject=_("Un événement auquel vous participiez a été annulé"),
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
+        bindings=bindings
+    )

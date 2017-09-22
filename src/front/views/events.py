@@ -6,7 +6,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
 from django.db import transaction
 
 from events.models import Event, Calendar, RSVP, OrganizerConfig
-from events.tasks import send_event_changed_notification, send_cancelation_notification
+from events.tasks import send_event_changed_notification, send_cancellation_notification
 
 from ..forms import EventForm, AddOrganizerForm
 from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin
@@ -193,7 +193,7 @@ class CancelEventView(LoginRequiredMixin, DetailView):
         self.object.published = False
         self.object.save()
 
-        send_cancelation_notification.delay(self.object.pk)
+        send_cancellation_notification.delay(self.object.pk)
 
         messages.add_message(
             request,
