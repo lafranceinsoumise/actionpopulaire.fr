@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.models import PermissionsMixin, _user_has_perm
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -46,6 +46,19 @@ class Role(PermissionsMixin, AbstractBaseUser):
             return 'Person role -> %r' % self.person
         else:
             return 'Unknown role %s' % self.pk
+
+    def has_perm(self, perm, obj=None):
+        """
+        Override PermissionsMixin has_perm to deactivate is_superuser if
+        authenticated through a token
+        """
+
+        # Active superusers have all permissions.
+        if self.is_active and self.is_superuser and not hasattr(self, 'token'):
+            return True
+
+        # Otherwise we need to check the backends.
+        return _user_has_perm(self, perm, obj)
 
     def get_short_name(self):
         if self.type == self.PERSON_ROLE:

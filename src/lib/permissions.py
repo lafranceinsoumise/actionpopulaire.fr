@@ -1,5 +1,46 @@
 from rest_framework import exceptions
 from rest_framework.permissions import DjangoModelPermissions, BasePermission
+from django.core.exceptions import PermissionDenied
+
+from clients.tokens import AccessToken
+from clients.scopes import get_required_scopes
+
+
+def get_class_from_view(view):
+    if hasattr(view, 'get_queryset'):
+        queryset = view.get_queryset()
+    else:
+        queryset = getattr(view, 'queryset', None)
+
+    assert queryset is not None, (
+        'Cannot apply DjangoObjectPermissions on a view that '
+        'does not set `.queryset` or have a `.get_queryset()` method.'
+    )
+
+    return queryset.model
+
+
+class ScopePermissionsMixin(object):
+    def has_permission(self, request, view):
+        if isinstance(request.auth, AccessToken):
+            model_cls = get_class_from_view(view)
+            required_permissions = self.get_required_permissions(request.method, model_cls)
+            required_scopes = set(scope.name for permission in required_permissions for scope in get_required_scopes(permission))
+
+            if required_scopes and not bool(required_scopes & set(request.auth.scopes)):
+                raise PermissionDenied('Incorrect scopes')
+
+        return super().has_permission(request, view)
+
+    def has_object_permission(self, request, view, obj):
+        if isinstance(request.auth, AccessToken):
+            model_cls = get_class_from_view(view)
+            required_permissions = self.get_required_object_permissions(request.method, model_cls)
+            required_scopes = set(scope.name for permission in required_permissions for scope in get_required_scopes(permission))
+
+            if required_scopes and not bool(required_scopes & set(request.auth.scopes)):
+                raise PermissionDenied('Incorrect scopes')
+        return super().has_object_permission(request, view, obj)
 
 
 class GlobalOrObjectPermissionsMixin(object):
@@ -15,25 +56,14 @@ class GlobalOrObjectPermissionsMixin(object):
         return [perm % kwargs for perm in self.object_perms_map[method]]
 
     def has_object_permission(self, request, view, obj):
-        if hasattr(view, 'get_queryset'):
-            queryset = view.get_queryset()
-        else:
-            queryset = getattr(view, 'queryset', None)
-
-        assert queryset is not None, (
-            'Cannot apply DjangoObjectPermissions on a view that '
-            'does not set `.queryset` or have a `.get_queryset()` method.'
-        )
-
-        model_cls = queryset.model
+        model_cls = get_class_from_view(view)
         user = request.user
-
         perms = self.get_required_object_permissions(request.method, model_cls)
 
         return user.has_perms(perms) or user.has_perms(perms, obj)
 
 
-class RestrictViewPermissions(GlobalOrObjectPermissionsMixin, DjangoModelPermissions):
+class RestrictViewPermissions(ScopePermissionsMixin, GlobalOrObjectPermissionsMixin, DjangoModelPermissions):
     authenticated_users_only = True
 
     perms_map = {

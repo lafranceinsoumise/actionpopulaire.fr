@@ -85,6 +85,7 @@ class TokenTestCase(TestCase):
 
         self.assertEqual(auth_user.type, Role.PERSON_ROLE)
         self.assertEqual(auth_user.person, self.person)
+        self.assertEqual(auth_user.token, auth_info)
         self.assertIsInstance(auth_info, tokens.AccessToken)
         self.assertEqual(auth_info.client, self.client)
         self.assertCountEqual(auth_info.scopes, [self.scope, self.other_scope])
@@ -99,6 +100,59 @@ class TokenTestCase(TestCase):
 
         self.assertEqual(auth_info.client, self.one_scope_client)
         self.assertCountEqual(auth_info.scopes, [self.other_scope])
+
+
+class ScopeTestCase(APITestCase):
+    def setUp(self):
+        # We create a superuser and a client with all scopes
+        # Then we create token with smaller scopes to test
+        person_content_type = ContentType.objects.get_for_model(Person)
+        self.person = Person.objects.create_superperson(email='test@test.com', password='randomstring')
+        add_permission = Permission.objects.get(content_type=person_content_type, codename='view_person')
+        self.person.role.user_permissions.add(add_permission)
+        self.other_person = Person.objects.create(email='test2@test.com')
+        self.redis_instance = StrictRedis()
+
+        self.api_client = models.Client.objects.create_client('client', scopes=scopes.scopes_names)
+
+        self.redis_instance = StrictRedis()
+        self.redis_patcher = mock.patch('clients.tokens.get_auth_redis_client')
+        mock_get_auth_redis_client = self.redis_patcher.start()
+        mock_get_auth_redis_client.return_value = self.redis_instance
+
+    def tearDown(self):
+        self.redis_patcher.stop()
+
+    def generate_token(self, scopes_names):
+        self.token = str(uuid.uuid4())
+        self.token_info = {
+            'clientId': self.api_client.label,
+            'userId': str(self.person.pk),
+            'scope': scopes_names
+        }
+        self.redis_instance.set(
+            '{prefix}{token}:payload'.format(prefix=settings.AUTH_REDIS_PREFIX, token=self.token),
+            json.dumps(self.token_info)
+        )
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer {token}".format(token=self.token))
+
+    def test_get_required_token(self):
+        self.assertEqual(scopes.get_required_scopes('people.view_person'), [scopes.view_profile])
+
+    def test_can_view_profile_with_correct_scope(self):
+        self.generate_token([scopes.view_profile.name])
+        response = self.client.get('/legacy/people/me/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_cannot_view_profile_without_correct_scope(self):
+        self.generate_token([scopes.edit_event.name])
+        response = self.client.get('/legacy/people/me/')
+        self.assertEqual(response.status_code, 403)
+
+    def test_cannot_use_global_permissions_with_token(self):
+        self.generate_token([scopes.view_profile.name])
+        response = self.client.get('/legacy/people/' + str(self.other_person.id) + '/')
+        self.assertEqual(response.status_code, 403)
 
 
 class ClientTestCase(TestCase):

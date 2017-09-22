@@ -185,7 +185,7 @@ STATIC_ROOT = os.environ.get('STATIC_ROOT')
 
 AUTH_USER_MODEL = 'authentication.Role'
 AUTHENTICATION_BACKENDS = (
-    'rules.permissions.ObjectPermissionBackend',
+    'clients.authentication.AccessTokenRulesPermissionBackend',
     'django.contrib.auth.backends.ModelBackend',
     'people.backend.PersonBackend',
 )

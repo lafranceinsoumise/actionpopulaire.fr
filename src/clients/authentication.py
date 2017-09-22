@@ -32,6 +32,8 @@ class AccessTokenAuthentication(BaseAuthentication):
             msg = _('Token invalide.')
             raise exceptions.AuthenticationFailed(msg)
 
+        token.person.role.token = token
+
         return token.person.role, token
 
 
