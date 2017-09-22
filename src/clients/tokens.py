@@ -52,7 +52,7 @@ class AccessToken():
 
         client_id = token_info['clientId']
         person_id = token_info['userId']
-        scope_names = token_info['scope']
+        token_scopes = token_info['scope']
 
         try:
             client = Client.objects.get_by_natural_key(client_id)
@@ -61,10 +61,8 @@ class AccessToken():
         except (ObjectDoesNotExist, ValueError):
             raise InvalidTokenException()
 
-        def is_scope_valid(scope):
-            return (scope.name in client.scopes and scope.name in scope_names)
+        scopes = list(set(client.scopes) & set(token_scopes))
         # not too bad if ones of the scopes was deleted / also filter on scopes allowed for client
-        scopes = list(filter(is_scope_valid, all_scopes))
 
         if not scopes:
             raise InvalidTokenException()

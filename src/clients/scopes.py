@@ -4,6 +4,8 @@ class Scope(object):
         self.name = name
         self.description = description
 
+    def __eq__(self, other_scope):
+        return self.name == other_scope
 
 view_profile = Scope('view_profile', 'Voir mon profil')
 edit_profile = Scope('edit_profile', 'Changer mon profil')
