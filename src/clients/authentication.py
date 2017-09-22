@@ -1,14 +1,30 @@
+from rules.permissions import ObjectPermissionBackend as RulesObjectPermissionBackend
 from django.utils.translation import ugettext as _
+from django.core.exceptions import PermissionDenied
 from rest_framework import exceptions
 from rest_framework.authentication import BaseAuthentication, BasicAuthentication, get_authorization_header
 
 from authentication.models import Role
 from clients.tokens import AccessToken, InvalidTokenException
+from people.models import Person
+
+
+class AccessTokenRulesPermissionBackend(RulesObjectPermissionBackend):
+    """
+    We extend django_rules permissions backend to shortcut django model backend
+    in case the user is authenticated via a token
+    """
+    def has_perm(self, user_obj, perm, obj=None):
+        result = super().has_perm(user_obj, perm, obj)
+        if hasattr(user_obj, 'token') and isinstance(user_obj.token, AccessToken) and result is False:
+            raise PermissionDenied()
+
+        return result
 
 
 class AccessTokenAuthentication(BaseAuthentication):
     """
-    Access Token authentication 
+    Access Token authentication
     """
     def authenticate(self, request):
         """
