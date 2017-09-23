@@ -154,6 +154,23 @@ class ScopeTestCase(APITestCase):
         response = self.client.get('/legacy/people/' + str(self.other_person.id) + '/')
         self.assertEqual(response.status_code, 403)
 
+    def test_can_edit_profile_with_correct_scope(self):
+        self.generate_token([scopes.edit_profile.name])
+        response = self.client.patch(
+            '/legacy/people/' + str(self.person.id) + '/',
+            data={'email': 'testedit@test.com'}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.person.email, 'testedit@test.com')
+
+    def test_cannot_edit_profile_without_correct_scope(self):
+        self.generate_token([scopes.view_profile.name])
+        response = self.client.patch(
+            '/legacy/people/' + str(self.person.id) + '/',
+            data={'email': 'testedit@test.com'}
+        )
+        self.assertEqual(response.status_code, 403)
+
 
 class ClientTestCase(TestCase):
     def setUp(self):
