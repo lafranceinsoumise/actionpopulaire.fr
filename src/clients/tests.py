@@ -10,6 +10,7 @@ from django.test import TestCase
 from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework.reverse import reverse
@@ -19,6 +20,7 @@ from . import models, authentication, tokens, scopes
 from .viewsets import LegacyClientViewSet
 
 from people.models import Person
+from events.models import Event, Calendar
 from authentication.models import Role
 
 
@@ -111,10 +113,18 @@ class ScopeTestCase(APITestCase):
         add_permission = Permission.objects.get(content_type=person_content_type, codename='view_person')
         self.person.role.user_permissions.add(add_permission)
         self.other_person = Person.objects.create(email='test2@test.com')
-        self.redis_instance = StrictRedis()
+
+
+        self.calendar = Calendar.objects.create(label='calendar')
+        self.event = Event.objects.create(
+            name='Test event',
+            start_time=timezone.now(),
+            end_time=timezone.now() + timezone.timedelta(hours=4),
+            calendar=self.calendar
+        )
+        self.event.organizers.add(self.person)
 
         self.api_client = models.Client.objects.create_client('client', scopes=scopes.scopes_names)
-
         self.redis_instance = StrictRedis()
         self.redis_patcher = mock.patch('clients.tokens.get_auth_redis_client')
         mock_get_auth_redis_client = self.redis_patcher.start()
@@ -169,6 +179,25 @@ class ScopeTestCase(APITestCase):
             '/legacy/people/' + str(self.person.id) + '/',
             data={'email': 'testedit@test.com'}
         )
+        self.assertEqual(response.status_code, 403)
+
+    def test_can_edit_own_event_with_correct_scope(self):
+        self.generate_token([scopes.edit_event.name])
+        response = self.client.patch(
+            '/legacy/events/' + str(self.event.id) + '/',
+            data={'description': 'Description !'}
+        )
+        self.event.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.event.description, 'Description !')
+
+    def test_cannot_edit_own_event_without_correct_scope(self):
+        self.generate_token([scopes.view_profile.name])
+        response = self.client.patch(
+            '/legacy/events/' + str(self.event.id) + '/',
+            data={'description': 'Description !'}
+        )
+        self.event.refresh_from_db()
         self.assertEqual(response.status_code, 403)
 
 

@@ -87,7 +87,7 @@ class RestrictViewPermissions(ScopePermissionsMixin, GlobalOrObjectPermissionsMi
     }
 
 
-class PermissionsOrReadOnly(GlobalOrObjectPermissionsMixin, DjangoModelPermissions):
+class PermissionsOrReadOnly(ScopePermissionsMixin, GlobalOrObjectPermissionsMixin, DjangoModelPermissions):
     authenticated_users_only = False
 
     perms_map = {
