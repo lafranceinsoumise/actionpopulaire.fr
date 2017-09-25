@@ -297,6 +297,14 @@ class LegacyEventViewSetTestCase(TestCase):
         self.assertEqual(self.event.description, 'Plus mieux!')
         self.assertEqual(self.event.published, False)
 
+    def test_field_is_organizer(self):
+        request = self.factory.get('')
+        force_authenticate(request, user=self.one_event_person.role)
+        response = self.detail_view(request, pk=self.event.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['is_organizer'], True)
+
     def test_organizer_can_modify_event(self):
         request = self.factory.patch('', data={
             'description': 'Plus mieux!'

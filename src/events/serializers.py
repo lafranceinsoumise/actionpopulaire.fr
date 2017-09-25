@@ -7,18 +7,25 @@ from lib.serializers import (
 from people.models import Person
 
 from . import models
+from people.models import Role
 
 
 class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMixin, serializers.HyperlinkedModelSerializer):
     calendar = RelatedLabelField(queryset=models.Calendar.objects.all())
     path = serializers.CharField(source='nb_path', required=False)
     tags = RelatedLabelField(queryset=models.EventTag.objects.all(), many=True, required=False)
+    is_organizer = serializers.SerializerMethodField()
+
+    def get_is_organizer(self, obj):
+        if not (hasattr(self.context['request'].user, 'type') and self.context['request'].user.type == Role.PERSON_ROLE):
+            return False
+        return self.context['request'].user.person in obj.organizers.all()
 
     class Meta:
         model = models.Event
         fields = (
             'url', '_id', 'id', 'name', 'description', 'path', 'start_time', 'end_time', 'calendar', 'contact',
-            'location', 'tags', 'coordinates', 'participants', 'published'
+            'location', 'tags', 'coordinates', 'participants', 'is_organizer', 'published'
         )
         extra_kwargs = {
             'url': {'view_name': 'legacy:event-detail'},
