@@ -67,12 +67,6 @@ class ClientAuthenticationSerializer(serializers.Serializer):
 
 
 class PersonAuthorizationSerializer(serializers.HyperlinkedModelSerializer):
-    scopes = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='label',
-        many=True
-    )
-
     class Meta:
         model = models.Authorization
         fields = ('url', 'client', 'scopes')
