@@ -1,0 +1,9 @@
+{% extends "front/layout.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}«&nbsp;{{ event.name }}&nbsp;»{% endblock %}
+
+{% block main %}
+    <iframe src="https://app.jlm2017.fr/#/evenements/details/{{ event.nb_id }}?cacher-menu=oui&show_creating=oui"
+    width="100%" height="900" style="border:none;overflow:hidden">
+{% endblock %}

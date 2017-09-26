@@ -12,7 +12,8 @@ from ..forms import EventForm, AddOrganizerForm
 from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin
 
 __all__ = [
-    "EventListView", "CreateEventView", "ManageEventView", "ModifyEventView", "QuitEventView", "CancelEventView"
+    "EventListView", "CreateEventView", "ManageEventView", "ModifyEventView", "QuitEventView", "CancelEventView",
+    "EventDetailView"
 ]
 
 
@@ -43,8 +44,13 @@ class EventListView(LoginRequiredMixin, ListView):
         return RSVP.objects.select_related('event').filter(person=self.request.user.person)
 
 
+class EventDetailView(DetailView):
+    template_name = "front/events/detail.html"
+    queryset = Event.scheduled.all()
+
+
 class ManageEventView(LoginRequiredMixin, IsOrganiserMixin, DetailView):
-    template_name = "front/events/details.html"
+    template_name = "front/events/manage.html"
     queryset = Event.scheduled.all()
 
     def get_success_url(self):

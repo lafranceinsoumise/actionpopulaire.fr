@@ -13,7 +13,7 @@ from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin
 
 __all__ = [
     "SupportGroupListView", "SupportGroupManagementView", "CreateSupportGroupView", "ModifySupportGroupView",
-    "QuitSupportGroupView", 'RemoveManagerView',
+    "QuitSupportGroupView", 'RemoveManagerView', "SupportGroupDetailView"
 ]
 
 
@@ -52,8 +52,13 @@ class SupportGroupListView(LoginRequiredMixin, ListView):
             .select_related('supportgroup')
 
 
+class SupportGroupDetailView(DetailView):
+    template_name = "front/events/detail.html"
+    queryset = SupportGroup.objects.all()
+
+
 class SupportGroupManagementView(LoginRequiredMixin, CheckMembershipMixin, DetailView):
-    template_name = "front/groups/details.html"
+    template_name = "front/groups/manage.html"
     queryset = SupportGroup.objects.all().prefetch_related('memberships')
     messages = {
         'add_referent_form': ugettext_lazy("{} est maintenant correctement signalé comme second·e référent·e"),

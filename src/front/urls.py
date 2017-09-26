@@ -15,7 +15,8 @@ urlpatterns = [
     # events views
     url('^evenements/$', views.EventListView.as_view(), name='list_events'),
     url('^evenements/creer/$', views.CreateEventView.as_view(), name='create_event'),
-    url('^evenements/(?P<pk>[0-9a-f-]+)/$', views.ManageEventView.as_view(), name='manage_event'),
+    url('^evenements/(?P<pk>[0-9a-f-]+)/$', views.EventDetailView.as_view(), name='view_event'),
+    url('^evenements/(?P<pk>[0-9a-f-]+)/manage/$', views.ManageEventView.as_view(), name='manage_event'),
     url('^evenements/(?P<pk>[0-9a-f-]+)/modifier/$', views.ModifyEventView.as_view(), name='edit_event'),
     url('^evenements/(?P<pk>[0-9a-f-]+)/quitter/$', views.QuitEventView.as_view(), name='quit_event'),
     url('^evenements/(?P<pk>[0-9a-f-]+)/annuler/$', views.CancelEventView.as_view(), name='cancel_event'),
@@ -23,7 +24,8 @@ urlpatterns = [
     # groups views
     url('^groupes/$', views.SupportGroupListView.as_view(), name='list_groups'),
     url('^groupes/creer/$', views.CreateSupportGroupView.as_view(), name='create_group'),
-    url('^groupes/(?P<pk>[0-9a-f-]+)/$', views.SupportGroupManagementView.as_view(), name='manage_group'),
+    url('^groupes/(?P<pk>[0-9a-f-]+)/$', views.SupportGroupDetailView.as_view(), name='view_group'),
+    url('^groupes/(?P<pk>[0-9a-f-]+)/manage/$', views.SupportGroupManagementView.as_view(), name='manage_group'),
     url('^groupes/(?P<pk>[0-9a-f-]+)/modifier/$', views.ModifySupportGroupView.as_view(), name='edit_group'),
     url('^groupes/(?P<pk>[0-9a-f-]+)/quitter/$', views.QuitSupportGroupView.as_view(), name='quit_group'),
 
