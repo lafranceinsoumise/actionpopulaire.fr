@@ -1,6 +1,6 @@
 from django.contrib.admin import AdminSite
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import authenticate, admin as auth_admin
+from django.contrib.auth import authenticate, admin as auth_admin, BACKEND_SESSION_KEY
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
@@ -46,6 +46,11 @@ class APIAdminSite(AdminSite):
     site_title = 'France insoumise'
     index_title = 'Administration'
 
+    def has_permission(self, request):
+        return (
+            super().has_permission(request) and
+            request.session[BACKEND_SESSION_KEY] == 'people.backend.PersonBackend'
+        )
 
 admin_site = APIAdminSite()
 

@@ -8,6 +8,7 @@ coverage==4.3.4
 dj-database-url==0.4.2
 dj-email-url==0.0.10
 Django==1.11
+git+https://github.com/crucialfelix/django-ajax-selects.git@f31d866a7a8c14ff2c21b6d047cadd4e84006b41#egg=django-ajax-selects
 django-cors-headers==2.1.0
 django-countries==4.4
 django-crispy-forms==1.6.1
@@ -23,6 +24,7 @@ idna==2.5
 Jinja2==2.9.6
 kombu==4.1.0
 MarkupSafe==1.0
+oauthlib==2.0.2
 psutil==5.2.2
 psycopg2==2.7.1
 pycodestyle==2.3.1
@@ -32,6 +34,7 @@ pytz==2017.2
 redis==2.10.5
 redislite==3.2.311
 requests==2.18.1
+requests-oauthlib==0.8.0
 rules==1.2
 six==1.10.0
 sqlparse==0.2.3

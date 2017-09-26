@@ -1,5 +1,6 @@
 import warnings
 from django.db import models, transaction
+from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
@@ -106,6 +107,21 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
 
     tags = models.ManyToManyField('PersonTag', related_name='people', blank=True)
 
+    contact_phone = models.CharField(_("Numéro de téléphone de contact"), max_length=30, blank=True)
+
+    GENDER_FEMALE = 'F'
+    GENDER_MALE = 'M'
+    GENDER_OTHER = 'O'
+    GENDER_CHOICES = (
+        (GENDER_FEMALE, _('Femme')),
+        (GENDER_MALE, _('Homme')),
+        (GENDER_OTHER, _('Autre/Non défini'))
+    )
+    gender = models.CharField(_('Genre'), max_length=1, blank=True, choices=GENDER_CHOICES)
+    date_of_birth = models.DateField(_('Date de naissance'), null=True)
+
+    meta = JSONField(_('Autres données'), default=dict)
+
     class Meta:
         verbose_name = _('personne')
         verbose_name_plural = _('personnes')
@@ -114,7 +130,10 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         default_permissions = ('add', 'change', 'delete', 'view')
 
     def __str__(self):
-        return self.email
+        if self.first_name and self.last_name:
+            return "{} {} <{}>".format(self.first_name, self.last_name, self.email)
+        else:
+            return self.email
 
     @property
     def email(self):

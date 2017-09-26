@@ -1,11 +1,7 @@
-from crispy_forms.layout import Layout, Submit, Div, Field, MultiField, HTML
+from crispy_forms.layout import Layout, Submit, Div, Field, MultiField, HTML, Row
 
 from django.forms.widgets import DateTimeBaseInput
 from django.utils import formats
-
-
-class Row(Div):
-    css_class = "row"
 
 
 class FullCol(Div):
@@ -22,16 +18,8 @@ class FormGroup(Div):
 
 def Section(title, *args):
     return Div(
-        HTML(f'<h4 class="padtopmore padbottom col-xs-12">{title}</h4>'),
+        HTML(f'<h4 class="padtopmore padbottom">{title}</h4>'),
         *args
-    )
-
-
-def AddressField():
-    return Div(
-        HTML('<label for="id_location_address1">Adresse</label>'),
-        Field('location_address1', placeholder='1ère ligne'),
-        Field('location_address2', placeholder='2ème ligne (optionnel)'),
     )
 
 
@@ -40,3 +28,13 @@ class DateTimePickerWidget(DateTimeBaseInput):
 
     def format_value(self, value):
         return formats.localize_input(value, "%d/%m/%Y %H:%M")
+
+    class Media:
+        css = {
+            'all': ('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css',)
+        }
+        js = (
+            'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/fr.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js'
+        )

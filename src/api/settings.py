@@ -13,9 +13,14 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 import dj_database_url
 import dj_email_url
+from django.contrib.messages import ERROR
 
 ENABLE_API = not os.environ.get('ENABLE_API', 'y').lower() in ['n', 'no', 'false']
 ENABLE_FRONT = os.environ.get('ENABLE_FRONT', 'n').lower() in ['y', 'yes', 'true']
+
+# these domain names are used when absolute URLs should be generated (e.g. to include in emails)
+API_DOMAIN = os.environ.get('API_DOMAIN', 'https://api.lafranceinsoumise.fr')
+FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', 'https://api.lafranceinsoumise.fr')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -67,6 +72,9 @@ INSTALLED_APPS = [
     #django_countries
     'django_countries',
 
+    # ajax_select
+    'ajax_select',
+
     # fi apps
     'authentication',
     'people',
@@ -107,6 +115,10 @@ TEMPLATES = [
     },
 ]
 
+MESSAGE_TAGS = {
+    ERROR: 'danger'
+}
+
 WSGI_APPLICATION = 'api.wsgi.application'
 
 # Database
@@ -138,6 +150,10 @@ EMAIL_TEMPLATES = {
     "EVENT_CHANGED": "https://mosaico.jlm2017.fr/emails/f8dfc882-4e7e-4ff2-bd8c-473fd41e54bf.html",
     # GROUP_CHANGED variables: GROUP_NAME, GROUP_CHANGES, GROUP_LINK
     "GROUP_CHANGED": "https://mosaico.jlm2017.fr/emails/3724b7ba-2a48-4954-9496-fc4c970a56b8.html",
+    # EVENT_RSVP_NOTIFICATION variables EVENT_NAME, PERSON_INFORMATION, MANAGE_EVENT_LINK
+    "EVENT_RSVP_NOTIFICATION": "https://mosaico.jlm2017.fr/emails/6f2eb6f0-cf59-4e2e-ab62-a8d204c6166b.html",
+    # EVENT_CANCELLATION variables: EVENT_NAME
+    "EVENT_CANCELLATION": "https://mosaico.jlm2017.fr/emails/94c7cbb3-afdc-4d14-a07a-cf9503db5b5f.html",
 }
 
 
@@ -166,7 +182,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'fr-fr'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 
@@ -188,6 +204,7 @@ AUTHENTICATION_BACKENDS = (
     'clients.authentication.AccessTokenRulesPermissionBackend',
     'django.contrib.auth.backends.ModelBackend',
     'people.backend.PersonBackend',
+    'front.backend.OAuth2Backend',
 )
 
 # REST_FRAMEWORK
@@ -280,3 +297,23 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CELERY_BROKER_URL = os.environ.get('BROKER_URL', 'redis://')
 # make sure celery does not mess with the root logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+
+# Front end configuration
+FRONT_OAUTH_CLIENT = 'api_front'
+FRONT_OAUTH_SECRET = 'incredible password'
+FRONT_OAUTH_AUTH_URL = 'http://localhost:4002/autoriser'
+FRONT_OAUTH_TOKEN_URL = 'http://localhost:4002/token'
+FRONT_OAUTH_REDIRECT_BASE_URL = 'http://localhost:8000'
+
+OAUTH = {
+    'client_id': os.environ.get('OAUTH_CLIENT_ID', 'api_front'),
+    'client_secret': os.environ.get('OAUTH_CLIENT_SECRET', 'incredible password'),
+    'authorization_url': os.environ.get('OAUTH_AUTHORIZATION_URL', 'http://localhost:4002/autoriser'),
+    'token_exchange_url': os.environ.get('OAUTH_TOKEN_URL', 'http://localhost:4002/token'),
+    'redirect_domain': os.environ.get('OAUTH_REDIRECT_DOMAIN', 'http://localhost:8000'),
+    'logoff_url': os.environ.get('OAUTH_LOGOFF_URL', 'http://localhost:4002/deconnexion'),
+}
+
+# allow insecure transports for OAUTHLIB in DEBUG mode
+if DEBUG:
+    os.environ.setdefault('OAUTHLIB_INSECURE_TRANSPORT', 'y')

@@ -1,0 +1,17 @@
+{% extends "front/layout.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "J'en dis plus sur moi" %}{% endblock %}
+
+{% block main %}
+    <h2 class="headline">J'en dis plus sur moi</h2>
+    <div>
+        <div class="intro">
+            <p>En remplissant ce formulaire, vous nous permettez de mieux vous connaître et de vous contacter selon vos
+                talents et vos savoir-faire professionnels ou amateurs.</p>
+        </div>
+        {% crispy form %}
+    </div>
+{% endblock %}

@@ -26,7 +26,6 @@ class PersonBackend(object):
         is_active = getattr(role, 'is_active', None)
         return is_active or is_active is None
 
-
     def get_user(self, user_id):
         try:
             return Role.objects.select_related('person').get(pk=user_id)

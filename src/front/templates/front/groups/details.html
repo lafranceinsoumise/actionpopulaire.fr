@@ -1,0 +1,109 @@
+{% extends "front/layout.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Gérer le groupe «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
+
+{% block main %}
+    <h2 class="text-center">{{ supportgroup.name }}</h2>
+
+    <h3>Les informations de mon groupe</h3>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>{{ supportgroup.name }}</strong></div>
+        <div class="panel-body">
+            <h6 class="subhead">Où</h6>
+            <p>{{ supportgroup.html_full_address }}</p>
+
+            <h6 class="subhead">Contact</h6>
+            <p>{{ supportgroup.html_full_contact }}</p>
+        </div>
+        <div class="panel-footer"><a href="{% url "edit_group" supportgroup.pk %}">Modifier ces informations</a></div>
+    </div>
+    <h3>Les référents et gestionnaires</h3>
+
+    <h4>Les référents du groupe</h4>
+
+    <ul class="list-group">
+        {% for membership in referents %}
+            {% with person=membership.person %}
+                <li class="list-group-item list-group-item-success">
+                    {% if person.first_name and person.last_name %}
+                        {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
+                    {% else %}
+                        {{ person.email }}
+                    {% endif %}
+                </li>
+            {% endwith %}
+        {% endfor %}
+    </ul>
+
+    {% if referents|length == 1 and is_referent %}
+        <div>
+            <p>
+                Vous etes à l'heure actuelle l'unique référent de ce groupe d'appui. La charte des groupes d'appui de la
+                France insoumise prévoit que les groupes d'appui</p>
+            <blockquote>
+                sont animés par deux personnes de genres différents n'étant pas dans la meme situation : pas un couple,
+                pas habitants du meme appartement et n'appartenant pas tous les deux à une meme formation politique qui
+                soutient la France insoumise.
+            </blockquote>
+            <p>
+                Vous pouvez nous indiquer ici qui est l'autre membre référent au sein du groupe.
+            </p>
+            {% crispy add_referent_form %}
+        </div>
+    {% endif %}
+
+    <h4>Les autres membres gestionnaires du groupe</h4>
+
+    <p>Les membres gestionnaires ont accès à la liste des membres, peuvent modifier les informations du groupe, et créer
+        des événements au nom du groupe. Ils peuvent ainsi assister les membres référents pour la gestion
+        au quotidien du groupe sur la plateforme.</p>
+
+    {% if managers %}
+        <ul class="list-group">
+            {% for membership in managers %}
+                {% with person=membership.person %}
+                    <li class="list-group-item list-group-item-info">
+                        {% if person.first_name and person.last_name %}
+                            {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
+                        {% else %}
+                            {{ person.email }}
+                        {% endif %}
+                        <a href="{% url 'remove_manager' pk=membership.pk %}" aria-label="Retirer ce gestionnaire">
+                            <i class="fa fa-remove" aria-hidden="true" title="Retirer ce gestionnaire"></i>
+                        </a>
+                    </li>
+                {% endwith %}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p><strong>Il n'y a pas de membres gestionnaires dans le groupe pour le moment !</strong></p>
+    {% endif %}
+
+    {% if is_referent %}
+        <p>Ajouter un membre gestionnaire :</p>
+        {% crispy add_manager_form %}
+    {% endif %}
+
+    <h3>Liste des membres</h3>
+
+    <p>Votre groupe comprend à l'heure actuelle {{ members|length }}
+        membre{% if members|length > 1 %}s{% endif %}.</p>
+
+    <p>Cette liste peut etre copiée-collée directement dans votre logiciel de messagerie !</p>
+
+    <ul class="list-group">
+        {% for membership in members %}
+            {% with person=membership.person %}
+                <li class="list-group-item">
+                    {% if person.first_name and person.last_name %}
+                        {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
+                    {% else %}
+                        {{ person.email }}
+                    {% endif %}
+                </li>
+            {% endwith %}
+        {% endfor %}
+    </ul>
+{% endblock %}

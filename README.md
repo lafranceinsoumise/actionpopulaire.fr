@@ -9,6 +9,7 @@ api-django
     1. [/events](#events)
     1. [/groups](#groups)
     2. [Resources filters](#resources-filters)
+3. [Usage: frontend pages](#frontend-pages)
 
 Configure PostgreSQL
 --------------------
@@ -135,3 +136,34 @@ Filters can be passed as query parameters, eg `https://api.lafranceinsoumise.fr/
 * `after`: ISO 8601 Datetime, get only events *finishing* after this date
 * `before`: ISO 8601 Datetime, get only events *starting* before this date
 * `calendar`: String, get only events belonging to a specific calendar
+
+# Frontend pages
+
+An optional HTML frontend is available for the API.
+
+## Configuration
+
+The following additional environment variables are used to configure the
+HTML frontend.
+
+* `ENABLE_FRONT` when set to `yes` enable the front pages routes. Leave
+  unset, empty or set to `no` to disable it.
+* `OAUTH_CLIENT_ID` and `OAUTH_CLIENT_SECRET` are the id and secret of
+  the client that should be used to authenticate to the OAUTH provider.
+* `OAUTH_AUTHORIZATION_URL` and `OAUTH_TOKEN_URL` are the URIs for the
+  oauth authorization endpoint to which the end user should first be
+  redirected, and of the token exchange endpoint, at which the
+  authorization code can be exchanged for the access token.
+* `OAUTH_REDIRECT_DOMAIN` is the base domain that is to be used in the
+  uri redirection from the OAUTH provider back to the front pages server
+* `OAUTH_LOGOFF_URL` is the URI to which the end user should be sent to
+  disconnect her.
+
+## Pages
+
+1. An event management section, that a user can visit to see the events
+   she organised, and those she RSVPed to. Events she organised may be
+   modified through this section
+2. A support group management section that allows the user to see the
+   list of groups she is part of, and to modify those of which she is a
+   group manager.

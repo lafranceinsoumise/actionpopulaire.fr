@@ -23,6 +23,9 @@ class PersonAdmin(admin.ModelAdmin):
         }),
         (_('Role correspondant'), {
             'fields': ('role_link',)
+        }),
+        (_('Meta'), {
+            'fields': ('meta',)
         })
     )
 
