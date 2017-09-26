@@ -9,7 +9,6 @@ from django.shortcuts import reverse
 from celery import shared_task
 
 from lib.mails import send_mosaico_email
-from front import urls as front_urls
 
 from .models import Event, RSVP
 
@@ -43,7 +42,7 @@ def send_event_changed_notification(event_pk, changes):
         "EVENT_NAME": event.changes,
         "EVENT_CHANGES": change_fragment,
         "EVENT_LINK": "#",
-        "EVENT_QUIT_LINK": urljoin(settings.FRONT_DOMAIN, reverse("quit_event", urlconf=front_urls))
+        "EVENT_QUIT_LINK": urljoin(settings.FRONT_DOMAIN, reverse("quit_event", urlconf="front.urls"))
     }
 
     recipients = [attendee.email for attendee in attendees]
@@ -76,7 +75,7 @@ def send_rsvp_notification(rsvp_pk):
         "PERSON_INFORMATION": person_information,
         "MANAGE_EVENT_LINK": urljoin(
             settings.FRONT_DOMAIN,
-            reverse("manage_event", kwargs={"pk": rsvp.event.pk}, urlconf=front_urls)
+            reverse("manage_event", kwargs={"pk": rsvp.event.pk}, urlconf="front.urls")
         )
     }
 

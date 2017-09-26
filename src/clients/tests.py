@@ -20,7 +20,7 @@ from . import models, authentication, tokens, scopes
 from .viewsets import LegacyClientViewSet
 
 from people.models import Person
-from events.models import Event, Calendar
+from events.models import Event, Calendar, OrganizerConfig
 from authentication.models import Role
 
 
@@ -122,7 +122,11 @@ class ScopeTestCase(APITestCase):
             end_time=timezone.now() + timezone.timedelta(hours=4),
             calendar=self.calendar
         )
-        self.event.organizers.add(self.person)
+
+        OrganizerConfig.objects.create(
+            event=self.event,
+            person=self.person
+        )
 
         self.api_client = models.Client.objects.create_client('client', scopes=scopes.scopes_names)
         self.redis_instance = StrictRedis()

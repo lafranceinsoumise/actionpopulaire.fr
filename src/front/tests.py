@@ -205,6 +205,7 @@ class EventPageTestCase(TestCase):
                 'location_city': 'rainbow',
                 'location_country': 'FR',
                 'description': 'New description',
+                'notify': 'on',
             }
         )
 
@@ -292,7 +293,8 @@ class GroupPageTestCase(TestCase):
                 'location_name': 'location',
                 'location_address1': 'somewhere',
                 'location_city': 'Over',
-                'location_country': 'DE'
+                'location_country': 'DE',
+                'notify': 'on',
             }
         )
 

@@ -184,19 +184,19 @@ class ModifySupportGroupView(LoginRequiredMixin, PermissionsRequiredMixin, Updat
 
     def form_valid(self, form):
         # create set so that values are unique, but turns to list because set are not JSON-serializable
-        changes = list({self.CHANGES[field] for field in form.changed_data if field})
+        changes = list({self.CHANGES[field] for field in form.changed_data if field in self.CHANGES})
 
         # first get response to make sure there's no error when saving the model before adding message
         res = super().form_valid(form)
 
         if changes and form.cleaned_data['notify']:
-            messages.add_message(
-                request=self.request,
-                level=messages.SUCCESS,
-                message="Les modifications du groupe <em>%s</em> ont été enregistrées." % self.object.name,
-            )
-
             send_support_group_changed_notification.delay(form.instance.pk, changes)
+
+        messages.add_message(
+            request=self.request,
+            level=messages.SUCCESS,
+            message="Les modifications du groupe <em>%s</em> ont été enregistrées." % self.object.name,
+        )
 
         return res
 

@@ -1,4 +1,5 @@
 from django.db.models import Q, Sum, F
+from django.db import transaction
 from django.utils import timezone
 from django.views.decorators.cache import cache_control
 from rest_framework.viewsets import ModelViewSet
@@ -60,11 +61,13 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
 
         return queryset
 
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-        models.Event.objects.get(pk=response.data['_id']).organizers.add(request.user.person)
-
-        return response
+    def perform_create(self, serializer):
+        with transaction.atomic():
+            event = serializer.save()
+            models.OrganizerConfig.objects.create(
+                event=event,
+                person=self.request.user.person
+            )
 
     @list_route(methods=['GET'])
     @cache_control(max_age=60, public=True)
