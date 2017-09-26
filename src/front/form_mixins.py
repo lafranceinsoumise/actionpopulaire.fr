@@ -28,6 +28,15 @@ class TagMixin:
         super()._save_m2m()
 
         tags = self.tag_model_class.objects.filter(label__in=[tag for tag, _ in self.tags])
+        tags_to_create = [self.tag_model_class(label=tag_label)
+                          for tag_label, _ in self.tags
+                          if tag_label not in {tag.label for tag in tags}]
+
+        if tags_to_create:
+            # PostgreSQL only will set the id on original objects
+            self.tag_model_class.bulk_create(tags_to_create)
+
+        tags += tags_to_create
 
         tags_in = set(tag for tag in tags if self.cleaned_data[tag.label])
         tags_out = set(tag for tag in tags if not self.cleaned_data[tag.label])

@@ -104,19 +104,3 @@ action_tags = {
         )
     ]
 }
-
-
-def ensure_tag_exist(tag, description):
-    PersonTag.objects.update_or_create(
-        label=tag,
-        defaults={"description": description}
-    )
-
-
-# Ensure these tags exist and are up to date on startup
-for tag, description in skills_tags:
-    ensure_tag_exist(tag, description)
-
-for tags in action_tags.values():
-    for tag, title, description in tags:
-        ensure_tag_exist(tag, f"{title} - {description}")
