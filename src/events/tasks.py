@@ -9,7 +9,7 @@ from django.shortcuts import reverse
 from celery import shared_task
 
 from lib.mails import send_mosaico_email
-import front.urls as front_urls
+from front import urls as front_urls
 
 from .models import Event, RSVP
 
