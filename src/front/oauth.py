@@ -15,7 +15,7 @@ class OauthRedirectView(RedirectView):
         client = OAuth2Session(
             client_id=settings.OAUTH['client_id'],
             redirect_uri=settings.OAUTH['redirect_domain'] + reverse('oauth_return_view'),
-            scope=['get_profile'],
+            scope=['view_profile'],
         )
 
         # extract next url
@@ -46,7 +46,7 @@ class OauthReturnView(RedirectView):
         client = OAuth2Session(
             client_id=settings.OAUTH['client_id'],
             redirect_uri=settings.OAUTH['redirect_domain'] + reverse('oauth_return_view'),
-            scope=['get_profile'],
+            scope=['view_profile'],
             state=state_nonce,
         )
 
