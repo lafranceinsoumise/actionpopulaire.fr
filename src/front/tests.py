@@ -77,6 +77,14 @@ class PagesLoadingTestCase(TestCase):
         response = self.client.get('/groupes/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_see_event_details(self):
+        response = self.client.get('/evenements/' + str(self.event.id) + '/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_see_group_details(self):
+        response = self.client.get('/groupes/' + str(self.group.id) + '/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_see_create_event(self):
         response = self.client.get('/evenements/creer/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
