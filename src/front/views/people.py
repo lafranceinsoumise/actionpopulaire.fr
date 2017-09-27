@@ -3,34 +3,30 @@ from random import choice
 from django.views.generic import CreateView, UpdateView, TemplateView
 from django.views.generic.edit import ModelFormMixin
 from django.core.urlresolvers import reverse_lazy
-from django.utils.translation import ugettext_lazy as _, string_concat
 from django.db import transaction
 
 from people.models import Person
 
-from ..view_mixins import SuccessMessageView, LoginRequiredMixin
+from ..view_mixins import LoginRequiredMixin
 from ..forms import SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm, EmailFormSet, VolunteerForm
 
 __all__ = ["SubscriptionSuccessView", "SimpleSubscriptionView", "OverseasSubscriptionView", "ChangeProfileView",
            "ChangeProfileConfirmationView", "VolunteerView", "VolunteerConfirmationView"]
 
 
-class SubscriptionSuccessView(SuccessMessageView):
-    title = "Merci de votre appui"
-    message = """
-    Votre soutien est bien enregistré. Vous serez tenu au courant de l'actualité du mouvement.
-    """
+class SubscriptionSuccessView(TemplateView):
+    template_name = "front/people/confirmation_subscription.html"
 
 
 class SimpleSubscriptionView(CreateView):
-    template_name = "front/simple_subscription.html"
+    template_name = "front/people/simple_subscription.html"
     success_url = reverse_lazy('subscription_success')
     model = Person
     form_class = SimpleSubscriptionForm
 
 
 class OverseasSubscriptionView(CreateView):
-    template_name = "front/overseas_subscription.html"
+    template_name = "front/people/overseas_subscription.html"
     success_url = reverse_lazy('subscription_success')
     model = Person
     form_class = OverseasSubscriptionForm
