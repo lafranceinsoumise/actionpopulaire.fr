@@ -246,6 +246,15 @@ class LegacyPersonEndpointPermissionsTestCase(APITestCase):
         self.assertEqual(new_person.first_name, 'Jean-Luc')
         self.assertEqual(new_person.last_name, 'Mélenchon')
 
+    def test_cannot_post_new_person_with_existing_email(self):
+        request = self.factory.post('', data={
+            'email': self.basic_person.email
+        })
+        force_authenticate(request, self.adder_person.role)
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+
     def test_can_update_email_list(self):
         """
         We test at the same time that we can replace the list,

@@ -1,6 +1,7 @@
 import uuid
 from django.db import transaction
 from django.db.utils import IntegrityError
+from django.contrib.auth.base_user import BaseUserManager
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -81,6 +82,17 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         super().__init__(*args, **kwargs)
         if not isinstance(self, LegacyUnprivilegedPersonSerializer):
             self.fields['emails'] = PersonEmailSerializer(required=False, many=True, context=self.context)
+
+    def validate_email(self, value):
+        try:
+            queryset = models.PersonEmail.objects.all()
+            if self.instance is not None:
+                queryset = queryset.exclude(person=self.instance)
+            queryset.get(address=BaseUserManager.normalize_email(value))
+        except models.PersonEmail.DoesNotExist:
+            return value
+
+        raise serializers.ValidationError('Email already exists', code='unique')
 
     def update(self, instance, validated_data):
         emails = validated_data.pop('emails', None)
