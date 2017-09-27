@@ -64,10 +64,12 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     def perform_create(self, serializer):
         with transaction.atomic():
             event = serializer.save()
-            models.OrganizerConfig.objects.create(
-                event=event,
-                person=self.request.user.person
-            )
+
+            if self.request.user.type == Role.PERSON_ROLE:
+                models.OrganizerConfig.objects.create(
+                    event=event,
+                    person=self.request.user.person
+                )
 
     @list_route(methods=['GET'])
     @cache_control(max_age=60, public=True)

@@ -57,6 +57,9 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
         verbose_name_plural = _('événements')
         ordering = ('-start_time', '-end_time')
         permissions = (
+            # DEPRECIATED: every_event was set up as a potential solution to Rest Framework django permissions
+            # Permission class default behaviour of requiring both global permissions and object permissions before
+            # allowing users. Was not used in the end.s
             ('every_event', _('Peut éditer tous les événements')),
             ('view_hidden_event', _('Peut voir les événements non publiés')),
         )

@@ -1,5 +1,5 @@
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import serializers, exceptions
+from rest_framework import serializers, exceptions, validators
 from rest_framework.fields import empty
 from django_countries.serializer_fields import CountryField
 
@@ -65,6 +65,13 @@ class LegacyBaseAPISerializer(serializers.ModelSerializer):
         read_only=True,
         help_text=_('Date de mise à jour de la ressource')
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['_id'].validators.append(validators.UniqueValidator(queryset=self.Meta.model.objects.all()))
+        if 'id' in self.fields:
+            self.fields['id'].validators.append(validators.UniqueValidator(queryset=self.Meta.model.objects.all()))
 
 
 class RelatedLabelField(serializers.SlugRelatedField):

@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 from django.utils.http import urlquote_plus
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.geos import Point
 from django.core import mail
@@ -17,6 +17,7 @@ from rest_framework import status
 from . import tasks
 from .models import Event, Calendar, RSVP, OrganizerConfig
 from people.models import Person
+from clients.models import Client
 from .viewsets import LegacyEventViewSet, RSVPViewSet, NestedRSVPViewSet
 
 
@@ -134,7 +135,8 @@ class LegacyEventViewSetTestCase(TestCase):
             name='event',
             start_time=timezone.now(),
             end_time=timezone.now() + timezone.timedelta(hours=4),
-            calendar=self.calendar
+            calendar=self.calendar,
+            nb_id=1
         )
 
         self.unprivileged_person = Person.objects.create_person(
@@ -328,6 +330,15 @@ class LegacyEventViewSetTestCase(TestCase):
         self.event.refresh_from_db()
 
         self.assertEqual(self.event.description, 'Plus mieux!')
+
+    def test_cannot_create_event_with_same_nb_id(self):
+        self.client.force_login(self.unprivileged_person.role)
+        response = self.client.post('/legacy/events/', data={
+            **self.new_event_data,
+            'id': self.event.nb_id
+        })
+
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 class FiltersTestCase(APITestCase):
@@ -845,3 +856,43 @@ class EventTasksTestCase(TestCase):
             self.assert_(str(tasks.CHANGE_DESCRIPTION['information']) in message.body)
             self.assert_(str(tasks.CHANGE_DESCRIPTION['timing']) in message.body)
             self.assert_(str(tasks.CHANGE_DESCRIPTION['contact']) not in message.body)
+
+
+class EventWorkerTestCase(TestCase):
+    def setUp(self):
+        self.worker = Client.objects.create_client(
+            'worker'
+        )
+
+        self.worker.role.groups.add(Group.objects.get(name='workers'))
+
+        self.calendar = Calendar.objects.create(label='calendar')
+
+        self.unpublished_event = Event.objects.create(
+            name='event',
+            start_time=timezone.now() + timezone.timedelta(hours=2),
+            end_time=timezone.now() + timezone.timedelta(hours=4),
+            calendar=self.calendar,
+            published=False
+        )
+
+        self.past_event = Event.objects.create(
+            name='event',
+            start_time=timezone.now() + timezone.timedelta(days=-2),
+            end_time=timezone.now() + timezone.timedelta(days=-2, hours=4),
+            calendar=self.calendar,
+        )
+
+        self.client.force_login(self.worker.role)
+
+    def test_worker_can_get_unpublished_event(self):
+        response = self.client.get('/legacy/events/{}/'.format(self.unpublished_event.pk))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['_id'], str(self.unpublished_event.pk))
+
+    def test_worker_can_get_past_event(self):
+        response = self.client.get('/legacy/events/{}/'.format(self.past_event.pk))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['_id'], str(self.past_event.pk))
