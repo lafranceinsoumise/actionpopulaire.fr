@@ -298,13 +298,6 @@ CELERY_BROKER_URL = os.environ.get('BROKER_URL', 'redis://')
 # make sure celery does not mess with the root logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 
-# Front end configuration
-FRONT_OAUTH_CLIENT = 'api_front'
-FRONT_OAUTH_SECRET = 'incredible password'
-FRONT_OAUTH_AUTH_URL = 'http://localhost:4002/autoriser'
-FRONT_OAUTH_TOKEN_URL = 'http://localhost:4002/token'
-FRONT_OAUTH_REDIRECT_BASE_URL = 'http://localhost:8000'
-
 OAUTH = {
     'client_id': os.environ.get('OAUTH_CLIENT_ID', 'api_front'),
     'client_secret': os.environ.get('OAUTH_CLIENT_SECRET', 'incredible password'),
