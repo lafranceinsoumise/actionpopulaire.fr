@@ -28,3 +28,5 @@ groups_route.register('memberships', groups_viewsets.NestedMembershipViewSet, ba
 legacy_api.register('clients', clients_viewsets.LegacyClientViewSet)
 legacy_api.register('scopes', clients_viewsets.ScopeViewSet, base_name='scopes')
 legacy_api.register('authorizations', clients_viewsets.AuthorizationViewSet)
+
+urlpatterns = legacy_api.urls

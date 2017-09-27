@@ -141,6 +141,13 @@ class AuthorizationTestCase(TestCase):
         response = self.client.post('/groupes/%s/modifier/' % self.group.pk)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_oauth_backend(self):
+        from .backend import OAuth2Backend
+        backend = OAuth2Backend()
+        profile_url = reverse('legacy:person-detail', kwargs={'pk': self.person.pk})
+
+        self.assertEqual(self.person.role, backend.authenticate(profile_url=profile_url))
+
 
 class EventPageTestCase(TestCase):
     def setUp(self):

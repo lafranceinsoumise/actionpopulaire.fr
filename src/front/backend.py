@@ -7,11 +7,11 @@ from authentication.models import Role
 class OAuth2Backend(object):
     def authenticate(self, profile_url=None):
         if profile_url:
-            path = urlparse(profile_url).path
+            path = urlparse(profile_url).path.replace('/legacy', '')
 
-            match = resolve(path)
+            match = resolve(path, urlconf='api.routers')
 
-            if match.view_name == 'legacy:person-detail':
+            if match.view_name == 'person-detail':
                 person_id = match.kwargs['pk']
                 person = Person.objects.select_related('role').get(pk=person_id)
 
