@@ -35,7 +35,7 @@ class OauthRedirectView(RedirectView):
 
 class OauthReturnView(RedirectView):
     http_method_names = ['get']
-    default_url = reverse_lazy('login_success')
+    default_url = reverse_lazy('change_profile')
 
     def get(self, request, *args, **kwargs):
         state_nonce = request.session.get('oauth2_nonce', None)
