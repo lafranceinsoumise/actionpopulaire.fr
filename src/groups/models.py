@@ -51,7 +51,7 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, Contac
         indexes = (
             models.Index(fields=['nb_path'], name='nb_path_index'),
         )
-        ordering = ('-created', )
+        ordering = ('-created',)
         permissions = (
             ('view_hidden_supportgroup', _('Peut afficher les groupes non publiés')),
         )
@@ -87,6 +87,11 @@ class Membership(TimeStampedModel):
 
     is_referent = models.BooleanField(_('membre référent'), default=False)
     is_manager = models.BooleanField(_('gestionnaire'), default=False)
+
+    notifications_enabled = models.BooleanField(
+        _('Recevoir les notifications de ce groupe'), default=True,
+        help_text=_("Je recevrai des messages en cas de modification du groupe.")
+    )
 
     class Meta:
         verbose_name = _('adhésion')

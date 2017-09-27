@@ -84,6 +84,15 @@ class LocationMixin(models.Model):
 
         return mark_safe('<br/>'.join(escape(line) for line in res))
 
+    @property
+    def short_address(self):
+        attrs = ['location_address1', 'location_address2', 'location_zip', 'location_city']
+
+        if self.location_country != 'FR':
+            attrs.extend(['location_state', 'location_country'])
+
+        return ', '.join(getattr(self, attr) for attr in attrs if getattr(self, attr))
+
     class Meta:
         abstract = True
 

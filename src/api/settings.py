@@ -144,12 +144,18 @@ EMAIL_USE_SSL = email_config['EMAIL_USE_SSL']
 
 # fixed for now ==> maybe more flexible?
 EMAIL_TEMPLATES = {
-    # WELCOME_MAIL variables:
-    "WELCOME_MAIL": "https://mosaico.jlm2017.fr/emails/ac205f71-61a3-465b-8161-cec5729ecdbb.html",
-    # EVENT_CHANGED variables: EVENT_NAME, EVENT_CHANGES, EVENT_LINK, EVENT_QUIT_LINK
-    "EVENT_CHANGED": "https://mosaico.jlm2017.fr/emails/f8dfc882-4e7e-4ff2-bd8c-473fd41e54bf.html",
+    # WELCOME_MESSAGE variables:
+    "WELCOME_MESSAGE": "https://mosaico.jlm2017.fr/emails/ac205f71-61a3-465b-8161-cec5729ecdbb.html",
+    # GROUP_CREATION variables: [GROUP_NAME], [CONTACT_{NAME,EMAIL,PHONE,PHONE_VISIBILITY], [LOCATION_{NAME,LOCATION}], [GROUP_LINK], [MANAGE_GROUP_LINK]
+    "GROUP_CREATION": "https://mosaico.jlm2017.fr/emails/bc07d593-ff8f-470e-a8cb-9ba679fc5f59.html",
     # GROUP_CHANGED variables: GROUP_NAME, GROUP_CHANGES, GROUP_LINK
     "GROUP_CHANGED": "https://mosaico.jlm2017.fr/emails/3724b7ba-2a48-4954-9496-fc4c970a56b8.html",
+    # GROUP_SOMEONE_JOINED_NOTIFICATION variables: GROUP_NAME, PERSON_INFORMATION, MANAGE_GROUP_LINK
+    'GROUP_SOMEONE_JOINED_NOTIFICATION': "https://mosaico.jlm2017.fr/emails/e25c5123-6a7d-428f-89c6-3ddca4a65096.html",
+    # EVENT_CREATION variables: [EVENT_NAME], [CONTACT_{NAME,EMAIL,PHONE,PHONE_VISIBILITY], [LOCATION_{NAME,LOCATION}], [EVENT_LINK], [MANAGE_EVENT_LINK]
+    'EVENT_CREATION': "https://mosaico.jlm2017.fr/emails/f44ff2c1-1050-41c4-8973-15573eba2741.html",
+    # EVENT_CHANGED variables: EVENT_NAME, EVENT_CHANGES, EVENT_LINK, EVENT_QUIT_LINK
+    "EVENT_CHANGED": "https://mosaico.jlm2017.fr/emails/f8dfc882-4e7e-4ff2-bd8c-473fd41e54bf.html",
     # EVENT_RSVP_NOTIFICATION variables EVENT_NAME, PERSON_INFORMATION, MANAGE_EVENT_LINK
     "EVENT_RSVP_NOTIFICATION": "https://mosaico.jlm2017.fr/emails/6f2eb6f0-cf59-4e2e-ab62-a8d204c6166b.html",
     # EVENT_CANCELLATION variables: EVENT_NAME
@@ -297,6 +303,9 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CELERY_BROKER_URL = os.environ.get('BROKER_URL', 'redis://')
 # make sure celery does not mess with the root logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+
+# App domain to which users may be redirected to see groups and events
+APP_DOMAIN = os.environ.get('APP_DOMAIN', 'https://app.lafranceinsoumise.fr')
 
 OAUTH = {
     'client_id': os.environ.get('OAUTH_CLIENT_ID', 'api_front'),

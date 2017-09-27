@@ -119,6 +119,8 @@ class RSVP(TimeStampedModel):
 
     canceled = models.BooleanField(_('Annulé'), default=False)
 
+    notifications_enabled = models.BooleanField(_('Recevoir les notifications'), default=True)
+
     class Meta:
         verbose_name = 'RSVP'
         verbose_name_plural = 'RSVP'
@@ -137,5 +139,6 @@ class OrganizerConfig(models.Model):
     person = models.ForeignKey('people.Person', related_name='organizer_configs', on_delete=models.CASCADE, editable=False)
     event = models.ForeignKey('Event', related_name='organizer_configs', on_delete=models.CASCADE, editable=False)
 
-    send_notifications = models.BooleanField(_('Recevoir les notifications'), default=True)
     is_creator = models.BooleanField(_("Créateur de l'événement"), default=False)
+
+    notifications_enabled = models.BooleanField(_('Recevoir les notifications'), default=True)

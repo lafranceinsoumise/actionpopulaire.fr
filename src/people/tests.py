@@ -5,14 +5,16 @@ from django.utils import timezone
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from django.core import mail
+
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
 
 from authentication.models import Role
-from clients.models import Client
 from .models import Person, PersonTag
 from .viewsets import LegacyPersonViewSet
+from . import tasks
 
 from events.models import Event, RSVP, Calendar
 from groups.models import SupportGroup, Membership
@@ -497,3 +499,14 @@ class LegacyEndpointLookupFilterTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['_items']), 1)
+
+
+class PeopleTasksTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person('me@me.org')
+
+    def test_welcome_mail(self):
+        tasks.send_welcome_mail(self.person.pk)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].recipients(), [self.person.email])

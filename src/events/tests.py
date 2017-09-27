@@ -7,11 +7,14 @@ from django.utils.http import urlquote_plus
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.geos import Point
+from django.core import mail
+from django.shortcuts import reverse as dj_reverse
 
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework.reverse import reverse
 from rest_framework import status
 
+from . import tasks
 from .models import Event, Calendar, RSVP, OrganizerConfig
 from people.models import Person
 from .viewsets import LegacyEventViewSet, RSVPViewSet, NestedRSVPViewSet
@@ -427,7 +430,8 @@ class FiltersTestCase(APITestCase):
         self.assertEqual(len(response.data['_items']), 3)
         self.assertEqual(
             [item['_id'] for item in response.data['_items']],
-            [str(self.paris_1_month_event.id), str(self.amiens_2_months_event.id), str(self.marseille_3_months_event.id)]
+            [str(self.paris_1_month_event.id), str(self.amiens_2_months_event.id),
+             str(self.marseille_3_months_event.id)]
         )
 
     def test_can_directly_retrieve_past_event(self):
@@ -453,7 +457,8 @@ class FiltersTestCase(APITestCase):
 
     def test_can_filter_by_date_before(self):
         response = self.client.get(
-            '/legacy/events/?before=%s' % urlquote_plus((timezone.now() + timezone.timedelta(weeks=4, hours=1)).isoformat())
+            '/legacy/events/?before=%s' % urlquote_plus(
+                (timezone.now() + timezone.timedelta(weeks=4, hours=1)).isoformat())
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -745,3 +750,98 @@ class EventRSVPEndpointTestCase(TestCase):
 
         self.assertEqual(len(qs), 2)
         self.assertCountEqual([rsvp.person_id for rsvp in qs], [self.unprivileged_person.id, self.privileged_user.id])
+
+
+class EventTasksTestCase(TestCase):
+    def setUp(self):
+        now = timezone.now()
+
+        self.calendar = Calendar.objects.create(label='default')
+
+        self.creator = Person.objects.create_person("moi@moi.fr")
+        self.event = Event.objects.create(
+            name="Mon événement",
+            start_time=now + timezone.timedelta(hours=2),
+            end_time=now + timezone.timedelta(hours=3),
+            calendar=self.calendar,
+            contact_name="Moi",
+            contact_email="monevenement@moi.fr",
+            contact_phone="06 06 06 06 06",
+            contact_hide_phone=False,
+            location_name="ma maison",
+            location_address1="Place denfert-rochereau",
+            location_zip="75014",
+            location_city="Paris",
+            location_country="FR"
+        )
+
+        self.organizer_config = OrganizerConfig.objects.create(
+            person=self.creator, event=self.event
+        )
+
+        self.attendee1 = Person.objects.create_person('person1@participants.fr')
+        self.attendee2 = Person.objects.create_person('person2@participants.fr')
+        self.attendee_no_notification = Person.objects.create_person('person3@participants.fr')
+
+        self.rsvp1 = RSVP.objects.create(event=self.event, person=self.attendee1)
+        self.rsvp2 = RSVP.objects.create(event=self.event, person=self.attendee2)
+        self.rsvp3 = RSVP.objects.create(
+            event=self.event,
+            person=self.attendee_no_notification,
+            notifications_enabled=False
+        )
+
+    def test_event_creation_mail(self):
+        tasks.send_event_creation_notification(self.organizer_config.pk)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        message = mail.outbox[0]
+        self.assertEqual(message.recipients(), ["moi@moi.fr"])
+
+        text = message.body
+
+        for item in ['name', 'location_name', 'short_address', 'contact_name', 'contact_phone']:
+            self.assert_(getattr(self.event, item) in text, "{} missing in message".format(item))
+
+    def test_rsvp_notification_mail(self):
+        tasks.send_rsvp_notification(self.rsvp1.pk)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        message = mail.outbox[0]
+        self.assertEqual(message.recipients(), ["moi@moi.fr"])
+
+        text = message.body
+
+        mail_content = {
+            'attendee information': str(self.attendee1),
+            'event name': self.event.name,
+            'event management link': dj_reverse('manage_event', kwargs={'pk': self.event.pk}, urlconf='front.urls')
+        }
+
+        for name, value in mail_content.items():
+            self.assert_(value in text, '{} missing from mail'.format(name))
+
+    def test_changed_event_notification_mail(self):
+        tasks.send_event_changed_notification(self.event.pk, ["information", "timing"])
+
+        self.assertEqual(len(mail.outbox), 2)
+
+        for message in mail.outbox:
+            self.assertEqual(len(message.recipients()), 1)
+
+        messages = {message.recipients()[0]: message for message in mail.outbox}
+
+        self.assertCountEqual(messages.keys(), [self.attendee1.email, self.attendee2.email])
+
+        for recipient, message in messages.items():
+            self.assert_(self.event.name in message.body, 'event name not in message')
+            self.assert_(
+                dj_reverse('quit_event', kwargs={'pk': self.event.pk}, urlconf='front.urls') in message.body,
+                'quit event link not in message'
+            )
+
+            self.assert_(str(tasks.CHANGE_DESCRIPTION['information']) in message.body)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION['timing']) in message.body)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION['contact']) not in message.body)

@@ -5,11 +5,14 @@ from django.utils import timezone
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.geos import Point
+from django.shortcuts import reverse as dj_reverse
+from django.core import mail
 
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
 
+from . import tasks
 from .models import SupportGroup, Membership
 from people.models import Person
 from .viewsets import LegacySupportGroupViewSet, MembershipViewSet, NestedMembershipViewSet
@@ -609,3 +612,98 @@ class GroupMembershipEndpointTestCase(TestCase):
         self.assertCountEqual([membership.person_id for membership in qs], [self.unprivileged_person.id, self.privileged_user.id])
         self.assertCountEqual([membership.is_manager for membership in qs], [False, True])
         self.assertCountEqual([membership.is_referent for membership in qs], [False, False])
+
+
+class EventTasksTestCase(TestCase):
+    def setUp(self):
+        now = timezone.now()
+
+        self.creator = Person.objects.create_person("moi@moi.fr")
+        self.group = SupportGroup.objects.create(
+            name="Mon événement",
+            contact_name="Moi",
+            contact_email="monevenement@moi.fr",
+            contact_phone="06 06 06 06 06",
+            contact_hide_phone=False,
+            location_name="ma maison",
+            location_address1="Place denfert-rochereau",
+            location_zip="75014",
+            location_city="Paris",
+            location_country="FR"
+        )
+
+        self.creator_membership = Membership.objects.create(
+            person=self.creator,
+            supportgroup=self.group,
+            is_referent=True,
+            is_manager=True
+        )
+
+        self.member1 = Person.objects.create_person('person1@participants.fr')
+        self.member2 = Person.objects.create_person('person2@participants.fr')
+        self.member_no_notification = Person.objects.create_person('person3@participants.fr')
+
+        self.membership1 = Membership.objects.create(supportgroup=self.group, person=self.member1)
+        self.membership2 = Membership.objects.create(supportgroup=self.group, person=self.member2)
+        self.membership3 = Membership.objects.create(
+            supportgroup=self.group,
+            person=self.member_no_notification,
+            notifications_enabled=False
+        )
+
+    def test_group_creation_mail(self):
+        tasks.send_support_group_creation_notification(self.creator_membership.pk)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        message = mail.outbox[0]
+        self.assertEqual(message.recipients(), ["moi@moi.fr"])
+
+        text = message.body
+
+        for item in ['name', 'location_name', 'short_address', 'contact_name', 'contact_phone']:
+            self.assert_(getattr(self.group, item) in text, "{} missing in message".format(item))
+
+    def test_someone_joined_notification_mail(self):
+        tasks.send_someone_joined_notification(self.membership1.pk)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        message = mail.outbox[0]
+        self.assertEqual(message.recipients(), ["moi@moi.fr"])
+
+        text = message.body
+
+        mail_content = {
+            'member information': str(self.member1),
+            'group name': self.group.name,
+            'group management link': dj_reverse('manage_group', kwargs={'pk': self.group.pk}, urlconf='front.urls')
+        }
+
+        for name, value in mail_content.items():
+            self.assert_(value in text, '{} missing from mail'.format(name))
+
+    def test_changed_group_notification_mail(self):
+        tasks.send_support_group_changed_notification(self.group.pk, ["information", "contact"])
+
+        self.assertEqual(len(mail.outbox), 3)
+
+        for message in mail.outbox:
+            self.assertEqual(len(message.recipients()), 1)
+
+        messages = {message.recipients()[0]: message for message in mail.outbox}
+
+        self.assertCountEqual(messages.keys(), [self.creator.email, self.member1.email, self.member2.email])
+
+        for recipient, message in messages.items():
+            self.assert_(self.group.name in message.body, 'group name not in message')
+            # self.assert_(
+            #     dj_reverse('quit_group', kwargs={'pk': self.group.pk}, urlconf='front.urls') in message.body,
+            #     'quit group link not in message'
+            # )
+            self.assert_('/groupes/details/{}'.format(self.group.pk), 'group link not in message')
+
+            self.assert_(str(tasks.CHANGE_DESCRIPTION['information']) in message.body)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION['contact']) in message.body)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION['location']) not in message.body)
+

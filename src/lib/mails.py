@@ -73,14 +73,14 @@ def send_mosaico_email(code, subject, from_email, recipients, bindings=None, con
         connection = get_connection(backend, fail_silently)
 
     for recipient in recipients:
-        html_message = fetch_mosaico_message(code, recipient, **bindings)
+        html_message = fetch_mosaico_message(code, recipient, bindings)
         text_message = generate_plain_text(html_message)
 
         email = EmailMultiAlternatives(
             subject=subject,
             body=text_message,
             from_email=from_email,
-            to=recipient,
+            to=[recipient],
             connection=connection
         )
         email.attach_alternative(html_message, "text/html")
