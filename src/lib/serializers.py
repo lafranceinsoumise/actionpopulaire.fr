@@ -69,7 +69,6 @@ class LegacyBaseAPISerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['_id'].validators.append(validators.UniqueValidator(queryset=self.Meta.model.objects.all()))
         if 'id' in self.fields:
             self.fields['id'].validators.append(validators.UniqueValidator(queryset=self.Meta.model.objects.all()))
 
