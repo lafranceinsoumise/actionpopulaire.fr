@@ -53,7 +53,7 @@ class SupportGroupListView(LoginRequiredMixin, ListView):
 
 
 class SupportGroupDetailView(DetailView):
-    template_name = "front/events/detail.html"
+    template_name = "front/groups/detail.html"
     queryset = SupportGroup.objects.all()
 
 
