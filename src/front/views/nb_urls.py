@@ -24,6 +24,7 @@ class NBUrlsView(View):
         '/donner': 'https://lafranceinsoumise.fr/',
         '/groupes_appui': 'https://lafranceinsoumise.fr/carte',
         '/groupes_d_appui': 'https://lafranceinsoumise.fr/carte',
+        '/groupes_proches': 'https://lafranceinsoumise.fr/carte',
         '/groupes_appui_redirige': 'https://lafranceinsoumise.fr/carte',
         '/evenements_locaux_redirige': 'https://lafranceinsoumise.fr/carte',
         '/evenements_locaux': 'https://lafranceinsoumise.fr/carte',
