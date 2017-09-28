@@ -366,6 +366,39 @@ class EventPermissionsTestCase(TestCase):
         self.assertIn(self.person, self.other_event.attendees.all())
         self.assertIn('Je suis déjà inscrit⋅e à cet événement', response.content.decode())
 
+    @mock.patch("front.views.events.send_event_creation_notification")
+    def test_can_create_new_event(self, patched_send_event_creation_notification):
+        self.client.force_login(self.person.role)
+
+        # get create page
+        response = self.client.get(reverse('create_event'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # post create page
+        response = self.client.post(reverse('create_event'), data={
+            'name': 'New Name',
+            'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
+            'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
+            'contact_name': 'Arthur',
+            'contact_email': 'a@ziefzji.fr',
+            'contact_phone': '06 06 06 06 06',
+            'location_name': 'somewhere',
+            'location_address1': 'over',
+            'location_zip': 'the',
+            'location_city': 'rainbow',
+            'location_country': 'FR',
+            'description': 'New description',
+        })
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+        try:
+            organizer_config = self.person.organizer_configs.exclude(event=self.organized_event).get()
+        except (OrganizerConfig.DoesNotExist, OrganizerConfig.MultipleObjectsReturned):
+            self.fail('Should have created one organizer config')
+
+        patched_send_event_creation_notification.delay.assert_called_once()
+        self.assertEqual(patched_send_event_creation_notification.delay.call_args[0], (organizer_config.pk,))
+
 
 class GroupPageTestCase(TestCase):
     def setUp(self):
@@ -477,3 +510,33 @@ class GroupPageTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.other_person, self.manager_group.members.all())
         self.assertIn('Je suis membre de ce groupe', response.content.decode())
+
+    @mock.patch('front.views.groups.send_support_group_creation_notification')
+    def test_can_create_group(self, patched_send_support_group_creation_notification):
+        self.client.force_login(self.person.role)
+
+        # get create page
+        response = self.client.get(reverse('create_group'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.post(reverse('create_group'), data={
+            'name': 'New name',
+            'contact_name': 'Arthur',
+            'contact_email': 'a@fhezfe.fr',
+            'contact_phone': '06 06 06 06 06',
+            'location_name': 'location',
+            'location_address1': 'somewhere',
+            'location_city': 'Over',
+            'location_country': 'DE',
+            'notify': 'on',
+        })
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+        try:
+            membership = self.person.memberships.filter(is_referent=True).exclude(supportgroup=self.referent_group).get()
+        except (Membership.DoesNotExist, Membership.MultipleObjectsReturned):
+            self.fail('Should have created one membership')
+
+        patched_send_support_group_creation_notification.delay.assert_called_once()
+        self.assertEqual(patched_send_support_group_creation_notification.delay.call_args[0], (membership.pk,))

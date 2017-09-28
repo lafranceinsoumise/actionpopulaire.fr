@@ -8,7 +8,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden, Ht
 from django.db import transaction
 
 from events.models import Event, Calendar, RSVP, OrganizerConfig
-from events.tasks import send_event_changed_notification, send_cancellation_notification
+from events.tasks import send_event_changed_notification, send_cancellation_notification, send_event_creation_notification
 
 from ..forms import EventForm, AddOrganizerForm
 from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin
@@ -146,7 +146,7 @@ class CreateEventView(LoginRequiredMixin, CreateView):
         with transaction.atomic():
             self.object = form.save()
 
-            OrganizerConfig.objects.create(
+            organizer_config = OrganizerConfig.objects.create(
                 person=self.request.user.person,
                 event=self.object
             )
@@ -156,6 +156,10 @@ class CreateEventView(LoginRequiredMixin, CreateView):
                 event=self.object,
             )
 
+        # send mail
+        send_event_creation_notification.delay(organizer_config.pk)
+
+        # show message
         messages.add_message(
             request=self.request,
             level=messages.SUCCESS,

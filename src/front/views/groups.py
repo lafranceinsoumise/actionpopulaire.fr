@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse_lazy, reverse
 from django.db import transaction
 
 from groups.models import SupportGroup, Membership
-from groups.tasks import send_support_group_changed_notification
+from groups.tasks import send_support_group_changed_notification, send_support_group_creation_notification
 
 from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm
 from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin
@@ -160,12 +160,14 @@ class CreateSupportGroupView(LoginRequiredMixin, CreateView):
         # first get response to make sure there's no error when saving the model before adding message
         with transaction.atomic():
             self.object = group = form.save()
-            Membership.objects.create(
+            membership = Membership.objects.create(
                 supportgroup=group,
                 person=self.request.user.person,
                 is_referent=True,
                 is_manager=True,
             )
+
+        send_support_group_creation_notification.delay(membership.pk)
 
         messages.add_message(
             request=self.request,
