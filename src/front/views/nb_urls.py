@@ -48,7 +48,10 @@ class NBUrlsView(View):
             pass
 
         try:
-            url = self.nb_paths[nb_path + '?' + request.META['QUERY_STRING']]
+            nb_url = nb_path
+            if request.META['QUERY_STRING']:
+                nb_url = nb_url + '?' + request.META['QUERY_STRING']
+            url = self.nb_paths[nb_url]
             return HttpResponsePermanentRedirect(url)
         except KeyError:
             pass
