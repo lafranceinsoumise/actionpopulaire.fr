@@ -30,7 +30,7 @@
     {% if event.description %}
         <div>
             <div class="intro">
-                {{ event.description }}
+                {{ event.description | striptags | escape | linebreaksbr  }}
             <hr />
         </div>
     {% endif %}
