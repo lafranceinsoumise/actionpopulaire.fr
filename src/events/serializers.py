@@ -2,7 +2,8 @@ from rest_framework import serializers, exceptions
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from lib.serializers import (
-    LegacyBaseAPISerializer, LegacyLocationAndContactMixin, RelatedLabelField, UpdatableListSerializer
+    LegacyBaseAPISerializer, LegacyLocationAndContactMixin, ExistingRelatedLabelField,
+    RelatedLabelField, UpdatableListSerializer
 )
 
 from people.models import Person, Role
@@ -11,7 +12,6 @@ from . import models
 
 
 class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMixin, serializers.HyperlinkedModelSerializer):
-    calendar = RelatedLabelField(queryset=models.Calendar.objects.all())
     path = serializers.CharField(source='nb_path', required=False)
     tags = RelatedLabelField(queryset=models.EventTag.objects.all(), many=True, required=False)
     is_organizer = serializers.SerializerMethodField()
@@ -23,6 +23,15 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
         write_only=True,
         required=False,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['calendar'] = ExistingRelatedLabelField(queryset=self.get_authorized_calendars_queryset())
+
+    def get_authorized_calendars_queryset(self):
+        if not self.context['request'].user.is_superuser:
+            return models.Calendar.objects.filter(user_contributed=True)
+        return models.Calendar.objects.all()
 
     def get_is_organizer(self, obj):
         if not (hasattr(self.context['request'].user, 'type') and self.context['request'].user.type == Role.PERSON_ROLE):

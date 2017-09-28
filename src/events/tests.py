@@ -129,7 +129,7 @@ class RSVPTestCase(TestCase):
 
 class LegacyEventViewSetTestCase(TestCase):
     def setUp(self):
-        self.calendar = Calendar.objects.create(label='calendar')
+        self.calendar = Calendar.objects.create(label='calendar', user_contributed=True)
 
         self.event = Event.objects.create(
             name='event',
@@ -274,7 +274,18 @@ class LegacyEventViewSetTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_can_create_event_whith_no_privilege(self):
+    def test_cannot_create_event_whith_no_privilege_if_not_user_contributed_calendar(self):
+        self.calendar.user_contributed = False
+        self.calendar.save()
+
+        request = self.factory.post('', data=self.new_event_data)
+        force_authenticate(request, self.unprivileged_person.role)
+
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    def test_can_create_event_whith_no_privilege_on_user_contributed_calendar(self):
         request = self.factory.post('', data=self.new_event_data)
         force_authenticate(request, self.unprivileged_person.role)
 
@@ -290,6 +301,19 @@ class LegacyEventViewSetTestCase(TestCase):
         self.assertEqual(len(events), 2)
         self.assertEqual(event.organizers.first(), self.unprivileged_person)
         self.assertIn(new_id, {str(e.id) for e in events})
+
+    def test_can_create_event_on_not_user_contributed_calendar_if_superuser(self):
+        self.unprivileged_person.role.is_superuser = True
+        superuser = self.unprivileged_person.role.save()
+        self.calendar.user_contributed = False
+        self.calendar.save()
+
+        request = self.factory.post('', data=self.new_event_data)
+        force_authenticate(request, self.unprivileged_person.role)
+
+        response = self.list_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_can_modify_event_with_global_perm(self):
         request = self.factory.patch('', data={

@@ -2,6 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers, exceptions, validators
 from rest_framework.fields import empty
 from django_countries.serializer_fields import CountryField
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class NullAsBlankMixin:
@@ -85,6 +86,17 @@ class RelatedLabelField(serializers.SlugRelatedField):
         try:
             return self.get_queryset().get_or_create(**{self.slug_field: data})[0]
         except (TypeError, ValueError):
+            self.fail('invalid')
+
+
+class ExistingRelatedLabelField(RelatedLabelField):
+    def __init__(self, slug_field=None, **kwargs):
+        super().__init__(slug_field, **kwargs)
+
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get(**{self.slug_field: data})
+        except (TypeError, ValueError, ObjectDoesNotExist):
             self.fail('invalid')
 
 

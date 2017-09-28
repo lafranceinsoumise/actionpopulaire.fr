@@ -115,6 +115,8 @@ class EventTag(AbstractLabel):
 
 
 class Calendar(NationBuilderResource, AbstractLabel):
+    user_contributed = models.BooleanField(_('Les utilisateurs peuvent ajouter des événements'), default=False)
+
     class Meta:
         verbose_name = 'agenda'
 
