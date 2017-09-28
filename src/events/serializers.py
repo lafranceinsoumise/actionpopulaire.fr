@@ -1,13 +1,13 @@
 from rest_framework import serializers, exceptions
+from django.db import transaction
 from django.utils.translation import ugettext as _
 from lib.serializers import (
     LegacyBaseAPISerializer, LegacyLocationAndContactMixin, RelatedLabelField, UpdatableListSerializer
 )
 
-from people.models import Person
+from people.models import Person, Role
 
 from . import models
-from people.models import Role
 
 
 class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMixin, serializers.HyperlinkedModelSerializer):
@@ -16,16 +16,38 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
     tags = RelatedLabelField(queryset=models.EventTag.objects.all(), many=True, required=False)
     is_organizer = serializers.SerializerMethodField()
 
+    organizers = serializers.HyperlinkedRelatedField(
+        view_name='legacy:person-detail',
+        many=True,
+        queryset=Person.objects.all(),
+        write_only=True,
+        required=False,
+    )
+
     def get_is_organizer(self, obj):
         if not (hasattr(self.context['request'].user, 'type') and self.context['request'].user.type == Role.PERSON_ROLE):
             return False
         return self.context['request'].user.person in obj.organizers.all()
 
+    def update(self, instance, validated_data):
+        organizers = validated_data.pop('organizers', None)
+        with transaction.atomic():
+            super().update(instance, validated_data)
+            if organizers is not None:
+                instance.organizers.clear()
+                for organizer in organizers:
+                    models.OrganizerConfig.objects.create(
+                        event=instance,
+                        person=organizer
+                    )
+
+        return instance
+
     class Meta:
         model = models.Event
         fields = (
             'url', '_id', 'id', 'name', 'description', 'path', 'start_time', 'end_time', 'calendar', 'contact',
-            'location', 'tags', 'coordinates', 'participants', 'is_organizer', 'published'
+            'location', 'tags', 'coordinates', 'participants', 'organizers', 'is_organizer', 'published'
         )
         extra_kwargs = {
             'url': {'view_name': 'legacy:event-detail'},

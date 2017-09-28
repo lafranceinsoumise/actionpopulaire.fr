@@ -71,6 +71,16 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
                     person=self.request.user.person
                 )
 
+    def perform_update(self, serializer):
+        with transaction.atomic():
+            event = serializer.save()
+
+            if self.request.user.type == Role.PERSON_ROLE and self.request.user.person not in event.organizers.all():
+                models.OrganizerConfig.objects.create(
+                    event=event,
+                    person=self.request.user.person
+                )
+
     @list_route(methods=['GET'])
     @cache_control(max_age=60, public=True)
     def summary(self, request, *args, **kwargs):

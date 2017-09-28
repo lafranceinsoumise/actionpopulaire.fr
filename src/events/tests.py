@@ -295,6 +295,9 @@ class LegacyEventViewSetTestCase(TestCase):
         request = self.factory.patch('', data={
             'description': 'Plus mieux!',
             'published': False,
+            'organizers': [
+                reverse('legacy:person-detail', kwargs={'pk': self.unprivileged_person.pk})
+            ]
         })
 
         force_authenticate(request, user=self.changer_person.role)
@@ -307,6 +310,10 @@ class LegacyEventViewSetTestCase(TestCase):
 
         self.assertEqual(self.event.description, 'Plus mieux!')
         self.assertEqual(self.event.published, False)
+        # When PATCHing through a client, the organizers should be repaced by
+        # the new list
+        self.assertIn(self.unprivileged_person, self.event.organizers.all())
+        self.assertNotIn(self.one_event_person, self.event.organizers.all())
 
     def test_field_is_organizer(self):
         request = self.factory.get('')
@@ -318,7 +325,10 @@ class LegacyEventViewSetTestCase(TestCase):
 
     def test_organizer_can_modify_event(self):
         request = self.factory.patch('', data={
-            'description': 'Plus mieux!'
+            'description': 'Plus mieux!',
+            'organizers': [
+                reverse('legacy:person-detail', kwargs={'pk': self.unprivileged_person.pk})
+            ]
         })
 
         force_authenticate(request, user=self.one_event_person.role)
@@ -329,7 +339,11 @@ class LegacyEventViewSetTestCase(TestCase):
 
         self.event.refresh_from_db()
 
+        # The organizer should be able to modify list of other organizer but not
+        # to remove themselves
         self.assertEqual(self.event.description, 'Plus mieux!')
+        self.assertIn(self.unprivileged_person, self.event.organizers.all())
+        self.assertIn(self.one_event_person, self.event.organizers.all())
 
     def test_cannot_create_event_with_same_nb_id(self):
         self.client.force_login(self.unprivileged_person.role)
