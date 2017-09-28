@@ -7,7 +7,7 @@
     {% for event in events %}
         <div>
             <strong>
-                {{ event.name }}
+                <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
                 <small>
                     &bull; <a href="{% url "manage_event" event.pk %}">Gestion</a>
                 </small>
@@ -23,7 +23,7 @@
     {% for rsvp in rsvps %}
         <div>
             <strong>
-                {{ rsvp.event.name }}
+                <a href="{% url "view_event" rsvp.event.pk %}">{{ rsvp.event.name }}</a>
                 <small>
                     &bull; <a href="{% url "quit_event" rsvp.event.pk %}">Annuler</a>
                 </small>

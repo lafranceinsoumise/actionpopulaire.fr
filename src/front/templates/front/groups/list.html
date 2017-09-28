@@ -7,7 +7,7 @@
     {% for membership in memberships %}
         <div>
             <strong>
-                {{ membership.supportgroup.name }}
+                <a href="{% url "view_group" membership.supportgroup.pk %}">{{ membership.supportgroup.name }}</a>
                 <small>
                     {% if membership.is_manager or membership.is_referent %}
                         &bull; <a href="{% url "manage_group" membership.supportgroup.pk %}">Gestion</a>
