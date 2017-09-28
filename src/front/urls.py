@@ -32,6 +32,9 @@ urlpatterns = [
 
     url('^groupes/retirer_gestionnaire/(?P<pk>[0-9a-f-]+)/$', views.RemoveManagerView.as_view(), name='remove_manager'),
 
+    # old urls
+    url('^old(.*)', views.NBUrlsView.as_view(), name='old_urls'),
+
     # authentication views
     url('^authentification/$', oauth.OauthRedirectView.as_view(), name='oauth_redirect_view'),
     url('^authentification/retour/$', oauth.OauthReturnView.as_view(), name='oauth_return_view'),

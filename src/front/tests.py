@@ -547,3 +547,47 @@ class GroupPageTestCase(TestCase):
 
         patched_geocode_support_group.delay.assert_called_once()
         self.assertEqual(patched_geocode_support_group.delay.call_args[0], (membership.supportgroup.pk,))
+
+
+class NBUrlsTestCase(TestCase):
+    def setUp(self):
+        calendar = Calendar.objects.create(label='default')
+        now = timezone.now()
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+        self.event = Event.objects.create(
+            name='Test',
+            nb_path='/pseudo/test',
+            start_time=now + 3 * day,
+            end_time=now + 3 * day + 4 * hour,
+            calendar=calendar
+        )
+
+        self.group = SupportGroup.objects.create(
+            name='Test',
+            nb_path='/12/grouptest'
+        )
+
+    def test_event_url_redirect(self):
+        response = self.client.get('/old/pseudo/test')
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.url, reverse('view_event', kwargs={'pk': self.event.id}))
+
+    def test_group_url_redirect(self):
+        response = self.client.get('/old/12/grouptest')
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.url, reverse('view_group', kwargs={'pk': self.group.id}))
+
+    def test_create_group_redirect(self):
+        # new event page
+        response = self.client.get('/old/users/event_pages/new?parent_id=103')
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.url, reverse('create_event'))
+
+    def test_unkown_gives_503(self):
+        response = self.client.get('/old/nimp')
+
+        self.assertEqual(response.status_code, 503)
