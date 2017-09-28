@@ -462,3 +462,18 @@ class GroupPageTestCase(TestCase):
         self.assertRedirects(response, reverse('list_groups'))
 
         self.assertFalse(self.member_group.memberships.filter(person=self.person).exists())
+
+    def test_can_join(self):
+        url = reverse('view_group', kwargs={'pk': self.manager_group.pk})
+        self.client.force_login(self.other_person.role)
+        response = self.client.get(url)
+        self.assertNotIn(self.other_person, self.manager_group.members.all())
+        self.assertIn('Rejoindre ce groupe', response.content.decode())
+
+        response = self.client.post(url, data={
+            'action': 'join'
+        }, follow=True)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(self.other_person, self.manager_group.members.all())
+        self.assertIn('Je suis membre de ce groupe', response.content.decode())

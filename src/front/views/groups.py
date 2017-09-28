@@ -1,4 +1,6 @@
 from django.utils.translation import ugettext as _, ugettext_lazy
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView, TemplateView
 from django.contrib import messages
 from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect
@@ -55,6 +57,22 @@ class SupportGroupListView(LoginRequiredMixin, ListView):
 class SupportGroupDetailView(DetailView):
     template_name = "front/groups/detail.html"
     queryset = SupportGroup.objects.all()
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            is_member=self.request.user.is_authenticated and self.object.memberships.filter(person=self.request.user.person).exists(),
+        )
+
+    @method_decorator(login_required(login_url=reverse_lazy('oauth_redirect_view')), )
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if request.POST['action'] == 'join':
+            if not self.object.memberships.filter(person=request.user.person).exists():
+                Membership.objects.create(supportgroup=self.object, person=request.user.person)
+            return HttpResponseRedirect(reverse('view_group', kwargs={'pk': self.object.pk}))
+
+        return HttpResponseBadRequest()
 
 
 class SupportGroupManagementView(LoginRequiredMixin, CheckMembershipMixin, DetailView):

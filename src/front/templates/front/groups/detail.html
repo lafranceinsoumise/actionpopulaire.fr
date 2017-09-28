@@ -4,6 +4,22 @@
 {% block title %}Gérer le groupe «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
 
 {% block main %}
+    {% if user.is_authenticated %}
+        {% if is_member %}
+            <p>
+              Je suis membre de ce groupe
+              &bull; <a href="{% url "quit_group" supportgroup.pk %}">Quitter le group</a>
+            </p>
+        {% else %}
+            <form action="{% url "view_group" supportgroup.pk %}" method="post" class="padbottom">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="join" />
+                <input type="submit" class="btn btn-primary btn-block" value="Rejoindre ce groupe" />
+            </form>
+        {% endif %}
+    {% else %}
+        <a class="btn btn-primary btn-block" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour rejoindre le groupe</a>
+    {% endif %}
     <iframe src="https://app.jlm2017.fr/#/groupes/details/{{ supportgroup.nb_id }}?cacher-menu=oui&show_creating=oui"
     width="100%" height="900" style="border:none;overflow:hidden">
 {% endblock %}
