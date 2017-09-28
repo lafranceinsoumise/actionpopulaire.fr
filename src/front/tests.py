@@ -364,7 +364,7 @@ class EventPermissionsTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.person, self.other_event.attendees.all())
-        self.assertIn('Je suis inscrit⋅e à cet événement', response.content.decode())
+        self.assertIn('Je suis déjà inscrit⋅e à cet événement', response.content.decode())
 
 
 class GroupPageTestCase(TestCase):

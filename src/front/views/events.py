@@ -52,7 +52,7 @@ class EventDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            has_rsvp=self.object.rsvps.filter(person=self.request.user.person).exists(),
+            has_rsvp=self.request.user.is_authenticated and self.object.rsvps.filter(person=self.request.user.person).exists(),
         )
 
     @method_decorator(login_required(login_url=reverse_lazy('oauth_redirect_view')), )

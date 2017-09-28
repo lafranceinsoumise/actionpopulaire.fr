@@ -11,7 +11,7 @@
               &bull; <a href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
             </p>
         {% else %}
-            <form action="/evenements/{{ event.id }}/" method="post" class="padbottom">
+            <form action="{% url "view_event" event.pk %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="rsvp" />
                 <input type="submit" class="btn btn-primary btn-block" value="Participer à cet événement" />
