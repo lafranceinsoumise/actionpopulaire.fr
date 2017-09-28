@@ -8,7 +8,7 @@
         {% if is_member %}
             <p>
               Je suis membre de ce groupe
-              &bull; <a href="{% url "quit_group" supportgroup.pk %}">Quitter le group</a>
+              &bull; <a href="{% url "quit_group" supportgroup.pk %}">Quitter le groupe</a>
             </p>
         {% else %}
             <form action="{% url "view_group" supportgroup.pk %}" method="post" class="padbottom">
@@ -20,6 +20,28 @@
     {% else %}
         <a class="btn btn-primary btn-block" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour rejoindre le groupe</a>
     {% endif %}
-    <iframe src="https://app.jlm2017.fr/#/groupes/details/{{ supportgroup.nb_id }}?cacher-menu=oui&show_creating=oui"
-    width="100%" height="900" style="border:none;overflow:hidden">
+    <div class="row">
+        <h3 class="col-xs-10">{{ supportgroup.name }}</h3>
+    </div>
+    <hr />
+    <iframe title="Carte" className="col-xs-6" style="float: right;"
+        src="https://jlm2017.github.io/map/?event_id={{ supportgroup.nb_id }},groups&hide_panel=1&hide_address=1"
+        width="400" height="300" scrolling="no" frameBorder="0"></iframe>
+    {% if supportgroup.description %}
+        <div>
+            <div class="intro">
+                {{ supportgroup.description }}
+            <hr />
+        </div>
+    {% endif %}
+    <h5>Adresse&nbsp;:</h5>
+    <p><strong>{{ supportgroup.location_name }}</strong></p>
+    <p>{{ supportgroup.location_address }}</p>
+    <h5>
+        Contact&nbsp;:
+    </h5>
+    <div><strong>Nom de l'initiatrice ou de l'initiateur&nbsp;:</strong> {{ supportgroup.contact_name }}</div>
+    {% if supportgroup.contact_email %}<div><strong>Email&nbsp;:</strong> {{ supportgroup.contact_email }}</div>{% endif %}
+    {% if supportgroup.contact_phone %}<div><strong>Téléphone&nbsp;:</strong> 0{{ supportgroup.contact_phone }}</div>{% endif %}
+    <hr />
 {% endblock %}
