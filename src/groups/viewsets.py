@@ -71,6 +71,7 @@ class SupportGroupTagViewSet(ModelViewSet):
     """
     serializer_class = serializers.SupportGroupTagSerializer
     queryset = models.SupportGroupTag.objects.all()
+    permission_classes = (PermissionsOrReadOnly,)
 
 
 class MembershipViewSet(ModelViewSet):

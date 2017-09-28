@@ -96,6 +96,7 @@ class CalendarViewSet(ModelViewSet):
     """
     serializer_class = serializers.CalendarSerializer
     queryset = models.Calendar.objects.all()
+    permission_classes = (PermissionsOrReadOnly,)
 
 
 class EventTagViewSet(ModelViewSet):
@@ -104,6 +105,8 @@ class EventTagViewSet(ModelViewSet):
     """
     serializer_class = serializers.EventTagSerializer
     queryset = models.EventTag.objects.all()
+    permission_classes = (PermissionsOrReadOnly,)
+
 
 
 class RSVPViewSet(CreationSerializerMixin, ModelViewSet):

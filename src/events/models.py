@@ -55,7 +55,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
     start_time = models.DateTimeField(_('date et heure de début'), blank=False)
     end_time = models.DateTimeField(_('date et heure de fin'), blank=False)
 
-    calendar = models.ForeignKey('Calendar', related_name='events', blank=False)
+    calendar = models.ForeignKey('Calendar', related_name='events', blank=False, on_delete=models.PROTECT)
 
     attendees = models.ManyToManyField('people.Person', related_name='events', through='RSVP')
 
