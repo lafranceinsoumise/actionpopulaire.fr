@@ -44,6 +44,9 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         (_('Informations'), {
             'fields': ('description', 'start_time', 'end_time', 'calendar', 'tags', 'published'),
         }),
+        (_('Organisation'), {
+            'fields': ('organizers',)
+        }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
                        'location_state', 'location_country', 'coordinates')
@@ -60,7 +63,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     filter_horizontal = ('organizers',)
 
-    readonly_fields = ('id',)
+    readonly_fields = ('id', 'organizers')
     date_hierarchy = 'created'
 
     list_display = ('name', 'location_short', 'attendee_count', 'start_time')
