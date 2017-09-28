@@ -194,13 +194,13 @@ class EventPermissionsTestCase(TestCase):
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
 
-        calendar = Calendar.objects.create(label='default')
+        self.calendar = Calendar.objects.create(label='default', user_contributed=True)
 
         self.organized_event = Event.objects.create(
             name="Organized event",
             start_time=now + day,
             end_time=now + day + 4 * hour,
-            calendar=calendar
+            calendar=self.calendar
         )
 
         OrganizerConfig.objects.create(
@@ -213,7 +213,7 @@ class EventPermissionsTestCase(TestCase):
             name="RSVPed event",
             start_time=now + 2 * day,
             end_time=now + 2 * day + 2 * hour,
-            calendar=calendar
+            calendar=self.calendar
         )
 
         RSVP.objects.create(
@@ -225,7 +225,7 @@ class EventPermissionsTestCase(TestCase):
             name="Other event",
             start_time=now + 3 * day,
             end_time=now + 3 * day + 4 * hour,
-            calendar=calendar
+            calendar=self.calendar
         )
 
         self.other_rsvp1 = RSVP.objects.create(
@@ -249,6 +249,7 @@ class EventPermissionsTestCase(TestCase):
             reverse('edit_event', kwargs={'pk': self.organized_event.pk}),
             data={
                 'name': 'New Name',
+                'calendar': self.calendar.pk,
                 'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
                 'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
                 'contact_name': 'Arthur',
@@ -295,6 +296,7 @@ class EventPermissionsTestCase(TestCase):
         # post edit page
         response = self.client.post(reverse('edit_event', kwargs={'pk': self.rsvped_event.pk}), data={
             'name': 'New Name',
+            'calendar': self.calendar.pk,
             'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
             'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
             'contact_name': 'Arthur',
@@ -377,6 +379,7 @@ class EventPermissionsTestCase(TestCase):
         # post create page
         response = self.client.post(reverse('create_event'), data={
             'name': 'New Name',
+            'calendar': self.calendar.pk,
             'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
             'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
             'contact_name': 'Arthur',

@@ -5,15 +5,32 @@ from crispy_forms.helper import FormHelper
 from ..form_components import *
 from ..form_mixins import LocationFormMixin, ContactFormMixin
 
-from events.models import Event, OrganizerConfig
+from events.models import Event, OrganizerConfig, Calendar
 
 __all__ = ['EventForm', 'AddOrganizerForm']
 
 
+class AgendaChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.description
+
+
 class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
-    def __init__(self, calendar=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(EventForm, self).__init__(*args, **kwargs)
-        self.calendar = calendar
+
+        calendar_field = []
+
+        if not hasattr(self.instance, 'calendar') or self.instance.calendar.user_contributed:
+            self.fields['calendar'] = AgendaChoiceField(
+                Calendar.objects.filter(user_contributed=True),
+                empty_label=None,
+                label=_("Type d'événement"),
+                required=True,
+                widget=forms.RadioSelect()
+            )
+
+            calendar_field = [Row(FullCol('calendar'))]
 
         self.fields['name'].label = "Nom de l'événement"
         self.fields['name'].help_text = None
@@ -45,6 +62,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             Row(
                 FullCol('name'),
             ),
+            *calendar_field,
             Row(
                 HalfCol('start_time'),
                 HalfCol('end_time'),
@@ -101,14 +119,12 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             self.add_error('end_time', _("La fin de l'événément ne peut pas être avant son début."))
 
     def save(self, commit=True):
-        if self.calendar:
-            self.instance.calendar = self.calendar
         return super().save(commit)
 
     class Meta:
         model = Event
         fields = (
-            'name', 'start_time', 'end_time',
+            'name', 'start_time', 'end_time', 'calendar',
             'contact_name', 'contact_email', 'contact_phone', 'contact_hide_phone',
             'location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
             'location_country',

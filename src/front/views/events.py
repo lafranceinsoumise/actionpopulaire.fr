@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest
 from django.db import transaction
 
-from events.models import Event, Calendar, RSVP, OrganizerConfig
+from events.models import Event, RSVP, OrganizerConfig
 from events.tasks import send_event_changed_notification, send_cancellation_notification, send_event_creation_notification
 from lib.tasks import geocode_event
 
@@ -137,7 +137,6 @@ class CreateEventView(LoginRequiredMixin, CreateView):
         kwargs = super().get_form_kwargs()
 
         person = self.request.user.person
-        kwargs['calendar'] = Calendar.objects.get(label='evenements_locaux')
         kwargs['initial'] = {
             'contact_name': person.get_full_name(),
             'contact_email': person.email,
