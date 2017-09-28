@@ -12,13 +12,13 @@ class TagMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        person_tags = self.instance.tags.all().values_list('label', flat=True)
+        active_tags = [tag.label for tag in self.instance.tags.filter(label__in=[tag for tag, tag_label in self.tags])]
 
         for tag, tag_label in self.tags:
             self.fields[tag] = forms.BooleanField(
                 label=tag_label,
                 required=False,
-                initial=tag in person_tags
+                initial=tag in active_tags
             )
 
     def _save_m2m(self):
