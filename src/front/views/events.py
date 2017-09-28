@@ -1,8 +1,10 @@
 from django.utils.translation import ugettext as _
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
+from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest
 from django.db import transaction
 
 from events.models import Event, Calendar, RSVP, OrganizerConfig
@@ -47,6 +49,22 @@ class EventListView(LoginRequiredMixin, ListView):
 class EventDetailView(DetailView):
     template_name = "front/events/detail.html"
     queryset = Event.scheduled.all()
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            has_rsvp=self.object.rsvps.filter(person=self.request.user.person).exists(),
+        )
+
+    @method_decorator(login_required(login_url=reverse_lazy('oauth_redirect_view')), )
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if request.POST['action'] == 'rsvp':
+            if not self.object.rsvps.filter(person=request.user.person).exists():
+                RSVP.objects.create(event=self.object, person=request.user.person)
+            return HttpResponseRedirect(reverse('view_event', kwargs={'pk': self.object.pk}))
+
+        return HttpResponseBadRequest()
 
 
 class ManageEventView(LoginRequiredMixin, IsOrganiserMixin, DetailView):

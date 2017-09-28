@@ -352,6 +352,20 @@ class EventPermissionsTestCase(TestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_can_rsvp(self):
+        url = reverse('view_event', kwargs={'pk': self.other_event.pk})
+        self.client.force_login(self.person.role)
+        response = self.client.get(url)
+        self.assertIn('Participer à cet événement', response.content.decode())
+
+        response = self.client.post(url, data={
+            'action': 'rsvp'
+        }, follow=True)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(self.person, self.other_event.attendees.all())
+        self.assertIn('Je suis inscrit⋅e à cet événement', response.content.decode())
+
 
 class GroupPageTestCase(TestCase):
     def setUp(self):

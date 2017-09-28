@@ -4,6 +4,21 @@
 {% block title %}«&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
 {% block main %}
+    {% if user.is_authenticated %}
+        {% if has_rsvp %}
+            <p>
+              Je suis inscrit⋅e à cet événement :
+            </p>
+        {% else %}
+            <form action="/evenements/{{ event.id }}/" method="post" class="padbottom">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="rsvp" />
+                <input type="submit" class="btn btn-primary btn-block" value="Participer à cet événement" />
+            </form>
+        {% endif %}
+    {% else %}
+        <a class="btn btn-primary btn-block" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour participer à l'événement</a>
+    {% endif %}
     <iframe src="https://app.jlm2017.fr/#/evenements/details/{{ event.nb_id }}?cacher-menu=oui&show_creating=oui"
-    width="100%" height="900" style="border:none;overflow:hidden">
+    width="100%" height="900" style="border:none;overflow:hidden"></iframe>
 {% endblock %}
