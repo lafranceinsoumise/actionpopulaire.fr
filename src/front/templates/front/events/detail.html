@@ -7,7 +7,8 @@
     {% if user.is_authenticated %}
         {% if has_rsvp %}
             <p>
-              Je suis inscrit⋅e à cet événement :
+              Je suis déjà inscrit⋅e à cet événement
+              &bull; <a href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
             </p>
         {% else %}
             <form action="/evenements/{{ event.id }}/" method="post" class="padbottom">
@@ -19,6 +20,36 @@
     {% else %}
         <a class="btn btn-primary btn-block" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour participer à l'événement</a>
     {% endif %}
-    <iframe src="https://app.jlm2017.fr/#/evenements/details/{{ event.nb_id }}?cacher-menu=oui&show_creating=oui"
-    width="100%" height="900" style="border:none;overflow:hidden"></iframe>
+    <div class="row">
+        <h3 class="col-xs-10">{{ event.name }}</h3>
+    </div>
+    <hr />
+    <iframe title="Carte" className="col-xs-6" style="float: right;"
+        src="https://jlm2017.github.io/map/?event_id={{ event.nb_id }},events&hide_panel=1&hide_address=1"
+        width="400" height="300" scrolling="no" frameBorder="0"></iframe>
+    {% if event.description %}
+        <div>
+            <div class="intro">
+                {{ event.description }}
+            <hr />
+        </div>
+    {% endif %}
+    <h5>Adresse&nbsp;:</h5>
+    <p><strong>{{ event.location_name }}</strong></p>
+    <p>{{ event.location_address }}</p>
+    <div>
+        <h5>Date&nbsp;:</h5>
+        <div class="date">L'événement se déroulera du {{ event.start_time }} au {{ event.end_time }}.</div>
+        <hr />
+    </div>
+    <h5>
+        Contact&nbsp;:
+    </h5>
+    <div><strong>Nom de l'initiatrice ou de l'initiateur&nbsp;:</strong> {{ event.contact.name }}</div>
+    {% if event.contact.email %}<div><strong>Email&nbsp;:</strong> {{ event.contact.email }}</div>{% endif %}
+    {% if event.contact.phone %}<div><strong>Téléphone&nbsp;:</strong> 0{{ event.contact.phone }}</div>{% endif %}
+    <hr />
+    <h4>
+        Nombre de participants&nbsp;: {{ event.participants }}
+    </h4>
 {% endblock %}
