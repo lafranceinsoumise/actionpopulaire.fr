@@ -4,41 +4,45 @@
 
 {% block main %}
     <h2>Les événements que j'organise</h2>
-    {% for event in events %}
-        <div>
-            <strong>
-                <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
-                <small>
-                    &bull; <a href="{% url "manage_event" event.pk %}">Gestion</a>
-                </small>
-            </strong>
-            <div>{{ event.get_display_date }}</div>
-            <div>{{ event.location_name }}</div>
-        </div>
-    {% empty %}
-        <div>Vous n'avez organisé aucun événement.</div>
-    {% endfor %}
+    <div class="list-group">
+        {% for event in events %}
+            <div class="list-group-item">
+                <strong>
+                    <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
+                    <small>
+                        &bull; <a href="{% url "manage_event" event.pk %}">Gestion</a>
+                    </small>
+                </strong>
+                <div>{{ event.get_display_date }}</div>
+                <div>{{ event.location_name }}</div>
+            </div>
+        {% empty %}
+            <div>Vous n'avez organisé aucun événement.</div>
+        {% endfor %}
+    </div>
 
     <h2>Les événements auxquels je participe</h2>
-    {% for rsvp in rsvps %}
-        <div>
-            <strong>
-                <a href="{% url "view_event" rsvp.event.pk %}">{{ rsvp.event.name }}</a>
-                <small>
-                    &bull; <a href="{% url "quit_event" rsvp.event.pk %}">Annuler</a>
-                </small>
-            </strong>
-            <div>{{ event.get_display_date }}</div>
-            <div>{{ event.location_name }}</div>
-            {% if rsvp.guests == 1 %}
-                <div>Je viens avec un&middot;e invité&middot;e</div>
-            {% elif rsvp.guests > 0 %}
-                <div>Je viens avec {{ rsvp.guests }} invité&middot;e&middot;s</div>
-            {% endif %}
-        </div>
-    {% empty %}
-        <div>Aucun événement en attente.</div>
-    {% endfor %}
+    <div class="list-group">
+        {% for rsvp in rsvps %}
+            <div class="list-group-item">
+                <strong>
+                    <a href="{% url "view_event" rsvp.event.pk %}">{{ rsvp.event.name }}</a>
+                    <small>
+                        &bull; <a href="{% url "quit_event" rsvp.event.pk %}">Annuler</a>
+                    </small>
+                </strong>
+                <div>{{ rsvp.event.get_display_date }}</div>
+                <div>{{ rsvp.event.location_name }}</div>
+                {% if rsvp.guests == 1 %}
+                    <div>Je viens avec un&middot;e invité&middot;e</div>
+                {% elif rsvp.guests > 0 %}
+                    <div>Je viens avec {{ rsvp.guests }} invité&middot;e&middot;s</div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div>Aucun événement en attente.</div>
+        {% endfor %}
+    </div>
 
     <h2>J'organise un événement</h2>
     <div>

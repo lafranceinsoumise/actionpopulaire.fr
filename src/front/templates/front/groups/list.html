@@ -4,33 +4,35 @@
 
 {% block main %}
     <h2>Les groupes dont je suis membre</h2>
-    {% for membership in memberships %}
-        <div>
-            <strong>
-                <a href="{% url "view_group" membership.supportgroup.pk %}">{{ membership.supportgroup.name }}</a>
-                <small>
-                    {% if membership.is_manager or membership.is_referent %}
-                        &bull; <a href="{% url "manage_group" membership.supportgroup.pk %}">Gestion</a>
+    <div class="list-group">
+        {% for membership in memberships %}
+            <div class="list-group-item">
+                <strong>
+                    <a href="{% url "view_group" membership.supportgroup.pk %}">{{ membership.supportgroup.name }}</a>
+                    <small>
+                        {% if membership.is_manager or membership.is_referent %}
+                            &bull; <a href="{% url "manage_group" membership.supportgroup.pk %}">Gestion</a>
+                        {% endif %}
+                        {% if not membership.is_referent %}
+                            &bull; <a href="{% url "quit_group" membership.supportgroup.pk %}">Quitter</a>
+                        {% endif %}
+                    </small>
+                </strong>
+                <div>
+                    {% if membership.is_referent %}
+                        Membre référent
+                    {% elif membership.is_manager %}
+                        Modérateur
+                    {% else %}
+                        Membre
                     {% endif %}
-                    {% if not membership.is_referent %}
-                        &bull; <a href="{% url "quit_group" membership.supportgroup.pk %}">Quitter</a>
-                    {% endif %}
-                </small>
-            </strong>
-            <div>
-                {% if membership.is_referent %}
-                    Membre référent
-                {% elif membership.is_manager %}
-                    Modérateur
-                {% else %}
-                    Membre
-                {% endif %}
+                </div>
+                <div>Lieu : {{ membership.supportgroup.location_name }}</div>
             </div>
-            <div>Lieu : {{ membership.supportgroup.location_name }}</div>
-        </div>
-    {% empty %}
-        <div>Vous n'êtes membre d'aucun groupe d'appui.</div>
-    {% endfor %}
+        {% empty %}
+            <div>Vous n'êtes membre d'aucun groupe d'appui.</div>
+        {% endfor %}
+    </div>
 
     <h2>Créer un groupe</h2>
     <p>Si aucun groupe ne milite dans vos environs, vous pouvez <a href="{% url "create_group" %}">créer votre propre

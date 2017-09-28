@@ -27,3 +27,31 @@ class PermissionsRequiredMixin(object):
                     return HttpResponseForbidden(b'Not allowed')
 
         return super().dispatch(*args, **kwargs)
+
+
+class SimpleOpengraphMixin():
+    meta_title = None
+    meta_description = None
+    meta_type = 'article'
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            show_opengraph=True,
+            meta_title=self.get_meta_title(),
+            meta_description=self.get_meta_description(),
+            meta_type=self.meta_type,
+            **kwargs
+        )
+
+    def get_meta_title(self):
+        return self.meta_title
+
+    def get_meta_description(self):
+        return self.meta_description
+
+
+class ObjectOpengraphMixin(SimpleOpengraphMixin):
+    title_prefix = None
+
+    def get_meta_title(self):
+        return '{} - {}'.format(self.title_prefix, self.object.name)

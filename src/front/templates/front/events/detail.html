@@ -7,31 +7,31 @@
     {% if user.is_authenticated %}
         {% if has_rsvp %}
             <p>
-              Je suis déjà inscrit⋅e à cet événement
-              &bull; <a href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
+                Je suis déjà inscrit⋅e à cet événement
+                &bull; <a href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
             </p>
         {% else %}
             <form action="{% url "view_event" event.pk %}" method="post">
                 {% csrf_token %}
-                <input type="hidden" name="action" value="rsvp" />
-                <input type="submit" class="btn btn-primary btn-block" value="Participer à cet événement" />
+                <input type="hidden" name="action" value="rsvp"/>
+                <input type="submit" class="btn btn-primary btn-block" value="Participer à cet événement"/>
             </form>
         {% endif %}
     {% else %}
-        <a class="btn btn-primary btn-block" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour participer à l'événement</a>
+        <a class="btn btn-primary btn-block" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour
+            participer à l'événement</a>
     {% endif %}
     <div class="row">
         <h3 class="col-xs-10">{{ event.name }}</h3>
     </div>
-    <hr />
-    <iframe title="Carte" className="col-xs-6" style="float: right;"
-        src="https://jlm2017.github.io/map/?event_id={{ event.nb_id }},events&hide_panel=1&hide_address=1"
-        width="400" height="300" scrolling="no" frameBorder="0"></iframe>
+    <hr/>
+    <iframe title="Carte" class="col-xs-6" style="float: right;"
+            src="https://jlm2017.github.io/map/?event_id={{ event.pk }},events&hide_panel=1&hide_address=1"
+            width="400" height="300" scrolling="no" frameBorder="0"></iframe>
     {% if event.description %}
-        <div>
-            <div class="intro">
-                {{ event.description | striptags | escape | linebreaksbr  }}
-            <hr />
+        <div class="intro">
+            {{ event.description | striptags | escape | linebreaksbr }}
+            <hr/>
         </div>
     {% endif %}
     <h5>Adresse&nbsp;:</h5>
@@ -40,15 +40,17 @@
     <div>
         <h5>Date&nbsp;:</h5>
         <div class="date">L'événement se déroulera du {{ event.start_time }} au {{ event.end_time }}.</div>
-        <hr />
+        <hr/>
     </div>
     <h5>
         Contact&nbsp;:
     </h5>
     <div><strong>Nom de l'initiatrice ou de l'initiateur&nbsp;:</strong> {{ event.contact_name }}</div>
-    {% if event.contact_email %}<div><strong>Email&nbsp;:</strong> {{ event.contact_email }}</div>{% endif %}
-    {% if event.contact_phone %}<div><strong>Téléphone&nbsp;:</strong> 0{{ event.contact_phone }}</div>{% endif %}
-    <hr />
+    {% if event.contact_email %}
+        <div><strong>Email&nbsp;:</strong> {{ event.contact_email }}</div>{% endif %}
+    {% if event.contact_phone %}
+        <div><strong>Téléphone&nbsp;:</strong> 0{{ event.contact_phone }}</div>{% endif %}
+    <hr/>
     <h4>
         Nombre de participants&nbsp;: {{ event.participants }}
     </h4>

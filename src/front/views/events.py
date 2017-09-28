@@ -12,7 +12,7 @@ from events.tasks import send_event_changed_notification, send_cancellation_noti
 from lib.tasks import geocode_event
 
 from ..forms import EventForm, AddOrganizerForm
-from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin
+from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin, SimpleOpengraphMixin
 
 __all__ = [
     "EventListView", "CreateEventView", "ManageEventView", "ModifyEventView", "QuitEventView", "CancelEventView",
@@ -47,9 +47,12 @@ class EventListView(LoginRequiredMixin, ListView):
         return RSVP.current.select_related('event').filter(person=self.request.user.person)
 
 
-class EventDetailView(DetailView):
+class EventDetailView(ObjectOpengraphMixin, DetailView):
     template_name = "front/events/detail.html"
     queryset = Event.scheduled.all()
+
+    title_prefix = _("Evénement local")
+    meta_description = _("Participez aux événements organisés par les membres de la France insoumise.")
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(

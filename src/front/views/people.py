@@ -8,7 +8,7 @@ from django.contrib import messages
 
 from people.models import Person
 
-from ..view_mixins import LoginRequiredMixin
+from ..view_mixins import LoginRequiredMixin, SimpleOpengraphMixin
 from ..forms import (
     SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm, EmailFormSet, VolunteerForm, MessagePreferencesForm
 )
@@ -21,18 +21,24 @@ class SubscriptionSuccessView(TemplateView):
     template_name = "front/people/confirmation_subscription.html"
 
 
-class SimpleSubscriptionView(CreateView):
+class SimpleSubscriptionView(SimpleOpengraphMixin, CreateView):
     template_name = "front/people/simple_subscription.html"
     success_url = reverse_lazy('subscription_success')
     model = Person
     form_class = SimpleSubscriptionForm
 
+    meta_title = "Rejoignez la France insoumise"
+    meta_description = "Rejoignez la France insoumise sur lafranceinsoumise.fr"
 
-class OverseasSubscriptionView(CreateView):
+
+class OverseasSubscriptionView(SimpleOpengraphMixin, CreateView):
     template_name = "front/people/overseas_subscription.html"
     success_url = reverse_lazy('subscription_success')
     model = Person
     form_class = OverseasSubscriptionForm
+
+    meta_title = "Rejoignez la France insoumise"
+    meta_description = "Rejoignez la France insoumise sur lafranceinsoumise.fr"
 
 
 class ChangeProfileView(LoginRequiredMixin, UpdateView):
@@ -45,7 +51,7 @@ class ChangeProfileView(LoginRequiredMixin, UpdateView):
         return self.request.user.person
 
 
-class ChangeProfileConfirmationView(TemplateView):
+class ChangeProfileConfirmationView(SimpleOpengraphMixin, TemplateView):
     template_name = 'front/people/confirmation_profile.html'
 
 

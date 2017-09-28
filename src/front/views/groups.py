@@ -1,9 +1,9 @@
 from django.utils.translation import ugettext as _, ugettext_lazy
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView, TemplateView
+from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView
 from django.contrib import messages
-from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect
+from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.db import transaction
 
@@ -12,7 +12,7 @@ from groups.tasks import send_support_group_changed_notification, send_support_g
 from lib.tasks import geocode_support_group
 
 from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm
-from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin
+from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin
 
 __all__ = [
     "SupportGroupListView", "SupportGroupManagementView", "CreateSupportGroupView", "ModifySupportGroupView",
@@ -55,9 +55,12 @@ class SupportGroupListView(LoginRequiredMixin, ListView):
             .select_related('supportgroup')
 
 
-class SupportGroupDetailView(DetailView):
+class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
     template_name = "front/groups/detail.html"
     queryset = SupportGroup.objects.all()
+
+    title_prefix = "Groupe d'appui local"
+    meta_description = "Rejoignez les groupes d'appui locaux de la France insoumise."
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
@@ -279,7 +282,7 @@ class RemoveManagerView(LoginRequiredMixin, CheckMembershipMixin, DetailView):
         )
 
 
-class QuitSupportGroupView(DeleteView):
+class QuitSupportGroupView(LoginRequiredMixin, DeleteView):
     template_name = "front/groups/quit.html"
     success_url = reverse_lazy("list_groups")
     model = Membership
