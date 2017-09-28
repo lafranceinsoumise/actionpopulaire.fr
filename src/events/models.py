@@ -8,9 +8,18 @@ from lib.models import (
 )
 
 
+EVENT_GRACE_PERIOD = timezone.timedelta(hours=12)
+
+
 class PublishedEventManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(published=True, end_time__gt=timezone.now() - timezone.timedelta(hours=12))
+        return super().get_queryset().filter(published=True, end_time__gt=timezone.now() - EVENT_GRACE_PERIOD)
+
+
+class PublishedRSVPManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            event__published=True, event__end_time__gt=timezone.now() - EVENT_GRACE_PERIOD)
 
 
 class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin):
@@ -116,6 +125,9 @@ class RSVP(TimeStampedModel):
     
     An additional field indicates if the person is bringing any guests with her
     """
+    objects = models.Manager()
+    current = PublishedRSVPManager()
+
     person = models.ForeignKey('people.Person', related_name='rsvps', on_delete=models.CASCADE, editable=False)
     event = models.ForeignKey('Event', related_name='rsvps', on_delete=models.CASCADE, editable=False)
     guests = models.PositiveIntegerField(_("nombre d'invités supplémentaires"), default=0, null=False)

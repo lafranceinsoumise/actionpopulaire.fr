@@ -44,7 +44,7 @@ class EventListView(LoginRequiredMixin, ListView):
         return self.queryset.filter(organizers=self.request.user.person)
 
     def get_rsvps(self):
-        return RSVP.objects.select_related('event').filter(person=self.request.user.person)
+        return RSVP.current.select_related('event').filter(person=self.request.user.person)
 
 
 class EventDetailView(DetailView):
