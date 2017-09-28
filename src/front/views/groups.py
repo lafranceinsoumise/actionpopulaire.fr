@@ -9,6 +9,7 @@ from django.db import transaction
 
 from groups.models import SupportGroup, Membership
 from groups.tasks import send_support_group_changed_notification, send_support_group_creation_notification
+from lib.tasks import geocode_support_group
 
 from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm
 from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin
@@ -168,6 +169,8 @@ class CreateSupportGroupView(LoginRequiredMixin, CreateView):
             )
 
         send_support_group_creation_notification.delay(membership.pk)
+
+        geocode_support_group.delay(self.object.pk)
 
         messages.add_message(
             request=self.request,

@@ -45,6 +45,7 @@ class BaseAPIResource(UUIDIdentified, TimeStampedModel):
     Automatically add an UUID identifier, a NationBuilder id fields, and automatic
     timestamps on modification and creation
     """
+
     class Meta:
         abstract = True
 
@@ -53,7 +54,29 @@ class LocationMixin(models.Model):
     """
     Mixin that adds location fields
     """
+    COORDINATES_MANUAL = 0
+    COORDINATES_EXACT = 10
+    COORDINATES_STREET = 20
+    COORDINATES_CITY = 30
+    COORDINATES_UNKNOWN_PRECISION = 50
+    COORDINATES_NOT_FOUND = 255
+    COORDINATES_TYPE_CHOICES = (
+        (COORDINATES_MANUAL, _("Coordonnées manuelles")),
+        (COORDINATES_EXACT, _("Coordonnées automatiques précises")),
+        (COORDINATES_STREET, _("Coordonnées automatiques approximatives (niveau rue)")),
+        (COORDINATES_CITY, _("Coordonnées automatiques approximatives (ville)")),
+        (COORDINATES_UNKNOWN_PRECISION, _("Coordonnées automatiques (qualité inconnue)")),
+        (COORDINATES_NOT_FOUND, _("Coordonnées introuvables"))
+    )
+
     coordinates = models.PointField(_('coordonnées'), geography=True, null=True, blank=True, spatial_index=True)
+    coordinates_type = models.PositiveSmallIntegerField(
+        _("type de coordonnées"),
+        choices=COORDINATES_TYPE_CHOICES,
+        null=True,
+        editable=False,
+        help_text=_("Comment les coordonnées ci-dessus ont-elle été acquéries")
+    )
 
     location_name = models.CharField(_("nom du lieu"), max_length=255, blank=True)
     location_address = models.CharField(_('adresse complète'), max_length=255, blank=True)

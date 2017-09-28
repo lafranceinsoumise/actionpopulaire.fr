@@ -135,7 +135,7 @@ def send_cancellation_notification(event_pk):
 
     notifications_enabled = Q(notifications_enabled=True) & Q(person__event_notifications=True)
 
-    recipients = [rsvp.person.email for rsvp in event.rsvps.all(notifications_enabled)]
+    recipients = [rsvp.person.email for rsvp in event.rsvps.filter(notifications_enabled)]
 
     bindings = {
         "EVENT_NAME": event_name

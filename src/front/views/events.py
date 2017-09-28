@@ -9,6 +9,7 @@ from django.db import transaction
 
 from events.models import Event, Calendar, RSVP, OrganizerConfig
 from events.tasks import send_event_changed_notification, send_cancellation_notification, send_event_creation_notification
+from lib.tasks import geocode_event
 
 from ..forms import EventForm, AddOrganizerForm
 from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin
@@ -158,6 +159,7 @@ class CreateEventView(LoginRequiredMixin, CreateView):
 
         # send mail
         send_event_creation_notification.delay(organizer_config.pk)
+        geocode_event.delay(self.object.pk)
 
         # show message
         messages.add_message(

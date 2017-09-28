@@ -5,7 +5,6 @@ from django.utils import timezone, formats
 from django.http import QueryDict
 from rest_framework import status
 from django.shortcuts import reverse
-import django_countries
 
 from people.models import Person
 from events.models import Event, RSVP, Calendar, OrganizerConfig
@@ -366,8 +365,9 @@ class EventPermissionsTestCase(TestCase):
         self.assertIn(self.person, self.other_event.attendees.all())
         self.assertIn('Je suis déjà inscrit⋅e à cet événement', response.content.decode())
 
+    @mock.patch("front.views.events.geocode_event")
     @mock.patch("front.views.events.send_event_creation_notification")
-    def test_can_create_new_event(self, patched_send_event_creation_notification):
+    def test_can_create_new_event(self, patched_send_event_creation_notification, patched_geocode_event):
         self.client.force_login(self.person.role)
 
         # get create page
@@ -398,6 +398,9 @@ class EventPermissionsTestCase(TestCase):
 
         patched_send_event_creation_notification.delay.assert_called_once()
         self.assertEqual(patched_send_event_creation_notification.delay.call_args[0], (organizer_config.pk,))
+
+        patched_geocode_event.delay.assert_called_once()
+        self.assertEqual(patched_geocode_event.delay.call_args[0], (organizer_config.event.pk,))
 
 
 class GroupPageTestCase(TestCase):
@@ -511,8 +514,9 @@ class GroupPageTestCase(TestCase):
         self.assertIn(self.other_person, self.manager_group.members.all())
         self.assertIn('Je suis membre de ce groupe', response.content.decode())
 
+    @mock.patch("front.views.groups.geocode_support_group")
     @mock.patch('front.views.groups.send_support_group_creation_notification')
-    def test_can_create_group(self, patched_send_support_group_creation_notification):
+    def test_can_create_group(self, patched_send_support_group_creation_notification, patched_geocode_support_group):
         self.client.force_login(self.person.role)
 
         # get create page
@@ -540,3 +544,6 @@ class GroupPageTestCase(TestCase):
 
         patched_send_support_group_creation_notification.delay.assert_called_once()
         self.assertEqual(patched_send_support_group_creation_notification.delay.call_args[0], (membership.pk,))
+
+        patched_geocode_support_group.delay.assert_called_once()
+        self.assertEqual(patched_geocode_support_group.delay.call_args[0], (membership.supportgroup.pk,))
