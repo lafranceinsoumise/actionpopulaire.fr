@@ -1,0 +1,16 @@
+{% extends "front/layout.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Mes préférences pour les messages" %}{% endblock %}
+
+{% block main %}
+    <h2 class="headline">Mes préférences pour les messages</h2>
+    <div>
+        <div class="intro">
+            <p>Vous pouvez régler ci-dessous vos préférences en matière de message.</p>
+        </div>
+        {% crispy form %}
+    </div>
+{% endblock %}

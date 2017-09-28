@@ -186,9 +186,10 @@ class AuthorizationTestCase(TestCase):
         self.assertEqual(self.person.role, backend.authenticate(profile_url=profile_url))
 
 
-class EventPageTestCase(TestCase):
+class EventPermissionsTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person('test@test.com')
+        self.other_person = Person.objects.create_person('other@test.fr')
 
         now = timezone.now()
         day = timezone.timedelta(days=1)
@@ -215,6 +216,7 @@ class EventPageTestCase(TestCase):
             end_time=now + 2 * day + 2 * hour,
             calendar=calendar
         )
+
         RSVP.objects.create(
             person=self.person,
             event=self.rsvped_event,
@@ -225,6 +227,16 @@ class EventPageTestCase(TestCase):
             start_time=now + 3 * day,
             end_time=now + 3 * day + 4 * hour,
             calendar=calendar
+        )
+
+        self.other_rsvp1 = RSVP.objects.create(
+            person=self.other_person,
+            event=self.rsvped_event
+        )
+
+        self.other_rsvp2 = RSVP.objects.create(
+            person=self.other_person,
+            event=self.other_event
         )
 
     @mock.patch("front.views.events.send_event_changed_notification")
@@ -272,20 +284,79 @@ class EventPageTestCase(TestCase):
 
     def test_cannot_modify_rsvp_event(self):
         self.client.force_login(self.person.role)
-        response = self.client.get(reverse('edit_event', kwargs={'pk': self.rsvped_event.pk}))
 
+        # manage_page
+        response = self.client.get(reverse('manage_event', kwargs={'pk': self.rsvped_event.pk}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # get edit page
+        response = self.client.get(reverse('edit_event', kwargs={'pk': self.rsvped_event.pk}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # post edit page
+        response = self.client.post(reverse('edit_event', kwargs={'pk': self.rsvped_event.pk}), data={
+            'name': 'New Name',
+            'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
+            'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
+            'contact_name': 'Arthur',
+            'contact_email': 'a@ziefzji.fr',
+            'contact_phone': '06 06 06 06 06',
+            'location_name': 'somewhere',
+            'location_address1': 'over',
+            'location_zip': 'the',
+            'location_city': 'rainbow',
+            'location_country': 'FR',
+            'description': 'New description',
+            'notify': 'on',
+        })
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # add organizer
+        response = self.client.post(reverse('manage_event', kwargs={'pk': self.rsvped_event.pk}), data={
+            'organizer': str(self.other_rsvp1.pk)
+        })
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_modify_other_event(self):
         self.client.force_login(self.person.role)
-        response = self.client.get(reverse('edit_event', kwargs={'pk': self.other_event.pk}))
 
+        # manage_page
+        response = self.client.get(reverse('manage_event', kwargs={'pk': self.other_event.pk}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # get edit page
+        response = self.client.get(reverse('edit_event', kwargs={'pk': self.other_event.pk}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # post edit page
+        response = self.client.post(reverse('edit_event', kwargs={'pk': self.other_event.pk}), data={
+            'name': 'New Name',
+            'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
+            'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
+            'contact_name': 'Arthur',
+            'contact_email': 'a@ziefzji.fr',
+            'contact_phone': '06 06 06 06 06',
+            'location_name': 'somewhere',
+            'location_address1': 'over',
+            'location_zip': 'the',
+            'location_city': 'rainbow',
+            'location_country': 'FR',
+            'description': 'New description',
+            'notify': 'on',
+        })
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # add organizer
+        response = self.client.post(reverse('manage_event', kwargs={'pk': self.other_event.pk}), data={
+            'organizer': str(self.other_rsvp2.pk)
+        })
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class GroupPageTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person('test@test.com')
+        self.other_person = Person.objects.create_person('other@test.fr')
 
         self.referent_group = SupportGroup.objects.create(
             name="Referent",
@@ -316,6 +387,12 @@ class GroupPageTestCase(TestCase):
         )
         Membership.objects.create(
             person=self.person,
+            supportgroup=self.member_group
+        )
+
+        # other memberships
+        Membership.objects.create(
+            person=self.other_person,
             supportgroup=self.member_group
         )
 
@@ -362,3 +439,12 @@ class GroupPageTestCase(TestCase):
         response = self.client.get(reverse('edit_group', kwargs={'pk': self.member_group.pk}))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_quit_group(self):
+        response = self.client.get(reverse('quit_group', kwargs={'pk': self.member_group.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.post(reverse('quit_group', kwargs={'pk': self.member_group.pk}))
+        self.assertRedirects(response, reverse('list_groups'))
+
+        self.assertFalse(self.member_group.memberships.filter(person=self.person).exists())

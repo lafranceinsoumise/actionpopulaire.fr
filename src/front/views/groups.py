@@ -264,7 +264,10 @@ class QuitSupportGroupView(DeleteView):
 
     def get_object(self, queryset=None):
         try:
-            return self.get_queryset().select_related('supportgroup').get(supportgroup__pk=self.kwargs['pk'])
+            return self.get_queryset().select_related('supportgroup').get(
+                supportgroup__pk=self.kwargs['pk'],
+                person=self.request.user.person
+            )
         except Membership.DoesNotExist:
             # TODO show specific 404 page maybe?
             raise Http404()

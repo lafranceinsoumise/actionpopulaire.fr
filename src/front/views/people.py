@@ -4,14 +4,17 @@ from django.views.generic import CreateView, UpdateView, TemplateView
 from django.views.generic.edit import ModelFormMixin
 from django.core.urlresolvers import reverse_lazy
 from django.db import transaction
+from django.contrib import messages
 
 from people.models import Person
 
 from ..view_mixins import LoginRequiredMixin
-from ..forms import SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm, EmailFormSet, VolunteerForm
+from ..forms import (
+    SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm, EmailFormSet, VolunteerForm, MessagePreferencesForm
+)
 
 __all__ = ["SubscriptionSuccessView", "SimpleSubscriptionView", "OverseasSubscriptionView", "ChangeProfileView",
-           "ChangeProfileConfirmationView", "VolunteerView", "VolunteerConfirmationView"]
+           "ChangeProfileConfirmationView", "VolunteerView", "VolunteerConfirmationView", "MessagePreferencesView"]
 
 
 class SubscriptionSuccessView(TemplateView):
@@ -118,3 +121,23 @@ class OldChangeProfileView(LoginRequiredMixin, ModelFormMixin, TemplateView):
         with transaction.atomic():
             email_formset.save()
             return self.form_valid(profile_form)
+
+
+class MessagePreferencesView(LoginRequiredMixin, UpdateView):
+    template_name = 'front/people/message_preferences.html'
+    form_class = MessagePreferencesForm
+    success_url = reverse_lazy('message_preferences')
+
+    def get_object(self, queryset=None):
+        return self.request.user.person
+
+    def form_valid(self, form):
+        res = super().form_valid(form)
+
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            "Vos préférences ont bien été enregistrées !"
+        )
+
+        return res

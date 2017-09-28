@@ -11,6 +11,7 @@ urlpatterns = [
     url('^profil/confirmation/$', views.ChangeProfileConfirmationView.as_view(), name='confirmation_profile'),
     url('^agir/$', views.VolunteerView.as_view(), name='volunteer'),
     url('^agir/confirmation/$', views.VolunteerConfirmationView.as_view(), name='confirmation_volunteer'),
+    url('^message_preferences/$', views.MessagePreferencesView.as_view(), name='message_preferences'),
 
     # events views
     url('^evenements/$', views.EventListView.as_view(), name='list_events'),

@@ -72,8 +72,10 @@ def send_support_group_changed_notification(support_group_pk, changes):
         "GROUP_LINK": urljoin(settings.APP_DOMAIN, "/groupes/details/{}".format(support_group_pk))
     }
 
+    notifications_enabled = Q(notifications_enabled=True) & Q(person__group_notifications=True)
+
     recipients = [membership.person.email
-                  for membership in group.memberships.filter(notifications_enabled=True).select_related('person')]
+                  for membership in group.memberships.filter(notifications_enabled).select_related('person')]
 
     send_mosaico_email(
         code='GROUP_CHANGED',

@@ -96,10 +96,27 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
     role = models.OneToOneField('authentication.Role', on_delete=models.PROTECT, related_name='person')
 
     subscribed = models.BooleanField(
-        _('inscrit à la newsletter'),
+        _("Recevoir les lettres d'information"),
         default=True,
         blank=True,
-        help_text=_("L'utilisateur souhaite-t-il recevoir les newsletters ?")
+        help_text=_("Vous recevrez les lettres de la France insoumise, notamment : les lettres d'information, les"
+                    " appels à volontaires, ")
+    )
+
+    event_notifications = models.BooleanField(
+        _('Recevoir les notifications des événements'),
+        default=True,
+        blank=True,
+        help_text=_("Vous recevrez des messages quand les informations des évènements auxquels vous souhaitez participer"
+                    " sont mis à jour ou annulés.")
+    )
+
+    group_notifications = models.BooleanField(
+        _('Recevoir les notifications de mes groupes'),
+        default=True,
+        blank=True,
+        help_text=_("Vous recevrez des messages quand les informations du groupe change, ou quand le groupe organise des"
+                    " événements.")
     )
 
     first_name = models.CharField(_('prénom'), max_length=255, blank=True)

@@ -85,11 +85,17 @@ class ManageEventView(LoginRequiredMixin, IsOrganiserMixin, DetailView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
+        if not self.is_organizer():
+            return HttpResponseForbidden(b'Interdit')
+
         form = self.get_form()
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(self.get_success_url())
+
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
 
 class CreateEventView(LoginRequiredMixin, CreateView):

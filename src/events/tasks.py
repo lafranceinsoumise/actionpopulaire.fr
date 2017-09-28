@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.shortcuts import reverse
+from django.db.models import Q
 
 from celery import shared_task
 
@@ -75,7 +76,9 @@ def send_event_changed_notification(event_pk, changes):
         ))
     }
 
-    recipients = [rsvp.person.email for rsvp in event.rsvps.filter(notifications_enabled=True).select_related('person')]
+    notifications_enabled = Q(notifications_enabled=True) & Q(person__event_notifications=True)
+
+    recipients = [rsvp.person.email for rsvp in event.rsvps.filter(notifications_enabled).select_related('person')]
 
     send_mosaico_email(
         code='EVENT_CHANGED',
@@ -130,7 +133,9 @@ def send_cancellation_notification(event_pk):
 
     event_name = event.name
 
-    recipients = [rsvp.person.email for rsvp in event.rsvps.all()]
+    notifications_enabled = Q(notifications_enabled=True) & Q(person__event_notifications=True)
+
+    recipients = [rsvp.person.email for rsvp in event.rsvps.all(notifications_enabled)]
 
     bindings = {
         "EVENT_NAME": event_name

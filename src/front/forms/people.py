@@ -2,6 +2,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import format_html
 from crispy_forms.helper import FormHelper
+from crispy_forms.bootstrap import FormActions
 
 from ..form_components import *
 from ..form_mixins import TagMixin, LocationFormMixin
@@ -11,7 +12,7 @@ from people.tags import skills_tags, action_tags
 
 __all__ = [
     'BaseSubscriptionForm', 'SimpleSubscriptionForm', 'OverseasSubscriptionForm', 'EmailFormSet', 'ProfileForm',
-    'VolunteerForm',
+    'VolunteerForm', "MessagePreferencesForm",
 ]
 
 
@@ -231,11 +232,11 @@ class VolunteerForm(TagMixin, forms.ModelForm):
             Row(
                 HalfCol(
                     HTML(format_html("<h4>{}</h4>", "Agir près de chez vous")),
-                    *(tag for tag, _, _ in action_tags['nearby'])
+                    *(tag for tag, title, desc in action_tags['nearby'])
                 ),
                 HalfCol(
                     HTML(format_html("<h4>{}</h4>", "Agir sur internet")),
-                    *(tag for tag, _, _ in action_tags['internet'])
+                    *(tag for tag, title, desc in action_tags['internet'])
                 ),
             ),
             Row(
@@ -250,3 +251,34 @@ class VolunteerForm(TagMixin, forms.ModelForm):
         fields = (
             'contact_phone',
         )
+
+
+class MessagePreferencesForm(forms.ModelForm):
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data=data, *args, **kwargs)
+
+        self.no_mail = data is not None and 'no_mail' in data
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.layout = Layout(
+            'subscribed',
+            'group_notifications',
+            'event_notifications',
+            FormActions(
+                Submit('submit', 'Sauvegarder mes préférences'),
+                Submit('no_mail', 'Ne plus recevoir de mails du tout', css_class='btn-danger')
+            )
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if self.no_mail:
+            cleaned_data = {k: False for k in cleaned_data}
+
+        return cleaned_data
+
+    class Meta:
+        model = Person
+        fields = ['subscribed', 'group_notifications', 'event_notifications']

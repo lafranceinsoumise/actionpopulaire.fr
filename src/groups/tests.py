@@ -706,4 +706,3 @@ class EventTasksTestCase(TestCase):
             self.assert_(str(tasks.CHANGE_DESCRIPTION['information']) in message.body)
             self.assert_(str(tasks.CHANGE_DESCRIPTION['contact']) in message.body)
             self.assert_(str(tasks.CHANGE_DESCRIPTION['location']) not in message.body)
-
