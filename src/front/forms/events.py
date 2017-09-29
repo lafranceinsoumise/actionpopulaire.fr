@@ -21,6 +21,14 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
 
         calendar_field = []
 
+        description_field = [
+            'description'
+        ]
+
+        if self.instance.allow_html:
+            del self.fields['description']
+            description_field = []
+
         if not hasattr(self.instance, 'calendar') or self.instance.calendar.user_contributed:
             self.fields['calendar'] = AgendaChoiceField(
                 Calendar.objects.filter(user_contributed=True),
@@ -106,9 +114,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
                     Div('location_country', css_class='col-md-12'),
                 ),
             ),
-            Row(
-                FullCol('description'),
-            ),
+            *description_field,
             *notify_field,
         )
 

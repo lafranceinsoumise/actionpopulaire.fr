@@ -42,6 +42,17 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
         help_text=_("Une description de l'événement, en MarkDown"),
     )
 
+    allow_html = models.BooleanField(
+        _("autoriser le HTML dans la description"),
+        default=False,
+    )
+
+    image = models.ImageField(
+        _("bannière de l'événement"),
+        upload_to="events/banners/",
+        null=True
+    )
+
     published = models.BooleanField(
         _('publié'),
         default=True,

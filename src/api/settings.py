@@ -203,6 +203,10 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.environ.get('STATIC_ROOT')
 
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', 'media')
+
 # Authentication
 
 AUTH_USER_MODEL = 'authentication.Role'

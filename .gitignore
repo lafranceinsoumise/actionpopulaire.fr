@@ -10,3 +10,6 @@ db.sqlite3
 
 # coverage statistics
 .coverage
+
+# media directory in development
+/src/media

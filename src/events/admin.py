@@ -53,7 +53,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('id', 'name', 'created', 'modified')
         }),
         (_('Informations'), {
-            'fields': ('description', 'start_time', 'end_time', 'calendar', 'tags', 'published'),
+            'fields': ('description', 'allow_html', 'image', 'start_time', 'end_time', 'calendar', 'tags', 'published'),
         }),
         (_('Organisation'), {
             'fields': ('organizers',)

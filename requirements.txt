@@ -25,6 +25,8 @@ Jinja2==2.9.6
 kombu==4.1.0
 MarkupSafe==1.0
 oauthlib==2.0.2
+olefile==0.44
+Pillow==4.2.1
 psutil==5.2.2
 psycopg2==2.7.1
 pycodestyle==2.3.1

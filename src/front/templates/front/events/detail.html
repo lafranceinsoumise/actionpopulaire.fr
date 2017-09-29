@@ -20,6 +20,10 @@
         <a class="btn btn-primary btn-block" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour
             participer à l'événement</a>
     {% endif %}
+    {% if event.image %}
+        <img src="{{ event.image.url }}">
+    {% endif %}
+
     <div class="row">
         <h3 class="col-xs-10">{{ event.name }}</h3>
     </div>
@@ -29,7 +33,11 @@
             width="400" height="300" scrolling="no" frameBorder="0"></iframe>
     {% if event.description %}
         <div class="intro">
-            {{ event.description | striptags | escape | linebreaksbr }}
+            {% if event.allow_html %}
+                {{ event.description | safe }}
+            {% else %}
+                {{ event.description | striptags | escape | linebreaksbr }}
+            {% endif %}
             <hr/>
         </div>
     {% endif %}
@@ -51,8 +59,8 @@
         <div><strong>Téléphone&nbsp;:</strong> 0{{ event.contact_phone }}</div>{% endif %}
     <hr/>
     {% if event.participants %}
-    <h4>
-        Nombre de participants&nbsp;: {{ event.participants }}
-    </h4>
+        <h4>
+            Nombre de participants&nbsp;: {{ event.participants }}
+        </h4>
     {% endif %}
 {% endblock %}
