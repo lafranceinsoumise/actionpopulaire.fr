@@ -45,8 +45,7 @@
     </script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js">
     </script>
-
-    {{ form.media }}
+    {% block extra_scripts %}{% endblock %}
 
 </head>
 <body class="home archive">
@@ -62,7 +61,7 @@
                         data-target="#main-navbar-collapse" aria-expanded="false">
                     Menu <span class="caret"></span>
                 </button>
-                <a href="/" class="custom-logo-link" rel="home" itemprop="url"><img
+                <a href="https://lafranceinsoumise.fr" class="custom-logo-link" rel="home" itemprop="url"><img
                         src="{% static "front/images/170428_logoRectangle_transparent.png" %}"
                         class="custom-logo" alt="La France insoumise" itemprop="logo"
                         srcset="{% static "front/images/170428_logoRectangle_transparent.png" %} 1038w, {% static "front/images/170428_logoRectangle_transparent-300x145.png" %} 300w, {% static "170428_logoRectangle_transparent-768x370.png" %} 768w, {% static "front/images/170428_logoRectangle_transparent-1024x493.png" %} 1024w"
@@ -105,22 +104,25 @@
             <div id="supporter-nav-collapse" class="collapse navbar-collapse">
                 <div class="menu-menu-principal-container">
                     {% if user.is_authenticated %}
-                    <ul id="menu-menu-principal" class="nav navbar-nav">
-                        <li class="menu-item"><a title="Mes groupes" href="{% url "list_groups" %}">Mes groupes</a></li>
-                        <li class="menu-item"><a title="Mes événements" href="{% url "list_events" %}">Mes
-                            événements</a>
-                        </li>
-                        <li class="menu-item"><a title="J'en dis plus sur moi" href="{% url "change_profile" %}">J'en
-                            dis plus sur moi</a></li>
-                        <li class="menu-item"><a title="J'agis" href="{% url "volunteer" %}">J'agis</a></li>
-                    </ul>
+                        <ul id="menu-menu-principal" class="nav navbar-nav">
+                            <li class="menu-item"><a title="Mes groupes" href="{% url "list_groups" %}">Mes groupes</a>
+                            </li>
+                            <li class="menu-item"><a title="Mes événements" href="{% url "list_events" %}">Mes
+                                événements</a>
+                            </li>
+                            <li class="menu-item"><a title="J'en dis plus sur moi" href="{% url "change_profile" %}">J'en
+                                dis plus sur moi</a></li>
+                            <li class="menu-item"><a title="J'agis" href="{% url "volunteer" %}">J'agis</a></li>
+                        </ul>
                     {% endif %}
                     <ul id="menu-menu-connexion" class="nav navbar-nav navbar-right">
-                      {% if user.is_authenticated %}
-                      <li class="menu-item"><a title="Déconnexion" href="{% url "oauth_disconnect" %}">Déconnexion</a></li>
-                      {% else %}
-                      <li class="menu-item"><a title="Connexion" href="{% url "oauth_redirect_view" %}">Connexion</a></li>
-                      {% endif %}
+                        {% if user.is_authenticated %}
+                            <li class="menu-item"><a title="Déconnexion"
+                                                     href="{% url "oauth_disconnect" %}">Déconnexion</a></li>
+                        {% else %}
+                            <li class="menu-item"><a title="Connexion"
+                                                     href="{% url "oauth_redirect_view" %}">Connexion</a></li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

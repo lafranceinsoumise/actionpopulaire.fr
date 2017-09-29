@@ -12,7 +12,7 @@ from events.tasks import send_event_changed_notification, send_cancellation_noti
 from lib.tasks import geocode_event
 
 from ..forms import EventForm, AddOrganizerForm
-from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin, SimpleOpengraphMixin
+from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin
 
 __all__ = [
     "EventListView", "CreateEventView", "ManageEventView", "ModifyEventView", "QuitEventView", "CancelEventView",
