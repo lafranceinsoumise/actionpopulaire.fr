@@ -82,8 +82,8 @@ def geocode_nominatim(item):
 
     if results:
         item.coordinates = Point(float(results[0]['lon']), float(results[0]['lat']))
-        item.coordinates_lon = LocationMixin.COORDINATES_UNKNOWN_PRECISION
+        item.coordinates_type = LocationMixin.COORDINATES_UNKNOWN_PRECISION
     else:
-        item.coordinates = LocationMixin.COORDINATES_NOT_FOUND
+        item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
 
     item.save()
