@@ -293,9 +293,9 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
 
 
-# if DEBUG:
-#     INSTALLED_APPS += ['silk']
-#     MIDDLEWARE.insert(0, 'silk.middleware.SilkyMiddleware')
+if DEBUG:
+    INSTALLED_APPS += ['silk']
+    MIDDLEWARE.insert(0, 'silk.middleware.SilkyMiddleware')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
