@@ -20,7 +20,7 @@ ENABLE_FRONT = os.environ.get('ENABLE_FRONT', 'n').lower() in ['y', 'yes', 'true
 
 # these domain names are used when absolute URLs should be generated (e.g. to include in emails)
 API_DOMAIN = os.environ.get('API_DOMAIN', 'https://api.lafranceinsoumise.fr')
-FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', 'https://api.lafranceinsoumise.fr')
+FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', 'https://agir.lafranceinsoumise.fr')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -312,9 +312,6 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CELERY_BROKER_URL = os.environ.get('BROKER_URL', 'redis://')
 # make sure celery does not mess with the root logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
-
-# App domain to which users may be redirected to see groups and events
-APP_DOMAIN = os.environ.get('APP_DOMAIN', 'https://app.lafranceinsoumise.fr')
 
 OAUTH = {
     'client_id': os.environ.get('OAUTH_CLIENT_ID', 'api_front'),

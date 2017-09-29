@@ -1,15 +1,14 @@
 from collections import OrderedDict
-from urllib.parse import urljoin
 
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.db.models import Q
-from django.shortcuts import reverse
 
 from celery import shared_task
 
 from lib.mails import send_mosaico_email
+from front.utils import front_url
 
 from .models import SupportGroup, Membership
 
@@ -39,8 +38,8 @@ def send_support_group_creation_notification(membership_pk):
         "CONTACT_PHONE_VISIBILITY": _("caché") if group.contact_hide_phone else _("public"),
         "LOCATION_NAME": group.location_name,
         "LOCATION_ADDRESS": group.short_address,
-        "GROUP_LINK": urljoin(settings.APP_DOMAIN, "/groupes/details/{}".format(group.pk)),
-        "MANAGE_GROUP_LINK": reverse('manage_group', kwargs={'pk': group.pk}, urlconf='front.urls'),
+        "GROUP_LINK": front_url("view_group", kwargs={'pk': group.pk}),
+        "MANAGE_GROUP_LINK": front_url('manage_group', kwargs={'pk': group.pk}),
     }
 
     send_mosaico_email(
@@ -69,7 +68,7 @@ def send_support_group_changed_notification(support_group_pk, changes):
     bindings = {
         "GROUP_NAME": group.name,
         "GROUP_CHANGES": change_fragment,
-        "GROUP_LINK": urljoin(settings.APP_DOMAIN, "/groupes/details/{}".format(support_group_pk))
+        "GROUP_LINK": front_url("view_group", kwargs={'pk': support_group_pk})
     }
 
     notifications_enabled = Q(notifications_enabled=True) & Q(person__group_notifications=True)
@@ -102,10 +101,7 @@ def send_someone_joined_notification(membership_pk):
     bindings = {
         "GROUP_NAME": membership.supportgroup.name,
         "PERSON_INFORMATION": person_information,
-        "MANAGE_GROUP_LINK": urljoin(
-            settings.FRONT_DOMAIN,
-            reverse("manage_group", kwargs={"pk": membership.supportgroup.pk}, urlconf='front.urls')
-        )
+        "MANAGE_GROUP_LINK": front_url("manage_group", kwargs={"pk": membership.supportgroup.pk})
     }
 
     send_mosaico_email(

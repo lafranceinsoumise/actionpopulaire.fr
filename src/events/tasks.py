@@ -1,15 +1,14 @@
 from collections import OrderedDict
-from urllib.parse import urljoin
 
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 from django.conf import settings
-from django.shortcuts import reverse
 from django.db.models import Q
 
 from celery import shared_task
 
 from lib.mails import send_mosaico_email
+from front.utils import front_url
 
 from .models import Event, RSVP, OrganizerConfig
 
@@ -40,8 +39,8 @@ def send_event_creation_notification(organizer_config_pk):
         "CONTACT_PHONE_VISIBILITY": _("caché") if event.contact_hide_phone else _("public"),
         "LOCATION_NAME": event.location_name,
         "LOCATION_ADDRESS": event.short_address,
-        "EVENT_LINK": urljoin(settings.APP_DOMAIN, "/groupes/details/{}".format(event.pk)),
-        "MANAGE_EVENT_LINK": reverse('manage_event', kwargs={'pk': event.pk}, urlconf='front.urls'),
+        "EVENT_LINK": front_url("view_event", kwargs={'pk': event.pk}),
+        "MANAGE_EVENT_LINK": front_url('manage_event', kwargs={'pk': event.pk}),
     }
 
     send_mosaico_email(
@@ -70,10 +69,8 @@ def send_event_changed_notification(event_pk, changes):
     bindings = {
         "EVENT_NAME": event.name,
         "EVENT_CHANGES": change_fragment,
-        "EVENT_LINK": urljoin(settings.APP_DOMAIN, "/evenements/details/{}".format(event_pk)),
-        "EVENT_QUIT_LINK": urljoin(settings.FRONT_DOMAIN, reverse(
-            "quit_event", kwargs={'pk': event_pk}, urlconf="front.urls"
-        ))
+        "EVENT_LINK": front_url("view_event", kwargs={'pk': event_pk}),
+        "EVENT_QUIT_LINK": front_url("quit_event", kwargs={'pk': event_pk})
     }
 
     notifications_enabled = Q(notifications_enabled=True) & Q(person__event_notifications=True)
@@ -105,10 +102,7 @@ def send_rsvp_notification(rsvp_pk):
     bindings = {
         "EVENT_NAME": rsvp.event.name,
         "PERSON_INFORMATION": person_information,
-        "MANAGE_EVENT_LINK": urljoin(
-            settings.FRONT_DOMAIN,
-            reverse("manage_event", kwargs={"pk": rsvp.event.pk}, urlconf="front.urls")
-        )
+        "MANAGE_EVENT_LINK": front_url("manage_event", kwargs={"pk": rsvp.event.pk})
     }
 
     send_mosaico_email(
