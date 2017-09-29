@@ -11,6 +11,18 @@ from events.models import Event, RSVP, Calendar, OrganizerConfig
 from groups.models import SupportGroup, Membership
 
 
+class ProfileFormTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person('test@test.com')
+
+    def test_can_add_tag(self):
+        self.client.force_login(self.person.role)
+        response = self.client.post(reverse('change_profile'), {'info blogueur': 'on'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('info blogueur', [tag.label for tag in self.person.tags.all()])
+
+
 class SimpleSubscriptionFormTestCase(TestCase):
     def test_can_post(self):
         response = self.client.post('/inscription/', {'email': 'example@example.com', 'location_zip': '75018'})
