@@ -1,11 +1,12 @@
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.utils.translation import ugettext_lazy as _
+from django.utils.html import format_html
 from django.db.models import Count
 from api.admin import admin_site
-from ajax_select import make_ajax_form
 
 from lib.admin import CenterOnFranceMixin
+from front.utils import front_url
 from . import models
 
 
@@ -23,7 +24,7 @@ class MembershipInline(admin.TabularInline):
 class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     fieldsets = (
         (None, {
-            'fields': ('id', 'name', 'created', 'modified')
+            'fields': ('id', 'name', 'link', 'created', 'modified')
         }),
         (_('Informations'), {
             'fields': ('description', 'tags', 'published')
@@ -61,6 +62,10 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         return object.membership_count
     membership_count.short_description = _("Nombre de membres")
     membership_count.admin_order_field = 'membership_count'
+
+    def link(self, object):
+        return format_html('<a href="{0}">{0}</a>', front_url('view_event', kwargs={'pk': object.pk}))
+    link.short_description = _("Page sur le site")
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

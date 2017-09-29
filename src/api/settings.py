@@ -18,9 +18,6 @@ from django.contrib.messages import ERROR
 ENABLE_API = not os.environ.get('ENABLE_API', 'y').lower() in ['n', 'no', 'false']
 ENABLE_FRONT = os.environ.get('ENABLE_FRONT', 'n').lower() in ['y', 'yes', 'true']
 
-# these domain names are used when absolute URLs should be generated (e.g. to include in emails)
-API_DOMAIN = os.environ.get('API_DOMAIN', 'https://api.lafranceinsoumise.fr')
-FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', 'https://agir.lafranceinsoumise.fr')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -37,6 +34,10 @@ SENDGRID_SES_WEBHOOK_PASSWORD = os.environ.get('SENDGRID_SES_WEBHOOK_PASSWORD', 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'true').lower() == 'true'
+
+# these domain names are used when absolute URLs should be generated (e.g. to include in emails)
+API_DOMAIN = os.environ.get('API_DOMAIN', 'http://localhost:8000' if DEBUG else 'https://api.lafranceinsoumise.fr')
+FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', 'http://localhost:8000' if DEBUG else 'https://agir.lafranceinsoumise.fr')
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 

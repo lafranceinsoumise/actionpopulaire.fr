@@ -4,10 +4,12 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import F, Sum
 from django.utils import timezone
 from django.utils.encoding import force_text
+from django.utils.html import format_html
 from api.admin import admin_site
 from ajax_select import make_ajax_form
 
 from lib.admin import CenterOnFranceMixin
+from front.utils import front_url
 
 from . import models
 
@@ -50,7 +52,7 @@ class EventStatusFilter(admin.SimpleListFilter):
 class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     fieldsets = (
         (None, {
-            'fields': ('id', 'name', 'created', 'modified')
+            'fields': ('id', 'name', 'link', 'created', 'modified')
         }),
         (_('Informations'), {
             'fields': ('description', 'allow_html', 'image', 'start_time', 'end_time', 'calendar', 'tags', 'published'),
@@ -74,7 +76,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     filter_horizontal = ('organizers',)
 
-    readonly_fields = ('id', 'organizers', 'created', 'modified', 'coordinates_type')
+    readonly_fields = ('id', 'link', 'organizers', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'start_time'
 
     list_display = ('name', 'published', '_calendar', 'location_short', 'attendee_count', 'start_time', 'created')
@@ -101,6 +103,10 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         return object.attendee_count
     attendee_count.short_description = _("Nombre de personnes inscrites")
     attendee_count.admin_order_field = 'attendee_count'
+
+    def link(self, object):
+        return format_html('<a href="{0}">{0}</a>', front_url('view_event', kwargs={'pk': object.pk}))
+    link.short_description = _("Page sur le site")
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
