@@ -263,6 +263,11 @@ if not DEBUG:
             }
         },
         'loggers': {
+            'django.template': {
+                'handlers': ['journald'],
+                'level': 'INFO',
+                'propagate': False,
+            },
             'django': {
                 'handlers': ['journald'],
                 'level': 'DEBUG',
