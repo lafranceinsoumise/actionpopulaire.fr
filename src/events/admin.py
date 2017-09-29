@@ -39,7 +39,7 @@ class EventStatusFilter(admin.SimpleListFilter):
 class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     fieldsets = (
         (None, {
-            'fields': ('id', 'name',)
+            'fields': ('id', 'name', 'created', 'modified')
         }),
         (_('Informations'), {
             'fields': ('description', 'start_time', 'end_time', 'calendar', 'tags', 'published'),
@@ -49,7 +49,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
-                       'location_state', 'location_country', 'coordinates')
+                       'location_state', 'location_country', 'coordinates', 'coordinates_type')
         }),
         (_('Contact'), {
             'fields': ('contact_name', 'contact_email', 'contact_phone')
@@ -63,11 +63,11 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     filter_horizontal = ('organizers',)
 
-    readonly_fields = ('id', 'organizers')
-    date_hierarchy = 'created'
+    readonly_fields = ('id', 'organizers', 'created', 'modified', 'coordinates_type')
+    date_hierarchy = 'start_time'
 
-    list_display = ('name', 'location_short', 'attendee_count', 'start_time')
-    list_filter = (EventStatusFilter, 'calendar')
+    list_display = ('name', 'published', 'location_short', 'attendee_count', 'start_time')
+    list_filter = (EventStatusFilter, 'calendar', 'published')
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
 

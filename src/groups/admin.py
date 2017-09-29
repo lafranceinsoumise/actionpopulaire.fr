@@ -24,14 +24,14 @@ class MembershipInline(admin.TabularInline):
 class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     fieldsets = (
         (None, {
-            'fields': ('id', 'name',)
+            'fields': ('id', 'name', 'created', 'modified')
         }),
         (_('Informations'), {
             'fields': ('description', 'tags', 'published')
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
-                       'location_state', 'location_country', 'coordinates')
+                       'location_state', 'location_country', 'coordinates', 'coordinates_type')
         }),
         (_('Contact'), {
             'fields': ('contact_name', 'contact_email', 'contact_phone')
@@ -41,13 +41,11 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         }),
     )
     inlines = (MembershipInline,)
-    readonly_fields = ('id',)
+    readonly_fields = ('id', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'created'
 
-    inlines = (MembershipInline,)
-
-    list_display = ('name', 'location_short', 'membership_count')
-    search_fields = ('name', 'location_city', 'location_country',)
+    list_display = ('name', 'published', 'location_short', 'membership_count')
+    list_filter = ('published',)
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
 
