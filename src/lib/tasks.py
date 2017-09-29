@@ -23,7 +23,6 @@ def geocode_element(item):
 
 
 def create_geocoder(model):
-    @shared_task
     def geocode_model(pk):
         try:
             item = model.objects.get(pk=pk)
@@ -32,7 +31,9 @@ def create_geocoder(model):
 
         geocode_element(item)
 
-    return geocode_model
+    geocode_model.__name__ = "geocode_{}".format(model.__name__.lower())
+
+    return shared_task(geocode_model)
 
 
 geocode_event = create_geocoder(Event)
