@@ -3,23 +3,6 @@
 {% block title %}«&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
 {% block main %}
-    {% if user.is_authenticated %}
-        {% if has_rsvp %}
-            <p>
-                Je suis déjà inscrit⋅e à cet événement
-                &bull; <a href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
-            </p>
-        {% else %}
-            <form action="{% url "view_event" event.pk %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="rsvp"/>
-                <input type="submit" class="btn btn-primary btn-block" value="Participer à cet événement"/>
-            </form>
-        {% endif %}
-    {% else %}
-        <a class="btn btn-primary btn-block" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour
-            participer à l'événement</a>
-    {% endif %}
     {% if event.image %}
         <img src="{{ event.image.url }}">
     {% endif %}
@@ -63,4 +46,22 @@
             Nombre de participants&nbsp;: {{ event.participants }}
         </h4>
     {% endif %}
+    {% if user.is_authenticated %}
+        {% if has_rsvp %}
+            <p>
+                Je suis déjà inscrit⋅e à cet événement
+                &bull; <a href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
+            </p>
+        {% else %}
+            <form action="{% url "view_event" event.pk %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="rsvp"/>
+                <input type="submit" class="btn btn-primary btn-block" value="Participer à cet événement"/>
+            </form>
+        {% endif %}
+    {% else %}
+        <a class="btn btn-primary btn-block" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour
+            participer à l'événement</a>
+    {% endif %}
+
 {% endblock %}
