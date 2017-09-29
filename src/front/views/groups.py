@@ -83,7 +83,7 @@ class SupportGroupManagementView(LoginRequiredMixin, CheckMembershipMixin, Detai
     template_name = "front/groups/manage.html"
     queryset = SupportGroup.objects.all().prefetch_related('memberships')
     messages = {
-        'add_referent_form': ugettext_lazy("{} est maintenant correctement signalé comme second·e référent·e"),
+        'add_referent_form': ugettext_lazy("{} est maintenant correctement signalé comme second·e animateur·rice"),
         'add_manager_form': ugettext_lazy("{} a bien été ajouté·e comme gestionnaire pour ce groupe"),
     }
 
@@ -274,7 +274,7 @@ class RemoveManagerView(LoginRequiredMixin, CheckMembershipMixin, DetailView):
         messages.add_message(
             request,
             messages.SUCCESS,
-            _("{} n'est plus un référent du groupe.").format(self.object.person.email)
+            _("{} n'est plus un gestionnaire du groupe.").format(self.object.person.email)
         )
 
         return HttpResponseRedirect(
@@ -313,7 +313,7 @@ class QuitSupportGroupView(LoginRequiredMixin, DeleteView):
             messages.add_message(
                 request,
                 messages.ERROR,
-                _("Les référents ne peuvent pas quitter un groupe sans avoir abandonné leur role.")
+                _("Les animateurs ne peuvent pas quitter un groupe sans avoir abandonné leur role.")
             )
 
         else:

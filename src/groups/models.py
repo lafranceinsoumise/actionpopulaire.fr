@@ -85,8 +85,8 @@ class Membership(TimeStampedModel):
         editable=False,
     )
 
-    is_referent = models.BooleanField(_('membre référent'), default=False)
-    is_manager = models.BooleanField(_('gestionnaire'), default=False)
+    is_referent = models.BooleanField(_('animateur du groupe'), default=False)
+    is_manager = models.BooleanField(_('autre gestionnaire du groupe'), default=False)
 
     notifications_enabled = models.BooleanField(
         _('Recevoir les notifications de ce groupe'), default=True,
@@ -102,6 +102,6 @@ class Membership(TimeStampedModel):
         )
 
     def __str__(self):
-        return _('{person} --> {supportgroup},  (référent = {is_referent})').format(
+        return _('{person} --> {supportgroup},  (animateur = {is_referent})').format(
             person=self.person, supportgroup=self.supportgroup, is_referent=self.is_referent
         )

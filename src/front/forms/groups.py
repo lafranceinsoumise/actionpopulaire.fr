@@ -105,11 +105,11 @@ class AddReferentForm(forms.Form):
 
         self.fields['referent'] = MembershipChoiceField(
             queryset=support_group.memberships.filter(is_referent=False),
-            label=_('Nouveau référent')
+            label=_('Second animateur')
         )
 
         self.helper = FormHelper()
-        self.helper.add_input(Submit('submit', _('Ajouter comme second référent')))
+        self.helper.add_input(Submit('submit', _('Signaler comme second animateur')))
 
     def save(self, commit=True):
         membership = self.cleaned_data['referent']

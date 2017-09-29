@@ -17,7 +17,7 @@ from .models import SupportGroup, Membership
 CHANGE_DESCRIPTION = OrderedDict((
     ("information", _("le nom ou la description du groupe")),
     ("location", _("le lieu de rencontre du groupe d'appui")),
-    ("contact", _("les informations de contact des référents du groupe"))
+    ("contact", _("les informations de contact des animateurs du groupe"))
 ))
 
 
