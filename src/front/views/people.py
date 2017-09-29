@@ -65,7 +65,7 @@ class VolunteerView(UpdateView):
         return self.request.user.person
 
 
-class VolunteerConfirmationView(TemplateView):
+class VolunteerConfirmationView(LoginRequiredMixin, TemplateView):
     template_name = 'front/people/confirmation_volunteer.html'
 
 
