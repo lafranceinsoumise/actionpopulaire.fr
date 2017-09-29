@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import F, Sum
 from django.utils import timezone
+from django.utils.encoding import force_text
 from api.admin import admin_site
 from ajax_select import make_ajax_form
 
@@ -18,10 +19,20 @@ class EventStatusFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return (
+            ('all', _('All')),
             ('finished', _('Terminé')),
             ('current', _('En cours')),
-            ('upcoming', _('Prévu')),
+            ('upcoming', _('À venir')),
         )
+
+    def choices(self, changelist):
+        for lookup, title in self.lookup_choices:
+            yield {
+                'selected': (lookup == 'upcoming' and self.value() is None) or self.value() == force_text(lookup),
+                'query_string': changelist.get_query_string({self.parameter_name: lookup}, []),
+                'display': title,
+            }
+
 
     def queryset(self, request, queryset):
         now = timezone.now()
@@ -29,10 +40,10 @@ class EventStatusFilter(admin.SimpleListFilter):
             return queryset.filter(end_time__lt=now)
         elif self.value() == 'current':
             return queryset.filter(start_time__lte=now, end_time__gte=now)
-        elif self.value() == 'upcoming':
-            return queryset.filter(start_time__gt=now)
-        else:
+        elif self.value() == 'all':
             return queryset
+        else:
+            return queryset.filter(start_time__gt=now)
 
 
 @admin.register(models.Event, site=admin_site)
@@ -66,7 +77,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     readonly_fields = ('id', 'organizers', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'start_time'
 
-    list_display = ('name', 'published', 'location_short', 'attendee_count', 'start_time')
+    list_display = ('name', 'published', '_calendar', 'location_short', 'attendee_count', 'start_time', 'created')
     list_filter = (EventStatusFilter, 'calendar', 'published')
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
@@ -79,6 +90,12 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         )
     location_short.short_description = _("Lieu")
     location_short.admin_order_field = 'location_city'
+
+    def _calendar(self, object):
+        return object.calendar.description
+
+    _calendar.short_description = _('Agenda')
+    _calendar.admin_order_field = 'calendar__description'
 
     def attendee_count(self, object):
         return object.attendee_count

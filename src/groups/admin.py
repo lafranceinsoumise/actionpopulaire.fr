@@ -43,7 +43,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     readonly_fields = ('id', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'created'
 
-    list_display = ('name', 'published', 'location_short', 'membership_count')
+    list_display = ('name', 'published', 'location_short', 'membership_count', 'created')
     list_filter = ('published',)
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
