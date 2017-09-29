@@ -11,7 +11,6 @@ from . import models
 
 class MembershipInline(admin.TabularInline):
     model = models.Membership
-    form = make_ajax_form(models.Membership, {'person': 'people'})
     can_add = False
     fields = ('person', 'is_referent', 'is_manager')
     readonly_fields = ('person',)
