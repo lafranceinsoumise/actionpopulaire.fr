@@ -55,7 +55,7 @@ class ChangeProfileConfirmationView(SimpleOpengraphMixin, TemplateView):
     template_name = 'front/people/confirmation_profile.html'
 
 
-class VolunteerView(UpdateView):
+class VolunteerView(LoginRequiredMixin, UpdateView):
     template_name = "front/people/volunteer.html"
     form_class = VolunteerForm
     success_url = reverse_lazy("confirmation_volunteer")
@@ -65,7 +65,7 @@ class VolunteerView(UpdateView):
         return self.request.user.person
 
 
-class VolunteerConfirmationView(LoginRequiredMixin, TemplateView):
+class VolunteerConfirmationView(TemplateView):
     template_name = 'front/people/confirmation_volunteer.html'
 
 
