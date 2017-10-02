@@ -41,7 +41,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         }),
     )
     inlines = (MembershipInline,)
-    readonly_fields = ('id', 'created', 'modified', 'coordinates_type')
+    readonly_fields = ('id', 'link', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'created'
 
     list_display = ('name', 'published', 'location_short', 'membership_count', 'created')
