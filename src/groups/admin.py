@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.utils.translation import ugettext_lazy as _
-from django.utils.html import format_html
+from django.utils.html import format_html, escape
+from django.utils.safestring import mark_safe
+from django.shortcuts import reverse
 from django.db.models import Count
 from api.admin import admin_site
 
@@ -13,8 +15,14 @@ from . import models
 class MembershipInline(admin.TabularInline):
     model = models.Membership
     can_add = False
-    fields = ('person', 'is_referent', 'is_manager')
-    readonly_fields = ('person',)
+    fields = ('person_link', 'is_referent', 'is_manager')
+    readonly_fields = ('person_link',)
+
+    def person_link(self, obj):
+        return mark_safe('<a href="%s">%s</a>' % (
+            reverse('admin:people_person_change', args=(obj.person.id,)),
+            escape(obj.person.email)
+        ))
 
     def has_add_permission(self, request):
         return False

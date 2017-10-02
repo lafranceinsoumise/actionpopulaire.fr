@@ -1,14 +1,51 @@
 from django.shortcuts import reverse
 from django.contrib import admin
+from django.utils.safestring import mark_safe
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from api.admin import admin_site
 
 from .models import Person, PersonTag
+from events.models import RSVP
+from groups.models import Membership
+
+
+class RSVPInline(admin.TabularInline):
+    model = RSVP
+    can_add = False
+    fields = ('event_link',)
+    readonly_fields = ('event_link',)
+
+    def event_link(self, obj):
+        return mark_safe('<a href="%s">%s</a>' % (
+            reverse('admin:events_event_change', args=(obj.event.id,)),
+            escape(obj.event.name)
+        ))
+
+    def has_add_permission(self, request):
+        return False
+
+
+class MembershipInline(admin.TabularInline):
+    model = Membership
+    can_add = False
+    fields = ('supportgroup_link', 'is_referent', 'is_manager')
+    readonly_fields = ('supportgroup_link',)
+
+    def supportgroup_link(self, obj):
+        return mark_safe('<a href="%s">%s</a>' % (
+            reverse('admin:groups_supportgroup_change', args=(obj.supportgroup.id,)),
+            escape(obj.supportgroup.name)
+        ))
+
+    def has_add_permission(self, request):
+        return False
 
 
 @admin.register(Person, site=admin_site)
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('email', 'subscribed', 'role_link')
+    list_display = ('first_name', 'last_name', 'email', 'subscribed', 'role_link')
+    list_display_links = ('email',)
     search_fields = ('emails__address', 'first_name', 'last_name',)
 
     fieldsets = (
@@ -29,11 +66,13 @@ class PersonAdmin(admin.ModelAdmin):
         })
     )
 
-    readonly_fields = ('created', 'modified', 'role_link')
+    readonly_fields = ('created', 'modified', 'role_link', 'supportgroups', 'events')
 
     search_fields = ('emails__address', 'first_name', 'last_name', 'location_zip')
 
     list_filter = ('tags', 'subscribed')
+
+    inlines = (RSVPInline, MembershipInline)
 
     def role_link(self, obj):
         return '<a href="%s">%s</a>' % (

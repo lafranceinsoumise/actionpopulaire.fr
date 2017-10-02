@@ -35,7 +35,6 @@ class EventStatusFilter(admin.SimpleListFilter):
                 'display': title,
             }
 
-
     def queryset(self, request, queryset):
         now = timezone.now()
         if self.value() == 'finished':
@@ -71,10 +70,6 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('nb_id', 'nb_path',)
         })
     )
-
-    form = make_ajax_form(models.Event, {'organizers': 'people'})
-
-    filter_horizontal = ('organizers',)
 
     readonly_fields = ('id', 'link', 'organizers', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'start_time'
