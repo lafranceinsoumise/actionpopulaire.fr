@@ -8,7 +8,12 @@
     {% endif %}
 
     <div class="row">
-        <h3 class="col-xs-10">{{ event.name }}</h3>
+        <h3 class="col-sm-10">{{ event.name }}</h3>
+        {% if user.is_authenticated and user.is_staff %}
+        <div class="col-sm-2">
+          <a href="{% url "admin:events_event_change" event.id %}">Administration</a>
+        </div>
+        {% endif %}
     </div>
     <hr/>
     <iframe title="Carte" class="col-xs-6" style="float: right;"
