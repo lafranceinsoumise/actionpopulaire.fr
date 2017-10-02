@@ -64,7 +64,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     membership_count.admin_order_field = 'membership_count'
 
     def link(self, object):
-        return format_html('<a href="{0}">{0}</a>', front_url('view_event', kwargs={'pk': object.pk}))
+        return format_html('<a href="{0}">{0}</a>', front_url('view_group', kwargs={'pk': object.pk}))
     link.short_description = _("Page sur le site")
 
     def get_queryset(self, request):
