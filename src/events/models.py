@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
+from django.utils.text import slugify
 from model_utils.models import TimeStampedModel
 
 from lib.models import (
@@ -9,6 +10,11 @@ from lib.models import (
 
 
 EVENT_GRACE_PERIOD = timezone.timedelta(hours=12)
+
+
+def published_event_only():
+    """Returns a Q object expressing the condition "published events only" """
+    return models.Q(published=True, end_time__gt=timezone.now() - EVENT_GRACE_PERIOD)
 
 
 class PublishedEventManager(models.Manager):
@@ -50,7 +56,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
     image = models.ImageField(
         _("bannière de l'événement"),
         upload_to="events/banners/",
-        null=True
+        null=True, blank=True
     )
 
     published = models.BooleanField(
@@ -125,11 +131,39 @@ class EventTag(AbstractLabel):
         verbose_name = 'tag'
 
 
-class Calendar(NationBuilderResource, AbstractLabel):
+class CalendarManager(models.Manager):
+    def create_calendar(self, name, slug=None, **kwargs):
+        if slug is None:
+            slug = slugify(name)
+
+        return super().create(
+            name=name,
+            slug=slug,
+            **kwargs
+        )
+
+
+class Calendar(NationBuilderResource):
+    objects = CalendarManager()
+
+    name = models.CharField(_("titre"), max_length=255)
+    slug = models.SlugField(_("slug"))
+
     user_contributed = models.BooleanField(_('Les utilisateurs peuvent ajouter des événements'), default=False)
+
+    description = models.TextField(_('description'), blank=True, help_text=_("Saisissez une description (HTML accepté)"))
+
+    image = models.ImageField(
+        _("bannière"),
+        upload_to='calendars/',
+        null=True, blank=True,
+    )
 
     class Meta:
         verbose_name = 'agenda'
+
+    def __str__(self):
+        return self.name
 
 
 class RSVP(TimeStampedModel):

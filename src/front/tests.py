@@ -84,7 +84,7 @@ class PagesLoadingTestCase(TestCase):
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
 
-        calendar = Calendar.objects.create(label='default')
+        calendar = Calendar.objects.create_calendar('default')
 
         self.event = Event.objects.create(
             name="event",
@@ -150,7 +150,7 @@ class AuthorizationTestCase(TestCase):
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
 
-        calendar = Calendar.objects.create(label='default')
+        calendar = Calendar.objects.create_calendar('default')
 
         self.event = Event.objects.create(
             name="event",
@@ -206,7 +206,7 @@ class EventPermissionsTestCase(TestCase):
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
 
-        self.calendar = Calendar.objects.create(label='default', user_contributed=True)
+        self.calendar = Calendar.objects.create_calendar('default', user_contributed=True)
 
         self.organized_event = Event.objects.create(
             name="Organized event",
@@ -566,7 +566,7 @@ class GroupPageTestCase(TestCase):
 
 class NBUrlsTestCase(TestCase):
     def setUp(self):
-        calendar = Calendar.objects.create(label='default')
+        calendar = Calendar.objects.create_calendar('default')
         now = timezone.now()
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)

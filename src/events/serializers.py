@@ -2,7 +2,7 @@ from rest_framework import serializers, exceptions
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from lib.serializers import (
-    LegacyBaseAPISerializer, LegacyLocationAndContactMixin, ExistingRelatedLabelField,
+    LegacyBaseAPISerializer, LegacyLocationAndContactMixin,
     RelatedLabelField, UpdatableListSerializer
 )
 
@@ -26,7 +26,10 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['calendar'] = ExistingRelatedLabelField(queryset=self.get_authorized_calendars_queryset())
+        self.fields['calendar'] = serializers.SlugRelatedField(
+            queryset=self.get_authorized_calendars_queryset(),
+            slug_field='slug'
+        )
 
     def get_authorized_calendars_queryset(self):
         if not self.context['request'].user.is_superuser:
@@ -74,7 +77,7 @@ class SummaryEventSerializer(serializers.ModelSerializer):
 class CalendarSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Calendar
-        fields = ('url', 'id', 'label', 'description')
+        fields = ('url', 'id', 'slug', 'name', 'description')
         extra_kwargs = {
             'url': {'view_name': 'legacy:calendar-detail'},
         }

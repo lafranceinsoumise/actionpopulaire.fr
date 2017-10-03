@@ -24,7 +24,7 @@ from .viewsets import LegacyEventViewSet, RSVPViewSet, NestedRSVPViewSet
 class BasicEventTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.calendar = Calendar.objects.create(label='test')
+        cls.calendar = Calendar.objects.create_calendar('test')
 
         cls.start_time = timezone.now()
         cls.end_time = cls.start_time + timezone.timedelta(hours=2)
@@ -60,7 +60,7 @@ class BasicEventTestCase(TestCase):
 class RSVPTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        calendar = Calendar.objects.create(label='test')
+        calendar = Calendar.objects.create_calendar('test')
 
         start_time = timezone.now()
         end_time = start_time + timezone.timedelta(hours=3)
@@ -129,7 +129,7 @@ class RSVPTestCase(TestCase):
 
 class LegacyEventViewSetTestCase(TestCase):
     def setUp(self):
-        self.calendar = Calendar.objects.create(label='calendar', user_contributed=True)
+        self.calendar = Calendar.objects.create_calendar('calendar', user_contributed=True)
 
         self.event = Event.objects.create(
             name='event',
@@ -383,8 +383,8 @@ class FiltersTestCase(APITestCase):
     def setUp(self):
         self.superuser = Person.objects.create_superperson('super@user.fr', None)
 
-        self.calendar1 = calendar1 = Calendar.objects.create(label='Agenda')
-        self.calendar2 = calendar2 = Calendar.objects.create(label='Agenda2')
+        self.calendar1 = calendar1 = Calendar.objects.create_calendar('Agenda')
+        self.calendar2 = calendar2 = Calendar.objects.create_calendar('Agenda2')
 
         tz = timezone.get_default_timezone()
 
@@ -518,7 +518,7 @@ class FiltersTestCase(APITestCase):
         )
 
     def test_can_filter_by_calendar(self):
-        response = self.client.get('/legacy/events/?calendar=%s' % self.calendar1.label)
+        response = self.client.get('/legacy/events/?calendar=%s' % self.calendar1.slug)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('_items', response.data)
@@ -555,7 +555,7 @@ class RSVPEndpointTestCase(TestCase):
             email='unprivileged@event.com',
         )
 
-        calendar = Calendar.objects.create(label='Agenda')
+        calendar = Calendar.objects.create_calendar('Agenda')
 
         tz = timezone.get_default_timezone()
 
@@ -676,7 +676,7 @@ class EventRSVPEndpointTestCase(TestCase):
             email='unprivileged@event.com',
         )
 
-        calendar = Calendar.objects.create(label='Agenda')
+        calendar = Calendar.objects.create_calendar('Agenda')
 
         tz = timezone.get_default_timezone()
 
@@ -805,7 +805,7 @@ class EventTasksTestCase(TestCase):
     def setUp(self):
         now = timezone.now()
 
-        self.calendar = Calendar.objects.create(label='default')
+        self.calendar = Calendar.objects.create_calendar('default')
 
         self.creator = Person.objects.create_person("moi@moi.fr")
         self.event = Event.objects.create(
@@ -904,7 +904,7 @@ class EventWorkerTestCase(TestCase):
 
         self.worker.role.groups.add(Group.objects.get(name='workers'))
 
-        self.calendar = Calendar.objects.create(label='calendar')
+        self.calendar = Calendar.objects.create_calendar('calendar')
 
         self.unpublished_event = Event.objects.create(
             name='event',

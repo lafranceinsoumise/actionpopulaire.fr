@@ -108,7 +108,7 @@ class LegacyPersonEndpointPermissionsTestCase(APITestCase):
         self.adder_person.role.user_permissions.add(add_permission)
         self.changer_person.role.user_permissions.add(view_permission, change_permission)
 
-        calendar = Calendar.objects.create(label='calendar')
+        calendar = Calendar.objects.create_calendar('calendar')
 
         self.event = Event.objects.create(
             name='event',

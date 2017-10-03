@@ -21,6 +21,7 @@ urlpatterns = [
     url('^evenements/(?P<pk>[0-9a-f-]+)/modifier/$', views.ModifyEventView.as_view(), name='edit_event'),
     url('^evenements/(?P<pk>[0-9a-f-]+)/quitter/$', views.QuitEventView.as_view(), name='quit_event'),
     url('^evenements/(?P<pk>[0-9a-f-]+)/annuler/$', views.CancelEventView.as_view(), name='cancel_event'),
+    url('^agenda/(?P<slug>[-a-zA-Z0-9_]+)/$', views.CalendarView.as_view(), name='view_calendar'),
 
     # groups views
     url('^groupes/$', views.SupportGroupListView.as_view(), name='list_groups'),

@@ -323,6 +323,8 @@ OAUTH = {
     'logoff_url': os.environ.get('OAUTH_LOGOFF_URL', 'http://localhost:4002/deconnexion'),
 }
 
+DEFAULT_EVENT_IMAGE = "front/images/default_event_pic.jpg"
+
 # allow insecure transports for OAUTHLIB in DEBUG mode
 if DEBUG:
     os.environ.setdefault('OAUTHLIB_INSECURE_TRANSPORT', 'y')

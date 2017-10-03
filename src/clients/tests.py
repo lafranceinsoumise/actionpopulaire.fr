@@ -114,8 +114,7 @@ class ScopeTestCase(APITestCase):
         self.person.role.user_permissions.add(add_permission)
         self.other_person = Person.objects.create(email='test2@test.com')
 
-
-        self.calendar = Calendar.objects.create(label='calendar')
+        self.calendar = Calendar.objects.create_calendar('calendar')
         self.event = Event.objects.create(
             name='Test event',
             start_time=timezone.now(),

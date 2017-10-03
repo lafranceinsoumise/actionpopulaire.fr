@@ -12,7 +12,7 @@ __all__ = ['EventForm', 'AddOrganizerForm']
 
 class AgendaChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        return obj.description
+        return obj.title
 
 
 class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
@@ -25,6 +25,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             'description'
         ]
 
+        # do not allow random organizers to modify HTML
         if self.instance.allow_html:
             del self.fields['description']
             description_field = []

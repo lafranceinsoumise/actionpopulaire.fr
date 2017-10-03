@@ -1,0 +1,56 @@
+{% extends "front/layout.html" %}
+{% load static %}
+
+{% block title %}Le calendrier des {{ calendar.name }}{% endblock %}
+
+{% block main %}
+    {% if calendar.image %}
+        <img src="{{ calendar.image.url }}" class="">
+    {% endif %}
+
+    <h2>{{ calendar.name }}</h2>
+
+    {% if calendar.description %}
+        <div class="intro">
+            {{ calendar.description | safe }}
+        </div>
+    {% endif %}
+
+    <div>
+        <hr>
+        {% for event in events %}
+            <div class="row">
+                <div class="col-md-4">
+                    {% if event.image %}
+                        <img src="{{ event.image.url }}" class="img-responsive">
+                    {% elif calendar.image %}
+                        <img src="{{ calendar.image.url }}" class="img-responsive">
+                    {% else %}
+                        <img src="{% static default_event_image %}" class="img-responsive">
+                    {% endif %}
+                </div>
+                <div class="col-md-8">
+                    <h4><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h4>
+                    <div class="date">{{ event.get_display_date }}</div>
+                    <div>{{ event.html_full_address }}</div>
+                </div>
+            </div>
+            <hr/>
+        {% endfor %}
+    </div>
+
+    <nav>
+        <ul class="pager">
+            {% if events.has_previous %}
+                <li class="previous">
+                    <a href="?page={{ contacts.previous_page_number }}">&lt;&lt;</a>
+                </li>
+            {% endif %}
+            {% if events.has_next %}
+                <li class="next">
+                    <a href="?page={{ contacts.previous_page_number }}">&gt;&gt;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endblock %}

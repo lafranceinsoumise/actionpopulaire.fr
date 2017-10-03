@@ -74,7 +74,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     readonly_fields = ('id', 'link', 'organizers', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'start_time'
 
-    list_display = ('name', 'published', '_calendar', 'location_short', 'attendee_count', 'start_time', 'created')
+    list_display = ('name', 'published', 'calendar_title', 'location_short', 'attendee_count', 'start_time', 'created')
     list_filter = (EventStatusFilter, 'calendar', 'published')
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
@@ -88,11 +88,10 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     location_short.short_description = _("Lieu")
     location_short.admin_order_field = 'location_city'
 
-    def _calendar(self, object):
-        return object.calendar.description
-
-    _calendar.short_description = _('Agenda')
-    _calendar.admin_order_field = 'calendar__description'
+    def calendar_title(self, object):
+        return object.calendar.name
+    calendar_title.short_description = _('Agenda')
+    calendar_title.admin_order_field = 'calendar__name'
 
     def attendee_count(self, object):
         return object.attendee_count
@@ -111,7 +110,8 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
 @admin.register(models.Calendar, site=admin_site)
 class CalendarAdmin(admin.ModelAdmin):
-    pass
+    fields = ('name', 'slug', 'user_contributed', 'description', 'image')
+    list_display = ('name', 'slug', 'user_contributed')
 
 
 @admin.register(models.EventTag, site=admin_site)

@@ -6,8 +6,10 @@ from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest
 from django.db import transaction
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.conf import settings
 
-from events.models import Event, RSVP, OrganizerConfig
+from events.models import Event, RSVP, OrganizerConfig, Calendar, published_event_only
 from events.tasks import send_event_changed_notification, send_cancellation_notification, send_event_creation_notification
 from lib.tasks import geocode_event
 
@@ -16,7 +18,7 @@ from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin, ObjectOp
 
 __all__ = [
     "EventListView", "CreateEventView", "ManageEventView", "ModifyEventView", "QuitEventView", "CancelEventView",
-    "EventDetailView"
+    "EventDetailView", "CalendarView"
 ]
 
 
@@ -275,3 +277,29 @@ class QuitEventView(LoginRequiredMixin, DeleteView):
         )
 
         return res
+
+
+class CalendarView(DetailView):
+    template_name = "front/events/calendar.html"
+    model = Calendar
+    paginator_class = Paginator
+    per_page = 10
+
+    def get_context_data(self, **kwargs):
+        all_events = self.object.events.filter(published_event_only()).order_by('start_time')
+        paginator = self.paginator_class(all_events, self.per_page)
+
+        page = self.request.GET.get('page')
+        try:
+            events = paginator.page(page)
+        except PageNotAnInteger:
+            page = 1
+            events = paginator.page(1)
+        except EmptyPage:
+            page = paginator.num_pages
+            events = paginator.page(page)
+
+        return super().get_context_data(
+            events=events,
+            default_event_image=settings.DEFAULT_EVENT_IMAGE,
+        )
