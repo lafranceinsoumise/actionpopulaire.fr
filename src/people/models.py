@@ -5,6 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
 
+from phonenumber_field.modelfields import PhoneNumberField
+
 from lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource
 from authentication.models import Role
 
@@ -124,7 +126,7 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
 
     tags = models.ManyToManyField('PersonTag', related_name='people', blank=True)
 
-    contact_phone = models.CharField(_("Numéro de téléphone de contact"), max_length=30, blank=True)
+    contact_phone = PhoneNumberField(_("Numéro de téléphone de contact"), blank=True)
 
     GENDER_FEMALE = 'F'
     GENDER_MALE = 'M'

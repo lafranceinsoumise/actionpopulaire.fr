@@ -76,6 +76,9 @@ INSTALLED_APPS = [
     # ajax_select
     'ajax_select',
 
+    # phone number field
+    'phonenumber_field',
+
     # fi apps
     'authentication',
     'people',
@@ -324,6 +327,8 @@ OAUTH = {
 }
 
 DEFAULT_EVENT_IMAGE = "front/images/default_event_pic.jpg"
+
+PHONENUMBER_DEFAULT_REGION = 'FR'
 
 # allow insecure transports for OAUTHLIB in DEBUG mode
 if DEBUG:

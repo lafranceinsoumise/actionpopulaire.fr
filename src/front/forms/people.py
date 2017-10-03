@@ -16,6 +16,20 @@ __all__ = [
 ]
 
 
+class ContactPhoneNumberMixin():
+    """Solves a bug in phonenumbers_fields when field is missing from POSTed data
+
+    """
+
+    def clean_contact_phone(self):
+        contact_phone = self.cleaned_data.get('contact_phone')
+
+        if contact_phone is None:
+            contact_phone = ''
+
+        return contact_phone
+
+
 class BaseSubscriptionForm(forms.ModelForm):
     email = forms.EmailField(
         label='Adresse email',
@@ -126,7 +140,7 @@ EmailFormSet = forms.inlineformset_factory(
 )
 
 
-class ProfileForm(TagMixin, forms.ModelForm):
+class ProfileForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
     tags = skills_tags
     tag_model_class = PersonTag
     meta_fields = ['occupation', 'associations', 'unions', 'party', 'party_responsibility', 'other']
@@ -215,7 +229,7 @@ class ProfileForm(TagMixin, forms.ModelForm):
         )
 
 
-class VolunteerForm(TagMixin, forms.ModelForm):
+class VolunteerForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
     tags = [
         (tag, format_html('<strong>{}</strong><br><small><em>{}</em></small>', title, description))
         for _, tags in action_tags.items() for tag, title, description in tags]
