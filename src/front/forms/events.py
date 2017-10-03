@@ -12,7 +12,7 @@ __all__ = ['EventForm', 'AddOrganizerForm']
 
 class AgendaChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        return obj.title
+        return obj.name
 
 
 class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
