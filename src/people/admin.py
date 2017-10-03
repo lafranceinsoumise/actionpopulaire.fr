@@ -56,7 +56,23 @@ class PersonAdmin(admin.ModelAdmin):
             'fields': ('created', 'modified')
         }),
         (_('Paramètres mails'), {
-            'fields': ('subscribed',)
+            'fields': ('subscribed', 'event_notifications', 'group_notifications')
+        }),
+        (_('Profil'), {
+            'fields': ('gender', 'date_of_birth', 'tags')
+        }),
+        (_('Contact'), {
+            'fields': (
+                'contact_phone',
+                'location_name',
+                'location_address',
+                'location_address1',
+                'location_address2',
+                'location_city',
+                'location_zip',
+                'location_state',
+                'location_country',
+            )
         }),
         (_('Role correspondant'), {
             'fields': ('role_link',)
