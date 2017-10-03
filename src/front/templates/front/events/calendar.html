@@ -16,41 +16,47 @@
         </div>
     {% endif %}
 
-    <div>
-        <hr>
-        {% for event in events %}
-            <div class="row">
-                <div class="col-md-4">
-                    {% if event.image %}
-                        <img src="{{ event.image.url }}" class="img-responsive">
-                    {% elif calendar.image %}
-                        <img src="{{ calendar.image.url }}" class="img-responsive">
-                    {% else %}
-                        <img src="{% static default_event_image %}" class="img-responsive">
-                    {% endif %}
+    {% if events %}
+        <div>
+            <hr>
+            {% for event in events %}
+                <div class="row">
+                    <div class="col-md-4">
+                        {% if event.image %}
+                            <img src="{{ event.image.url }}" class="img-responsive">
+                        {% elif calendar.image %}
+                            <img src="{{ calendar.image.url }}" class="img-responsive">
+                        {% else %}
+                            <img src="{% static default_event_image %}" class="img-responsive">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h4><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h4>
+                        <div class="date">{{ event.get_display_date }}</div>
+                        <div>{{ event.html_full_address }}</div>
+                    </div>
                 </div>
-                <div class="col-md-8">
-                    <h4><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h4>
-                    <div class="date">{{ event.get_display_date }}</div>
-                    <div>{{ event.html_full_address }}</div>
-                </div>
-            </div>
-            <hr/>
-        {% endfor %}
-    </div>
+                <hr/>
+            {% endfor %}
+        </div>
 
-    <nav>
-        <ul class="pager">
-            {% if events.has_previous %}
-                <li class="previous">
-                    <a href="?page={{ contacts.previous_page_number }}">&lt;&lt;</a>
-                </li>
-            {% endif %}
-            {% if events.has_next %}
-                <li class="next">
-                    <a href="?page={{ contacts.previous_page_number }}">&gt;&gt;</a>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
+        <nav>
+            <ul class="pager">
+                {% if events.has_previous %}
+                    <li class="previous">
+                        <a href="?page={{ contacts.previous_page_number }}">&lt;&lt;</a>
+                    </li>
+                {% endif %}
+                {% if events.has_next %}
+                    <li class="next">
+                        <a href="?page={{ contacts.previous_page_number }}">&gt;&gt;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% else %}
+        <div class="lead text-center">
+            Pas d'événement prévu pour le moment
+        </div>
+    {% endif %}
 {% endblock %}
