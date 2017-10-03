@@ -1,5 +1,6 @@
 amqp==2.2.1
 autopep8==1.3.2
+Babel==2.5.1
 billiard==3.5.0.3
 celery==4.1.0
 certifi==2017.4.17
@@ -8,7 +9,8 @@ coverage==4.3.4
 dj-database-url==0.4.2
 dj-email-url==0.0.10
 Django==1.11
-git+https://github.com/crucialfelix/django-ajax-selects.git@f31d866a7a8c14ff2c21b6d047cadd4e84006b41#egg=django-ajax-selects
+django-admin-steroids==1.0.14
+django-ajax-selects==1.6.1
 django-cors-headers==2.1.0
 django-countries==4.4
 django-crispy-forms==1.6.1

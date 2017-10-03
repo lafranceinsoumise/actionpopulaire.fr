@@ -79,6 +79,9 @@ INSTALLED_APPS = [
     # phone number field
     'phonenumber_field',
 
+    # admin steroids
+    'admin_steroids',
+
     # fi apps
     'authentication',
     'people',
@@ -220,6 +223,17 @@ AUTHENTICATION_BACKENDS = (
     'people.backend.PersonBackend',
     'front.backend.OAuth2Backend',
 )
+
+# Admin
+
+DAS_ALLOWED_AJAX_SEARCH_PATHS = [
+    ('people', 'person', 'location_zip'),
+    ('people', 'person', 'location_city'),
+    ('groups', 'supportgroup', 'location_city'),
+    ('groups', 'supportgroup', 'location_city'),
+    ('events', 'event', 'location_city'),
+    ('events', 'event', 'location_city'),
+]
 
 # REST_FRAMEWORK
 

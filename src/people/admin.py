@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from api.admin import admin_site
+from admin_steroids.filters import AjaxFieldFilter
 
 from .models import Person, PersonTag
 from events.models import RSVP
@@ -86,7 +87,12 @@ class PersonAdmin(admin.ModelAdmin):
 
     search_fields = ('emails__address', 'first_name', 'last_name', 'location_zip')
 
-    list_filter = ('tags', 'subscribed')
+    list_filter = (
+        ('location_city', AjaxFieldFilter),
+        ('location_zip', AjaxFieldFilter),
+        ('tags'),
+        ('subscribed', admin.BooleanFieldListFilter)
+    )
 
     inlines = (RSVPInline, MembershipInline)
 

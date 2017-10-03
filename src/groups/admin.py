@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 from django.shortcuts import reverse
 from django.db.models import Count
 from api.admin import admin_site
+from admin_steroids.filters import AjaxFieldFilter
 
 from lib.admin import CenterOnFranceMixin
 from front.utils import front_url
@@ -53,7 +54,11 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     date_hierarchy = 'created'
 
     list_display = ('name', 'published', 'location_short', 'membership_count', 'created')
-    list_filter = ('published',)
+    list_filter = (
+        ('location_city', AjaxFieldFilter),
+        ('location_zip', AjaxFieldFilter),
+        'published',
+    )
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
 

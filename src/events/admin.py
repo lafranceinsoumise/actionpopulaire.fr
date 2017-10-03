@@ -7,6 +7,7 @@ from django.utils.encoding import force_text
 from django.utils.html import format_html
 from api.admin import admin_site
 from ajax_select import make_ajax_form
+from admin_steroids.filters import AjaxFieldFilter
 
 from lib.admin import CenterOnFranceMixin
 from front.utils import front_url
@@ -75,7 +76,13 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     date_hierarchy = 'start_time'
 
     list_display = ('name', 'published', 'calendar_title', 'location_short', 'attendee_count', 'start_time', 'created')
-    list_filter = (EventStatusFilter, 'calendar', 'published')
+    list_filter = (
+        ('location_city', AjaxFieldFilter),
+        ('location_zip', AjaxFieldFilter),
+        EventStatusFilter,
+        'calendar',
+        'published',
+    )
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
 

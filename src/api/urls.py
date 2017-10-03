@@ -22,6 +22,7 @@ import front.urls
 import webhooks.urls
 
 urlpatterns = [
+    url(r'^admin/', include('admin_steroids.urls')),
     url(r'^admin/', admin.admin_site.urls),
     url(r'^webhooks/', include(webhooks.urls)),
     url(r'^ajax_select/', include(ajax_select_urls)),
