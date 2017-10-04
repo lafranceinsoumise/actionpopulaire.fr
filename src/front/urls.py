@@ -4,6 +4,8 @@ from . import views, oauth
 
 urlpatterns = [
     # people views
+    url('^desabonnement/$', views.UnsubscribeView.as_view(), name='unsubscribe'),
+    url('^desabonnement/succes/$', views.UnsubscribeSuccessView.as_view(), name='unsubscribe_success'),
     url('^inscription/$', views.SimpleSubscriptionView.as_view(), name='subscription'),
     url('^inscription/etranger/$', views.OverseasSubscriptionView.as_view(), name='subscription_overseas'),
     url('^inscription/succes/$', views.SubscriptionSuccessView.as_view(), name='subscription_success'),

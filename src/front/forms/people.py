@@ -9,10 +9,11 @@ from ..form_mixins import TagMixin, LocationFormMixin
 
 from people.models import Person, PersonEmail, PersonTag
 from people.tags import skills_tags, action_tags
+from people.tasks import send_unsubscribe_email
 
 __all__ = [
     'BaseSubscriptionForm', 'SimpleSubscriptionForm', 'OverseasSubscriptionForm', 'EmailFormSet', 'ProfileForm',
-    'VolunteerForm', "MessagePreferencesForm",
+    'VolunteerForm', "MessagePreferencesForm", 'UnsubscribeForm'
 ]
 
 
@@ -28,6 +29,33 @@ class ContactPhoneNumberMixin():
             contact_phone = ''
 
         return contact_phone
+
+
+class UnsubscribeForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(Submit('submit', 'Me désabonner'))
+
+    email = forms.EmailField(
+        label='Adresse email',
+        required=True,
+        error_messages={
+            'required': _("Vous devez saisir votre adresse email")
+        }
+    )
+
+    def unsubscribe(self):
+        email = self.cleaned_data['email']
+        try:
+            person = Person.objects.get(email=email)
+            send_unsubscribe_email.delay(person.id)
+            person.group_notifications = False
+            person.event_notifications = False
+            person.subscribed = False
+            person.save()
+        except(Person.DoesNotExist):
+            pass
 
 
 class BaseSubscriptionForm(forms.ModelForm):

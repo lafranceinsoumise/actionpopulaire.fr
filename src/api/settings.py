@@ -153,6 +153,8 @@ EMAIL_USE_SSL = email_config['EMAIL_USE_SSL']
 EMAIL_TEMPLATES = {
     # WELCOME_MESSAGE variables:
     "WELCOME_MESSAGE": "https://mosaico.jlm2017.fr/emails/ac205f71-61a3-465b-8161-cec5729ecdbb.html",
+    # UNSUBSCRIBE_CONFIRMATION variables [MANAGE_SUBSCRIPTIONS_LINK]
+    "UNSUBSCRIBE_CONFIRMATION": "https://mosaico.jlm2017.fr/emails/51cbadd7-2226-482d-85d4-6dc758d2eb3a.html",
     # GROUP_CREATION variables: [GROUP_NAME], [CONTACT_{NAME,EMAIL,PHONE,PHONE_VISIBILITY], [LOCATION_{NAME,LOCATION}], [GROUP_LINK], [MANAGE_GROUP_LINK]
     "GROUP_CREATION": "https://mosaico.jlm2017.fr/emails/bc07d593-ff8f-470e-a8cb-9ba679fc5f59.html",
     # GROUP_CHANGED variables: GROUP_NAME, GROUP_CHANGES, GROUP_LINK

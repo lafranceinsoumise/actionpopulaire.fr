@@ -23,6 +23,23 @@ class ProfileFormTestCase(TestCase):
         self.assertIn('info blogueur', [tag.label for tag in self.person.tags.all()])
 
 
+class UnsubscribeFormTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person('test@test.com')
+
+    @mock.patch("front.forms.people.send_unsubscribe_email")
+    def test_can_post(self, patched_send_unsubscribe_email):
+        response = self.client.post(reverse('unsubscribe'), {'email': 'test@test.com'})
+
+        self.person.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.person.subscribed, False)
+        self.assertEqual(self.person.event_notifications, False)
+        self.assertEqual(self.person.group_notifications, False)
+        patched_send_unsubscribe_email.delay.assert_called_once()
+        self.assertEqual(patched_send_unsubscribe_email.delay.call_args[0], (self.person.pk,))
+
+
 class SimpleSubscriptionFormTestCase(TestCase):
     def test_can_post(self):
         response = self.client.post('/inscription/', {'email': 'example@example.com', 'location_zip': '75018'})

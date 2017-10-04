@@ -1,7 +1,7 @@
 from random import choice
 
 from django.views.generic import CreateView, UpdateView, TemplateView
-from django.views.generic.edit import ModelFormMixin
+from django.views.generic.edit import ModelFormMixin, FormView
 from django.core.urlresolvers import reverse_lazy
 from django.db import transaction
 from django.contrib import messages
@@ -10,11 +10,30 @@ from people.models import Person
 
 from ..view_mixins import LoginRequiredMixin, SimpleOpengraphMixin
 from ..forms import (
-    SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm, EmailFormSet, VolunteerForm, MessagePreferencesForm
+    SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm, EmailFormSet,
+    VolunteerForm, MessagePreferencesForm, UnsubscribeForm
 )
 
 __all__ = ["SubscriptionSuccessView", "SimpleSubscriptionView", "OverseasSubscriptionView", "ChangeProfileView",
-           "ChangeProfileConfirmationView", "VolunteerView", "VolunteerConfirmationView", "MessagePreferencesView"]
+           "ChangeProfileConfirmationView", "VolunteerView", "VolunteerConfirmationView", "MessagePreferencesView",
+           "UnsubscribeView", "UnsubscribeSuccessView"]
+
+
+class UnsubscribeSuccessView(TemplateView):
+    template_name = "front/people/unsubscribe_success.html"
+
+
+class UnsubscribeView(SimpleOpengraphMixin, FormView):
+    template_name = "front/people/unsubscribe.html"
+    success_url = reverse_lazy('unsubscribe_success')
+    form_class = UnsubscribeForm
+
+    meta_title = "Ne plus recevoir de emails"
+    meta_description = "Désabonnez-vous des emails de la France insoumise"
+
+    def form_valid(self, form):
+        form.unsubscribe()
+        return super().form_valid(form)
 
 
 class SubscriptionSuccessView(TemplateView):
