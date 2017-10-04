@@ -53,7 +53,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     readonly_fields = ('id', 'link', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'created'
 
-    list_display = ('name', 'published', 'location_short', 'membership_count', 'created')
+    list_display = ('name', 'published', 'location_short', 'membership_count', 'created', 'referent')
     list_filter = (
         ('location_city', AjaxFieldFilter),
         ('location_zip', AjaxFieldFilter),
@@ -61,6 +61,14 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     )
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
+
+    def referent(self, object):
+        referent = object.memberships.filter(is_referent=True).first()
+        if (referent):
+            return referent.person.email
+
+        return ''
+
 
     def location_short(self, object):
         return _('{zip} {city}, {country}').format(
