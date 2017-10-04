@@ -2,7 +2,7 @@ from django.views.generic import RedirectView
 from django.conf import settings
 from django.utils.http import is_safe_url
 from django.http import HttpResponseBadRequest
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, BACKEND_SESSION_KEY
 from django.core.urlresolvers import reverse, reverse_lazy
 
 from requests_oauthlib import OAuth2Session
@@ -82,8 +82,13 @@ class OauthReturnView(RedirectView):
 
 
 class LogOffView(RedirectView):
-    url = settings.OAUTH['logoff_url']
+    def get_redirect_url(self, *args, **kwargs):
+        if self.former_backend == 'front.backend.OAuth2Backend':
+            return settings.OAUTH['logoff_url']
+        else:
+            return settings.MAIN_DOMAIN
 
     def get(self, request, *args, **kwargs):
+        self.former_backend = request.session[BACKEND_SESSION_KEY]
         logout(request)
         return super().get(request, *args, **kwargs)

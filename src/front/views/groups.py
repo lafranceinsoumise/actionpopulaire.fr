@@ -12,7 +12,7 @@ from groups.tasks import send_support_group_changed_notification, send_support_g
 from lib.tasks import geocode_support_group
 
 from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm
-from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin
+from ..view_mixins import HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin
 
 __all__ = [
     "SupportGroupListView", "SupportGroupManagementView", "CreateSupportGroupView", "ModifySupportGroupView",
@@ -43,7 +43,7 @@ class CheckMembershipMixin:
         return self._user_membership
 
 
-class SupportGroupListView(LoginRequiredMixin, ListView):
+class SupportGroupListView(SoftLoginRequiredMixin, ListView):
     """List person support groups
     """
     paginate_by = 20
@@ -79,7 +79,7 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
         return HttpResponseBadRequest()
 
 
-class SupportGroupManagementView(LoginRequiredMixin, CheckMembershipMixin, DetailView):
+class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, DetailView):
     template_name = "front/groups/manage.html"
     queryset = SupportGroup.objects.all().prefetch_related('memberships')
     messages = {
@@ -147,7 +147,7 @@ class SupportGroupManagementView(LoginRequiredMixin, CheckMembershipMixin, Detai
         return HttpResponseRedirect(reverse("manage_group", kwargs={'pk': self.object.pk}))
 
 
-class CreateSupportGroupView(LoginRequiredMixin, CreateView):
+class CreateSupportGroupView(HardLoginRequiredMixin, CreateView):
     template_name = "front/groups/create.html"
     model = SupportGroup
     form_class = SupportGroupForm
@@ -184,7 +184,7 @@ class CreateSupportGroupView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ModifySupportGroupView(LoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
+class ModifySupportGroupView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
     permissions_required = ('groups.change_supportgroup',)
     template_name = "front/groups/modify.html"
     model = SupportGroup
@@ -232,7 +232,7 @@ class ModifySupportGroupView(LoginRequiredMixin, PermissionsRequiredMixin, Updat
         return res
 
 
-class RemoveManagerView(LoginRequiredMixin, CheckMembershipMixin, DetailView):
+class RemoveManagerView(HardLoginRequiredMixin, CheckMembershipMixin, DetailView):
     template_name = "front/confirm.html"
     queryset = Membership.objects.all().select_related('supportgroup').select_related('person')
 
@@ -282,7 +282,7 @@ class RemoveManagerView(LoginRequiredMixin, CheckMembershipMixin, DetailView):
         )
 
 
-class QuitSupportGroupView(LoginRequiredMixin, DeleteView):
+class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
     template_name = "front/groups/quit.html"
     success_url = reverse_lazy("list_groups")
     model = Membership

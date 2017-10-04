@@ -5,10 +5,13 @@ from django.utils import timezone, formats
 from django.http import QueryDict
 from rest_framework import status
 from django.shortcuts import reverse
+from django.contrib.auth import get_user
 
 from people.models import Person
 from events.models import Event, RSVP, Calendar, OrganizerConfig
 from groups.models import SupportGroup, Membership
+
+from .backend import token_generator
 
 
 class ProfileFormTestCase(TestCase):
@@ -570,7 +573,8 @@ class GroupPageTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
         try:
-            membership = self.person.memberships.filter(is_referent=True).exclude(supportgroup=self.referent_group).get()
+            membership = self.person.memberships.filter(is_referent=True).exclude(
+                supportgroup=self.referent_group).get()
         except (Membership.DoesNotExist, Membership.MultipleObjectsReturned):
             self.fail('Should have created one membership')
 
@@ -623,3 +627,37 @@ class NBUrlsTestCase(TestCase):
         response = self.client.get('/old/nimp')
 
         self.assertEqual(response.status_code, 503)
+
+
+class AuthenticationTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person('test@test.com', )
+
+        from django.contrib.auth import load_backend
+        self.soft_backend = 'front.backend.MailLinkBackend'
+
+    def test_can_connect_with_query_params(self):
+        p = self.person.pk
+        code = token_generator.make_token(self.person)
+
+        response = self.client.get('/message_preferences/', data={'p': p, 'code': code})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(get_user(self.client), self.person.role)
+
+    def test_can_access_soft_login_while_already_connected(self):
+        self.client.force_login(self.person.role, self.soft_backend)
+
+        response = self.client.get(reverse('volunteer'))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_cannot_access_hard_login_page_while_soft_logged_in(self):
+        self.client.force_login(self.person.role, self.soft_backend)
+
+        response = self.client.get(reverse('create_event'))
+
+        self.assertRedirects(
+            response, reverse('oauth_redirect_view') + '?next=' + reverse('create_event'),
+            target_status_code=status.HTTP_302_FOUND
+        )

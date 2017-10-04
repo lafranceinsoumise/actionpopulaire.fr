@@ -14,7 +14,7 @@ from events.tasks import send_event_changed_notification, send_cancellation_noti
 from lib.tasks import geocode_event
 
 from ..forms import EventForm, AddOrganizerForm
-from ..view_mixins import LoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin
+from ..view_mixins import HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin
 
 __all__ = [
     "EventListView", "CreateEventView", "ManageEventView", "ModifyEventView", "QuitEventView", "CancelEventView",
@@ -28,7 +28,7 @@ class IsOrganiserMixin:
         return OrganizerConfig.objects.filter(person=self.request.user.person, event=event).exists()
 
 
-class EventListView(LoginRequiredMixin, ListView):
+class EventListView(SoftLoginRequiredMixin, ListView):
     """List person events
     """
     paginate_by = 20
@@ -73,7 +73,7 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
         return HttpResponseBadRequest()
 
 
-class ManageEventView(LoginRequiredMixin, IsOrganiserMixin, DetailView):
+class ManageEventView(HardLoginRequiredMixin, IsOrganiserMixin, DetailView):
     template_name = "front/events/manage.html"
     queryset = Event.scheduled.all()
 
@@ -122,7 +122,7 @@ class ManageEventView(LoginRequiredMixin, IsOrganiserMixin, DetailView):
         return self.render_to_response(context)
 
 
-class CreateEventView(LoginRequiredMixin, CreateView):
+class CreateEventView(HardLoginRequiredMixin, CreateView):
     template_name = "front/events/create.html"
     model = Event
     form_class = EventForm
@@ -175,7 +175,7 @@ class CreateEventView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ModifyEventView(LoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
+class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
     permissions_required = ('events.change_event',)
     template_name = "front/events/modify.html"
     success_url = reverse_lazy("list_events")
@@ -222,7 +222,7 @@ class ModifyEventView(LoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
         return res
 
 
-class CancelEventView(LoginRequiredMixin, DetailView):
+class CancelEventView(HardLoginRequiredMixin, DetailView):
     template_name = 'front/events/cancel.html'
     queryset = Event.scheduled.all()
     success_url = reverse_lazy('list_events')
@@ -244,7 +244,7 @@ class CancelEventView(LoginRequiredMixin, DetailView):
         return HttpResponseRedirect(self.success_url)
 
 
-class QuitEventView(LoginRequiredMixin, DeleteView):
+class QuitEventView(HardLoginRequiredMixin, DeleteView):
     template_name = "front/events/quit.html"
     success_url = reverse_lazy("list_events")
     model = RSVP

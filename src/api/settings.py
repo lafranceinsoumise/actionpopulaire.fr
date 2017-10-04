@@ -15,9 +15,11 @@ import dj_database_url
 import dj_email_url
 from django.contrib.messages import ERROR
 
-ENABLE_API = not os.environ.get('ENABLE_API', 'y').lower() in ['n', 'no', 'false']
-ENABLE_FRONT = os.environ.get('ENABLE_FRONT', 'n').lower() in ['y', 'yes', 'true']
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get('DEBUG', 'true').lower() == 'true'
 
+ENABLE_API = not os.environ.get('ENABLE_API', 'y').lower() in ['n', 'no', 'false']
+ENABLE_FRONT = os.environ.get('ENABLE_FRONT', 'n').lower() in ['y', 'yes', 'true'] or DEBUG
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -32,10 +34,8 @@ NB_API_KEY = os.environ.get('NB_API_KEY', 'mustbesecret')
 SENDGRID_SES_WEBHOOK_USER = os.environ.get('SENDGRID_SES_WEBHOOK_USER', 'fi')
 SENDGRID_SES_WEBHOOK_PASSWORD = os.environ.get('SENDGRID_SES_WEBHOOK_PASSWORD', 'prout')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'true').lower() == 'true'
-
 # these domain names are used when absolute URLs should be generated (e.g. to include in emails)
+MAIN_DOMAIN = os.environ.get('MAIN_DOMAIN', 'https://lafranceinsoumise.fr')
 API_DOMAIN = os.environ.get('API_DOMAIN', 'http://localhost:8000' if DEBUG else 'https://api.lafranceinsoumise.fr')
 FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', 'http://localhost:8000' if DEBUG else 'https://agir.lafranceinsoumise.fr')
 
@@ -70,7 +70,7 @@ INSTALLED_APPS = [
     # django filters
     'django_filters',
 
-    #django_countries
+    # django_countries
     'django_countries',
 
     # ajax_select
@@ -171,7 +171,6 @@ EMAIL_TEMPLATES = {
     "EVENT_CANCELLATION": "https://mosaico.jlm2017.fr/emails/94c7cbb3-afdc-4d14-a07a-cf9503db5b5f.html",
 }
 
-
 EMAIL_FROM = os.environ.get('EMAIL_FROM', 'noreply@lafranceinsoumise.fr')
 
 # Password validation
@@ -219,12 +218,24 @@ MEDIA_ROOT = os.environ.get('MEDIA_ROOT', 'media')
 # Authentication
 
 AUTH_USER_MODEL = 'authentication.Role'
-AUTHENTICATION_BACKENDS = (
-    'clients.authentication.AccessTokenRulesPermissionBackend',
-    'django.contrib.auth.backends.ModelBackend',
-    'people.backend.PersonBackend',
-    'front.backend.OAuth2Backend',
-)
+
+# This backend is necessary to enforce database permissions
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
+
+if ENABLE_API:
+    # Rules permission backend MUST be in first position
+    AUTHENTICATION_BACKENDS.insert(0, 'clients.authentication.AccessTokenRulesPermissionBackend')
+
+    # This backend is used to connect to the administration panel
+    AUTHENTICATION_BACKENDS.append('people.backend.PersonBackend')
+
+if ENABLE_FRONT:
+    AUTHENTICATION_BACKENDS.extend([
+        # This backend is used for OAuth connection
+        'front.backend.OAuth2Backend',
+        # This backend is used for connection through links found in emails
+        'front.backend.MailLinkBackend'
+    ])
 
 # Admin
 
@@ -321,7 +332,6 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-
 if DEBUG:
     INSTALLED_APPS += ['silk']
     MIDDLEWARE.insert(0, 'silk.middleware.SilkyMiddleware')
@@ -345,6 +355,8 @@ OAUTH = {
 DEFAULT_EVENT_IMAGE = "front/images/default_event_pic.jpg"
 
 PHONENUMBER_DEFAULT_REGION = 'FR'
+
+CONNECTION_LINK_VALIDITY = 7
 
 # allow insecure transports for OAUTHLIB in DEBUG mode
 if DEBUG:

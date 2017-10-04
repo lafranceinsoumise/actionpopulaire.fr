@@ -1,5 +1,3 @@
-from random import choice
-
 from django.views.generic import CreateView, UpdateView, TemplateView
 from django.views.generic.edit import ModelFormMixin, FormView
 from django.core.urlresolvers import reverse_lazy
@@ -8,7 +6,7 @@ from django.contrib import messages
 
 from people.models import Person
 
-from ..view_mixins import LoginRequiredMixin, SimpleOpengraphMixin
+from ..view_mixins import SoftLoginRequiredMixin, SimpleOpengraphMixin
 from ..forms import (
     SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm, EmailFormSet,
     VolunteerForm, MessagePreferencesForm, UnsubscribeForm
@@ -60,7 +58,7 @@ class OverseasSubscriptionView(SimpleOpengraphMixin, CreateView):
     meta_description = "Rejoignez la France insoumise sur lafranceinsoumise.fr"
 
 
-class ChangeProfileView(LoginRequiredMixin, UpdateView):
+class ChangeProfileView(SoftLoginRequiredMixin, UpdateView):
     template_name = "front/people/profile.html"
     form_class = ProfileForm
     success_url = reverse_lazy("confirmation_profile")
@@ -74,7 +72,7 @@ class ChangeProfileConfirmationView(SimpleOpengraphMixin, TemplateView):
     template_name = 'front/people/confirmation_profile.html'
 
 
-class VolunteerView(LoginRequiredMixin, UpdateView):
+class VolunteerView(SoftLoginRequiredMixin, UpdateView):
     template_name = "front/people/volunteer.html"
     form_class = VolunteerForm
     success_url = reverse_lazy("confirmation_volunteer")
@@ -88,67 +86,7 @@ class VolunteerConfirmationView(TemplateView):
     template_name = 'front/people/confirmation_volunteer.html'
 
 
-class OldChangeProfileView(LoginRequiredMixin, ModelFormMixin, TemplateView):
-    template_name = "front/people/profile.html"
-    form_class = ProfileForm
-
-    def get_email_formset(self):
-        """Initialize the email inline formset"""
-        kwargs = {}
-
-        if self.request.method in ('POST', 'PUT'):
-            kwargs.update({
-                'data': self.request.POST,
-                'files': self.request.FILES
-            })
-
-        return EmailFormSet(
-            instance=self.object,
-            **kwargs,
-        )
-
-    def get_context_data(self, **kwargs):
-        """Add the email inline formset to the context"""
-
-        if 'email_formset' not in kwargs:
-            kwargs['email_formset'] = self.get_email_formset()
-
-        return super().get_context_data(
-            **kwargs
-        )
-
-    def get_object(self, queryset=None):
-        """Get the current user as the view object"""
-        return self.request.user.person
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        """
-        Handles POST requests, instantiating form and formset with the passed
-        POST variables and then checked for validity.
-        """
-        self.object = self.get_object()
-
-        profile_form = self.get_form()
-        email_formset = self.get_email_formset()
-
-        if profile_form.is_valid() and email_formset.is_valid():
-            return self.both_forms_valid(profile_form, email_formset)
-        else:
-            # display the forms with errors
-            return self.render_to_response(self.get_context_data(form=profile_form, email_formset=email_formset))
-
-    def both_forms_valid(self, profile_form, email_formset):
-        """Saves both forms, using an atomic transaction"""
-        with transaction.atomic():
-            email_formset.save()
-            return self.form_valid(profile_form)
-
-
-class MessagePreferencesView(LoginRequiredMixin, UpdateView):
+class MessagePreferencesView(SoftLoginRequiredMixin, UpdateView):
     template_name = 'front/people/message_preferences.html'
     form_class = MessagePreferencesForm
     success_url = reverse_lazy('message_preferences')

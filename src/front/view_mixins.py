@@ -1,14 +1,28 @@
-from django.views.generic import TemplateView
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.core.urlresolvers import reverse_lazy
+from django.contrib.auth import BACKEND_SESSION_KEY, authenticate, login
+from django.contrib.auth.views import redirect_to_login
 from django.http.response import HttpResponseForbidden
 
 
-class LoginRequiredMixin(object):
-    @method_decorator(login_required(login_url=reverse_lazy('oauth_redirect_view')), )
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+class SoftLoginRequiredMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return super().dispatch(request, *args, **kwargs)
+        elif 'p' in request.GET and 'code' in request.GET:
+            user = authenticate(user_pk=request.GET['p'], code=request.GET['code'])
+
+            if user:
+                login(request, user)
+                return super().dispatch(request, *args, **kwargs)
+
+        return redirect_to_login(request.get_full_path(), 'oauth_redirect_view')
+
+
+class HardLoginRequiredMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and request.session[BACKEND_SESSION_KEY] != 'front.backend.MailLinkBackend':
+            return super().dispatch(request, *args, **kwargs)
+
+        return redirect_to_login(request.get_full_path(), 'oauth_redirect_view')
 
 
 class PermissionsRequiredMixin(object):

@@ -1,13 +1,14 @@
 from django.contrib.auth.backends import ModelBackend
 
 from authentication.models import Role
-from .models import Person
+from authentication.backend_mixins import GetRoleMixin
 
 
-class PersonBackend(object):
+class PersonBackend(GetRoleMixin):
     """
     Authenticates persons
     """
+    prefetch = ['person']
 
     def authenticate(self, request, email=None, password=None):
         try:
@@ -25,9 +26,3 @@ class PersonBackend(object):
         """
         is_active = getattr(role, 'is_active', None)
         return is_active or is_active is None
-
-    def get_user(self, user_id):
-        try:
-            return Role.objects.select_related('person').get(pk=user_id)
-        except Role.DoesNotExist:
-            return None
