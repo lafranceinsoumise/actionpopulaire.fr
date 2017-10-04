@@ -9,6 +9,7 @@ from groups.models import SupportGroup
 class NBUrlsView(View):
     nb_paths = {
         '/unsubscribe': reverse_lazy('unsubscribe'),
+        '/inscription': reverse_lazy('subscription_overseas'),
         '/login': reverse_lazy('oauth_redirect_view'),
         '/users/event_pages/new?parent_id=103': reverse_lazy('create_event'),
         '/users/event_pages/new?parent_id=73': reverse_lazy('create_group'),
@@ -26,7 +27,6 @@ class NBUrlsView(View):
         '/donner': 'https://dons.lafranceinsoumise.fr/',
         '/groupes_appui': 'https://lafranceinsoumise.fr/carte',
         '/groupes_d_appui': 'https://lafranceinsoumise.fr/carte',
-        '/groupes_proches': 'https://lafranceinsoumise.fr/carte',
         '/groupes_appui_redirige': 'https://lafranceinsoumise.fr/carte',
         '/evenements_locaux_redirige': 'https://lafranceinsoumise.fr/carte',
         '/evenements_locaux': 'https://lafranceinsoumise.fr/carte',
