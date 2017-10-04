@@ -9,7 +9,7 @@ from ..form_mixins import TagMixin, LocationFormMixin
 
 from people.models import Person, PersonEmail, PersonTag
 from people.tags import skills_tags, action_tags
-from people.tasks import send_unsubscribe_email
+from people.tasks import send_unsubscribe_email, send_welcome_mail
 
 __all__ = [
     'BaseSubscriptionForm', 'SimpleSubscriptionForm', 'OverseasSubscriptionForm', 'EmailFormSet', 'ProfileForm',
@@ -86,6 +86,7 @@ class BaseSubscriptionForm(forms.ModelForm):
         """
         super()._save_m2m()
         PersonEmail.objects.create(address=self.cleaned_data['email'], person=self.instance)
+        send_welcome_mail.delay(self.instance.pk)
 
     class Meta:
         abstract = True

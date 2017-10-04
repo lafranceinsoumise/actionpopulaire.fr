@@ -45,15 +45,20 @@ class UnsubscribeFormTestCase(TestCase):
 
 
 class SimpleSubscriptionFormTestCase(TestCase):
-    def test_can_post(self):
+    @mock.patch("front.forms.people.send_welcome_mail")
+    def test_can_post(self, patched_send_welcome_mail):
         response = self.client.post('/inscription/', {'email': 'example@example.com', 'location_zip': '75018'})
 
         self.assertEqual(response.status_code, 302)
-        Person.objects.get_by_natural_key('example@example.com')
+        person = Person.objects.get_by_natural_key('example@example.com')
+
+        patched_send_welcome_mail.delay.assert_called_once()
+        self.assertEqual(patched_send_welcome_mail.delay.call_args[0][0], person.pk)
 
 
-class OverseasSubscriptionForm(TestCase):
-    def test_can_post(self):
+class OverseasSubscriptionTestCase(TestCase):
+    @mock.patch("front.forms.people.send_welcome_mail")
+    def test_can_post(self, patched_send_welcome_mail):
         response = self.client.post('/inscription/etranger/', {
             'email': 'example@example.com',
             'location_address1': '1 ZolaStraße',
@@ -65,6 +70,9 @@ class OverseasSubscriptionForm(TestCase):
         self.assertEqual(response.status_code, 302)
         person = Person.objects.get_by_natural_key('example@example.com')
         self.assertEqual(person.location_city, 'Berlin')
+
+        patched_send_welcome_mail.delay.assert_called_once()
+        self.assertEqual(patched_send_welcome_mail.delay.call_args[0][0], person.pk)
 
 
 class NavbarTestCase(TestCase):
