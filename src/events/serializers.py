@@ -67,7 +67,7 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
 
 
 class SummaryEventSerializer(serializers.ModelSerializer):
-    calendar = serializers.SlugRelatedField('label', read_only=True)
+    calendar = serializers.SlugRelatedField('slug', read_only=True)
 
     class Meta:
         model = models.Event
