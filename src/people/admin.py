@@ -45,7 +45,7 @@ class MembershipInline(admin.TabularInline):
 
 @admin.register(Person, site=admin_site)
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'email', 'subscribed', 'role_link')
+    list_display = ('first_name', 'last_name', 'email', 'subscribed', 'role_link', 'created')
     list_display_links = ('email',)
     search_fields = ('emails__address', 'first_name', 'last_name',)
 
