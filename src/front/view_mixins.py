@@ -4,6 +4,8 @@ from django.http.response import HttpResponseForbidden
 
 
 class SoftLoginRequiredMixin(object):
+    unlogged_redirect_url = 'oauth_redirect_view'
+
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return super().dispatch(request, *args, **kwargs)
@@ -14,15 +16,17 @@ class SoftLoginRequiredMixin(object):
                 login(request, user)
                 return super().dispatch(request, *args, **kwargs)
 
-        return redirect_to_login(request.get_full_path(), 'oauth_redirect_view')
+        return redirect_to_login(request.get_full_path(), self.unlogged_redirect_url)
 
 
 class HardLoginRequiredMixin(object):
+    unlogged_redirect_url = 'oauth_redirect_view'
+
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated and request.session[BACKEND_SESSION_KEY] != 'front.backend.MailLinkBackend':
             return super().dispatch(request, *args, **kwargs)
 
-        return redirect_to_login(request.get_full_path(), 'oauth_redirect_view')
+        return redirect_to_login(request.get_full_path(), self.unlogged_redirect_url)
 
 
 class PermissionsRequiredMixin(object):

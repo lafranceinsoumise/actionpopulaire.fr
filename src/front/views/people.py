@@ -1,7 +1,6 @@
 from django.views.generic import CreateView, UpdateView, TemplateView
-from django.views.generic.edit import ModelFormMixin, FormView
+from django.views.generic.edit import FormView
 from django.core.urlresolvers import reverse_lazy
-from django.db import transaction
 from django.contrib import messages
 
 from people.models import Person
@@ -90,6 +89,9 @@ class MessagePreferencesView(SoftLoginRequiredMixin, UpdateView):
     template_name = 'front/people/message_preferences.html'
     form_class = MessagePreferencesForm
     success_url = reverse_lazy('message_preferences')
+
+    # in case one is not connected, redirect to the unlogged unsubscribe page
+    unlogged_redirect_url = 'unsubscribe'
 
     def get_object(self, queryset=None):
         return self.request.user.person

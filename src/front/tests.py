@@ -1,4 +1,5 @@
 from unittest import mock
+from urllib.parse import urlparse
 
 from django.test import TestCase
 from django.utils import timezone, formats
@@ -640,7 +641,7 @@ class AuthenticationTestCase(TestCase):
         p = self.person.pk
         code = token_generator.make_token(self.person)
 
-        response = self.client.get('/message_preferences/', data={'p': p, 'code': code})
+        response = self.client.get(reverse('volunteer'), data={'p': p, 'code': code})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(get_user(self.client), self.person.role)
@@ -661,3 +662,17 @@ class AuthenticationTestCase(TestCase):
             response, reverse('oauth_redirect_view') + '?next=' + reverse('create_event'),
             target_status_code=status.HTTP_302_FOUND
         )
+
+    def test_message_preferences_redirect_towards_unsubscribe_when_unlogged(self):
+        message_preferences_path = reverse('message_preferences')
+        unsubscribe_path = reverse('unsubscribe')
+
+        response = self.client.get(message_preferences_path)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        target_url = urlparse(response.url)
+        self.assertEqual(target_url.path, unsubscribe_path)
+
+        # including when trying to log in with unvalid token
+        response = self.client.get(message_preferences_path, data={'p': str(self.person.pk), 'code': 'invalid-code'})
+        target_url = urlparse(response.url)
+        self.assertEqual(target_url.path, unsubscribe_path)
