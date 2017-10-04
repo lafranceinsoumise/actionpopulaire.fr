@@ -8,6 +8,7 @@ from groups.models import SupportGroup
 
 class NBUrlsView(View):
     nb_paths = {
+        '/unsubscribe': reverse_lazy('unsubscribe'),
         '/login': reverse_lazy('oauth_redirect_view'),
         '/users/event_pages/new?parent_id=103': reverse_lazy('create_event'),
         '/users/event_pages/new?parent_id=73': reverse_lazy('create_group'),
