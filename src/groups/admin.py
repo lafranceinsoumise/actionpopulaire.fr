@@ -68,7 +68,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             return referent.person.email
 
         return ''
-
+    referent.short_description = _('Animateurice')
 
     def location_short(self, object):
         return _('{zip} {city}, {country}').format(
