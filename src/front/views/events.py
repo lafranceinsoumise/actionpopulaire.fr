@@ -244,7 +244,7 @@ class CancelEventView(HardLoginRequiredMixin, DetailView):
         return HttpResponseRedirect(self.success_url)
 
 
-class QuitEventView(HardLoginRequiredMixin, DeleteView):
+class QuitEventView(SoftLoginRequiredMixin, DeleteView):
     template_name = "front/events/quit.html"
     success_url = reverse_lazy("list_events")
     model = RSVP

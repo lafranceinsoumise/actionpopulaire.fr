@@ -8,7 +8,7 @@ from django.db.models import Q
 from celery import shared_task
 
 from lib.mails import send_mosaico_email
-from front.utils import front_url
+from front.utils import front_url, generate_token_params
 
 from .models import Event, RSVP, OrganizerConfig
 
@@ -66,22 +66,24 @@ def send_event_changed_notification(event_pk, changes):
         context={'items': change_descriptions}
     )
 
+    notifications_enabled = Q(notifications_enabled=True) & Q(person__event_notifications=True)
+    recipients = [rsvp.person for rsvp in event.rsvps.filter(notifications_enabled).select_related('person')]
+    queries = [generate_token_params(p) for p in recipients]
+
     bindings = {
         "EVENT_NAME": event.name,
         "EVENT_CHANGES": change_fragment,
         "EVENT_LINK": front_url("view_event", kwargs={'pk': event_pk}),
-        "EVENT_QUIT_LINK": front_url("quit_event", kwargs={'pk': event_pk})
+        "EVENT_QUIT_LINK": front_url("quit_event", kwargs={'pk': event_pk}, query=queries)
     }
 
-    notifications_enabled = Q(notifications_enabled=True) & Q(person__event_notifications=True)
-
-    recipients = [rsvp.person.email for rsvp in event.rsvps.filter(notifications_enabled).select_related('person')]
+    emails = [p.email for p in recipients]
 
     send_mosaico_email(
         code='EVENT_CHANGED',
         subject=_("Les informations d'un événement auquel vous assistez ont été changées"),
         from_email=settings.EMAIL_FROM,
-        recipients=recipients,
+        recipients=emails,
         bindings=bindings,
     )
 

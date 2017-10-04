@@ -1,4 +1,4 @@
-import re
+from collections import Sequence
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -13,6 +13,19 @@ __all__ = ['fetch_mosaico_message', 'send_mail', 'send_mosaico_email']
 
 _h = html2text.HTML2Text()
 _h.ignore_images = True
+
+
+def _iterate_recipients_bindings(recipients, bindings):
+    """Iterates over recipients and bindings, some of them can be list of the same length as recipients
+    :return:
+    """
+    multiple_bindings = [k for k, v in bindings.items() if isinstance(v, list) or isinstance(v, tuple)]
+    l = len(recipients)
+
+    assert all(len(bindings[b]) == l for b in multiple_bindings), "All bindings should be the same size as the recipient list"
+
+    for recipient, *values in zip(recipients, *(bindings[k] for k in multiple_bindings)):
+        yield (recipient, {**bindings, **dict(zip(multiple_bindings, values))})
 
 
 def generate_plain_text(html_message):
@@ -50,7 +63,7 @@ def fetch_mosaico_message(code, recipient, bindings):
     return response.text
 
 
-def send_mosaico_email(code, subject, from_email, recipients, bindings=None, connection=None, backend=None,
+def send_mosaico_email(code, subject, from_email, recipients, bindings=None, connection_links=None, connection=None, backend=None,
                        fail_silently=False):
     """Send an email from a Mosaico template
 
@@ -72,8 +85,9 @@ def send_mosaico_email(code, subject, from_email, recipients, bindings=None, con
     if connection is None:
         connection = get_connection(backend, fail_silently)
 
-    for recipient in recipients:
-        html_message = fetch_mosaico_message(code, recipient, bindings)
+    for recipient, binding in _iterate_recipients_bindings(recipients, bindings):
+
+        html_message = fetch_mosaico_message(code, recipient, binding)
         text_message = generate_plain_text(html_message)
 
         email = EmailMultiAlternatives(
