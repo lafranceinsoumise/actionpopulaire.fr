@@ -252,7 +252,7 @@ class ProfileForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
     class Meta:
         model = Person
         fields = (
-            'first_name', 'last_name',
+            'first_name', 'last_name', 'gender', 'date_of_birth',
             'location_address1', 'location_address2', 'location_city', 'location_zip', 'location_country',
             'contact_phone'
         )

@@ -137,7 +137,7 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         (GENDER_OTHER, _('Autre/Non défini'))
     )
     gender = models.CharField(_('Genre'), max_length=1, blank=True, choices=GENDER_CHOICES)
-    date_of_birth = models.DateField(_('Date de naissance'), null=True)
+    date_of_birth = models.DateField(_('Date de naissance'), null=True, blank=True)
 
     meta = JSONField(_('Autres données'), default=dict)
 
