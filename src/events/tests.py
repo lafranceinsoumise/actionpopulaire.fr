@@ -378,6 +378,12 @@ class LegacyEventViewSetTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
+    def test_can_get_event_summary(self):
+        response = self.client.get('/legacy/events/summary/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(response.data), 1)
 
 class FiltersTestCase(APITestCase):
     def setUp(self):

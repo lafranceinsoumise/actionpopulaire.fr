@@ -256,6 +256,12 @@ class LegacySupportGroupViewSetTestCase(TestCase):
 
         self.assertEqual(self.supportgroup.description, 'Plus mieux!')
 
+    def test_can_get_summary(self):
+        response = self.client.get('/legacy/groups/summary/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
 
 class FiltersTestCase(TestCase):
     def get_request(self, path='', data=None, **extra):
