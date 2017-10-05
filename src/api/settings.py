@@ -219,13 +219,14 @@ MEDIA_ROOT = os.environ.get('MEDIA_ROOT', 'media')
 
 AUTH_USER_MODEL = 'authentication.Role'
 
-# This backend is necessary to enforce database permissions
-AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
+AUTHENTICATION_BACKENDS = [
+    # Rules permission backend MUST be in first position
+    'clients.authentication.AccessTokenRulesPermissionBackend',
+    # This backend is necessary to enforce database permissions
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 if ENABLE_API:
-    # Rules permission backend MUST be in first position
-    AUTHENTICATION_BACKENDS.insert(0, 'clients.authentication.AccessTokenRulesPermissionBackend')
-
     # This backend is used to connect to the administration panel
     AUTHENTICATION_BACKENDS.append('people.backend.PersonBackend')
 
