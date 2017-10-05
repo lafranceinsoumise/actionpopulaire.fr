@@ -1,11 +1,15 @@
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 import django_filters
 
+from front.utils import generate_token_params
 from lib.pagination import LegacyPaginator
 from lib.permissions import RestrictViewPermissions
 from lib.views import NationBuilderViewMixin
 from authentication.models import Role
+from people.tasks import send_welcome_mail
 
 from . import serializers, models
 
@@ -31,6 +35,15 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
     def me(self, request):
         self.kwargs['pk'] = self.request.user.person.pk
         return self.retrieve(request)
+
+    @list_route(methods=['POST'])
+    def subscribe(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        send_welcome_mail.delay(serializer.instance.id)
+        headers = self.get_success_headers(serializer.data)
+        return Response(generate_token_params(serializer.instance), status=status.HTTP_201_CREATED, headers=headers)
 
     def get_queryset(self):
         if not ('pk' in self.kwargs or self.request.user.has_perm('people.view_person')):

@@ -1,3 +1,5 @@
+from unittest import mock
+
 import django.utils.timezone
 from django.test import TestCase
 from django.contrib.auth import authenticate
@@ -76,7 +78,7 @@ class BasicPersonTestCase(TestCase):
         self.assertEqual(str(person), 'test1@domain.com')
 
 
-class LegacyPersonEndpointPermissionsTestCase(APITestCase):
+class LegacyPersonEndpointTestCase(APITestCase):
     def as_viewer(self, request):
         force_authenticate(request, self.viewer_person.role)
 
@@ -245,6 +247,21 @@ class LegacyPersonEndpointPermissionsTestCase(APITestCase):
 
         self.assertEqual(new_person.first_name, 'Jean-Luc')
         self.assertEqual(new_person.last_name, 'Mélenchon')
+
+    @mock.patch("people.viewsets.send_welcome_mail")
+    def test_can_subscribe_new_person(self, patched_send_welcome_mail):
+        self.client.force_login(self.adder_person.role)
+        response = self.client.post(reverse('legacy:person-subscribe-list'), data={
+            'email': 'guillaume@email.com',
+        })
+
+        new_person = Person.objects.get(email='guillaume@email.com')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['p'], new_person.id)
+        self.assertIsNotNone(response.data['code'])
+        patched_send_welcome_mail.delay.assert_called_once()
+        self.assertEqual(patched_send_welcome_mail.delay.call_args[0], (new_person.id,))
 
     def test_cannot_post_new_person_with_existing_email(self):
         request = self.factory.post('', data={
