@@ -8,7 +8,7 @@ from django.utils.text import capfirst
 from django.utils.encoding import force_str
 from django.contrib.auth.password_validation import validate_password
 
-from ...models import Person
+from ...models import Person, PersonEmail
 
 
 class NotRunningInTTYException(Exception):
@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
-        self.email_field = Person._meta.get_field('email')
+        self.email_field = PersonEmail._meta.get_field('address')
 
     def add_arguments(self, parser):
         parser.add_argument(
