@@ -52,12 +52,12 @@
         </h4>
     {% endif %}
     {% if user.is_authenticated %}
-        {% if has_rsvp %}
+        {% if has_rsvp and not is_organizer %}
             <p>
                 Je suis déjà inscrit⋅e à cet événement
                 &bull; <a href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
             </p>
-        {% else %}
+        {% elif not is_organizer %}
             <form action="{% url "view_event" event.pk %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="rsvp"/>
@@ -67,6 +67,12 @@
     {% else %}
         <a class="btn btn-primary btn-block" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour
             participer à l'événement</a>
+    {% endif %}
+    {% if is_organizer %}
+        <p>
+            J'organise de cet événement
+            &bull; <a href="{% url "manage_event" event.pk %}">Gérer mon événement</a>
+        </p>
     {% endif %}
 
 {% endblock %}

@@ -59,6 +59,7 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(
             has_rsvp=self.request.user.is_authenticated and self.object.rsvps.filter(person=self.request.user.person).exists(),
+            is_organizer=self.request.user.is_authenticated and self.object.organizers.filter(pk=self.request.user.person.id).exists()
         )
 
     @method_decorator(login_required(login_url=reverse_lazy('oauth_redirect_view')), )
