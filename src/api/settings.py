@@ -171,7 +171,7 @@ EMAIL_TEMPLATES = {
     "EVENT_CANCELLATION": "https://mosaico.jlm2017.fr/emails/94c7cbb3-afdc-4d14-a07a-cf9503db5b5f.html",
 }
 
-EMAIL_FROM = os.environ.get('EMAIL_FROM', 'noreply@lafranceinsoumise.fr')
+EMAIL_FROM = os.environ.get('EMAIL_FROM', 'La France insoumise <noreply@lafranceinsoumise.fr>')
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
