@@ -13,9 +13,9 @@ class SoftLoginRequiredMixin(object):
     def get_message_string(self, user):
 
         return format_html(
-            _("Vous êtes connecté&middot;e&middot;s avec l'adresse &lt;{user_email}&gt;. S'il ne s'agit pas de vous,"
-              " <a href=\"{login_url}\">cliquez-ici pour vous connecter</a> avec votre compte."),
-            user_email=user.person.email,
+            _("Bonjour {person} (ce n'est pas vous ? <a href=\"{login_url}\">Cliquez-ici pour vous reconnecter"
+              "</a> avec votre compte.)"),
+            person=user.person.get_short_name(),
             login_url=reverse('oauth_redirect_view')
         )
 
