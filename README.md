@@ -22,16 +22,22 @@ On Ubuntu, this means installing the following packages:
 apt install postgresql-9.6 postgis
 ```
 
-For production, you need to create a database and a role with owner
+On Mac OS, this can be installed with brew with the following commands :
+
+```bash
+brew install postgresql postgis
+```
+
+For development, you need to create a database and a role with owner
 rights, and add the `postgis` extension to the database.
 
 ```bash
 sudo -u postgres psql
 # the following commmands should be typed inside psql
 
-CREATE ROLE api;
+CREATE ROLE api WITH PASSWORD 'password';
 CREATE DATABASE api WITH owner api;
-USE api;
+\connect api
 CREATE EXTENSION postgis;
 ```
 
