@@ -44,10 +44,6 @@
     <h5>
         Contact&nbsp;:
     </h5>
-    <div><strong>Nom du contact&nbsp;:</strong> {{ supportgroup.contact_name }}</div>
-    {% if supportgroup.contact_email %}
-        <div><strong>Email&nbsp;:</strong> {{ supportgroup.contact_email }}</div>{% endif %}
-    {% if supportgroup.contact_phone %}
-        <div><strong>Téléphone&nbsp;:</strong> 0{{ supportgroup.contact_phone }}</div>{% endif %}
+    <p>{{ supportgroup.html_full_contact }}</p>
     <hr/>
 {% endblock %}

@@ -40,11 +40,7 @@
     <h5>
         Contact&nbsp;:
     </h5>
-    <div><strong>Nom de l'initiatrice ou de l'initiateur&nbsp;:</strong> {{ event.contact_name }}</div>
-    {% if event.contact_email %}
-        <div><strong>Email&nbsp;:</strong> {{ event.contact_email }}</div>{% endif %}
-    {% if event.contact_phone %}
-        <div><strong>Téléphone&nbsp;:</strong> 0{{ event.contact_phone }}</div>{% endif %}
+    <p>{{ event.html_full_contact }}</p>
     <hr/>
     {% if event.participants %}
         <h4>
