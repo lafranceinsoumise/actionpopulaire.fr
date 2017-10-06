@@ -1,20 +1,54 @@
 from django.contrib.auth import BACKEND_SESSION_KEY, authenticate, login
 from django.contrib.auth.views import redirect_to_login
-from django.http.response import HttpResponseForbidden
+from django.contrib import messages
+from django.utils.translation import ugettext as _
+from django.utils.html import format_html
+from django.shortcuts import reverse
+from django.http.response import HttpResponseForbidden, HttpResponseRedirect
 
 
 class SoftLoginRequiredMixin(object):
     unlogged_redirect_url = 'oauth_redirect_view'
 
+    def get_message_string(self, user):
+
+        return format_html(
+            _("Vous êtes connecté&middot;e&middot;s avec l'adresse &lt;{user_email}&gt;. S'il ne s'agit pas de vous,"
+              " <a href=\"{login_url}\">cliquez-ici pour vous connecter</a> avec votre compte."),
+            user_email=user.person.email,
+            login_url=reverse('oauth_redirect_view')
+        )
+
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return super().dispatch(request, *args, **kwargs)
-        elif 'p' in request.GET and 'code' in request.GET:
+        if 'p' in request.GET and 'code' in request.GET:
+            # preserve other query params than p and code when we redirect
+            other_params = request.GET.copy()
+            del other_params['p']
+            del other_params['code']
+            url = '{}?{}'.format(request.path, other_params.urlencode(safe='/')) if other_params else request.path
+
             user = authenticate(user_pk=request.GET['p'], code=request.GET['code'])
 
-            if user:
+            # case where user is already authenticated and different from user above ==> redirect with warning message
+            if request.user.is_authenticated and request.user != user:
+                messages.add_message(
+                    request=request,
+                    level=messages.WARNING,
+                    message=self.get_message_string(request.user)
+                )
+                return HttpResponseRedirect(url)
+            # case where user is being authenticated ==> we show a message but only with info level
+            elif user:
                 login(request, user)
-                return super().dispatch(request, *args, **kwargs)
+                messages.add_message(
+                    request=request,
+                    level=messages.INFO,
+                    message=self.get_message_string(user)
+                )
+                return HttpResponseRedirect(url)
+
+        elif request.user.is_authenticated:
+            return super().dispatch(request, *args, **kwargs)
 
         return redirect_to_login(request.get_full_path(), self.unlogged_redirect_url)
 
