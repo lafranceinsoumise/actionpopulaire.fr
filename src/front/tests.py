@@ -651,7 +651,7 @@ class AuthenticationTestCase(TestCase):
 
         response = self.client.get(reverse('volunteer'), data={'p': p, 'code': code})
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertRedirects(response, reverse('volunteer'))
         self.assertEqual(get_user(self.client), self.person.role)
 
     def test_can_access_soft_login_while_already_connected(self):
