@@ -4,6 +4,7 @@ from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.functional import cached_property
 
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -156,29 +157,32 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
 
     @property
     def email(self):
-        if (len(self.emails.all()) < 1):
-            return ''
-        return self.emails.first().address
+        return self.primary_email.address if self.primary_email else ''
+
+    @cached_property
+    def primary_email(self):
+        try:
+            return self.emails.first()
+        except PersonEmail.DoesNotExist:
+            return None
 
     @property
     def bounced(self):
-        return self.emails.first().bounced
+        return self.primary_email.bounced
 
     @bounced.setter
     def bounced(self, value):
-        email = self.emails.first()
-        email.bounced = value
-        email.save()
+        self.primary_email.bounced = value
+        self.primary_email.save()
 
     @property
     def bounced_date(self):
-        return self.emails.first().bounced_date
+        return self.primary_email.bounced_date
 
     @bounced_date.setter
     def bounced_date(self, value):
-        email = self.emails.first()
-        email.bounced_date = value
-        email.save()
+        self.primary_email.bounced_date = value
+        self.primary_email.save()
 
     def get_full_name(self):
         """
@@ -198,11 +202,13 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
             self.emails.add(PersonEmail.objects.create(address=BaseUserManager.normalize_email(email_address), person=self, **kwargs))
 
     def set_primary_email(self, email_address):
-        id = self.emails.get(address=BaseUserManager.normalize_email(email_address)).id
+        email_instance = self.emails.get(address=BaseUserManager.normalize_email(email_address))
         order = list(self.get_personemail_order())
-        order.remove(id)
-        order.insert(0, id)
+        order.remove(email_instance.id)
+        order.insert(0, email_instance.id)
         self.set_personemail_order(order)
+        self.primary_email = email_instance
+
 
 class PersonTag(AbstractLabel):
     """
