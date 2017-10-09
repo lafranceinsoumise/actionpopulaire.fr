@@ -40,6 +40,7 @@ class NBUrlsView(View):
         '/merci': 'https://lafranceinsoumise.fr/merci',
         '/18_mrs': 'https://18mars2017.fr/',
         '/universites_populaires': 'https://avenirencommun.fr/univpop_programme/',
+        '/agenda_melenchon': 'https://agir.lafranceinsoumise.fr/agenda/melenchon/'
     }
 
     def get(self, request, nb_path):
@@ -55,9 +56,14 @@ class NBUrlsView(View):
             nb_url = nb_path
             if request.META['QUERY_STRING']:
                 nb_url = nb_url + '?' + request.META['QUERY_STRING']
-            url = self.nb_paths[nb_url]
+                try:
+                    url = self.nb_paths[nb_url]
+                    return HttpResponsePermanentRedirect(url)
+                except KeyError:
+                    pass
+            url = self.nb_paths[nb_path]
             return HttpResponsePermanentRedirect(url)
         except KeyError:
             pass
 
-        return HttpResponse(status=503)
+        return HttpResponse(status=404)
