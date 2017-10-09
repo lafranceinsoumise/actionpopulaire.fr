@@ -632,10 +632,10 @@ class NBUrlsTestCase(TestCase):
         self.assertEqual(response.status_code, 301)
         self.assertEqual(response.url, reverse('create_event'))
 
-    def test_unkown_gives_503(self):
+    def test_unkown_gives_404(self):
         response = self.client.get('/old/nimp')
 
-        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.status_code, 404)
 
 
 class AuthenticationTestCase(TestCase):
