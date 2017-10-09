@@ -7,61 +7,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{{ meta_title }}{% endblock %}</title>
 
-    {% block opengraph %}
-        {% if show_opengraph %}
-            <meta name="title" content="{{ meta_title }}"/>
-            <meta name="description" content="{{ meta_description }}">
-            <link rel="canonical" href="https://agir.lafranceinsoumise.fr{{ request.path }}"/>
-            <meta property="og:locale" content="fr_FR"/>
-            <meta property="og:type" content="{{ meta_type }}"/>
-            <meta property="og:title" content="{{ meta_title }}"/>
-            <meta property="og:description"
-                  content="{{ meta_description }}"/>
-            <meta property="og:url" content="https://agir.lafranceinsoumise.fr{{ request.path }}"/>
-            <meta property="og:site_name" content="La France Insoumise - Agir"/>
-            <meta property="fb:app_id" content="212018935817034"/>
-            <meta property="og:image"
-                  content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
-            <meta property="og:image:secure_url"
-                  content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
-            <meta name="twitter:card" content="summary_large_image"/>
-            <meta name="twitter:description"
-                  content="{{ meta_description }}"/>
-            <meta name="twitter:title" content="{{ meta_title }}"/>
-            <meta name="twitter:site" content="@FranceInsoumise"/>
-            <meta name="twitter:image"
-                  content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
-            <meta name="twitter:creator" content="@FranceInsoumise"/>
-        {% endif %}
-    {% endblock %}
-    <link rel="stylesheet" href="https://jlm2017.github.io/theme/dist/theme.css"
-          type="text/css">
+<link rel="stylesheet" href="{% static "front/css/main-26d0194863.css" %}" type="text/css">
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-32x32.png" %}" sizes="32x32"/>
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>
     <link rel="apple-touch-icon-precomposed" href="{% static "front/images/cropped-cropped-phi-180x180.png" %}"/>
-    <link rel="stylesheet" href="{% static "front/css/font-awesome.min.css" %}"/>
     <meta name="msapplication-TileImage" content="{% static "front/images/cropped-cropped-phi-270x270.png" %}"/>
-
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet"
-          integrity="sha256-3dkvEK0WLHRJ7/Csr0BZjAWxERc5WH7bdeUya2aXxdU= sha512-+L4yy6FRcDGbXJ9mPG8MT/3UCDzwR9gPeyFNMCtInsol++5m3bk2bXWKdZjvybmohrAsn3Ua5x8gfLnbE1YkOg=="
-          crossorigin="anonymous">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css"
-          rel="stylesheet">
+    {% block additional_headers %}{% endblock %}
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js">
     </script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js">
     </script>
 
-    {{ form.media }}
-
-    {% block additional_headers %}{% endblock %}
 </head>
 <body class="home archive">
 <!--[if IE]>
       <div class="alert alert-warning">
         Vous utilisez une version obsolète de votre navigateur. Veuillez le  <a href="http://browsehappy.com/">mettre à jour</a> pour visionner votre site correctement.      </div>
     <![endif]-->
+<header class="banner">
+    <nav class="nav-primary navbar navbar-default navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#main-navbar-collapse" aria-expanded="false">
+                    Menu <span class="caret"></span>
+                </button>
+                <a href="https://lafranceinsoumise.fr" class="custom-logo-link" rel="home" itemprop="url"><img
+                        src="{% static "front/images/170428_logoRectangle_transparent.png" %}"
+                        class="custom-logo" alt="La France insoumise" itemprop="logo"
+                        srcset="{% static "front/images/170428_logoRectangle_transparent.png" %} 1038w, {% static "front/images/170428_logoRectangle_transparent-300x145.png" %} 300w, {% static "170428_logoRectangle_transparent-768x370.png" %} 768w, {% static "front/images/170428_logoRectangle_transparent-1024x493.png" %} 1024w"
+                        sizes="(max-width: 1038px) 100vw, 1038px"/></a></div>
+            <div class="collapse navbar-collapse" id="main-navbar-collapse">
+                <div id="menu-export"></div>
+                <script>
+                  (function () {
+                    /** SETTINGS **/
+                    var themeLocation = 'primary_navigation';
+                    var addBootstrapCSS = true;
+                    var menu_class = 'nav%20navbar-nav%20navbar-right';
+                    var container = '';
+
+                    var r = new XMLHttpRequest();
+                    r.open('GET', 'https://lafranceinsoumise.fr/?menu_export=1&theme_location=' + themeLocation +
+                      '&menu_class=' + menu_class + '&container=' + container +
+                      (addBootstrapCSS ? '&bootstrap=1' : ''), true);
+                    r.onreadystatechange = function () {
+                      if (r.readyState != 4 || r.status != 200) return;
+                      document.getElementById('menu-export').innerHTML = r.responseText;
+                    };
+                    r.send();
+                  })();
+                </script>
+            </div>
+        </div>
+    </nav>
+    <nav class="navbar navbar-secondary">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#supporter-nav-collapse">
+                    <span class="sr-only">Activer la navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+</header>
 <div class="wrap container" role="document">
     <div class="content row">
         <main class="main">
@@ -79,9 +93,5 @@
         </main>
     </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/fr.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
-
 </body>
 </html>
