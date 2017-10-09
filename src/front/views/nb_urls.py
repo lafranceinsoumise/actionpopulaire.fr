@@ -43,17 +43,13 @@ class NBUrlsView(View):
     }
 
     def get(self, request, nb_path):
-        try:
-            event = Event.objects.get(nb_path=nb_path)
+        event = Event.objects.filter(nb_path=nb_path, published=True).first()
+        if event:
             return HttpResponsePermanentRedirect(reverse('view_event', args=[event.id]))
-        except Event.DoesNotExist:
-            pass
 
-        try:
-            group = SupportGroup.objects.get(nb_path=nb_path)
+        group = SupportGroup.objects.filter(nb_path=nb_path, published=True).first()
+        if group:
             return HttpResponsePermanentRedirect(reverse('view_group', args=[group.id]))
-        except SupportGroup.DoesNotExist:
-            pass
 
         try:
             nb_url = nb_path
