@@ -4,6 +4,9 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.text import slugify
 from model_utils.models import TimeStampedModel
 
+from stdimage.models import StdImageField
+from stdimage.utils import UploadToAutoSlug
+
 from lib.models import (
     BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin
 )
@@ -53,9 +56,13 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
         default=False,
     )
 
-    image = models.ImageField(
+    image = StdImageField(
         _("bannière de l'événement"),
-        upload_to="events/banners/",
+        upload_to=UploadToAutoSlug(populate_from="name", path="events/banners/"),
+        variations={
+            'thumbnail': (400, 250),
+            'banner': (1200, 400),
+        },
         null=True, blank=True
     )
 
@@ -153,9 +160,13 @@ class Calendar(NationBuilderResource):
 
     description = models.TextField(_('description'), blank=True, help_text=_("Saisissez une description (HTML accepté)"))
 
-    image = models.ImageField(
+    image = StdImageField(
         _("bannière"),
-        upload_to='calendars/',
+        upload_to=UploadToAutoSlug("name", path="events/calendars/"),
+        variations={
+            'thumbnail': (400, 250),
+            'banner': (1200, 400),
+        },
         null=True, blank=True,
     )
 

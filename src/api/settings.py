@@ -82,6 +82,9 @@ INSTALLED_APPS = [
     # admin steroids
     'admin_steroids',
 
+    # stdimage
+    'stdimage',
+
     # fi apps
     'authentication',
     'people',

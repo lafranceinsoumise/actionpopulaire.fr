@@ -106,7 +106,10 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     attendee_count.admin_order_field = 'attendee_count'
 
     def link(self, object):
-        return format_html('<a href="{0}">{0}</a>', front_url('view_event', kwargs={'pk': object.pk}))
+        if object.pk:
+            return format_html('<a href="{0}">{0}</a>', front_url('view_event', kwargs={'pk': object.pk}))
+        else:
+            return '-'
     link.short_description = _("Page sur le site")
 
     def get_queryset(self, request):
@@ -122,7 +125,10 @@ class CalendarAdmin(admin.ModelAdmin):
     readonly_fields = ('link',)
 
     def link(self, object):
-        return format_html('<a href="{0}">{0}</a>', front_url('view_calendar', kwargs={'slug': object.slug}))
+        if object.slug:
+            return format_html('<a href="{0}">{0}</a>', front_url('view_calendar', kwargs={'slug': object.slug}))
+        else:
+            return '-'
     link.short_description = _("Lien vers l'agenda")
 
 

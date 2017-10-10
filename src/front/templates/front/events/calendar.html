@@ -5,7 +5,7 @@
 
 {% block main %}
     {% if calendar.image %}
-        <img src="{{ calendar.image.url }}" class="">
+        <img src="{{ calendar.image.url }}" class="img-responsive center-block">
     {% endif %}
 
     <h2>{{ calendar.name }}</h2>
@@ -23,7 +23,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         {% if event.image %}
-                            <img src="{{ event.image.url }}" class="img-responsive">
+                            <img src="{{ event.image.thumbnail.url }}" class="img-responsive">
                         {% elif calendar.image %}
                             <img src="{{ calendar.image.url }}" class="img-responsive">
                         {% else %}
