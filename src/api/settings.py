@@ -343,6 +343,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CELERY_BROKER_URL = os.environ.get('BROKER_URL', 'redis://')
 # make sure celery does not mess with the root logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+# enable task events to allow monitoring
+CELERY_WORKER_SEND_TASK_EVENTS = True
 
 OAUTH = {
     'client_id': os.environ.get('OAUTH_CLIENT_ID', 'api_front'),
