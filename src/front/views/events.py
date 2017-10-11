@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext as _
 from django.utils.decorators import method_decorator
+from django.utils.html import format_html
 from django.contrib.auth.decorators import login_required
 from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView
 from django.core.urlresolvers import reverse_lazy, reverse
@@ -217,7 +218,7 @@ class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateVi
         messages.add_message(
             request=self.request,
             level=messages.SUCCESS,
-            message="Les modifications de l'événement <em>%s</em> ont été enregistrées." % self.object.name,
+            message=format_html(_("Les modifications de l'événement <em>{}</em> ont été enregistrées."), self.object.name)
         )
 
         return res
@@ -274,7 +275,7 @@ class QuitEventView(SoftLoginRequiredMixin, DeleteView):
         messages.add_message(
             request,
             messages.SUCCESS,
-            _("Vous ne participez plus à l'événement <em>%s</em>" % self.object.event.name)
+            format_html(_("Vous ne participez plus à l'événement <em>{}</em>"), self.object.event.name)
         )
 
         return res

@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext as _, ugettext_lazy
 from django.utils.decorators import method_decorator
+from django.utils.html import format_html
 from django.contrib.auth.decorators import login_required
 from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView
 from django.contrib import messages
@@ -226,7 +227,10 @@ class ModifySupportGroupView(HardLoginRequiredMixin, PermissionsRequiredMixin, U
         messages.add_message(
             request=self.request,
             level=messages.SUCCESS,
-            message="Les modifications du groupe <em>%s</em> ont été enregistrées." % self.object.name,
+            message=format_html(
+                _("Les modifications du groupe <em>{}</em> ont été enregistrées."),
+                self.object.name,
+            )
         )
 
         return res
@@ -322,7 +326,10 @@ class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
             messages.add_message(
                 request,
                 messages.SUCCESS,
-                _("Vous avez bien quitté le groupe <em>%s</em>" % self.object.supportgroup.name)
+                format_html(
+                    _("Vous avez bien quitté le groupe <em>{}</em>"),
+                    self.object.supportgroup.name
+                )
             )
 
         return HttpResponseRedirect(success_url)
