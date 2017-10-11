@@ -3,7 +3,11 @@ from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe, escape, format_html, format_html_join
 from django_countries.fields import CountryField
+
 from model_utils.models import TimeStampedModel
+from stdimage.models import StdImageField
+from stdimage.validators import MinSizeValidator
+from stdimage.utils import UploadToAutoSlugClassNameDir
 
 
 class UUIDIdentified(models.Model):
@@ -183,3 +187,22 @@ class AbstractLabel(models.Model):
 
     def __str__(self):
         return self.label
+
+
+class WithImageMixin(models.Model):
+    image = StdImageField(
+        _("image"),
+        upload_to=UploadToAutoSlugClassNameDir(populate_from="name", path="banners"),
+        variations={
+            'thumbnail': (400, 250),
+            'banner': (1200, 400),
+        },
+        validators=[MinSizeValidator(1200, 630)],
+        blank=True,
+        help_text=_("L'image à utiliser pour l'affichage sur la page, comme miniature dans les listes, et"
+                    " pour le partage sur les réseaux sociaux. Elle doit faire au minimum 1200 pixels de large, et 630"
+                    " de haut. Préférer un rapport largeur/hauteur de 2 (deux fois plus large que haut)?")
+    )
+
+    class Meta:
+        abstract = True

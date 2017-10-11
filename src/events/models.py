@@ -8,7 +8,7 @@ from stdimage.models import StdImageField
 from stdimage.utils import UploadToAutoSlug
 
 from lib.models import (
-    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin
+    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, WithImageMixin
 )
 
 
@@ -31,7 +31,7 @@ class PublishedRSVPManager(models.Manager):
             event__published=True, event__end_time__gt=timezone.now() - EVENT_GRACE_PERIOD)
 
 
-class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin):
+class Event(BaseAPIResource, NationBuilderResource, LocationMixin, WithImageMixin, ContactMixin):
     """
     Model that represents an event
     """
@@ -54,16 +54,6 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin)
     allow_html = models.BooleanField(
         _("autoriser le HTML dans la description"),
         default=False,
-    )
-
-    image = StdImageField(
-        _("bannière de l'événement"),
-        upload_to=UploadToAutoSlug(populate_from="name", path="events/banners/"),
-        variations={
-            'thumbnail': (400, 250),
-            'banner': (1200, 400),
-        },
-        null=True, blank=True
     )
 
     published = models.BooleanField(
@@ -150,7 +140,7 @@ class CalendarManager(models.Manager):
         )
 
 
-class Calendar(NationBuilderResource):
+class Calendar(NationBuilderResource, WithImageMixin):
     objects = CalendarManager()
 
     name = models.CharField(_("titre"), max_length=255)
@@ -167,7 +157,7 @@ class Calendar(NationBuilderResource):
             'thumbnail': (400, 250),
             'banner': (1200, 400),
         },
-        null=True, blank=True,
+        blank=True,
     )
 
     class Meta:
