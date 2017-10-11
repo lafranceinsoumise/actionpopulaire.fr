@@ -281,7 +281,7 @@ class QuitEventView(SoftLoginRequiredMixin, DeleteView):
         return res
 
 
-class CalendarView(DetailView):
+class CalendarView(ObjectOpengraphMixin, DetailView):
     template_name = "front/events/calendar.html"
     model = Calendar
     paginator_class = Paginator

@@ -20,10 +20,15 @@
             <meta property="og:url" content="https://agir.lafranceinsoumise.fr  {{ request.path }}"/>
             <meta property="og:site_name" content="La France Insoumise - Agir"/>
             <meta property="fb:app_id" content="212018935817034"/>
-            <meta property="og:image"
-                  content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
-            <meta property="og:image:secure_url"
-                  content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
+            {% if meta_image %}
+                <meta property="og:image" content="{{ meta_image }}">
+                <meta property="og:image:secure_url" content="{{ meta_image }}">
+            {% else %}
+                <meta property="og:image"
+                      content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
+                <meta property="og:image:secure_url"
+                      content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
+            {% endif %}
             <meta name="twitter:card" content="summary_large_image"/>
             <meta name="twitter:description"
                   content="{{ meta_description }}"/>
@@ -69,23 +74,23 @@
             <div class="collapse navbar-collapse" id="main-navbar-collapse">
                 <div id="menu-export"></div>
                 <script>
-                  (function () {
-                    /** SETTINGS **/
-                    var themeLocation = 'primary_navigation';
-                    var addBootstrapCSS = true;
-                    var menu_class = 'nav%20navbar-nav%20navbar-right';
-                    var container = '';
+                    (function () {
+                        /** SETTINGS **/
+                        var themeLocation = 'primary_navigation';
+                        var addBootstrapCSS = true;
+                        var menu_class = 'nav%20navbar-nav%20navbar-right';
+                        var container = '';
 
-                    var r = new XMLHttpRequest();
-                    r.open('GET', 'https://lafranceinsoumise.fr/?menu_export=1&theme_location=' + themeLocation +
-                      '&menu_class=' + menu_class + '&container=' + container +
-                      (addBootstrapCSS ? '&bootstrap=1' : ''), true);
-                    r.onreadystatechange = function () {
-                      if (r.readyState != 4 || r.status != 200) return;
-                      document.getElementById('menu-export').innerHTML = r.responseText;
-                    };
-                    r.send();
-                  })();
+                        var r = new XMLHttpRequest();
+                        r.open('GET', 'https://lafranceinsoumise.fr/?menu_export=1&theme_location=' + themeLocation +
+                            '&menu_class=' + menu_class + '&container=' + container +
+                            (addBootstrapCSS ? '&bootstrap=1' : ''), true);
+                        r.onreadystatechange = function () {
+                            if (r.readyState != 4 || r.status != 200) return;
+                            document.getElementById('menu-export').innerHTML = r.responseText;
+                        };
+                        r.send();
+                    })();
                 </script>
             </div>
         </div>

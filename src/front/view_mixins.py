@@ -1,3 +1,5 @@
+from urllib.parse import urljoin
+
 from django.contrib.auth import BACKEND_SESSION_KEY, authenticate, login
 from django.contrib.auth.views import redirect_to_login
 from django.contrib import messages
@@ -5,13 +7,14 @@ from django.utils.translation import ugettext as _
 from django.utils.html import format_html
 from django.shortcuts import reverse
 from django.http.response import HttpResponseForbidden, HttpResponseRedirect
+from django.conf import settings
 
 
 class SoftLoginRequiredMixin(object):
     unlogged_redirect_url = 'oauth_redirect_view'
 
-    def get_message_string(self, user):
-
+    @staticmethod
+    def get_message_string(user):
         return format_html(
             _("Bonjour {person} (ce n'est pas vous ? <a href=\"{login_url}\">Cliquez-ici pour vous reconnecter"
               "</a> avec votre compte.)"),
@@ -92,6 +95,7 @@ class SimpleOpengraphMixin():
             meta_title=self.get_meta_title(),
             meta_description=self.get_meta_description(),
             meta_type=self.meta_type,
+            meta_image=self.get_meta_image(),
             **kwargs
         )
 
@@ -101,9 +105,17 @@ class SimpleOpengraphMixin():
     def get_meta_description(self):
         return self.meta_description
 
+    def get_meta_image(self):
+        return None
+
 
 class ObjectOpengraphMixin(SimpleOpengraphMixin):
-    title_prefix = None
+    title_prefix = "La France insoumise"
 
     def get_meta_title(self):
         return '{} - {}'.format(self.title_prefix, self.object.name)
+
+    def get_meta_image(self):
+        if hasattr(self.object, 'image') and self.object.image:
+            return urljoin(settings.FRONT_DOMAIN, self.object.image.url)
+        return None
