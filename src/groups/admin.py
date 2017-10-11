@@ -5,12 +5,21 @@ from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
 from django.shortcuts import reverse
 from django.db.models import Count
+from django import forms
 from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
 
 from lib.admin import CenterOnFranceMixin
+from lib.forms import CoordinatesFormMixin
 from front.utils import front_url
 from . import models
+
+
+class SupportGroupAdminForm(CoordinatesFormMixin, forms.ModelForm):
+    class Meta:
+        exclude = (
+            'id', 'members'
+        )
 
 
 class MembershipInline(admin.TabularInline):
@@ -31,6 +40,7 @@ class MembershipInline(admin.TabularInline):
 
 @admin.register(models.SupportGroup, site=admin_site)
 class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
+    form = SupportGroupAdminForm
     fieldsets = (
         (None, {
             'fields': ('id', 'name', 'link', 'created', 'modified')
@@ -85,7 +95,9 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     membership_count.admin_order_field = 'membership_count'
 
     def link(self, object):
-        return format_html('<a href="{0}">{0}</a>', front_url('view_group', kwargs={'pk': object.pk}))
+        if object.pk:
+            return format_html('<a href="{0}">{0}</a>', front_url('view_group', kwargs={'pk': object.pk}))
+        else: return mark_safe('-')
     link.short_description = _("Page sur le site")
 
     def get_queryset(self, request):

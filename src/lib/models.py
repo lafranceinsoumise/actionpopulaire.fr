@@ -116,6 +116,15 @@ class LocationMixin(models.Model):
 
         return ', '.join(getattr(self, attr) for attr in attrs if getattr(self, attr))
 
+    def has_location(self):
+        return self.coordinates is not None
+
+    def has_manual_location(self):
+        return self.coordinates_type == self.COORDINATES_MANUAL
+
+    def has_automatic_location(self):
+        return self.coordinates_type is not None and self.COORDINATES_MANUAL < self.coordinates_type < self.COORDINATES_NOT_FOUND
+
     class Meta:
         abstract = True
 

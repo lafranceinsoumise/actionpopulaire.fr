@@ -5,14 +5,22 @@ from django.db.models import F, Sum
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.html import format_html
+from django import forms
 from api.admin import admin_site
-from ajax_select import make_ajax_form
 from admin_steroids.filters import AjaxFieldFilter
 
 from lib.admin import CenterOnFranceMixin
+from lib.forms import CoordinatesFormMixin
 from front.utils import front_url
 
 from . import models
+
+
+class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
+    class Meta:
+        exclude = (
+            'id', 'organizers', 'attendees'
+        )
 
 
 class EventStatusFilter(admin.SimpleListFilter):
@@ -50,6 +58,8 @@ class EventStatusFilter(admin.SimpleListFilter):
 
 @admin.register(models.Event, site=admin_site)
 class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
+    form = EventAdminForm
+
     fieldsets = (
         (None, {
             'fields': ('id', 'name', 'link', 'created', 'modified')
@@ -62,7 +72,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
-                       'location_state', 'location_country', 'coordinates', 'coordinates_type')
+                       'location_state', 'location_country', 'coordinates', 'coordinates_type', 'redo_geolocation')
         }),
         (_('Contact'), {
             'fields': ('contact_name', 'contact_email', 'contact_phone')

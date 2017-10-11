@@ -10,7 +10,27 @@ BAN_ENDPOINT = 'https://api-adresse.data.gouv.fr/search'
 NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org/"
 
 
+def geocode_element(item):
+    """Geocode an item in the background
+
+    :param item:
+    :return:
+    """
+
+    # geocoding only if got at least: city, country
+    if item.location_city and item.location_country:
+        if item.location_country == 'FR':
+            return geocode_ban(item)
+        else:
+            return geocode_nominatim(item)
+
+
 def geocode_ban(item):
+    """Find the location of an item using its location fields
+
+    :param item:
+    :return: True if the item has changed (and should be saved), False in the other case
+    """
     q = ' '.join(
         l for l in [item.location_address1, item.location_address2, item.location_zip, item.location_city] if l)
 
@@ -26,14 +46,14 @@ def geocode_ban(item):
         results = res.json()
     except requests.RequestException:
         logger.exception('Error while geocoding French address with BAN')
-        return
+        return False
     except ValueError:
         logger.exception('Invalid JSON while geocoding French address with BAN')
-        return
+        return False
 
     if 'features' not in results:
         logger.error('Incorrect result from BAN')
-        return
+        return False
 
     types = {
         'housenumber': LocationMixin.COORDINATES_EXACT,
@@ -47,14 +67,16 @@ def geocode_ban(item):
         if feature['properties']['type'] in types:
             item.coordinates = Point(*feature['geometry']['coordinates'])
             item.coordinates_type = types[feature['properties']['type']]
-            item.save()
-            return
+            return True
 
     item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
-    item.save()
 
 
 def geocode_nominatim(item):
+    """Find location of an item with its address
+
+    :return: True if the item has changed (and should be saved), False in the other case
+    """
     q = ' '.join(l for l in [item.location_address1, item.location_address2, item.location_zip, item.location_city,
                              item.location_state] if l)
 
@@ -73,17 +95,17 @@ def geocode_nominatim(item):
         results = res.json()
     except requests.RequestException:
         logger.exception('Error while geocoding address with Nominatim')
-        return
+        return False
     except ValueError:
         logger.exception('Invalid JSON while geocoding address with Nominatim')
-        return
+        return False
 
     print(repr(results))
 
     if results:
         item.coordinates = Point(float(results[0]['lon']), float(results[0]['lat']))
         item.coordinates_type = LocationMixin.COORDINATES_UNKNOWN_PRECISION
+        return True
     else:
         item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
-
-    item.save()
+        return True
