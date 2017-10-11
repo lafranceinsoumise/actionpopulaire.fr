@@ -49,7 +49,7 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, Contac
         verbose_name = _("groupe d'appui")
         verbose_name_plural = _("groupes d'appui")
         indexes = (
-            models.Index(fields=['nb_path'], name='nb_path_index'),
+            models.Index(fields=['nb_path'], name='groups_nb_path_index'),
         )
         ordering = ('-created',)
         permissions = (
