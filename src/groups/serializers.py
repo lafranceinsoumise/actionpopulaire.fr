@@ -1,3 +1,4 @@
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 from rest_framework import serializers, exceptions
 from lib.serializers import (
@@ -11,8 +12,11 @@ from . import models
 
 class LegacySupportGroupSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMixin,
                                    serializers.HyperlinkedModelSerializer):
-    path = serializers.CharField(source='nb_path', required=False)
+    path = serializers.SerializerMethodField()
     tags = RelatedLabelField(queryset=models.SupportGroupTag.objects.all(), many=True, required=False)
+
+    def get_path(self, obj):
+        return reverse('view_group', args=[obj.id])
 
 
     class Meta:
