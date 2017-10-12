@@ -1,7 +1,8 @@
-from django.urls import reverse
 from rest_framework import serializers, exceptions
 from django.db import transaction
 from django.utils.translation import ugettext as _
+
+from front.utils import front_url
 from lib.serializers import (
     LegacyBaseAPISerializer, LegacyLocationAndContactMixin,
     RelatedLabelField, UpdatableListSerializer
@@ -38,7 +39,7 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
         return models.Calendar.objects.all()
 
     def get_path(self, obj):
-        return reverse('view_event', args=[obj.id])
+        return front_url('view_event', absolute=False, args=[obj.id])
 
     def get_is_organizer(self, obj):
         if not (hasattr(self.context['request'].user, 'type') and self.context['request'].user.type == Role.PERSON_ROLE):

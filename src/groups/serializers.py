@@ -1,6 +1,7 @@
-from django.urls import reverse
 from django.utils.translation import ugettext as _
 from rest_framework import serializers, exceptions
+
+from front.utils import front_url
 from lib.serializers import (
     LegacyBaseAPISerializer, LegacyLocationAndContactMixin, RelatedLabelField, UpdatableListSerializer
 )
@@ -16,7 +17,7 @@ class LegacySupportGroupSerializer(LegacyBaseAPISerializer, LegacyLocationAndCon
     tags = RelatedLabelField(queryset=models.SupportGroupTag.objects.all(), many=True, required=False)
 
     def get_path(self, obj):
-        return reverse('view_group', args=[obj.id])
+        return front_url('view_group', absolute=False, args=[obj.id])
 
 
     class Meta:

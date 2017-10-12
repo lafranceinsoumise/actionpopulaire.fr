@@ -13,8 +13,10 @@ def _querydict_from_dict(d):
     return q
 
 
-def front_url(*args, query=None, **kwargs):
-    url = urljoin(settings.FRONT_DOMAIN, reverse(*args, urlconf='front.urls', **kwargs))
+def front_url(*args, query=None, absolute=True, **kwargs):
+    url = reverse(*args, urlconf='front.urls', **kwargs)
+    if absolute:
+        url = urljoin(settings.FRONT_DOMAIN, url)
     if query:
         if isinstance(query, dict):
             url = "{}?{}".format(url, _querydict_from_dict(query).urlencode(safe='/'))
