@@ -1,13 +1,14 @@
 from django.views.generic import CreateView, UpdateView, TemplateView
 from django.views.generic.edit import FormView
-from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib import messages
 
 from people.models import Person
 
 from ..view_mixins import SoftLoginRequiredMixin, SimpleOpengraphMixin
 from ..forms import (
-    SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm, EmailFormSet,
+    SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm,
     VolunteerForm, MessagePreferencesForm, UnsubscribeForm
 )
 
@@ -27,6 +28,11 @@ class UnsubscribeView(SimpleOpengraphMixin, FormView):
 
     meta_title = "Ne plus recevoir de emails"
     meta_description = "Désabonnez-vous des emails de la France insoumise"
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('message_preferences'))
+        return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.unsubscribe()
@@ -88,7 +94,6 @@ class VolunteerConfirmationView(TemplateView):
 class MessagePreferencesView(SoftLoginRequiredMixin, UpdateView):
     template_name = 'front/people/message_preferences.html'
     form_class = MessagePreferencesForm
-    success_url = reverse_lazy('message_preferences')
 
     # in case one is not connected, redirect to the unlogged unsubscribe page
     unlogged_redirect_url = 'unsubscribe'
