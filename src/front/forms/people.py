@@ -1,3 +1,4 @@
+from crispy_forms.layout import Fieldset
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import format_html
@@ -305,9 +306,16 @@ class MessagePreferencesForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
         self.helper.layout = Layout(
-            'subscribed',
-            'group_notifications',
-            'event_notifications',
+            Fieldset(
+                "Préférences d'emails",
+                'subscribed',
+                'group_notifications',
+                'event_notifications',
+            ),
+            Fieldset(
+                "Ma participation",
+                'draw_participation',
+            ),
             FormActions(
                 Submit('submit', 'Sauvegarder mes préférences'),
                 Submit('no_mail', 'Ne plus recevoir de mails du tout', css_class='btn-danger')
@@ -324,4 +332,4 @@ class MessagePreferencesForm(forms.ModelForm):
 
     class Meta:
         model = Person
-        fields = ['subscribed', 'group_notifications', 'event_notifications']
+        fields = ['subscribed', 'group_notifications', 'event_notifications', 'draw_participation']

@@ -3,13 +3,14 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% block title %}{% trans "Mes préférences pour les messages" %}{% endblock %}
+{% block title %}{% trans "Mes préférences" %}{% endblock %}
 
 {% block main %}
-    <h2 class="headline">Mes préférences pour les messages</h2>
+    <h2 class="headline">Mes préférences</h2>
     <div>
         <div class="intro">
-            <p>Vous pouvez régler ci-dessous vos préférences en matière de message.</p>
+            <p>Vous pouvez régler ci-dessous vos préférences concernant les emails que vous recevez
+                et votre participation au mouvement.</p>
         </div>
         {% crispy form %}
     </div>

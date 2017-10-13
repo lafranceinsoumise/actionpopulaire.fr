@@ -122,6 +122,14 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
                     " événements.")
     )
 
+    draw_participation = models.BooleanField(
+        _('Participer aux tirages au sort'),
+        default=False,
+        blank=True,
+        help_text=_("Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des événements comme la Convention."
+                    "Vous aurez la possibilité d'accepter ou de refuser cette participation.")
+    )
+
     first_name = models.CharField(_('prénom'), max_length=255, blank=True)
     last_name = models.CharField(_('nom de famille'), max_length=255, blank=True)
 
