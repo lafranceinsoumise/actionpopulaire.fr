@@ -94,9 +94,7 @@ class VolunteerConfirmationView(TemplateView):
 class MessagePreferencesView(SoftLoginRequiredMixin, UpdateView):
     template_name = 'front/people/message_preferences.html'
     form_class = MessagePreferencesForm
-
-    # in case one is not connected, redirect to the unlogged unsubscribe page
-    unlogged_redirect_url = 'unsubscribe'
+    success_url = reverse_lazy('message_preferences')
 
     def get_object(self, queryset=None):
         return self.request.user.person
