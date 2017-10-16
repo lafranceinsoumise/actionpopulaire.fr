@@ -197,7 +197,6 @@ class WithImageMixin(models.Model):
             'thumbnail': (400, 250),
             'banner': (1200, 400),
         },
-        validators=[MinSizeValidator(1200, 630)],
         blank=True,
         help_text=_("L'image à utiliser pour l'affichage sur la page, comme miniature dans les listes, et"
                     " pour le partage sur les réseaux sociaux. Elle doit faire au minimum 1200 pixels de large, et 630"
