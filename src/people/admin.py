@@ -59,6 +59,9 @@ class PersonAdmin(admin.ModelAdmin):
         (_('Paramètres mails'), {
             'fields': ('subscribed', 'event_notifications', 'group_notifications')
         }),
+        (_('Paramètres de participation'), {
+            'fields': ('draw_participation', )
+        }),
         (_('Profil'), {
             'fields': ('gender', 'date_of_birth', 'tags')
         }),
