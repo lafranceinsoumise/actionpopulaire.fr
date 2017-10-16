@@ -671,16 +671,12 @@ class AuthenticationTestCase(TestCase):
             target_status_code=status.HTTP_302_FOUND
         )
 
-    def test_message_preferences_redirect_towards_unsubscribe_when_unlogged(self):
+    def test_unsubscribe_redirects_to_message_preferences_when_logged(self):
         message_preferences_path = reverse('message_preferences')
         unsubscribe_path = reverse('unsubscribe')
 
-        response = self.client.get(message_preferences_path)
+        self.client.force_login(self.person.role)
+        response = self.client.get(unsubscribe_path)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         target_url = urlparse(response.url)
-        self.assertEqual(target_url.path, unsubscribe_path)
-
-        # including when trying to log in with unvalid token
-        response = self.client.get(message_preferences_path, data={'p': str(self.person.pk), 'code': 'invalid-code'})
-        target_url = urlparse(response.url)
-        self.assertEqual(target_url.path, unsubscribe_path)
+        self.assertEqual(target_url.path, message_preferences_path)
