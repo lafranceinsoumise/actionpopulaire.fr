@@ -303,6 +303,9 @@ class MessagePreferencesForm(forms.ModelForm):
 
         self.no_mail = data is not None and 'no_mail' in data
 
+        self.fields['gender'].help_text = _("La participation aux tirages au sort étant paritaire, merci d'indiquer"
+                                            " votre genre si vous souhaitez être tirés au sort.")
+
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
         self.helper.layout = Layout(
@@ -314,7 +317,10 @@ class MessagePreferencesForm(forms.ModelForm):
             ),
             Fieldset(
                 "Ma participation",
-                'draw_participation',
+                Row(
+                    HalfCol('draw_participation'),
+                    HalfCol('gender'),
+                )
             ),
             FormActions(
                 Submit('submit', 'Sauvegarder mes préférences'),
@@ -326,10 +332,16 @@ class MessagePreferencesForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if self.no_mail:
-            cleaned_data = {k: False for k in cleaned_data}
+            cleaned_data = {k: False for k in cleaned_data if k != 'gender'}
+
+        if cleaned_data['draw_participation'] and not cleaned_data['gender']:
+            self.add_error(
+                'gender',
+                forms.ValidationError(_("Votre genre est obligatoire pour pouvoir organiser un tirage au sort paritaire"))
+           )
 
         return cleaned_data
 
     class Meta:
         model = Person
-        fields = ['subscribed', 'group_notifications', 'event_notifications', 'draw_participation']
+        fields = ['subscribed', 'group_notifications', 'event_notifications', 'draw_participation', 'gender']
