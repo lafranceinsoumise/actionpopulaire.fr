@@ -35,6 +35,8 @@ urlpatterns = [
 
     url('^groupes/retirer_gestionnaire/(?P<pk>[0-9a-f-]+)/$', views.RemoveManagerView.as_view(), name='remove_manager'),
 
+    url('^livrets_thematiques/$', views.ThematicBookletViews.as_view(), name="thematic_groups_list"),
+
     # old urls
     url('^old(.*)', views.NBUrlsView.as_view(), name='old_urls'),
 

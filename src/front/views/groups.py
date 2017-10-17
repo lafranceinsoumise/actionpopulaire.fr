@@ -14,7 +14,7 @@ from ..view_mixins import HardLoginRequiredMixin, SoftLoginRequiredMixin, Permis
 
 __all__ = [
     "SupportGroupListView", "SupportGroupManagementView", "CreateSupportGroupView", "ModifySupportGroupView",
-    "QuitSupportGroupView", 'RemoveManagerView', "SupportGroupDetailView"
+    "QuitSupportGroupView", 'RemoveManagerView', "SupportGroupDetailView", "ThematicBookletViews",
 ]
 
 
@@ -44,7 +44,6 @@ class CheckMembershipMixin:
 class SupportGroupListView(SoftLoginRequiredMixin, ListView):
     """List person support groups
     """
-    paginate_by = 20
     template_name = 'front/groups/list.html'
     context_object_name = 'memberships'
 
@@ -59,6 +58,12 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
 
     title_prefix = "Groupe d'appui local"
     meta_description = "Rejoignez les groupes d'appui locaux de la France insoumise."
+
+    def get_template_names(self):
+        if self.object.type == SupportGroup.TYPE_THEMATIC_BOOKLET:
+            return ["front/groups/detail_thematic_booklet.html"]
+        else:
+            return ["front/groups/detail.html"]
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
@@ -318,3 +323,16 @@ class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
             )
 
         return HttpResponseRedirect(success_url)
+
+
+class ThematicBookletViews(ListView):
+    template_name = "front/groups/thematic_booklets.html"
+    queryset = SupportGroup.objects.filter(type=SupportGroup.TYPE_THEMATIC_BOOKLET)
+    context_object_name = "groups"
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            **kwargs,
+            default_image='front/images/AEC-mini.jpg'
+        )

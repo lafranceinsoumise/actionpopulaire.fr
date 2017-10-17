@@ -46,7 +46,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('id', 'name', 'link', 'created', 'modified')
         }),
         (_('Informations'), {
-            'fields': ('description', 'tags', 'published')
+            'fields': ('type', 'description', 'allow_html', 'image', 'tags', 'published')
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',

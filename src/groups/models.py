@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
 
 from lib.models import (
-    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin
+    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, WithImageMixin
 )
 
 
@@ -12,10 +12,18 @@ class ActiveSupportGroupManager(models.Manager):
         return super().get_queryset().filter(published=True)
 
 
-class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ContactMixin):
+class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, WithImageMixin, ContactMixin):
     """
     Model that represents a support group 
     """
+    TYPE_LOCAL_GROUP = "L"
+    TYPE_THEMATIC_BOOKLET = "B"
+
+    TYPE_CHOICES = (
+        (TYPE_LOCAL_GROUP, _("Groupe local")),
+        (TYPE_THEMATIC_BOOKLET, _("Livret thématique"))
+    )
+
     objects = models.Manager()
     active = ActiveSupportGroupManager()
 
@@ -26,10 +34,23 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, Contac
         help_text=_("Le nom du groupe d'appui"),
     )
 
+    type = models.CharField(
+        _("type de groupe"),
+        max_length=1,
+        blank=False,
+        default=TYPE_LOCAL_GROUP,
+        choices=TYPE_CHOICES
+    )
+
     description = models.TextField(
         _('description'),
         blank=True,
         help_text=_("Une description du groupe d'appui, en MarkDown"),
+    )
+
+    allow_html = models.BooleanField(
+        _("autoriser le HTML dans la description"),
+        default=False,
     )
 
     published = models.BooleanField(

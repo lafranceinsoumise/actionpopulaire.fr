@@ -1,8 +1,12 @@
 {% extends "front/layout.html" %}
 
-{% block title %}Groupe d'appui «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
+{% block title %}Livret thématique «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
 
 {% block main %}
+    {% if supportgroup.image %}
+        <img src="{{ supportgroup.image.banner.url }}" class="img-responsive center-block">
+    {% endif %}
+
     <div class="row">
         <h3 class="col-sm-10">
             {{ supportgroup.name }}
@@ -16,7 +20,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <hr/>
             {% if supportgroup.description %}
                 <div class="intro">
@@ -24,18 +28,12 @@
                     <hr/>
                 </div>
             {% endif %}
-            <h5>Adresse&nbsp;:</h5>
-            <p><strong>{{ supportgroup.location_name }}</strong></p>
-            <p>{{ supportgroup.location_address }}</p>
             <h5>
                 Contact&nbsp;:
             </h5>
             <p>{{ supportgroup.html_full_contact }}</p>
             <hr/>
         </div>
-        <iframe title="Carte" class="col-md-6"
-                src="https://carte.lafranceinsoumise.fr/?event_id={{ supportgroup.nb_id }},groups&hide_panel=1&hide_address=1"
-                height="300" scrolling="no" frameBorder="0"></iframe>
     </div>
 
     {% if user.is_authenticated %}

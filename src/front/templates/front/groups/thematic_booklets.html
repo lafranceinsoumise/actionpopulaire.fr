@@ -1,0 +1,65 @@
+{% extends "front/layout.html" %}
+{% load static %}
+
+{% block title %}Les livrets thématiques{% endblock %}
+
+{% block main %}
+    <h2>Les livres thématiques de l'Avenir en Commun</h2>
+
+    <div class="intro">
+        <p><strong>Les «&nbsp;livrets de la France insoumise&nbsp;» complètent l’<em>Avenir en commun</em></strong>,
+            le programme de la France insoumise et de son candidat Jean-Luc Mélenchon. Il est également consultable
+            gratuitement sur <a href="https://laec.fr">laec.fr</a>.</p>
+
+        <p>L’<em>Avenir en commun</em> n’a de sens que si nous le construisons ensemble au cours d’un processus
+            collectif de débats. La collection des «livrets de la France insoumise» offre cet espace d’échanges pour
+            enrichir le programme en continu.</p>
+
+        <p><strong>Les livrets abordent une variété de sujets qui donneront à la France son nouveau visage et
+            l’inscriront différemment dans le monde</strong>. On peut gouverner autrement le pays si l’on se tourne vers
+            le peuple. Chaque livret expose les enjeux du sujet et dessine les perspectives d’une révolution citoyenne
+            dont notre pays a tant besoin. Chaque livret présente aussi les mesures nécessaires pour y arriver. Le tout
+            sera à chaque fois le fruit d’un travail collectif et coordonné.</p>
+    </div>
+
+    {% if groups %}
+        <div>
+            <hr>
+            {% for group in groups %}
+                <div class="row">
+                    <div class="col-md-4">
+                        {% if group.image %}
+                            <img src="{{ group.image.thumbnail.url }}" class="img-responsive">
+                        {% else %}
+                            <img src="{% static default_image %}" class="img-responsive">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h4><a href="{% url "view_group" group.pk %}">{{ group.name }}</a></h4>
+                        <div>{{ group.description }}</div>
+                    </div>
+                </div>
+                <hr/>
+            {% endfor %}
+        </div>
+
+        <nav>
+            <ul class="pager">
+                {% if groups.has_previous %}
+                    <li class="previous">
+                        <a href="?page={{ groups.previous_page_number }}">&lt;&lt;</a>
+                    </li>
+                {% endif %}
+                {% if events.has_next %}
+                    <li class="next">
+                        <a href="?page={{ groups.previous_page_number }}">&gt;&gt;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% else %}
+        <div class="lead text-center">
+            Pas de livret thématique enregistré...
+        </div>
+    {% endif %}
+{% endblock %}
