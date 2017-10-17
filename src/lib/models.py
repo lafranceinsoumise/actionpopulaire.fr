@@ -161,7 +161,7 @@ class ContactMixin(models.Model):
         elif self.contact_name:
             parts.append(self.contact_name)
         elif self.contact_email:
-            parts.append(format_html('<a href="mailto:{email}">{email}</a>'))
+            parts.append(format_html('<a href="mailto:{email}">{email}</a>', email=self.contact_email))
 
         if self.contact_phone and not self.contact_hide_phone:
             parts.append(self.contact_phone)
