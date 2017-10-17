@@ -327,7 +327,7 @@ class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
 
 class ThematicBookletViews(ListView):
     template_name = "front/groups/thematic_booklets.html"
-    queryset = SupportGroup.objects.filter(type=SupportGroup.TYPE_THEMATIC_BOOKLET)
+    queryset = SupportGroup.objects.filter(type=SupportGroup.TYPE_THEMATIC_BOOKLET).order_by('name')
     context_object_name = "groups"
     paginate_by = 10
 
