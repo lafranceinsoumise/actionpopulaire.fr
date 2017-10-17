@@ -65,6 +65,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     list_display = ('name', 'published', 'location_short', 'membership_count', 'created', 'referent')
     list_filter = (
+        'type',
         ('location_city', AjaxFieldFilter),
         ('location_zip', AjaxFieldFilter),
         'published',
