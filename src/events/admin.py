@@ -92,6 +92,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         EventStatusFilter,
         'calendar',
         'published',
+        'tags',
     )
 
     search_fields = ('name', 'description', 'location_city', 'location_country')

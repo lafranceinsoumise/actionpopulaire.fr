@@ -68,6 +68,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         ('location_city', AjaxFieldFilter),
         ('location_zip', AjaxFieldFilter),
         'published',
+        'tags',
     )
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
