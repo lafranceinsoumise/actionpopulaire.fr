@@ -279,8 +279,9 @@ class EventPermissionsTestCase(TestCase):
             event=self.other_event
         )
 
+    @mock.patch("front.forms.events.geocode_event")
     @mock.patch("front.forms.events.send_event_changed_notification")
-    def test_can_modify_organized_event(self, patched_send_notification):
+    def test_can_modify_organized_event(self, patched_send_notification, patched_geocode):
         self.client.force_login(self.person.role)
         response = self.client.get(reverse('edit_event', kwargs={'pk': self.organized_event.pk}))
 
@@ -322,6 +323,11 @@ class EventPermissionsTestCase(TestCase):
 
         self.assertEqual(args[0], self.organized_event.pk)
         self.assertCountEqual(args[1], ['contact', 'location', 'timing', 'information'])
+
+        patched_geocode.delay.assert_called_once()
+        args = patched_geocode.delay.call_args[0]
+
+        self.assertEqual(args[0], self.organized_event.pk)
 
     def test_cannot_modify_rsvp_event(self):
         self.client.force_login(self.person.role)
