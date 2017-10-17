@@ -279,7 +279,7 @@ class EventPermissionsTestCase(TestCase):
             event=self.other_event
         )
 
-    @mock.patch("front.views.events.send_event_changed_notification")
+    @mock.patch("front.forms.events.send_event_changed_notification")
     def test_can_modify_organized_event(self, patched_send_notification):
         self.client.force_login(self.person.role)
         response = self.client.get(reverse('edit_event', kwargs={'pk': self.organized_event.pk}))
@@ -408,8 +408,8 @@ class EventPermissionsTestCase(TestCase):
         self.assertIn(self.person, self.other_event.attendees.all())
         self.assertIn('Je suis déjà inscrit⋅e à cet événement', response.content.decode())
 
-    @mock.patch("front.views.events.geocode_event")
-    @mock.patch("front.views.events.send_event_creation_notification")
+    @mock.patch("front.forms.events.geocode_event")
+    @mock.patch("front.forms.events.send_event_creation_notification")
     def test_can_create_new_event(self, patched_send_event_creation_notification, patched_geocode_event):
         self.client.force_login(self.person.role)
 
@@ -492,8 +492,9 @@ class GroupPageTestCase(TestCase):
 
         self.client.force_login(self.person.role)
 
-    @mock.patch("front.views.groups.send_support_group_changed_notification")
-    def test_can_modify_managed_group(self, patched_send_notification):
+    @mock.patch("front.forms.groups.geocode_support_group")
+    @mock.patch("front.forms.groups.send_support_group_changed_notification")
+    def test_can_modify_managed_group(self, patched_send_notification, patched_geocode):
         response = self.client.get(reverse('edit_group', kwargs={'pk': self.manager_group.pk}))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -501,13 +502,13 @@ class GroupPageTestCase(TestCase):
         response = self.client.post(
             reverse('edit_group', kwargs={'pk': self.manager_group.pk}),
             data={
-                'name': 'New name',
+                'name': 'Manager',
                 'contact_name': 'Arthur',
                 'contact_email': 'a@fhezfe.fr',
                 'contact_phone': '06 06 06 06 06',
                 'location_name': 'location',
                 'location_address1': 'somewhere',
-                'location_city': 'Over',
+                'location_city': 'Outside',
                 'location_country': 'DE',
                 'notify': 'on',
             }
@@ -527,7 +528,31 @@ class GroupPageTestCase(TestCase):
         args = patched_send_notification.delay.call_args[0]
 
         self.assertEqual(args[0], self.manager_group.pk)
-        self.assertCountEqual(args[1], ['contact', 'information'])
+        self.assertCountEqual(args[1], ['contact', 'location'])
+
+        patched_geocode.delay.assert_called_once()
+        args = patched_geocode.delay.call_args[0]
+
+        self.assertEqual(args[0], self.manager_group.pk)
+
+    @mock.patch("front.forms.groups.geocode_support_group")
+    def test_do_not_geocode_if_address_did_not_change(self, patched_geocode):
+        response = self.client.post(
+            reverse('edit_group', kwargs={'pk': self.manager_group.pk}),
+            data={
+                'name': "Manager",
+                'location_name': 'location',
+                'location_address1': 'somewhere',
+                'location_city': 'Over',
+                'location_country': 'DE',
+                'contact_name': 'Arthur',
+                'contact_email': 'a@fhezfe.fr',
+                'contact_phone': '06 06 06 06 06',
+            }
+        )
+
+        self.assertRedirects(response, reverse('manage_group', kwargs={'pk': self.manager_group.pk}))
+        patched_geocode.delay.assert_not_called()
 
     def test_cannot_modify_member_group(self):
         response = self.client.get(reverse('edit_group', kwargs={'pk': self.member_group.pk}))
@@ -558,8 +583,8 @@ class GroupPageTestCase(TestCase):
         self.assertIn(self.other_person, self.manager_group.members.all())
         self.assertIn('Je suis membre de ce groupe', response.content.decode())
 
-    @mock.patch("front.views.groups.geocode_support_group")
-    @mock.patch('front.views.groups.send_support_group_creation_notification')
+    @mock.patch("front.forms.groups.geocode_support_group")
+    @mock.patch('front.forms.groups.send_support_group_creation_notification')
     def test_can_create_group(self, patched_send_support_group_creation_notification, patched_geocode_support_group):
         self.client.force_login(self.person.role)
 

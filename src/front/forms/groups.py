@@ -5,22 +5,40 @@ from crispy_forms.helper import FormHelper
 from ..form_components import *
 from ..form_mixins import LocationFormMixin, ContactFormMixin
 
-from groups.models import SupportGroup
+from groups.models import SupportGroup, Membership
+from groups.tasks import send_support_group_changed_notification, send_support_group_creation_notification
+from lib.tasks import geocode_support_group
 
 __all__ = ['SupportGroupForm', 'AddReferentForm', 'AddManagerForm']
 
 
 class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    CHANGES = {
+        'name': "information",
+        'contact_name': "contact",
+        'contact_email': "contact",
+        'contact_phone': "contact",
+        'contact_hide_phone': "contact",
+        'location_name': "location",
+        'location_address1': "location",
+        'location_address2': "location",
+        'location_city': "location",
+        'location_zip': "location",
+        'location_country': "location",
+        'description': "information"
+    }
+
+    def __init__(self, *args, person, **kwargs):
         super(SupportGroupForm, self).__init__(*args, **kwargs)
+
+        self.person = person
+        self.is_creation = self.instance._state.adding
 
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('submit', 'Sauvegarder et publier'))
 
-        is_creation = self.instance._state.adding
-
-        if not is_creation:
+        if not self.is_creation:
             self.fields['notify'] = forms.BooleanField(
                 required=False,
                 initial=False,
@@ -80,6 +98,39 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             ),
             *notify_field
         )
+
+    def save(self, commit=True):
+        res = super().save(commit=commit)
+
+        if commit:
+            self.schedule_tasks()
+
+        return res
+
+    def _save_m2m(self):
+        if self.is_creation:
+            self.membership = Membership.objects.create(
+                person=self.person, supportgroup=self.instance,
+                is_referent=True, is_manager=True,
+            )
+
+    def schedule_tasks(self):
+        # create set so that values are unique, but turns to list because set are not JSON-serializable
+        changes = list({self.CHANGES[field] for field in self.changed_data if field in self.CHANGES})
+        address_changed = any(f in self.instance.GEOCODING_FIELDS for f in self.changed_data)
+
+        # if it's a new group creation, send the confirmation notification and geolocate it
+        if self.is_creation:
+            # membership attribute created by _save_m2m
+            send_support_group_creation_notification.delay(self.membership.pk)
+            geocode_support_group.delay(self.instance.pk)
+        else:
+            # send changes notification if the notify checkbox was checked
+            if changes and self.cleaned_data.get('notify'):
+                send_support_group_changed_notification.delay(self.instance.pk, changes)
+            # also geocode again if location has changed
+            if address_changed and self.instance.should_relocate_when_address_changed():
+                geocode_support_group.delay(self.instance.pk)
 
     class Meta:
         model = SupportGroup

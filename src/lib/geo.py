@@ -23,6 +23,9 @@ def geocode_element(item):
             return geocode_ban(item)
         else:
             return geocode_nominatim(item)
+    else:
+        item.coordinates = None
+        item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
 
 
 def geocode_ban(item):

@@ -73,6 +73,10 @@ class LocationMixin(models.Model):
         (COORDINATES_NOT_FOUND, _("Coordonnées introuvables"))
     )
 
+    GEOCODING_FIELDS = {
+        'location_address1', 'location_address2', 'location_city', 'location_zip', 'location_state', 'location_country'
+    }
+
     coordinates = models.PointField(_('coordonnées'), geography=True, null=True, blank=True, spatial_index=True)
     coordinates_type = models.PositiveSmallIntegerField(
         _("type de coordonnées"),
@@ -128,6 +132,9 @@ class LocationMixin(models.Model):
 
     def has_automatic_location(self):
         return self.coordinates_type is not None and self.COORDINATES_MANUAL < self.coordinates_type < self.COORDINATES_NOT_FOUND
+
+    def should_relocate_when_address_changed(self):
+        return not self.has_location() or self.has_automatic_location()
 
     class Meta:
         abstract = True

@@ -50,7 +50,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
-                       'location_state', 'location_country', 'coordinates', 'coordinates_type')
+                       'location_state', 'location_country', 'coordinates', 'coordinates_type', 'redo_geolocation')
         }),
         (_('Contact'), {
             'fields': ('contact_name', 'contact_email', 'contact_phone')

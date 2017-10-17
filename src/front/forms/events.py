@@ -5,7 +5,9 @@ from crispy_forms.helper import FormHelper
 from ..form_components import *
 from ..form_mixins import LocationFormMixin, ContactFormMixin
 
-from events.models import Event, OrganizerConfig, Calendar
+from events.models import Event, OrganizerConfig, Calendar, RSVP
+from events.tasks import send_event_creation_notification, send_event_changed_notification
+from lib.tasks import geocode_event
 
 __all__ = ['EventForm', 'AddOrganizerForm']
 
@@ -16,8 +18,26 @@ class AgendaChoiceField(forms.ModelChoiceField):
 
 
 class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    CHANGES = {
+        'name': "information",
+        'start_time': "timing",
+        'end_time': "timing",
+        'contact_name': "contact",
+        'contact_email': "contact",
+        'contact_phone': "contact",
+        'location_name': "location",
+        'location_address1': "location",
+        'location_address2': "location",
+        'location_city': "location",
+        'location_zip': "location",
+        'location_country': "location",
+        'description': "information"
+    }
+
+    def __init__(self, *args, person, **kwargs):
         super(EventForm, self).__init__(*args, **kwargs)
+
+        self.person = person
 
         calendar_field = []
 
@@ -47,9 +67,9 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         self.fields['start_time'].widget = DateTimePickerWidget()
         self.fields['end_time'].widget = DateTimePickerWidget()
 
-        is_creation = self.instance._state.adding
+        self.is_creation = self.instance._state.adding
 
-        if not is_creation:
+        if not self.is_creation:
             self.fields['notify'] = forms.BooleanField(
                 required=False,
                 initial=False,
@@ -126,7 +146,41 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             self.add_error('end_time', _("La fin de l'événément ne peut pas être avant son début."))
 
     def save(self, commit=True):
-        return super().save(commit)
+        res = super().save(commit)
+
+        if commit:
+            self.schedule_tasks()
+
+        return res
+
+    def _save_m2m(self):
+        if self.is_creation:
+            self.organizer_config = OrganizerConfig.objects.create(
+                person=self.person,
+                event=self.instance
+            )
+            RSVP.objects.create(
+                person=self.person,
+                event=self.instance
+            )
+
+    def schedule_tasks(self):
+        # create set so that values are unique, but turns to list because set are not JSON-serializable
+        changes = list({self.CHANGES[field] for field in self.changed_data if field in self.CHANGES})
+        address_changed = any(f in self.instance.GEOCODING_FIELDS for f in self.changed_data)
+
+        # if it's a new group creation, send the confirmation notification and geolocate it
+        if self.is_creation:
+            # membership attribute created by _save_m2m
+            send_event_creation_notification.delay(self.organizer_config.pk)
+            geocode_event.delay(self.instance.pk)
+        else:
+            # send changes notification if the notify checkbox was checked
+            if changes and self.cleaned_data.get('notify'):
+                send_event_changed_notification.delay(self.instance.pk, changes)
+            # also geocode again if location has changed
+            if address_changed and self.instance.should_relocate_when_address_changed():
+                geocode_event.delay(self.instance.pk)
 
     class Meta:
         model = Event

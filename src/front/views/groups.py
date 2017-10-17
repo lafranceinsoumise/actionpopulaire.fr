@@ -6,11 +6,8 @@ from django.views.generic import CreateView, UpdateView, ListView, DeleteView, D
 from django.contrib import messages
 from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest
 from django.core.urlresolvers import reverse_lazy, reverse
-from django.db import transaction
 
 from groups.models import SupportGroup, Membership
-from groups.tasks import send_support_group_changed_notification, send_support_group_creation_notification
-from lib.tasks import geocode_support_group
 
 from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm
 from ..view_mixins import HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin
@@ -153,6 +150,19 @@ class CreateSupportGroupView(HardLoginRequiredMixin, CreateView):
     model = SupportGroup
     form_class = SupportGroupForm
 
+    def get_form_kwargs(self):
+        """Add user person profile to the form kwargs"""
+        kwargs = super().get_form_kwargs()
+
+        person = self.request.user.person
+        kwargs['initial'] = {
+            'contact_name': person.get_full_name(),
+            'contact_email': person.email,
+            'contact_phone': person.contact_phone,
+        }
+        kwargs['person'] = person
+        return kwargs
+
     def get_success_url(self):
         return reverse('manage_group', kwargs={'pk': self.object.pk})
 
@@ -163,18 +173,7 @@ class CreateSupportGroupView(HardLoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         # first get response to make sure there's no error when saving the model before adding message
-        with transaction.atomic():
-            self.object = group = form.save()
-            membership = Membership.objects.create(
-                supportgroup=group,
-                person=self.request.user.person,
-                is_referent=True,
-                is_manager=True,
-            )
-
-        send_support_group_creation_notification.delay(membership.pk)
-
-        geocode_support_group.delay(self.object.pk)
+        res = super().form_valid(form)
 
         messages.add_message(
             request=self.request,
@@ -182,7 +181,7 @@ class CreateSupportGroupView(HardLoginRequiredMixin, CreateView):
             message="Votre groupe a été correctement créé.",
         )
 
-        return HttpResponseRedirect(self.get_success_url())
+        return res
 
 
 class ModifySupportGroupView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
@@ -191,20 +190,12 @@ class ModifySupportGroupView(HardLoginRequiredMixin, PermissionsRequiredMixin, U
     model = SupportGroup
     form_class = SupportGroupForm
 
-    CHANGES = {
-        'name': "information",
-        'contact_name': "contact",
-        'contact_email': "contact",
-        'contact_phone': "contact",
-        'contact_hide_phone': "contact",
-        'location_name': "location",
-        'location_address1': "location",
-        'location_address2': "location",
-        'location_city': "location",
-        'location_zip': "location",
-        'location_country': "location",
-        'description': "information"
-    }
+    def get_form_kwargs(self):
+        """Add user person profile to the form kwargs"""
+        return {
+            **super().get_form_kwargs(),
+            'person': self.request.user.person
+        }
 
     def get_success_url(self):
         return reverse("manage_group", kwargs={'pk': self.object.pk})
@@ -215,14 +206,8 @@ class ModifySupportGroupView(HardLoginRequiredMixin, PermissionsRequiredMixin, U
         return context
 
     def form_valid(self, form):
-        # create set so that values are unique, but turns to list because set are not JSON-serializable
-        changes = list({self.CHANGES[field] for field in form.changed_data if field in self.CHANGES})
-
         # first get response to make sure there's no error when saving the model before adding message
         res = super().form_valid(form)
-
-        if changes and form.cleaned_data['notify']:
-            send_support_group_changed_notification.delay(form.instance.pk, changes)
 
         messages.add_message(
             request=self.request,

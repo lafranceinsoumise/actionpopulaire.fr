@@ -6,13 +6,11 @@ from django.views.generic import CreateView, UpdateView, ListView, DeleteView, D
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest
-from django.db import transaction
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.conf import settings
 
 from events.models import Event, RSVP, OrganizerConfig, Calendar, published_event_only
-from events.tasks import send_event_changed_notification, send_cancellation_notification, send_event_creation_notification
-from lib.tasks import geocode_event
+from events.tasks import send_cancellation_notification
 
 from ..forms import EventForm, AddOrganizerForm
 from ..view_mixins import HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin
@@ -144,28 +142,15 @@ class CreateEventView(HardLoginRequiredMixin, CreateView):
         kwargs['initial'] = {
             'contact_name': person.get_full_name(),
             'contact_email': person.email,
-            'contact_phone': person.contact_phone
+            'contact_phone': person.contact_phone,
         }
+        kwargs['person'] = person
+
         return kwargs
 
     def form_valid(self, form):
         # first get response to make sure there's no error when saving the model before adding message
-        with transaction.atomic():
-            self.object = form.save()
-
-            organizer_config = OrganizerConfig.objects.create(
-                person=self.request.user.person,
-                event=self.object
-            )
-
-            RSVP.objects.create(
-                person=self.request.user.person,
-                event=self.object,
-            )
-
-        # send mail
-        send_event_creation_notification.delay(organizer_config.pk)
-        geocode_event.delay(self.object.pk)
+        res = super().form_valid(form)
 
         # show message
         messages.add_message(
@@ -174,7 +159,7 @@ class CreateEventView(HardLoginRequiredMixin, CreateView):
             message="Votre événement a été correctement créé.",
         )
 
-        return HttpResponseRedirect(self.get_success_url())
+        return res
 
 
 class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
@@ -184,21 +169,10 @@ class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateVi
     model = Event
     form_class = EventForm
 
-    CHANGES = {
-        'name': "information",
-        'start_time': "timing",
-        'end_time': "timing",
-        'contact_name': "contact",
-        'contact_email': "contact",
-        'contact_phone': "contact",
-        'location_name': "location",
-        'location_address1': "location",
-        'location_address2': "location",
-        'location_city': "location",
-        'location_zip': "location",
-        'location_country': "location",
-        'description': "information"
-    }
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['person'] = self.request.user.person
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -206,14 +180,8 @@ class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateVi
         return context
 
     def form_valid(self, form):
-        # create set so that values are unique, but turns to list because set are not JSON-serializable
-        changes = list({self.CHANGES[field] for field in form.changed_data if field in self.CHANGES})
-
         # first get response to make sure there's no error when saving the model before adding message
         res = super().form_valid(form)
-
-        if changes and form.cleaned_data['notify']:
-            send_event_changed_notification.delay(form.instance.pk, changes)
 
         messages.add_message(
             request=self.request,
