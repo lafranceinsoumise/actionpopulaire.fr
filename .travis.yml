@@ -23,5 +23,4 @@ before_install:
 
 install: "grep -v systemd requirements.txt | pip install -r /dev/stdin"
 
-script: "cd src && python manage.py test"
-
+script: "cd src && python manage.py test -v 2"
