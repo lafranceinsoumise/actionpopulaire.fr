@@ -327,7 +327,7 @@ class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
 
 class ThematicBookletViews(ListView):
     template_name = "front/groups/thematic_booklets.html"
-    queryset = SupportGroup.objects.filter(type=SupportGroup.TYPE_THEMATIC_BOOKLET).order_by('name')
+    queryset = SupportGroup.objects.filter(type=SupportGroup.TYPE_THEMATIC_BOOKLET, published=True).order_by('name')
     context_object_name = "groups"
 
     def get_context_data(self, **kwargs):
