@@ -15,23 +15,6 @@ from people.serializers import LegacyPersonSerializer
 from api import settings
 
 
-class NbAddPeopleView(APIView):
-    """Add people to the API when they register on NationBuilder"""
-
-    permission_classes = ()
-
-    def post(self, request):
-        if (request.data['token'] != settings.NB_WEBHOOK_KEY):
-            return Response('Wrong token', 401)
-        nb_person = request.data['payload']['person']
-        nb_person.pop('emails', None)
-        nb_person_serializer = LegacyPersonSerializer(data=nb_person)
-        if not nb_person_serializer.is_valid():
-            return Response('Invalid payload', 400)
-        nb_person_serializer.save()
-        return Response({'status': 'Accepted'}, 202)
-
-
 class SendgridSesWebhookAuthentication(BasicAuthentication):
     def authenticate_credentials(self, userid, password):
         if userid != settings.SENDGRID_SES_WEBHOOK_USER or password != settings.SENDGRID_SES_WEBHOOK_PASSWORD:
@@ -55,14 +38,12 @@ class BounceView(APIView):
         except Person.DoesNotExist:
             return
 
-        if (person.created + timezone.timedelta(hours=1) < timezone.now()):
+        older_than_one_hour = person.created + timezone.timedelta(hours=1) < timezone.now()
+        if (older_than_one_hour):
             person.bounced = True
             person.save()
             return
 
-        if person.nb_id is not None:
-            requests.delete('https://plp.nationbuilder.com/api/v1/people/' + str(person.nb_id),
-            params={'access_token': settings.NB_API_KEY})
         person.delete()
 
 
