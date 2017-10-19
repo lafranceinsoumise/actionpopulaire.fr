@@ -43,7 +43,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     form = SupportGroupAdminForm
     fieldsets = (
         (None, {
-            'fields': ('id', 'name', 'link', 'created', 'modified')
+            'fields': ('id', 'name', 'link', 'created', 'modified', 'action_buttons')
         }),
         (_('Informations'), {
             'fields': ('type', 'description', 'allow_html', 'image', 'tags', 'published')
@@ -60,7 +60,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         }),
     )
     inlines = (MembershipInline,)
-    readonly_fields = ('id', 'link', 'created', 'modified', 'coordinates_type')
+    readonly_fields = ('id', 'link', 'action_buttons', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'created'
 
     list_display = ('name', 'published', 'location_short', 'membership_count', 'created', 'referent')
@@ -93,7 +93,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     def membership_count(self, object):
         return format_html(
-            _('{nb} <a href="{link}" class="button">ajouter</a>'),
+            _('{nb} (<a href="{link}">Ajouter un membre</a>)'),
             nb=object.membership_count,
             link=reverse('admin:groups_supportgroup_add_member', args=(object.pk,))
         )
@@ -106,6 +106,17 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         else:
             return mark_safe('-')
     link.short_description = _("Page sur le site")
+
+    def action_buttons(self, object):
+        if object._state.adding:
+            return mark_safe('-')
+        else:
+            return format_html(
+                '<a href="{add_member_link}" class="button">Ajouter un membre</a> <small>Attention : cliquer'
+                ' sur ces boutons quitte la page et perd vos modifications courantes.</small>',
+                add_member_link=reverse('admin:groups_supportgroup_add_member', args=(object.pk,))
+            )
+    action_buttons.short_description = _("Actions")
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
