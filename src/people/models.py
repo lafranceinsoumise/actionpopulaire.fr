@@ -205,7 +205,10 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
 
     def add_email(self, email_address, **kwargs):
         try:
-            self.emails.get(address=BaseUserManager.normalize_email(email_address))
+            email = self.emails.get(address=BaseUserManager.normalize_email(email_address))
+            email.bounced = kwargs['bounced'] if kwargs.get('bounced', None) is not None else email.bounced
+            email.bounced_date = kwargs['bounced_date'] if kwargs.get('bounced_date', None) is not None else email.bounced_date
+            email.save()
         except ObjectDoesNotExist:
             self.emails.add(PersonEmail.objects.create(address=BaseUserManager.normalize_email(email_address), person=self, **kwargs))
 

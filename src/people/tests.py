@@ -40,6 +40,12 @@ class BasicPersonTestCase(TestCase):
         self.assertEqual(user.emails.all()[1].bounced, True)
         self.assertEqual(user.emails.all()[1].bounced_date, bounced_date)
 
+    def test_can_edit_email(self):
+        user = Person.objects.create_person(email='test@domain.com')
+        user.add_email('test@domain.com', bounced=True)
+
+        self.assertEqual(user.emails.all()[0].bounced, True)
+
     def test_can_add_existing_email(self):
         user = Person.objects.create_person(email='test@domain.com')
         user.add_email('test@domain.com')
