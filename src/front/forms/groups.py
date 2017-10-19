@@ -1,15 +1,17 @@
 from django import forms
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.html import format_html
+from django.contrib.gis.forms.widgets import OSMWidget
 from crispy_forms.helper import FormHelper
 
 from ..form_components import *
-from ..form_mixins import LocationFormMixin, ContactFormMixin
+from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm
 
 from groups.models import SupportGroup, Membership
 from groups.tasks import send_support_group_changed_notification, send_support_group_creation_notification
 from lib.tasks import geocode_support_group
 
-__all__ = ['SupportGroupForm', 'AddReferentForm', 'AddManagerForm']
+__all__ = ['SupportGroupForm', 'AddReferentForm', 'AddManagerForm', 'GroupGeocodingForm']
 
 
 class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
@@ -197,3 +199,17 @@ class AddManagerForm(forms.Form):
             membership.save()
 
         return membership
+
+
+class GroupGeocodingForm(GeocodingBaseForm):
+    geocoding_task = geocode_support_group
+    messages = {
+        'use_geocoding': _("La localisation de votre groupe sur la carte va être réinitialisée à partir de son adresse."
+                           " Patientez quelques minutes pour voir la nouvelle localisation apparaître."),
+        'coordinates_updated': _("La localisation de votre groupe a été correctement mise à jour. Patientez quelques"
+                                 " minutes pour la voir apparaître sur la carte.")
+    }
+
+    class Meta:
+        model = SupportGroup
+        fields = ('coordinates',)

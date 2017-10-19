@@ -23,6 +23,7 @@
         <div class="panel-footer">
             <ul class="list-inline">
                 <li><a href="{% url "edit_event" event.pk %}">Modifier ces informations</a></li>
+                <li><a href="{% url "change_event_location" event.pk %}">Corriger la localisation de l'événement</a></li>
                 <li><a href="{% url "cancel_event" event.pk %}">Annuler l'événement</a></li>
             </ul>
         </div>

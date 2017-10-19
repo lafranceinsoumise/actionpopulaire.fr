@@ -23,6 +23,7 @@ urlpatterns = [
     url('^evenements/(?P<pk>[0-9a-f-]+)/modifier/$', views.ModifyEventView.as_view(), name='edit_event'),
     url('^evenements/(?P<pk>[0-9a-f-]+)/quitter/$', views.QuitEventView.as_view(), name='quit_event'),
     url('^evenements/(?P<pk>[0-9a-f-]+)/annuler/$', views.CancelEventView.as_view(), name='cancel_event'),
+    url('^evenements/(?P<pk>[0-9a-f-]+)/localisation/$', views.ChangeEventLocationView.as_view(), name='change_event_location'),
     url('^agenda/(?P<slug>[-a-zA-Z0-9_]+)/$', views.CalendarView.as_view(), name='view_calendar'),
 
     # groups views
@@ -32,6 +33,7 @@ urlpatterns = [
     url('^groupes/(?P<pk>[0-9a-f-]+)/manage/$', views.SupportGroupManagementView.as_view(), name='manage_group'),
     url('^groupes/(?P<pk>[0-9a-f-]+)/modifier/$', views.ModifySupportGroupView.as_view(), name='edit_group'),
     url('^groupes/(?P<pk>[0-9a-f-]+)/quitter/$', views.QuitSupportGroupView.as_view(), name='quit_group'),
+    url('^groupes/(?P<pk>[0-9a-f-]+)/localisation/$', views.ChangeGroupLocationView.as_view(), name='change_group_location'),
 
     url('^groupes/retirer_gestionnaire/(?P<pk>[0-9a-f-]+)/$', views.RemoveManagerView.as_view(), name='remove_manager'),
 

@@ -12,12 +12,15 @@ from django.conf import settings
 from events.models import Event, RSVP, OrganizerConfig, Calendar, published_event_only
 from events.tasks import send_cancellation_notification
 
-from ..forms import EventForm, AddOrganizerForm
-from ..view_mixins import HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin
+from ..forms import EventForm, AddOrganizerForm, EventGeocodingForm
+from ..view_mixins import (
+    HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
+    ChangeLocationBaseView
+)
 
 __all__ = [
-    "EventListView", "CreateEventView", "ManageEventView", "ModifyEventView", "QuitEventView", "CancelEventView",
-    "EventDetailView", "CalendarView"
+    'EventListView', 'CreateEventView', 'ManageEventView', 'ModifyEventView', 'QuitEventView', 'CancelEventView',
+    'EventDetailView', 'CalendarView', 'ChangeEventLocationView'
 ]
 
 
@@ -273,3 +276,10 @@ class CalendarView(ObjectOpengraphMixin, DetailView):
             events=events,
             default_event_image=settings.DEFAULT_EVENT_IMAGE,
         )
+
+
+class ChangeEventLocationView(ChangeLocationBaseView):
+    template_name = 'front/events/change_location.html'
+    form_class = EventGeocodingForm
+    queryset = Event.scheduled.all()
+    success_view_name = 'manage_event'

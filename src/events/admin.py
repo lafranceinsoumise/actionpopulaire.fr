@@ -72,7 +72,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
-                       'location_state', 'location_country', 'coordinates', 'coordinates_type', 'redo_geolocation')
+                       'location_state', 'location_country', 'coordinates', 'coordinates_type', 'redo_geocoding')
         }),
         (_('Contact'), {
             'fields': ('contact_name', 'contact_email', 'contact_phone')

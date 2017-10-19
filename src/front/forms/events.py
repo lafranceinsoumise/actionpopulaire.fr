@@ -3,13 +3,13 @@ from django.utils.translation import ugettext_lazy as _
 from crispy_forms.helper import FormHelper
 
 from ..form_components import *
-from ..form_mixins import LocationFormMixin, ContactFormMixin
+from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm
 
 from events.models import Event, OrganizerConfig, Calendar, RSVP
 from events.tasks import send_event_creation_notification, send_event_changed_notification
 from lib.tasks import geocode_event
 
-__all__ = ['EventForm', 'AddOrganizerForm']
+__all__ = ['EventForm', 'AddOrganizerForm', 'EventGeocodingForm']
 
 
 class AgendaChoiceField(forms.ModelChoiceField):
@@ -224,3 +224,17 @@ class AddOrganizerForm(forms.Form):
             organizer_config.save()
 
         return organizer_config
+
+
+class EventGeocodingForm(GeocodingBaseForm):
+    geocoding_task = geocode_event
+    messages = {
+        'use_geocoding': _("La localisation de votre événement sur la carte va être réinitialisée à partir de son adresse."
+                           " Patientez quelques minutes pour voir la nouvelle localisation apparaître."),
+        'coordinates_updated': _("La localisation de votre événement a été correctement mise à jour. Patientez quelques"
+                                 " minutes pour la voir apparaître sur la carte.")
+    }
+
+    class Meta:
+        model = Event
+        fields = ('coordinates',)

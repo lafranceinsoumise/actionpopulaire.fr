@@ -9,12 +9,16 @@ from django.core.urlresolvers import reverse_lazy, reverse
 
 from groups.models import SupportGroup, Membership
 
-from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm
-from ..view_mixins import HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin
+from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm, GroupGeocodingForm
+from ..view_mixins import (
+    HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
+    ChangeLocationBaseView
+)
 
 __all__ = [
-    "SupportGroupListView", "SupportGroupManagementView", "CreateSupportGroupView", "ModifySupportGroupView",
-    "QuitSupportGroupView", 'RemoveManagerView', "SupportGroupDetailView", "ThematicBookletViews",
+    'SupportGroupListView', 'SupportGroupManagementView', 'CreateSupportGroupView', 'ModifySupportGroupView',
+    'QuitSupportGroupView', 'RemoveManagerView', 'SupportGroupDetailView', 'ThematicBookletViews',
+    'ChangeGroupLocationView',
 ]
 
 
@@ -326,7 +330,7 @@ class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
 
 
 class ThematicBookletViews(ListView):
-    template_name = "front/groups/thematic_booklets.html"
+    template_name = 'front/groups/thematic_booklets.html'
     queryset = SupportGroup.objects.filter(type=SupportGroup.TYPE_THEMATIC_BOOKLET, published=True).order_by('name')
     context_object_name = "groups"
 
@@ -335,3 +339,10 @@ class ThematicBookletViews(ListView):
             **kwargs,
             default_image='front/images/AEC-mini.jpg'
         )
+
+
+class ChangeGroupLocationView(ChangeLocationBaseView):
+    template_name = 'front/groups/change_location.html'
+    form_class = GroupGeocodingForm
+    queryset = SupportGroup.active.all()
+    success_view_name = 'manage_group'

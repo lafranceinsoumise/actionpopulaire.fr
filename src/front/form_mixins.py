@@ -1,4 +1,11 @@
 from django import forms
+from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.html import format_html
+from django.contrib.gis.forms.widgets import OSMWidget
+from crispy_forms.helper import FormHelper
+
+from .form_components import *
+
 from django.utils.translation import ugettext as _
 from django_countries import countries
 
@@ -86,3 +93,69 @@ class ContactFormMixin():
         self.fields['contact_name'].required = True
         self.fields['contact_email'].required = True
         self.fields['contact_phone'].required = True
+
+
+class GeocodingBaseForm(forms.ModelForm):
+    geocoding_task = None
+    messages = {
+        'use_geocoding': None,
+        'coordinates_updated': None,
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['coordinates'].widget = OSMWidget()
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('submit', 'Sauvegarder'))
+
+        form_elements = []
+
+        form_elements += [
+            Row(
+                FullCol(
+                    Div('coordinates')
+                )
+            ),
+            Row(
+                FullCol(
+                    HTML(format_html(ugettext("<strong>Type de coordonnées actuelles</strong> : {}"),
+                        self.instance.get_coordinates_type_display()
+                    ))
+                )
+            ),
+        ]
+
+        if self.instance.has_manual_location():
+            self.fields['use_geocoding'] = forms.BooleanField(
+                required=False,
+                label="Revenir à la localisation automatique à partir de l'adresse",
+                help_text=_("Cochez cette case pour annuler la localisation manuelle de votre groupe d'appui.")
+            )
+            form_elements.append(
+                Row(
+                    FullCol('use_geocoding')
+                )
+            )
+
+        self.helper.layout = Layout(*form_elements)
+
+    def save(self):
+        if self.cleaned_data.get('use_geocoding'):
+            self.geocoding_task.delay(self.instance.pk)
+        else:
+            if 'coordinates' in self.changed_data:
+                self.instance.coordinates_type = self.instance.COORDINATES_MANUAL
+                super().save(commit=True)
+
+        return self.instance
+
+    def get_message(self):
+        if self.cleaned_data.get('use_geocoding'):
+            return self.messages['use_geocoding']
+        elif 'coordinates' in self.changed_data:
+            return self.messages['coordinates_updated']
+
+        return None

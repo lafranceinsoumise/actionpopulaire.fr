@@ -11,13 +11,27 @@
     <div class="panel panel-default">
         <div class="panel-heading"><strong>{{ supportgroup.name }}</strong></div>
         <div class="panel-body">
-            <h6 class="subhead">Où</h6>
-            <p>{{ supportgroup.html_full_address }}</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="subhead">Où</h6>
+                    <p>{{ supportgroup.html_full_address }}</p>
 
-            <h6 class="subhead">Contact</h6>
-            <p>{{ supportgroup.html_full_contact }}</p>
+                    <h6 class="subhead">Contact</h6>
+                    <p>{{ supportgroup.html_full_contact }}</p>
+                </div>
+                <div class="col-md-6">
+                    <iframe title="Carte" class="col-xs-6" style="width: 100%;"
+                            src="https://carte.lafranceinsoumise.fr/?event_id={{ event.pk }},events&hide_panel=1&hide_address=1"
+                            height="300" scrolling="no" frameBorder="0"></iframe>
+                </div>
+            </div>
         </div>
-        <div class="panel-footer"><a href="{% url "edit_group" supportgroup.pk %}">Modifier ces informations</a></div>
+        <div class="panel-footer">
+            <ul class="list-inline">
+            <li><a href="{% url "edit_group" supportgroup.pk %}">Modifier ces informations</a>
+            <li><a href="{% url "change_group_location" supportgroup.pk %}">Corriger la localisation</a>
+            </ul>
+        </div>
     </div>
     <h3>Les animateurs et autres gestionnaires du groupe</h3>
 

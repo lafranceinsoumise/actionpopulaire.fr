@@ -1,0 +1,31 @@
+{% extends "front/layout.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Modifier la localisation de mon événement{% endblock %}
+
+{% block main %}
+    <h3 class="text-center">Modifier la localisation de mon événement</h3>
+
+    <p>
+        Si votre événement n'apparaît au bon endroit sur la carte, vous pouvez utiliser ci-dessous la petite carte pour
+        le localiser correctement. Cliquez-déplacez le point existant, ou cliquez sur le lien « Supprimer toutes les
+        localisations » puis directement sur la carte.
+    </p>
+
+    <p>
+        Si vous souhaitez revenir à une localisation automatique de votre événement à partir de son adresse,
+        cochez la case correspondante et sauvegardez le formulaire.
+    </p>
+
+    <p>
+        <strong>Après sauvegarde de ce formulaire, les modifications peuvent mettre jusqu'à 5 minutes pour apparaître
+        sur la carte.</strong>
+    </p>
+
+    <div class="row">
+        <div class="col-sm-12 form-group">
+            {% crispy form %}
+        </div>
+    </div>
+{% endblock %}

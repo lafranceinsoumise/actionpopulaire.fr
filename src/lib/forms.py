@@ -6,10 +6,11 @@ from .models import LocationMixin
 
 
 class CoordinatesFormMixin(forms.Form):
-    redo_geolocation = forms.BooleanField(
+    redo_geocoding = forms.BooleanField(
         label=_("Recalculer la position"), required=False, initial=False,
         help_text=_("Si cette case n'est pas cochée, la localisation n'est calculée que si les coordonnées précédentes"
-                    " étaient automatiques et que l'adresse a changé."))
+                    " étaient automatiques et que l'adresse a changé. Cocher cette case ignorera tout changement de"
+                    " position éventuellement réalisé ci-dessus."))
 
     def save(self, commit=True):
         # on calcule la position si
@@ -18,7 +19,7 @@ class CoordinatesFormMixin(forms.Form):
         # - ou l'adresse a changé et ce n'était pas une position manuelle
 
         address_changed = any(f in self.changed_data for f in self.instance.GEOCODING_FIELDS)
-        explicitly_asked_for = self.cleaned_data['redo_geolocation']
+        explicitly_asked_for = self.cleaned_data['redo_geocoding']
         setting_manually = 'coordinates' in self.changed_data
 
         if setting_manually and not explicitly_asked_for:

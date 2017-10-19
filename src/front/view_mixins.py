@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.html import format_html
 from django.shortcuts import reverse
+from django.views.generic import UpdateView
 from django.http.response import HttpResponseForbidden, HttpResponseRedirect
 from django.conf import settings
 
@@ -119,3 +120,28 @@ class ObjectOpengraphMixin(SimpleOpengraphMixin):
         if hasattr(self.object, 'image') and self.object.image:
             return urljoin(settings.FRONT_DOMAIN, self.object.image.url)
         return None
+
+
+class ChangeLocationBaseView(UpdateView):
+    # redefine in sub classes
+    template_name = None
+    form_class = None
+    queryset = None
+    success_view_name = None
+
+    def get_success_url(self):
+        return reverse(self.success_view_name, args=(self.object.pk,))
+
+    def form_valid(self, form):
+        res = super().form_valid(form)
+
+        message = form.get_message()
+
+        if message:
+            messages.add_message(
+                request=self.request,
+                level=messages.SUCCESS,
+                message=message
+            )
+
+        return res
