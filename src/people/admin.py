@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
 
-from .models import Person, PersonTag
+from .models import Person, PersonTag, PersonEmail
 from events.models import RSVP
 from groups.models import Membership
 
@@ -41,6 +41,13 @@ class MembershipInline(admin.TabularInline):
 
     def has_add_permission(self, request):
         return False
+
+
+class EmailInline(admin.TabularInline):
+    model = PersonEmail
+    readonly_fields = ('address',)
+    extra = 0
+    fields = ('address', 'bounced', 'bounced_date')
 
 
 @admin.register(Person, site=admin_site)
@@ -96,7 +103,7 @@ class PersonAdmin(admin.ModelAdmin):
         ('subscribed', admin.BooleanFieldListFilter)
     )
 
-    inlines = (RSVPInline, MembershipInline)
+    inlines = (RSVPInline, MembershipInline, EmailInline)
 
     def role_link(self, obj):
         return '<a href="%s">%s</a>' % (
