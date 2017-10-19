@@ -2,7 +2,7 @@ import json
 import base64
 from rest_framework.test import APITestCase
 from django.utils import timezone
-from people.models import Person
+from people.models import Person, PersonEmail
 
 
 class WebhookTestCase(APITestCase):
@@ -17,6 +17,8 @@ class WebhookTestCase(APITestCase):
             created=timezone.now() - timezone.timedelta(hours=2)
         )
 
+        self.old_bounced_person.add_email('other_old@bounce.com')
+
         self.sendgrid_payload = [
             {
                 "email": "new@bounce.com",
@@ -24,6 +26,13 @@ class WebhookTestCase(APITestCase):
             },
             {
                 "email": "old@bounce.com",
+                "event": "bounce"
+            }
+        ]
+
+        self.sendgrid_payload2 = [
+            {
+                "email": "other_old@bounce.com",
                 "event": "bounce"
             }
         ]
@@ -62,3 +71,10 @@ class WebhookTestCase(APITestCase):
         self.assertEqual(response.status_code, 401)
         response = self.client.post('/webhooks/ses_bounce', self.ses_payload)
         self.assertEqual(response.status_code, 401)
+
+    def test_bounce_secondary_email(self):
+        response = self.client.post('/webhooks/sendgrid_bounce', self.sendgrid_payload2, format='json',
+            HTTP_AUTHORIZATION='Basic ' + (base64.b64encode(b'fi:prout').decode('utf-8')))
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(False, Person.objects.get(email='old@bounce.com').bounced)
+        self.assertEqual(True, Person.objects.get(email='old@bounce.com').emails.all()[1].bounced)

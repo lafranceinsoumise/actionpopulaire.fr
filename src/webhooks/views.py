@@ -1,5 +1,4 @@
 import json
-import base64
 
 import requests
 from django.utils import timezone
@@ -10,8 +9,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import BasePermission
 from rest_framework import exceptions
 
-from people.models import Person
-from people.serializers import LegacyPersonSerializer
+from people.models import PersonEmail
 from api import settings
 
 
@@ -34,17 +32,17 @@ class BounceView(APIView):
 
     def handleBounce(self, recipient_email):
         try:
-            person = Person.objects.get(email=recipient_email)
-        except Person.DoesNotExist:
+            person_email = PersonEmail.objects.get(address=recipient_email)
+        except PersonEmail.DoesNotExist:
             return
 
-        older_than_one_hour = person.created + timezone.timedelta(hours=1) < timezone.now()
+        older_than_one_hour = person_email.person.created + timezone.timedelta(hours=1) < timezone.now()
         if (older_than_one_hour):
-            person.bounced = True
-            person.save()
+            person_email.bounced = True
+            person_email.save()
             return
 
-        person.delete()
+        person_email.person.delete()
 
 
 class WrongContentTypeJSONParser(JSONParser):
