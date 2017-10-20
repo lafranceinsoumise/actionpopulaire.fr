@@ -1,13 +1,10 @@
-from collections import Sequence
-
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.http import QueryDict
 from django.core.mail import EmailMultiAlternatives, get_connection
+from django.template import loader
 
 import html2text
-
-import requests
 
 __all__ = ['fetch_mosaico_message', 'send_mail', 'send_mosaico_email']
 
@@ -32,35 +29,26 @@ def generate_plain_text(html_message):
     return _h.handle(html_message)
 
 
-def fetch_mosaico_message(code, recipient, bindings):
-    """Fetch the basic Mosaico template
-
-    All replacements are done by the Mosaico server
-
-    A possible optimization would be to instead fetch the message
-    without replacing, and then replacing locally: it would help
-    when sending the same message to many recipients by allowing only
-    one GET request, vs. making one GET request per recipient
+def get_context_from_bindings(code, recipient, bindings):
+    """Finalizes the bindings and create a Context for templating
     """
     if code not in settings.EMAIL_TEMPLATES:
         raise ImproperlyConfigured("Mail '%s' cannot be found")
 
     url = settings.EMAIL_TEMPLATES[code]
 
+    res = dict(bindings)
+    res['EMAIL'] = recipient
+
     qs = QueryDict(mutable=True)
-    qs.update(bindings)
-    qs['EMAIL'] = recipient
+    qs.update(res)
 
     # We first initialize the LINK_BROWSER variable as "#" (same page)
     qs['LINK_BROWSER'] = "#"
-    # we generate the final browser link and add it to the query string
-    qs['LINK_BROWSER'] = f"{url}?{qs.urlencode()}"
+    # we generate the final browser link and add it to result dictionary
+    res['LINK_BROWSER'] = f"{url}?{qs.urlencode()}"
 
-    # requests the full url (including the final browser link)
-    response = requests.get(f"{url}?{qs.urlencode()}")
-    response.raise_for_status()
-
-    return response.text
+    return res
 
 
 def send_mosaico_email(code, subject, from_email, recipients, bindings=None, connection_links=None, connection=None, backend=None,
@@ -85,9 +73,12 @@ def send_mosaico_email(code, subject, from_email, recipients, bindings=None, con
     if connection is None:
         connection = get_connection(backend, fail_silently)
 
-    for recipient, binding in _iterate_recipients_bindings(recipients, bindings):
+    template = loader.get_template('mail_templates/{code}.html'.format(code=code))
 
-        html_message = fetch_mosaico_message(code, recipient, binding)
+    for recipient, binding_instance in _iterate_recipients_bindings(recipients, bindings):
+        context = get_context_from_bindings(code, recipient, binding_instance)
+
+        html_message = template.render(context=context)
         text_message = generate_plain_text(html_message)
 
         email = EmailMultiAlternatives(
