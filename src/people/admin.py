@@ -100,7 +100,8 @@ class PersonAdmin(admin.ModelAdmin):
         ('location_city', AjaxFieldFilter),
         ('location_zip', AjaxFieldFilter),
         ('tags'),
-        ('subscribed', admin.BooleanFieldListFilter)
+        ('subscribed', admin.BooleanFieldListFilter),
+        ('draw_participation', admin.BooleanFieldListFilter),
     )
 
     inlines = (RSVPInline, MembershipInline, EmailInline)
