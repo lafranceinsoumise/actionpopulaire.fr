@@ -213,7 +213,10 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
             self.emails.add(PersonEmail.objects.create(address=BaseUserManager.normalize_email(email_address), person=self, **kwargs))
 
     def set_primary_email(self, email_address):
-        email_instance = self.emails.get(address=BaseUserManager.normalize_email(email_address))
+        if isinstance(email_address, PersonEmail):
+            email_instance = email_address
+        else:
+            email_instance = self.emails.get(address=BaseUserManager.normalize_email(email_address))
         order = list(self.get_personemail_order())
         order.remove(email_instance.id)
         order.insert(0, email_instance.id)
@@ -257,3 +260,7 @@ class PersonEmail(models.Model):
 
     class Meta:
         order_with_respect_to = 'person'
+        verbose_name = _("Email")
+
+    def __str__(self):
+        return self.address

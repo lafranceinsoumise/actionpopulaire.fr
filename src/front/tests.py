@@ -15,6 +15,52 @@ from groups.models import SupportGroup, Membership
 from .backend import token_generator
 
 
+class MessagePreferencesTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person('test@test.com')
+        self.person.add_email('test2@test.com')
+        self.client.force_login(self.person.role)
+
+    def test_can_load_message_preferences_page(self):
+        res = self.client.get('/message_preferences/')
+
+        # should show the current email address
+        self.assertContains(res, 'test@test.com')
+        self.assertContains(res, 'test2@test.com')
+
+    def test_can_see_email_management(self):
+        res = self.client.get('/message_preferences/adresses/')
+
+        # should show the current email address
+        self.assertContains(res, 'test@test.com')
+        self.assertContains(res, 'test2@test.com')
+
+    def test_can_add_delete_address(self):
+        emails = list(self.person.emails.all())
+
+        # should be possible to get the delete page for one of the two addresses, and to actually delete
+        res = self.client.get('/message_preferences/adresses/{}/supprimer/'.format(emails[1].pk))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        res = self.client.post('/message_preferences/adresses/{}/supprimer/'.format(emails[1].pk))
+        self.assertRedirects(res, reverse('email_management'))
+
+        # address should indeed be gone
+        self.assertEqual(len(self.person.emails.all()), 1)
+        self.assertEqual(self.person.emails.first(), emails[0])
+
+        # both get and post should give 403 when there is only one primary address
+        res = self.client.get('/message_preferences/adresses/{}/supprimer/'.format(emails[0].pk))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+        res = self.client.post('/message_preferences/adresses/{}/supprimer/'.format(emails[0].pk))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_add_address(self):
+        res = self.client.post('/message_preferences/adresses/', data={'address': 'test3@test.com'})
+        self.assertRedirects(res, '/message_preferences/adresses/')
+
+
 class ProfileFormTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person('test@test.com')
