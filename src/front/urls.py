@@ -15,7 +15,7 @@ urlpatterns = [
     url('^agir/confirmation/$', views.VolunteerConfirmationView.as_view(), name='confirmation_volunteer'),
     url('^message_preferences/$', views.MessagePreferencesView.as_view(), name='message_preferences'),
     url('^message_preferences/adresses/$', views.EmailManagementView.as_view(), name='email_management'),
-    url('^message_preferences/adresses/(?P<pk>[0-9a-f-])/supprimer/$', views.DeleteEmailAddressView.as_view(), name='delete_email'),
+    url('^message_preferences/adresses/(?P<pk>[0-9a-f-]+)/supprimer/$', views.DeleteEmailAddressView.as_view(), name='delete_email'),
 
     # events views
     url('^evenements/$', views.EventListView.as_view(), name='list_events'),
