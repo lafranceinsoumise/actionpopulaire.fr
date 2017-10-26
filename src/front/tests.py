@@ -670,6 +670,23 @@ class GroupPageTestCase(TestCase):
         patched_geocode_support_group.delay.assert_called_once()
         self.assertEqual(patched_geocode_support_group.delay.call_args[0], (membership.supportgroup.pk,))
 
+    def test_cannot_view_unpublished_group(self):
+        self.client.force_login(self.person.role)
+
+        self.referent_group.published = False
+        self.referent_group.save()
+
+        res = self.client.get('/groupes/')
+        self.assertNotContains(res, self.referent_group.pk)
+
+        res = self.client.get('/groupes/{}/'.format(self.referent_group.pk))
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+        group_pages = ['view_group', 'manage_group', 'edit_group', 'change_group_location', 'quit_group']
+        for page in group_pages:
+            res = self.client.get(reverse(page, args=(self.referent_group.pk,)))
+            self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND, '"{}" did not return 404'.format(page))
+
 
 class NBUrlsTestCase(TestCase):
     def setUp(self):

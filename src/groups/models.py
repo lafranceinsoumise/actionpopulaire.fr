@@ -86,12 +86,20 @@ class SupportGroupTag(AbstractLabel):
         verbose_name = _('tag')
 
 
+class ActiveMembershipManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(supportgroup__published=True)
+
+
 class Membership(TimeStampedModel):
     """
     Model that represents the membership of a person in a support group
     
     This model also indicates if the person is referent for this support group
     """
+    objects = models.Manager()
+    active = ActiveMembershipManager()
+
     person = models.ForeignKey(
         'people.Person',
         related_name='memberships',
