@@ -129,7 +129,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         ] + super().get_urls()
 
     def add_member(self, request, id):
-        if not self.has_change_permission(request) or not request.user.has_perm('view_person'):
+        if not self.has_change_permission(request) or not request.user.has_perm('people.view_person'):
             raise PermissionDenied
 
         group = self.get_object(request, unquote(id))
