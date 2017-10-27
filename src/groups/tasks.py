@@ -1,15 +1,13 @@
 from collections import OrderedDict
 
-from django.utils.translation import ugettext_lazy as _
-from django.template.loader import render_to_string
+from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
+from django.template.loader import render_to_string
+from django.utils.translation import ugettext_lazy as _
 
-from celery import shared_task
-
-from lib.mails import send_mosaico_email
 from front.utils import front_url
-
+from people.actions.mailing import send_mosaico_email
 from .models import SupportGroup, Membership
 
 # encodes the preferred order when showing the messages
@@ -46,7 +44,7 @@ def send_support_group_creation_notification(membership_pk):
         code='GROUP_CREATION',
         subject=_("Les informations de votre nouveau groupe d'appui"),
         from_email=settings.EMAIL_FROM,
-        recipients=[referent.email],
+        recipients=[referent],
         bindings=bindings,
     )
 
@@ -73,8 +71,8 @@ def send_support_group_changed_notification(support_group_pk, changes):
 
     notifications_enabled = Q(notifications_enabled=True) & Q(person__group_notifications=True)
 
-    recipients = [membership.person.email
-                  for membership in group.memberships.filter(notifications_enabled).select_related('person')]
+    recipients = [membership.person
+                  for membership in group.memberships.filter(notifications_enabled).prefetch_related('person__emails')]
 
     send_mosaico_email(
         code='GROUP_CHANGED',
@@ -95,8 +93,8 @@ def send_someone_joined_notification(membership_pk):
     person_information = str(membership.person)
 
     managers_filter = (Q(is_referent=True) | Q(is_manager=True)) & Q(notifications_enabled=True)
-    managing_membership = membership.supportgroup.memberships.filter(managers_filter).select_related('person')
-    recipients = [membership.person.email for membership in managing_membership]
+    managing_membership = membership.supportgroup.memberships.filter(managers_filter).select_related('person').prefetch_related('person__emails')
+    recipients = [membership.person for membership in managing_membership]
 
     bindings = {
         "GROUP_NAME": membership.supportgroup.name,

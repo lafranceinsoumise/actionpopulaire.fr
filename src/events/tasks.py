@@ -1,15 +1,13 @@
 from collections import OrderedDict
 
-from django.utils.translation import ugettext_lazy as _
-from django.template.loader import render_to_string
+from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
+from django.template.loader import render_to_string
+from django.utils.translation import ugettext_lazy as _
 
-from celery import shared_task
-
-from lib.mails import send_mosaico_email
-from front.utils import front_url, generate_token_params
-
+from front.utils import front_url
+from people.actions.mailing import send_mosaico_email
 from .models import Event, RSVP, OrganizerConfig
 
 # encodes the preferred order when showing the messages
@@ -47,7 +45,7 @@ def send_event_creation_notification(organizer_config_pk):
         code='EVENT_CREATION',
         subject=_("Les informations de votre nouveau groupe d'appui"),
         from_email=settings.EMAIL_FROM,
-        recipients=[organizer.email],
+        recipients=[organizer],
         bindings=bindings,
     )
 
@@ -67,23 +65,21 @@ def send_event_changed_notification(event_pk, changes):
     )
 
     notifications_enabled = Q(notifications_enabled=True) & Q(person__event_notifications=True)
-    recipients = [rsvp.person for rsvp in event.rsvps.filter(notifications_enabled).select_related('person')]
-    queries = [generate_token_params(p) for p in recipients]
+    recipients = [rsvp.person for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related('person__emails')]
 
     bindings = {
         "EVENT_NAME": event.name,
         "EVENT_CHANGES": change_fragment,
         "EVENT_LINK": front_url("view_event", kwargs={'pk': event_pk}),
-        "EVENT_QUIT_LINK": front_url("quit_event", kwargs={'pk': event_pk}, query=queries)
+        "EVENT_QUIT_LINK": front_url("quit_event", kwargs={'pk': event_pk})
     }
 
-    emails = [p.email for p in recipients]
 
     send_mosaico_email(
         code='EVENT_CHANGED',
         subject=_("Les informations d'un événement auquel vous assistez ont été changées"),
         from_email=settings.EMAIL_FROM,
-        recipients=emails,
+        recipients=recipients,
         bindings=bindings,
     )
 
@@ -98,8 +94,7 @@ def send_rsvp_notification(rsvp_pk):
 
     person_information = str(rsvp.person)
 
-    recipients = [organizer_config.person.email
-                  for organizer_config in rsvp.event.organizer_configs.filter(notifications_enabled=True)]
+    recipients = [organizer_config.person for organizer_config in rsvp.event.organizer_configs.filter(notifications_enabled=True)]
 
     bindings = {
         "EVENT_NAME": rsvp.event.name,
@@ -131,7 +126,7 @@ def send_cancellation_notification(event_pk):
 
     notifications_enabled = Q(notifications_enabled=True) & Q(person__event_notifications=True)
 
-    recipients = [rsvp.person.email for rsvp in event.rsvps.filter(notifications_enabled)]
+    recipients = [rsvp.person for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related('person__emails')]
 
     bindings = {
         "EVENT_NAME": event_name

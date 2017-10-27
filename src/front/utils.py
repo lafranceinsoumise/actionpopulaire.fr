@@ -18,10 +18,7 @@ def front_url(*args, query=None, absolute=True, **kwargs):
     if absolute:
         url = urljoin(settings.FRONT_DOMAIN, url)
     if query:
-        if isinstance(query, dict):
-            url = "{}?{}".format(url, _querydict_from_dict(query).urlencode(safe='/'))
-        else:
-            url = ["{}?{}".format(url, _querydict_from_dict(q).urlencode(safe='/')) for q in query]
+        url = "{}?{}".format(url, _querydict_from_dict(query).urlencode(safe='/'))
     return url
 
 
