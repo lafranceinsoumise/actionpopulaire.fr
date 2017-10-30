@@ -102,6 +102,7 @@ class PersonAdmin(admin.ModelAdmin):
         ('tags'),
         ('subscribed', admin.BooleanFieldListFilter),
         ('draw_participation', admin.BooleanFieldListFilter),
+        ('gender', admin.BooleanFieldListFilter),
     )
 
     inlines = (RSVPInline, MembershipInline, EmailInline)
