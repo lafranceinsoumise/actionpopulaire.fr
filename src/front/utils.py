@@ -22,6 +22,10 @@ def front_url(*args, query=None, absolute=True, **kwargs):
     return url
 
 
+def is_front_url(param):
+    return param.startswith(settings.FRONT_DOMAIN)
+
+
 def generate_token_params(person):
     return {
         'p': person.pk,

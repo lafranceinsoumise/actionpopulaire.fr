@@ -1,4 +1,3 @@
-import re
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 
 from django.conf import settings
@@ -10,7 +9,7 @@ from django.template import loader
 import html2text
 
 from people.models import Person
-from front.utils import generate_token_params
+from front.utils import generate_token_params, front_url, is_front_url
 
 __all__ = ['send_mail', 'send_mosaico_email']
 
@@ -20,10 +19,6 @@ _h.ignore_images = True
 
 def generate_plain_text(html_message):
     return _h.handle(html_message)
-
-
-def is_front_url(param):
-    return param.startswith(settings.FRONT_DOMAIN)
 
 
 def add_params_to_urls(url, params):
@@ -56,7 +51,7 @@ def get_context_from_bindings(code, recipient, bindings):
 
 
 def send_mosaico_email(code, subject, from_email, recipients, bindings=None, connection=None, backend=None,
-                       fail_silently=False):
+                       fail_silently=False, preferences_link=True):
     """Send an email from a Mosaico template
 
     :param code: the code identifying the Mosaico template
@@ -78,9 +73,12 @@ def send_mosaico_email(code, subject, from_email, recipients, bindings=None, con
     if connection is None:
         connection = get_connection(backend, fail_silently)
 
+    if preferences_link:
+        bindings['PREFERENCES_LINK'] = front_url('message_preferences')
+
     link_bindings = {key: value for key, value in bindings.items() if is_front_url(value)}
 
-    template = loader.get_template('mail_templates/{code}.html'.format(code=code))
+    template = loader.get_template(f'mail_templates/{code}.html')
 
     for recipient in recipients:
         if link_bindings:
