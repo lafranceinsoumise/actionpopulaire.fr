@@ -665,7 +665,7 @@ class EventTasksTestCase(TestCase):
         message = mail.outbox[0]
         self.assertEqual(message.recipients(), ["moi@moi.fr"])
 
-        text = message.body
+        text = message.body.replace('\n', '')
 
         for item in ['name', 'location_name', 'short_address', 'contact_name', 'contact_phone']:
             self.assert_(getattr(self.group, item) in text, "{} missing in message".format(item))
@@ -678,7 +678,7 @@ class EventTasksTestCase(TestCase):
         message = mail.outbox[0]
         self.assertEqual(message.recipients(), ["moi@moi.fr"])
 
-        text = message.body
+        text = message.body.replace('\n', '')
 
         mail_content = {
             'member information': str(self.member1),
@@ -702,13 +702,15 @@ class EventTasksTestCase(TestCase):
         self.assertCountEqual(messages.keys(), [self.creator.email, self.member1.email, self.member2.email])
 
         for recipient, message in messages.items():
-            self.assert_(self.group.name in message.body, 'group name not in message')
+            text = message.body.replace('\n', '')
+
+            self.assert_(self.group.name in text, 'group name not in message')
             # self.assert_(
             #     dj_reverse('quit_group', kwargs={'pk': self.group.pk}, urlconf='front.urls') in message.body,
             #     'quit group link not in message'
             # )
             self.assert_('/groupes/details/{}'.format(self.group.pk), 'group link not in message')
 
-            self.assert_(str(tasks.CHANGE_DESCRIPTION['information']) in message.body)
-            self.assert_(str(tasks.CHANGE_DESCRIPTION['contact']) in message.body)
-            self.assert_(str(tasks.CHANGE_DESCRIPTION['location']) not in message.body)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION['information']) in text)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION['contact']) in text)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION['location']) not in text)

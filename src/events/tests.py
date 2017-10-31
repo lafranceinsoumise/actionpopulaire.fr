@@ -867,7 +867,7 @@ class EventTasksTestCase(TestCase):
         attendee_message = mail.outbox[0]
         self.assertEqual(attendee_message.recipients(), ["person1@participants.fr"])
 
-        text = attendee_message.body
+        text = attendee_message.body.replace('\n', '')
         mail_content = {
             'event name': self.event.name,
             'event link': dj_reverse('view_event', kwargs={'pk': self.event.pk}, urlconf='front.urls')
@@ -879,7 +879,7 @@ class EventTasksTestCase(TestCase):
         org_message = mail.outbox[1]
         self.assertEqual(org_message.recipients(), ["moi@moi.fr"])
 
-        text = org_message.body
+        text = org_message.body.replace('\n', '')
 
         mail_content = {
             'attendee information': str(self.attendee1),
@@ -902,16 +902,20 @@ class EventTasksTestCase(TestCase):
 
         self.assertCountEqual(messages.keys(), [self.attendee1.email, self.attendee2.email])
 
+
+
         for recipient, message in messages.items():
-            self.assert_(self.event.name in message.body, 'event name not in message')
+            text = message.body.replace('\n', '')
+
+            self.assert_(self.event.name in text, 'event name not in message')
             self.assert_(
-                dj_reverse('quit_event', kwargs={'pk': self.event.pk}, urlconf='front.urls') in message.body,
+                dj_reverse('quit_event', kwargs={'pk': self.event.pk}, urlconf='front.urls') in text,
                 'quit event link not in message'
             )
 
-            self.assert_(str(tasks.CHANGE_DESCRIPTION['information']) in message.body)
-            self.assert_(str(tasks.CHANGE_DESCRIPTION['timing']) in message.body)
-            self.assert_(str(tasks.CHANGE_DESCRIPTION['contact']) not in message.body)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION['information']) in text)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION['timing']) in text)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION['contact']) not in text)
 
 
 class EventWorkerTestCase(TestCase):
