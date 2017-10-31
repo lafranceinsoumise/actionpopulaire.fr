@@ -94,9 +94,27 @@ def send_rsvp_notification(rsvp_pk):
 
     person_information = str(rsvp.person)
 
-    recipients = [organizer_config.person for organizer_config in rsvp.event.organizer_configs.filter(notifications_enabled=True)]
+    recipients = [organizer_config.person for organizer_config in rsvp.event.organizer_configs.filter(notifications_enabled=True) if organizer_config.person != rsvp.person]
 
-    bindings = {
+    attendee_bindings = {
+        "EVENT_NAME": rsvp.event.name,
+        "EVENT_SCHEDULE": rsvp.event.get_display_date(),
+        "CONTACT_NAME": rsvp.event.contact_name,
+        "CONTACT_EMAIL": rsvp.event.contact_email,
+        "LOCATION_NAME": rsvp.event.location_name,
+        "LOCATION_ADDRESS": rsvp.event.short_address,
+        "EVENT_LINK": front_url("view_event", args=[rsvp.event.pk])
+    }
+
+    send_mosaico_email(
+        code='EVENT_RSVP_CONFIRMATION',
+        subject=_("Confirmation de votre participation à l'événement"),
+        from_email=settings.EMAIL_FROM,
+        recipients=[rsvp.person],
+        bindings=attendee_bindings
+    )
+
+    organizer_bindings = {
         "EVENT_NAME": rsvp.event.name,
         "PERSON_INFORMATION": person_information,
         "MANAGE_EVENT_LINK": front_url("manage_event", kwargs={"pk": rsvp.event.pk})
@@ -107,7 +125,7 @@ def send_rsvp_notification(rsvp_pk):
         subject=_("Un nouveau participant à l'un de vos événements"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
-        bindings=bindings
+        bindings=organizer_bindings
     )
 
 

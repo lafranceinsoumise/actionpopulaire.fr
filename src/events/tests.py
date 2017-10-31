@@ -862,12 +862,24 @@ class EventTasksTestCase(TestCase):
     def test_rsvp_notification_mail(self):
         tasks.send_rsvp_notification(self.rsvp1.pk)
 
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 2)
 
-        message = mail.outbox[0]
-        self.assertEqual(message.recipients(), ["moi@moi.fr"])
+        attendee_message = mail.outbox[0]
+        self.assertEqual(attendee_message.recipients(), ["person1@participants.fr"])
 
-        text = message.body
+        text = attendee_message.body
+        mail_content = {
+            'event name': self.event.name,
+            'event link': dj_reverse('view_event', kwargs={'pk': self.event.pk}, urlconf='front.urls')
+        }
+
+        for name, value in mail_content.items():
+            self.assert_(value in text, '{} missing from mail'.format(name))
+
+        org_message = mail.outbox[1]
+        self.assertEqual(org_message.recipients(), ["moi@moi.fr"])
+
+        text = org_message.body
 
         mail_content = {
             'attendee information': str(self.attendee1),
