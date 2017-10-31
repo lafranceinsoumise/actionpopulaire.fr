@@ -53,4 +53,5 @@ class Command(BaseCommand):
         writer.writeheader()
 
         for numero, p in enumerate(participants):
-            writer.writerow({'numero': numero, 'id': p.id, 'email': p.email, 'gender': p.gender})
+            # add one so that sequence numbers start with 1
+            writer.writerow({'numero': numero+1, 'id': p.id, 'email': p.email, 'gender': p.gender})
