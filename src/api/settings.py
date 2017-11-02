@@ -33,7 +33,7 @@ NB_WEBHOOK_KEY = os.environ.get('NB_WEBHOOK_KEY', 'prout')
 NB_API_KEY = os.environ.get('NB_API_KEY', 'mustbesecret')
 SENDGRID_SES_WEBHOOK_USER = os.environ.get('SENDGRID_SES_WEBHOOK_USER', 'fi')
 SENDGRID_SES_WEBHOOK_PASSWORD = os.environ.get('SENDGRID_SES_WEBHOOK_PASSWORD', 'prout')
-MAILTRAIN_API_KEY = os.environ.get('MOSAICO_API_KEY', 'prout')
+MAILTRAIN_API_KEY = os.environ.get('MAILTRAIN_API_KEY', 'prout')
 
 # these domain names are used when absolute URLs should be generated (e.g. to include in emails)
 MAIN_DOMAIN = os.environ.get('MAIN_DOMAIN', 'https://lafranceinsoumise.fr')
