@@ -83,6 +83,13 @@ class BasicPersonTestCase(TestCase):
 
         self.assertEqual(str(person), 'test1@domain.com')
 
+    @mock.patch('people.tasks.update_mailtrain')
+    def test_person_is_updated_in_mailtrain(self, update_mailtrain):
+        Person.objects.create_person('test1@domain.com')
+
+        update_mailtrain.assert_called_once()
+
+
 
 class LegacyPersonEndpointTestCase(APITestCase):
     def as_viewer(self, request):

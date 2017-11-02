@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from front.utils import front_url
+from lib.mailtrain import update_person
 from people.actions.mailing import send_mosaico_email
 from .models import Person
 
@@ -34,3 +35,9 @@ def send_unsubscribe_email(person_pk):
         recipients=[person.email],
         bindings=bindings
     )
+
+@shared_task
+def update_mailtrain(person_pk):
+    person = Person.objects.prefetch_related('emails').get(pk=person_pk)
+
+    update_person(person)
