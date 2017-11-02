@@ -1,6 +1,6 @@
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
-
+from django.conf import settings
 from people import tasks
 from .models import Person
 from authentication.models import Role
@@ -15,4 +15,7 @@ def ensure_has_role(sender, instance, raw, **kwargs):
 
 @receiver(post_save, sender=Person, dispatch_uid="person_update_mailtrain")
 def update_mailtrain(sender, instance, raw, **kwargs):
-    tasks.update_mailtrain.delay(instance)
+    if settings.MAILTRAIN_DISABLE:
+        return
+
+    tasks.update_mailtrain.delay(instance.id)

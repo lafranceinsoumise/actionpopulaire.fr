@@ -1,7 +1,7 @@
 from unittest import mock
 
 import django.utils.timezone
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.contrib.auth.models import Permission
@@ -83,11 +83,14 @@ class BasicPersonTestCase(TestCase):
 
         self.assertEqual(str(person), 'test1@domain.com')
 
+    @override_settings(MAILTRAIN_DISABLE=False)
     @mock.patch('people.tasks.update_mailtrain')
     def test_person_is_updated_in_mailtrain(self, update_mailtrain):
-        Person.objects.create_person('test1@domain.com')
+        person = Person.objects.create_person('test1@domain.com')
 
-        update_mailtrain.assert_called_once()
+        update_mailtrain.delay.assert_called_once()
+        args = update_mailtrain.delay.call_args[0]
+        self.assertEqual(args[0], person.pk)
 
 
 
