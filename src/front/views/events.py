@@ -266,11 +266,9 @@ class CalendarView(ObjectOpengraphMixin, DetailView):
         try:
             events = paginator.page(page)
         except PageNotAnInteger:
-            page = 1
             events = paginator.page(1)
         except EmptyPage:
-            page = paginator.num_pages
-            events = paginator.page(page)
+            events = paginator.page(paginator.num_pages)
 
         return super().get_context_data(
             events=events,
