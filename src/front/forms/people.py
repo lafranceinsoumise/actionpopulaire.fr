@@ -397,7 +397,9 @@ class MessagePreferencesForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if self.no_mail:
-            cleaned_data = {k: False for k in cleaned_data if isinstance(k, bool)}
+            for k, v in cleaned_data.items():
+                if not isinstance(v, bool): continue
+                cleaned_data[k] = False
 
         if cleaned_data['draw_participation'] and not cleaned_data['gender']:
             self.add_error(

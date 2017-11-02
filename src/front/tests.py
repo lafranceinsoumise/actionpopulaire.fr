@@ -60,6 +60,19 @@ class MessagePreferencesTestCase(TestCase):
         res = self.client.post('/message_preferences/adresses/', data={'address': 'test3@test.com'})
         self.assertRedirects(res, '/message_preferences/adresses/')
 
+    def test_can_stop_messages(self):
+        res = self.client.post('/message_preferences/', data={
+            'no_mail': True,
+            'gender': '',
+            'primary_email': self.person.emails.first().id
+        })
+        self.assertEqual(res.status_code, 302)
+        self.person.refresh_from_db()
+        self.assertEqual(self.person.subscribed, False)
+        self.assertEqual(self.person.event_notifications, False)
+        self.assertEqual(self.person.group_notifications, False)
+        self.assertEqual(self.person.draw_participation, False)
+
 
 class ProfileFormTestCase(TestCase):
     def setUp(self):
