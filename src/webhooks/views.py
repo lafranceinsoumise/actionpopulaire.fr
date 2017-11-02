@@ -10,7 +10,7 @@ from rest_framework.permissions import BasePermission
 from rest_framework import exceptions
 
 from people.models import PersonEmail
-from api import settings
+from django.conf import settings
 
 
 class SendgridSesWebhookAuthentication(BasicAuthentication):
