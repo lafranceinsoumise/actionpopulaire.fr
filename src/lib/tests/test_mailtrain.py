@@ -1,11 +1,11 @@
 from unittest import mock
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from lib import mailtrain
 from people.models import Person
 
-
+@override_settings(MAILTRAIN_DISABLE=False)
 class MailTrainTestCase(TestCase):
     @mock.patch('lib.mailtrain.requests.post')
     def test_subscribe(self, request_post):

@@ -2,10 +2,10 @@ from datetime import datetime
 import requests
 from requests import HTTPError
 
-from api.settings import MAILTRAIN_HOST, MAILTRAIN_LIST_ID, MAILTRAIN_API_KEY
+from django.conf import settings
 
+params = {'access_token': settings.MAILTRAIN_API_KEY}
 
-params = {'access_token': MAILTRAIN_API_KEY}
 
 def data_from_person(person):
     data = {}
@@ -34,8 +34,12 @@ def subscribe(email, fields=None):
         data = {**data, **fields}
 
     response = None
+
+    if settings.MAILTRAIN_DISABLE:
+        return True
+
     try:
-        response = requests.post(MAILTRAIN_HOST + '/api/subscribe/' + MAILTRAIN_LIST_ID, data=data, params=params, json=True)
+        response = requests.post(settings.MAILTRAIN_HOST + '/api/subscribe/' + settings.MAILTRAIN_LIST_ID, data=data, params=params, json=True)
         response.raise_for_status()
     except HTTPError as err:
         if response.status_code == 400:
@@ -51,7 +55,10 @@ def unsubscribe(email):
         'EMAIL': email
     }
 
-    requests.post(MAILTRAIN_HOST + '/api/unsubscribe/' + MAILTRAIN_LIST_ID, data=data, params=params, json=True)\
+    if settings.MAILTRAIN_DISABLE:
+        return True
+
+    requests.post(settings.MAILTRAIN_HOST + '/api/unsubscribe/' + settings.MAILTRAIN_LIST_ID, data=data, params=params, json=True)\
         .raise_for_status()
 
 
@@ -61,8 +68,12 @@ def delete(email):
     }
 
     response = None
+
+    if settings.MAILTRAIN_DISABLE:
+        return True
+
     try:
-        response = requests.post(MAILTRAIN_HOST + '/api/delete/' + MAILTRAIN_LIST_ID, data=data, params=params, json=True)
+        response = requests.post(settings.MAILTRAIN_HOST + '/api/delete/' + settings.MAILTRAIN_LIST_ID, data=data, params=params, json=True)
         response.raise_for_status()
     except HTTPError as err:
         if response is not None and response.status_code == 404:
