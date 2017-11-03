@@ -20,7 +20,7 @@
             <hr/>
             {% if supportgroup.description %}
                 <div class="intro">
-                    {{ supportgroup.description | striptags | escape | linebreaksbr }}
+                    {{ supportgroup.html_description }}
                     <hr/>
                 </div>
             {% endif %}

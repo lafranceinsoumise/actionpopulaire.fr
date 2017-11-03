@@ -227,6 +227,10 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.environ.get('STATIC_ROOT')
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "assets")
+]
+
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT', 'media')

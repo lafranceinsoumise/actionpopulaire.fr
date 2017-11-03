@@ -13,3 +13,7 @@ db.sqlite3
 
 # media directory in development
 /src/media
+
+/node_modules/
+
+/src/assets/

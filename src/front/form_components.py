@@ -1,6 +1,6 @@
 from crispy_forms.layout import Layout, Submit, Div, Field, MultiField, HTML, Row
 
-from django.forms.widgets import DateTimeBaseInput
+from django.forms.widgets import DateTimeBaseInput, Textarea
 from django.utils import formats
 
 
@@ -37,4 +37,13 @@ class DateTimePickerWidget(DateTimeBaseInput):
             'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js',
             'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/fr.js',
             'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js'
+        )
+
+
+class MarkdownDescriptionWidget(Textarea):
+    template_name = 'front/fields/markdown_description.html'
+
+    class Media:
+        js = (
+            'js/markdownEditor.js',
         )
