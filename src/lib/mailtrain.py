@@ -4,6 +4,9 @@ from requests import HTTPError
 
 from django.conf import settings
 
+from front.utils import generate_token_params
+from urllib.parse import urlencode
+
 params = {'access_token': settings.MAILTRAIN_API_KEY}
 
 
@@ -19,6 +22,7 @@ def data_from_person(person):
     data['LAST_NAME'] = person.last_name
     data['MERGE_ZIPCODE'] = person.location_zip
     data['MERGE_INSCRIPTIONS'] = ','.join(inscriptions)
+    data['MERGE_LOGIN_QUERY'] = urlencode(generate_token_params(person))
 
     return data
 
@@ -52,7 +56,8 @@ def subscribe(email, fields=None):
 
 def unsubscribe(email):
     data = {
-        'EMAIL': email
+        'EMAIL': email,
+        'MERGE_API_UPDATED': datetime.utcnow(),
     }
 
     if settings.MAILTRAIN_DISABLE:
