@@ -108,3 +108,6 @@ def update_person(person):
 
 
 
+def delete_person(person):
+    for email in person.emails.all():
+        delete(email.address)

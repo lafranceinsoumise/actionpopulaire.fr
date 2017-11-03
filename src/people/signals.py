@@ -1,6 +1,8 @@
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save, post_save, pre_delete
 from django.dispatch import receiver
 from django.conf import settings
+
+from lib.mailtrain import delete_person
 from people import tasks
 from .models import Person
 from authentication.models import Role
@@ -19,3 +21,8 @@ def update_mailtrain(sender, instance, raw, **kwargs):
         return
 
     tasks.update_mailtrain.delay(instance.id)
+
+
+@receiver(pre_delete, sender=Person, dispatch_uid="person_delete_mailtrain")
+def delete_mailtrain(sender, instance, **kwargs):
+    delete_person(instance)
