@@ -1,6 +1,9 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.utils.html import mark_safe, strip_tags, escape
 from model_utils.models import TimeStampedModel
+
+import markdown
 
 from lib.models import (
     BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, WithImageMixin
@@ -79,6 +82,13 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, WithIm
 
     def __str__(self):
         return self.name
+
+    def html_description(self):
+        if self.allow_html:
+            return mark_safe(self.description)
+
+        # strip the tags, THEN escape, THEN markdown it and only then mark it safe.
+        return mark_safe(markdown.markdown(escape(strip_tags(self.description))))
 
 
 class SupportGroupTag(AbstractLabel):

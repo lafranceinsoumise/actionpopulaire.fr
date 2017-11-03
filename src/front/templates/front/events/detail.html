@@ -21,11 +21,7 @@
             width="400" height="300" scrolling="no" frameBorder="0"></iframe>
     {% if event.description %}
         <div class="intro">
-            {% if event.allow_html %}
-                {{ event.description | safe }}
-            {% else %}
-                {{ event.description | striptags | escape | linebreaksbr }}
-            {% endif %}
+            {{ supportgroup.html_description }}
             <hr/>
         </div>
     {% endif %}

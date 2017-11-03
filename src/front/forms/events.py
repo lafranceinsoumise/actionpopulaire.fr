@@ -45,6 +45,8 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             'description'
         ]
 
+        self.fields['description'].widget = MarkdownDescriptionWidget()
+
         # do not allow random organizers to modify HTML
         if self.instance.allow_html:
             del self.fields['description']

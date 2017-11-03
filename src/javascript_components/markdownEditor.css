@@ -1,0 +1,12 @@
+.wk-commands,
+.wk-switchboard {
+  display: inline-block;
+  margin-right: 1em;
+}
+
+.wk-wysiwyg {
+    min-height: 400px;
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+}
+

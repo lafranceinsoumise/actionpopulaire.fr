@@ -2,7 +2,10 @@ from django.db import models
 from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import slugify
+from django.utils.html import mark_safe, escape, strip_tags
 from model_utils.models import TimeStampedModel
+
+import markdown
 
 from stdimage.models import StdImageField
 from stdimage.utils import UploadToAutoSlug
@@ -121,6 +124,13 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, WithImageMixi
             end_date=formats.date_format(end_time, 'DATE_FORMAT'),
             end_time=formats.date_format(end_time, 'TIME_FORMAT'),
         )
+
+    def html_description(self):
+        if self.allow_html:
+            return mark_safe(self.description)
+
+        # strip the tags, THEN escape, THEN markdown it and only then mark it safe.
+        return mark_safe(markdown.markdown(escape(strip_tags(self.description))))
 
 
 class EventTag(AbstractLabel):
