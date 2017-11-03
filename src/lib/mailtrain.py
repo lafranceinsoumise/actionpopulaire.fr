@@ -12,8 +12,8 @@ params = {'access_token': settings.MAILTRAIN_API_KEY}
 
 
 s = requests.Session()
-a = requests.adapters.HTTPAdapter(max_retries=Retry(total=10, backoff_factor=1))
-b = requests.adapters.HTTPAdapter(max_retries=Retry(total=10, backoff_factor=1))
+a = requests.adapters.HTTPAdapter(max_retries=Retry(total=5, backoff_factor=1))
+b = requests.adapters.HTTPAdapter(max_retries=Retry(total=5, backoff_factor=1))
 s.mount('https://', a)
 s.mount('http://', b)
 
