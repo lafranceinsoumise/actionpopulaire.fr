@@ -7,14 +7,14 @@ from people.models import Person
 
 @override_settings(MAILTRAIN_DISABLE=False)
 class MailTrainTestCase(TestCase):
-    @mock.patch('lib.mailtrain.requests.post')
+    @mock.patch('lib.mailtrain.s.post')
     def test_subscribe(self, request_post):
         mailtrain.subscribe('test@example.com')
 
         request_post.assert_called_once()
         self.assertEqual(request_post.call_args[1]['data']['EMAIL'], 'test@example.com')
 
-    @mock.patch('lib.mailtrain.requests.post')
+    @mock.patch('lib.mailtrain.s.post')
     def test_unsubscribe(self, request_post):
         mailtrain.unsubscribe('test@example.com')
 

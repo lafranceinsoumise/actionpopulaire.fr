@@ -3,11 +3,19 @@ import requests
 from requests import HTTPError
 
 from django.conf import settings
+from urllib3 import Retry
 
 from front.utils import generate_token_params
 from urllib.parse import urlencode
 
 params = {'access_token': settings.MAILTRAIN_API_KEY}
+
+
+s = requests.Session()
+a = requests.adapters.HTTPAdapter(max_retries=Retry(total=10, backoff_factor=1))
+b = requests.adapters.HTTPAdapter(max_retries=Retry(total=10, backoff_factor=1))
+s.mount('https://', a)
+s.mount('http://', b)
 
 
 def data_from_person(person):
@@ -43,7 +51,7 @@ def subscribe(email, fields=None):
         return True
 
     try:
-        response = requests.post(settings.MAILTRAIN_HOST + '/api/subscribe/' + settings.MAILTRAIN_LIST_ID, data=data, params=params, json=True)
+        response = s.post(settings.MAILTRAIN_HOST + '/api/subscribe/' + settings.MAILTRAIN_LIST_ID, data=data, params=params, json=True)
         response.raise_for_status()
     except HTTPError as err:
         if response.status_code == 400:
@@ -63,7 +71,7 @@ def unsubscribe(email):
     if settings.MAILTRAIN_DISABLE:
         return True
 
-    requests.post(settings.MAILTRAIN_HOST + '/api/unsubscribe/' + settings.MAILTRAIN_LIST_ID, data=data, params=params, json=True)\
+    s.post(settings.MAILTRAIN_HOST + '/api/unsubscribe/' + settings.MAILTRAIN_LIST_ID, data=data, params=params, json=True)\
         .raise_for_status()
 
 
@@ -78,7 +86,7 @@ def delete(email):
         return True
 
     try:
-        response = requests.post(settings.MAILTRAIN_HOST + '/api/delete/' + settings.MAILTRAIN_LIST_ID, data=data, params=params, json=True)
+        response = s.post(settings.MAILTRAIN_HOST + '/api/delete/' + settings.MAILTRAIN_LIST_ID, data=data, params=params, json=True)
         response.raise_for_status()
     except HTTPError as err:
         if response is not None and response.status_code == 404:
