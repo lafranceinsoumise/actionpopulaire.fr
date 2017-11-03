@@ -21,10 +21,11 @@ class MailTrainTestCase(TestCase):
         request_post.assert_called_once()
         self.assertEqual(request_post.call_args[1]['data']['EMAIL'], 'test@example.com')
 
+    @mock.patch('people.tasks.update_mailtrain')
     @mock.patch('lib.mailtrain.delete')
     @mock.patch('lib.mailtrain.subscribe')
     @mock.patch('lib.mailtrain.unsubscribe')
-    def test_update_person(self, unsubscribe, subscribe, delete):
+    def test_update_person(self, unsubscribe, subscribe, delete, *args):
         person = Person.objects.create(email='email@example.com')
 
         mailtrain.update_person(person)
