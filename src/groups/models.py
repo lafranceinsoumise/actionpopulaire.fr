@@ -6,7 +6,7 @@ from model_utils.models import TimeStampedModel
 import markdown
 
 from lib.models import (
-    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, WithImageMixin
+    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, ImageMixin, DescriptionMixin
 )
 
 
@@ -15,7 +15,7 @@ class ActiveSupportGroupManager(models.Manager):
         return super().get_queryset().filter(published=True)
 
 
-class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, WithImageMixin, ContactMixin):
+class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, DescriptionMixin, ContactMixin):
     """
     Model that represents a support group 
     """
@@ -43,17 +43,6 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, WithIm
         blank=False,
         default=TYPE_LOCAL_GROUP,
         choices=TYPE_CHOICES
-    )
-
-    description = models.TextField(
-        _('description'),
-        blank=True,
-        help_text=_("Une description du groupe d'appui, en MarkDown"),
-    )
-
-    allow_html = models.BooleanField(
-        _("autoriser le HTML dans la description"),
-        default=False,
     )
 
     published = models.BooleanField(

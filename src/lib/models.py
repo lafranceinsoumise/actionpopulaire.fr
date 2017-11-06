@@ -6,8 +6,9 @@ from django_countries.fields import CountryField
 
 from model_utils.models import TimeStampedModel
 from stdimage.models import StdImageField
-from stdimage.validators import MinSizeValidator
 from stdimage.utils import UploadToAutoSlugClassNameDir
+
+from .form_fields import MarkdownDescriptionWidget
 
 
 class UUIDIdentified(models.Model):
@@ -214,7 +215,7 @@ class AbstractLabel(models.Model):
         return self.label
 
 
-class WithImageMixin(models.Model):
+class ImageMixin(models.Model):
     image = StdImageField(
         _("image"),
         upload_to=UploadToAutoSlugClassNameDir(populate_from="name", path="banners"),
@@ -226,6 +227,29 @@ class WithImageMixin(models.Model):
         help_text=_("L'image à utiliser pour l'affichage sur la page, comme miniature dans les listes, et"
                     " pour le partage sur les réseaux sociaux. Elle doit faire au minimum 1200 pixels de large, et 630"
                     " de haut. Préférer un rapport largeur/hauteur de 2 (deux fois plus large que haut)?")
+    )
+
+    class Meta:
+        abstract = True
+
+
+class DescriptionField(models.TextField):
+    def formfield(self, **kwargs):
+        defaults = {'widget': MarkdownDescriptionWidget}
+        defaults.update(kwargs)
+        return super().formfield(**defaults)
+
+
+class DescriptionMixin(models.Model):
+    description = DescriptionField(
+        _('description'),
+        blank=True,
+        help_text=_("Une description, en MarkDown"),
+    )
+
+    allow_html = models.BooleanField(
+        _("autoriser le HTML dans la description"),
+        default=False,
     )
 
     class Meta:

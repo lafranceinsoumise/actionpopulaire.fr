@@ -11,8 +11,9 @@ from stdimage.models import StdImageField
 from stdimage.utils import UploadToAutoSlug
 
 from lib.models import (
-    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, WithImageMixin
+    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, ImageMixin, DescriptionMixin
 )
+from lib.form_fields import DateTimePickerWidget
 
 
 EVENT_GRACE_PERIOD = timezone.timedelta(hours=12)
@@ -34,7 +35,14 @@ class PublishedRSVPManager(models.Manager):
             event__published=True, event__end_time__gt=timezone.now() - EVENT_GRACE_PERIOD)
 
 
-class Event(BaseAPIResource, NationBuilderResource, LocationMixin, WithImageMixin, ContactMixin):
+class CustomDateTimeField(models.DateTimeField):
+    def formfield(self, **kwargs):
+        defaults = {'widget': DateTimePickerWidget}
+        defaults.update(kwargs)
+        return super().formfield(**defaults)
+
+
+class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, DescriptionMixin, ContactMixin):
     """
     Model that represents an event
     """
@@ -48,17 +56,6 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, WithImageMixi
         help_text=_("Le nom de l'événement"),
     )
 
-    description = models.TextField(
-        _('description'),
-        blank=True,
-        help_text=_("Une description de l'événement, en MarkDown"),
-    )
-
-    allow_html = models.BooleanField(
-        _("autoriser le HTML dans la description"),
-        default=False,
-    )
-
     published = models.BooleanField(
         _('publié'),
         default=True,
@@ -69,8 +66,8 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, WithImageMixi
 
     tags = models.ManyToManyField('EventTag', related_name='events', blank=True)
 
-    start_time = models.DateTimeField(_('date et heure de début'), blank=False)
-    end_time = models.DateTimeField(_('date et heure de fin'), blank=False)
+    start_time = CustomDateTimeField(_('date et heure de début'), blank=False)
+    end_time = CustomDateTimeField(_('date et heure de fin'), blank=False)
 
     calendar = models.ForeignKey('Calendar', related_name='events', blank=False, on_delete=models.PROTECT)
 
@@ -150,7 +147,7 @@ class CalendarManager(models.Manager):
         )
 
 
-class Calendar(NationBuilderResource, WithImageMixin):
+class Calendar(NationBuilderResource, ImageMixin):
     objects = CalendarManager()
 
     name = models.CharField(_("titre"), max_length=255)
