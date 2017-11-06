@@ -68,7 +68,7 @@ class OauthReturnView(RedirectView):
         else:
             return HttpResponseBadRequest('No corresponding user')
 
-        del request.session['oauth2_nonce']
+        request.session['oauth2_nonce'] = None
 
         return super().get(request, *args, **kwargs)
 
@@ -89,6 +89,6 @@ class LogOffView(RedirectView):
             return settings.MAIN_DOMAIN
 
     def get(self, request, *args, **kwargs):
-        self.former_backend = request.session[BACKEND_SESSION_KEY]
+        self.former_backend = request.session.get(BACKEND_SESSION_KEY, None)
         logout(request)
         return super().get(request, *args, **kwargs)
