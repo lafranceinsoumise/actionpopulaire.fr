@@ -115,7 +115,6 @@ def update_person(person):
             delete(email.address)
 
 
-
 def delete_person(person):
     for email in person.emails.all():
         delete(email.address)

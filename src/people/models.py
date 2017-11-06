@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.functional import cached_property
+from django.conf import settings
 
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -210,7 +211,7 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
             email.bounced_date = kwargs['bounced_date'] if kwargs.get('bounced_date', None) is not None else email.bounced_date
             email.save()
         except ObjectDoesNotExist:
-            self.emails.add(PersonEmail.objects.create(address=BaseUserManager.normalize_email(email_address), person=self, **kwargs))
+            PersonEmail.objects.create(address=BaseUserManager.normalize_email(email_address), person=self, **kwargs)
 
     def set_primary_email(self, email_address):
         if isinstance(email_address, PersonEmail):
@@ -222,6 +223,12 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         order.insert(0, email_instance.id)
         self.set_personemail_order(order)
         self.primary_email = email_instance
+
+        # do not forget to update mailtrain
+        # import here to break circular imports
+        if not settings.MAILTRAIN_DISABLE:
+            from .tasks import update_mailtrain
+            update_mailtrain.delay(self.pk)
 
 
 class PersonTag(AbstractLabel):

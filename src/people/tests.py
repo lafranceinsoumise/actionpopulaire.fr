@@ -14,7 +14,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 
 from authentication.models import Role
-from .models import Person, PersonTag
+from .models import Person, PersonTag, PersonEmail
 from .viewsets import LegacyPersonViewSet
 from . import tasks
 
@@ -92,6 +92,18 @@ class BasicPersonTestCase(TestCase):
         args = update_mailtrain.delay.call_args[0]
         self.assertEqual(args[0], person.pk)
 
+    @override_settings(MAILTRAIN_DISABLE=False)
+    @mock.patch('people.tasks.update_mailtrain')
+    def test_person_is_updated_when_email_deleted(self, update_mailtrain):
+        person = Person.objects.create_person('test1@domain.com')
+        p2 = PersonEmail.objects.create(address='test2@domain.com', person=person)
+
+        update_mailtrain.reset_mock()
+
+        p2.delete()
+
+        update_mailtrain.delay.assert_called_once()
+        self.assertEqual(update_mailtrain.delay.call_args[0][0], person.pk)
 
 
 class LegacyPersonEndpointTestCase(APITestCase):

@@ -4,7 +4,7 @@ from django.conf import settings
 
 from lib.mailtrain import delete_person
 from people import tasks
-from .models import Person
+from .models import Person, PersonEmail
 from authentication.models import Role
 
 
@@ -26,3 +26,11 @@ def update_mailtrain(sender, instance, raw, **kwargs):
 @receiver(pre_delete, sender=Person, dispatch_uid="person_delete_mailtrain")
 def delete_mailtrain(sender, instance, **kwargs):
     delete_person(instance)
+
+
+@receiver(pre_delete, sender=PersonEmail, dispatch_uid="personemail_delete_mailtrain")
+def delete_email_person(sender, instance, **kwargs):
+    if settings.MAILTRAIN_DISABLE:
+        return
+
+    tasks.update_mailtrain.delay(instance.person_id)
