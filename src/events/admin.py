@@ -78,7 +78,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('contact_name', 'contact_email', 'contact_phone')
         }),
         (_('NationBuilder'), {
-            'fields': ('nb_id', 'nb_path',)
+            'fields': ('nb_id', 'nb_path', 'location_address')
         })
     )
 

@@ -1,7 +1,7 @@
 import uuid
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.utils.html import mark_safe, escape, format_html, format_html_join
+from django.utils.html import mark_safe, format_html, format_html_join
 from django_countries.fields import CountryField
 
 from model_utils.models import TimeStampedModel
@@ -86,8 +86,7 @@ class LocationMixin(models.Model):
         help_text=_("Comment les coordonnées ci-dessus ont-elle été acquéries")
     )
 
-    location_name = models.CharField(_("nom du lieu"), max_length=255, blank=True)
-    location_address = models.CharField(_('adresse complète'), max_length=255, blank=True)
+    location_name = models.CharField(_('nom du lieu'), max_length=255, blank=True)
     location_address1 = models.CharField(_("adresse (1ère ligne)"), max_length=100, blank=True)
     location_address2 = models.CharField(_("adresse (2ème ligne)"), max_length=100, blank=True)
     location_city = models.CharField(_("ville"), max_length=100, blank=True)
@@ -95,25 +94,44 @@ class LocationMixin(models.Model):
     location_state = models.CharField(_('état'), max_length=40, blank=True)
     location_country = CountryField(_('pays'), blank=True, blank_label=_('(sélectionner un pays)'))
 
+    # legacy fields --> copied from NationBuilder
+    location_address = models.CharField(
+        _('adresse complète'),
+        max_length=255,
+        blank=True,
+        help_text=_(
+            "L'adresse telle qu'elle a éventuellement été copiée depuis NationBuilder. Ne plus utiliser."
+        )
+    )
+
     def html_full_address(self):
-        res = []
-        for f in ['location_name', 'location_address1', 'location_address2', 'location_state']:
-            val = getattr(self, f, None)
-            if val:
-                res.append(val)
+        parts = []
+        if self.location_name:
+            parts.append(format_html('<strong>{}</strong>', self.location_name))
+
+        if self.location_address1:
+            parts.append(self.location_address1)
+            if self.location_address2:
+                parts.append(self.location_address2)
+        elif self.location_address:
+            # use full address (copied from NationBuilder) only when we have no address1 field
+            parts.append(self.location_address)
+
+        if self.location_state:
+            parts.append(self.location_state)
 
         if self.location_zip and self.location_city:
-            res.append('{} {}'.format(self.location_zip, self.location_city))
+            parts.append('{} {}'.format(self.location_zip, self.location_city))
         else:
             if self.location_zip:
-                res.append(self.location_zip)
+                parts.append(self.location_zip)
             if self.location_city:
-                res.append(self.location_city)
+                parts.append(self.location_city)
 
         if self.location_country and str(self.location_country) != 'FR':
-            res.append(self.location_country.name)
+            parts.append(self.location_country.name)
 
-        return mark_safe('<br/>'.join(escape(line) for line in res))
+        return format_html_join(mark_safe('<br/>'), '{}', ((part,) for part in parts))
 
     @property
     def short_address(self):

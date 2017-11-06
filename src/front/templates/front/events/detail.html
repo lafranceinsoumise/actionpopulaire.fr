@@ -30,8 +30,7 @@
         </div>
     {% endif %}
     <h5>Adresse&nbsp;:</h5>
-    <p><strong>{{ event.location_name }}</strong></p>
-    <p>{{ event.location_address }}</p>
+    <p>{{ event.html_full_address }}</p>
     <div>
         <h5>Date&nbsp;:</h5>
         <div class="date">L'événement se déroulera du {{ event.start_time }} au {{ event.end_time }}.</div>
