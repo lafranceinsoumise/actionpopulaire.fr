@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from crispy_forms.helper import FormHelper
 
 from ..form_components import *
-from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, MarkdownDescriptionWidget
+from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm
 
 from groups.models import SupportGroup, Membership
 from groups.tasks import send_support_group_changed_notification, send_support_group_creation_notification
@@ -37,8 +37,6 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('submit', 'Sauvegarder et publier'))
-
-        self.fields['description'].widget = MarkdownDescriptionWidget()
 
         # do not allow random organizers to modify HTML
         if self.instance.allow_html:

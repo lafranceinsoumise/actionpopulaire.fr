@@ -45,8 +45,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             'description'
         ]
 
-        self.fields['description'].widget = MarkdownDescriptionWidget()
-
         # do not allow random organizers to modify HTML
         if self.instance.allow_html:
             del self.fields['description']
@@ -65,9 +63,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
 
         self.fields['name'].label = "Nom de l'événement"
         self.fields['name'].help_text = None
-
-        self.fields['start_time'].widget = DateTimePickerWidget()
-        self.fields['end_time'].widget = DateTimePickerWidget()
 
         self.is_creation = self.instance._state.adding
 
