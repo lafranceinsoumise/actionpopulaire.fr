@@ -1,6 +1,6 @@
 from django.contrib.postgres.fields import JSONField
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db import models
+from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
 from lib.models import BaseAPIResource
@@ -30,9 +30,13 @@ class Poll(BaseAPIResource):
                     '`max_options'),
         default=dict
     )
+    tags = models.ManyToManyField('people.PersonTag', related_name='polls', related_query_name='poll', blank=True)
 
     def make_choice(self, person, options):
-        PollChoice.objects.create(person=person, poll=self, selection=[option.pk for option in options])
+        with transaction.atomic():
+            if self.tags.all().count() > 0:
+                person.tags.add(*self.tags.all())
+            PollChoice.objects.create(person=person, poll=self, selection=[option.pk for option in options])
 
 
 class PollOption(BaseAPIResource):

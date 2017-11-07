@@ -947,6 +947,7 @@ class PollTestCase(TestCase):
                 'max_options': 2,
             }
         )
+        self.poll.tags.add(PersonTag.objects.create(label="test_tag"))
         self.poll1 = PollOption.objects.create(poll=self.poll, description='Premier')
         self.poll2 = PollOption.objects.create(poll=self.poll, description='Deuxième')
         self.poll3 = PollOption.objects.create(poll=self.poll, description='Troisième')
@@ -983,6 +984,7 @@ class PollTestCase(TestCase):
 
         self.assertRedirects(res, reverse('confirmation_poll'))
         choice = PollChoice.objects.first()
+        self.assertIn('test_tag', [str(tag) for tag in self.person.tags.all()])
         self.assertEqual(choice.person, self.person)
         self.assertEqual(choice.selection, [str(self.poll1.pk), str(self.poll3.pk)])
 
