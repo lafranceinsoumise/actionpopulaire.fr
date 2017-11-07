@@ -1,6 +1,8 @@
+import markdown
 from django.contrib.postgres.fields import JSONField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models, transaction
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from lib.models import BaseAPIResource
@@ -38,6 +40,12 @@ class Poll(BaseAPIResource):
                 person.tags.add(*self.tags.all())
             PollChoice.objects.create(person=person, poll=self, selection=[option.pk for option in options])
 
+    def html_description(self):
+        return mark_safe(markdown.markdown(self.description))
+
+    def __str__(self):
+        return self.title
+
 
 class PollOption(BaseAPIResource):
     description = models.TextField(
@@ -46,8 +54,11 @@ class PollOption(BaseAPIResource):
     )
     poll = models.ForeignKey('Poll', on_delete=models.CASCADE, related_name='options')
 
+    def html_description(self):
+        return mark_safe(markdown.markdown(self.description))
+
     def __str__(self):
-        return self.description
+        return self.html_description()
 
 
 class PollChoice(BaseAPIResource):

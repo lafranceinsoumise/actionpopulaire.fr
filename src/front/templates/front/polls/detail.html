@@ -7,6 +7,6 @@
 
 {% block main %}
     <h2 class="headline">{{ poll.title }}</h2>
-    <p>{{ poll.description }}</p>
+    <p>{{ poll.html_description }}</p>
     {% crispy form %}
 {% endblock %}
