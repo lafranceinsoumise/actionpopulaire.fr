@@ -451,8 +451,10 @@ class PersonTagChoiceField(forms.ModelChoiceField):
 class BasePersonForm(forms.ModelForm):
     person_form_instance = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, person, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.person = person
 
         parts = []
 
@@ -461,6 +463,7 @@ class BasePersonForm(forms.ModelForm):
         if len(self.tag_queryset) > 1:
             self.fields['tag'] = PersonTagChoiceField(
                 queryset=self.tag_queryset,
+                to_field_name='label',
                 required=True,
                 label=self.person_form_instance.main_question
             )
@@ -516,6 +519,7 @@ class BasePersonForm(forms.ModelForm):
 
         if self.person_form_instance.additional_fields:
             PersonFormSubmission.objects.create(
+                person=self.person,
                 form=self.person_form_instance,
                 data={
                     f['id']: self.cleaned_data[f['id']] for f in self.person_form_instance.additional_fields

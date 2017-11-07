@@ -8,7 +8,7 @@ from rest_framework import status
 from django.shortcuts import reverse
 from django.contrib.auth import get_user
 
-from people.models import Person
+from people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 from events.models import Event, RSVP, Calendar, OrganizerConfig
 from groups.models import SupportGroup, Membership
 
@@ -804,8 +804,8 @@ class CalendarPageTestCase(TestCase):
             Event.objects.create(
                 name="Event {}".format(i),
                 calendar=self.calendar,
-                start_time=now+i*day,
-                end_time=now+i*day+hour
+                start_time=now + i * day,
+                end_time=now + i * day + hour
             )
 
     def can_view_page(self):
@@ -830,3 +830,101 @@ class CalendarPageTestCase(TestCase):
         # there's no previous button
         self.assertContains(res, '<li class="previous">')
         self.assertContains(res, 'href="?page=1"')
+
+
+class PersonFormTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person('person@corp.com')
+        self.tag1 = PersonTag.objects.create(label='tag1', description='Description TAG1')
+        self.tag2 = PersonTag.objects.create(label='tag2', description='Description TAG2')
+
+        self.single_tag_form = PersonForm.objects.create(
+            title='Formulaire simple',
+            slug='formulaire-simple',
+            description='Ma description simple',
+            confirmation_note='Ma note de fin',
+            main_question='QUESTION PRINCIPALE',
+            personal_information=['contact_phone'],
+        )
+        self.single_tag_form.tags.add(self.tag1)
+
+        self.complex_form = PersonForm.objects.create(
+            title='Formulaire complexe',
+            slug='formulaire-complexe',
+            description='Ma description complexe',
+            confirmation_note='Ma note de fin',
+            main_question='QUESTION PRINCIPALE',
+            personal_information=['contact_phone'],
+            additional_fields=[{
+                'id': 'custom-field',
+                'class': 'CharField',
+                'attrs': {'label': 'Mon label'},
+            }]
+        )
+        self.complex_form.tags.add(self.tag1)
+        self.complex_form.tags.add(self.tag2)
+
+        self.client.force_login(self.person.role)
+
+    def test_title_and_description(self):
+        res = self.client.get('/formulaires/formulaire-simple/')
+
+        # Contient le titre et la description
+        self.assertContains(res, self.single_tag_form.title)
+        self.assertContains(res, self.single_tag_form.description)
+
+        res = self.client.get('/formulaires/formulaire-simple/confirmation/')
+        self.assertContains(res, self.single_tag_form.title)
+        self.assertContains(res, self.single_tag_form.confirmation_note)
+
+    def test_can_validate_simple_form(self):
+        res = self.client.get('/formulaires/formulaire-simple/')
+
+        # contains phone number field
+        self.assertContains(res, 'contact_phone')
+
+        # check contact phone is compulsory
+        res = self.client.post('/formulaires/formulaire-simple/', data={})
+        self.assertContains(res, 'has-error')
+
+        # check can validate
+        res = self.client.post('/formulaires/formulaire-simple/', data={'contact_phone': '06 04 03 02 04'})
+        self.assertRedirects(res, '/formulaires/formulaire-simple/confirmation/')
+
+        # check user has been well modified
+        self.person.refresh_from_db()
+
+        self.assertEqual(self.person.contact_phone, '+33604030204')
+        self.assertIn(self.tag1, self.person.tags.all())
+
+        # check no submission has been created
+        self.assertFalse(PersonFormSubmission.objects.all())
+
+    def test_can_validate_complex_form(self):
+        res = self.client.get('/formulaires/formulaire-complexe/')
+
+        self.assertContains(res, 'contact_phone')
+        self.assertContains(res, 'custom-field')
+
+        # assert tag is compulsory
+        res = self.client.post('/formulaires/formulaire-complexe/', data={
+            'contact_phone': '06 34 56 78 90',
+            'custom-field': 'Mon super champ texte libre'
+        })
+        self.assertContains(res, 'has-error')
+
+        res = self.client.post('/formulaires/formulaire-complexe/', data={
+            'tag': 'tag2',
+            'contact_phone': '06 34 56 78 90',
+            'custom-field': 'Mon super champ texte libre'
+        })
+        self.assertRedirects(res, '/formulaires/formulaire-complexe/confirmation/')
+
+        self.person.refresh_from_db()
+
+        self.assertCountEqual(self.person.tags.all(), [self.tag2])
+
+        submissions = PersonFormSubmission.objects.all()
+        self.assertEqual(len(submissions), 1)
+
+        self.assertEqual(submissions[0].data['custom-field'], 'Mon super champ texte libre')

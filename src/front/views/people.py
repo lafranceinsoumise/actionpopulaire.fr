@@ -198,6 +198,11 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
     def get_person_form_instance(self):
         return self.get_queryset().get(slug=self.kwargs['slug'])
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['person'] = self.object
+        return kwargs
+
     def get_form_class(self):
         return get_people_form_class(self.person_form)
 
