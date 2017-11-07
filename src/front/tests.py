@@ -986,7 +986,7 @@ class PollTestCase(TestCase):
         choice = PollChoice.objects.first()
         self.assertIn('test_tag', [str(tag) for tag in self.person.tags.all()])
         self.assertEqual(choice.person, self.person)
-        self.assertEqual(choice.selection, [str(self.poll1.pk), str(self.poll3.pk)])
+        self.assertCountEqual(choice.selection, [str(self.poll1.pk), str(self.poll3.pk)])
 
     def test_cannot_participate_twice(self):
         self.client.post(reverse('participate_poll', args=[self.poll.pk]), data={

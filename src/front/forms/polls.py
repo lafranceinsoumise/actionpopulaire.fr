@@ -11,7 +11,7 @@ class PollParticipationForm(Form):
         self.helper = FormHelper()
         self.fields['choice'] = ModelMultipleChoiceField(
             label='Choix',
-            queryset=poll.options.all(),
+            queryset=poll.options.all().order_by('?'),
             widget=CheckboxSelectMultiple(),
         )
         self.helper.add_input(Submit('submit', 'Confirmer'))
