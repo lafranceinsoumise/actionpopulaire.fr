@@ -1,3 +1,4 @@
+from datetime import timedelta
 from unittest import mock
 from urllib.parse import urlparse
 
@@ -11,6 +12,7 @@ from django.contrib.auth import get_user
 from people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 from events.models import Event, RSVP, Calendar, OrganizerConfig
 from groups.models import SupportGroup, Membership
+from polls.models import Poll, PollOption, PollChoice
 
 from .backend import token_generator
 
@@ -928,3 +930,83 @@ class PersonFormTestCase(TestCase):
         self.assertEqual(len(submissions), 1)
 
         self.assertEqual(submissions[0].data['custom-field'], 'Mon super champ texte libre')
+
+
+class PollTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create(
+            email='participant@example.com',
+        )
+        self.poll = Poll.objects.create(
+            title='title',
+            description='description',
+            start=timezone.now() + timedelta(hours=-1),
+            end=timezone.now() + timedelta(days=1),
+            rules={
+                'min_options': 2,
+                'max_options': 2,
+            }
+        )
+        self.poll1 = PollOption.objects.create(poll=self.poll, description='Premier')
+        self.poll2 = PollOption.objects.create(poll=self.poll, description='Deuxième')
+        self.poll3 = PollOption.objects.create(poll=self.poll, description='Troisième')
+        self.client.force_login(self.person.role)
+
+    def test_can_view_poll(self):
+        res = self.client.get(reverse('participate_poll', args=[self.poll.pk]))
+
+        self.assertContains(res, '<h2 class="headline">title</h2>')
+        self.assertContains(res, '<p>description</p>')
+        self.assertContains(res, 'Premier')
+        self.assertContains(res, 'Deuxième')
+        self.assertContains(res, 'Troisième')
+
+    def test_cannot_view_not_started_poll(self):
+        self.poll.start = timezone.now() + timedelta(hours=1)
+        self.poll.save()
+        res = self.client.get(reverse('participate_poll', args=[self.poll.pk]))
+
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_cannot_view_finished_poll(self):
+        self.poll.start = timezone.now() + timedelta(days=-1, hours=-1)
+        self.poll.end = timezone.now() + timedelta(hours=-1)
+        self.poll.save()
+        res = self.client.get(reverse('participate_poll', args=[self.poll.pk]))
+
+        self.assertRedirects(res, reverse('finished_poll'))
+
+    def test_can_participate(self):
+        res = self.client.post(reverse('participate_poll', args=[self.poll.pk]),data={
+            'choice': [str(self.poll1.pk), str(self.poll3.pk)]
+        })
+
+        self.assertRedirects(res, reverse('confirmation_poll'))
+        choice = PollChoice.objects.first()
+        self.assertEqual(choice.person, self.person)
+        self.assertEqual(choice.selection, [str(self.poll1.pk), str(self.poll3.pk)])
+
+    def test_cannot_participate_twice(self):
+        self.client.post(reverse('participate_poll', args=[self.poll.pk]), data={
+            'choice': [str(self.poll1.pk), str(self.poll3.pk)]
+        })
+
+        res = self.client.get(reverse('participate_poll', args=[self.poll.pk]))
+        self.assertRedirects(res, reverse('confirmation_poll'))
+
+        res = self.client.post(reverse('participate_poll', args=[self.poll.pk]), data={
+            'choice': [str(self.poll1.pk), str(self.poll3.pk)]
+        })
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_must_respect_choice_number(self):
+        res = self.client.post(reverse('participate_poll', args=[self.poll.pk]), data={
+            'choice': [str(self.poll1.pk)]
+        })
+        self.assertContains(res, 'minimum')
+
+        res = self.client.post(reverse('participate_poll', args=[self.poll.pk]), data={
+            'choice': [str(self.poll1.pk),str(self.poll2.pk),str(self.poll3.pk)]
+        })
+        self.assertContains(res, 'maximum')

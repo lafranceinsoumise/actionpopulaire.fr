@@ -94,6 +94,7 @@ INSTALLED_APPS = [
     'people',
     'events',
     'groups',
+    'polls',
     'clients',
     'lib',
     'front',

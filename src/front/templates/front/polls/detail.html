@@ -1,0 +1,12 @@
+{% extends "front/layout.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ poll.title }}{% endblock %}
+
+{% block main %}
+    <h2 class="headline">{{ poll.title }}</h2>
+    <p>{{ poll.description }}</p>
+    {% crispy form %}
+{% endblock %}
