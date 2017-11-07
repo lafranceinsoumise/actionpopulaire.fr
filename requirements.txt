@@ -29,6 +29,7 @@ html2text==2017.10.4
 idna==2.6
 Jinja2==2.9.6
 kombu==4.1.0
+Markdown==2.6.9
 MarkupSafe==1.0
 oauthlib==2.0.4
 olefile==0.44

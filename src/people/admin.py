@@ -1,15 +1,17 @@
+from django.db.models import Count
 from django.shortcuts import reverse
 from django.contrib import admin
 from django.utils.safestring import mark_safe
-from django.utils.html import escape
+from django.utils.html import escape, format_html
 from django.utils.translation import ugettext_lazy as _
 from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
 
-from .models import Person, PersonTag, PersonEmail
+from .models import Person, PersonTag, PersonEmail, PersonForm
 from events.models import RSVP
 from groups.models import Membership
 
+from front.utils import front_url
 
 class RSVPInline(admin.TabularInline):
     model = RSVP
@@ -119,3 +121,38 @@ class PersonAdmin(admin.ModelAdmin):
 @admin.register(PersonTag, site=admin_site)
 class PersonTagAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(PersonForm, site=admin_site)
+class PersonFormAdmin(admin.ModelAdmin):
+    list_display = ('title', 'slug_link', 'published',)
+
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'slug', 'published', 'submissions_number')
+        }),
+        (_('Champs'), {
+            'fields': ('main_question', 'tags', 'personal_information', 'additional_fields')
+        }),
+        (_('Textes'), {
+            'fields': ('description', 'confirmation_note')
+         }),
+    )
+
+    readonly_fields = ('submissions_number', )
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+
+        return qs.annotate(submissions_number=Count('submissions'))
+
+    def slug_link(self, object):
+        if object.slug:
+            return format_html('<a href="{}">{}</a>', front_url('view_person_form', args=(object.slug,)), object.slug)
+        else:
+            return '-'
+    slug_link.short_description = 'Slug'
+
+    def submissions_number(self, object):
+        return object.submissions_number
+    submissions_number.short_description = 'Nombre de soumissions'

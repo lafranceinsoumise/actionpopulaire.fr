@@ -10,15 +10,14 @@ from crispy_forms.bootstrap import FormActions
 from ..form_components import *
 from ..form_mixins import TagMixin, LocationFormMixin
 
-from people.models import Person, PersonEmail, PersonTag
+from people.models import Person, PersonEmail, PersonTag, PersonFormSubmission
 from people.tags import skills_tags, action_tags
 from people.tasks import send_unsubscribe_email, send_welcome_mail
 
 __all__ = [
     'BaseSubscriptionForm', 'SimpleSubscriptionForm', 'OverseasSubscriptionForm', 'EmailFormSet', 'ProfileForm',
-    'VolunteerForm', "MessagePreferencesForm", 'UnsubscribeForm', 'AddEmailForm'
+    'VolunteerForm', "MessagePreferencesForm", 'UnsubscribeForm', 'AddEmailForm', 'get_people_form_class'
 ]
-
 
 class ContactPhoneNumberMixin():
     """Solves a bug in phonenumbers_fields when field is missing from POSTed data
@@ -442,3 +441,94 @@ class AddEmailForm(forms.ModelForm):
     class Meta:
         model = PersonEmail
         fields = ("address",)
+
+
+class PersonTagChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.description
+
+
+class BasePersonForm(forms.ModelForm):
+    person_form_instance = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        parts = []
+
+        self.tag_queryset = self.person_form_instance.tags.all()
+
+        if len(self.tag_queryset) > 1:
+            self.fields['tag'] = PersonTagChoiceField(
+                queryset=self.tag_queryset,
+                required=True,
+                label=self.person_form_instance.main_question
+            )
+            parts.append(Fieldset(
+                _('Ma situation'),
+                Row(FullCol('tag'))
+            ))
+        elif len(self.tag_queryset) == 1:
+            self.tag = self.tag_queryset[0]
+
+        opts = self._meta
+        if opts.fields:
+            for f in opts.fields:
+                self.fields[f].required = True
+
+            parts.append(
+                Fieldset(
+                    _('Mes informations personnelles'),
+                    *[Row(FullCol(f)) for f in opts.fields]
+                )
+            )
+
+        if self.person_form_instance.additional_fields:
+            for field in self.person_form_instance.additional_fields:
+                kwargs = {}
+                if 'attrs' in field:
+                    kwargs.update(field['attrs'])
+                if 'widget' in field:
+                    kwargs['widget'] = getattr(forms, field['widget'])
+
+                self.fields[field['id']] = getattr(forms, field['class'])(
+                    **kwargs
+                )
+
+            parts.append(
+                Fieldset(
+                    _('Les détails'),
+                    *[Row(FullCol(f['id'])) for f in self.person_form_instance.additional_fields]
+                )
+            )
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('submit', 'Envoyer'))
+
+        self.helper.layout = Layout(*parts)
+
+    def _save_m2m(self):
+        if 'tag' in self.cleaned_data:
+            self.instance.tags.add(self.cleaned_data['tag'])
+        elif hasattr(self, 'tag'):
+            self.instance.tags.add(self.tag)
+
+        if self.person_form_instance.additional_fields:
+            PersonFormSubmission.objects.create(
+                form=self.person_form_instance,
+                data={
+                    f['id']: self.cleaned_data[f['id']] for f in self.person_form_instance.additional_fields
+                }
+            )
+
+    class Meta:
+        model = Person
+        fields = []
+
+
+def get_people_form_class(person_form_instance):
+    form_class = forms.modelform_factory(Person, fields=person_form_instance.personal_information, form=BasePersonForm)
+    form_class.person_form_instance = person_form_instance
+
+    return form_class

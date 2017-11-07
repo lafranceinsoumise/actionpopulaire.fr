@@ -20,6 +20,8 @@ urlpatterns = [
     url('^message_preferences/$', views.MessagePreferencesView.as_view(), name='message_preferences'),
     url('^message_preferences/adresses/$', views.EmailManagementView.as_view(), name='email_management'),
     url(f'^message_preferences/adresses/(?P<pk>{simple_id})/supprimer/$', views.DeleteEmailAddressView.as_view(), name='delete_email'),
+    url('^formulaires/(?P<slug>[-a-zA-Z0-9_]+)/$', views.PeopleFormView.as_view(), name='view_person_form'),
+    url('^formulaires/(?P<slug>[-a-zA-Z0-9_]+)/confirmation/$', views.PeopleFormConfirmationView.as_view(), name='person_form_confirmation'),
 
     # events views
     url('^evenements/$', views.EventListView.as_view(), name='list_events'),

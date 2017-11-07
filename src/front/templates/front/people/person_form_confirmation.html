@@ -1,0 +1,13 @@
+{% extends "front/layout.html" %}
+{% load static %}
+
+{% block title %}{{ person_form.title }}{% endblock %}
+
+{% block main %}
+    <h2 class="headline">{{ person_form.title }}</h2>
+    <div>
+        <div class="intro">
+            {{ person_form.html_confirmation_note }}
+        </div>
+    </div>
+{% endblock %}

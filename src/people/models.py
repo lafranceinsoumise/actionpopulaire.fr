@@ -5,7 +5,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.functional import cached_property
+from django.utils.html import mark_safe
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
+
+import markdown
 
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -271,3 +275,45 @@ class PersonEmail(models.Model):
 
     def __str__(self):
         return self.address
+
+
+class PersonForm(models.Model):
+    title = models.CharField(_('Titre'), max_length=250)
+    slug = models.SlugField(_('Slug'), max_length=50)
+    published = models.BooleanField(_('Publié'), default=True)
+
+    description = models.TextField(_('Description'), help_text=_(
+        "Description visible sur la page au remplissage du formulaire"
+    ))
+    confirmation_note = models.TextField(_('Note après complétion'), help_text=_(
+        "Note montrée à l'utilisateur une fois le formulaire validé."
+    ))
+
+    main_question = models.CharField(_("Intitulé de la question principale"), max_length=200)
+    tags = models.ManyToManyField('PersonTag', related_name='forms', related_query_name='form')
+
+    personal_information = ArrayField(
+        base_field=models.CharField(max_length=150, blank=False),
+        verbose_name=_("Informations personnelles requises"),
+        default=list,
+        blank=True,
+        help_text=_("Une liste de champs de personnes à demander aux personnes qui remplissent le formulaire.")
+    )
+
+    additional_fields = JSONField(_('Champs additionnels'), blank=True, default=list)
+
+    class Meta:
+        verbose_name = _("Formulaire")
+
+    def html_description(self):
+        return mark_safe(markdown.markdown(self.description))
+
+    def html_confirmation_note(self):
+        return mark_safe(markdown.markdown(self.confirmation_note))
+
+
+class PersonFormSubmission(models.Model):
+    form = models.ForeignKey('PersonForm', on_delete=models.CASCADE, related_name='submissions', editable=False)
+    person = models.ForeignKey('Person', on_delete=models.CASCADE, related_name='form_submissions', editable=False)
+
+    data = JSONField(_('Données'), editable=False)

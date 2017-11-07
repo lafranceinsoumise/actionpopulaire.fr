@@ -1,0 +1,16 @@
+{% extends "front/layout.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ person_form.title }}{% endblock %}
+
+{% block main %}
+    <h2 class="headline">{{ person_form.title }}</h2>
+    <div>
+        <div class="intro">
+            {{ person_form.html_description }}
+        </div>
+        {% crispy form %}
+    </div>
+{% endblock %}

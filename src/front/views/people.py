@@ -1,20 +1,21 @@
-from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView
+from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView
 from django.views.generic.edit import FormView
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib import messages
 
-from people.models import Person
+from people.models import Person, PersonForm
 
 from ..view_mixins import SoftLoginRequiredMixin, HardLoginRequiredMixin, SimpleOpengraphMixin
 from ..forms import (
     SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm,
-    VolunteerForm, MessagePreferencesForm, UnsubscribeForm, AddEmailForm
+    VolunteerForm, MessagePreferencesForm, UnsubscribeForm, AddEmailForm, get_people_form_class
 )
 
 __all__ = ['SubscriptionSuccessView', 'SimpleSubscriptionView', 'OverseasSubscriptionView', 'ChangeProfileView',
            'ChangeProfileConfirmationView', 'VolunteerView', 'VolunteerConfirmationView', 'MessagePreferencesView',
-           'UnsubscribeView', 'UnsubscribeSuccessView', 'EmailManagementView', 'DeleteEmailAddressView']
+           'UnsubscribeView', 'UnsubscribeSuccessView', 'EmailManagementView', 'DeleteEmailAddressView',
+           'PeopleFormView', 'PeopleFormConfirmationView']
 
 
 class UnsubscribeSuccessView(TemplateView):
@@ -182,3 +183,43 @@ class DeleteEmailAddressView(HardLoginRequiredMixin, DeleteView):
         if len(self.get_queryset()) <= 1:
             return HttpResponseForbidden(b'forbidden')
         return super().dispatch(request, *args, **kwargs)
+
+
+class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
+    queryset = PersonForm.objects.filter(published=True)
+    template_name = 'front/people/person_form.html'
+
+    def get_success_url(self):
+        return reverse('person_form_confirmation', args=(self.person_form.slug,))
+
+    def get_object(self, queryset=None):
+        return self.request.user.person
+
+    def get_person_form_instance(self):
+        return self.get_queryset().get(slug=self.kwargs['slug'])
+
+    def get_form_class(self):
+        return get_people_form_class(self.person_form)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            person_form=self.person_form
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.person_form = self.get_person_form_instance()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.person_form = self.get_person_form_instance()
+        return super().post(request, *args, **kwargs)
+
+
+class PeopleFormConfirmationView(DetailView):
+    template_name = 'front/people/person_form_confirmation.html'
+    queryset = PersonForm.objects.filter(published=True)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            person_form=self.object
+        )
