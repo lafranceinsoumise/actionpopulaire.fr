@@ -19,10 +19,12 @@ class PollParticipationForm(Form):
     def clean_choice(self):
         if self.cleaned_data['choice'].count() == 0:
             raise ValidationError("Vous n'avez pas sélectionné d'options")
-        if self.cleaned_data['choice'].count() < self.poll.rules['min_options']:
+        if 'options' in self.poll.rules and self.cleaned_data['choice'].count() != self.poll.rules['options']:
+            raise ValidationError('Vouns devez sélectionner % options' % self.poll.rules['options'])
+        if 'min_options' in self.poll.rules and self.cleaned_data['choice'].count() < self.poll.rules['min_options']:
             raise ValidationError('Vous devez sélectionner au minimum %d options' % self.poll.rules['min_options'])
-        if self.cleaned_data['choice'].count() > self.poll.rules['max_options']:
-            raise ValidationError('Vous devez sélectionner au maximum %d options' % self.poll.rules['min_options'])
+        if 'max_options' in self.poll.rules and self.cleaned_data['choice'].count() > self.poll.rules['max_options']:
+            raise ValidationError('Vous devez sélectionner au maximum %d options' % self.poll.rules['max_options'])
 
         return self.cleaned_data['choice']
 
