@@ -32,7 +32,7 @@ def send_unsubscribe_email(person_pk):
         code='UNSUBSCRIBE_CONFIRMATION',
         subject=_('Vous avez été désabonné⋅e des emails de la France insoumise'),
         from_email=settings.EMAIL_FROM,
-        recipients=[person.email],
+        recipients=[person],
         bindings=bindings
     )
 

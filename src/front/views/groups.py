@@ -8,6 +8,7 @@ from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect, Ht
 from django.core.urlresolvers import reverse_lazy, reverse
 
 from groups.models import SupportGroup, Membership
+from groups.tasks import send_someone_joined_notification
 
 from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm, GroupGeocodingForm
 from ..view_mixins import (
@@ -80,7 +81,8 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
 
         if request.POST['action'] == 'join':
             if not self.object.memberships.filter(person=request.user.person).exists():
-                Membership.objects.create(supportgroup=self.object, person=request.user.person)
+                membership = Membership.objects.create(supportgroup=self.object, person=request.user.person)
+                send_someone_joined_notification.delay(membership.pk)
             return HttpResponseRedirect(reverse('view_group', kwargs={'pk': self.object.pk}))
 
         return HttpResponseBadRequest()

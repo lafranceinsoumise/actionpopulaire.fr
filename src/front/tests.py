@@ -461,7 +461,8 @@ class EventPermissionsTestCase(TestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_can_rsvp(self):
+    @mock.patch('front.views.events.send_rsvp_notification')
+    def test_can_rsvp(self, rsvp_notification):
         url = reverse('view_event', kwargs={'pk': self.other_event.pk})
         self.client.force_login(self.person.role)
         response = self.client.get(url)
@@ -474,6 +475,11 @@ class EventPermissionsTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.person, self.other_event.attendees.all())
         self.assertIn('Je suis déjà inscrit⋅e à cet événement', response.content.decode())
+
+        rsvp_notification.delay.assert_called_once()
+
+        rsvp = RSVP.objects.get(person=self.person, event=self.other_event)
+        self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
 
     @mock.patch("front.forms.events.geocode_event")
     @mock.patch("front.forms.events.send_event_creation_notification")
@@ -635,7 +641,8 @@ class GroupPageTestCase(TestCase):
 
         self.assertFalse(self.member_group.memberships.filter(person=self.person).exists())
 
-    def test_can_join(self):
+    @mock.patch('front.views.groups.send_someone_joined_notification')
+    def test_can_join(self, someone_joined):
         url = reverse('view_group', kwargs={'pk': self.manager_group.pk})
         self.client.force_login(self.other_person.role)
         response = self.client.get(url)
@@ -649,6 +656,10 @@ class GroupPageTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.other_person, self.manager_group.members.all())
         self.assertIn('Je suis membre de ce groupe', response.content.decode())
+
+        someone_joined.delay.assert_called_once()
+        membership = Membership.objects.get(person=self.other_person, supportgroup=self.manager_group)
+        self.assertEqual(someone_joined.delay.call_args[0][0], membership.pk)
 
     @mock.patch("front.forms.groups.geocode_support_group")
     @mock.patch('front.forms.groups.send_support_group_creation_notification')

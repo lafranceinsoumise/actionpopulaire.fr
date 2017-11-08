@@ -10,7 +10,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.conf import settings
 
 from events.models import Event, RSVP, OrganizerConfig, Calendar, published_event_only
-from events.tasks import send_cancellation_notification
+from events.tasks import send_cancellation_notification, send_rsvp_notification
 
 from ..forms import EventForm, AddOrganizerForm, EventGeocodingForm
 from ..view_mixins import (
@@ -70,7 +70,8 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
 
         if request.POST['action'] == 'rsvp':
             if not self.object.rsvps.filter(person=request.user.person).exists():
-                RSVP.objects.create(event=self.object, person=request.user.person)
+                rsvp = RSVP.objects.create(event=self.object, person=request.user.person)
+                send_rsvp_notification.delay(rsvp.pk)
             return HttpResponseRedirect(reverse('view_event', kwargs={'pk': self.object.pk}))
 
         return HttpResponseBadRequest()

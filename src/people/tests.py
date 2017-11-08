@@ -564,3 +564,9 @@ class PeopleTasksTestCase(TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].recipients(), [self.person.email])
+
+    def test_unsubscribe_mail(self):
+        tasks.send_unsubscribe_email(self.person.pk)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].recipients(), [self.person.email])
