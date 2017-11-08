@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -27,14 +28,16 @@ class PollParticipationView(SoftLoginRequiredMixin, SingleObjectMixin, FormView)
         if self.object.end < timezone.now():
             return redirect('finished_poll')
         if PollChoice.objects.filter(person=self.request.user.person, poll=self.object).exists():
-            return redirect('confirmation_poll')
+            raise PermissionDenied('Vous avez déjà participé !')
 
         return super().get(*args, **kwargs)
 
     def post(self, *args, **kwargs):
         self.object = self.get_object()
+        if self.request.user.person.created > self.object.start:
+            raise PermissionDenied('Vous vous êtes inscrit⋅e trop récemment pour participer.')
         if PollChoice.objects.filter(person=self.request.user.person, poll=self.object).exists():
-            return HttpResponseForbidden()
+            raise PermissionDenied('Vous avez déjà participé !')
 
         return super().post(*args, **kwargs)
 

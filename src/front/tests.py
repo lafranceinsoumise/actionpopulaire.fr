@@ -936,6 +936,7 @@ class PollTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create(
             email='participant@example.com',
+            created=timezone.now() + timedelta(days=-10)
         )
         self.poll = Poll.objects.create(
             title='title',
@@ -988,19 +989,29 @@ class PollTestCase(TestCase):
         self.assertEqual(choice.person, self.person)
         self.assertCountEqual(choice.selection, [str(self.poll1.pk), str(self.poll3.pk)])
 
+    def test_cannot_participate_if_just_registered(self):
+        person = Person.objects.create(email='just_created@example.com')
+        self.client.force_login(person.role)
+
+        res = self.client.post(reverse('participate_poll', args=[self.poll.pk]), data={
+            'choice': [str(self.poll1.pk), str(self.poll3.pk)]
+        })
+        self.assertContains(res, 'trop récemment', status_code=403)
+
+
     def test_cannot_participate_twice(self):
         self.client.post(reverse('participate_poll', args=[self.poll.pk]), data={
             'choice': [str(self.poll1.pk), str(self.poll3.pk)]
         })
 
         res = self.client.get(reverse('participate_poll', args=[self.poll.pk]))
-        self.assertRedirects(res, reverse('confirmation_poll'))
+        self.assertContains(res, 'déjà participé', status_code=403)
 
         res = self.client.post(reverse('participate_poll', args=[self.poll.pk]), data={
             'choice': [str(self.poll1.pk), str(self.poll3.pk)]
         })
 
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertContains(res, 'déjà participé', status_code=403)
 
     def test_must_respect_choice_number(self):
         res = self.client.post(reverse('participate_poll', args=[self.poll.pk]), data={
