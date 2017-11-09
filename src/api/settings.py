@@ -382,3 +382,7 @@ CONNECTION_LINK_VALIDITY = 7
 # allow insecure transports for OAUTHLIB in DEBUG mode
 if DEBUG:
     os.environ.setdefault('OAUTHLIB_INSECURE_TRANSPORT', 'y')
+
+# Get the promo
+PROMO_CODE_KEY = os.environb.get(b'PROMO_CODE_KEY', b'prout')
+PROMO_CODE_TAG = os.environ.get('PROMO_CODE_TAG', 'Groupe certifié')

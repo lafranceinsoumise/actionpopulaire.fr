@@ -6,9 +6,11 @@ from django.views.generic import CreateView, UpdateView, ListView, DeleteView, D
 from django.contrib import messages
 from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest
 from django.core.urlresolvers import reverse_lazy, reverse
+from django.conf import settings
 
 from groups.models import SupportGroup, Membership
 from groups.tasks import send_someone_joined_notification
+from groups.actions.promo_codes import get_next_promo_code
 
 from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm, GroupGeocodingForm
 from ..view_mixins import (
@@ -110,17 +112,18 @@ class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, D
         }
 
     def get_context_data(self, **kwargs):
-        referents = self.object.memberships.filter(is_referent=True).order_by('created')
-        managers = self.object.memberships.filter(is_manager=True, is_referent=False).order_by('created')
-        members = self.object.memberships.all().order_by('created')
+        kwargs['referents'] = self.object.memberships.filter(is_referent=True).order_by('created')
+        kwargs['managers'] = self.object.memberships.filter(is_manager=True, is_referent=False).order_by('created')
+        kwargs['members'] = self.object.memberships.all().order_by('created')
+        kwargs['certified'] = self.object.tags.filter(label=settings.PROMO_CODE_TAG).exists()
+        if kwargs['certified']:
+            kwargs['group_promo_code'] = get_next_promo_code(self.object)
 
         return super().get_context_data(
-            referents=referents,
-            managers=managers,
-            members=members,
             is_referent=self.user_membership is not None and self.user_membership.is_referent,
             is_manager=self.user_membership is not None and (self.user_membership.is_referent or self.user_membership.is_manager),
-            **self.get_forms()
+            **self.get_forms(),
+            **kwargs
         )
 
     def get(self, request, *args, **kwargs):

@@ -33,6 +33,20 @@
             </ul>
         </div>
     </div>
+
+    {% if certified %}
+        <h3>Mon code promo pour ce mois-ci</h3>
+
+        <div style="text-align: center; margin: 2em auto;">
+            <span style="padding: 10px; font-weight: bolder; font-size: 2em; border: 2px solid darkgrey;">{{ group_promo_code }}</span>
+        </div>
+
+        <p>
+            Ce code peut être utilisé sur le <a href="https://materiel.lafranceinsoumise.fr">site d'achat de matériel</a>.
+        </p>
+
+    {% endif %}
+
     <h3>Les animateurs et autres gestionnaires du groupe</h3>
 
     <h4>Les animateurs du groupe</h4>
