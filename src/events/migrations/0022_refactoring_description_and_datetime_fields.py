@@ -10,7 +10,7 @@ import lib.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('events', '0020_change_image_attrs'),
+        ('events', '0021_auto_20171106_1833'),
     ]
 
     operations = [

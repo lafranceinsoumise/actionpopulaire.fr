@@ -9,7 +9,7 @@ import lib.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('groups', '0010_thematic_booklets'),
+        ('groups', '0011_auto_20171106_1833'),
     ]
 
     operations = [
