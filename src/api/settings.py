@@ -390,3 +390,10 @@ if DEBUG:
 # Get the promo
 PROMO_CODE_KEY = os.environb.get(b'PROMO_CODE_KEY', b'prout')
 PROMO_CODE_TAG = os.environ.get('PROMO_CODE_TAG', 'Groupe certifié')
+
+
+# HTML settings
+USER_ALLOWED_TAGS = [
+    'a', 'abbr', 'acronym', 'b', 'br', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'p', 'strong', 'ul', 'h2', 'h3', 'h4'
+]
+ADMIN_ALLOWED_TAGS = USER_ALLOWED_TAGS + ['table', 'tr', 'td', 'th']

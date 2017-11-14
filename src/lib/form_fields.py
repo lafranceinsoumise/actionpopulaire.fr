@@ -19,10 +19,10 @@ class DateTimePickerWidget(DateTimeBaseInput):
         )
 
 
-class MarkdownDescriptionWidget(Textarea):
-    template_name = 'custom_fields/markdown_description.html'
+class RichEditorWidget(Textarea):
+    template_name = 'custom_fields/rich_editor.html'
 
     class Media:
         js = (
-            'js/markdownEditor.js',
+            'components/richEditor.js',
         )

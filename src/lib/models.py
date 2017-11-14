@@ -3,12 +3,16 @@ from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe, format_html, format_html_join
 from django_countries.fields import CountryField
+from django.conf import settings
+
+import bleach
 
 from model_utils.models import TimeStampedModel
 from stdimage.models import StdImageField
 from stdimage.utils import UploadToAutoSlugClassNameDir
 
-from .form_fields import MarkdownDescriptionWidget
+from .form_fields import RichEditorWidget
+
 
 
 class UUIDIdentified(models.Model):
@@ -235,7 +239,7 @@ class ImageMixin(models.Model):
 
 class DescriptionField(models.TextField):
     def formfield(self, **kwargs):
-        defaults = {'widget': MarkdownDescriptionWidget}
+        defaults = {'widget': RichEditorWidget}
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
@@ -244,7 +248,7 @@ class DescriptionMixin(models.Model):
     description = DescriptionField(
         _('description'),
         blank=True,
-        help_text=_("Une description, en MarkDown"),
+        help_text=_("Une courte description"),
     )
 
     allow_html = models.BooleanField(
@@ -254,3 +258,10 @@ class DescriptionMixin(models.Model):
 
     class Meta:
         abstract = True
+
+    def html_description(self):
+        tags = settings.ADMIN_ALLOWED_TAGS if self.allow_html else settings.USER_ALLOWED_TAGS
+        text = bleach.clean(self.description, tags=tags)
+        print(self.description)
+        print(text)
+        return mark_safe(text)

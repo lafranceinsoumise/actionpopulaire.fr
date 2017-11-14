@@ -4,7 +4,9 @@
   "description": "api-django ==========",
   "main": "src/js/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "watch": "webpack -w"
   },
   "repository": {
     "type": "git",
@@ -17,10 +19,9 @@
   },
   "homepage": "https://github.com/lafranceinsoumise/api-django#readme",
   "dependencies": {
-    "domador": "^2.4.4",
     "font-awesome": "^4.7.0",
-    "megamark": "^3.3.0",
-    "woofmark": "^4.2.3"
+    "jquery": "^3.2.1",
+    "trumbowyg": "^2.8.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -28,6 +29,8 @@
     "babel-preset-env": "^1.6.1",
     "css-loader": "^0.28.7",
     "eslint": "^4.10.0",
+    "file-loader": "^1.1.5",
+    "imports-loader": "^0.7.1",
     "style-loader": "^0.19.0",
     "webpack": "^3.8.1"
   }
