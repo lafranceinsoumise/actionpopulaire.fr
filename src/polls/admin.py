@@ -16,7 +16,7 @@ class PollOptionInline(admin.TabularInline):
 class PollAdmin(admin.ModelAdmin):
     inlines = [PollOptionInline]
 
-    fields = ['title', 'link', 'start', 'end', 'rules', 'tags']
+    fields = ['title', 'link', 'description', 'start', 'end', 'rules', 'tags']
     readonly_fields = ['link']
 
     def link(self, object):
