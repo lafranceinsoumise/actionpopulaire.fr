@@ -1,10 +1,4 @@
 <div><textarea name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>{% if widget.value %}{{ widget.value }}{% endif %}</textarea></div>
 <script>
-    var textarea = document.querySelector('#{{ widget.attrs.id }}');
-
-    if (textarea.value === '') {
-        textarea.value = '<p></p>'
-    }
-
-    var editor = window.richEditor(textarea);
+    var editor = window.richEditor('#{{ widget.attrs.id }}');
 </script>

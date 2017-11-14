@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
     context: path.resolve(__dirname, 'src/javascript_components'),
     entry: {
-        richEditor: 'imports-loader?jQuery=jquery,this=>window!./richEditor.js'
+        richEditor: './richEditor.js'
     },
     output: {
         libraryTarget: 'window',
@@ -25,17 +25,11 @@ module.exports = {
             },
             {
                 test: /\.css$/,
+                exclude: /node_modules\/tinymce/,
                 use: [
                     {loader: 'style-loader'},
                     {loader: 'css-loader'}
                 ]
-            },
-            {
-                test: /\.svg$/,
-                use: {
-                    loader: 'file-loader',
-                    options: {publicPath: '/static/components/', outputPath: 'images/'}
-                }
             }
         ]
     },

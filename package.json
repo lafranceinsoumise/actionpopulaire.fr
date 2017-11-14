@@ -20,8 +20,8 @@
   "homepage": "https://github.com/lafranceinsoumise/api-django#readme",
   "dependencies": {
     "font-awesome": "^4.7.0",
-    "jquery": "^3.2.1",
-    "trumbowyg": "^2.8.1"
+    "tinymce": "^4.7.2",
+    "tinymce-i18n": "^17.11.4"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

@@ -1,36 +1,28 @@
-import icons from 'trumbowyg/dist/ui/icons.svg';
-import 'trumbowyg/dist/ui/trumbowyg.min.css';
-import 'trumbowyg/dist/trumbowyg';
-import 'trumbowyg/dist/langs/fr.min';
+import tinymce from 'tinymce/tinymce';
+import 'tinymce/themes/modern/theme';
+import 'tinymce/plugins/link';
+import 'tinymce/plugins/autolink';
+import 'tinymce/plugins/image';
+import 'tinymce/plugins/lists';
 
-$.trumbowyg.svgPath = icons;
+import 'tinymce-i18n/langs/fr_FR';
 
 import './richEditor.css';
 
-module.exports = function (elem) {
-    elem = $(elem);
-    elem.trumbowyg({
-        btnsDef: {
-            titlesGroup: {
-                dropdown: ['h2', 'h3', 'h4'],
-                title: ['Titres'],
-                ico: 'h2'
-            }
-        },
-        btns: [
-            ['strong', 'em'],
-            'titlesGroup',
-            ['link', 'insertImage'],
-            ['unorderedList', 'orderedList'],
-            ['removeFormat']
-        ],
-        'lang': 'fr',
-        autogrow: true,
-    });
+require.context(
+  'file-loader?name=[path][name].[ext]&context=node_modules/tinymce!tinymce/skins',
+  true,
+  /.*/
+);
 
-    return {
-        value: function() {
-            return elem.trumbowyg.apply(elem, ['html'].concat(Array.prototype.slice.call(arguments)));
-        }
-    }
+module.exports = function (selector) {
+    tinymce.init({
+        selector,
+        plugins: "link autolink image lists",
+        toolbar: 'bold italic | formatselect | link image | bullist numlist',
+        menubar: false,
+        statusbar: false,
+        language: 'fr_FR',
+        block_formats: "Paragraphe=p;Titre=h2;Sous-titre=h3;Petit titre=h4"
+    });
 };
