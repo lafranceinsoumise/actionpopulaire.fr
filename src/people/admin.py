@@ -49,7 +49,7 @@ class EmailInline(admin.TabularInline):
     model = PersonEmail
     readonly_fields = ('address',)
     extra = 0
-    fields = ('address', 'bounced', 'bounced_date')
+    fields = ('address', '_bounced', 'bounced_date')
 
 
 @admin.register(Person, site=admin_site)
