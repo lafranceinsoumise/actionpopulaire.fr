@@ -35,6 +35,8 @@ class PersonEmailSerializer(serializers.ModelSerializer):
             max_length=254,
             validators=[UniqueValidator(queryset=queryset)])
 
+    bounced = serializers.BooleanField()
+
     class Meta:
         model = models.PersonEmail
         fields = ('address', 'bounced', 'bounced_date', )

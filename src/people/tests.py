@@ -31,14 +31,12 @@ class BasicPersonTestCase(TestCase):
 
     def test_can_add_email(self):
         user = Person.objects.create_person(email='test@domain.com')
-        bounced_date = timezone.now()
-        user.add_email('test2@domain.com', bounced=True, bounced_date=bounced_date)
+        user.add_email('test2@domain.com', bounced=True)
         user.save()
 
         self.assertEqual(user.email, 'test@domain.com')
         self.assertEqual(user.emails.all()[1].address, 'test2@domain.com')
         self.assertEqual(user.emails.all()[1].bounced, True)
-        self.assertEqual(user.emails.all()[1].bounced_date, bounced_date)
 
     def test_can_edit_email(self):
         user = Person.objects.create_person(email='test@domain.com')
