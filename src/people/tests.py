@@ -329,6 +329,18 @@ class LegacyPersonEndpointTestCase(APITestCase):
         self.assertEqual(self.basic_person.emails.all()[2].address, 'test@example.com')
         self.assertEqual(self.basic_person.emails.all()[2].bounced, True)
 
+    def test_can_update_bounced_status(self):
+        request = self.factory.patch('', data={
+            'bounced': True
+        })
+        force_authenticate(request, self.changer_person.role)
+        response = self.detail_view(request, pk=self.basic_person.pk)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.basic_person.emails.all()[0].address, 'jean.georges@domain.com')
+        self.assertEqual(self.basic_person.emails.all()[0].bounced, True)
+        self.assertLess(self.basic_person.emails.all()[0].bounced_date, timezone.now())
+
     def test_cannot_modify_while_unauthenticated(self):
         request = self.factory.patch('', data={
             'first_name': 'Marc'

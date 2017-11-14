@@ -2,6 +2,7 @@ import uuid
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.contrib.auth.base_user import BaseUserManager
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -54,6 +55,8 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
     email = serializers.EmailField(
         required=True
     )
+
+    bounced = serializers.BooleanField()
 
     rsvps = serializers.HyperlinkedRelatedField(
         view_name='legacy:rsvp-detail',

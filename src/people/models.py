@@ -1,6 +1,7 @@
 import warnings
 from django.db import models, transaction
 from django.contrib.postgres.fields import JSONField
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
@@ -254,9 +255,10 @@ class PersonEmail(models.Model):
         help_text=_("L'adresse email de la personne, utilisée comme identifiant")
     )
 
-    bounced = models.BooleanField(
+    _bounced = models.BooleanField(
         _('email rejeté'),
         default=False,
+        db_column='bounced',
         help_text=_("Indique que des mails envoyés ont été rejetés par le serveur distant")
     )
 
@@ -266,6 +268,16 @@ class PersonEmail(models.Model):
         blank=True,
         help_text=_("Si des mails ont été rejetés, indique la date du dernier rejet")
     )
+
+    @property
+    def bounced(self):
+        return self._bounced
+
+    @bounced.setter
+    def bounced(self, value):
+        if value and self._bounced is False:
+            self.bounced_date = timezone.now()
+        self._bounced = value
 
     person = models.ForeignKey(Person, on_delete=models.CASCADE, null=False, related_name='emails')
 
