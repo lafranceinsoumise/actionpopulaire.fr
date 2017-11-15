@@ -8,5 +8,17 @@
 {% block main %}
     <h2 class="headline">{{ poll.title }}</h2>
     <p>{{ poll.html_description }}</p>
-    {% crispy form %}
+    {% if already_voted %}
+        <div class="alert alert-info">
+            Vous avez déjà participé à cette consultation ! Pour mémoire, voici quels étaient les choix proposés.
+        </div>
+
+        <ul>
+            {% for choice in poll.options.all %}
+                {{ choice.html_description }}
+            {% endfor %}
+        </ul>
+    {% else %}
+        {% crispy form %}
+    {% endif %}
 {% endblock %}

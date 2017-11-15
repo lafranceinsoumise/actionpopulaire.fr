@@ -49,7 +49,6 @@ urlpatterns = [
 
     # polls views
     url(f'^consultations/(?P<pk>{uuid})/$', views.PollParticipationView.as_view(), name='participate_poll'),
-    url(f'^consultations/confirmation/$', views.PollConfirmationView.as_view(), name='confirmation_poll'),
     url(f'^consultations/termine/$', views.PollFinishedView.as_view(), name='finished_poll'),
 
     # old urls
