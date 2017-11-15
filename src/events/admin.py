@@ -11,6 +11,7 @@ from admin_steroids.filters import AjaxFieldFilter
 
 from lib.admin import CenterOnFranceMixin
 from lib.forms import CoordinatesFormMixin
+from lib.form_fields import AdminRichEditorWidget
 from front.utils import front_url
 
 from . import models
@@ -21,6 +22,9 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
         exclude = (
             'id', 'organizers', 'attendees'
         )
+        widgets = {
+            'description': AdminRichEditorWidget()
+        }
 
 
 class EventStatusFilter(admin.SimpleListFilter):

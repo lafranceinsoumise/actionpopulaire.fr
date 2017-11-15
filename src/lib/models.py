@@ -239,7 +239,7 @@ class ImageMixin(models.Model):
 
 class DescriptionField(models.TextField):
     def formfield(self, **kwargs):
-        defaults = {'widget': RichEditorWidget}
+        defaults = {'widget': RichEditorWidget(attrs=kwargs.get('attrs', {}))}
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
@@ -252,7 +252,7 @@ class DescriptionMixin(models.Model):
     )
 
     allow_html = models.BooleanField(
-        _("autoriser le HTML dans la description"),
+        _("autoriser le HTML étendu dans la description"),
         default=False,
     )
 

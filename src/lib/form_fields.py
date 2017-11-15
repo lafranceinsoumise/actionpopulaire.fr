@@ -21,8 +21,17 @@ class DateTimePickerWidget(DateTimeBaseInput):
 
 class RichEditorWidget(Textarea):
     template_name = 'custom_fields/rich_editor.html'
+    admin = False
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget']['admin'] = self.admin
+        return context
 
     class Media:
         js = (
             'components/richEditor.js',
         )
+
+class AdminRichEditorWidget(RichEditorWidget):
+    admin = True

@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from ajax_select.fields import AutoCompleteSelectField
 
 from lib.forms import CoordinatesFormMixin
+from lib.form_fields import AdminRichEditorWidget
 
 from .. import models
 
@@ -13,6 +14,7 @@ class SupportGroupAdminForm(CoordinatesFormMixin, forms.ModelForm):
         exclude = (
             'id', 'members'
         )
+        widgets = {'description': AdminRichEditorWidget()}
 
 
 class AddMemberForm(forms.Form):
