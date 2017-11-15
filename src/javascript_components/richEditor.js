@@ -7,8 +7,6 @@ import 'tinymce/plugins/lists';
 
 import 'tinymce-i18n/langs/fr_FR';
 
-import './richEditor.css';
-
 require.context(
   'file-loader?name=[path][name].[ext]&context=node_modules/tinymce!tinymce/skins',
   true,
