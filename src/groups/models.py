@@ -31,7 +31,7 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ImageM
         _("nom"),
         max_length=255,
         blank=False,
-        help_text=_("Le nom du groupe d'appui"),
+        help_text=_("Le nom du groupe d'action"),
     )
 
     type = models.CharField(
@@ -56,7 +56,7 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ImageM
     members = models.ManyToManyField('people.Person', related_name='supportgroups', through='Membership', blank=True)
 
     class Meta:
-        verbose_name = _("groupe d'appui")
+        verbose_name = _("groupe d'action")
         verbose_name_plural = _("groupes d'appui")
         indexes = (
             models.Index(fields=['nb_path'], name='groups_nb_path_index'),

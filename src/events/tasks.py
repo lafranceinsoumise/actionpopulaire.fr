@@ -43,7 +43,7 @@ def send_event_creation_notification(organizer_config_pk):
 
     send_mosaico_email(
         code='EVENT_CREATION',
-        subject=_("Les informations de votre nouveau groupe d'appui"),
+        subject=_("Les informations de votre nouvel événement"),
         from_email=settings.EMAIL_FROM,
         recipients=[organizer],
         bindings=bindings,

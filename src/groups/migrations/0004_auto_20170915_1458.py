@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='supportgroup',
-            options={'ordering': ('-created',), 'permissions': (('view_hidden_supportgroup', 'Peut afficher les groupes non publiés'),), 'verbose_name': "groupe d'appui", 'verbose_name_plural': "groupes d'appui"},
+            options={'ordering': ('-created',), 'permissions': (('view_hidden_supportgroup', 'Peut afficher les groupes non publiés'),), 'verbose_name': "groupe d'action", 'verbose_name_plural': "groupes d'appui"},
         ),
     ]
