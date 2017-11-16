@@ -18,7 +18,10 @@ class PollParticipationView(SoftLoginRequiredMixin, SingleObjectMixin, FormView)
     template_name = "front/polls/detail.html"
     context_object_name = 'poll'
     form_class = PollParticipationForm
-    queryset = Poll.objects.filter(start__lt=timezone.now())
+
+    def get_queryset(self):
+        # use get queryset because timezone.now must be evaluated each time
+        return Poll.objects.filter(start__lt=timezone.now())
 
     def get_success_url(self):
         return reverse_lazy('participate_poll', args=[self.object.pk])

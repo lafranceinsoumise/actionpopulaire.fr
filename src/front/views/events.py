@@ -8,8 +8,9 @@ from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.conf import settings
+from django.utils import timezone
 
-from events.models import Event, RSVP, OrganizerConfig, Calendar, published_event_only
+from events.models import Event, RSVP, OrganizerConfig, Calendar
 from events.tasks import send_cancellation_notification, send_rsvp_notification
 
 from ..forms import EventForm, AddOrganizerForm, EventGeocodingForm
@@ -37,7 +38,6 @@ class EventListView(SoftLoginRequiredMixin, ListView):
     template_name = 'front/events/list.html'
     context_object_name = 'events'
 
-    queryset = Event.scheduled.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -45,18 +45,20 @@ class EventListView(SoftLoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        return self.queryset.filter(organizers=self.request.user.person)
+        return Event.objects.upcoming(as_of=timezone.now()).filter(organizers=self.request.user.person)
 
     def get_rsvps(self):
-        return RSVP.current.select_related('event').filter(person=self.request.user.person)
+        return RSVP.objects.upcoming(as_of=timezone.now()).select_related('event').filter(person=self.request.user.person)
 
 
 class EventDetailView(ObjectOpengraphMixin, DetailView):
     template_name = "front/events/detail.html"
-    queryset = Event.scheduled.all()
 
     title_prefix = _("Evénement local")
     meta_description = _("Participez aux événements organisés par les membres de la France insoumise.")
+
+    def get_queryset(self):
+        return Event.objects.upcoming(as_of=timezone.now())
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
@@ -79,7 +81,9 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
 
 class ManageEventView(HardLoginRequiredMixin, IsOrganiserMixin, DetailView):
     template_name = "front/events/manage.html"
-    queryset = Event.scheduled.all()
+
+    def get_queryset(self):
+        return Event.objects.upcoming(as_of=timezone.now())
 
     def get_success_url(self):
         return reverse('manage_event', kwargs={'pk': self.object.pk})
@@ -170,8 +174,10 @@ class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateVi
     permissions_required = ('events.change_event',)
     template_name = "front/events/modify.html"
     success_url = reverse_lazy("list_events")
-    model = Event
     form_class = EventForm
+
+    def get_queryset(self):
+        return Event.objects.upcoming(as_of=timezone.now())
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -198,8 +204,10 @@ class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateVi
 
 class CancelEventView(HardLoginRequiredMixin, DetailView):
     template_name = 'front/events/cancel.html'
-    queryset = Event.scheduled.all()
     success_url = reverse_lazy('list_events')
+
+    def get_queryset(self):
+        return Event.objects.upcoming(as_of=timezone.now())
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -221,8 +229,10 @@ class CancelEventView(HardLoginRequiredMixin, DetailView):
 class QuitEventView(SoftLoginRequiredMixin, DeleteView):
     template_name = "front/events/quit.html"
     success_url = reverse_lazy("list_events")
-    model = RSVP
     context_object_name = 'rsvp'
+
+    def get_queryset(self):
+        return RSVP.objects.upcoming(as_of=timezone.now())
 
     def get_object(self, queryset=None):
         try:
@@ -260,7 +270,7 @@ class CalendarView(ObjectOpengraphMixin, DetailView):
     per_page = 10
 
     def get_context_data(self, **kwargs):
-        all_events = self.object.events.filter(published_event_only()).order_by('start_time')
+        all_events = self.object.events.upcoming(as_of=timezone.now()).order_by('start_time')
         paginator = self.paginator_class(all_events, self.per_page)
 
         page = self.request.GET.get('page')
@@ -280,5 +290,7 @@ class CalendarView(ObjectOpengraphMixin, DetailView):
 class ChangeEventLocationView(ChangeLocationBaseView):
     template_name = 'front/events/change_location.html'
     form_class = EventGeocodingForm
-    queryset = Event.scheduled.all()
     success_view_name = 'manage_event'
+
+    def get_queryset(self):
+        return Event.objects.upcoming(as_of=timezone.now())

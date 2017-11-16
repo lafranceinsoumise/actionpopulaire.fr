@@ -994,7 +994,7 @@ class PollTestCase(TestCase):
             'choice': [str(self.poll1.pk), str(self.poll3.pk)]
         })
 
-        self.assertRedirects(res, reverse('confirmation_poll'))
+        self.assertRedirects(res, reverse('participate_poll', args=[self.poll.pk]))
         choice = PollChoice.objects.first()
         self.assertIn('test_tag', [str(tag) for tag in self.person.tags.all()])
         self.assertEqual(choice.person, self.person)
@@ -1016,7 +1016,7 @@ class PollTestCase(TestCase):
         })
 
         res = self.client.get(reverse('participate_poll', args=[self.poll.pk]))
-        self.assertContains(res, 'déjà participé', status_code=403)
+        self.assertContains(res, 'Vous avez déjà participé')
 
         res = self.client.post(reverse('participate_poll', args=[self.poll.pk]), data={
             'choice': [str(self.poll1.pk), str(self.poll3.pk)]

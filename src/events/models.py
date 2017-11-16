@@ -16,20 +16,26 @@ from lib.form_fields import DateTimePickerWidget
 EVENT_GRACE_PERIOD = timezone.timedelta(hours=12)
 
 
-def published_event_only():
-    """Returns a Q object expressing the condition "published events only" """
-    return models.Q(published=True, end_time__gt=timezone.now() - EVENT_GRACE_PERIOD)
+def upcoming_only(as_of):
+    return models.Q(end_time__gt=as_of - EVENT_GRACE_PERIOD)
 
 
-class PublishedEventManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(published=True, end_time__gt=timezone.now() - EVENT_GRACE_PERIOD)
+class EventQuerySet(models.QuerySet):
+    def upcoming(self, as_of, published_only=True):
+        condition = upcoming_only(as_of)
+        if published_only:
+            condition &= models.Q(published=True)
+
+        return self.filter(condition)
 
 
-class PublishedRSVPManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(
-            event__published=True, event__end_time__gt=timezone.now() - EVENT_GRACE_PERIOD)
+class RSVPQuerySet(models.QuerySet):
+    def upcoming(self, as_of, published_only=True):
+        condition = models.Q(event__end_time__gt=as_of - EVENT_GRACE_PERIOD)
+        if published_only:
+            condition &= models.Q(event__published=True)
+
+        return self.filter(condition)
 
 
 class CustomDateTimeField(models.DateTimeField):
@@ -43,8 +49,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
     """
     Model that represents an event
     """
-    objects = models.Manager()
-    scheduled = PublishedEventManager()
+    objects = EventQuerySet.as_manager()
 
     name = models.CharField(
         _("nom"),
@@ -170,8 +175,7 @@ class RSVP(TimeStampedModel):
     
     An additional field indicates if the person is bringing any guests with her
     """
-    objects = models.Manager()
-    current = PublishedRSVPManager()
+    objects = RSVPQuerySet.as_manager()
 
     person = models.ForeignKey('people.Person', related_name='rsvps', on_delete=models.CASCADE, editable=False)
     event = models.ForeignKey('Event', related_name='rsvps', on_delete=models.CASCADE, editable=False)
