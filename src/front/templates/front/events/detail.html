@@ -19,12 +19,6 @@
     <iframe title="Carte" class="col-xs-6" style="float: right;"
             src="https://carte.lafranceinsoumise.fr/?event_id={{ event.pk }},events&hide_panel=1&hide_address=1"
             width="400" height="300" scrolling="no" frameBorder="0"></iframe>
-    {% if event.description %}
-        <div class="intro">
-            {{ supportgroup.html_description }}
-            <hr/>
-        </div>
-    {% endif %}
     <h4>Adresse&nbsp;:</h4>
     <p>{{ event.html_full_address }}</p>
     <div>
@@ -37,6 +31,12 @@
     </h4>
     <p>{{ event.html_full_contact }}</p>
     <hr/>
+    {% if event.description %}
+        <div class="intro">
+            {{ event.html_description }}
+            <hr/>
+        </div>
+    {% endif %}
     {% if event.participants %}
         <h4>
             Nombre de participants&nbsp;: {{ event.participants }}

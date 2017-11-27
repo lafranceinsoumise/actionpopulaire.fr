@@ -15,27 +15,24 @@
         {% endif %}
     </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <hr/>
-            {% if supportgroup.description %}
-                <div class="intro">
-                    {{ supportgroup.html_description }}
-                    <hr/>
-                </div>
-            {% endif %}
-            <h4>Adresse&nbsp;:</h4>
-            <p>{{ supportgroup.html_full_address }}</p>
-            <h4>
-                Contact&nbsp;:
-            </h4>
-            <p>{{ supportgroup.html_full_contact }}</p>
+    <iframe title="Carte" class="col-xs-6" style="float: right;"
+        src="https://carte.lafranceinsoumise.fr/?event_id={{ supportgroup.pk }},groups&hide_panel=1&hide_address=1"
+        height="300" scrolling="no" frameBorder="0"></iframe>
+
+    <hr/>
+    <h4>Adresse&nbsp;:</h4>
+    <p>{{ supportgroup.html_full_address }}</p>
+    <h4>
+        Contact&nbsp;:
+    </h4>
+    <p>{{ supportgroup.html_full_contact }}</p>
+    <hr/>
+    {% if supportgroup.description %}
+        <div class="intro" style="clear: both;">
+            {{ supportgroup.html_description }}
             <hr/>
         </div>
-        <iframe title="Carte" class="col-md-6"
-                src="https://carte.lafranceinsoumise.fr/?event_id={{ supportgroup.pk }},groups&hide_panel=1&hide_address=1"
-                height="300" scrolling="no" frameBorder="0"></iframe>
-    </div>
+    {% endif %}
 
     {% if user.is_authenticated %}
         {% if is_member %}
