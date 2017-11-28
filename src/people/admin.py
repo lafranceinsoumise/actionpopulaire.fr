@@ -9,7 +9,8 @@ from django.utils.html import escape, format_html
 from django.utils.translation import ugettext_lazy as _
 from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
-from django.contrib.postgres.search import SearchQuery
+
+from lib.search import PrefixSearchQuery
 
 from .models import Person, PersonTag, PersonEmail, PersonForm
 from events.models import RSVP
@@ -114,11 +115,11 @@ class PersonAdmin(admin.ModelAdmin):
     inlines = (RSVPInline, MembershipInline, EmailInline)
 
     def get_search_results(self, request, queryset, search_term):
-        terms = search_term.split()
-        queries = [SearchQuery(term, config='simple_unaccented') for term in terms]
+        if search_term:
+            filter = PrefixSearchQuery(search_term, config='simple_unaccented')
+            queryset = queryset.filter(search=filter)
+
         use_distinct = False
-        if queries:
-            queryset = queryset.filter(search=reduce(operator.and_, queries))
 
         return queryset, use_distinct
 
