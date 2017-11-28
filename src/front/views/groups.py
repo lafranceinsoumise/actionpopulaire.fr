@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.utils.translation import ugettext as _, ugettext_lazy
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
@@ -75,6 +76,7 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(
             is_member=self.request.user.is_authenticated and self.object.memberships.filter(person=self.request.user.person).exists(),
+            is_referent_or_manager=self.request.user.is_authenticated and self.object.memberships.filter(Q(person=self.request.user.person) & (Q(is_referent=True) | Q(is_manager=True))).exists()
         )
 
     @method_decorator(login_required(login_url=reverse_lazy('oauth_redirect_view')), )

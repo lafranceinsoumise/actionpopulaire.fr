@@ -35,14 +35,14 @@
     {% endif %}
 
     {% if user.is_authenticated %}
-        {% if is_member %}
+        {% if is_member and not is_referent_or_manager %}
             <div class="row">
                 <div class="col-md-push-3 col-md-6" style="margin-top: 1em; margin-bottom: 1em;">
                     Je suis membre de ce groupe
                     &bull; <a href="{% url "quit_group" supportgroup.pk %}">Quitter le groupe</a>
                 </div>
             </div>
-        {% else %}
+        {% elif not is_referent_or_manager %}
             <div class="row">
                 <div class="col-md-push-3 col-md-6" style="margin-top: 1em; margin-bottom: 1em;">
                     <form action="{% url "view_group" supportgroup.pk %}" method="post" class="padbottom">
@@ -52,6 +52,11 @@
                     </form>
                 </div>
             </div>
+        {% elif is_referent_or_manager %}
+        <p>
+            Je suis gérant⋅e de ce groupe
+            &bull; <a href="{% url "manage_group" supportgroup.pk %}">Gérer mon groupe</a>
+        </p>
         {% endif %}
     {% else %}
         <div class="row">
