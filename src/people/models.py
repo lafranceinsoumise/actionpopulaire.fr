@@ -9,6 +9,8 @@ from django.utils.functional import cached_property
 from django.utils.html import mark_safe
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 
 import markdown
 
@@ -156,12 +158,17 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
 
     meta = JSONField(_('Autres données'), default=dict, blank=True)
 
+    search = SearchVectorField('Données de recherche', editable=False, null=True)
+
     class Meta:
         verbose_name = _('personne')
         verbose_name_plural = _('personnes')
         ordering = ('-created',)
         # add permission 'view'
         default_permissions = ('add', 'change', 'delete', 'view')
+        indexes = (
+            GinIndex(['search'], name='search_index'),
+        )
 
     def __str__(self):
         if self.first_name and self.last_name:
