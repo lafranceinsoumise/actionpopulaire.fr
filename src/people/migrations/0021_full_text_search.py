@@ -8,8 +8,6 @@ from django.db import migrations
 
 
 add_search_trigger = """
-CREATE EXTENSION unaccent;
-
 CREATE TEXT SEARCH CONFIGURATION simple_unaccented ( COPY = simple );
 ALTER TEXT SEARCH CONFIGURATION simple_unaccented
   ALTER MAPPING FOR hword, hword_part, word
@@ -130,7 +128,6 @@ DROP FUNCTION get_people_tsvector(
 );
 DROP FUNCTION email_to_tsvector(people_personemail.address%TYPE);
 DROP TEXT SEARCH CONFIGURATION simple_unaccented;
-DROP EXTENSION unaccent;
 """
 
 
