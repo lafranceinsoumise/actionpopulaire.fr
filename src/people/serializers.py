@@ -58,7 +58,9 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         required=True
     )
 
-    bounced = serializers.BooleanField()
+    bounced = serializers.BooleanField(
+        required=False
+    )
 
     rsvps = serializers.HyperlinkedRelatedField(
         view_name='legacy:rsvp-detail',
