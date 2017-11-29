@@ -134,7 +134,17 @@ class PersonAdmin(admin.ModelAdmin):
 
 @admin.register(PersonTag, site=admin_site)
 class PersonTagAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('label', 'exported')
+
+    actions = ('set_as_exported', 'set_as_not_exported')
+
+    def set_as_exported(self, request, queryset):
+        queryset.update(exported=True)
+    set_as_exported.short_description = _('Exporter ces tags')
+
+    def set_as_not_exported(self, request, queryset):
+        queryset.update(exported=False)
+    set_as_not_exported.short_description = _('Ne plus exporter')
 
 
 @admin.register(PersonForm, site=admin_site)
