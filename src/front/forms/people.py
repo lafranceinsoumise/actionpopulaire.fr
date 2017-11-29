@@ -506,6 +506,12 @@ class BasePersonForm(forms.ModelForm):
                     elif field['type'] == 'choice':
                         klass = forms.ChoiceField
                         kwargs['choices'] = field['choices']
+                    elif field['type'] == 'multiple_choice':
+                        klass = forms.MultipleChoiceField
+                        kwargs['choices'] = field['multiple_choice']
+                        kwargs['widget'] = forms.CheckboxSelectMultiple()
+                        # by default multiple choice field is not required
+                        kwargs['required'] = field['required'] if 'required' in field else False
                     else:
                         klass = forms.BooleanField
                         # by default boolean field should be false or one is forced to tick the checkbox to proceed
