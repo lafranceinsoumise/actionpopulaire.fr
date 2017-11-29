@@ -505,10 +505,11 @@ class BasePersonForm(forms.ModelForm):
                             kwargs['widget'] = forms.Textarea()
                     elif field['type'] == 'choice':
                         klass = forms.ChoiceField
-                        kwargs['choices'] = field['choices']
+                        default_label = "----" if kwargs['required'] else _("Non applicable / ne souhaite pas répondre")
+                        kwargs['choices'] = [('', default_label)] + field['choices']
                     elif field['type'] == 'multiple_choice':
                         klass = forms.MultipleChoiceField
-                        kwargs['choices'] = field['multiple_choice']
+                        kwargs['choices'] = field['choices']
                         kwargs['widget'] = forms.CheckboxSelectMultiple()
                         # by default multiple choice field is not required
                         kwargs['required'] = field['required'] if 'required' in field else False
