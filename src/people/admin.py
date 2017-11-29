@@ -1,5 +1,6 @@
 from urllib.parse import urlencode
 
+from django import forms
 from django.db.models import Count
 from django.shortcuts import reverse
 from django.contrib import admin
@@ -9,13 +10,14 @@ from django.utils.translation import ugettext_lazy as _
 from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
 
-from lib.search import PrefixSearchQuery
-
 from .models import Person, PersonTag, PersonEmail, PersonForm
 from events.models import RSVP
 from groups.models import Membership
 
 from front.utils import front_url, generate_token_params
+from lib.search import PrefixSearchQuery
+from lib.form_fields import AdminRichEditorWidget
+
 
 class RSVPInline(admin.TabularInline):
     model = RSVP
@@ -154,13 +156,20 @@ class PersonTagAdmin(admin.ModelAdmin):
     set_as_not_exported.short_description = _('Ne plus exporter')
 
 
+
+class PersonFormForm(forms.ModelForm):
+    class Meta:
+        fields = '__all__'
+        widgets = {'description': AdminRichEditorWidget(), 'confirmation_note': AdminRichEditorWidget()}
+
 @admin.register(PersonForm, site=admin_site)
 class PersonFormAdmin(admin.ModelAdmin):
+    form = PersonFormForm
     list_display = ('title', 'slug_link', 'published',)
 
     fieldsets = (
         (None, {
-            'fields': ('title', 'slug', 'published', 'submissions_number')
+            'fields': ('title', 'slug', 'published', 'submissions_number', 'simple_link')
         }),
         (_('Champs'), {
             'fields': ('main_question', 'tags', 'personal_information', 'additional_fields')
@@ -170,7 +179,7 @@ class PersonFormAdmin(admin.ModelAdmin):
          }),
     )
 
-    readonly_fields = ('submissions_number', )
+    readonly_fields = ('submissions_number', 'simple_link')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -183,6 +192,13 @@ class PersonFormAdmin(admin.ModelAdmin):
         else:
             return '-'
     slug_link.short_description = 'Slug'
+
+    def simple_link(self, object):
+        if object.slug:
+            return format_html('<a href="{0}">{0}</a>', front_url('view_person_form', args=(object.slug,)))
+        else:
+            return '-'
+    simple_link.short_description = 'Lien vers le formulaire'
 
     def submissions_number(self, object):
         return object.submissions_number

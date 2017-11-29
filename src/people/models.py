@@ -6,17 +6,15 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.functional import cached_property
-from django.utils.html import mark_safe
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 
-import markdown
-
 from phonenumber_field.modelfields import PhoneNumberField
 
-from lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource
+from lib.html import sanitize_html
+from lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource, DescriptionField
 from authentication.models import Role
 
 
@@ -304,10 +302,10 @@ class PersonForm(models.Model):
     slug = models.SlugField(_('Slug'), max_length=50)
     published = models.BooleanField(_('Publié'), default=True)
 
-    description = models.TextField(_('Description'), help_text=_(
-        "Description visible sur la page au remplissage du formulaire"
+    description = DescriptionField(_('Description'), help_text=_(
+        "Description visible en haut de la page de remplissage du formulaire"
     ))
-    confirmation_note = models.TextField(_('Note après complétion'), help_text=_(
+    confirmation_note = DescriptionField(_('Note après complétion'), help_text=_(
         "Note montrée à l'utilisateur une fois le formulaire validé."
     ))
 
@@ -328,10 +326,10 @@ class PersonForm(models.Model):
         verbose_name = _("Formulaire")
 
     def html_description(self):
-        return mark_safe(markdown.markdown(self.description))
+        return sanitize_html(self.description, tags=settings.ADMIN_ALLOWED_TAGS)
 
     def html_confirmation_note(self):
-        return mark_safe(markdown.markdown(self.confirmation_note))
+        return sanitize_html(self.confirmation_note, tags=settings.ADMIN_ALLOWED_TAGS)
 
 
 class PersonFormSubmission(models.Model):

@@ -487,23 +487,35 @@ class BasePersonForm(forms.ModelForm):
             )
 
         if self.person_form_instance.additional_fields:
-            for field in self.person_form_instance.additional_fields:
-                kwargs = {}
-                if 'attrs' in field:
-                    kwargs.update(field['attrs'])
-                if 'widget' in field:
-                    kwargs['widget'] = getattr(forms, field['widget'])
+            for fieldset in self.person_form_instance.additional_fields:
+                for field in fieldset['fields']:
+                    kwargs = {}
+                    kwargs['label'] = field['label']
+                    if 'help_text' in field:
+                        kwargs['help_text'] = field['help_text']
 
-                self.fields[field['id']] = getattr(forms, field['class'])(
-                    **kwargs
-                )
+                    # by default fields are compulsory
+                    kwargs['required'] = field['required'] if 'required' in field else True
 
-            parts.append(
-                Fieldset(
-                    _('Les détails'),
-                    *[Row(FullCol(f['id'])) for f in self.person_form_instance.additional_fields]
+                    if field['type'] in ['short_text', 'long_text']:
+                        klass = forms.CharField
+                        if 'max_length' in field:
+                            kwargs['max_length'] = field['max_length']
+                        if field['type'] == 'long_text':
+                            kwargs['widget'] = forms.Textarea()
+                    elif field['type'] == 'choice':
+                        klass = forms.ChoiceField
+                        kwargs['choices'] = field['choices']
+                    else:
+                        klass = forms.BooleanField
+                        # by default boolean field should be false or one is forced to tick the checkbox to proceed
+                        kwargs['required'] = field['required'] if 'required' in field else False
+
+                    self.fields[field['id']] = klass(**kwargs)
+
+                parts.append(
+                    Fieldset(fieldset['title'], *(Row(FullCol(field['id'])) for field in fieldset['fields']))
                 )
-            )
 
         self.helper = FormHelper()
         self.helper.form_method = 'POST'

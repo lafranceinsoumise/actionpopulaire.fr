@@ -12,7 +12,7 @@ from stdimage.models import StdImageField
 from stdimage.utils import UploadToAutoSlugClassNameDir
 
 from .form_fields import RichEditorWidget
-
+from .html import sanitize_html
 
 
 class UUIDIdentified(models.Model):
@@ -261,7 +261,4 @@ class DescriptionMixin(models.Model):
 
     def html_description(self):
         tags = settings.ADMIN_ALLOWED_TAGS if self.allow_html else settings.USER_ALLOWED_TAGS
-        text = bleach.clean(self.description, tags=tags)
-        print(self.description)
-        print(text)
-        return mark_safe(text)
+        return sanitize_html(self.description, tags)

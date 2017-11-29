@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "title": "Additional field",
+  "description": "An additional field",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "A unique identifier",
+      "type": "string"
+    },
+    "type": {
+      "description": "Type of field",
+      "type": "string",
+      "enum": [
+        "short_text",
+        "long_text",
+        "choice",
+        "boolean"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "type"
+  ]
+}
