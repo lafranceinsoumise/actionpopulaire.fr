@@ -31,7 +31,7 @@ def send_event_creation_notification(organizer_config_pk):
 
     bindings = {
         "EVENT_NAME": event.name,
-        "EVENT_SCHEDULE": rsvp.event.get_display_date(),
+        "EVENT_SCHEDULE": event.get_display_date(),
         "CONTACT_NAME": event.contact_name,
         "CONTACT_EMAIL": event.contact_email,
         "CONTACT_PHONE": event.contact_phone,

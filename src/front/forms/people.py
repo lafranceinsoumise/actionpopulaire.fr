@@ -541,7 +541,9 @@ class BasePersonForm(forms.ModelForm):
                 person=self.person,
                 form=self.person_form_instance,
                 data={
-                    f['id']: self.cleaned_data[f['id']] for f in self.person_form_instance.additional_fields
+                    field['id']: self.cleaned_data[field['id']]
+                    for fieldset in self.person_form_instance.additional_fields
+                    for field in fieldset['fields']
                 }
             )
 

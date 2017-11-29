@@ -869,9 +869,13 @@ class PersonFormTestCase(TestCase):
             main_question='QUESTION PRINCIPALE',
             personal_information=['contact_phone'],
             additional_fields=[{
-                'id': 'custom-field',
-                'class': 'CharField',
-                'attrs': {'label': 'Mon label'},
+                'title': 'Détails',
+                'fields': [
+                    {
+                        'id': 'custom-field',
+                        'type': 'short_text',
+                        'label': 'Mon label'
+                    }]
             }]
         )
         self.complex_form.tags.add(self.tag1)

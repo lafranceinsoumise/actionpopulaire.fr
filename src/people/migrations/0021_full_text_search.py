@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import django.contrib.postgres.indexes
 import django.contrib.postgres.search
+import django.contrib.postgres.operations
 from django.db import migrations
 
 
@@ -143,6 +144,7 @@ class Migration(migrations.Migration):
             name='search',
             field=django.contrib.postgres.search.SearchVectorField(editable=False, null=True, verbose_name='Données de recherche'),
         ),
+        django.contrib.postgres.operations.UnaccentExtension(),
         migrations.RunSQL(
             sql=add_search_trigger,
             reverse_sql=remove_search_trigger
