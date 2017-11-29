@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 from django.db.models import Count
 from django.shortcuts import reverse
 from django.contrib import admin
@@ -13,7 +15,7 @@ from .models import Person, PersonTag, PersonEmail, PersonForm
 from events.models import RSVP
 from groups.models import Membership
 
-from front.utils import front_url
+from front.utils import front_url, generate_token_params
 
 class RSVPInline(admin.TabularInline):
     model = RSVP
@@ -56,12 +58,12 @@ class EmailInline(admin.TabularInline):
 
 @admin.register(Person, site=admin_site)
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'email', 'subscribed', 'role_link', 'created')
+    list_display = ('first_name', 'last_name', 'email', 'contact_phone', 'subscribed', 'role_link', 'created')
     list_display_links = ('email',)
 
     fieldsets = (
         (None, {
-            'fields': ('first_name', 'last_name',)
+            'fields': ('first_name', 'last_name', 'connection_params', 'role_link')
         }),
         (_('Dates'), {
             'fields': ('created', 'modified')
@@ -88,15 +90,12 @@ class PersonAdmin(admin.ModelAdmin):
                 'location_country',
             )
         }),
-        (_('Role correspondant'), {
-            'fields': ('role_link',)
-        }),
         (_('Meta'), {
             'fields': ('meta',)
         })
     )
 
-    readonly_fields = ('created', 'modified', 'role_link', 'supportgroups', 'events')
+    readonly_fields = ('connection_params', 'created', 'modified', 'role_link', 'supportgroups', 'events')
 
     search_fields = ('emails__address', 'first_name', 'last_name', 'location_zip')
 
@@ -130,6 +129,14 @@ class PersonAdmin(admin.ModelAdmin):
         )
     role_link.allow_tags = True
     role_link.short_description = _('Lien vers le rôle')
+
+    def connection_params(self, obj):
+        if obj.pk:
+            return urlencode(generate_token_params(obj))
+        else:
+            return '-'
+    connection_params.short_description = _("Paramètres de connexion")
+    connection_params.help_text = _("A copier/coller à la fin d'une url agir pour obtenir un lien qui connecte automatiquement.")
 
 
 @admin.register(PersonTag, site=admin_site)
