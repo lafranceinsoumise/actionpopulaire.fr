@@ -247,6 +247,9 @@ class PersonTag(AbstractLabel):
     """
     Model that represents a tag that may be used to qualify people
     """
+
+    exported = models.BooleanField(_('Exporté vers mailtrain'), default=False)
+
     class Meta:
         verbose_name = _('tag')
 

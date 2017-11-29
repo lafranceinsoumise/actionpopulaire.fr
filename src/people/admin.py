@@ -1,6 +1,3 @@
-import operator
-from functools import reduce
-
 from django.db.models import Count
 from django.shortcuts import reverse
 from django.contrib import admin
