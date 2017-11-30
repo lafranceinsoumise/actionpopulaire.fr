@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.gis.admin import OSMGeoAdmin
@@ -19,6 +20,7 @@ from lib.admin import CenterOnFranceMixin
 from front.utils import front_url
 
 from .. import models
+from ..actions.promo_codes import get_next_promo_code
 from .forms import AddMemberForm, SupportGroupAdminForm
 
 
@@ -43,7 +45,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     form = SupportGroupAdminForm
     fieldsets = (
         (None, {
-            'fields': ('id', 'name', 'link', 'created', 'modified', 'action_buttons')
+            'fields': ('id', 'name', 'link', 'created', 'modified', 'action_buttons', 'promo_code')
         }),
         (_('Informations'), {
             'fields': ('type', 'description', 'allow_html', 'image', 'tags', 'published')
@@ -60,7 +62,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         }),
     )
     inlines = (MembershipInline,)
-    readonly_fields = ('id', 'link', 'action_buttons', 'created', 'modified', 'coordinates_type')
+    readonly_fields = ('id', 'link', 'action_buttons', 'created', 'modified', 'coordinates_type', 'promo_code')
     date_hierarchy = 'created'
 
     list_display = ('name', 'published', 'location_short', 'membership_count', 'created', 'referent')
@@ -73,6 +75,13 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     )
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
+
+    def promo_code(self, object):
+        if object.pk and object.tags.filter(label=settings.PROMO_CODE_TAG).exists():
+            return get_next_promo_code(object)
+        else:
+            return '-'
+    promo_code.short_description = _("Code promo du mois")
 
     def referent(self, object):
         referent = object.memberships.filter(is_referent=True).first()
