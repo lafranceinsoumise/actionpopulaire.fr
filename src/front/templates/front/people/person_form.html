@@ -5,6 +5,22 @@
 
 {% block title %}{{ person_form.title }}{% endblock %}
 
+{% block additional_headers %}
+    <style>
+        fieldset legend {
+            font-family: Montserrat, sans-serif;
+            font-weight: 500;
+            line-height: 1.1;
+            color: #0098b6;
+            font-size: 28px;
+        }
+
+        fieldset {
+            margin-top: 2em;
+        }
+    </style>
+{% endblock %}
+
 {% block main %}
     <h2 class="headline">{{ person_form.title }}</h2>
     <div>
