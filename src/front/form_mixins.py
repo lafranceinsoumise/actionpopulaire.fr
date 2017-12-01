@@ -132,7 +132,7 @@ class GeocodingBaseForm(forms.ModelForm):
             self.fields['use_geocoding'] = forms.BooleanField(
                 required=False,
                 label="Revenir à la localisation automatique à partir de l'adresse",
-                help_text=_("Cochez cette case pour annuler la localisation manuelle de votre groupe d'appui.")
+                help_text=_("Cochez cette case pour annuler la localisation manuelle de votre groupe d'action.")
             )
             form_elements.append(
                 Row(

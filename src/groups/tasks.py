@@ -13,7 +13,7 @@ from .models import SupportGroup, Membership
 # encodes the preferred order when showing the messages
 CHANGE_DESCRIPTION = OrderedDict((
     ("information", _("le nom ou la description du groupe")),
-    ("location", _("le lieu de rencontre du groupe d'appui")),
+    ("location", _("le lieu de rencontre du groupe d'action")),
     ("contact", _("les informations de contact des animateurs du groupe"))
 ))
 
@@ -42,7 +42,7 @@ def send_support_group_creation_notification(membership_pk):
 
     send_mosaico_email(
         code='GROUP_CREATION',
-        subject=_("Les informations de votre nouveau groupe d'appui"),
+        subject=_("Les informations de votre nouveau groupe d'action"),
         from_email=settings.EMAIL_FROM,
         recipients=[referent],
         bindings=bindings,
@@ -76,7 +76,7 @@ def send_support_group_changed_notification(support_group_pk, changes):
 
     send_mosaico_email(
         code='GROUP_CHANGED',
-        subject=_("Les informations de votre groupe d'appui ont été changées"),
+        subject=_("Les informations de votre groupe d'action ont été changées"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
@@ -104,7 +104,7 @@ def send_someone_joined_notification(membership_pk):
 
     send_mosaico_email(
         code='GROUP_SOMEONE_JOINED_NOTIFICATION',
-        subject=_("Un nouveau membre dans votre groupe d'appui"),
+        subject=_("Un nouveau membre dans votre groupe d'action"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings

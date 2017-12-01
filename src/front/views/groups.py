@@ -64,8 +64,8 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
     template_name = "front/groups/detail.html"
     queryset = SupportGroup.active.all()
 
-    title_prefix = "Groupe d'appui local"
-    meta_description = "Rejoignez les groupes d'appui locaux de la France insoumise."
+    title_prefix = "Groupe d'action local"
+    meta_description = "Rejoignez les groupes d'action locaux de la France insoumise."
 
     def get_template_names(self):
         if self.object.type == SupportGroup.TYPE_THEMATIC_BOOKLET:
@@ -182,11 +182,6 @@ class CreateSupportGroupView(HardLoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('manage_group', kwargs={'pk': self.object.pk})
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = _("Publiez votre groupe d'appui")
-        return context
-
     def form_valid(self, form):
         # first get response to make sure there's no error when saving the model before adding message
         res = super().form_valid(form)
@@ -215,11 +210,6 @@ class ModifySupportGroupView(HardLoginRequiredMixin, PermissionsRequiredMixin, U
 
     def get_success_url(self):
         return reverse("manage_group", kwargs={'pk': self.object.pk})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = _("Modifiez votre groupe d'appui")
-        return context
 
     def form_valid(self, form):
         # first get response to make sure there's no error when saving the model before adding message

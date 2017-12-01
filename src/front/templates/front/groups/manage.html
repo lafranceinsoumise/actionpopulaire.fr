@@ -28,8 +28,8 @@
         </div>
         <div class="panel-footer">
             <ul class="list-inline">
-            <li><a href="{% url "edit_group" supportgroup.pk %}">Modifier ces informations</a>
-            <li><a href="{% url "change_group_location" supportgroup.pk %}">Corriger la localisation</a>
+                <li><a href="{% url "edit_group" supportgroup.pk %}">Modifier ces informations</a>
+                <li><a href="{% url "change_group_location" supportgroup.pk %}">Corriger la localisation</a>
             </ul>
         </div>
     </div>
@@ -42,7 +42,8 @@
         </div>
 
         <p>
-            Ce code peut être utilisé sur le <a href="https://materiel.lafranceinsoumise.fr">site d'achat de matériel</a>.
+            Ce code peut être utilisé sur le <a href="https://materiel.lafranceinsoumise.fr">site d'achat de
+            matériel</a>.
         </p>
 
     {% endif %}
@@ -68,15 +69,17 @@
     {% if referents|length == 1 and is_referent %}
         <div>
             <p>
-                Vous etes à l'heure actuelle l'unique animatrice ou animateur enregistré de ce groupe d'appui. La charte des groupes
-                d'appui de la France insoumise prévoit que les groupes d'appui</p>
+                Vous etes à l'heure actuelle l'unique animatrice ou animateur enregistré de ce groupe d'action. La
+                charte des groupes
+                d'action de la France insoumise prévoit que les groupes d'action</p>
             <blockquote>
-                sont animés par deux personnes de genres différents n'étant pas dans la même situation : pas un couple,
-                pas habitants du même appartement et n'appartenant pas tous les deux à une même formation politique qui
-                soutient la France insoumise.
+                sont animés par deux personnes de genres différents, n’appartenant pas, le cas échéant, toutes les deux
+                à une même formation politique qui soutient la France insoumise.
             </blockquote>
-                Si vous souhaité ne plus être animatrice ou animateur de ce groupe d'appui, il vous faut d'abord indiquer
-                une autre personne, car un groupe d'appui ne peut se trouver sans animation.
+            <p>
+            Si vous souhaitez ne plus être animatrice ou animateur de ce groupe d'action, il vous faut d'abord indiquer
+            une autre personne, car un groupe d'action ne peut se trouver sans animation.
+            </p>
             <p>
                 Vous pouvez nous indiquer ici qui est l'autre animateur au sein du groupe.
             </p>

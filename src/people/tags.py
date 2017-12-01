@@ -57,7 +57,7 @@ action_tags = {
         ),
         (
             "agir groupe d'appui",
-            _("Créer ou rejoindre un groupe d'appui près de chez vous "),
+            _("Créer ou rejoindre un groupe d'action près de chez vous "),
             _("Rencontrez des volontaires près de chez vous et agir avec eux.")
         ),
         (

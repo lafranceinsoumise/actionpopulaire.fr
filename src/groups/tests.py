@@ -21,7 +21,7 @@ from .viewsets import LegacySupportGroupViewSet, MembershipViewSet, NestedMember
 class BasicSupportGroupTestCase(TestCase):
     def test_can_create_supportgroup(self):
         group = SupportGroup.objects.create(
-            name="Groupe d'appui",
+            name="Groupe d'action",
         )
 
 

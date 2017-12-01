@@ -1,6 +1,6 @@
 {% extends "front/layout.html" %}
 
-{% block title %}Mes groupes d'appui{% endblock title %}
+{% block title %}Mes groupes d'action{% endblock title %}
 
 {% block main %}
     <h2>Les groupes dont je suis membre</h2>
@@ -30,11 +30,11 @@
                 <div>Lieu : {{ membership.supportgroup.location_name }}</div>
             </div>
         {% empty %}
-            <div>Vous n'êtes membre d'aucun groupe d'appui.</div>
+            <div>Vous n'êtes membre d'aucun groupe d'action.</div>
         {% endfor %}
     </div>
 
     <h2>Créer un groupe</h2>
     <p>Si aucun groupe ne milite dans vos environs, vous pouvez <a href="{% url "create_group" %}">créer votre propre
-        groupe d'appui</a>.</p>
+        groupe d'action</a>.</p>
 {% endblock %}

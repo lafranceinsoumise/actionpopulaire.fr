@@ -57,7 +57,7 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ImageM
 
     class Meta:
         verbose_name = _("groupe d'action")
-        verbose_name_plural = _("groupes d'appui")
+        verbose_name_plural = _("groupes d'action")
         indexes = (
             models.Index(fields=['nb_path'], name='groups_nb_path_index'),
         )
