@@ -7,10 +7,12 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django.utils.html import escape, format_html
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.admin.utils import display_for_value
 from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
 
 from .models import Person, PersonTag, PersonEmail, PersonForm
+from authentication.models import Role
 from events.models import RSVP
 from groups.models import Membership
 
@@ -68,7 +70,7 @@ class PersonAdmin(admin.ModelAdmin):
             'fields': ('first_name', 'last_name', 'connection_params', 'role_link')
         }),
         (_('Dates'), {
-            'fields': ('created', 'modified')
+            'fields': ('created', 'modified', 'last_login')
         }),
         (_('Paramètres mails'), {
             'fields': ('subscribed', 'event_notifications', 'group_notifications')
@@ -97,7 +99,7 @@ class PersonAdmin(admin.ModelAdmin):
         })
     )
 
-    readonly_fields = ('connection_params', 'created', 'modified', 'role_link', 'supportgroups', 'events')
+    readonly_fields = ('connection_params', 'created', 'modified', 'last_login', 'role_link', 'supportgroups', 'events')
 
     search_fields = ('emails__address', 'first_name', 'last_name', 'location_zip')
 
@@ -140,6 +142,14 @@ class PersonAdmin(admin.ModelAdmin):
     connection_params.short_description = _("Paramètres de connexion")
     connection_params.help_text = _("A copier/coller à la fin d'une url agir pour obtenir un lien qui connecte automatiquement.")
 
+    def last_login(self, obj):
+
+        if obj.role_id:
+            return display_for_value(obj.role.last_login, '-')
+        else:
+            return '-'
+    last_login.short_description = Role._meta.get_field('last_login').verbose_name
+
 
 @admin.register(PersonTag, site=admin_site)
 class PersonTagAdmin(admin.ModelAdmin):
@@ -156,11 +166,11 @@ class PersonTagAdmin(admin.ModelAdmin):
     set_as_not_exported.short_description = _('Ne plus exporter')
 
 
-
 class PersonFormForm(forms.ModelForm):
     class Meta:
         fields = '__all__'
         widgets = {'description': AdminRichEditorWidget(), 'confirmation_note': AdminRichEditorWidget()}
+
 
 @admin.register(PersonForm, site=admin_site)
 class PersonFormAdmin(admin.ModelAdmin):
