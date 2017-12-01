@@ -8,6 +8,7 @@ simple_id = r'[0-9]+'
 
 urlpatterns = [
     # people views
+    url('^desinscription/$', views.UnsubscribeView.as_view(), name='unsubscribe'),
     url('^desabonnement/$', views.UnsubscribeView.as_view(), name='unsubscribe'),
     url('^desabonnement/succes/$', views.UnsubscribeSuccessView.as_view(), name='unsubscribe_success'),
     url('^inscription/$', views.SimpleSubscriptionView.as_view(), name='subscription'),
