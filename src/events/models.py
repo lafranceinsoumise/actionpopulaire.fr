@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
@@ -76,6 +77,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
     attendees = models.ManyToManyField('people.Person', related_name='events', through='RSVP')
 
     organizers = models.ManyToManyField('people.Person', related_name='organized_events', through="OrganizerConfig")
+    organizers_groups = models.ManyToManyField('groups.SupportGroup', related_name='organized_events', through="OrganizerConfig")
 
     class Meta:
         verbose_name = _('événement')
@@ -204,5 +206,14 @@ class OrganizerConfig(models.Model):
     event = models.ForeignKey('Event', related_name='organizer_configs', on_delete=models.CASCADE, editable=False)
 
     is_creator = models.BooleanField(_("Créateur de l'événement"), default=False)
+    as_group = models.ForeignKey('groups.SupportGroup', related_name='organizer_configs', on_delete=models.CASCADE,
+                                 blank=True, null=True)
 
     notifications_enabled = models.BooleanField(_('Recevoir les notifications'), default=True)
+
+    def clean(self):
+        super().clean()
+        memberships = self.person.memberships.filter(is_manager=True).select_related('supportgroup')
+        managed_groups = [membership.supportgroup for membership in memberships]
+        if self.as_group not in managed_groups:
+            raise ValidationError({'as_group': 'Le groupe doit être un groupe que vous gérez.'})

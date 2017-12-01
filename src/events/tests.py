@@ -1,5 +1,7 @@
 import json
 from unittest import skip
+
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.db import IntegrityError, transaction
 from django.utils import timezone
@@ -14,6 +16,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate, APITestCa
 from rest_framework.reverse import reverse
 from rest_framework import status
 
+from groups.models import SupportGroup, Membership
 from . import tasks
 from .models import Event, Calendar, RSVP, OrganizerConfig
 from people.models import Person
@@ -956,3 +959,35 @@ class EventWorkerTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['_id'], str(self.past_event.pk))
+
+class OrganizerAsGroupTestCase(TestCase):
+    def setUp(self):
+        self.start_time = timezone.now()
+        self.end_time = self.start_time + timezone.timedelta(hours=2)
+        self.calendar = Calendar.objects.create_calendar('calendar', user_contributed=True)
+        self.person = Person.objects.create(email='test@example.com')
+        self.event = Event.objects.create(
+            name='Event test',
+            calendar=self.calendar,
+            start_time=self.start_time,
+            end_time=self.end_time
+        )
+        self.group1 = SupportGroup.objects.create(
+            name='Nom'
+        )
+        Membership.objects.create(person=self.person, supportgroup=self.group1, is_manager=True)
+        self.group2 = SupportGroup.objects.create(
+            name='Nom'
+        )
+        Membership.objects.create(person=self.person, supportgroup=self.group2)
+
+        self.organizer_config = OrganizerConfig(person=self.person, event=self.event, is_creator=True)
+
+    def test_can_add_group_as_organizer(self):
+        self.organizer_config.as_group = self.group1
+        self.organizer_config.full_clean()
+
+    def test_cannot_add_group_as_organizer_if_not_manager(self):
+        self.organizer_config.as_group = self.group2
+        with self.assertRaises(ValidationError):
+            self.organizer_config.full_clean()

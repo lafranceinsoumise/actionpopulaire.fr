@@ -287,10 +287,12 @@ class AuthorizationTestCase(TestCase):
         self.assertEqual(self.person.role, backend.authenticate(profile_url=profile_url))
 
 
-class EventPermissionsTestCase(TestCase):
+class EventPagesTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person('test@test.com')
         self.other_person = Person.objects.create_person('other@test.fr')
+        self.group = SupportGroup.objects.create(name='Group name')
+        Membership.objects.create(supportgroup=self.group, person=self.person, is_manager=True)
 
         now = timezone.now()
         day = timezone.timedelta(days=1)
@@ -365,6 +367,7 @@ class EventPermissionsTestCase(TestCase):
                 'location_country': 'FR',
                 'description': 'New description',
                 'notify': 'on',
+                'as_group': self.group.pk,
             }
         )
 
@@ -389,6 +392,7 @@ class EventPermissionsTestCase(TestCase):
         args = patched_geocode.delay.call_args[0]
 
         self.assertEqual(args[0], self.organized_event.pk)
+        self.assertIn(self.group, self.organized_event.organizers_groups.all())
 
     def test_cannot_modify_rsvp_event(self):
         self.client.force_login(self.person.role)
@@ -486,9 +490,10 @@ class EventPermissionsTestCase(TestCase):
     def test_can_create_new_event(self, patched_send_event_creation_notification, patched_geocode_event):
         self.client.force_login(self.person.role)
 
-        # get create page
+        # get create page, it should contain the name of the group the user manage
         response = self.client.get(reverse('create_event'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, 'Group name')
 
         # post create page
         response = self.client.post(reverse('create_event'), data={
@@ -505,6 +510,7 @@ class EventPermissionsTestCase(TestCase):
             'location_city': 'rainbow',
             'location_country': 'FR',
             'description': 'New description',
+            'as_group': self.group.pk,
         })
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
@@ -519,8 +525,14 @@ class EventPermissionsTestCase(TestCase):
         patched_geocode_event.delay.assert_called_once()
         self.assertEqual(patched_geocode_event.delay.call_args[0], (organizer_config.event.pk,))
 
+        event = Event.objects.latest(field_name='created')
+        self.assertEqual(event.name, 'New Name')
+        self.assertIn(self.group, event.organizers_groups.all())
+
 
 class GroupPageTestCase(TestCase):
+    fixtures = ['fixtures.json']
+
     def setUp(self):
         self.person = Person.objects.create_person('test@test.com')
         self.other_person = Person.objects.create_person('other@test.fr')
@@ -712,6 +724,11 @@ class GroupPageTestCase(TestCase):
         for page in group_pages:
             res = self.client.get(reverse(page, args=(self.referent_group.pk,)))
             self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND, '"{}" did not return 404'.format(page))
+
+    def test_can_see_groups_events(self):
+        response = self.client.get(reverse('view_group', args=['1ace9703-a672-4cce-8978-36ca60b9933c']))
+
+        self.assertContains(response, "Événement créé par user1")
 
 
 class NBUrlsTestCase(TestCase):

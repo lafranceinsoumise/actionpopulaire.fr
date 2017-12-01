@@ -68,4 +68,20 @@
         </div>
     {% endif %}
 
+    {% if supportgroup.organized_events.all|length > 0 %}
+        <h3>Événements organisés</h3>
+        {% for event in supportgroup.organized_events.all %}
+            <div class="list-group-item">
+                <strong>
+                    <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
+                    <small>
+                        &bull; <a href="{% url "manage_event" event.pk %}">Gestion</a>
+                    </small>
+                </strong>
+                <div>{{ event.get_display_date }}</div>
+                <div>{{ event.location_name }}</div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
 {% endblock %}

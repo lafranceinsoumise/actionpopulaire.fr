@@ -1,7 +1,9 @@
 from django import forms
+from django.forms import inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 from crispy_forms.helper import FormHelper
 
+from groups.models import SupportGroup
 from ..form_components import *
 from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm
 
@@ -61,6 +63,13 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
 
             calendar_field = [Row(FullCol('calendar'))]
 
+        self.fields['as_group'] = forms.ModelChoiceField(
+            queryset=SupportGroup.objects.filter(memberships__person=person, memberships__is_manager=True),
+            empty_label="Ne pas créer au nom d'un groupe",
+            label=_("Créer l'événement au nom d'un groupe d'action"),
+            required=False,
+        )
+
         self.fields['name'].label = "Nom de l'événement"
         self.fields['name'].help_text = None
 
@@ -77,6 +86,8 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             notify_field = [Row(
                 FullCol('notify')
             )]
+            self.organizer_config = OrganizerConfig.objects.get(person=self.person, event=self.instance)
+            self.fields['as_group'].initial = self.organizer_config.as_group
         else:
             notify_field = []
 
@@ -92,6 +103,9 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             Row(
                 HalfCol('start_time'),
                 HalfCol('end_time'),
+            ),
+            Row(
+                HalfCol('as_group')
             ),
             Section(
                 _('Informations de contact'),
@@ -154,12 +168,16 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         if self.is_creation:
             self.organizer_config = OrganizerConfig.objects.create(
                 person=self.person,
-                event=self.instance
+                event=self.instance,
+                as_group=self.cleaned_data['as_group'],
             )
             RSVP.objects.create(
                 person=self.person,
                 event=self.instance
             )
+        elif self.organizer_config.as_group != self.cleaned_data['as_group']:
+            self.organizer_config.as_group = self.cleaned_data['as_group']
+            self.organizer_config.save()
 
     def schedule_tasks(self):
         # create set so that values are unique, but turns to list because set are not JSON-serializable

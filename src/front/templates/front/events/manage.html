@@ -11,6 +11,17 @@
     <div class="panel panel-default">
         <div class="panel-heading"><strong>{{ event.name }}</strong></div>
         <div class="panel-body">
+            {% spaceless %}
+            {% if event.organizers_groups.all|length > 0 %}
+            <p>
+                Organisé par le(s) groupe(s) d'action
+                {% for supportgroup in event.organizers_groups.all.distinct %}
+                    <a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a>{% if not forloop.last %}{%  if forloop.revcounter0 == 1 %} et {% else %}, {% endif %}{% else %}.{% endif %}
+                {% endfor%}
+            </p>
+            {%  endif %}
+            {% endspaceless %}
+
             <h6 class="subhead">Quand</h6>
             <p>{{ event.get_display_date }}</p>
 
