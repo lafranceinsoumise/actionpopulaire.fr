@@ -28,14 +28,14 @@ def past_only(as_of):
 
 
 class EventQuerySet(models.QuerySet):
-    def upcoming(self, as_of, published_only=True):
+    def upcoming(self, as_of=timezone.now(), published_only=True):
         condition = upcoming_only(as_of)
         if published_only:
             condition &= models.Q(published=True)
 
         return self.filter(condition)
 
-    def past(self, as_of, published_only=True):
+    def past(self, as_of=timezone.now(), published_only=True):
         condition = past_only(as_of)
         if published_only:
             condition &= models.Q(published=True)

@@ -48,7 +48,7 @@
     "pk": "e5dba3fa-cdbc-4fa3-953b-e4b70c67887f",
     "fields": {
       "password": "pbkdf2_sha256$36000$d9u1xqMDlN8H$WLgNNokZq5ytKzQVMb9a1T4pZyYtyk9NWez6tWx2pvQ=",
-      "last_login": "2017-12-04T15:19:02.926Z",
+      "last_login": "2017-12-04T16:45:17.965Z",
       "is_superuser": false,
       "type": "P",
       "is_staff": false,
@@ -132,7 +132,7 @@
     "pk": "5bb40ef9-a3fc-403e-8a81-a12c2e40a569",
     "fields": {
       "created": "2017-12-04T15:21:32.312Z",
-      "modified": "2017-12-04T15:21:32.346Z",
+      "modified": "2017-12-04T16:16:24.260Z",
       "nb_id": null,
       "coordinates": null,
       "coordinates_type": null,
@@ -156,6 +156,39 @@
       "nb_path": "",
       "start_time": "2020-01-01T19:00:00Z",
       "end_time": "2020-01-01T20:00:00Z",
+      "calendar": 3,
+      "tags": []
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": "cf1e9802-e809-4ec6-85ad-1cdf55422041",
+    "fields": {
+      "created": "2017-12-04T16:46:33.802Z",
+      "modified": "2017-12-04T16:46:33.849Z",
+      "nb_id": null,
+      "coordinates": null,
+      "coordinates_type": null,
+      "location_name": "Matignon",
+      "location_address1": "57 Rue de Varenne",
+      "location_address2": "",
+      "location_city": "Paris",
+      "location_zip": "75007",
+      "location_state": "",
+      "location_country": "FR",
+      "location_address": "",
+      "contact_name": "User1",
+      "contact_email": "user1@example.com",
+      "contact_phone": "0606060606",
+      "contact_hide_phone": false,
+      "image": "",
+      "description": "<p>lorem ipsum</p>",
+      "allow_html": false,
+      "name": "\u00c9v\u00e9nement pass\u00e9 cr\u00e9\u00e9 par user1",
+      "published": true,
+      "nb_path": "",
+      "start_time": "2010-01-01T19:00:00Z",
+      "end_time": "2010-01-01T20:00:00Z",
       "calendar": 3,
       "tags": []
     }
@@ -210,11 +243,35 @@
     }
   },
   {
+    "model": "events.rsvp",
+    "pk": 2,
+    "fields": {
+      "created": "2017-12-04T16:46:33.874Z",
+      "modified": "2017-12-04T16:46:33.875Z",
+      "person": "39885b2c-ba2b-4e98-8970-1cca219b091c",
+      "event": "cf1e9802-e809-4ec6-85ad-1cdf55422041",
+      "guests": 0,
+      "canceled": false,
+      "notifications_enabled": true
+    }
+  },
+  {
     "model": "events.organizerconfig",
     "pk": 1,
     "fields": {
       "person": "39885b2c-ba2b-4e98-8970-1cca219b091c",
       "event": "5bb40ef9-a3fc-403e-8a81-a12c2e40a569",
+      "is_creator": false,
+      "as_group": "1ace9703-a672-4cce-8978-36ca60b9933c",
+      "notifications_enabled": true
+    }
+  },
+  {
+    "model": "events.organizerconfig",
+    "pk": 2,
+    "fields": {
+      "person": "39885b2c-ba2b-4e98-8970-1cca219b091c",
+      "event": "cf1e9802-e809-4ec6-85ad-1cdf55422041",
       "is_creator": false,
       "as_group": "1ace9703-a672-4cce-8978-36ca60b9933c",
       "notifications_enabled": true
