@@ -1,14 +1,18 @@
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import F, Sum
 from django.utils import timezone
 from django.utils.encoding import force_text
-from django.utils.html import format_html
+from django.utils.html import format_html, escape
 from django import forms
 from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
 
+from groups.models import SupportGroup
 from lib.admin import CenterOnFranceMixin
 from lib.forms import CoordinatesFormMixin
 from lib.form_fields import AdminRichEditorWidget
@@ -60,6 +64,37 @@ class EventStatusFilter(admin.SimpleListFilter):
             return queryset.filter(start_time__gt=now)
 
 
+class OrganizerConfigForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        try:
+            self.fields['as_group'].queryset = SupportGroup.objects.filter(memberships__person=self.instance.person, memberships__is_manager=True)
+        except (AttributeError, ObjectDoesNotExist):
+            pass
+
+
+class OrganizerConfigInline(admin.TabularInline):
+    model = models.OrganizerConfig
+    form = OrganizerConfigForm
+    fields = ('person_link', 'as_group')
+    readonly_fields = ('person_link', )
+
+    def get_form(self, obj):
+        print('lol')
+        form = super().get_form()
+        form.fields['as_group'].queryset = SupportGroup.objects.filter(memberships__person=obj.person, memberships__is_manager=True)
+
+    def person_link(self, obj):
+        return mark_safe('<a href="%s">%s</a>' % (
+            reverse('admin:people_person_change', args=(obj.person.id,)),
+            escape(obj.person.email)
+        ))
+    person_link.short_description = _("Personne")
+
+    def has_add_permission(self, request):
+        return False
+
+
 @admin.register(models.Event, site=admin_site)
 class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     form = EventAdminForm
@@ -70,9 +105,6 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         }),
         (_('Informations'), {
             'fields': ('description', 'allow_html', 'image', 'start_time', 'end_time', 'calendar', 'tags', 'published'),
-        }),
-        (_('Organisation'), {
-            'fields': ('organizers',)
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
@@ -85,6 +117,8 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('nb_id', 'nb_path', 'location_address')
         })
     )
+
+    inlines = (OrganizerConfigInline,)
 
     readonly_fields = ('id', 'link', 'organizers', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'start_time'
