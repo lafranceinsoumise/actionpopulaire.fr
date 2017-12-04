@@ -5,6 +5,7 @@ api-django
     1. [Configure PostgreSQL](#configure-postgresql)
     2. [Install requirements](#install-requirements)
     3. [Create super users](#create-super-user-person)
+    4. [Development data](#development-data)
 2. [Usage : public endpoints](#public-endpoints)
     1. [/events](#events)
     1. [/groups](#groups)
@@ -96,6 +97,21 @@ c = Client.objects.create(label='client_login', name='Nom du client')
 c.role.set_password('client_password')
 c.role.is_superuser = True
 c.role.save()
+```
+
+Development data
+----------------
+
+You can load data in the database. All role passwords are 'incredible password'.s
+
+```bash
+./manage.py loaddata fixtures.json
+``` 
+
+To update and commit it in a git diff readable way, use the following command :
+
+```bash
+./manage.py dumpdata authentication clients events groups front people polls
 ```
 
 # Public endpoints
