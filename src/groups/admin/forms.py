@@ -14,7 +14,10 @@ class SupportGroupAdminForm(CoordinatesFormMixin, forms.ModelForm):
         exclude = (
             'id', 'members'
         )
-        widgets = {'description': AdminRichEditorWidget()}
+        widgets = {
+            'description': AdminRichEditorWidget(),
+            'tags': forms.CheckboxSelectMultiple()
+        }
 
 
 class AddMemberForm(forms.Form):
