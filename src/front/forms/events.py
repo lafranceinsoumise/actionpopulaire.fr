@@ -1,6 +1,6 @@
 from django import forms
-from django.forms import inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 from crispy_forms.helper import FormHelper
 
 from groups.models import SupportGroup
@@ -36,6 +36,13 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         'description': "information"
     }
 
+    image_accept_license = forms.BooleanField(
+        required=False,
+        label=_("En important une image, je certifie être le propriétaire des droits et accepte de la partager sous"
+                " licence libre <a href=\"https://creativecommons.org/licenses/by/4.0/deed.fr\">Creative Commons"
+                " CC-BY-NC 4.0</a>."),
+    )
+
     def __init__(self, *args, person, **kwargs):
         super(EventForm, self).__init__(*args, **kwargs)
 
@@ -43,14 +50,17 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
 
         calendar_field = []
 
-        description_field = [
-            'description'
-        ]
+        self.fields['image'].help_text = _("""
+        Vous pouvez ajouter une image de bannière à votre événement : elle apparaîtra alors sur la page de votre
+        événement, et comme illustration si vous le partagez sur les réseaux sociaux. Pour cela, choisissez une image
+        à peu près deux fois plus large que haute, et de dimensions supérieures à 1200 par 630 pixels.
+        """)
 
-        # do not allow random organizers to modify HTML
-        if self.instance.allow_html:
-            del self.fields['description']
-            description_field = []
+        self.fields['description'].help_text = _("""
+        Cette description doit permettre de comprendre rapidement sur quoi porte et comment se passera votre événement.
+        Incluez toutes les informations pratiques qui pourraient être utiles aux insoumis⋅es qui souhaiteraient
+        participer (matériel à amener, précisions sur le lieu ou contraintes particulières, par exemple).
+        """)
 
         if not hasattr(self.instance, 'calendar') or self.instance.calendar.user_contributed:
             self.fields['calendar'] = AgendaChoiceField(
@@ -99,6 +109,12 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             Row(
                 FullCol('name'),
             ),
+            Row(
+                FullCol('image'),
+            ),
+            Row(
+                FullCol('image_accept_license')
+            ),
             *calendar_field,
             Row(
                 HalfCol('start_time'),
@@ -144,17 +160,37 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
                 ),
                 Row(
                     Div('location_country', css_class='col-md-12'),
-                ),
+                ),  
             ),
-            *description_field,
+            Row(FullCol('description')),
             *notify_field,
         )
+
+    def clean_start_time(self):
+        start_time = self.cleaned_data['start_time']
+
+        if start_time < timezone.now():
+            raise forms.ValidationError(
+                _("Vos événements feraient mieux de se passer dans le futur ! Ce serait plus efficace…")
+            )
+
+        return start_time
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if cleaned_data['end_time'] <= cleaned_data['start_time']:
-            self.add_error('end_time', _("La fin de l'événément ne peut pas être avant son début."))
+        image = cleaned_data['image']
+        image_accept_license = cleaned_data['image_accept_license']
+
+        if not image:
+            cleaned_data['image_accept_license'] = False
+        elif not image_accept_license:
+            self.add_error(
+                'image_accept_license',
+                _("Vous devez accepter de placer votre image sous licence Creative Commons pour l'ajouter à votre"
+                  " événement."))
+
+        return cleaned_data
 
     def save(self, commit=True):
         res = super().save(commit)
@@ -200,7 +236,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
     class Meta:
         model = Event
         fields = (
-            'name', 'start_time', 'end_time', 'calendar',
+            'name', 'image', 'start_time', 'end_time', 'calendar',
             'contact_name', 'contact_email', 'contact_phone', 'contact_hide_phone',
             'location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
             'location_country',

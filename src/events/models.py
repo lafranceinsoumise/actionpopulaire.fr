@@ -126,6 +126,12 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
             end_time=formats.date_format(end_time, 'TIME_FORMAT'),
         )
 
+    def clean(self):
+        if self.start_time and self.end_time and self.end_time < self.start_time:
+            raise ValidationError({
+                'end_time':_("La date de fin de l'événement doit être postérieure à sa date de début.")
+            })
+
 
 class EventTag(AbstractLabel):
     class Meta:

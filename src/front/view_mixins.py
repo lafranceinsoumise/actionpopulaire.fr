@@ -9,6 +9,7 @@ from django.shortcuts import reverse
 from django.views.generic import UpdateView
 from django.http.response import HttpResponseForbidden, HttpResponseRedirect
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 
 
 class SoftLoginRequiredMixin(object):
@@ -69,6 +70,12 @@ class HardLoginRequiredMixin(object):
 
 class PermissionsRequiredMixin(object):
     permissions_required = ()
+    permission_denied_message = _("Vous n'avez pas l'autorisation d'accéder à cette page.")
+
+    def get_object(self):
+        if not hasattr(self, '_cached_object'):
+            self._cached_object = super().get_object()
+        return self._cached_object
 
     def dispatch(self, *args, **kwargs):
         # check if there are some perms that the user does not have globally
@@ -80,7 +87,7 @@ class PermissionsRequiredMixin(object):
 
             for perm in local_perms:
                 if not user.has_perm(perm, obj):
-                    return HttpResponseForbidden(b'Not allowed')
+                    raise PermissionDenied(self.permission_denied_message)
 
         return super().dispatch(*args, **kwargs)
 

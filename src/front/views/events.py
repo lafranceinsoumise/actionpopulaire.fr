@@ -5,12 +5,12 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest
+from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.conf import settings
 from django.utils import timezone
 
-from events.models import Event, RSVP, OrganizerConfig, Calendar
+from events.models import Event, RSVP, Calendar
 from events.tasks import send_cancellation_notification, send_rsvp_notification
 
 from ..forms import EventForm, AddOrganizerForm, EventGeocodingForm
@@ -23,12 +23,6 @@ __all__ = [
     'EventListView', 'CreateEventView', 'ManageEventView', 'ModifyEventView', 'QuitEventView', 'CancelEventView',
     'EventDetailView', 'CalendarView', 'ChangeEventLocationView'
 ]
-
-
-class IsOrganiserMixin:
-    def is_organizer(self):
-        event = self.object if isinstance(self.object, Event) else self.object.event
-        return OrganizerConfig.objects.filter(person=self.request.user.person, event=event).exists()
 
 
 class EventListView(SoftLoginRequiredMixin, ListView):
@@ -79,8 +73,13 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
         return HttpResponseBadRequest()
 
 
-class ManageEventView(HardLoginRequiredMixin, IsOrganiserMixin, DetailView):
+class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailView):
     template_name = "front/events/manage.html"
+    permissions_required = ('events.change_event', )
+
+    error_messages = {
+        'denied': _("Vous ne pouvez pas accéder à cette page sans être organisateur de l'événement.")
+    }
 
     def get_queryset(self):
         return Event.objects.upcoming(as_of=timezone.now())
@@ -104,30 +103,6 @@ class ManageEventView(HardLoginRequiredMixin, IsOrganiserMixin, DetailView):
             organizers=self.object.organizers.all(),
             rsvps=self.object.rsvps.all()
         )
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        if not self.is_organizer():
-            return HttpResponseForbidden(b'Interdit')
-
-        context = self.get_context_data(object=self.object)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        if not self.is_organizer():
-            return HttpResponseForbidden(b'Interdit')
-
-        form = self.get_form()
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(self.get_success_url())
-
-        context = self.get_context_data(object=self.object)
-        return self.render_to_response(context)
 
 
 class CreateEventView(HardLoginRequiredMixin, CreateView):
@@ -202,7 +177,8 @@ class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateVi
         return res
 
 
-class CancelEventView(HardLoginRequiredMixin, DetailView):
+class CancelEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailView):
+    permissions_required = ('events.change_event',)
     template_name = 'front/events/cancel.html'
     success_url = reverse_lazy('list_events')
 

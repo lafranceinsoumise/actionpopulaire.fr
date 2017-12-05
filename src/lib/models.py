@@ -228,9 +228,11 @@ class ImageMixin(models.Model):
             'banner': (1200, 400),
         },
         blank=True,
-        help_text=_("L'image à utiliser pour l'affichage sur la page, comme miniature dans les listes, et"
+        help_text=_("Vous pouvez ajouter une image de bannière : elle apparaîtra sur la page de votre événement, et sur"
+                    " les réseaux sociaux si vous y partagez "
+                    "L'image à utiliser pour l'affichage sur la page, comme miniature dans les lstes, et"
                     " pour le partage sur les réseaux sociaux. Elle doit faire au minimum 1200 pixels de large, et 630"
-                    " de haut. Préférer un rapport largeur/hauteur de 2 (deux fois plus large que haut)?")
+                    " de haut. Utilisez un format large, à peu près deux fois plus large que haut.")
     )
 
     class Meta:
