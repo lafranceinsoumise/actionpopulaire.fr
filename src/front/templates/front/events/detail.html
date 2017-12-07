@@ -3,37 +3,43 @@
 {% block title %}«&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
 {% block main %}
-    {% if event.image %}
-        <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
-    {% endif %}
-
-    <div class="row">
-        <h1 class="col-sm-10">{{ event.name }}</h1>
-        {% if user.is_authenticated and user.is_staff %}
-        <div class="col-sm-2">
-          <a href="{% url "admin:events_event_change" event.id %}">Administration</a>
-        </div>
+    <header>
+        {% if event.image %}
+            <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
         {% endif %}
-    </div>
+        <h1>{{ event.name }}</h1>
+        <div>
+            {% if user.is_authenticated and user.is_staff %}
+                <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:events_event_change" event.pk %}">Administration</a>
+            {% endif %}
+            {% if is_organizer %}
+                <a class="btn btn-default" href="{% url "manage_event" event.pk %}">Gérer l'événement</a>
+            {% endif %}
+        </div>
+    </header>
+
     <hr/>
     <iframe title="Carte" class="col-xs-6" style="float: right;"
             src="https://carte.lafranceinsoumise.fr/?event_id={{ event.pk }},events&hide_panel=1&hide_address=1"
             width="400" height="300" scrolling="no" frameBorder="0"></iframe>
     {% spaceless %}
-    {% if event.organizers_groups.all|length > 0 %}
-    <p>
-        L'événement est organisé par le(s) groupe(s) d'action
-        {% for supportgroup in event.organizers_groups.all.distinct %}
-            <a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a>{% if not forloop.last %}{%  if forloop.revcounter0 == 1 %} et {% else %}, {% endif %}{% else %}.{% endif %}
-        {% endfor%}
-    </p>
-    {%  endif %}
+        {% if organizers_groups|length > 0 %}
+            <p>
+                L'événement est organisé
+                {% if organizers_group|length > 1 %}par les groupes d'action{% else %}par le groupe d'action{% endif %}
+                {% for supportgroup in event.organizers_groups.all.distinct %}
+                    <a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a>
+                    {% if not forloop.last %}{% if forloop.revcounter0 == 1 %} et {% else %}, {% endif %}{% else %}.
+                    {% endif %}
+                {% endfor %}
+            </p>
+        {% endif %}
     {% endspaceless %}
     <h4>Adresse&nbsp;:</h4>
     <p>{{ event.html_full_address }}</p>
     <div>
         <h4>Date&nbsp;:</h4>
-        <div class="date">L'événement se déroulera du {{ event.start_time }} au {{ event.end_time }}.</div>
+        <div class="date">L'événement se déroulera {{ event.get_display_date }}.</div>
         <hr/>
     </div>
     <h4>
@@ -65,10 +71,10 @@
                 <input type="submit" class="btn btn-primary btn-block" value="Participer à cet événement"/>
             </form>
         {% elif is_organizer %}
-        <p>
-            J'organise cet événement
-            &bull; <a href="{% url "manage_event" event.pk %}">Gérer mon événement</a>
-        </p>
+            <p>
+                J'organise cet événement
+                &bull; <a href="{% url "manage_event" event.pk %}">Gérer mon événement</a>
+            </p>
         {% endif %}
     {% else %}
         <a class="btn btn-primary btn-block" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour

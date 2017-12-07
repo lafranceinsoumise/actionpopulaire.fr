@@ -113,13 +113,13 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
 
         if start_time.date() == end_time.date():
             date = formats.date_format(start_time, 'DATE_FORMAT')
-            return _("Le {date}, de {start_hour} à {end_hour}").format(
+            return _("le {date}, de {start_hour} à {end_hour}").format(
                 date=date,
                 start_hour=formats.time_format(start_time, 'TIME_FORMAT'),
                 end_hour=formats.time_format(end_time, 'TIME_FORMAT')
             )
 
-        return _("Du {start_date}, {start_time} au {end_date}, {end_time}").format(
+        return _("du {start_date}, {start_time} au {end_date}, {end_time}").format(
             start_date=formats.date_format(start_time, 'DATE_FORMAT'),
             start_time=formats.date_format(start_time, 'TIME_FORMAT'),
             end_date=formats.date_format(end_time, 'DATE_FORMAT'),

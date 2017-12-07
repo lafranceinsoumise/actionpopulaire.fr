@@ -9,6 +9,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.conf import settings
 from django.utils import timezone
+from django.core.exceptions import PermissionDenied
 
 from events.models import Event, RSVP, Calendar
 from events.tasks import send_cancellation_notification, send_rsvp_notification
@@ -57,7 +58,8 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(
             has_rsvp=self.request.user.is_authenticated and self.object.rsvps.filter(person=self.request.user.person).exists(),
-            is_organizer=self.request.user.is_authenticated and self.object.organizers.filter(pk=self.request.user.person.id).exists()
+            is_organizer=self.request.user.is_authenticated and self.object.organizers.filter(pk=self.request.user.person.id).exists(),
+            organizers_groups = self.object.organizers_groups.distinct(),
         )
 
     @method_decorator(login_required(login_url=reverse_lazy('oauth_redirect_view')), )
@@ -101,8 +103,19 @@ class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
         return super().get_context_data(
             add_organizer_form=self.get_form(),
             organizers=self.object.organizers.all(),
-            rsvps=self.object.rsvps.all()
+            rsvps=self.object.rsvps.all(),
+            **kwargs
         )
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        form = self.get_form()
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(self.get_success_url())
+
+        return self.render_to_response(self.get_context_data(add_organizer_form=form))
 
 
 class CreateEventView(HardLoginRequiredMixin, CreateView):
