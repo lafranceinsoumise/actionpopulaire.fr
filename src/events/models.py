@@ -9,16 +9,19 @@ from stdimage.models import StdImageField
 from stdimage.utils import UploadToAutoSlug
 
 from lib.models import (
-    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, ImageMixin, DescriptionMixin
+    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, ImageMixin, DescriptionMixin,
+    DescriptionField
 )
 from lib.form_fields import DateTimePickerWidget
-
 
 EVENT_GRACE_PERIOD = timezone.timedelta(hours=12)
 
 
 def upcoming_only(as_of):
     return models.Q(end_time__gt=as_of - EVENT_GRACE_PERIOD)
+
+def past_only(as_of):
+    return models.Q(end_time__lt=as_of)
 
 
 class EventQuerySet(models.QuerySet):
@@ -27,6 +30,12 @@ class EventQuerySet(models.QuerySet):
         if published_only:
             condition &= models.Q(published=True)
 
+        return self.filter(condition)
+
+    def past(self, as_of, published_only=True):
+        condition = past_only(as_of)
+        if published_only:
+            condition &= models.Q(published=True)
         return self.filter(condition)
 
 
@@ -79,6 +88,24 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
     organizers = models.ManyToManyField('people.Person', related_name='organized_events', through="OrganizerConfig")
     organizers_groups = models.ManyToManyField('groups.SupportGroup', related_name='organized_events', through="OrganizerConfig")
 
+    report_image = StdImageField(
+        verbose_name=_('image de couverture'),
+        blank=True,
+        variations={
+            'thumbnail': (400, 250),
+            'banner': (1200, 400),
+        },
+        help_text=_("Cette image apparaîtra en tête de votre compte-rendu, et dans les partages que vous ferez du"
+                    " compte-rendu sur les réseaux sociaux."),
+    )
+
+    report_content = DescriptionField(
+        verbose_name=_("compte-rendu de l'événement"),
+        blank=True,
+        allowed_tags='allowed_tags',
+        help_text=_("Ajoutez un compte-rendu de votre événement. N'hésitez pas à inclure des photos.")
+    )
+
     class Meta:
         verbose_name = _('événement')
         verbose_name_plural = _('événements')
@@ -125,6 +152,9 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
             end_date=formats.date_format(end_time, 'DATE_FORMAT'),
             end_time=formats.date_format(end_time, 'TIME_FORMAT'),
         )
+
+    def is_past(self):
+        return timezone.now() > self.end_time
 
     def clean(self):
         if self.start_time and self.end_time and self.end_time < self.start_time:

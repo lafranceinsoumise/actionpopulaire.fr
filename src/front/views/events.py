@@ -14,7 +14,7 @@ from django.core.exceptions import PermissionDenied
 from events.models import Event, RSVP, Calendar
 from events.tasks import send_cancellation_notification, send_rsvp_notification
 
-from ..forms import EventForm, AddOrganizerForm, EventGeocodingForm
+from ..forms import EventForm, AddOrganizerForm, EventGeocodingForm, EventReportForm
 from ..view_mixins import (
     HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
     ChangeLocationBaseView
@@ -22,7 +22,7 @@ from ..view_mixins import (
 
 __all__ = [
     'EventListView', 'CreateEventView', 'ManageEventView', 'ModifyEventView', 'QuitEventView', 'CancelEventView',
-    'EventDetailView', 'CalendarView', 'ChangeEventLocationView'
+    'EventDetailView', 'CalendarView', 'ChangeEventLocationView', 'EditEventReportView'
 ]
 
 
@@ -33,10 +33,10 @@ class EventListView(SoftLoginRequiredMixin, ListView):
     template_name = 'front/events/list.html'
     context_object_name = 'events'
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['rsvps'] = self.get_rsvps()
+        context['past_events'] = self.get_past_events()
         return context
 
     def get_queryset(self):
@@ -45,15 +45,16 @@ class EventListView(SoftLoginRequiredMixin, ListView):
     def get_rsvps(self):
         return RSVP.objects.upcoming(as_of=timezone.now()).select_related('event').filter(person=self.request.user.person)
 
+    def get_past_events(self):
+        return Event.objects.past(as_of=timezone.now()).filter(rsvps__person=self.request.user.person).order_by('-start_time')
+
 
 class EventDetailView(ObjectOpengraphMixin, DetailView):
     template_name = "front/events/detail.html"
+    queryset = Event.objects.filter(published=True)
 
     title_prefix = _("Evénement local")
     meta_description = _("Participez aux événements organisés par les membres de la France insoumise.")
-
-    def get_queryset(self):
-        return Event.objects.upcoming(as_of=timezone.now())
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
@@ -78,13 +79,11 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
 class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailView):
     template_name = "front/events/manage.html"
     permissions_required = ('events.change_event', )
+    queryset = Event.objects.filter(published=True)
 
     error_messages = {
         'denied': _("Vous ne pouvez pas accéder à cette page sans être organisateur de l'événement.")
     }
-
-    def get_queryset(self):
-        return Event.objects.upcoming(as_of=timezone.now())
 
     def get_success_url(self):
         return reverse('manage_event', kwargs={'pk': self.object.pk})
@@ -109,6 +108,9 @@ class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
+
+        if self.object.is_past():
+            raise PermissionDenied(_('Vous ne pouvez pas ajouter d\'organisateur à un événement terminé.'))
 
         form = self.get_form()
         if form.is_valid():
@@ -283,3 +285,15 @@ class ChangeEventLocationView(ChangeLocationBaseView):
 
     def get_queryset(self):
         return Event.objects.upcoming(as_of=timezone.now())
+
+
+class EditEventReportView(PermissionsRequiredMixin, UpdateView):
+    template_name = 'front/events/edit_event_report.html'
+    permissions_required = ('events.change_event',)
+    form_class = EventReportForm
+
+    def get_success_url(self):
+        return reverse('manage_event', args=(self.object.pk,))
+
+    def get_queryset(self):
+        return Event.objects.past(as_of=timezone.now())

@@ -4,8 +4,21 @@
 
 {% block main %}
     <header>
-        {% if event.image %}
-            <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
+        {% if event.is_past %}
+            {% comment %}
+                The image to show at the top :
+                - should be the event report image if it set
+                - if not, it should be the event image
+            {% endcomment %}
+            {% if event.report_image %}
+                <img src="{{ event.report_image.banner.url }}" class="img-responsive center-block">
+            {% elif event.image %}
+                <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
+            {% endif %}
+        {% else %}
+            {% if event.image %}
+                <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
+            {% endif %}
         {% endif %}
         <h1>{{ event.name }}</h1>
         <div>
@@ -18,6 +31,23 @@
         </div>
     </header>
 
+    {% if event.is_past %}
+        {% if event.report_content %}
+            <div>
+                {{ event.html_report_content }}
+            </div>
+        {% else %}
+            <p>
+                <em>Les organisateurs de cet événement n'ont pas encore posté de compte-rendu.</em>
+            </p>
+        {% endif %}
+        {% if event.image %}
+            {% if event.is_past or event.report_image %}
+                <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
     <hr/>
     <iframe title="Carte" class="col-xs-6" style="float: right;"
             src="https://carte.lafranceinsoumise.fr/?event_id={{ event.pk }},events&hide_panel=1&hide_address=1"
@@ -25,7 +55,7 @@
     {% spaceless %}
         {% if organizers_groups|length > 0 %}
             <p>
-                L'événement est organisé
+                L'événement {% if event.is_past %}était organisé{% else %}est organisé{% endif %}
                 {% if organizers_group|length > 1 %}par les groupes d'action{% else %}par le groupe d'action{% endif %}
                 {% for supportgroup in event.organizers_groups.all.distinct %}
                     <a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a>
@@ -39,7 +69,7 @@
     <p>{{ event.html_full_address }}</p>
     <div>
         <h4>Date&nbsp;:</h4>
-        <div class="date">L'événement se déroulera {{ event.get_display_date }}.</div>
+        <div class="date">L'événement {% if event.is_past %}s'est déroulé{% else %}se déroulera{% endif %} du {{ event.start_time }} au {{ event.end_time }}.</div>
         <hr/>
     </div>
     <h4>

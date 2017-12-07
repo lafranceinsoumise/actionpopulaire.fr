@@ -9,7 +9,7 @@
     <h3>Les informations de mon événement</h3>
 
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>{{ event.name }}</strong></div>
+        <div class="panel-heading"><strong>{{ event.name }}</strong>{% if event.is_past %} (cet événement est terminé){% endif %}</div>
         <div class="panel-body">
             {% spaceless %}
             {% if event.organizers_groups.all|length > 0 %}
@@ -33,9 +33,13 @@
         </div>
         <div class="panel-footer">
             <ul class="list-inline">
-                <li><a class="btn btn-default" href="{% url "edit_event" event.pk %}">Modifier ces informations</a></li>
-                <li><a class="btn btn-default" href="{% url "change_event_location" event.pk %}">Corriger la localisation de l'événement</a></li>
-                <li><a class="btn btn-default" href="{% url "cancel_event" event.pk %}">Annuler l'événement</a></li>
+                {% if not event.is_past %}
+                    <li><a class="btn btn-default" href="{% url "edit_event" event.pk %}">Modifier ces informations</a></li>
+                    <li><a class="btn btn-default" href="{% url "change_event_location" event.pk %}">Corriger la localisation de l'événement</a></li>
+                    <li><a class="btn btn-default" href="{% url "cancel_event" event.pk %}">Annuler l'événement</a></li>
+                {% else %}
+                    <li><a class="btn btn-default" href="{% url "edit_event_report" event.pk %}">{% if event.report_content %}Modifier{% else %}Rédiger{% endif %} le compte-rendu</a></li>
+                {% endif %}
             </ul>
         </div>
 
@@ -54,6 +58,7 @@
         {% endfor %}
     </ul>
 
+    {% if not event.is_past %}
     <div>
         <p>
             Vous pouvez sélectionner d'autres personnes pour co-organiser l'événement avec vous parmi celles qui ont
@@ -61,6 +66,7 @@
         </p>
         {% crispy add_organizer_form %}
     </div>
+    {% endif %}
 
     <h3>Liste des participants</h3>
 

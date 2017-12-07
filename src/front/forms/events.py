@@ -11,7 +11,7 @@ from events.models import Event, OrganizerConfig, Calendar, RSVP
 from events.tasks import send_event_creation_notification, send_event_changed_notification
 from lib.tasks import geocode_event
 
-__all__ = ['EventForm', 'AddOrganizerForm', 'EventGeocodingForm']
+__all__ = ['EventForm', 'AddOrganizerForm', 'EventGeocodingForm', 'EventReportForm']
 
 
 class AgendaChoiceField(forms.ModelChoiceField):
@@ -289,3 +289,15 @@ class EventGeocodingForm(GeocodingBaseForm):
     class Meta:
         model = Event
         fields = ('coordinates',)
+
+
+class EventReportForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.add_input(Submit('submit', _('Sauvegarder et publier')))
+
+    class Meta:
+        model = Event
+        fields = ('report_image', 'report_content')

@@ -33,6 +33,7 @@ urlpatterns = [
     url(f'^evenements/(?P<pk>{uuid})/quitter/$', views.QuitEventView.as_view(), name='quit_event'),
     url(f'^evenements/(?P<pk>{uuid})/annuler/$', views.CancelEventView.as_view(), name='cancel_event'),
     url(f'^evenements/(?P<pk>{uuid})/localisation/$', views.ChangeEventLocationView.as_view(), name='change_event_location'),
+    url(f'^evenements/(?P<pk>{uuid})/compte-rendu/$', views.EditEventReportView.as_view(), name='edit_event_report'),
     url('^agenda/(?P<slug>[-a-zA-Z0-9_]+)/$', views.CalendarView.as_view(), name='view_calendar'),
 
     # groups views

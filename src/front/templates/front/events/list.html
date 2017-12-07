@@ -44,6 +44,18 @@
         {% endfor %}
     </div>
 
+    <h2>Les événements auxquels j'ai participé</h2>
+    <div class="list-group">
+        {% for event in past_events %}
+            <div class="list-group-item">
+                <strong>
+                    <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
+                </strong>
+                <div>{{ event.get_display_date }}</div>
+            </div>
+        {% endfor %}
+    </div>
+
     <h2>J'organise un événement</h2>
     <div>
         <a href="{% url "create_event" %}">Vous pouvez aussi organiser votre propre événement.</a>
