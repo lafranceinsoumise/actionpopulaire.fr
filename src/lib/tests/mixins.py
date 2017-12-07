@@ -14,14 +14,15 @@ def load_fake_data():
             password=PASSWORD,
             oauth_enabled=True,
             uris=['http://localhost:8000/authentification/retour/'],
-            scopes=[scopes.view_profile]
+            scopes=['view_profile']
         ),
         'oauth': Client.objects.create_client(
             'oauth',
             password=PASSWORD,
-            scopes=[scopes.view_profile]
+            scopes=['view_profil']
         ),
     }
+    clients['oauth'].role.groups.add(Group.objects.get(name='oauth_providers'))
 
     people = {
         'admin': Person.objects.create_superperson('admin@example.com', PASSWORD),
