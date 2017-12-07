@@ -292,11 +292,25 @@ class EventGeocodingForm(GeocodingBaseForm):
 
 
 class EventReportForm(forms.ModelForm):
+    accept_license = forms.BooleanField(
+        required=False,
+        label=_("En important une image, je certifie être le propriétaire des droits et accepte de la partager sous"
+                " licence libre <a href=\"https://creativecommons.org/licenses/by/4.0/deed.fr\">Creative Commons"
+                " CC-BY-NC 4.0</a>."),
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields['report_image'].label = 'Image de couverture (optionnelle)'
+
         self.helper = FormHelper()
         self.helper.add_input(Submit('submit', _('Sauvegarder et publier')))
+        self.helper.layout = Layout(
+            'report_content',
+            'report_image',
+            'accept_license',
+        )
 
     class Meta:
         model = Event
