@@ -302,12 +302,20 @@ class PersonForm(models.Model):
     slug = models.SlugField(_('Slug'), max_length=50)
     published = models.BooleanField(_('Publié'), default=True)
 
-    description = DescriptionField(_('Description'), help_text=_(
-        "Description visible en haut de la page de remplissage du formulaire"
-    ))
-    confirmation_note = DescriptionField(_('Note après complétion'), help_text=_(
-        "Note montrée à l'utilisateur une fois le formulaire validé."
-    ))
+    description = DescriptionField(
+        _('Description'),
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text=_(
+            "Description visible en haut de la page de remplissage du formulaire"
+        ),
+    )
+    confirmation_note = DescriptionField(
+        _('Note après complétion'),
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text=_(
+            "Note montrée à l'utilisateur une fois le formulaire validé."
+        )
+    )
 
     main_question = models.CharField(_("Intitulé de la question principale"), max_length=200)
     tags = models.ManyToManyField('PersonTag', related_name='forms', related_query_name='form')
@@ -324,12 +332,6 @@ class PersonForm(models.Model):
 
     class Meta:
         verbose_name = _("Formulaire")
-
-    def html_description(self):
-        return sanitize_html(self.description, tags=settings.ADMIN_ALLOWED_TAGS)
-
-    def html_confirmation_note(self):
-        return sanitize_html(self.confirmation_note, tags=settings.ADMIN_ALLOWED_TAGS)
 
 
 class PersonFormSubmission(models.Model):

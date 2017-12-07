@@ -4,8 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe, format_html, format_html_join
 from django_countries.fields import CountryField
 from django.conf import settings
-
-import bleach
+from django.db.models import NOT_PROVIDED
 
 from model_utils.models import TimeStampedModel
 from stdimage.models import StdImageField
@@ -228,11 +227,9 @@ class ImageMixin(models.Model):
             'banner': (1200, 400),
         },
         blank=True,
-        help_text=_("Vous pouvez ajouter une image de bannière : elle apparaîtra sur la page de votre événement, et sur"
-                    " les réseaux sociaux si vous y partagez "
-                    "L'image à utiliser pour l'affichage sur la page, comme miniature dans les lstes, et"
-                    " pour le partage sur les réseaux sociaux. Elle doit faire au minimum 1200 pixels de large, et 630"
-                    " de haut. Utilisez un format large, à peu près deux fois plus large que haut.")
+        help_text=_("Vous pouvez ajouter une image de bannière : elle apparaîtra sur la page, et sur les réseaux"
+                    " sociaux en cas de partage. Préférez une image à peu près deux fois plus large que haute. Elle doit"
+                    " faire au minimum 1200 pixels de large et 630 de haut pour une qualité optimale.")
     )
 
     class Meta:
@@ -240,10 +237,40 @@ class ImageMixin(models.Model):
 
 
 class DescriptionField(models.TextField):
+    def __init__(self, *args, allowed_tags=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._allowed_tags = allowed_tags
+
     def formfield(self, **kwargs):
         defaults = {'widget': RichEditorWidget(attrs=kwargs.get('attrs', {}))}
         defaults.update(kwargs)
         return super().formfield(**defaults)
+
+    def contribute_to_class(self, cls, name, private_only=False, virtual_only=NOT_PROVIDED):
+        super().contribute_to_class(cls, name, private_only, virtual_only)
+
+        allowed_tags = self._allowed_tags
+
+
+        def html_FIELD(self, tags=None):
+            if tags is None:
+                if isinstance(allowed_tags, str):
+                    tags = getattr(self, allowed_tags)
+                else:
+                    tags = allowed_tags
+
+            if tags is None:
+                raise TypeError('Cannot call html_{0} without a tags argument if no default was set on field {0} creation'.format(name))
+
+            if callable(tags):
+                tags = tags()
+
+            if not isinstance(tags, list):
+                tags = list(tags)
+
+            return sanitize_html(getattr(self, name), tags)
+
+        setattr(cls, 'html_{}'.format(name), html_FIELD)
 
 
 class DescriptionMixin(models.Model):
@@ -251,6 +278,7 @@ class DescriptionMixin(models.Model):
         _('description'),
         blank=True,
         help_text=_("Une courte description"),
+        allowed_tags='allowed_tags'
     )
 
     allow_html = models.BooleanField(
@@ -261,6 +289,6 @@ class DescriptionMixin(models.Model):
     class Meta:
         abstract = True
 
-    def html_description(self):
-        tags = settings.ADMIN_ALLOWED_TAGS if self.allow_html else settings.USER_ALLOWED_TAGS
-        return sanitize_html(self.description, tags)
+    def allowed_tags(self):
+        if self.allow_html: return settings.ADMIN_ALLOWED_TAGS
+        else: return settings.USER_ALLOWED_TAGS
