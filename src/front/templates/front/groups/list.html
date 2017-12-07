@@ -9,14 +9,6 @@
             <div class="list-group-item">
                 <strong>
                     <a href="{% url "view_group" membership.supportgroup.pk %}">{{ membership.supportgroup.name }}</a>
-                    <small>
-                        {% if membership.is_manager or membership.is_referent %}
-                            &bull; <a href="{% url "manage_group" membership.supportgroup.pk %}">Gestion</a>
-                        {% endif %}
-                        {% if not membership.is_referent %}
-                            &bull; <a href="{% url "quit_group" membership.supportgroup.pk %}">Quitter</a>
-                        {% endif %}
-                    </small>
                 </strong>
                 <div>
                     {% if membership.is_referent %}
@@ -28,6 +20,16 @@
                     {% endif %}
                 </div>
                 <div>Lieu : {{ membership.supportgroup.location_name }}</div>
+                <div style="margin-top: 10px;">
+                    <a class="btn btn-default" href="{% url "view_group" membership.supportgroup.pk %}">Afficher le groupe</a>
+                    {% if membership.is_manager or membership.is_referent %}
+                        <a class="btn btn-default" href="{% url "manage_group" membership.supportgroup.pk %}">Gestion du groupe</a>
+                    {% endif %}
+                    {% if not membership.is_referent %}
+                        <a class="btn btn-default" href="{% url "quit_group" membership.supportgroup.pk %}">Quitter</a>
+                    {% endif %}
+                </div>
+
             </div>
         {% empty %}
             <div>Vous n'êtes membre d'aucun groupe d'action.</div>
