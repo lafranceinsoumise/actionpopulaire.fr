@@ -1,5 +1,7 @@
 from django.forms.widgets import Textarea, DateTimeBaseInput
+from django.forms import BooleanField
 from django.utils import formats
+from django.utils.translation import ugettext_lazy as _
 
 
 class DateTimePickerWidget(DateTimeBaseInput):
@@ -10,7 +12,8 @@ class DateTimePickerWidget(DateTimeBaseInput):
 
     class Media:
         css = {
-            'all': ('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css',)
+            'all': (
+            'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css',)
         }
         js = (
             'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js',
@@ -33,5 +36,22 @@ class RichEditorWidget(Textarea):
             'components/richEditor.js',
         )
 
+
 class AdminRichEditorWidget(RichEditorWidget):
     admin = True
+
+
+class AcceptCreativeCommonsLicenceField(BooleanField):
+    default_error_messages = {
+        "required": _("Vous devez accepter de placer votre image sous licence Creative Commons pour  l'ajouter à votre"
+                      " événement.")
+    }
+
+    default_label = _("En important une image, je certifie être le propriétaire des droits et accepte de la partager"
+                      " sous licence libre <a href=\"https://creativecommons.org/licenses/by/4.0/deed.fr\">Creative"
+                      " Commons CC-BY-NC 4.0</a>.")
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('required', False)
+        kwargs.setdefault('label', self.default_label)
+        super().__init__(*args, **kwargs)

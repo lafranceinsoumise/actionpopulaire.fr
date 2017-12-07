@@ -1,3 +1,5 @@
+import os
+import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import formats, timezone
@@ -253,3 +255,16 @@ class OrganizerConfig(models.Model):
         managed_groups = [membership.supportgroup for membership in memberships]
         if self.as_group not in managed_groups:
             raise ValidationError({'as_group': 'Le groupe doit être un groupe que vous gérez.'})
+
+
+def upload_to_event_directory_uuid(instance, filename):
+    _, ext = os.path.splitext(filename)
+    return os.path.join('event', str(instance.event.pk), "{}{}".format(uuid.uuid4(), ext))
+
+class EventImage(models.Model):
+    event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='images', null=False)
+    author = models.ForeignKey('people.Person', related_name='event_images', on_delete=models.PROTECT, null=False)
+    image = StdImageField(_('Fichier'), variations={
+        'thumbnail': (200, 200, True),
+    }, null=False, blank=False, upload_to=upload_to_event_directory_uuid)
+    legend = models.CharField(_('légende'), max_length=280)

@@ -7,11 +7,12 @@ from groups.models import SupportGroup
 from ..form_components import *
 from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm
 
-from events.models import Event, OrganizerConfig, Calendar, RSVP
+from events.models import Event, OrganizerConfig, Calendar, RSVP, EventImage
 from events.tasks import send_event_creation_notification, send_event_changed_notification
 from lib.tasks import geocode_event
+from lib.form_fields import AcceptCreativeCommonsLicenceField
 
-__all__ = ['EventForm', 'AddOrganizerForm', 'EventGeocodingForm', 'EventReportForm']
+__all__ = ['EventForm', 'AddOrganizerForm', 'EventGeocodingForm', 'EventReportForm', 'UploadEventImageForm']
 
 
 class AgendaChoiceField(forms.ModelChoiceField):
@@ -36,12 +37,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         'description': "information"
     }
 
-    image_accept_license = forms.BooleanField(
-        required=False,
-        label=_("En important une image, je certifie être le propriétaire des droits et accepte de la partager sous"
-                " licence libre <a href=\"https://creativecommons.org/licenses/by/4.0/deed.fr\">Creative Commons"
-                " CC-BY-NC 4.0</a>."),
-    )
+    image_accept_license = AcceptCreativeCommonsLicenceField()
 
     def __init__(self, *args, person, **kwargs):
         super(EventForm, self).__init__(*args, **kwargs)
@@ -185,10 +181,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         if not image:
             cleaned_data['image_accept_license'] = False
         elif not image_accept_license:
-            self.add_error(
-                'image_accept_license',
-                _("Vous devez accepter de placer votre image sous licence Creative Commons pour l'ajouter à votre"
-                  " événement."))
+            self.add_error('image_accept_license', self.fields['image_accept_license'].error_messages['required'])
 
         return cleaned_data
 
@@ -292,12 +285,7 @@ class EventGeocodingForm(GeocodingBaseForm):
 
 
 class EventReportForm(forms.ModelForm):
-    accept_license = forms.BooleanField(
-        required=False,
-        label=_("En important une image, je certifie être le propriétaire des droits et accepte de la partager sous"
-                " licence libre <a href=\"https://creativecommons.org/licenses/by/4.0/deed.fr\">Creative Commons"
-                " CC-BY-NC 4.0</a>."),
-    )
+    accept_license = AcceptCreativeCommonsLicenceField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -312,6 +300,39 @@ class EventReportForm(forms.ModelForm):
             'accept_license',
         )
 
+    def clean(self):
+        cleaned_data = super().clean()
+        report_image = cleaned_data['report_image']
+        accept_license = cleaned_data['accept_license']
+
+        if report_image and not accept_license:
+            self.add_error('accept_license', self.fields['accept_license'].error_messages['required'])
+
+        return cleaned_data
+
     class Meta:
         model = Event
         fields = ('report_image', 'report_content')
+
+
+class UploadEventImageForm(forms.ModelForm):
+    accept_license = AcceptCreativeCommonsLicenceField(required=True)
+
+    def __init__(self, *args, author=None, event=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if author is not None:
+            self.instance.author = author
+        if event is not None:
+            self.instance.event = event
+
+        self.helper = FormHelper()
+        self.helper.add_input(Submit('submit', _('Ajouter mon image')))
+        self.helper.layout = Layout(
+            'image',
+            'accept_license',
+            'legend',
+        )
+
+    class Meta:
+        model = EventImage
+        fields = ('image', 'legend')

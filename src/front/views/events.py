@@ -14,7 +14,7 @@ from django.core.exceptions import PermissionDenied
 from events.models import Event, RSVP, Calendar
 from events.tasks import send_cancellation_notification, send_rsvp_notification
 
-from ..forms import EventForm, AddOrganizerForm, EventGeocodingForm, EventReportForm
+from ..forms import EventForm, AddOrganizerForm, EventGeocodingForm, EventReportForm, UploadEventImageForm
 from ..view_mixins import (
     HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
     ChangeLocationBaseView
@@ -22,7 +22,7 @@ from ..view_mixins import (
 
 __all__ = [
     'EventListView', 'CreateEventView', 'ManageEventView', 'ModifyEventView', 'QuitEventView', 'CancelEventView',
-    'EventDetailView', 'CalendarView', 'ChangeEventLocationView', 'EditEventReportView'
+    'EventDetailView', 'CalendarView', 'ChangeEventLocationView', 'EditEventReportView', 'UploadEventImageView'
 ]
 
 
@@ -43,10 +43,12 @@ class EventListView(SoftLoginRequiredMixin, ListView):
         return Event.objects.upcoming(as_of=timezone.now()).filter(organizers=self.request.user.person)
 
     def get_rsvps(self):
-        return RSVP.objects.upcoming(as_of=timezone.now()).select_related('event').filter(person=self.request.user.person)
+        return RSVP.objects.upcoming(as_of=timezone.now()).select_related('event').filter(
+            person=self.request.user.person)
 
     def get_past_events(self):
-        return Event.objects.past(as_of=timezone.now()).filter(rsvps__person=self.request.user.person).order_by('-start_time')
+        return Event.objects.past(as_of=timezone.now()).filter(rsvps__person=self.request.user.person).order_by(
+            '-start_time')
 
 
 class EventDetailView(ObjectOpengraphMixin, DetailView):
@@ -60,7 +62,8 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
         return super().get_context_data(
             has_rsvp=self.request.user.is_authenticated and self.object.rsvps.filter(person=self.request.user.person).exists(),
             is_organizer=self.request.user.is_authenticated and self.object.organizers.filter(pk=self.request.user.person.id).exists(),
-            organizers_groups = self.object.organizers_groups.distinct(),
+            organizers_groups=self.object.organizers_groups.distinct(),
+            event_images=self.object.images.all(),
         )
 
     @method_decorator(login_required(login_url=reverse_lazy('oauth_redirect_view')), )
@@ -78,7 +81,7 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
 
 class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailView):
     template_name = "front/events/manage.html"
-    permissions_required = ('events.change_event', )
+    permissions_required = ('events.change_event',)
     queryset = Event.objects.filter(published=True)
 
     error_messages = {
@@ -186,7 +189,8 @@ class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateVi
         messages.add_message(
             request=self.request,
             level=messages.SUCCESS,
-            message=format_html(_("Les modifications de l'événement <em>{}</em> ont été enregistrées."), self.object.name)
+            message=format_html(_("Les modifications de l'événement <em>{}</em> ont été enregistrées."),
+                                self.object.name)
         )
 
         return res
@@ -297,3 +301,54 @@ class EditEventReportView(PermissionsRequiredMixin, UpdateView):
 
     def get_queryset(self):
         return Event.objects.past(as_of=timezone.now())
+
+
+class UploadEventImageView(CreateView):
+    template_name = 'front/events/upload_event_image.html'
+    form_class = UploadEventImageForm
+
+    def get_queryset(self):
+        return Event.objects.past(as_of=timezone.now())
+
+    def get_success_url(self):
+        return reverse('view_event', args=(self.event.pk,))
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'author': self.request.user.person,
+            'event': self.event
+        })
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            event=self.event
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.event = self.get_object()
+
+        if not self.event.rsvps.filter(person=request.user.person).exists():
+            raise PermissionDenied(_("Seuls les participants à l'événement peuvent poster des images"))
+
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.event = self.get_object()
+
+        if not self.event.rsvps.filter(person=request.user.person).exists():
+            raise PermissionDenied(_("Seuls les participants à l'événement peuvent poster des images"))
+
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        res = super().form_valid(form)
+
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            _("Votre photo a correctement été importée, merci de l'avoir partagée !")
+        )
+
+        return res
