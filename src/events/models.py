@@ -12,7 +12,7 @@ from stdimage.utils import UploadToAutoSlug
 
 from lib.models import (
     BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, ImageMixin, DescriptionMixin,
-    DescriptionField
+    DescriptionField, UploadToRelatedObjectDirectoryWithUUID, UploadToInstanceDirectoryWithFilename
 )
 from lib.form_fields import DateTimePickerWidget
 
@@ -21,6 +21,7 @@ EVENT_GRACE_PERIOD = timezone.timedelta(hours=12)
 
 def upcoming_only(as_of):
     return models.Q(end_time__gt=as_of - EVENT_GRACE_PERIOD)
+
 
 def past_only(as_of):
     return models.Q(end_time__lt=as_of)
@@ -97,6 +98,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
             'thumbnail': (400, 250),
             'banner': (1200, 400),
         },
+        upload_to=UploadToInstanceDirectoryWithFilename('report_banner'),
         help_text=_("Cette image apparaîtra en tête de votre compte-rendu, et dans les partages que vous ferez du"
                     " compte-rendu sur les réseaux sociaux."),
     )
@@ -161,7 +163,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
     def clean(self):
         if self.start_time and self.end_time and self.end_time < self.start_time:
             raise ValidationError({
-                'end_time':_("La date de fin de l'événement doit être postérieure à sa date de début.")
+                'end_time': _("La date de fin de l'événement doit être postérieure à sa date de début.")
             })
 
 
@@ -190,7 +192,8 @@ class Calendar(NationBuilderResource, ImageMixin):
 
     user_contributed = models.BooleanField(_('Les utilisateurs peuvent ajouter des événements'), default=False)
 
-    description = models.TextField(_('description'), blank=True, help_text=_("Saisissez une description (HTML accepté)"))
+    description = models.TextField(_('description'), blank=True,
+                                   help_text=_("Saisissez une description (HTML accepté)"))
 
     image = StdImageField(
         _("bannière"),
@@ -257,14 +260,16 @@ class OrganizerConfig(models.Model):
             raise ValidationError({'as_group': 'Le groupe doit être un groupe que vous gérez.'})
 
 
-def upload_to_event_directory_uuid(instance, filename):
-    _, ext = os.path.splitext(filename)
-    return os.path.join('event', str(instance.event.pk), "{}{}".format(uuid.uuid4(), ext))
-
 class EventImage(models.Model):
     event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='images', null=False)
     author = models.ForeignKey('people.Person', related_name='event_images', on_delete=models.PROTECT, null=False)
-    image = StdImageField(_('Fichier'), variations={
-        'thumbnail': (200, 200, True),
-    }, null=False, blank=False, upload_to=upload_to_event_directory_uuid)
+    image = StdImageField(
+        _('Fichier'),
+        variations={
+            'thumbnail': (200, 200, True),
+        },
+        upload_to=UploadToRelatedObjectDirectoryWithUUID(related='event'),
+        null=False,
+        blank=False,
+    )
     legend = models.CharField(_('légende'), max_length=280)

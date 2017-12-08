@@ -1,4 +1,5 @@
 import uuid
+import os
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe, format_html, format_html_join
@@ -8,7 +9,7 @@ from django.db.models import NOT_PROVIDED
 
 from model_utils.models import TimeStampedModel
 from stdimage.models import StdImageField
-from stdimage.utils import UploadToAutoSlugClassNameDir
+from stdimage.utils import UploadTo
 
 from .form_fields import RichEditorWidget
 from .html import sanitize_html
@@ -218,10 +219,43 @@ class AbstractLabel(models.Model):
         return self.label
 
 
+class UploadToInstanceDirectoryWithFilename(UploadTo):
+    def __init__(self, filename):
+        # make sure it will be correctly deconstructed
+        super().__init__(filename=filename)
+        self.filename = filename
+
+    def __call__(self, instance, filename):
+        _, ext = os.path.splitext(filename)
+
+        return os.path.join(
+            instance.__class__.__name__,
+            str(instance.pk),
+            "{}{}".format(self.filename, ext)
+        )
+
+
+class UploadToRelatedObjectDirectoryWithUUID(UploadTo):
+    def __init__(self, related):
+        # make sure it will be correctly deconstructed
+        super().__init__(related=related)
+        self.related = related
+
+    def __call__(self, instance, filename):
+        _, ext = os.path.splitext(filename)
+        related_object = getattr(instance, self.related)
+
+        return os.path.join(
+            related_object.__class__.__name__,
+            str(related_object.pk),
+            "{}{}".format(str(uuid.uuid4()), ext)
+        )
+
+
 class ImageMixin(models.Model):
     image = StdImageField(
         _("image"),
-        upload_to=UploadToAutoSlugClassNameDir(populate_from="name", path="banners"),
+        upload_to=UploadToInstanceDirectoryWithFilename('banner'),
         variations={
             'thumbnail': (400, 250),
             'banner': (1200, 400),
