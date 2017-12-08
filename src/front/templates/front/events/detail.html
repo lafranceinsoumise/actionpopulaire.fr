@@ -27,6 +27,9 @@
                 <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:events_event_change" event.pk %}">Administration</a>
             {% endif %}
             {% if is_organizer %}
+                {% if event.is_past %}
+                    <a class="btn btn-default" href="{% url "edit_event_report" event.pk %}">Rédigez le compte-rendu</a>
+                {% endif %}
                 <a class="btn btn-default" href="{% url "manage_event" event.pk %}">Gérer l'événement</a>
             {% endif %}
         </div>
