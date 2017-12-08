@@ -9,17 +9,23 @@
     <h3>Les informations de mon événement</h3>
 
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>{{ event.name }}</strong>{% if event.is_past %} (cet événement est terminé){% endif %}</div>
+        <div class="help-dialog" data-hint="Les informations de votre événement">
+            Vous trouverez ici le rappel des informations de votre événement.
+        </div>
+        <div class="panel-heading"><strong>{{ event.name }}</strong>{% if event.is_past %} (cet événement est
+            terminé){% endif %}</div>
         <div class="panel-body">
             {% spaceless %}
-            {% if event.organizers_groups.all|length > 0 %}
-            <p>
-                Organisé par le(s) groupe(s) d'action
-                {% for supportgroup in event.organizers_groups.all.distinct %}
-                    <a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a>{% if not forloop.last %}{%  if forloop.revcounter0 == 1 %} et {% else %}, {% endif %}{% else %}.{% endif %}
-                {% endfor%}
-            </p>
-            {%  endif %}
+                {% if event.organizers_groups.all|length > 0 %}
+                    <p>
+                        Organisé par le(s) groupe(s) d'action
+                        {% for supportgroup in event.organizers_groups.all.distinct %}
+                            <a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a>
+                            {% if not forloop.last %}{% if forloop.revcounter0 == 1 %} et {% else %}
+                                , {% endif %}{% else %}.{% endif %}
+                        {% endfor %}
+                    </p>
+                {% endif %}
             {% endspaceless %}
 
             <h6 class="subhead">Quand</h6>
@@ -34,58 +40,99 @@
         <div class="panel-footer">
             <ul class="list-inline">
                 {% if not event.is_past %}
-                    <li><a class="btn btn-default" href="{% url "edit_event" event.pk %}">Modifier ces informations</a></li>
-                    <li><a class="btn btn-default" href="{% url "change_event_location" event.pk %}">Corriger la localisation de l'événement</a></li>
-                    <li><a class="btn btn-default" href="{% url "cancel_event" event.pk %}">Annuler l'événement</a></li>
+                    <li>
+                        <div class="help-dialog">Vous pouvez les modifier en cliquant sur ce bouton.</div>
+                        <a class="btn btn-default" href="{% url "edit_event" event.pk %}">Modifier ces informations</a>
+                    </li>
+                    <li>
+                        <div class="help-dialog">Vous pouvez aussi changer l'endroit où votre événement apparaît sur la
+                            carte
+                            si celui-ci n'était pas correct.
+                        </div>
+                        <a class="btn btn-default" href="{% url "change_event_location" event.pk %}">Corriger la
+                            localisation de l'événement</a>
+                    </li>
+                    <li>
+                        <div class="help-dialog">Vous pouvez enfin annuler votre événement. Un message sera envoyé à
+                            tous les participants
+                            pour leur signaler.
+                        </div>
+                        <a class="btn btn-default" href="{% url "cancel_event" event.pk %}">Annuler l'événement</a></li>
                 {% else %}
-                    <li><a class="btn btn-default" href="{% url "edit_event_report" event.pk %}">{% if event.report_content %}Modifier{% else %}Rédiger{% endif %} le compte-rendu</a></li>
+                    <li>
+                        <div class="help-dialog">Une fois l'événement terminé, vous pouvez seulement rédiger ou modifier
+                            son compte-rendu.
+                        </div>
+                        <a class="btn btn-default" href="{% url "edit_event_report" event.pk %}">
+                            {% if event.report_content %}Modifier{% else %}Rédiger{% endif %} le compte-rendu</a></li>
                 {% endif %}
             </ul>
         </div>
 
     </div>
-    <h3>Les organisateurs de l'événement</h3>
 
-    <ul class="list-group">
-        {% for organizer in organizers %}
-            <li class="list-group-item list-group-item-success">
-                {% if organizer.first_name and organizer.last_name %}
-                    {{ organizer.first_name }} {{ organizer.last_name }} &lt;{{ organizer.email }}&gt;
-                {% else %}
-                    {{ organizer.email }}
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
-
-    {% if not event.is_past %}
     <div>
-        <p>
-            Vous pouvez sélectionner d'autres personnes pour co-organiser l'événement avec vous parmi celles qui ont
-            indiqué participer à l'événement.
-        </p>
-        {% crispy add_organizer_form %}
-    </div>
-    {% endif %}
+        <div class="help-dialog">
+            Apparaissent ici la liste des organisateur de votre événement.
+        </div>
+        <h3>Les organisateurs de l'événement</h3>
 
-    <h3>Liste des participants</h3>
-
-    <p>{{ rsvps|length }} personne{% if rsvps|length > 1 %}s ont{% else %} a{% endif %} indiqué souhaiter participer à
-        votre événement pour le moment.</p>
-
-    <p>Cette liste peut etre copiée-collée directement dans votre logiciel de messagerie !</p>
-
-    <ul class="list-group">
-        {% for rsvp in rsvps %}
-            {% with person=rsvp.person %}
-                <li class="list-group-item">
-                    {% if person.first_name and person.last_name %}
-                        {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
+        <ul class="list-group">
+            {% for organizer in organizers %}
+                <li class="list-group-item list-group-item-success">
+                    {% if organizer.first_name and organizer.last_name %}
+                        {{ organizer.first_name }} {{ organizer.last_name }} &lt;{{ organizer.email }}&gt;
                     {% else %}
-                        {{ person.email }}
+                        {{ organizer.email }}
                     {% endif %}
                 </li>
-            {% endwith %}
-        {% endfor %}
-    </ul>
+            {% endfor %}
+        </ul>
+
+        {% if not event.is_past %}
+            <div>
+                <div class="help-dialog">
+                    Utilisez ce formulaire pour sélectionner d'autres organisateurs. Pour pouvoir les sélectionner,
+                    elles doivent s'êtres inscrites comme participants.
+                </div>
+                <p>
+                    Vous pouvez sélectionner d'autres personnes pour co-organiser l'événement avec vous parmi celles qui
+                    ont
+                    indiqué participer à l'événement.
+                </p>
+                {% crispy add_organizer_form %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div>
+        <div class="help-dialog">
+            Finalement, voici la liste des participants.
+        </div>
+        <h3>Liste des participants</h3>
+
+        <p>{{ rsvps|length }} personne{% if rsvps|length > 1 %}s ont{% else %} a{% endif %} indiqué souhaiter participer
+            à
+            votre événement pour le moment.</p>
+
+        <p>Cette liste peut etre copiée-collée directement dans votre logiciel de messagerie !</p>
+
+        <ul class="list-group">
+            <div class="help-dialog">
+                Copiez/collez simplement cette section dans votre logiciel de messagerie pour envoyer un message à tous
+                les participants à votre événement.
+            </div>
+            {% for rsvp in rsvps %}
+                {% with person=rsvp.person %}
+                    <li class="list-group-item">
+                        {% if person.first_name and person.last_name %}
+                            {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
+                        {% else %}
+                            {{ person.email }}
+                        {% endif %}
+                    </li>
+                {% endwith %}
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}
