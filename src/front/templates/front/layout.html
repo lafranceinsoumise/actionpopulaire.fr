@@ -40,6 +40,7 @@
         {% endif %}
     {% endblock %}
     <link rel="stylesheet" href="{% static "front/css/main-26d0194863.css" %}" type="text/css">
+    <style>.help-dialog{display:none;}</style>
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-32x32.png" %}" sizes="32x32"/>
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>
     <link rel="apple-touch-icon-precomposed" href="{% static "front/images/cropped-cropped-phi-180x180.png" %}"/>
@@ -134,6 +135,7 @@
                             <li class="menu-item"><a title="Connexion"
                                                      href="{% url "oauth_redirect_view" %}">Connexion</a></li>
                         {% endif %}
+                        <li class="menu-item help-button"></li>
                     </ul>
                 </div>
             </div>
@@ -157,5 +159,7 @@
         </main>
     </div>
 </div>
+<script src="{% static "components/helpDialog.js" %}"></script>
+<script>helpDialog();</script>
 </body>
 </html>
