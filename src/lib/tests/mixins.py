@@ -1,6 +1,11 @@
+from datetime import timedelta
+
+from django.contrib.auth.models import Group
+from django.utils import timezone
+
 from clients import scopes
 from clients.models import Client
-from events.models import Event, Calendar
+from events.models import Calendar, Event, OrganizerConfig, RSVP
 from groups.models import SupportGroup, Membership
 from people.models import Person
 
@@ -40,10 +45,39 @@ def load_fake_data():
     Membership.objects.create(supportgroup=groups['user2_group'], person=people['user2'], is_manager=True, is_referent=True)
     Membership.objects.create(supportgroup=groups['user1_group'], person=people['user2'])
 
+    # Events
+    calendars = {
+        'evenements_locaux': Calendar.objects.create_calendar('Évènements locaux', slug='calendar', user_contributed=True),
+        'national': Calendar.objects.create_calendar('National', slug='national')
+    }
+
+    events = {
+        'user1_event1': Event.objects.create(
+            name='Événement créé par user1',
+            start_time=timezone.now() + timedelta(days=1),
+            end_time=timezone.now() + timedelta(days=1, hours=1),
+            calendar=calendars['evenements_locaux'],
+        ),
+        'user1_event2': Event.objects.create(
+            name='Autre événement créé par user1 sans personne dedans',
+            start_time=timezone.now() + timedelta(days=1),
+            end_time=timezone.now() + timedelta(days=1, hours=1),
+            calendar=calendars['evenements_locaux'],
+        ),
+    }
+    [OrganizerConfig.objects.create(
+        event=event,
+        person=people['user1'],
+        is_creator=True,
+        as_group=groups['user1_group']
+    ) for event in [events['user1_event1'], events['user1_event2']]]
+    [RSVP.objects.create(person=user, event=events['user1_event1']) for user in [people['user1'], people['user2']]]
+
     return {
         'clients': clients,
         'people': people,
         'groups': groups,
+        'events': events,
     }
 
 
