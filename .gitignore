@@ -15,5 +15,7 @@ db.sqlite3
 /src/media
 
 /node_modules/
-
 /src/assets/
+
+# VirtualEnv
+/venv/

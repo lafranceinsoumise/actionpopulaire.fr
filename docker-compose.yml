@@ -1,0 +1,42 @@
+version: "3.2"
+
+services:
+  postgresql:
+    restart: always
+    image: mdillon/postgis:9.6
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: fi_api
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: fi_api
+
+  redis:
+    restart: always
+    image: redis:4
+
+  api:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/code
+    depends_on:
+      - postgresql
+      - redis
+    environment:
+      DATABASE_URI: "postgis://fi_api:password@postgresql:5432/fi_api"
+      AUTH_REDIS_URL: "redis://redis?db=0"
+      ENABLE_FRONT: "YES"
+      ENABLE_API: "YES"
+
+  front:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.front
+    volumes:
+      - .:/code

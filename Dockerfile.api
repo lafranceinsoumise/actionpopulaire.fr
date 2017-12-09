@@ -1,0 +1,16 @@
+FROM python:3.6
+
+ENV PYTHONUNBUFFERED 1
+ENV LANG fr_FR.UTF-8
+ENV LANGUAGE fr_FR:fr
+ENV LC_ALL fr_FR.UTF-8
+
+RUN apt-get update && apt-get -y install libsystemd-dev git libgdal-dev
+RUN ln -nsf /usr/share/zoneinfo/Europe/Paris /etc/localtime && echo Europe/Paris > /etc/timezone
+RUN git clone https://github.com/vishnubob/wait-for-it.git /wait-for-it || true
+RUN mkdir /code
+WORKDIR /code
+ADD requirements.txt /code/
+RUN pip install -r requirements.txt
+ADD . /code/
+CMD ["./docker-entrypoint.sh"]
