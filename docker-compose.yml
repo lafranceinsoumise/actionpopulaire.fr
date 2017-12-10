@@ -40,3 +40,4 @@ services:
       dockerfile: Dockerfile.front
     volumes:
       - .:/code
+      - /code/node_modules
