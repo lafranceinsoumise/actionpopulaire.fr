@@ -25,15 +25,9 @@ module.exports = function () {
   });
 
   if (steps.length > 0) {
-    const buttonContainers = document.getElementsByClassName('help-button');
-    for (let buttonContainer of buttonContainers) {
-      const link = document.createElement('a');
-      link.href = '#';
-      link.addEventListener('click', showHints);
-      const icon = document.createElement('i');
-      icon.className = 'fa fa-question-circle-o';
-      link.appendChild(icon);
-      buttonContainer.appendChild(link);
+    const buttons = document.getElementsByClassName('help-button');
+    for (let button of buttons) {
+      button.addEventListener('click', showHints);
     }
   }
 
