@@ -117,7 +117,7 @@
             <div class="list-group">
                 {% for event in organized_events %}
                     <div class="list-group-item">
-                        <i class="fa fa-users" aria-hidden="true"></i>
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
                         <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
                     </div>
                 {% empty %}
