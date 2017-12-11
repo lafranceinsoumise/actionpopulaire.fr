@@ -175,8 +175,8 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        image = cleaned_data['image']
-        image_accept_license = cleaned_data['image_accept_license']
+        image = cleaned_data.get('image', None)
+        image_accept_license = cleaned_data.get('image_accept_license', False)
 
         if not image:
             cleaned_data['image_accept_license'] = False
