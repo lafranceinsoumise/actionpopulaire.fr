@@ -3,6 +3,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import base36_to_int
 from django.utils.crypto import constant_time_compare
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from urllib.parse import urlparse
 
 
@@ -78,7 +79,7 @@ class MailLinkBackend(GetRoleMixin):
         if user_pk and code:
             try:
                 user = Person.objects.select_related('role').get(pk=user_pk)
-            except Person.DoesNotExist:
+            except (Person.DoesNotExist, ValidationError):
                 return None
             if token_generator.check_token(user, code):
                 return user.role
