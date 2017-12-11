@@ -156,7 +156,7 @@ class NavbarTestCase(TestCase):
         response = self.client.get('/groupes/' + str(self.group.id) + '/')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn(b'Mes groupes', response.content)
+        self.assertIn(b'Tableau de bord', response.content)
 
     def test_navbar_unauthenticated(self):
         response = self.client.get('/groupes/' + str(self.group.id) + '/')
