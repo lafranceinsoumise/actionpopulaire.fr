@@ -24,6 +24,9 @@ urlpatterns = [
     url('^formulaires/(?P<slug>[-a-zA-Z0-9_]+)/$', views.PeopleFormView.as_view(), name='view_person_form'),
     url('^formulaires/(?P<slug>[-a-zA-Z0-9_]+)/confirmation/$', views.PeopleFormConfirmationView.as_view(), name='person_form_confirmation'),
 
+    # dashboard
+    url('^$', views.DashboardView.as_view(), name='dashboard'),
+
     # events views
     url('^evenements/$', views.EventListView.as_view(), name='list_events'),
     url('^evenements/creer/$', views.CreateEventView.as_view(), name='create_event'),

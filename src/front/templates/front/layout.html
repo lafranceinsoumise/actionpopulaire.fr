@@ -111,11 +111,7 @@
                 <div class="menu-menu-principal-container">
                     {% if user.is_authenticated %}
                         <ul id="menu-menu-principal" class="nav navbar-nav">
-                            <li class="menu-item"><a title="Mes groupes" href="{% url "list_groups" %}">Mes groupes</a>
-                            </li>
-                            <li class="menu-item"><a title="Mes événements" href="{% url "list_events" %}">Mes
-                                événements</a>
-                            </li>
+                            <li class="menu-item"><a title="Tableau de bord" href="{% url 'dashboard' %}">Tableau de bord</a></li>
                             <li class="menu-item"><a title="J'en dis plus sur moi" href="{% url "change_profile" %}">J'en
                                 dis plus sur moi</a></li>
                             <li class="menu-item"><a title="J'agis" href="{% url "volunteer" %}">J'agis</a></li>
@@ -143,21 +139,19 @@
     </nav>
 </header>
 <div class="wrap container" role="document">
-    <div class="content row">
-        <main class="main">
-            {% if messages %}
-                <div style="margin-top: 1em;">
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            {% block main %}
-            {% endblock %}
-        </main>
-    </div>
+    <main class="main">
+        {% if messages %}
+            <div style="margin-top: 1em;">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block main %}
+        {% endblock %}
+    </main>
 </div>
 <script src="{% static "components/helpDialog.js" %}"></script>
 <script>helpDialog();</script>

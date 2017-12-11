@@ -1,0 +1,155 @@
+{% extends "front/layout.html" %}
+
+{% block title %}Mon tableau de bord{% endblock title %}
+
+{% block main %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="help-dialog" data-hint="Mon agenda">
+                Vous trouverez ici tous les événements auxquels vous avez indiqué participer.
+                Attention&nbsp;! Le fait que vous organisiez un événement ne veut pas nécessairement
+                dire que vous y participez, même si c'est souvent le cas.
+            </div>
+            <h3>Mon agenda
+                <a class="pull-right btn btn-default btn-sm" href="{% url 'create_event' %}">
+                    <i class="fa fa-plus"></i> Créer un événement
+                    <div class="help-dialog" data-hint="Les informations de votre événement">
+                        Vous pouvez créer un nouvel événement et y inviter d'autres personnes en cliquant sur ce bouton.
+                    </div>
+                </a>
+            </h3>
+            <div class="list-group">
+                {% for event in rsvped_events %}
+                    <div class="list-group-item">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                        <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
+                        {{ event.start_time }} - {{ event.location_name }}
+                    </div>
+                {% empty %}
+                    <div class="list-group-item">
+                        Vous n'avez aucun événément prévu pour le moment.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="help-dialog" data-hint="Mes groupes">
+                Vous trouverez ici tous les groupes dont vous êtes membres. Être membre d'un
+                groupe vous permet de suivre son agenda. Pour en savoir plus lisez la
+                <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
+                Charte des groupes d’action de la France insoumise</a>.
+            </div>
+            <h3>Mes groupes
+                <a class="pull-right btn btn-default btn-sm" href="{% url 'create_group' %}">
+                    <i class="fa fa-plus"></i> Créer un groupe
+                </a>
+            </h3>
+            <div class="list-group">
+                {% for group in members_groups %}
+                    <div class="list-group-item">
+                        <i class="fa fa-users" aria-hidden="true"></i>
+                        <a href="{% url 'view_group' group.pk %}">{{ group.name }}</a>
+                    </div>
+                {% empty %}
+                    <div class="list-group-item">
+                        Vous n'êtes membre d'aucun groupe.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="help-dialog" data-hint="Événements suggérés">
+                Ces événements pourraient vous intéresser. Passer votre souris sur <span class="text-muted">Pourquoi ?</span>
+                pour savoir pourquoi chaque événement vous a été suggéré.
+            </div>
+            <h3>Événements suggérés</h3>
+            <div class="list-group">
+                {% for event, reason in suggested_events %}
+                    <div class="list-group-item">
+                        <span class="small text-muted pull-right" data-toggle="tooltip" title="{{ reason }}">Pourquoi ?</span>
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                        <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
+                        {{ event.start_time }} - {{ event.location_name }}
+                    </div>
+                {% empty %}
+                    <div class="list-group-item">
+                        Aucun événement suggéré ! Rejoignez un groupe d'action pour voir des événements.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h3>Événements passés</h3>
+            <div class="help-dialog" data-hint="Événements passés">
+                Ce sont les 10 derniers événements auxquels vous avez participé. En retournant sur ces pages,
+                vous pouvez par exemple poser des photos sur les événements auxquels vous avez participé
+                et des comptes rendus sur ceux que vous avez organisé.
+            </div>
+            <div class="list-group">
+                {% for event in last_events %}
+                    <div class="list-group-item">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                        <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
+                        {{ event.start_time }} - {{ event.location_name }}
+                    </div>
+                {% empty %}
+                    <div class="list-group-item">
+                        Aucun événement récent ! Participez à des événements pour contribuer à leur compte-rendu.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="help-dialog" data-hint="Administration">
+            Ceci est votre espace d'adminsitration. Vous pouvez y gérer les événements à venir que vous organisez ou
+            les groupes dont vous êtes gestionnaire.
+        </div>
+        <div class="col-md-6">
+            <h3>Événements que j'organise
+                <a class="pull-right btn btn-default btn-sm" href="{% url 'create_event' %}">
+                    <i class="fa fa-plus"></i> Créer un événement
+                </a>
+            </h3>
+            <div class="list-group">
+                {% for event in organized_events %}
+                    <div class="list-group-item">
+                        <i class="fa fa-users" aria-hidden="true"></i>
+                        <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+                    </div>
+                {% empty %}
+                    <div class="list-group-item">
+                        Vous n'organisez aucun événement futur. Voulez-vous <a href="{% url 'create_event' %}">en créer un</a>&nbsp;?
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h3>Groupes que je gère
+                <a class="pull-right btn btn-default btn-sm" href="{% url 'create_group' %}">
+                    <i class="fa fa-plus"></i> Créer un groupe
+                </a>
+            </h3>
+            <div class="list-group">
+                {% for group in managed_groups %}
+                    <div class="list-group-item">
+                        <i class="fa fa-users" aria-hidden="true"></i>
+                        <a href="{% url 'manage_group' group.pk %}">{{ group.name }}</a>
+                    </div>
+                {% empty %}
+                <div class="list-group-item">
+                    Vous ne gérez aucun groupe. Voulez-vous <a href="{% url 'create_group' %}">en créer un</a>&nbsp;?
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script>
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+    </script>
+{% endblock %}

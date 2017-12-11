@@ -9,6 +9,7 @@ from rest_framework import status
 from django.shortcuts import reverse
 from django.contrib.auth import get_user
 
+from lib.tests.mixins import FakeDataMixin
 from people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 from events.models import Event, RSVP, Calendar, OrganizerConfig
 from groups.models import SupportGroup, Membership
@@ -1055,3 +1056,20 @@ class PollTestCase(TestCase):
             'choice': [str(self.poll1.pk),str(self.poll2.pk),str(self.poll3.pk)]
         })
         self.assertContains(res, 'maximum')
+
+
+class DashboardTestCase(FakeDataMixin, TestCase):
+    def test_contains_everything(self):
+        self.client.force_login(self.data['people']['user2'].role)
+        response = self.client.get(reverse('dashboard'))
+
+        # own email
+        self.assertContains(response, 'user2@example.com')
+        # managed group
+        self.assertContains(response, self.data['groups']['user2_group'].name)
+        # member groups
+        self.assertContains(response, self.data['groups']['user1_group'].name)
+        # next events
+        self.assertContains(response, self.data['events']['user1_event1'].name)
+        # events of group
+        self.assertContains(response, self.data['events']['user1_event2'].name)
