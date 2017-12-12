@@ -69,15 +69,23 @@ def load_fake_data():
             end_time=timezone.now() + timedelta(days=-1, hours=1),
             calendar=calendars['evenements_locaux'],
         ),
+        'user1_unpublished_event': Event.objects.create(
+            name='Évenement non publié créé par user1',
+            published=False,
+            start_time=timezone.now() + timedelta(days=1),
+            end_time=timezone.now() + timedelta(days=1, hours=1),
+            calendar=calendars['evenements_locaux'],
+        )
     }
     [OrganizerConfig.objects.create(
         event=event,
         person=people['user1'],
         is_creator=True,
         as_group=groups['user1_group']
-    ) for event in [events['user1_event1'], events['user1_event2'], events['user1_past_event']]]
+    ) for event in [events['user1_event1'], events['user1_event2'], events['user1_past_event'], events['user1_unpublished_event']]]
     [RSVP.objects.create(person=user, event=events['user1_event1']) for user in [people['user1'], people['user2']]]
     [RSVP.objects.create(person=user, event=events['user1_past_event']) for user in [people['user1'], people['user2']]]
+    [RSVP.objects.create(person=user, event=events['user1_unpublished_event']) for user in [people['user1'], people['user2']]]
 
     return {
         'clients': clients,

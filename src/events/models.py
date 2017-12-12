@@ -28,6 +28,9 @@ def past_only(as_of):
 
 
 class EventQuerySet(models.QuerySet):
+    def published(self):
+        return self.filter(published=True)
+
     def upcoming(self, as_of=None, published_only=True):
         if as_of is None:
             as_of = timezone.now()

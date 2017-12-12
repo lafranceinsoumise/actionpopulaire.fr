@@ -28,7 +28,7 @@
             {% endif %}
             {% if is_organizer %}
                 {% if event.is_past %}
-                    <a class="btn btn-default" href="{% url "edit_event_report" event.pk %}">Rédigez le compte-rendu</a>
+                    <a class="btn btn-default" href="{% url "edit_event_report" event.pk %}">Rédiger le compte-rendu</a>
                 {% endif %}
                 <a class="btn btn-default" href="{% url "manage_event" event.pk %}">Gérer l'événement</a>
             {% endif %}

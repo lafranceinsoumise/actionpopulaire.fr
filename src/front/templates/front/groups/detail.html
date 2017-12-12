@@ -3,17 +3,20 @@
 {% block title %}Groupe d'action «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
 
 {% block main %}
-    <div class="row">
-        <h1 class="col-sm-10">
+    <header>
+        <h1>
             {{ supportgroup.name }}
             {% for tag in supportgroup.tags.all %}<span class="badge">{{ tag }}</span>{% endfor %}
         </h1>
-        {% if user.is_authenticated and user.is_staff %}
-            <div class="col-sm-2">
-                <a href="{% url "admin:groups_supportgroup_change" supportgroup.id %}">Administration</a>
-            </div>
-        {% endif %}
-    </div>
+        <div>
+            {% if user.is_authenticated and user.is_staff %}
+                <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:groups_supportgroup_change" event.pk %}">Administration</a>
+            {% endif %}
+            {% if is_referent_or_manager %}
+                <a class="btn btn-default" href="{% url "manage_group" supportgroup.pk %}">Gérer mon groupe</a>
+            {% endif %}
+        </div>
+    </header>
 
     <iframe title="Carte" class="col-xs-6" style="float: right;"
         src="https://carte.lafranceinsoumise.fr/?event_id={{ supportgroup.pk }},groups&hide_panel=1&hide_address=1"
@@ -68,9 +71,11 @@
         </div>
     {% endif %}
 
-    {% if supportgroup.organized_events.all|length > 0 %}
-        <h3>Événements organisés</h3>
-        {% for event in supportgroup.organized_events.all %}
+    <div class="clearfix"></div>
+
+    <h3>Agenda du groupe</h3>
+    <div class="list-group">
+        {% for event in supportgroup.organized_events.upcoming %}
             <div class="list-group-item">
                 <strong>
                     <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
@@ -81,7 +86,31 @@
                 <div>{{ event.get_display_date }}</div>
                 <div>{{ event.location_name }}</div>
             </div>
+        {% empty %}
+            <div class="list-group-item">
+                Ce groupe d'a aucun événement à venir.
+            </div>
         {% endfor %}
-    {% endif %}
+    </div>
+
+    <h3>Événements passés</h3>
+    <div class="list-group">
+        {% for event in supportgroup.organized_events.past %}
+            <div class="list-group-item">
+                <strong>
+                    <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
+                    <small>
+                        &bull; <a href="{% url "manage_event" event.pk %}">Gestion</a>
+                    </small>
+                </strong>
+                <div>{{ event.get_display_date }}</div>
+                <div>{{ event.location_name }}</div>
+            </div>
+        {% empty %}
+            <div class="list-group-item">
+                Ce groupe n'a organisé aucun événment.
+            </div>
+        {% endfor %}
+    </div>
 
 {% endblock %}
