@@ -115,7 +115,8 @@
     <hr/>
     <div class="row">
         <div class="help-dialog" data-hint="Administration">
-            Ceci est votre espace d'administration. Vous pouvez y gérer les événements à venir que vous organisez.
+            Ceci est votre espace d'administration. Vous pouvez y gérer les événements que vous organisez, qu'ils soient
+            passés ou à venir.
         </div>
         <div class="col-md-6">
             <h3>Événements que j'organise
@@ -132,6 +133,22 @@
                 {% empty %}
                     <div class="list-group-item">
                         Vous n'organisez aucun événement futur. Voulez-vous <a href="{% url 'create_event' %}">en créer
+                        un</a>&nbsp;?
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h3>Événements que j'ai organisé</h3>
+            <div class="list-group">
+                {% for event in past_organized_events %}
+                    <div class="list-group-item">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                        <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+                    </div>
+                {% empty %}
+                    <div class="list-group-item">
+                        Vous n'avez organisé aucun événement terminé. Voulez-vous <a href="{% url 'create_event' %}">en créer
                         un</a>&nbsp;?
                     </div>
                 {% endfor %}

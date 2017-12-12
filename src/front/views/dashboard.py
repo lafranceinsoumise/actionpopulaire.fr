@@ -23,15 +23,16 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
                 .filter(Q(organizers_groups__in=person.supportgroups.all()) & ~Q(attendees=person))
                 .order_by('start_time', 'end_time')
         ]
-        last_events = Event.objects.past().filter(attendees=person).order_by('-start_time', '-end_time')[:10]
+        last_events = Event.objects.past().filter(Q(attendees=person) | Q()).order_by('-start_time', '-end_time')[:10]
 
-        organized_events = Event.objects.upcoming().filter(organizers=person)
+        organized_events = Event.objects.upcoming().filter(organizers=person).order_by('start_time')
+        past_organized_events = Event.objects.past().filter(organizers=person).order_by('-start_time', '-end_time')[:10]
 
         kwargs.update({
             'person': person,
             'rsvped_events': rsvped_events, 'members_groups': members_groups,
             'suggested_events': suggested_events, 'last_events': last_events,
-            'organized_events': organized_events
+            'organized_events': organized_events, 'past_organized_events': past_organized_events
         })
 
         return super().get_context_data(**kwargs)
