@@ -9,11 +9,25 @@
             {% for tag in supportgroup.tags.all %}<span class="badge">{{ tag }}</span>{% endfor %}
         </h1>
         <div>
-            {% if user.is_authenticated and user.is_staff %}
-                <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:groups_supportgroup_change" supportgroup.pk %}">Administration</a>
-            {% endif %}
-            {% if is_referent_or_manager %}
-                <a class="btn btn-default" href="{% url "manage_group" supportgroup.pk %}">Gérer mon groupe</a>
+            {% if user.is_authenticated %}
+                {% if is_member and not is_referent_or_manager %}
+                    <a class="btn btn-primary" href="{% url "quit_group" supportgroup.pk %}">Quitter le groupe</a>
+                {% elif is_referent_or_manager %}
+                    <a class="btn btn-default" href="{% url "manage_group" supportgroup.pk %}">Gérer mon groupe</a>
+                {% elif not is_member %}
+                    <form style="display:inline;" action="{% url "view_group" supportgroup.pk %}" method="post" class="padbottom">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="join"/>
+                        <input type="submit" class="btn btn-primary" value="Rejoindre ce groupe"/>
+                    </form>
+                {% endif %}
+                {% if user.is_staff %}
+                    <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:groups_supportgroup_change" supportgroup.pk %}">Administration</a>
+                {% endif %}
+            {% else %}
+                <a class="btn btn-primary" title="Connexion" href="{% url "oauth_redirect_view" %}">Se
+                            connecter pour
+                            rejoindre le groupe</a>
             {% endif %}
         </div>
     </header>
@@ -34,40 +48,6 @@
         <div class="intro" style="clear: both;">
             {{ supportgroup.html_description }}
             <hr/>
-        </div>
-    {% endif %}
-
-    {% if user.is_authenticated %}
-        {% if is_member and not is_referent_or_manager %}
-            <div class="row">
-                <div class="col-md-push-3 col-md-6" style="margin-top: 1em; margin-bottom: 1em;">
-                    Je suis membre de ce groupe
-                    &bull; <a href="{% url "quit_group" supportgroup.pk %}">Quitter le groupe</a>
-                </div>
-            </div>
-        {% elif not is_referent_or_manager %}
-            <div class="row">
-                <div class="col-md-push-3 col-md-6" style="margin-top: 1em; margin-bottom: 1em;">
-                    <form action="{% url "view_group" supportgroup.pk %}" method="post" class="padbottom">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="join"/>
-                        <input type="submit" class="btn btn-primary btn-block" value="Rejoindre ce groupe"/>
-                    </form>
-                </div>
-            </div>
-        {% elif is_referent_or_manager %}
-        <p>
-            Je suis gérant⋅e de ce groupe
-            &bull; <a href="{% url "manage_group" supportgroup.pk %}">Gérer mon groupe</a>
-        </p>
-        {% endif %}
-    {% else %}
-        <div class="row">
-            <div class="col-md-push-3 col-md-6" style="margin-top: 1em; margin-bottom: 1em;">
-                <a class="btn btn-primary btn-block" title="Connexion" href="{% url "oauth_redirect_view" %}">Se
-                    connecter pour
-                    rejoindre le groupe</a>
-            </div>
         </div>
     {% endif %}
 
