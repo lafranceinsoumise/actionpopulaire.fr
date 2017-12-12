@@ -23,7 +23,7 @@
                     <div class="list-group-item">
                         <i class="fa fa-calendar" aria-hidden="true"></i>
                         <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
-                        {{ event.get_display_date }} - {{ event.location_name }} ({{ event.location_city }})
+                        {{ event.get_display_date }} - {{ event.short_location }}
                     </div>
                 {% empty %}
                     <div class="list-group-item">
@@ -50,7 +50,7 @@
                         <div class="input-group">
                             <i class="fa fa-users" aria-hidden="true"></i>
                             <a href="{% url 'view_group' group.pk %}">{{ group.name }}</a><br>
-                            {{ group.location_name }} ({{ group.location_city }})
+                            {{ group.short_location }}
                             {% if group.user_is_manager %}
                                 <span class="input-group-btn">
                                 <a class='btn btn-default' href="{% url 'manage_group' group.pk %}">Gestion</a>
@@ -81,7 +81,7 @@
                               title="{{ reason }}">Pourquoi ?</span>
                         <i class="fa fa-calendar" aria-hidden="true"></i>
                         <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
-                        {{ event.get_display_date }} - {{ event.location_name }} ({{ event.location_city }})
+                        {{ event.get_display_date }} - {{ event.short_location }}
                     </div>
                 {% empty %}
                     <div class="list-group-item">
@@ -102,7 +102,7 @@
                     <div class="list-group-item">
                         <i class="fa fa-calendar" aria-hidden="true"></i>
                         <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
-                        {{ event.get_display_date }} - {{ event.location_name }} ({{ event.location_city }})
+                        {{ event.get_display_date }} - {{ event.short_location }}
                     </div>
                 {% empty %}
                     <div class="list-group-item">

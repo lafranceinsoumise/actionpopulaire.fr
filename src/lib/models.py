@@ -138,6 +138,22 @@ class LocationMixin(models.Model):
 
         return format_html_join(mark_safe('<br/>'), '{}', ((part,) for part in parts))
 
+    def short_location(self):
+        local_part = self.location_name
+        if self.location_country == 'FR':
+            city_part = self.location_city
+        elif self.location_city:
+            city_part = self.location_city + ', ' + self.location_country.name
+        elif self.location_country:
+            city_part = self.location_country.name
+        else:
+            city_part = ""
+
+        if local_part and city_part:
+            return '{} ({})'.format(local_part, city_part)
+        else:
+            return local_part or city_part or _('Pas de localisation')
+
     @property
     def short_address(self):
         attrs = ['location_address1', 'location_address2', 'location_zip', 'location_city']
