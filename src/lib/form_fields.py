@@ -48,8 +48,8 @@ class AcceptCreativeCommonsLicenceField(BooleanField):
     }
 
     default_label = _("En important une image, je certifie être le propriétaire des droits et accepte de la partager"
-                      " sous licence libre <a href=\"https://creativecommons.org/licenses/by/4.0/deed.fr\">Creative"
-                      " Commons CC-BY-NC 4.0</a>.")
+                      " sous licence libre <a href=\"https://creativecommons.org/licenses/by-nc-sa/3.0/fr/\">Creative"
+                      " Commons CC-BY-NC 3.0</a>.")
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('required', False)
