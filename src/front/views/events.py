@@ -14,7 +14,7 @@ from django.core.exceptions import PermissionDenied
 from events.models import Event, RSVP, Calendar
 from events.tasks import send_cancellation_notification, send_rsvp_notification
 
-from ..forms import EventForm, AddOrganizerForm, EventGeocodingForm, EventReportForm, UploadEventImageForm
+from ..forms import EventForm, AddOrganizerForm, EventGeocodingForm, EventReportForm, UploadEventImageForm, AuthorForm
 from ..view_mixins import (
     HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
     ChangeLocationBaseView
@@ -321,12 +321,26 @@ class UploadEventImageView(CreateView):
         })
         return kwargs
 
+    def get_author_form(self):
+        author_form_kwargs = {
+            'instance': self.request.user.person,
+        }
+        if self.request.method in ['POST', 'PUT']:
+            author_form_kwargs['data'] = self.request.POST
+
+        return AuthorForm(**author_form_kwargs)
+
     def get_context_data(self, **kwargs):
+        if 'author_form' not in kwargs:
+            kwargs = self.get_author_form()
+
         return super().get_context_data(
-            event=self.event
+            event=self.event,
+            **kwargs
         )
 
     def get(self, request, *args, **kwargs):
+        self.object = None
         self.event = self.get_object()
 
         if not self.event.rsvps.filter(person=request.user.person).exists():
@@ -335,15 +349,26 @@ class UploadEventImageView(CreateView):
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        self.object = None
         self.event = self.get_object()
 
         if not self.event.rsvps.filter(person=request.user.person).exists():
             raise PermissionDenied(_("Seuls les participants à l'événement peuvent poster des images"))
 
-        return super().post(request, *args, **kwargs)
+        form = self.get_form()
+        author_form = self.get_author_form()
 
-    def form_valid(self, form):
-        res = super().form_valid(form)
+        if form.is_valid() and author_form.is_valid():
+            return self.form_valid(form, author_form)
+        else:
+            return self.form_invalid(form, author_form)
+
+    def form_invalid(self, form, author_form):
+        return self.render_to_response(self.get_context_data(form=form, author_form=author_form))
+
+    def form_valid(self, form, author_form):
+        author_form.save()
+        form.save()
 
         messages.add_message(
             self.request,
@@ -351,4 +376,4 @@ class UploadEventImageView(CreateView):
             _("Votre photo a correctement été importée, merci de l'avoir partagée !")
         )
 
-        return res
+        return HttpResponseRedirect(self.get_success_url())

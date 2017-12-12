@@ -16,7 +16,7 @@ from people.tasks import send_unsubscribe_email, send_welcome_mail
 
 __all__ = [
     'BaseSubscriptionForm', 'SimpleSubscriptionForm', 'OverseasSubscriptionForm', 'EmailFormSet', 'ProfileForm',
-    'VolunteerForm', "MessagePreferencesForm", 'UnsubscribeForm', 'AddEmailForm', 'get_people_form_class'
+    'VolunteerForm', "MessagePreferencesForm", 'UnsubscribeForm', 'AddEmailForm', 'get_people_form_class', 'AuthorForm'
 ]
 
 class ContactPhoneNumberMixin():
@@ -557,3 +557,23 @@ def get_people_form_class(person_form_instance):
     form_class.person_form_instance = person_form_instance
 
     return form_class
+
+
+class AuthorForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['first_name'].required = self.fields['last_name'].required = True
+        self.fields['last_name'].help_text = _("""
+        Nous avons besoin de votre nom pour pouvoir vous identifier comme l'auteur de l'image.
+        """)
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            'first_name', 'last_name',
+        )
+
+    class Meta:
+        model = Person
+        fields = ('first_name', 'last_name')

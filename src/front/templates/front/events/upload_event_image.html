@@ -8,7 +8,11 @@
     <h3 class="text-center">Ajouter une image pour «&nbsp;{{ event.name }}&nbsp;»</h3>
     <div class="row">
         <div class="col-sm-12 form-group">
-            {% crispy form %}
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% crispy author_form %}
+                {% crispy form %}
+            </form>
         </div>
     </div>
 {% endblock %}

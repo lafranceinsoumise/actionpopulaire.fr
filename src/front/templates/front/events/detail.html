@@ -68,7 +68,7 @@
                 <div style="display: flex; margin: 0 -10px;">
                     {% for image in event_images %}
                         <a href="{{ image.image.url }}" style="display: block; margin: 10px;">
-                            <img src="{{ image.image.thumbnail.url }}" title="{{ image.legend }}">
+                            <img src="{{ image.image.thumbnail.url }}" title="&copy; {{ image.author.first_name }} {{ image.author.last_name }} &mdash; {{ image.legend }}">
                         </a>
                     {% endfor %}
                 </div>

@@ -327,6 +327,7 @@ class UploadEventImageForm(forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.add_input(Submit('submit', _('Ajouter mon image')))
+        self.helper.form_tag = False
         self.helper.layout = Layout(
             'image',
             'accept_license',
