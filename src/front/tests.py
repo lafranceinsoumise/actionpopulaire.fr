@@ -479,7 +479,7 @@ class EventPagesTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.person, self.other_event.attendees.all())
-        self.assertIn('Je suis déjà inscrit⋅e à cet événement', response.content.decode())
+        self.assertIn('Annuler ma participation', response.content.decode())
 
         rsvp_notification.delay.assert_called_once()
 
@@ -668,7 +668,7 @@ class GroupPageTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.other_person, self.manager_group.members.all())
-        self.assertIn('Je suis membre de ce groupe', response.content.decode())
+        self.assertIn('Quitter le groupe', response.content.decode())
 
         someone_joined.delay.assert_called_once()
         membership = Membership.objects.get(person=self.other_person, supportgroup=self.manager_group)
