@@ -2,6 +2,10 @@ from django.contrib.admin import AdminSite
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, admin as auth_admin, BACKEND_SESSION_KEY
 from django import forms
+from django.contrib.redirects.admin import RedirectAdmin
+from django.contrib.redirects.models import Redirect
+from django.contrib.sites.admin import SiteAdmin
+from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -56,3 +60,5 @@ admin_site = APIAdminSite()
 
 # register auth
 admin_site.register(auth_admin.Group, auth_admin.GroupAdmin)
+admin_site.register(Redirect, RedirectAdmin)
+admin_site.register(Site, SiteAdmin)

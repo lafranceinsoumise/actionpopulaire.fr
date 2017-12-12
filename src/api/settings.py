@@ -55,6 +55,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # redirect
+    'django.contrib.sites',
+    'django.contrib.redirects',
+
     # security
     'corsheaders',
 
@@ -110,6 +115,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.redirects.middleware.RedirectFallbackMiddleware'
 ]
 
 if DEBUG:
