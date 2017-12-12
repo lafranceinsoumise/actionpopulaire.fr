@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, F
 from django.views.generic import TemplateView
 
 from django.utils import timezone
@@ -14,7 +14,8 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
         person = self.request.user.person
 
         rsvped_events = Event.objects.upcoming().filter(attendees=person).order_by('start_time', 'end_time')
-        members_groups = SupportGroup.objects.filter(memberships__person=person, published=True).order_by('name')
+        members_groups = SupportGroup.objects.filter(memberships__person=person, published=True).order_by('name')\
+            .annotate(user_is_manager=F('memberships__is_manager')._combine(F('memberships__is_referent'), 'OR', False))
 
         suggested_events = [
             (event, 'Cet événément est organisé par un groupe dont vous êtes membre.')
@@ -25,17 +26,12 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
         last_events = Event.objects.past().filter(attendees=person).order_by('-start_time', '-end_time')[:10]
 
         organized_events = Event.objects.upcoming().filter(organizers=person)
-        managed_groups = SupportGroup.objects.filter(
-            Q(published=True),
-            Q(memberships__person=person),
-            Q(memberships__is_manager=True) | Q(memberships__is_referent=True)
-        )
 
         kwargs.update({
             'person': person,
             'rsvped_events': rsvped_events, 'members_groups': members_groups,
             'suggested_events': suggested_events, 'last_events': last_events,
-            'organized_events': organized_events, 'managed_groups': managed_groups,
+            'organized_events': organized_events
         })
 
         return super().get_context_data(**kwargs)
