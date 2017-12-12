@@ -10,7 +10,7 @@
         </h1>
         <div>
             {% if user.is_authenticated and user.is_staff %}
-                <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:groups_supportgroup_change" event.pk %}">Administration</a>
+                <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:groups_supportgroup_change" supportgroup.pk %}">Administration</a>
             {% endif %}
             {% if is_referent_or_manager %}
                 <a class="btn btn-default" href="{% url "manage_group" supportgroup.pk %}">Gérer mon groupe</a>
