@@ -28,7 +28,7 @@ module.exports = function () {
     const buttons = document.getElementsByClassName('help-button');
     for (let button of buttons) {
       button.addEventListener('click', showHints);
-      button.style.display = 'initial';
+      button.style.display = 'inherit';
     }
   }
 
