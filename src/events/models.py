@@ -16,16 +16,6 @@ from lib.models import (
 )
 from lib.form_fields import DateTimePickerWidget
 
-EVENT_GRACE_PERIOD = timezone.timedelta(hours=12)
-
-
-def upcoming_only(as_of):
-    return models.Q(end_time__gt=as_of - EVENT_GRACE_PERIOD)
-
-
-def past_only(as_of):
-    return models.Q(end_time__lt=as_of)
-
 
 class EventQuerySet(models.QuerySet):
     def published(self):
@@ -34,22 +24,39 @@ class EventQuerySet(models.QuerySet):
     def upcoming(self, as_of=None, published_only=True):
         if as_of is None:
             as_of = timezone.now()
-        condition = upcoming_only(as_of)
+
+        condition = models.Q(end_time__gte=as_of)
         if published_only:
             condition &= models.Q(published=True)
 
         return self.filter(condition)
 
-    def past(self, as_of=timezone.now(), published_only=True):
-        condition = past_only(as_of)
+    def past(self, as_of=None, published_only=True):
+        if as_of is None:
+            as_of = timezone.now()
+
+        condition = models.Q(end_time__lt=as_of)
         if published_only:
             condition &= models.Q(published=True)
         return self.filter(condition)
 
 
 class RSVPQuerySet(models.QuerySet):
-    def upcoming(self, as_of, published_only=True):
-        condition = models.Q(event__end_time__gt=as_of - EVENT_GRACE_PERIOD)
+    def upcoming(self, as_of=None, published_only=True):
+        if as_of is None:
+            as_of = timezone.now()
+
+        condition = models.Q(event__end_time__gte=as_of)
+        if published_only:
+            condition &= models.Q(event__published=True)
+
+        return self.filter(condition)
+
+    def past(self, as_of=None, published_only=True):
+        if as_of is None:
+            as_of = timezone.now()
+
+        condition = models.Q(event__end_time__lt=as_of)
         if published_only:
             condition &= models.Q(event__published=True)
 
