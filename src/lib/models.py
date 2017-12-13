@@ -274,6 +274,7 @@ class AbstractMapObjectLabel(AbstractLabel):
     Abstract class for event and group labels which should have special appearance on map
     """
     privileged_only = models.BooleanField(_('réservé aux administrateurs'), default=True)
+    hide_text_label = models.BooleanField(_('cacher le label texte'), default=False)
 
     icon = StdImageField(
         verbose_name=_('icon'),
