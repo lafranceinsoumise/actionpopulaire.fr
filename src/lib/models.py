@@ -1,6 +1,7 @@
 import uuid
 import os
 from django.contrib.gis.db import models
+from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe, format_html, format_html_join
 from django_countries.fields import CountryField
@@ -266,6 +267,30 @@ class UploadToRelatedObjectDirectoryWithUUID(UploadTo):
             str(related_object.pk),
             "{}{}".format(str(uuid.uuid4()), ext)
         )
+
+
+class AbstractMapObjectLabel(AbstractLabel):
+    """
+    Abstract class for event and group labels which should have special appearance on map
+    """
+    privileged_only = models.BooleanField(_('réservé aux administrateurs'), default=True)
+
+    icon = StdImageField(
+        verbose_name=_('icon'),
+        variations={
+            'thumbnail': (400, 250),
+            'banner': (1200, 400),
+        },
+        upload_to=UploadToInstanceDirectoryWithFilename('icon'),
+        help_text=_("L'icône associée aux marqueurs sur la carte."),
+    )
+
+    color = models.CharField(
+        _("couleur"),
+        max_length=7,
+        validators=[RegexValidator(regex='^#[0-9a-f]{6}$')],
+        help_text=_('La couleur associée aux marqueurs sur la carte.')
+    )
 
 
 class ImageMixin(models.Model):
