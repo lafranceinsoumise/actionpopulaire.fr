@@ -344,6 +344,19 @@ if not DEBUG:
         }
     }
 
+# CACHING
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get('CACHING_REDIS_URL', 'redis://localhost?db=0'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "KEY_PREFIX": "caching_"
+    }
+}
+
+
 # SECURITY
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIAL = False

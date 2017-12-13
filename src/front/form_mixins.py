@@ -2,9 +2,12 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.html import format_html
 from django.contrib.gis.forms.widgets import OSMWidget
+from django.core.validators import RegexValidator
 from crispy_forms.helper import FormHelper
 
 from .form_components import *
+from lib.geo import FRENCH_ZIPCODE_REGEX
+
 
 from django.utils.translation import ugettext as _
 from django_countries import countries
@@ -159,3 +162,16 @@ class GeocodingBaseForm(forms.ModelForm):
             return self.messages['coordinates_updated']
 
         return None
+
+
+class SearchByZipCodeFormBase(forms.Form):
+    zipcode = forms.CharField(
+        max_length=5,
+        min_length=5,
+        validators=[RegexValidator(FRENCH_ZIPCODE_REGEX, message=_('Indiquez un code postal français valide'))],
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': _('Votre code postal')
+        }),
+        required=False
+    )

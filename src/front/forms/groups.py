@@ -3,13 +3,13 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from crispy_forms.helper import FormHelper
 
 from ..form_components import *
-from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm
+from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
 
 from groups.models import SupportGroup, Membership
 from groups.tasks import send_support_group_changed_notification, send_support_group_creation_notification
 from lib.tasks import geocode_support_group
 
-__all__ = ['SupportGroupForm', 'AddReferentForm', 'AddManagerForm', 'GroupGeocodingForm']
+__all__ = ['SupportGroupForm', 'AddReferentForm', 'AddManagerForm', 'GroupGeocodingForm', 'SearchGroupForm']
 
 
 class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
@@ -216,3 +216,7 @@ class GroupGeocodingForm(GeocodingBaseForm):
     class Meta:
         model = SupportGroup
         fields = ('coordinates',)
+
+
+class SearchGroupForm(SearchByZipCodeFormBase):
+    pass

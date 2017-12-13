@@ -5,14 +5,15 @@ from crispy_forms.helper import FormHelper
 
 from groups.models import SupportGroup
 from ..form_components import *
-from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm
+from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
 
 from events.models import Event, OrganizerConfig, Calendar, RSVP, EventImage
 from events.tasks import send_event_creation_notification, send_event_changed_notification
 from lib.tasks import geocode_event
 from lib.form_fields import AcceptCreativeCommonsLicenceField
 
-__all__ = ['EventForm', 'AddOrganizerForm', 'EventGeocodingForm', 'EventReportForm', 'UploadEventImageForm']
+__all__ = ['EventForm', 'AddOrganizerForm', 'EventGeocodingForm', 'EventReportForm', 'UploadEventImageForm',
+           'SearchEventForm']
 
 
 class AgendaChoiceField(forms.ModelChoiceField):
@@ -337,3 +338,7 @@ class UploadEventImageForm(forms.ModelForm):
     class Meta:
         model = EventImage
         fields = ('image', 'legend')
+
+
+class SearchEventForm(SearchByZipCodeFormBase):
+    pass

@@ -15,16 +15,32 @@ from events.models import Event, RSVP, Calendar
 from events.tasks import send_cancellation_notification, send_rsvp_notification
 from groups.models import SupportGroup
 
-from ..forms import EventForm, AddOrganizerForm, EventGeocodingForm, EventReportForm, UploadEventImageForm, AuthorForm
+from ..forms import (
+    EventForm, AddOrganizerForm, EventGeocodingForm, EventReportForm, UploadEventImageForm, AuthorForm, SearchEventForm
+)
 from ..view_mixins import (
     HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
-    ChangeLocationBaseView
+    ChangeLocationBaseView, SearchByZipcodeBaseView
 )
 
 __all__ = [
     'CreateEventView', 'ManageEventView', 'ModifyEventView', 'QuitEventView', 'CancelEventView',
-    'EventDetailView', 'CalendarView', 'ChangeEventLocationView', 'EditEventReportView', 'UploadEventImageView'
+    'EventDetailView', 'CalendarView', 'ChangeEventLocationView', 'EditEventReportView', 'UploadEventImageView',
+    'EventListView',
 ]
+
+
+class EventListView(SearchByZipcodeBaseView):
+    """List of events, filter by zipcode
+    """
+    min_items = 20
+    template_name = 'front/events/event_list.html'
+    context_object_name = 'events'
+    form_class = SearchEventForm
+
+    def get_base_queryset(self):
+        return Event.objects.upcoming().order_by('start_time')
+
 
 class EventDetailView(ObjectOpengraphMixin, DetailView):
     template_name = "front/events/detail.html"
@@ -35,8 +51,10 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            has_rsvp=self.request.user.is_authenticated and self.object.rsvps.filter(person=self.request.user.person).exists(),
-            is_organizer=self.request.user.is_authenticated and self.object.organizers.filter(pk=self.request.user.person.id).exists(),
+            has_rsvp=self.request.user.is_authenticated and self.object.rsvps.filter(
+                person=self.request.user.person).exists(),
+            is_organizer=self.request.user.is_authenticated and self.object.organizers.filter(
+                pk=self.request.user.person.id).exists(),
             organizers_groups=self.object.organizers_groups.distinct(),
             event_images=self.object.images.all(),
         )

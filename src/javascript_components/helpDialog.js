@@ -27,13 +27,14 @@ module.exports = function () {
   if (steps.length > 0) {
     const buttons = document.getElementsByClassName('help-button');
     for (let button of buttons) {
-      button.addEventListener('click', showHints);
+      button.addEventListener('click', showHelp);
       button.style.display = 'inherit';
     }
   }
 
-  function showHints(e) {
+  function showHelp(e) {
     i.start();
     e.preventDefault();
   }
+
 };

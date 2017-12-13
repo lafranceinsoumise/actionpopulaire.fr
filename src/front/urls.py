@@ -32,6 +32,7 @@ urlpatterns = [
     # events views
     url('^evenements/$', RedirectView.as_view(url=reverse_lazy('dashboard')), name='list_events'),
     url('^evenements/creer/$', views.CreateEventView.as_view(), name='create_event'),
+    url('^evenements/liste/$', views.EventListView.as_view(), name='list_all_events'),
     url(f'^evenements/(?P<pk>{uuid})/$', views.EventDetailView.as_view(), name='view_event'),
     url(f'^evenements/(?P<pk>{uuid})/manage/$', views.ManageEventView.as_view(), name='manage_event'),
     url(f'^evenements/(?P<pk>{uuid})/modifier/$', views.ModifyEventView.as_view(), name='edit_event'),
@@ -45,6 +46,7 @@ urlpatterns = [
     # groups views
     url('^groupes/$', RedirectView.as_view(url=reverse_lazy('dashboard')), name='list_groups'),
     url('^groupes/creer/$', views.CreateSupportGroupView.as_view(), name='create_group'),
+    url('^groupes/liste/$', views.SupportGroupListView.as_view(), name='list_all_groups'),
     url(f'^groupes/(?P<pk>{uuid})/$', views.SupportGroupDetailView.as_view(), name='view_group'),
     url(f'^groupes/(?P<pk>{uuid})/manage/$', views.SupportGroupManagementView.as_view(), name='manage_group'),
     url(f'^groupes/(?P<pk>{uuid})/modifier/$', views.ModifySupportGroupView.as_view(), name='edit_group'),

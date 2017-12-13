@@ -6,10 +6,17 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.html import format_html
 from django.shortcuts import reverse
-from django.views.generic import UpdateView
-from django.http.response import HttpResponseForbidden, HttpResponseRedirect
+from django.views.generic import UpdateView, ListView
+from django.http.response import HttpResponseRedirect
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import Distance as DistanceMeasure
+from django.contrib.gis.db.models.functions import Distance as DistanceFunction, DistanceResultMixin
+from django.db.models import Value, FloatField
+
+
+from lib.geo import get_zipcode_centroid, FRENCH_ZIPCODE_REGEX
 
 
 class SoftLoginRequiredMixin(object):
@@ -152,3 +159,77 @@ class ChangeLocationBaseView(UpdateView):
             )
 
         return res
+
+
+class FixedDistance(DistanceResultMixin, Value):
+    _output_field = FloatField()
+
+    def __init__(self, **kwargs):
+        distance = DistanceMeasure(**kwargs)
+        super().__init__(distance.standard)
+
+    def convert_value(self, value, expression, connection, context):
+        if value is None:
+            return None
+        d = DistanceMeasure()
+        d.standard = value
+        return d
+
+
+class SearchByZipcodeBaseView(ListView):
+    """List of events, filter by zipcode
+    """
+    min_items = 20
+    form_class = None
+    queryset = None
+
+    def get(self, request, *args, **kwargs):
+        self.form = self.get_form()
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            form=self.form,
+            **kwargs,
+        )
+
+    def get_person_zipcode(self):
+        if self.request.user.person.location_zip and FRENCH_ZIPCODE_REGEX.match(self.request.user.person.location_zip):
+            return self.request.user.person.location_zip
+        return None
+
+    def get_form_kwargs(self):
+        return {
+            'data': self.request.GET or {'zipcode': self.get_person_zipcode()}
+        }
+
+    def get_form(self):
+        return self.form_class(**self.get_form_kwargs())
+
+    def get_base_queryset(self):
+        return self.queryset
+
+    def get_queryset(self):
+        zipcode = self.get_zipcode()
+        if not zipcode:
+            return self.queryset.none()
+
+        base_queryset = self.get_base_queryset()
+
+        queryset = base_queryset.filter(location_zip=zipcode)\
+            .annotate(distance=FixedDistance(m=0))
+
+        if len(queryset) < self.min_items:
+            centroid = get_zipcode_centroid(zipcode)
+            if centroid:
+                nearby = base_queryset.exclude(location_zip=zipcode) \
+                             .annotate(distance=DistanceFunction('coordinates', Point(*centroid, srid=4326)))\
+                             .order_by('distance')[:(self.min_items - len(queryset))]
+                queryset = list(queryset) + list(nearby)
+
+        return queryset
+
+    def get_zipcode(self):
+        if self.form.is_valid() and self.form.cleaned_data['zipcode']:
+            return self.form.cleaned_data['zipcode']
+        return None

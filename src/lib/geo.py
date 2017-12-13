@@ -1,5 +1,7 @@
+import re
 import requests
 from django.contrib.gis.geos import Point
+from django.core.cache import cache
 
 import logging
 from .models import LocationMixin
@@ -8,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 BAN_ENDPOINT = 'https://api-adresse.data.gouv.fr/search'
 NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org/"
+FRENCH_ZIPCODE_REGEX = re.compile(r'^[0-9]{5}$')
 
 
 def geocode_element(item):
@@ -112,3 +115,30 @@ def geocode_nominatim(item):
     else:
         item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
         return True
+
+
+def get_zipcode_centroid(zip):
+    URL = 'https://geo.api.gouv.fr/communes?codePostal={zipcode}&fields=centre'
+    cache_key = f'zip_centroid_location_{zip}'
+
+    centroid = cache.get(cache_key)
+
+    if centroid is None:
+        try:
+            res = requests.get(URL.format(zipcode=zip))
+            res.raise_for_status()
+            elems = res.json()
+        except (ValueError, requests.exceptions.RequestException):
+            return None
+
+        try:
+            centroid = [
+                sum(e['centre']['coordinates'][0] for e in elems) / len(elems),
+                sum(e['centre']['coordinates'][1] for e in elems) / len(elems),
+            ]
+        except KeyError:
+            return None
+
+        cache.set(cache_key, centroid, 24 * 60 * 60)
+
+    return centroid

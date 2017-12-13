@@ -1,0 +1,76 @@
+{% extends "front/layout.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load l10n %}
+
+{% block title %}Rechercher un événement par code postal{% endblock %}
+
+{% block main %}
+    <h1>Rechercher un événement par code postal</h1>
+
+    <div>
+        <p>Sur cette page, vous trouverez l'ensemble des événements locaux organisés par les groupes d'action de la
+            France insoumise.</p>
+
+        <p>Si aucun événement n'est organisé près de chez vous, vous pouvez en créer un vous-même.</p>
+
+        <p>Vous pouvez aussi rechercher des événements en utilisant
+            <a href="https://lafranceinsoumise.fr/groupes-appui/carte/">la carte.</a></p>
+    </div>
+
+    <div class="text-center">
+        <a class="btn btn-info" href="{% url "create_event" %}"><i class="fa fa-plus"></i> Créer un événement</a>
+        <a class="btn btn-default" href="https://lafranceinsoumise.fr/groupes-appui/carte/">Accéder à la carte des événements</a>
+    </div>
+
+
+    <div class="container">
+        <h4>Recherche des événements locaux près de chez vous</h4>
+
+        <div class="row">
+            <div class="col-responsive">
+                <form>
+                    <div class="form-group{% if form.zipcode.errors %} has-error{% endif %}">
+                        <div class="input-group">
+                            {{ form.zipcode }}
+                            <div class="input-group-btn">
+                                <input class="btn btn-primary" value="Rechercher" type="submit">
+                            </div>
+                        </div>
+                        {% for error in form.zipcode.errors %}
+                            <div class="help-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if events %}
+            <div class="list-group">
+                {% for event in events %}
+                    <div class="list-group-item ">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                        <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
+                        <a class="btn btn-default pull-right" href="{% url "view_event" event.pk %}">Voir
+                            l'événement</a>
+                        <ul class="list-inline">
+                            <li>
+                                <i class="fa fa-map-marker"></i> {{ event.location_name }}
+                                ({{ event.location_city }})
+                            </li>
+                            {% if event.distance %}
+                                <li>
+                                    <i class="fa fa-long-arrow-right"></i> à {{ event.distance.km|floatformat:0 }}
+                                    km
+                                </li>
+                            {% endif %}
+                            <li>
+                                <i class="fa fa-clock-o"></i> {{ event.get_display_date }}
+                            </li>
+                        </ul>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

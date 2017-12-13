@@ -13,16 +13,16 @@ from groups.models import SupportGroup, Membership
 from groups.tasks import send_someone_joined_notification
 from groups.actions.promo_codes import get_next_promo_code
 
-from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm, GroupGeocodingForm
+from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm, GroupGeocodingForm, SearchGroupForm
 from ..view_mixins import (
-    HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
-    ChangeLocationBaseView
+    HardLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
+    ChangeLocationBaseView, SearchByZipcodeBaseView
 )
 
 __all__ = [
     'SupportGroupManagementView', 'CreateSupportGroupView', 'ModifySupportGroupView',
     'QuitSupportGroupView', 'RemoveManagerView', 'SupportGroupDetailView', 'ThematicBookletViews',
-    'ChangeGroupLocationView',
+    'ChangeGroupLocationView', 'SupportGroupListView'
 ]
 
 
@@ -47,6 +47,19 @@ class CheckMembershipMixin:
                 self._user_membership = None
 
         return self._user_membership
+
+
+class SupportGroupListView(SearchByZipcodeBaseView):
+    """List of groups, filter by zipcode
+    """
+    min_items = 20
+    template_name = 'front/groups/group_list.html'
+    context_object_name = 'groups'
+    form_class = SearchGroupForm
+
+    def get_base_queryset(self):
+        return SupportGroup.active.order_by('name')
+
 
 class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
     template_name = "front/groups/detail.html"
