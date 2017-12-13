@@ -202,11 +202,11 @@ class PagesLoadingTestCase(TestCase):
 
     def test_see_event_list(self):
         response = self.client.get('/evenements/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertRedirects(response, reverse('dashboard'))
 
     def test_see_group_list(self):
         response = self.client.get('/groupes/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertRedirects(response, reverse('dashboard'))
 
     def test_see_event_details(self):
         response = self.client.get('/evenements/' + str(self.event.id) + '/')
@@ -255,7 +255,7 @@ class AuthorizationTestCase(TestCase):
         )
 
     def test_redirect_when_unauth(self):
-        for url in ['/evenements/', '/groupes/', '/evenements/creer/', '/groupes/creer/',
+        for url in ['/', '/evenements/creer/', '/groupes/creer/',
                     '/evenements/%s/modifier/' % self.event.pk, '/groupes/%s/modifier/' % self.group.pk]:
             response = self.client.get(url)
             query = QueryDict(mutable=True)
@@ -372,8 +372,8 @@ class EventPagesTestCase(TestCase):
             }
         )
 
-        # the form redirects to the event list on success
-        self.assertRedirects(response, reverse('list_events'))
+        # the form redirects to the event manage page on success
+        self.assertRedirects(response, reverse('manage_event', kwargs={'pk': self.organized_event.pk}))
 
         # accessing the messages: see https://stackoverflow.com/a/14909727/1122474
         messages = list(response.wsgi_request._messages)
@@ -513,7 +513,7 @@ class EventPagesTestCase(TestCase):
             'description': 'New description',
             'as_group': self.group.pk,
         })
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertRedirects(response, reverse('manage_event', args=[Event.objects.last().pk]))
 
         try:
             organizer_config = self.person.organizer_configs.exclude(event=self.organized_event).get()
@@ -650,7 +650,7 @@ class GroupPageTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.client.post(reverse('quit_group', kwargs={'pk': self.member_group.pk}))
-        self.assertRedirects(response, reverse('list_groups'))
+        self.assertRedirects(response, reverse('dashboard'))
 
         self.assertFalse(self.member_group.memberships.filter(person=self.person).exists())
 
@@ -715,7 +715,7 @@ class GroupPageTestCase(TestCase):
         self.referent_group.published = False
         self.referent_group.save()
 
-        res = self.client.get('/groupes/')
+        res = self.client.get(reverse('dashboard'))
         self.assertNotContains(res, self.referent_group.pk)
 
         res = self.client.get('/groupes/{}/'.format(self.referent_group.pk))

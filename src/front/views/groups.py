@@ -20,7 +20,7 @@ from ..view_mixins import (
 )
 
 __all__ = [
-    'SupportGroupListView', 'SupportGroupManagementView', 'CreateSupportGroupView', 'ModifySupportGroupView',
+    'SupportGroupManagementView', 'CreateSupportGroupView', 'ModifySupportGroupView',
     'QuitSupportGroupView', 'RemoveManagerView', 'SupportGroupDetailView', 'ThematicBookletViews',
     'ChangeGroupLocationView',
 ]
@@ -47,18 +47,6 @@ class CheckMembershipMixin:
                 self._user_membership = None
 
         return self._user_membership
-
-
-class SupportGroupListView(SoftLoginRequiredMixin, ListView):
-    """List person support groups
-    """
-    template_name = 'front/groups/list.html'
-    context_object_name = 'memberships'
-
-    def get_queryset(self):
-        return Membership.active.filter(person=self.request.user.person) \
-            .select_related('supportgroup')
-
 
 class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
     template_name = "front/groups/detail.html"
@@ -279,7 +267,7 @@ class RemoveManagerView(HardLoginRequiredMixin, CheckMembershipMixin, DetailView
 
 class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
     template_name = "front/groups/quit.html"
-    success_url = reverse_lazy("list_groups")
+    success_url = reverse_lazy("dashboard")
     queryset = Membership.active.all()
     context_object_name = 'membership'
 

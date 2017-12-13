@@ -22,35 +22,9 @@ from ..view_mixins import (
 )
 
 __all__ = [
-    'EventListView', 'CreateEventView', 'ManageEventView', 'ModifyEventView', 'QuitEventView', 'CancelEventView',
+    'CreateEventView', 'ManageEventView', 'ModifyEventView', 'QuitEventView', 'CancelEventView',
     'EventDetailView', 'CalendarView', 'ChangeEventLocationView', 'EditEventReportView', 'UploadEventImageView'
 ]
-
-
-class EventListView(SoftLoginRequiredMixin, ListView):
-    """List person events
-    """
-    paginate_by = 20
-    template_name = 'front/events/list.html'
-    context_object_name = 'events'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['rsvps'] = self.get_rsvps()
-        context['past_events'] = self.get_past_events()
-        return context
-
-    def get_queryset(self):
-        return Event.objects.upcoming(as_of=timezone.now()).filter(organizers=self.request.user.person)
-
-    def get_rsvps(self):
-        return RSVP.objects.upcoming(as_of=timezone.now()).select_related('event').filter(
-            person=self.request.user.person)
-
-    def get_past_events(self):
-        return Event.objects.past(as_of=timezone.now()).filter(rsvps__person=self.request.user.person).order_by(
-            '-start_time')
-
 
 class EventDetailView(ObjectOpengraphMixin, DetailView):
     template_name = "front/events/detail.html"
@@ -174,8 +148,10 @@ class CreateEventView(HardLoginRequiredMixin, CreateView):
 class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
     permissions_required = ('events.change_event',)
     template_name = "front/events/modify.html"
-    success_url = reverse_lazy("list_events")
     form_class = EventForm
+
+    def get_success_url(self):
+        return reverse('manage_event', kwargs={'pk': self.object.pk})
 
     def get_queryset(self):
         return Event.objects.upcoming(as_of=timezone.now())

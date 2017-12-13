@@ -1,4 +1,6 @@
 from django.conf.urls import url
+from django.urls import reverse_lazy
+from django.views.generic import RedirectView
 
 from . import views, oauth
 
@@ -28,7 +30,7 @@ urlpatterns = [
     url('^$', views.DashboardView.as_view(), name='dashboard'),
 
     # events views
-    url('^evenements/$', views.EventListView.as_view(), name='list_events'),
+    url('^evenements/$', RedirectView.as_view(url=reverse_lazy('dashboard')), name='list_events'),
     url('^evenements/creer/$', views.CreateEventView.as_view(), name='create_event'),
     url(f'^evenements/(?P<pk>{uuid})/$', views.EventDetailView.as_view(), name='view_event'),
     url(f'^evenements/(?P<pk>{uuid})/manage/$', views.ManageEventView.as_view(), name='manage_event'),
@@ -41,7 +43,7 @@ urlpatterns = [
     url('^agenda/(?P<slug>[-a-zA-Z0-9_]+)/$', views.CalendarView.as_view(), name='view_calendar'),
 
     # groups views
-    url('^groupes/$', views.SupportGroupListView.as_view(), name='list_groups'),
+    url('^groupes/$', RedirectView.as_view(url=reverse_lazy('dashboard')), name='list_groups'),
     url('^groupes/creer/$', views.CreateSupportGroupView.as_view(), name='create_group'),
     url(f'^groupes/(?P<pk>{uuid})/$', views.SupportGroupDetailView.as_view(), name='view_group'),
     url(f'^groupes/(?P<pk>{uuid})/manage/$', views.SupportGroupManagementView.as_view(), name='manage_group'),
