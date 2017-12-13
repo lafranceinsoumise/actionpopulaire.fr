@@ -267,11 +267,12 @@ class OrganizerConfig(models.Model):
 
 class EventImage(TimeStampedModel):
     event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='images', null=False)
-    author = models.ForeignKey('people.Person', related_name='event_images', on_delete=models.PROTECT, null=False)
+    author = models.ForeignKey('people.Person', related_name='event_images', on_delete=models.PROTECT, null=False, editable=False)
     image = StdImageField(
         _('Fichier'),
         variations={
             'thumbnail': (200, 200, True),
+            'admin_thumbnail': (100, 100, True),
         },
         upload_to=UploadToRelatedObjectDirectoryWithUUID(related='event'),
         null=False,

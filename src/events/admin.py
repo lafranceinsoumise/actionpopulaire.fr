@@ -85,7 +85,8 @@ class OrganizerConfigInline(admin.TabularInline):
         form.fields['as_group'].queryset = SupportGroup.objects.filter(memberships__person=obj.person, memberships__is_manager=True)
 
     def person_link(self, obj):
-        return mark_safe('<a href="%s">%s</a>' % (
+        return mark_safe(format_html(
+            '<a href="{}">{}</a>',
             reverse('admin:people_person_change', args=(obj.person.id,)),
             escape(obj.person.email)
         ))
@@ -93,6 +94,32 @@ class OrganizerConfigInline(admin.TabularInline):
 
     def has_add_permission(self, request):
         return False
+
+
+class EventImageInline(admin.TabularInline):
+    model = models.EventImage
+    fields = ('image_link', 'author_link', 'legend')
+    readonly_fields = ('image_link', 'author_link',)
+    extra = 0
+
+    def has_add_permission(self, request):
+        return False
+
+    def image_link(self, obj):
+        return mark_safe(format_html(
+            '<a href="{}"><img src="{}"></a>',
+            obj.image.url,
+            obj.image.admin_thumbnail.url
+        ))
+    image_link.short_description = _('Image')
+
+    def author_link(self, obj):
+        return mark_safe(format_html(
+            '<a href="{}">{}</a>',
+            reverse('admin:people_person_change', args=(obj.author.id,)),
+            escape(obj.author.email)
+        ))
+    author_link.short_description = _("Auteur")
 
 
 @admin.register(models.Event, site=admin_site)
@@ -118,7 +145,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         })
     )
 
-    inlines = (OrganizerConfigInline,)
+    inlines = (OrganizerConfigInline, EventImageInline)
 
     readonly_fields = ('id', 'link', 'organizers', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'start_time'
