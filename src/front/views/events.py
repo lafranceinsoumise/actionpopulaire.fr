@@ -332,7 +332,7 @@ class UploadEventImageView(CreateView):
 
     def get_context_data(self, **kwargs):
         if 'author_form' not in kwargs:
-            kwargs = self.get_author_form()
+            kwargs['author_form'] = self.get_author_form()
 
         return super().get_context_data(
             event=self.event,
