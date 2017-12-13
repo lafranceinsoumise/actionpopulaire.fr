@@ -64,23 +64,13 @@ class EventStatusFilter(admin.SimpleListFilter):
             return queryset.filter(start_time__gt=now)
 
 
-class OrganizerConfigForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        try:
-            self.fields['as_group'].queryset = SupportGroup.objects.filter(memberships__person=self.instance.person, memberships__is_manager=True)
-        except (AttributeError, ObjectDoesNotExist):
-            pass
-
 
 class OrganizerConfigInline(admin.TabularInline):
     model = models.OrganizerConfig
-    form = OrganizerConfigForm
     fields = ('person_link', 'as_group')
     readonly_fields = ('person_link', )
 
     def get_form(self, obj):
-        print('lol')
         form = super().get_form()
         form.fields['as_group'].queryset = SupportGroup.objects.filter(memberships__person=obj.person, memberships__is_manager=True)
 

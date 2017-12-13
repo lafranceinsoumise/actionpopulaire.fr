@@ -261,7 +261,7 @@ class OrganizerConfig(models.Model):
         super().clean()
         memberships = self.person.memberships.filter(is_manager=True).select_related('supportgroup')
         managed_groups = [membership.supportgroup for membership in memberships]
-        if self.as_group not in managed_groups:
+        if self.as_group and self.as_group not in managed_groups:
             raise ValidationError({'as_group': 'Le groupe doit être un groupe que vous gérez.'})
 
 
