@@ -9,10 +9,11 @@ from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.conf import settings
 from django.utils import timezone
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 
 from events.models import Event, RSVP, Calendar
 from events.tasks import send_cancellation_notification, send_rsvp_notification
+from groups.models import SupportGroup
 
 from ..forms import EventForm, AddOrganizerForm, EventGeocodingForm, EventReportForm, UploadEventImageForm, AuthorForm
 from ..view_mixins import (
@@ -145,6 +146,13 @@ class CreateEventView(HardLoginRequiredMixin, CreateView):
             'contact_email': person.email,
             'contact_phone': person.contact_phone,
         }
+        if self.request.method == 'GET' and self.request.GET.get('as_group'):
+            try:
+                kwargs['initial']['as_group'] = SupportGroup.objects.get(pk=self.request.GET.get('as_group'))
+            except SupportGroup.DoesNotExist:
+                pass
+            except ValidationError:
+                pass
         kwargs['person'] = person
 
         return kwargs

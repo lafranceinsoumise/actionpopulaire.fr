@@ -14,6 +14,7 @@
                     <a class="btn btn-primary" href="{% url "quit_group" supportgroup.pk %}">Quitter le groupe</a>
                 {% elif is_referent_or_manager %}
                     <a class="btn btn-default" href="{% url "manage_group" supportgroup.pk %}">Gérer mon groupe</a>
+                    <a class="btn btn-default" href="{% url "create_event" %}?as_group={{ supportgroup.pk }}"><i class="fa fa-plus"></i> Créer un événement organisé par ce groupe</a>
                 {% elif not is_member %}
                     <form style="display:inline;" action="{% url "view_group" supportgroup.pk %}" method="post" class="padbottom">
                         {% csrf_token %}
