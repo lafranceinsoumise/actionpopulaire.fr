@@ -194,7 +194,8 @@ class SearchByZipcodeBaseView(ListView):
         )
 
     def get_person_zipcode(self):
-        if self.request.user.person.location_zip and FRENCH_ZIPCODE_REGEX.match(self.request.user.person.location_zip):
+        if self.request.user.is_authenticated and self.request.user.person.location_zip and \
+                FRENCH_ZIPCODE_REGEX.match(self.request.user.person.location_zip):
             return self.request.user.person.location_zip
         return None
 
