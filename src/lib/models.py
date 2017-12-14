@@ -293,6 +293,9 @@ class AbstractMapObjectLabel(AbstractLabel):
         help_text=_('La couleur associée aux marqueurs sur la carte.')
     )
 
+    class Meta:
+        abstract = True
+
 
 class ImageMixin(models.Model):
     image = StdImageField(
