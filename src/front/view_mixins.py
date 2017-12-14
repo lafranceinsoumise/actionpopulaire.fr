@@ -211,11 +211,11 @@ class SearchByZipcodeBaseView(ListView):
         return self.queryset
 
     def get_queryset(self):
+        base_queryset = self.get_base_queryset()
+
         zipcode = self.get_zipcode()
         if not zipcode:
-            return self.queryset.none()
-
-        base_queryset = self.get_base_queryset()
+            return base_queryset.none()
 
         queryset = base_queryset.filter(location_zip=zipcode)\
             .annotate(distance=FixedDistance(m=0))
