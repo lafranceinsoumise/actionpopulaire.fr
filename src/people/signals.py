@@ -1,4 +1,4 @@
-from django.db.models.signals import pre_save, post_save, pre_delete
+from django.db.models.signals import pre_save, post_save, pre_delete, post_delete
 from django.dispatch import receiver
 from django.conf import settings
 
@@ -20,6 +20,9 @@ def update_mailtrain(sender, instance, raw, **kwargs):
     if settings.MAILTRAIN_DISABLE:
         return
 
+    if kwargs['created']:
+        return
+
     tasks.update_mailtrain.delay(instance.id)
 
 
@@ -28,7 +31,7 @@ def delete_mailtrain(sender, instance, **kwargs):
     delete_person(instance)
 
 
-@receiver(pre_delete, sender=PersonEmail, dispatch_uid="personemail_delete_mailtrain")
+@receiver(post_delete, sender=PersonEmail, dispatch_uid="personemail_delete_mailtrain")
 def delete_email_person(sender, instance, **kwargs):
     if settings.MAILTRAIN_DISABLE:
         return

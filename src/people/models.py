@@ -30,9 +30,10 @@ class PersonManager(models.Manager):
         if 'email' not in kwargs:
             raise ValueError('Email must be set')
         email = kwargs.pop('email')
-        with transaction.atomic():
-            person = super().create(*args, **kwargs)
-            PersonEmail.objects.create(address=BaseUserManager.normalize_email(email), person=person)
+        kwargs.setdefault('is_staff', False)
+        kwargs.setdefault('is_superuser', False)
+        person = self._create_person(email, kwargs.get('password', None), **kwargs)
+
         return person
 
     def get_by_natural_key(self, email):
@@ -55,6 +56,10 @@ class PersonManager(models.Manager):
             person.save(using=self._db)
 
             person.add_email(email)
+
+        if not settings.MAILTRAIN_DISABLE:
+            from .tasks import update_mailtrain
+            update_mailtrain.delay(person.pk)
 
         return person
 
@@ -233,12 +238,6 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         order.insert(0, email_instance.id)
         self.set_personemail_order(order)
         self.primary_email = email_instance
-
-        # do not forget to update mailtrain
-        # import here to break circular imports
-        if not settings.MAILTRAIN_DISABLE:
-            from .tasks import update_mailtrain
-            update_mailtrain.delay(self.pk)
 
 
 class PersonTag(AbstractLabel):
