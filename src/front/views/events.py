@@ -95,8 +95,10 @@ class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
         return AddOrganizerForm(self.object, **kwargs)
 
     def get_context_data(self, **kwargs):
+        if 'add_organizer_form' not in kwargs:
+            kwargs['add_organizer_form'] = self.get_form()
+
         return super().get_context_data(
-            add_organizer_form=self.get_form(),
             organizers=self.object.organizers.all(),
             rsvps=self.object.rsvps.all(),
             **kwargs
