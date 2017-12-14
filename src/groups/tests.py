@@ -12,8 +12,9 @@ from rest_framework.test import APIRequestFactory, force_authenticate, APITestCa
 from rest_framework import status
 from rest_framework.reverse import reverse
 
+from lib.tests.mixins import FakeDataMixin
 from . import tasks
-from .models import SupportGroup, Membership
+from .models import SupportGroup, Membership, SupportGroupSubtype
 from people.models import Person
 from .viewsets import LegacySupportGroupViewSet, MembershipViewSet, NestedMembershipViewSet
 
@@ -714,3 +715,8 @@ class EventTasksTestCase(TestCase):
             self.assert_(str(tasks.CHANGE_DESCRIPTION['information']) in text)
             self.assert_(str(tasks.CHANGE_DESCRIPTION['contact']) in text)
             self.assert_(str(tasks.CHANGE_DESCRIPTION['location']) not in text)
+
+
+class GroupSubtypesTestCase(FakeDataMixin, TestCase):
+    def test_local_groups_have_subtype(self):
+        self.data['groups']['user1_group'].subtypes.add(SupportGroupSubtype.objects.get(label='groupe local'))

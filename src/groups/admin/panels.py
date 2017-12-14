@@ -48,7 +48,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('id', 'name', 'link', 'created', 'modified', 'action_buttons', 'promo_code')
         }),
         (_('Informations'), {
-            'fields': ('type', 'description', 'allow_html', 'image', 'tags', 'published')
+            'fields': ('type', 'subtypes', 'description', 'allow_html', 'image', 'tags', 'published')
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
@@ -65,13 +65,14 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     readonly_fields = ('id', 'link', 'action_buttons', 'created', 'modified', 'coordinates_type', 'promo_code')
     date_hierarchy = 'created'
 
-    list_display = ('name', 'published', 'location_short', 'membership_count', 'created', 'referent')
+    list_display = ('name', 'type', 'published', 'location_short', 'membership_count', 'created', 'referent')
     list_filter = (
         'type',
         ('location_city', AjaxFieldFilter),
         ('location_zip', AjaxFieldFilter),
         'published',
         'tags',
+        'subtypes',
     )
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
@@ -199,4 +200,10 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
 @admin.register(models.SupportGroupTag, site=admin_site)
 class SupportGroupTagAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.SupportGroupSubtype, site=admin_site)
+class SupportGroupSubtypeAdmin(admin.ModelAdmin):
+    list_display = ('label', 'description', 'type')
     pass
