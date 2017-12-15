@@ -303,8 +303,8 @@ class EventReportForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        report_image = cleaned_data['report_image']
-        accept_license = cleaned_data['accept_license']
+        report_image = cleaned_data.get('report_image', None)
+        accept_license = cleaned_data.get('accept_license', False)
 
         if report_image and not accept_license:
             self.add_error('accept_license', self.fields['accept_license'].error_messages['required'])
