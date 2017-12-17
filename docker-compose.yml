@@ -15,6 +15,13 @@ services:
     restart: always
     image: redis:4
 
+  smtp:
+    restart: always
+    image: mailhog/mailhog
+    ports:
+      - 8025:8025
+      - 1025:1025
+
   api:
     restart: always
     build:
@@ -28,10 +35,12 @@ services:
       - postgresql
       - redis
     environment:
-      DATABASE_URI: "postgis://fi_api:password@postgresql:5432/fi_api"
+      DATABASE_URL: "postgis://fi_api:password@postgresql:5432/fi_api"
       AUTH_REDIS_URL: "redis://redis?db=0"
+      CACHING_REDIS_URL: "redis://redis?db=0"
       ENABLE_FRONT: "YES"
       ENABLE_API: "YES"
+      SMTP_URL: "smtp://smtp:1025/"
 
   front:
     restart: always

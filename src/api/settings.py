@@ -154,10 +154,10 @@ WSGI_APPLICATION = 'api.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-DATABASE_URI = os.environ.get('DATABASE_URI', 'postgis://fi_api:password@localhost/fi_api')
+DATABASE_URL = os.environ.get('DATABASE_URL', 'postgis://fi_api:password@localhost/fi_api')
 
 DATABASES = {
-    'default': dj_database_url.config(default=DATABASE_URI)
+    'default': dj_database_url.config(default=DATABASE_URL)
 }
 
 # Mails

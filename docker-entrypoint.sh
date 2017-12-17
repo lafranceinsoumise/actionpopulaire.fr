@@ -18,7 +18,7 @@ python3 ./src/manage.py migrate
 echo "Schema created!"
 
 echo "Loading fixtures..."
-python3 ./src/manage.py loaddata src/fixtures.json
+python3 ./src/manage.py load_fake_data
 echo "Fixtures loaded!"
 
 python3 ./src/manage.py runserver 0.0.0.0:8000
