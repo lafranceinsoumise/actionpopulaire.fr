@@ -11,6 +11,13 @@ from people.models import Person
 
 PASSWORD = 'incredible password'
 
+LOREM_IPSUM = '''
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+culpa qui officia deserunt mollit anim id est laborum.
+'''
 
 def load_fake_data():
     clients = {
@@ -68,6 +75,7 @@ def load_fake_data():
             start_time=timezone.now() + timedelta(days=-1),
             end_time=timezone.now() + timedelta(days=-1, hours=1),
             calendar=calendars['evenements_locaux'],
+            report_content=LOREM_IPSUM
         ),
         'user1_unpublished_event': Event.objects.create(
             name='Évenement non publié créé par user1',

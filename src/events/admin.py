@@ -32,7 +32,7 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
 
 
 class EventStatusFilter(admin.SimpleListFilter):
-    title = _('Status')
+    title = _('Statut')
 
     parameter_name = 'status'
 
@@ -63,6 +63,23 @@ class EventStatusFilter(admin.SimpleListFilter):
         else:
             return queryset.filter(start_time__gt=now)
 
+
+class EventHasReportFilter(admin.SimpleListFilter):
+    title = _('Compte-rendu présent')
+
+    parameter_name = 'has_report'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', _('Présent')),
+            ('no', _('Absent')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(report_content__isnull=False)
+        if self.value() == 'no':
+            return queryset.filter(report_content__isnull=True)
 
 
 class OrganizerConfigInline(admin.TabularInline):
@@ -142,11 +159,12 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     list_display = ('name', 'published', 'calendar_title', 'location_short', 'attendee_count', 'start_time', 'created')
     list_filter = (
+        'published',
+        'calendar',
+        EventHasReportFilter,
+        EventStatusFilter,
         ('location_city', AjaxFieldFilter),
         ('location_zip', AjaxFieldFilter),
-        EventStatusFilter,
-        'calendar',
-        'published',
         'tags',
     )
 
