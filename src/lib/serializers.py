@@ -100,6 +100,13 @@ class ExistingRelatedLabelField(RelatedLabelField):
             self.fail('invalid')
 
 
+class PhoneField(serializers.CharField):
+    def get_attribute(self, instance):
+        if instance.contact_hide_phone:
+            return None
+        return super().get_attribute(instance)
+
+
 class NestedContactSerializer(serializers.Serializer):
     """A nested serializer for the fields defined by :py:class:`lib.models.ContactMixin`
     """
@@ -118,7 +125,7 @@ class NestedContactSerializer(serializers.Serializer):
         source='contact_email'
     )
 
-    phone = serializers.CharField(
+    phone = PhoneField(
         label=_('Numéro de téléphone du contact'),
         required=False,
         allow_blank=True,
