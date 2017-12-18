@@ -27,7 +27,8 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
             'id', 'organizers', 'attendees'
         )
         widgets = {
-            'description': AdminRichEditorWidget()
+            'description': AdminRichEditorWidget(),
+            'report_content': AdminRichEditorWidget(),
         }
 
 
@@ -77,9 +78,9 @@ class EventHasReportFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == 'yes':
-            return queryset.filter(report_content__isnull=False)
+            return queryset.exclude(report_content='')
         if self.value() == 'no':
-            return queryset.filter(report_content__isnull=True)
+            return queryset.filter(report_content='')
 
 
 class OrganizerConfigInline(admin.TabularInline):
@@ -146,6 +147,9 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         }),
         (_('Contact'), {
             'fields': ('contact_name', 'contact_email', 'contact_phone')
+        }),
+        (_('Compte-rendu'), {
+            'fields': ('report_content', 'report_image')
         }),
         (_('NationBuilder'), {
             'fields': ('nb_id', 'nb_path', 'location_address')
