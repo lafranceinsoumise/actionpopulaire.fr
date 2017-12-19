@@ -1,4 +1,5 @@
 {% load static %}
+{% load render_bundle from webpack_loader %}
 <!doctype html>
 <html lang="fr-FR" prefix="og: http://ogp.me/ns#">
 <head>
@@ -153,7 +154,7 @@
         {% endblock %}
     </main>
 </div>
-<script src="{% static "components/helpDialog.js" %}"></script>
+{% render_bundle 'helpDialog' %}
 <script>helpDialog();</script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-96787636-5"></script>

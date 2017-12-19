@@ -94,6 +94,9 @@ INSTALLED_APPS = [
     # stdimage
     'stdimage',
 
+    # webpack
+    'webpack_loader',
+
     # fi apps
     'authentication',
     'people',
@@ -237,6 +240,13 @@ STATIC_ROOT = os.environ.get('STATIC_ROOT')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets")
 ]
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'components/',
+        'STATS_FILE': os.path.join(STATICFILES_DIRS[0], 'components', 'webpack-stats.json'),
+    }
+}
 
 MEDIA_URL = '/media/'
 

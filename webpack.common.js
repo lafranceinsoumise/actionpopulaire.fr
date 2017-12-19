@@ -1,5 +1,9 @@
 const path = require('path');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const BundleTracker = require('webpack-bundle-tracker')
 
+
+const DISTPATH = path.resolve(__dirname, 'src/assets/components');
 
 module.exports = {
   context: path.resolve(__dirname, 'src/javascript_components'),
@@ -7,11 +11,15 @@ module.exports = {
     richEditor: './richEditor.js',
     helpDialog: './helpDialog.js'
   },
+  plugins: [
+    new CleanWebpackPlugin([DISTPATH]),
+    new BundleTracker({path: DISTPATH}),
+  ],
   output: {
     libraryTarget: 'window',
     library: '[name]',
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'src/assets/components')
+    filename: '[name]-[chunkhash].js',
+    path: DISTPATH
   },
   module: {
     rules: [

@@ -3,6 +3,8 @@ from django.forms import BooleanField
 from django.utils import formats
 from django.utils.translation import ugettext_lazy as _
 
+from webpack_loader import utils as webpack_loader_utils
+
 
 class DateTimePickerWidget(DateTimeBaseInput):
     template_name = 'custom_fields/date_time_picker.html'
@@ -33,7 +35,7 @@ class RichEditorWidget(Textarea):
 
     class Media:
         js = (
-            'components/richEditor.js',
+            webpack_loader_utils.get_files('richEditor')[0]['url'],
         )
 
 
