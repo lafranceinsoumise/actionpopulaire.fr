@@ -1,14 +1,23 @@
 from django.db.models import Q, F
 from django.views.generic import TemplateView
 
-from django.utils import timezone
 from events.models import Event
 from front.view_mixins import SoftLoginRequiredMixin
 from groups.models import SupportGroup
 
+from lib.tasks import geocode_person
+
 
 class DashboardView(SoftLoginRequiredMixin, TemplateView):
     template_name = 'front/dashboard.html'
+
+    def get(self, request, *args, **kwargs):
+        person = request.user.person
+
+        if person.coordinates_type is None:
+            geocode_person.delay(person.pk)
+
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         person = self.request.user.person

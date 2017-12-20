@@ -20,6 +20,7 @@ __all__ = [
     'VolunteerForm', "MessagePreferencesForm", 'UnsubscribeForm', 'AddEmailForm', 'get_people_form_class', 'AuthorForm'
 ]
 
+
 class ContactPhoneNumberMixin():
     """Solves a bug in phonenumbers_fields when field is missing from POSTed data
 
@@ -184,7 +185,7 @@ class ProfileForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
     party_responsibility = forms.CharField(max_length=100, label=False, required=False)
     other = forms.CharField(max_length=200, label=_("Autres engagements"), required=False)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args,    **kwargs):
         super().__init__(*args, **kwargs)
 
         for f in self.meta_fields:
