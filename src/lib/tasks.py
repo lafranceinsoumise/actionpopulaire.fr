@@ -3,8 +3,9 @@ from celery import shared_task
 from .geo import geocode_element
 from events.models import Event
 from groups.models import SupportGroup
+from people.models import Person
 
-__all__ = ['geocode_event', 'geocode_support_group']
+__all__ = ['geocode_event', 'geocode_support_group', 'geocode_person']
 
 
 def create_geocoder(model):
@@ -24,3 +25,4 @@ def create_geocoder(model):
 
 geocode_event = create_geocoder(Event)
 geocode_support_group = create_geocoder(SupportGroup)
+geocode_person = create_geocoder(Person)

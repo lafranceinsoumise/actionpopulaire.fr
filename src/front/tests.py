@@ -79,7 +79,9 @@ class MessagePreferencesTestCase(TestCase):
 
 class ProfileFormTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person('test@test.com')
+        self.person = Person.objects.create_person(
+            'test@test.com'
+        )
 
     def test_can_add_tag(self):
         self.client.force_login(self.person.role)
@@ -87,6 +89,31 @@ class ProfileFormTestCase(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('info blogueur', [tag.label for tag in self.person.tags.all()])
+
+    @mock.patch('front.forms.people.geocode_person')
+    def test_can_change_address(self, geocode_person):
+        self.client.force_login(self.person.role)
+
+
+        address_fields = {
+            'location_address1': '73 boulevard Arago',
+            'location_zip': '75013',
+            'location_country': 'FR',
+            'location_city': 'Paris',
+        }
+
+        response = self.client.post(reverse('change_profile'), address_fields)
+
+        geocode_person.delay.assert_called_once()
+        self.assertEqual(geocode_person.delay.call_args[0], (self.person.pk,))
+
+        geocode_person.reset_mock()
+        response = self.client.post(reverse('change_profile'), {
+            'first_name': 'Arthur',
+            'last_name': 'Cheysson',
+            **address_fields
+        })
+        geocode_person.delay.assert_not_called()
 
 
 class UnsubscribeFormTestCase(TestCase):

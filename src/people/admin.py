@@ -8,8 +8,10 @@ from django.utils.safestring import mark_safe
 from django.utils.html import escape, format_html
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.utils import display_for_value
+from django.contrib.gis.admin import OSMGeoAdmin
 from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
+
 
 from .models import Person, PersonTag, PersonEmail, PersonForm
 from authentication.models import Role
@@ -17,6 +19,7 @@ from events.models import RSVP
 from groups.models import Membership
 
 from front.utils import front_url, generate_token_params
+from lib.admin import CenterOnFranceMixin
 from lib.search import PrefixSearchQuery
 from lib.form_fields import AdminRichEditorWidget
 
@@ -61,7 +64,7 @@ class EmailInline(admin.TabularInline):
 
 
 @admin.register(Person, site=admin_site)
-class PersonAdmin(admin.ModelAdmin):
+class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     list_display = ('first_name', 'last_name', 'email', 'contact_phone', 'subscribed', 'role_link', 'created')
     list_display_links = ('email',)
 
@@ -92,6 +95,7 @@ class PersonAdmin(admin.ModelAdmin):
                 'location_zip',
                 'location_state',
                 'location_country',
+                'coordinates',
             )
         }),
         (_('Meta'), {

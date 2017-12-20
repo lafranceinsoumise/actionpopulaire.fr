@@ -13,6 +13,7 @@ from ..form_mixins import TagMixin, LocationFormMixin
 from people.models import Person, PersonEmail, PersonTag, PersonFormSubmission
 from people.tags import skills_tags, action_tags
 from people.tasks import send_unsubscribe_email, send_welcome_mail
+from lib.tasks import geocode_person
 
 __all__ = [
     'BaseSubscriptionForm', 'SimpleSubscriptionForm', 'OverseasSubscriptionForm', 'EmailFormSet', 'ProfileForm',
@@ -250,6 +251,12 @@ class ProfileForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
         self.instance.meta.update(meta_update)
 
         return cleaned_data
+
+    def _save_m2m(self):
+        super()._save_m2m()
+
+        if any(f in self.changed_data for f in self.instance.GEOCODING_FIELDS):
+            geocode_person.delay(self.instance.pk)
 
     class Meta:
         model = Person

@@ -103,7 +103,6 @@ def load_fake_data():
     }
 
 
-
 class FakeDataMixin():
     def setUp(self):
         self.data = load_fake_data()
