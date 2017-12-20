@@ -33,7 +33,6 @@ __all__ = [
 class EventListView(SearchByZipcodeBaseView):
     """List of events, filter by zipcode
     """
-    min_items = 20
     template_name = 'front/events/event_list.html'
     context_object_name = 'events'
     form_class = SearchEventForm

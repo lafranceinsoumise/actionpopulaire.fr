@@ -179,7 +179,7 @@ class FixedDistance(DistanceResultMixin, Value):
 class SearchByZipcodeBaseView(ListView):
     """List of events, filter by zipcode
     """
-    min_items = 20
+    paginate_by = 20
     form_class = None
     queryset = None
 
@@ -193,15 +193,21 @@ class SearchByZipcodeBaseView(ListView):
             **kwargs,
         )
 
-    def get_person_zipcode(self):
-        if self.request.user.is_authenticated and self.request.user.person.location_zip and \
-                FRENCH_ZIPCODE_REGEX.match(self.request.user.person.location_zip):
-            return self.request.user.person.location_zip
+    def get_person_location(self):
+        if self.request.user.is_authenticated:
+            return self.request.user.person.coordinates
         return None
 
     def get_form_kwargs(self):
+        person_location = self.get_person_location()
+
+        lon, lat = self.request.GET.get('lon', None), self.request.GET.get('lat', None)
+
+        if (not lat or not lon) and person_location:
+            lon, lat = person_location
+
         return {
-            'data': self.request.GET or {'zipcode': self.get_person_zipcode()}
+            'data': {'lon': lon, 'lat': lat, 'q': self.request.GET.get('q', '')}
         }
 
     def get_form(self):
@@ -213,24 +219,19 @@ class SearchByZipcodeBaseView(ListView):
     def get_queryset(self):
         base_queryset = self.get_base_queryset()
 
-        zipcode = self.get_zipcode()
-        if not zipcode:
+        location = self.get_location()
+        if not location:
             return base_queryset.none()
 
-        queryset = base_queryset.filter(location_zip=zipcode)\
-            .annotate(distance=FixedDistance(m=0))
-
-        if len(queryset) < self.min_items:
-            centroid = get_zipcode_centroid(zipcode)
-            if centroid:
-                nearby = base_queryset.exclude(location_zip=zipcode) \
-                             .annotate(distance=DistanceFunction('coordinates', Point(*centroid, srid=4326)))\
-                             .order_by('distance')[:(self.min_items - len(queryset))]
-                queryset = list(queryset) + list(nearby)
+        queryset = base_queryset \
+                     .annotate(distance=DistanceFunction('coordinates', location)) \
+                     .order_by('distance')
 
         return queryset
 
-    def get_zipcode(self):
-        if self.form.is_valid() and self.form.cleaned_data['zipcode']:
-            return self.form.cleaned_data['zipcode']
+    def get_location(self):
+        if self.form.is_valid():
+            lon, lat = self.form.cleaned_data['lon'], self.form.cleaned_data['lat']
+            if lat and lon:
+                return Point(lon, lat, srid=4326)
         return None

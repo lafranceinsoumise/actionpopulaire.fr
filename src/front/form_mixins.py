@@ -165,13 +165,14 @@ class GeocodingBaseForm(forms.ModelForm):
 
 
 class SearchByZipCodeFormBase(forms.Form):
-    zipcode = forms.CharField(
-        max_length=5,
-        min_length=5,
-        validators=[RegexValidator(FRENCH_ZIPCODE_REGEX, message=_('Indiquez un code postal français valide'))],
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': _('Votre code postal')
-        }),
-        required=False
+    lon = forms.FloatField(widget=forms.HiddenInput())
+    lat = forms.FloatField(widget=forms.HiddenInput())
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _("Indiquez une autre adresse autour de laquelle chercher des événements"),
+                'class': 'form-control'
+            }
+        )
     )

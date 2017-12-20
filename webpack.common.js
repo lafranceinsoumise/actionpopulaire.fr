@@ -9,7 +9,8 @@ module.exports = {
   context: path.resolve(__dirname, 'src/javascript_components'),
   entry: {
     richEditor: './richEditor.js',
-    helpDialog: './helpDialog.js'
+    helpDialog: './helpDialog.js',
+    locationSearchField: './locationSearchField.js'
   },
   plugins: [
     new CleanWebpackPlugin([DISTPATH]),
