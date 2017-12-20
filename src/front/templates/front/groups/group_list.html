@@ -75,6 +75,10 @@
                     </div>
                 {% endfor %}
             </div>
+        {% else %}
+            Vous ne nous avez pas indiqué votre adresse. Pour rechercher un groupe, utilisez soit la boîte de
+            recherche ci-dessus, soit <a href="{% url "change_profile" %}">remplissez le formulaire d'informations</a>
+            pour nous indiquer où vous habitez.
         {% endif %}
     </div>
 {% endblock %}

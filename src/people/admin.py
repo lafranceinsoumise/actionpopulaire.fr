@@ -22,6 +22,11 @@ from front.utils import front_url, generate_token_params
 from lib.admin import CenterOnFranceMixin
 from lib.search import PrefixSearchQuery
 from lib.form_fields import AdminRichEditorWidget
+from lib.forms import CoordinatesFormMixin
+
+
+class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
+    pass
 
 
 class RSVPInline(admin.TabularInline):
@@ -67,6 +72,7 @@ class EmailInline(admin.TabularInline):
 class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     list_display = ('first_name', 'last_name', 'email', 'contact_phone', 'subscribed', 'role_link', 'created')
     list_display_links = ('email',)
+    form = PersonAdminForm
 
     fieldsets = (
         (None, {
@@ -84,7 +90,7 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         (_('Profil'), {
             'fields': ('gender', 'date_of_birth', 'tags')
         }),
-        (_('Contact'), {
+        (_('Contact et adresse'), {
             'fields': (
                 'contact_phone',
                 'location_name',
@@ -97,6 +103,7 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 'location_country',
                 'coordinates',
                 'coordinates_type',
+                'redo_geocoding',
             )
         }),
         (_('Meta'), {
