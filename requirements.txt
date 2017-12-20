@@ -3,7 +3,7 @@ autopep8==1.3.2
 Babel==2.5.1
 billiard==3.5.0.3
 bleach==2.1.1
-celery==4.1.0
+celery==4.0.2
 celery-prometheus-exporter==1.1.0
 certifi==2017.7.27.1
 chardet==3.0.4
@@ -32,7 +32,7 @@ html2text==2017.10.4
 html5lib==1.0b10
 idna==2.6
 Jinja2==2.9.6
-kombu==4.1.0
+kombu==4.0.2
 Markdown==2.6.9
 MarkupSafe==1.0
 oauthlib==2.0.4
