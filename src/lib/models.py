@@ -89,7 +89,7 @@ class LocationMixin(models.Model):
         choices=COORDINATES_TYPE_CHOICES,
         null=True,
         editable=False,
-        help_text=_("Comment les coordonnées ci-dessus ont-elle été acquéries")
+        help_text=_("Comment les coordonnées ci-dessus ont-elle été acquises")
     )
 
     location_name = models.CharField(_('nom du lieu'), max_length=255, blank=True)

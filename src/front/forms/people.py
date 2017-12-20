@@ -255,7 +255,9 @@ class ProfileForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
     def _save_m2m(self):
         super()._save_m2m()
 
-        if any(f in self.changed_data for f in self.instance.GEOCODING_FIELDS):
+        address_has_changed = any(f in self.changed_data for f in self.instance.GEOCODING_FIELDS)
+
+        if address_has_changed and self.instance.should_relocate_when_address_changed():
             geocode_person.delay(self.instance.pk)
 
     class Meta:

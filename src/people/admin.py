@@ -96,6 +96,7 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 'location_state',
                 'location_country',
                 'coordinates',
+                'coordinates_type',
             )
         }),
         (_('Meta'), {
@@ -103,7 +104,10 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         })
     )
 
-    readonly_fields = ('connection_params', 'created', 'modified', 'last_login', 'role_link', 'supportgroups', 'events')
+    readonly_fields = (
+        'connection_params', 'created', 'modified', 'last_login', 'role_link', 'supportgroups', 'events',
+        'coordinates_type'
+    )
 
     search_fields = ('emails__address', 'first_name', 'last_name', 'location_zip')
 
