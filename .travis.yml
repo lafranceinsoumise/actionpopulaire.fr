@@ -14,13 +14,18 @@ addons:
 dist: trusty
 sudo: required
 
-cache: pip
+cache:
+  - pip
+  - npm
 
 before_install:
   - export DATABASE_URL="postgis://postgres@localhost/api"
   - export PIP_USE_MIRRORS=true
   - export LOG_DISABLE_JOURNALD=true
 
-install: "grep -v systemd requirements.txt | pip install -r /dev/stdin"
+install:
+  - "grep -v systemd requirements.txt | pip install -r /dev/stdin"
+  - "npm i"
+  - "npm run build"
 
 script: "cd src && python manage.py test -v 2"
