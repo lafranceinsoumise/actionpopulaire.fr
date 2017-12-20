@@ -227,13 +227,17 @@ class PagesLoadingTestCase(TestCase):
             is_manager=True
         )
 
-    def test_see_event_list(self):
+    @mock.patch('front.views.dashboard.geocode_person')
+    def test_see_event_list(self, geocode_person):
         response = self.client.get('/evenements/')
         self.assertRedirects(response, reverse('dashboard'))
+        geocode_person.delay.assert_called_once()
 
-    def test_see_group_list(self):
+    @mock.patch('front.views.dashboard.geocode_person')
+    def test_see_group_list(self, geocode_person):
         response = self.client.get('/groupes/')
         self.assertRedirects(response, reverse('dashboard'))
+        geocode_person.delay.assert_called_once()
 
     def test_see_event_details(self):
         response = self.client.get('/evenements/' + str(self.event.id) + '/')
@@ -672,12 +676,14 @@ class GroupPageTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_can_quit_group(self):
+    @mock.patch('front.views.dashboard.geocode_person')
+    def test_can_quit_group(self, geocode_person):
         response = self.client.get(reverse('quit_group', kwargs={'pk': self.member_group.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.client.post(reverse('quit_group', kwargs={'pk': self.member_group.pk}))
         self.assertRedirects(response, reverse('dashboard'))
+        geocode_person.delay.assert_called_once()
 
         self.assertFalse(self.member_group.memberships.filter(person=self.person).exists())
 
@@ -736,7 +742,8 @@ class GroupPageTestCase(TestCase):
         patched_geocode_support_group.delay.assert_called_once()
         self.assertEqual(patched_geocode_support_group.delay.call_args[0], (membership.supportgroup.pk,))
 
-    def test_cannot_view_unpublished_group(self):
+    @mock.patch('front.views.dashboard.geocode_person')
+    def test_cannot_view_unpublished_group(self, geocode_person):
         self.client.force_login(self.person.role)
 
         self.referent_group.published = False
@@ -744,6 +751,7 @@ class GroupPageTestCase(TestCase):
 
         res = self.client.get(reverse('dashboard'))
         self.assertNotContains(res, self.referent_group.pk)
+        geocode_person.delay.assert_called_once()
 
         res = self.client.get('/groupes/{}/'.format(self.referent_group.pk))
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
@@ -1086,9 +1094,13 @@ class PollTestCase(TestCase):
 
 
 class DashboardTestCase(FakeDataMixin, TestCase):
-    def test_contains_everything(self):
+    @mock.patch('front.views.dashboard.geocode_person')
+    def test_contains_everything(self, geocode_person):
         self.client.force_login(self.data['people']['user2'].role)
         response = self.client.get(reverse('dashboard'))
+
+        geocode_person.delay.assert_called_once()
+        self.assertEqual(geocode_person.delay.call_args[0], (self.data['people']['user2'].pk, ))
 
         # own email
         self.assertContains(response, 'user2@example.com')
