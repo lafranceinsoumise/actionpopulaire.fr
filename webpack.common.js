@@ -1,20 +1,24 @@
 const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const BundleTracker = require('webpack-bundle-tracker')
-
+const BundleTracker = require('webpack-bundle-tracker');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const DISTPATH = path.resolve(__dirname, 'src/assets/components');
+const cssName = require('@fi/theme/dist/assets.json')['main.css'];
+
 
 module.exports = {
   context: path.resolve(__dirname, 'src/javascript_components'),
   entry: {
     richEditor: './richEditor.js',
     helpDialog: './helpDialog.js',
-    locationSearchField: './locationSearchField.js'
+    locationSearchField: './locationSearchField.js',
+    theme: path.resolve(__dirname, 'node_modules/@fi/theme/dist/styles/', cssName),
   },
   plugins: [
     new CleanWebpackPlugin([DISTPATH]),
     new BundleTracker({path: DISTPATH}),
+    new ExtractTextPlugin('theme-[contenthash].css'),
   ],
   output: {
     libraryTarget: 'window',
@@ -37,11 +41,18 @@ module.exports = {
       {
         test: /\.css$/,
         exclude: /node_modules\/tinymce/,
-        use: [
-          {loader: 'style-loader'},
-          {loader: 'css-loader'}
-        ]
-      }
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: 'css-loader'
+        })
+      },
+      {
+        test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+        loader: 'file-loader',
+        options: {
+          name: 'files/[name]-[hash].[ext]',
+        },
+      },
     ]
   },
   target: 'web'

@@ -40,7 +40,7 @@
             <meta name="twitter:creator" content="@FranceInsoumise"/>
         {% endif %}
     {% endblock %}
-    <link rel="stylesheet" href="{% static "front/css/main-26d0194863.css" %}" type="text/css">
+    {% render_bundle 'theme' 'css' %}
     <style>.help-dialog{display:none;}</style>
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-32x32.png" %}" sizes="32x32"/>
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>

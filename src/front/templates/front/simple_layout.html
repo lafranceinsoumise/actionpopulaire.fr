@@ -1,4 +1,5 @@
 {% load static %}
+{% load render_bundle from webpack_loader %}
 <!doctype html>
 <html lang="fr-FR" prefix="og: http://ogp.me/ns#">
 <head>
@@ -7,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{{ meta_title }}{% endblock %}</title>
 
-<link rel="stylesheet" href="{% static "front/css/main-26d0194863.css" %}" type="text/css">
+    {% render_bundle 'theme' 'css' %}
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-32x32.png" %}" sizes="32x32"/>
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>
     <link rel="apple-touch-icon-precomposed" href="{% static "front/images/cropped-cropped-phi-180x180.png" %}"/>
