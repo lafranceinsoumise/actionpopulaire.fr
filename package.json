@@ -19,8 +19,8 @@
   },
   "homepage": "https://github.com/lafranceinsoumise/api-django#readme",
   "dependencies": {
+    "@fi/theme": "^1.2.0",
     "axios": "^0.17.1",
-    "@fi/theme": "^1.1.1",
     "font-awesome": "^4.7.0",
     "intro.js": "^2.8.0-alpha.1",
     "react": "^16.2.0",
