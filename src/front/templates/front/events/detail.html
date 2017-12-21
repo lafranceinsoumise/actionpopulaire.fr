@@ -65,7 +65,7 @@
 
         <div>
             {% if event_images %}
-                <div style="display: flex; margin: 0 -10px;">
+                <div style="display: flex; margin: 0 -10px; flex-wrap: wrap;">
                     {% for image in event_images %}
                         <a href="{{ image.image.url }}" style="display: block; margin: 10px;">
                             <img src="{{ image.image.thumbnail.url }}" title="&copy; {{ image.author.first_name }} {{ image.author.last_name }} &mdash; {{ image.legend }}">
