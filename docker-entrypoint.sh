@@ -13,6 +13,10 @@ if (echo $DATABASE_URI | grep -Eq ^.+\:\/\/.+\:.+\@.+\:[0-9]+\/.*$); then
     echo "Connection to ${HOST}:${PORT} is available!"
 fi
 
+echo "Dropping old database..."
+python3 ./src/manage.py flush --noinput
+echo "Database dropped!"
+
 echo "Creating schema..."
 python3 ./src/manage.py migrate
 echo "Schema created!"

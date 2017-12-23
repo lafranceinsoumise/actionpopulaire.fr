@@ -4,7 +4,6 @@ from django.contrib.auth.models import Group
 from django.db import transaction
 from django.utils import timezone
 
-from clients import scopes
 from clients.models import Client
 from events.models import Calendar, Event, OrganizerConfig, RSVP
 from groups.models import SupportGroup, Membership, SupportGroupSubtype
@@ -37,7 +36,7 @@ def load_fake_data():
             scopes=['view_profil']
         ),
     }
-    clients['oauth'].role.groups.add(Group.objects.get(name='oauth_providers'))
+    #clients['oauth'].role.groups.add(Group.objects.get(name='oauth_providers'))
 
     people = {
         'admin': Person.objects.create_superperson('admin@example.com', PASSWORD),

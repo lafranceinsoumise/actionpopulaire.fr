@@ -2,8 +2,10 @@ FROM node:8.9.3
 
 RUN mkdir /code
 WORKDIR /code
+RUN echo '{ "allow_root": true }' > /root/.bowerrc
 ADD package.json /code/
 ADD package-lock.json /code/
 RUN npm install
 ADD . /code/
-CMD ["npm", "start"]
+RUN ls /code
+CMD ["npm", "run-script watch"]

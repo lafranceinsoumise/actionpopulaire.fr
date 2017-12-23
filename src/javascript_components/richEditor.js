@@ -14,13 +14,13 @@ require.context(
 );
 
 module.exports = function (selector) {
-    tinymce.init({
-        selector,
-        plugins: "link autolink image lists",
-        toolbar: 'bold italic | formatselect | link image | bullist numlist',
-        menubar: false,
-        statusbar: false,
-        language: 'fr_FR',
-        block_formats: "Paragraphe=p;Titre=h2;Sous-titre=h3;Petit titre=h4"
-    });
+  tinymce.init({
+    selector,
+    plugins: 'link autolink image lists',
+    toolbar: 'bold italic | formatselect | link image | bullist numlist',
+    menubar: false,
+    statusbar: false,
+    language: 'fr_FR',
+    block_formats: 'Paragraphe=p;Titre=h2;Sous-titre=h3;Petit titre=h4'
+  });
 };

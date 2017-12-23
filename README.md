@@ -55,6 +55,11 @@ You need to install Docker CE (community edition) and Docker Compose:
 2.3 Method 2: Manual Installation
 ---------------------------------
 
+### Install compilation requirements
+
+On Debian (Ubuntu...) based environment, run: `sudo apt-get install libsystemd-dev libgdal-dev gdal-bin`
+On Fedora based environment, run: `sudo yum install libsystemd-dev libgdal-dev gdal-bin`
+
 ### Install Python3.6
 
 On Debian (Ubuntu...) based environment, run: `sudo apt-get install python3.6`
