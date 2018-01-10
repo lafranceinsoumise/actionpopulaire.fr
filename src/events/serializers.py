@@ -73,10 +73,11 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
 
 class SummaryEventSerializer(serializers.ModelSerializer):
     calendar = serializers.SlugRelatedField('slug', read_only=True)
+    tags = RelatedLabelField(queryset=models.EventTag.objects.all(), many=True, required=False)
 
     class Meta:
         model = models.Event
-        fields = ('id', 'name', 'coordinates', 'start_time', 'end_time', 'calendar')
+        fields = ('id', 'name', 'coordinates', 'start_time', 'end_time', 'calendar', 'tags')
 
 
 class CalendarSerializer(serializers.HyperlinkedModelSerializer):
