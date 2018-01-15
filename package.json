@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.production.js",
-    "watch": "webpack -w --config webpack.dev.js"
+    "watch": "webpack-dev-server -w --config webpack.dev.js"
   },
   "repository": {
     "type": "git",
@@ -46,6 +46,7 @@
     "uglifyjs-webpack-plugin": "^1.0.1",
     "webpack": "^3.8.1",
     "webpack-bundle-tracker": "^0.2.0",
+    "webpack-dev-server": "^2.11.0",
     "webpack-merge": "^4.1.1"
   }
 }
