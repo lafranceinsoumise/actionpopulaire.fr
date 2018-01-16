@@ -13,7 +13,7 @@ module.exports = {
     richEditor: './richEditor.js',
     helpDialog: './helpDialog.js',
     locationSearchField: './locationSearchField.js',
-    theme: path.resolve(__dirname, 'node_modules/@fi/theme/dist/styles/', cssName),
+    theme: '@fi/theme/dist/styles/' + cssName,
   },
   plugins: [
     new CleanWebpackPlugin([DISTPATH]),
@@ -34,17 +34,22 @@ module.exports = {
         use: {
           loader: 'babel-loader?cacheDirectory=true',
           options: {
-            presets: ['babel-preset-env', 'babel-preset-react']
+            presets: ['babel-preset-env', 'babel-preset-react'],
+            plugins: ['react-hot-loader/babel']
           }
         }
       },
       {
-        test: /\.css$/,
-        exclude: /node_modules\/tinymce/,
+        test: new RegExp('@fi/theme/dist/styles/' + cssName),
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
           use: 'css-loader'
         })
+      },
+      {
+        test: /\.css$/,
+        exclude: [/node_modules\/tinymce/, /node_modules\/@fi\/theme/],
+        use: ['style-loader', 'css-loader']
       },
       {
         test: /\.(png|woff|woff2|eot|ttf|svg)$/,

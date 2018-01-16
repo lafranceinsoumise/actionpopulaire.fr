@@ -13,13 +13,16 @@ module.exports = merge(common, {
   devServer: {
     contentBase: path.join(__dirname, '/assets/components/'),
     compress: true,
+    hot: true,
+    hotOnly: true,
     port: 3000,
     headers: {
       'Access-Control-Allow-Origin': '*'
     }
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NamedModulesPlugin(),
   ],
 });
