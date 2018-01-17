@@ -5,7 +5,7 @@ from crispy_forms.helper import FormHelper
 from ..form_components import *
 from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
 
-from groups.models import SupportGroup, Membership
+from groups.models import SupportGroup, Membership, SupportGroupSubtype
 from groups.tasks import send_support_group_changed_notification, send_support_group_creation_notification
 from lib.tasks import geocode_support_group
 
@@ -15,7 +15,6 @@ __all__ = ['SupportGroupForm', 'AddReferentForm', 'AddManagerForm', 'GroupGeocod
 class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
     CHANGES = {
         'name': "information",
-        'contact_name': "contact",
         'contact_email': "contact",
         'contact_phone': "contact",
         'contact_hide_phone': "contact",
@@ -27,6 +26,11 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         'location_country': "location",
         'description': "information"
     }
+
+    subtypes = forms.ModelMultipleChoiceField(
+        queryset=SupportGroupSubtype.objects.filter(privileged_only=False),
+        to_field_name='label',
+    )
 
     def __init__(self, *args, person, **kwargs):
         super(SupportGroupForm, self).__init__(*args, **kwargs)
@@ -51,6 +55,8 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
                 help_text=_("Un email sera envoyé à la validation de ce formulaire. Merci de ne pas abuser de cette"
                             " fonctionnalité.")
             )
+            del self.fields['type']
+            del self.fields['subtypes']
             notify_field = [Row(
                 FullCol('notify')
             )]
@@ -113,6 +119,7 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         return res
 
     def _save_m2m(self):
+        super()._save_m2m()
         if self.is_creation:
             self.membership = Membership.objects.create(
                 person=self.person, supportgroup=self.instance,
@@ -140,8 +147,8 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
     class Meta:
         model = SupportGroup
         fields = (
-            'name',
-            'contact_name', 'contact_email', 'contact_phone', 'contact_hide_phone',
+            'name', 'type', 'subtypes',
+            'contact_email', 'contact_phone', 'contact_hide_phone',
             'location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
             'location_country',
             'description'

@@ -3,11 +3,12 @@ from django.utils.translation import ugettext as _, ugettext_lazy
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView
+from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView, TemplateView
 from django.contrib import messages
-from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.conf import settings
+from django.views.generic.edit import ProcessFormView, FormMixin
 
 from groups.models import SupportGroup, Membership
 from groups.tasks import send_someone_joined_notification
@@ -20,7 +21,7 @@ from ..view_mixins import (
 )
 
 __all__ = [
-    'SupportGroupManagementView', 'CreateSupportGroupView', 'ModifySupportGroupView',
+    'SupportGroupManagementView', 'CreateSupportGroupView', 'PerformCreateSupportGroupView', 'ModifySupportGroupView',
     'QuitSupportGroupView', 'RemoveManagerView', 'SupportGroupDetailView', 'ThematicBookletViews',
     'ChangeGroupLocationView', 'SupportGroupListView'
 ]
@@ -162,38 +163,40 @@ class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, D
         return HttpResponseRedirect(reverse("manage_group", kwargs={'pk': self.object.pk}))
 
 
-class CreateSupportGroupView(HardLoginRequiredMixin, CreateView):
+class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
     template_name = "front/groups/create.html"
+
+
+class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFormView):
     model = SupportGroup
     form_class = SupportGroupForm
 
     def get_form_kwargs(self):
         """Add user person profile to the form kwargs"""
+
         kwargs = super().get_form_kwargs()
 
         person = self.request.user.person
-        kwargs['initial'] = {
-            'contact_name': person.get_full_name(),
-            'contact_email': person.email,
-            'contact_phone': person.contact_phone,
-        }
         kwargs['person'] = person
         return kwargs
 
-    def get_success_url(self):
-        return reverse('manage_group', kwargs={'pk': self.object.pk})
+    def form_invalid(self, form):
+        return JsonResponse({'errors': form.errors}, status=400)
 
     def form_valid(self, form):
-        # first get response to make sure there's no error when saving the model before adding message
-        res = super().form_valid(form)
-
         messages.add_message(
             request=self.request,
             level=messages.SUCCESS,
             message="Votre groupe a été correctement créé.",
         )
 
-        return res
+        form.save()
+
+        return JsonResponse({
+            'status': 'OK',
+            'id': form.instance.id,
+            'url': reverse('view_group', args=[form.instance.id])
+        })
 
 
 class ModifySupportGroupView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):

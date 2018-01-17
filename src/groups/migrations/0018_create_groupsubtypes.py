@@ -16,6 +16,7 @@ def create_basic_subtypes(apps, schema_editor):
             'label': 'groupe local',
             'description': 'Sous-groupe par défaut de tous les groupes locaux',
             'hide_text_label': True,
+            'privileged_only': False,
             'color': '#0098b6',
             'type': SupportGroupClass.TYPE_LOCAL_GROUP
         },

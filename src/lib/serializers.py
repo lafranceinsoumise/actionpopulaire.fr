@@ -133,6 +133,14 @@ class NestedContactSerializer(serializers.Serializer):
         source='contact_phone'
     )
 
+    hide_phone = serializers.BooleanField(
+        label=_('Ne pas rendre le numéro de téléphone public'),
+        required=False,
+        default=False,
+        source='contact_hide_phone',
+        write_only=True
+    )
+
     def __init__(self, instance=None, data=empty, **kwargs):
         kwargs.setdefault('source', '*')
         super().__init__(instance, data, **kwargs)

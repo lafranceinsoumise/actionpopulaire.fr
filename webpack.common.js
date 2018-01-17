@@ -13,6 +13,7 @@ module.exports = {
     richEditor: './richEditor.js',
     helpDialog: './helpDialog.js',
     locationSearchField: './locationSearchField.js',
+    createGroupForm: './createGroupForm',
     theme: '@fi/theme/dist/styles/' + cssName,
   },
   plugins: [

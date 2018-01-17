@@ -620,6 +620,8 @@ class GroupPageTestCase(TestCase):
             reverse('edit_group', kwargs={'pk': self.manager_group.pk}),
             data={
                 'name': 'Manager',
+                'type': 'L',
+                'subtypes': ['groupe local'],
                 'contact_name': 'Arthur',
                 'contact_email': 'a@fhezfe.fr',
                 'contact_phone': '06 06 06 06 06',
@@ -658,6 +660,8 @@ class GroupPageTestCase(TestCase):
             reverse('edit_group', kwargs={'pk': self.manager_group.pk}),
             data={
                 'name': "Manager",
+                'type': 'L',
+                'subtypes': ['groupe local'],
                 'location_name': 'location',
                 'location_address1': 'somewhere',
                 'location_city': 'Over',
@@ -716,11 +720,13 @@ class GroupPageTestCase(TestCase):
         response = self.client.get(reverse('create_group'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client.post(reverse('create_group'), data={
+        response = self.client.post(reverse('perform_create_group'), data={
             'name': 'New name',
-            'contact_name': 'Arthur',
+            'type': 'L',
+            'subtypes': ['groupe local'],
             'contact_email': 'a@fhezfe.fr',
-            'contact_phone': '06 06 06 06 06',
+            'contact_phone': '+33606060606',
+            'contact_hide_phone': 'on',
             'location_name': 'location',
             'location_address1': 'somewhere',
             'location_city': 'Over',
@@ -728,7 +734,7 @@ class GroupPageTestCase(TestCase):
             'notify': 'on',
         })
 
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         try:
             membership = self.person.memberships.filter(is_referent=True).exclude(
@@ -741,6 +747,10 @@ class GroupPageTestCase(TestCase):
 
         patched_geocode_support_group.delay.assert_called_once()
         self.assertEqual(patched_geocode_support_group.delay.call_args[0], (membership.supportgroup.pk,))
+
+        group = SupportGroup.objects.first()
+        self.assertEqual(group.name, 'New name')
+        self.assertEqual(group.subtypes.all().count(), 1)
 
     @mock.patch('front.views.dashboard.geocode_person')
     def test_cannot_view_unpublished_group(self, geocode_person):

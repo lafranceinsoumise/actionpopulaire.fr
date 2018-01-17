@@ -3,8 +3,8 @@ from rest_framework import serializers, exceptions
 
 from front.utils import front_url
 from lib.serializers import (
-    LegacyBaseAPISerializer, LegacyLocationAndContactMixin, RelatedLabelField, UpdatableListSerializer
-)
+    LegacyBaseAPISerializer, LegacyLocationAndContactMixin, RelatedLabelField, UpdatableListSerializer,
+    ExistingRelatedLabelField)
 
 from people.models import Person
 
@@ -15,6 +15,7 @@ class LegacySupportGroupSerializer(LegacyBaseAPISerializer, LegacyLocationAndCon
                                    serializers.HyperlinkedModelSerializer):
     path = serializers.SerializerMethodField()
     tags = RelatedLabelField(queryset=models.SupportGroupTag.objects.all(), many=True, required=False)
+    subtypes = ExistingRelatedLabelField(queryset=models.SupportGroupSubtype.objects.all(), many=True, required=False)
 
     def get_path(self, obj):
         return front_url('view_group', absolute=False, args=[obj.id])
@@ -23,7 +24,7 @@ class LegacySupportGroupSerializer(LegacyBaseAPISerializer, LegacyLocationAndCon
     class Meta:
         model = models.SupportGroup
         fields = (
-            'url', '_id', 'id', 'name', 'description', 'path', 'contact', 'location', 'tags', 'coordinates', 'published'
+            'url', '_id', 'id', 'name', 'type', 'subtypes', 'description', 'path', 'contact', 'location', 'tags', 'coordinates', 'published'
         )
         extra_kwargs = {
             'url': {'view_name': 'legacy:supportgroup-detail'}
@@ -128,3 +129,9 @@ class GroupMembershipCreatableSerializer(serializers.HyperlinkedModelSerializer)
         attrs['supportgroup_id'] = self.context['supportgroup']
 
         return attrs
+
+
+class SupportGroupSubtypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.SupportGroupSubtype
+        fields = ('label', 'description', 'color', 'icon', 'type')
