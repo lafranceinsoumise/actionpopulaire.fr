@@ -276,14 +276,11 @@ class AbstractMapObjectLabel(AbstractLabel):
     privileged_only = models.BooleanField(_('réservé aux administrateurs'), default=True)
     hide_text_label = models.BooleanField(_('cacher le label texte'), default=False)
 
-    icon = StdImageField(
+    icon = models.ImageField(
         verbose_name=_('icon'),
-        variations={
-            'thumbnail': (400, 250),
-            'banner': (1200, 400),
-        },
         upload_to=UploadToInstanceDirectoryWithFilename('icon'),
         help_text=_("L'icône associée aux marqueurs sur la carte."),
+        blank=True,
     )
 
     color = models.CharField(
@@ -292,6 +289,12 @@ class AbstractMapObjectLabel(AbstractLabel):
         validators=[RegexValidator(regex='^#[0-9a-f]{6}$')],
         help_text=_('La couleur associée aux marqueurs sur la carte.')
     )
+
+    icon_anchor_x = models.PositiveSmallIntegerField(_("ancre de l'icône (x)"), null=True)
+    icon_anchor_y = models.PositiveSmallIntegerField(_("ancre de l'icône (y)"), null=True)
+
+    popup_anchor_x = models.PositiveSmallIntegerField(_("ancre de la popup (x)"), null=True)
+    popup_anchor_y = models.PositiveSmallIntegerField(_("ancre de la popup (y)"), null=True)
 
     class Meta:
         abstract = True
