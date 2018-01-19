@@ -1,0 +1,20 @@
+{% extends "carte/layout.html" %}
+
+{% block title %}
+Carte des événements
+{% endblock %}
+
+{% block map_script %}
+    <script>
+      var types = {{ type_config }};
+      var subtypes = {{ subtype_config }};
+
+      function formatEvent(event) {
+        var subtype = subtypes.find(function(type) { return type.id === event.subtype });
+        return '<a href="{{ FRONT_DOMAIN }}/evenements/' + event.id + '/" style="color:' + subtype.color +
+          ';" target="_blank">' + event.name + '</a><br />le ' + new Date(event.start_time).toLocaleString();
+      }
+
+      window.map.listMap('map', '{% url "map:event_list" %}', types, subtypes, formatEvent);
+    </script>
+{% endblock %}

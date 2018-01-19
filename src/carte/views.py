@@ -98,6 +98,35 @@ def get_subtype_information(subtype):
     return res
 
 
+class EventMapView(TemplateView):
+    template_name = 'carte/events.html'
+
+    def get_context_data(self, **kwargs):
+        subtypes = EventSubtype.objects.all()
+        subtype_info = [get_subtype_information(st) for st in subtypes]
+        type_info = [{'label': str(label), 'id': id} for id, label in EventSubtype.TYPE_CHOICES]
+
+        return super().get_context_data(
+            type_config=mark_safe(json.dumps(type_info)),
+            subtype_config=mark_safe(json.dumps(subtype_info)),
+            **kwargs
+        )
+
+
+class SingleEventMapView(DetailView):
+    template_name = 'carte/single_event.html'
+    queryset = Event.objects.published()
+
+    def get_context_data(self, **kwargs):
+        subtype = self.object.subtype
+
+        return super().get_context_data(
+            subtype_config=mark_safe(json.dumps(get_subtype_information(subtype))),
+            coordinates=mark_safe(json.dumps(self.object.coordinates.coords)),
+            **kwargs
+        )
+
+
 class GroupMapView(TemplateView):
     template_name = 'carte/groups.html'
 
