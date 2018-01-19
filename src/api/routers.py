@@ -20,6 +20,7 @@ events_route.register('rsvps', events_viewsets.NestedRSVPViewSet, base_name='eve
 
 # groups routes
 groups_route = legacy_api.register('groups', groups_viewsets.LegacySupportGroupViewSet)
+legacy_api.register('groups_subtypes', groups_viewsets.SupportGroupSubtypeViewSet)
 legacy_api.register('group_tags', groups_viewsets.SupportGroupTagViewSet)
 legacy_api.register('memberships', groups_viewsets.MembershipViewSet)
 groups_route.register('memberships', groups_viewsets.NestedMembershipViewSet, base_name='supportgroup-memberships', parents_query_lookups=['supportgroup'])

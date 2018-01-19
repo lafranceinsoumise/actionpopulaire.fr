@@ -3,8 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
 
 from lib.models import (
-    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, ImageMixin, DescriptionMixin
-)
+    BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, ImageMixin, DescriptionMixin,
+    AbstractMapObjectLabel)
 
 
 class ActiveSupportGroupManager(models.Manager):
@@ -18,10 +18,14 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ImageM
     """
     TYPE_LOCAL_GROUP = "L"
     TYPE_THEMATIC_BOOKLET = "B"
+    TYPE_FUNCTIONAL = "F"
+    TYPE_PROFESSIONAL = "P"
 
     TYPE_CHOICES = (
         (TYPE_LOCAL_GROUP, _("Groupe local")),
-        (TYPE_THEMATIC_BOOKLET, _("Livret thématique"))
+        (TYPE_THEMATIC_BOOKLET, _("Groupe thématique")),
+        (TYPE_FUNCTIONAL, _("Groupe fonctionnel")),
+        (TYPE_PROFESSIONAL, _("Groupe professionel")),
     )
 
     objects = models.Manager()
@@ -41,6 +45,8 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ImageM
         default=TYPE_LOCAL_GROUP,
         choices=TYPE_CHOICES
     )
+
+    subtypes = models.ManyToManyField('SupportGroupSubtype', related_name='supportgroups', blank=True)
 
     published = models.BooleanField(
         _('publié'),
@@ -73,6 +79,18 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ImageM
 class SupportGroupTag(AbstractLabel):
     class Meta:
         verbose_name = _('tag')
+
+
+class SupportGroupSubtype(AbstractMapObjectLabel):
+    type = models.CharField(
+        _("type de groupe"),
+        max_length=1,
+        blank=False,
+        choices=SupportGroup.TYPE_CHOICES
+    )
+
+    class Meta:
+        verbose_name = _('sous-type')
 
 
 class ActiveMembershipManager(models.Manager):

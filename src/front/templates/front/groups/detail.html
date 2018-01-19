@@ -1,12 +1,17 @@
 {% extends "front/layout.html" %}
 
-{% block title %}Groupe d'action «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
+{% block title %}«&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
 
 {% block main %}
     <header>
         <h1>
             {{ supportgroup.name }}
-            {% for tag in supportgroup.tags.all %}<span class="badge">{{ tag }}</span>{% endfor %}
+            <small>{{ supportgroup.get_type_display }}</small>
+            {% for subtype in supportgroup.subtypes.all %}
+                {% if not subtype.hide_text_label %}
+                    <span class="badge">{{ subtype.description }}</span>
+                {% endif %}
+            {% endfor %}
         </h1>
         <div>
             {% if user.is_authenticated %}
@@ -33,26 +38,27 @@
         </div>
     </header>
 
-    <iframe title="Carte" class="col-xs-6" style="float: right;"
+    <hr/>
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>Adresse&nbsp;:</h4>
+            <p>{{ supportgroup.html_full_address }}</p>
+            <h4>
+                Contact&nbsp;:
+            </h4>
+            <p>{{ supportgroup.html_full_contact }}</p>
+            <hr/>
+            {% if supportgroup.description %}
+                <div class="intro" style="clear: both;">
+                    {{ supportgroup.html_description }}
+                    <hr/>
+                </div>
+            {% endif %}
+        </div>
+        <iframe title="Carte" class="col-sm-6"
         src="https://carte.lafranceinsoumise.fr/?event_id={{ supportgroup.pk }},groups&hide_panel=1&hide_address=1"
         height="300" scrolling="no" frameBorder="0"></iframe>
-
-    <hr/>
-    <h4>Adresse&nbsp;:</h4>
-    <p>{{ supportgroup.html_full_address }}</p>
-    <h4>
-        Contact&nbsp;:
-    </h4>
-    <p>{{ supportgroup.html_full_contact }}</p>
-    <hr/>
-    {% if supportgroup.description %}
-        <div class="intro" style="clear: both;">
-            {{ supportgroup.html_description }}
-            <hr/>
-        </div>
-    {% endif %}
-
-    <div class="clearfix"></div>
+    </div>
 
     <h3>Agenda du groupe</h3>
     <div class="list-group">

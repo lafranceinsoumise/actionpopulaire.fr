@@ -93,7 +93,6 @@ class ContactFormMixin():
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['contact_name'].required = True
         self.fields['contact_email'].required = True
         self.fields['contact_phone'].required = True
 

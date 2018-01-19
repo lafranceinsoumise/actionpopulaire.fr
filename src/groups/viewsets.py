@@ -141,3 +141,9 @@ class NestedMembershipViewSet(CreationSerializerMixin, NestedViewSetMixin, Model
         serializer.save()
 
         return Response(serializer.data)
+
+
+class SupportGroupSubtypeViewSet(ModelViewSet):
+    permission_classes = (PermissionsOrReadOnly,)
+    serializer_class = serializers.SupportGroupSubtypeSerializer
+    queryset = models.SupportGroupSubtype.objects.exclude(privileged_only=True)

@@ -46,6 +46,7 @@ urlpatterns = [
     # groups views
     url('^groupes/$', RedirectView.as_view(url=reverse_lazy('dashboard')), name='list_groups'),
     url('^groupes/creer/$', views.CreateSupportGroupView.as_view(), name='create_group'),
+    url('^groupes/creer/form/$', views.PerformCreateSupportGroupView.as_view(), name='perform_create_group'),
     url('^groupes/liste/$', views.SupportGroupListView.as_view(), name='list_all_groups'),
     url(f'^groupes/(?P<pk>{uuid})/$', views.SupportGroupDetailView.as_view(), name='view_group'),
     url(f'^groupes/(?P<pk>{uuid})/manage/$', views.SupportGroupManagementView.as_view(), name='manage_group'),
