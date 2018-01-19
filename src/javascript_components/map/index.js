@@ -3,7 +3,7 @@ import {GeoSearchControl, OpenStreetMapProvider} from 'leaflet-geosearch';
 import axios from 'axios';
 
 import 'leaflet/dist/leaflet.css';
-import 'leaflet-geosearch/dist/style.css';
+import 'leaflet-geosearch/assets/css/leaflet.css';
 
 import {getQueryParameterByName} from './utils';
 

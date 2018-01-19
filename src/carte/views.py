@@ -8,7 +8,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 
 from events.models import Event, EventSubtype
-from groups.models import SupportGroup
+from groups.models import SupportGroup, SupportGroupSubtype
 
 from . import serializers
 
@@ -50,12 +50,12 @@ class EventsView(ZonedView):
     filter_backends = (BBoxFilterBackend,)
 
     def get_queryset(self):
-        return Event.objects.upcoming()
+        return Event.objects.upcoming().filter(coordinates__isnull=False).select_related('subtype')
 
 
 class GroupsView(ZonedView):
     serializer_class = serializers.MapGroupSerializer
-    queryset = SupportGroup.active.all()
+    queryset = SupportGroup.active.filter(coordinates__isnull=False).prefetch_related('subtypes')
 
 
 def get_subtype_information(subtype):
@@ -71,12 +71,12 @@ def get_subtype_information(subtype):
         if subtype.icon_anchor_x is not None and subtype.icon_anchor_y is not None:
             res['iconAnchor'] = [subtype.icon_anchor_x, subtype.icon_anchor_y]
         else:
-            res['iconAnchor'] = [subtype.icon.width / 2, subtype.icon.height / 2]
+            res['iconAnchor'] = [subtype.icon.width // 2, subtype.icon.height // 2]
 
         if subtype.popup_anchor_x is not None and subtype.popup_anchor_y is not None:
-            res['iconAnchor'] = [subtype.popup_anchor_x, subtype.popup_anchor_y]
+            res['popupAnchor'] = [subtype.popup_anchor_x, subtype.popup_anchor_y]
         else:
-            res['iconAnchor'] = [subtype.icon.width / 2, 0]
+            res['popupAnchor'] = [0, -subtype.icon.height // 2]
 
     else:
         res['iconUrl'] = static('carte/marker-icon.png')
@@ -84,3 +84,33 @@ def get_subtype_information(subtype):
         res['popupAnchor'] = [0, -41]
 
     return res
+
+
+class GroupMapView(TemplateView):
+    template_name = 'carte/groups.html'
+
+    def get_context_data(self, **kwargs):
+        subtypes = SupportGroupSubtype.objects.all()
+        subtype_info = [get_subtype_information(st) for st in subtypes]
+        type_info = [{'label': str(label), 'id': id} for id, label in SupportGroup.TYPE_CHOICES]
+
+        return super().get_context_data(
+            type_config=mark_safe(json.dumps(type_info)),
+            subtype_config=mark_safe(json.dumps(subtype_info)),
+            **kwargs
+        )
+
+
+class SingleGroupMapView(DetailView):
+    template_name = 'carte/single_group.html'
+    queryset = SupportGroup.active.all()
+    context_object_name = 'group'
+
+    def get_context_data(self, **kwargs):
+        subtype = self.object.subtypes.first()
+
+        return super().get_context_data(
+            subtype_config=mark_safe(json.dumps(get_subtype_information(subtype))),
+            coordinates=mark_safe(json.dumps(self.object.coordinates.coords)),
+            **kwargs
+        )

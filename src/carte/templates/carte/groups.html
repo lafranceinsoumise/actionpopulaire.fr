@@ -1,0 +1,20 @@
+{% extends "carte/layout.html" %}
+
+{% block title %}
+Carte des groupes d'appui
+{% endblock %}
+
+{% block map_script %}
+    <script>
+      var types = {{ type_config }};
+      var subtypes = {{ subtype_config }};
+
+      function formatGroup(group) {
+        var subtype = subtypes.find(function(type) { return type.id === group.subtype });
+        return '<a href="{{ FRONT_DOMAIN }}/groupes/' + group.id + '/" style="color:' + subtype.color +
+          ';" target="_blank">' + group.name + '</a>';
+      }
+
+      window.map.listMap('map', '{% url "map:group_list" %}', types, subtypes, formatGroup);
+    </script>
+{% endblock %}
