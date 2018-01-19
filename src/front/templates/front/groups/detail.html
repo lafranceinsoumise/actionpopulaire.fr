@@ -6,8 +6,12 @@
     <header>
         <h1>
             {{ supportgroup.name }}
-            <span class="label label-default">{{ supportgroup.type }}</span>
-            {% for tag in supportgroup.tags.all %}<span class="badge">{{ tag }}</span>{% endfor %}
+            <small>{{ supportgroup.get_type_display }}</small>
+            {% for subtype in supportgroup.subtypes.all %}
+                {% if not subtype.hide_text_label %}
+                    <span class="badge">{{ subtype.description }}</span>
+                {% endif %}
+            {% endfor %}
         </h1>
         <div>
             {% if user.is_authenticated %}

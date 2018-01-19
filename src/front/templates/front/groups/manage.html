@@ -9,7 +9,15 @@
     <h3>Les informations de mon groupe</h3>
 
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>{{ supportgroup.name }}</strong></div>
+        <div class="panel-heading">
+            <strong>{{ supportgroup.name }}</strong>
+            <small>{{ supportgroup.get_type_display }}</small>
+            {% for subtype in supportgroup.subtypes.all %}
+                {% if not subtype.hide_text_label %}
+                    <span class="badge">{{ subtype.description }}</span>
+                {% endif %}
+            {% endfor %}
+        </div>
         <div class="panel-body">
             <div class="row">
                 <div class="col-md-6">
