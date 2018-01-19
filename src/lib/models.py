@@ -287,14 +287,15 @@ class AbstractMapObjectLabel(AbstractLabel):
         _("couleur"),
         max_length=7,
         validators=[RegexValidator(regex='^#[0-9a-f]{6}$')],
-        help_text=_('La couleur associée aux marqueurs sur la carte.')
+        help_text=_('La couleur associée aux marqueurs sur la carte.'),
+        blank=True,
     )
 
-    icon_anchor_x = models.PositiveSmallIntegerField(_("ancre de l'icône (x)"), null=True)
-    icon_anchor_y = models.PositiveSmallIntegerField(_("ancre de l'icône (y)"), null=True)
+    icon_anchor_x = models.PositiveSmallIntegerField(_("ancre de l'icône (x)"), blank=True, null=True)
+    icon_anchor_y = models.PositiveSmallIntegerField(_("ancre de l'icône (y)"), blank=True, null=True)
 
-    popup_anchor_x = models.PositiveSmallIntegerField(_("ancre de la popup (x)"), null=True)
-    popup_anchor_y = models.PositiveSmallIntegerField(_("ancre de la popup (y)"), null=True)
+    popup_anchor_x = models.PositiveSmallIntegerField(_("ancre de la popup (x)"), blank=True, null=True)
+    popup_anchor_y = models.PositiveSmallIntegerField(_("ancre de la popup (y)"), blank=True, null=True)
 
     class Meta:
         abstract = True

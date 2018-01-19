@@ -206,4 +206,4 @@ class SupportGroupTagAdmin(admin.ModelAdmin):
 @admin.register(models.SupportGroupSubtype, site=admin_site)
 class SupportGroupSubtypeAdmin(admin.ModelAdmin):
     list_display = ('label', 'description', 'type')
-    pass
+    list_filter = ('type',)
