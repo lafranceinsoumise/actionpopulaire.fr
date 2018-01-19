@@ -1,12 +1,13 @@
 from datetime import timedelta
 
 from django.contrib.auth.models import Group
+from django.db import transaction
 from django.utils import timezone
 
 from clients import scopes
 from clients.models import Client
 from events.models import Calendar, Event, OrganizerConfig, RSVP
-from groups.models import SupportGroup, Membership
+from groups.models import SupportGroup, Membership, SupportGroupSubtype
 from people.models import Person
 
 PASSWORD = 'incredible password'
@@ -19,6 +20,8 @@ cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non pr
 culpa qui officia deserunt mollit anim id est laborum.
 '''
 
+
+@transaction.atomic
 def load_fake_data():
     clients = {
         'api_front': Client.objects.create_client(
@@ -43,13 +46,27 @@ def load_fake_data():
     }
 
     # Groups
+    groups_subtypes = {
+        'local_group_default': SupportGroupSubtype.objects.get(label='groupe local'),
+        'certified_local_group': SupportGroupSubtype.objects.create(label='certifié', description='Groupe certifié', type='L'),
+        'booklet_redaction': SupportGroupSubtype.objects.get(label='rédaction du livret'),
+        'test_thematic_booklet': SupportGroupSubtype.objects.create(label='livret test', description='livret test', privileged_only=False, type='B')
+    }
     groups = {
         'user1_group': SupportGroup.objects.create(name='Groupe géré par user1'),
-        'user2_group': SupportGroup.objects.create(name='Groupe géré par user2')
+        'user2_group': SupportGroup.objects.create(name='Groupe géré par user2'),
     }
+    groups_subtypes['local_group_default'].supportgroups.set(groups.values())
+    groups_subtypes['certified_local_group'].supportgroups.set([groups['user1_group']])
     Membership.objects.create(supportgroup=groups['user1_group'], person=people['user1'], is_manager=True, is_referent=True)
     Membership.objects.create(supportgroup=groups['user2_group'], person=people['user2'], is_manager=True, is_referent=True)
     Membership.objects.create(supportgroup=groups['user1_group'], person=people['user2'])
+    thematic_groups = {
+        'thematic_booklet': SupportGroup.objects.create(name='Livret thématique fictif', type='B'),
+        'thematic_group': SupportGroup.objects.create(name='Groupe thématique rattaché au livret', type='B')
+    }
+    groups_subtypes['test_thematic_booklet'].supportgroups.set(thematic_groups.values())
+    groups_subtypes['booklet_redaction'].supportgroups.set([thematic_groups['thematic_booklet']])
 
     # Events
     calendars = {
@@ -100,6 +117,9 @@ def load_fake_data():
         'people': people,
         'groups': groups,
         'events': events,
+        'groups': groups,
+        'thematic_groups': thematic_groups,
+        'group_subtypes': groups_subtypes,
     }
 
 

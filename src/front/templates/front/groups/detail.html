@@ -1,11 +1,12 @@
 {% extends "front/layout.html" %}
 
-{% block title %}Groupe d'action «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
+{% block title %}«&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
 
 {% block main %}
     <header>
         <h1>
             {{ supportgroup.name }}
+            <span class="label label-default">{{ supportgroup.type }}</span>
             {% for tag in supportgroup.tags.all %}<span class="badge">{{ tag }}</span>{% endfor %}
         </h1>
         <div>
