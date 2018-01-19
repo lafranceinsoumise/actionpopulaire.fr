@@ -32,8 +32,7 @@ class CreateGroupForm extends React.Component {
   }
 
   async componentDidMount() {
-    let subtypes = (await axios.get(apiHost + '/groups_subtypes/')).data
-      .map(subtype => ({value: subtype.label, label: subtype.description}));
+    let subtypes = (await axios.get(apiHost + '/groups_subtypes/')).data;
     this.setState({subtypes});
 
   }
@@ -74,13 +73,16 @@ class FormStep extends React.Component {
 class GroupTypeStep extends FormStep {
   constructor(props) {
     super(props);
-    this.subtypes = props.subtypes;
+    this.allSubtypes = props.subtypes;
     this.confirm = this.confirm.bind(this);
     this.onSubtypeChange = this.onSubtypeChange.bind(this);
     this.setType = this.setType.bind(this);
   }
 
   setType(type) {
+    this.subtypes = this.allSubtypes
+      .filter(s => s.type === type)
+      .map(subtype => ({value: subtype.label, label: subtype.description}));
     if (this.subtypes.length < 2) {
       this.setFields({type, subtypes: this.subtypes});
       this.jumpToStep(1);
@@ -213,6 +215,7 @@ class ContactStep extends FormStep {
             Néanmoins, il est obligatoire de le fournir pour que la coordination des groupes d'action puisse vous
             contacter.
           </p>
+          <a className="btn btn-default" onClick={() => this.jumpToStep(0)}>&larr;&nbsp;Précédent</a>
         </div>
         <div className="col-md-6">
           <form onSubmit={this.handleSubmit}>
@@ -236,7 +239,7 @@ class ContactStep extends FormStep {
                 </div>
               </div>
             </div>
-            <button className="btn btn-primary" type="submit">Suivant</button>
+            <button className="btn btn-primary" type="submit">Suivant&nbsp;&rarr;</button>
           </form>
         </div>
       </div>
@@ -276,6 +279,7 @@ class LocationStep extends FormStep {
             Si les réunions se déroulent chez vous et que vous ne souhaitez pas rendre cette adresse publique, vous pouvez
             indiquer un endroit à proximité, comme un café, ou votre mairie.
           </p>
+          <a className="btn btn-default" onClick={() => this.jumpToStep(1)}>&larr;&nbsp;Précédent</a>
         </div>
         <div className="col-md-6">
           <form onSubmit={this.handleSubmit}>
@@ -308,7 +312,7 @@ class LocationStep extends FormStep {
                 {countries.array().map(country => (<option value={country.code} key={country.code}>{country.label}</option>))}
               </select>
             </div>
-            <button className="btn btn-primary" type="submit">Suivant</button>
+            <button className="btn btn-primary" type="submit">Suivant&nbsp;&rarr;</button>
           </form>
         </div>
       </div>
@@ -372,6 +376,7 @@ class ValidateStep extends React.Component {
               {this.state.fields.locationZip}, {this.state.fields.locationCity}
             </li>
           </ul>
+          <a className="btn btn-default" onClick={() => this.jumpToStep(2)}>&larr;&nbsp;Précédent</a>
         </div>
         <div className="col-md-6">
           <p>Pour finir, il vous reste juste à choisir un nom pour votre groupe&nbsp;! Choisissez un nom simple
