@@ -19,7 +19,7 @@ const apiEndpoint = API_ENDPOINT; // defined by webpack
 
 const groupLabels = {
   L: 'Un groupe d\'action local',
-  P: 'Un groupe d\'action professionel',
+  P: 'Un groupe d\'action professionnel',
   F: 'Un groupe d\'action fonctionnel',
   B: 'Un groupe d\'action thématique',
 };
@@ -320,7 +320,7 @@ class LocationStep extends FormStep {
   }
 }
 
-class ValidateStep extends React.Component {
+class ValidateStep extends FormStep {
   constructor(props) {
     super(props);
     this.post = this.post.bind(this);
@@ -364,7 +364,7 @@ class ValidateStep extends React.Component {
               <strong>Type de groupe&nbsp;:</strong> {groupLabels[this.state.fields.type]}
             </li>
             <li>
-              <strong>Numéro de téléphone&nbsp;:</strong> {this.state.fields.phone} ({this.state.fields.hidePhone == 'on' ? 'public' : 'caché'})
+              <strong>Numéro de téléphone&nbsp;:</strong> {this.state.fields.phone} ({this.state.fields.hidePhone === 'on' ? 'caché' : 'public'})
             </li>
             <li>
               <strong>Adresse email du groupe&nbsp;:</strong> {this.state.fields.email}
