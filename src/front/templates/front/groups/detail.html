@@ -40,13 +40,17 @@
 
     <hr/>
     <div class="row">
-        <div class="col-sm-6">
+        <div class="{% if supportgroup.coordinates %}col-sm-6{% else %}col-responsive{% endif %}">
+            {%  if supportgroup.html_full_address|length > 0 %}
             <h4>Adresse&nbsp;:</h4>
             <p>{{ supportgroup.html_full_address }}</p>
+            {% endif %}
+            {%  if supportgroup.html_full_contact|length > 0 %}
             <h4>
                 Contact&nbsp;:
             </h4>
             <p>{{ supportgroup.html_full_contact }}</p>
+            {% endif %}
             <hr/>
             {% if supportgroup.description %}
                 <div class="intro" style="clear: both;">
@@ -55,9 +59,11 @@
                 </div>
             {% endif %}
         </div>
+        {% if supportgroup.coordinates %}
         <iframe title="Carte" class="col-sm-6"
         src="https://carte.lafranceinsoumise.fr/?event_id={{ supportgroup.pk }},groups&hide_panel=1&hide_address=1"
         height="300" scrolling="no" frameBorder="0"></iframe>
+        {% endif %}
     </div>
 
     <h3>Agenda du groupe</h3>
