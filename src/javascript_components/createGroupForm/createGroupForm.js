@@ -15,7 +15,7 @@ import './createGroupForm.css';
 const countries = require('localized-countries')(require('localized-countries/data/fr'));
 const phoneUtil = PhoneNumberUtil.getInstance();
 
-const apiHost = 'http://localhost:8000/legacy';
+const apiEndpoint = API_ENDPOINT; // defined by webpack
 
 const groupLabels = {
   L: 'Un groupe d\'action local',
@@ -32,7 +32,7 @@ class CreateGroupForm extends React.Component {
   }
 
   async componentDidMount() {
-    let subtypes = (await axios.get(apiHost + '/groups_subtypes/')).data;
+    let subtypes = (await axios.get(apiEndpoint + '/groups_subtypes/')).data;
     this.setState({subtypes});
 
   }
