@@ -66,14 +66,11 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
     template_name = "front/groups/detail.html"
     queryset = SupportGroup.active.all()
 
-    title_prefix = "Groupe d'action local"
-    meta_description = "Rejoignez les groupes d'action locaux de la France insoumise."
+    title_prefix = "Groupe d'action"
+    meta_description = "Rejoignez les groupes d'action de la France insoumise."
 
     def get_template_names(self):
-        if self.object.type == SupportGroup.TYPE_THEMATIC_BOOKLET:
-            return ["front/groups/detail_thematic_booklet.html"]
-        else:
-            return ["front/groups/detail.html"]
+        return ["front/groups/detail.html"]
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
