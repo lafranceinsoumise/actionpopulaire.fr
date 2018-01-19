@@ -36,6 +36,11 @@ def create_basic_subtypes(apps, schema_editor):
     booklet_groups_subtype = SupportGroupSubtype.objects.get(label='rédaction du livret')
     booklet_groups_subtype.supportgroups.set(booklets)
 
+def remove_basic_subtypes(apps, schema_editor):
+    SupportGroupSubtype = apps.get_model('groups', 'SupportGroupSubtype')
+    SupportGroupSubtype.objects.get(label='groupe local').delete()
+    SupportGroupSubtype.objects.get(label='rédaction du livret').delete()
+
 
 class Migration(migrations.Migration):
     dependencies = [
@@ -43,5 +48,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(create_basic_subtypes)
+        migrations.RunPython(create_basic_subtypes, reverse_code=remove_basic_subtypes)
     ]
