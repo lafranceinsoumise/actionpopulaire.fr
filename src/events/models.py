@@ -1,5 +1,3 @@
-import os
-import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import formats, timezone
@@ -12,7 +10,8 @@ from stdimage.utils import UploadToAutoSlug
 
 from lib.models import (
     BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, ImageMixin, DescriptionMixin,
-    DescriptionField, UploadToRelatedObjectDirectoryWithUUID, UploadToInstanceDirectoryWithFilename
+    DescriptionField, UploadToRelatedObjectDirectoryWithUUID, UploadToInstanceDirectoryWithFilename,
+    AbstractMapObjectLabel
 )
 from lib.form_fields import DateTimePickerWidget
 
@@ -89,6 +88,8 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
         help_text=_('L\'évenement doit-il être visible publiquement.')
     )
 
+    subtype = models.ForeignKey('EventSubtype', related_name='events', on_delete=models.PROTECT)
+
     nb_path = models.CharField(_('NationBuilder path'), max_length=255, blank=True)
 
     tags = models.ManyToManyField('EventTag', related_name='events', blank=True)
@@ -149,6 +150,10 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
         except AttributeError:
             return self.rsvps.aggregate(participants=models.Sum(models.F('guests') + 1))['participants']
 
+    @property
+    def type(self):
+        return self.subtype.type
+
     def get_display_date(self):
         tz = timezone.get_current_timezone()
         start_time = self.start_time.astimezone(tz)
@@ -177,6 +182,20 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
             raise ValidationError({
                 'end_time': _("La date de fin de l'événement doit être postérieure à sa date de début.")
             })
+
+
+class EventSubtype(AbstractMapObjectLabel):
+    TYPE_GROUP_MEETING = 'G'
+    TYPE_PUBLIC_MEETING = 'M'
+    TYPE_PUBLIC_ACTION = 'A'
+
+    TYPE_CHOICES = (
+        (TYPE_GROUP_MEETING, _('Réunion de groupe')),
+        (TYPE_PUBLIC_MEETING, _('Réunion publique')),
+        (TYPE_PUBLIC_ACTION, _('Action publique')),
+    )
+
+    type = models.CharField(_("Type d'événement"), max_length=1, choices=TYPE_CHOICES)
 
 
 class EventTag(AbstractLabel):

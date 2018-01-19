@@ -8,7 +8,7 @@ from django.db import migrations
 def create_basic_calendars(app, schema):
     Calendar = app.get_model('events', 'Calendar')
 
-    for label in ['evenements_locaux', 'melenchon']:
+    for label in ['evenements_locaux', 'national']:
         Calendar.objects.get_or_create(label=label)
 
 
