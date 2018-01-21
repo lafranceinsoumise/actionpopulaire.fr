@@ -37,9 +37,7 @@
       "type": "C",
       "is_staff": false,
       "is_active": true,
-      "groups": [
-        1
-      ],
+      "groups": [],
       "user_permissions": []
     }
   },

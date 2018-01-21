@@ -5,7 +5,7 @@ services:
     restart: always
     image: mdillon/postgis:9.6
     ports:
-      - 5434:5432
+      - 5432:5432
     expose:
       - 5432
     environment:
@@ -36,6 +36,7 @@ services:
     depends_on:
       - postgresql
       - redis
+      - front
     environment:
       DATABASE_URL: "postgis://fi_api:password@postgresql:5432/fi_api"
       AUTH_REDIS_URL: "redis://redis?db=0"

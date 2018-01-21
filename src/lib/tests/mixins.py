@@ -1,10 +1,8 @@
 from datetime import timedelta
 
-from django.contrib.auth.models import Group
+from clients.models import Client
 from django.db import transaction
 from django.utils import timezone
-
-from clients.models import Client
 from events.models import Calendar, Event, OrganizerConfig, RSVP
 from groups.models import SupportGroup, Membership, SupportGroupSubtype
 from people.models import Person
@@ -116,7 +114,6 @@ def load_fake_data():
         'people': people,
         'groups': groups,
         'events': events,
-        'groups': groups,
         'thematic_groups': thematic_groups,
         'group_subtypes': groups_subtypes,
     }

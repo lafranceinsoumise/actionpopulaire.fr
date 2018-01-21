@@ -123,7 +123,7 @@ CREATE EXTENSION postgis;
 ./src/manage.py loaddata src/fixtures.json
 ```
 
-### (Optional) Install nvm
+### (Optional) Install nvm
 
 Follow these steps to install `nvm`: https://github.com/creationix/nvm#installation
 
@@ -159,12 +159,16 @@ Here are some credentials:
 Tests
 -----
 
+If you use Docker :
+```bash
+docker-compose exec api bash -c "cd src/ && coverage run --source=. manage.py test"
+```
+
 To run the tests :
 
 ```bash
 coverage run --source='.' manage.py test
 ```
-
 
 Create super user (person)
 --------------------------

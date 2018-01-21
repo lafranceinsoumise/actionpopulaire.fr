@@ -14,7 +14,7 @@ module.exports = {
     richEditor: './richEditor.js',
     helpDialog: './helpDialog.js',
     locationSearchField: './locationSearchField.js',
-    createGroupForm: './createGroupForm',
+    createGroupForm: ['babel-polyfill', './createGroupForm'],
     theme: '@fi/theme/dist/styles/' + cssName,
   },
   plugins: [

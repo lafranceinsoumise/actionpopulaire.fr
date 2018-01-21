@@ -8,4 +8,4 @@ ADD package-lock.json /code/
 RUN npm install
 ADD . /code/
 RUN ls /code
-CMD ["npm", "run-script watch"]
+CMD ["npm", "run-script", "dockwatch"]
