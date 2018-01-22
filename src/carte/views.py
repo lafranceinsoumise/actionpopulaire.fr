@@ -4,6 +4,7 @@ from django.utils.translation import ugettext as _
 from django.utils.html import mark_safe
 from django.views.generic import TemplateView, DetailView
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 
@@ -89,6 +90,10 @@ def get_subtype_information(subtype):
 class GroupMapView(TemplateView):
     template_name = 'carte/groups.html'
 
+    @xframe_options_exempt
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         subtypes = SupportGroupSubtype.objects.all()
         subtype_info = [get_subtype_information(st) for st in subtypes]
@@ -105,6 +110,10 @@ class SingleGroupMapView(DetailView):
     template_name = 'carte/single_group.html'
     queryset = SupportGroup.active.all()
     context_object_name = 'group'
+
+    @xframe_options_exempt
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         subtype = self.object.subtypes.first()

@@ -40,6 +40,7 @@ MAILTRAIN_API_KEY = os.environ.get('MAILTRAIN_API_KEY', 'prout')
 MAIN_DOMAIN = os.environ.get('MAIN_DOMAIN', 'https://lafranceinsoumise.fr')
 API_DOMAIN = os.environ.get('API_DOMAIN', 'http://localhost:8000' if DEBUG else 'https://api.lafranceinsoumise.fr')
 FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', 'http://localhost:8000' if DEBUG else 'https://agir.lafranceinsoumise.fr')
+MAP_DOMAIN = os.environ.get('MAP_DOMAIN', 'http://localhost:8000' if DEBUG else 'https://agir.lafranceinsoumise.fr')
 MAILTRAIN_HOST = os.environ.get('MAILTRAIN_HOST', 'http://localhost:8080')
 MAILTRAIN_LIST_ID = os.environ.get('MAILTRAIN_LIST_ID', 'SyWda9pi')
 MAILTRAIN_DISABLE = DEBUG

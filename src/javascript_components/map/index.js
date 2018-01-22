@@ -168,5 +168,5 @@ export function itemMap(htmlElementId, coordinates, iconConfiguration, popupCont
   const marker = L.marker(latLng, {icon});
   marker.bindPopup(popupContent);
   marker.addTo(map);
-  map.setView(latLng, 14);
+  map.setView(latLng, 15);
 }
