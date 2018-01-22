@@ -28,16 +28,20 @@ urlpatterns = [
     url(r'^ajax_select/', include(ajax_select_urls)),
 ]
 
-if settings.DEBUG or settings.ENABLE_API:
+if settings.ENABLE_API:
     urlpatterns.append(
         url(r'^legacy/', include(routers.legacy_api.urls, namespace='legacy'))
     )
 
-if settings.DEBUG or settings.ENABLE_FRONT:
+if settings.ENABLE_FRONT:
     urlpatterns.append(
         url(r'^', include(front.urls))
     )
 
+if settings.ENABLE_MAP:
+    urlpatterns.append(
+        url(r'^carte/', include('carte.urls', namespace='map')),
+    )
 
 if settings.DEBUG:
     import debug_toolbar

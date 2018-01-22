@@ -20,6 +20,7 @@ DEBUG = os.environ.get('DEBUG', 'true').lower() == 'true'
 
 ENABLE_API = not os.environ.get('ENABLE_API', 'y').lower() in ['n', 'no', 'false']
 ENABLE_FRONT = os.environ.get('ENABLE_FRONT', 'n').lower() in ['y', 'yes', 'true'] or DEBUG
+ENABLE_MAP = os.environ.get('ENABLE_MAP', 'n').lower() in ['y', 'yes', 'true'] or DEBUG
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -106,6 +107,7 @@ INSTALLED_APPS = [
     'clients',
     'lib',
     'front',
+    'carte',
     'webhooks',
 ]
 

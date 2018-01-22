@@ -1,7 +1,7 @@
 const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const BundleTracker = require('webpack-bundle-tracker');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const webpack = require('webpack');
 
 const DISTPATH = path.resolve(__dirname, 'src/assets/components');
@@ -16,6 +16,7 @@ module.exports = {
     helpDialog: './helpDialog.js',
     locationSearchField: './locationSearchField.js',
     createGroupForm: './createGroupForm',
+    map: './map/index.js',
     theme: '@fi/theme/dist/styles/' + cssName,
   },
   plugins: [
