@@ -26,18 +26,18 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         person = self.request.user.person
 
-        rsvped_events = Event.objects.upcoming().annotate(distance=Distance('coordinates', person.coordinates))\
-            .filter(attendees=person).order_by('start_time', 'end_time')
+        rsvped_events = Event.objects.upcoming().filter(attendees=person).order_by('start_time', 'end_time')
+        if person.coordinates is not None:
+            rsvped_events = rsvped_events.annotate(distance=Distance('coordinates', person.coordinates))
         members_groups = SupportGroup.objects.filter(memberships__person=person, published=True).order_by('name')\
             .annotate(user_is_manager=F('memberships__is_manager')._combine(F('memberships__is_referent'), 'OR', False))
 
         suggested_events = Event.objects.upcoming()\
             .exclude(rsvps__person=person)\
             .filter(Q(organizers_groups__in=person.supportgroups.all()) & ~Q(attendees=person)) \
-            .annotate(reason=Value('Cet événément est organisé par un groupe dont vous êtes membre.', TextField()))\
-            .annotate(distance=Distance('coordinates', person.coordinates))
+            .annotate(reason=Value('Cet événément est organisé par un groupe dont vous êtes membre.', TextField()))
         if person.coordinates is not None:
-            suggested_events = suggested_events
+            suggested_events = suggested_events.annotate(distance=Distance('coordinates', person.coordinates))
 
         last_events = Event.objects.past().filter(Q(attendees=person) | Q()).order_by('-start_time', '-end_time')[:10]
 

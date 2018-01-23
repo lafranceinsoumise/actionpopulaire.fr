@@ -24,7 +24,7 @@
                         <i class="fa fa-calendar" aria-hidden="true"></i>
                         <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
                         {{ event.get_display_date }} - {{ event.short_location }}
-                        {% if event.distance %}({{ event.distance.km|floatformat }} km){% endif %}
+                        {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
                     </div>
                 {% empty %}
                     <div class="list-group-item">
@@ -83,7 +83,7 @@
                         <i class="fa fa-calendar" aria-hidden="true"></i>
                         <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
                         {{ event.get_display_date }} - {{ event.short_location }}
-                        {% if event.distance %}({{ event.distance.km|floatformat }} km){% endif %}
+                        {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
                     </div>
                 {% empty %}
                     <div class="list-group-item">
