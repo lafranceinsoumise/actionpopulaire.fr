@@ -112,6 +112,28 @@
                 {% endfor %}
             </div>
         </div>
+        <div class="col-md-6">
+            <h3>Derniers comptes-rendus publics</h3>
+            <div class="help-dialog" data-hint="Comptes-rendu publiés">
+                Ce sont les derniers compte-rendus d'événement écrits par les insoumis⋅es sur la plateforme. Écrivez le
+                votre pour apparaître ici !
+            </div>
+            <div class="list-group">
+                {% for event in past_reports %}
+                    <div class="list-group-item">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                        <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
+                        {%  if event.organizers_groups %}(organisé par {{  event.organizers_groups.all|join:', ' }}){% endif %}
+                        <br>
+                        {{ event.get_display_date }} - {{ event.short_location }}
+                    </div>
+                {% empty %}
+                    <div class="list-group-item">
+                        Aucun événement récent ! Participez à des événements pour contribuer à leur compte-rendu.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
     <hr/>
     <div class="row">
