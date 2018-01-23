@@ -24,6 +24,7 @@
                         <i class="fa fa-calendar" aria-hidden="true"></i>
                         <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
                         {{ event.get_display_date }} - {{ event.short_location }}
+                        {% if event.distance %}({{ event.distance.km|floatformat }} km){% endif %}
                     </div>
                 {% empty %}
                     <div class="list-group-item">
@@ -75,13 +76,14 @@
             </div>
             <h3>Événements suggérés</h3>
             <div class="list-group">
-                {% for event, reason in suggested_events %}
+                {% for event in suggested_events %}
                     <div class="list-group-item">
                         <span class="small text-muted pull-right" data-toggle="tooltip"
-                              title="{{ reason }}">Pourquoi ?</span>
+                              title="{{ event.reason }}">Pourquoi ?</span>
                         <i class="fa fa-calendar" aria-hidden="true"></i>
                         <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
                         {{ event.get_display_date }} - {{ event.short_location }}
+                        {% if event.distance %}({{ event.distance.km|floatformat }} km){% endif %}
                     </div>
                 {% empty %}
                     <div class="list-group-item">
