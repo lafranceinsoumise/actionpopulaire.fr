@@ -11,6 +11,10 @@ class GetRoleMixin:
             queryset = queryset.select_related(*self.prefetch)
 
         try:
-            return queryset.get(pk=user_id)
+            role = queryset.get(pk=user_id)
+            return role if self.user_can_authenticate(role) else None
         except Role.DoesNotExist:
             return None
+
+    def user_can_authenticate(self, role):
+        return role.is_active

@@ -1,7 +1,7 @@
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.utils.http import is_safe_url
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from django.contrib.auth import authenticate, login, logout, BACKEND_SESSION_KEY
 from django.core.urlresolvers import reverse, reverse_lazy
 
@@ -66,7 +66,7 @@ class OauthReturnView(RedirectView):
         if user:
             login(request, user)
         else:
-            return HttpResponseBadRequest('No corresponding user')
+            return HttpResponseForbidden('No corresponding user')
 
         request.session['oauth2_nonce'] = None
 

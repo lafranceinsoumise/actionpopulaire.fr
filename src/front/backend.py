@@ -8,7 +8,6 @@ from urllib.parse import urlparse
 
 
 from people.models import Person
-from authentication.models import Role
 from authentication.backend_mixins import GetRoleMixin
 
 
@@ -66,7 +65,7 @@ class OAuth2Backend(GetRoleMixin):
                 person_id = match.kwargs['pk']
                 person = Person.objects.select_related('role').get(pk=person_id)
 
-                return person.role
+                return person.role if self.user_can_authenticate(person.role) else None
 
             # not authenticated
             return None
@@ -81,7 +80,7 @@ class MailLinkBackend(GetRoleMixin):
                 user = Person.objects.select_related('role').get(pk=user_pk)
             except (Person.DoesNotExist, ValidationError):
                 return None
-            if token_generator.check_token(user, code):
+            if token_generator.check_token(user, code) and self.user_can_authenticate(user.role):
                 return user.role
 
         return None
