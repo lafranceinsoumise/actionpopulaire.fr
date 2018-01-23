@@ -22,7 +22,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <h6 class="subhead">Où</h6>
-                    <p>{{ supportgroup.html_full_address|default:"Pas d'adresse enregistré." }}</p>
+                    <p>{{ supportgroup.html_full_address|default:"Pas d'adresse enregistrée." }}</p>
 
                     <h6 class="subhead">Contact</h6>
                     <p>{{ supportgroup.html_full_contact|default:"Pas de contact enregistré." }}</p>
@@ -39,8 +39,10 @@
         </div>
         <div class="panel-footer">
             <ul class="list-inline">
-                <li><a class="btn btn-default" href="{% url "edit_group" supportgroup.pk %}">Modifier ces informations</a>
-                <li><a class="btn btn-default" href="{% url "change_group_location" supportgroup.pk %}">Corriger la localisation</a>
+                <li><a class="btn btn-default" href="{% url "edit_group" supportgroup.pk %}">Modifier ces
+                    informations</a>
+                <li><a class="btn btn-default" href="{% url "change_group_location" supportgroup.pk %}">Corriger la
+                    localisation</a>
             </ul>
         </div>
     </div>
@@ -57,6 +59,23 @@
             matériel</a>.
         </p>
 
+    {% elif certifiable %}
+        <h3>Certification de votre groupe</h3>
+
+        {% if satisfy_requirements %}
+            <div>
+                Votre groupe n'est pas encore certifié. Vous pouvez en demander la certification en cliquant sur le
+                bouton ci-dessous.
+            </div>
+            <a href="https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/?group-id={{ supportgroup.pk }}&email={{ user.person.email }}&animateur={{ user.person.get_full_name }}"
+               class="btn btn-primary">Demander la certification</a>
+        {% else %}
+            <div>
+                Pour pouvoir demander la certification, vous devez respecter nous indiquer l'identité du deuxième
+                animateur du groupe. Il doit s'agir d'une personne d'un genre différent, qui n'appartient pas, le cas
+                échéant, à la même formation politique. Utilisez pour cela le formulaire ci-dessous.
+            </div>
+        {% endif %}
     {% endif %}
 
     <h3>Les animateur⋅rice⋅s et autres gestionnaires du groupe</h3>
@@ -81,15 +100,14 @@
         <div>
             <p>
                 Vous etes à l'heure actuelle l'unique animatrice ou animateur enregistré de ce groupe d'action. La
-                charte des groupes
-                d'action de la France insoumise prévoit que les groupes d'action</p>
+                charte des groupes d'action de la France insoumise prévoit que les groupes d'action</p>
             <blockquote>
                 sont animés par deux personnes de genres différents, n’appartenant pas, le cas échéant, toutes les deux
                 à une même formation politique qui soutient la France insoumise.
             </blockquote>
             <p>
-            Si vous souhaitez ne plus être animatrice ou animateur de ce groupe d'action, il vous faut d'abord indiquer
-            une autre personne, car un groupe d'action ne peut se trouver sans animation.
+                Si vous souhaitez ne plus être animatrice ou animateur de ce groupe d'action, il vous faut d'abord
+                indiquer une autre personne, car un groupe d'action ne peut se trouver sans animation.
             </p>
             <p>
                 Vous pouvez nous indiquer ici qui est l'autre animatrice ou animateur au sein du groupe.
