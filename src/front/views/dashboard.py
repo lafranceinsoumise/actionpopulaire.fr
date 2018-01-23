@@ -54,10 +54,18 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
         organized_events = Event.objects.upcoming().filter(organizers=person).order_by('start_time')
         past_organized_events = Event.objects.past().filter(organizers=person).order_by('-start_time', '-end_time')[:10]
 
+        past_reports = Event.objects.past().exclude(rsvps__person=person)\
+            .exclude(report_content='')\
+            .filter(start_time__gt=timezone.now() - timedelta(days=30))\
+            .order_by('-start_time')
+        if person.coordinates is not None:
+            past_reports = past_reports.annotate(distance=Distance('coordinates', person.coordinates)).order_by('distance')[:5]
+
+
         kwargs.update({
             'person': person,
             'rsvped_events': rsvped_events, 'members_groups': members_groups,
-            'suggested_events': suggested_events, 'last_events': last_events,
+            'suggested_events': suggested_events, 'last_events': last_events, 'past_reports': past_reports,
             'organized_events': organized_events, 'past_organized_events': past_organized_events
         })
 
