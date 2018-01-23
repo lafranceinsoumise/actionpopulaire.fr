@@ -16,6 +16,7 @@ module.exports = {
     helpDialog: './helpDialog.js',
     locationSearchField: './locationSearchField.js',
     createGroupForm: './createGroupForm',
+    dashboard: './dashboard',
     map: './map/index.js',
     theme: '@fi/theme/dist/styles/' + cssName,
   },

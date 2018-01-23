@@ -30,6 +30,7 @@
     "leaflet-geosearch": "^2.6.0",
     "leaflet.markercluster": "^1.2.0",
     "localized-countries": "^1.0.2",
+    "masonry-layout": "^4.2.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-stepzilla": "^4.7.0",
