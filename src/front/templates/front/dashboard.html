@@ -1,9 +1,10 @@
 {% extends "front/layout.html" %}
+{% load render_bundle from webpack_loader %}
 
 {% block title %}Mon tableau de bord{% endblock title %}
 
 {% block main %}
-    <div class="row">
+    <div class="row masonry">
         <div class="col-md-6">
             <div class="help-dialog" data-hint="Mon agenda">
                 Vous trouverez ici tous les événements auxquels vous avez indiqué participer.
@@ -66,8 +67,6 @@
                 {% endfor %}
             </div>
         </div>
-    </div>
-    <div class="row">
         <div class="col-md-6">
             <div class="help-dialog" data-hint="Événements suggérés">
                 Ces événements pourraient vous intéresser. Passer votre souris sur <span
@@ -162,4 +161,5 @@
         $('[data-toggle="tooltip"]').tooltip()
       })
     </script>
+    {% render_bundle 'dashboard' %}
 {% endblock %}
