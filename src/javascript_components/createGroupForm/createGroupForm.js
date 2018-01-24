@@ -84,7 +84,7 @@ class GroupTypeStep extends FormStep {
       .filter(s => s.type === type)
       .map(subtype => ({value: subtype.label, label: subtype.description}));
     if (this.subtypes.length < 2) {
-      this.setFields({type, subtypes: this.subtypes});
+      this.setFields({type, subtypes: this.subtypes.map(s => s.value)});
       this.jumpToStep(1);
 
       return;
@@ -343,7 +343,7 @@ class ValidateStep extends FormStep {
       location_city: this.state.fields.locationCity,
       location_country: this.state.fields.locationCountryCode,
       type: this.state.fields.type,
-      subtypes: this.state.fields.subtypes.map(subtype => subtype.value),
+      subtypes: this.state.fields.subtypes,
     });
 
     try {
