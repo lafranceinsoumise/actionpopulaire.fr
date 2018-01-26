@@ -4,7 +4,7 @@ from django.views.decorators.cache import cache_control
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, authentication_classes
 
 from lib.permissions import PermissionsOrReadOnly, RestrictViewPermissions, DjangoModelPermissions
 from lib.pagination import LegacyPaginator
@@ -55,6 +55,7 @@ class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):
 
     @list_route(methods=['GET'])
     @cache_control(max_age=60, public=True)
+    @authentication_classes([])
     def summary(self, request, *args, **kwargs):
         supportgroups = self.get_queryset().all()
         serializer = serializers.SummaryGroupSerializer(

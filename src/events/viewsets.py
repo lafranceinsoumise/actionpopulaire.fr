@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.views.decorators.cache import cache_control
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, authentication_classes
 from rest_framework.response import Response
 from authentication.models import Role
 import django_filters
@@ -84,6 +84,7 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
 
     @list_route(methods=['GET'])
     @cache_control(max_age=60, public=True)
+    @authentication_classes([])
     def summary(self, request, *args, **kwargs):
         events = self.get_queryset().filter(end_time__gt=timezone.now()).select_related('calendar')
         serializer = serializers.SummaryEventSerializer(instance=events, many=True,

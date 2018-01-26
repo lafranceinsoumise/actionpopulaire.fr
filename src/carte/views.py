@@ -3,6 +3,7 @@ from django.contrib.gis.geos import Polygon
 from django.utils.translation import ugettext as _
 from django.utils.html import mark_safe
 from django.views.generic import TemplateView, DetailView
+from django.views.decorators import cache
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.generics import ListAPIView
@@ -49,14 +50,24 @@ class ZonedView(ListAPIView):
 class EventsView(ZonedView):
     serializer_class = serializers.MapEventSerializer
     filter_backends = (BBoxFilterBackend,)
+    authentication_classes = []
 
     def get_queryset(self):
         return Event.objects.upcoming().filter(coordinates__isnull=False).select_related('subtype')
+
+    @cache.cache_control(max_age=60, public=True)
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class GroupsView(ZonedView):
     serializer_class = serializers.MapGroupSerializer
     queryset = SupportGroup.active.filter(coordinates__isnull=False).prefetch_related('subtypes')
+    authentication_classes = []
+
+    @cache.cache_control(max_age=60, public=True)
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 def get_subtype_information(subtype):
