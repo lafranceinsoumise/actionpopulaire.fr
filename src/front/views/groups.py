@@ -3,14 +3,14 @@ from django.utils.translation import ugettext as _, ugettext_lazy
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView, TemplateView
+from django.views.generic import UpdateView, ListView, DeleteView, DetailView, TemplateView
 from django.contrib import messages
 from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.conf import settings
 from django.views.generic.edit import ProcessFormView, FormMixin
 
-from groups.models import SupportGroup, Membership
+from groups.models import SupportGroup, Membership, SupportGroupSubtype
 from groups.tasks import send_someone_joined_notification
 from groups.actions.promo_codes import get_next_promo_code
 
@@ -332,8 +332,11 @@ class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
 
 class ThematicBookletViews(ListView):
     template_name = 'front/groups/thematic_booklets.html'
-    queryset = SupportGroup.active.filter(type=SupportGroup.TYPE_THEMATIC_BOOKLET, published=True).order_by('name')
     context_object_name = "groups"
+
+    def get_queryset(self):
+        subtype = SupportGroupSubtype.objects.get(label='rédaction du livret')
+        return SupportGroup.active.filter(subtypes=subtype).order_by('name')
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
