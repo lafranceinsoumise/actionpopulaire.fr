@@ -1,7 +1,8 @@
 api-django
 ==========
 
-1. Installation
+1. [Vagrant installation](#vagrant)
+1. Manual installation
     1. [Configure PostgreSQL](#configure-postgresql)
     2. [Install requirements](#install-requirements)
     3. [Create super users](#create-super-user-person)
@@ -11,6 +12,45 @@ api-django
     1. [/groups](#groups)
     2. [Resources filters](#resources-filters)
 3. [Usage: frontend pages](#frontend-pages)
+
+# Vagrant installation
+
+You can use Vagrant to create a virtual machine with all necessary
+dependencies on it. You first need to have Vagrant and VirtualBox
+installed on your computer.
+
+Then just do this in the project directory.
+```bash
+vagrant up
+```
+
+This will install PostgreSQL, Redis and Node onto the virtual
+machine, and launch four other services :
+
+* `django` which is the development server of this project
+* `MailHog`, a catch-all SMTP server used for development
+* `webpack`, the webpack dev server with hot reloading
+* `oauth`, the authentication service of France insoumise
+
+All port are forwarded to localhost, so once your vagrant box is up,
+you can access Django from [http://localhost:8000](http://localhost:8000), Oauth from
+[http://localhost:4002](http://localhost:4002) and Mailhog from [http://localhost:8025](http://localhost:8025).
+Webpack dev server listen on port 3000 but you don't need
+to access it directly.
+
+Once your box is up, you need to run a few commands in the virtual
+machine to get things running :
+```bash
+vagrant ssh
+cd /vagrant
+pipenv run src/manage.py migrate # you will need to run this each time you migrate
+pipenv run src/manage.py load_fake_data # to create base users and oauth client
+```
+
+The `/vagrant` directory in the box is syncrhonized with your
+project directory on the host.
+
+# Manual installation
 
 Configure PostgreSQL
 --------------------
