@@ -12,7 +12,7 @@ Carte des groupes d'appui
       function formatGroup(group) {
         var subtype = subtypes.find(function(type) { return type.id === group.subtype });
         return '<a href="{{ FRONT_DOMAIN }}/groupes/' + group.id + '/" style="color:' + subtype.color +
-          ';" target="_blank">' + group.name + '</a>';
+          ';" target="_blank">' + group.name + '</a><br>' + subtype.label;
       }
 
       window.map.listMap('map', '{% url "map:group_list" %}', types, subtypes, formatGroup);

@@ -8,6 +8,7 @@
 	-webkit-border-radius: 12px;
 	-moz-border-radius: 12px;
 	border-radius: 12px;
+	font-size: 15px;
 }
 .map_popup:after {
 	top: 100%;
@@ -24,7 +25,7 @@
 	margin-left: -20px;
 }
 .map_popup a {
-	font-size: 15px;
+	font-size: 18px;
 	font-weight: bold;
 }
 
@@ -40,7 +41,7 @@
 .layer_selector label {
 	display: block;
 	font-weight: normal;
-	font-size: 12px;
+	font-size: 15px;
 	line-height: 1.5;
 	margin-bottom: 0;
 }
