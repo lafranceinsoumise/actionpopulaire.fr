@@ -55,7 +55,7 @@ class EventsView(ZonedView):
     def get_queryset(self):
         return Event.objects.upcoming().filter(coordinates__isnull=False).select_related('subtype')
 
-    @cache.cache_control(max_age=60, public=True)
+    @cache.cache_control(max_age=300, public=True)
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -65,7 +65,7 @@ class GroupsView(ZonedView):
     queryset = SupportGroup.active.filter(coordinates__isnull=False).prefetch_related('subtypes')
     authentication_classes = []
 
-    @cache.cache_control(max_age=60, public=True)
+    @cache.cache_control(max_age=300, public=True)
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
