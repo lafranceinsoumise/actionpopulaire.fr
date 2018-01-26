@@ -293,9 +293,7 @@ class AbstractMapObjectLabel(AbstractLabel):
 
     icon_anchor_x = models.PositiveSmallIntegerField(_("ancre de l'icône (x)"), blank=True, null=True)
     icon_anchor_y = models.PositiveSmallIntegerField(_("ancre de l'icône (y)"), blank=True, null=True)
-
-    popup_anchor_x = models.PositiveSmallIntegerField(_("ancre de la popup (x)"), blank=True, null=True)
-    popup_anchor_y = models.PositiveSmallIntegerField(_("ancre de la popup (y)"), blank=True, null=True)
+    popup_anchor_y = models.PositiveSmallIntegerField(_("placement de la popup (par rapport au point)"), blank=True, null=True)
 
     class Meta:
         abstract = True

@@ -1,172 +1,170 @@
-import L from 'leaflet';
-import {GeoSearchControl, OpenStreetMapProvider} from 'leaflet-geosearch';
+import Map from 'ol/map';
+import View from 'ol/view';
+import Feature from 'ol/feature';
+import Point from 'ol/geom/point';
+import TileLayer from 'ol/layer/tile';
+import VectorSource from 'ol/source/vector';
+import VectorLayer from 'ol/layer/vector';
+import OSM from 'ol/source/osm';
+import Style from 'ol/style/style';
+import Icon from 'ol/style/icon';
+import Overlay from 'ol/overlay';
+import Control from 'ol/control/control';
+import proj from 'ol/proj';
 import axios from 'axios';
 
-import 'leaflet/dist/leaflet.css';
-import 'leaflet-geosearch/assets/css/leaflet.css';
+import 'ol/ol.css';
+import './style.css';
 
-import {getQueryParameterByName} from './utils';
+const ARROW_SIZE = 20;
 
-
-function getOptions() {
-  return {
-    mode: getQueryParameterByName('mode'),
-    noCluster: getQueryParameterByName('no_cluster'),
-    borderfit: (getQueryParameterByName('borderfit') || '41.783787,9.587328,51.352263,-4.627801').split(','),
-    embedEventType: getQueryParameterByName('event_type') || 'groups,evenements_locaux,national,partielles',
-    embedTags: getQueryParameterByName('tags') ? getQueryParameterByName('tags').split(',') : [],
-    embedEventId: getQueryParameterByName('event_id') || '',
-    zipcode: getQueryParameterByName('zipcode'),
-    embedCirconscription: getQueryParameterByName('circonscriptions'),
-    hidePanel: getQueryParameterByName('hide_panel'),
-    hideAddress: getQueryParameterByName('hide_address'),
-    geolocation: getQueryParameterByName('geolocation')
-  };
-}
-
-function makeIcon(type) {
-  return L.icon({
-    iconUrl: type.iconUrl,
-    iconAnchor: type.iconAnchor,
-    popupAnchor: type.popupAnchor
+function setUpMap(elementId, layers) {
+  const view = new View({
+    center: proj.fromLonLat([2, 47]),
+    zoom: 6
+  });
+  return new Map({
+    target: elementId,
+    layers: [
+      new TileLayer({
+        source: new OSM()
+      }),
+      ...layers
+    ],
+    view
   });
 }
 
-function makeLayer(type) {
-  return L.layerGroup();
+function fitFrance(map) {
+  map.getView().fit(
+    proj.transformExtent([-5.3, 41.2, 9.6, 51.2], 'EPSG:4326', 'EPSG:3857'), map.getSize()
+  );
 }
 
-function addAddressSearch(map) {
-  const provider = new OpenStreetMapProvider();
-  const searchControl = new GeoSearchControl({
-    provider,
-    showMarker: false,
-    searchLabel: 'Rechercher une adresse'
+function setUpPopup(map) {
+  const popupElement = document.createElement('div');
+  popupElement.className = 'map_popup';
+  popupElement.addEventListener('mousedown', function(evt) { evt.stopPropagation();});
+
+  const popup = new Overlay({
+    element: popupElement,
+    positioning: 'bottom-center',
+    offset: [0, -ARROW_SIZE],
+    stopEvent: false,
   });
-  searchControl.addTo(map);
-}
 
-// Function definitions
-function zoomZipcode(map, zipcode) {
-  axios.get('//nominatim.openstreetmap.org/search/?format=json&q=' + zipcode + ',France').then(function (res) {
-    if (res.status !== 200) {
-      throw new Error('Impossible de contacter le service de localisation');
+  map.addOverlay(popup);
+
+  map.on('singleclick', function (evt) {
+    popup.setPosition();
+    const features = map.getFeaturesAtPixel(evt.pixel);
+    if (features) {
+      const coords = features[0].getGeometry().getCoordinates();
+      popup.getElement().innerHTML = features[0].get('popupContent');
+      popup.setOffset([0, features[0].get('popupAnchor')]);
+      popup.setPosition(coords);
     }
-    const data = res.data;
+  });
 
-    if (data.length === 0) return;
-
-    zoomCoordinates(map, data[0].lon, data[0].lat);
+  map.on('pointermove', function (evt) {
+    const hit = this.forEachFeatureAtPixel(evt.pixel, function() {
+      return true;
+    });
+    if(hit) {
+      this.getTargetElement().style.cursor = 'pointer';
+    } else {
+      this.getTargetElement().style.cursor = '';
+    }
   });
 }
 
-
-function zoomGeolocation(map) {
-  if (!('geolocation' in window.navigator)) {
-    return;
-  }
-  window.navigator.geolocation.getCurrentPosition(function (position) {
-    zoomCoordinates(map, position.coords.longitude, position.coords.latitude);
-  }, function () {
-  }, {
-    maximumAge: 0,
-    timeout: 5000,
-    enableHighAccuracy: true
+function makeStyle(style) {
+  return new Style({
+    image: new Icon(/** @type {olx.style.IconOptions} */ ({
+      anchor: style.iconAnchor,
+      anchorXUnits: 'pixels',
+      anchorYUnits: 'pixels',
+      opacity: 1,
+      src: style.iconUrl
+    }))
   });
 }
 
-function zoomCoordinates(map, lon, lat) {
-  map.setView([lat, lon], 12);
-}
+function makeLayerControl(layersConfig) {
+  const element = document.createElement('div');
+  element.className = 'layer_selector';
+  layersConfig.forEach(function(layerConfig) {
+    const label = document.createElement('label');
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = true;
+    const span = document.createElement('span');
+    span.textContent = layerConfig.label;
+    label.appendChild(input);
+    label.appendChild(span);
 
-function setUpMap(elementId) {
-  const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '<a href="http://osm.org/copyright">OpenStreetMap</a>'
+    input.addEventListener('change', function() {
+      layerConfig.layer.setVisible(input.checked);
+    });
+
+    element.appendChild(label);
   });
-  const latlng = L.latLng(43, 2);
-  return L.map(elementId, {
-    center: latlng,
-    zoom: 6,
-    layers: [tiles],
-    zoomSnap: 0
+
+  return new Control({
+    element,
   });
 }
 
 export function listMap(htmlElementId, endpoint, types, subtypes, formatPopup) {
-  const options = getOptions();
-
-  const map = setUpMap(htmlElementId);
-
-  map.fitBounds([
-    [41.783787,9.587328],
-    [51.352263,-4.627801]
-  ]);
-
-  // Create all the icon types from the subtypes
-  const icons = {};
-  subtypes.forEach(function (subtype) {
-    icons[subtype.id] = makeIcon(subtype);
-  });
-
-  // create all the layers from the types
-  const iconLayers = {};
-  types.forEach(function (type) {
-    iconLayers[type.id] = makeLayer(type, options.noCluster);
-    iconLayers[type.id].addTo(map);
-  });
-
-  // Controls
-  if (!options.hidePanel || options.hidePanel !== 1) {
-    let overlayMaps = {};
-
-    for (let type of types) {
-      const label = `${type.label}`;
-      overlayMaps[label] = iconLayers[type.id];
-    }
-
-    L.control.layers(null, overlayMaps, {
-      collapsed: false
-    }).addTo(map);
+  const sources = {}, layers = {};
+  for (let type of types) {
+    sources[type.id] = new VectorSource();
+    layers[type.id] = new VectorLayer({source: sources[type.id]});
   }
 
-  // Show address search
-  if (!options.hideAddress || options.hixdeAddress !== 1) {
-    addAddressSearch(map);
+  const layerControl = makeLayerControl(types.map(type => ({label: type.label, layer: layers[type.id]})));
+
+  const map = setUpMap(htmlElementId, types.map(type => layers[type.id]));
+  fitFrance(map);
+  setUpPopup(map);
+  layerControl.setMap(map);
+
+  const styles = {}, popupAnchors = {}, sourceForSubtype = {};
+  for (let subtype of subtypes) {
+    styles[subtype.id] = makeStyle(subtype);
+    popupAnchors[subtype.id] = subtype.popupAnchor;
+    sourceForSubtype[subtype.id] = sources[subtype.type];
   }
 
-  /**
-   * Step 2. Zoom and event requests
-   */
-  if (options.geolocation) {
-    zoomGeolocation();
-  }
-  else if (options.zipcode) {
-    zoomZipcode(options.zipcode);
-  }
-
-  axios.get(endpoint).then(function(res) {
-    if(res.status !== 200) {
+  axios.get(endpoint).then(function (res) {
+    if (res.status !== 200) {
       return;
     }
 
-    for(let item of res.data) {
-      const marker = L.marker([item.coordinates.coordinates[1], item.coordinates.coordinates[0]], {
-        icon: icons[item.subtype]
+    for (let item of res.data) {
+      const feature = new Feature({
+        geometry: new Point(proj.fromLonLat(item.coordinates.coordinates)),
+        popupAnchor: popupAnchors[item.subtype] - ARROW_SIZE,
+        popupContent: formatPopup(item),
       });
-      marker.bindPopup(formatPopup(item));
-      iconLayers[subtypes.find(subtype => subtype.id === item.subtype).type].addLayer(marker);
+
+      feature.setStyle(styles[item.subtype]);
+
+      sourceForSubtype[item.subtype].addFeature(feature);
     }
   });
 }
 
-export function itemMap(htmlElementId, coordinates, iconConfiguration, popupContent) {
-  const map = setUpMap(htmlElementId);
-
-  const icon = makeIcon(iconConfiguration);
-
-  const latLng = L.latLng(coordinates[1], coordinates[0]);
-  const marker = L.marker(latLng, {icon});
-  marker.bindPopup(popupContent);
-  marker.addTo(map);
-  map.setView(latLng, 15);
+export function itemMap(htmlElementId, coordinates, iconConfiguration) {
+  const style = makeStyle(iconConfiguration);
+  const feature = new Feature({
+    geometry: new Point(proj.fromLonLat(coordinates))
+  });
+  feature.setStyle(style);
+  const layer = new VectorLayer({
+    source: new VectorSource({features: [feature]})
+  });
+  const map = setUpMap(htmlElementId, [layer]);
+  map.getView().setCenter(proj.fromLonLat(coordinates));
+  map.getView().setZoom(14);
 }

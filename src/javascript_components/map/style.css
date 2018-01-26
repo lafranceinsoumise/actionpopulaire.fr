@@ -1,0 +1,53 @@
+/* arrow code from http://www.cssarrowplease.com/ */
+.map_popup {
+	position: relative;
+	background: #ffffff;
+	/*border: 1px solid #121517;*/
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	padding: 13px 19px;
+	-webkit-border-radius: 12px;
+	-moz-border-radius: 12px;
+	border-radius: 12px;
+}
+.map_popup:after {
+	top: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	/*border-color: rgba(255, 255, 255, 0);*/
+	border-top-color: #ffffff;
+	border-width: 20px;
+	margin-left: -20px;
+}
+.map_popup a {
+	font-size: 15px;
+	font-weight: bold;
+}
+
+.layer_selector {
+	position: absolute;
+	background: #ffffff;
+	top: 10px;
+	right: 10px;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	border-radius: 5px;
+	padding: 6px 10px 6px 6px;
+}
+.layer_selector label {
+	display: block;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: 1.5;
+	margin-bottom: 0;
+}
+.layer_selector input {
+	vertical-align: bottom;
+}
+.layer_selector span {
+	margin-left: 5px;
+	vertical-align: bottom;
+}

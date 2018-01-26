@@ -74,15 +74,15 @@ def get_subtype_information(subtype):
         else:
             res['iconAnchor'] = [subtype.icon.width // 2, subtype.icon.height // 2]
 
-        if subtype.popup_anchor_x is not None and subtype.popup_anchor_y is not None:
-            res['popupAnchor'] = [subtype.popup_anchor_x, subtype.popup_anchor_y]
+        if subtype.popup_anchor_y is not None:
+            res['popupAnchor'] = -subtype.popup_anchor_y
         else:
-            res['popupAnchor'] = [0, -subtype.icon.height // 2]
+            res['popupAnchor'] = -res['iconAnchor'][1]
 
     else:
         res['iconUrl'] = static('carte/marker-icon.png')
         res['iconAnchor'] = [12, 41]
-        res['popupAnchor'] = [0, -41]
+        res['popupAnchor'] = -41
 
     return res
 
