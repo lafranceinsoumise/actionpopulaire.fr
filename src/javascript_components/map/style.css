@@ -2,7 +2,6 @@
 .map_popup {
 	position: relative;
 	background: #ffffff;
-	/*border: 1px solid #121517;*/
 	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
 	padding: 13px 19px;
 	-webkit-border-radius: 12px;
@@ -10,6 +9,7 @@
 	border-radius: 12px;
 	font-size: 15px;
 }
+
 .map_popup:after {
 	top: 100%;
 	left: 50%;
@@ -24,6 +24,7 @@
 	border-width: 20px;
 	margin-left: -20px;
 }
+
 .map_popup a {
 	font-size: 18px;
 	font-weight: bold;
@@ -38,6 +39,7 @@
 	border-radius: 5px;
 	padding: 6px 10px 6px 6px;
 }
+
 .layer_selector label {
 	display: block;
 	font-weight: normal;
@@ -45,10 +47,80 @@
 	line-height: 1.5;
 	margin-bottom: 0;
 }
+
 .layer_selector input {
 	vertical-align: bottom;
 }
+
 .layer_selector span {
 	margin-left: 5px;
 	vertical-align: bottom;
+}
+
+@media screen and (max-width: 640px) {
+	.search_box {
+		display: none;
+	}
+}
+
+.search_box {
+	position: absolute;
+	top: 10px;
+	left: 40%;
+	transform: translateX(-50%);
+	max-width: 60%;
+	width: 600px;
+}
+
+.search_box form {
+	padding-right: 34px;
+}
+
+.search_box input {
+	margin-right: 0;
+	padding: 0 3px;
+	border-radius: 0;
+	border: 1px solid black;
+	border-right: none;
+	height: 34px;
+	width: 100%;
+}
+
+.search_box button {
+	margin-left: 0;
+	border-radius: 0;
+	border: 1px solid black;
+	height: 34px;
+	width: 34px;
+	margin-right: -34px;
+}
+
+.search_box ul {
+	display: none;
+	background: white;
+	border-radius: 0 0 5px 5px;
+	list-style: none;
+	padding: 0;
+	border: 1px solid black;
+	border-top: none;
+}
+
+.search_box ul.show {
+	display: block;
+}
+
+.search_box li + li {
+	border-top: solid black 1px;
+}
+
+.search_box li a {
+	color: black;
+	text-decoration: none;
+	display: block;
+	padding: 5px;
+	font-size: 12px;
+}
+
+.search_box li a:hover {
+	background: #ddd;
 }

@@ -12,6 +12,7 @@ import Overlay from 'ol/overlay';
 import Control from 'ol/control/control';
 import proj from 'ol/proj';
 import axios from 'axios';
+import {OpenStreetMapProvider} from 'leaflet-geosearch';
 
 import 'ol/ol.css';
 import './style.css';
@@ -44,7 +45,9 @@ function fitFrance(map) {
 function setUpPopup(map) {
   const popupElement = document.createElement('div');
   popupElement.className = 'map_popup';
-  popupElement.addEventListener('mousedown', function(evt) { evt.stopPropagation();});
+  popupElement.addEventListener('mousedown', function (evt) {
+    evt.stopPropagation();
+  });
 
   const popup = new Overlay({
     element: popupElement,
@@ -67,10 +70,10 @@ function setUpPopup(map) {
   });
 
   map.on('pointermove', function (evt) {
-    const hit = this.forEachFeatureAtPixel(evt.pixel, function() {
+    const hit = this.forEachFeatureAtPixel(evt.pixel, function () {
       return true;
     });
-    if(hit) {
+    if (hit) {
       this.getTargetElement().style.cursor = 'pointer';
     } else {
       this.getTargetElement().style.cursor = '';
@@ -93,7 +96,7 @@ function makeStyle(style) {
 function makeLayerControl(layersConfig) {
   const element = document.createElement('div');
   element.className = 'layer_selector';
-  layersConfig.forEach(function(layerConfig) {
+  layersConfig.forEach(function (layerConfig) {
     const label = document.createElement('label');
     const input = document.createElement('input');
     input.type = 'checkbox';
@@ -103,12 +106,58 @@ function makeLayerControl(layersConfig) {
     label.appendChild(input);
     label.appendChild(span);
 
-    input.addEventListener('change', function() {
+    input.addEventListener('change', function () {
       layerConfig.layer.setVisible(input.checked);
     });
 
     element.appendChild(label);
   });
+
+  return new Control({
+    element,
+  });
+}
+
+function makeSearchControl(view) {
+  const provider = new OpenStreetMapProvider();
+  const element = document.createElement('div');
+  element.className = 'search_box';
+  element.innerHTML = `
+  <form><input type="text" id="search"><button type="submit"><i class="fa fa-search"></i></button></form>
+  <ul class="results"></ul>
+  `;
+
+  const form = element.getElementsByTagName('form')[0];
+  const input = element.querySelector('#search');
+  const list = element.getElementsByTagName('ul')[0];
+
+  list.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (e.target.tagName === 'A') {
+      view.animate({
+        center: proj.fromLonLat([+e.target.dataset.cx, +e.target.dataset.cy]),
+        zoom: 14
+      });
+      list.classList.remove('show');
+    }
+  });
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    provider.search({query: input.value}).then(function(results) {
+      if (results.length) {
+        list.innerHTML = results.slice(0, 3).map(r => (
+          `<li><a href="#" data-cx="${r.x}" data-cy="${r.y}">${r.label}</a></li>`
+        )).join('');
+      } else {
+        list.innerHTML = '<li><em>Pas de résultats</em></li>';
+      }
+      list.classList.add('show');
+    });
+  });
+
+  element.addEventListener('click', function(ev) { ev.stopPropagation(); });
+  document.addEventListener('click', function() {list.classList.remove('show')});
 
   return new Control({
     element,
@@ -128,6 +177,10 @@ export function listMap(htmlElementId, endpoint, types, subtypes, formatPopup) {
   fitFrance(map);
   setUpPopup(map);
   layerControl.setMap(map);
+
+
+  const geosearchControl = makeSearchControl(map.getView());
+  map.addControl(geosearchControl);
 
   const styles = {}, popupAnchors = {}, sourceForSubtype = {};
   for (let subtype of subtypes) {
