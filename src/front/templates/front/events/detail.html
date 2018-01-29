@@ -68,7 +68,7 @@
             <div class="row marginbottom">
                 <div class="col-xs-6">
                     <h4><i class="fa fa-clock-o" aria-hidden="true"></i></h4>
-                    {{ event.start_time }}<br>{{ event.end_time }}.
+                    {{ event.get_display_date }}
                 </div>
                 <div class="col-xs-6">
                     <h4><i class="fa fa-map-marker"></i></h4>
@@ -103,7 +103,7 @@
                         {% for image in event_images %}
                             <div class="col-xs-2 col-sm-4">
                                 <a href="{{ image.image.url }}">
-                                    <img  class="img-responsive" src="{{ image.image.thumbnail.url }}" title="&copy; {{ image.author.first_name }} {{ image.author.last_name }} &mdash; {{ image.legend }}">
+                                    <img  class="img-responsive marginbottom" src="{{ image.image.thumbnail.url }}" title="&copy; {{ image.author.first_name }} {{ image.author.last_name }} &mdash; {{ image.legend }}">
                                 </a>
                             </div>
                         {% endfor %}
