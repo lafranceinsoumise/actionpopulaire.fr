@@ -44,7 +44,7 @@ sudo systemctl start mailhog
 echo "Install django dev server..."
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get -yqq update
-sudo apt-get -yqq install python3.6 python3-pip libsystemd-dev
+sudo apt-get -yqq install python3.6 python3.6-dev python3-pip libsystemd-dev
 sudo -H pip3 install pipenv
 cd /vagrant
 pipenv install
