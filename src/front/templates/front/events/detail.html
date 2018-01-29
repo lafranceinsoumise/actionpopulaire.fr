@@ -48,10 +48,11 @@
 
             {% if event.is_past %}
                 <div>
+                    <h3>Compte-rendu</h3>
+                    <a class="btn btn-default pull-right" href="{% url "edit_event_report" event.pk %}">Rédiger le compte-rendu</a>
                     {% if event.report_content %}
-                        <h3>Compte-rendu</h3>
                         {% if event.report_image %}
-                            <img src="{{ event.report_image.banner.url }}" class="img-responsive center-block">
+                            <img src="{{ event.report_image.banner.url }}" class="img-responsive center-block marginbottom">
                         {% endif %}
                         {{ event.html_report_content }}
                     {% else %}
@@ -98,11 +99,13 @@
             {% if event.is_past %}
                 <h4>Photos</h4>
                 {% if event_images %}
-                    <div style="display: flex; margin: 0 -10px; flex-wrap: wrap;">
+                    <div class="row">
                         {% for image in event_images %}
-                            <a href="{{ image.image.url }}" style="display: block; margin: 10px;">
-                                <img src="{{ image.image.thumbnail.url }}" title="&copy; {{ image.author.first_name }} {{ image.author.last_name }} &mdash; {{ image.legend }}">
-                            </a>
+                            <div class="col-xs-2 col-sm-4">
+                                <a href="{{ image.image.url }}">
+                                    <img  class="img-responsive" src="{{ image.image.thumbnail.url }}" title="&copy; {{ image.author.first_name }} {{ image.author.last_name }} &mdash; {{ image.legend }}">
+                                </a>
+                            </div>
                         {% endfor %}
                     </div>
                 {% else %}
