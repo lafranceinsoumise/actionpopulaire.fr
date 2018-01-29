@@ -4,131 +4,118 @@
 
 {% block main %}
     <header>
-        {% if event.is_past %}
-            {% comment %}
-                The image to show at the top :
-                - should be the event report image if it set
-                - if not, it should be the event image
-            {% endcomment %}
-            {% if event.report_image %}
-                <img src="{{ event.report_image.banner.url }}" class="img-responsive center-block">
-            {% elif event.image %}
-                <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
-            {% endif %}
-        {% else %}
-            {% if event.image %}
-                <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
-            {% endif %}
+        {% if event.image %}
+            <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
         {% endif %}
         <h1>{{ event.name }}{% if event.is_past %}
             <small>(événement terminé)</small>{% endif %}</h1>
-        <div>
-            {% if user.is_authenticated %}
-                {% if not event.is_past %}
-                    {% if has_rsvp %}
-                        <a class="btn btn-primary" href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
-                    {% else %}
-                        <form style="display:inline;" action="{% url "view_event" event.pk %}" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="rsvp"/>
-                            <input type="submit" class="btn btn-primary" value="Participer à cet événement"/>
-                        </form>
-                    {% endif %}
+        {% if user.is_authenticated %}
+            {% if not event.is_past %}
+                {% if has_rsvp %}
+                    <a class="btn btn-primary pull-right" href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
+                {% else %}
+                    <form style="display:inline;" action="{% url "view_event" event.pk %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="rsvp"/>
+                        <input type="submit" class="btn btn-primary pull-right" value="Participer à cet événement"/>
+                    </form>
                 {% endif %}
-                {% if is_organizer %}
-                    {% if event.is_past %}
-                        <a class="btn btn-default" href="{% url "edit_event_report" event.pk %}">Rédiger le compte-rendu</a>
-                    {% endif %}
-                    <a class="btn btn-default" href="{% url "manage_event" event.pk %}">Gérer l'événement</a>
-                {% endif %}
-                {% if user.is_staff %}
-                    <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:events_event_change" event.pk %}">Administration</a>
-                {% endif %}
-            {% else %}
-                <a class="btn btn-primary" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour
-                    participer à l'événement</a>
             {% endif %}
-        </div>
-    </header>
-
-    {% if event.is_past %}
-        <div>
-            {% if event.report_content %}
-
-                {{ event.html_report_content }}
-            {% else %}
-                <p>
-                    <em>Les organisateurs de cet événement n'ont pas encore posté de compte-rendu.</em>
-                </p>
+            {% if is_organizer %}
+                <a class="btn btn-default pull-right" href="{% url "manage_event" event.pk %}">Gérer l'événement</a>
             {% endif %}
-        </div>
-
-        <div>
-            {% if event_images %}
-                <div style="display: flex; margin: 0 -10px; flex-wrap: wrap;">
-                    {% for image in event_images %}
-                        <a href="{{ image.image.url }}" style="display: block; margin: 10px;">
-                            <img src="{{ image.image.thumbnail.url }}" title="&copy; {{ image.author.first_name }} {{ image.author.last_name }} &mdash; {{ image.legend }}">
-                        </a>
-                    {% endfor %}
-                </div>
-            {% else %}
-                Aucun participant n'a encore ajouté de photo de cet événement !
+            {% if user.is_staff %}
+                <a class="btn btn-default pull-right" href="{{ API_DOMAIN }}{% url "admin:events_event_change" event.pk %}">Administration</a>
             {% endif %}
-            {% if has_rsvp %}
-                <div>
-                    <a class="btn btn-default" href="{% url "upload_event_image" event.pk %}">Ajouter une image</a>
-                </div>
-            {% endif %}
-        </div>
-
-        {% if event.image %}
-            {% if event.is_past or event.report_image %}
-                <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
-            {% endif %}
+        {% else %}
+            <a class="btn btn-primary pull-right" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour
+                participer à l'événement</a>
         {% endif %}
-    {% endif %}
+    </header>
+    <div class="row">
+        <div class="col-md-6">
+            {% if event.participants %}
+                <h4>
+                    Nombre de participants&nbsp;: {{ event.participants }}
+                </h4>
+            {% endif %}
+            {% if event.description %}
+                <div class="intro">
+                    {{ event.html_description }}
+                    <hr/>
+                </div>
+            {% endif %}
 
-    <hr/>
-    <iframe title="Carte" class="col-xs-6" style="float: right;"
+            {% if event.is_past %}
+                <div>
+                    {% if event.report_content %}
+                        <h3>Compte-rendu</h3>
+                        {% if event.report_image %}
+                            <img src="{{ event.report_image.banner.url }}" class="img-responsive center-block">
+                        {% endif %}
+                        {{ event.html_report_content }}
+                    {% else %}
+                        <p>
+                            <em>Les organisateurs de cet événement n'ont pas encore posté de compte-rendu.</em>
+                        </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <div class="row marginbottom">
+                <div class="col-xs-6">
+                    <h4><i class="fa fa-clock-o" aria-hidden="true"></i></h4>
+                    {{ event.start_time }}<br>{{ event.end_time }}.
+                </div>
+                <div class="col-xs-6">
+                    <h4><i class="fa fa-map-marker"></i></h4>
+                    <p>{{ event.html_full_address|default:'Pas de lieu.' }}</p>
+                </div>
+            </div>
+
+            {% spaceless %}
+                {% if organizers_groups|length > 0 %}
+                    <p>
+                        L'événement {% if event.is_past %}était organisé{% else %}est organisé{% endif %}
+                        {% if organizers_group|length > 1 %}par les groupes d'action{% else %}par le groupe d'action{% endif %}
+                        {% for supportgroup in event.organizers_groups.all.distinct %}
+                            <a href="{% url "view_group" supportgroup.pk %}"><i class="fa fa-group"></i> {{ supportgroup.name }}</a>{% if not forloop.last %}{% if forloop.revcounter0 == 1 %} et {% else %}, {% endif %}{% else %}.
+                            {% endif %}
+                        {% endfor %}
+                    </p>
+                {% endif %}
+            {% endspaceless %}
+
+            <iframe title="Carte" style="width:100%;"
             src="https://carte.lafranceinsoumise.fr/?event_id={{ event.pk }},events&hide_panel=1&hide_address=1"
             width="400" height="300" scrolling="no" frameBorder="0"></iframe>
-    {% spaceless %}
-        {% if organizers_groups|length > 0 %}
-            <p>
-                L'événement {% if event.is_past %}était organisé{% else %}est organisé{% endif %}
-                {% if organizers_group|length > 1 %}par les groupes d'action{% else %}par le groupe d'action{% endif %}
-                {% for supportgroup in event.organizers_groups.all.distinct %}
-                    <a href="{% url "view_group" supportgroup.pk %}"><i class="fa fa-group"></i> {{ supportgroup.name }}</a>{% if not forloop.last %}{% if forloop.revcounter0 == 1 %} et {% else %}, {% endif %}{% else %}.
-                    {% endif %}
-                {% endfor %}
-            </p>
-        {% endif %}
-    {% endspaceless %}
-    <h4>Adresse&nbsp;:</h4>
-    <p>{{ event.html_full_address }}</p>
-    <div>
-        <h4>Date&nbsp;:</h4>
-        <div class="date">L'événement {% if event.is_past %}s'est déroulé{% else %}se déroulera{% endif %}
-            du {{ event.start_time }} au {{ event.end_time }}.
-        </div>
-        <hr/>
-    </div>
-    <h4>
-        Contact&nbsp;:
-    </h4>
-    <p>{{ event.html_full_contact }}</p>
-    <hr/>
-    {% if event.description %}
-        <div class="intro">
-            {{ event.html_description }}
-            <hr/>
-        </div>
-    {% endif %}
-    {% if event.participants %}
-        <h4>
-            Nombre de participants&nbsp;: {{ event.participants }}
-        </h4>
-    {% endif %}
 
+            <h4>Contact</h4>
+            <p>{{ event.html_full_contact }}</p>
+
+            {% if event.is_past %}
+                <h4>Photos</h4>
+                {% if event_images %}
+                    <div style="display: flex; margin: 0 -10px; flex-wrap: wrap;">
+                        {% for image in event_images %}
+                            <a href="{{ image.image.url }}" style="display: block; margin: 10px;">
+                                <img src="{{ image.image.thumbnail.url }}" title="&copy; {{ image.author.first_name }} {{ image.author.last_name }} &mdash; {{ image.legend }}">
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    Aucun participant n'a encore ajouté de photo de cet événement !
+                {% endif %}
+                {% if has_rsvp %}
+                    <div>
+                        <a class="btn btn-default" href="{% url "upload_event_image" event.pk %}">Ajouter une image</a>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <hr>
 {% endblock %}
