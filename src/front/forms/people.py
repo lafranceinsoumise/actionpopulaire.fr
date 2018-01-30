@@ -8,7 +8,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.bootstrap import FormActions
 
 from ..form_components import *
-from ..form_mixins import TagMixin, LocationFormMixin
+from ..form_mixins import TagMixin, LocationFormMixin, MetaFieldsMixin
 
 from people.models import Person, PersonEmail, PersonTag, PersonFormSubmission
 from people.tags import skills_tags, action_tags
@@ -173,7 +173,7 @@ EmailFormSet = forms.inlineformset_factory(
 )
 
 
-class ProfileForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
+class ProfileForm(MetaFieldsMixin, ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
     tags = skills_tags
     tag_model_class = PersonTag
     meta_fields = ['occupation', 'associations', 'unions', 'party', 'party_responsibility', 'other']
@@ -187,9 +187,6 @@ class ProfileForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
 
     def __init__(self, *args,    **kwargs):
         super().__init__(*args, **kwargs)
-
-        for f in self.meta_fields:
-            self.fields[f].initial = self.instance.meta.get(f)
 
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
@@ -243,15 +240,6 @@ class ProfileForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
                 )
             )
         )
-
-    def clean(self):
-        """Handles meta fields"""
-        cleaned_data = super().clean()
-
-        meta_update = {f: cleaned_data.pop(f) for f in self.meta_fields}
-        self.instance.meta.update(meta_update)
-
-        return cleaned_data
 
     def _save_m2m(self):
         super()._save_m2m()
@@ -308,7 +296,10 @@ class VolunteerForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
         )
 
 
-class MessagePreferencesForm(forms.ModelForm):
+class MessagePreferencesForm(TagMixin, forms.ModelForm):
+    tags = [('newsletter_efi', _("Recevoir les informations liées aux cours de l'École de Formation insoumise"))]
+    tag_model_class = PersonTag
+
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data=data, *args, **kwargs)
 
@@ -316,6 +307,8 @@ class MessagePreferencesForm(forms.ModelForm):
 
         self.fields['gender'].help_text = _("La participation aux tirages au sort étant paritaire, merci d'indiquer"
                                             " votre genre si vous souhaitez être tirés au sort.")
+        self.fields['newsletter_efi'].help_text = _('Je recevrais notamment des infos et des rappels sur les cours '
+                                                    'à venir.')
 
         emails = self.instance.emails.all()
         self.several_mails = len(emails) > 1
@@ -382,6 +375,10 @@ class MessagePreferencesForm(forms.ModelForm):
             Fieldset(
                 _("Préférences d'emails"),
                 'subscribed',
+                Div(
+                    'newsletter_efi',
+                    style='margin-left: 50px;'
+                ),
                 'group_notifications',
                 'event_notifications',
             ),
@@ -421,6 +418,7 @@ class MessagePreferencesForm(forms.ModelForm):
 
     def _save_m2m(self):
         """Reorder addresses so that the selected one is number one"""
+        super()._save_m2m()
         if 'primary_email' in self.cleaned_data:
             self.instance.set_primary_email(self.cleaned_data['primary_email'])
 

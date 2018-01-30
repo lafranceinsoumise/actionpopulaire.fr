@@ -175,3 +175,22 @@ class SearchByZipCodeFormBase(forms.Form):
             }
         )
     )
+
+
+class MetaFieldsMixin(forms.Form):
+    meta_fields = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for f in self.meta_fields:
+            self.fields[f].initial = self.instance.meta.get(f)
+
+    def clean(self):
+        """Handles meta fields"""
+        cleaned_data = super().clean()
+
+        meta_update = {f: cleaned_data.pop(f) for f in self.meta_fields}
+        self.instance.meta.update(meta_update)
+
+        return cleaned_data
