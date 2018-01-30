@@ -1,5 +1,3 @@
-from django.contrib.admin import AdminSite
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, admin as auth_admin, BACKEND_SESSION_KEY
 from django import forms
 from django.contrib.redirects.admin import RedirectAdmin
@@ -7,9 +5,9 @@ from django.contrib.redirects.models import Redirect
 from django.contrib.sites.admin import SiteAdmin
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
+import django_otp
 
-
-class PersonAuthenticationForm(AuthenticationForm):
+class PersonAuthenticationForm(django_otp.admin.OTPAdminAuthenticationForm):
     username = forms.EmailField(
         label=_('Adresse email'),
         widget=forms.EmailInput(attrs={'autofocus': True}),
@@ -24,7 +22,7 @@ class PersonAuthenticationForm(AuthenticationForm):
     def __init__(self, request=None, *args, **kwargs):
         self.request = request
         self.user_cache = None
-        super(PersonAuthenticationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean(self):
         email = self.cleaned_data.get('username')
@@ -41,10 +39,13 @@ class PersonAuthenticationForm(AuthenticationForm):
             else:
                 self.confirm_login_allowed(self.user_cache)
 
+        if len(self.device_choices(self.user_cache)) > 0:
+            self.clean_otp(self.get_user())
+
         return self.cleaned_data
 
 
-class APIAdminSite(AdminSite):
+class APIAdminSite(django_otp.admin.OTPAdminSite):
     login_form = PersonAuthenticationForm
     site_header = 'France insoumise'
     site_title = 'France insoumise'
@@ -52,13 +53,24 @@ class APIAdminSite(AdminSite):
 
     def has_permission(self, request):
         return (
-            super().has_permission(request) and
+            super(django_otp.admin.OTPAdminSite, self).has_permission(request) and
             request.session[BACKEND_SESSION_KEY] == 'people.backend.PersonBackend'
+            and (request.user.is_verified() or not django_otp.user_has_device(request.user))
         )
 
-admin_site = APIAdminSite()
+admin_site = APIAdminSite(django_otp.admin.OTPAdminSite.name)
+
 
 # register auth
+class DeviceAdmin(django_otp.plugins.otp_totp.admin.TOTPDeviceAdmin):
+    list_display = ['email', 'name', 'confirmed', 'qrcode_link']
+
+    def email(self, obj):
+        return obj.user.person.email
+
+
+
 admin_site.register(auth_admin.Group, auth_admin.GroupAdmin)
 admin_site.register(Redirect, RedirectAdmin)
 admin_site.register(Site, SiteAdmin)
+admin_site.register(django_otp.plugins.otp_totp.models.TOTPDevice, DeviceAdmin)

@@ -106,6 +106,9 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 'redo_geocoding',
             )
         }),
+        (_('Role correspondant'), {
+            'fields': ('role_link', 'role__totp_device')
+        }),
         (_('Meta'), {
             'fields': ('meta',)
         })

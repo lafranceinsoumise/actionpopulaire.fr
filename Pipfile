@@ -49,6 +49,8 @@ rules = "==1.2.*"
 systemd = "==0.10.0"
 "urllib3" = "==1.22.*"
 "psycopg2" = "*"
+django-otp = "*"
+qrcode = "*"
 
 
 [dev-packages]
