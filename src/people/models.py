@@ -11,6 +11,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 
+from model_utils.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
 
 from lib.html import sanitize_html
@@ -296,7 +297,7 @@ class PersonEmail(models.Model):
         return self.address
 
 
-class PersonForm(models.Model):
+class PersonForm(TimeStampedModel):
     title = models.CharField(_('Titre'), max_length=250)
     slug = models.SlugField(_('Slug'), max_length=50)
     published = models.BooleanField(_('Publié'), default=True)
@@ -333,7 +334,7 @@ class PersonForm(models.Model):
         verbose_name = _("Formulaire")
 
 
-class PersonFormSubmission(models.Model):
+class PersonFormSubmission(TimeStampedModel):
     form = models.ForeignKey('PersonForm', on_delete=models.CASCADE, related_name='submissions', editable=False)
     person = models.ForeignKey('Person', on_delete=models.CASCADE, related_name='form_submissions', editable=False)
 
