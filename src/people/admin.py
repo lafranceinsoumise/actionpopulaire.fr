@@ -1,5 +1,6 @@
 from urllib.parse import urlencode
 
+import django_otp
 from django import forms
 from django.db.models import Count
 from django.shortcuts import reverse
@@ -76,7 +77,7 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('first_name', 'last_name', 'connection_params', 'role_link')
+            'fields': ('first_name', 'last_name', 'connection_params', 'role_link', 'role_totp_link')
         }),
         (_('Dates'), {
             'fields': ('created', 'modified', 'last_login')
@@ -106,16 +107,13 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 'redo_geocoding',
             )
         }),
-        (_('Role correspondant'), {
-            'fields': ('role_link', 'role__totp_device')
-        }),
         (_('Meta'), {
             'fields': ('meta',)
         })
     )
 
     readonly_fields = (
-        'connection_params', 'created', 'modified', 'last_login', 'role_link', 'supportgroups', 'events',
+        'connection_params', 'created', 'modified', 'last_login', 'role_link', 'role_totp_link', 'supportgroups', 'events',
         'coordinates_type'
     )
 
@@ -151,6 +149,14 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         )
     role_link.allow_tags = True
     role_link.short_description = _('Lien vers le rôle')
+
+    def role_totp_link(self, obj):
+        return '<br>'.join(['<a href="%s">%s</a>' % (
+            reverse('admin:otp_totp_totpdevice_change', args=[device.id]),
+            device.name
+        ) for device in django_otp.devices_for_user(obj.role, confirmed=False)])
+    role_totp_link.allow_tags = True
+    role_totp_link.short_description = _('Lien vers les téléphones Authenticator enregistrés')
 
     def connection_params(self, obj):
         if obj.pk:
