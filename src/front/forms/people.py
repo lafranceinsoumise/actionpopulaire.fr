@@ -544,16 +544,15 @@ class BasePersonForm(forms.ModelForm):
         elif hasattr(self, 'tag'):
             self.instance.tags.add(self.tag)
 
-        if self.person_form_instance.additional_fields:
-            PersonFormSubmission.objects.create(
-                person=self.person,
-                form=self.person_form_instance,
-                data={
-                    field['id']: self.cleaned_data[field['id']]
-                    for fieldset in self.person_form_instance.additional_fields
-                    for field in fieldset['fields']
-                }
-            )
+        PersonFormSubmission.objects.create(
+            person=self.person,
+            form=self.person_form_instance,
+            data={
+                field['id']: self.cleaned_data[field['id']]
+                for fieldset in self.person_form_instance.additional_fields
+                for field in fieldset['fields']
+            }
+        )
 
     class Meta:
         model = Person

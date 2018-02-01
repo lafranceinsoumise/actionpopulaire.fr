@@ -977,9 +977,6 @@ class PersonFormTestCase(TestCase):
         self.assertEqual(self.person.contact_phone, '+33604030204')
         self.assertIn(self.tag1, self.person.tags.all())
 
-        # check no submission has been created
-        self.assertFalse(PersonFormSubmission.objects.all())
-
     def test_can_validate_complex_form(self):
         res = self.client.get('/formulaires/formulaire-complexe/')
 
