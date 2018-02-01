@@ -2,6 +2,27 @@
 
 {% block title %}«&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
+{% block additional_headers %}
+    <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "Event",
+      "location": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "{{ event.location_city }}",
+          "postalCode": "{{ event.location_zip }}",
+          "streetAddress": "{{ event.location_address1 }} {{ event.location_address2 }}",
+          "addressCountry": "{{ event.country }}"
+        },
+        "name": "{{ event.location_name }}"
+      },
+      "name": "{{ event.name }}"
+    }
+    </script>
+{% endblock %}
+
 {% block main %}
     <header>
         {% if event.image %}
