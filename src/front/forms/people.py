@@ -307,7 +307,7 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
 
         self.fields['gender'].help_text = _("La participation aux tirages au sort étant paritaire, merci d'indiquer"
                                             " votre genre si vous souhaitez être tirés au sort.")
-        self.fields['newsletter_efi'].help_text = _('Je recevrais notamment des infos et des rappels sur les cours '
+        self.fields['newsletter_efi'].help_text = _('Je recevrai notamment des infos et des rappels sur les cours '
                                                     'à venir.')
 
         emails = self.instance.emails.all()
