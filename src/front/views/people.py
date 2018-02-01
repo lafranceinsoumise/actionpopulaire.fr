@@ -1,6 +1,6 @@
 from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView
 from django.views.generic.edit import FormView
-from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib import messages
 
@@ -196,7 +196,10 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
         return self.request.user.person
 
     def get_person_form_instance(self):
-        return self.get_queryset().get(slug=self.kwargs['slug'])
+        try:
+            return self.get_queryset().get(slug=self.kwargs['slug'])
+        except PersonForm.DoesNotExist:
+            raise Http404("Formulaire does not exist")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
