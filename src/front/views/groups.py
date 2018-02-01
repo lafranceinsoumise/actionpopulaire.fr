@@ -121,7 +121,7 @@ class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, D
             kwargs['group_promo_code'] = get_next_promo_code(self.object)
 
         kwargs['certifiable'] = self.object.type == SupportGroup.TYPE_LOCAL_GROUP
-        kwargs['satisfy_requirements'] = len(kwargs['referents']) == 2
+        kwargs['satisfy_requirements'] = len(kwargs['referents']) > 1
 
         return super().get_context_data(
             is_referent=self.user_membership is not None and self.user_membership.is_referent,
