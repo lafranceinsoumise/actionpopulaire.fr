@@ -18,7 +18,9 @@
         },
         "name": "{{ event.location_name }}"
       },
-      "name": "{{ event.name }}"
+      "name": "{{ event.name }}",
+      "startDate": "{{ event.start_time.isoformat }}",
+      "endDate": "{{ event.end_time.isoformat }}"
     }
     </script>
 {% endblock %}
