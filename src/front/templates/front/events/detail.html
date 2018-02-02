@@ -21,6 +21,7 @@
       "name": "{{ event.name }}",
       "startDate": "{{ event.start_time.isoformat }}",
       "endDate": "{{ event.end_time.isoformat }}"
+      {% if event.image %},"image": "{{ event.image.banner.url }}"{% endif %}
     }
     </script>
 {% endblock %}
