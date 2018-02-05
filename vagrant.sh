@@ -95,7 +95,7 @@ sudo systemctl start webpack
 echo "Install oauth..."
 cd /opt
 sudo apt-get -yqq install git
-sudo git clone -a https://github.com/lafranceinsoumise/oauth.git || (cd oauth; sudo git pull)
+sudo git clone https://github.com/lafranceinsoumise/oauth.git || (cd oauth; sudo git pull)
 cd /opt/oauth
 sudo npm install
 sudo bash -c "cat > /etc/systemd/system/oauth.service" <<EOT
