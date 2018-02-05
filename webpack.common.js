@@ -13,7 +13,7 @@ module.exports = {
   context: path.resolve(__dirname, 'src/javascript_components'),
   entry: {
     richEditor: './richEditor.js',
-    helpDialog: './helpDialog.js',
+    allPages: './allPages',
     locationSearchField: './locationSearchField.js',
     createGroupForm: './createGroupForm',
     dashboard: './dashboard',

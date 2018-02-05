@@ -52,6 +52,7 @@
     </script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js">
     </script>
+    {% render_bundle 'allPages' attrs='defer' %}
     {% block extra_scripts %}{% endblock %}
 
 </head>
@@ -154,8 +155,6 @@
         {% endblock %}
     </main>
 </div>
-{% render_bundle 'helpDialog' %}
-<script>helpDialog();</script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-96787636-5"></script>
 <script>

@@ -1,8 +1,13 @@
-import {introJs} from 'intro.js';
+import {introJs} from '../../../node_modules/intro.js/intro';
 import 'intro.js/introjs.css';
+import Turbolinks from 'turbolinks';
 
+import './style.css';
 
-module.exports = function () {
+Turbolinks.start();
+
+const onLoad  = function () {
+
   const steps = [];
   const elems = document.getElementsByClassName('help-dialog');
 
@@ -38,3 +43,6 @@ module.exports = function () {
   }
 
 };
+
+window.onload = onLoad();
+document.addEventListener("turbolinks:load", onLoad);

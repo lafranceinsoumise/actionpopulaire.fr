@@ -3,6 +3,10 @@
 
 {% block title %}Mon tableau de bord{% endblock title %}
 
+{% block extra_scripts %}
+{% render_bundle 'dashboard' attrs='defer' %}
+{% endblock %}
+
 {% block main %}
     <div class="row masonry">
         <div class="col-md-6">
@@ -178,10 +182,4 @@
             </div>
         </div>
     </div>
-    <script>
-      $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
-      })
-    </script>
-    {% render_bundle 'dashboard' %}
 {% endblock %}

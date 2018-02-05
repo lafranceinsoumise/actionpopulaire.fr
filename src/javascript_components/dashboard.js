@@ -5,3 +5,5 @@ var msnry = new Masonry( elem, {
   itemSelector: '.col-md-6',
   percentPosition: true,
 });
+
+$('[data-toggle="tooltip"]').tooltip();
