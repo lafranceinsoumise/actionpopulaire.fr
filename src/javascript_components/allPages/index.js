@@ -5,6 +5,7 @@ import Turbolinks from 'turbolinks';
 import './style.css';
 
 Turbolinks.start();
+Turbolinks.setProgressBarDelay(100);
 
 const onLoad  = function () {
 

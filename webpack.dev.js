@@ -10,6 +10,9 @@ module.exports = merge(common, {
     publicPath: 'http://localhost:3000/assets/components/',
     filename: '[name]-[hash].js',
   },
+  watchOptions: {
+    poll: 1000
+  },
   devServer: {
     contentBase: path.join(__dirname, '/assets/components/'),
     compress: true,
