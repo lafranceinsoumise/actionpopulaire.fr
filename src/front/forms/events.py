@@ -71,7 +71,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             calendar_field = [Row(FullCol('calendar'))]
 
         self.fields['as_group'] = forms.ModelChoiceField(
-            queryset=SupportGroup.objects.filter(memberships__person=person, memberships__is_manager=True),
+            queryset=SupportGroup.objects.filter(memberships__person=person, memberships__is_manager=True, published=True),
             empty_label="Ne pas créer au nom d'un groupe",
             label=_("Créer l'événement au nom d'un groupe d'action"),
             required=False,
