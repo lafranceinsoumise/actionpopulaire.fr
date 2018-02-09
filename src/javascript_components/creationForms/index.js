@@ -2,6 +2,7 @@ import 'react-hot-loader/patch';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
+import 'babel-polyfill';
 
 import './style.css';
 
@@ -28,5 +29,15 @@ if (module.hot) {
   });
 }
 
-export const createGroupForm = () => render(CreateGroupForm, 'create-group-react-app');
-export const createEventForm = () => render(CreateEventForm, 'create-event-react-app');
+const onLoad = function () {
+  if (document.getElementById('create-group-react-app')) {
+    render(CreateGroupForm, 'create-group-react-app');
+  }
+
+  if (document.getElementById('create-event-react-app')) {
+    render(CreateEventForm, 'create-event-react-app');
+  }
+};
+
+onLoad();
+document.addEventListener("turbolinks:load", onLoad);

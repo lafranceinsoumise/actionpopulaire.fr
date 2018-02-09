@@ -45,5 +45,5 @@ const onLoad  = function () {
 
 };
 
-window.onload = onLoad();
+onLoad();
 document.addEventListener("turbolinks:load", onLoad);

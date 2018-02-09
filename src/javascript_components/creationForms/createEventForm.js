@@ -1,5 +1,4 @@
 import axios from '../lib/axios';
-import 'babel-polyfill';
 import React from 'react';
 import StepZilla from 'react-stepzilla';
 import 'react-stepzilla/src/css/main.css';
