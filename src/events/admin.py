@@ -138,7 +138,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('id', 'name', 'link', 'created', 'modified')
         }),
         (_('Informations'), {
-            'fields': ('description', 'allow_html', 'image', 'start_time', 'end_time', 'calendar', 'tags', 'published'),
+            'fields': ('subtype', 'description', 'allow_html', 'image', 'start_time', 'end_time', 'calendar', 'tags', 'published'),
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
@@ -222,3 +222,9 @@ class CalendarAdmin(admin.ModelAdmin):
 @admin.register(models.EventTag, site=admin_site)
 class EventTagAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(models.EventSubtype, site=admin_site)
+class EventSubtypeAdmin(admin.ModelAdmin):
+    list_display = ('label', 'description', 'type')
+    list_filter = ('type',)
