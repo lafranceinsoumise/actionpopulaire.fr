@@ -88,7 +88,12 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
         help_text=_('L\'évenement doit-il être visible publiquement.')
     )
 
-    subtype = models.ForeignKey('EventSubtype', related_name='events', on_delete=models.PROTECT)
+    subtype = models.ForeignKey(
+        'EventSubtype',
+        related_name='events',
+        on_delete=models.PROTECT,
+        default=lambda: EventSubtype.objects.filter(type=EventSubtype.TYPE_PUBLIC_ACTION).first()
+    )
 
     nb_path = models.CharField(_('NationBuilder path'), max_length=255, blank=True)
 
@@ -102,7 +107,8 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
     attendees = models.ManyToManyField('people.Person', related_name='events', through='RSVP')
 
     organizers = models.ManyToManyField('people.Person', related_name='organized_events', through="OrganizerConfig")
-    organizers_groups = models.ManyToManyField('groups.SupportGroup', related_name='organized_events', through="OrganizerConfig")
+    organizers_groups = models.ManyToManyField('groups.SupportGroup', related_name='organized_events',
+                                               through="OrganizerConfig")
 
     report_image = StdImageField(
         verbose_name=_('image de couverture'),
@@ -278,7 +284,8 @@ class RSVP(TimeStampedModel):
 
 
 class OrganizerConfig(models.Model):
-    person = models.ForeignKey('people.Person', related_name='organizer_configs', on_delete=models.CASCADE, editable=False)
+    person = models.ForeignKey('people.Person', related_name='organizer_configs', on_delete=models.CASCADE,
+                               editable=False)
     event = models.ForeignKey('Event', related_name='organizer_configs', on_delete=models.CASCADE, editable=False)
 
     is_creator = models.BooleanField(_("Créateur de l'événement"), default=False)
@@ -297,7 +304,8 @@ class OrganizerConfig(models.Model):
 
 class EventImage(TimeStampedModel):
     event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='images', null=False)
-    author = models.ForeignKey('people.Person', related_name='event_images', on_delete=models.PROTECT, null=False, editable=False)
+    author = models.ForeignKey('people.Person', related_name='event_images', on_delete=models.PROTECT, null=False,
+                               editable=False)
     image = StdImageField(
         _('Fichier'),
         variations={

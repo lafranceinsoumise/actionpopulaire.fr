@@ -175,7 +175,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
     def save(self, commit=True):
         # TODO: delete when removing calendars
         self.instance.calendar = Calendar.objects.get(slug='evenements_locaux')
-        self.instance.subtype = EventSubtype.objects.get(label='autre type de réunion de groupe')
 
         res = super().save(commit)
 
