@@ -13,7 +13,7 @@ def create_and_assign_default_subtypes(apps, schema):
 
     subtypes = [
         {
-            'label': "c",
+            'label': "autre type de réunion de groupe",
             'description': "Sous-type d'événement par défaut pour les réunions de groupe",
             'hide_text_label': True,
             'color': "#00B400",
