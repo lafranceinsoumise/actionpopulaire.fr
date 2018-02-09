@@ -7,7 +7,7 @@ from groups.models import SupportGroup
 from ..form_components import *
 from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
 
-from events.models import Event, OrganizerConfig, Calendar, RSVP, EventImage
+from events.models import Event, OrganizerConfig, Calendar, RSVP, EventImage, EventSubtype
 from events.tasks import send_event_creation_notification, send_event_changed_notification
 from lib.tasks import geocode_event
 from lib.form_fields import AcceptCreativeCommonsLicenceField
@@ -45,8 +45,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
 
         self.person = person
 
-        calendar_field = []
-
         self.fields['image'].help_text = _("""
         Vous pouvez ajouter une image de bannière à votre événement : elle apparaîtra alors sur la page de votre
         événement, et comme illustration si vous le partagez sur les réseaux sociaux. Pour cela, choisissez une image
@@ -58,17 +56,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         Incluez toutes les informations pratiques qui pourraient être utiles aux insoumis⋅es qui souhaiteraient
         participer (matériel à amener, précisions sur le lieu ou contraintes particulières, par exemple).
         """)
-
-        if not hasattr(self.instance, 'calendar') or self.instance.calendar.user_contributed:
-            self.fields['calendar'] = AgendaChoiceField(
-                Calendar.objects.filter(user_contributed=True),
-                empty_label=None,
-                label=_("Type d'événement"),
-                required=True,
-                widget=forms.RadioSelect()
-            )
-
-            calendar_field = [Row(FullCol('calendar'))]
 
         self.fields['as_group'] = forms.ModelChoiceField(
             queryset=SupportGroup.objects.filter(memberships__person=person, memberships__is_manager=True, published=True),
@@ -112,7 +99,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             Row(
                 FullCol('image_accept_license')
             ),
-            *calendar_field,
             Row(
                 HalfCol('start_time'),
                 HalfCol('end_time'),
@@ -187,6 +173,10 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
+        # TODO: delete when removing calendars
+        self.instance.calendar = Calendar.objects.get(slug='evenements_locaux')
+        self.instance.subtype = EventSubtype.objects.get(label='autre type de réunion de groupe')
+
         res = super().save(commit)
 
         if commit:
@@ -230,7 +220,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
     class Meta:
         model = Event
         fields = (
-            'name', 'image', 'start_time', 'end_time', 'calendar',
+            'name', 'image', 'start_time', 'end_time',
             'contact_name', 'contact_email', 'contact_phone', 'contact_hide_phone',
             'location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
             'location_country',
