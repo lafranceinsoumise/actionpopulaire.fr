@@ -69,6 +69,10 @@ class CustomDateTimeField(models.DateTimeField):
         return super().formfield(**defaults)
 
 
+def get_default_subtype():
+    return EventSubtype.objects.filter(type=EventSubtype.TYPE_PUBLIC_ACTION).order_by('created').first().id
+
+
 class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, DescriptionMixin, ContactMixin):
     """
     Model that represents an event
@@ -92,7 +96,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
         'EventSubtype',
         related_name='events',
         on_delete=models.PROTECT,
-        default=lambda: EventSubtype.objects.filter(type=EventSubtype.TYPE_PUBLIC_ACTION).first()
+        default=get_default_subtype,
     )
 
     nb_path = models.CharField(_('NationBuilder path'), max_length=255, blank=True)

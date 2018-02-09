@@ -269,7 +269,7 @@ class UploadToRelatedObjectDirectoryWithUUID(UploadTo):
         )
 
 
-class AbstractMapObjectLabel(AbstractLabel):
+class AbstractMapObjectLabel(TimeStampedModel, AbstractLabel):
     """
     Abstract class for event and group labels which should have special appearance on map
     """
