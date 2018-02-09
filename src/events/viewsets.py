@@ -172,3 +172,9 @@ class NestedRSVPViewSet(CreationSerializerMixin, NestedViewSetMixin, ModelViewSe
         serializer.save()
 
         return Response(serializer.data)
+
+
+class EventSubtypeViewSet(ModelViewSet):
+    permission_classes = (PermissionsOrReadOnly,)
+    serializer_class = serializers.EventSubtypeSerializer
+    queryset = models.EventSubtype.objects.exclude(privileged_only=True)

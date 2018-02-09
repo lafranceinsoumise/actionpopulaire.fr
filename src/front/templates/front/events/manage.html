@@ -42,7 +42,7 @@
                 {% if not event.is_past %}
                     <li>
                         <div class="help-dialog">Vous pouvez les modifier en cliquant sur ce bouton.</div>
-                        <a class="btn btn-default" href="{% url "edit_event" event.pk %}">Modifier ces informations</a>
+                        <a class="btn btn-default" href="{% url "edit_event" event.pk %}" data-turbolinks="false">Modifier ces informations</a>
                     </li>
                     <li>
                         <div class="help-dialog">Vous pouvez aussi changer l'endroit où votre événement apparaît sur la

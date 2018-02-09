@@ -1,16 +1,12 @@
 {% extends "front/layout.html" %}
-{% load static %}
 {% load crispy_forms_tags %}
+{% load render_bundle from webpack_loader %}
 
 {% block title %}Créer un événement{% endblock %}
 
 {% block main %}
     <h3 class="text-center">Créer un événement</h3>
-    <div class="row">
-        <div class="col-sm-12 form-group">
-            {% crispy form %}
-        </div>
-    </div>
-
-    {% include "front/events/time_picker_script.html" %}
+    <div id="create-event-react-app" data-turbolinks="false"></div>
+    {% render_bundle 'creationForms' %}
+    <script>creationForms.createEventForm();</script>
 {% endblock %}

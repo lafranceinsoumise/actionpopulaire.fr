@@ -13,6 +13,7 @@ legacy_api.register('people_tags', people_viewsets.PersonTagViewSet)
 
 # events route
 events_route = legacy_api.register('events', events_viewsets.LegacyEventViewSet, base_name='event')
+legacy_api.register('events_subtypes', events_viewsets.EventSubtypeViewSet)
 legacy_api.register('calendars', events_viewsets.CalendarViewSet)
 legacy_api.register('event_tags', events_viewsets.EventTagViewSet)
 legacy_api.register('rsvps', events_viewsets.RSVPViewSet)

@@ -31,8 +31,12 @@
         {% if event.image %}
             <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
         {% endif %}
-        <h1>{{ event.name }}{% if event.is_past %}
-            <small>(événement terminé)</small>{% endif %}</h1>
+        <h1>{{ event.name }}
+            <small>{{ event.subtype.get_type_display }}</small>
+            {% if not event.subtype.hide_text_label %}
+                <span class="badge">{{ event.subtype.description }}</span>
+            {% endif %}
+            {% if event.is_past %}<small>(événement terminé)</small>{% endif %}</h1>
         {% if user.is_authenticated %}
             {% if not event.is_past %}
                 {% if has_rsvp %}
@@ -63,12 +67,14 @@
                     Nombre de participants&nbsp;: {{ event.participants }}
                 </h4>
             {% endif %}
-            {% if event.description %}
-                <div class="intro">
+            <div class="intro">
+                {% if event.description %}
                     {{ event.html_description }}
-                    <hr/>
-                </div>
-            {% endif %}
+                {% else %}
+                <i>Cet événement n'a pas encore de description.</i>
+                {% endif %}
+                <hr/>
+            </div>
 
             {% if event.is_past %}
                 <div>

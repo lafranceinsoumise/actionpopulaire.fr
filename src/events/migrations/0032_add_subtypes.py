@@ -18,6 +18,7 @@ def create_and_assign_default_subtypes(apps, schema):
             'hide_text_label': True,
             'color': "#00B400",
             'type': 'G',
+            'privileged_only': False
         },
         {
             'label': "autre type de réunion publique",
@@ -25,6 +26,7 @@ def create_and_assign_default_subtypes(apps, schema):
             'hide_text_label': True,
             'color': "#0098B6",
             'type': 'M',
+            'privileged_only': False
         },
         {
             'label': "autre type d'action publique",
@@ -32,6 +34,7 @@ def create_and_assign_default_subtypes(apps, schema):
             'hide_text_label': True,
             'color': "#C9462C",
             'type': 'A',
+            'privileged_only': False
         }
     ]
 

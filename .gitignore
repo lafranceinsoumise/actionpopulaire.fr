@@ -18,3 +18,4 @@ db.sqlite3
 
 /src/assets/
 .vagrant
+*cloudimg-console.log

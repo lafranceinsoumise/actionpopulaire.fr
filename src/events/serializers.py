@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 from front.utils import front_url
 from lib.serializers import (
     LegacyBaseAPISerializer, LegacyLocationAndContactMixin,
-    RelatedLabelField, UpdatableListSerializer
+    RelatedLabelField, UpdatableListSerializer, ExistingRelatedLabelField
 )
 
 from people.models import Person, Role
@@ -25,6 +25,8 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
         write_only=True,
         required=False,
     )
+
+    subtypes = ExistingRelatedLabelField(queryset=models.EventSubtype.objects.all(), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -64,7 +66,7 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
         model = models.Event
         fields = (
             'url', '_id', 'id', 'name', 'description', 'path', 'start_time', 'end_time', 'calendar', 'contact',
-            'location', 'tags', 'coordinates', 'participants', 'organizers', 'is_organizer', 'published'
+            'location', 'tags', 'coordinates', 'participants', 'organizers', 'is_organizer', 'published', 'subtype'
         )
         extra_kwargs = {
             'url': {'view_name': 'legacy:event-detail'},
@@ -175,3 +177,9 @@ class EventRSVPCreatableSerializer(serializers.HyperlinkedModelSerializer):
         attrs['event_id'] = self.context['event']
 
         return attrs
+
+
+class EventSubtypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.EventSubtype
+        fields = ('label', 'description', 'color', 'icon', 'type')

@@ -46,12 +46,12 @@ class NavSelect extends React.Component {
             <li key={choice.value} className={this.state.choices.includes(choice.value) ? 'active': ''}>
               <a href="#" onClick={(e) => (this.setChoice(choice.value))}>
                 <i className={'fa ' + (this.state.choices.includes(choice.value) ? 'fa-check-circle': 'fa-circle-o')} />&nbsp;{ choice.label }
-                </a>
+              </a>
             </li>
           ))}
         </ul>
       </div>
-    )
+    );
   }
 
 
