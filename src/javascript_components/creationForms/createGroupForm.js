@@ -1,19 +1,17 @@
 import axios from '../lib/axios';
 import 'babel-polyfill';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import Cleave from 'cleave.js/react';
-import CleavePhone from 'cleave.js/dist/addons/cleave-phone.fr';
-import {PhoneNumberUtil, PhoneNumberFormat} from 'google-libphonenumber';
-import StepZilla from 'react-stepzilla';
+import {PhoneNumberUtil} from 'google-libphonenumber';
 import 'react-stepzilla/src/css/main.css';
 import qs from 'querystring';
 
 import NavSelect from '../lib/navSelect';
-import './createGroupForm.css';
+import './style.css';
 
-const countries = require('localized-countries')(require('localized-countries/data/fr'));
-const phoneUtil = PhoneNumberUtil.getInstance();
+import MultiStepForm from './MultiStepForm';
+import FormStep from './steps/FormStep';
+import ContactStep from './steps/ContactStep';
+import LocationStep from './steps/LocationStep';
 
 const apiEndpoint = API_ENDPOINT; // defined by webpack
 
@@ -34,7 +32,6 @@ class CreateGroupForm extends React.Component {
   async componentDidMount() {
     let subtypes = (await axios.get(apiEndpoint + '/groups_subtypes/')).data;
     this.setState({subtypes});
-
   }
 
   setFields(fields) {
@@ -47,26 +44,13 @@ class CreateGroupForm extends React.Component {
     }
 
     let steps = [
-      {name: 'Un groupe pour quoi ?', component: <GroupTypeStep setFields={this.setFields} subtypes={this.state.subtypes} />},
-      {name: 'Informations de contact', component: <ContactStep setFields={this.setFields} />},
-      {name: 'Localisation', component: <LocationStep setFields={this.setFields} />},
-      {name: 'Validation et nom', component: <ValidateStep fields={this.state.fields} />},
+      {name: 'Un groupe pour quoi ?', component: <GroupTypeStep setFields={this.setFields} subtypes={this.state.subtypes} step={0} />},
+      {name: 'Informations de contact', component: <ContactStep setFields={this.setFields} step={1} />},
+      {name: 'Localisation', component: <LocationStep setFields={this.setFields} step={2} />},
+      {name: 'Validation et nom', component: <ValidateStep fields={this.state.fields} step={3} />},
     ];
 
-    return (
-      <div className="step-progress">
-        <StepZilla steps={steps} stepsNavigation={false} showNavigation={false} preventEnterSubmission={true} />
-      </div>
-    )
-  }
-}
-
-class FormStep extends React.Component {
-  constructor(props) {
-    super(props);
-    this.setFields = props.setFields;
-    this.jumpToStep = props.jumpToStep;
-    this.state = {errors: {}};
+    return <MultiStepForm steps={steps} />;
   }
 }
 
@@ -85,7 +69,7 @@ class GroupTypeStep extends FormStep {
       .map(subtype => ({value: subtype.label, label: subtype.description}));
     if (this.subtypes.length < 2) {
       this.setFields({type, subtypes: this.subtypes.map(s => s.value)});
-      this.jumpToStep(1);
+      this.jumpToStep(this.props.step + 1);
 
       return;
     }
@@ -173,153 +157,6 @@ class GroupTypeStep extends FormStep {
   }
 }
 
-class ContactStep extends FormStep {
-  constructor(props) {
-    super(props);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleSubmit(event) {
-    event.preventDefault();
-
-    let phone = this.phone.value;
-    let phoneValid = false;
-    try {
-      let phoneNumber = phoneUtil.parse(phone, 'FR');
-      phoneValid = phoneUtil.isValidNumber(phoneNumber);
-      phone = phoneUtil.format(phoneNumber, PhoneNumberFormat.E164)
-    } catch (e) {
-      phoneValid = false;
-    }
-
-    if (!phoneValid) {
-      return this.setState({errors: {phone: 'Vous devez entrer un numéro de téléphone valide.'}});
-    }
-
-    this.setFields({phone, email: this.email.value, hidePhone: this.hidePhone.value});
-    this.jumpToStep(2);
-  }
-
-  render() {
-    return (
-      <div className="row padtopmore">
-        <div className="col-md-6">
-          <h4>Informations de contact</h4>
-          <p>
-            Ces informations sont les informations de contact du groupe. Vous devez indiquer une adresse email et un
-            numéro de téléphone. Ce ne sont pas forcément vos informations de contact personnelles&nbsp;: en particulier,
-            l'adresse email peut appartenir au groupe et être relevée par plusieurs personnes.
-          </p>
-          <p>
-            Vous pouvez ne pas rendre le numéro de téléphone public (surtout si c'est votre numéro personnel).
-            Néanmoins, il est obligatoire de le fournir pour que la coordination des groupes d'action puisse vous
-            contacter.
-          </p>
-          <a className="btn btn-default" onClick={() => this.jumpToStep(0)}>&larr;&nbsp;Précédent</a>
-        </div>
-        <div className="col-md-6">
-          <form onSubmit={this.handleSubmit}>
-            <div className="form-group">
-              <label>Adresse email du groupe</label>
-              <input className="form-control" ref={i => this.email = i} type="email" />
-            </div>
-            <label>Numéro de téléphone du contact</label>
-            <div className="row">
-              <div className="col-md-6">
-                <div className={'form-group' + (this.state.errors.phone ? ' has-error' : '')}>
-                  <Cleave options={{phone: true, phoneRegionCode: 'FR'}} htmlRef={(i => this.phone = i)} className="form-control"  />
-                  {this.state.errors.phone ? (<span className="help-block">{this.state.errors.phone}</span>) : ''}
-                </div>
-              </div>
-              <div className="col-md-6">
-                <div className="checkbox">
-                  <label>
-                    <input ref={i => this.hidePhone = i} type="checkbox"/> Ne pas rendre public
-                  </label>
-                </div>
-              </div>
-            </div>
-            <button className="btn btn-primary" type="submit">Suivant&nbsp;&rarr;</button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-}
-
-class LocationStep extends FormStep {
-  constructor(props) {
-    super(props);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleSubmit(event) {
-    event.preventDefault();
-
-    this.setFields({
-      locationName: this.locationName.value,
-      locationAddress1: this.locationAddress1.value,
-      locationAddress2: this.locationAddress2.value,
-      locationZip: this.locationZip.value,
-      locationCity: this.locationCity.value,
-      locationCountryCode: this.locationCountryCode.value,
-    });
-    this.jumpToStep(3);
-  }
-
-  render() {
-    return (
-      <div className="row padtopmore">
-        <div className="col-md-6">
-          <h4>Localisation</h4>
-          <p>
-            Merci d'indiquer une adresse précise avec numéro de rue, sans quoi le groupe n'apparaîtra pas sur la carte.
-          </p>
-          <p>
-            Si les réunions se déroulent chez vous et que vous ne souhaitez pas rendre cette adresse publique, vous pouvez
-            indiquer un endroit à proximité, comme un café, ou votre mairie.
-          </p>
-          <a className="btn btn-default" onClick={() => this.jumpToStep(1)}>&larr;&nbsp;Précédent</a>
-        </div>
-        <div className="col-md-6">
-          <form onSubmit={this.handleSubmit}>
-            <div className="form-group">
-            <label>Nom du lieu</label>
-              <input ref={i => this.locationName = i} placeholder="Exemple: café de la gare, rue des postes..." className="form-control" type="text" required />
-            </div>
-            <div className="form-group">
-              <label className="control-label">Adresse</label>
-              <input ref={i => this.locationAddress1 = i} placeholder="1ère ligne" className="form-control" type="text" required />
-              <input ref={i => this.locationAddress2 = i} placeholder="2ème ligne" className="form-control" type="text" />
-            </div>
-            <div className="row">
-              <div className="col-md-4">
-                <div className="form-group">
-                  <label className="control-label">Code postal</label>
-                  <input ref={i => this.locationZip = i} className="form-control" type="text" required />
-                </div>
-              </div>
-              <div className="col-md-8">
-                <div className="form-group">
-                  <label className="control-label">Ville</label>
-                  <input ref={i => this.locationCity = i} className="form-control" type="text" required />
-                </div>
-              </div>
-            </div>
-            <div className="form-group">
-              <label className="control-label">Pays</label>
-              <select ref={i => this.locationCountryCode = i} className="form-control" required defaultValue='FR'>
-                {countries.array().map(country => (<option value={country.code} key={country.code}>{country.label}</option>))}
-              </select>
-            </div>
-            <button className="btn btn-primary" type="submit">Suivant&nbsp;&rarr;</button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-}
-
 class ValidateStep extends FormStep {
   constructor(props) {
     super(props);
@@ -332,7 +169,6 @@ class ValidateStep extends FormStep {
 
     let data = qs.stringify({
       name: this.groupName.value,
-      contact_email: this.state.fields.email,
       contact_email: this.state.fields.email,
       contact_phone: this.state.fields.phone,
       contact_hide_phone: this.state.fields.hidePhone,

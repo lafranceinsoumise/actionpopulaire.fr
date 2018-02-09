@@ -14,7 +14,6 @@ from django.contrib.postgres.indexes import GinIndex
 from model_utils.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
 
-from lib.html import sanitize_html
 from lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource, DescriptionField
 from authentication.models import Role
 

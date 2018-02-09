@@ -222,3 +222,9 @@ class CalendarAdmin(admin.ModelAdmin):
 @admin.register(models.EventTag, site=admin_site)
 class EventTagAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(models.EventSubtype, site=admin_site)
+class EventSubtypeAdmin(admin.ModelAdmin):
+    list_display = ('label', 'description', 'type')
+    list_filter = ('type',)

@@ -2,10 +2,11 @@ from django.utils.translation import ugettext as _
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView
+from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView
+from django.views.generic.edit import ProcessFormView, FormMixin
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.conf import settings
 from django.utils import timezone
@@ -20,13 +21,13 @@ from ..forms import (
 )
 from ..view_mixins import (
     HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
-    ChangeLocationBaseView, SearchByZipcodeBaseView
+    ChangeLocationBaseView, SearchByZipcodeBaseView,
 )
 
 __all__ = [
     'CreateEventView', 'ManageEventView', 'ModifyEventView', 'QuitEventView', 'CancelEventView',
     'EventDetailView', 'CalendarView', 'ChangeEventLocationView', 'EditEventReportView', 'UploadEventImageView',
-    'EventListView',
+    'EventListView', 'PerformCreateEventView'
 ]
 
 
@@ -117,51 +118,40 @@ class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
         return self.render_to_response(self.get_context_data(add_organizer_form=form))
 
 
-class CreateEventView(HardLoginRequiredMixin, CreateView):
-    template_name = "front/events/create.html"
+class CreateEventView(HardLoginRequiredMixin, TemplateView):
+    template_name = "front/groups/create.html"
+
+
+class PerformCreateEventView(HardLoginRequiredMixin, FormMixin, ProcessFormView):
     model = Event
     form_class = EventForm
 
-    def get_success_url(self):
-        return reverse('manage_event', kwargs={'pk': self.object.pk})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = _('Publiez votre événement')
-        return context
-
     def get_form_kwargs(self):
+        """Add user person profile to the form kwargs"""
+
         kwargs = super().get_form_kwargs()
 
         person = self.request.user.person
-        kwargs['initial'] = {
-            'contact_name': person.get_full_name(),
-            'contact_email': person.email,
-            'contact_phone': person.contact_phone,
-        }
-        if self.request.method == 'GET' and self.request.GET.get('as_group'):
-            try:
-                kwargs['initial']['as_group'] = SupportGroup.objects.get(pk=self.request.GET.get('as_group'))
-            except SupportGroup.DoesNotExist:
-                pass
-            except ValidationError:
-                pass
         kwargs['person'] = person
-
         return kwargs
 
-    def form_valid(self, form):
-        # first get response to make sure there's no error when saving the model before adding message
-        res = super().form_valid(form)
+    def form_invalid(self, form):
+        return JsonResponse({'errors': form.errors}, status=400)
 
-        # show message
+    def form_valid(self, form):
         messages.add_message(
             request=self.request,
             level=messages.SUCCESS,
             message="Votre événement a été correctement créé.",
         )
 
-        return res
+        form.save()
+
+        return JsonResponse({
+            'status': 'OK',
+            'id': form.instance.id,
+            'url': reverse('view_event', args=[form.instance.id])
+        })
 
 
 class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):

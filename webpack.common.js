@@ -15,7 +15,7 @@ module.exports = {
     richEditor: './richEditor.js',
     helpDialog: './helpDialog.js',
     locationSearchField: './locationSearchField.js',
-    createGroupForm: './createGroupForm',
+    creationForms: './creationForms',
     dashboard: './dashboard',
     map: './map/index.js',
     theme: '@fi/theme/dist/styles/' + cssName,

@@ -40,6 +40,11 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
 
     image_accept_license = AcceptCreativeCommonsLicenceField()
 
+    subtype = forms.ModelChoiceField(
+        queryset=Event.objects.filter(privileged_only=False),
+        to_field_name='label',
+    )
+
     def __init__(self, *args, person, **kwargs):
         super(EventForm, self).__init__(*args, **kwargs)
 
@@ -234,7 +239,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             'contact_name', 'contact_email', 'contact_phone', 'contact_hide_phone',
             'location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
             'location_country',
-            'description'
+            'description', 'subtype'
         )
 
 

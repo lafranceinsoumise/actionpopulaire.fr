@@ -32,6 +32,7 @@ urlpatterns = [
     # events views
     url('^evenements/$', RedirectView.as_view(url=reverse_lazy('dashboard')), name='list_events'),
     url('^evenements/creer/$', views.CreateEventView.as_view(), name='create_event'),
+    url('^evenements/creer/form/$', views.PerformCreateEventView.as_view(), name='perform_create_event'),
     url('^evenements/liste/$', views.EventListView.as_view(), name='list_all_events'),
     url(f'^evenements/(?P<pk>{uuid})/$', views.EventDetailView.as_view(), name='view_event'),
     url(f'^evenements/(?P<pk>{uuid})/manage/$', views.ManageEventView.as_view(), name='manage_event'),

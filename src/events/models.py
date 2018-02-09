@@ -197,6 +197,10 @@ class EventSubtype(AbstractMapObjectLabel):
 
     type = models.CharField(_("Type d'événement"), max_length=1, choices=TYPE_CHOICES)
 
+    class Meta:
+        verbose_name = _("Sous-type d'événement")
+        verbose_name_plural = _("Sous-types d'événement")
+
 
 class EventTag(AbstractLabel):
     class Meta:
