@@ -26,7 +26,7 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
         required=False,
     )
 
-    subtypes = ExistingRelatedLabelField(queryset=models.EventSubtype.objects.all(), required=False)
+    subtype = ExistingRelatedLabelField(queryset=models.EventSubtype.objects.all(), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
