@@ -19,6 +19,11 @@ export default class ScheduleStep extends FormStep {
   handleSubmit(event) {
     event.preventDefault();
 
+    if (!this.state.startTime || !this.state.endTime) {
+      this.setState({error: 'Tous les champs sont requis.'});
+      return;
+    }
+
     if (typeof this.state.startTime === 'string' || typeof this.state.endTime === 'string') {
       this.setState({error: 'Dates invalides'});
       return;
@@ -29,7 +34,7 @@ export default class ScheduleStep extends FormStep {
   }
 
   changeStartTime(value) {
-    this.setState({startTime: value});
+    this.setState({startTime: value, endTime: ''});
   }
 
   changeEndTime(value) {
@@ -58,7 +63,7 @@ export default class ScheduleStep extends FormStep {
             </div>
             <div className="form-group">
               <label className="control-label">Fin de l'événement</label>
-              <Datetime locale="fr" onChange={this.changeEndTime} isValidDate={d => d.isAfter((this.state.startTime.clone() || Datetime.moment()).subtract(1, 'day'))}/>
+              <Datetime locale="fr" value={this.state.endTime} onChange={this.changeEndTime} isValidDate={d => d.isAfter((this.state.startTime || Datetime.moment()).clone().subtract(1, 'day'))}/>
             </div>
             {this.state.error && (
               <div className="alert alert-warning">
