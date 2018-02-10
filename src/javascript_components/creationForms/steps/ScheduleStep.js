@@ -19,21 +19,21 @@ export default class ScheduleStep extends FormStep {
   handleSubmit(event) {
     event.preventDefault();
 
-    if (typeof this.startTime === 'string' || typeof this.endTime === 'string') {
+    if (typeof this.state.startTime === 'string' || typeof this.state.endTime === 'string') {
       this.setState({error: 'Dates invalides'});
       return;
     }
 
-    this.setFields({startTime: this.startTime, endTime: this.endTime});
+    this.setFields({startTime: this.state.startTime, endTime: this.state.endTime});
     this.jumpToStep(this.props.step + 1);
   }
 
   changeStartTime(value) {
-    this.startTime = value;
+    this.setState({startTime: value});
   }
 
   changeEndTime(value) {
-    this.endTime = value;
+    this.setState({endTime: value});
   }
 
   render() {
@@ -54,11 +54,11 @@ export default class ScheduleStep extends FormStep {
           <form onSubmit={this.handleSubmit}>
             <div className="form-group">
               <label className="control-label">Début de l'événement</label>
-              <Datetime locale="fr" onChange={this.changeStartTime} />
+              <Datetime locale="fr" onChange={this.changeStartTime} isValidDate={d => d.isAfter(Datetime.moment().subtract(1, 'day'))}/>
             </div>
             <div className="form-group">
               <label className="control-label">Fin de l'événement</label>
-              <Datetime locale="fr" onChange={this.changeEndTime} />
+              <Datetime locale="fr" onChange={this.changeEndTime} isValidDate={d => d.isAfter((this.state.startTime.clone() || Datetime.moment()).subtract(1, 'day'))}/>
             </div>
             {this.state.error && (
               <div className="alert alert-warning">

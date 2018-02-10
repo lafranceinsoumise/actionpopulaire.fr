@@ -161,11 +161,12 @@ class ValidateStep extends FormStep {
   constructor(props) {
     super(props);
     this.post = this.post.bind(this);
-    this.state = {fields: props.fields};
+    this.state = {fields: props.fields, processing: false};
   }
 
   async post(e) {
     e.preventDefault();
+    this.setState({processing: true});
 
     let data = qs.stringify({
       name: this.groupName.value,
@@ -186,7 +187,7 @@ class ValidateStep extends FormStep {
       let res = await axios.post('form/', data);
       location.href = res.data.url;
     } catch (e) {
-      this.setState({error: e});
+      this.setState({error: e, processing: false});
     }
   }
 
@@ -221,7 +222,7 @@ class ValidateStep extends FormStep {
             <div className="form-group">
               <input className="form-control" ref={i => this.groupName = i} type="text" placeholder="Nom du groupe" required />
             </div>
-            <button className="btn btn-primary" type="submit">Créer mon groupe</button>
+            <button className="btn btn-primary" type="submit" disabled={this.state.processing}>Créer mon groupe</button>
           </form>
           { this.state.error && (
             <div className="alert alert-warning">
