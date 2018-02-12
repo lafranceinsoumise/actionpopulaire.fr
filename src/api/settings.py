@@ -58,6 +58,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # sitemaps
+    'django.contrib.sitemaps',
+
     # redirect
     'django.contrib.sites',
     'django.contrib.redirects',
