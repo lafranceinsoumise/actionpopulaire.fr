@@ -16,17 +16,13 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 from ajax_select import urls as ajax_select_urls
-from django.contrib.sitemaps.views import sitemap
 
-from front.sitemaps import sitemaps
 from . import routers, admin, settings
 
 import front.urls
 import webhooks.urls
 
 urlpatterns = [
-    url(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps},
-    name='django.contrib.sitemaps.views.sitemap'),
     url(r'^admin/', include('admin_steroids.urls')),
     url(r'^admin/', admin.admin_site.urls),
     url(r'^webhooks/', include(webhooks.urls)),

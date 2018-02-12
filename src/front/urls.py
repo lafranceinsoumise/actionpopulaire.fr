@@ -1,7 +1,9 @@
 from django.conf.urls import url
+from django.contrib.sitemaps.views import sitemap
 from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
+from front.sitemaps import sitemaps
 from . import views, oauth
 
 uuid = r'[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}'
@@ -9,6 +11,10 @@ simple_id = r'[0-9]+'
 
 
 urlpatterns = [
+    # sitemap
+    url(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps},
+        name='django.contrib.sitemaps.views.sitemap'),
+
     # people views
     url('^desinscription/$', views.UnsubscribeView.as_view(), name='unsubscribe'),
     url('^desabonnement/$', views.UnsubscribeView.as_view(), name='unsubscribe'),
