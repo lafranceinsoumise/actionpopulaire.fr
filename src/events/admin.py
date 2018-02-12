@@ -163,6 +163,8 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     list_display = ('name', 'published', 'calendar_title', 'location_short', 'attendee_count', 'start_time', 'created')
     list_filter = (
         'published',
+        'subtype__type',
+        'subtype',
         'calendar',
         EventHasReportFilter,
         EventStatusFilter,
