@@ -24,21 +24,29 @@ export default class ScheduleStep extends FormStep {
       return;
     }
 
-    if (typeof this.state.startTime === 'string' || typeof this.state.endTime === 'string') {
-      this.setState({error: 'Dates invalides'});
-      return;
-    }
+    this.valiDate(this.state.startTime, this.state.endTime);
 
     this.setFields({startTime: this.state.startTime, endTime: this.state.endTime});
     this.jumpToStep(this.props.step + 1);
   }
 
+  valiDate(startTime, endTime) {
+    if (typeof startTime === 'string' || typeof endTime === 'string') {
+      this.setState({error: 'Merci de saisir des dates valides.'});
+      return;
+    }
+
+    this.setState({error: null});
+  }
+
   changeStartTime(value) {
-    this.setState({startTime: value, endTime: ''});
+    this.setState({startTime: value, endTime: null});
+    this.valiDate(value, null);
   }
 
   changeEndTime(value) {
     this.setState({endTime: value});
+    this.valiDate(this.state.startTime, value);
   }
 
   render() {
@@ -63,7 +71,7 @@ export default class ScheduleStep extends FormStep {
             </div>
             <div className="form-group">
               <label className="control-label">Fin de l'événement</label>
-              <Datetime locale="fr" value={this.state.endTime} onChange={this.changeEndTime} isValidDate={d => d.isAfter((this.state.startTime || Datetime.moment()).clone().subtract(1, 'day'))}/>
+              <Datetime locale="fr" value={this.state.endTime} onChange={this.changeEndTime} isValidDate={d => d.isAfter((Datetime.moment(this.state.startTime) || Datetime.moment()).clone().subtract(1, 'day'))}/>
             </div>
             {this.state.error && (
               <div className="alert alert-warning">
