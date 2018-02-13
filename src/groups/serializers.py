@@ -35,10 +35,10 @@ class SummaryGroupSerializer(serializers.ModelSerializer):
     """Serializer used to generate the full list of groups (for the map for instance)
     """
     tags = RelatedLabelField(queryset=models.SupportGroupTag.objects.all(), many=True, required=False)
-    subtypes = RelatedLabelField(
-        queryset=models.SupportGroupSubtype.objects.all(), many=True, required=False,
-        slug_field='description'
-    )
+    subtypes = serializers.SerializerMethodField()
+
+    def get_subtypes(self, object):
+        return [s.description for s in object.subtypes.all() if not s.hide_text_label]
 
     class Meta:
         model = models.SupportGroup
