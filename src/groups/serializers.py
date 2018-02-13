@@ -42,7 +42,7 @@ class SummaryGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.SupportGroup
-        fields = ('id', 'name', 'coordinates', 'tags', 'subtypes')
+        fields = ('id', 'name', 'coordinates', 'tags', 'subtypes', 'type')
 
 
 class SupportGroupTagSerializer(serializers.HyperlinkedModelSerializer):
