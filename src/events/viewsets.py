@@ -86,7 +86,7 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     @cache_control(max_age=60, public=True)
     @authentication_classes([])
     def summary(self, request, *args, **kwargs):
-        events = self.get_queryset().filter(end_time__gt=timezone.now()).select_related('calendar')
+        events = self.get_queryset().filter(end_time__gt=timezone.now()).select_related('calendar').prefetch_related('tags')
         serializer = serializers.SummaryEventSerializer(instance=events, many=True,
                                                         context=self.get_serializer_context())
         return Response(data=serializer.data)

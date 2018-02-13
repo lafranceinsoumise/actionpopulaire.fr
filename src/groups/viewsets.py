@@ -57,7 +57,7 @@ class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):
     @cache_control(max_age=60, public=True)
     @authentication_classes([])
     def summary(self, request, *args, **kwargs):
-        supportgroups = self.get_queryset().all()
+        supportgroups = self.get_queryset().prefetch_related('tags').prefetch_related('subtypes')
         serializer = serializers.SummaryGroupSerializer(
             instance=supportgroups,
             many=True,
