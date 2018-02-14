@@ -18,4 +18,4 @@ class MapGroupSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'coordinates', 'type', 'subtype', 'subtypes')
 
     def get_first_subtype(self, obj):
-        return obj.subtypes.all()[0].id
+        return obj.subtypes.all()[0].id if obj.subtypes.all() else None

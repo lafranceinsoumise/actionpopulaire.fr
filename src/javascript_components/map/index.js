@@ -235,9 +235,13 @@ export function listMap(htmlElementId, endpoint, types, subtypes, formatPopup) {
         popupContent: formatPopup(item),
       });
 
-      feature.setStyle(item.subtype ? subtypeStyles[item.subtype] : typeStyles[item.type]);
-
-      sourceForSubtype[item.subtype].addFeature(feature);
+      if (item.subtype) {
+        feature.setStyle(subtypeStyles[item.subtype]);
+        sourceForSubtype[item.subtype].addFeature(feature);
+      } else {
+        feature.setStyle(typeStyles[item.type]);
+        sources[item.type].addFeature(feature);
+      }
     }
   });
 }
