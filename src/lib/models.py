@@ -283,10 +283,12 @@ class AbstractMapObjectLabel(TimeStampedModel, AbstractLabel):
         blank=True,
     )
 
+    icon_name = models.CharField(_("Nom de l'icône Font Awesome"), max_length=200, blank=True)
+
     color = models.CharField(
         _("couleur"),
         max_length=7,
-        validators=[RegexValidator(regex='^#[0-9a-f]{6}$')],
+        validators=[RegexValidator(regex='^#[0-9A-Fa-f]{6}$')],
         help_text=_('La couleur associée aux marqueurs sur la carte.'),
         blank=True,
     )

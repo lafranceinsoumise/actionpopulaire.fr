@@ -7,12 +7,16 @@ import VectorSource from 'ol/source/vector';
 import VectorLayer from 'ol/layer/vector';
 import OSM from 'ol/source/osm';
 import Style from 'ol/style/style';
+import Text from 'ol/style/text';
+import Circle from 'ol/style/circle';
+import Fill from 'ol/style/fill';
 import Icon from 'ol/style/icon';
 import Overlay from 'ol/overlay';
 import Control from 'ol/control/control';
 import proj from 'ol/proj';
 import axios from 'axios';
 import {OpenStreetMapProvider} from 'leaflet-geosearch';
+import fontawesome from 'fontawesome';
 
 import 'ol/ol.css';
 import './style.css';
@@ -82,15 +86,40 @@ function setUpPopup(map) {
 }
 
 function makeStyle(style) {
-  return new Style({
-    image: new Icon(/** @type {olx.style.IconOptions} */ ({
-      anchor: style.iconAnchor,
-      anchorXUnits: 'pixels',
-      anchorYUnits: 'pixels',
-      opacity: 1,
-      src: style.iconUrl
-    }))
-  });
+  if (style.color && style.iconName) {
+    return [
+      new Style({
+        text: new Text({
+          text: fontawesome(style.iconName),
+          font: 'normal 18px FontAwesome',
+          fill: new Fill({
+            color: style.color
+          })
+        })
+      }),
+      new Style({
+        image: new Circle({
+          radius: 12,
+          fill: new Fill({
+            color: 'white'
+          })
+        })
+      })
+    ];
+  }
+  else if (style.iconUrl && style.iconAnchor) {
+    return new Style({
+      image: new Icon({
+        anchor: style.iconAnchor,
+        anchorXUnits: 'pixels',
+        anchorYUnits: 'pixels',
+        opacity: 1,
+        src: style.iconUrl
+      })
+    });
+  }
+
+  return null;
 }
 
 function makeLayerControl(layersConfig) {
@@ -103,6 +132,7 @@ function makeLayerControl(layersConfig) {
     input.checked = true;
     const span = document.createElement('span');
     span.textContent = layerConfig.label;
+    span.style.color = layerConfig.color;
     label.appendChild(input);
     label.appendChild(span);
 
@@ -131,7 +161,7 @@ function makeSearchControl(view) {
   const input = element.querySelector('#search');
   const list = element.getElementsByTagName('ul')[0];
 
-  list.addEventListener('click', function(e) {
+  list.addEventListener('click', function (e) {
     e.preventDefault();
     if (e.target.tagName === 'A') {
       view.animate({
@@ -142,9 +172,9 @@ function makeSearchControl(view) {
     }
   });
 
-  form.addEventListener('submit', function(e) {
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
-    provider.search({query: input.value}).then(function(results) {
+    provider.search({query: input.value}).then(function (results) {
       if (results.length) {
         list.innerHTML = results.slice(0, 3).map(r => (
           `<li><a href="#" data-cx="${r.x}" data-cy="${r.y}">${r.label}</a></li>`
@@ -156,8 +186,12 @@ function makeSearchControl(view) {
     });
   });
 
-  element.addEventListener('click', function(ev) { ev.stopPropagation(); });
-  document.addEventListener('click', function() {list.classList.remove('show')});
+  element.addEventListener('click', function (ev) {
+    ev.stopPropagation();
+  });
+  document.addEventListener('click', function () {
+    list.classList.remove('show')
+  });
 
   return new Control({
     element,
@@ -165,26 +199,26 @@ function makeSearchControl(view) {
 }
 
 export function listMap(htmlElementId, endpoint, types, subtypes, formatPopup) {
-  const sources = {}, layers = {};
+  const sources = {}, layers = {}, typeStyles = {};
   for (let type of types) {
     sources[type.id] = new VectorSource();
     layers[type.id] = new VectorLayer({source: sources[type.id]});
+    typeStyles[type.id] = makeStyle(type);
   }
 
-  const layerControl = makeLayerControl(types.map(type => ({label: type.label, layer: layers[type.id]})));
+  const layerControl = makeLayerControl(types.map(type => ({label: type.label, color: type.color, layer: layers[type.id]})));
 
   const map = setUpMap(htmlElementId, types.map(type => layers[type.id]));
   fitFrance(map);
   setUpPopup(map);
   layerControl.setMap(map);
 
-
   const geosearchControl = makeSearchControl(map.getView());
   map.addControl(geosearchControl);
 
-  const styles = {}, popupAnchors = {}, sourceForSubtype = {};
+  const subtypeStyles = {}, popupAnchors = {}, sourceForSubtype = {};
   for (let subtype of subtypes) {
-    styles[subtype.id] = makeStyle(subtype);
+    subtypeStyles[subtype.id] = makeStyle(subtype) || typeStyles[subtype.type];
     popupAnchors[subtype.id] = subtype.popupAnchor;
     sourceForSubtype[subtype.id] = sources[subtype.type];
   }
@@ -201,7 +235,7 @@ export function listMap(htmlElementId, endpoint, types, subtypes, formatPopup) {
         popupContent: formatPopup(item),
       });
 
-      feature.setStyle(styles[item.subtype]);
+      feature.setStyle(item.subtype ? subtypeStyles[item.subtype] : typeStyles[item.type]);
 
       sourceForSubtype[item.subtype].addFeature(feature);
     }

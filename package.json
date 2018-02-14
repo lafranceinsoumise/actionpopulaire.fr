@@ -24,6 +24,7 @@
     "babel-polyfill": "^6.26.0",
     "cleave.js": "^1.1.1",
     "font-awesome": "^4.7.0",
+    "fontawesome": "^4.7.2",
     "google-libphonenumber": "^3.0.10",
     "intro.js": "^2.8.0-alpha.1",
     "leaflet-geosearch": "^2.6.0",

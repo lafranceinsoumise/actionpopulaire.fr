@@ -49,12 +49,12 @@
 }
 
 .layer_selector input {
-	vertical-align: bottom;
+	vertical-align: middle;
 }
 
 .layer_selector span {
 	margin-left: 5px;
-	vertical-align: bottom;
+	vertical-align: middle;
 }
 
 @media screen and (max-width: 640px) {

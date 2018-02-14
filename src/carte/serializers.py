@@ -15,7 +15,7 @@ class MapGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SupportGroup
-        fields = ('id', 'name', 'coordinates', 'subtype')
+        fields = ('id', 'name', 'coordinates', 'type', 'subtype', 'subtypes')
 
     def get_first_subtype(self, obj):
         return obj.subtypes.all()[0].id

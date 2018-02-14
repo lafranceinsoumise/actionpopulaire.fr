@@ -10,9 +10,13 @@ Carte des groupes d'appui
       var subtypes = {{ subtype_config }};
 
       function formatGroup(group) {
-        var subtype = subtypes.find(function(type) { return type.id === group.subtype });
-        return '<a href="{{ FRONT_DOMAIN }}/groupes/' + group.id + '/" style="color:' + subtype.color +
-          ';" target="_blank">' + group.name + '</a><br>' + subtype.label;
+        var displayableSubtypes = subtypes.filter(function(subtype) {
+          return (group.subtypes.indexOf(subtype.id) !== -1) && !subtype.hideLabel;
+        }).map(function(subtype) {return subtype.label;});
+        var type = types.find(function(type) { return type.id === group.type });
+        return '<a href="{{ FRONT_DOMAIN }}/groupes/' + group.id +
+          '" target="_blank">' + group.name + '</a><br><strong>' + type.label + '</strong>' +
+          (displayableSubtypes.length ? '<br>' + displayableSubtypes.join(' &bull; ') : '');
       }
 
       window.map.listMap('map', '{% url "map:group_list" %}', types, subtypes, formatGroup);

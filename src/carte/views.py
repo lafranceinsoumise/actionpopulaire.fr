@@ -9,7 +9,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 
-from events.models import Event
+from events.models import Event, EventSubtype
 from groups.models import SupportGroup, SupportGroupSubtype
 
 from . import serializers
@@ -74,8 +74,9 @@ def get_subtype_information(subtype):
     res = {
         'id': subtype.id,
         'label': subtype.label,
-        'color': subtype.color,
         'type': subtype.type,
+        'popupAnchor': -5,
+        'hideLabel': subtype.hide_text_label
     }
 
     if subtype.icon:
@@ -89,13 +90,42 @@ def get_subtype_information(subtype):
             res['popupAnchor'] = -subtype.popup_anchor_y
         else:
             res['popupAnchor'] = -res['iconAnchor'][1]
-
-    else:
-        res['iconUrl'] = static('carte/marker-icon.png')
-        res['iconAnchor'] = [12, 41]
-        res['popupAnchor'] = -41
+    elif subtype.icon_name:
+        res['iconName'] = subtype.icon_name
+        res['color'] = subtype.color
 
     return res
+
+
+def get_event_type_information(type, label):
+    params = {
+        "G": ["#a04c17", "comments"],
+        "M": ["#e14b35", "bullhorn"],
+        "A": ["#c2306c", "hand-rock-o"]
+    }
+
+    return {
+        'id': type,
+        'label': label,
+        'color': params[type][0],
+        'iconName': params[type][1]
+    }
+
+
+def get_group_type_information(type, label):
+    params = {
+        "L": ['#4a64ac', 'users'],
+        "B": ['#49b37d', 'book'],
+        "F": ['#e14b35', 'whmcs'],
+        "P": ['#f4981e', 'industry '],
+    }
+
+    return {
+        'id': type,
+        'label': label,
+        'color': params[type][0],
+        'iconName': params[type][1]
+    }
 
 
 class EventMapView(TemplateView):
@@ -104,7 +134,7 @@ class EventMapView(TemplateView):
     def get_context_data(self, **kwargs):
         subtypes = EventSubtype.objects.all()
         subtype_info = [get_subtype_information(st) for st in subtypes]
-        type_info = [{'label': str(label), 'id': id} for id, label in EventSubtype.TYPE_CHOICES]
+        type_info = [get_event_type_information(id, str(label)) for id, label in EventSubtype.TYPE_CHOICES]
 
         return super().get_context_data(
             type_config=mark_safe(json.dumps(type_info)),
@@ -137,7 +167,7 @@ class GroupMapView(TemplateView):
     def get_context_data(self, **kwargs):
         subtypes = SupportGroupSubtype.objects.all()
         subtype_info = [get_subtype_information(st) for st in subtypes]
-        type_info = [{'label': str(label), 'id': id} for id, label in SupportGroup.TYPE_CHOICES]
+        type_info = [get_group_type_information(id, str(label)) for id, label in SupportGroup.TYPE_CHOICES]
 
         return super().get_context_data(
             type_config=mark_safe(json.dumps(type_info)),
@@ -156,10 +186,12 @@ class SingleGroupMapView(DetailView):
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        type_info = self.object.type, self.object.get_type_display()
         subtype = self.object.subtypes.first()
 
         return super().get_context_data(
-            subtype_config=mark_safe(json.dumps(get_subtype_information(subtype))),
+            subtype_config=mark_safe(
+                json.dumps(get_subtype_information(subtype) if subtype else get_group_type_information(*type_info))),
             coordinates=mark_safe(json.dumps(self.object.coordinates.coords)),
             **kwargs
         )
