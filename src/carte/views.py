@@ -75,7 +75,6 @@ def get_subtype_information(subtype):
         'id': subtype.id,
         'label': subtype.label,
         'type': subtype.type,
-        'popupAnchor': -5,
         'hideLabel': subtype.hide_text_label
     }
 
@@ -108,7 +107,7 @@ def get_event_type_information(type, label):
         'id': type,
         'label': label,
         'color': params[type][0],
-        'iconName': params[type][1]
+        'iconName': params[type][1],
     }
 
 
@@ -116,15 +115,15 @@ def get_group_type_information(type, label):
     params = {
         "L": ['#4a64ac', 'users'],
         "B": ['#49b37d', 'book'],
-        "F": ['#e14b35', 'whmcs'],
-        "P": ['#f4981e', 'industry '],
+        "F": ['#e14b35', 'cog'],
+        "P": ['#f4981e', 'industry'],
     }
 
     return {
         'id': type,
         'label': label,
         'color': params[type][0],
-        'iconName': params[type][1]
+        'iconName': params[type][1],
     }
 
 

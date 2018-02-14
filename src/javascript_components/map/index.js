@@ -231,7 +231,7 @@ export function listMap(htmlElementId, endpoint, types, subtypes, formatPopup) {
     for (let item of res.data) {
       const feature = new Feature({
         geometry: new Point(proj.fromLonLat(item.coordinates.coordinates)),
-        popupAnchor: popupAnchors[item.subtype] - ARROW_SIZE,
+        popupAnchor: (popupAnchors[item.subtype] || -5) - ARROW_SIZE,
         popupContent: formatPopup(item),
       });
 
