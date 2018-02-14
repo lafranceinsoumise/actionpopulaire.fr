@@ -98,9 +98,9 @@ def get_subtype_information(subtype):
 
 def get_event_type_information(type, label):
     params = {
-        "G": ["#a04c17", "comments"],
+        "G": ["#4a64ac", "comments"],
         "M": ["#e14b35", "bullhorn"],
-        "A": ["#c2306c", "hand-rock-o"]
+        "A": ["#c2306c", "exclamation"]
     }
 
     return {
