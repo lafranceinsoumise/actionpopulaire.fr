@@ -70,7 +70,13 @@ class CustomDateTimeField(models.DateTimeField):
 
 
 def get_default_subtype():
-    return EventSubtype.objects.filter(type=EventSubtype.TYPE_PUBLIC_ACTION).order_by('created').first().id
+    return (
+        EventSubtype.objects
+            .filter(type=EventSubtype.TYPE_PUBLIC_ACTION)
+            .order_by('created')
+            .values('id')
+            .first()['id']
+    )
 
 
 class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, DescriptionMixin, ContactMixin):
