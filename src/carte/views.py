@@ -74,6 +74,7 @@ def get_subtype_information(subtype):
     res = {
         'id': subtype.id,
         'label': subtype.label,
+        'description': subtype.description,
         'type': subtype.type,
         'hideLabel': subtype.hide_text_label
     }
