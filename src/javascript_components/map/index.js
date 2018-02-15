@@ -17,6 +17,7 @@ import proj from 'ol/proj';
 import axios from 'axios';
 import {OpenStreetMapProvider} from 'leaflet-geosearch';
 import fontawesome from 'fontawesome';
+import FontFaceOnload from 'fontfaceonload';
 
 import 'ol/ol.css';
 import './style.css';
@@ -198,7 +199,7 @@ function makeSearchControl(view) {
   });
 }
 
-export function listMap(htmlElementId, endpoint, types, subtypes, formatPopup) {
+export async function listMap(htmlElementId, endpoint, types, subtypes, formatPopup) {
   const sources = {}, layers = {}, typeStyles = {};
   for (let type of types) {
     sources[type.id] = new VectorSource();
@@ -223,27 +224,33 @@ export function listMap(htmlElementId, endpoint, types, subtypes, formatPopup) {
     sourceForSubtype[subtype.id] = sources[subtype.type];
   }
 
-  axios.get(endpoint).then(function (res) {
-    if (res.status !== 200) {
-      return;
-    }
+  const fontLoaded = new Promise((resolve, reject) => FontFaceOnload('FontAwesome', {
+    success: resolve,
+    error: reject
+  }));
 
-    for (let item of res.data) {
-      const feature = new Feature({
-        geometry: new Point(proj.fromLonLat(item.coordinates.coordinates)),
-        popupAnchor: (popupAnchors[item.subtype] || -5) - ARROW_SIZE,
-        popupContent: formatPopup(item),
-      });
+  const res = await axios.get(endpoint);
+  if (res.status !== 200) {
+    return;
+  }
 
-      if (item.subtype) {
-        feature.setStyle(subtypeStyles[item.subtype]);
-        sourceForSubtype[item.subtype].addFeature(feature);
-      } else {
-        feature.setStyle(typeStyles[item.type]);
-        sources[item.type].addFeature(feature);
-      }
+  await fontLoaded;
+
+  for (let item of res.data) {
+    const feature = new Feature({
+      geometry: new Point(proj.fromLonLat(item.coordinates.coordinates)),
+      popupAnchor: (popupAnchors[item.subtype] || -5) - ARROW_SIZE,
+      popupContent: formatPopup(item),
+    });
+
+    if (item.subtype) {
+      feature.setStyle(subtypeStyles[item.subtype]);
+      sourceForSubtype[item.subtype].addFeature(feature);
+    } else {
+      feature.setStyle(typeStyles[item.type]);
+      sources[item.type].addFeature(feature);
     }
-  });
+  }
 }
 
 export function itemMap(htmlElementId, coordinates, iconConfiguration) {
