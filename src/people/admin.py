@@ -2,9 +2,12 @@ from urllib.parse import urlencode
 
 import django_otp
 from django import forms
+from django.conf.urls import url
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.shortcuts import reverse
 from django.contrib import admin
+from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from django.utils.html import escape, format_html
 from django.utils.translation import ugettext_lazy as _
@@ -203,7 +206,7 @@ class PersonFormAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('title', 'slug', 'published', 'submissions_number', 'simple_link')
+            'fields': ('title', 'slug', 'published', 'submissions_number', 'simple_link', 'action_buttons')
         }),
         (_('Champs'), {
             'fields': ('main_question', 'tags', 'personal_information', 'additional_fields')
@@ -213,12 +216,45 @@ class PersonFormAdmin(admin.ModelAdmin):
          }),
     )
 
-    readonly_fields = ('submissions_number', 'simple_link')
+    readonly_fields = ('submissions_number', 'simple_link', 'action_buttons')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
 
         return qs.annotate(submissions_number=Count('submissions'))
+
+    def get_urls(self):
+        return [
+            url(r'^(.+)/view_results/', self.admin_site.admin_view(self.view_results), name="people_personform_view_results")
+        ] + super().get_urls()
+
+    def view_results(self, request, id):
+        if not self.has_change_permission(request) or not request.user.has_perm('people.view_personform'):
+            raise PermissionDenied
+
+        form = PersonForm.objects.get(id=id)
+        extra_fields = [field for fieldset in form.additional_fields for field in fieldset['fields']]
+        submissions = []
+
+        for submission in form.submissions.all():
+            required_data = [getattr(submission.person, required_field) for required_field in form.personal_information]
+            extra_data = [submission.data.get(field['id'], 'NA') for field in extra_fields]
+            submissions.append([submission.person] + required_data + extra_data)
+
+        context = {
+            'title': _('Réponses du formulaire: %s') % escape(form.title),
+            'opts': self.model._meta,
+            'form': form,
+            'extra_fields': extra_fields,
+            'submissions': submissions
+        }
+
+
+        return TemplateResponse(
+            request,
+            'admin/personforms/view_results.html',
+            context,
+        )
 
     def slug_link(self, object):
         if object.slug:
@@ -226,6 +262,16 @@ class PersonFormAdmin(admin.ModelAdmin):
         else:
             return '-'
     slug_link.short_description = 'Slug'
+
+    def action_buttons(self, object):
+        if object._state.adding:
+            return mark_safe('-')
+        else:
+            return format_html(
+                '<a href="{view_results_link}" class="button">Voir les résultats</a>',
+                view_results_link=reverse('admin:people_personform_view_results', args=(object.pk,))
+            )
+    action_buttons.short_description = _("Actions")
 
     def simple_link(self, object):
         if object.slug:
