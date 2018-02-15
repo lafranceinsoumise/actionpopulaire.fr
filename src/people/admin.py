@@ -274,7 +274,7 @@ class PersonFormAdmin(admin.ModelAdmin):
             raise PermissionDenied
 
         form = PersonForm.objects.get(id=id)
-        table = self.generate_result_table(form)
+        table = self.generate_result_table(form, only_text=True)
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="{0}.csv"'.format(form.slug)
