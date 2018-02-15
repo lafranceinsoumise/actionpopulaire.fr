@@ -239,7 +239,7 @@ class PersonFormAdmin(admin.ModelAdmin):
         for submission in form.submissions.all():
             required_data = [getattr(submission.person, required_field) for required_field in form.personal_information]
             extra_data = [submission.data.get(field['id'], 'NA') for field in extra_fields]
-            submissions.append([submission.person] + required_data + extra_data)
+            submissions.append([submission.modified] + [submission.person] + required_data + extra_data)
 
         context = {
             'title': _('Réponses du formulaire: %s') % escape(form.title),
@@ -248,7 +248,6 @@ class PersonFormAdmin(admin.ModelAdmin):
             'extra_fields': extra_fields,
             'submissions': submissions
         }
-
 
         return TemplateResponse(
             request,

@@ -27,6 +27,7 @@
 
     <table>
     <tr>
+        <th>Date</th>
         <th>Personne</th>
         {% for mandatory_field in form.personal_information %}
             <th>{{ mandatory_field }}</th>
@@ -37,7 +38,9 @@
         {% for submission in submissions %}
             <tr>
             {%  for value in submission %}
-                {% if forloop.first %}
+                {% if forloop.index == 1 %}
+                    <td>{{ value }}</td>
+                {% elif forloop.index == 2 %}
                     <td><a href="{% url 'admin:people_person_change' value.id %}">{{ value.email }}</a></td>
                 {% else %}
                     <td>{{ value }}</td>
