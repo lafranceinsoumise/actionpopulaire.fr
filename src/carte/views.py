@@ -147,11 +147,22 @@ class SingleEventMapView(DetailView):
     template_name = 'carte/single_event.html'
     queryset = Event.objects.published()
 
+    @xframe_options_exempt
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         subtype = self.object.subtype
+        type_info = get_event_type_information(subtype.type, subtype.get_type_display())
+        subtype_info = get_subtype_information(subtype)
+
+        if 'iconUrl' in subtype_info or 'iconName' in subtype_info:
+            icon_config = subtype_info
+        else:
+            icon_config = type_info
 
         return super().get_context_data(
-            subtype_config=mark_safe(json.dumps(get_subtype_information(subtype))),
+            subtype_config=mark_safe(json.dumps(icon_config)),
             coordinates=mark_safe(json.dumps(self.object.coordinates.coords)),
             **kwargs
         )
@@ -186,12 +197,17 @@ class SingleGroupMapView(DetailView):
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        type_info = self.object.type, self.object.get_type_display()
+        type_info = get_group_type_information(self.object.type, self.object.get_type_display())
         subtype = self.object.subtypes.first()
+        subtype_info = subtype and get_subtype_information(subtype)
+
+        if subtype_info and ('iconUrl' in subtype_info or 'iconName' in subtype_info):
+            icon_config = subtype_info
+        else:
+            icon_config = type_info
 
         return super().get_context_data(
-            subtype_config=mark_safe(
-                json.dumps(get_subtype_information(subtype) if subtype else get_group_type_information(*type_info))),
+            subtype_config=mark_safe(json.dumps(icon_config)),
             coordinates=mark_safe(json.dumps(self.object.coordinates.coords)),
             **kwargs
         )

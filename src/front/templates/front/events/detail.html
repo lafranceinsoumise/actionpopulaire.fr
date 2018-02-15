@@ -119,9 +119,11 @@
                 {% endif %}
             {% endspaceless %}
 
-            <iframe title="Carte" style="width:100%;"
-            src="https://carte.lafranceinsoumise.fr/?event_id={{ event.pk }},events&hide_panel=1&hide_address=1"
-            width="400" height="300" scrolling="no" frameBorder="0"></iframe>
+            {% if event.coordinates %}
+                <iframe title="Carte" class="col-sm-6"
+                src="{{ MAP_DOMAIN }}{% url "map:single_event_map" event.id %}"
+                height="300" scrolling="no" frameBorder="0" style="width: 100%; margin: 1em 0; padding:0;"></iframe>
+            {% endif %}
 
             <h4>Contact</h4>
             <p>{{ event.html_full_contact }}</p>
