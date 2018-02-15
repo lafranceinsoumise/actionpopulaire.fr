@@ -1,3 +1,4 @@
+import csv
 from urllib.parse import urlencode
 
 import django_otp
@@ -5,6 +6,7 @@ from django import forms
 from django.conf.urls import url
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
+from django.http import HttpResponse
 from django.shortcuts import reverse
 from django.contrib import admin
 from django.template.response import TemplateResponse
@@ -225,28 +227,40 @@ class PersonFormAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         return [
-            url(r'^(.+)/view_results/', self.admin_site.admin_view(self.view_results), name="people_personform_view_results")
+            url(r'^(.+)/view_results/', self.admin_site.admin_view(self.view_results), name="people_personform_view_results"),
+            url(r'^(.+)/download_results/', self.admin_site.admin_view(self.download_results), name="people_personform_download_results"),
         ] + super().get_urls()
 
-    def view_results(self, request, id):
-        if not self.has_change_permission(request) or not request.user.has_perm('people.view_personform'):
-            raise PermissionDenied
-
-        form = PersonForm.objects.get(id=id)
+    def generate_result_table(self, form, only_text=False):
         extra_fields = [field for fieldset in form.additional_fields for field in fieldset['fields']]
         submissions = []
 
         for submission in form.submissions.all():
             required_data = [getattr(submission.person, required_field) for required_field in form.personal_information]
             extra_data = [submission.data.get(field['id'], 'NA') for field in extra_fields]
-            submissions.append([submission.modified] + [submission.person] + required_data + extra_data)
+            submissions.append([submission.modified]
+                            + [submission.person if only_text == False else submission.person.email]
+                            + required_data
+                            + extra_data)
+
+        headers = ['Date', 'Personne'] + form.personal_information + [field['label'] for field in extra_fields]
+
+        return {'form': form, 'headers': headers, 'submissions': submissions}
+
+    def view_results(self, request, id):
+        if not self.has_change_permission(request) or not request.user.has_perm('people.view_personform'):
+            raise PermissionDenied
+
+        form = PersonForm.objects.get(id=id)
+        table = self.generate_result_table(form)
 
         context = {
+            'has_change_permission': True,
             'title': _('Réponses du formulaire: %s') % escape(form.title),
             'opts': self.model._meta,
-            'form': form,
-            'extra_fields': extra_fields,
-            'submissions': submissions
+            'form': table['form'],
+            'headers': table['headers'],
+            'submissions': table['submissions']
         }
 
         return TemplateResponse(
@@ -254,6 +268,23 @@ class PersonFormAdmin(admin.ModelAdmin):
             'admin/personforms/view_results.html',
             context,
         )
+
+    def download_results(self, request, id):
+        if not self.has_change_permission(request) or not request.user.has_perm('people.view_personform'):
+            raise PermissionDenied
+
+        form = PersonForm.objects.get(id=id)
+        table = self.generate_result_table(form)
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="{0}.csv"'.format(form.slug)
+
+        writer = csv.writer(response)
+        writer.writerow(table['headers'])
+        for submission in table['submissions']:
+            writer.writerow(submission)
+
+        return response
 
     def slug_link(self, object):
         if object.slug:
@@ -267,8 +298,10 @@ class PersonFormAdmin(admin.ModelAdmin):
             return mark_safe('-')
         else:
             return format_html(
-                '<a href="{view_results_link}" class="button">Voir les résultats</a>',
-                view_results_link=reverse('admin:people_personform_view_results', args=(object.pk,))
+                '<a href="{view_results_link}" class="button">Voir les résultats</a><br>'
+                '<a href="{download_results_link}" class="button">Télécharger les résultats</a><br>',
+                view_results_link=reverse('admin:people_personform_view_results', args=(object.pk,)),
+                download_results_link=reverse('admin:people_personform_download_results', args=(object.pk,)),
             )
     action_buttons.short_description = _("Actions")
 
