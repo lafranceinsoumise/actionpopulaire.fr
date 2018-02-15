@@ -131,6 +131,10 @@ def get_group_type_information(type, label):
 class EventMapView(TemplateView):
     template_name = 'carte/events.html'
 
+    @xframe_options_exempt
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         subtypes = EventSubtype.objects.all()
         subtype_info = [get_subtype_information(st) for st in subtypes]
