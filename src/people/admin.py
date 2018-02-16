@@ -240,10 +240,11 @@ class PersonFormAdmin(admin.ModelAdmin):
             extra_data = [submission.data.get(field['id'], 'NA') for field in extra_fields]
             submissions.append([submission.modified]
                             + [submission.person if only_text == False else submission.person.email]
+                            + [submission.person.first_name, submission.person.last_name]
                             + required_data
                             + extra_data)
 
-        headers = ['Date', 'Personne'] + form.personal_information + [field['label'] for field in extra_fields]
+        headers = ['Date', 'Personne', 'Nom', 'Prénom'] + form.personal_information + [field['label'] for field in extra_fields]
 
         return {'form': form, 'headers': headers, 'submissions': submissions}
 
