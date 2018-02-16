@@ -148,7 +148,7 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         model = SupportGroup
         fields = (
             'name', 'type', 'subtypes',
-            'contact_email', 'contact_phone', 'contact_hide_phone',
+            'contact_name', 'contact_email', 'contact_phone', 'contact_hide_phone',
             'location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
             'location_country',
             'description'
