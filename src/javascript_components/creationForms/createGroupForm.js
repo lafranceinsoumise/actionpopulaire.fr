@@ -44,9 +44,9 @@ class CreateGroupForm extends React.Component {
     }
 
     let steps = [
-      {name: 'Un groupe pour quoi ?', component: <GroupTypeStep setFields={this.setFields} subtypes={this.state.subtypes} step={0} />},
-      {name: 'Informations de contact', component: <ContactStep setFields={this.setFields} step={1} />},
-      {name: 'Localisation', component: <LocationStep setFields={this.setFields} step={2} />},
+      {name: 'Un groupe pour quoi ?', component: <GroupTypeStep setFields={this.setFields} fields={this.state.fields} subtypes={this.state.subtypes} step={0} />},
+      {name: 'Informations de contact', component: <ContactStep setFields={this.setFields} fields={this.state.fields} step={1} />},
+      {name: 'Localisation', component: <LocationStep setFields={this.setFields} fields={this.state.fields} step={2} />},
       {name: 'Validation et nom', component: <ValidateStep fields={this.state.fields} step={3} />},
     ];
 
@@ -170,6 +170,7 @@ class ValidateStep extends FormStep {
 
     let data = qs.stringify({
       name: this.groupName.value,
+      contact_name: this.state.fields.name || null,
       contact_email: this.state.fields.email,
       contact_phone: this.state.fields.phone,
       contact_hide_phone: this.state.fields.hidePhone,
@@ -203,6 +204,11 @@ class ValidateStep extends FormStep {
             <li>
               <strong>Numéro de téléphone&nbsp;:</strong> {this.state.fields.phone} ({this.state.fields.hidePhone === 'on' ? 'caché' : 'public'})
             </li>
+            {this.state.fields.name &&
+              <li>
+                <strong>Nom du contact&nbsp;:</strong> {this.state.fields.name}
+              </li>
+            }
             <li>
               <strong>Adresse email du groupe&nbsp;:</strong> {this.state.fields.email}
             </li>
@@ -226,7 +232,7 @@ class ValidateStep extends FormStep {
           </form>
           { this.state.error && (
             <div className="alert alert-warning">
-              Un erreur s'est produite. Merci de réessayer plus tard.
+              Une erreur s'est produite. Merci de réessayer plus tard.
             </div>
           ) }
         </div>
