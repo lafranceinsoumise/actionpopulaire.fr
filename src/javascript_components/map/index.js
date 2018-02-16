@@ -19,6 +19,8 @@ import {OpenStreetMapProvider} from 'leaflet-geosearch';
 import fontawesome from 'fontawesome';
 import FontFaceOnload from 'fontfaceonload';
 
+import {element} from './utils';
+
 import 'ol/ol.css';
 import './style.css';
 
@@ -48,8 +50,9 @@ function fitFrance(map) {
 }
 
 function setUpPopup(map) {
-  const popupElement = document.createElement('div');
-  popupElement.className = 'map_popup';
+  const popupElement = element('div', [], {
+    'className': 'map_popup'
+  });
   popupElement.addEventListener('mousedown', function (evt) {
     evt.stopPropagation();
   });
@@ -124,43 +127,40 @@ function makeStyle(style) {
 }
 
 function makeLayerControl(layersConfig) {
-  const element = document.createElement('div');
-  element.className = 'layer_selector';
-  layersConfig.forEach(function (layerConfig) {
-    const label = document.createElement('label');
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.checked = true;
-    const span = document.createElement('span');
-    span.textContent = layerConfig.label;
-    span.style.color = layerConfig.color;
-    label.appendChild(input);
-    label.appendChild(span);
+  const selectors = layersConfig.map(function (layerConfig) {
+    const input = element('input', [], {type: 'checkbox', checked: true});
+    const label = element('label', [
+      input,
+      ['span', [layerConfig.label], {style: {color: layerConfig.color}}]
+    ]);
 
     input.addEventListener('change', function () {
       layerConfig.layer.setVisible(input.checked);
     });
 
-    element.appendChild(label);
+    return label;
   });
 
+  const control = element('div', selectors, {className: 'layer_selector'});
+
   return new Control({
-    element,
+    element: control,
   });
 }
 
 function makeSearchControl(view) {
   const provider = new OpenStreetMapProvider();
-  const element = document.createElement('div');
-  element.className = 'search_box';
-  element.innerHTML = `
-  <form><input type="text" id="search"><button type="submit"><i class="fa fa-search"></i></button></form>
-  <ul class="results"></ul>
-  `;
 
-  const form = element.getElementsByTagName('form')[0];
-  const input = element.querySelector('#search');
-  const list = element.getElementsByTagName('ul')[0];
+  const input = element('input', [], {type: 'text'});
+  const list = element('ul', [], {className: 'results'});
+  const form = element('form', [
+    input,
+    ['button', [
+      ['i', [], {className: 'fa fa-search'}]
+    ]]
+  ]);
+
+  const control = element('div', [form, list], {className: 'search_box'});
 
   list.addEventListener('click', function (e) {
     e.preventDefault();
@@ -173,9 +173,10 @@ function makeSearchControl(view) {
     }
   });
 
-  form.addEventListener('submit', function (e) {
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
-    provider.search({query: input.value}).then(function (results) {
+    try {
+      const results = await provider.search({query: input.value});
       if (results.length) {
         list.innerHTML = results.slice(0, 3).map(r => (
           `<li><a href="#" data-cx="${r.x}" data-cy="${r.y}">${r.label}</a></li>`
@@ -184,18 +185,21 @@ function makeSearchControl(view) {
         list.innerHTML = '<li><em>Pas de résultats</em></li>';
       }
       list.classList.add('show');
-    });
+    } catch(e) {
+      list.innerHTML = '<li><em>Impossible de contacter le service de recherche d\'adresses</em></li>';
+      list.classList.add('show');
+    }
   });
 
-  element.addEventListener('click', function (ev) {
+  control.addEventListener('click', function (ev) {
     ev.stopPropagation();
   });
   document.addEventListener('click', function () {
-    list.classList.remove('show')
+    list.classList.remove('show');
   });
 
   return new Control({
-    element,
+    element: control,
   });
 }
 
