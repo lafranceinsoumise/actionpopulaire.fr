@@ -13,24 +13,24 @@ def create_and_assign_default_subtypes(apps, schema):
 
     subtypes = [
         {
-            'label': "autre type de réunion de groupe",
-            'description': "Sous-type d'événement par défaut pour les réunions de groupe",
+            'label': "autre reunion groupe",
+            'description': "Autre type de réunion de groupe",
             'hide_text_label': True,
             'color': "#00B400",
             'type': 'G',
             'privileged_only': False
         },
         {
-            'label': "autre type de réunion publique",
-            'description': "Sous-type d'événement par défaut pour les réunions publiques",
+            'label': "autre reunion publique",
+            'description': "Autre type de réunion publique",
             'hide_text_label': True,
             'color': "#0098B6",
             'type': 'M',
             'privileged_only': False
         },
         {
-            'label': "autre type d'action publique",
-            'description': "Sous-type d'événement par défaut pour les actions publiques",
+            'label': "autre action publique",
+            'description': "Autre type d'action publique",
             'hide_text_label': True,
             'color': "#C9462C",
             'type': 'A',
@@ -49,8 +49,8 @@ def assign_current_events(apps, schema):
     Calendar = apps.get_model('events', 'Calendar')
     Event = apps.get_model('events', 'Event')
 
-    public_action = EventSubtype.objects.get(label="autre type d'action publique")
-    public_meeting = EventSubtype.objects.get(label="autre type de réunion publique")
+    public_action = EventSubtype.objects.get(label="autre action publique")
+    public_meeting = EventSubtype.objects.get(label="autre reunion publique")
     national_calendar = Calendar.objects.get(slug="national")
 
     Event.objects.filter(calendar=national_calendar).update(subtype=public_meeting)

@@ -124,14 +124,14 @@ class EventTypeStep extends FormStep {
                   <ul className="nav nav-pills">
                     {
                       this.rankedSubtypes[type.id].map(subtype => (
-                        <li className={subtype === this.state.subtype ? 'active' : ''} key={subtype.label}>
+                        <li className={subtype === this.state.subtype ? 'active' : ''} key={subtype.description}>
                           <a href="#" onClick={(e) => {
                             e.preventDefault();
                             this.setSubtype(subtype)
                           }}>
                             <i className={'fa ' + (subtype === this.state.subtype ? 'fa-check-circle' : 'fa-circle-o')}/>
                             &nbsp;
-                            {subtype.label}
+                            {subtype.description}
                           </a>
                         </li>
                       ))
