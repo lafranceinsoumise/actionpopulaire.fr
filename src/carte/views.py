@@ -4,10 +4,13 @@ from django.utils.translation import ugettext as _
 from django.utils.html import mark_safe
 from django.views.generic import TemplateView, DetailView
 from django.views.decorators import cache
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
+import django_filters
+from django_filters.rest_framework.backends import DjangoFilterBackend
+from django.http import QueryDict
+
 
 from events.models import Event, EventSubtype
 from groups.models import SupportGroup, SupportGroupSubtype
@@ -43,13 +46,19 @@ class BBoxFilterBackend(object):
         return queryset.filter(coordinates__intersects=bbox)
 
 
-class ZonedView(ListAPIView):
-    filter_backends = (BBoxFilterBackend,)
+class EventFilterSet(django_filters.rest_framework.FilterSet):
+    subtype = django_filters.ModelChoiceFilter(
+        name='subtype', to_field_name='label', queryset=EventSubtype.objects.all()
+    )
+    class Meta:
+        model = Event
+        fields = ('subtype', )
 
 
-class EventsView(ZonedView):
+class EventsView(ListAPIView):
     serializer_class = serializers.MapEventSerializer
-    filter_backends = (BBoxFilterBackend,)
+    filter_backends = (BBoxFilterBackend, DjangoFilterBackend, )
+    filter_class = EventFilterSet
     authentication_classes = []
 
     def get_queryset(self):
@@ -60,8 +69,9 @@ class EventsView(ZonedView):
         return super().get(request, *args, **kwargs)
 
 
-class GroupsView(ZonedView):
+class GroupsView(ListAPIView):
     serializer_class = serializers.MapGroupSerializer
+    filter_backends = (BBoxFilterBackend,)
     queryset = SupportGroup.active.filter(coordinates__isnull=False).prefetch_related('subtypes')
     authentication_classes = []
 
@@ -140,9 +150,21 @@ class EventMapView(TemplateView):
         subtype_info = [get_subtype_information(st) for st in subtypes]
         type_info = [get_event_type_information(id, str(label)) for id, label in EventSubtype.TYPE_CHOICES]
 
+        params = QueryDict(mutable=True)
+
+        if 'subtype' in self.request.GET:
+            subtype_label = self.request.GET['subtype']
+            subtype_info = [s for s in subtype_info if s['label'] == subtype_label]
+            corresponding_types = {s['type'] for s in subtype_info}
+            type_info = [t for t in type_info if t['id'] in corresponding_types]
+            params['subtype'] = self.request.GET['subtype']
+
+        querystring = ('?' + params.urlencode()) if params else ''
+
         return super().get_context_data(
             type_config=mark_safe(json.dumps(type_info)),
             subtype_config=mark_safe(json.dumps(subtype_info)),
+            querystring=querystring,
             **kwargs
         )
 

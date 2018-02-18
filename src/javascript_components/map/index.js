@@ -211,12 +211,19 @@ export async function listMap(htmlElementId, endpoint, types, subtypes, formatPo
     typeStyles[type.id] = makeStyle(type);
   }
 
-  const layerControl = makeLayerControl(types.map(type => ({label: type.label, color: type.color, layer: layers[type.id]})));
 
   const map = setUpMap(htmlElementId, types.map(type => layers[type.id]));
   fitFrance(map);
   setUpPopup(map);
-  layerControl.setMap(map);
+
+  if(types.length > 1) {
+    const layerControl = makeLayerControl(types.map(type => ({
+      label: type.label,
+      color: type.color,
+      layer: layers[type.id]
+    })));
+    layerControl.setMap(map);
+  }
 
   const geosearchControl = makeSearchControl(map.getView());
   map.addControl(geosearchControl);
