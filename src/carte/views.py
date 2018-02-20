@@ -111,7 +111,8 @@ def get_event_type_information(type, label):
     params = {
         "G": ["#4a64ac", "comments"],
         "M": ["#e14b35", "bullhorn"],
-        "A": ["#c2306c", "exclamation"]
+        "A": ["#c2306c", "exclamation"],
+        "O": ["#49b37d", "calendar"]
     }
 
     return {

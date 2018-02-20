@@ -204,11 +204,13 @@ class EventSubtype(AbstractMapObjectLabel):
     TYPE_GROUP_MEETING = 'G'
     TYPE_PUBLIC_MEETING = 'M'
     TYPE_PUBLIC_ACTION = 'A'
+    TYPE_OTHER_EVENTS = 'O'
 
     TYPE_CHOICES = (
         (TYPE_GROUP_MEETING, _('Réunion de groupe')),
         (TYPE_PUBLIC_MEETING, _('Réunion publique')),
         (TYPE_PUBLIC_ACTION, _('Action publique')),
+        (TYPE_OTHER_EVENTS, _("Autres type d'événements"))
     )
 
     type = models.CharField(_("Type d'événement"), max_length=1, choices=TYPE_CHOICES)

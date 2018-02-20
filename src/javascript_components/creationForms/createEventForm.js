@@ -16,20 +16,26 @@ const apiEndpoint = API_ENDPOINT; // defined by webpack
 const groupTypes = [
   {
     id: 'G',
-    label: 'Réunion de groupe',
+    label: 'Une réunion de groupe',
     description: 'Une réunion qui concerne principalement les membres du groupes, et non le public de façon générale. ' +
     'Par exemple, la réunion hebdomadaire du groupe, une réunion de travail, ou l\'audition d\'une association'
   },
   {
     id: 'M',
-    label: 'Réunion publique',
+    label: 'Une réunion publique',
     description: 'Une réunion ouverts à tous les publics, au-delà des membres du groupe d\'action, mais qui aura lieu ' +
     'dans un lieu privé. Par exemple, une réunion publique avec un orateur, une projection ou un concert.'
   },
   {
     id: 'A',
-    label: 'Action publique',
-    description: 'Une action qui se déroulera dans un lieu public et qui '
+    label: 'Une action publique',
+    description: 'Une action qui se déroulera dans un lieu public et qui aura comme objectif principal d\'aller à la' +
+    'rencontre ou d\'atteindre des personnes extérieures à la FI'
+  },
+  {
+    id: 'O',
+    label: 'Un autre type d\'événement',
+    description: 'Tout autre type d\'événement qui ne rentre pas dans les catégories ci-dessus.'
   }
 ];
 
