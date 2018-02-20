@@ -18,7 +18,7 @@
         });
         return (
           '<a href="{{ FRONT_DOMAIN }}/evenements/' + event.id + '/" style="color:' +
-          subtype.color +
+          (subtype.color ? subtype.color : type.color) +
           ';" target="_blank">' +
           event.name +
           '</a><br /><strong>' +

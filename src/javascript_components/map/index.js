@@ -68,13 +68,13 @@ function setUpPopup(map) {
 
   map.on('singleclick', function (evt) {
     popup.setPosition();
-    const features = map.getFeaturesAtPixel(evt.pixel);
-    if (features) {
-      const coords = features[0].getGeometry().getCoordinates();
-      popup.getElement().innerHTML = features[0].get('popupContent');
-      popup.setOffset([0, features[0].get('popupAnchor')]);
+    map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+      const coords = feature.getGeometry().getCoordinates();
+      popup.getElement().innerHTML = feature.get('popupContent');
+      popup.setOffset([0, feature.get('popupAnchor')]);
       popup.setPosition(coords);
-    }
+      return true;
+    });
   });
 
   map.on('pointermove', function (evt) {
@@ -141,11 +141,22 @@ function makeLayerControl(layersConfig) {
     return label;
   });
 
-  const control = element('div', selectors, {className: 'layer_selector'});
+  const layerButton = element('button', [fontawesome('bars')]);
+  const layerButtonContainer = element(
+    'div', [layerButton],
+    {className: 'ol-unselectable ol-control layer_selector_button'}
+  );
 
-  return new Control({
-    element: control,
+  const layerBox = element('div', selectors, {className: 'layer_selector'});
+
+  layerButton.addEventListener('click', function() {
+    layerButton.textContent = layerBox.classList.toggle('visible') ? fontawesome('times') : fontawesome('bars');
   });
+
+  return [
+    new Control({element: layerButtonContainer}),
+    new Control({element: layerBox})
+  ];
 }
 
 function makeSearchControl(view) {
@@ -185,7 +196,7 @@ function makeSearchControl(view) {
         list.innerHTML = '<li><em>Pas de résultats</em></li>';
       }
       list.classList.add('show');
-    } catch(e) {
+    } catch (e) {
       list.innerHTML = '<li><em>Impossible de contacter le service de recherche d\'adresses</em></li>';
       list.classList.add('show');
     }
@@ -211,17 +222,17 @@ export async function listMap(htmlElementId, endpoint, types, subtypes, formatPo
     typeStyles[type.id] = makeStyle(type);
   }
 
-
   const map = setUpMap(htmlElementId, types.map(type => layers[type.id]));
   fitFrance(map);
   setUpPopup(map);
 
-  if(types.length > 1) {
-    const layerControl = makeLayerControl(types.map(type => ({
+  if (types.length > 1) {
+    const [layerControlButton, layerControl] = makeLayerControl(types.map(type => ({
       label: type.label,
       color: type.color,
       layer: layers[type.id]
     })));
+    layerControlButton.setMap(map);
     layerControl.setMap(map);
   }
 
