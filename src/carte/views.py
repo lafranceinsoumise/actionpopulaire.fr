@@ -69,9 +69,19 @@ class EventsView(ListAPIView):
         return super().get(request, *args, **kwargs)
 
 
+class GroupFilterSet(django_filters.rest_framework.FilterSet):
+    subtype = django_filters.ModelChoiceFilter(
+        name='subtypes', to_field_name='label', queryset=SupportGroupSubtype.objects.all()
+    )
+    class Meta:
+        model = SupportGroup
+        fields = ('subtype', )
+
+
 class GroupsView(ListAPIView):
     serializer_class = serializers.MapGroupSerializer
-    filter_backends = (BBoxFilterBackend,)
+    filter_backends = (BBoxFilterBackend, DjangoFilterBackend, )
+    filter_class = GroupFilterSet
     queryset = SupportGroup.active.filter(coordinates__isnull=False).prefetch_related('subtypes')
     authentication_classes = []
 
@@ -148,17 +158,17 @@ class EventMapView(TemplateView):
 
     def get_context_data(self, **kwargs):
         subtypes = EventSubtype.objects.all()
-        subtype_info = [get_subtype_information(st) for st in subtypes]
-        type_info = [get_event_type_information(id, str(label)) for id, label in EventSubtype.TYPE_CHOICES]
 
         params = QueryDict(mutable=True)
 
         if 'subtype' in self.request.GET:
             subtype_label = self.request.GET['subtype']
-            subtype_info = [s for s in subtype_info if s['label'] == subtype_label]
-            corresponding_types = {s['type'] for s in subtype_info}
-            type_info = [t for t in type_info if t['id'] in corresponding_types]
+            subtypes = subtypes.filter(label=subtype_label)
             params['subtype'] = self.request.GET['subtype']
+
+        subtype_info = [get_subtype_information(st) for st in subtypes]
+        types = {s.type for s in subtypes}
+        type_info = [get_event_type_information(id, str(label)) for id, label in EventSubtype.TYPE_CHOICES if id in types]
 
         querystring = ('?' + params.urlencode()) if params else ''
 
@@ -204,12 +214,24 @@ class GroupMapView(TemplateView):
 
     def get_context_data(self, **kwargs):
         subtypes = SupportGroupSubtype.objects.all()
+
+        params = QueryDict(mutable=True)
+
+        if 'subtype' in self.request.GET:
+            subtype_label = self.request.GET['subtype']
+            subtypes = subtypes.filter(label=subtype_label)
+            params['subtype'] = self.request.GET['subtype']
+
         subtype_info = [get_subtype_information(st) for st in subtypes]
-        type_info = [get_group_type_information(id, str(label)) for id, label in SupportGroup.TYPE_CHOICES]
+        types = {s.type for s in subtypes}
+        type_info = [get_group_type_information(id, str(label)) for id, label in SupportGroup.TYPE_CHOICES if id in types]
+
+        querystring = ('?' + params.urlencode()) if params else ''
 
         return super().get_context_data(
             type_config=mark_safe(json.dumps(type_info)),
             subtype_config=mark_safe(json.dumps(subtype_info)),
+            querystring=querystring,
             **kwargs
         )
 

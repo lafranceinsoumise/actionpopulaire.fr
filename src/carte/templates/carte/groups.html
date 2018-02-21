@@ -19,6 +19,6 @@ Carte des groupes d'appui
           (displayableSubtypes.length ? '<br>' + displayableSubtypes.join(' &bull; ') : '');
       }
 
-      window.map.listMap('map', '{% url "map:group_list" %}', types, subtypes, formatGroup);
+      window.map.listMap('map', '{% url "map:group_list" %}{{ querystring }}', types, subtypes, formatGroup);
     </script>
 {% endblock %}

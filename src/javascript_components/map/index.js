@@ -265,7 +265,7 @@ export async function listMap(htmlElementId, endpoint, types, subtypes, formatPo
       popupContent: formatPopup(item),
     });
 
-    if (item.subtype) {
+    if (item.subtype && subtypeStyles[item.subtype]) {
       feature.setStyle(subtypeStyles[item.subtype]);
       sourceForSubtype[item.subtype].addFeature(feature);
     } else {
