@@ -88,19 +88,14 @@ class OauthReturnView(RedirectView):
 
 class LogOffView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
-        if self.former_backend == 'front.backend.OAuth2Backend':
-            return settings.OAUTH['logoff_url']
-        else:
-            return settings.MAIN_DOMAIN
+        return f"{settings.OAUTH['logoff_url']}?next=/"
 
     def get(self, request, *args, **kwargs):
         logger.debug(
-            'Logging off with backend: %s (session %s)',
+            'User logging off: Backend: %s, session: %s',
             request.session.get(BACKEND_SESSION_KEY, None),
             request.session.get(SESSION_KEY, None)
         )
-
-        self.former_backend = request.session.get(BACKEND_SESSION_KEY, None)
 
         logout(request)
         return super().get(request, *args, **kwargs)
