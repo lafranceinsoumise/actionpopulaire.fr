@@ -1,11 +1,16 @@
+import logging
+
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.utils.http import is_safe_url
 from django.http import HttpResponseForbidden, HttpResponseBadRequest
-from django.contrib.auth import authenticate, login, logout, BACKEND_SESSION_KEY
+from django.contrib.auth import authenticate, login, logout, BACKEND_SESSION_KEY, SESSION_KEY
 from django.core.urlresolvers import reverse, reverse_lazy
 
 from requests_oauthlib import OAuth2Session
+
+
+logger = logging.getLogger(__name__)
 
 
 class OauthRedirectView(RedirectView):
@@ -89,6 +94,13 @@ class LogOffView(RedirectView):
             return settings.MAIN_DOMAIN
 
     def get(self, request, *args, **kwargs):
+        logger.debug(
+            'Logging off with backend: %s (session %s)',
+            request.session.get(BACKEND_SESSION_KEY, None),
+            request.session.get(SESSION_KEY, None)
+        )
+
         self.former_backend = request.session.get(BACKEND_SESSION_KEY, None)
+
         logout(request)
         return super().get(request, *args, **kwargs)

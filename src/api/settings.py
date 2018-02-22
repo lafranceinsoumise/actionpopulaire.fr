@@ -363,6 +363,11 @@ if not DEBUG:
                 'handlers': ['journald'],
                 'level': 'DEBUG',
                 'propagate': True,
+            },
+            'front': {
+                'handlers': ['journald'],
+                'level': 'DEBUG',
+                'propagate': True
             }
         }
     }
