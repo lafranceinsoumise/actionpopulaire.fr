@@ -11,13 +11,20 @@ import FormStep from './FormStep';
 class ContactStep extends FormStep {
   constructor(props) {
     super(props);
+    this.state.fields = {
+      name: props.fields.name || '',
+      email: props.fields.email || '',
+      phone: props.fields.phone || '',
+      hidePhone: props.fields.hidePhone || false,
+    };
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   handleSubmit(event) {
     event.preventDefault();
 
-    let phone = this.phone.value;
+    let phone = this.state.fields.phone;
     let phoneValid = false;
     try {
       let phoneNumber = phoneUtil.parse(phone, 'FR');
@@ -31,7 +38,12 @@ class ContactStep extends FormStep {
       return this.setState({errors: {phone: 'Vous devez entrer un numéro de téléphone valide.'}});
     }
 
-    this.setFields({phone, email: this.email.value, hidePhone: this.hidePhone.value});
+    this.setFields({
+      name: this.state.fields.name,
+      email: this.state.fields.email,
+      phone,
+      hidePhone: this.state.fields.hidePhone
+    });
     this.jumpToStep(this.props.step + 1);
   }
 
@@ -42,8 +54,9 @@ class ContactStep extends FormStep {
           <h4>Informations de contact</h4>
           <p>
             Ces informations sont les informations de contact. Vous devez indiquer une adresse email et un
-            numéro de téléphone. Ce ne sont pas forcément vos informations de contact personnelles&nbsp;: en
-            particulier, l'adresse email peut créée pour l'occasion et être relevée par plusieurs personnes.
+            numéro de téléphone. Vous pouvez également préciser le nom d'un·e contact. Ce ne sont pas forcément
+            vos informations de contact personnelles&nbsp;: en particulier, l'adresse email peut être créée pour
+            l'occasion et être relevée par plusieurs personnes.
           </p>
           <p>
             Vous pouvez ne pas rendre le numéro de téléphone public (surtout si c'est votre numéro personnel).
@@ -52,28 +65,36 @@ class ContactStep extends FormStep {
           </p>
           {
             this.props.step > 0 &&
-            <a className="btn btn-default"
-               onClick={() => this.jumpToStep(this.props.step - 1)}>&larr;&nbsp;Précédent</a>
+            <a className="btn btn-default" onClick={() => this.jumpToStep(this.props.step - 1)}>&larr;&nbsp;Précédent</a>
           }
         </div>
         <div className="col-md-6">
           <form onSubmit={this.handleSubmit}>
             <div className="form-group">
+              <label>Nom du contact (facultatif)</label>
+              <input className="form-control" name="name" type="text" value={this.state.fields.name} onChange={this.handleInputChange}/>
+            </div>
+            <div className="form-group">
               <label>Adresse email de contact</label>
-              <input className="form-control" ref={i => this.email = i} type="email"/>
+              <input className="form-control" name="email" type="email" value={this.state.fields.email} onChange={this.handleInputChange} required/>
             </div>
             <label>Numéro de téléphone du contact</label>
             <div className="row">
               <div className="col-md-6">
                 <div className={'form-group' + (this.state.errors.phone ? ' has-error' : '')}>
-                  <Cleave options={{phone: true, phoneRegionCode: 'FR'}} htmlRef={(i => this.phone = i)} className="form-control"/>
+                  <Cleave
+                    options={{phone: true, phoneRegionCode: 'FR'}}
+                    className="form-control"
+                    name="phone"
+                    value={this.state.fields.phone}
+                    onChange={this.handleInputChange} />
                   {this.state.errors.phone ? (<span className="help-block">{this.state.errors.phone}</span>) : ''}
                 </div>
               </div>
               <div className="col-md-6">
                 <div className="checkbox">
                   <label>
-                    <input ref={i => this.hidePhone = i} type="checkbox"/> Ne pas rendre public
+                    <input type="checkbox" name="hidePhone" checked={this.state.fields.hidePhone} onChange={this.handleInputChange}/> Ne pas rendre public
                   </label>
                 </div>
               </div>
