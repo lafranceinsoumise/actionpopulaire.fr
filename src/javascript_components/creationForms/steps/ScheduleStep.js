@@ -28,7 +28,9 @@ export default class ScheduleStep extends FormStep {
       return;
     }
 
-    this.validateDate(this.state.fields.startTime, this.state.fields.endTime);
+    if (!this.validateDate(this.state.fields.startTime, this.state.fields.endTime)) {
+      return;
+    }
     this.setFields({startTime: this.state.fields.startTime, endTime: this.state.fields.endTime});
     this.jumpToStep(this.props.step + 1);
   }
@@ -36,10 +38,16 @@ export default class ScheduleStep extends FormStep {
   validateDate(startTime, endTime) {
     if (typeof startTime === 'string' || typeof endTime === 'string') {
       this.setState({error: 'Merci de saisir des dates valides.'});
-      return;
+      return false;
+    }
+
+    if (startTime > endTime) {
+      this.setState({error: 'La date de début doit être avant la date de fin.'});
+      return false;
     }
 
     this.setState({error: null});
+    return true;
   }
 
   changeStartTime(value) {
@@ -91,7 +99,7 @@ export default class ScheduleStep extends FormStep {
               <Datetime
                 locale="fr"
                 onChange={this.changeEndTime}
-                isValidDate={d => d.isAfter((Datetime.moment(this.state.startTime) || Datetime.moment()).clone().subtract(1, 'day'))}
+                isValidDate={d => d.isAfter((Datetime.moment(this.state.fields.startTime) || Datetime.moment()).clone().subtract(1, 'day'))}
                 value={this.state.fields.endTime}
               />
             </div>
