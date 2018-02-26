@@ -37,28 +37,30 @@
                 <span class="badge">{{ event.subtype.description }}</span>
             {% endif %}
             {% if event.is_past %}<small>(événement terminé)</small>{% endif %}</h1>
+        <div class="text-right">
         {% if user.is_authenticated %}
+            {% if user.is_staff %}
+                <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:events_event_change" event.pk %}">Administration</a>
+            {% endif %}
+            {% if is_organizer %}
+                <a class="btn btn-default" href="{% url "manage_event" event.pk %}">Gérer l'événement</a>
+            {% endif %}
             {% if not event.is_past %}
                 {% if has_rsvp %}
-                    <a class="btn btn-primary pull-right" href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
+                    <a class="btn btn-primary" href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
                 {% else %}
                     <form style="display:inline;" action="{% url "view_event" event.pk %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="rsvp"/>
-                        <input type="submit" class="btn btn-primary pull-right" value="Participer à cet événement"/>
+                        <input type="submit" class="btn btn-primary" value="Participer à cet événement"/>
                     </form>
                 {% endif %}
             {% endif %}
-            {% if is_organizer %}
-                <a class="btn btn-default pull-right" href="{% url "manage_event" event.pk %}">Gérer l'événement</a>
-            {% endif %}
-            {% if user.is_staff %}
-                <a class="btn btn-default pull-right" href="{{ API_DOMAIN }}{% url "admin:events_event_change" event.pk %}">Administration</a>
-            {% endif %}
         {% else %}
-            <a class="btn btn-primary pull-right" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour
+            <a class="btn btn-primary" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour
                 participer à l'événement</a>
         {% endif %}
+        </div>
     </header>
     <div class="row">
         <div class="col-md-6">
