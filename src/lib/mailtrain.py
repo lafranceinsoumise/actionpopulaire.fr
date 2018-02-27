@@ -102,7 +102,7 @@ def update_person(person):
     data = data_from_person(person)
     emails = list(person.emails.all())
 
-    if emails.count() == 0:
+    if len(emails) == 0:
         return
 
     primary_email = emails[0]
