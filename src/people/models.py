@@ -317,7 +317,7 @@ class PersonForm(TimeStampedModel):
     )
 
     main_question = models.CharField(_("Intitulé de la question principale"), max_length=200)
-    tags = models.ManyToManyField('PersonTag', related_name='forms', related_query_name='form')
+    tags = models.ManyToManyField('PersonTag', related_name='forms', related_query_name='form', blank=True)
 
     personal_information = ArrayField(
         base_field=models.CharField(max_length=150, blank=False),
