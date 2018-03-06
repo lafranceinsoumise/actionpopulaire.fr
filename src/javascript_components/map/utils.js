@@ -28,7 +28,7 @@ export function element(tag, children = [], attrs = {}) {
       return document.createTextNode(e);
     }
     return element.apply(null, e);
-  }).forEach(e => elem.append(e));
+  }).forEach(e => elem.appendChild(e));
   deepAssign(elem, attrs);
   return elem;
 }

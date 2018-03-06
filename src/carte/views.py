@@ -217,14 +217,15 @@ class GroupMapView(TemplateView):
 
         params = QueryDict(mutable=True)
 
-        if 'subtype' in self.request.GET:
-            subtype_label = self.request.GET['subtype']
+        subtype_label = self.request.GET.get('subtype', None)
+
+        if subtype_label is not None:
             subtypes = subtypes.filter(label=subtype_label)
             params['subtype'] = self.request.GET['subtype']
 
         subtype_info = [get_subtype_information(st) for st in subtypes]
         types = {s.type for s in subtypes}
-        type_info = [get_group_type_information(id, str(label)) for id, label in SupportGroup.TYPE_CHOICES if id in types]
+        type_info = [get_group_type_information(id, str(label)) for id, label in SupportGroup.TYPE_CHOICES if subtype_label is None or id in types]
 
         querystring = ('?' + params.urlencode()) if params else ''
 
