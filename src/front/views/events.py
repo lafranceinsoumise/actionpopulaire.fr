@@ -118,11 +118,11 @@ class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
         return self.render_to_response(self.get_context_data(add_organizer_form=form))
 
 
-class CreateEventView(HardLoginRequiredMixin, TemplateView):
+class CreateEventView(SoftLoginRequiredMixin, TemplateView):
     template_name = "front/events/create.html"
 
 
-class PerformCreateEventView(HardLoginRequiredMixin, FormMixin, ProcessFormView):
+class PerformCreateEventView(SoftLoginRequiredMixin, FormMixin, ProcessFormView):
     model = Event
     form_class = EventForm
 
