@@ -848,10 +848,10 @@ class AuthenticationTestCase(TestCase):
     def test_cannot_access_hard_login_page_while_soft_logged_in(self):
         self.client.force_login(self.person.role, self.soft_backend)
 
-        response = self.client.get(reverse('create_event'))
+        response = self.client.get(reverse('create_group'))
 
         self.assertRedirects(
-            response, reverse('oauth_redirect_view') + '?next=' + reverse('create_event'),
+            response, reverse('oauth_redirect_view') + '?next=' + reverse('create_group'),
             target_status_code=status.HTTP_302_FOUND
         )
 
