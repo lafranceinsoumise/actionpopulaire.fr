@@ -21,6 +21,7 @@ class Command(BaseCommand):
         tz = pytz.timezone(tz) if tz else timezone.get_current_timezone()
 
         period = week = timezone.timedelta(days=7)
+        period_name = 'semaine'
 
         today = timezone.now().astimezone(tz).replace(hour=0, minute=0, second=0, microsecond=0)
         last_monday = today - datetime.timedelta(days=today.weekday())
@@ -40,12 +41,13 @@ class Command(BaseCommand):
             if end > today:
                 end = today
                 period = end - start
+                period_name = 'période'
 
         one_period_before = start - period
         two_period_before = start - 2 * period
 
         self.stdout.write(
-            f'Plateforme - du {start.strftime(self.date_format)} au {end.strftime(self.date_format)} (exclus)')
+            f'Plateforme - du {start.strftime(self.date_format)} au {(end-timezone.timedelta(days=1)).strftime(self.date_format)}')
         if period != week:
             self.stdout.write("Attention : durée de moins d'une semaine, périodes non comparables")
         self.stdout.write('\n')
@@ -54,8 +56,8 @@ class Command(BaseCommand):
         previous_period_new_supports = Person.objects.filter(created__range=(one_period_before, start)).count()
         even_before_new_supports = Person.objects.filter(created__range=(two_period_before, one_period_before)).count()
 
-        print('{} nouveaux signataires ({} la semaine dernière, {} celle d\'avant)'.format(
-            new_supports, previous_period_new_supports, even_before_new_supports
+        print('{} nouveaux signataires ({} la {period} précédente, {} celle d\'avant)'.format(
+            new_supports, previous_period_new_supports, even_before_new_supports, period=period_name
         ))
 
         new_groups = SupportGroup.objects.filter(created__range=(start, end), published=True).count()
