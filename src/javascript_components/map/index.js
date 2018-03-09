@@ -17,9 +17,8 @@ import proj from 'ol/proj';
 import axios from 'axios';
 import {OpenStreetMapProvider} from 'leaflet-geosearch';
 import fontawesome from 'fontawesome';
-import FontFaceOnload from 'fontfaceonload';
 
-import {element} from './utils';
+import {element, fontIsLoaded} from './utils';
 
 import 'ol/ol.css';
 import './style.css';
@@ -246,17 +245,12 @@ export async function listMap(htmlElementId, endpoint, types, subtypes, formatPo
     sourceForSubtype[subtype.id] = sources[subtype.type];
   }
 
-  const fontLoaded = new Promise((resolve, reject) => FontFaceOnload('FontAwesome', {
-    success: resolve,
-    error: reject
-  }));
-
   const res = await axios.get(endpoint);
   if (res.status !== 200) {
     return;
   }
 
-  await fontLoaded;
+  await fontIsLoaded('FontAwesome');
 
   for (let item of res.data) {
     const feature = new Feature({
@@ -275,7 +269,7 @@ export async function listMap(htmlElementId, endpoint, types, subtypes, formatPo
   }
 }
 
-export function itemMap(htmlElementId, coordinates, iconConfiguration) {
+export async function itemMap(htmlElementId, coordinates, iconConfiguration) {
   const style = makeStyle(iconConfiguration);
   const feature = new Feature({
     geometry: new Point(proj.fromLonLat(coordinates))
@@ -284,6 +278,7 @@ export function itemMap(htmlElementId, coordinates, iconConfiguration) {
   const layer = new VectorLayer({
     source: new VectorSource({features: [feature]})
   });
+  await fontIsLoaded('FontAwesome');
   const map = setUpMap(htmlElementId, [layer]);
   map.getView().setCenter(proj.fromLonLat(coordinates));
   map.getView().setZoom(14);

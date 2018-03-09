@@ -1,3 +1,5 @@
+import FontFaceOnload from 'fontfaceonload';
+
 export function getQueryParameterByName(name) {
   var url = window.location.href;
   name = name.replace(/[[\]]/g, '\\$&');
@@ -31,4 +33,11 @@ export function element(tag, children = [], attrs = {}) {
   }).forEach(e => elem.appendChild(e));
   deepAssign(elem, attrs);
   return elem;
+}
+
+export function fontIsLoaded(fontName) {
+  return new Promise((resolve, reject) => FontFaceOnload(fontName, {
+    success: resolve,
+    error: reject
+  }));
 }

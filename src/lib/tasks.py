@@ -15,8 +15,8 @@ def create_geocoder(model):
         except model.DoesNotExist:
             return
 
-        if geocode_element(item):
-            item.save()
+        geocode_element(item)
+        item.save()
 
     geocode_model.__name__ = "geocode_{}".format(model.__name__.lower())
 

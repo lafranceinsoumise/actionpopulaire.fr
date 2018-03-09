@@ -13,6 +13,8 @@ __all__ = ['SupportGroupForm', 'AddReferentForm', 'AddManagerForm', 'GroupGeocod
 
 
 class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
+    geocoding_task = geocode_support_group
+
     CHANGES = {
         'name': "information",
         'contact_email': "contact",
@@ -127,22 +129,19 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             )
 
     def schedule_tasks(self):
+        super().schedule_tasks()
+
         # create set so that values are unique, but turns to list because set are not JSON-serializable
         changes = list({self.CHANGES[field] for field in self.changed_data if field in self.CHANGES})
-        address_changed = any(f in self.instance.GEOCODING_FIELDS for f in self.changed_data)
 
         # if it's a new group creation, send the confirmation notification and geolocate it
         if self.is_creation:
             # membership attribute created by _save_m2m
             send_support_group_creation_notification.delay(self.membership.pk)
-            geocode_support_group.delay(self.instance.pk)
         else:
             # send changes notification if the notify checkbox was checked
             if changes and self.cleaned_data.get('notify'):
                 send_support_group_changed_notification.delay(self.instance.pk, changes)
-            # also geocode again if location has changed
-            if address_changed and self.instance.should_relocate_when_address_changed():
-                geocode_support_group.delay(self.instance.pk)
 
     class Meta:
         model = SupportGroup

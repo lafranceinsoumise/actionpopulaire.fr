@@ -23,9 +23,9 @@ def geocode_element(item):
     # geocoding only if got at least: city, country
     if item.location_city and item.location_country:
         if item.location_country == 'FR':
-            return geocode_ban(item)
+            geocode_ban(item)
         else:
-            return geocode_nominatim(item)
+            geocode_nominatim(item)
     else:
         item.coordinates = None
         item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
@@ -75,6 +75,7 @@ def geocode_ban(item):
             item.coordinates_type = types[feature['properties']['type']]
             return True
 
+    item.coordinates = None
     item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
 
 
@@ -113,6 +114,7 @@ def geocode_nominatim(item):
         item.coordinates_type = LocationMixin.COORDINATES_UNKNOWN_PRECISION
         return True
     else:
+        item.coordinates = None
         item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
         return True
 

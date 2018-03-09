@@ -15,6 +15,9 @@ from events.models import Event, RSVP, Calendar, OrganizerConfig
 from groups.models import SupportGroup, Membership
 from polls.models import Poll, PollOption, PollChoice
 
+from front.forms import EventForm, SupportGroupForm
+
+
 from .backend import token_generator
 
 
@@ -374,7 +377,7 @@ class EventPagesTestCase(TestCase):
             event=self.other_event
         )
 
-    @mock.patch("front.forms.events.geocode_event")
+    @mock.patch.object(EventForm, "geocoding_task")
     @mock.patch("front.forms.events.send_event_changed_notification")
     def test_can_modify_organized_event(self, patched_send_notification, patched_geocode):
         self.client.force_login(self.person.role)
@@ -610,7 +613,7 @@ class GroupPageTestCase(TestCase):
 
         self.client.force_login(self.person.role)
 
-    @mock.patch("front.forms.groups.geocode_support_group")
+    @mock.patch.object(SupportGroupForm, 'geocoding_task')
     @mock.patch("front.forms.groups.send_support_group_changed_notification")
     def test_can_modify_managed_group(self, patched_send_notification, patched_geocode):
         response = self.client.get(reverse('edit_group', kwargs={'pk': self.manager_group.pk}))
@@ -712,7 +715,7 @@ class GroupPageTestCase(TestCase):
         membership = Membership.objects.get(person=self.other_person, supportgroup=self.manager_group)
         self.assertEqual(someone_joined.delay.call_args[0][0], membership.pk)
 
-    @mock.patch("front.forms.groups.geocode_support_group")
+    @mock.patch.object(SupportGroupForm, 'geocoding_task')
     @mock.patch('front.forms.groups.send_support_group_creation_notification')
     def test_can_create_group(self, patched_send_support_group_creation_notification, patched_geocode_support_group):
         self.client.force_login(self.person.role)

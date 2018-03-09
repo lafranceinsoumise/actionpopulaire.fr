@@ -410,7 +410,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 # CELERY
 CELERY_BROKER_URL = os.environ.get('BROKER_URL', 'redis://')
 # make sure celery does not mess with the root logger
-CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+CELERY_WORKER_HIJACK_ROOT_LOGGER = DEBUG
 # enable worker events to allow monitoring
 CELERY_WORKER_SEND_TASK_EVENTS = True
 # enable task events to allow monitoring

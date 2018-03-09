@@ -15,34 +15,58 @@
         <div class="panel-heading"><strong>{{ event.name }}</strong>{% if event.is_past %} (cet événement est
             terminé){% endif %}</div>
         <div class="panel-body">
-            {% spaceless %}
-                {% if event.organizers_groups.all|length > 0 %}
+            <div class="row">
+                <div class="col-md-6">
+                    {% spaceless %}
+                        {% if event.organizers_groups.all|length > 0 %}
+                            <p>
+                                Organisé par le(s) groupe(s) d'action
+                                {% for supportgroup in event.organizers_groups.all.distinct %}
+                                    <a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a>
+                                    {% if not forloop.last %}{% if forloop.revcounter0 == 1 %} et {% else %}
+                                        , {% endif %}{% else %}.{% endif %}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+                    {% endspaceless %}
+
+                    <h6 class="subhead">Quand</h6>
+                    <p>{{ event.get_display_date }}</p>
+
+                    <h6 class="subhead">Où</h6>
                     <p>
-                        Organisé par le(s) groupe(s) d'action
-                        {% for supportgroup in event.organizers_groups.all.distinct %}
-                            <a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a>
-                            {% if not forloop.last %}{% if forloop.revcounter0 == 1 %} et {% else %}
-                                , {% endif %}{% else %}.{% endif %}
-                        {% endfor %}
+                        {{ event.html_full_address }}
                     </p>
-                {% endif %}
-            {% endspaceless %}
 
-            <h6 class="subhead">Quand</h6>
-            <p>{{ event.get_display_date }}</p>
+                    <h6 class="subhead">Contact</h6>
+                    <p>{{ event.html_full_contact }}</p>
 
-            <h6 class="subhead">Où</h6>
-            <p>{{ event.html_full_address }}</p>
-
-            <h6 class="subhead">Contact</h6>
-            <p>{{ event.html_full_contact }}</p>
+                </div>
+                <div class="col-md-6">
+                    {% if event.coordinates_type == None %}
+                        <div class="alert alert-info">Localisation sur la carte en cours, patientez un peu</div>
+                    {% elif event.coordinates_type == 255 %}
+                        <div class="alert alert-danger">
+                            Localisation sur la carte à partir de l'adresse non réussie. Merci de
+                            <a href="{% url "edit_event" event.pk %}">préciser l'adresse</a> ou
+                            <a href="{% url "change_event_location" event.pk %}">d'indiquer manuellement la position</a>.
+                        </div>
+                    {% else %}
+                        <iframe title="Carte" class="col-sm-6"
+                                src="{{ MAP_DOMAIN }}{% url "map:single_event_map" event.id %}"
+                                height="300" scrolling="no" frameBorder="0"
+                                style="width: 100%; margin: 1em 0; padding:0;"></iframe>
+                    {% endif %}
+                </div>
+            </div>
         </div>
         <div class="panel-footer">
             <ul class="list-inline">
                 {% if not event.is_past %}
                     <li>
                         <div class="help-dialog">Vous pouvez les modifier en cliquant sur ce bouton.</div>
-                        <a class="btn btn-default" href="{% url "edit_event" event.pk %}" data-turbolinks="false">Modifier ces informations</a>
+                        <a class="btn btn-default" href="{% url "edit_event" event.pk %}" data-turbolinks="false">Modifier
+                            ces informations</a>
                     </li>
                     <li>
                         <div class="help-dialog">Vous pouvez aussi changer l'endroit où votre événement apparaît sur la

@@ -2,11 +2,10 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.html import format_html
 from django.contrib.gis.forms.widgets import OSMWidget
-from django.core.validators import RegexValidator
 from crispy_forms.helper import FormHelper
 
 from .form_components import *
-from lib.geo import FRENCH_ZIPCODE_REGEX
+from lib.models import LocationMixin
 
 
 from django.utils.translation import ugettext as _
@@ -64,6 +63,8 @@ class TagMixin:
 
 
 class LocationFormMixin:
+    geocoding_task = None
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -87,6 +88,23 @@ class LocationFormMixin:
             self.add_error('location_zip', _('Le code postal est obligatoire pour les adresses françaises.'))
 
         return cleaned_data
+
+    def must_geolocate(self):
+        address_changed = any(f in LocationMixin.GEOCODING_FIELDS for f in self.changed_data)
+        return address_changed and self.instance.should_relocate_when_address_changed()
+
+    def save(self, commit=True):
+        # reset address if we must geolocate again
+        if self.must_geolocate():
+            self.instance.coordinates = None
+            self.instance.coordinates_type = None
+
+        return super().save(commit=True)
+
+    def schedule_tasks(self):
+        if self.must_geolocate():
+            self.geocoding_task.delay(self.instance.pk)
+
 
 
 class ContactFormMixin():
@@ -144,13 +162,16 @@ class GeocodingBaseForm(forms.ModelForm):
 
         self.helper.layout = Layout(*form_elements)
 
-    def save(self):
+    def save(self, commit=True):
         if self.cleaned_data.get('use_geocoding'):
+            self.instance.coordinates_type = None
+            self.instance.coordinates = None
+            super().save(commit=commit)
             self.geocoding_task.delay(self.instance.pk)
         else:
             if 'coordinates' in self.changed_data:
                 self.instance.coordinates_type = self.instance.COORDINATES_MANUAL
-                super().save(commit=True)
+                super().save(commit=commit)
 
         return self.instance
 
