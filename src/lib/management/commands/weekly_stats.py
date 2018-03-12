@@ -3,9 +3,7 @@ import pytz
 from django.core.management import BaseCommand, CommandError
 from django.utils import timezone
 
-from events.models import Event
-from groups.models import SupportGroup
-from people.models import Person
+from ...stats import *
 
 
 class Command(BaseCommand):
@@ -52,26 +50,28 @@ class Command(BaseCommand):
             self.stdout.write("Attention : durée de moins d'une semaine, périodes non comparables")
         self.stdout.write('\n')
 
-        new_supports = Person.objects.filter(created__range=(start, end)).count()
-        previous_period_new_supports = Person.objects.filter(created__range=(one_period_before, start)).count()
-        even_before_new_supports = Person.objects.filter(created__range=(two_period_before, one_period_before)).count()
+        main_week_stats = get_general_stats(start, end)
+        previous_week_stats = get_general_stats(one_period_before, start)
+        earliest_week_stats = get_general_stats(two_period_before, one_period_before)
 
         print('{} nouveaux signataires ({} la {period} précédente, {} celle d\'avant)'.format(
-            new_supports, previous_period_new_supports, even_before_new_supports, period=period_name
+            main_week_stats['new_supporters'],
+            previous_week_stats['new_supporters'],
+            earliest_week_stats['new_supporters'],
+            period=period_name
         ))
 
-        new_groups = SupportGroup.objects.filter(created__range=(start, end), published=True).count()
-        previous_week_new_groups = SupportGroup.objects.filter(created__range=(one_period_before, start),
-                                                               published=True).count()
+        print('{} nouveaux groupes ({:+d})'.format(
+            main_week_stats['new_groups'],
+            main_week_stats['new_groups'] - previous_week_stats['new_groups']
+        ))
 
-        print('{} nouveaux groupes ({:+d})'.format(new_groups, new_groups - previous_week_new_groups))
-
-        events = Event.objects.filter(published=True, end_time__range=(start, end)).count()
-        last_week_events = Event.objects.filter(published=True, end_time__range=(one_period_before, start)).count()
-
-        print('{} événements survenus ({:+d})'.format(events, last_week_events))
+        print('{} événements survenus ({:+d})'.format(
+            main_week_stats['events_happened'],
+            previous_week_stats['events_happened']
+        ))
 
         meetings = Event.objects.filter(subtype__id=10, published=True, end_time__range=(start, end)).count()
         last_week_meetings = Event.objects.filter(subtype__id=10, published=True, end_time__range=(one_period_before, start)).count()
 
-        print('dont {} réunions publiques ({:+d})'.format(meetings, last_week_meetings))
+        print('dont {} réunions publiques ({:+d})'.format(meetings, meetings - last_week_meetings))
