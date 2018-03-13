@@ -7,6 +7,7 @@ from django.utils.html import format_html
 from crispy_forms.helper import FormHelper
 from crispy_forms.bootstrap import FormActions
 
+from lib.mailtrain import delete
 from ..form_components import *
 from ..form_mixins import TagMixin, LocationFormMixin, MetaFieldsMixin
 
@@ -59,7 +60,7 @@ class UnsubscribeForm(forms.Form):
             person.subscribed = False
             person.save()
         except(Person.DoesNotExist):
-            pass
+            delete(email)
 
 
 class BaseSubscriptionForm(forms.ModelForm):
