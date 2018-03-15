@@ -13,9 +13,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('start', nargs='?', default=None, metavar='START', help='the start date')
+        parser.add_argument('end', nargs='?', default=None, metavar='END', help='then end date (not included)')
         parser.add_argument('--timezone', default=None, metavar='TIMEZONE', help='name of the timezone', dest='tz')
 
-    def handle(self, *args, start, tz, **options):
+    def handle(self, *args, start, end, tz, **options):
         tz = pytz.timezone(tz) if tz else timezone.get_current_timezone()
 
         period = week = timezone.timedelta(days=7)
@@ -34,12 +35,21 @@ class Command(BaseCommand):
             except ValueError:
                 raise CommandError('START is not a valid date (YYYY/mm/dd)')
 
-            end = start + week
+            if end is None:
+                end = start + week
 
-            if end > today:
-                end = today
+                if end > today:
+                    end = today
+                    period = end - start
+                    period_name = 'période'
+            else:
+                try:
+                    end = timezone.datetime.strptime(end, self.date_format).replace(tzinfo=timezone.get_default_timezone())
+                except ValueError:
+                    raise CommandError('START is not a valid date (YYYY/mm/dd)')
                 period = end - start
-                period_name = 'période'
+                if period != week:
+                    period_name = 'période'
 
         one_period_before = start - period
         two_period_before = start - 2 * period
@@ -47,7 +57,7 @@ class Command(BaseCommand):
         self.stdout.write(
             f'Plateforme - du {start.strftime(self.date_format)} au {(end-timezone.timedelta(days=1)).strftime(self.date_format)}')
         if period != week:
-            self.stdout.write("Attention : durée de moins d'une semaine, périodes non comparables")
+            self.stdout.write("Attention : durée différente d'une, périodes non directement comparables")
         self.stdout.write('\n')
 
         main_week_stats = get_general_stats(start, end)
@@ -72,6 +82,7 @@ class Command(BaseCommand):
         ))
 
         meetings = Event.objects.filter(subtype__id=10, published=True, end_time__range=(start, end)).count()
-        last_week_meetings = Event.objects.filter(subtype__id=10, published=True, end_time__range=(one_period_before, start)).count()
+        last_week_meetings = Event.objects.filter(subtype__id=10, published=True,
+                                                  end_time__range=(one_period_before, start)).count()
 
         print('dont {} réunions publiques ({:+d})'.format(meetings, meetings - last_week_meetings))
