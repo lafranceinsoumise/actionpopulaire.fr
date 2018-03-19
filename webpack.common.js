@@ -2,6 +2,7 @@ const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const BundleTracker = require('webpack-bundle-tracker');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const webpack = require('webpack');
 
 const DISTPATH = path.resolve(__dirname, 'src/assets/components');
@@ -25,6 +26,8 @@ module.exports = {
     new BundleTracker({path: DISTPATH}),
     new ExtractTextPlugin('theme-[contenthash].css'),
     new webpack.DefinePlugin({'API_ENDPOINT': apiEndpoint}),
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+    new BundleAnalyzerPlugin({analyzerMode: 'static'}),
   ],
   output: {
     libraryTarget: 'window',

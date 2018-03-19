@@ -5,6 +5,7 @@ const webpack = require('webpack');
 const common = require('./webpack.common.js');
 
 module.exports = merge(common, {
+  mode: 'development',
   devtool: 'inline-source-map',
   output: {
     publicPath: 'http://localhost:3000/assets/components/',
@@ -24,9 +25,11 @@ module.exports = merge(common, {
       'Access-Control-Allow-Origin': '*'
     }
   },
+  optimization: {
+    namedModules: true,
+    noEmitOnErrors: true,
+  },
   plugins: [
-    new webpack.NoEmitOnErrorsPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin(),
   ],
 });

@@ -1,6 +1,5 @@
 import axios from '../lib/axios';
 import React from 'react';
-import {PhoneNumberUtil} from 'google-libphonenumber';
 import 'react-stepzilla/src/css/main.css';
 import qs from 'querystring';
 
