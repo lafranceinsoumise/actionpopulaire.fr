@@ -113,20 +113,18 @@
             {% endfor %}
         </ul>
 
-        {% if not event.is_past %}
-            <div>
-                <div class="help-dialog">
-                    Utilisez ce formulaire pour sélectionner d'autres organisateurs. Pour pouvoir les sélectionner,
-                    elles doivent s'êtres inscrites comme participants.
-                </div>
-                <p>
-                    Vous pouvez sélectionner d'autres personnes pour co-organiser l'événement avec vous parmi celles qui
-                    ont
-                    indiqué participer à l'événement.
-                </p>
-                {% crispy add_organizer_form %}
+        <div>
+            <div class="help-dialog">
+                Utilisez ce formulaire pour sélectionner d'autres organisateurs. Pour pouvoir les sélectionner,
+                elles doivent s'êtres inscrites comme participants.
             </div>
-        {% endif %}
+            <p>
+                Vous pouvez sélectionner d'autres personnes pour co-organiser l'événement avec vous parmi celles qui
+                ont
+                indiqué participer à l'événement.
+            </p>
+            {% crispy add_organizer_form %}
+        </div>
     </div>
 
     <div>
