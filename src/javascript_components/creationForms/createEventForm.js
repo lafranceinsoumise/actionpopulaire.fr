@@ -185,6 +185,7 @@ class ValidateStep extends FormStep {
       location_country: this.state.fields.locationCountryCode,
       subtype: this.state.fields.subtype.label,
       calendar: '1',
+      as_group: qs.parse(window.location.search.slice(1)).as_group
     });
 
     try {
