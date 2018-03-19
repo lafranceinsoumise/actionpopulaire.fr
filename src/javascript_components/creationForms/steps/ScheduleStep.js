@@ -41,6 +41,11 @@ export default class ScheduleStep extends FormStep {
       return false;
     }
 
+    if (startTime < new Date()) {
+      this.setState({error: "L'événement doit se passer dans le futur."});
+      return false;
+    }
+
     if (startTime > endTime) {
       this.setState({error: 'La date de début doit être avant la date de fin.'});
       return false;
