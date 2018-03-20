@@ -6,15 +6,18 @@ from django.utils.timezone import get_default_timezone
 from django.conf import settings
 from django.urls import reverse
 
+from lib.export import dicts_to_csv_lines
 from front import urls as front_urls
 
 
-__all__ = ['event_queryset_to_csv']
+__all__ = ['events_to_csv', 'events_to_csv_lines']
 
 
-COMMON_FIELDS = ['name', 'contact_email', 'contact_phone', 'description', 'start_time', 'end_time']
+COMMON_FIELDS = ['name', 'published', 'contact_email', 'contact_phone', 'description', 'start_time', 'end_time']
 ADRESS_FIELDS = ['location_name', 'location_address1', 'location_zip', 'location_city']
 LINK_FIELDS = ['link', 'admin_link']
+
+FIELDS = COMMON_FIELDS + ['address', 'animators'] + LINK_FIELDS
 
 common_extractor = attrgetter(*COMMON_FIELDS)
 address_parts_extractor = attrgetter(*ADRESS_FIELDS)
@@ -25,14 +28,21 @@ address_template = "{}, {}, {} {}"
 initiator_template = "{} {} {} <{}>"
 
 
-def event_queryset_to_csv(queryset, output, timezone=None):
+def events_to_csv(queryset, output, timezone=None):
+    w = csv.DictWriter(output, fieldnames=FIELDS)
+    w.writeheader()
+    w.writerows(events_to_dicts(queryset, timezone))
+
+
+def events_to_csv_lines(queryset, timezone=None):
+    return dicts_to_csv_lines(events_to_dicts(queryset, timezone), FIELDS)
+
+
+def events_to_dicts(queryset, timezone=None):
     if timezone is None:
         timezone = get_default_timezone()
 
-    w = csv.DictWriter(output, fieldnames=COMMON_FIELDS + ['address', 'animators'] +  LINK_FIELDS)
-    w.writeheader()
-
-    for e in queryset.prefetch_related('organizer_configs'):
+    for e in queryset.iterator():
         d = {k: v for k, v in zip(COMMON_FIELDS, common_extractor(e))}
 
         d['start_time'] = d['start_time'].astimezone(timezone).strftime('%d/%m %H:%M')
@@ -48,4 +58,4 @@ def event_queryset_to_csv(queryset, output, timezone=None):
         d['link'] = settings.FRONT_DOMAIN + reverse('manage_event', urlconf=front_urls, args=[e.id])
         d['admin_link'] = settings.API_DOMAIN + reverse('admin:events_event_change', args=[e.id])
 
-        w.writerow(d)
+        yield d

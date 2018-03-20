@@ -7,6 +7,7 @@ from django.db.models import F, Sum
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.html import format_html, escape
+from django.http import StreamingHttpResponse
 from django import forms
 from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
@@ -18,6 +19,7 @@ from lib.form_fields import AdminRichEditorWidget
 from front.utils import front_url
 
 from . import models
+from .actions import events_to_csv_lines
 
 
 class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
@@ -175,6 +177,8 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
 
+    actions = ('export_events',)
+
     def location_short(self, object):
         return _('{zip} {city}, {country}').format(
             zip=object.location_zip,
@@ -206,6 +210,17 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
         return qs.annotate(attendee_count=Sum(1 + F('rsvps__guests')))
 
+    def export_events(self, request, queryset):
+        response =  StreamingHttpResponse(
+            events_to_csv_lines(queryset),
+            content_type='text/csv',
+        )
+        response['Content-Disposition'] = 'inline; filename=export_events_{}.csv'.format(
+            timezone.now().astimezone(timezone.get_default_timezone()).strftime('%Y%m%d_%H%M')
+        )
+
+        return response
+    export_events.short_description = _("Exporter les événements en CSV")
 
 @admin.register(models.Calendar, site=admin_site)
 class CalendarAdmin(admin.ModelAdmin):

@@ -55,3 +55,4 @@ qrcode = "*"
 
 [dev-packages]
 
+ipython = "*"
