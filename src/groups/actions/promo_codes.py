@@ -14,6 +14,9 @@ DIGESTMOD = hashlib.sha1
 BASE64ENC = base64.urlsafe_b64encode
 
 
+__all__ = ['get_next_promo_code']
+
+
 def generate_date_fragment(expiration_date):
     """Generate a two-character encoding of the expiration date
 
