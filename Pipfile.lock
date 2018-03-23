@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d0c1b1c8c59c9daf8e60baa3867c9fe0b02e7ea655e405bf767fbfd5ace3a40e"
+            "sha256": "d7f67214cd06ca14bbe82bf5ba2e217188eb6a2416deff4c9e94de49e8354019"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -158,9 +158,9 @@
         },
         "django-admin-steroids": {
             "hashes": [
-                "sha256:69bcd128d70d00a51744bd5d02150aa8f09925def8d766587e7db89b8f799e6b"
+                "sha256:4265df4578db954b6fd5f04bc2d0563cccb6bd33080b47764ffff4d87eb10594"
             ],
-            "version": "==1.0.21"
+            "version": "==1.0.22"
         },
         "django-ajax-selects": {
             "hashes": [
@@ -325,6 +325,12 @@
                 "sha256:a6be69091dac236ea9c6bc7d012beab42010fa914c459791d627dad4910eb665"
             ],
             "version": "==1.0"
+        },
+        "mpmath": {
+            "hashes": [
+                "sha256:04d14803b6875fe6d69e6dccea87d5ae5599802e4b1df7997bddd2024001050c"
+            ],
+            "version": "==1.0.0"
         },
         "oauthlib": {
             "hashes": [
@@ -501,10 +507,10 @@
         },
         "qrcode": {
             "hashes": [
-                "sha256:60222a612b83231ed99e6cb36e55311227c395d0d0f62e41bb51ebbb84a9a22b",
-                "sha256:4115ccee832620df16b659d4653568331015c718a754855caf5930805d76924e"
+                "sha256:de4ffc15065e6ff20a551ad32b6b41264f3c75275675406ddfa8e3530d154be3",
+                "sha256:037b0db4c93f44586e37f84c3da3f763874fcac85b2974a69a98e399ac78e1bf"
             ],
-            "version": "==5.3"
+            "version": "==6.0"
         },
         "redis": {
             "hashes": [
@@ -555,6 +561,12 @@
                 "sha256:ce028444cfab83be538752a2ffdb56bc417b7784ff35bb9a3062413717807dec"
             ],
             "version": "==0.2.4"
+        },
+        "sympy": {
+            "hashes": [
+                "sha256:ac5b57691bc43919dcc21167660a57cc51797c28a4301a6144eff07b751216a4"
+            ],
+            "version": "==1.1.1"
         },
         "systemd": {
             "hashes": [

@@ -2,12 +2,52 @@ import sys
 import argparse
 import csv
 from itertools import chain
+
+from sympy import symbols
+from sympy.polys import Poly, rem
+
 from django.core.management.base import BaseCommand, CommandError
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils import timezone
 
 from groups.models import SupportGroupSubtype
 from people.models import Person
+
+
+X = symbols('x')
+
+CORR_CHARS = {i: str(i) for i in range(10)}
+CORR_CHARS[10] = 'A'
+CORR_CHARS[11] = 'B'
+CORR_CHARS[12] = 'C'
+
+
+def normalize_poly(p):
+    return Poly.from_list((c % 13 for c in p.coeffs()), X)
+
+
+G = normalize_poly(Poly((X-2)*(X-4)*(X-8)))
+
+
+def create_code_from_int(c, length=6):
+    coeffs = []
+
+    while c:
+        coeffs.append(c % 10)
+        c = c // 10
+
+    coeffs = list(reversed(coeffs))
+
+    a = Poly.from_list(coeffs, X)
+    b = rem(a * X**3, G)
+
+    m = normalize_poly(a * X**3 - b)
+
+    return ''.join(CORR_CHARS[i] for i in m.coeffs()).zfill(length)
+
+
+def decode(c):
+    return int(c[:-3])
 
 
 class Command(BaseCommand):
@@ -17,6 +57,12 @@ class Command(BaseCommand):
            " and fair representation of people who selected 'Other/Not defined' as gender"
     requires_migrations_checks = True
 
+    def date(self, d):
+        try:
+            return timezone.datetime.strptime(d, self.date_format).replace(tzinfo=timezone.get_default_timezone())
+        except ValueError:
+            raise argparse.ArgumentTypeError(f'{d} is not a valid date')
+
     def add_arguments(self, parser):
         parser.add_argument(
             '-o', '--output',
@@ -24,16 +70,29 @@ class Command(BaseCommand):
             help='Csv file to which the list will be exported'
         )
 
+        parser.add_argument('reference_date')
+
         parser.add_argument(
             'draw_count',
-            type=int
+            type=self.date
         )
 
-        parser.add_argument('-c', '--certified-on', dest='certified')
-        parser.add_argument('-n', '--not-certified-on', dest='not_certified')
-        parser.add_argument('-p', '-previous-draw', dest='previous')
+        parser.add_argument('-c', '--certified-on', dest='certified', action='store_true')
+        parser.add_argument('-n', '--not-certified-on', dest='not_certified', action='store_true')
+        parser.add_argument('-p', '--previous-draw', dest='previous', type=argparse.FileType('r'))
 
-    def handle(self, draw_count, outfile, certified, not_certified, previous, **kwargs):
+    def handle(self, draw_count, reference_date, outfile, certified, not_certified, previous, **kwargs):
+        if previous:
+            r = csv.DictReader(previous)
+            previously_drawn = list(r)
+
+            starting_number = max(decode(p['numero']) for p in previously_drawn) + 1
+            ignore_ids = [p['id'] for p in previously_drawn]
+        else:
+            starting_number = 1
+            ignore_ids = []
+
+
         # setting order_by 'gender' so that the created field is not included in the groupby clause
         if draw_count % 2 != 0:
             raise CommandError('Number of persons to draw is not even.')
@@ -41,16 +100,18 @@ class Command(BaseCommand):
         if certified and not_certified:
             raise CommandError('Set either --certified-only OR --not-certified-only')
 
-        base_qs = Person.objects.filter(draw_participation=True)
+        base_qs = Person.objects.filter(draw_participation=True, created__gt=reference_date).exclude(id__in=ignore_ids)
 
         certified_subtype = SupportGroupSubtype.objects.get(label="certifié")
+        certified_cond = Q(
+            memberships__supportgroup__subtypes=certified_subtype,
+            memberships__created__lt=reference_date
+        )
 
         if certified:
-            date = timezone.datetime.strptime(certified, self.date_format).replace(tzinfo=timezone.get_default_timezone())
-            base_qs = base_qs.filter(memberships__supportgroup__subtypes=certified_subtype, memberships__created__lt=date)
+            base_qs = base_qs.filter(certified_cond)
         if not_certified:
-            date = timezone.datetime.strptime(not_certified, self.date_format).replace(tzinfo=timezone.get_default_timezone())
-            base_qs = base_qs.exclude(memberships__supportgroup__subtypes=certified_subtype, memberships__created__lt=date)
+            base_qs = base_qs.exclude(certified_cond)
 
         counts = {
             d['gender']: d['c'] for d in
@@ -75,4 +136,9 @@ class Command(BaseCommand):
 
         for numero, p in enumerate(chain.from_iterable(participants)):
             # add one so that sequence numbers start with 1
-            writer.writerow({'numero': numero+1, 'id': p.id, 'email': p.email, 'gender': p.gender})
+            writer.writerow({
+                'numero': create_code_from_int(numero+starting_number),
+                'id': p.id,
+                'email': p.email,
+                'gender': p.gender
+            })

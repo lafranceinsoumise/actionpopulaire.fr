@@ -14,7 +14,7 @@ python_version = '3.6'
 
 bleach = "==2.1.*"
 celery = "==4.0.*"
-celery-prometheus-exporter = "==1.1.*"
+celery-prometheus-exporter = "==1.*"
 coverage = "==4.4.*"
 dj-database-url = "==0.4.*"
 dj-email-url = "==0.0.*"
@@ -51,6 +51,7 @@ systemd = "==0.10.0"
 "psycopg2" = "*"
 django-otp = "*"
 qrcode = "*"
+sympy = "*"
 
 
 [dev-packages]
