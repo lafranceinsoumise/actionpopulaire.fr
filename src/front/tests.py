@@ -329,7 +329,7 @@ class EventPagesTestCase(TestCase):
         self.group = SupportGroup.objects.create(name='Group name')
         Membership.objects.create(supportgroup=self.group, person=self.person, is_manager=True)
 
-        now = timezone.now()
+        self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
 
@@ -390,8 +390,8 @@ class EventPagesTestCase(TestCase):
             data={
                 'name': 'New Name',
                 'calendar': self.calendar.pk,
-                'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
-                'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
+                'start_time': formats.localize_input(self.now + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
+                'end_time': formats.localize_input(self.now + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
                 'contact_name': 'Arthur',
                 'contact_email': 'a@ziefzji.fr',
                 'contact_phone': '06 06 06 06 06',
