@@ -102,7 +102,7 @@ class Command(BaseCommand):
 
         college = 'certified' if certified else 'not-certified' if not_certified else 'all'
 
-        base_qs = Person.objects.filter(draw_participation=True, created__gt=reference_date).exclude(id__in=ignore_ids)
+        base_qs = Person.objects.filter(draw_participation=True, created__lt=reference_date).exclude(id__in=ignore_ids)
 
         certified_subtype = SupportGroupSubtype.objects.get(label="certifié")
         certified_cond = Q(
