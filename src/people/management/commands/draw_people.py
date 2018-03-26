@@ -76,12 +76,9 @@ class Command(BaseCommand):
             help='Csv file to which the list will be exported'
         )
 
-        parser.add_argument('reference_date')
+        parser.add_argument('reference_date', type=self.date)
 
-        parser.add_argument(
-            'draw_count',
-            type=self.date
-        )
+        parser.add_argument('draw_count', type=int)
 
         parser.add_argument('-g', '--gender')
 
