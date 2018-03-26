@@ -103,6 +103,8 @@ class Command(BaseCommand):
         if certified and not_certified:
             raise CommandError('Set either --certified-only OR --not-certified-only')
 
+        college = 'certified' if certified else 'not-certified' if not_certified else 'all'
+
         base_qs = Person.objects.filter(draw_participation=True, created__gt=reference_date).exclude(id__in=ignore_ids)
 
         certified_subtype = SupportGroupSubtype.objects.get(label="certifié")
@@ -145,7 +147,7 @@ class Command(BaseCommand):
         for g, n in draws.items():
             participants.append(base_qs.filter(gender=g).order_by('?')[:n])
 
-        writer = csv.DictWriter(outfile, fieldnames=['numero', 'id', 'email', 'gender'])
+        writer = csv.DictWriter(outfile, fieldnames=['numero', 'id', 'email', 'gender', 'college'])
         writer.writeheader()
 
         for numero, p in enumerate(chain.from_iterable(participants)):
@@ -154,5 +156,6 @@ class Command(BaseCommand):
                 'numero': create_code_from_int(numero+starting_number),
                 'id': p.id,
                 'email': p.email,
-                'gender': p.gender
+                'gender': p.gender,
+                'college': college
             })
