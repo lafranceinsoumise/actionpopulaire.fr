@@ -2,6 +2,7 @@ import sys
 import argparse
 import csv
 from itertools import chain
+from random import choices
 
 from sympy import symbols
 from sympy.polys import Poly, rem
@@ -68,6 +69,10 @@ class Command(BaseCommand):
             return timezone.datetime.strptime(d, self.date_format).replace(tzinfo=timezone.get_default_timezone())
         except ValueError:
             raise argparse.ArgumentTypeError(f'{d} is not a valid date')
+
+    def draw(self, queryset, draw_count):
+        ids = set(queryset.value_list('id', flat=True))
+        return [Person.objects.get(pk=id) for id in choices(ids, k=draw_count)]
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -142,7 +147,7 @@ class Command(BaseCommand):
 
         # DRAWING HAPPENS HERE
         for g, n in draws.items():
-            participants.append(base_qs.filter(gender=g).order_by('?')[:n])
+            participants.append(self.draw(base_qs.filter(gender=g), n))
 
         writer = csv.DictWriter(outfile, fieldnames=['numero', 'id', 'email', 'gender', 'college'])
         writer.writeheader()
