@@ -21,9 +21,11 @@ CORR_CHARS[10] = 'A'
 CORR_CHARS[11] = 'B'
 CORR_CHARS[12] = 'C'
 
+INVERSE_CORR = {v:k for k, v in CORR_CHARS.items()}
+
 
 def normalize_poly(p):
-    return Poly.from_list((c % 13 for c in p.coeffs()), X)
+    return Poly.from_list((c % 13 for c in p.all_coeffs()), X)
 
 
 G = normalize_poly(Poly((X-2)*(X-4)*(X-8)))
@@ -43,11 +45,15 @@ def create_code_from_int(c, length=6):
 
     m = normalize_poly(a * X**3 - b)
 
-    return ''.join(CORR_CHARS[i] for i in m.coeffs()).zfill(length)
+    return ''.join(CORR_CHARS[i] for i in m.all_coeffs()).zfill(length)
 
 
 def decode(c):
-    return int(c[:-3])
+    p = Poly.from_list(map(INVERSE_CORR.get, c), X)
+    if all(p.subs(X, f) % 13 == 0 for f in [2, 4, 8]):
+        return int(c[:-3])
+    else:
+        return None
 
 
 class Command(BaseCommand):
@@ -77,25 +83,22 @@ class Command(BaseCommand):
             type=self.date
         )
 
+        parser.add_argument('-g', '--gender')
+
         parser.add_argument('-c', '--certified-on', dest='certified', action='store_true')
         parser.add_argument('-n', '--not-certified-on', dest='not_certified', action='store_true')
-        parser.add_argument('-p', '--previous-draw', dest='previous', type=argparse.FileType('r'))
+        parser.add_argument('-p', '--previous-draw', dest='previous_draws', type=argparse.FileType('r'), action='append')
 
-    def handle(self, draw_count, reference_date, outfile, certified, not_certified, previous, **kwargs):
-        if previous:
-            r = csv.DictReader(previous)
+    def handle(self, draw_count, reference_date, outfile, certified, not_certified, previous_draws, gender, **kwargs):
+        ignore_ids = set()
+        starting_number = 1
+
+        for p in previous_draws:
+            r = csv.DictReader(p)
             previously_drawn = list(r)
 
-            starting_number = max(decode(p['numero']) for p in previously_drawn) + 1
-            ignore_ids = [p['id'] for p in previously_drawn]
-        else:
-            starting_number = 1
-            ignore_ids = []
-
-
-        # setting order_by 'gender' so that the created field is not included in the groupby clause
-        if draw_count % 2 != 0:
-            raise CommandError('Number of persons to draw is not even.')
+            starting_number = max(starting_number, max(decode(p['numero']) for p in previously_drawn) + 1)
+            ignore_ids.update(p['id'] for p in previously_drawn)
 
         if certified and not_certified:
             raise CommandError('Set either --certified-only OR --not-certified-only')
@@ -113,22 +116,33 @@ class Command(BaseCommand):
         if not_certified:
             base_qs = base_qs.exclude(certified_cond)
 
-        counts = {
-            d['gender']: d['c'] for d in
-            base_qs.order_by('gender').values('gender').annotate(c=Count('gender'))
-        }
+        if not gender:
+            # setting order_by 'gender' so that the created field is not included in the groupby clause
+            counts = {
+                d['gender']: d['c'] for d in
+                base_qs.order_by('gender').values('gender').annotate(c=Count('gender'))
+            }
 
-        total_count = sum(counts[g] for g in [Person.GENDER_FEMALE, Person.GENDER_MALE, Person.GENDER_OTHER])
-        other_draw_count = round(draw_count * counts[Person.GENDER_OTHER] / total_count / 2) * 2
-        gendered_draw_count = (draw_count - other_draw_count) / 2
+            total_count = sum(counts[g] for g in [Person.GENDER_FEMALE, Person.GENDER_MALE, Person.GENDER_OTHER])
+            other_draw_count = round(draw_count * counts[Person.GENDER_OTHER] / total_count / 2) * 2
+            gendered_draw_count = (draw_count - other_draw_count) / 2
 
-        if counts[Person.GENDER_MALE] < gendered_draw_count or counts[Person.GENDER_FEMALE] < gendered_draw_count:
-            raise CommandError("Not enough volunteers for drawing with parity")
+            if counts[Person.GENDER_MALE] < gendered_draw_count or counts[Person.GENDER_FEMALE] < gendered_draw_count:
+                raise CommandError("Not enough volunteers for drawing with parity")
+
+            draws = {
+                Person.GENDER_FEMALE: gendered_draw_count,
+                Person.GENDER_MALE: gendered_draw_count,
+                Person.GENDER_OTHER: other_draw_count
+            }
+
+        else:
+            draws = {gender: draw_count}
 
         participants = []
 
         # DRAWING HAPPENS HERE
-        for g, n in {Person.GENDER_FEMALE: gendered_draw_count, Person.GENDER_MALE: gendered_draw_count, Person.GENDER_OTHER: other_draw_count}.items():
+        for g, n in draws.items():
             participants.append(base_qs.filter(gender=g).order_by('?')[:n])
 
         writer = csv.DictWriter(outfile, fieldnames=['numero', 'id', 'email', 'gender'])
