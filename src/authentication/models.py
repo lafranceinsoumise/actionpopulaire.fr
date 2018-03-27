@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, _user_has_perm
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class RoleManager(BaseUserManager):
@@ -41,9 +42,15 @@ class Role(PermissionsMixin, AbstractBaseUser):
 
     def __str__(self):
         if self.type == self.CLIENT_ROLE:
-            return 'Client role -> %r' % self.client
+            try:
+                return 'Client role -> %r' % self.client
+            except ObjectDoesNotExist:
+                return 'Unknown Client role %s' % self.pk
         elif self.type == self.PERSON_ROLE:
-            return 'Person role -> %r' % self.person
+            try:
+                return 'Person role -> %r' % self.person
+            except ObjectDoesNotExist:
+                return 'Unknown Client role %s' % self.pk
         else:
             return 'Unknown role %s' % self.pk
 
