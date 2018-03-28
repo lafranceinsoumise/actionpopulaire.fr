@@ -23,34 +23,6 @@ from .actions import events_to_csv_lines
 
 
 class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
-    calendars = forms.ModelMultipleChoiceField(
-        queryset=models.Calendar.objects.all(),
-        required=False,
-        label='Agendas',
-        help_text=_('Maintenez appuyé « Ctrl », ou « Commande (touche pomme) » sur un Mac, pour en sélectionner plusieurs.')
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['calendars'].initial = self.instance.calendars.all()
-
-    def _save_m2m(self):
-        super()._save_m2m()
-
-        current_calendars = set(c.pk for c in self.instance.calendars.all())
-        new_calendars = set(c.pk for c in self.cleaned_data['calendars'])
-
-        # delete items for removed calendars
-        models.CalendarItem.objects.filter(
-            event=self.instance, calendar_id__in=current_calendars - new_calendars
-        ).delete()
-
-        # add items for added calendars
-        models.CalendarItem.objects.bulk_create(
-            models.CalendarItem(event=self.instance, calendar_id=c) for c in new_calendars - current_calendars
-        )
-
     class Meta:
         exclude = (
             'id', 'organizers', 'attendees'
@@ -168,7 +140,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('id', 'name', 'link', 'created', 'modified')
         }),
         (_('Informations'), {
-            'fields': ('subtype', 'description', 'allow_html', 'image', 'start_time', 'end_time', 'calendars', 'tags', 'published'),
+            'fields': ('subtype', 'description', 'allow_html', 'image', 'start_time', 'end_time', 'calendar', 'tags', 'published'),
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
@@ -190,12 +162,12 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     readonly_fields = ('id', 'link', 'organizers', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'start_time'
 
-    list_display = ('name', 'published', 'calendar_names', 'location_short', 'attendee_count', 'start_time', 'created')
+    list_display = ('name', 'published', 'calendar_title', 'location_short', 'attendee_count', 'start_time', 'created')
     list_filter = (
         'published',
         'subtype__type',
         'subtype',
-        'calendars',
+        'calendar',
         EventHasReportFilter,
         EventStatusFilter,
         ('location_city', AjaxFieldFilter),
@@ -216,9 +188,10 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     location_short.short_description = _("Lieu")
     location_short.admin_order_field = 'location_city'
 
-    def calendar_names(self, object):
-        return ', '.join(c.name for c in object.calendars.all())
-    calendar_names.short_description = _('Agendas')
+    def calendar_title(self, object):
+        return object.calendar.name
+    calendar_title.short_description = _('Agenda')
+    calendar_title.admin_order_field = 'calendar__name'
 
     def attendee_count(self, object):
         return object.attendee_count
@@ -248,7 +221,6 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
         return response
     export_events.short_description = _("Exporter les événements en CSV")
-
 
 @admin.register(models.Calendar, site=admin_site)
 class CalendarAdmin(admin.ModelAdmin):

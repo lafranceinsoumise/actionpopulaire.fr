@@ -20,7 +20,7 @@ from . import models, authentication, tokens, scopes
 from .viewsets import LegacyClientViewSet
 
 from people.models import Person
-from events.models import Event, Calendar, OrganizerConfig, CalendarItem
+from events.models import Event, Calendar, OrganizerConfig
 from authentication.models import Role
 
 
@@ -119,10 +119,6 @@ class ScopeTestCase(APITestCase):
             name='Test event',
             start_time=timezone.now(),
             end_time=timezone.now() + timezone.timedelta(hours=4),
-        )
-
-        CalendarItem.objects.create(
-            event=self.event,
             calendar=self.calendar
         )
 

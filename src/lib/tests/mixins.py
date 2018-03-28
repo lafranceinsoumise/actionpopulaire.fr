@@ -79,16 +79,19 @@ def load_fake_data():
             name='Événement créé par user1',
             start_time=timezone.now() + timedelta(days=1),
             end_time=timezone.now() + timedelta(days=1, hours=1),
+            calendar=calendars['evenements_locaux'],
         ),
         'user1_event2': Event.objects.create(
             name='Autre événement créé par user1 sans personne dedans',
             start_time=timezone.now() + timedelta(days=1),
             end_time=timezone.now() + timedelta(days=1, hours=1),
+            calendar=calendars['evenements_locaux'],
         ),
         'user1_past_event': Event.objects.create(
             name='Événement passé créé par user1',
             start_time=timezone.now() + timedelta(days=-1),
             end_time=timezone.now() + timedelta(days=-1, hours=1),
+            calendar=calendars['evenements_locaux'],
             report_content=LOREM_IPSUM
         ),
         'user1_unpublished_event': Event.objects.create(
@@ -96,6 +99,7 @@ def load_fake_data():
             published=False,
             start_time=timezone.now() + timedelta(days=1),
             end_time=timezone.now() + timedelta(days=1, hours=1),
+            calendar=calendars['evenements_locaux'],
         )
     }
     [OrganizerConfig.objects.create(
@@ -113,6 +117,7 @@ def load_fake_data():
         'people': people,
         'groups': groups,
         'events': events,
+        'groups': groups,
         'thematic_groups': thematic_groups,
         'group_subtypes': groups_subtypes,
     }

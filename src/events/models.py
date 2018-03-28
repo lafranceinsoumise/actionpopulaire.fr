@@ -100,7 +100,6 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
 
     subtype = models.ForeignKey(
         'EventSubtype',
-        verbose_name='Sous-type',
         related_name='events',
         on_delete=models.PROTECT,
         default=get_default_subtype,
@@ -112,6 +111,8 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
 
     start_time = CustomDateTimeField(_('date et heure de début'), blank=False)
     end_time = CustomDateTimeField(_('date et heure de fin'), blank=False)
+
+    calendar = models.ForeignKey('Calendar', related_name='events', blank=False, on_delete=models.PROTECT)
 
     attendees = models.ManyToManyField('people.Person', related_name='events', through='RSVP')
 
@@ -242,8 +243,6 @@ class Calendar(NationBuilderResource, ImageMixin):
     name = models.CharField(_("titre"), max_length=255)
     slug = models.SlugField(_("slug"))
 
-    events = models.ManyToManyField('Event', related_name='calendars', through='CalendarItem')
-
     user_contributed = models.BooleanField(_('Les utilisateurs peuvent ajouter des événements'), default=False)
 
     description = models.TextField(_('description'), blank=True,
@@ -264,14 +263,6 @@ class Calendar(NationBuilderResource, ImageMixin):
 
     def __str__(self):
         return self.name
-
-
-class CalendarItem(TimeStampedModel):
-    event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='calendar_items')
-    calendar = models.ForeignKey('Calendar', on_delete=models.CASCADE, related_name='items')
-
-    class Meta:
-        verbose_name = _('Élément de calendrier')
 
 
 class RSVP(TimeStampedModel):

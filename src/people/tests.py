@@ -136,8 +136,11 @@ class LegacyPersonEndpointTestCase(APITestCase):
         self.adder_person.role.user_permissions.add(add_permission)
         self.changer_person.role.user_permissions.add(view_permission, change_permission)
 
+        calendar = Calendar.objects.create_calendar('calendar')
+
         self.event = Event.objects.create(
             name='event',
+            calendar=calendar,
             start_time=timezone.now(),
             end_time=timezone.now() + timezone.timedelta(hours=2)
         )
