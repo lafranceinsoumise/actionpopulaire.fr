@@ -91,13 +91,14 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
             self.fields['emails'] = PersonEmailSerializer(required=False, many=True, context=self.context)
 
     def validate_email(self, value):
+
         try:
-            queryset = models.PersonEmail.objects.all()
-            if self.instance is not None:
-                queryset = queryset.exclude(person=self.instance)
-            queryset.get(address=BaseUserManager.normalize_email(value))
+            pe = models.PersonEmail.objects.get_by_natural_key(value)
         except models.PersonEmail.DoesNotExist:
             return value
+
+        if pe.person == self.instance:
+            return pe.address
 
         raise serializers.ValidationError('Email already exists', code='unique')
 

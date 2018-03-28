@@ -66,6 +66,14 @@ class MessagePreferencesTestCase(TestCase):
         res = self.client.post('/message_preferences/adresses/', data={'address': 'test3@test.com'})
         self.assertRedirects(res, '/message_preferences/adresses/')
 
+        res = self.client.post('/message_preferences/adresses/', data={'address': 'TeST4@TeSt.COM'})
+        self.assertRedirects(res, '/message_preferences/adresses/')
+
+        self.assertCountEqual(
+            [e.address for e in self.person.emails.all()],
+            ['test@test.com', 'test2@test.com', 'test3@test.com', 'test4@test.com']
+        )
+
     def test_can_stop_messages(self):
         res = self.client.post('/message_preferences/', data={
             'no_mail': True,
@@ -96,7 +104,6 @@ class ProfileFormTestCase(TestCase):
     @mock.patch('front.forms.people.geocode_person')
     def test_can_change_address(self, geocode_person):
         self.client.force_login(self.person.role)
-
 
         address_fields = {
             'location_address1': '73 boulevard Arago',

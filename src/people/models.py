@@ -231,18 +231,18 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
 
     def add_email(self, email_address, **kwargs):
         try:
-            email = self.emails.get(address=BaseUserManager.normalize_email(email_address))
+            email = self.emails.get_by_natural_key(email_address)
             email.bounced = kwargs['bounced'] if kwargs.get('bounced', None) is not None else email.bounced
             email.bounced_date = kwargs['bounced_date'] if kwargs.get('bounced_date', None) is not None else email.bounced_date
             email.save()
         except ObjectDoesNotExist:
-            PersonEmail.objects.create(address=BaseUserManager.normalize_email(email_address), person=self, **kwargs)
+            PersonEmail.objects.create_email(address=email_address, person=self, **kwargs)
 
     def set_primary_email(self, email_address):
         if isinstance(email_address, PersonEmail):
             email_instance = email_address
         else:
-            email_instance = self.emails.get(address=BaseUserManager.normalize_email(email_address))
+            email_instance = self.emails.get_by_natural_key(email_address)
         order = list(self.get_personemail_order())
         order.remove(email_instance.id)
         order.insert(0, email_instance.id)
@@ -261,10 +261,39 @@ class PersonTag(AbstractLabel):
         verbose_name = _('tag')
 
 
+class PersonEmailManager(models.Manager):
+    @classmethod
+    def normalize_email(cls, email, *, lowercase_local_part=True):
+        try:
+            local_part, domain = email.strip().rsplit('@', 1)
+        except ValueError:
+            pass
+        else:
+            email = '@'.join([local_part.lower() if lowercase_local_part else local_part, domain.lower()])
+        return email
+
+    def create_email(self, address, person, *, lowercase_local_part=True, **kwargs):
+        return self.create(
+            address=self.normalize_email(address, lowercase_local_part=lowercase_local_part),
+            person=person,
+            **kwargs
+        )
+
+    def get_by_natural_key(self, address):
+        # look first without lowercasing email
+        try:
+            return self.get(address=self.normalize_email(address, lowercase_local_part=False))
+        # if it does not exist, lowercase it
+        except self.model.DoesNotExist:
+            return self.get(address=self.normalize_email(address, lowercase_local_part=True))
+
+
 class PersonEmail(models.Model):
     """
     Model that represent a person email address
     """
+    objects = PersonEmailManager()
+
     address = models.EmailField(
         _('adresse email'),
         unique=True,
@@ -304,6 +333,9 @@ class PersonEmail(models.Model):
 
     def __str__(self):
         return self.address
+
+    def clean(self):
+        self.address = PersonEmail.objects.normalize_email(self.address)
 
 
 class PersonForm(TimeStampedModel):

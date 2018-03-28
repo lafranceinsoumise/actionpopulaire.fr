@@ -450,11 +450,6 @@ class AddEmailForm(forms.ModelForm):
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('submit', 'Ajouter'))
 
-    def clean_address(self):
-        """Normalize the domain part the domain part of the email address"""
-        address = self.cleaned_data['address']
-        return BaseUserManager.normalize_email(address)
-
     class Meta:
         model = PersonEmail
         fields = ("address",)
