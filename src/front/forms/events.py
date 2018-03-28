@@ -7,7 +7,7 @@ from groups.models import SupportGroup
 from ..form_components import *
 from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
 
-from events.models import Event, OrganizerConfig, Calendar, RSVP, EventImage, EventSubtype
+from events.models import Event, OrganizerConfig, RSVP, EventImage, EventSubtype
 from events.tasks import send_event_creation_notification, send_event_changed_notification
 from lib.tasks import geocode_event
 from lib.form_fields import AcceptCreativeCommonsLicenceField
@@ -181,9 +181,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
-        # TODO: delete when removing calendars
-        self.instance.calendar = Calendar.objects.get(slug='evenements_locaux')
-
         res = super().save(commit)
 
         if commit:

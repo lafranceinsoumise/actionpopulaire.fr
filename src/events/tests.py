@@ -18,7 +18,7 @@ from rest_framework import status
 
 from groups.models import SupportGroup, Membership
 from . import tasks
-from .models import Event, Calendar, RSVP, OrganizerConfig
+from .models import Event, Calendar, RSVP, OrganizerConfig, CalendarItem
 from people.models import Person
 from clients.models import Client
 from .viewsets import LegacyEventViewSet, RSVPViewSet, NestedRSVPViewSet
@@ -35,7 +35,6 @@ class BasicEventTestCase(TestCase):
     def test_can_create_event(self):
         event = Event.objects.create(
             name='Event test',
-            calendar=self.calendar,
             start_time=self.start_time,
             end_time=self.end_time
         )
@@ -47,7 +46,6 @@ class BasicEventTestCase(TestCase):
             with self.assertRaises(IntegrityError):
                 Event.objects.create(
                     name='Event test',
-                    calendar=self.calendar,
                     start_time=self.start_time
                 )
 
@@ -55,7 +53,6 @@ class BasicEventTestCase(TestCase):
             with self.assertRaises(IntegrityError):
                 Event.objects.create(
                     name='Event test 2',
-                    calendar=self.calendar,
                     end_time=self.end_time
                 )
 
@@ -63,14 +60,11 @@ class BasicEventTestCase(TestCase):
 class RSVPTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        calendar = Calendar.objects.create_calendar('test')
-
         start_time = timezone.now()
         end_time = start_time + timezone.timedelta(hours=3)
 
         cls.event = Event.objects.create(
             name='Test',
-            calendar=calendar,
             start_time=start_time,
             end_time=end_time
         )
@@ -132,13 +126,10 @@ class RSVPTestCase(TestCase):
 
 class LegacyEventViewSetTestCase(TestCase):
     def setUp(self):
-        self.calendar = Calendar.objects.create_calendar('calendar', user_contributed=True)
-
         self.event = Event.objects.create(
             name='event',
             start_time=timezone.now(),
             end_time=timezone.now() + timezone.timedelta(hours=4),
-            calendar=self.calendar,
             nb_id=1
         )
 
@@ -199,7 +190,6 @@ class LegacyEventViewSetTestCase(TestCase):
             'name': 'event 2',
             'start_time': timezone.now().isoformat(),
             'end_time': (timezone.now() + timezone.timedelta(hours=2)).isoformat(),
-            'calendar': 'calendar',
         }
 
         self.factory = APIRequestFactory()
@@ -277,18 +267,7 @@ class LegacyEventViewSetTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_cannot_create_event_whith_no_privilege_if_not_user_contributed_calendar(self):
-        self.calendar.user_contributed = False
-        self.calendar.save()
-
-        request = self.factory.post('', data=self.new_event_data)
-        force_authenticate(request, self.unprivileged_person.role)
-
-        response = self.list_view(request)
-
-        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-    def test_can_create_event_whith_no_privilege_on_user_contributed_calendar(self):
+    def test_can_create_event_whith_no_privilege(self):
         request = self.factory.post('', data=self.new_event_data)
         force_authenticate(request, self.unprivileged_person.role)
 
@@ -304,19 +283,6 @@ class LegacyEventViewSetTestCase(TestCase):
         self.assertEqual(len(events), 2)
         self.assertEqual(event.organizers.first(), self.unprivileged_person)
         self.assertIn(new_id, {str(e.id) for e in events})
-
-    def test_can_create_event_on_not_user_contributed_calendar_if_superuser(self):
-        self.unprivileged_person.role.is_superuser = True
-        superuser = self.unprivileged_person.role.save()
-        self.calendar.user_contributed = False
-        self.calendar.save()
-
-        request = self.factory.post('', data=self.new_event_data)
-        force_authenticate(request, self.unprivileged_person.role)
-
-        response = self.list_view(request)
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_can_modify_event_with_global_perm(self):
         request = self.factory.patch('', data={
@@ -388,6 +354,7 @@ class LegacyEventViewSetTestCase(TestCase):
 
         self.assertEqual(len(response.data), 1)
 
+
 class FiltersTestCase(APITestCase):
     def setUp(self):
         self.superuser = Person.objects.create_superperson('super@user.fr', None)
@@ -403,7 +370,10 @@ class FiltersTestCase(APITestCase):
             start_time=timezone.now() + timezone.timedelta(weeks=4),
             end_time=timezone.now() + timezone.timedelta(weeks=4, hours=2),
             coordinates=Point(2.349722, 48.853056),  # ND de Paris
-            calendar=calendar1
+        )
+        CalendarItem.objects.create(
+            event=self.paris_1_month_event,
+            calendar=self.calendar1
         )
 
         self.amiens_2_months_event = Event.objects.create(
@@ -412,23 +382,34 @@ class FiltersTestCase(APITestCase):
             start_time=timezone.now() + timezone.timedelta(weeks=8),
             end_time=timezone.now() + timezone.timedelta(weeks=8, hours=2),
             coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
-            calendar=calendar1
         )
+        CalendarItem.objects.create(
+            event=self.amiens_2_months_event,
+            calendar=self.calendar1
+        )
+
 
         self.marseille_3_months_event = Event.objects.create(
             name='Marseille+3months',
             start_time=timezone.now() + timezone.timedelta(weeks=12),
             end_time=timezone.now() + timezone.timedelta(weeks=12, hours=2),
             coordinates=Point(5.36472, 43.30028),  # Saint-Marie-Majeure de Marseille
-            calendar=calendar2
         )
+        CalendarItem.objects.create(
+            event=self.marseille_3_months_event,
+            calendar=self.calendar2
+        )
+
 
         self.strasbourg_yesterday = Event.objects.create(
             name="Strasbourg+yesterday",
             start_time=timezone.now() - timezone.timedelta(hours=15),
             end_time=timezone.now() - timezone.timedelta(hours=13),
             coordinates=Point(7.7779, 48.5752),  # ND de Strasbourg
-            calendar=calendar2
+        )
+        CalendarItem.objects.create(
+            event=self.strasbourg_yesterday,
+            calendar=self.calendar2
         )
 
         self.eiffel_coordinates = [2.294444, 48.858333]
@@ -533,7 +514,7 @@ class FiltersTestCase(APITestCase):
         self.assertIn('_items', response.data)
         self.assertCountEqual(
             [item['_id'] for item in response.data['_items']],
-            [str(e.id) for e in Event.objects.filter(calendar=self.calendar1)]
+            [str(e.id) for e in Event.objects.filter(calendars=self.calendar1)]
         )
 
 
@@ -564,8 +545,6 @@ class RSVPEndpointTestCase(TestCase):
             email='unprivileged@event.com',
         )
 
-        calendar = Calendar.objects.create_calendar('Agenda')
-
         tz = timezone.get_default_timezone()
 
         self.event = Event.objects.create(
@@ -574,7 +553,6 @@ class RSVPEndpointTestCase(TestCase):
             start_time=tz.localize(timezone.datetime(2017, 6, 15, 18)),
             end_time=tz.localize(timezone.datetime(2017, 6, 15, 22)),
             coordinates=Point(2.349722, 48.853056),  # ND de Paris
-            calendar=calendar
         )
 
         self.secondary_event = Event.objects.create(
@@ -583,7 +561,6 @@ class RSVPEndpointTestCase(TestCase):
             start_time=tz.localize(timezone.datetime(2017, 7, 15, 18)),
             end_time=tz.localize(timezone.datetime(2017, 7, 15, 22)),
             coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
-            calendar=calendar
         )
 
         self.unprivileged_rsvp = RSVP.objects.create(
@@ -685,8 +662,6 @@ class EventRSVPEndpointTestCase(TestCase):
             email='unprivileged@event.com',
         )
 
-        calendar = Calendar.objects.create_calendar('Agenda')
-
         tz = timezone.get_default_timezone()
 
         self.event = Event.objects.create(
@@ -695,7 +670,6 @@ class EventRSVPEndpointTestCase(TestCase):
             start_time=tz.localize(timezone.datetime(2017, 6, 15, 18)),
             end_time=tz.localize(timezone.datetime(2017, 6, 15, 22)),
             coordinates=Point(2.349722, 48.853056),  # ND de Paris
-            calendar=calendar
         )
 
         self.secondary_event = Event.objects.create(
@@ -704,7 +678,6 @@ class EventRSVPEndpointTestCase(TestCase):
             start_time=tz.localize(timezone.datetime(2017, 7, 15, 18)),
             end_time=tz.localize(timezone.datetime(2017, 7, 15, 22)),
             coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
-            calendar=calendar
         )
 
         self.unprivileged_rsvp = RSVP.objects.create(
@@ -821,7 +794,6 @@ class EventTasksTestCase(TestCase):
             name="Mon événement",
             start_time=now + timezone.timedelta(hours=2),
             end_time=now + timezone.timedelta(hours=3),
-            calendar=self.calendar,
             contact_name="Moi",
             contact_email="monevenement@moi.fr",
             contact_phone="06 06 06 06 06",
@@ -929,13 +901,10 @@ class EventWorkerTestCase(TestCase):
 
         self.worker.role.groups.add(Group.objects.get(name='workers'))
 
-        self.calendar = Calendar.objects.create_calendar('calendar')
-
         self.unpublished_event = Event.objects.create(
             name='event',
             start_time=timezone.now() + timezone.timedelta(hours=2),
             end_time=timezone.now() + timezone.timedelta(hours=4),
-            calendar=self.calendar,
             published=False
         )
 
@@ -943,7 +912,6 @@ class EventWorkerTestCase(TestCase):
             name='event',
             start_time=timezone.now() + timezone.timedelta(days=-2),
             end_time=timezone.now() + timezone.timedelta(days=-2, hours=4),
-            calendar=self.calendar,
         )
 
         self.client.force_login(self.worker.role)
@@ -968,7 +936,6 @@ class OrganizerAsGroupTestCase(TestCase):
         self.person = Person.objects.create(email='test@example.com')
         self.event = Event.objects.create(
             name='Event test',
-            calendar=self.calendar,
             start_time=self.start_time,
             end_time=self.end_time
         )

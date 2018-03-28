@@ -11,7 +11,7 @@ from django.contrib.auth import get_user
 
 from lib.tests.mixins import FakeDataMixin
 from people.models import Person, PersonTag, PersonForm, PersonFormSubmission
-from events.models import Event, RSVP, Calendar, OrganizerConfig
+from events.models import Event, RSVP, Calendar, OrganizerConfig, CalendarItem
 from groups.models import SupportGroup, Membership
 from polls.models import Poll, PollOption, PollChoice
 
@@ -205,13 +205,10 @@ class PagesLoadingTestCase(TestCase):
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
 
-        calendar = Calendar.objects.create_calendar('default')
-
         self.event = Event.objects.create(
             name="event",
             start_time=now + day,
             end_time=now + day + hour,
-            calendar=calendar
         )
 
         OrganizerConfig.objects.create(
@@ -275,13 +272,10 @@ class AuthorizationTestCase(TestCase):
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
 
-        calendar = Calendar.objects.create_calendar('default')
-
         self.event = Event.objects.create(
             name="event",
             start_time=now + day,
             end_time=now + day + hour,
-            calendar=calendar
         )
 
         self.group = SupportGroup.objects.create(
@@ -333,13 +327,10 @@ class EventPagesTestCase(TestCase):
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
 
-        self.calendar = Calendar.objects.create_calendar('default', user_contributed=True)
-
         self.organized_event = Event.objects.create(
             name="Organized event",
             start_time=now + day,
             end_time=now + day + 4 * hour,
-            calendar=self.calendar
         )
 
         OrganizerConfig.objects.create(
@@ -352,7 +343,6 @@ class EventPagesTestCase(TestCase):
             name="RSVPed event",
             start_time=now + 2 * day,
             end_time=now + 2 * day + 2 * hour,
-            calendar=self.calendar
         )
 
         RSVP.objects.create(
@@ -364,7 +354,6 @@ class EventPagesTestCase(TestCase):
             name="Other event",
             start_time=now + 3 * day,
             end_time=now + 3 * day + 4 * hour,
-            calendar=self.calendar
         )
 
         self.other_rsvp1 = RSVP.objects.create(
@@ -389,7 +378,6 @@ class EventPagesTestCase(TestCase):
             reverse('edit_event', kwargs={'pk': self.organized_event.pk}),
             data={
                 'name': 'New Name',
-                'calendar': self.calendar.pk,
                 'start_time': formats.localize_input(self.now + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
                 'end_time': formats.localize_input(self.now + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
                 'contact_name': 'Arthur',
@@ -443,7 +431,6 @@ class EventPagesTestCase(TestCase):
         # post edit page
         response = self.client.post(reverse('edit_event', kwargs={'pk': self.rsvped_event.pk}), data={
             'name': 'New Name',
-            'calendar': self.calendar.pk,
             'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
             'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
             'contact_name': 'Arthur',
@@ -534,7 +521,6 @@ class EventPagesTestCase(TestCase):
         # post create page
         response = self.client.post(reverse('create_event'), data={
             'name': 'New Name',
-            'calendar': self.calendar.pk,
             'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
             'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
             'contact_name': 'Arthur',
@@ -567,8 +553,6 @@ class EventPagesTestCase(TestCase):
 
 
 class GroupPageTestCase(TestCase):
-    fixtures = ['fixtures.json']
-
     def setUp(self):
         self.person = Person.objects.create_person('test@test.com')
         self.other_person = Person.objects.create_person('other@test.fr')
@@ -609,6 +593,23 @@ class GroupPageTestCase(TestCase):
         Membership.objects.create(
             person=self.other_person,
             supportgroup=self.member_group
+        )
+
+
+        now = timezone.now()
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+        self.event = Event.objects.create(
+            name='événement test pour groupe',
+            nb_path='/pseudo/test',
+            start_time=now + 3 * day,
+            end_time=now + 3 * day + 4 * hour,
+        )
+
+        OrganizerConfig.objects.create(
+            event=self.event,
+            person=self.person,
+            as_group=self.referent_group
         )
 
         self.client.force_login(self.person.role)
@@ -776,14 +777,13 @@ class GroupPageTestCase(TestCase):
             self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND, '"{}" did not return 404'.format(page))
 
     def test_can_see_groups_events(self):
-        response = self.client.get(reverse('view_group', args=['1ace9703-a672-4cce-8978-36ca60b9933c']))
+        response = self.client.get(reverse('view_group', args=[self.referent_group.pk]))
 
-        self.assertContains(response, "Événement créé par user1")
+        self.assertContains(response, "événement test pour groupe")
 
 
 class NBUrlsTestCase(TestCase):
     def setUp(self):
-        calendar = Calendar.objects.create_calendar('default')
         now = timezone.now()
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
@@ -792,7 +792,6 @@ class NBUrlsTestCase(TestCase):
             nb_path='/pseudo/test',
             start_time=now + 3 * day,
             end_time=now + 3 * day + 4 * hour,
-            calendar=calendar
         )
 
         self.group = SupportGroup.objects.create(
@@ -881,12 +880,13 @@ class CalendarPageTestCase(TestCase):
         hour = timezone.timedelta(hours=1)
 
         for i in range(20):
-            Event.objects.create(
+            e = Event.objects.create(
                 name="Event {}".format(i),
                 calendar=self.calendar,
                 start_time=now + i * day,
                 end_time=now + i * day + hour
             )
+            CalendarItem.objects.create(event=e, calendar=self.calendar)
 
     def can_view_page(self):
         # can show first page

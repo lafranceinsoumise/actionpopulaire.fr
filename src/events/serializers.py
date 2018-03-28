@@ -30,15 +30,6 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['calendar'] = serializers.SlugRelatedField(
-            queryset=self.get_authorized_calendars_queryset(),
-            slug_field='slug'
-        )
-
-    def get_authorized_calendars_queryset(self):
-        if not self.context['request'].user.is_superuser:
-            return models.Calendar.objects.filter(user_contributed=True)
-        return models.Calendar.objects.all()
 
     def get_path(self, obj):
         return front_url('view_event', absolute=False, args=[obj.id])
@@ -65,7 +56,7 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
     class Meta:
         model = models.Event
         fields = (
-            'url', '_id', 'id', 'name', 'description', 'path', 'start_time', 'end_time', 'calendar', 'contact',
+            'url', '_id', 'id', 'name', 'description', 'path', 'start_time', 'end_time', 'contact',
             'location', 'tags', 'coordinates', 'participants', 'organizers', 'is_organizer', 'published', 'subtype'
         )
         extra_kwargs = {
@@ -74,12 +65,11 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
 
 
 class SummaryEventSerializer(serializers.ModelSerializer):
-    calendar = serializers.SlugRelatedField('slug', read_only=True)
     tags = RelatedLabelField(queryset=models.EventTag.objects.all(), many=True, required=False)
 
     class Meta:
         model = models.Event
-        fields = ('id', 'name', 'coordinates', 'start_time', 'end_time', 'calendar', 'tags')
+        fields = ('id', 'name', 'coordinates', 'start_time', 'end_time', 'tags')
 
 
 class CalendarSerializer(serializers.HyperlinkedModelSerializer):
