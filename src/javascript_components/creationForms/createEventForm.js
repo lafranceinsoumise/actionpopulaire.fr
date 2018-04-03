@@ -119,7 +119,11 @@ class EventTypeStep extends FormStep {
           </p>
           <p>
             Afin de mieux identifier les événements que vous créez, et de pouvoir mieux les recommander aux autres
-            insoumis⋅es, indiquez le type d'événement que vous organisez :
+            insoumis⋅es, indiquez le type d'événement que vous organisez.
+          </p>
+          <p>
+            Vous souhaitez inviter une oratrice ou un orateur national&nbsp;?
+            <a href="https://lafranceinsoumise.fr/groupes-appui/inviter-des-intervenants/">Suivez le mode d'emploi.</a>
           </p>
         </div>
         <div className="col-sm-6 padbottom">
