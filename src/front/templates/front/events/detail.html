@@ -81,7 +81,9 @@
             {% if event.is_past %}
                 <div>
                     <h3>Compte-rendu</h3>
-                    <a class="btn btn-default pull-right" href="{% url "edit_event_report" event.pk %}">Rédiger le compte-rendu</a>
+                    {% if is_organizer %}
+                        <a class="btn btn-default pull-right" href="{% url "edit_event_report" event.pk %}">Rédiger le compte-rendu</a>
+                    {% endif %}
                     {% if event.report_content %}
                         {% if event.report_image %}
                             <img src="{{ event.report_image.banner.url }}" class="img-responsive center-block marginbottom">
