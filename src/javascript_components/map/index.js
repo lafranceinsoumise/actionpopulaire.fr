@@ -92,19 +92,19 @@ function makeStyle(style) {
   if (style.color && style.iconName) {
     return [
       new Style({
+        image: new Circle({
+          radius: 12,
+          fill: new Fill({
+            color: 'white'
+          })
+        })
+      }),
+      new Style({
         text: new Text({
           text: fontawesome(style.iconName),
           font: 'normal 18px FontAwesome',
           fill: new Fill({
             color: style.color
-          })
-        })
-      }),
-      new Style({
-        image: new Circle({
-          radius: 12,
-          fill: new Fill({
-            color: 'white'
           })
         })
       })
@@ -213,6 +213,35 @@ function makeSearchControl(view) {
   });
 }
 
+
+const OFFSET = 0.00005;
+function disambiguate(points) {
+  const map = Object.create(null);
+  let key, n, i, p, angle;
+
+  for (let p of points) {
+    key = JSON.stringify(p.coordinates.coordinates);
+    map[key] = map[key] || [];
+    map[key].push(p);
+  }
+
+  for (key of Object.keys(map)) {
+    n = map[key].length;
+    if (n > 1) {
+      for (i = 0; i < n; i++) {
+        p = map[key][i];
+        console.log('disambiguate: ', p.name)
+        angle = Math.PI / 2 + i * 2 * Math.PI / n;
+        p.coordinates.coordinates = [
+          p.coordinates.coordinates[0] + OFFSET * Math.cos(angle),
+          p.coordinates.coordinates[1] + OFFSET * Math.sin(angle)
+        ];
+      }
+    }
+  }
+}
+
+
 export async function listMap(htmlElementId, endpoint, types, subtypes, formatPopup) {
   const sources = {}, layers = {}, typeStyles = {};
   for (let type of types) {
@@ -252,6 +281,7 @@ export async function listMap(htmlElementId, endpoint, types, subtypes, formatPo
 
   await fontIsLoaded('FontAwesome');
 
+  disambiguate(res.data);
   for (let item of res.data) {
     const feature = new Feature({
       geometry: new Point(proj.fromLonLat(item.coordinates.coordinates)),
