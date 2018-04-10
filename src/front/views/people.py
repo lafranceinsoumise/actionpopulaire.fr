@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.contrib.auth import logout
 from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView
 from django.views.generic.edit import FormView
 from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
@@ -14,12 +16,8 @@ from ..forms import (
 
 __all__ = ['SubscriptionSuccessView', 'SimpleSubscriptionView', 'OverseasSubscriptionView', 'ChangeProfileView',
            'ChangeProfileConfirmationView', 'VolunteerView', 'VolunteerConfirmationView', 'MessagePreferencesView',
-           'UnsubscribeView', 'UnsubscribeSuccessView', 'EmailManagementView', 'DeleteEmailAddressView',
+           'UnsubscribeView', 'DeleteAccountView', 'EmailManagementView', 'DeleteEmailAddressView',
            'PeopleFormView', 'PeopleFormConfirmationView']
-
-
-class UnsubscribeSuccessView(TemplateView):
-    template_name = "front/people/unsubscribe_success.html"
 
 
 class UnsubscribeView(SimpleOpengraphMixin, FormView):
@@ -110,6 +108,27 @@ class MessagePreferencesView(SoftLoginRequiredMixin, UpdateView):
         )
 
         return res
+
+
+class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
+    template_name = 'front/people/delete_account.html'
+
+    def get_success_url(self):
+        return f"{settings.OAUTH['logoff_url']}?next={reverse('delete_account_success')}"
+
+    def get_object(self, queryset=None):
+        return self.request.user.person
+
+    def delete(self, request, *args, **kwargs):
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            "Votre compte a bien été supprimé !"
+        )
+        response = super().delete(request, *args, **kwargs)
+        logout(self.request)
+
+        return response
 
 
 class EmailManagementView(HardLoginRequiredMixin, TemplateView):

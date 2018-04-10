@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.contrib.sitemaps.views import sitemap
 from django.urls import reverse_lazy
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 
 from front.sitemaps import sitemaps
 from . import views, oauth
@@ -18,7 +18,9 @@ urlpatterns = [
     # people views
     url('^desinscription/$', views.UnsubscribeView.as_view(), name='unsubscribe'),
     url('^desabonnement/$', views.UnsubscribeView.as_view(), name='unsubscribe'),
-    url('^desabonnement/succes/$', views.UnsubscribeSuccessView.as_view(), name='unsubscribe_success'),
+    url('^desabonnement/succes/$', TemplateView.as_view(template_name='front/people/unsubscribe_success.html'), name='unsubscribe_success'),
+    url('^supprimer/$', views.DeleteAccountView.as_view(), name='delete_account'),
+    url('^supprimer/succes$', TemplateView.as_view(template_name='front/people/delete_account_success.html'), name='delete_account_success'),
     url('^inscription/$', views.SimpleSubscriptionView.as_view(), name='subscription'),
     url('^inscription/etranger/$', views.OverseasSubscriptionView.as_view(), name='subscription_overseas'),
     url('^inscription/succes/$', views.SubscriptionSuccessView.as_view(), name='subscription_success'),

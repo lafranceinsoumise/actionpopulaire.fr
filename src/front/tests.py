@@ -136,6 +136,19 @@ class UnsubscribeFormTestCase(TestCase):
         self.assertEqual(patched_send_unsubscribe_email.delay.call_args[0], (self.person.pk,))
 
 
+class DeleteFormTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person('delete@delete.com')
+
+    def test_can_delete_account(self):
+        self.client.force_login(self.person.role)
+
+        response = self.client.post(reverse('delete_account'))
+        self.assertEqual(response.status_code, 302)
+        with self.assertRaises(Person.DoesNotExist):
+            Person.objects.get(pk=self.person.pk)
+
+
 class SimpleSubscriptionFormTestCase(TestCase):
     @mock.patch("front.forms.people.send_welcome_mail")
     def test_can_post(self, patched_send_welcome_mail):
