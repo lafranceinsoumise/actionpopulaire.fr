@@ -1,4 +1,4 @@
-from unittest import skip
+from unittest import skip, mock
 from django.test import TestCase
 from django.db import IntegrityError
 from django.utils import timezone
@@ -12,6 +12,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate, APITestCa
 from rest_framework import status
 from rest_framework.reverse import reverse
 
+from groups.tasks import send_someone_joined_notification
 from lib.tests.mixins import FakeDataMixin
 from . import tasks
 from .models import SupportGroup, Membership, SupportGroupSubtype
@@ -80,6 +81,15 @@ class MembershipTestCase(APITestCase):
                 person=self.person,
                 supportgroup=self.supportgroup
             )
+
+    @mock.patch('groups.tasks.send_mosaico_email')
+    def test_someone_joined_notification(self, send_mosaico_email):
+        Membership.objects.create(person=self.privileged_user, supportgroup=self.supportgroup, is_manager=True)
+        new_membership = Membership.objects.create(person=self.person, supportgroup=self.supportgroup)
+        send_someone_joined_notification(new_membership.pk)
+
+        send_mosaico_email.assert_called_once()
+        self.assertEqual(send_mosaico_email.call_args[1]['recipients'], [self.privileged_user])
 
 
 class LegacySupportGroupViewSetTestCase(TestCase):
