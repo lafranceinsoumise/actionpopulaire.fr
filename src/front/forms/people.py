@@ -508,42 +508,39 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         if self.person_form_instance.custom_fields:
             for fieldset in self.person_form_instance.custom_fields:
                 for field in fieldset['fields']:
-                    if field.get('person_field') and field['id'] in all_person_field_names:
-                        continue
+                    if not field.get('person_field') or field['id'] not in all_person_field_names:
+                        kwargs = {'required': True}
+                        if field['type'] in ['short_text', 'long_text']:
+                            klass = forms.CharField
+                            if 'max_length' in field:
+                                kwargs['max_length'] = field['max_length']
+                            if field['type'] == 'long_text':
+                                kwargs['widget'] = forms.Textarea()
+                        elif field['type'] == 'choice':
+                            klass = forms.ChoiceField
+                            default_label = "----" if kwargs['required'] else _("Non applicable / ne souhaite pas répondre")
+                            kwargs['choices'] = [('', default_label)] + field['choices']
+                        elif field['type'] == 'multiple_choice':
+                            klass = forms.MultipleChoiceField
+                            kwargs['choices'] = field['choices']
+                            kwargs['widget'] = forms.CheckboxSelectMultiple()
+                            # by default multiple choice field is not required
+                            kwargs['required'] = False
+                        else:
+                            klass = forms.BooleanField
+                            # by default boolean field should be false or one is forced to tick the checkbox to proceed
+                            kwargs['required'] = False
 
-                    kwargs = {}
-                    kwargs['label'] = field['label']
-                    if 'help_text' in field:
-                        kwargs['help_text'] = field['help_text']
-
-                    # by default fields are compulsory
-                    kwargs['required'] = field['required'] if 'required' in field else True
-
-                    if field['type'] in ['short_text', 'long_text']:
-                        klass = forms.CharField
-                        if 'max_length' in field:
-                            kwargs['max_length'] = field['max_length']
-                        if field['type'] == 'long_text':
-                            kwargs['widget'] = forms.Textarea()
-                    elif field['type'] == 'choice':
-                        klass = forms.ChoiceField
-                        default_label = "----" if kwargs['required'] else _("Non applicable / ne souhaite pas répondre")
-                        kwargs['choices'] = [('', default_label)] + field['choices']
-                    elif field['type'] == 'multiple_choice':
-                        klass = forms.MultipleChoiceField
-                        kwargs['choices'] = field['choices']
-                        kwargs['widget'] = forms.CheckboxSelectMultiple()
-                        # by default multiple choice field is not required
-                        kwargs['required'] = field['required'] if 'required' in field else False
+                        self.fields[field['id']] = klass(**kwargs)
                     else:
-                        klass = forms.BooleanField
-                        # by default boolean field should be false or one is forced to tick the checkbox to proceed
-                        kwargs['required'] = field['required'] if 'required' in field else False
+                        # by default meta fields are required
+                        self.fields[field['id']].required = True
 
-                    self.fields[field['id']] = klass(**kwargs)
+                    field_object = self.fields[field['id']]
 
-                    if field.get('person_field'):
-                        self.fields[field['id']].initial = self.instance.meta.get(field['id'])
+                    for prop in ['label', 'help_text', 'required']:
+                        if prop in field:
+                            setattr(field_object, prop, field[prop])
 
                 parts.append(
                     Fieldset(fieldset['title'], *(Row(FullCol(field['id'])) for field in fieldset['fields']))
@@ -577,7 +574,8 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
 
 def get_people_form_class(person_form_instance):
-    form_person_fields = [field['id'] for fieldset in person_form_instance.custom_fields for field in fieldset['fields'] if field.get('person_field') and field['id'] in all_person_field_names]
+    form_person_fields = [field['id'] for fieldset in person_form_instance.custom_fields for field in fieldset['fields']
+                          if field.get('person_field') and field['id'] in all_person_field_names]
     form_class = forms.modelform_factory(Person, fields=form_person_fields, form=BasePersonForm)
     form_class.person_form_instance = person_form_instance
 
