@@ -205,7 +205,7 @@ class ProfileForm(MetaFieldsMixin, ContactPhoneNumberMixin, TagMixin, forms.Mode
                     ),
                     Row(
                         HalfCol('gender'),
-                        HalfCol('date_of_birth')
+                        HalfCol(Field('date_of_birth', placeholder=_('JJ/MM/AAAA')))
                     ),
                     Row(
                         FullCol(
