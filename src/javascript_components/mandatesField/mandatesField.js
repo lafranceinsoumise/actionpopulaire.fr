@@ -156,8 +156,7 @@ export class MandatesField extends React.Component {
   render() {
     const nbMandates = this.state.mandates.length;
 
-    return <div className="form-group">
-      <label>Mandats électoraux</label>
+    return <div>
       <div>{nbMandates > 0 ? `${nbMandates} mandat${nbMandates > 1 ? 's ' : ' '}` : 'Pas de mandat '}
         <Button onClick={this.openModal}>Modifier</Button></div>
       <Modal bsSize="large" show={this.state.modalIsOpen} onHide={this.closeModal}>

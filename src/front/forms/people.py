@@ -9,7 +9,6 @@ from django.utils.html import format_html
 from crispy_forms.helper import FormHelper
 from crispy_forms.bootstrap import FormActions
 
-from webpack_loader.utils import get_files
 
 from lib.mailtrain import delete
 from ..form_components import *
@@ -189,7 +188,6 @@ class ProfileForm(MetaFieldsMixin, ContactPhoneNumberMixin, TagMixin, forms.Mode
     party = forms.CharField(max_length=60, label=_("Parti politique"), required=False)
     party_responsibility = forms.CharField(max_length=100, label=False, required=False)
     other = forms.CharField(max_length=200, label=_("Autres engagements"), required=False)
-    mandates = forms.CharField(label=_('Mandats électoraux'), required=False, widget=forms.HiddenInput)
 
     def __init__(self, *args,    **kwargs):
         super().__init__(*args, **kwargs)
@@ -267,10 +265,6 @@ class ProfileForm(MetaFieldsMixin, ContactPhoneNumberMixin, TagMixin, forms.Mode
             'location_address1', 'location_address2', 'location_city', 'location_zip', 'location_country',
             'contact_phone', 'mandates'
         )
-
-    @property
-    def media(self):
-        return forms.Media(js=[script['url'] for script in get_files('mandatesField', 'js')])
 
 
 class VolunteerForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):

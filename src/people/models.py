@@ -17,6 +17,8 @@ from phonenumber_field.modelfields import PhoneNumberField
 from lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource, DescriptionField
 from authentication.models import Role
 
+from .model_fields import MandatesField
+
 
 class PersonManager(models.Manager):
     def get(self, *args, **kwargs):
@@ -159,7 +161,7 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
     gender = models.CharField(_('Genre'), max_length=1, blank=True, choices=GENDER_CHOICES)
     date_of_birth = models.DateField(_('Date de naissance'), null=True, blank=True)
 
-    mandates = JSONField(_('Mandats électoraux'), default=list, blank=True)
+    mandates = MandatesField(_('Mandats électoraux'), default=list, blank=True)
 
     meta = JSONField(_('Autres données'), default=dict, blank=True)
 

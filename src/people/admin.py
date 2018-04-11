@@ -94,7 +94,7 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('draw_participation', )
         }),
         (_('Profil'), {
-            'fields': ('gender', 'date_of_birth', 'tags')
+            'fields': ('gender', 'date_of_birth', 'tags', 'mandates')
         }),
         (_('Contact et adresse'), {
             'fields': (

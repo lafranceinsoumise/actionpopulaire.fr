@@ -121,6 +121,9 @@ export const mandateGroups = [
       {id: 'maire', name: 'Maire', division: communeDescriptor},
       {id: 'maire-adjoint', name: 'Maire adjoint', division: communeDescriptor},
       {id: 'conseiller-municipal', name: 'Conseiller municipal', division: communeDescriptor},
+      {id: 'president-intercommunalite', name: 'Président d\'intercommunalité', division: null},
+      {id: 'vice-president-intercommunalite', name: 'Vice-Président d\'intercommunalité', division: null},
+      {id: 'conseiller-intercommunalite', name: 'Conseiller d\'intercommunalité', division: null},
     ]
   },
   {
@@ -140,7 +143,7 @@ export const mandateGroups = [
     name: 'Autres mandats locaux', mandates: [
       {
         id: 'elu-collectivite-unique',
-        name: 'Elu d\'une collectivité territoriale unique',
+        name: 'Élu d\'une collectivité territoriale unique',
         division: collectiviteUniqueDescriptor
       },
       {id: 'elu-collectivite-outre-mer', name: 'Élu d\'une collectivité d\'outre-mer', division: COMDescriptor},
@@ -167,4 +170,3 @@ for (let group of mandateGroups) {
     mandateDict[type.id] = type;
   }
 }
-
