@@ -20,6 +20,7 @@ module.exports = {
     dashboard: './dashboard',
     map: ['babel-polyfill', './map/index.js'],
     theme: '@fi/theme/dist/styles/' + cssName,
+    mandatesField: './mandatesField'
   },
   plugins: [
     new CleanWebpackPlugin([DISTPATH]),
@@ -27,7 +28,7 @@ module.exports = {
     new ExtractTextPlugin('theme-[contenthash].css'),
     new webpack.DefinePlugin({'API_ENDPOINT': apiEndpoint}),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new BundleAnalyzerPlugin({analyzerMode: 'static'}),
+    new BundleAnalyzerPlugin({analyzerMode: 'static', openAnalyzer: false}),
   ],
   output: {
     libraryTarget: 'window',

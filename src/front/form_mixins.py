@@ -1,3 +1,4 @@
+import json
 from django import forms
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.html import format_html

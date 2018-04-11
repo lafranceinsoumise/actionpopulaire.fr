@@ -1,3 +1,5 @@
+import json
+
 from crispy_forms.layout import Fieldset
 from django import forms
 from django.contrib.auth.models import BaseUserManager
@@ -6,6 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.html import format_html
 from crispy_forms.helper import FormHelper
 from crispy_forms.bootstrap import FormActions
+
+from webpack_loader.utils import get_files
 
 from lib.mailtrain import delete
 from ..form_components import *
@@ -185,6 +189,7 @@ class ProfileForm(MetaFieldsMixin, ContactPhoneNumberMixin, TagMixin, forms.Mode
     party = forms.CharField(max_length=60, label=_("Parti politique"), required=False)
     party_responsibility = forms.CharField(max_length=100, label=False, required=False)
     other = forms.CharField(max_length=200, label=_("Autres engagements"), required=False)
+    mandates = forms.CharField(label=_('Mandats électoraux'), required=False, widget=forms.HiddenInput)
 
     def __init__(self, *args,    **kwargs):
         super().__init__(*args, **kwargs)
@@ -233,6 +238,11 @@ class ProfileForm(MetaFieldsMixin, ContactPhoneNumberMixin, TagMixin, forms.Mode
                             Field('party', placeholder='Nom du parti'),
                             Field('party_responsibility', placeholder='Responsabilité')),
                         HalfCol('other')
+                    ),
+                    Row(
+                        FullCol(
+                            Field('mandates')
+                        )
                     )
                 ),
                 HalfCol(
@@ -255,8 +265,12 @@ class ProfileForm(MetaFieldsMixin, ContactPhoneNumberMixin, TagMixin, forms.Mode
         fields = (
             'first_name', 'last_name', 'gender', 'date_of_birth',
             'location_address1', 'location_address2', 'location_city', 'location_zip', 'location_country',
-            'contact_phone'
+            'contact_phone', 'mandates'
         )
+
+    @property
+    def media(self):
+        return forms.Media(js=[script['url'] for script in get_files('mandatesField', 'js')])
 
 
 class VolunteerForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):

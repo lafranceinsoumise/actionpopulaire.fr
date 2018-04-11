@@ -159,6 +159,8 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
     gender = models.CharField(_('Genre'), max_length=1, blank=True, choices=GENDER_CHOICES)
     date_of_birth = models.DateField(_('Date de naissance'), null=True, blank=True)
 
+    mandates = JSONField(_('Mandats électoraux'), default=list, blank=True)
+
     meta = JSONField(_('Autres données'), default=dict, blank=True)
 
     search = SearchVectorField('Données de recherche', editable=False, null=True)
