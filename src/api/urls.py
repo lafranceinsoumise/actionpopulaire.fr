@@ -17,6 +17,7 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 from ajax_select import urls as ajax_select_urls
 
+from api.metrics import get_metrics
 from . import routers, admin, settings
 
 import front.urls
@@ -27,6 +28,7 @@ urlpatterns = [
     url(r'^admin/', admin.admin_site.urls),
     url(r'^webhooks/', include(webhooks.urls)),
     url(r'^ajax_select/', include(ajax_select_urls)),
+    url(r'^metrics/', get_metrics)
 ]
 
 if settings.ENABLE_API:

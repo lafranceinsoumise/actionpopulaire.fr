@@ -449,3 +449,6 @@ ADMIN_ALLOWED_TAGS = USER_ALLOWED_TAGS + ['table', 'tr', 'td', 'th']
 SITE_ID = 1
 
 FILE_UPLOAD_PERMISSIONS = 0o644
+
+PROMETHEUS_USER = os.environ.get('PROMETHEUS_USER', 'prometheus')
+PROMETHEUS_PASSWORD = os.environ.get('PROMETHEUS_PASSWORD', 'password')
