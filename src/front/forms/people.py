@@ -465,7 +465,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
     def get_meta_fields(self):
         return [field['id']
-                for fieldset in self.person_form_instance.fields
+                for fieldset in self.person_form_instance.custom_fields
                 for field in fieldset['fields']
                 if field.get('person_field') and field['id'] not in all_person_field_names]
 
@@ -497,8 +497,8 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             for f in opts.fields:
                 self.fields[f].required = True
 
-        if self.person_form_instance.fields:
-            for fieldset in self.person_form_instance.fields:
+        if self.person_form_instance.custom_fields:
+            for fieldset in self.person_form_instance.custom_fields:
                 for field in fieldset['fields']:
                     if field.get('person_field') and field['id'] in all_person_field_names:
                         continue
@@ -558,7 +558,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             form=self.person_form_instance,
             data={
                 field['id']: str(self.cleaned_data[field['id']])
-                for fieldset in self.person_form_instance.fields
+                for fieldset in self.person_form_instance.custom_fields
                 for field in fieldset['fields']
             }
         )
@@ -569,7 +569,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
 
 def get_people_form_class(person_form_instance):
-    form_person_fields = [field['id'] for fieldset in person_form_instance.fields for field in fieldset['fields'] if field.get('person_field') and field['id'] in all_person_field_names]
+    form_person_fields = [field['id'] for fieldset in person_form_instance.custom_fields for field in fieldset['fields'] if field.get('person_field') and field['id'] in all_person_field_names]
     form_class = forms.modelform_factory(Person, fields=form_person_fields, form=BasePersonForm)
     form_class.person_form_instance = person_form_instance
 

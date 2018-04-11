@@ -939,7 +939,7 @@ class PersonFormTestCase(TestCase):
             description='Ma description simple',
             confirmation_note='Ma note de fin',
             main_question='QUESTION PRINCIPALE',
-            fields=[{
+            custom_fields=[{
                 'title': 'Profil',
                 'fields': [{
                     'id': 'contact_phone',
@@ -955,7 +955,7 @@ class PersonFormTestCase(TestCase):
             description='Ma description complexe',
             confirmation_note='Ma note de fin',
             main_question='QUESTION PRINCIPALE',
-            fields=[{
+            custom_fields=[{
                 'title': 'Détails',
                 'fields': [
                     {
