@@ -928,6 +928,8 @@ class CalendarPageTestCase(TestCase):
 class PersonFormTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person('person@corp.com')
+        self.person.meta['custom-person-field'] = 'Valeur méta préexistante'
+        self.person.save()
         self.tag1 = PersonTag.objects.create(label='tag1', description='Description TAG1')
         self.tag2 = PersonTag.objects.create(label='tag2', description='Description TAG2')
 
@@ -937,7 +939,13 @@ class PersonFormTestCase(TestCase):
             description='Ma description simple',
             confirmation_note='Ma note de fin',
             main_question='QUESTION PRINCIPALE',
-            personal_information=['contact_phone'],
+            fields=[{
+                'title': 'Profil',
+                'fields': [{
+                    'id': 'contact_phone',
+                    'person_field': True
+                }]
+            }],
         )
         self.single_tag_form.tags.add(self.tag1)
 
@@ -947,15 +955,25 @@ class PersonFormTestCase(TestCase):
             description='Ma description complexe',
             confirmation_note='Ma note de fin',
             main_question='QUESTION PRINCIPALE',
-            personal_information=['contact_phone'],
-            additional_fields=[{
+            fields=[{
                 'title': 'Détails',
                 'fields': [
                     {
                         'id': 'custom-field',
                         'type': 'short_text',
                         'label': 'Mon label'
-                    }]
+                    },
+                    {
+                        'id': 'custom-person-field',
+                        'type': 'short_text',
+                        'label': 'Prout',
+                        'person_field': True
+                    },
+                    {
+                        'id': 'contact_phone',
+                        'person_field': True
+                    }
+                ]
             }]
         )
         self.complex_form.tags.add(self.tag1)
@@ -994,11 +1012,16 @@ class PersonFormTestCase(TestCase):
         self.assertEqual(self.person.contact_phone, '+33604030204')
         self.assertIn(self.tag1, self.person.tags.all())
 
+        submissions = PersonFormSubmission.objects.all()
+        self.assertEqual(len(submissions), 1)
+        self.assertEqual(submissions[0].data['contact_phone'], '+33604030204')
+
     def test_can_validate_complex_form(self):
         res = self.client.get('/formulaires/formulaire-complexe/')
 
         self.assertContains(res, 'contact_phone')
         self.assertContains(res, 'custom-field')
+        self.assertContains(res, 'Valeur méta préexistante')
 
         # assert tag is compulsory
         res = self.client.post('/formulaires/formulaire-complexe/', data={
@@ -1010,18 +1033,21 @@ class PersonFormTestCase(TestCase):
         res = self.client.post('/formulaires/formulaire-complexe/', data={
             'tag': 'tag2',
             'contact_phone': '06 34 56 78 90',
-            'custom-field': 'Mon super champ texte libre'
+            'custom-field': 'Mon super champ texte libre',
+            'custom-person-field': 'Mon super champ texte libre à mettre dans Person.metas'
         })
         self.assertRedirects(res, '/formulaires/formulaire-complexe/confirmation/')
 
         self.person.refresh_from_db()
 
         self.assertCountEqual(self.person.tags.all(), [self.tag2])
+        self.assertEqual(self.person.meta['custom-person-field'], 'Mon super champ texte libre à mettre dans Person.metas')
 
         submissions = PersonFormSubmission.objects.all()
         self.assertEqual(len(submissions), 1)
 
         self.assertEqual(submissions[0].data['custom-field'], 'Mon super champ texte libre')
+        self.assertEqual(submissions[0].data['custom-person-field'], 'Mon super champ texte libre à mettre dans Person.metas')
 
 
 class PollTestCase(TestCase):

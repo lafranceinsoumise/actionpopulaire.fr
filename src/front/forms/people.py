@@ -457,8 +457,17 @@ class PersonTagChoiceField(forms.ModelChoiceField):
         return obj.description
 
 
-class BasePersonForm(forms.ModelForm):
+all_person_field_names = [field.name for field in Person._meta.get_fields()]
+
+
+class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
     person_form_instance = None
+
+    def get_meta_fields(self):
+        return [field['id']
+                for fieldset in self.person_form_instance.fields
+                for field in fieldset['fields']
+                if field.get('person_field') and field['id'] not in all_person_field_names]
 
     def __init__(self, person, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -488,16 +497,12 @@ class BasePersonForm(forms.ModelForm):
             for f in opts.fields:
                 self.fields[f].required = True
 
-            parts.append(
-                Fieldset(
-                    _('Mes informations personnelles'),
-                    *[Row(FullCol(f)) for f in opts.fields]
-                )
-            )
-
-        if self.person_form_instance.additional_fields:
-            for fieldset in self.person_form_instance.additional_fields:
+        if self.person_form_instance.fields:
+            for fieldset in self.person_form_instance.fields:
                 for field in fieldset['fields']:
+                    if field.get('person_field') and field['id'] in all_person_field_names:
+                        continue
+
                     kwargs = {}
                     kwargs['label'] = field['label']
                     if 'help_text' in field:
@@ -529,6 +534,9 @@ class BasePersonForm(forms.ModelForm):
 
                     self.fields[field['id']] = klass(**kwargs)
 
+                    if field.get('person_field'):
+                        self.fields[field['id']].initial = self.instance.meta.get(field['id'])
+
                 parts.append(
                     Fieldset(fieldset['title'], *(Row(FullCol(field['id'])) for field in fieldset['fields']))
                 )
@@ -549,8 +557,8 @@ class BasePersonForm(forms.ModelForm):
             person=self.person,
             form=self.person_form_instance,
             data={
-                field['id']: self.cleaned_data[field['id']]
-                for fieldset in self.person_form_instance.additional_fields
+                field['id']: str(self.cleaned_data[field['id']])
+                for fieldset in self.person_form_instance.fields
                 for field in fieldset['fields']
             }
         )
@@ -561,7 +569,8 @@ class BasePersonForm(forms.ModelForm):
 
 
 def get_people_form_class(person_form_instance):
-    form_class = forms.modelform_factory(Person, fields=person_form_instance.personal_information, form=BasePersonForm)
+    form_person_fields = [field['id'] for fieldset in person_form_instance.fields for field in fieldset['fields'] if field.get('person_field') and field['id'] in all_person_field_names]
+    form_class = forms.modelform_factory(Person, fields=form_person_fields, form=BasePersonForm)
     form_class.person_form_instance = person_form_instance
 
     return form_class

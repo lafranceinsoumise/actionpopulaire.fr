@@ -319,15 +319,8 @@ class PersonForm(TimeStampedModel):
     main_question = models.CharField(_("Intitulé de la question principale"), max_length=200)
     tags = models.ManyToManyField('PersonTag', related_name='forms', related_query_name='form', blank=True)
 
-    personal_information = ArrayField(
-        base_field=models.CharField(max_length=150, blank=False),
-        verbose_name=_("Informations personnelles requises"),
-        default=list,
-        blank=True,
-        help_text=_("Une liste de champs de personnes à demander aux personnes qui remplissent le formulaire.")
-    )
+    fields = JSONField(_('Champs'), blank=False, default=list)
 
-    additional_fields = JSONField(_('Champs additionnels'), blank=True, default=list)
 
     class Meta:
         verbose_name = _("Formulaire")

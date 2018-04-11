@@ -209,7 +209,7 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
     template_name = 'front/people/person_form.html'
 
     def get_success_url(self):
-        return reverse('person_form_confirmation', args=(self.person_form.slug,))
+        return reverse('person_form_confirmation', args=(self.person_form_instance.slug,))
 
     def get_object(self, queryset=None):
         return self.request.user.person
@@ -226,19 +226,19 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
         return kwargs
 
     def get_form_class(self):
-        return get_people_form_class(self.person_form)
+        return get_people_form_class(self.person_form_instance)
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            person_form=self.person_form
+            person_form=self.person_form_instance
         )
 
     def get(self, request, *args, **kwargs):
-        self.person_form = self.get_person_form_instance()
+        self.person_form_instance = self.get_person_form_instance()
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.person_form = self.get_person_form_instance()
+        self.person_form_instance = self.get_person_form_instance()
         return super().post(request, *args, **kwargs)
 
 

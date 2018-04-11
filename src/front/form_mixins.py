@@ -204,14 +204,17 @@ class MetaFieldsMixin(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        for f in self.meta_fields:
-            self.fields[f].initial = self.instance.meta.get(f)
+        for f in self.get_meta_fields():
+            self.initial[f] = self.instance.meta.get(f)
+
+    def get_meta_fields(self):
+        return self.meta_fields
 
     def clean(self):
         """Handles meta fields"""
         cleaned_data = super().clean()
 
-        meta_update = {f: cleaned_data.pop(f) for f in self.meta_fields}
+        meta_update = {f: cleaned_data.get(f) for f in self.get_meta_fields() if cleaned_data.get(f)}
         self.instance.meta.update(meta_update)
 
         return cleaned_data
