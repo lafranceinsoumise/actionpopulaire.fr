@@ -232,19 +232,16 @@ class PersonFormAdmin(admin.ModelAdmin):
         ] + super().get_urls()
 
     def generate_result_table(self, form, only_text=False):
-        extra_fields = [field for fieldset in form.additional_fields for field in fieldset['fields']]
+        fields = [field for fieldset in form.custom_fields for field in fieldset['fields']]
         submissions = []
 
         for submission in form.submissions.all():
-            required_data = [getattr(submission.person, required_field) for required_field in form.personal_information]
-            extra_data = [submission.data.get(field['id'], 'NA') for field in extra_fields]
+            data = [submission.data.get(field['id'], 'NA') for field in fields]
             submissions.append([submission.modified]
-                            + [submission.person if only_text == False else submission.person.email]
-                            + [submission.person.first_name, submission.person.last_name]
-                            + required_data
-                            + extra_data)
+                            + [submission.person if only_text is False else submission.person.email]
+                            + data)
 
-        headers = ['Date', 'Personne', 'Nom', 'Prénom'] + form.personal_information + [field['label'] for field in extra_fields]
+        headers = ['Date', 'Personne'] + [(field.get('label') or Person._meta.get_field(field['id']).verbose_name) for field in fields]
 
         return {'form': form, 'headers': headers, 'submissions': submissions}
 
