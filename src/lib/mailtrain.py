@@ -1,5 +1,6 @@
 from datetime import datetime
 import requests
+from django.db.models import Q
 from requests import HTTPError
 
 from django.conf import settings
@@ -21,9 +22,13 @@ s.mount('http://', b)
 def data_from_person(person):
     data = {}
 
+    is_animateur = Q(is_referent=True) | Q(is_manager=True)
     inscriptions = [
-        ('evenements' if person.events.count() > 0 else 'sans_evenements'),
-        ('groupe_appui' if person.supportgroups.count() > 0 else 'sans_groupe_appui')
+        ('evenements_yes' if person.events.count() > 0 else 'evenements_no'),
+        ('groupe_yes' if person.supportgroups.count() > 0 else 'groupe_appui_no'),
+        ('groupe_certifié_yes' if person.supportgroups.filter(subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE).count() > 0 else 'groupe_certifié_no'),
+        ('groupe_anim_yes' if person.memberships.filter(is_animateur).count() > 0 else 'anim_groupe_no'),
+        ('groupe_certifié_anim_yes' if person.memberships.filter(is_animateur & Q(supportgroup__subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE)).count() > 0 else 'groupe_certifié_anim_no'),
     ]
 
     data['FIRST_NAME'] = person.first_name

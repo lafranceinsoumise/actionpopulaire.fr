@@ -438,6 +438,7 @@ if DEBUG:
 # Get the promo
 PROMO_CODE_KEY = os.environb.get(b'PROMO_CODE_KEY', b'prout')
 PROMO_CODE_TAG = os.environ.get('PROMO_CODE_TAG', 'Code promo matériel')
+CERTIFIED_GROUP_SUBTYPE = os.environ.get('CERTIFIED_GROUP_SUBTYPE', 'certifié')
 
 
 # HTML settings

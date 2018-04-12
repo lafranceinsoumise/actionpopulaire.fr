@@ -116,8 +116,8 @@ class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, D
         kwargs['referents'] = self.object.memberships.filter(is_referent=True).order_by('created')
         kwargs['managers'] = self.object.memberships.filter(is_manager=True, is_referent=False).order_by('created')
         kwargs['members'] = self.object.memberships.all().order_by('created')
-        kwargs['certified'] = self.object.tags.filter(label=settings.PROMO_CODE_TAG).exists()
-        if kwargs['certified']:
+        kwargs['has_promo_code'] = self.object.tags.filter(label=settings.PROMO_CODE_TAG).exists()
+        if kwargs['has_promo_code']:
             kwargs['group_promo_code'] = get_next_promo_code(self.object)
 
         kwargs['certifiable'] = self.object.type == SupportGroup.TYPE_LOCAL_GROUP
