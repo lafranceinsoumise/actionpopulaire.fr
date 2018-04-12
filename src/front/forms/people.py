@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.html import format_html
 from crispy_forms.helper import FormHelper
 from crispy_forms.bootstrap import FormActions
-
+from phonenumber_field.formfields import PhoneNumberField
 
 from lib.mailtrain import delete
 from ..form_components import *
@@ -526,6 +526,10 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                             kwargs['widget'] = forms.CheckboxSelectMultiple()
                             # by default multiple choice field is not required
                             kwargs['required'] = False
+                        elif field['type'] == 'email_address':
+                            klass = forms.EmailField
+                        elif field['type'] == 'phone_number':
+                            klass = PhoneNumberField
                         else:
                             klass = forms.BooleanField
                             # by default boolean field should be false or one is forced to tick the checkbox to proceed
