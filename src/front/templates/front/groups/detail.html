@@ -15,9 +15,8 @@
         </h1>
         <div>
             {% if user.is_authenticated %}
-                {% if is_member and not is_referent_or_manager %}
-                    <a class="btn btn-primary" href="{% url "quit_group" supportgroup.pk %}">Quitter le groupe</a>
-                {% elif is_referent_or_manager %}
+                <a class="btn btn-primary" href="{% url "quit_group" supportgroup.pk %}">Quitter le groupe</a>
+                {% if is_referent_or_manager %}
                     <a class="btn btn-default" href="{% url "manage_group" supportgroup.pk %}">Gérer mon groupe</a>
                     <a class="btn btn-default" href="{% url "create_event" %}?as_group={{ supportgroup.pk }}"><i class="fa fa-plus"></i> Créer un événement organisé par ce groupe</a>
                 {% elif not is_member %}
@@ -31,9 +30,8 @@
                     <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:groups_supportgroup_change" supportgroup.pk %}">Administration</a>
                 {% endif %}
             {% else %}
-                <a class="btn btn-primary" title="Connexion" href="{% url "oauth_redirect_view" %}">Se
-                            connecter pour
-                            rejoindre le groupe</a>
+                <a class="btn btn-primary" title="Connexion" href="{% url "oauth_redirect_view" %}">
+                    Se connecter pour rejoindre le groupe</a>
             {% endif %}
         </div>
     </header>

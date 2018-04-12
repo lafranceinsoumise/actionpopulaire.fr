@@ -308,11 +308,12 @@ class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
         success_url = self.get_success_url()
 
         # make sure user is not a referent who cannot quit groups
-        if self.object.is_referent:
+        if self.object.is_referent and len(self.object.supportgroup.memberships.filter(is_referent=True)) < 2:
             messages.add_message(
                 request,
                 messages.ERROR,
-                _("Les animateurs ne peuvent pas quitter un groupe sans avoir abandonné leur role.")
+                _("Vous êtes seul animateur⋅rice de ce groupe, et ne pouvez donc pas le quitter."
+                  " Votre groupe doit d'abord se choisir un ou une autre animatrice pour permettre votre départ.")
             )
 
         else:
