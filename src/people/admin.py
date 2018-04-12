@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 import django_otp
 from django import forms
 from django.conf.urls import url
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import reverse
@@ -18,7 +18,7 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
 
-
+from front.forms.people import all_person_field_names
 from .models import Person, PersonTag, PersonEmail, PersonForm
 from authentication.models import Role
 from events.models import RSVP
@@ -199,6 +199,38 @@ class PersonFormForm(forms.ModelForm):
     class Meta:
         fields = '__all__'
         widgets = {'description': AdminRichEditorWidget(), 'confirmation_note': AdminRichEditorWidget()}
+
+    def clean_custom_fields(self):
+        value = self.cleaned_data['custom_fields']
+        if not isinstance(value, list):
+            raise ValidationError('La valeur doit être une liste')
+        for fieldset in value:
+            if not (fieldset.get('title') and isinstance(fieldset['fields'], list)):
+                raise ValidationError('Les sections doivent avoir un "title" et une liste "fields"')
+
+            for i, field in enumerate(fieldset['fields']):
+                if field['id'] == 'location':
+                    initial_field = fieldset['fields'].pop(i)
+                    for location_field in [
+                        'location_country',
+                        'location_state',
+                        'location_city',
+                        'location_zip',
+                        'location_address2',
+                        'location_address1',
+                    ]:
+                        fieldset['fields'].insert(i, {
+                            'id': location_field,
+                            'person_field': True,
+                            'required': False if location_field == 'location_address2' else initial_field.get('required', True)
+                        })
+                    continue
+                if field.get('person_field') and field['id'] in all_person_field_names:
+                    continue
+                elif not field.get('label') or not field.get('type'):
+                    raise ValidationError('Les champs doivent avoir un label et un type')
+
+        return value
 
 
 @admin.register(PersonForm, site=admin_site)
