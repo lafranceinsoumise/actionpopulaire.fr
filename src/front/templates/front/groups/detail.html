@@ -15,11 +15,13 @@
         </h1>
         <div>
             {% if user.is_authenticated %}
-                <a class="btn btn-primary" href="{% url "quit_group" supportgroup.pk %}">Quitter le groupe</a>
-                {% if is_referent_or_manager %}
-                    <a class="btn btn-default" href="{% url "manage_group" supportgroup.pk %}">Gérer mon groupe</a>
-                    <a class="btn btn-default" href="{% url "create_event" %}?as_group={{ supportgroup.pk }}"><i class="fa fa-plus"></i> Créer un événement organisé par ce groupe</a>
-                {% elif not is_member %}
+                {% if is_member %}
+                    <a class="btn btn-primary" href="{% url "quit_group" supportgroup.pk %}">Quitter le groupe</a>
+                    {% if is_referent_or_manager %}
+                        <a class="btn btn-default" href="{% url "manage_group" supportgroup.pk %}">Gérer mon groupe</a>
+                        <a class="btn btn-default" href="{% url "create_event" %}?as_group={{ supportgroup.pk }}"><i class="fa fa-plus"></i> Créer un événement organisé par ce groupe</a>
+                    {% endif %}
+                {% else %}
                     <form style="display:inline;" action="{% url "view_group" supportgroup.pk %}" method="post" class="padbottom">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="join"/>
