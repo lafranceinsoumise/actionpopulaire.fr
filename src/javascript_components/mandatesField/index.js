@@ -1,15 +1,11 @@
-import 'react-hot-loader/patch';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {AppContainer} from 'react-hot-loader';
 
-import {MandatesField} from './mandatesField';
+import MandatesField from './mandatesField';
 
 const render = (hiddenField, element) => {
   ReactDOM.render(
-    <AppContainer>
-      <MandatesField hiddenField={hiddenField}/>
-    </AppContainer>,
+    <MandatesField hiddenField={hiddenField}/>,
     element
   );
 };

@@ -1,5 +1,5 @@
-import 'react-hot-loader/patch';
 import React from 'react';
+import {hot} from 'react-hot-loader';
 import PropTypes from 'prop-types';
 import {Modal, Button} from 'react-bootstrap';
 import Select from 'react-select';
@@ -33,12 +33,15 @@ function SelectField({value, divisionDescriptor, onChange}) {
   } else {
     return value.loading ?
       <div>Chargement...</div> :
-      <Select.Async value={value} loadOptions={divisionDescriptor.getter.query} onChange={onChange}/>;
+      <Select.Async value={value} loadOptions={divisionDescriptor.getter.query} onChange={onChange}
+                    noResultsText="Pas de résultat" placeholder={divisionDescriptor.name}
+                    searchPromptText="Tapez les premiers caractères" loadingPlaceholder="Chargement..."
+      />;
   }
 }
 
 
-export class MandatesField extends React.Component {
+class MandatesField extends React.Component {
   constructor({hiddenField}) {
     super();
 
@@ -79,7 +82,7 @@ export class MandatesField extends React.Component {
           const i = currentSelection.findIndex(s => s.symbol === symbol && s.type === type);
           if (i !== undefined) {
             this.setState({
-              currentSelection: [...currentSelection.slice(0, i), {type, division}, ...currentSelection.slice(i+1)]
+              currentSelection: [...currentSelection.slice(0, i), {type, division}, ...currentSelection.slice(i + 1)]
             });
           }
         }
@@ -109,7 +112,10 @@ export class MandatesField extends React.Component {
     if (currentSelection.some(m => m.error)) {
       this.setState({currentSelection});
     } else {
-      const mandates = currentSelection.map(({type, division}) => ({type, division: division.value})).filter(({type}) => type !== '');
+      const mandates = currentSelection.map(({type, division}) => ({
+        type,
+        division: division.value
+      })).filter(({type}) => type !== '');
       this.setState({
         mandates,
         currentSelection,
@@ -167,7 +173,7 @@ export class MandatesField extends React.Component {
           <div className="form-horizontal">
             {this.state.currentSelection.map((mandate, i) => (
               <fieldset key={i}>
-                <legend>Mandat {i + 1}</legend>
+                <legend>Mandat n°{i + 1}</legend>
                 <div className="form-group">
                   <label className="col-sm-2" htmlFor={`type-${i}`}>Type de mandat</label>
                   <div className="col-sm-10">
@@ -208,3 +214,5 @@ export class MandatesField extends React.Component {
 MandatesField.propTypes = {
   hiddenField: PropTypes.object
 };
+
+export default hot(module)(MandatesField);
