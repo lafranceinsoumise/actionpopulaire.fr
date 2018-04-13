@@ -25,9 +25,9 @@ def data_from_person(person):
     is_animateur = Q(is_referent=True) | Q(is_manager=True)
     inscriptions = [
         ('evenements_yes' if person.events.upcoming().count() > 0 else 'evenements_no'),
-        ('groupe_yes' if person.supportgroups.active().count() > 0 else 'groupe_appui_no'),
+        ('groupe_yes' if person.supportgroups.active().count() > 0 else 'groupe_no'),
         ('groupe_certifié_yes' if person.supportgroups.active().filter(subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE).count() > 0 else 'groupe_certifié_no'),
-        ('groupe_anim_yes' if person.memberships.active().filter(is_animateur).count() > 0 else 'anim_groupe_no'),
+        ('groupe_anim_yes' if person.memberships.active().filter(is_animateur).count() > 0 else 'groupe_anim_no'),
         ('groupe_certifié_anim_yes' if person.memberships.active().filter(is_animateur & Q(supportgroup__subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE)).count() > 0 else 'groupe_certifié_anim_no'),
     ]
 
