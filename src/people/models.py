@@ -7,7 +7,6 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.functional import cached_property
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 
@@ -16,6 +15,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource, DescriptionField
 from authentication.models import Role
+from people import metrics
 
 from .model_fields import MandatesField
 
@@ -176,6 +176,12 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         indexes = (
             GinIndex(['search'], name='search_index'),
         )
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            metrics.subscriptions.inc()
+
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         if self.first_name and self.last_name:

@@ -1,6 +1,5 @@
 from unittest import mock
 
-import django.utils.timezone
 from django.test import TestCase, override_settings
 from django.contrib.auth import authenticate
 from django.utils import timezone
@@ -8,6 +7,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core import mail
+from prometheus_client import Counter
 
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework import status
@@ -28,6 +28,12 @@ class BasicPersonTestCase(TestCase):
 
         self.assertEqual(user.email, 'test@domain.com')
         self.assertEqual(user.pk, Person.objects.get_by_natural_key('test@domain.com').pk)
+
+    @mock.patch('people.models.metrics.subscriptions')
+    def test_subscription_metric_is_called(self, subscriptions_metric):
+        Person.objects.create_person(email='test@domain.com')
+
+        subscriptions_metric.inc.assert_called_once()
 
     def test_can_add_email(self):
         user = Person.objects.create_person(email='test@domain.com')
