@@ -82,7 +82,7 @@ class GroupsView(ListAPIView):
     serializer_class = serializers.MapGroupSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend, )
     filter_class = GroupFilterSet
-    queryset = SupportGroup.active.filter(coordinates__isnull=False).prefetch_related('subtypes')
+    queryset = SupportGroup.objects.active().filter(coordinates__isnull=False).prefetch_related('subtypes')
     authentication_classes = []
 
     @cache.cache_control(max_age=300, public=True)
@@ -239,7 +239,7 @@ class GroupMapView(TemplateView):
 
 class SingleGroupMapView(DetailView):
     template_name = 'carte/single_group.html'
-    queryset = SupportGroup.active.all()
+    queryset = SupportGroup.objects.active().all()
     context_object_name = 'group'
 
     @xframe_options_exempt

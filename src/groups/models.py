@@ -7,9 +7,14 @@ from lib.models import (
     AbstractMapObjectLabel)
 
 
-class ActiveSupportGroupManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(published=True)
+class SupportGroupQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(published=True)
+
+
+class MembershipQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(supportgroup__published=True)
 
 
 class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, DescriptionMixin, ContactMixin):
@@ -28,8 +33,7 @@ class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ImageM
         (TYPE_PROFESSIONAL, _("Groupe professionel")),
     )
 
-    objects = models.Manager()
-    active = ActiveSupportGroupManager()
+    objects = SupportGroupQuerySet.as_manager()
 
     name = models.CharField(
         _("nom"),
@@ -93,19 +97,13 @@ class SupportGroupSubtype(AbstractMapObjectLabel):
         verbose_name = _('sous-type')
 
 
-class ActiveMembershipManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(supportgroup__published=True)
-
-
 class Membership(TimeStampedModel):
     """
     Model that represents the membership of a person in a support group
     
     This model also indicates if the person is referent for this support group
     """
-    objects = models.Manager()
-    active = ActiveMembershipManager()
+    objects = MembershipQuerySet.as_manager()
 
     person = models.ForeignKey(
         'people.Person',

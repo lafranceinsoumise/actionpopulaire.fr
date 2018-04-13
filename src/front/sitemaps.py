@@ -22,7 +22,7 @@ class SupportGroupSitemap(Sitemap):
     changefreq = 'always'
 
     def items(self):
-        return SupportGroup.active.all()
+        return SupportGroup.objects.active().all()
 
     def location(self, obj):
         return reverse('view_group', args=[obj.id])
