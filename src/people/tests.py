@@ -7,7 +7,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core import mail
-from prometheus_client import Counter
+from redislite import StrictRedis
 
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework import status
@@ -175,6 +175,11 @@ class LegacyPersonEndpointTestCase(APITestCase):
             'get': 'list',
             'post': 'create'
         })
+
+        self.redis_instance = StrictRedis()
+        self.redis_patcher = mock.patch('lib.token_bucket.get_redis_client')
+        mock_get_auth_redis_client = self.redis_patcher.start()
+        mock_get_auth_redis_client.return_value = self.redis_instance
 
     def test_cannot_list_while_unauthenticated(self):
         request = self.factory.get('')

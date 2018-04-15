@@ -16,7 +16,7 @@ from people.tasks import send_welcome_mail
 from . import serializers, models
 
 
-SubscribeIPBucket = TokenBucket('SubscribeIP', 60, 2)
+SubscribeIPBucket = TokenBucket('SubscribeIP', 2, 60)
 
 class PeopleFilter(django_filters.rest_framework.FilterSet):
     email = django_filters.CharFilter(name='emails__address')
