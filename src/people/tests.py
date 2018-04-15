@@ -284,6 +284,12 @@ class LegacyPersonEndpointTestCase(APITestCase):
             'email': 'guillaume@email.com',
         })
 
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.post(reverse('legacy:person-subscribe-list'), data={
+            'email': 'guillaume@email.com',
+        }, ** {'HTTP_X_WORDPRESS_CLIENT': '192.168.0.1'})
+
         new_person = Person.objects.get(email='guillaume@email.com')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

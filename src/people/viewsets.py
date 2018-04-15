@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import list_route, detail_route
@@ -7,12 +8,15 @@ import django_filters
 from front.utils import generate_token_params
 from lib.pagination import LegacyPaginator
 from lib.permissions import RestrictViewPermissions
+from lib.token_bucket import TokenBucket
 from lib.views import NationBuilderViewMixin
 from authentication.models import Role
 from people.tasks import send_welcome_mail
 
 from . import serializers, models
 
+
+SubscribeIPBucket = TokenBucket('SubscribeIP', 60, 2)
 
 class PeopleFilter(django_filters.rest_framework.FilterSet):
     email = django_filters.CharFilter(name='emails__address')
@@ -38,6 +42,10 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
 
     @list_route(methods=['POST'])
     def subscribe(self, request, *args, **kwargs):
+        ip = request.META.get('HTTP_X_WORDPRESS_CLIENT')
+        if not ip or not SubscribeIPBucket.has_tokens(ip):
+            raise PermissionDenied()
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
