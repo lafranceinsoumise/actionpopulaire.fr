@@ -19,7 +19,7 @@ from . import serializers
 
 
 class BBoxFilterBackend(object):
-    error_message = _("le paramètre bbox devrait être un tableau de 4 flottants")
+    error_message = _("Le paramètre bbox devrait être un tableau de 4 flottants.")
 
     def filter_queryset(self, request, queryset, view):
         if not 'bbox' in request.query_params:
@@ -46,10 +46,16 @@ class BBoxFilterBackend(object):
         return queryset.filter(coordinates__intersects=bbox)
 
 
+class FixedModelMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
+    def get_filter_predicate(self, v):
+        return {self.field_name: v}
+
+
 class EventFilterSet(django_filters.rest_framework.FilterSet):
-    subtype = django_filters.MultipleChoiceFilter(
-        name='subtype', to_field_name='label', queryset=EventSubtype.objects.all()
+    subtype = FixedModelMultipleChoiceFilter(
+        field_name='subtype', to_field_name='label', queryset=EventSubtype.objects.all()
     )
+
     class Meta:
         model = Event
         fields = ('subtype', )
@@ -70,8 +76,8 @@ class EventsView(ListAPIView):
 
 
 class GroupFilterSet(django_filters.rest_framework.FilterSet):
-    subtype = django_filters.MultipleChoiceFilter(
-        name='subtypes', to_field_name='label', queryset=SupportGroupSubtype.objects.all()
+    subtype = FixedModelMultipleChoiceFilter(
+        field_name='subtypes', to_field_name='label', queryset=SupportGroupSubtype.objects.all()
     )
     class Meta:
         model = SupportGroup
