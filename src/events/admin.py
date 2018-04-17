@@ -175,7 +175,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                        'location_state', 'location_country', 'coordinates', 'coordinates_type', 'redo_geocoding')
         }),
         (_('Contact'), {
-            'fields': ('contact_name', 'contact_email', 'contact_phone')
+            'fields': ('contact_name', 'contact_email', 'contact_phone', 'contact_hide_phone')
         }),
         (_('Compte-rendu'), {
             'fields': ('report_content', 'report_image')
