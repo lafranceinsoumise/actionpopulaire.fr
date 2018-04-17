@@ -74,7 +74,7 @@ class SesBounceView(BounceView):
 class SendgridBounceView(BounceView):
     def post(self, request):
         for webhook in request.data:
-            if webhook['event'] != 'bounce':
+            if webhook['event'] != 'bounce' and webhook['event'] != 'dropped':
                 continue
             self.handleBounce(webhook['email'])
         return Response({'status': 'Accepted'}, 202)
