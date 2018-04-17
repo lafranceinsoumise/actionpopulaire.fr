@@ -1,0 +1,11 @@
+<!doctype html>
+<html>
+<body>
+<form action="{{ payment.get_form_action }}" method="post" id="payment-form">
+    {{ payment.get_form }}
+</form>
+<script>
+    document.getElementById('payment-form').submit();
+</script>
+</body>
+</html>

@@ -22,6 +22,7 @@ from . import routers, admin, settings
 
 import front.urls
 import webhooks.urls
+import payments.urls
 
 urlpatterns = [
     url(r'^admin/', include('admin_steroids.urls')),
@@ -37,9 +38,10 @@ if settings.ENABLE_API:
     )
 
 if settings.ENABLE_FRONT:
-    urlpatterns.append(
-        url(r'^', include(front.urls))
-    )
+    urlpatterns.extend([
+        url(r'^', include(front.urls)),
+        url(r'^', include(payments.urls))
+    ])
 
 if settings.ENABLE_MAP:
     urlpatterns.append(

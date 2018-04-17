@@ -117,6 +117,7 @@ INSTALLED_APPS = [
     'front',
     'carte',
     'webhooks',
+    'payments'
 ]
 
 MIDDLEWARE = [
@@ -453,3 +454,9 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 
 PROMETHEUS_USER = os.environ.get('PROMETHEUS_USER', 'prometheus')
 PROMETHEUS_PASSWORD = os.environ.get('PROMETHEUS_PASSWORD', 'password')
+
+# Systempay
+SYSTEMPAY_SITE_ID = os.environ.get('SYSTEMPAY_SITE_ID', 0)
+SYSTEMPAY_PRODUCTION = os.environ.get('SYSTEMPAY_PRODUCTION', False)
+SYSTEMPAY_CURRENCY = os.environ.get('SYSTEMPAY_CURRENCY', 978)
+SYSTEMPAY_CERTIFICATE = os.environ.get('SYSTEMPAY_CERTIFICATE', 'arbitrarystring')
