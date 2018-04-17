@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.urls import reverse
 from model_utils.models import TimeStampedModel
 
 from lib.models import LocationMixin
@@ -68,5 +69,5 @@ class Payment(TimeStampedModel, LocationMixin):
     def get_form_action(self):
         return 'https://paiement.systempay.fr/vads-payment/'
 
-    def get_redirect_url(self):
-        return '#'
+    def get_payment_url(self):
+        return reverse('payment_redirect', args=[self.pk])
