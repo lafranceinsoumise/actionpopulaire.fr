@@ -210,7 +210,7 @@ class ValidateStep extends FormStep {
             </li>
             <li>
               <strong>Numéro de
-                téléphone&nbsp;:</strong> {this.state.fields.phone} ({this.state.fields.hidePhone === 'on' ? 'caché' : 'public'})
+                téléphone&nbsp;:</strong> {this.state.fields.phone} ({this.state.fields.hidePhone ? 'caché' : 'public'})
             </li>
             {this.state.fields.name &&
               <li>

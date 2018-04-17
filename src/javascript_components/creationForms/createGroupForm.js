@@ -201,7 +201,7 @@ class ValidateStep extends FormStep {
               <strong>Type de groupe&nbsp;:</strong> {groupLabels[this.state.fields.type]}
             </li>
             <li>
-              <strong>Numéro de téléphone&nbsp;:</strong> {this.state.fields.phone} ({this.state.fields.hidePhone === 'on' ? 'caché' : 'public'})
+              <strong>Numéro de téléphone&nbsp;:</strong> {this.state.fields.phone} ({this.state.fields.hidePhone ? 'caché' : 'public'})
             </li>
             {this.state.fields.name &&
               <li>
