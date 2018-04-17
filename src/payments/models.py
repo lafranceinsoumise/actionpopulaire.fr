@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django import forms
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
@@ -60,6 +61,9 @@ class Payment(TimeStampedModel, LocationMixin):
             'vads_cust_country': self.location_country,
             'vads_ext_info_type': self.type
         })
+
+        for key in self.meta:
+            form.fields['vads_ext_info_meta_' + key] = forms.CharField(initial=self.meta[key], widget=forms.HiddenInput())
 
         form.update_signature()
 
