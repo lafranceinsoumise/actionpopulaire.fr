@@ -1,28 +1,25 @@
 from django.conf import settings
 from django.conf.urls import url
-from django.contrib import admin, messages
+from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.utils.translation import ugettext_lazy as _
+from django.db.models import Count
+from django.urls import reverse
 from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
-from django.utils import timezone
-from django.shortcuts import reverse
-from django.db.models import Count
-from django.contrib.admin.utils import unquote
+from django.utils.translation import ugettext_lazy as _
+
 from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
-from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, Http404, StreamingHttpResponse
-from django.contrib.admin.options import IS_POPUP_VAR
-from django.template.response import TemplateResponse
 
-from groups.actions import groups_to_csv_lines
 from lib.admin import CenterOnFranceMixin
 from front.utils import front_url
 
 from .. import models
 from ..actions.promo_codes import get_next_promo_code
-from .forms import AddMemberForm, SupportGroupAdminForm
+
+from . import actions
+from . import views
+from .forms import SupportGroupAdminForm
 
 
 class MembershipInline(admin.TabularInline):
@@ -77,7 +74,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     )
 
     search_fields = ('name', 'description', 'location_city', 'location_country')
-    actions = ('export_groups',)
+    actions = (actions.export_groups, actions.make_published, actions.unpublish)
 
     def promo_code(self, object):
         if object.pk and object.tags.filter(label=settings.PROMO_CODE_TAG).exists():
@@ -135,81 +132,10 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
         return qs.annotate(membership_count=Count('memberships'))
 
-    def export_groups(self, request, queryset):
-        response =  StreamingHttpResponse(
-            groups_to_csv_lines(queryset),
-            content_type='text/csv',
-        )
-        response['Content-Disposition'] = 'inline; filename=export_groups_{}.csv'.format(
-            timezone.now().astimezone(timezone.get_default_timezone()).strftime('%Y%m%d_%H%M')
-        )
-
-        return response
-    export_groups.short_description = _("Exporter les groupes en CSV")
-
     def get_urls(self):
         return [
-            url(r'^(.+)/add_member/', self.admin_site.admin_view(self.add_member), name="groups_supportgroup_add_member")
+            url(r'^(.+)/add_member/', views.add_member, name="groups_supportgroup_add_member")
         ] + super().get_urls()
-
-    def add_member(self, request, id):
-        if not self.has_change_permission(request) or not request.user.has_perm('people.view_person'):
-            raise PermissionDenied
-
-        group = self.get_object(request, unquote(id))
-
-        if group is None:
-            raise Http404(_("Pas de groupe avec cet identifiant."))
-
-        if request.method == "POST":
-            form = AddMemberForm(group, request.POST)
-
-            if form.is_valid():
-                membership = form.save()
-                messages.success(request, _("{email} a bien été ajouté au groupe").format(email=membership.person.email))
-
-                return HttpResponseRedirect(
-                    reverse(
-                        '%s:%s_%s_change' % (
-                            self.admin_site.name,
-                            group._meta.app_label,
-                            group._meta.model_name,
-                        ),
-                        args=(group.pk,),
-                    )
-                )
-        else:
-            form = AddMemberForm(group)
-
-        fieldsets = [(None, {'fields': ['person']})]
-        admin_form = admin.helpers.AdminForm(form, fieldsets, {})
-
-        context = {
-            'title': _('Ajouter un membre au groupe: %s') % escape(group.name),
-            'adminform': admin_form,
-            'form': form,
-            'is_popup': (IS_POPUP_VAR in request.POST or
-                         IS_POPUP_VAR in request.GET),
-            'opts': self.model._meta,
-            'original': group,
-            'change': False,
-            'add': False,
-            'save_as': True,
-            'show_save': False,
-            'has_delete_permission': False,
-            'has_add_permission': False,
-            'has_change_permission': True,
-            'media': self.media + admin_form.media
-        }
-        context.update(self.admin_site.each_context(request))
-
-        request.current_app = self.admin_site.name
-
-        return TemplateResponse(
-            request,
-            'admin/supportgroups/add_member.html',
-            context,
-        )
 
 
 @admin.register(models.SupportGroupTag, site=admin_site)
