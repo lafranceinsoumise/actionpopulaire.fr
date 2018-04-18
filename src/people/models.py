@@ -39,7 +39,11 @@ class PersonManager(models.Manager):
         return person
 
     def get_by_natural_key(self, email):
-        return self.select_related('role').get(emails__address=email)
+        email_field_class = self.model._meta.get_field('emails').rel.to
+        try:
+            return email_field_class.objects.select_related('person__role').get_by_natural_key(email)
+        except email_field_class.DoesNotExist:
+            raise self.model.DoesNotExist
 
     def _create_person(self, email, password, *, is_staff, is_superuser, is_active=True, **extra_fields):
         """

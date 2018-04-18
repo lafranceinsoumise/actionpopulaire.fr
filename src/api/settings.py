@@ -117,7 +117,8 @@ INSTALLED_APPS = [
     'front',
     'carte',
     'webhooks',
-    'payments'
+    'payments',
+    'donations',
 ]
 
 MIDDLEWARE = [
@@ -460,3 +461,12 @@ SYSTEMPAY_SITE_ID = os.environ.get('SYSTEMPAY_SITE_ID', 0)
 SYSTEMPAY_PRODUCTION = os.environ.get('SYSTEMPAY_PRODUCTION', False)
 SYSTEMPAY_CURRENCY = os.environ.get('SYSTEMPAY_CURRENCY', 978)
 SYSTEMPAY_CERTIFICATE = os.environ.get('SYSTEMPAY_CERTIFICATE', 'arbitrarystring')
+
+PAYMENT_DEFAULT_REDIRECT = os.environ.get('PAYMENT_DEFAULT_REDIRECT', 'https://lafranceinsoumise.fr')
+
+DONATION_MINIMUM = 1
+DONATION_MAXIMUM = 1000
+
+# France + most numerous communities in France
+COUNTRIES_FIRST = ['FR', 'PT', 'DZ', 'MA', 'TR', 'IT', 'GB', 'ES']
+COUNTRIES_FIRST_REPEAT = True

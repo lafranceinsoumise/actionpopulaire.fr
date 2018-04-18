@@ -1,19 +1,30 @@
 import hmac
+from django.conf import settings
 from django.db.models.expressions import F
-from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponseNotFound, HttpResponse
+from django.http import (
+    HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest, HttpResponseNotFound, HttpResponse
+)
 from django.views.generic import DetailView
+from django.shortcuts import resolve_url
 from rest_framework.views import APIView
 
-from payments.forms import get_signature
-from payments.models import Payment
+from .forms import get_signature
+from .models import Payment
+from .types import PAYMENT_TYPES
+
+
+PAYMENT_ID_SESSION_KEY = '_payment_id'
 
 
 class SystempayRedirectView(DetailView):
     context_object_name = 'payment'
     template_name = 'payments/redirect.html'
+    queryset = Payment.objects.filter(status=Payment.STATUS_WAITING)
 
-    def get_queryset(self):
-        return Payment.objects.filter(status=Payment.STATUS_WAITING)
+    def get(self, request, *args, **kwargs):
+        res = super().get(request, *args, **kwargs)
+        request.session[PAYMENT_ID_SESSION_KEY] = self.object.pk
+        return res
 
 
 class SystempayWebhookView(APIView):
@@ -45,3 +56,17 @@ class SystempayWebhookView(APIView):
         payment.save()
 
         return HttpResponse({'status': 'Accepted'}, 200)
+
+
+def return_view(request):
+    pk = request.session.get(PAYMENT_ID_SESSION_KEY)
+
+    if pk is not None:
+        try:
+            payment = Payment.objects.get(pk=pk)
+            if payment.type in PAYMENT_TYPES and PAYMENT_TYPES[payment.type].return_view:
+                return PAYMENT_TYPES[payment.type].return_view(request, payment=payment)
+        except Payment.DoesNotExist:
+            pass
+
+    return HttpResponseRedirect(resolve_url(settings.PAYMENT_DEFAULT_REDIRECT))

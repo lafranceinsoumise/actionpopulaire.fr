@@ -1,0 +1,27 @@
+{% extends 'front/layout.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}
+    J'aide la France insoumise
+{% endblock %}
+
+{% block main %}
+    <div>
+        <p>Pour financer les dépenses liées à l’organisation d’événements, aux campagnes présidentielle et
+            législatives, à l’achat de matériel, au fonctionnement de ce site, etc., nous avons besoin du soutien
+            financier de chacun.e d’entre vous. Sur cette page, vous pouvez faire un don à la France insoumise du
+            montant de votre choix par carte de crédit.</p>
+        <p>Un reçu, édité par la CNCCFP, vous sera adressé et vous permettra de déduire cette somme de vos impôts dans
+            les limites fixées par la loi. Votre don donne droit à une réduction d’impôt de 66% des sommes versées
+            dans la limité de 20% du revenu imposable.</p>
+        <p>Vous pouvez également faire un don par chèque libellé à l’ordre de AFLFI (Association de Financement de La
+            France Insoumise) en envoyant votre chèque avec
+            <a href="{% static "donations/formulaire_dons_20180104.pdf" %}">ce formulaire téléchargeable</a>.</p>
+    </div>
+
+    <div class="col-responsive">
+        <h2>Je veux aider la France insoumise</h2>
+        {% crispy form %}
+    </div>
+{% endblock %}
