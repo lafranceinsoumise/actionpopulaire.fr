@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from django import forms
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
 from model_utils.models import TimeStampedModel
+from phonenumber_field.modelfields import PhoneNumberField
+from phonenumbers import phonenumberutil, PhoneNumberType
 
 from lib.models import LocationMixin
 from .forms import SystempayRedirectForm
@@ -39,6 +40,7 @@ class Payment(TimeStampedModel, LocationMixin):
     email = models.EmailField('email', max_length=255)
     first_name = models.CharField('prénom', max_length=255)
     last_name = models.CharField('nom de famille', max_length=255)
+    phone_number = PhoneNumberField('numéro de téléphone', null=True)
 
     type = models.CharField("type", choices=get_payment_choices(), max_length=255)
     price = models.IntegerField("prix en centimes d'euros")
@@ -55,7 +57,7 @@ class Payment(TimeStampedModel, LocationMixin):
             'vads_cust_id': str(self.person.id),
             'vads_cust_first_name': self.first_name,
             'vads_cust_last_name': self.last_name,
-            'vads_cust_cell_address': ', '.join([self.location_address1, self.location_address2]),
+            'vads_cust_address': ', '.join([self.location_address1, self.location_address2]),
             'vads_cust_zip': self.location_zip,
             'vads_cust_city': self.location_city,
             'vads_cust_state': self.location_state,
@@ -63,8 +65,14 @@ class Payment(TimeStampedModel, LocationMixin):
             'vads_ext_info_type': self.type
         })
 
+        if self.phone_number:
+            if phonenumberutil.number_type(self.phone_number) == PhoneNumberType.MOBILE:
+                form.add_field('vads_cust_cell_phone', self.phone_number.as_e164)
+            else:
+                form.add_field('vads_cust_phone', self.phone_number.as_e164)
+
         for key in self.meta:
-            form.fields['vads_ext_info_meta_' + key] = forms.CharField(initial=self.meta[key], widget=forms.HiddenInput())
+            form.add_field('vads_ext_info_meta_' + key, self.meta[key])
 
         form.update_signature()
 
