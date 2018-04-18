@@ -39,9 +39,9 @@ class PersonManager(models.Manager):
         return person
 
     def get_by_natural_key(self, email):
-        email_field_class = self.model._meta.get_field('emails').rel.to
+        email_field_class = self.model.emails.rel.related_model
         try:
-            return email_field_class.objects.select_related('person__role').get_by_natural_key(email)
+            return email_field_class.objects.get_by_natural_key(email).person
         except email_field_class.DoesNotExist:
             raise self.model.DoesNotExist
 
