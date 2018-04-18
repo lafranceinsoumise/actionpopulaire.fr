@@ -7,7 +7,8 @@ from django.urls import reverse
 from model_utils.models import TimeStampedModel
 
 from lib.models import LocationMixin
-from payments.forms import SystempayRedirectForm
+from .forms import SystempayRedirectForm
+from .types import get_payment_choices
 
 
 class Payment(TimeStampedModel, LocationMixin):
@@ -39,7 +40,7 @@ class Payment(TimeStampedModel, LocationMixin):
     first_name = models.CharField('prénom', max_length=255)
     last_name = models.CharField('nom de famille', max_length=255)
 
-    type = models.CharField("type", choices=TYPE_CHOICES, max_length=255)
+    type = models.CharField("type", choices=get_payment_choices(), max_length=255)
     price = models.IntegerField("prix en centimes d'euros")
     status = models.IntegerField("status", choices=STATUS_CHOICES, default=STATUS_WAITING)
     meta = JSONField(blank=True, default=dict)

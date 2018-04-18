@@ -22,6 +22,7 @@ from . import routers, admin, settings
 
 import front.urls
 import webhooks.urls
+import donations.urls
 import payments.urls
 
 urlpatterns = [
@@ -40,6 +41,7 @@ if settings.ENABLE_API:
 if settings.ENABLE_FRONT:
     urlpatterns.extend([
         url(r'^', include(front.urls)),
+        url(r'^', include(donations.urls)),
         url(r'^', include(payments.urls))
     ])
 
