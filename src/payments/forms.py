@@ -33,7 +33,7 @@ class SystempayRedirectForm(forms.Form):
     vads_cust_status = fields.CharField(initial="PRIVATE", widget=forms.HiddenInput())
     vads_cust_first_name = fields.CharField(widget=forms.HiddenInput())
     vads_cust_last_name = fields.CharField(widget=forms.HiddenInput())
-    vads_cust_cell_address = fields.CharField(widget=forms.HiddenInput())
+    vads_cust_address = fields.CharField(widget=forms.HiddenInput())
     vads_cust_zip = fields.CharField(widget=forms.HiddenInput())
     vads_cust_city = fields.CharField(widget=forms.HiddenInput())
     vads_cust_country = fields.CharField(widget=forms.HiddenInput())
