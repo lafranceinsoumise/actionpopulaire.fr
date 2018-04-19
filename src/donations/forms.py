@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import keep_lazy_text
 from django.utils.html import mark_safe
 from django.utils.formats import number_format
+from django.utils.text import format_lazy
 
 from django_countries.fields import CountryField
 
@@ -26,8 +27,15 @@ class DonationForm(forms.Form):
         decimal_places=2,
         required=True,
         error_messages={
-            'invalid': "Indiquez le montant à donner. Pour une valeur supérieure à 1000 €, merci de bien vouloir nous"
-                       " contacter directement."
+            'invalid': _("Indiquez le montant à donner."),
+            'min_value': format_lazy(
+                _("Il n'est pas possible de donner moins que {min} €."),
+                min=settings.DONATION_MINIMUM
+            ),
+            'max_value': format_lazy(
+                _("Les dons de plus de {max} € ne peuvent être faits par carte bleue."),
+                max=settings.DONATION_MAXIMUM
+            )
         },
         widget=AmountWidget()
     )
