@@ -120,7 +120,7 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         default=True,
         blank=True,
         help_text=_("Vous recevrez les lettres de la France insoumise, notamment : les lettres d'information, les"
-                    " appels à volontaires, ")
+                    " appels à volontaires, les annonces d'émissions ou d'événements...")
     )
 
     event_notifications = models.BooleanField(

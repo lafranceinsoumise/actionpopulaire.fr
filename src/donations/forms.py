@@ -12,6 +12,7 @@ from crispy_forms import layout
 from crispy_forms.helper import FormHelper
 
 from front.form_mixins import MetaFieldsMixin
+from front.form_components import *
 from people.models import Person, PersonEmail
 
 from .form_fields import AmountWidget
@@ -59,8 +60,8 @@ class DonatorForm(MetaFieldsMixin, forms.ModelForm):
     )
 
     amount = forms.IntegerField(
-        max_value=settings.DONATION_MAXIMUM*100,
-        min_value=settings.DONATION_MINIMUM*100,
+        max_value=settings.DONATION_MAXIMUM * 100,
+        min_value=settings.DONATION_MINIMUM * 100,
         required=True,
         widget=forms.HiddenInput
     )
@@ -104,6 +105,11 @@ class DonatorForm(MetaFieldsMixin, forms.ModelForm):
             # we want the subscribed field to be prechecked only for new email subscribers
             self.fields['subscribed'].initial = self.adding
 
+        for f in ['first_name', 'last_name', 'location_address1', 'location_zip', 'location_city', 'location_country']:
+            self.fields[f].required = True
+        self.fields['location_address1'].label = 'Adresse'
+        self.fields['location_address2'].label = False
+
         fields = ['amount']
 
         if 'email' in self.fields:
@@ -111,7 +117,18 @@ class DonatorForm(MetaFieldsMixin, forms.ModelForm):
 
         fields.extend(['declaration', 'nationality', 'fiscal_resident'])
         fields.extend(['first_name', 'last_name'])
-        fields.extend(['location_address1', 'location_address2', 'location_zip', 'location_city', 'location_country'])
+        fields.extend([
+            layout.Field('location_address1', placeholder='Ligne 1'),
+            layout.Field('location_address2', placeholder='Ligne 2')
+        ])
+
+        fields.append(Row(
+            layout.Div('location_zip', css_class='col-md-4'),
+            layout.Div('location_city', css_class='col-md-8')
+        ))
+
+        fields.append('location_country')
+
         fields.append('contact_phone')
 
         self.helper = FormHelper()
@@ -143,6 +160,6 @@ class DonatorForm(MetaFieldsMixin, forms.ModelForm):
     class Meta:
         model = Person
         fields = (
-            'first_name', 'last_name', 'location_address1', 'location_address2', 'location_zip',
+            'first_name', 'last_name', 'location_address1', 'location_address2', 'location_zip', 'location_city',
             'location_country', 'contact_phone', 'subscribed'
         )

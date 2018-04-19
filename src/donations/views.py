@@ -33,7 +33,7 @@ class PersonalInformationView(UpdateView):
             return self.request.user.person
 
         form = self.get_form()
-        if 'email' in form.cleaned_data:
+        if form.is_valid():
             try:
                 return Person.objects.get_by_natural_key(form.cleaned_data['email'])
             except Person.DoesNotExist:

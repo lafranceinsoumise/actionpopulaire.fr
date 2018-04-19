@@ -2,7 +2,6 @@ import json
 
 from crispy_forms.layout import Fieldset
 from django import forms
-from django.contrib.auth.models import BaseUserManager
 from django.shortcuts import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import format_html
