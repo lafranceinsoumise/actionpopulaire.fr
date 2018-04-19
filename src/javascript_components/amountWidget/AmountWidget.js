@@ -9,6 +9,15 @@ import './style.css';
 
 const AMOUNTS = [100, 50, 25, 15, 10];
 
+function displayNumber(n) {
+  const s = Math.round(n * 100).toString();
+  return (s.slice(0, -2) | '0') + ',' + s.slice(-2);
+}
+
+function toFloat(n) {
+  return parseFloat(n.replace(',', '.'));
+}
+
 
 class AmountWidget extends React.Component {
   constructor({hiddenField}) {
@@ -22,6 +31,12 @@ class AmountWidget extends React.Component {
     };
   }
 
+  updateWithCustomValue(s) {
+    if (s.match(/[^0-9]/) === null) {
+      this.setState({custom: true, value: s === '' ? '' : parseInt(s)});
+    }
+  }
+
   render() {
     const state = this.state;
     return <div className="amount-component" style={{display: 'flex', 'flex-wrap': 'wrap'}}>
@@ -32,11 +47,19 @@ class AmountWidget extends React.Component {
           {value}&nbsp;€
         </button>))}
       <InputGroup>
-        <FormControl type="number" placeholder="autre montant"
-                     onChange={e => this.setState({value: e.target.value, custom: true})}
-                     value={this.state.custom ? this.state.value : ''} />
+        <input type="text" className="form-control" placeholder="autre montant" step={1}
+                     onChange={e => this.updateWithCustomValue(e.target.value)}
+                     value={this.state.custom ? this.state.value.toString() : ''}/>
         <InputGroup.Addon>€</InputGroup.Addon>
       </InputGroup>
+      <p>
+        {state.value ?
+          <strong>
+            Après réduction d&apos;impôt, ma contribution nette sera de
+            seulement <em className="text-danger">{displayNumber(state.value * 0.34)}</em>&nbsp;€&nbsp;!
+          </strong> :
+          <strong>En donnant, je profite d&apos;une réduction d&apos;impôt de 66&nbsp;% de la somme donnée !</strong>}
+      </p>
     </div>;
   }
 }
