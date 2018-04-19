@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import keep_lazy_text
 from django.utils.html import mark_safe
+from django.utils.formats import number_format
 
 from django_countries.fields import CountryField
 
@@ -11,6 +12,8 @@ from crispy_forms.helper import FormHelper
 
 from front.form_mixins import MetaFieldsMixin
 from people.models import Person, PersonEmail
+
+from .form_fields import AmountWidget
 
 __all__ = ('DonationForm', 'DonatorForm')
 
@@ -25,7 +28,9 @@ class DonationForm(forms.Form):
         error_messages={
             'invalid': "Indiquez le montant à donner. Pour une valeur supérieure à 1000 €, merci de bien vouloir nous"
                        " contacter directement."
-        })
+        },
+        widget=AmountWidget()
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -102,7 +107,7 @@ class DonatorForm(MetaFieldsMixin, forms.ModelForm):
         fields.append('contact_phone')
 
         self.helper = FormHelper()
-        self.helper.add_input(layout.Submit('valider', 'Valider'))
+        self.helper.add_input(layout.Submit('valider', f'Je donne {number_format(amount / 100, 2)} €'))
         self.helper.layout = layout.Layout(
             *fields
         )

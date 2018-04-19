@@ -20,7 +20,8 @@ module.exports = {
     dashboard: './dashboard',
     map: ['babel-polyfill', './map/index.js'],
     theme: '@fi/theme/dist/styles/' + cssName,
-    mandatesField: './mandatesField'
+    mandatesField: './mandatesField',
+    amountWidget: './amountWidget'
   },
   plugins: [
     new CleanWebpackPlugin([DISTPATH]),

@@ -1,0 +1,27 @@
+
+.amount-component {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.amount-component button {
+    display: block;
+    width: 30%;
+    height: 50px;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+.amount-component .input-group {
+    width: 30%;
+    margin: 10px 0;
+    height: 50px;
+}
+
+.amount-component .input-group input {
+    height: 50px;
+    text-align: center;
+    font-weight: bold;
+}
