@@ -105,7 +105,8 @@ class DonatorForm(MetaFieldsMixin, forms.ModelForm):
             # we want the subscribed field to be prechecked only for new email subscribers
             self.fields['subscribed'].initial = self.adding
 
-        for f in ['first_name', 'last_name', 'location_address1', 'location_zip', 'location_city', 'location_country']:
+        for f in ['first_name', 'last_name', 'location_address1', 'location_zip', 'location_city', 'location_country',
+                  'contact_phone']:
             self.fields[f].required = True
         self.fields['location_address1'].label = 'Adresse'
         self.fields['location_address2'].label = False

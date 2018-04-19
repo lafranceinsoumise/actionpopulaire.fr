@@ -1,5 +1,6 @@
 from django.views.generic import FormView, UpdateView, TemplateView
 from django.urls import reverse_lazy
+from django.shortcuts import redirect
 
 from people.models import Person
 from payments.actions import get_payment_response
@@ -27,6 +28,11 @@ class AskAmountView(FormView):
 class PersonalInformationView(UpdateView):
     form_class = forms.DonatorForm
     template_name = 'donations/personal_information.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if SESSION_DONATION_AMOUNT_KEY not in request.session:
+            return redirect('donation_amount')
+        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         if self.request.user.is_authenticated:
