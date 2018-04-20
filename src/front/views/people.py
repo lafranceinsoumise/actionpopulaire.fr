@@ -205,7 +205,7 @@ class DeleteEmailAddressView(HardLoginRequiredMixin, DeleteView):
 
 
 class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
-    queryset = PersonForm.objects.filter(published=True)
+    queryset = PersonForm.objects.published()
     template_name = 'front/people/person_form.html'
 
     def get_success_url(self):

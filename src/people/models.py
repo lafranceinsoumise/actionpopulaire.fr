@@ -342,10 +342,29 @@ class PersonEmail(models.Model):
         self.address = PersonEmail.objects.normalize_email(self.address)
 
 
+class PersonFormQueryset(models.QuerySet):
+    def published(self):
+        return self.filter(
+            models.Q(published=True)
+        )
+
+    def open(self):
+        now = timezone.now()
+        return self.published().filter(
+            (models.Q(start_time__isnull=True) | models.Q(start_time__lt=now)) &
+            (models.Q(end_time__isnull=True) | models.Q(end_time__gt=now))
+        )
+
+
 class PersonForm(TimeStampedModel):
+    objects = PersonFormQueryset.as_manager()
+
     title = models.CharField(_('Titre'), max_length=250)
     slug = models.SlugField(_('Slug'), max_length=50)
     published = models.BooleanField(_('Publié'), default=True)
+
+    start_time = models.DateTimeField(_("Date d'ouverture du formulaire"), null=True)
+    end_time = models.DateTimeField(_("Date de fermeture du formulaire"), null=True)
 
     description = DescriptionField(
         _('Description'),
@@ -361,11 +380,49 @@ class PersonForm(TimeStampedModel):
             "Note montrée à l'utilisateur une fois le formulaire validé."
         )
     )
+    before_message = DescriptionField(
+        _("Note avant ouverture"),
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text=(
+            "Note montrée à l'utilisateur qui essaye d'accéder au formulaire avant son ouverture."
+        ),
+        blank=True
+    )
+
+    after_message = DescriptionField(
+        _("Note de fermeture"),
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text=(
+            "Note montrée à l'utilisateur qui essaye d'accéder au formulaire après sa date de fermeture."
+        ),
+        blank=True
+    )
 
     main_question = models.CharField(_("Intitulé de la question principale"), max_length=200)
     tags = models.ManyToManyField('PersonTag', related_name='forms', related_query_name='form', blank=True)
 
     custom_fields = JSONField(_('Champs'), blank=False, default=list)
+
+    @property
+    def is_open(self):
+        now = timezone.now()
+        return (
+            (self.start_time is None or self.start_time < now) and (self.end_time is None or now < self.end_time)
+        )
+
+    @property
+    def html_closed_message(self):
+        now = timezone.now()
+        if self.start_time > now:
+            if self.before_message:
+                return self.html_before_message()
+            else:
+                return "Ce formulaire n'est pas encore ouvert."
+        else:
+            if self.after_message:
+                return self.html_after_message()
+            else:
+                return "Ce formulaire est maintenant fermé."
 
     class Meta:
         verbose_name = _("Formulaire")

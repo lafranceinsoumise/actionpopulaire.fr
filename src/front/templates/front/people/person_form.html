@@ -24,9 +24,15 @@
 {% block main %}
     <h2 class="headline">{{ person_form.title }}</h2>
     <div>
-        <div class="intro">
-            {{ person_form.html_description }}
-        </div>
-        {% crispy form %}
+        {% if person_form.is_open %}
+            <div class="intro">
+                {{ person_form.html_description }}
+            </div>
+            {% crispy form %}
+        {% else %}
+            <div class="intro">
+                {{ person_form.html_closed_message }}
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

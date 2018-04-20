@@ -240,13 +240,16 @@ class PersonFormAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('title', 'slug', 'published', 'submissions_number', 'simple_link', 'action_buttons')
+            'fields': ('title', 'slug', 'published', 'start_time', 'end_time')
+        }),
+        (_('Soumissions'), {
+            'fields': ('submissions_number', 'simple_link', 'action_buttons')
         }),
         (_('Champs'), {
             'fields': ('main_question', 'tags', 'custom_fields')
         }),
         (_('Textes'), {
-            'fields': ('description', 'confirmation_note')
+            'fields': ('description', 'confirmation_note', 'before_message', 'after_message')
          }),
     )
 
