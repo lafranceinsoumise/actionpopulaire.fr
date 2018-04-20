@@ -413,7 +413,7 @@ class PersonForm(TimeStampedModel):
     @property
     def html_closed_message(self):
         now = timezone.now()
-        if self.start_time > now:
+        if self.start_time is not None and self.start_time > now:
             if self.before_message:
                 return self.html_before_message()
             else:
