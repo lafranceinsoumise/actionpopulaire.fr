@@ -37,10 +37,12 @@ class MailTrainTestCase(TestCase):
         unsubscribe.assert_called_once()
         subscribe.assert_called_once()
 
-        person.add_email('email@bounced.com', bounced=True)
-        person.set_primary_email('email@bounced.com')
+        person.add_email('second@domain.com')
+        person.primary_email.bounced = True
+        person.primary_email.save()
+        person.subscribed = True
         person.save()
         mailtrain.update_person(person)
         delete.assert_called_once()
         unsubscribe.assert_called_once()
-        subscribe.assert_called_once()
+        self.assertEqual(subscribe.call_count, 2)

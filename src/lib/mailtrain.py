@@ -124,8 +124,7 @@ def update_person(person):
             unsubscribe(primary_email.address)
 
     for email in other_emails:
-        if not email.bounced:
-            delete(email.address)
+        delete(email.address)
 
 
 def delete_person(person):
