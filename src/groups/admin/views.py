@@ -3,7 +3,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.shortcuts import reverse
 from django.contrib.admin.utils import unquote
-from api.admin import admin_site
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.admin.options import IS_POPUP_VAR
@@ -12,12 +11,11 @@ from django.template.response import TemplateResponse
 from .forms import AddMemberForm
 
 
-@admin_site.admin_view
-def add_member(self, request, id):
-    if not self.has_change_permission(request) or not request.user.has_perm('people.view_person'):
+def add_member(model_admin, request, id):
+    if not model_admin.has_change_permission(request) or not request.user.has_perm('people.view_person'):
         raise PermissionDenied
 
-    group = self.get_object(request, unquote(id))
+    group = model_admin.get_object(request, unquote(id))
 
     if group is None:
         raise Http404(_("Pas de groupe avec cet identifiant."))
@@ -32,7 +30,7 @@ def add_member(self, request, id):
             return HttpResponseRedirect(
                 reverse(
                     '%s:%s_%s_change' % (
-                        self.admin_site.name,
+                        model_admin.admin_site.name,
                         group._meta.app_label,
                         group._meta.model_name,
                     ),
@@ -51,7 +49,7 @@ def add_member(self, request, id):
         'form': form,
         'is_popup': (IS_POPUP_VAR in request.POST or
                      IS_POPUP_VAR in request.GET),
-        'opts': self.model._meta,
+        'opts': model_admin.model._meta,
         'original': group,
         'change': False,
         'add': False,
@@ -60,11 +58,11 @@ def add_member(self, request, id):
         'has_delete_permission': False,
         'has_add_permission': False,
         'has_change_permission': True,
-        'media': self.media + admin_form.media
+        'media': model_admin.media + admin_form.media
     }
-    context.update(self.admin_site.each_context(request))
+    context.update(model_admin.admin_site.each_context(request))
 
-    request.current_app = self.admin_site.name
+    request.current_app = model_admin.admin_site.name
 
     return TemplateResponse(
         request,

@@ -134,8 +134,11 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     def get_urls(self):
         return [
-            url(r'^(.+)/add_member/', views.add_member, name="groups_supportgroup_add_member")
+            url(r'^(.+)/add_member/', admin_site.admin_view(self.add_member), name="groups_supportgroup_add_member")
         ] + super().get_urls()
+
+    def add_member(self, request, id):
+        return views.add_member(self, request, id)
 
 
 @admin.register(models.SupportGroupTag, site=admin_site)
