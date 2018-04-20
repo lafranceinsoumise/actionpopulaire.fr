@@ -363,8 +363,8 @@ class PersonForm(TimeStampedModel):
     slug = models.SlugField(_('Slug'), max_length=50)
     published = models.BooleanField(_('Publié'), default=True)
 
-    start_time = models.DateTimeField(_("Date d'ouverture du formulaire"), null=True)
-    end_time = models.DateTimeField(_("Date de fermeture du formulaire"), null=True)
+    start_time = models.DateTimeField(_("Date d'ouverture du formulaire"), null=True, blank=True)
+    end_time = models.DateTimeField(_("Date de fermeture du formulaire"), null=True, blank=True)
 
     description = DescriptionField(
         _('Description'),
