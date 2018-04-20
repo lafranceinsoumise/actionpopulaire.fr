@@ -470,3 +470,7 @@ DONATION_MAXIMUM = 1000
 # France + most numerous communities in France
 COUNTRIES_FIRST = ['FR', 'PT', 'DZ', 'MA', 'TR', 'IT', 'GB', 'ES']
 COUNTRIES_FIRST_REPEAT = True
+
+# allows the administrator to temporarily disable sending to specific domains
+EMAIL_DISABLED_DOMAINS = [d.lower() for d in os.environ.get('EMAIL_DISABLED_DOMAINS').split(',')] \
+    if 'EMAIL_DISABLED_DOMAINS' in os.environ else []

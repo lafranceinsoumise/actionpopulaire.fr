@@ -1,10 +1,10 @@
 from datetime import datetime
+from urllib3 import Retry
 import requests
-from django.db.models import Q
 from requests import HTTPError
 
 from django.conf import settings
-from urllib3 import Retry
+from django.db.models import Q
 
 from front.utils import generate_token_params
 from urllib.parse import urlencode
@@ -107,13 +107,17 @@ def update_person(person):
     data = data_from_person(person)
     emails = list(person.emails.all())
 
-    if len(emails) == 0:
-        return
+    for i, email in enumerate(emails):
+        local_part, domain = email.address.rsplit('@', 1)
+        if not email.bounced and domain.lower() not in settings.EMAIL_DISABLED_DOMAINS:
+            primary_email = email
+            other_emails = emails[:i] + emails[i+1:]
+            break
+    else:
+        primary_email = None
+        other_emails = emails
 
-    primary_email = emails[0]
-    other_emails = emails[1:]
-
-    if not primary_email.bounced:
+    if primary_email is not None:
         if person.subscribed:
             subscribe(primary_email.address, data)
         else:
