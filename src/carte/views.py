@@ -9,7 +9,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 import django_filters
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from django.http import QueryDict
+from django.http import QueryDict, Http404
 
 
 from events.models import Event, EventSubtype
@@ -195,6 +195,9 @@ class SingleEventMapView(DetailView):
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        if self.object.coordinates is None:
+            raise Http404()
+
         subtype = self.object.subtype
         type_info = get_event_type_information(subtype.type, subtype.get_type_display())
         subtype_info = get_subtype_information(subtype)
@@ -252,6 +255,9 @@ class SingleGroupMapView(DetailView):
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        if self.object.coordinates is None:
+            raise Http404()
+
         type_info = get_group_type_information(self.object.type, self.object.get_type_display())
         subtype = self.object.subtypes.first()
         subtype_info = subtype and get_subtype_information(subtype)
