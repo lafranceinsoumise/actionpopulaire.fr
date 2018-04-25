@@ -20,4 +20,6 @@ class PaymentForm(forms.ModelForm):
 @admin.register(models.Payment, site=admin_site)
 class PaymentAdmin(admin.ModelAdmin):
     form = PaymentForm
-    list_display = ('person', 'email', 'first_name', 'last_name', 'price', 'status')
+    list_display = ('person', 'email', 'first_name', 'last_name', 'price', 'status', )
+    readonly_fields = ('person', 'email', 'first_name', 'last_name', 'price', 'status')
+    list_filter = ('price', 'status')
