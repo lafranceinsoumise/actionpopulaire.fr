@@ -27,14 +27,6 @@ class Payment(TimeStampedModel, LocationMixin):
         (STATUS_REFUSED, 'Refusé')
     )
 
-    TYPE_DONATION = 'don'
-    TYPE_EVENT = 'inscription à un événement'
-
-    TYPE_CHOICES = (
-        (TYPE_DONATION, 'don'),
-        (TYPE_EVENT, 'événement')
-    )
-
     person = models.ForeignKey('people.Person')
 
     email = models.EmailField('email', max_length=255)
