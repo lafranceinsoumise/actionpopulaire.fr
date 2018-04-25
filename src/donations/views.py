@@ -2,6 +2,7 @@ from django.views.generic import FormView, UpdateView, TemplateView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
 
+from donations.apps import DonsConfig
 from people.models import Person
 from payments.actions import get_payment_response
 from payments.models import Payment
@@ -58,7 +59,7 @@ class PersonalInformationView(UpdateView):
 
         return get_payment_response(
             person=person,
-            type=Payment.TYPE_DONATION,
+            type=DonsConfig.PAYMENT_TYPE,
             price=amount,
             meta={'nationality': person.meta['nationality']}
         )
