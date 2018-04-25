@@ -1,4 +1,6 @@
 from datetime import datetime
+
+import warnings
 from urllib3 import Retry
 import requests
 from requests import HTTPError
@@ -38,6 +40,9 @@ def data_from_person(person):
     data['MERGE_INSCRIPTIONS'] = ','.join(inscriptions)
     data['MERGE_LOGIN_QUERY'] = urlencode(generate_token_params(person))
     data['MERGE_TAGS'] = ',' + ','.join(t.label for t in person.tags.filter(exported=True)) + ','
+
+    if len(data['MERGE_TAGS']) > 255:
+        warnings.warn('Tag string is longer than 255 characters for ' + person.email)
 
     return data
 
