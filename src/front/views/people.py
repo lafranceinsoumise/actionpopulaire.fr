@@ -239,6 +239,8 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         self.person_form_instance = self.get_person_form_instance()
+        if not self.person_form_instance.is_open:
+            return self.get(request, *args, **kwargs)
         return super().post(request, *args, **kwargs)
 
 

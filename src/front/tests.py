@@ -1056,6 +1056,25 @@ class PersonFormTestCase(TestCase):
         self.assertEqual(submissions[0].data['custom-field'], 'Mon super champ texte libre')
         self.assertEqual(submissions[0].data['custom-person-field'], 'Mon super champ texte libre à mettre dans Person.metas')
 
+    def test_cannot_view_closed_forms(self):
+        self.complex_form.end_time = timezone.now() - timedelta(days=1)
+        self.complex_form.save()
+
+        res = self.client.get('/formulaires/formulaire-complexe/')
+        self.assertContains(res, "Ce formulaire est maintenant fermé.")
+
+    def test_cannot_post_on_closed_forms(self):
+        self.complex_form.end_time = timezone.now() - timedelta(days=1)
+        self.complex_form.save()
+
+        res = self.client.post('/formulaires/formulaire-complexe/', data={
+            'tag': 'tag2',
+            'contact_phone': '06 34 56 78 90',
+            'custom-field': 'Mon super champ texte libre',
+            'custom-person-field': 'Mon super champ texte libre à mettre dans Person.metas'
+        })
+        self.assertContains(res, "Ce formulaire est maintenant fermé.")
+
 
 class PollTestCase(TestCase):
     def setUp(self):
