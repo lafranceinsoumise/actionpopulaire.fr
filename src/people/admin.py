@@ -24,7 +24,7 @@ from authentication.models import Role
 from events.models import RSVP
 from groups.models import Membership
 
-from front.utils import front_url, generate_token_params
+from lib.utils import front_url, generate_token_params
 from lib.admin import CenterOnFranceMixin
 from lib.search import PrefixSearchQuery
 from lib.form_fields import AdminRichEditorWidget

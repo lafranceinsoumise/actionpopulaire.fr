@@ -1,10 +1,10 @@
-import hmac
-from django.core.exceptions import ValidationError
 from hashlib import sha1
 
 from django import forms
 from django.conf import settings
 from django.forms import fields
+
+from lib.utils import front_url_lazy
 
 
 def get_signature(data):
@@ -38,6 +38,10 @@ class SystempayRedirectForm(forms.Form):
     vads_cust_city = fields.CharField(widget=forms.HiddenInput())
     vads_cust_country = fields.CharField(widget=forms.HiddenInput())
     vads_ext_info_type = fields.CharField(widget=forms.HiddenInput())
+    vads_url_cancel = fields.CharField(initial=front_url_lazy('payment_failure'), widget=forms.HiddenInput())
+    vads_url_error = fields.CharField(initial=front_url_lazy('payment_failure'), widget=forms.HiddenInput())
+    vads_url_refused = fields.CharField(initial=front_url_lazy('payment_failure'), widget=forms.HiddenInput())
+    vads_url_success = fields.CharField(initial=front_url_lazy('payment_success'), widget=forms.HiddenInput())
     signature = fields.CharField(widget=forms.HiddenInput())
 
     def add_field(self, name, value):

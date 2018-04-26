@@ -42,7 +42,7 @@ class DonationTestCase(TestCase):
         payment = Payment.objects.get()
         self.assertRedirects(res, reverse('payment_redirect', args=(payment.pk,)))
 
-        res = self.client.get(reverse('payment_return'))
+        res = self.client.get(reverse('payment_success'))
         self.assertEqual(res.status_code, 200)
 
         self.p1.refresh_from_db()

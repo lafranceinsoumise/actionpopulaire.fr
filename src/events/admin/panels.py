@@ -12,7 +12,7 @@ from admin_steroids.filters import AjaxFieldFilter
 
 from groups.models import SupportGroup
 from lib.admin import CenterOnFranceMixin
-from front.utils import front_url
+from lib.utils import front_url
 
 from .. import models
 

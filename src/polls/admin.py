@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 from api.admin import admin_site
 
 from polls.models import Poll, PollOption
-from front.utils import front_url
+from lib.utils import front_url
 
 
 class PollOptionInline(admin.TabularInline):

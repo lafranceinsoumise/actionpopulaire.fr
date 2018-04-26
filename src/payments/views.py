@@ -4,7 +4,8 @@ from django.db.models.expressions import F
 from django.http import (
     HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest, HttpResponseNotFound, HttpResponse
 )
-from django.views.generic import DetailView
+from django.urls import reverse
+from django.views.generic import DetailView, TemplateView
 from django.shortcuts import resolve_url
 from rest_framework.views import APIView
 
@@ -58,15 +59,29 @@ class SystempayWebhookView(APIView):
         return HttpResponse({'status': 'Accepted'}, 200)
 
 
-def return_view(request):
+def success_view(request):
     pk = request.session.get(PAYMENT_ID_SESSION_KEY)
 
     if pk is not None:
         try:
             payment = Payment.objects.get(pk=pk)
-            if payment.type in PAYMENT_TYPES and PAYMENT_TYPES[payment.type].return_view:
-                return PAYMENT_TYPES[payment.type].return_view(request, payment=payment)
+            if payment.type in PAYMENT_TYPES and PAYMENT_TYPES[payment.type].success_view:
+                return PAYMENT_TYPES[payment.type].success_view(request, payment=payment)
         except Payment.DoesNotExist:
             pass
 
-    return HttpResponseRedirect(resolve_url(settings.PAYMENT_DEFAULT_REDIRECT))
+    return TemplateView.as_view(template_name='payments/success.html')(request)
+
+
+def failure_view(request):
+    pk = request.session.get(PAYMENT_ID_SESSION_KEY)
+
+    if pk is not None:
+        try:
+            payment = Payment.objects.get(pk=pk)
+            if payment.type in PAYMENT_TYPES and PAYMENT_TYPES[payment.type].failure_view:
+                return PAYMENT_TYPES[payment.type].failure_view(request, payment=payment)
+        except Payment.DoesNotExist:
+            pass
+
+    return TemplateView.as_view(template_name='payments/failure.html')(request)

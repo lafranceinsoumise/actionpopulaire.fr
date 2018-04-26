@@ -2,7 +2,7 @@ from rest_framework import serializers, exceptions
 from django.db import transaction
 from django.utils.translation import ugettext as _
 
-from front.utils import front_url
+from lib.utils import front_url
 from lib.serializers import (
     LegacyBaseAPISerializer, LegacyLocationAndContactMixin,
     RelatedLabelField, UpdatableListSerializer, ExistingRelatedLabelField

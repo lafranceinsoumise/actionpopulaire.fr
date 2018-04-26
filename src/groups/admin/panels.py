@@ -12,7 +12,7 @@ from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
 
 from lib.admin import CenterOnFranceMixin
-from front.utils import front_url
+from lib.utils import front_url
 
 from .. import models
 from ..actions.promo_codes import get_next_promo_code

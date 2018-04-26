@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import url
 from django.contrib.sitemaps.views import sitemap
 from django.urls import reverse_lazy
@@ -11,6 +12,8 @@ simple_id = r'[0-9]+'
 
 
 urlpatterns = [
+    # https://lafranceinsoumise.fr/
+    url('^homepage/$', RedirectView.as_view(url=settings.MAIN_DOMAIN), name='homepage'),
     # sitemap
     url(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'),

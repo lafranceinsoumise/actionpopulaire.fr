@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from front.utils import front_url
+from lib.utils import front_url
 from people.actions.mailing import send_mosaico_email
 from .models import SupportGroup, Membership
 

@@ -2,10 +2,10 @@ from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import list_route, detail_route
+from rest_framework.decorators import list_route
 import django_filters
 
-from front.utils import generate_token_params
+from lib.utils import generate_token_params
 from lib.pagination import LegacyPaginator
 from lib.permissions import RestrictViewPermissions
 from lib.token_bucket import TokenBucket

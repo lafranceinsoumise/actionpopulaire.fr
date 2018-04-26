@@ -9,7 +9,7 @@ from django.template import loader
 import html2text
 
 from people.models import Person
-from front.utils import generate_token_params, front_url, is_front_url
+from lib.utils import generate_token_params, front_url, is_front_url
 
 __all__ = ['send_mail', 'send_mosaico_email']
 

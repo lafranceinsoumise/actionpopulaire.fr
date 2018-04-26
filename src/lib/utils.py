@@ -1,10 +1,12 @@
 from urllib.parse import urljoin
 
-from django.shortcuts import reverse
+import six
 from django.conf import settings
 from django.http import QueryDict
+from django.urls import reverse
+from django.utils.functional import lazy
 
-from .backend import token_generator
+from front.backend import token_generator
 
 
 def _querydict_from_dict(d):
@@ -14,12 +16,15 @@ def _querydict_from_dict(d):
 
 
 def front_url(*args, query=None, absolute=True, **kwargs):
-    url = reverse(*args, urlconf='front.urls', **kwargs)
+    url = reverse(*args, urlconf='lib.front_urls', **kwargs)
     if absolute:
         url = urljoin(settings.FRONT_DOMAIN, url)
     if query:
         url = "{}?{}".format(url, _querydict_from_dict(query).urlencode(safe='/'))
     return url
+
+
+front_url_lazy = lazy(front_url, six.text_type)
 
 
 def is_front_url(param):

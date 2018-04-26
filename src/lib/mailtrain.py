@@ -8,7 +8,7 @@ from requests import HTTPError
 from django.conf import settings
 from django.db.models import Q
 
-from front.utils import generate_token_params
+from lib.utils import generate_token_params
 from urllib.parse import urlencode
 
 params = {'access_token': settings.MAILTRAIN_API_KEY}
