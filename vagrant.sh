@@ -52,7 +52,7 @@ pivenv run src/manage.py migrate
 sudo bash -c "cat > /etc/systemd/system/django.service" <<EOT
 [Unit]
 Description=Django Development Server
-After=syslog.target network.target
+After=syslog.target network.target webpack.service vagrant.mount
 
 [Service]
 User=vagrant
@@ -61,6 +61,7 @@ WorkingDirectory=/vagrant
 ExecStart=/usr/local/bin/pipenv run src/manage.py runserver 0.0.0.0:8000
 StandardOutput=journal
 Restart=on-failure
+Wants=vagrant.mount
 
 [Install]
 WantedBy=multi-user.target
@@ -75,7 +76,7 @@ sudo apt-get -yqq install nodejs
 sudo bash -c "cat > /etc/systemd/system/webpack.service" <<EOT
 [Unit]
 Description=Webpack Development Server
-After=syslog.target network.target
+After=syslog.target network.target vagrant.mount
 
 [Service]
 User=vagrant
@@ -84,6 +85,7 @@ WorkingDirectory=/vagrant
 ExecStart=/usr/bin/npm run watch
 StandardOutput=journal
 Restart=on-failure
+Wants=vagrant.mount
 
 [Install]
 WantedBy=multi-user.target
