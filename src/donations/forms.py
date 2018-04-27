@@ -11,8 +11,8 @@ from django_countries.fields import CountryField
 from crispy_forms import layout
 from crispy_forms.helper import FormHelper
 
-from front.form_mixins import MetaFieldsMixin
-from front.form_components import *
+from people.form_mixins import MetaFieldsMixin
+from lib.form_components import *
 from people.models import Person, PersonEmail
 
 from .form_fields import AmountWidget

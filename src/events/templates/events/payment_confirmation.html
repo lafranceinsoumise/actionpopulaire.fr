@@ -1,0 +1,14 @@
+{% extends "front/layout.html" %}
+
+{% block title %}Inscription pour «&nbsp;{{ event.name }}&nbsp;» confirmée{% endblock %}
+
+{% block main %}
+    <div class="col-responsive">
+        <p>
+            {{ payment.first_name }} {{ payment.last_name }}, votre paiement de {{ payment.price_display }} pour
+            l'événement «&nbsp;{{ event.name }}&nbsp;» a bien été reçu. Votre inscription est confirmée.
+        </p>
+        <a href="{% url 'homepage' %}">Retour à la page d'accueil</a>
+    </div>
+
+{% endblock %}

@@ -1,4 +1,4 @@
-from crispy_forms.layout import Layout, Submit, Div, Field, MultiField, HTML, Row
+from crispy_forms.layout import Layout, Submit, Div, Field, MultiField, HTML, Row, Fieldset
 
 
 class FullCol(Div):

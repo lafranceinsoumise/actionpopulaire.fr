@@ -18,7 +18,7 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from api.admin import admin_site
 from admin_steroids.filters import AjaxFieldFilter
 
-from front.forms.people import all_person_field_names
+from .forms import all_person_field_names
 from .models import Person, PersonTag, PersonEmail, PersonForm
 from authentication.models import Role
 from events.models import RSVP

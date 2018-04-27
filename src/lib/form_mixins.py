@@ -1,13 +1,11 @@
-import json
 from django import forms
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.html import format_html
 from django.contrib.gis.forms.widgets import OSMWidget
 from crispy_forms.helper import FormHelper
 
-from .form_components import *
+from lib.form_components import *
 from lib.models import LocationMixin
-
 
 from django.utils.translation import ugettext as _
 from django_countries import countries
@@ -197,25 +195,3 @@ class SearchByZipCodeFormBase(forms.Form):
             }
         )
     )
-
-
-class MetaFieldsMixin(forms.Form):
-    meta_fields = []
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        for f in self.get_meta_fields():
-            self.initial[f] = self.instance.meta.get(f)
-
-    def get_meta_fields(self):
-        return self.meta_fields
-
-    def clean(self):
-        """Handles meta fields"""
-        cleaned_data = super().clean()
-
-        meta_update = {f: cleaned_data.get(f) for f in self.get_meta_fields() if cleaned_data.get(f)}
-        self.instance.meta.update(meta_update)
-
-        return cleaned_data

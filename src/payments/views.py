@@ -40,8 +40,6 @@ class SystempayWebhookView(APIView):
     }
 
     def post(self, request):
-        print(get_signature(request.data) + ' lol')
-
         if not hmac.compare_digest(get_signature(request.data), request.data['signature']):
             return HttpResponseForbidden()
 
@@ -55,6 +53,9 @@ class SystempayWebhookView(APIView):
         payment.systempay_responses.append(request.data)
         payment.status = self.SYSTEMPAY_STATUS_CHOICE.get(request.data['vads_trans_status'])
         payment.save()
+
+        if payment.type in PAYMENT_TYPES and PAYMENT_TYPES[payment.type].status_listener:
+            PAYMENT_TYPES[payment.type].status_listener(payment)
 
         return HttpResponse({'status': 'Accepted'}, 200)
 
