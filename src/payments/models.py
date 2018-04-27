@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.template.defaultfilters import floatformat
 from django.urls import reverse
 from model_utils.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
@@ -40,6 +41,10 @@ class Payment(TimeStampedModel, LocationMixin):
     meta = JSONField(blank=True, default=dict)
     systempay_responses = JSONField(blank=True, default=list)
 
+    @property
+    def price_display(self):
+        return "{} €".format(floatformat(self.price/ 100, 2))
+
     def get_form(self):
         form = SystempayRedirectForm(initial={
             'vads_trans_id': str(self.pk % 900000).zfill(6),
@@ -69,7 +74,6 @@ class Payment(TimeStampedModel, LocationMixin):
         form.update_signature()
 
         return form
-
 
     def get_form_action(self):
         return 'https://paiement.systempay.fr/vads-payment/'

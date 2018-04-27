@@ -1,12 +1,16 @@
 from django import forms
+from django.template.defaultfilters import floatformat
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
+from django.utils.formats import number_format
 from crispy_forms.helper import FormHelper
+from crispy_forms import layout
 
 from groups.models import SupportGroup
-from ..form_components import *
-from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
+from lib.form_components import *
+from lib.form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
 
+from people.models import Person, PersonFormSubmission
 from events.models import Event, OrganizerConfig, RSVP, EventImage, EventSubtype
 from events.tasks import send_event_creation_notification, send_event_changed_notification
 from lib.tasks import geocode_event
@@ -151,7 +155,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
                 ),
                 Row(
                     Div('location_country', css_class='col-md-12'),
-                ),  
+                ),
             ),
             Row(FullCol('description')),
             *notify_field,
@@ -333,3 +337,70 @@ class UploadEventImageForm(forms.ModelForm):
 
 class SearchEventForm(SearchByZipCodeFormBase):
     pass
+
+
+class AuthorForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['first_name'].required = self.fields['last_name'].required = True
+        self.fields['last_name'].help_text = _("""
+        Nous avons besoin de votre nom pour pouvoir vous identifier comme l'auteur de l'image.
+        """)
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            'first_name', 'last_name',
+        )
+
+    class Meta:
+        model = Person
+        fields = ('first_name', 'last_name')
+
+
+class BillingForm(forms.ModelForm):
+    # these fields are used to make sure there's no problem if user starts paying several events at the same time
+    event = forms.ModelChoiceField(Event.objects.all(), required=True, widget=forms.HiddenInput)
+    submission = forms.ModelChoiceField(PersonFormSubmission.objects.all(), widget=forms.HiddenInput, required=False)
+
+    def __init__(self, *args, event, submission, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['submission'].initial = submission
+        self.fields['event'].initial = event
+
+        for f in ['first_name', 'last_name', 'location_address1', 'location_zip', 'location_city', 'location_country',
+                  'contact_phone']:
+            self.fields[f].required = True
+        self.fields['location_address1'].label = 'Adresse'
+        self.fields['location_address2'].label = False
+
+        fields = ['submission', 'event']
+
+        fields.extend(['first_name', 'last_name'])
+        fields.extend([
+            layout.Field('location_address1', placeholder='Ligne 1'),
+            layout.Field('location_address2', placeholder='Ligne 2')
+        ])
+
+        fields.append(Row(
+            layout.Div('location_zip', css_class='col-md-4'),
+            layout.Div('location_city', css_class='col-md-8')
+        ))
+
+        fields.append('location_country')
+        fields.append('contact_phone')
+
+        self.helper = FormHelper()
+        self.helper.add_input(layout.Submit('valider', f'Je paye ma place {floatformat(event.get_price(submission)/100, 2)} €'))
+        self.helper.layout = layout.Layout(
+            *fields
+        )
+
+    class Meta:
+        model = Person
+        fields = (
+            'first_name', 'last_name', 'location_address1', 'location_address2', 'location_zip', 'location_city',
+            'location_country', 'contact_phone', 'subscribed'
+        )

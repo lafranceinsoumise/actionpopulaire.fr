@@ -21,6 +21,7 @@ from api.metrics import get_metrics
 from . import routers, admin, settings
 
 import front.urls
+import events.urls
 import webhooks.urls
 import donations.urls
 import payments.urls
@@ -41,6 +42,7 @@ if settings.ENABLE_API:
 if settings.ENABLE_FRONT:
     urlpatterns.extend([
         url(r'^', include(front.urls)),
+        url(r'^', include(events.urls)),
         url(r'^', include(donations.urls)),
         url(r'^', include(payments.urls))
     ])

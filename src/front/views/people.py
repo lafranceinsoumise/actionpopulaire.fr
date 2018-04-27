@@ -11,7 +11,7 @@ from people.models import Person, PersonForm
 from ..view_mixins import SoftLoginRequiredMixin, HardLoginRequiredMixin, SimpleOpengraphMixin
 from ..forms import (
     SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm,
-    VolunteerForm, MessagePreferencesForm, UnsubscribeForm, AddEmailForm, get_people_form_class
+    VolunteerForm, MessagePreferencesForm, UnsubscribeForm, AddEmailForm
 )
 
 __all__ = ['SubscriptionSuccessView', 'SimpleSubscriptionView', 'OverseasSubscriptionView', 'ChangeProfileView',
@@ -220,13 +220,8 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
         except PersonForm.DoesNotExist:
             raise Http404("Formulaire does not exist")
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['person'] = self.object
-        return kwargs
-
     def get_form_class(self):
-        return get_people_form_class(self.person_form_instance)
+        return self.person_form_instance.get_form()
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(

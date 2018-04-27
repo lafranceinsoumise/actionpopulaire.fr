@@ -5,13 +5,13 @@ from django.core.exceptions import ImproperlyConfigured
 PAYMENT_TYPES = {}
 
 
-PaymentType = namedtuple('PaymentType', ['id', 'label', 'success_view', 'failure_view'])
+PaymentType = namedtuple('PaymentType', ['id', 'label', 'success_view', 'failure_view', 'status_listener'])
 
 
-def register_payment_type(id, label, success_view, failure_view=None):
+def register_payment_type(id, label, success_view, failure_view=None, status_listener=None):
     if id in PAYMENT_TYPES:
         raise ImproperlyConfigured(f"PaymentType '{id}' already exists.")
-    PAYMENT_TYPES[id] = PaymentType(id, label, success_view, failure_view)
+    PAYMENT_TYPES[id] = PaymentType(id, label, success_view, failure_view, status_listener)
 
 
 def get_payment_choices():

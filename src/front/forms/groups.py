@@ -1,9 +1,9 @@
 from django import forms
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _
 from crispy_forms.helper import FormHelper
 
-from ..form_components import *
-from ..form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
+from lib.form_components import *
+from lib.form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
 
 from groups.models import SupportGroup, Membership, SupportGroupSubtype
 from groups.tasks import send_support_group_changed_notification, send_support_group_creation_notification

@@ -1,25 +1,27 @@
 from django.utils.translation import ugettext as _
-from django.utils.decorators import method_decorator
 from django.utils.html import format_html
-from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView
+from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView, FormView
 from django.views.generic.edit import ProcessFormView, FormMixin
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
+from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.conf import settings
 from django.utils import timezone
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import PermissionDenied
 
+from events.apps import EventsConfig
 from events.models import Event, RSVP, Calendar
 from events.tasks import send_cancellation_notification, send_rsvp_notification
-from groups.models import SupportGroup
+from people.models import PersonFormSubmission
+from payments.actions import get_payment_response
+from payments.models import Payment
 
-from ..forms import (
-    EventForm, AddOrganizerForm, EventGeocodingForm, EventReportForm, UploadEventImageForm, AuthorForm, SearchEventForm
+from .forms import (
+    EventForm, AddOrganizerForm, EventGeocodingForm, EventReportForm, UploadEventImageForm, AuthorForm, SearchEventForm,
+    BillingForm
 )
-from ..view_mixins import (
+from front.view_mixins import (
     HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
     ChangeLocationBaseView, SearchByZipcodeBaseView,
 )
@@ -34,7 +36,7 @@ __all__ = [
 class EventListView(SearchByZipcodeBaseView):
     """List of events, filter by zipcode
     """
-    template_name = 'front/events/event_list.html'
+    template_name = 'events/event_list.html'
     context_object_name = 'events'
     form_class = SearchEventForm
 
@@ -43,7 +45,7 @@ class EventListView(SearchByZipcodeBaseView):
 
 
 class EventDetailView(ObjectOpengraphMixin, DetailView):
-    template_name = "front/events/detail.html"
+    template_name = "events/detail.html"
     queryset = Event.objects.filter(published=True)
 
     title_prefix = _("Evénement local")
@@ -59,21 +61,9 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
             event_images=self.object.images.all(),
         )
 
-    @method_decorator(login_required(login_url=reverse_lazy('oauth_redirect_view')), )
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        if request.POST['action'] == 'rsvp':
-            if not self.object.rsvps.filter(person=request.user.person).exists():
-                rsvp = RSVP.objects.create(event=self.object, person=request.user.person)
-                send_rsvp_notification.delay(rsvp.pk)
-            return HttpResponseRedirect(reverse('view_event', kwargs={'pk': self.object.pk}))
-
-        return HttpResponseBadRequest()
-
 
 class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailView):
-    template_name = "front/events/manage.html"
+    template_name = "events/manage.html"
     permissions_required = ('events.change_event',)
     queryset = Event.objects.filter(published=True)
 
@@ -119,7 +109,7 @@ class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
 
 
 class CreateEventView(SoftLoginRequiredMixin, TemplateView):
-    template_name = "front/events/create.html"
+    template_name = "events/create.html"
 
 
 class PerformCreateEventView(SoftLoginRequiredMixin, FormMixin, ProcessFormView):
@@ -156,7 +146,7 @@ class PerformCreateEventView(SoftLoginRequiredMixin, FormMixin, ProcessFormView)
 
 class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
     permissions_required = ('events.change_event',)
-    template_name = "front/events/modify.html"
+    template_name = "events/modify.html"
     form_class = EventForm
 
     def get_success_url(self):
@@ -191,7 +181,7 @@ class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateVi
 
 class CancelEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailView):
     permissions_required = ('events.change_event',)
-    template_name = 'front/events/cancel.html'
+    template_name = 'events/cancel.html'
     success_url = reverse_lazy('list_events')
 
     def get_queryset(self):
@@ -215,7 +205,7 @@ class CancelEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
 
 
 class QuitEventView(SoftLoginRequiredMixin, DeleteView):
-    template_name = "front/events/quit.html"
+    template_name = "events/quit.html"
     success_url = reverse_lazy("list_events")
     context_object_name = 'rsvp'
 
@@ -229,7 +219,6 @@ class QuitEventView(SoftLoginRequiredMixin, DeleteView):
                 person=self.request.user.person
             )
         except RSVP.DoesNotExist:
-            # TODO show specific 404 page maybe?
             raise Http404()
 
     def get_context_data(self, **kwargs):
@@ -252,7 +241,7 @@ class QuitEventView(SoftLoginRequiredMixin, DeleteView):
 
 
 class CalendarView(ObjectOpengraphMixin, DetailView):
-    template_name = "front/events/calendar.html"
+    template_name = "events/calendar.html"
     model = Calendar
     paginator_class = Paginator
     per_page = 10
@@ -276,7 +265,7 @@ class CalendarView(ObjectOpengraphMixin, DetailView):
 
 
 class ChangeEventLocationView(ChangeLocationBaseView):
-    template_name = 'front/events/change_location.html'
+    template_name = 'events/change_location.html'
     form_class = EventGeocodingForm
     success_view_name = 'manage_event'
 
@@ -285,7 +274,7 @@ class ChangeEventLocationView(ChangeLocationBaseView):
 
 
 class EditEventReportView(PermissionsRequiredMixin, UpdateView):
-    template_name = 'front/events/edit_event_report.html'
+    template_name = 'events/edit_event_report.html'
     permissions_required = ('events.change_event',)
     form_class = EventReportForm
 
@@ -297,7 +286,7 @@ class EditEventReportView(PermissionsRequiredMixin, UpdateView):
 
 
 class UploadEventImageView(CreateView):
-    template_name = 'front/events/upload_event_image.html'
+    template_name = 'events/upload_event_image.html'
     form_class = UploadEventImageForm
 
     def get_queryset(self):
@@ -370,3 +359,171 @@ class UploadEventImageView(CreateView):
         )
 
         return HttpResponseRedirect(self.get_success_url())
+
+
+class RSVPEventView(HardLoginRequiredMixin, DetailView):
+    model = Event
+    template_name = 'events/rsvp_event.html'
+
+    def get_form(self):
+        if self.object.subscription_form is None:
+            return None
+
+        form_class = self.object.subscription_form.get_form()
+
+        kwargs = {'instance': self.request.user.person}
+
+        if self.request.method in ('POST', 'PUT'):
+            kwargs['data'] = self.request.POST
+
+        return form_class(**kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            form=self.get_form(),
+            event=self.object,
+            **kwargs
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.rsvps.filter(person=request.user.person, canceled=False).exists():
+            return HttpResponseRedirect(reverse('view_event', args=[self.object.pk]))
+
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        submission = None
+
+        if self.object.rsvps.filter(person=request.user.person, canceled=False).exists():
+            return HttpResponseRedirect(reverse('view_event', args=[self.object.pk]))
+
+        if self.object.subscription_form is not None:
+            form = self.get_form()
+
+            if form.is_valid():
+                form.save()
+                submission = form.submission
+            else:
+                context = self.get_context_data(object=self.object)
+                return self.render_to_response(context)
+
+        if self.object.payment_parameters is None:
+            rsvp = RSVP.objects.create(event=self.object, person=request.user.person, form_submission=submission)
+            send_rsvp_notification.delay(rsvp.pk)
+            return HttpResponseRedirect(reverse('view_event', kwargs={'pk': self.object.pk}))
+
+        else:
+            if submission:
+                request.session['rsvp_submission'] = submission.pk
+            request.session['rsvp_event'] = str(self.object.pk)
+            return HttpResponseRedirect(reverse('pay_event'))
+
+
+class PayEventView(HardLoginRequiredMixin, UpdateView):
+    form_class = BillingForm
+    template_name = 'events/pay_event.html'
+
+    def get_object(self):
+        return self.request.user.person
+
+    def get_context_data(self, **kwargs):
+        if self.submission:
+            form = self.submission.form.get_form()(self.request.user.person)
+        kwargs.update({
+            'event': self.event,
+            'submission': self.submission,
+            'price': self.event.get_price(self.submission)/100,
+            'submission_data': {
+                                    form.fields[id].label: value
+                                    for id, value in self.submission.data.items()
+                                } if self.submission else None
+        })
+        return super().get_context_data(**kwargs)
+
+    def dispatch(self, request, *args, **kwargs):
+        submission_pk = self.request.session.get('rsvp_submission')
+        event_pk = self.request.session.get('rsvp_event')
+
+        if not event_pk:
+            return HttpResponseBadRequest('no event')
+
+        try:
+            self.event = Event.objects.upcoming().get(pk=event_pk)
+        except Event.DoesNotExist:
+            return HttpResponseBadRequest('no event')
+
+        if self.event.subscription_form:
+            if not submission_pk:
+                return HttpResponseBadRequest('no submission')
+
+            try:
+                self.submission = PersonFormSubmission.objects.get(pk=submission_pk)
+            except PersonFormSubmission.DoesNotExist:
+                return HttpResponseBadRequest('no submission')
+        else:
+            self.submission = None
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['submission'] = self.submission
+        kwargs['event'] = self.event
+        return kwargs
+
+    def form_valid(self, form):
+        person = form.save()
+        event = form.cleaned_data['event']
+        submission = form.cleaned_data['submission']
+
+        price = event.get_price(submission)
+
+        return get_payment_response(
+            person=person,
+            type=EventsConfig.PAYMENT_TYPE,
+            price=price,
+            meta={'event_name': event.name, 'event_id': str(event.pk), 'submission_id': str(submission.pk)}
+        )
+
+
+class PaidEventView(TemplateView):
+    template_name = 'events/payment_confirmation.html'
+
+    def get_context_data(self, **kwargs):
+        return {
+            'payment': self.kwargs['payment'],
+            'event': Event.objects.get(pk=self.kwargs['payment'].meta['event_id'])
+        }
+
+
+def notification_listener(payment):
+    # 500 error if 
+
+    if payment.status == Payment.STATUS_COMPLETED:
+        submission_pk = payment.meta.get('submission_id')
+        event_pk = payment.meta.get('event_id')
+
+        # we don't check for cancellation of the event because we cant all actually paid rsvps to be registered in case
+        # we need to manage refunding
+        event = Event.objects.get(pk=event_pk)
+
+        if event.subscription_form:
+            if not submission_pk:
+                return HttpResponseBadRequest('no submission')
+
+            try:
+                submission = PersonFormSubmission.objects.get(pk=submission_pk)
+            except PersonFormSubmission.DoesNotExist:
+                return HttpResponseBadRequest('no submission')
+        else:
+            submission = None
+
+        rsvp = RSVP.objects.create(
+            person=payment.person,
+            event=event,
+            form_submission=submission
+        )
+        send_rsvp_notification.delay(rsvp.pk)

@@ -3,7 +3,7 @@ from unittest import mock, skip
 from urllib.parse import urlparse
 
 from django.test import TestCase
-from django.utils import timezone, formats
+from django.utils import timezone
 from django.http import QueryDict
 from rest_framework import status
 from django.shortcuts import reverse
@@ -11,11 +11,11 @@ from django.contrib.auth import get_user
 
 from lib.tests.mixins import FakeDataMixin
 from people.models import Person, PersonTag, PersonForm, PersonFormSubmission
-from events.models import Event, RSVP, Calendar, OrganizerConfig, CalendarItem
+from events.models import Event, Calendar, OrganizerConfig, CalendarItem
 from groups.models import SupportGroup, Membership
 from polls.models import Poll, PollOption, PollChoice
 
-from front.forms import EventForm, SupportGroupForm
+from front.forms import SupportGroupForm
 
 
 from .backend import token_generator
@@ -334,242 +334,6 @@ class AuthorizationTestCase(TestCase):
         profile_url = reverse('legacy:person-detail', kwargs={'pk': self.person.pk})
 
         self.assertEqual(self.person.role, backend.authenticate(profile_url=profile_url))
-
-
-class EventPagesTestCase(TestCase):
-    def setUp(self):
-        self.person = Person.objects.create_person('test@test.com')
-        self.other_person = Person.objects.create_person('other@test.fr')
-        self.group = SupportGroup.objects.create(name='Group name')
-        Membership.objects.create(supportgroup=self.group, person=self.person, is_manager=True)
-
-        self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
-        day = timezone.timedelta(days=1)
-        hour = timezone.timedelta(hours=1)
-
-        self.organized_event = Event.objects.create(
-            name="Organized event",
-            start_time=now + day,
-            end_time=now + day + 4 * hour,
-        )
-
-        OrganizerConfig.objects.create(
-            event=self.organized_event,
-            person=self.person,
-            is_creator=True
-        )
-
-        self.rsvped_event = Event.objects.create(
-            name="RSVPed event",
-            start_time=now + 2 * day,
-            end_time=now + 2 * day + 2 * hour,
-        )
-
-        RSVP.objects.create(
-            person=self.person,
-            event=self.rsvped_event,
-        )
-
-        self.other_event = Event.objects.create(
-            name="Other event",
-            start_time=now + 3 * day,
-            end_time=now + 3 * day + 4 * hour,
-        )
-
-        self.other_rsvp1 = RSVP.objects.create(
-            person=self.other_person,
-            event=self.rsvped_event
-        )
-
-        self.other_rsvp2 = RSVP.objects.create(
-            person=self.other_person,
-            event=self.other_event
-        )
-
-    @mock.patch.object(EventForm, "geocoding_task")
-    @mock.patch("front.forms.events.send_event_changed_notification")
-    def test_can_modify_organized_event(self, patched_send_notification, patched_geocode):
-        self.client.force_login(self.person.role)
-        response = self.client.get(reverse('edit_event', kwargs={'pk': self.organized_event.pk}))
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        response = self.client.post(
-            reverse('edit_event', kwargs={'pk': self.organized_event.pk}),
-            data={
-                'name': 'New Name',
-                'start_time': formats.localize_input(self.now + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
-                'end_time': formats.localize_input(self.now + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
-                'contact_name': 'Arthur',
-                'contact_email': 'a@ziefzji.fr',
-                'contact_phone': '06 06 06 06 06',
-                'location_name': 'somewhere',
-                'location_address1': 'over',
-                'location_zip': 'the',
-                'location_city': 'rainbow',
-                'location_country': 'FR',
-                'description': 'New description',
-                'notify': 'on',
-                'as_group': self.group.pk,
-            }
-        )
-
-        # the form redirects to the event manage page on success
-        self.assertRedirects(response, reverse('manage_event', kwargs={'pk': self.organized_event.pk}))
-
-        # accessing the messages: see https://stackoverflow.com/a/14909727/1122474
-        messages = list(response.wsgi_request._messages)
-
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(messages[0].level_tag, 'success')
-
-        # send_support_group_changed_notification.delay should have been called once, with the pk of the group as
-        # first argument, and the changes as the second
-        patched_send_notification.delay.assert_called_once()
-        args = patched_send_notification.delay.call_args[0]
-
-        self.assertEqual(args[0], self.organized_event.pk)
-        self.assertCountEqual(args[1], ['contact', 'location', 'timing', 'information'])
-
-        patched_geocode.delay.assert_called_once()
-        args = patched_geocode.delay.call_args[0]
-
-        self.assertEqual(args[0], self.organized_event.pk)
-        self.assertIn(self.group, self.organized_event.organizers_groups.all())
-
-    def test_cannot_modify_rsvp_event(self):
-        self.client.force_login(self.person.role)
-
-        # manage_page
-        response = self.client.get(reverse('manage_event', kwargs={'pk': self.rsvped_event.pk}))
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # get edit page
-        response = self.client.get(reverse('edit_event', kwargs={'pk': self.rsvped_event.pk}))
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # post edit page
-        response = self.client.post(reverse('edit_event', kwargs={'pk': self.rsvped_event.pk}), data={
-            'name': 'New Name',
-            'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
-            'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
-            'contact_name': 'Arthur',
-            'contact_email': 'a@ziefzji.fr',
-            'contact_phone': '06 06 06 06 06',
-            'location_name': 'somewhere',
-            'location_address1': 'over',
-            'location_zip': 'the',
-            'location_city': 'rainbow',
-            'location_country': 'FR',
-            'description': 'New description',
-            'notify': 'on',
-        })
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # add organizer
-        response = self.client.post(reverse('manage_event', kwargs={'pk': self.rsvped_event.pk}), data={
-            'organizer': str(self.other_rsvp1.pk)
-        })
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_cannot_modify_other_event(self):
-        self.client.force_login(self.person.role)
-
-        # manage_page
-        response = self.client.get(reverse('manage_event', kwargs={'pk': self.other_event.pk}))
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # get edit page
-        response = self.client.get(reverse('edit_event', kwargs={'pk': self.other_event.pk}))
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # post edit page
-        response = self.client.post(reverse('edit_event', kwargs={'pk': self.other_event.pk}), data={
-            'name': 'New Name',
-            'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
-            'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
-            'contact_name': 'Arthur',
-            'contact_email': 'a@ziefzji.fr',
-            'contact_phone': '06 06 06 06 06',
-            'location_name': 'somewhere',
-            'location_address1': 'over',
-            'location_zip': 'the',
-            'location_city': 'rainbow',
-            'location_country': 'FR',
-            'description': 'New description',
-            'notify': 'on',
-        })
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # add organizer
-        response = self.client.post(reverse('manage_event', kwargs={'pk': self.other_event.pk}), data={
-            'organizer': str(self.other_rsvp2.pk)
-        })
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    @mock.patch('front.views.events.send_rsvp_notification')
-    def test_can_rsvp(self, rsvp_notification):
-        url = reverse('view_event', kwargs={'pk': self.other_event.pk})
-        self.client.force_login(self.person.role)
-        response = self.client.get(url)
-        self.assertIn('Participer à cet événement', response.content.decode())
-
-        response = self.client.post(url, data={
-            'action': 'rsvp'
-        }, follow=True)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn(self.person, self.other_event.attendees.all())
-        self.assertIn('Annuler ma participation', response.content.decode())
-
-        rsvp_notification.delay.assert_called_once()
-
-        rsvp = RSVP.objects.get(person=self.person, event=self.other_event)
-        self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
-
-    @skip('REDO')
-    @mock.patch("front.forms.events.geocode_event")
-    @mock.patch("front.forms.events.send_event_creation_notification")
-    def test_can_create_new_event(self, patched_send_event_creation_notification, patched_geocode_event):
-        self.client.force_login(self.person.role)
-
-        # get create page, it should contain the name of the group the user manage
-        response = self.client.get(reverse('create_event'))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(response, 'Group name')
-
-        # post create page
-        response = self.client.post(reverse('create_event'), data={
-            'name': 'New Name',
-            'start_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
-            'end_time': formats.localize_input(timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
-            'contact_name': 'Arthur',
-            'contact_email': 'a@ziefzji.fr',
-            'contact_phone': '06 06 06 06 06',
-            'location_name': 'somewhere',
-            'location_address1': 'over',
-            'location_zip': 'the',
-            'location_city': 'rainbow',
-            'location_country': 'FR',
-            'description': 'New description',
-            'as_group': self.group.pk,
-        })
-        self.assertRedirects(response, reverse('manage_event', args=[Event.objects.last().pk]))
-
-        try:
-            organizer_config = self.person.organizer_configs.exclude(event=self.organized_event).get()
-        except (OrganizerConfig.DoesNotExist, OrganizerConfig.MultipleObjectsReturned):
-            self.fail('Should have created one organizer config')
-
-        patched_send_event_creation_notification.delay.assert_called_once()
-        self.assertEqual(patched_send_event_creation_notification.delay.call_args[0], (organizer_config.pk,))
-
-        patched_geocode_event.delay.assert_called_once()
-        self.assertEqual(patched_geocode_event.delay.call_args[0], (organizer_config.event.pk,))
-
-        event = Event.objects.latest(field_name='created')
-        self.assertEqual(event.name, 'New Name')
-        self.assertIn(self.group, event.organizers_groups.all())
 
 
 class GroupPageTestCase(TestCase):

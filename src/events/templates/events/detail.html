@@ -52,10 +52,11 @@
                     {% if has_rsvp %}
                         <a class="btn btn-primary" href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
                     {% else %}
-                        <form style="display:inline;" action="{% url "view_event" event.pk %}" method="post">
+                        <form style="display:inline;" action="{% url "rsvp_event" event.pk %}" method="{% if event.subscription_form is None %}post{% else %}get{% endif %}">
                             {% csrf_token %}
-                            <input type="hidden" name="action" value="rsvp"/>
-                            <input type="submit" class="btn btn-primary" value="Participer à cet événement"/>
+                            <button type="submit" class="btn btn-primary">
+                                Participer à cet événement ({% if event.price_display %}{{ event.price_display }}{% endif %})
+                            </button>
                         </form>
                     {% endif %}
                 {% endif %}

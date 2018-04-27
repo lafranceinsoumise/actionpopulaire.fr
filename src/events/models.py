@@ -1,8 +1,10 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import slugify
+from django.contrib.postgres.fields import JSONField
 from model_utils.models import TimeStampedModel
 
 from stdimage.models import StdImageField
@@ -138,6 +140,9 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
         help_text=_("Ajoutez un compte-rendu de votre événement. N'hésitez pas à inclure des photos.")
     )
 
+    subscription_form = models.ForeignKey('people.PersonForm', null=True, blank=True, on_delete=models.PROTECT)
+    payment_parameters = JSONField(verbose_name=_("Paramètres de paiement"), null=True, blank=True)
+
     class Meta:
         verbose_name = _('événement')
         verbose_name_plural = _('événements')
@@ -197,6 +202,44 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
             raise ValidationError({
                 'end_time': _("La date de fin de l'événement doit être postérieure à sa date de début.")
             })
+
+    @property
+    def price_display(self):
+        if self.payment_parameters is None:
+            return None
+
+        base_price = self.payment_parameters.get('price', 0)
+        min_price = base_price
+        max_price = base_price
+
+        for mapping in self.payment_parameters.get('mappings', []):
+            prices = [m['price'] for m in mapping['mapping']]
+            min_price += min(prices)
+            max_price += max(prices)
+
+        if min_price == max_price == 0:
+            return None
+
+        if min_price == max_price:
+            return "{} €".format(floatformat(min_price/100, 2))
+        else:
+            return "de {} à {} €".format(floatformat(min_price/100, 2), floatformat(max_price/100, 2))
+
+    def get_price(self, submission=None):
+        price = self.payment_parameters.get('price', 0)
+
+        if submission is None:
+            return price
+
+        for mapping in self.payment_parameters.get('mappings', []):
+            values = [submission.data.get(field) for field in mapping['fields']]
+
+            d = {tuple(str(v) for v in m['values']): m['price'] for m in mapping['mapping']}
+
+            print(tuple(values), flush=True)
+            price += d.get(tuple(values), 0)
+
+        return price
 
 
 class EventSubtype(AbstractMapObjectLabel):
@@ -285,6 +328,8 @@ class RSVP(TimeStampedModel):
     person = models.ForeignKey('people.Person', related_name='rsvps', on_delete=models.CASCADE, editable=False)
     event = models.ForeignKey('Event', related_name='rsvps', on_delete=models.CASCADE, editable=False)
     guests = models.PositiveIntegerField(_("nombre d'invités supplémentaires"), default=0, null=False)
+
+    form_submission = models.ForeignKey('people.PersonFormSubmission', on_delete=models.SET_NULL, null=True, editable=False)
 
     canceled = models.BooleanField(_('Annulé'), default=False)
 

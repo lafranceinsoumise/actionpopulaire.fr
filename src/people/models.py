@@ -398,7 +398,8 @@ class PersonForm(TimeStampedModel):
         blank=True
     )
 
-    main_question = models.CharField(_("Intitulé de la question principale"), max_length=200)
+    main_question = models.CharField(_("Intitulé de la question principale"), max_length=200,
+                                     help_text=_('Uniquement utilisée si des choix de tags sont demandés.'), blank=True)
     tags = models.ManyToManyField('PersonTag', related_name='forms', related_query_name='form', blank=True)
 
     custom_fields = JSONField(_('Champs'), blank=False, default=list)
@@ -423,6 +424,13 @@ class PersonForm(TimeStampedModel):
                 return self.html_after_message()
             else:
                 return "Ce formulaire est maintenant fermé."
+
+    def get_form(self):
+        from .forms import get_people_form_class
+        return get_people_form_class(self)
+
+    def __str__(self):
+        return "« {} »".format(self.title)
 
     class Meta:
         verbose_name = _("Formulaire")
