@@ -22,8 +22,8 @@
 {% endblock %}
 
 {% block main %}
-    <h2 class="headline">{{ person_form.title }}</h2>
-    <div>
+    <div class="row"><div class="col-responsive">
+        <h2 class="headline">{{ person_form.title }}</h2>
         {% if person_form.is_open %}
             <div class="intro">
                 {{ person_form.html_description }}
@@ -34,5 +34,5 @@
                 {{ person_form.html_closed_message }}
             </div>
         {% endif %}
-    </div>
+    </div></div>
 {% endblock %}
