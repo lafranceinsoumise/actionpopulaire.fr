@@ -87,6 +87,9 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                         # by default meta fields are required
                         self.fields[field['id']].required = True
 
+                        if field['id'] == 'date_of_birth':
+                            self.fields[field['id']].help_text = 'Format JJ/MM/AAAA'
+
                     field_object = self.fields[field['id']]
 
                     for prop in ['label', 'help_text', 'required']:
