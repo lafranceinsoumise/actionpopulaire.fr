@@ -29,7 +29,9 @@
                 {{ submission_data_count }}
                 <ul>
                     {% for label, value in submission_data.items %}
-                        <li><b>{{ label }}&nbsp;: {{ value }}</b></li>
+                        {% if value %}
+                            <li><b>{{ label }}&nbsp;: {{ value }}</b></li>
+                        {% endif %}
                     {% endfor %}
                 </ul>
                 <b>Total&nbsp;:</b> {{ price|floatformat:2 }} €
