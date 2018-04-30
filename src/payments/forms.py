@@ -42,6 +42,8 @@ class SystempayRedirectForm(forms.Form):
     vads_url_error = fields.CharField(initial=front_url_lazy('payment_failure'), widget=forms.HiddenInput())
     vads_url_refused = fields.CharField(initial=front_url_lazy('payment_failure'), widget=forms.HiddenInput())
     vads_url_success = fields.CharField(initial=front_url_lazy('payment_success'), widget=forms.HiddenInput())
+    vads_redirect_success_timeout = fields.CharField(initial=8, widget=forms.HiddenInput())
+    vads_redirect_error_timeout = fields.CharField(initial=8, widget=forms.HiddenInput())
     signature = fields.CharField(widget=forms.HiddenInput())
 
     def add_field(self, name, value):
