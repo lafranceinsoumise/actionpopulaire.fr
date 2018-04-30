@@ -261,6 +261,9 @@ class EventSubtype(AbstractMapObjectLabel):
         verbose_name = _("Sous-type d'événement")
         verbose_name_plural = _("Sous-types d'événement")
 
+    def __str__(self):
+        return self.description
+
 
 class EventTag(AbstractLabel):
     class Meta:

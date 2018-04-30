@@ -93,6 +93,9 @@ class SupportGroupSubtype(AbstractMapObjectLabel):
         choices=SupportGroup.TYPE_CHOICES
     )
 
+    def __str__(self):
+        return self.description
+
     class Meta:
         verbose_name = _('sous-type')
 
