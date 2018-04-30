@@ -405,6 +405,10 @@ class PersonForm(TimeStampedModel):
     custom_fields = JSONField(_('Champs'), blank=False, default=list)
 
     @property
+    def fields_dict(self):
+        return {field['id']: field for fieldset in self.custom_fields for field in fieldset['fields']}
+
+    @property
     def is_open(self):
         now = timezone.now()
         return (

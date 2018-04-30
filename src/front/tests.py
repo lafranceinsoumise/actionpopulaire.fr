@@ -752,6 +752,25 @@ class PersonFormTestCase(TestCase):
 
         self.client.force_login(self.person.role)
 
+    def test_flatten_fields_property(self):
+        self.assertEqual(self.complex_form.fields_dict, {
+             'custom-field': {
+                 'id': 'custom-field',
+                 'type': 'short_text',
+                 'label': 'Mon label'
+             },
+             'custom-person-field': {
+                 'id': 'custom-person-field',
+                 'type': 'short_text',
+                 'label': 'Prout',
+                 'person_field': True
+             },
+             'contact_phone': {
+                 'id': 'contact_phone',
+                 'person_field': True
+             }
+        })
+
     def test_title_and_description(self):
         res = self.client.get('/formulaires/formulaire-simple/')
 
