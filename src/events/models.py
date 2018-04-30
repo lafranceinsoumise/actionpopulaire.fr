@@ -225,6 +225,10 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
         else:
             return "de {} à {} €".format(floatformat(min_price/100, 2), floatformat(max_price/100, 2))
 
+    @property
+    def is_free(self):
+        return self.payment_parameters is None
+
     def get_price(self, submission=None):
         price = self.payment_parameters.get('price', 0)
 

@@ -49,7 +49,7 @@
                     <a class="btn btn-default" href="{% url "manage_event" event.pk %}">Gérer l'événement</a>
                 {% endif %}
                 {% if not event.is_past %}
-                    {% if has_rsvp %}
+                    {% if has_rsvp and event.is_free %}
                         <a class="btn btn-primary" href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
                     {% else %}
                         <form style="display:inline;" action="{% url "rsvp_event" event.pk %}" method="{% if event.subscription_form is None %}post{% else %}get{% endif %}">
