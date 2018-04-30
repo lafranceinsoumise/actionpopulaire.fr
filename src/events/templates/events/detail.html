@@ -65,7 +65,7 @@
                     {% endif %}
                 {% endif %}
             {% else %}
-                <a class="btn btn-primary" title="Connexion" href="{% url "oauth_redirect_view" %}">Se connecter pour
+                <a class="btn btn-primary" title="Connexion" href="{% url "oauth_redirect_view" %}?next={{ request.get_full_path|urlencode }}">Se connecter pour
                     participer à l'événement</a>
             {% endif %}
         </div>
