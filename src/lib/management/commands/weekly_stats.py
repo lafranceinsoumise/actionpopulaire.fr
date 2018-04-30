@@ -78,7 +78,7 @@ class Command(BaseCommand):
 
         print('{} événements survenus ({:+d})'.format(
             main_week_stats['events_happened'],
-            previous_week_stats['events_happened']
+            main_week_stats['events_happened'] - previous_week_stats['events_happened']
         ))
 
         meetings = Event.objects.filter(subtype__id=10, published=True, end_time__range=(start, end)).count()
