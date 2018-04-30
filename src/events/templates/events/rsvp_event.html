@@ -21,8 +21,8 @@
 
 {% block main %}
     {% if event.subscription_form is not None %}
-        <h2 class="headline">{{ event.subscription_form.title }}</h2>
-        <div>
+        <div class="row"><div class="col-responsive">
+            <h2 class="headline">{{ event.subscription_form.title }}</h2>
             {% if event.subscription_form.is_open %}
                 <div class="intro">
                     {{ event.subscription_form.html_description }}
@@ -33,7 +33,7 @@
                     {{ event.subscription_form.html_closed_message }}
                 </div>
             {% endif %}
-        </div>
+        </div></div>
     {% else %}
         <form method="post">
             {% csrf_token %}
