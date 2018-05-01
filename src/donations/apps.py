@@ -9,5 +9,5 @@ class DonsConfig(AppConfig):
     PAYMENT_TYPE = 'don'
 
     def ready(self):
-        from .views import ReturnView
-        register_payment_type(self.PAYMENT_TYPE, 'Don', ReturnView.as_view())
+        from .views import ReturnView, notification_listener
+        register_payment_type(self.PAYMENT_TYPE, 'Don', ReturnView.as_view(), status_listener=notification_listener)

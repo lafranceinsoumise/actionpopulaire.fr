@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import redirect
 
 from donations.apps import DonsConfig
+from donations.tasks import send_donation_email
 from people.models import Person
 from payments.actions import get_payment_response
 from payments.models import Payment
@@ -67,3 +68,8 @@ class PersonalInformationView(UpdateView):
 
 class ReturnView(TemplateView):
     template_name = 'donations/thanks.html'
+
+
+def notification_listener(payment):
+    if payment.status == Payment.STATUS_COMPLETED:
+        send_donation_email.delay(payment.person.pk)

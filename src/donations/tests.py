@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
+from unittest import mock
 
+from donations.views import notification_listener as donation_notification_listener
 from people.models import Person
 from payments.models import Payment
 
@@ -23,7 +25,8 @@ class DonationTestCase(TestCase):
             'contact_phone': '06 45 78 98 45'
         }
 
-    def test_can_donate_while_logged_in(self):
+    @mock.patch('donations.views.send_donation_email')
+    def test_can_donate_while_logged_in(self, send_donation_email):
         self.client.force_login(self.p1.role)
         amount_url = reverse('donation_amount')
         information_url = reverse('donation_information')
@@ -51,6 +54,14 @@ class DonationTestCase(TestCase):
         for f in ['first_name', 'last_name', 'location_address1', 'location_address2', 'location_zip', 'location_city',
                   'location_country']:
             self.assertEqual(getattr(self.p1, f), self.donation_information_payload[f])
+
+
+
+        # fake systempay webhook
+        payment.status = Payment.STATUS_COMPLETED
+        payment.save()
+        donation_notification_listener(payment)
+        send_donation_email.delay.assert_called_once()
 
     def test_cannot_donate_without_required_fields(self):
         information_url = reverse('donation_information')
