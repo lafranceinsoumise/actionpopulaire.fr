@@ -26,3 +26,4 @@ class PaymentAdmin(admin.ModelAdmin):
                        'location_country', 'meta', 'systempay_responses')
     fields = readonly_fields
     list_filter = ('price', 'status')
+    search_fields = ('email', 'person__emails__address')
