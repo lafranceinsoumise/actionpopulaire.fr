@@ -64,6 +64,7 @@ module.exports = {
       },
       {
         test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+        exclude: [/node_modules\/tinymce/],
         loader: 'file-loader',
         options: {
           name: 'files/[name]-[hash].[ext]',
