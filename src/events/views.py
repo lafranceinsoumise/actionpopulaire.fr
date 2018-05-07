@@ -1,17 +1,18 @@
-from django.utils.translation import ugettext as _
-from django.utils.html import format_html
+import json
+from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse_lazy, reverse
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView, FormView
 from django.views.generic.edit import ProcessFormView, FormMixin
-from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.conf import settings
 from django.utils import timezone
-from django.core.exceptions import PermissionDenied
+from django.utils.html import format_html, mark_safe
+from django.utils.translation import ugettext as _
 
 from events.apps import EventsConfig
-from events.models import Event, RSVP, Calendar
+from events.models import Event, RSVP, Calendar, EventSubtype
 from events.tasks import send_cancellation_notification, send_rsvp_notification
 from people.models import PersonFormSubmission
 from payments.actions import get_payment_response
@@ -110,6 +111,35 @@ class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
 
 class CreateEventView(SoftLoginRequiredMixin, TemplateView):
     template_name = "events/create.html"
+
+    def get_context_data(self, **kwargs):
+        person = self.request.user.person
+
+        groups = [{'id': str(m.supportgroup.pk), 'name': m.supportgroup.name}
+                  for m in person.memberships.filter(is_manager=True)]
+
+        initial = {
+            'email': person.email
+        }
+
+        if person.contact_phone:
+            initial['phone'] = person.contact_phone.as_e164
+
+        if person.first_name and person.last_name:
+            initial['name'] = '{} {}'.format(person.first_name, person.last_name)
+
+        initial_group = self.request.GET.get('group')
+        if initial_group in [g['id'] for g in groups]:
+            initial['organizerGroup'] = initial_group
+
+        subtype = self.request.GET.get('subtype')
+        if subtype and EventSubtype.objects.filter():
+            pass
+
+        return super().get_context_data(
+            props=mark_safe(json.dumps({'initial': initial, 'groups': groups})),
+            **kwargs
+        )
 
 
 class PerformCreateEventView(SoftLoginRequiredMixin, FormMixin, ProcessFormView):

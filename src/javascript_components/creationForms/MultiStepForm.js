@@ -6,9 +6,12 @@ import StepZilla from 'react-stepzilla';
 export default function MultiStepForm({steps}) {
   return (
     <div className="step-progress">
-      <StepZilla steps={steps} stepsNavigation={false} showNavigation={false} preventEnterSubmission={true}/>
-    </div>
-  );
+      <StepZilla
+        steps={steps} stepsNavigation={true} showNavigation={true}
+        nextButtonText="Suivant&nbsp;&rarr;" backButtonText="&larr;&nbsp;Précédent"
+        nextButtonCls="btn btn-primary pull-right" backButtonCls="btn btn-default pull-left"
+      />
+    </div>);
 }
 
 MultiStepForm.propTypes = {

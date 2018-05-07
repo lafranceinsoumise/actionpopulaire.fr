@@ -1,12 +1,13 @@
+import json
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.db.models import Q
 from django.utils.translation import ugettext as _, ugettext_lazy
 from django.utils.decorators import method_decorator
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 from django.contrib.auth.decorators import login_required
 from django.views.generic import UpdateView, ListView, DeleteView, DetailView, TemplateView
 from django.contrib import messages
 from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
-from django.core.urlresolvers import reverse_lazy, reverse
 from django.conf import settings
 from django.views.generic.edit import ProcessFormView, FormMixin
 
@@ -32,7 +33,8 @@ class CheckMembershipMixin:
         return self.user_membership is not None and self.user_membership.is_referent
 
     def user_is_manager(self):
-        return self.user_membership is not None and (self.user_membership.is_referent or self.user_membership.is_manager)
+        return self.user_membership is not None and (
+                    self.user_membership.is_referent or self.user_membership.is_manager)
 
     @property
     def user_membership(self):
@@ -74,8 +76,10 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            is_member=self.request.user.is_authenticated and self.object.memberships.filter(person=self.request.user.person).exists(),
-            is_referent_or_manager=self.request.user.is_authenticated and self.object.memberships.filter(Q(person=self.request.user.person) & (Q(is_referent=True) | Q(is_manager=True))).exists()
+            is_member=self.request.user.is_authenticated and self.object.memberships.filter(
+                person=self.request.user.person).exists(),
+            is_referent_or_manager=self.request.user.is_authenticated and self.object.memberships.filter(
+                Q(person=self.request.user.person) & (Q(is_referent=True) | Q(is_manager=True))).exists()
         )
 
     @method_decorator(login_required(login_url=reverse_lazy('oauth_redirect_view')), )
@@ -125,7 +129,8 @@ class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, D
 
         return super().get_context_data(
             is_referent=self.user_membership is not None and self.user_membership.is_referent,
-            is_manager=self.user_membership is not None and (self.user_membership.is_referent or self.user_membership.is_manager),
+            is_manager=self.user_membership is not None and (
+                        self.user_membership.is_referent or self.user_membership.is_manager),
             **self.get_forms(),
             **kwargs
         )
@@ -165,6 +170,22 @@ class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, D
 
 class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
     template_name = "front/groups/create.html"
+
+    def get_context_data(self, **kwargs):
+        person = self.request.user.person
+
+        initial = {}
+
+        if person.contact_phone:
+            initial['phone'] = person.contact_phone.as_e164
+
+        if person.first_name and person.last_name:
+            initial['name'] = '{} {}'.format(person.first_name, person.last_name)
+
+        return super().get_context_data(
+            props=mark_safe(json.dumps({'initial': initial})),
+            **kwargs
+        )
 
 
 class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFormView):

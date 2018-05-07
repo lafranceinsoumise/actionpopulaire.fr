@@ -1,9 +1,11 @@
 import axios from '../lib/axios';
 import React from 'react';
-import StepZilla from 'react-stepzilla';
+import PropTypes from 'prop-types';
 import 'react-stepzilla/src/css/main.css';
 import qs from 'querystring';
+import {hot} from 'react-hot-loader';
 
+import MultiStepForm from './MultiStepForm';
 import FormStep from './steps/FormStep';
 import ContactStep from './steps/ContactStep';
 import LocationStep from './steps/LocationStep';
@@ -11,7 +13,9 @@ import ScheduleStep from './steps/ScheduleStep';
 
 import './style.css';
 
-const apiEndpoint = API_ENDPOINT; // defined by webpack
+
+// defined by webpack
+const apiEndpoint = API_ENDPOINT; // eslint-disable-line no-undef
 
 const groupTypes = [
   {
@@ -42,7 +46,7 @@ const groupTypes = [
 class CreateEventForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {fields: {}};
+    this.state = {fields: props.initial || {}};
     this.setFields = this.setFields.bind(this);
   }
 
@@ -52,7 +56,7 @@ class CreateEventForm extends React.Component {
   }
 
   setFields(fields) {
-    this.setState({fields: Object.assign(this.state.fields, fields)});
+    this.setState({fields: Object.assign({}, this.state.fields, fields)});
   }
 
   render() {
@@ -63,30 +67,69 @@ class CreateEventForm extends React.Component {
     let steps = [
       {
         name: 'Quel type ?',
-        component: <EventTypeStep setFields={this.setFields} subtypes={this.state.subtypes} fields={this.state.fields} step={0} />
+        component: <EventTypeStep setFields={this.setFields} fields={this.state.fields} subtypes={this.state.subtypes}/>
       },
-      {name: 'Qui ?', component: <ContactStep setFields={this.setFields} fields={this.state.fields} step={1} />},
-      {name: 'Quand ?', component: <ScheduleStep setFields={this.setFields} fields={this.state.fields} step={2} />},
-      {name: 'Où ?', component: <LocationStep setFields={this.setFields} fields={this.state.fields} step={3} />},
-      {name: 'Validation et nom', component: <ValidateStep fields={this.state.fields} step={4} />},
+      {
+        name: 'Qui contacter ?',
+        component: <ContactStep setFields={this.setFields} fields={this.state.fields}/>
+      },
+      {name: 'Quand ?', component: <ScheduleStep setFields={this.setFields} fields={this.state.fields}/>},
+      {name: 'Où ?', component: <LocationStep setFields={this.setFields} fields={this.state.fields}/>},
+      {name: 'Validation et nom', component: <ValidateStep fields={this.state.fields}/>},
     ];
 
-    return (
-      <div className="step-progress">
-        <StepZilla steps={steps} stepsNavigation={false} showNavigation={false} preventEnterSubmission={true}/>
-      </div>
-    );
+    if (this.props.groups && this.props.groups.length > 0) {
+      steps.splice(1, 0, {
+        name: 'Qui organise ?',
+        component: <OrganizerStep setFields={this.setFields} fields={this.state.fields} groups={this.props.groups} />
+      });
+    }
+
+    return <MultiStepForm steps={steps}/>;
   }
 }
+
+CreateEventForm.propTypes = {
+  'groups': PropTypes.array,
+  'initial': PropTypes.object
+};
+
+function CheckBoxList({children}) {
+  return <ul className="nav nav-pills">
+    {children}
+  </ul>;
+}
+
+CheckBoxList.propTypes = {
+  children: PropTypes.node
+};
+
+
+function CheckBox({label, active, onClick}) {
+  return <li className={active ? 'active' : ''}>
+    <a href="#" onClick={(e) => {
+      e.preventDefault();
+      onClick();
+    }}
+    >
+      <i className={'fa ' + (active ? 'fa-check-circle' : 'fa-circle-o')}/>
+      &nbsp;
+      {label}
+    </a>
+  </li>;
+}
+
+
+CheckBox.propTypes = {
+  label: PropTypes.string,
+  active: PropTypes.bool,
+  onClick: PropTypes.func
+};
 
 
 class EventTypeStep extends FormStep {
   constructor(props) {
     super(props);
-    this.state.fields.subtype = props.fields.subtype;
-    this.setFields = this.setFields.bind(this);
-    this.confirm = this.confirm.bind(this);
-    this.allSubtypes = props.subtypes;
     this.rankedSubtypes = props.subtypes.reduce((acc, s) => {
       (acc[s.type] = acc[s.type] || []).push(s);
       return acc;
@@ -94,20 +137,17 @@ class EventTypeStep extends FormStep {
   }
 
   setSubtype(subtype) {
-    this.setState({
-      fields: Object.assign(this.state.fields, {
-        subtype: subtype,
-      })
+    this.props.setFields({
+      subtype: subtype,
     });
   }
 
-  confirm(e) {
-    e.preventDefault();
-    this.setFields({subtype: this.state.fields.subtype});
-    this.jumpToStep(1);
+  isValidated() {
+    return !!this.props.fields.subtype;
   }
 
   render() {
+    const currentSubtype = this.props.fields.subtype;
     return (
       <div className="row padtopmore">
         <div className="col-sm-6">
@@ -122,73 +162,120 @@ class EventTypeStep extends FormStep {
             insoumis⋅es, indiquez le type d'événement que vous organisez.
           </p>
           <p>
-            Vous souhaitez inviter une oratrice ou un orateur national&nbsp;? <a href="https://lafranceinsoumise.fr/groupes-appui/inviter-des-intervenants/">Suivez le mode d'emploi.</a>
+            Vous souhaitez inviter une oratrice ou un orateur national&nbsp;?
+            {' '}
+            <a href="https://lafranceinsoumise.fr/groupes-appui/inviter-des-intervenants/">Suivez le mode d'emploi.</a>
           </p>
         </div>
         <div className="col-sm-6 padbottom">
           <h3>Je veux créer...</h3>
-          <form onSubmit={(e) => this.confirm(e)}>
-            {
-              groupTypes.map(type => (
-                <div key={type.id}>
-                  <h4>{type.label}</h4>
-                  <ul className="nav nav-pills">
-                    {
-                      this.rankedSubtypes[type.id].map(subtype => (
-                        <li className={subtype === this.state.fields.subtype ? 'active' : ''} key={subtype.description}>
-                          <a href="#" onClick={(e) => {
-                            e.preventDefault();
-                            this.setSubtype(subtype);
-                          }}>
-                            <i className={'fa ' + (subtype === this.state.fields.subtype ? 'fa-check-circle' : 'fa-circle-o')}/>
-                            &nbsp;
-                            {subtype.description}
-                          </a>
-                        </li>
-                      ))
-                    }
-                  </ul>
-                </div>
-              ))
-            }
-            <button className="btn btn-primary" type="submit" disabled={!this.state.fields.subtype}>
-              Suivant&nbsp;&rarr;
-            </button>
-          </form>
+          {
+            groupTypes.map(type => (
+              <div key={type.id}>
+                <h4>{type.label}</h4>
+                <CheckBoxList>
+                  {
+                    this.rankedSubtypes[type.id].map(subtype => (
+                      <CheckBox
+                        key={subtype.description} active={subtype === currentSubtype}
+                        label={subtype.description} onClick={() => this.setSubtype(subtype)}
+                      />
+                    ))
+                  }
+                </CheckBoxList>
+              </div>
+            ))
+          }
         </div>
       </div>
     );
   }
 }
 
+
+class OrganizerStep extends FormStep {
+  constructor(props) {
+    super(props);
+    this.setIndividual = this.setIndividual.bind(this);
+  }
+
+  setIndividual() {
+    this.props.setFields({organizerGroup: null});
+  }
+
+  setGroup(group) {
+    this.props.setFields({organizerGroup: group.id});
+  }
+
+  render() {
+    const {organizerGroup} = this.props.fields;
+
+    return <div className="row padtopmore">
+      <div className="col-sm-6">
+        <h2>Qui organise l'événement ?</h2>
+        <p>
+          Un événement peut être organisé à titre individuel par une personne. Mais comme vous êtes aussi gestionnaire
+          d'un groupe d'action, il est aussi possible d'indiquer que cet événement est organisé par votre groupe.
+        </p>
+      </div>
+      <div className="col-md-6">
+        <h3>L'événement est organisé...</h3>
+        <div>
+          <h4>...à titre individuel</h4>
+          <CheckBoxList>
+            <CheckBox
+              active={!organizerGroup} label="J'en suis l'organisateur"
+              onClick={this.setIndividual}
+            />
+          </CheckBoxList>
+        </div>
+        <div>
+          <h4>...par un groupe d'action</h4>
+          <CheckBoxList>
+            {this.props.groups.map((group) => (
+              <CheckBox
+                key={group.id}
+                active={group.id === organizerGroup}
+                label={group.name}
+                onClick={() => this.setGroup(group)}
+              />
+            ))}
+          </CheckBoxList>
+        </div>
+      </div>
+    </div>;
+  }
+}
+
+
 class ValidateStep extends FormStep {
   constructor(props) {
     super(props);
     this.post = this.post.bind(this);
-    this.state = {fields: props.fields, processing: false};
+    this.state = {processing: false};
   }
 
   async post(e) {
     e.preventDefault();
     this.setState({processing: true});
 
+    const {fields} = this.props;
     let data = qs.stringify({
       name: this.eventName.value,
-      contact_email: this.state.fields.email,
-      contact_name: this.state.fields.name || null,
-      contact_phone: this.state.fields.phone,
-      contact_hide_phone: this.state.fields.hidePhone,
-      start_time: this.state.fields.startTime.format('YYYY-MM-DD HH:mm:SS'),
-      end_time: this.state.fields.endTime.format('YYYY-MM-DD HH:mm:SS'),
-      location_name: this.state.fields.locationName,
-      location_address1: this.state.fields.locationAddress1,
-      location_address2: this.state.fields.locationAddress2 || null,
-      location_zip: this.state.fields.locationZip,
-      location_city: this.state.fields.locationCity,
-      location_country: this.state.fields.locationCountryCode,
-      subtype: this.state.fields.subtype.label,
-      calendar: '1',
-      as_group: qs.parse(window.location.search.slice(1)).as_group
+      contact_email: fields.email,
+      contact_name: fields.name || null,
+      contact_phone: fields.phone,
+      contact_hide_phone: fields.hidePhone,
+      start_time: fields.startTime.format('YYYY-MM-DD HH:mm:SS'),
+      end_time: fields.endTime.format('YYYY-MM-DD HH:mm:SS'),
+      location_name: fields.locationName,
+      location_address1: fields.locationAddress1,
+      location_address2: fields.locationAddress2 || null,
+      location_zip: fields.locationZip,
+      location_city: fields.locationCity,
+      location_country: fields.locationCountryCode,
+      subtype: fields.subtype.label,
+      as_group: fields.organizerGroup
     });
 
     try {
@@ -200,47 +287,50 @@ class ValidateStep extends FormStep {
   }
 
   render() {
+    const {fields} = this.props;
     return (
       <div className="row padtopmore">
         <div className="col-md-6">
           <p>Voici les informations que vous avez entrées.</p>
           <ul>
             <li>
-              <strong>Type d'événement&nbsp;:</strong> {this.state.fields.subtype.label}
+              <strong>Type d'événement&nbsp;:</strong> {fields.subtype.label}
             </li>
             <li>
               <strong>Numéro de
-                téléphone&nbsp;:</strong> {this.state.fields.phone} ({this.state.fields.hidePhone ? 'caché' : 'public'})
+                téléphone&nbsp;:</strong> {fields.phone} ({fields.hidePhone ? 'caché' : 'public'})
             </li>
-            {this.state.fields.name &&
-              <li>
-                <strong>Nom du contact pour l'événement&nbsp;:</strong> {this.state.fields.name}
-              </li>
+            {fields.name &&
+            <li>
+              <strong>Nom du contact pour l'événement&nbsp;:</strong> {fields.name}
+            </li>
             }
             <li>
-              <strong>Adresse email de contact pour l'événement&nbsp;:</strong> {this.state.fields.email}
+              <strong>Adresse email de contact pour l'événement&nbsp;:</strong> {fields.email}
             </li>
             <li>
-              <strong>Horaires&nbsp;:</strong> Du {this.state.fields.startTime.format('LLL')} au {this.state.fields.endTime.format('LLL')}.
+              <strong>Horaires&nbsp;:</strong> Du {fields.startTime.format('LLL')} au {fields.endTime.format('LLL')}.
             </li>
             <li>
               <strong>Lieu&nbsp;:</strong><br/>
-              {this.state.fields.locationAddress1}<br/>
-              {this.state.fields.locationAddress2 ? <span>{this.state.fields.locationAddress2}<br/></span> : ''}
-              {this.state.fields.locationZip}, {this.state.fields.locationCity}
+              {fields.locationAddress1}<br/>
+              {fields.locationAddress2 ? <span>{fields.locationAddress2}<br/></span> : ''}
+              {fields.locationZip}, {fields.locationCity}
             </li>
           </ul>
-          <a className="btn btn-default" onClick={() => this.jumpToStep(2)}>&larr;&nbsp;Précédent</a>
         </div>
         <div className="col-md-6">
           <p>Pour finir, il vous reste juste à choisir un nom pour votre événement&nbsp;! Choisissez un nom simple
             et descriptif (par exemple : &laquo;&nbsp;Porte à porte près du café de la gare&nbsp;&raquo;).</p>
           <form onSubmit={this.post}>
             <div className="form-group">
-              <input className="form-control" ref={i => this.eventName = i} type="text" placeholder="Nom de l'événement"
-                required/>
+              <input
+                className="form-control" ref={i => this.eventName = i} type="text" placeholder="Nom de l'événement"
+                required
+              />
             </div>
-            <button className="btn btn-primary" type="submit" disabled={this.state.processing}>Créer mon événement</button>
+            <button className="btn btn-primary" type="submit" disabled={this.state.processing}>Créer mon événement
+            </button>
           </form>
           {this.state.error && (
             <div className="alert alert-warning">
@@ -253,4 +343,4 @@ class ValidateStep extends FormStep {
   }
 }
 
-export default CreateEventForm;
+export default hot(module)(CreateEventForm);

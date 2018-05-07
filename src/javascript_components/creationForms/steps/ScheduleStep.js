@@ -11,70 +11,28 @@ import FormStep from './FormStep';
 export default class ScheduleStep extends FormStep {
   constructor(props) {
     super(props);
-    this.state.fields = {
-      startTime: props.fields.startTime || '',
-      endTime: props.fields.endTime || '',
-    };
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.changeStartTime = this.changeStartTime.bind(this);
-    this.changeEndTime = this.changeEndTime.bind(this);
   }
 
-  handleSubmit(event) {
-    event.preventDefault();
-    if (!this.state.fields.startTime || !this.state.fields.endTime) {
-      this.setState({error: 'Tous les champs sont requis.'});
-      return;
+  isValidated() {
+    const {startTime, endTime} = this.props.fields;
+
+    this.resetErrors();
+
+    if (!startTime) {
+      this.setError('startTime', 'Vous devez indiquez une date de début');
     }
 
-    if (!this.validateDate(this.state.fields.startTime, this.state.fields.endTime)) {
-      return;
-    }
-    this.setFields({startTime: this.state.fields.startTime, endTime: this.state.fields.endTime});
-    this.jumpToStep(this.props.step + 1);
-  }
-
-  validateDate(startTime, endTime) {
-    if (typeof startTime === 'string' || typeof endTime === 'string') {
-      this.setState({error: 'Merci de saisir des dates valides.'});
-      return false;
+    if (!endTime) {
+      this.setError('endTime', 'Vous devez indiquer une date de fin');
+    } else if (startTime && startTime.isAfter(endTime)) {
+      this.setError('endTime', 'Votre événement ferait mieux de finir après avoir commencé !');
     }
 
-    if (startTime < new Date()) {
-      this.setState({error: "L'événement doit se passer dans le futur."});
-      return false;
-    }
-
-    if (startTime > endTime) {
-      this.setState({error: 'La date de début doit être avant la date de fin.'});
-      return false;
-    }
-
-    this.setState({error: null});
-    return true;
-  }
-
-  changeStartTime(value) {
-    this.setState({
-      fields: Object.assign(this.state.fields, {
-        startTime: value,
-        endTime: null,
-      }),
-    });
-    this.validateDate(value, null);
-  }
-
-  changeEndTime(value) {
-    this.setState({
-      fields: Object.assign(this.state.fields, {
-        endTime: value,
-      }),
-    });
-    this.validateDate(this.state.fields.startTime, value);
+    return !this.hasErrors();
   }
 
   render() {
+    const {setFields, fields} = this.props;
     return (
       <div className="row padtopmore">
         <div className="col-md-6">
@@ -82,38 +40,34 @@ export default class ScheduleStep extends FormStep {
           <p>
             Merci de nous indiquer quand aura lieu et combien de temps durera votre événement.
           </p>
-          {
-            this.props.step > 0 &&
-            <a className="btn btn-default"
-               onClick={() => this.jumpToStep(this.props.step - 1)}>&larr;&nbsp;Précédent</a>
-          }
         </div>
         <div className="col-md-6">
           <form onSubmit={this.handleSubmit}>
-            <div className="form-group">
+            <div className={'form-group' + (this.hasError('startTime') ? ' has-error' : '')}>
               <label className="control-label">Début de l'événement</label>
               <Datetime
                 locale="fr"
-                onChange={this.changeStartTime}
-                isValidDate={d => d.isAfter(Datetime.moment().subtract(1, 'day'))}
-                value={this.state.fields.startTime}
+                onChange={this.setField('startTime')}
+                isValidDate={d => d.isAfter(moment())}
+                value={fields.startTime}
               />
+              {this.showError('startTime')}
             </div>
-            <div className="form-group">
+            <div className={'form-group' + (this.hasError('endTime') ? ' has-error' : '')}>
               <label className="control-label">Fin de l'événement</label>
               <Datetime
                 locale="fr"
-                onChange={this.changeEndTime}
-                isValidDate={d => d.isAfter((Datetime.moment(this.state.fields.startTime) || Datetime.moment()).clone().subtract(1, 'day'))}
-                value={this.state.fields.endTime}
+                onChange={this.setField('endTime')}
+                isValidDate={d => d.isAfter(Datetime.moment())}
+                value={fields.endTime}
               />
+              {this.showError('endTime')}
             </div>
             {this.state.error && (
               <div className="alert alert-warning">
                 {this.state.error}
               </div>
             )}
-            <button className="btn btn-primary" type="submit">Suivant&nbsp;&rarr;</button>
           </form>
         </div>
       </div>
