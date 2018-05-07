@@ -18,6 +18,7 @@ def get_signature(data):
 class SystempayRedirectForm(forms.Form):
     vads_site_id = fields.IntegerField(initial=settings.SYSTEMPAY_SITE_ID, widget=forms.HiddenInput())
     vads_ctx_mode = fields.CharField(initial="PRODUCTION" if settings.SYSTEMPAY_PRODUCTION else "TEST", widget=forms.HiddenInput())
+    vads_order_id = fields.CharField(widget=forms.HiddenInput())
     vads_trans_id = fields.CharField(widget=forms.HiddenInput())
     vads_trans_date = fields.CharField(widget=forms.HiddenInput())
     vads_amount = fields.IntegerField(widget=forms.HiddenInput())

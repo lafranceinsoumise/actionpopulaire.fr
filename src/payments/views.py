@@ -46,7 +46,7 @@ class SystempayWebhookView(APIView):
         if request.data.get('vads_trans_status') not in self.SYSTEMPAY_STATUS_CHOICE or not request.data.get('vads_trans_id'):
             return HttpResponseBadRequest()
 
-        payment = Payment.objects.annotate(systempay_id=F('id') % 900000).filter(systempay_id=request.data['vads_trans_id']).last()
+        payment = Payment.objects.get(pk=request.data['vads_order_id'])
         if payment is None:
             return HttpResponseNotFound()
 

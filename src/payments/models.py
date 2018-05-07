@@ -47,6 +47,7 @@ class Payment(TimeStampedModel, LocationMixin):
 
     def get_form(self):
         form = SystempayRedirectForm(initial={
+            'vads_order_id': self.pk,
             'vads_trans_id': str(self.pk % 900000).zfill(6),
             'vads_trans_date': datetime.utcnow().strftime('%Y%m%d%H%M%S'),
             'vads_amount': self.price,
