@@ -46,7 +46,7 @@ class Command(BaseCommand):
                 try:
                     end = timezone.datetime.strptime(end, self.date_format).replace(tzinfo=timezone.get_default_timezone())
                 except ValueError:
-                    raise CommandError('START is not a valid date (YYYY/mm/dd)')
+                    raise CommandError('END is not a valid date (YYYY/mm/dd)')
                 period = end - start
                 if period != week:
                     period_name = 'période'
