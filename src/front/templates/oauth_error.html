@@ -1,0 +1,16 @@
+{% extends "front/layout.html" %}
+
+{% block title %}
+    Erreur de connexion
+{% endblock %}
+
+
+{% block main %}
+    <h2>Erreur de connexion</h2>
+
+    <p>
+        Il s'est produit une erreur de connexion. Veuillez réessayer votre connexion. Si jamais cette erreur se
+        reproduit, merci de bien vouloir nous écrire {% if error_code %}en nous signalant ce code suivant :
+        {{ error_code }}{% endif %}.
+    </p>
+{% endblock %}
