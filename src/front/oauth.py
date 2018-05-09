@@ -1,16 +1,37 @@
 import logging
+import sys
 
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.utils.http import is_safe_url
 from django.http import HttpResponseForbidden, HttpResponseBadRequest
+from django.template.response import TemplateResponse
 from django.contrib.auth import authenticate, login, logout, BACKEND_SESSION_KEY, SESSION_KEY
 from django.core.urlresolvers import reverse, reverse_lazy
 
 from requests_oauthlib import OAuth2Session
+from oauthlib.oauth2.rfc6749.errors import MismatchingStateError, MissingTokenError
 
 
 logger = logging.getLogger(__name__)
+
+
+def oauth_error_page(request, *, error_code=None):
+    exc_type, exc, traceback = sys.exc_info()
+
+    if error_code is None and exc_type is not None:
+        error_code = exc_type.__name__
+
+    if exc is not None:
+        logger.warning('OAuth error', exc_info=True)
+
+    return TemplateResponse(
+        request=request,
+        template='oauth_error.html',
+        context={'error_code': error_code},
+        content_type='text/html',
+        status=400,
+    )
 
 
 class OauthRedirectView(RedirectView):
@@ -46,7 +67,7 @@ class OauthReturnView(RedirectView):
         state_nonce = request.session.get('oauth2_nonce', None)
 
         if state_nonce is None:
-            return HttpResponseBadRequest(b'bad state')
+            return oauth_error_page(request, error_code='NoStateError')
 
         client = OAuth2Session(
             client_id=settings.OAUTH['client_id'],
@@ -55,11 +76,14 @@ class OauthReturnView(RedirectView):
             state=state_nonce,
         )
 
-        token = client.fetch_token(
-            token_url=settings.OAUTH['token_exchange_url'],
-            authorization_response=self.request.build_absolute_uri(),
-            client_id=settings.OAUTH['client_id'], client_secret=settings.OAUTH['client_secret']
-        )
+        try:
+            token = client.fetch_token(
+                token_url=settings.OAUTH['token_exchange_url'],
+                authorization_response=self.request.build_absolute_uri(),
+                client_id=settings.OAUTH['client_id'], client_secret=settings.OAUTH['client_secret']
+            )
+        except (MismatchingStateError, MissingTokenError):
+            return oauth_error_page(request)
 
         if 'profile' not in token:
             return HttpResponseBadRequest('No `profile` key returned by Oauth server')

@@ -5,17 +5,21 @@
 {% block title %}Créer un groupe d'action{% endblock %}
 
 {% block extra_scripts %}
-{% render_bundle 'creationForms' attrs='defer' %}
-{%  endblock %}
+    {% render_bundle 'creationForms' %}
+{% endblock %}
 
 {% block main %}
     {% if form.errors %}
-      <ul>
-        {% for key, error in form.errors.items %}
-          <li>{{ key }} : {{ error }}</li>
-        {% endfor %}
-      </ul>
+        <ul>
+            {% for key, error in form.errors.items %}
+                <li>{{ key }} : {{ error }}</li>
+            {% endfor %}
+        </ul>
     {% endif %}
     <h3 class="text-center">Créer un groupe d'action</h3>
     <div id="create-group-react-app" data-turbolinks="false"></div>
+    <script>
+      var props = {{ props }};
+      creationForms.renderCreateGroupForm('create-group-react-app', props);
+    </script>
 {% endblock %}

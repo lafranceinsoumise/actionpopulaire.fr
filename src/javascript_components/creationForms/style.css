@@ -1,3 +1,31 @@
 .progtrckr {
     text-align: center;
 }
+
+.type-selector {
+    border: 1px solid #CCC;
+}
+
+.type-selector button {
+    border-radius: 0;
+    border: none;
+    background: none;
+}
+
+.type-selector button:hover {
+    background: #EEE;
+}
+
+.type-selector button.active, .typer-selector button.active:hover {
+    background: #DDD;
+}
+
+.subtype-selector {
+    overflow: hidden;
+    transition: all 500ms ease-in-out;
+    margin: 0; padding: 0;
+}
+
+.subtype-selector div {
+    padding: 15px 15px 10px 15px;
+}

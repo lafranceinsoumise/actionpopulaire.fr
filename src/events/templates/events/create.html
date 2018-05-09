@@ -5,10 +5,14 @@
 {% block title %}Créer un événement{% endblock %}
 
 {% block extra_scripts %}
-{% render_bundle 'creationForms' attrs='defer' %}
+{% render_bundle 'creationForms' %}
 {%  endblock %}
 
 {% block main %}
     <h3 class="text-center">Créer un événement</h3>
     <div id="create-event-react-app" data-turbolinks="false"></div>
+    <script>
+        var props = {{ props }};
+        creationForms.renderCreateEventForm('create-event-react-app', props);
+    </script>
 {% endblock %}

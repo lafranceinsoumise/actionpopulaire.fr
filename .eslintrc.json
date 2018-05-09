@@ -37,6 +37,17 @@
     "semi": [
       "error",
       "always"
+    ],
+    "react/jsx-closing-bracket-location": [1, "line-aligned"],
+    "react/no-unescaped-entities": [
+      "error",
+      {
+        "forbid": [
+          ">",
+          "}",
+          "\""
+        ]
+      }
     ]
   }
 }

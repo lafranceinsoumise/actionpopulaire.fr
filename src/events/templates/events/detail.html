@@ -59,7 +59,7 @@
                         <form style="display:inline;" action="{% url "rsvp_event" event.pk %}" method="{% if event.subscription_form is None %}post{% else %}get{% endif %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-primary">
-                                Participer à cet événement{% if event.price_display %}( {{ event.price_display }}){% endif %}
+                                Participer à cet événement{% if event.price_display %} ({{ event.price_display }}){% endif %}
                             </button>
                         </form>
                     {% endif %}
