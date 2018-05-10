@@ -16,7 +16,7 @@ db.sqlite3
 
 /node_modules/
 
-/src/assets/
+/assets/
 .vagrant
 *cloudimg-console.log
 .env

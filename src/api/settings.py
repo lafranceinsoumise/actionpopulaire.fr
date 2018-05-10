@@ -253,7 +253,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.environ.get('STATIC_ROOT')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "assets")
+    os.path.join(os.path.dirname(BASE_DIR), "assets")
 ]
 
 WEBPACK_LOADER = {
