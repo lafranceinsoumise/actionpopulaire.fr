@@ -1,9 +1,11 @@
 import React from 'react';
 import {hot} from 'react-hot-loader';
 import PropTypes from 'prop-types';
-import {Modal, Button} from 'react-bootstrap';
 import Select from 'react-select';
 import Symbol from 'es6-symbol';
+
+import Modal from '../../lib/component_lib/bootstrap/Modal';
+import Button from '../../lib/component_lib/bootstrap/Button';
 
 import 'react-select/dist/react-select.min.css';
 
@@ -33,9 +35,10 @@ function SelectField({value, divisionDescriptor, onChange}) {
   } else {
     return value.loading ?
       <div>Chargement...</div> :
-      <Select.Async value={value} loadOptions={divisionDescriptor.getter.query} onChange={onChange}
-                    noResultsText="Pas de résultat" placeholder={divisionDescriptor.name}
-                    searchPromptText="Tapez les premiers caractères" loadingPlaceholder="Chargement..."
+      <Select.Async
+        value={value} loadOptions={divisionDescriptor.getter.query} onChange={onChange}
+        noResultsText="Pas de résultat" placeholder={divisionDescriptor.name}
+        searchPromptText="Tapez les premiers caractères" loadingPlaceholder="Chargement..."
       />;
   }
 }
@@ -165,10 +168,7 @@ class MandatesField extends React.Component {
     return <div>
       <div>{nbMandates > 0 ? `${nbMandates} mandat${nbMandates > 1 ? 's ' : ' '}` : 'Pas de mandat '}
         <Button onClick={this.openModal}>Modifier</Button></div>
-      <Modal bsSize="large" show={this.state.modalIsOpen} onHide={this.closeModal}>
-        <Modal.Header closeButton>
-          <h4 className="modal-title">Mes mandats électoraux</h4>
-        </Modal.Header>
+      <Modal size="lg" show={this.state.modalIsOpen} onHide={this.closeModal} title="Mes mandats électoraux">
         <Modal.Body>
           <div className="form-horizontal">
             {this.state.currentSelection.map((mandate, i) => (
@@ -177,8 +177,9 @@ class MandatesField extends React.Component {
                 <div className="form-group">
                   <label className="col-sm-2" htmlFor={`type-${i}`}>Type de mandat</label>
                   <div className="col-sm-10">
-                    <select className="form-control" id={`type-${i}`} value={mandate.type}
-                            onChange={this.updateType(i)}>
+                    <select
+                      className="form-control" id={`type-${i}`} value={mandate.type}
+                      onChange={this.updateType(i)}>
                       {mandateOptions}
                     </select>
                   </div>
@@ -190,8 +191,10 @@ class MandatesField extends React.Component {
                       {mandateDict[mandate.type].division.name}
                     </label>
                     <div className="col-sm-10">
-                      <SelectField value={mandate.division} onChange={this.updateDivision(i)}
-                                   divisionDescriptor={mandateDict[mandate.type].division}/>
+                      <SelectField
+                        value={mandate.division} onChange={this.updateDivision(i)}
+                        divisionDescriptor={mandateDict[mandate.type].division}
+                      />
                     </div>
                   </div>
                 }

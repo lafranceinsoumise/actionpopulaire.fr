@@ -1,7 +1,7 @@
 import React from 'react';
 import {hot} from 'react-hot-loader';
 import PropTypes from 'prop-types';
-import {InputGroup} from 'react-bootstrap';
+import InputGroup from '../../lib/component_lib/bootstrap/InputGroup';
 
 
 import './style.css';
@@ -12,10 +12,6 @@ const AMOUNTS = [100, 50, 25, 15, 10];
 function displayNumber(n) {
   const s = Math.round(n * 100).toString();
   return (s.slice(0, -2) | '0') + ',' + s.slice(-2);
-}
-
-function toFloat(n) {
-  return parseFloat(n.replace(',', '.'));
 }
 
 
@@ -42,14 +38,18 @@ class AmountWidget extends React.Component {
     return <div className="amount-component" style={{display: 'flex', 'flex-wrap': 'wrap'}}>
       <input type="hidden" value={state.value ? state.value : ''} name={this.hiddenField.name}/>
       {AMOUNTS.map(value => (
-        <button key={value} type="button" onClick={() => this.setState({value, custom: false})}
-                className={['btn', state.custom || state.value !== value ? 'btn-default' : 'btn-primary'].join(' ')}>
+        <button
+          key={value} type="button" onClick={() => this.setState({value, custom: false})}
+          className={['btn', state.custom || state.value !== value ? 'btn-default' : 'btn-primary'].join(' ')}
+        >
           {value}&nbsp;€
         </button>))}
       <InputGroup>
-        <input type="text" className="form-control" placeholder="autre montant" step={1}
-                     onChange={e => this.updateWithCustomValue(e.target.value)}
-                     value={this.state.custom ? this.state.value.toString() : ''}/>
+        <input
+          type="text" className="form-control" placeholder="autre montant" step={1}
+          onChange={e => this.updateWithCustomValue(e.target.value)}
+          value={this.state.custom ? this.state.value.toString() : ''}
+        />
         <InputGroup.Addon>€</InputGroup.Addon>
       </InputGroup>
       <p>

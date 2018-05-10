@@ -26,7 +26,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin([DISTPATH]),
     new BundleTracker({path: DISTPATH}),
-    new ExtractTextPlugin('theme-[contenthash].css'),
+    new ExtractTextPlugin(process.env.NODE_ENV !== 'production' ? 'theme.css' : 'theme-[contenthash].css'),
     new webpack.DefinePlugin({'API_ENDPOINT': apiEndpoint}),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new BundleAnalyzerPlugin({analyzerMode: 'static', openAnalyzer: false}),
@@ -46,7 +46,7 @@ module.exports = {
           loader: 'babel-loader?cacheDirectory=true',
           options: {
             presets: ['babel-preset-env', 'babel-preset-react'],
-            plugins: ['react-hot-loader/babel']
+            plugins: ['react-hot-loader/babel', 'transform-object-rest-spread']
           }
         }
       },
