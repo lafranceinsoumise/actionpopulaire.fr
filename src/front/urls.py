@@ -43,21 +43,6 @@ urlpatterns = [
     # events views
     url('^evenements/$', RedirectView.as_view(url=reverse_lazy('dashboard')), name='list_events'),
 
-    # groups views
-    url('^groupes/$', RedirectView.as_view(url=reverse_lazy('dashboard')), name='list_groups'),
-    url('^groupes/creer/$', views.CreateSupportGroupView.as_view(), name='create_group'),
-    url('^groupes/creer/form/$', views.PerformCreateSupportGroupView.as_view(), name='perform_create_group'),
-    url('^groupes/liste/$', views.SupportGroupListView.as_view(), name='list_all_groups'),
-    url(f'^groupes/(?P<pk>{uuid})/$', views.SupportGroupDetailView.as_view(), name='view_group'),
-    url(f'^groupes/(?P<pk>{uuid})/manage/$', views.SupportGroupManagementView.as_view(), name='manage_group'),
-    url(f'^groupes/(?P<pk>{uuid})/modifier/$', views.ModifySupportGroupView.as_view(), name='edit_group'),
-    url(f'^groupes/(?P<pk>{uuid})/quitter/$', views.QuitSupportGroupView.as_view(), name='quit_group'),
-    url(f'^groupes/(?P<pk>{uuid})/localisation/$', views.ChangeGroupLocationView.as_view(), name='change_group_location'),
-
-    url(f'^groupes/retirer_gestionnaire/(?P<pk>{simple_id})/$', views.RemoveManagerView.as_view(), name='remove_manager'),
-
-    url('^livrets_thematiques/$', views.ThematicBookletViews.as_view(), name="thematic_groups_list"),
-
     # polls views
     url(f'^consultations/(?P<pk>{uuid})/$', views.PollParticipationView.as_view(), name='participate_poll'),
     url(f'^consultations/termine/$', views.PollFinishedView.as_view(), name='finished_poll'),

@@ -15,8 +15,8 @@ from groups.models import SupportGroup, Membership, SupportGroupSubtype
 from groups.tasks import send_someone_joined_notification
 from groups.actions.promo_codes import get_next_promo_code
 
-from ..forms import SupportGroupForm, AddReferentForm, AddManagerForm, GroupGeocodingForm, SearchGroupForm
-from ..view_mixins import (
+from .forms import SupportGroupForm, AddReferentForm, AddManagerForm, GroupGeocodingForm, SearchGroupForm
+from front.view_mixins import (
     HardLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
     ChangeLocationBaseView, SearchByZipcodeBaseView
 )
@@ -56,7 +56,7 @@ class SupportGroupListView(SearchByZipcodeBaseView):
     """List of groups, filter by zipcode
     """
     min_items = 20
-    template_name = 'front/groups/group_list.html'
+    template_name = 'groups/group_list.html'
     context_object_name = 'groups'
     form_class = SearchGroupForm
 
@@ -65,14 +65,14 @@ class SupportGroupListView(SearchByZipcodeBaseView):
 
 
 class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
-    template_name = "front/groups/detail.html"
+    template_name = "groups/detail.html"
     queryset = SupportGroup.objects.active().all()
 
     title_prefix = "Groupe d'action"
     meta_description = "Rejoignez les groupes d'action de la France insoumise."
 
     def get_template_names(self):
-        return ["front/groups/detail.html"]
+        return ["groups/detail.html"]
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
@@ -96,7 +96,7 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
 
 
 class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, DetailView):
-    template_name = "front/groups/manage.html"
+    template_name = "groups/manage.html"
     queryset = SupportGroup.objects.active().all().prefetch_related('memberships')
     messages = {
         'add_referent_form': ugettext_lazy("{} est maintenant correctement signalé comme second·e animateur·rice"),
@@ -169,7 +169,7 @@ class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, D
 
 
 class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
-    template_name = "front/groups/create.html"
+    template_name = "groups/create.html"
 
     def get_context_data(self, **kwargs):
         person = self.request.user.person
@@ -222,7 +222,7 @@ class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFo
 
 class ModifySupportGroupView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
     permissions_required = ('groups.change_supportgroup',)
-    template_name = "front/groups/modify.html"
+    template_name = "groups/modify.html"
     queryset = SupportGroup.objects.active().all()
     form_class = SupportGroupForm
 
@@ -303,7 +303,7 @@ class RemoveManagerView(HardLoginRequiredMixin, CheckMembershipMixin, DetailView
 
 
 class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
-    template_name = "front/groups/quit.html"
+    template_name = "groups/quit.html"
     success_url = reverse_lazy("dashboard")
     queryset = Membership.objects.active().all()
     context_object_name = 'membership'
@@ -353,7 +353,7 @@ class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
 
 
 class ThematicBookletViews(ListView):
-    template_name = 'front/groups/thematic_booklets.html'
+    template_name = 'groups/thematic_booklets.html'
     context_object_name = "groups"
 
     def get_queryset(self):
@@ -368,7 +368,7 @@ class ThematicBookletViews(ListView):
 
 
 class ChangeGroupLocationView(ChangeLocationBaseView):
-    template_name = 'front/groups/change_location.html'
+    template_name = 'groups/change_location.html'
     form_class = GroupGeocodingForm
     queryset = SupportGroup.objects.active().all()
     success_view_name = 'manage_group'

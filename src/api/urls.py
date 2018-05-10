@@ -22,6 +22,7 @@ from . import routers, admin, settings
 
 import front.urls
 import events.urls
+import groups.urls
 import webhooks.urls
 import donations.urls
 import payments.urls
@@ -43,6 +44,7 @@ if settings.ENABLE_FRONT:
     urlpatterns.extend([
         url(r'^', include(front.urls)),
         url(r'^', include(events.urls)),
+        url(r'^', include(groups.urls)),
         url(r'^', include(donations.urls)),
         url(r'^', include(payments.urls))
     ])

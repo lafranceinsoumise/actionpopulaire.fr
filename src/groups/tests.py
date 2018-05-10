@@ -17,7 +17,10 @@ from lib.tests.mixins import FakeDataMixin
 from . import tasks
 from .models import SupportGroup, Membership, SupportGroupSubtype
 from people.models import Person
+from events.models import Event, OrganizerConfig
 from .viewsets import LegacySupportGroupViewSet, MembershipViewSet, NestedMembershipViewSet
+
+from .forms import SupportGroupForm
 
 
 class BasicSupportGroupTestCase(TestCase):
@@ -694,7 +697,7 @@ class EventTasksTestCase(TestCase):
         mail_content = {
             'member information': str(self.member1),
             'group name': self.group.name,
-            'group management link': dj_reverse('manage_group', kwargs={'pk': self.group.pk}, urlconf='front.urls')
+            'group management link': dj_reverse('manage_group', kwargs={'pk': self.group.pk}, urlconf='lib.front_urls')
         }
 
         for name, value in mail_content.items():
@@ -730,3 +733,233 @@ class EventTasksTestCase(TestCase):
 class GroupSubtypesTestCase(FakeDataMixin, TestCase):
     def test_local_groups_have_subtype(self):
         self.data['groups']['user1_group'].subtypes.add(SupportGroupSubtype.objects.get(label='groupe local'))
+
+
+class GroupPageTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person('test@test.com')
+        self.other_person = Person.objects.create_person('other@test.fr')
+
+        self.referent_group = SupportGroup.objects.create(
+            name="Referent",
+        )
+        Membership.objects.create(
+            person=self.person,
+            supportgroup=self.referent_group,
+            is_referent=True
+        )
+
+        self.manager_group = SupportGroup.objects.create(
+            name="Manager",
+            location_name='location',
+            location_address1='somewhere',
+            location_city='Over',
+            location_country='DE'
+        )
+
+        Membership.objects.create(
+            person=self.person,
+            supportgroup=self.manager_group,
+            is_referent=False,
+            is_manager=True
+        )
+
+        self.member_group = SupportGroup.objects.create(
+            name="Member"
+        )
+        Membership.objects.create(
+            person=self.person,
+            supportgroup=self.member_group
+        )
+
+        # other memberships
+        Membership.objects.create(
+            person=self.other_person,
+            supportgroup=self.member_group
+        )
+
+
+        now = timezone.now()
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+        self.event = Event.objects.create(
+            name='événement test pour groupe',
+            nb_path='/pseudo/test',
+            start_time=now + 3 * day,
+            end_time=now + 3 * day + 4 * hour,
+        )
+
+        OrganizerConfig.objects.create(
+            event=self.event,
+            person=self.person,
+            as_group=self.referent_group
+        )
+
+        self.client.force_login(self.person.role)
+
+    @mock.patch.object(SupportGroupForm, 'geocoding_task')
+    @mock.patch("groups.forms.send_support_group_changed_notification")
+    def test_can_modify_managed_group(self, patched_send_notification, patched_geocode):
+        response = self.client.get(reverse('edit_group', kwargs={'pk': self.manager_group.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.post(
+            reverse('edit_group', kwargs={'pk': self.manager_group.pk}),
+            data={
+                'name': 'Manager',
+                'type': 'L',
+                'subtypes': ['groupe local'],
+                'contact_name': 'Arthur',
+                'contact_email': 'a@fhezfe.fr',
+                'contact_phone': '06 06 06 06 06',
+                'location_name': 'location',
+                'location_address1': 'somewhere',
+                'location_city': 'Outside',
+                'location_country': 'DE',
+                'notify': 'on',
+            }
+        )
+
+        self.assertRedirects(response, reverse('manage_group', kwargs={'pk': self.manager_group.pk}))
+
+        # accessing the messages: see https://stackoverflow.com/a/14909727/1122474
+        messages = list(response.wsgi_request._messages)
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].level_tag, 'success')
+
+        # send_support_group_changed_notification.delay should have been called once, with the pk of the group as
+        # first argument, and the changes as the second
+        patched_send_notification.delay.assert_called_once()
+        args = patched_send_notification.delay.call_args[0]
+
+        self.assertEqual(args[0], self.manager_group.pk)
+        self.assertCountEqual(args[1], ['contact', 'location'])
+
+        patched_geocode.delay.assert_called_once()
+        args = patched_geocode.delay.call_args[0]
+
+        self.assertEqual(args[0], self.manager_group.pk)
+
+    @mock.patch("groups.forms.geocode_support_group")
+    def test_do_not_geocode_if_address_did_not_change(self, patched_geocode):
+        response = self.client.post(
+            reverse('edit_group', kwargs={'pk': self.manager_group.pk}),
+            data={
+                'name': "Manager",
+                'type': 'L',
+                'subtypes': ['groupe local'],
+                'location_name': 'location',
+                'location_address1': 'somewhere',
+                'location_city': 'Over',
+                'location_country': 'DE',
+                'contact_name': 'Arthur',
+                'contact_email': 'a@fhezfe.fr',
+                'contact_phone': '06 06 06 06 06',
+            }
+        )
+
+        self.assertRedirects(response, reverse('manage_group', kwargs={'pk': self.manager_group.pk}))
+        patched_geocode.delay.assert_not_called()
+
+    def test_cannot_modify_member_group(self):
+        response = self.client.get(reverse('edit_group', kwargs={'pk': self.member_group.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @mock.patch('front.views.dashboard.geocode_person')
+    def test_can_quit_group(self, geocode_person):
+        response = self.client.get(reverse('quit_group', kwargs={'pk': self.member_group.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.post(reverse('quit_group', kwargs={'pk': self.member_group.pk}))
+        self.assertRedirects(response, reverse('dashboard'))
+        geocode_person.delay.assert_called_once()
+
+        self.assertFalse(self.member_group.memberships.filter(person=self.person).exists())
+
+    @mock.patch('groups.views.send_someone_joined_notification')
+    def test_can_join(self, someone_joined):
+        url = reverse('view_group', kwargs={'pk': self.manager_group.pk})
+        self.client.force_login(self.other_person.role)
+        response = self.client.get(url)
+        self.assertNotIn(self.other_person, self.manager_group.members.all())
+        self.assertIn('Rejoindre ce groupe', response.content.decode())
+
+        response = self.client.post(url, data={
+            'action': 'join'
+        }, follow=True)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(self.other_person, self.manager_group.members.all())
+        self.assertIn('Quitter le groupe', response.content.decode())
+
+        someone_joined.delay.assert_called_once()
+        membership = Membership.objects.get(person=self.other_person, supportgroup=self.manager_group)
+        self.assertEqual(someone_joined.delay.call_args[0][0], membership.pk)
+
+    @mock.patch.object(SupportGroupForm, 'geocoding_task')
+    @mock.patch('groups.forms.send_support_group_creation_notification')
+    def test_can_create_group(self, patched_send_support_group_creation_notification, patched_geocode_support_group):
+        self.client.force_login(self.person.role)
+
+        # get create page
+        response = self.client.get(reverse('create_group'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.post(reverse('perform_create_group'), data={
+            'name': 'New name',
+            'type': 'L',
+            'subtypes': ['groupe local'],
+            'contact_email': 'a@fhezfe.fr',
+            'contact_phone': '+33606060606',
+            'contact_hide_phone': 'on',
+            'location_name': 'location',
+            'location_address1': 'somewhere',
+            'location_city': 'Over',
+            'location_country': 'DE',
+            'notify': 'on',
+        })
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        try:
+            membership = self.person.memberships.filter(is_referent=True).exclude(
+                supportgroup=self.referent_group).get()
+        except (Membership.DoesNotExist, Membership.MultipleObjectsReturned):
+            self.fail('Should have created one membership')
+
+        patched_send_support_group_creation_notification.delay.assert_called_once()
+        self.assertEqual(patched_send_support_group_creation_notification.delay.call_args[0], (membership.pk,))
+
+        patched_geocode_support_group.delay.assert_called_once()
+        self.assertEqual(patched_geocode_support_group.delay.call_args[0], (membership.supportgroup.pk,))
+
+        group = SupportGroup.objects.first()
+        self.assertEqual(group.name, 'New name')
+        self.assertEqual(group.subtypes.all().count(), 1)
+
+    @mock.patch('front.views.dashboard.geocode_person')
+    def test_cannot_view_unpublished_group(self, geocode_person):
+        self.client.force_login(self.person.role)
+
+        self.referent_group.published = False
+        self.referent_group.save()
+
+        res = self.client.get(reverse('dashboard'))
+        self.assertNotContains(res, self.referent_group.pk)
+        geocode_person.delay.assert_called_once()
+
+        res = self.client.get('/groupes/{}/'.format(self.referent_group.pk))
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+        group_pages = ['view_group', 'manage_group', 'edit_group', 'change_group_location', 'quit_group']
+        for page in group_pages:
+            res = self.client.get(reverse(page, args=(self.referent_group.pk,)))
+            self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND, '"{}" did not return 404'.format(page))
+
+    def test_can_see_groups_events(self):
+        response = self.client.get(reverse('view_group', args=[self.referent_group.pk]))
+
+        self.assertContains(response, "événement test pour groupe")
