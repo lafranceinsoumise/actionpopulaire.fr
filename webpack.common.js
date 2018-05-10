@@ -40,7 +40,6 @@ module.exports = {
       locationSearchField: './locationSearchField.js',
       creationForms: './creationForms',
       dashboard: './dashboard',
-      map: './map/index.js',
       theme: '@fi/theme/dist/styles/' + cssName,
       mandatesField: './mandatesField',
       amountWidget: './amountWidget',

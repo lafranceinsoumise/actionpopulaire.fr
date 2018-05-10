@@ -11,6 +11,6 @@ Localisation du groupe {{ group.name }}
       var popupContent = '<a href="{{ FRONT_DOMAIN }}{% url "view_group" group.id %}" style="color:' + subtype.color +
           ';" target="_blank">{{ group.name }}</a>';
 
-      window.map.itemMap('map', coordinates, subtype, popupContent);
+      window['carte/map'].itemMap('map', coordinates, subtype, popupContent);
     </script>
 {% endblock %}

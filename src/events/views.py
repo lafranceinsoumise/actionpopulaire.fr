@@ -456,7 +456,7 @@ class PayEventView(HardLoginRequiredMixin, UpdateView):
     form_class = BillingForm
     template_name = 'events/pay_event.html'
 
-    def get_object(self):
+    def get_object(self, queryset=None):
         return self.request.user.person
 
     def get_context_data(self, **kwargs):

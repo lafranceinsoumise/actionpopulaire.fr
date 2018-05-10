@@ -28,6 +28,6 @@
         );
       }
 
-      window.map.listMap('map', '{% url "map:event_list" %}{{ querystring }}', types, subtypes, formatEvent);
+      window['carte/map'].listMap('map', '{% url "map:event_list" %}{{ querystring }}', types, subtypes, formatEvent);
     </script>
 {% endblock %}

@@ -139,19 +139,19 @@ def get_event_type_information(type, label):
     }
 
 
-def get_group_type_information(type, label):
-    params = {
+group_types = {
         "L": ['#4a64ac', 'users'],
         "B": ['#49b37d', 'book'],
         "F": ['#e14b35', 'cog'],
         "P": ['#f4981e', 'industry'],
     }
 
+def get_group_type_information(type, label):
     return {
         'id': type,
         'label': label,
-        'color': params[type][0],
-        'iconName': params[type][1],
+        'color': group_types[type][0],
+        'iconName': group_types[type][1],
     }
 
 
@@ -232,7 +232,7 @@ class GroupMapView(TemplateView):
             params.setlist('subtype', subtype_label)
 
         subtype_info = [get_subtype_information(st) for st in subtypes]
-        types = {s.type for s in subtypes}
+        types = {s.type for s in subtypes} if subtype_label else set(group_types)
         type_info = [get_group_type_information(id, str(label)) for id, label in SupportGroup.TYPE_CHOICES if subtype_label is None or id in types]
 
         querystring = ('?' + params.urlencode()) if params else ''

@@ -1,9 +1,9 @@
 import FontFaceOnload from 'fontfaceonload';
 
 export function getQueryParameterByName(name) {
-  var url = window.location.href;
+  const url = window.location.href;
   name = name.replace(/[[\]]/g, '\\$&');
-  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+  const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
     results = regex.exec(url);
   if (!results) return null;
   if (!results[2]) return '';
@@ -41,3 +41,5 @@ export function fontIsLoaded(fontName) {
     error: reject
   }));
 }
+
+export const ARROW_SIZE = 20;
