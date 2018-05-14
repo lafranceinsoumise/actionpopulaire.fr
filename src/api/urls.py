@@ -20,7 +20,7 @@ from ajax_select import urls as ajax_select_urls
 from api.metrics import get_metrics
 from . import routers, admin, settings
 
-from lib import front_urls
+from . import front_urls
 import webhooks.urls
 
 urlpatterns = [

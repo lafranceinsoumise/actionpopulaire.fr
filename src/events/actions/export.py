@@ -7,7 +7,7 @@ from django.conf import settings
 from django.urls import reverse
 
 from lib.export import dicts_to_csv_lines
-from front import urls as front_urls
+from api import front_urls
 
 
 __all__ = ['events_to_csv', 'events_to_csv_lines']

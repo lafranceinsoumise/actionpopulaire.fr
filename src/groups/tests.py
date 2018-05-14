@@ -697,7 +697,7 @@ class EventTasksTestCase(TestCase):
         mail_content = {
             'member information': str(self.member1),
             'group name': self.group.name,
-            'group management link': dj_reverse('manage_group', kwargs={'pk': self.group.pk}, urlconf='lib.front_urls')
+            'group management link': dj_reverse('manage_group', kwargs={'pk': self.group.pk}, urlconf='api.front_urls')
         }
 
         for name, value in mail_content.items():

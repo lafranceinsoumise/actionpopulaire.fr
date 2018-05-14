@@ -16,7 +16,7 @@ def _querydict_from_dict(d):
 
 
 def front_url(*args, query=None, absolute=True, **kwargs):
-    url = reverse(*args, urlconf='lib.front_urls', **kwargs)
+    url = reverse(*args, urlconf='api.front_urls', **kwargs)
     if absolute:
         url = urljoin(settings.FRONT_DOMAIN, url)
     if query:

@@ -11,9 +11,9 @@ urlpatterns = [
     # people views
     url('^desinscription/$', views.UnsubscribeView.as_view(), name='unsubscribe'),
     url('^desabonnement/$', views.UnsubscribeView.as_view(), name='unsubscribe'),
-    url('^desabonnement/succes/$', TemplateView.as_view(template_name='front/people/unsubscribe_success.html'), name='unsubscribe_success'),
+    url('^desabonnement/succes/$', TemplateView.as_view(template_name='people/unsubscribe_success.html'), name='unsubscribe_success'),
     url('^supprimer/$', views.DeleteAccountView.as_view(), name='delete_account'),
-    url('^supprimer/succes$', TemplateView.as_view(template_name='front/people/delete_account_success.html'), name='delete_account_success'),
+    url('^supprimer/succes$', TemplateView.as_view(template_name='people/delete_account_success.html'), name='delete_account_success'),
     url('^inscription/$', views.SimpleSubscriptionView.as_view(), name='subscription'),
     url('^inscription/etranger/$', views.OverseasSubscriptionView.as_view(), name='subscription_overseas'),
     url('^inscription/succes/$', views.SubscriptionSuccessView.as_view(), name='subscription_success'),

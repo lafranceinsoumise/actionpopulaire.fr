@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls import url
 from django.contrib.sitemaps.views import sitemap
 from django.urls import reverse_lazy
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import RedirectView
 
 from front.sitemaps import sitemaps
 from . import views, oauth
@@ -18,12 +18,9 @@ urlpatterns = [
     url(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'),
 
-    # events views
+    # old redirections
+    url('^groupes/$', RedirectView.as_view(url=reverse_lazy('dashboard')), name='list_groups'),
     url('^evenements/$', RedirectView.as_view(url=reverse_lazy('dashboard')), name='list_events'),
-
-    # polls views
-    url(f'^consultations/(?P<pk>{uuid})/$', views.PollParticipationView.as_view(), name='participate_poll'),
-    url(f'^consultations/termine/$', views.PollFinishedView.as_view(), name='finished_poll'),
 
     # old urls
     url('^old(.*)', views.NBUrlsView.as_view(), name='old_urls'),

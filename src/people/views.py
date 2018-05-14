@@ -33,7 +33,7 @@ __all__ = ['SubscriptionSuccessView', 'SimpleSubscriptionView', 'OverseasSubscri
 
 
 class UnsubscribeView(SimpleOpengraphMixin, FormView):
-    template_name = "front/people/unsubscribe.html"
+    template_name = "people/unsubscribe.html"
     success_url = reverse_lazy('unsubscribe_success')
     form_class = UnsubscribeForm
 
@@ -51,11 +51,11 @@ class UnsubscribeView(SimpleOpengraphMixin, FormView):
 
 
 class SubscriptionSuccessView(TemplateView):
-    template_name = "front/people/confirmation_subscription.html"
+    template_name = "people/confirmation_subscription.html"
 
 
 class SimpleSubscriptionView(SimpleOpengraphMixin, CreateView):
-    template_name = "front/people/simple_subscription.html"
+    template_name = "people/simple_subscription.html"
     success_url = reverse_lazy('subscription_success')
     model = Person
     form_class = SimpleSubscriptionForm
@@ -65,7 +65,7 @@ class SimpleSubscriptionView(SimpleOpengraphMixin, CreateView):
 
 
 class OverseasSubscriptionView(SimpleOpengraphMixin, CreateView):
-    template_name = "front/people/overseas_subscription.html"
+    template_name = "people/overseas_subscription.html"
     success_url = reverse_lazy('subscription_success')
     model = Person
     form_class = OverseasSubscriptionForm
@@ -75,7 +75,7 @@ class OverseasSubscriptionView(SimpleOpengraphMixin, CreateView):
 
 
 class ChangeProfileView(SoftLoginRequiredMixin, UpdateView):
-    template_name = "front/people/profile.html"
+    template_name = "people/profile.html"
     form_class = ProfileForm
     success_url = reverse_lazy("confirmation_profile")
 
@@ -85,11 +85,11 @@ class ChangeProfileView(SoftLoginRequiredMixin, UpdateView):
 
 
 class ChangeProfileConfirmationView(SimpleOpengraphMixin, TemplateView):
-    template_name = 'front/people/confirmation_profile.html'
+    template_name = 'people/confirmation_profile.html'
 
 
 class VolunteerView(SoftLoginRequiredMixin, UpdateView):
-    template_name = "front/people/volunteer.html"
+    template_name = "people/volunteer.html"
     form_class = VolunteerForm
     success_url = reverse_lazy("confirmation_volunteer")
 
@@ -99,11 +99,11 @@ class VolunteerView(SoftLoginRequiredMixin, UpdateView):
 
 
 class VolunteerConfirmationView(TemplateView):
-    template_name = 'front/people/confirmation_volunteer.html'
+    template_name = 'people/confirmation_volunteer.html'
 
 
 class MessagePreferencesView(SoftLoginRequiredMixin, UpdateView):
-    template_name = 'front/people/message_preferences.html'
+    template_name = 'people/message_preferences.html'
     form_class = MessagePreferencesForm
     success_url = reverse_lazy('message_preferences')
 
@@ -123,7 +123,7 @@ class MessagePreferencesView(SoftLoginRequiredMixin, UpdateView):
 
 
 class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
-    template_name = 'front/people/delete_account.html'
+    template_name = 'people/delete_account.html'
 
     def get_success_url(self):
         return f"{settings.OAUTH['logoff_url']}?next={reverse('delete_account_success')}"
@@ -144,7 +144,7 @@ class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
 
 
 class EmailManagementView(HardLoginRequiredMixin, TemplateView):
-    template_name = 'front/people/email_management.html'
+    template_name = 'people/email_management.html'
     queryset = Person.objects.all()
 
     def get_object(self):
@@ -198,7 +198,7 @@ class EmailManagementView(HardLoginRequiredMixin, TemplateView):
 
 class DeleteEmailAddressView(HardLoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('email_management')
-    template_name = 'front/people/confirm_email_deletion.html'
+    template_name = 'people/confirm_email_deletion.html'
     context_object_name = 'email'
 
     def get_context_data(self, **kwargs):
@@ -218,7 +218,7 @@ class DeleteEmailAddressView(HardLoginRequiredMixin, DeleteView):
 
 class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
     queryset = PersonForm.objects.published()
-    template_name = 'front/people/person_form.html'
+    template_name = 'people/person_form.html'
 
     def get_success_url(self):
         return reverse('person_form_confirmation', args=(self.person_form_instance.slug,))
@@ -252,7 +252,7 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
 
 
 class PeopleFormConfirmationView(DetailView):
-    template_name = 'front/people/person_form_confirmation.html'
+    template_name = 'people/person_form_confirmation.html'
     queryset = PersonForm.objects.filter(published=True)
 
     def get_context_data(self, **kwargs):
@@ -262,7 +262,7 @@ class PeopleFormConfirmationView(DetailView):
 
 
 class DashboardView(SoftLoginRequiredMixin, TemplateView):
-    template_name = 'front/dashboard.html'
+    template_name = 'people/dashboard.html'
 
     def get(self, request, *args, **kwargs):
         person = request.user.person
