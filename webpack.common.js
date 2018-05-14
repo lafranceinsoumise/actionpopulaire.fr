@@ -15,8 +15,8 @@ const flatten = (array) => array.reduce((acc, curr) => acc.concat(curr));
 const isDirectory = f => fs.statSync(f).isDirectory();
 const directoryHasFile = f => d => fs.readdirSync(d).includes(f);
 
-const applications = fs.readdirSync(path.resolve(__dirname, 'src'))
-  .map((f) => path.resolve(__dirname, 'src', f))
+const applications = fs.readdirSync(path.resolve(__dirname, 'agir'))
+  .map((f) => path.resolve(__dirname, 'agir', f))
   .filter(isDirectory)
   .filter(directoryHasFile('components'));
 
@@ -32,7 +32,7 @@ const components = flatten(
   }, {});
 
 module.exports = {
-  context: path.resolve(__dirname, 'src/javascript_components'),
+  context: path.resolve(__dirname, 'agir/javascript_components'),
   entry: Object.assign(
     {
       richEditor: './richEditor.js',

@@ -28,4 +28,4 @@ install:
   - "npm i"
   - "npm run build"
 
-script: "cd src && python manage.py test -v 2"
+script: "python manage.py test -v 2"
