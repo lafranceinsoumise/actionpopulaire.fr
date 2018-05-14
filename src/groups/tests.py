@@ -868,7 +868,7 @@ class GroupPageTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    @mock.patch('front.views.dashboard.geocode_person')
+    @mock.patch('people.views.geocode_person')
     def test_can_quit_group(self, geocode_person):
         response = self.client.get(reverse('quit_group', kwargs={'pk': self.member_group.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -940,7 +940,7 @@ class GroupPageTestCase(TestCase):
         self.assertEqual(group.name, 'New name')
         self.assertEqual(group.subtypes.all().count(), 1)
 
-    @mock.patch('front.views.dashboard.geocode_person')
+    @mock.patch('people.views.geocode_person')
     def test_cannot_view_unpublished_group(self, geocode_person):
         self.client.force_login(self.person.role)
 

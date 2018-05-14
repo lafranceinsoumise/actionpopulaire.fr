@@ -16,9 +16,6 @@ from django.contrib.gis.db.models.functions import Distance as DistanceFunction,
 from django.db.models import Value, FloatField
 
 
-from lib.geo import get_zipcode_centroid, FRENCH_ZIPCODE_REGEX
-
-
 class SoftLoginRequiredMixin(object):
     unlogged_redirect_url = 'oauth_redirect_view'
 

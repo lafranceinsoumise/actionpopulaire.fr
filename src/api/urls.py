@@ -20,12 +20,8 @@ from ajax_select import urls as ajax_select_urls
 from api.metrics import get_metrics
 from . import routers, admin, settings
 
-import front.urls
-import events.urls
-import groups.urls
+from lib import front_urls
 import webhooks.urls
-import donations.urls
-import payments.urls
 
 urlpatterns = [
     url(r'^admin/', include('admin_steroids.urls')),
@@ -41,13 +37,7 @@ if settings.ENABLE_API:
     )
 
 if settings.ENABLE_FRONT:
-    urlpatterns.extend([
-        url(r'^', include(front.urls)),
-        url(r'^', include(events.urls)),
-        url(r'^', include(groups.urls)),
-        url(r'^', include(donations.urls)),
-        url(r'^', include(payments.urls))
-    ])
+    urlpatterns.append(url(r'^', include(front_urls)))
 
 if settings.ENABLE_MAP:
     urlpatterns.append(
@@ -56,8 +46,9 @@ if settings.ENABLE_MAP:
 
 if settings.DEBUG:
     import debug_toolbar
+
     urlpatterns = [
-        url(r'^__debug__/', include(debug_toolbar.urls))
-    ] + urlpatterns
+                      url(r'^__debug__/', include(debug_toolbar.urls))
+                  ] + urlpatterns
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += [url(r'^silk/', include('silk.urls', namespace='silk'))]

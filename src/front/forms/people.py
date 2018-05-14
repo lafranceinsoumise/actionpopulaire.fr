@@ -5,15 +5,15 @@ from django.utils.html import format_html
 from crispy_forms.helper import FormHelper
 from crispy_forms.bootstrap import FormActions
 
-from lib.mailtrain import delete
 from lib.form_components import *
 from lib.form_mixins import TagMixin, LocationFormMixin
+from lib.mailtrain import delete
+from lib.tasks import geocode_person
 
 from people.form_mixins import MetaFieldsMixin
 from people.models import Person, PersonEmail, PersonTag
 from people.tags import skills_tags, action_tags
 from people.tasks import send_unsubscribe_email, send_welcome_mail
-from lib.tasks import geocode_person
 
 __all__ = [
     'BaseSubscriptionForm', 'SimpleSubscriptionForm', 'OverseasSubscriptionForm', 'EmailFormSet', 'ProfileForm',
@@ -449,5 +449,3 @@ class AddEmailForm(forms.ModelForm):
     class Meta:
         model = PersonEmail
         fields = ("address",)
-
-

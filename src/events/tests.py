@@ -929,6 +929,7 @@ class EventWorkerTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['_id'], str(self.past_event.pk))
 
+
 class OrganizerAsGroupTestCase(TestCase):
     def setUp(self):
         self.start_time = timezone.now()
@@ -959,6 +960,7 @@ class OrganizerAsGroupTestCase(TestCase):
         self.organizer_config.as_group = self.group2
         with self.assertRaises(ValidationError):
             self.organizer_config.full_clean()
+
 
 class EventPagesTestCase(TestCase):
     def setUp(self):
@@ -1289,3 +1291,47 @@ class EventPagesTestCase(TestCase):
 
         rsvp = RSVP.objects.get(person=self.person, event=self.other_event)
         self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+
+
+class CalendarPageTestCase(TestCase):
+    def setUp(self):
+        self.calendar = Calendar.objects.create(
+            name="My calendar",
+            slug="my_calendar",
+        )
+
+        now = timezone.now()
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+
+        for i in range(20):
+            e = Event.objects.create(
+                name="Event {}".format(i),
+                calendar=self.calendar,
+                start_time=now + i * day,
+                end_time=now + i * day + hour
+            )
+            CalendarItem.objects.create(event=e, calendar=self.calendar)
+
+    def can_view_page(self):
+        # can show first page
+        res = self.client.get('/agenda/my_calendar/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        # there's a next button
+        self.assertContains(res, '<li class="next">')
+        self.assertContains(res, 'href="?page=2"')
+
+        # there's no previous button
+        self.assertNotContains(res, '<li class="previous">')
+
+        # can display second page
+        res = self.client.get('/agenda/my_calendar/?page=2')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        # there's a next button
+        self.assertNotContains(res, '<li class="next">')
+
+        # there's no previous button
+        self.assertContains(res, '<li class="previous">')
+        self.assertContains(res, 'href="?page=1"')
