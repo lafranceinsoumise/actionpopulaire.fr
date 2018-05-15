@@ -54,7 +54,7 @@ class APIAdminSite(django_otp.admin.OTPAdminSite):
     def has_permission(self, request):
         return (
             super(django_otp.admin.OTPAdminSite, self).has_permission(request) and
-            request.session[BACKEND_SESSION_KEY] == 'people.backend.PersonBackend'
+            request.session[BACKEND_SESSION_KEY] == 'agir.people.backend.PersonBackend'
             and (request.user.is_verified() or not django_otp.user_has_device(request.user))
         )
 
