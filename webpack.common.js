@@ -31,6 +31,11 @@ const components = flatten(
     return obj;
   }, {});
 
+const aliases = applications.reduce((obj, app) => {
+  obj[path.basename(app)] = path.resolve(app, 'components') + '/';
+  return obj;
+}, {});
+
 module.exports = {
   context: path.resolve(__dirname, 'agir/javascript_components'),
   entry: Object.assign(
@@ -42,7 +47,6 @@ module.exports = {
       dashboard: './dashboard',
       theme: '@fi/theme/dist/styles/' + cssName,
       mandatesField: './mandatesField',
-      amountWidget: './amountWidget',
     },
     components
   ),
@@ -95,5 +99,9 @@ module.exports = {
       },
     ]
   },
-  target: 'web'
+  target: 'web',
+  resolve: {
+    alias: aliases,
+    modules: ['node_modules']
+  }
 };

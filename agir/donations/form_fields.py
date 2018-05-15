@@ -8,4 +8,4 @@ class AmountWidget(Input):
 
     @property
     def media(self):
-        return forms.Media(js=[script['url'] for script in get_files('amountWidget', 'js')])
+        return forms.Media(js=[script['url'] for script in get_files('donations/amountWidget', 'js')])

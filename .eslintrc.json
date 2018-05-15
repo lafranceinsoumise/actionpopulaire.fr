@@ -9,6 +9,13 @@
     "plugin:import/warnings",
     "plugin:react/recommended"
   ],
+  "settings": {
+    "import/resolver": {
+      "webpack": {
+        "config": "webpack.common.js"
+      }
+    }
+  },
   "parserOptions": {
     "ecmaVersion": 2018,
     "ecmaFeatures": {
@@ -38,7 +45,10 @@
       "error",
       "always"
     ],
-    "react/jsx-closing-bracket-location": [1, "line-aligned"],
+    "react/jsx-closing-bracket-location": [
+      1,
+      "line-aligned"
+    ],
     "react/no-unescaped-entities": [
       "error",
       {

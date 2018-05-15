@@ -1,7 +1,7 @@
 import React from 'react';
 import {hot} from 'react-hot-loader';
 import PropTypes from 'prop-types';
-import InputGroup from '../../lib/component_lib/bootstrap/InputGroup';
+import InputGroup from 'lib/bootstrap/InputGroup';
 
 
 import './style.css';
