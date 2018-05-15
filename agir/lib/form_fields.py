@@ -35,7 +35,7 @@ class RichEditorWidget(Textarea):
 
     class Media:
         js = (
-            webpack_loader_utils.get_files('richEditor')[0]['url'],
+            webpack_loader_utils.get_files('front/richEditor')[0]['url'],
         )
 
 

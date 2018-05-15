@@ -1,4 +1,4 @@
-import {introJs} from '../../../node_modules/intro.js/intro';
+import {introJs} from 'intro.js/intro';
 import 'intro.js/introjs.css';
 import Turbolinks from 'turbolinks';
 

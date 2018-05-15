@@ -40,8 +40,6 @@ module.exports = {
   context: path.resolve(__dirname, 'agir/javascript_components'),
   entry: Object.assign(
     {
-      richEditor: './richEditor.js',
-      allPages: './allPages',
       locationSearchField: './locationSearchField.js',
       creationForms: './creationForms',
       theme: '@fi/theme/dist/styles/' + cssName,
