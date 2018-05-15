@@ -1,4 +1,6 @@
-{
+const path = require('path');
+
+module.exports = {
   "plugins": [
     "import",
     "react"
@@ -12,7 +14,7 @@
   "settings": {
     "import/resolver": {
       "webpack": {
-        "config": "webpack.common.js"
+        "config": path.resolve(__dirname, "webpack.common.js")
       }
     }
   },
@@ -60,4 +62,4 @@
       }
     ]
   }
-}
+};

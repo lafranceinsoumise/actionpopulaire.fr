@@ -44,9 +44,7 @@ module.exports = {
       allPages: './allPages',
       locationSearchField: './locationSearchField.js',
       creationForms: './creationForms',
-      dashboard: './dashboard',
       theme: '@fi/theme/dist/styles/' + cssName,
-      mandatesField: './mandatesField',
     },
     components
   ),

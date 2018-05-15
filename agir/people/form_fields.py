@@ -10,7 +10,7 @@ class MandatesWidget(Input):
 
     @property
     def media(self):
-        return forms.Media(js=[script['url'] for script in get_files('mandatesField', 'js')])
+        return forms.Media(js=[script['url'] for script in get_files('people/mandatesField', 'js')])
 
 
 class MandatesField(JSONField):
