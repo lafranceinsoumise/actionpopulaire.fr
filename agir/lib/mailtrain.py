@@ -21,7 +21,7 @@ s.mount('https://', a)
 s.mount('http://', b)
 
 
-def data_from_person(person):
+def data_from_person(person, tmp_tags=None):
     data = {}
 
     is_animateur = Q(is_referent=True) | Q(is_manager=True)
@@ -40,6 +40,9 @@ def data_from_person(person):
     data['MERGE_INSCRIPTIONS'] = ','.join(inscriptions)
     data['MERGE_LOGIN_QUERY'] = urlencode(generate_token_params(person))
     data['MERGE_TAGS'] = ',' + ','.join(t.label for t in person.tags.filter(exported=True)) + ','
+
+    if tmp_tags:
+        data['MERGE_TAGS'] = ',' + ','.join(tmp_tags) + data['MERGE_TAGS']
 
     if len(data['MERGE_TAGS']) > 255:
         warnings.warn('Tag string is longer than 255 characters for ' + person.email)
@@ -109,8 +112,8 @@ def delete(email):
     return True
 
 
-def update_person(person):
-    data = data_from_person(person)
+def update_person(person, tmp_tags=None):
+    data = data_from_person(person, tmp_tags)
     emails = list(person.emails.all())
 
     for i, email in enumerate(emails):
