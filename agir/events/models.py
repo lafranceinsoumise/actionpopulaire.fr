@@ -165,6 +165,9 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
 
     @property
     def participants(self):
+        if self.payment_parameters is not None:
+            return None
+
         try:
             return self._participants
         except AttributeError:
