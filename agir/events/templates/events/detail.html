@@ -56,12 +56,16 @@
                             <span class="btn btn-primary">Inscription validée</span>
                         {% endif %}
                     {% else %}
-                        <form style="display:inline;" action="{% url "rsvp_event" event.pk %}" method="{% if event.subscription_form is None %}post{% else %}get{% endif %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-primary">
-                                Participer à cet événement{% if event.price_display %} ({{ event.price_display }}){% endif %}
-                            </button>
-                        </form>
+                        {% if event.max_participants and event.participants >= event.max_participants %}
+                            <span class="btn btn-primary">Évènement complet</span>
+                        {% else %}
+                            <form style="display:inline;" action="{% url "rsvp_event" event.pk %}" method="{% if event.subscription_form is None %}post{% else %}get{% endif %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">
+                                    Participer à cet événement{% if event.price_display %} ({{ event.price_display }}){% endif %}
+                                </button>
+                            </form>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
             {% else %}

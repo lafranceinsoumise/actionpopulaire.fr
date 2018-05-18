@@ -2,6 +2,8 @@ import json
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db import transaction
+from django.db.models import F, Sum
 from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView, FormView
 from django.views.generic.edit import ProcessFormView, FormMixin
 from django.contrib import messages
@@ -441,7 +443,19 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
                 return self.render_to_response(context)
 
         if self.object.payment_parameters is None:
-            rsvp = RSVP.objects.create(event=self.object, person=request.user.person, form_submission=submission)
+            with transaction.atomic():
+                sid = transaction.savepoint()
+                rsvp = RSVP.objects.create(event=self.object, person=request.user.person, form_submission=submission)
+                if (self.object.max_participants and self.object.rsvps.aggregate(participants=Sum(F('guests') + 1))['participants'] > self.object.max_participants):
+                    transaction.savepoint_rollback(sid)
+                    messages.add_message(
+                        request=self.request,
+                        level=messages.ERROR,
+                        message="La capacité maximum de cet événement a été atteinte. Vous ne pouvez plus vous inscrire.",
+                    )
+                    context = self.get_context_data(object=self.object)
+                    return self.render_to_response(context)
+
             send_rsvp_notification.delay(rsvp.pk)
             return HttpResponseRedirect(reverse('view_event', kwargs={'pk': self.object.pk}))
 

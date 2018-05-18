@@ -1151,6 +1151,22 @@ class EventPagesTestCase(TestCase):
         rsvp = RSVP.objects.get(person=self.person, event=self.other_event)
         self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
 
+    def test_cannot_rsvp_if_max_participants_reached(self):
+        self.other_event.max_participants = 1
+        self.other_event.save()
+
+        url = reverse('view_event', kwargs={'pk': self.other_event.pk})
+        self.client.force_login(self.person.role)
+        response = self.client.get(url)
+        self.assertNotIn('Participer à cet événement', response.content.decode())
+
+        response = self.client.post(reverse('rsvp_event', kwargs={'pk': self.other_event.pk}))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("capacité maximum", response.content.decode())
+
+        self.assertEqual(1, self.other_event.participants)
+
     @skip('REDO')
     @mock.patch("agir.front.forms.events.geocode_event")
     @mock.patch("agir.front.forms.events.send_event_creation_notification")
