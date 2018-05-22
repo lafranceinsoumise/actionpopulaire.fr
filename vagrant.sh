@@ -48,7 +48,7 @@ sudo apt-get -yqq install python3.6 python3.6-dev python3-pip libsystemd-dev
 sudo -H pip3 install pipenv
 cd /vagrant
 pipenv install
-pivenv run src/manage.py migrate
+pivenv run ./manage.py migrate
 sudo bash -c "cat > /etc/systemd/system/django.service" <<EOT
 [Unit]
 Description=Django Development Server
@@ -58,13 +58,13 @@ After=syslog.target network.target webpack.service vagrant.mount
 User=vagrant
 Type=simple
 WorkingDirectory=/vagrant
-ExecStart=/usr/local/bin/pipenv run src/manage.py runserver 0.0.0.0:8000
+ExecStart=/usr/local/bin/pipenv run ./manage.py runserver 0.0.0.0:8000
 StandardOutput=journal
 Restart=on-failure
 Wants=vagrant.mount
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target vagrant.mount
 EOT
 sudo systemctl daemon-reload
 sudo systemctl enable django
@@ -88,7 +88,7 @@ Restart=on-failure
 Wants=vagrant.mount
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target vagrant.mount
 EOT
 sudo systemctl daemon-reload
 sudo systemctl enable webpack
