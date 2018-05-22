@@ -134,9 +134,13 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
         if initial_group in [g['id'] for g in groups]:
             initial['organizerGroup'] = initial_group
 
-        subtype = self.request.GET.get('subtype')
-        if subtype and EventSubtype.objects.filter():
-            pass
+        subtype_label = self.request.GET.get('subtype')
+        if subtype_label:
+            try:
+                subtype = EventSubtype.objects.get(label=subtype_label)
+                initial['subtype'] = subtype.label
+            except EventSubtype.DoesNotExist:
+                pass
 
         return super().get_context_data(
             props=mark_safe(json.dumps({'initial': initial, 'groups': groups})),
