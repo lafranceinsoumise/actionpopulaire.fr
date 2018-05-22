@@ -3,25 +3,22 @@ import ReactDOM from 'react-dom';
 
 import AmountWidget from './AmountWidget';
 
-const render = (hiddenField, element) => {
+const render = (name, element) => {
   ReactDOM.render(
-    <AmountWidget hiddenField={hiddenField}/>,
+    <AmountWidget name={name}/>,
     element
   );
 };
 
 const onLoad = function () {
-  const hiddenFields = document.querySelectorAll('input.amountwidget');
+  const inputs = document.querySelectorAll('input.amountwidget');
 
-  for (let hiddenField of hiddenFields) {
-    if (!hiddenField.classList.contains('reactified')) {
-      hiddenField.classList.add('reactified');
-      hiddenField.disabled = true;
-
-      const insertingNode = document.createElement('div');
-      hiddenField.parentNode.appendChild(insertingNode);
-      render(hiddenField, insertingNode);
-    }
+  for (let input of inputs) {
+    const insertingNode = document.createElement('div');
+    input.parentNode.appendChild(insertingNode);
+    const name = input.name;
+    input.remove();
+    render(name, insertingNode);
   }
 };
 
