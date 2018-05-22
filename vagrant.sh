@@ -64,7 +64,7 @@ Restart=on-failure
 Wants=vagrant.mount
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target vagrant.mount
 EOT
 sudo systemctl daemon-reload
 sudo systemctl enable django
@@ -88,7 +88,7 @@ Restart=on-failure
 Wants=vagrant.mount
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target vagrant.mount
 EOT
 sudo systemctl daemon-reload
 sudo systemctl enable webpack
