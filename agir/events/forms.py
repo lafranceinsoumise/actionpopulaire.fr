@@ -118,6 +118,12 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
                 HalfCol('as_group')
             ),
             Section(
+                "Inscriptions",
+                Row(
+                    FullCol('allow_guests')
+                )
+            ),
+            Section(
                 _('Informations de contact'),
                 Row(
                     FullCol('contact_name'),
@@ -224,7 +230,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
     class Meta:
         model = Event
         fields = (
-            'name', 'image', 'start_time', 'end_time',
+            'name', 'image', 'allow_guests', 'start_time', 'end_time',
             'contact_name', 'contact_email', 'contact_phone', 'contact_hide_phone',
             'location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
             'location_country',
@@ -403,3 +409,6 @@ class BillingForm(forms.ModelForm):
             'first_name', 'last_name', 'location_address1', 'location_address2', 'location_zip', 'location_city',
             'location_country', 'contact_phone', 'subscribed'
         )
+
+class GuestsForm(forms.Form):
+    guests = forms.IntegerField()

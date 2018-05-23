@@ -115,6 +115,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
     start_time = CustomDateTimeField(_('date et heure de début'), blank=False)
     end_time = CustomDateTimeField(_('date et heure de fin'), blank=False)
     max_participants = models.IntegerField("Nombre maximum de participants", blank=True, null=True)
+    allow_guests = models.BooleanField("Autoriser les participant⋅e⋅s à inscrire des invité⋅e⋅s", default=False)
 
     attendees = models.ManyToManyField('people.Person', related_name='events', through='RSVP')
 

@@ -989,6 +989,7 @@ class EventPagesTestCase(TestCase):
             name="RSVPed event",
             start_time=now + 2 * day,
             end_time=now + 2 * day + 2 * hour,
+            allow_guests=True
         )
 
         RSVP.objects.create(
@@ -1144,12 +1145,48 @@ class EventPagesTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.person, self.other_event.attendees.all())
+        self.assertEqual(2, self.other_event.participants)
         self.assertIn('Annuler ma participation', response.content.decode())
 
         rsvp_notification.delay.assert_called_once()
 
         rsvp = RSVP.objects.get(person=self.person, event=self.other_event)
         self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+
+    @mock.patch('agir.events.views.send_rsvp_notification')
+    def test_can_update_rsvp(self, rsvp_notification):
+        url = reverse('view_event', kwargs={'pk': self.rsvped_event.pk})
+        self.client.force_login(self.person.role)
+        response = self.client.get(url)
+        self.assertIn('Inscription validée', response.content.decode())
+        self.assertEqual(2, self.rsvped_event.participants)
+
+        response = self.client.post(reverse('rsvp_event', kwargs={'pk': self.rsvped_event.pk}),
+                                    data={'guests':1}, follow=True)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(self.person, self.rsvped_event.attendees.all())
+        self.assertEqual(3, self.rsvped_event.participants)
+        self.assertIn('Inscription validée (+1 invité⋅e)', response.content.decode())
+
+        rsvp_notification.delay.assert_called_once()
+
+        rsvp = RSVP.objects.get(person=self.person, event=self.rsvped_event)
+        self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+
+    def test_cannot_rsvp_add_guests_if_not_allowed(self):
+        url = reverse('view_event', kwargs={'pk': self.other_event.pk})
+        self.client.force_login(self.person.role)
+        response = self.client.get(url)
+        self.assertIn('Participer à cet événement', response.content.decode())
+
+        response = self.client.post(reverse('rsvp_event', kwargs={'pk': self.other_event.pk}),
+                                    data={'guests': 1}, follow=True)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(self.person, self.other_event.attendees.all())
+        self.assertEqual(2, self.other_event.participants)
+        self.assertIn('Inscription validée', response.content.decode())
 
     def test_cannot_rsvp_if_max_participants_reached(self):
         self.other_event.max_participants = 1
@@ -1240,7 +1277,7 @@ class EventPagesTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.person, self.other_event.attendees.all())
-        self.assertIn('Annuler ma participation', response.content.decode())
+        self.assertIn('Inscription validée', response.content.decode())
 
         rsvp_notification.delay.assert_called_once()
 

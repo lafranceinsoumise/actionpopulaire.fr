@@ -49,12 +49,27 @@
                     <a class="btn btn-default" href="{% url "manage_event" event.pk %}">Gérer l'événement</a>
                 {% endif %}
                 {% if not event.is_past %}
-                    {% if has_rsvp %}
-                        {% if event.is_free%}
-                            <a class="btn btn-primary" href="{% url "quit_event" event.pk %}">Annuler ma participation</a>
-                        {% else %}
-                            <span class="btn btn-primary">Inscription validée</span>
-                        {% endif %}
+                    {% if rsvp %}
+                        <span class="dropdown">
+                            <button class="btn btn-primary" data-toggle="dropdown">
+                                Inscription validée{% if rsvp.guests > 0 %} (+{{ rsvp.guests }} invité⋅e{% if rsvp.guests > 1 %}⋅s{% endif %}){% endif %}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                {% if event.is_free%}
+                                    <li><a href="{% url "quit_event" event.pk %}">Annuler ma participation</a></li>
+                                {% endif %}
+                                {% if event.allow_guests %}
+                                    <li>
+                                        <form id="add-guest" style="display:none;" action="{% url "rsvp_event" event.pk %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="guests" value="{{ rsvp.guests|add:1 }}"/>
+                                        </form>
+                                        <a data-turbolinks="false" href="#" onclick="$('#add-guest').submit()">Ajouter un invité</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </span>
                     {% else %}
                         {% if event.max_participants and event.participants >= event.max_participants %}
                             <span class="btn btn-primary">Évènement complet</span>

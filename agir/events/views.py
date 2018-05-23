@@ -22,8 +22,8 @@ from ..payments.models import Payment
 
 from .forms import (
     EventForm, AddOrganizerForm, EventGeocodingForm, EventReportForm, UploadEventImageForm, AuthorForm, SearchEventForm,
-    BillingForm
-)
+    BillingForm,
+    GuestsForm)
 from ..front.view_mixins import (
     HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
     ChangeLocationBaseView, SearchByZipcodeBaseView,
@@ -56,8 +56,8 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            has_rsvp=self.request.user.is_authenticated and self.object.rsvps.filter(
-                person=self.request.user.person).exists(),
+            rsvp=self.request.user.is_authenticated and self.object.rsvps.filter(
+                person=self.request.user.person).first(),
             is_organizer=self.request.user.is_authenticated and self.object.organizers.filter(
                 pk=self.request.user.person.id).exists(),
             organizers_groups=self.object.organizers_groups.distinct(),
@@ -428,9 +428,12 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         submission = None
+        guests = 0
 
-        if self.object.rsvps.filter(person=request.user.person, canceled=False).exists():
-            return HttpResponseRedirect(reverse('view_event', args=[self.object.pk]))
+        if self.object.allow_guests:
+            guests_form = GuestsForm(self.request.POST)
+            if guests_form.is_valid():
+                guests = guests_form.cleaned_data['guests']
 
         if self.object.subscription_form is not None:
             form = self.get_form()
@@ -445,8 +448,12 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
         if self.object.payment_parameters is None:
             with transaction.atomic():
                 sid = transaction.savepoint()
-                rsvp = RSVP.objects.create(event=self.object, person=request.user.person, form_submission=submission)
-                if (self.object.max_participants and self.object.rsvps.aggregate(participants=Sum(F('guests') + 1))['participants'] > self.object.max_participants):
+                (rsvp, created) = RSVP.objects.get_or_create(event=self.object, person=request.user.person, canceled=False)
+                rsvp.form_submission = submission
+                rsvp.guests = guests
+                rsvp.save()
+
+                if self.object.max_participants and self.object.rsvps.aggregate(participants=Sum(F('guests') + 1))['participants'] > self.object.max_participants:
                     transaction.savepoint_rollback(sid)
                     messages.add_message(
                         request=self.request,
