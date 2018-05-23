@@ -1,3 +1,5 @@
+import 'babel-polyfill';
+
 import 'ol/ol.css';
 import './style.css';
 

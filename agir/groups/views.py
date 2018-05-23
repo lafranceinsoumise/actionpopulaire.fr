@@ -1,14 +1,15 @@
 import json
+from django.conf import settings
 from django.core.urlresolvers import reverse_lazy, reverse
+from django.core.exceptions import PermissionDenied
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.utils.translation import ugettext as _, ugettext_lazy
+from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html, mark_safe
-from django.contrib.auth.decorators import login_required
+from django.utils.translation import ugettext as _, ugettext_lazy
 from django.views.generic import UpdateView, ListView, DeleteView, DetailView, TemplateView
-from django.contrib import messages
-from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
-from django.conf import settings
 from django.views.generic.edit import ProcessFormView, FormMixin
 
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
@@ -34,7 +35,7 @@ class CheckMembershipMixin:
 
     def user_is_manager(self):
         return self.user_membership is not None and (
-                    self.user_membership.is_referent or self.user_membership.is_manager)
+                self.user_membership.is_referent or self.user_membership.is_manager)
 
     @property
     def user_membership(self):
@@ -130,7 +131,7 @@ class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, D
         return super().get_context_data(
             is_referent=self.user_membership is not None and self.user_membership.is_referent,
             is_manager=self.user_membership is not None and (
-                        self.user_membership.is_referent or self.user_membership.is_manager),
+                    self.user_membership.is_referent or self.user_membership.is_manager),
             **self.get_forms(),
             **kwargs
         )
@@ -140,7 +141,7 @@ class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, D
 
         # only managers can access the page
         if not self.user_is_manager():
-            return HttpResponseForbidden(b'Interdit')
+            raise PermissionDenied("Vous n'etes pas gestionnaire de cet événement.")
 
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
@@ -150,7 +151,8 @@ class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, D
 
         # only referents can add referents and managers
         if not self.user_is_referent():
-            return HttpResponseForbidden(b'Interdit')
+            raise PermissionDenied("Vous n'êtes pas animateur de cet événement et ne pouvez donc pas modifier les "
+                                   "animateurs et gestionnaires.")
 
         forms = self.get_forms()
         form_name = request.POST.get('form')
@@ -276,7 +278,8 @@ class RemoveManagerView(HardLoginRequiredMixin, CheckMembershipMixin, DetailView
         self.object = self.get_object()
 
         if not self.user_is_referent():
-            return HttpResponseForbidden(b'Interdit!')
+            raise PermissionDenied("Vous n'êtes pas animateur de cet événement et ne pouvez donc pas modifier les "
+                                   "animateurs et gestionnaires.")
 
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
@@ -286,7 +289,8 @@ class RemoveManagerView(HardLoginRequiredMixin, CheckMembershipMixin, DetailView
 
         # user has to be referent, and target user cannot be a referent
         if not self.user_is_referent() or self.object.is_referent:
-            return HttpResponseForbidden(b'Interdit')
+            raise PermissionDenied("Vous n'êtes pas animateur de cet événement et ne pouvez donc pas modifier les "
+                                   "animateurs et gestionnaires.")
 
         self.object.is_manager = False
         self.object.save()

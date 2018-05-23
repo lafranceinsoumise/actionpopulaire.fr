@@ -138,8 +138,12 @@ class EventTypeStep extends FormStep {
 
   setSubtype(subtype) {
     this.props.setFields({
-      subtype: subtype,
+      subtype: subtype.label,
     });
+  }
+
+  isCurrentSubtype(subtype) {
+    return subtype.label === this.props.fields.subtype;
   }
 
   isValidated() {
@@ -147,7 +151,6 @@ class EventTypeStep extends FormStep {
   }
 
   render() {
-    const currentSubtype = this.props.fields.subtype;
     return (
       <div className="row padtopmore">
         <div className="col-sm-6">
@@ -177,7 +180,7 @@ class EventTypeStep extends FormStep {
                   {
                     this.rankedSubtypes[type.id].map(subtype => (
                       <CheckBox
-                        key={subtype.description} active={subtype === currentSubtype}
+                        key={subtype.description} active={this.isCurrentSubtype(subtype)}
                         label={subtype.description} onClick={() => this.setSubtype(subtype)}
                       />
                     ))
@@ -274,7 +277,7 @@ class ValidateStep extends FormStep {
       location_zip: fields.locationZip,
       location_city: fields.locationCity,
       location_country: fields.locationCountryCode,
-      subtype: fields.subtype.label,
+      subtype: fields.subtype,
       as_group: fields.organizerGroup
     });
 

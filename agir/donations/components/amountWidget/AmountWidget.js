@@ -16,10 +16,8 @@ function displayNumber(n) {
 
 
 class AmountWidget extends React.Component {
-  constructor({hiddenField}) {
+  constructor() {
     super();
-
-    this.hiddenField = hiddenField;
 
     this.state = {
       value: null,
@@ -36,7 +34,7 @@ class AmountWidget extends React.Component {
   render() {
     const state = this.state;
     return <div className="amount-component" style={{display: 'flex', 'flex-wrap': 'wrap'}}>
-      <input type="hidden" value={state.value ? state.value : ''} name={this.hiddenField.name}/>
+      <input type="hidden" value={state.value ? state.value : ''} name={this.props.name}/>
       {AMOUNTS.map(value => (
         <button
           key={value} type="button" onClick={() => this.setState({value, custom: false})}
@@ -65,7 +63,7 @@ class AmountWidget extends React.Component {
 }
 
 AmountWidget.propTypes = {
-  hiddenField: PropTypes.object
+  name: PropTypes.string
 };
 
 export default hot(module)(AmountWidget);
