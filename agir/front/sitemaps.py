@@ -15,7 +15,7 @@ class EventSitemap(Sitemap):
         return reverse('view_event', args=[obj.id])
 
     def lastmod(self, obj):
-        return obj.created
+        return max(obj.modified, obj.end_time)
 
 
 class SupportGroupSitemap(Sitemap):
@@ -28,7 +28,7 @@ class SupportGroupSitemap(Sitemap):
         return reverse('view_group', args=[obj.id])
 
     def lastmod(self, obj):
-        return obj.created
+        return obj.modified
 
 
 sitemaps = {
