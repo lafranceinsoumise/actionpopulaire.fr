@@ -1174,7 +1174,8 @@ class EventPagesTestCase(TestCase):
         rsvp = RSVP.objects.get(person=self.person, event=self.rsvped_event)
         self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
 
-    def test_cannot_rsvp_add_guests_if_not_allowed(self):
+    @mock.patch('agir.events.views.send_rsvp_notification')
+    def test_cannot_rsvp_add_guests_if_not_allowed(self, rsvp_notification):
         url = reverse('view_event', kwargs={'pk': self.other_event.pk})
         self.client.force_login(self.person.role)
         response = self.client.get(url)
