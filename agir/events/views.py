@@ -2,7 +2,7 @@ import json
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db import transaction
+from django.db import transaction, connection
 from django.db.models import F, Sum
 from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView, FormView
 from django.views.generic.edit import ProcessFormView, FormMixin
@@ -415,15 +415,28 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
         return form_class(**kwargs)
 
     def get_context_data(self, **kwargs):
+        rsvp = self.request.user.is_authenticated and self.object.rsvps.filter(
+                person=self.request.user.person).first()
+        form = self.get_form()
+
         return super().get_context_data(
-            form=self.get_form(),
+            form=form,
             event=self.object,
+            rsvp=rsvp,
+            submission_data={
+                form.fields[id].label: value
+                for id, value in rsvp.form_submission.data.items()
+            } if rsvp and rsvp.form_submission else None,
+            guests_submission_data=[{
+                form.fields[id].label: value
+                for id, value in form_submission.data.items()
+            } for form_submission in rsvp.guests_form_submissions.all()] if rsvp else None,
             **kwargs
         )
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.rsvps.filter(person=request.user.person, canceled=False).exists():
+        if self.object.subscription_form is None:
             return HttpResponseRedirect(reverse('view_event', args=[self.object.pk]))
 
         context = self.get_context_data(object=self.object)
@@ -443,18 +456,28 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
             form = self.get_form()
 
             if form.is_valid():
-                form.save()
+                # we save the submission date but we delay saving the person itself unit we know if this
+                # is the person submission or a guest submission
+                unsaved_person = form.save(commit=False)
+                form.save_m2m()
                 submission = form.submission
             else:
                 context = self.get_context_data(object=self.object)
                 return self.render_to_response(context)
 
         if self.object.payment_parameters is None:
+            # Does not prevent race conditions and ending with more participants than maximum
             with transaction.atomic():
                 sid = transaction.savepoint()
                 (rsvp, created) = RSVP.objects.get_or_create(event=self.object, person=request.user.person, canceled=False)
-                rsvp.form_submission = submission
-                rsvp.guests = guests
+                if not created and submission:
+                    rsvp.guests_form_submissions.add(submission)
+                    rsvp.guests = rsvp.guests_form_submissions.count()
+                else:
+                    if submission:
+                        unsaved_person.save()
+                        rsvp.form_submission = submission
+                    rsvp.guests = guests
                 rsvp.save()
 
                 if self.object.max_participants and self.object.rsvps.aggregate(participants=Sum(F('guests') + 1))['participants'] > self.object.max_participants:

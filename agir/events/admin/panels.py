@@ -130,7 +130,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('subtype', 'description', 'allow_html', 'image', 'start_time', 'end_time', 'calendars', 'tags', 'published'),
         }),
         (_('Inscription'), {
-            'fields': ('max_participants', 'subscription_form', 'payment_parameters'),
+            'fields': ('max_participants', 'allow_guests', 'subscription_form', 'payment_parameters'),
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',

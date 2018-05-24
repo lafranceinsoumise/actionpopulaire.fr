@@ -52,20 +52,30 @@
                     {% if rsvp %}
                         <span class="dropdown">
                             <button class="btn btn-primary" data-toggle="dropdown">
-                                Inscription validée{% if rsvp.guests > 0 %} (+{{ rsvp.guests }} invité⋅e{% if rsvp.guests > 1 %}⋅s{% endif %}){% endif %}
+                                Inscription validée{% if rsvp.guests > 0 %} ({{ rsvp.guests|add:1 }} participant⋅e⋅s){% endif %}
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right">
+                                {% if event.subscription_form %}
+                                    <li><a href="{% url "rsvp_event" event.pk %}">Voir ma participation</a></li>
+                                {% endif %}
                                 {% if event.is_free%}
                                     <li><a href="{% url "quit_event" event.pk %}">Annuler ma participation</a></li>
                                 {% endif %}
                                 {% if event.allow_guests %}
                                     <li>
-                                        <form id="add-guest" style="display:none;" action="{% url "rsvp_event" event.pk %}" method="post">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="guests" value="{{ rsvp.guests|add:1 }}"/>
-                                        </form>
-                                        <a data-turbolinks="false" href="#" onclick="$('#add-guest').submit()">Ajouter un invité</a>
+                                        {% if event.subscription_form is None %}
+                                            <form id="add-guest" style="display:none;" action="{% url "rsvp_event" event.pk %}" method="post">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="guests" value="{{ rsvp.guests|add:1 }}"/>
+                                            </form>
+                                            <a data-turbolinks="false"
+                                               href="#"
+                                               onclick="$('#add-guest').submit()">
+                                        {% else %}
+                                            <a href="{% url "rsvp_event" event.pk %}">
+                                        {% endif %}
+                                            Ajouter un invité</a>
                                     </li>
                                 {% endif %}
                             </ul>

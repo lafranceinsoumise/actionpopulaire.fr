@@ -1167,7 +1167,7 @@ class EventPagesTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.person, self.rsvped_event.attendees.all())
         self.assertEqual(3, self.rsvped_event.participants)
-        self.assertIn('Inscription validée (+1 invité⋅e)', response.content.decode())
+        self.assertIn('Inscription validée (2 participant⋅e⋅s)', response.content.decode())
 
         rsvp_notification.delay.assert_called_once()
 
@@ -1250,7 +1250,7 @@ class EventPagesTestCase(TestCase):
         self.assertIn(self.group, event.organizers_groups.all())
 
     @mock.patch('agir.events.views.send_rsvp_notification')
-    def test_rsvp_subscription_form_event(self, rsvp_notification):
+    def test_rsvp_and_add_guests_subscription_form_event(self, rsvp_notification):
         self.client.force_login(self.person.role)
         self.other_event.subscription_form = PersonForm.objects.create(
             title='Formulaire événement',
@@ -1264,7 +1264,8 @@ class EventPagesTestCase(TestCase):
                     {
                         'id': 'custom-field',
                         'type': 'short_text',
-                        'label': 'Mon label'
+                        'label': 'Mon label',
+                        'person_field': True
                     }
                 ]
             }]
@@ -1276,14 +1277,27 @@ class EventPagesTestCase(TestCase):
 
         response = self.client.post(reverse('rsvp_event', kwargs={'pk': self.other_event.pk}), data={'custom-field':'prout'}, follow=True)
 
+        self.person.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.person, self.other_event.attendees.all())
+        self.assertEqual(self.person.meta['custom-field'], 'prout')
+        self.assertEqual(2, self.other_event.participants)
         self.assertIn('Inscription validée', response.content.decode())
 
-        rsvp_notification.delay.assert_called_once()
+        ## Inscription d'un⋅e deuxième participant⋅e
+        response = self.client.get(reverse('rsvp_event', kwargs={'pk': self.other_event.pk}))
+        self.assertContains(response, "Inscrire un⋅e autre participant⋅e")
+        response = self.client.post(reverse('rsvp_event', kwargs={'pk': self.other_event.pk}),
+                                    data={'custom-field': 'prout-prout'}, follow=True)
 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(self.person, self.other_event.attendees.all())
+        self.assertEqual(3, self.other_event.participants)
         rsvp = RSVP.objects.get(person=self.person, event=self.other_event)
-        self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+        self.person.refresh_from_db()
+        self.assertEqual(self.person.meta['custom-field'], 'prout')
+        self.assertEqual(rsvp.guests_form_submissions.first().data['custom-field'], 'prout-prout')
+        self.assertIn('Inscription validée (2 participant⋅e⋅s)', response.content.decode())
 
     @mock.patch('agir.events.views.send_rsvp_notification')
     def test_rsvp_paid_event(self, rsvp_notification):

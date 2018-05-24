@@ -341,7 +341,8 @@ class RSVP(TimeStampedModel):
     event = models.ForeignKey('Event', related_name='rsvps', on_delete=models.CASCADE, editable=False)
     guests = models.PositiveIntegerField(_("nombre d'invités supplémentaires"), default=0, null=False)
 
-    form_submission = models.ForeignKey('people.PersonFormSubmission', on_delete=models.SET_NULL, null=True, editable=False)
+    form_submission = models.ForeignKey('people.PersonFormSubmission', on_delete=models.SET_NULL, null=True, editable=False, related_name='rsvp')
+    guests_form_submissions = models.ManyToManyField('people.PersonFormSubmission', related_name='guest_rsvp')
 
     canceled = models.BooleanField(_('Annulé'), default=False)
 
