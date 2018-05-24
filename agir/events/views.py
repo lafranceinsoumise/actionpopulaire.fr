@@ -470,6 +470,7 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
             with transaction.atomic():
                 sid = transaction.savepoint()
                 (rsvp, created) = RSVP.objects.get_or_create(event=self.object, person=request.user.person, canceled=False)
+                rsvp = RSVP.objects.select_for_update().get(pk=rsvp.pk)
 
                 if not created and not self.object.allow_guests:
                     transaction.savepoint_rollback(sid)
@@ -505,11 +506,21 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
             send_rsvp_notification.delay(rsvp.pk)
             return HttpResponseRedirect(reverse('view_event', kwargs={'pk': self.object.pk}))
 
-        else:
-            if submission:
-                request.session['rsvp_submission'] = submission.pk
-            request.session['rsvp_event'] = str(self.object.pk)
-            return HttpResponseRedirect(reverse('pay_event'))
+        # if we're there, the event is paying
+        if not self.object.allow_guests and self.object.rsvps.filter(person=request.user.person).exists():
+            messages.add_message(
+                request=self.request,
+                level=messages.ERROR,
+                message="Cet événement ne permet pas d'inscrire des invité⋅e⋅s.",
+            )
+
+            return HttpResponseRedirect(reverse('view_event', args=[self.object.pk]))
+
+        if submission:
+            request.session['rsvp_submission'] = submission.pk
+        request.session['rsvp_event'] = str(self.object.pk)
+
+        return HttpResponseRedirect(reverse('pay_event'))
 
 
 class PayEventView(HardLoginRequiredMixin, UpdateView):
@@ -611,9 +622,20 @@ def notification_listener(payment):
         else:
             submission = None
 
-        rsvp = RSVP.objects.create(
-            person=payment.person,
-            event=event,
-            form_submission=submission
-        )
+        with transaction.atomic():
+            (rsvp, created) = RSVP.objects.get_or_create(
+                person=payment.person,
+                event=event
+            )
+            rsvp = RSVP.objects.select_for_update().get(pk=rsvp.pk)
+
+            if submission and not created:
+                rsvp.guests_form_submissions.add(submission)
+                rsvp.guests = rsvp.guests_form_submissions.count()
+            elif submission and created:
+                rsvp.form_submission = submission
+            elif not submission and not created:
+                rsvp.guests = rsvp.guests + 1
+
+            rsvp.save()
         send_rsvp_notification.delay(rsvp.pk)

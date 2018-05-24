@@ -1310,7 +1310,7 @@ class EventPagesTestCase(TestCase):
         self.assertIn('Inscription validée (2 participant⋅e⋅s)', response.content.decode())
 
     @mock.patch('agir.events.views.send_rsvp_notification')
-    def test_rsvp_paid_event(self, rsvp_notification):
+    def test_rsvp_paid_event_and_add_guests(self, rsvp_notification):
         self.client.force_login(self.person.role)
         self.other_event.subscription_form = PersonForm.objects.create(
             title='Formulaire événement',
@@ -1369,6 +1369,46 @@ class EventPagesTestCase(TestCase):
 
         rsvp = RSVP.objects.get(person=self.person, event=self.other_event)
         self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+
+        # test ajout invité alors que allow_guests = False
+        response = self.client.post(reverse('rsvp_event', kwargs={'pk': self.other_event.pk}),
+                                    data={'custom-field': 'prout'}, follow=True)
+
+        self.assertRedirects(response, reverse('view_event', kwargs={'pk': self.other_event.pk}))
+        self.assertContains(response, "ne permet pas")
+
+        # test ajout invité
+        self.other_event.allow_guests = True
+        self.other_event.save()
+
+        response = self.client.post(reverse('rsvp_event', kwargs={'pk': self.other_event.pk}),
+                                    data={'custom-field': 'prout'}, follow=True)
+
+        self.assertRedirects(response, reverse('pay_event'))
+
+        res = self.client.get(reverse('pay_event'))
+        self.assertEqual(res.status_code, 200)
+
+        res = self.client.post(reverse('pay_event'), data={
+            'submission': PersonFormSubmission.objects.last().pk,
+            'event': str(self.other_event.pk),
+            'first_name': 'Marcy',
+            'last_name': 'Franky',
+            'location_address1': '4 rue de Chaume',
+            'location_address2': '',
+            'location_zip': '33000',
+            'location_city': 'Bordeaux',
+            'location_country': 'FR',
+            'contact_phone': '06 45 78 98 45'
+        })
+
+        payment = Payment.objects.last()
+
+        self.assertRedirects(res, reverse('payment_redirect', args=(payment.pk,)))
+
+        payment.status = Payment.STATUS_COMPLETED
+        payment.save()
+        event_notification_listener(payment)
 
 
 class CalendarPageTestCase(TestCase):
