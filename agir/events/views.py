@@ -470,14 +470,26 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
             with transaction.atomic():
                 sid = transaction.savepoint()
                 (rsvp, created) = RSVP.objects.get_or_create(event=self.object, person=request.user.person, canceled=False)
-                if not created and submission:
+
+                if not created and not self.object.allow_guests:
+                    transaction.savepoint_rollback(sid)
+                    messages.add_message(
+                        request=self.request,
+                        level=messages.ERROR,
+                        message="Cet événement ne permet pas d'inscrire des invité⋅e⋅s.",
+                    )
+
+                    return HttpResponseRedirect(reverse('view_event', args=[self.object.pk]))
+
+                if submission and not created:
                     rsvp.guests_form_submissions.add(submission)
                     rsvp.guests = rsvp.guests_form_submissions.count()
+                elif submission and created:
+                    rsvp.form_submission = submission
+                    unsaved_person.save()
                 else:
-                    if submission:
-                        unsaved_person.save()
-                        rsvp.form_submission = submission
                     rsvp.guests = guests
+
                 rsvp.save()
 
                 if self.object.max_participants and self.object.rsvps.aggregate(participants=Sum(F('guests') + 1))['participants'] > self.object.max_participants:

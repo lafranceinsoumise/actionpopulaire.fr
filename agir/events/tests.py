@@ -1284,12 +1284,22 @@ class EventPagesTestCase(TestCase):
         self.assertEqual(2, self.other_event.participants)
         self.assertIn('Inscription validée', response.content.decode())
 
-        ## Inscription d'un⋅e deuxième participant⋅e
+        ## Inscription d'un⋅e deuxième participant⋅e : échec sans allow_guests
+        response = self.client.get(reverse('rsvp_event', kwargs={'pk': self.other_event.pk}))
+        self.assertNotContains(response, "Inscrire un⋅e autre participant⋅e")
+        response = self.client.post(reverse('rsvp_event', kwargs={'pk': self.other_event.pk}),
+                                    data={'custom-field': 'prout-prout'}, follow=True)
+        self.assertContains(response, "ne permet pas")
+        self.assertEqual(2, self.other_event.participants)
+
+        ## Inscription d'un⋅e deuxième participant⋅e : succès
+        self.other_event.allow_guests = True
+        self.other_event.save()
+
         response = self.client.get(reverse('rsvp_event', kwargs={'pk': self.other_event.pk}))
         self.assertContains(response, "Inscrire un⋅e autre participant⋅e")
         response = self.client.post(reverse('rsvp_event', kwargs={'pk': self.other_event.pk}),
                                     data={'custom-field': 'prout-prout'}, follow=True)
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.person, self.other_event.attendees.all())
         self.assertEqual(3, self.other_event.participants)
