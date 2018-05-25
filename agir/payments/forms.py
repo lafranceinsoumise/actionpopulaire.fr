@@ -48,6 +48,8 @@ class SystempayRedirectForm(forms.Form):
     signature = fields.CharField(widget=forms.HiddenInput())
 
     def add_field(self, name, value):
+        if value is None:
+            return
         self.fields[name] = forms.CharField(initial=value, widget=forms.HiddenInput())
 
     def update_signature(self):

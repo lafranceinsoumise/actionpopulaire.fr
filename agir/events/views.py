@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction, connection
 from django.db.models import F, Sum
-from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView, FormView
+from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView, FormView, RedirectView
 from django.views.generic.edit import ProcessFormView, FormMixin
 from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
@@ -586,18 +586,22 @@ class PayEventView(HardLoginRequiredMixin, UpdateView):
             person=person,
             type=EventsConfig.PAYMENT_TYPE,
             price=price,
-            meta={'event_name': event.name, 'event_id': str(event.pk), 'submission_id': str(submission.pk)}
+            meta={'event_name': event.name, 'event_id': event and str(event.pk), 'submission_id': submission and str(submission.pk)}
         )
 
 
-class PaidEventView(TemplateView):
-    template_name = 'events/payment_confirmation.html'
+class PaidEventView(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        payment = self.kwargs['payment']
+        event = Event.objects.get(pk=self.kwargs['payment'].meta['event_id'])
 
-    def get_context_data(self, **kwargs):
-        return {
-            'payment': self.kwargs['payment'],
-            'event': Event.objects.get(pk=self.kwargs['payment'].meta['event_id'])
-        }
+        messages.add_message(
+            request=self.request,
+            level=messages.SUCCESS,
+            message=f"Votre paiement de {payment.price_display} pour l'événement « {event.name} » a bien été reçu. "
+                    f"Votre inscription est confirmée."
+        )
+        return reverse('view_event', args=[self.kwargs['payment'].meta['event_id']])
 
 
 def notification_listener(payment):

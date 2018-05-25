@@ -35,9 +35,23 @@
                 </ul>
                 <b>Total&nbsp;:</b> {{ price|floatformat:2 }} €
                 <h3 class="headline">Informations de facturation</h3>
+                <div class="alert alert-warning">
+                <p>
+                    Attention, même si vous inscrivez une autre personne, vous devez entrer les informations de la personne
+                    qui détient le compte lafranceinsoumise.fr associé à l'adresse {{ user.person.email }} et qui
+                    effectue le paiement.
+                </p>
+                </div>
             </div>
         {% else %}
             <h2 class="headline">Informations de facturation</h2>
+            <div class="alert alert-warning">
+            <p>
+                Attention, même si vous inscrivez une autre personne, vous devez entrer les informations de la personne
+                qui détient le compte lafranceinsoumise.fr associé à l'adresse {{ user.person.email }} et qui
+                effectue le paiement.
+            </p>
+            </div>
         {% endif %}
 
         {% crispy form %}
