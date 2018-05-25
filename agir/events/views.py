@@ -412,7 +412,9 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
         if self.request.method in ('POST', 'PUT'):
             kwargs['data'] = self.request.POST
 
-        return form_class(**kwargs)
+        is_guest = RSVP.objects.filter(event=self.object, person=self.request.user.person, canceled=False).first() is not None
+
+        return form_class(empty=is_guest, **kwargs)
 
     def get_context_data(self, **kwargs):
         rsvp = self.request.user.is_authenticated and self.object.rsvps.filter(

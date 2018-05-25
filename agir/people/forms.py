@@ -34,7 +34,13 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                 for field in fieldset['fields']
                 if field.get('person_field') and field['id'] not in all_person_field_names]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, empty=False, *args, **kwargs):
+        if empty:
+            kwargs['initial'] = {
+                field['id']: ''
+                for fieldset in self.person_form_instance.custom_fields
+                for field in fieldset['fields']
+            }
         super().__init__(*args, **kwargs)
 
         parts = []
