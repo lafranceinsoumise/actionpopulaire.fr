@@ -27,6 +27,7 @@
                         <input type="hidden" name="action" value="join"/>
                         <input type="submit" class="btn btn-primary" value="Rejoindre ce groupe"/>
                     </form>
+                    <p class="help-block"><small>Votre adresse email sera communiquée aux gestionnaires du groupe.</small></p>
                 {% endif %}
                 {% if user.is_staff %}
                     <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:groups_supportgroup_change" supportgroup.pk %}">Administration</a>
