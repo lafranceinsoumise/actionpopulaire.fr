@@ -53,7 +53,7 @@
                         </div>
                     {% else %}
                         <iframe title="Carte" class="col-sm-6"
-                                src="{{ MAP_DOMAIN }}{% url "map:single_event_map" event.id %}"
+                                src="{{ MAP_DOMAIN }}{% url "carte:single_event_map" event.id %}"
                                 height="300" scrolling="no" frameBorder="0"
                                 style="width: 100%; margin: 1em 0; padding:0;"></iframe>
                     {% endif %}

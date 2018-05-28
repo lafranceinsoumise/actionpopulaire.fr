@@ -8,6 +8,7 @@ Carte des groupes d'appui
     <script>
       var types = {{ type_config }};
       var subtypes = {{ subtype_config }};
+      var bounds = {{ bounds }};
 
       function formatGroup(group) {
         var displayableSubtypes = subtypes.filter(function(subtype) {
@@ -19,6 +20,6 @@ Carte des groupes d'appui
           (displayableSubtypes.length ? '<br>' + displayableSubtypes.join(' &bull; ') : '');
       }
 
-      window['carte/map'].listMap('map', '{% url "map:group_list" %}{{ querystring }}', types, subtypes, formatGroup);
+      window['carte/map'].listMap('map', '{% url "carte:group_list" %}{{ querystring }}', types, subtypes, formatGroup, bounds);
     </script>
 {% endblock %}

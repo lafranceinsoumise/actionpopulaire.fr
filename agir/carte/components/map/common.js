@@ -32,9 +32,9 @@ export function setUpMap(elementId, layers) {
   });
 }
 
-export function fitFrance(map) {
+export function fitBounds(map, bounds) {
   map.getView().fit(
-    proj.transformExtent([-5.3, 41.2, 9.6, 51.2], 'EPSG:4326', 'EPSG:3857'), map.getSize()
+    proj.transformExtent(bounds, 'EPSG:4326', 'EPSG:3857'), map.getSize()
   );
 }
 

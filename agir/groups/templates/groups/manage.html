@@ -41,7 +41,7 @@
                         </div>
                     {% else %}
                         <iframe title="Carte" class="col-sm-6"
-                                src="{{ MAP_DOMAIN }}{% url "map:single_group_map" supportgroup.id %}"
+                                src="{{ MAP_DOMAIN }}{% url "carte:single_group_map" supportgroup.id %}"
                                 height="300" style="width: 100%;" scrolling="no" frameBorder="0"></iframe>
                     {% endif %}
                 </div>

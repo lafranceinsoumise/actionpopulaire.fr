@@ -6,7 +6,7 @@ import Point from 'ol/geom/point';
 import VectorLayer from 'ol/layer/vector';
 
 import {fontIsLoaded, ARROW_SIZE} from './utils';
-import {makeStyle, setUpMap, setUpPopup, fitFrance} from './common';
+import {makeStyle, setUpMap, setUpPopup, fitBounds} from './common';
 import makeLayerControl from './layerControl';
 import makeSearchControl from './searchControl';
 
@@ -36,7 +36,9 @@ function disambiguate(points) {
   }
 }
 
-export default async function listMap(htmlElementId, endpoint, types, subtypes, formatPopup) {
+export default async function listMap(htmlElementId, endpoint, types, subtypes, formatPopup, bounds) {
+  bounds = bounds || [-5.3, 41.2, 9.6, 51.2];
+
   const sources = {}, layers = {}, typeStyles = {};
   for (let type of types) {
     sources[type.id] = new VectorSource();
@@ -45,7 +47,7 @@ export default async function listMap(htmlElementId, endpoint, types, subtypes, 
   }
 
   const map = setUpMap(htmlElementId, types.map(type => layers[type.id]));
-  fitFrance(map);
+  fitBounds(map, bounds);
   setUpPopup(map);
 
   if (types.length > 1) {
