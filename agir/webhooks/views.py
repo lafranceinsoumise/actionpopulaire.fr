@@ -14,7 +14,7 @@ from django.conf import settings
 
 
 class SendgridSesWebhookAuthentication(BasicAuthentication):
-    def authenticate_credentials(self, userid, password):
+    def authenticate_credentials(self, userid, password, request=None):
         if userid != settings.SENDGRID_SES_WEBHOOK_USER or password != settings.SENDGRID_SES_WEBHOOK_PASSWORD:
             raise exceptions.AuthenticationFailed('Invalid username/password.')
 

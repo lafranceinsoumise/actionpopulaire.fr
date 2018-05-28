@@ -32,7 +32,7 @@ class LegacyEventSerializer(LegacyBaseAPISerializer, LegacyLocationAndContactMix
         super().__init__(*args, **kwargs)
 
     def get_path(self, obj):
-        return front_url('view_event', absolute=False, args=[obj.id])
+        return front_url('view_event', absolute=False, kwargs={'pk': obj.id})
 
     def get_is_organizer(self, obj):
         if not (hasattr(self.context['request'].user, 'type') and self.context['request'].user.type == Role.PERSON_ROLE):

@@ -1,9 +1,9 @@
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 
 urlpatterns = [
-    url(r'^dons/$', views.AskAmountView.as_view(), name='donation_amount'),
-    url(r'^dons/informations/$', views.PersonalInformationView.as_view(), name='donation_information')
+    path('dons/', views.AskAmountView.as_view(), name='donation_amount'),
+    path('dons/informations/', views.PersonalInformationView.as_view(), name='donation_information')
 ]

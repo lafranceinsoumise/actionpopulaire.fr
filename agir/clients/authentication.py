@@ -6,7 +6,6 @@ from rest_framework.authentication import BaseAuthentication, BasicAuthenticatio
 
 from ..authentication.models import Role
 from ..clients.tokens import AccessToken, InvalidTokenException
-from ..people.models import Person
 
 
 class AccessTokenRulesPermissionBackend(RulesObjectPermissionBackend):
@@ -14,7 +13,7 @@ class AccessTokenRulesPermissionBackend(RulesObjectPermissionBackend):
     We extend django_rules permissions backend to shortcut django model backend
     in case the user is authenticated via a token
     """
-    def has_perm(self, user_obj, perm, obj=None):
+    def has_perm(self, user_obj, perm, obj=None, *args, **kwargs):
         result = super().has_perm(user_obj, perm, obj)
         if hasattr(user_obj, 'token') and isinstance(user_obj.token, AccessToken) and result is False:
             raise PermissionDenied()
@@ -57,7 +56,7 @@ class ClientAuthentication(BasicAuthentication):
     """
     Client authentication
     """
-    def authenticate_credentials(self, client_label, password):
+    def authenticate_credentials(self, client_label, password, request=None):
         try:
             role = Role.objects.select_related('client').get(client__label=client_label)
         except Role.DoesNotExist:

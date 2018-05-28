@@ -7,7 +7,7 @@ from django.utils.http import is_safe_url
 from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from django.template.response import TemplateResponse
 from django.contrib.auth import authenticate, login, logout, BACKEND_SESSION_KEY, SESSION_KEY
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2.rfc6749.errors import MismatchingStateError, MissingTokenError

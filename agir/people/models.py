@@ -178,7 +178,7 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         # add permission 'view'
         default_permissions = ('add', 'change', 'delete', 'view')
         indexes = (
-            GinIndex(['search'], name='search_index'),
+            GinIndex(fields=['search'], name='search_index'),
         )
 
     def save(self, *args, **kwargs):

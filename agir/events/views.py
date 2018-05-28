@@ -1,6 +1,6 @@
 import json
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction, connection
 from django.db.models import F, Sum

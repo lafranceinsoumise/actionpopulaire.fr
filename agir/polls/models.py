@@ -62,6 +62,6 @@ class PollOption(BaseAPIResource):
 
 
 class PollChoice(BaseAPIResource):
-    person = models.ForeignKey('people.Person')
+    person = models.ForeignKey('people.Person', on_delete=models.PROTECT)
     poll = models.ForeignKey('Poll', on_delete=models.CASCADE)
     selection = JSONField(encoder=DjangoJSONEncoder)

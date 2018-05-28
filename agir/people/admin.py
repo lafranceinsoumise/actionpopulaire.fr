@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 
 import django_otp
 from django import forms
-from django.conf.urls import url
+from django.urls import path
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Count
 from django.http import HttpResponse
@@ -16,7 +16,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.utils import display_for_value
 from django.contrib.gis.admin import OSMGeoAdmin
 from agir.api.admin import admin_site
-from admin_steroids.filters import AjaxFieldFilter
 
 from .forms import all_person_field_names
 from .models import Person, PersonTag, PersonEmail, PersonForm
@@ -125,8 +124,6 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     search_fields = ('emails__address', 'first_name', 'last_name', 'location_zip')
 
     list_filter = (
-        ('location_city', AjaxFieldFilter),
-        ('location_zip', AjaxFieldFilter),
         ('tags'),
         ('subscribed', admin.BooleanFieldListFilter),
         ('draw_participation', admin.BooleanFieldListFilter),
@@ -262,8 +259,8 @@ class PersonFormAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         return [
-            url(r'^(.+)/view_results/', self.admin_site.admin_view(self.view_results), name="people_personform_view_results"),
-            url(r'^(.+)/download_results/', self.admin_site.admin_view(self.download_results), name="people_personform_download_results"),
+            path('<int:pk>/view_results/', self.admin_site.admin_view(self.view_results), name="people_personform_view_results"),
+            path('<int:pk>/download_results/', self.admin_site.admin_view(self.download_results), name="people_personform_download_results"),
         ] + super().get_urls()
 
     def generate_result_table(self, form, only_text=False):

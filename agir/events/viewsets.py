@@ -3,8 +3,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.views.decorators.cache import cache_control
 from rest_framework.viewsets import ModelViewSet
-from rest_framework_extensions.mixins import NestedViewSetMixin
-from rest_framework.decorators import list_route, authentication_classes
+from rest_framework.decorators import action, authentication_classes
 from rest_framework.response import Response
 from ..authentication.models import Role
 import django_filters
@@ -81,7 +80,7 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
                     person=self.request.user.person
                 )
 
-    @list_route(methods=['GET'])
+    @action(methods=['GET'], detail=False)
     @cache_control(max_age=60, public=True)
     @authentication_classes([])
     def summary(self, request, *args, **kwargs):
@@ -109,7 +108,6 @@ class EventTagViewSet(ModelViewSet):
     permission_classes = (PermissionsOrReadOnly,)
 
 
-
 class RSVPViewSet(CreationSerializerMixin, ModelViewSet):
     """
 
@@ -129,48 +127,6 @@ class RSVPViewSet(CreationSerializerMixin, ModelViewSet):
     creation_serializer_class = serializers.RSVPCreationSerializer
     queryset = models.RSVP.objects.select_related('event', 'person')
     permission_classes = (RestrictViewPermissions,)
-
-
-class NestedRSVPViewSet(CreationSerializerMixin, NestedViewSetMixin, ModelViewSet):
-    """
-
-    """
-    serializer_class = serializers.RSVPSerializer
-    queryset = models.RSVP.objects.select_related('event', 'person')
-    permission_classes = (RestrictViewPermissions,)
-    creation_serializer_class = serializers.EventRSVPCreatableSerializer
-
-    def get_queryset(self):
-        queryset = super(NestedRSVPViewSet, self).get_queryset()
-
-        if not self.request.user.has_perm('events.view_rsvp'):
-            if hasattr(self.request.user, 'type') and self.request.user.type == Role.PERSON_ROLE:
-                return queryset.filter(
-                    Q(person=self.request.user.person) | Q(event__organizers=self.request.user.person))
-            else:
-                return queryset.none()
-        return queryset
-
-    def get_serializer_context(self):
-        parents_query_dict = self.get_parents_query_dict()
-        context = super(NestedRSVPViewSet, self).get_serializer_context()
-        context.update(parents_query_dict)
-        return context
-
-    @list_route(methods=['PUT'], permission_classes=(DjangoModelPermissions,))
-    def bulk(self, request, *args, **kwargs):
-        parents_query_dict = self.get_parents_query_dict()
-        rsvps = models.RSVP.objects.filter(**parents_query_dict)
-
-        context = self.get_serializer_context()
-        context.update(parents_query_dict)
-
-        serializer = serializers.EventRSVPBulkSerializer(rsvps, data=request.data, many=True, context=context)
-        serializer.is_valid(raise_exception=True)
-
-        serializer.save()
-
-        return Response(serializer.data)
 
 
 class EventSubtypeViewSet(ModelViewSet):

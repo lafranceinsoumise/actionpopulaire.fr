@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.auth import logout
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.urls import reverse_lazy, reverse
 from django.db.models import Q, F, Value, TextField
 from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
 from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView

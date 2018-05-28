@@ -7,7 +7,6 @@ from django.db.models import F, Sum
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.html import format_html, escape
-from admin_steroids.filters import AjaxFieldFilter
 
 from ...api.admin import admin_site
 from ...groups.models import SupportGroup
@@ -160,8 +159,6 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         'calendars',
         EventHasReportFilter,
         EventStatusFilter,
-        ('location_city', AjaxFieldFilter),
-        ('location_zip', AjaxFieldFilter),
         'tags',
     )
 

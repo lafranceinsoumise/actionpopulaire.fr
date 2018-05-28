@@ -135,8 +135,8 @@ class Client(BaseAPIResource):
 
 
 class Authorization(TimeStampedModel):
-    person = models.ForeignKey('people.Person', related_name='authorizations')
-    client = models.ForeignKey('Client', related_name='authorizations')
+    person = models.ForeignKey('people.Person', related_name='authorizations', on_delete=models.CASCADE)
+    client = models.ForeignKey('Client', related_name='authorizations', on_delete=models.CASCADE)
     scopes = ArrayField(
         models.CharField(max_length=255, choices=[(scope.name, scope.description) for scope in scopes]),
         help_text=_('La liste des scopes autorisés.'),

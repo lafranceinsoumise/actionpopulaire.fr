@@ -287,13 +287,13 @@ class LegacyPersonEndpointTestCase(APITestCase):
     @mock.patch("agir.people.viewsets.send_welcome_mail")
     def test_can_subscribe_new_person(self, patched_send_welcome_mail):
         self.client.force_login(self.adder_person.role)
-        response = self.client.post(reverse('legacy:person-subscribe-list'), data={
+        response = self.client.post(reverse('legacy:person-subscribe'), data={
             'email': 'guillaume@email.com',
         })
 
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.post(reverse('legacy:person-subscribe-list'), data={
+        response = self.client.post(reverse('legacy:person-subscribe'), data={
             'email': 'guillaume@email.com',
         }, ** {'HTTP_X_WORDPRESS_CLIENT': '192.168.0.1'})
 

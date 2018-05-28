@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import path
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import Count
@@ -9,7 +9,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from agir.api.admin import admin_site
-from admin_steroids.filters import AjaxFieldFilter
 
 from agir.lib.admin import CenterOnFranceMixin
 from agir.lib.utils import front_url
@@ -66,8 +65,6 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     list_display = ('name', 'type', 'published', 'location_short', 'membership_count', 'created', 'referent')
     list_filter = (
         'type',
-        ('location_city', AjaxFieldFilter),
-        ('location_zip', AjaxFieldFilter),
         'published',
         'tags',
         'subtypes',
@@ -134,7 +131,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     def get_urls(self):
         return [
-            url(r'^(.+)/add_member/', admin_site.admin_view(self.add_member), name="groups_supportgroup_add_member")
+            path('<uuid:pk>/add_member/', admin_site.admin_view(self.add_member), name="groups_supportgroup_add_member")
         ] + super().get_urls()
 
     def add_member(self, request, id):

@@ -5,15 +5,15 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 Examples:
 Function views
     1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
+    2. Add a URL to urlpatterns:  path('$', views.home, name='home')
 Class-based views
     1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
+    2. Add a URL to urlpatterns:  path('$', Home.as_view(), name='home')
 Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
+from django.urls import path, include
 from django.conf.urls.static import static
 from ajax_select import urls as ajax_select_urls
 
@@ -24,31 +24,30 @@ from . import front_urls
 from ..webhooks import urls as webhooks_urls
 
 urlpatterns = [
-    url(r'^admin/', include('admin_steroids.urls')),
-    url(r'^admin/', admin.admin_site.urls),
-    url(r'^webhooks/', include(webhooks_urls)),
-    url(r'^ajax_select/', include(ajax_select_urls)),
-    url(r'^metrics/', get_metrics)
+    path('admin/', admin.admin_site.urls),
+    path('webhooks/', include(webhooks_urls)),
+    path('ajax_select/', include(ajax_select_urls)),
+    path('metrics/', get_metrics)
 ]
 
 if settings.ENABLE_API:
     urlpatterns.append(
-        url(r'^legacy/', include(routers.legacy_api.urls, namespace='legacy'))
+        path('legacy/', include((routers.legacy_api.urls, 'legacy'), namespace='legacy'))
     )
 
 if settings.ENABLE_FRONT:
-    urlpatterns.append(url(r'^', include(front_urls)))
+    urlpatterns.append(path('', include(front_urls)))
 
 if settings.ENABLE_MAP:
     urlpatterns.append(
-        url(r'^carte/', include('agir.carte.urls', namespace='map')),
+        path('carte/', include('agir.carte.urls')),
     )
 
 if settings.DEBUG:
     import debug_toolbar
 
     urlpatterns = [
-                      url(r'^__debug__/', include(debug_toolbar.urls))
+                      path('__debug__/', include(debug_toolbar.urls))
                   ] + urlpatterns
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += [url(r'^silk/', include('silk.urls', namespace='silk'))]
+    urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]

@@ -28,7 +28,7 @@ class Payment(TimeStampedModel, LocationMixin):
         (STATUS_REFUSED, 'Refusé')
     )
 
-    person = models.ForeignKey('people.Person')
+    person = models.ForeignKey('people.Person', on_delete=models.PROTECT)
 
     email = models.EmailField('email', max_length=255)
     first_name = models.CharField('prénom', max_length=255)

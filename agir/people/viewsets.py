@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 import django_filters
 
 from agir.lib.utils import generate_token_params
@@ -35,12 +35,12 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
     permission_classes = (RestrictViewPermissions, )
     filter_class = PeopleFilter
 
-    @list_route()
+    @action(detail=False)
     def me(self, request):
         self.kwargs['pk'] = self.request.user.person.pk
         return self.retrieve(request)
 
-    @list_route(methods=['POST'])
+    @action(methods=['POST'], detail=False)
     def subscribe(self, request, *args, **kwargs):
         ip = request.META.get('HTTP_X_WORDPRESS_CLIENT')
         if not ip or not SubscribeIPBucket.has_tokens(ip):

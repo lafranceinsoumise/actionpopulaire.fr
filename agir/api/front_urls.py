@@ -1,4 +1,4 @@
-from django.conf.urls import url, include
+from django.urls import path, include
 
 from agir.front import urls as front_urls
 from agir.events import urls as events_urls
@@ -9,11 +9,11 @@ from agir.people import urls as people_urls
 from agir.polls import urls as polls_urls
 
 urlpatterns = [
-    url(r'^', include(front_urls)),
-    url(r'^', include(people_urls)),
-    url(r'^', include(groups_urls)),
-    url(r'^', include(events_urls)),
-    url(r'^', include(payments_urls)),
-    url(r'^', include(donations_urls)),
-    url(r'^', include(polls_urls)),
+    path('', include(front_urls)),
+    path('', include(people_urls)),
+    path('', include(groups_urls)),
+    path('', include(events_urls)),
+    path('', include(payments_urls)),
+    path('', include(donations_urls)),
+    path('', include(polls_urls)),
 ]

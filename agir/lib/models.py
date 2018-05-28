@@ -329,11 +329,10 @@ class DescriptionField(models.TextField):
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
-    def contribute_to_class(self, cls, name, private_only=False, virtual_only=NOT_PROVIDED):
-        super().contribute_to_class(cls, name, private_only, virtual_only)
+    def contribute_to_class(self, cls, name, private_only=False):
+        super().contribute_to_class(cls, name, private_only)
 
         allowed_tags = self._allowed_tags
-
 
         def html_FIELD(self, tags=None):
             if tags is None:

@@ -97,9 +97,6 @@ INSTALLED_APPS = [
     # phone number field
     'phonenumber_field',
 
-    # admin steroids
-    'admin_steroids',
-
     # stdimage
     'stdimage',
 
