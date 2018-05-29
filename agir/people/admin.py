@@ -277,11 +277,11 @@ class PersonFormAdmin(admin.ModelAdmin):
 
         return {'form': form, 'headers': headers, 'submissions': submissions}
 
-    def view_results(self, request, id):
+    def view_results(self, request, pk):
         if not self.has_change_permission(request) or not request.user.has_perm('people.view_personform'):
             raise PermissionDenied
 
-        form = PersonForm.objects.get(id=id)
+        form = PersonForm.objects.get(id=pk)
         table = self.generate_result_table(form)
 
         context = {
@@ -299,11 +299,11 @@ class PersonFormAdmin(admin.ModelAdmin):
             context,
         )
 
-    def download_results(self, request, id):
+    def download_results(self, request, pk):
         if not self.has_change_permission(request) or not request.user.has_perm('people.view_personform'):
             raise PermissionDenied
 
-        form = PersonForm.objects.get(id=id)
+        form = PersonForm.objects.get(id=pk)
         table = self.generate_result_table(form, only_text=True)
 
         response = HttpResponse(content_type='text/csv')
