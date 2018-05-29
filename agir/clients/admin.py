@@ -2,6 +2,7 @@ from django.contrib import admin
 from django import forms
 from django.forms import CheckboxSelectMultiple
 from django.shortcuts import reverse
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from ..api.admin import admin_site
 
@@ -35,9 +36,9 @@ class ClientAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified', 'role_link')
 
     def role_link(self, obj):
-        return '<a href="%s">%s</a>' % (
+        return format_html(
+            '<a href="{}">{}</a>',
             reverse('admin:authentication_role_change', args=[obj.role_id]),
             _('Voir le rôle')
         )
-    role_link.allow_tags = True
     role_link.short_description = _('Lien vers le rôle')

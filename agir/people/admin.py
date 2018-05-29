@@ -11,7 +11,7 @@ from django.shortcuts import reverse
 from django.contrib import admin
 from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
-from django.utils.html import escape, format_html
+from django.utils.html import escape, format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.utils import display_for_value
 from django.contrib.gis.admin import OSMGeoAdmin
@@ -145,19 +145,20 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         return super().get_queryset(request).prefetch_related('emails')
 
     def role_link(self, obj):
-        return '<a href="%s">%s</a>' % (
-            reverse('admin:authentication_role_change', args=[obj.role_id]),
-            _('Voir le rôle')
+        return format_html(
+            '<a href="{link}">{text}</a>',
+            link=reverse('admin:authentication_role_change', args=[obj.role_id]),
+            text=_('Voir le rôle')
         )
-    role_link.allow_tags = True
     role_link.short_description = _('Lien vers le rôle')
 
     def role_totp_link(self, obj):
-        return '<br>'.join(['<a href="%s">%s</a>' % (
-            reverse('admin:otp_totp_totpdevice_change', args=[device.id]),
-            device.name
-        ) for device in django_otp.devices_for_user(obj.role, confirmed=False)])
-    role_totp_link.allow_tags = True
+        return format_html_join(
+            mark_safe('<br>'),
+            '<a href="{}">{}</a>',
+            ((reverse('admin:otp_totp_totpdevice_change', args=[device.id]), device.name)
+             for device in django_otp.devices_for_user(obj.role, confirmed=False))
+        )
     role_totp_link.short_description = _('Lien vers les téléphones Authenticator enregistrés')
 
     def connection_params(self, obj):

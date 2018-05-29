@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import reverse
-from django.utils.html import escape
+from django.utils.html import escape, format_html
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
 
@@ -31,19 +31,20 @@ class RoleAdmin(UserAdmin):
     ordering = ('id',)
 
     def link(self, obj):
-        link_schema = '<a href="%s">%s</a>'
+        link_schema = '<a href="{}">{}</a>'
 
         if obj.type == obj.CLIENT_ROLE:
-            return link_schema % (
+            return format_html(
+                link_schema,
                 reverse('admin:clients_client_change', args=(obj.client.pk,)),
-                escape(obj.client.name)
+                obj.client.name
             )
         elif obj.type == obj.PERSON_ROLE:
-            return link_schema % (
+            return format_html(
+                link_schema,
                 reverse('admin:people_person_change', args=(obj.person.pk,)),
-                escape(obj.person.email)
+                obj.person.email
             )
-    link.allow_tags = True
     link.short_description = _('Lien vers la personne ou le client')
 
     def get_urls(self):
