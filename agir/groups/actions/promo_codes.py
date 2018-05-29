@@ -84,7 +84,7 @@ def sign_code(msg):
 
 def generate_code_for_group(group, expiration_date):
     msg = generate_msg_part_for_group(group, expiration_date)
-    return sign_code(msg)
+    return str(sign_code(msg))
 
 
 def get_next_promo_code(group):
