@@ -11,11 +11,11 @@ from django.template.response import TemplateResponse
 from .forms import AddMemberForm
 
 
-def add_member(model_admin, request, id):
+def add_member(model_admin, request, pk):
     if not model_admin.has_change_permission(request) or not request.user.has_perm('people.view_person'):
         raise PermissionDenied
 
-    group = model_admin.get_object(request, unquote(id))
+    group = model_admin.get_object(request, pk)
 
     if group is None:
         raise Http404(_("Pas de groupe avec cet identifiant."))

@@ -16,3 +16,12 @@ class TagsLookup(LookupChannel):
 
     def check_auth(self, request):
         return request.user.has_perm('view_person')
+
+    def get_objects(self, ids):
+        # monkey patching of super() method
+        pk_type = self.model._meta.pk.to_python
+
+        # Return objects in the same order as passed in here
+        ids = [pk_type(pk) for pk in ids]
+        things = self.model.objects.in_bulk(ids)
+        return [things[aid] for aid in ids if aid in things]

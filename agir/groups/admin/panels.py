@@ -134,8 +134,8 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             path('<uuid:pk>/add_member/', admin_site.admin_view(self.add_member), name="groups_supportgroup_add_member")
         ] + super().get_urls()
 
-    def add_member(self, request, id):
-        return views.add_member(self, request, id)
+    def add_member(self, request, pk):
+        return views.add_member(self, request, pk)
 
 
 @admin.register(models.SupportGroupTag, site=admin_site)
