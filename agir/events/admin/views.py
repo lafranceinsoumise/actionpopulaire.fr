@@ -7,49 +7,49 @@ from django.http import HttpResponseRedirect, Http404
 from django.contrib.admin.options import IS_POPUP_VAR
 from django.template.response import TemplateResponse
 
-from .forms import AddMemberForm
+from .forms import AddOrganizerForm
 
 
 def add_member(model_admin, request, pk):
     if not model_admin.has_change_permission(request) or not request.user.has_perm('people.view_person'):
         raise PermissionDenied
 
-    group = model_admin.get_object(request, pk)
+    event = model_admin.get_object(request, pk)
 
-    if group is None:
-        raise Http404(_("Pas de groupe avec cet identifiant."))
+    if event is None:
+        raise Http404(_("Pas d'événement avec cet identifiant."))
 
     if request.method == "POST":
-        form = AddMemberForm(group, request.POST)
+        form = AddOrganizerForm(event, request.POST)
 
         if form.is_valid():
             membership = form.save()
-            messages.success(request, _("{email} a bien été ajouté au groupe").format(email=membership.person.email))
+            messages.success(request, _("{email} a bien été enregistré comme participant à l'événement").format(email=membership.person.email))
 
             return HttpResponseRedirect(
                 reverse(
                     '%s:%s_%s_change' % (
                         model_admin.admin_site.name,
-                        group._meta.app_label,
-                        group._meta.model_name,
+                        event._meta.app_label,
+                        event._meta.model_name,
                     ),
-                    args=(group.pk,),
+                    args=(event.pk,),
                     )
             )
     else:
-        form = AddMemberForm(group)
+        form = AddOrganizerForm(event)
 
     fieldsets = [(None, {'fields': ['person']})]
     admin_form = admin.helpers.AdminForm(form, fieldsets, {})
 
     context = {
-        'title': _('Ajouter un membre au groupe: %s') % escape(group.name),
+        'title': _("Ajouter un participant à l'événement: %s") % escape(event.name),
         'adminform': admin_form,
         'form': form,
         'is_popup': (IS_POPUP_VAR in request.POST or
                      IS_POPUP_VAR in request.GET),
         'opts': model_admin.model._meta,
-        'original': group,
+        'original': event,
         'change': False,
         'add': False,
         'save_as': True,
@@ -65,6 +65,6 @@ def add_member(model_admin, request, pk):
 
     return TemplateResponse(
         request,
-        'admin/supportgroups/add_member.html',
+        'admin/events/add_organizer.html',
         context,
     )

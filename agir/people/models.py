@@ -73,7 +73,7 @@ class PersonManager(models.Manager):
         """
         Create a user
         :param email: the user's email
-        :param password: optional password that may be used to connect to the adimn website
+        :param password: optional password that may be used to connect to the admin website
         :param extra_fields: any other field
         :return:
         """

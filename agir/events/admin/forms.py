@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 from django import forms
+from ajax_select.fields import AutoCompleteSelectField
 
 from ...lib.forms import CoordinatesFormMixin
 from ...lib.form_fields import AdminRichEditorWidget
@@ -44,3 +45,26 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
             'description': AdminRichEditorWidget(),
             'report_content': AdminRichEditorWidget(),
         }
+
+
+class AddOrganizerForm(forms.Form):
+    person = AutoCompleteSelectField(
+        "people",
+        required=True,
+        label=_("Personne à ajouter"),
+        help_text=""
+    )
+
+    def __init__(self, event, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.event = event
+
+    def clean_person(self):
+        person = self.cleaned_data['person']
+        if models.OrganizerConfig.objects.filter(person=person, event=self.event).exists():
+            raise forms.ValidationError(_("Cette personne organise déjà à cet événement"))
+
+        return person
+
+    def save(self):
+        return models.OrganizerConfig.objects.create(person=self.cleaned_data['person'], event=self.event)

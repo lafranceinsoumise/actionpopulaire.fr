@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import F, Sum
+from django.urls import path
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.html import format_html, escape
@@ -16,6 +17,7 @@ from ...lib.utils import front_url
 from .. import models
 
 from . import actions
+from . import views
 from .forms import EventAdminForm
 
 
@@ -123,7 +125,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('id', 'name', 'link', 'created', 'modified')
+            'fields': ('id', 'name', 'link', 'created', 'modified', 'add_organizer_button')
         }),
         (_('Informations'), {
             'fields': ('subtype', 'description', 'allow_html', 'image', 'start_time', 'end_time', 'calendars', 'tags', 'published'),
@@ -148,10 +150,11 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     inlines = (OrganizerConfigInline, EventImageInline)
 
-    readonly_fields = ('id', 'link', 'organizers', 'created', 'modified', 'coordinates_type')
+    readonly_fields = ('id', 'link', 'add_organizer_button', 'organizers', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'start_time'
 
-    list_display = ('name', 'published', 'calendar_names', 'location_short', 'attendee_count', 'start_time', 'created')
+    list_display = ('name', 'published', 'calendar_names', 'location_short', 'add_organizer_button', 'attendee_count',
+                    'start_time', 'created')
     list_filter = (
         'published',
         'subtype__type',
@@ -179,6 +182,13 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         return ', '.join(c.name for c in object.calendars.all())
     calendar_names.short_description = _('Agendas')
 
+    def add_organizer_button(self, object):
+        return format_html(
+            '<a href="{}" class="button">+ Organisateur</a>',
+            reverse('admin:events_events_add_organizer', args=(object.pk,))
+        )
+    add_organizer_button.short_description = _('Ajouter un organisateur')
+
     def attendee_count(self, object):
         return object.attendee_count
     attendee_count.short_description = _("Nombre de personnes inscrites")
@@ -195,6 +205,15 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         qs = super().get_queryset(request)
 
         return qs.annotate(attendee_count=Sum(1 + F('rsvps__guests')))
+
+    def get_urls(self):
+        return [
+            path('<uuid:pk>/add_organizer/', admin_site.admin_view(self.add_organizer), name="events_events_add_organizer")
+        ] + super().get_urls()
+
+    def add_organizer(self, request, pk):
+        return views.add_member(self, request, pk)
+
 
 
 @admin.register(models.Calendar, site=admin_site)
