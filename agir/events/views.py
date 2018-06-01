@@ -17,7 +17,7 @@ from .apps import EventsConfig
 from .models import Event, RSVP, Calendar, EventSubtype
 from .tasks import send_cancellation_notification, send_rsvp_notification
 from ..people.models import PersonFormSubmission
-from ..payments.actions import get_payment_response
+from ..payments.actions import create_and_get_payment_response
 from ..payments.models import Payment
 
 from .forms import (
@@ -584,7 +584,7 @@ class PayEventView(HardLoginRequiredMixin, UpdateView):
 
         price = event.get_price(submission)
 
-        return get_payment_response(
+        return create_and_get_payment_response(
             person=person,
             type=EventsConfig.PAYMENT_TYPE,
             price=price,

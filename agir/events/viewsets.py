@@ -9,7 +9,7 @@ from ..authentication.models import Role
 import django_filters
 from django_filters.rest_framework.backends import DjangoFilterBackend
 
-from ..lib.permissions import PermissionsOrReadOnly, RestrictViewPermissions, DjangoModelPermissions
+from ..lib.permissions import PermissionsOrReadOnly, RestrictViewPermissions
 from ..lib.pagination import LegacyPaginator
 from ..lib.filters import DistanceFilter, OrderByDistanceToBackend
 from ..lib.views import NationBuilderViewMixin, CreationSerializerMixin

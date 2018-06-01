@@ -1208,7 +1208,7 @@ class EventPagesTestCase(TestCase):
         # no other payment
         payment = Payment.objects.get()
 
-        self.assertRedirects(res, reverse('payment_redirect', args=(payment.pk,)))
+        self.assertRedirects(res, reverse('payment_page', args=(payment.pk,)))
 
         # fake systempay webhook
         payment.status = Payment.STATUS_COMPLETED
@@ -1256,7 +1256,7 @@ class EventPagesTestCase(TestCase):
 
         payment = Payment.objects.last()
 
-        self.assertRedirects(res, reverse('payment_redirect', args=(payment.pk,)))
+        self.assertRedirects(res, reverse('payment_page', args=(payment.pk,)))
 
         payment.status = Payment.STATUS_COMPLETED
         payment.save()

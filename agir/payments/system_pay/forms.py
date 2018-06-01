@@ -1,21 +1,16 @@
-from hashlib import sha1
-
 from django import forms
 from django.conf import settings
 from django.forms import fields
+from django.utils import timezone
+from phonenumbers import phonenumberutil, PhoneNumberType
 
 from agir.lib.utils import front_url_lazy
+from .crypto import get_signature
 
-
-def get_signature(data):
-    fields_names = list(data.keys())
-    fields_names.sort()
-    values = '+'.join([str(data[field_name]) for field_name in fields_names if field_name[0:5] == 'vads_'])
-    values = values + '+' + settings.SYSTEMPAY_CERTIFICATE
-
-    return sha1(values.encode('utf-8')).hexdigest()
 
 class SystempayRedirectForm(forms.Form):
+    form_action = 'https://paiement.systempay.fr/vads-payment/'
+
     vads_site_id = fields.IntegerField(initial=settings.SYSTEMPAY_SITE_ID, widget=forms.HiddenInput())
     vads_ctx_mode = fields.CharField(initial="PRODUCTION" if settings.SYSTEMPAY_PRODUCTION else "TEST", widget=forms.HiddenInput())
     vads_order_id = fields.CharField(widget=forms.HiddenInput())
@@ -39,10 +34,10 @@ class SystempayRedirectForm(forms.Form):
     vads_cust_city = fields.CharField(widget=forms.HiddenInput())
     vads_cust_country = fields.CharField(widget=forms.HiddenInput())
     vads_ext_info_type = fields.CharField(widget=forms.HiddenInput())
-    vads_url_cancel = fields.CharField(initial=front_url_lazy('payment_failure'), widget=forms.HiddenInput())
-    vads_url_error = fields.CharField(initial=front_url_lazy('payment_failure'), widget=forms.HiddenInput())
-    vads_url_refused = fields.CharField(initial=front_url_lazy('payment_failure'), widget=forms.HiddenInput())
-    vads_url_success = fields.CharField(initial=front_url_lazy('payment_success'), widget=forms.HiddenInput())
+    vads_url_cancel = fields.CharField(initial=front_url_lazy('system_pay:return', query={'status': 'cancel'}), widget=forms.HiddenInput())
+    vads_url_error = fields.CharField(initial=front_url_lazy('system_pay:return', query={'status': 'error'}), widget=forms.HiddenInput())
+    vads_url_refused = fields.CharField(initial=front_url_lazy('system_pay:return', query={'status': 'refused'}), widget=forms.HiddenInput())
+    vads_url_success = fields.CharField(initial=front_url_lazy('system_pay:return', query={'status': 'success'}), widget=forms.HiddenInput())
     vads_redirect_success_timeout = fields.CharField(initial=8, widget=forms.HiddenInput())
     vads_redirect_error_timeout = fields.CharField(initial=8, widget=forms.HiddenInput())
     signature = fields.CharField(widget=forms.HiddenInput())
@@ -55,3 +50,35 @@ class SystempayRedirectForm(forms.Form):
     def update_signature(self):
         data = {field: str(self.get_initial_for_field(self.fields[field], field)) for field in self.fields.keys()}
         self.fields['signature'].initial = get_signature(data)
+
+    @classmethod
+    def get_form_for_payment(cls, payment):
+        form = cls(initial={
+            'vads_order_id': payment.pk,
+            'vads_trans_id': str(payment.pk % 900000).zfill(6),
+            'vads_trans_date': timezone.datetime.utcnow().strftime('%Y%m%d%H%M%S'),
+            'vads_amount': payment.price,
+            'vads_cust_email': payment.email,
+            'vads_cust_id': str(payment.person.id),
+            'vads_cust_first_name': payment.first_name,
+            'vads_cust_last_name': payment.last_name,
+            'vads_cust_address': ', '.join([payment.location_address1, payment.location_address2]),
+            'vads_cust_zip': payment.location_zip,
+            'vads_cust_city': payment.location_city,
+            'vads_cust_state': payment.location_state,
+            'vads_cust_country': payment.location_country,
+            'vads_ext_info_type': payment.type
+        })
+
+        if payment.phone_number:
+            if phonenumberutil.number_type(payment.phone_number) == PhoneNumberType.MOBILE:
+                form.add_field('vads_cust_cell_phone', payment.phone_number.as_e164)
+            else:
+                form.add_field('vads_cust_phone', payment.phone_number.as_e164)
+
+        for key in payment.meta:
+            form.add_field('vads_ext_info_meta_' + key, payment.meta[key])
+
+        form.update_signature()
+
+        return form

@@ -1,13 +1,14 @@
-from django.urls import path
-from django.urls import reverse_lazy
-from django.views.generic import RedirectView
+from django.urls import path, include
 
-from .views import SystempayRedirectView, SystempayWebhookView, success_view, failure_view
+from .payment_modes import PAYMENT_MODES
+from .views import PaymentView, return_view
 
 urlpatterns = [
-    path('paiement/systempay_webhook/', SystempayWebhookView.as_view(), name='systempay_webhook'),
-    path('paiement/<int:pk>/', SystempayRedirectView.as_view(), name='payment_redirect'),
-    path('paiement/success/', success_view, name='payment_success'),
-    path('paiement/echec/', failure_view, name='payment_failure'),
-    path('paiement/retour/', RedirectView.as_view(url=reverse_lazy('payment_success')))
+    path('paiement/<int:pk>/', PaymentView.as_view(), name='payment_page'),
+    path('paiement/<int:pk>/retour/', return_view, name='payment_return')
 ]
+
+for payment_mode in PAYMENT_MODES.values():
+    urlpatterns.append(
+        path(f'paiement/{payment_mode.url_fragment}/', include((payment_mode.get_urls(), payment_mode.id)))
+    )

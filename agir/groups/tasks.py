@@ -62,7 +62,6 @@ def send_support_group_changed_notification(support_group_pk, changes):
         context={'items': change_descriptions}
     )
 
-    # TODO: find adequate way to set up domain names to use for these links
     bindings = {
         "GROUP_NAME": group.name,
         "GROUP_CHANGES": change_fragment,

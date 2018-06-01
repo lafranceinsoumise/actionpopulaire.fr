@@ -471,3 +471,9 @@ COUNTRIES_FIRST_REPEAT = True
 # allows the administrator to temporarily disable sending to specific domains
 EMAIL_DISABLED_DOMAINS = [d.lower() for d in os.environ.get('EMAIL_DISABLED_DOMAINS').split(',')] \
     if 'EMAIL_DISABLED_DOMAINS' in os.environ else []
+
+
+# The first one will be the default one
+PAYMENT_MODES = [
+    'agir.payments.system_pay.SystemPayPaymentMode',
+]
