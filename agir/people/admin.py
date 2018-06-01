@@ -279,7 +279,7 @@ class PersonFormAdmin(admin.ModelAdmin):
         return {'form': form, 'headers': headers, 'submissions': submissions}
 
     def view_results(self, request, pk):
-        if not self.has_change_permission(request) or not request.user.has_perm('people.view_personform'):
+        if not self.has_change_permission(request) or not request.user.has_perm('people.change_personform'):
             raise PermissionDenied
 
         form = PersonForm.objects.get(id=pk)
@@ -301,7 +301,7 @@ class PersonFormAdmin(admin.ModelAdmin):
         )
 
     def download_results(self, request, pk):
-        if not self.has_change_permission(request) or not request.user.has_perm('people.view_personform'):
+        if not self.has_change_permission(request) or not request.user.has_perm('people.change_personform'):
             raise PermissionDenied
 
         form = PersonForm.objects.get(id=pk)

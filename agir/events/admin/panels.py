@@ -153,7 +153,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     readonly_fields = ('id', 'link', 'add_organizer_button', 'organizers', 'created', 'modified', 'coordinates_type')
     date_hierarchy = 'start_time'
 
-    list_display = ('name', 'published', 'calendar_names', 'location_short', 'add_organizer_button', 'attendee_count',
+    list_display = ('name', 'published', 'calendar_names', 'location_short', 'attendee_count',
                     'start_time', 'created')
     list_filter = (
         'published',
