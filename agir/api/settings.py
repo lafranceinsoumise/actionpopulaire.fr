@@ -116,6 +116,7 @@ INSTALLED_APPS = [
     'agir.webhooks',
     'agir.payments',
     'agir.donations',
+    'agir.system_pay',
 ]
 
 MIDDLEWARE = [
@@ -475,5 +476,5 @@ EMAIL_DISABLED_DOMAINS = [d.lower() for d in os.environ.get('EMAIL_DISABLED_DOMA
 
 # The first one will be the default one
 PAYMENT_MODES = [
-    'agir.payments.system_pay.SystemPayPaymentMode',
+    'agir.system_pay.SystemPayPaymentMode',
 ]

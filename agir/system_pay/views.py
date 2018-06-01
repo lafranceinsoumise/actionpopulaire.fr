@@ -3,9 +3,9 @@ from django.template.response import TemplateResponse
 from django.views.generic import TemplateView
 from rest_framework.views import APIView
 
-from ..actions import notify_status_change
-from ..models import Payment
-from ..views import handle_return
+from agir.payments.actions import notify_status_change
+from agir.payments.models import Payment
+from agir.payments.views import handle_return
 
 from .crypto import check_signature
 from .forms import SystempayRedirectForm
