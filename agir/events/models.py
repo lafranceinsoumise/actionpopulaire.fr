@@ -383,7 +383,7 @@ class OrganizerConfig(models.Model):
 
 class EventImage(TimeStampedModel):
     event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='images', null=False)
-    author = models.ForeignKey('people.Person', related_name='event_images', on_delete=models.PROTECT, null=False,
+    author = models.ForeignKey('people.Person', related_name='event_images', on_delete=models.CASCADE, null=False,
                                editable=False)
     image = StdImageField(
         _('Fichier'),
