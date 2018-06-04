@@ -81,6 +81,13 @@ class Command(BaseCommand):
             main_week_stats['events_happened'] - previous_week_stats['events_happened']
         ))
 
+        print('{} nouveaux membres de groupes ({:+d})'.format(
+            main_week_stats['new_memberships'],
+            main_week_stats['new_memberships'] - previous_week_stats['new_memberships']
+        ))
+
+
+
         meetings = Event.objects.filter(subtype__id=10, published=True, end_time__range=(start, end)).count()
         last_week_meetings = Event.objects.filter(subtype__id=10, published=True,
                                                   end_time__range=(one_period_before, start)).count()

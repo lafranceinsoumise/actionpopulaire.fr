@@ -10,6 +10,7 @@ def get_general_stats(start, end):
         'new_groups': SupportGroup.objects.filter(created__range=(start, end)).count(),
         'new_events': Event.objects.filter(created__range=(start, end)).count(),
         'events_happened': Event.objects.filter(start_time__range=(start, end)).count(),
+        'new_memberships': Person.objects.filter(memberships__created__range=(start, end)).count()
     }
 
 def get_events_by_subtype(start, end):
