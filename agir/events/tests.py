@@ -986,7 +986,7 @@ class EventPagesTestCase(TestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    @mock.patch('agir.events.views.send_rsvp_notification')
+    @mock.patch('agir.events.views.rsvp_views.send_rsvp_notification')
     def test_can_rsvp(self, rsvp_notification):
         url = reverse('view_event', kwargs={'pk': self.other_event.pk})
         self.client.force_login(self.person.role)
@@ -1005,7 +1005,7 @@ class EventPagesTestCase(TestCase):
         rsvp = RSVP.objects.get(person=self.person, event=self.other_event)
         self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
 
-    @mock.patch('agir.events.views.send_rsvp_notification')
+    @mock.patch('agir.events.views.rsvp_views.send_rsvp_notification')
     def test_can_update_rsvp(self, rsvp_notification):
         url = reverse('view_event', kwargs={'pk': self.rsvped_event.pk})
         self.client.force_login(self.person.role)
@@ -1161,7 +1161,7 @@ class EventPagesTestCase(TestCase):
         self.assertEqual(rsvp.guests_form_submissions.first().data['custom-field'], 'prout-prout')
         self.assertIn('Inscription validée (2 participant⋅e⋅s)', response.content.decode())
 
-    @mock.patch('agir.events.views.send_rsvp_notification')
+    @mock.patch('agir.events.views.rsvp_views.send_rsvp_notification')
     def test_rsvp_paid_event_and_add_guests(self, rsvp_notification):
         self.client.force_login(self.person.role)
         self.other_event.subscription_form = PersonForm.objects.create(
