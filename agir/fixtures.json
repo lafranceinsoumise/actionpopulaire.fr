@@ -238,7 +238,7 @@
       "person": "39885b2c-ba2b-4e98-8970-1cca219b091c",
       "event": "5bb40ef9-a3fc-403e-8a81-a12c2e40a569",
       "guests": 0,
-      "canceled": false,
+      "status": "CO",
       "notifications_enabled": true
     }
   },
@@ -251,7 +251,7 @@
       "person": "39885b2c-ba2b-4e98-8970-1cca219b091c",
       "event": "cf1e9802-e809-4ec6-85ad-1cdf55422041",
       "guests": 0,
-      "canceled": false,
+      "status": "CO",
       "notifications_enabled": true
     }
   },

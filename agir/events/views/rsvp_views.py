@@ -31,9 +31,7 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
         if self.request.method in ('POST', 'PUT'):
             kwargs['data'] = self.request.POST
 
-        is_guest = RSVP.objects.filter(event=self.object, person=self.request.user.person, canceled=False).first() is not None
-
-        return form_class(empty=is_guest, **kwargs)
+        return form_class(is_guest=self.user_has_rsvp, **kwargs)
 
     def get_context_data(self, **kwargs):
         rsvp = self.request.user.is_authenticated and self.object.rsvps.filter(
@@ -142,6 +140,11 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
         request.session['rsvp_event'] = str(self.object.pk)
 
         return HttpResponseRedirect(reverse('pay_event'))
+
+    @cached_property
+    def user_has_rsvp(self):
+        # TODO verify it has proper semantics
+        return RSVP.objects.filter(event=self.object, person=self.request.user.person, status=RSVP.STATUS_CONFIRMED).exists()
 
 
 class PayEventView(HardLoginRequiredMixin, UpdateView):

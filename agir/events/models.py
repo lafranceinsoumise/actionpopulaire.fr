@@ -335,6 +335,15 @@ class RSVP(TimeStampedModel):
     
     An additional field indicates if the person is bringing any guests with her
     """
+    STATUS_AWAITING_PAYMENT = 'AP'
+    STATUS_CONFIRMED = 'CO'
+    STATUS_CANCELED = 'CA'
+    STATUS_CHOICES = (
+        (STATUS_AWAITING_PAYMENT, _('En attente du paiement')),
+        (STATUS_CONFIRMED, _('Confirmé')),
+        (STATUS_CANCELED, _('Annulé')),
+    )
+
     objects = RSVPQuerySet.as_manager()
 
     person = models.ForeignKey('people.Person', related_name='rsvps', on_delete=models.CASCADE, editable=False)
@@ -344,7 +353,7 @@ class RSVP(TimeStampedModel):
     form_submission = models.ForeignKey('people.PersonFormSubmission', on_delete=models.SET_NULL, null=True, editable=False, related_name='rsvp')
     guests_form_submissions = models.ManyToManyField('people.PersonFormSubmission', related_name='guest_rsvp')
 
-    canceled = models.BooleanField(_('Annulé'), default=False)
+    status = models.CharField(_('Statut'), max_length=2, default=STATUS_CONFIRMED, choices=STATUS_CHOICES, blank=False)
 
     notifications_enabled = models.BooleanField(_('Recevoir les notifications'), default=True)
 
