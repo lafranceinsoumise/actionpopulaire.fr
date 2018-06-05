@@ -183,6 +183,8 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     calendar_names.short_description = _('Agendas')
 
     def add_organizer_button(self, object):
+        if object.pk is None:
+            return mark_safe('-')
         return format_html(
             '<a href="{}" class="button">+ Organisateur</a>',
             reverse('admin:events_events_add_organizer', args=(object.pk,))
