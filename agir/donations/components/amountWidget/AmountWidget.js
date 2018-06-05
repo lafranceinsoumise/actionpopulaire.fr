@@ -53,10 +53,10 @@ class AmountWidget extends React.Component {
       <p>
         {state.value ?
           <strong>
-            Après réduction d&apos;impôt, ma contribution nette sera de
+            Si je paye des impôts, après réduction, ma contribution nette sera de
             seulement <em className="text-danger">{displayNumber(state.value * 0.34)}</em>&nbsp;€&nbsp;!
           </strong> :
-          <strong>En donnant, je profite d&apos;une réduction d&apos;impôt de 66&nbsp;% de la somme donnée !</strong>}
+          <strong>Si je paye des impôts, je profite d&apos;une réduction d&apos;impôt de 66&nbsp;% de la somme donnée !</strong>}
       </p>
     </div>;
   }
