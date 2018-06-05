@@ -805,6 +805,7 @@ class PersonFormTestCase(TestCase):
             description='Ma description simple',
             confirmation_note='Ma note de fin',
             main_question='QUESTION PRINCIPALE',
+            send_confirmation=True,
             custom_fields=[{
                 'title': 'Profil',
                 'fields': [{
@@ -877,7 +878,8 @@ class PersonFormTestCase(TestCase):
         self.assertContains(res, self.single_tag_form.title)
         self.assertContains(res, self.single_tag_form.confirmation_note)
 
-    def test_can_validate_simple_form(self):
+    @mock.patch('agir.people.tasks.send_person_form_confirmation')
+    def test_can_validate_simple_form(self, send_confirmation):
         res = self.client.get('/formulaires/formulaire-simple/')
 
         # contains phone number field
@@ -900,6 +902,8 @@ class PersonFormTestCase(TestCase):
         submissions = PersonFormSubmission.objects.all()
         self.assertEqual(len(submissions), 1)
         self.assertEqual(submissions[0].data['contact_phone'], '+33604030204')
+
+        send_confirmation.delay.assert_called_once()
 
     def test_can_validate_complex_form(self):
         res = self.client.get('/formulaires/formulaire-complexe/')

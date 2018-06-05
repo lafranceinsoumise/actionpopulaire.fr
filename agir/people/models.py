@@ -373,11 +373,14 @@ class PersonForm(TimeStampedModel):
             "Description visible en haut de la page de remplissage du formulaire"
         ),
     )
+
+    send_confirmation = models.BooleanField(_("Envoyer une confirmation par email"), default=False)
+
     confirmation_note = DescriptionField(
         _('Note après complétion'),
         allowed_tags=settings.ADMIN_ALLOWED_TAGS,
         help_text=_(
-            "Note montrée à l'utilisateur une fois le formulaire validé."
+            "Note montrée (et éventuellement envoyée par email) à l'utilisateur une fois le formulaire validé."
         )
     )
     before_message = DescriptionField(

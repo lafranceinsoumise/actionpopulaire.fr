@@ -247,7 +247,7 @@ class PersonFormAdmin(admin.ModelAdmin):
             'fields': ('main_question', 'tags', 'custom_fields')
         }),
         (_('Textes'), {
-            'fields': ('description', 'confirmation_note', 'before_message', 'after_message')
+            'fields': ('description', 'confirmation_note', 'send_confirmation', 'before_message', 'after_message')
          }),
     )
 
