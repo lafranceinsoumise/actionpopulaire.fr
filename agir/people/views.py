@@ -255,7 +255,7 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
         r = super().form_valid(form)
         if self.person_form_instance.send_confirmation:
             tasks.send_person_form_confirmation.delay(form.submission.pk)
-        if self.person_form_instance.send_answers_to is not None:
+        if self.person_form_instance.send_answers_to:
             tasks.send_person_form_notification.delay(form.submission.pk)
 
         return r
