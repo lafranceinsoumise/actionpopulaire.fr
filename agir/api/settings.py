@@ -209,6 +209,8 @@ EMAIL_TEMPLATES = {
     "EVENT_CANCELLATION": "https://mosaico.jlm2017.fr/emails/94c7cbb3-afdc-4d14-a07a-cf9503db5b5f.html",
     # FORM_CONFIRMATION variables : CONFIRMATION_NOTE
     "FORM_CONFIRMATION": "https://mosaico.jlm2017.fr/emails/6172a755-0459-4f01-b3e4-fcfa835224b0.html",
+    # FORM_NOTIFICATION variables : PERSON_EMAIL, INFORMATIONS
+    "FORM_NOTIFICATION": "https://mosaico.jlm2017.fr/emails/45cd8bc1-8fb6-4ab6-bb67-739fd7e2e68e.html"
 }
 
 EMAIL_FROM = os.environ.get('EMAIL_FROM', 'La France insoumise <noreply@lafranceinsoumise.fr>')

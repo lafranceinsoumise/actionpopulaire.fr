@@ -1,5 +1,6 @@
 from celery import shared_task
 from django.conf import settings
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from agir.lib.utils import front_url
@@ -62,5 +63,38 @@ def send_person_form_confirmation(submission_pk):
         subject=_("Confirmation"),
         from_email=settings.EMAIL_FROM,
         recipients=[person],
+        bindings=bindings,
+    )
+
+@shared_task
+def send_person_form_notification(submission_pk):
+    try:
+        submission = PersonFormSubmission.objects.get(pk=submission_pk)
+    except :
+        return
+
+    form = submission.form
+
+    if form.send_answers_to is None:
+        return
+
+    person = submission.person
+
+    fields = [field for fieldset in form.custom_fields for field in fieldset['fields']]
+    data = {(field.get('label') or Person._meta.get_field(field['id']).verbose_name): submission.data.get(field['id'], 'NA') for field in fields}
+    data['Date'] = submission.modified
+
+    bindings = {
+        "ANSWER_EMAIL": person.email,
+        "FORM_NAME": form.title,
+        "INFORMATIONS": mark_safe('<br>'.join([f'{key} : {data[key]}' for key in data.keys()]))
+    }
+
+    send_mosaico_email(
+        code='FORM_NOTIFICATION',
+        subject=_("Formulaire : " + form.title),
+        from_email=settings.EMAIL_FROM,
+        reply_to=[person.email],
+        recipients=[form.send_answers_to],
         bindings=bindings,
     )

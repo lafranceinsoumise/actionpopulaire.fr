@@ -366,6 +366,8 @@ class PersonForm(TimeStampedModel):
     start_time = models.DateTimeField(_("Date d'ouverture du formulaire"), null=True, blank=True)
     end_time = models.DateTimeField(_("Date de fermeture du formulaire"), null=True, blank=True)
 
+    send_answers_to = models.EmailField(_("Envoyer les réponses par email à une adresse email (facultatif)"), blank=True)
+
     description = DescriptionField(
         _('Description'),
         allowed_tags=settings.ADMIN_ALLOWED_TAGS,

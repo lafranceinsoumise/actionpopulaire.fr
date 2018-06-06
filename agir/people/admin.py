@@ -238,7 +238,7 @@ class PersonFormAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('title', 'slug', 'published', 'start_time', 'end_time')
+            'fields': ('title', 'slug', 'published', 'start_time', 'end_time', 'send_answers_to')
         }),
         (_('Soumissions'), {
             'fields': ('submissions_number', 'simple_link', 'action_buttons')
