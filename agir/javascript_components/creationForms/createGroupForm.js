@@ -106,7 +106,7 @@ class GroupTypeStep extends FormStep {
 
   isValidated() {
     const {subtypes} = this.props.fields;
-    return subtypes && subtypes.length !== 0;
+    return !!subtypes && subtypes.length !== 0;
   }
 
   subtypesFor(type) {
