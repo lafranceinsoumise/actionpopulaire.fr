@@ -51,7 +51,7 @@ def get_context_from_bindings(code, recipient, bindings):
 
 
 def send_mosaico_email(code, subject, from_email, recipients, bindings=None, connection=None, backend=None,
-                       fail_silently=False, preferences_link=True):
+                       fail_silently=False, preferences_link=True, reply_to=None):
     """Send an email from a Mosaico template
 
     :param code: the code identifying the Mosaico template
@@ -64,7 +64,9 @@ def send_mosaico_email(code, subject, from_email, recipients, bindings=None, con
     :param fail_silently: whether any error should be raised, or just be ignored; by default it will raise
     :param gen_connection_params_function: a function that takes a recipient and generates connection params
     """
-    if isinstance(recipients, Person):
+    try:
+        iter(recipients)
+    except TypeError:
         recipients = [recipients]
 
     if bindings is None:
@@ -81,12 +83,16 @@ def send_mosaico_email(code, subject, from_email, recipients, bindings=None, con
     template = loader.get_template(f'mail_templates/{code}.html')
 
     for recipient in recipients:
-        if link_bindings:
+        # recipient can be either a Person or an email address
+        if link_bindings and isinstance(recipient, Person):
             connection_params = generate_token_params(recipient)
             for key, value in link_bindings.items():
                 bindings[key] = add_params_to_urls(value, connection_params)
 
-        context = get_context_from_bindings(code, recipient, bindings)
+        if isinstance(recipient, Person):
+            context = get_context_from_bindings(code, recipient, bindings)
+        else:
+            context = dict(bindings)
 
         html_message = template.render(context=context)
         text_message = generate_plain_text(html_message)
@@ -95,8 +101,9 @@ def send_mosaico_email(code, subject, from_email, recipients, bindings=None, con
             subject=subject,
             body=text_message,
             from_email=from_email,
-            to=[recipient.email],
-            connection=connection
+            reply_to=reply_to,
+            to=[recipient.email if isinstance(recipient, Person) else recipient],
+            connection=connection,
         )
         email.attach_alternative(html_message, "text/html")
         email.send(fail_silently=fail_silently)

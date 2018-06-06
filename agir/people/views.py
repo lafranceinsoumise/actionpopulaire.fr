@@ -11,6 +11,7 @@ from django.views.generic import CreateView, UpdateView, TemplateView, DeleteVie
 from django.views.generic.edit import FormView
 from django.utils import timezone
 
+from agir.people import tasks
 from .models import Person, PersonForm
 
 from agir.front.view_mixins import HardLoginRequiredMixin, SimpleOpengraphMixin
@@ -250,6 +251,14 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
             return self.get(request, *args, **kwargs)
         return super().post(request, *args, **kwargs)
 
+    def form_valid(self, form):
+        r = super().form_valid(form)
+        if self.person_form_instance.send_confirmation:
+            tasks.send_person_form_confirmation.delay(form.submission.pk)
+        if self.person_form_instance.send_answers_to is not None:
+            tasks.send_person_form_notification.delay(form.submission.pk)
+
+        return r
 
 class PeopleFormConfirmationView(DetailView):
     template_name = 'people/person_form_confirmation.html'

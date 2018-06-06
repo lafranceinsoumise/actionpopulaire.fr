@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # create target directory in case it does not exist
-        target = Path('./lib/templates/mail_templates/')
+        target = Path('./agir/lib/templates/mail_templates/')
         target.mkdir(0o755, True, True)
 
         var_regex = re.compile(r'\[([-A-Z_]+)\]')

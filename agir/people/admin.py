@@ -238,7 +238,7 @@ class PersonFormAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('title', 'slug', 'published', 'start_time', 'end_time')
+            'fields': ('title', 'slug', 'published', 'start_time', 'end_time', 'send_answers_to')
         }),
         (_('Soumissions'), {
             'fields': ('submissions_number', 'simple_link', 'action_buttons')
@@ -247,7 +247,7 @@ class PersonFormAdmin(admin.ModelAdmin):
             'fields': ('main_question', 'tags', 'custom_fields')
         }),
         (_('Textes'), {
-            'fields': ('description', 'confirmation_note', 'before_message', 'after_message')
+            'fields': ('description', 'confirmation_note', 'send_confirmation', 'before_message', 'after_message')
          }),
     )
 

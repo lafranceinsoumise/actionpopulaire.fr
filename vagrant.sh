@@ -41,14 +41,37 @@ sudo systemctl daemon-reload
 sudo systemctl enable mailhog
 sudo systemctl start mailhog
 
+echo "Install Celery..."
+sudo -H pip install celery
+sudo bash -c "cat > /etc/systemd/system/celery.service" <<EOT
+[Unit]
+Description=fi-api celery worker
+
+[Service]
+WorkingDirectory=/vagrant
+ExecStart=/usr/local/bin/pipenv run celery worker --app agir.api --concurrency 2 --logfile=/dev/null
+User=vagrant
+Group=vagrant
+Restart=on-failure
+KillSignal=SIGTERM
+Type=simple
+
+[Install]
+WantedBy=multi-user.target vagrant.mount
+EOT
+sudo systemctl daemon-reload
+sudo systemctl enable celery
+sudo systemctl start celery
+
+
 echo "Install django dev server..."
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get -yqq update
 sudo apt-get -yqq install python3.6 python3.6-dev python3-pip libsystemd-dev
 sudo -H pip3 install pipenv
 cd /vagrant
-pipenv install
-pivenv run ./manage.py migrate
+/urs/local/bin/pipenv install
+/urs/local/bin/pivenv run ./manage.py migrate
 sudo bash -c "cat > /etc/systemd/system/django.service" <<EOT
 [Unit]
 Description=Django Development Server
@@ -61,7 +84,6 @@ WorkingDirectory=/vagrant
 ExecStart=/usr/local/bin/pipenv run ./manage.py runserver 0.0.0.0:8000
 StandardOutput=journal
 Restart=on-failure
-Wants=vagrant.mount
 
 [Install]
 WantedBy=multi-user.target vagrant.mount
