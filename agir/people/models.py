@@ -1,9 +1,9 @@
 import warnings
+from collections import OrderedDict
 from django.db import models, transaction
 from django.contrib.postgres.fields import JSONField
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.functional import cached_property
 from django.conf import settings
@@ -406,7 +406,9 @@ class PersonForm(TimeStampedModel):
 
     @property
     def fields_dict(self):
-        return {field['id']: field for fieldset in self.custom_fields for field in fieldset['fields']}
+        return OrderedDict(
+            (field['id'], field) for fieldset in self.custom_fields for field in fieldset['fields']
+        )
 
     @property
     def is_open(self):
@@ -428,10 +430,6 @@ class PersonForm(TimeStampedModel):
                 return self.html_after_message()
             else:
                 return "Ce formulaire est maintenant fermé."
-
-    def get_form(self):
-        from .forms import get_people_form_class
-        return get_people_form_class(self)
 
     def __str__(self):
         return "« {} »".format(self.title)
