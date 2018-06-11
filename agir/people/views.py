@@ -217,7 +217,7 @@ class DeleteEmailAddressView(HardLoginRequiredMixin, DeleteView):
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        if len(self.get_queryset() <= 1):
+        if len(self.get_queryset()) <= 1:
             return HttpResponseRedirect(self.success_url)
         return super().post(request, *args, **kwargs)
 
