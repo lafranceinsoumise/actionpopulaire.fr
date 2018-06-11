@@ -7,6 +7,7 @@ from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 import django_otp
 
+
 class PersonAuthenticationForm(django_otp.admin.OTPAdminAuthenticationForm):
     username = forms.EmailField(
         label=_('Adresse email'),
@@ -57,6 +58,7 @@ class APIAdminSite(django_otp.admin.OTPAdminSite):
             request.session[BACKEND_SESSION_KEY] == 'agir.people.backend.PersonBackend'
             and (request.user.is_verified() or not django_otp.user_has_device(request.user))
         )
+
 
 admin_site = APIAdminSite(django_otp.admin.OTPAdminSite.name)
 

@@ -187,7 +187,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             return mark_safe('-')
         return format_html(
             '<a href="{}" class="button">+ Organisateur</a>',
-            reverse('admin:events_events_add_organizer', args=(object.pk,))
+            reverse('admin:events_event_add_organizer', args=(object.pk,))
         )
     add_organizer_button.short_description = _('Ajouter un organisateur')
 
@@ -210,7 +210,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     def get_urls(self):
         return [
-            path('<uuid:pk>/add_organizer/', admin_site.admin_view(self.add_organizer), name="events_events_add_organizer")
+            path('<uuid:pk>/add_organizer/', admin_site.admin_view(self.add_organizer), name="events_event_add_organizer")
         ] + super().get_urls()
 
     def add_organizer(self, request, pk):
