@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from .apps import DonsConfig
 from .tasks import send_donation_email
 from ..people.models import Person
-from ..payments.actions import create_and_get_payment_response
+from ..payments.actions import create_payment, redirect_to_payment
 from ..payments.models import Payment
 
 from . import forms
@@ -58,12 +58,14 @@ class PersonalInformationView(UpdateView):
         person = form.save()
         amount = form.cleaned_data['amount']
 
-        return create_and_get_payment_response(
+        payment = create_payment(
             person=person,
             type=DonsConfig.PAYMENT_TYPE,
             price=amount,
             meta={'nationality': person.meta['nationality']}
         )
+
+        return redirect_to_payment(payment)
 
 
 class ReturnView(TemplateView):

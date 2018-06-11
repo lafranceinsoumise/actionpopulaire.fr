@@ -5,7 +5,7 @@ from .types import PAYMENT_TYPES
 from .payment_modes import DEFAULT_MODE
 
 
-def create_and_get_payment_response(person, type, price, mode=DEFAULT_MODE, meta=None):
+def create_payment(person, type, price, mode=DEFAULT_MODE, meta=None):
     """Generate payment response for person with type and price
 
     :param person: person that is paying, must have all necessary fields (name and location)
@@ -21,14 +21,18 @@ def create_and_get_payment_response(person, type, price, mode=DEFAULT_MODE, meta
     person_fields = ['first_name', 'last_name', 'email', 'location_address1', 'location_address2', 'location_zip',
                      'location_state', 'location_city', 'location_country',]
 
-    return HttpResponseRedirect(Payment.objects.create(
+    return Payment.objects.create(
         person=person,
         type=type,
         mode=mode,
         price=price,
         meta=meta,
         **{f: getattr(person, f) for f in person_fields}
-    ).get_payment_url())
+    )
+
+
+def redirect_to_payment(payment):
+    return HttpResponseRedirect(payment.get_payment_url())
 
 
 def notify_status_change(payment):

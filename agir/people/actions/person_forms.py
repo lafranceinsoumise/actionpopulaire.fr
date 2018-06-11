@@ -85,9 +85,12 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         self.helper.layout = Layout(*parts)
 
-    def save_submission(self):
+    def save_submission(self, person):
+        if person is None:
+            person = self.instance
+
         self.submission = PersonFormSubmission.objects.create(
-            person=self.instance,
+            person=person,
             form=self.person_form_instance,
             data={
                 field['id']: str(self.cleaned_data[field['id']])
@@ -105,7 +108,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             self.instance.tags.add(self.tag)
 
         if not hasattr(self, 'submission'):
-            self.save_submission()
+            self.save_submission(self.instance)
 
     class Meta:
         model = Person

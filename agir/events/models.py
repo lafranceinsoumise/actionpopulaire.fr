@@ -167,9 +167,6 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
 
     @property
     def participants(self):
-        if self.payment_parameters is not None:
-            return None
-
         try:
             return self._participants
         except AttributeError:
@@ -340,8 +337,8 @@ class RSVP(TimeStampedModel):
     STATUS_CANCELED = 'CA'
     STATUS_CHOICES = (
         (STATUS_AWAITING_PAYMENT, _('En attente du paiement')),
-        (STATUS_CONFIRMED, _('Confirmé')),
-        (STATUS_CANCELED, _('Annulé')),
+        (STATUS_CONFIRMED, _('Inscription confirmée')),
+        (STATUS_CANCELED, _('Inscription annulée')),
     )
 
     objects = RSVPQuerySet.as_manager()
@@ -350,8 +347,10 @@ class RSVP(TimeStampedModel):
     event = models.ForeignKey('Event', related_name='rsvps', on_delete=models.CASCADE, editable=False)
     guests = models.PositiveIntegerField(_("nombre d'invités supplémentaires"), default=0, null=False)
 
-    form_submission = models.ForeignKey('people.PersonFormSubmission', on_delete=models.SET_NULL, null=True, editable=False, related_name='rsvp')
-    guests_form_submissions = models.ManyToManyField('people.PersonFormSubmission', related_name='guest_rsvp')
+    payment = models.OneToOneField('payments.Payment', on_delete=models.SET_NULL, null=True, editable=False, related_name='rsvp')
+    form_submission = models.OneToOneField('people.PersonFormSubmission', on_delete=models.SET_NULL, null=True, editable=False, related_name='rsvp')
+    guests_form_submissions = models.ManyToManyField('people.PersonFormSubmission', related_name='guest_rsvp',
+                                                     through='IdentifiedGuest')
 
     status = models.CharField(_('Statut'), max_length=2, default=STATUS_CONFIRMED, choices=STATUS_CHOICES, blank=False)
 
@@ -369,6 +368,16 @@ class RSVP(TimeStampedModel):
         return _('{person} --> {event} ({guests} invités').format(
             person=self.person, event=self.event, guests=self.guests
         )
+
+
+class IdentifiedGuest(models.Model):
+    rsvp = models.ForeignKey('RSVP', on_delete=models.CASCADE, null=False, related_name='identified_guests')
+    submission = models.ForeignKey('people.PersonFormSubmission', on_delete=models.SET_NULL, null=True, db_column='personformsubmission_id')
+    status = models.CharField(_('Statut'), max_length=2, default=RSVP.STATUS_CONFIRMED, choices=RSVP.STATUS_CHOICES, blank=False)
+    payment = models.OneToOneField('payments.Payment', on_delete=models.SET_NULL, null=True, editable=False, related_name='identified_guest')
+
+    class Meta:
+        db_table = 'events_rsvp_guests_form_submissions'
 
 
 class OrganizerConfig(models.Model):

@@ -23,24 +23,27 @@
     <div class="row"><div class="col-responsive">
         <h2 class="headline">{{ event.subscription_form.title }}</h2>
         {% if rsvp %}
-            <h3>Vous êtes bien inscrit⋅e à cet événement</h3>
+            <h3>{{ rsvp.get_status_display }}</h3>
             <p>
                 Voici les informations que vous avez donné :
             </p>
+
             <ul>
-                {% for label, value in submission_data.items %}
-                    {% if value %}
-                        <li><b>{{ label }}&nbsp;: {{ value }}</b></li>
+                {% for item in submission_data %}
+                    {% if item.value %}
+                        <li><strong>{{ item.label }}</strong>&nbsp;: {{ item.value }}</li>
                     {% endif %}
                 {% endfor %}
             </ul>
             {% if guests_submission_data %}
                 <p>Vous avez inscrit d'autre personnes :</p>
-                {% for submission_data in guests_submission_data %}
+                {% for status, submission_data in guests_submission_data %}
+                    <h4>Invité {{ forloop.counter }}</h4>
                     <ul>
-                    {% for label, value in submission_data.items %}
-                        {% if value %}
-                            <li><b>{{ label }}&nbsp;: {{ value }}</b></li>
+                        <li><strong>{{ status }}</strong></li>
+                    {% for item in submission_data %}
+                        {% if item.value %}
+                            <li><strong>{{ item.label }}</strong>&nbsp;: {{ item.value }}</li>
                         {% endif %}
                     {% endfor %}
                     </ul>
