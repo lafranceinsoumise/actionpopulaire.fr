@@ -113,6 +113,7 @@ def load_fake_data():
         'people': people,
         'groups': groups,
         'events': events,
+        'calendars': calendars,
         'thematic_groups': thematic_groups,
         'group_subtypes': groups_subtypes,
     }
@@ -121,4 +122,8 @@ def load_fake_data():
 class FakeDataMixin():
     def setUp(self):
         self.data = load_fake_data()
+
+        for k, v in self.data.items():
+            setattr(self, k, v)
+
         super().setUp()
