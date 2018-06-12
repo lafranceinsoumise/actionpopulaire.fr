@@ -23,8 +23,8 @@ def add_member(model_admin, request, pk):
         form = AddOrganizerForm(event, request.POST)
 
         if form.is_valid():
-            membership = form.save()
-            messages.success(request, _("{email} a bien été enregistré comme participant à l'événement").format(email=membership.person.email))
+            organizer_config = form.save()
+            messages.success(request, _("{email} a bien été enregistré comme participant à l'événement").format(email=organizer_config.person.email))
 
             return HttpResponseRedirect(
                 reverse(

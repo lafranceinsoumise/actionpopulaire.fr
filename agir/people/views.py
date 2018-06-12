@@ -211,10 +211,15 @@ class DeleteEmailAddressView(HardLoginRequiredMixin, DeleteView):
     def get_queryset(self):
         return self.request.user.person.emails.all()
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         if len(self.get_queryset()) <= 1:
-            return HttpResponseForbidden(b'forbidden')
-        return super().dispatch(request, *args, **kwargs)
+            return HttpResponseRedirect(self.success_url)
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if len(self.get_queryset()) <= 1:
+            return HttpResponseRedirect(self.success_url)
+        return super().post(request, *args, **kwargs)
 
 
 class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
