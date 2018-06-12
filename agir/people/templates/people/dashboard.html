@@ -15,7 +15,10 @@
                 Attention&nbsp;! Le fait que vous organisiez un événement ne veut pas nécessairement
                 dire que vous y participez, même si c'est souvent le cas.
             </div>
-            <h3>Mon agenda
+            <h3 class="clearfix">Mon agenda
+                <a class="pull-right btn btn-default btn-sm" href="{% url 'list_all_events' %}">
+                    <i class="fa fa-search"></i> Rechercher un événement
+                </a>
                 <a class="pull-right btn btn-default btn-sm" href="{% url 'create_event' %}">
                     <i class="fa fa-plus"></i> Créer un événement
                     <div class="help-dialog" data-hint="Les informations de votre événement">
@@ -45,7 +48,10 @@
                 <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
                     Charte des groupes d’action de la France insoumise</a>.
             </div>
-            <h3>Mes groupes
+            <h3 class="clearfix">Mes groupes
+                <a class="pull-right btn btn-default btn-sm" href="{% url 'list_all_groups' %}">
+                    <i class="fa fa-search"></i> Rechercher un groupe
+                </a>
                 <a class="pull-right btn btn-default btn-sm" href="{% url 'create_group' %}">
                     <i class="fa fa-plus"></i> Créer un groupe
                 </a>

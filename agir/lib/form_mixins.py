@@ -190,7 +190,7 @@ class SearchByZipCodeFormBase(forms.Form):
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _("Indiquez une autre adresse autour de laquelle chercher des événements"),
+                'placeholder': _("Indiquez une autre adresse autour de laquelle rechercher"),
                 'class': 'form-control'
             }
         )
