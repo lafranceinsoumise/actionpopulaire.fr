@@ -45,7 +45,7 @@ MAILTRAIN_HOST = os.environ.get('MAILTRAIN_HOST', 'http://localhost:8080')
 MAILTRAIN_LIST_ID = os.environ.get('MAILTRAIN_LIST_ID', 'SyWda9pi')
 MAILTRAIN_DISABLE = DEBUG
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,b4638677.ngrok.io').split(',')
 
 # Application definition
 
@@ -116,6 +116,7 @@ INSTALLED_APPS = [
     'agir.webhooks',
     'agir.payments',
     'agir.donations',
+    'agir.system_pay',
 ]
 
 MIDDLEWARE = [
@@ -205,6 +206,8 @@ EMAIL_TEMPLATES = {
     "EVENT_RSVP_NOTIFICATION": "https://mosaico.jlm2017.fr/emails/6f2eb6f0-cf59-4e2e-ab62-a8d204c6166b.html",
     # EVENT_RSVP_CONFIRMATION variables EVENT_NAME  EVENT_SCHEDULE CONTACT_NAME CONTACT_EMAIL LOCATION_NAME LOCATION_ADDRESS EVENT_LINK
     "EVENT_RSVP_CONFIRMATION": "https://mosaico.jlm2017.fr/emails/71fa1bc8-1b94-4d88-98dc-27c5502b83f8.html",
+    # EVENT_GUEST_CONFIRMATION variables EVENT_NAME  EVENT_SCHEDULE CONTACT_NAME CONTACT_EMAIL LOCATION_NAME LOCATION_ADDRESS EVENT_LINK
+    "EVENT_GUEST_CONFIRMATION": "https://mosaico.jlm2017.fr/emails/eded7af1-8ded-4150-a33c-b4902b34d54c",
     # EVENT_CANCELLATION variables: EVENT_NAME
     "EVENT_CANCELLATION": "https://mosaico.jlm2017.fr/emails/94c7cbb3-afdc-4d14-a07a-cf9503db5b5f.html",
     # FORM_CONFIRMATION variables : CONFIRMATION_NOTE
@@ -475,3 +478,9 @@ COUNTRIES_FIRST_REPEAT = True
 # allows the administrator to temporarily disable sending to specific domains
 EMAIL_DISABLED_DOMAINS = [d.lower() for d in os.environ.get('EMAIL_DISABLED_DOMAINS').split(',')] \
     if 'EMAIL_DISABLED_DOMAINS' in os.environ else []
+
+
+# The first one will be the default one
+PAYMENT_MODES = [
+    'agir.system_pay.SystemPayPaymentMode',
+]

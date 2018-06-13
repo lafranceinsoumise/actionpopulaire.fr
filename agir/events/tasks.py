@@ -131,6 +131,33 @@ def send_rsvp_notification(rsvp_pk):
 
 
 @shared_task
+def send_guest_confirmation(rsvp_pk):
+    try:
+        rsvp = RSVP.objects.select_related('person', 'event').get(pk=rsvp_pk)
+    except RSVP.DoesNotExist:
+        # RSVP does not exist any more?!
+        return
+
+    attendee_bindings = {
+        "EVENT_NAME": rsvp.event.name,
+        "EVENT_SCHEDULE": rsvp.event.get_display_date(),
+        "CONTACT_NAME": rsvp.event.contact_name,
+        "CONTACT_EMAIL": rsvp.event.contact_email,
+        "LOCATION_NAME": rsvp.event.location_name,
+        "LOCATION_ADDRESS": rsvp.event.short_address,
+        "EVENT_LINK": front_url("view_event", args=[rsvp.event.pk])
+    }
+
+    send_mosaico_email(
+        code='EVENT_GUEST_CONFIRMATION',
+        subject=_("Confirmation pour votre invité à l'événement"),
+        from_email=settings.EMAIL_FROM,
+        recipients=[rsvp.person],
+        bindings=attendee_bindings
+    )
+
+
+@shared_task
 def send_cancellation_notification(event_pk):
     try:
         event = Event.objects.get(pk=event_pk)

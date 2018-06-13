@@ -17,7 +17,7 @@ from django.contrib.admin.utils import display_for_value
 from django.contrib.gis.admin import OSMGeoAdmin
 from agir.api.admin import admin_site
 
-from .forms import all_person_field_names
+from .actions.person_forms import validate_custom_fields
 from .models import Person, PersonTag, PersonEmail, PersonForm
 from agir.authentication.models import Role
 from agir.events.models import RSVP
@@ -200,33 +200,7 @@ class PersonFormForm(forms.ModelForm):
 
     def clean_custom_fields(self):
         value = self.cleaned_data['custom_fields']
-        if not isinstance(value, list):
-            raise ValidationError('La valeur doit être une liste')
-        for fieldset in value:
-            if not (fieldset.get('title') and isinstance(fieldset['fields'], list)):
-                raise ValidationError('Les sections doivent avoir un "title" et une liste "fields"')
-
-            for i, field in enumerate(fieldset['fields']):
-                if field['id'] == 'location':
-                    initial_field = fieldset['fields'].pop(i)
-                    for location_field in [
-                        'location_country',
-                        'location_state',
-                        'location_city',
-                        'location_zip',
-                        'location_address2',
-                        'location_address1',
-                    ]:
-                        fieldset['fields'].insert(i, {
-                            'id': location_field,
-                            'person_field': True,
-                            'required': False if location_field == 'location_address2' else initial_field.get('required', True)
-                        })
-                    continue
-                if field.get('person_field') and field['id'] in all_person_field_names:
-                    continue
-                elif not field.get('label') or not field.get('type'):
-                    raise ValidationError('Les champs doivent avoir un label et un type')
+        validate_custom_fields(value)
 
         return value
 

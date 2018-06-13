@@ -5,9 +5,10 @@ from django.utils import timezone
 from crispy_forms.helper import FormHelper
 from crispy_forms import layout
 
-from ..groups.models import SupportGroup
-from ..lib.form_components import *
-from ..lib.form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
+from agir.groups.models import SupportGroup
+from agir.lib.form_components import *
+from agir.lib.form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
+from agir.people.forms import BasePersonForm
 
 from ..people.models import Person, PersonFormSubmission
 from .models import Event, OrganizerConfig, RSVP, EventImage, EventSubtype
@@ -368,12 +369,14 @@ class BillingForm(forms.ModelForm):
     # these fields are used to make sure there's no problem if user starts paying several events at the same time
     event = forms.ModelChoiceField(Event.objects.all(), required=True, widget=forms.HiddenInput)
     submission = forms.ModelChoiceField(PersonFormSubmission.objects.all(), widget=forms.HiddenInput, required=False)
+    is_guest = forms.BooleanField(required=False, widget=forms.HiddenInput)
 
-    def __init__(self, *args, event, submission, **kwargs):
+    def __init__(self, *args, event, submission, is_guest, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields['submission'].initial = submission
         self.fields['event'].initial = event
+        self.fields['is_guest'].initial = is_guest
 
         for f in ['first_name', 'last_name', 'location_address1', 'location_zip', 'location_city', 'location_country',
                   'contact_phone']:
@@ -410,5 +413,16 @@ class BillingForm(forms.ModelForm):
             'location_country', 'contact_phone', 'subscribed'
         )
 
+
 class GuestsForm(forms.Form):
     guests = forms.IntegerField()
+
+
+class BaseRSVPForm(BasePersonForm):
+    is_guest = forms.BooleanField(required=False, widget=forms.HiddenInput())
+
+    def __init__(self, *args, is_guest=False, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['is_guest'].initial = is_guest
+        self.helper.layout.append('is_guest')

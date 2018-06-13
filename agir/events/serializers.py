@@ -107,7 +107,7 @@ class RSVPSerializer(serializers.HyperlinkedModelSerializer):
     """
     class Meta:
         model = models.RSVP
-        fields = ('id', 'url', 'person', 'event', 'guests', 'canceled', )
+        fields = ('id', 'url', 'person', 'event', 'guests', 'status', )
         read_only_fields = ('id', 'url', 'person', 'event', )
         extra_kwargs = {
             'url': {'view_name': 'legacy:rsvp-detail'},
@@ -122,7 +122,7 @@ class RSVPCreationSerializer(serializers.HyperlinkedModelSerializer):
     Unlike the basic RSVPSerializer, it allows the user to set the ̀person` and `event` fields.
     """
     class Meta:
-        fields = ('person', 'event', 'guests', 'canceled')
+        fields = ('person', 'event', 'guests', 'status')
         read_only_fields = ()
         extra_kwargs = {
             'url': {'view_name': 'legacy:rsvp-detail'},
@@ -139,7 +139,7 @@ class EventRSVPBulkSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         list_serializer_class = EventRSVPListSerializer
         model = models.RSVP
-        fields = ('person', 'guests', 'canceled', )
+        fields = ('person', 'guests', 'status', )
         extra_kwargs = {
             'person': {'view_name': 'legacy:person-detail', 'read_only': False, 'queryset': Person.objects.all()},
         }
@@ -151,7 +151,7 @@ class EventRSVPCreatableSerializer(serializers.HyperlinkedModelSerializer):
     """
     class Meta:
         model = models.RSVP
-        fields = ('person', 'guests', 'canceled', )
+        fields = ('person', 'guests', 'status', )
         extra_kwargs = {
             'person': {'view_name': 'legacy:person-detail', 'read_only': False, 'queryset': Person.objects.all()},
         }

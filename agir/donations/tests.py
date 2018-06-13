@@ -43,9 +43,9 @@ class DonationTestCase(TestCase):
         res = self.client.post(information_url, self.donation_information_payload)
         # no other payment
         payment = Payment.objects.get()
-        self.assertRedirects(res, reverse('payment_redirect', args=(payment.pk,)))
+        self.assertRedirects(res, reverse('payment_page', args=(payment.pk,)))
 
-        res = self.client.get(reverse('payment_success'))
+        res = self.client.get(reverse('payment_return', args=(payment.pk,)))
         self.assertEqual(res.status_code, 200)
 
         self.p1.refresh_from_db()
@@ -97,7 +97,7 @@ class DonationTestCase(TestCase):
         self.donation_information_payload['fiscal_resident'] = 'Y'
         res = self.client.post(information_url, self.donation_information_payload)
         payment = Payment.objects.get()
-        self.assertRedirects(res, reverse('payment_redirect', args=[payment.pk]))
+        self.assertRedirects(res, reverse('payment_page', args=[payment.pk]))
 
     def test_update_person_when_using_existing_address(self):
         information_url = reverse('donation_information')
@@ -108,7 +108,7 @@ class DonationTestCase(TestCase):
         self.donation_information_payload['email'] = self.p1.email
         res = self.client.post(information_url, self.donation_information_payload)
         payment = Payment.objects.get()
-        self.assertRedirects(res, reverse('payment_redirect', args=[payment.pk]))
+        self.assertRedirects(res, reverse('payment_page', args=[payment.pk]))
 
         self.p1.refresh_from_db()
 
@@ -126,7 +126,7 @@ class DonationTestCase(TestCase):
         self.donation_information_payload['email'] = 'test2@test.com'
         res = self.client.post(information_url, self.donation_information_payload)
         payment = Payment.objects.get()
-        self.assertRedirects(res, reverse('payment_redirect', args=[payment.pk]))
+        self.assertRedirects(res, reverse('payment_page', args=[payment.pk]))
 
         p2 = Person.objects.exclude(pk=self.p1.pk).get()
         # assert fields have been saved on model

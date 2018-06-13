@@ -19,6 +19,7 @@ from .forms import (
     SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm,
     VolunteerForm, MessagePreferencesForm, UnsubscribeForm, AddEmailForm
 )
+from .actions.person_forms import get_people_form_class
 
 from agir.events.models import Event
 from agir.front.view_mixins import SoftLoginRequiredMixin
@@ -239,7 +240,7 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
             raise Http404("Formulaire does not exist")
 
     def get_form_class(self):
-        return self.person_form_instance.get_form()
+        return get_people_form_class(self.person_form_instance)
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(

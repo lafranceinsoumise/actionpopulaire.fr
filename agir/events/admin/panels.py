@@ -187,8 +187,8 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             return mark_safe('-')
         return format_html(
             '<a href="{}" class="button">+ Organisateur</a>',
-            reverse('admin:events_event_add_organizer', args=(object.pk,))
-        )
+            reverse('admin:events_event_add_organizer', args=[object.pk])
+        ) if object.pk else '-'
     add_organizer_button.short_description = _('Ajouter un organisateur')
 
     def attendee_count(self, object):
