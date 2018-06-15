@@ -22,7 +22,7 @@ PAYMENT_ID_SESSION_KEY = '_payment_id'
 
 
 class SystempayRedirectView(TemplateView):
-    template_name = 'payments/redirect.html'
+    template_name = 'system_pay/redirect.html'
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
@@ -78,12 +78,12 @@ def return_view(request):
 
     if payment is None:
         return TemplateResponse(
-            request, 'payments/system_pay/payment_not_identified.html'
+            request, 'system_pay/payment_not_identified.html'
         )
 
     if status != 'success':
         return TemplateResponse(
-            request, 'payments/system_pay/payment_failed.html'
+            request, 'system_pay/payment_failed.html'
         )
 
     return handle_return(request, payment)
