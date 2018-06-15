@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponseNotFound, HttpResponse
 from django.template.response import TemplateResponse
 from django.views.generic import TemplateView
@@ -55,11 +56,12 @@ class SystemPayWebhookView(APIView):
         if payment is None:
             return HttpResponseNotFound()
 
-        payment.events.append(request.data)
-        payment.status = SYSTEMPAY_STATUS_CHOICE.get(request.data['vads_trans_status'])
-        payment.save()
+        with transaction.atomic():
+            payment.events.append(request.data)
+            payment.status = SYSTEMPAY_STATUS_CHOICE.get(request.data['vads_trans_status'])
+            payment.save()
 
-        notify_status_change(payment)
+            notify_status_change(payment)
 
         return HttpResponse({'status': 'Accepted'}, 200)
 

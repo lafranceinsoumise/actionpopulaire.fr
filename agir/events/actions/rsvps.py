@@ -87,7 +87,7 @@ def rsvp_to_free_event(event, person, form_submission=None):
     return rsvp
 
 
-def rsvp_to_paid_event_and_get_payment(event, person, form_submission=None):
+def rsvp_to_paid_event_and_get_payment(event, person, payment_mode, form_submission=None):
     if event.is_free:
         raise RSVPException("Cet événement est gratuit : aucun paiement n'est donc nécessaire.")
 
@@ -98,6 +98,7 @@ def rsvp_to_paid_event_and_get_payment(event, person, form_submission=None):
         payment = create_payment(
             person=person,
             type=EventsConfig.PAYMENT_TYPE,
+            mode=payment_mode.id,
             price=price,
             meta=_get_meta(event, form_submission, False)
         )
@@ -120,6 +121,17 @@ def validate_payment_for_rsvp(payment):
     rsvp.status = RSVP.STATUS_CONFIRMED
     rsvp.save()
     send_rsvp_notification.delay(rsvp.pk)
+    return rsvp
+
+
+def cancel_payment_for_rsvp(payment):
+    try:
+        rsvp = payment.rsvp
+    except RSVP.DoesNotExist:
+        raise RSVPException('No RSVP for this payment')
+
+    rsvp.status = RSVP.STATUS_CANCELED
+    rsvp.save()
     return rsvp
 
 
@@ -151,7 +163,7 @@ def add_free_identified_guest(event, person, submission=None):
     return guest
 
 
-def add_paid_identified_guest_and_get_payment(event, person, form_submission=None):
+def add_paid_identified_guest_and_get_payment(event, person, payment_mode, form_submission=None):
     price = event.get_price(form_submission)
 
     with transaction.atomic():
@@ -159,6 +171,7 @@ def add_paid_identified_guest_and_get_payment(event, person, form_submission=Non
         payment = create_payment(
             person=person,
             type=EventsConfig.PAYMENT_TYPE,
+            mode=payment_mode.id,
             price=price,
             meta=_get_meta(event, form_submission, True)
         )
@@ -179,6 +192,16 @@ def validate_payment_for_guest(payment):
     send_guest_confirmation.delay(guest.rsvp_id)
 
     return guest
+
+
+def cancel_payment_for_guest(payment):
+    try:
+        guest = payment.identified_guest
+    except:
+        raise RSVPException('No identified guest for this payment!')
+
+    guest.status = RSVP.STATUS_CANCELED
+    guest.save()
 
 
 def get_rsvp(event, person):

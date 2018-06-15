@@ -494,6 +494,7 @@ class RSVPTestCase(TestCase):
 
         response = self.client.post(reverse('pay_event'), data={
             'event': self.simple_paying_event.pk,
+            'payment_mode': 'check',
             **self.billing_information
         })
 
@@ -532,6 +533,7 @@ class RSVPTestCase(TestCase):
 
         response = self.client.post(reverse('pay_event'), data={
             'event': self.simple_paying_event.pk,
+            'payment_mode': 'check',
             'is_guest': 'yes',
             **self.billing_information
         })
@@ -571,6 +573,7 @@ class RSVPTestCase(TestCase):
         response = self.client.post(reverse('pay_event'), data={
             'event': self.form_paying_event.pk,
             'submission': submission.pk,
+            'payment_mode': 'check',
             **self.billing_information
         })
 
@@ -620,6 +623,7 @@ class RSVPTestCase(TestCase):
         response = self.client.post(reverse('pay_event'), data={
             'event': self.form_paying_event.pk,
             'submission': submission.pk,
+            'payment_mode': 'check',
             'is_guest': 'yes',
             **self.billing_information
         })

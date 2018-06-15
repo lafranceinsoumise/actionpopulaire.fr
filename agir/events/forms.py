@@ -9,6 +9,7 @@ from agir.groups.models import SupportGroup
 from agir.lib.form_components import *
 from agir.lib.form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
 from agir.people.forms import BasePersonForm
+from agir.payments.payment_modes import PAYMENT_MODES, PaymentModeField
 
 from ..people.models import Person, PersonFormSubmission
 from .models import Event, OrganizerConfig, RSVP, EventImage, EventSubtype
@@ -369,6 +370,7 @@ class BillingForm(forms.ModelForm):
     # these fields are used to make sure there's no problem if user starts paying several events at the same time
     event = forms.ModelChoiceField(Event.objects.all(), required=True, widget=forms.HiddenInput)
     submission = forms.ModelChoiceField(PersonFormSubmission.objects.all(), widget=forms.HiddenInput, required=False)
+    payment_mode = PaymentModeField(required=True)
     is_guest = forms.BooleanField(required=False, widget=forms.HiddenInput)
 
     def __init__(self, *args, event, submission, is_guest, **kwargs):
@@ -399,6 +401,8 @@ class BillingForm(forms.ModelForm):
 
         fields.append('location_country')
         fields.append('contact_phone')
+
+        fields.append('payment_mode')
 
         self.helper = FormHelper()
         self.helper.add_input(layout.Submit('valider', f'Je paie {floatformat(event.get_price(submission)/100, 2)} €'))
