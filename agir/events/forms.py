@@ -384,7 +384,7 @@ class BillingForm(forms.ModelForm):
         self.fields['location_address1'].label = 'Adresse'
         self.fields['location_address2'].label = False
 
-        fields = ['submission', 'event']
+        fields = ['submission', 'event', 'is_guest']
 
         fields.extend(['first_name', 'last_name'])
         fields.extend([

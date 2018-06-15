@@ -485,6 +485,13 @@ class RSVPTestCase(TestCase):
         response = self.client.post(reverse('rsvp_event', args=[self.simple_paying_event.pk]))
         self.assertRedirects(response, reverse('pay_event'))
 
+        response = self.client.get(reverse('pay_event'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, f'name="event" value="{self.simple_paying_event.pk}"')
+        self.assertContains(response, 'name="submission"')
+        self.assertNotContains(response, 'name="submission" value')
+        self.assertContains(response, f'name="is_guest" value="False"')
+
         response = self.client.post(reverse('pay_event'), data={
             'event': self.simple_paying_event.pk,
             **self.billing_information
@@ -516,6 +523,13 @@ class RSVPTestCase(TestCase):
         self.assertEqual(session['is_guest'], True)
         self.assertRedirects(response, reverse('pay_event'))
 
+        response = self.client.get(reverse('pay_event'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, f'name="event" value="{self.simple_paying_event.pk}"')
+        self.assertContains(response, 'name="submission"')
+        self.assertNotContains(response, 'name="submission" value')
+        self.assertContains(response, f'name="is_guest" value="True"')
+
         response = self.client.post(reverse('pay_event'), data={
             'event': self.simple_paying_event.pk,
             'is_guest': 'yes',
@@ -546,9 +560,17 @@ class RSVPTestCase(TestCase):
         })
         self.assertRedirects(response, reverse('pay_event'))
 
+        submission = PersonFormSubmission.objects.get(person=self.person, form=self.subscription_form)
+
+        response = self.client.get(reverse('pay_event'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, f'name="event" value="{self.form_paying_event.pk}"')
+        self.assertContains(response, f'name="submission" value="{submission.pk}"')
+        self.assertContains(response, f'name="is_guest" value="False"')
+
         response = self.client.post(reverse('pay_event'), data={
             'event': self.form_paying_event.pk,
-            'submission': PersonFormSubmission.objects.get(person=self.person, form=self.subscription_form).pk,
+            'submission': submission.pk,
             **self.billing_information
         })
 
@@ -585,11 +607,15 @@ class RSVPTestCase(TestCase):
             'custom-field': 'my guest custom value',
             'is_guest': 'yes',
         })
-        # check that the guest status is well transfered
-        self.assertEqual(session['is_guest'], True)
         self.assertRedirects(response, reverse('pay_event'))
 
         submission = PersonFormSubmission.objects.filter(person=self.already_rsvped).latest('created')
+
+        response = self.client.get(reverse('pay_event'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, f'name="event" value="{self.form_paying_event.pk}"')
+        self.assertContains(response, f'name="submission" value="{submission.pk}"')
+        self.assertContains(response, f'name="is_guest" value="True"')
 
         response = self.client.post(reverse('pay_event'), data={
             'event': self.form_paying_event.pk,
