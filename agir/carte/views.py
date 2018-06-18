@@ -183,7 +183,7 @@ class AbstractListMapView(MapViewMixin, TemplateView):
 
 class AbstractSingleItemMapView(MapViewMixin, DetailView):
     def get_context_data(self, **kwargs):
-        if self.event.coordinates is None:
+        if self.object.coordinates is None:
             raise Http404()
 
         subtype = self.get_subtype()
@@ -197,7 +197,7 @@ class AbstractSingleItemMapView(MapViewMixin, DetailView):
 
         return super().get_context_data(
             subtype_config=mark_safe(json.dumps(icon_config)),
-            coordinates=mark_safe(json.dumps(self.event.coordinates.coords)),
+            coordinates=mark_safe(json.dumps(self.object.coordinates.coords)),
             **kwargs
         )
 
