@@ -216,18 +216,19 @@ def set_guest_number(event, person, guests):
     if event.subscription_form is not None or not event.is_free:
         raise RSVPException(MESSAGES['indiviual_guests'])
 
-    try:
-        rsvp = RSVP.objects.select_for_update().get(event=event, person=person, status=RSVP.STATUS_CONFIRMED)
-    except RSVP.DoesNotExist:
-        raise RSVPException(MESSAGES['not_rsvped_cannot_add_guest'])
+    with transaction.atomic():
+        try:
+            rsvp = RSVP.objects.select_for_update().get(event=event, person=person, status=RSVP.STATUS_CONFIRMED)
+        except RSVP.DoesNotExist:
+            raise RSVPException(MESSAGES['not_rsvped_cannot_add_guest'])
 
-    additional_guests = max(guests - rsvp.guests, 0)
-    _ensure_can_rsvp(event, additional_guests)
+        additional_guests = max(guests - rsvp.guests, 0)
+        _ensure_can_rsvp(event, additional_guests)
 
-    if not event.allow_guests:
-        raise RSVPException(MESSAGES['forbidden_to_add_guest'])
+        if not event.allow_guests:
+            raise RSVPException(MESSAGES['forbidden_to_add_guest'])
 
-    rsvp.guests = guests
-    rsvp.save()
+        rsvp.guests = guests
+        rsvp.save()
 
     send_guest_confirmation.delay(rsvp.pk)
