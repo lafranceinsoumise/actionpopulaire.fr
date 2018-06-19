@@ -1,30 +1,21 @@
 import json
-from unittest import skip, mock
+from unittest import skip
 
-from django.core.exceptions import ValidationError
 from django.test import TestCase
-from django.db import IntegrityError, transaction
 from django.utils import timezone, formats
 from django.utils.http import urlquote_plus
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.geos import Point
-from django.core import mail
 
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework.reverse import reverse
 from rest_framework import status
 
-from agir.lib.utils import front_url
-from agir.groups.models import SupportGroup, Membership
-from agir.payments.models import Payment
-from agir.people.models import Person, PersonForm, PersonFormSubmission
+from agir.people.models import Person
 from agir.clients.models import Client
 
-from .. import tasks
-from ..forms import EventForm
 from ..models import Event, Calendar, RSVP, OrganizerConfig, CalendarItem
-from ..views import notification_listener as event_notification_listener
 from ..viewsets import LegacyEventViewSet, RSVPViewSet
 
 

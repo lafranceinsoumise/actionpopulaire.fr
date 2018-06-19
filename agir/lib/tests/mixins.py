@@ -3,8 +3,8 @@ from datetime import timedelta
 from django.contrib.auth.models import Group
 from django.db import transaction
 from django.utils import timezone
+from django.contrib.gis.geos import Point
 
-from agir.clients import scopes
 from agir.clients.models import Client
 from agir.events.models import Calendar, Event, OrganizerConfig, RSVP
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
@@ -53,8 +53,14 @@ def load_fake_data():
         'test_thematic_booklet': SupportGroupSubtype.objects.create(label='livret test', description='livret test', privileged_only=False, type='B')
     }
     groups = {
-        'user1_group': SupportGroup.objects.create(name='Groupe géré par user1'),
-        'user2_group': SupportGroup.objects.create(name='Groupe géré par user2'),
+        'user1_group': SupportGroup.objects.create(
+            name='Groupe géré par user1',
+            coordinates=Point(2.349722, 48.853056),  # ND de Paris),
+        ),
+        'user2_group': SupportGroup.objects.create(
+            name='Groupe géré par user2',
+            coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
+        ),
     }
     groups_subtypes['local_group_default'].supportgroups.set(groups.values())
     groups_subtypes['certified_local_group'].supportgroups.set([groups['user1_group']])
@@ -79,16 +85,19 @@ def load_fake_data():
             name='Événement créé par user1',
             start_time=timezone.now() + timedelta(days=1),
             end_time=timezone.now() + timedelta(days=1, hours=1),
+            coordinates=Point(5.36472, 43.30028),  # Saint-Marie-Majeure de Marseille
         ),
         'user1_event2': Event.objects.create(
             name='Autre événement créé par user1 sans personne dedans',
             start_time=timezone.now() + timedelta(days=1),
             end_time=timezone.now() + timedelta(days=1, hours=1),
+            coordinates=Point(2.301944, 49.8944),  # ND d'Amiens
         ),
         'user1_past_event': Event.objects.create(
             name='Événement passé créé par user1',
             start_time=timezone.now() + timedelta(days=-1),
             end_time=timezone.now() + timedelta(days=-1, hours=1),
+            coordinates=Point(7.7779, 48.5752),  # ND de Strasbourg
             report_content=LOREM_IPSUM
         ),
         'user1_unpublished_event': Event.objects.create(
@@ -96,6 +105,7 @@ def load_fake_data():
             published=False,
             start_time=timezone.now() + timedelta(days=1),
             end_time=timezone.now() + timedelta(days=1, hours=1),
+            coordinates=Point(2.294444, 48.858333),  # Tour Eiffel
         )
     }
     [OrganizerConfig.objects.create(
