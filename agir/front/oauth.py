@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate, login, logout, BACKEND_SESSION_KEY
 from django.urls import reverse, reverse_lazy
 
 from requests_oauthlib import OAuth2Session
-from oauthlib.oauth2.rfc6749.errors import MismatchingStateError, MissingTokenError
+from oauthlib.oauth2.rfc6749.errors import MismatchingStateError, MissingTokenError, InvalidGrantError
 
 
 logger = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ class OauthReturnView(RedirectView):
                 authorization_response=self.request.build_absolute_uri(),
                 client_id=settings.OAUTH['client_id'], client_secret=settings.OAUTH['client_secret']
             )
-        except (MismatchingStateError, MissingTokenError):
+        except (MismatchingStateError, MissingTokenError, InvalidGrantError):
             return oauth_error_page(request)
 
         if 'profile' not in token:
