@@ -378,6 +378,7 @@ class IdentifiedGuest(models.Model):
 
     class Meta:
         db_table = 'events_rsvp_guests_form_submissions'
+        unique_together = ('rsvp', 'submission')
 
 
 class OrganizerConfig(models.Model):

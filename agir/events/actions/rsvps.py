@@ -1,10 +1,9 @@
 import logging
 from django.db.models import F
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.utils.translation import ugettext as _
 
-from agir.payments.actions import create_payment, redirect_to_payment
-from agir.payments.models import Payment
+from agir.payments.actions import create_payment
 
 from ..apps import EventsConfig
 from ..models import RSVP, IdentifiedGuest
@@ -155,10 +154,13 @@ def _add_identified_guest(event, person, submission, status):
     )
 
 
-def add_free_identified_guest(event, person, submission=None):
+def add_free_identified_guest(event, person, submission):
     with transaction.atomic():
         guest = _add_identified_guest(event, person, submission, RSVP.STATUS_CONFIRMED)
-        guest.save()
+        try:
+            guest.save()
+        except IntegrityError:
+            raise RSVPException('Validé deux fois le formulaire.')
     send_guest_confirmation.delay(guest.rsvp_id)
     return guest
 
@@ -166,17 +168,21 @@ def add_free_identified_guest(event, person, submission=None):
 def add_paid_identified_guest_and_get_payment(event, person, payment_mode, form_submission=None):
     price = event.get_price(form_submission)
 
-    with transaction.atomic():
-        guest = _add_identified_guest(event, person, form_submission, RSVP.STATUS_AWAITING_PAYMENT)
-        payment = create_payment(
-            person=person,
-            type=EventsConfig.PAYMENT_TYPE,
-            mode=payment_mode.id,
-            price=price,
-            meta=_get_meta(event, form_submission, True)
-        )
-        guest.payment = payment
-        guest.save()
+    try:
+        with transaction.atomic():
+            guest = _add_identified_guest(event, person, form_submission, RSVP.STATUS_AWAITING_PAYMENT)
+            payment = create_payment(
+                person=person,
+                type=EventsConfig.PAYMENT_TYPE,
+                mode=payment_mode.id,
+                price=price,
+                meta=_get_meta(event, form_submission, True)
+            )
+            guest.payment = payment
+            guest.save()
+    except IntegrityError:
+        guest = IdentifiedGuest.objects.select_related('payment').get(rsvp=guest.rsvp, submission=form_submission)
+        payment = guest.payment
 
     return payment
 
