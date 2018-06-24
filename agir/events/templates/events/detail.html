@@ -52,7 +52,7 @@
                     {% if rsvp %}
                         <div class="dropdown">
                             <button class="btn btn-primary" data-toggle="dropdown">
-                                Inscription validée{% if rsvp.guests > 0 %} ({{ rsvp.guests|add:1 }} participant⋅e⋅s){% endif %}
+                                {{ rsvp.get_status_display }}{% if rsvp.guests > 0 %} ({{ rsvp.guests|add:1 }} participant⋅e⋅s){% endif %}
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right">
