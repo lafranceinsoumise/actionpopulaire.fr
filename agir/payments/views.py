@@ -1,7 +1,8 @@
-from django.http import Http404, HttpResponseServerError
+from django.db import transaction
+from django.http import HttpResponseRedirect, Http404, HttpResponseServerError
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.views.generic import DetailView
-
 
 from .models import Payment
 from .types import PAYMENT_TYPES
@@ -26,6 +27,34 @@ class PaymentView(DetailView):
             return HttpResponseServerError()
 
         return payment_mode.payment_view(request, payment=self.object, *args, **kwargs)
+
+
+class RetryPaymentView(DetailView):
+    def get_queryset(self):
+        return Payment.objects.filter(
+        mode__in=[mode.id for mode in PAYMENT_MODES.values() if mode.can_retry],
+        type__in=[type.id for type in PAYMENT_TYPES.values() if type.retry],
+        status=Payment.STATUS_WAITING
+    )
+
+    def post(self, request, *args, **kwargs):
+        old_payment = self.object = self.get_object()
+
+        exclude = {'created', 'modified', 'id'}
+
+        # duplicate payment, except for id
+        new_payment = Payment(
+            **{f.name: getattr(old_payment, f.name) for f in old_payment._meta.fields if f.name not in exclude}
+        )
+
+        retry = PAYMENT_TYPES[old_payment.type].retry
+
+        with transaction.atomic():
+            new_payment.save()
+            if callable(retry):
+                retry(old_payment, new_payment)
+
+        return HttpResponseRedirect(reverse('payment_page', args=[new_payment.pk]))
 
 
 def return_view(request, pk):

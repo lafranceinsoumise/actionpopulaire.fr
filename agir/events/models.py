@@ -205,8 +205,7 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
                 'end_time': _("La date de fin de l'événement doit être postérieure à sa date de début.")
             })
 
-    @property
-    def price_display(self):
+    def get_price_display(self):
         if self.payment_parameters is None:
             return None
 

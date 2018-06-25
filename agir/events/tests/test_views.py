@@ -646,6 +646,29 @@ class RSVPTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, 'my guest custom value')
 
+    def test_can_retry_payment_on_rsvp(self):
+        self.client.force_login(self.person.role)
+
+        self.client.post(reverse('rsvp_event', args=[self.simple_paying_event.pk]))
+        response = self.client.post(reverse('pay_event'), data={
+            'event': self.simple_paying_event.pk,
+            'payment_mode': 'system_pay',
+            **self.billing_information
+        })
+
+
+        old_payment = Payment.objects.get()
+        self.assertRedirects(response, reverse('payment_page', args=[old_payment.pk ]))
+
+        response = self.client.post(reverse('payment_retry', args=[old_payment.pk]))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+        self.assertEqual(len(Payment.objects.all()), 2)
+        new_payment = Payment.objects.latest('created')
+
+        self.assertNotEqual(old_payment.pk, new_payment.pk)
+        self.assertRedirects(response, reverse('payment_page', args=[new_payment.pk]))
+
 
 class CalendarPageTestCase(TestCase):
     def setUp(self):
