@@ -346,7 +346,7 @@ class RSVPTestCase(TestCase):
 
         url = reverse('view_event', kwargs={'pk': self.simple_event.pk})
         response = self.client.get(url)
-        self.assertIn('Inscription validée', response.content.decode())
+        self.assertIn('Inscription confirmée', response.content.decode())
         self.assertEqual(1, self.simple_event.participants)
 
     def test_cannot_rsvp_if_max_participants_reached(self):
