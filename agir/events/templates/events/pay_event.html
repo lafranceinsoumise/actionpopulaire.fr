@@ -27,7 +27,7 @@
 
                 <h3>Les informations que vous avez entré&nbsp;:</h3>
                 <ul>
-                    {% for item in submission_data.items %}
+                    {% for item in submission_data %}
                         {% if item.value %}
                             <li><b>{{ item.label }}&nbsp;: {{ item.value }}</b></li>
                         {% endif %}
