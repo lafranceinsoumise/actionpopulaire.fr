@@ -31,14 +31,14 @@ def change_payment_status(status, description):
 
 @admin.register(CheckPayment, site=admin_site)
 class CheckPaymentAdmin(admin.ModelAdmin):
-    list_display = ('type', 'status', 'price', 'person', 'email', 'first_name', 'last_name',)
+    list_display = ('id', 'type', 'status', 'price', 'person', 'email', 'first_name', 'last_name',)
     fields = readonly_fields = (
         'type', 'mode', 'person', 'email', 'first_name', 'last_name', 'price', 'status', 'phone_number',
         'location_address1', 'location_address2', 'location_zip', 'location_city', 'location_country', 'meta', 'events'
     )
 
     list_filter = ('price', 'status',)
-    search_fields = ('email', 'first_name', 'last_name')
+    search_fields = ('id', 'email', 'first_name', 'last_name')
 
     actions = [
         change_payment_status(CheckPayment.STATUS_COMPLETED, _('Marquer comme reçu')),
