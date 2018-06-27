@@ -10,6 +10,8 @@ class SystemPayPaymentMode(AbstractPaymentMode):
     url_fragment = 'carte'
     label = _('Paiement par carte bleue')
 
+    can_retry = True
+
     @cached_property
     def payment_view(self):
         from . import views

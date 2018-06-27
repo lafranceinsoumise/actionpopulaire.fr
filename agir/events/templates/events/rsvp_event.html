@@ -24,6 +24,22 @@
         <h2 class="headline">{{ event.subscription_form.title }}</h2>
         {% if rsvp %}
             <h3>{{ rsvp.get_status_display }}</h3>
+            {% if rsvp.payment %}
+                <ul>
+                    <li><strong>Prix</strong> : {{ rsvp.payment.get_price_display }}</li>
+                    <li><strong>Numéro de transaction</strong> : {{ rsvp.payment.pk }}</li>
+                    <li><strong>Mode de paiement</strong> : {{ rsvp.payment.get_mode_display }}</li>
+                    <li>
+                        <strong>Status</strong> : {{ rsvp.payment.get_status_display }}
+                        {% if rsvp.payment.can_retry %}
+                            <form method="post" action="{% url "payment_retry" rsvp.payment.pk %}">
+                                {% csrf_token %}
+                                <input type="submit" class="btn btn-info" value="Retenter le paiement">
+                            </form>
+                        {% endif %}
+                    </li>
+                </ul>
+            {% endif %}
             <p>
                 Voici les informations que vous avez donné :
             </p>

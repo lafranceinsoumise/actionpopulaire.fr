@@ -1,4 +1,6 @@
 class AbstractPaymentMode():
+    can_retry = False
+
     @property
     def id(self):
         raise NotImplementedError('Must implement this property.')

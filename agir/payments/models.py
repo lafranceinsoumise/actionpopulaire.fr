@@ -51,15 +51,24 @@ class Payment(TimeStampedModel, LocationMixin):
     phone_number = PhoneNumberField('numéro de téléphone', null=True)
 
     type = models.CharField("type", choices=get_payment_choices(), max_length=255)
+    mode = models.CharField(_('Mode de paiement'), max_length=70, null=False, blank=False)
+
     price = models.IntegerField(_("prix en centimes d'euros"))
     status = models.IntegerField("status", choices=STATUS_CHOICES, default=STATUS_WAITING)
     meta = JSONField(blank=True, default=dict)
-    mode = models.CharField(_('Mode de paiement'), max_length=70, null=False, blank=False)
     events = JSONField(_('Événements de paiement'), blank=True, default=list)
 
-    @property
-    def price_display(self):
+    def get_price_display(self):
         return "{} €".format(floatformat(self.price / 100, 2))
+
+    def get_mode_display(self):
+        return PAYMENT_MODES[self.mode].label if self.mode in PAYMENT_MODES else self.mode
 
     def get_payment_url(self):
         return reverse('payment_page', args=[self.pk])
+
+    def can_retry(self):
+        return self.mode in PAYMENT_MODES and PAYMENT_MODES[self.mode].can_retry and self.status != self.STATUS_COMPLETED
+
+    class Meta:
+        get_latest_by = 'created'
