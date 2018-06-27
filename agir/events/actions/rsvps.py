@@ -115,7 +115,7 @@ def validate_payment_for_rsvp(payment):
     try:
         rsvp = payment.rsvp
     except RSVP.DoesNotExist:
-        raise RSVPException('No RSVP for this payment')
+        return logger.error(f'validate_payment_for_rsvp: No RSVP for payment {payment.pk}')
 
     rsvp.status = RSVP.STATUS_CONFIRMED
     rsvp.save()
@@ -127,7 +127,7 @@ def cancel_payment_for_rsvp(payment):
     try:
         rsvp = payment.rsvp
     except RSVP.DoesNotExist:
-        raise RSVPException('No RSVP for this payment')
+        return logger.error(f'cancel_payment_for_rsvp: No RSVP for payment {payment.pk}')
 
     rsvp.status = RSVP.STATUS_CANCELED
     rsvp.save()
@@ -191,7 +191,7 @@ def validate_payment_for_guest(payment):
     try:
         guest = payment.identified_guest
     except:
-        raise RSVPException('No identified guest for this payment!')
+        return logger.error(f'validate_payment_for_guest: No identified guest for payment {payment.pk}')
 
     guest.status = RSVP.STATUS_CONFIRMED
     guest.save()
@@ -204,7 +204,7 @@ def cancel_payment_for_guest(payment):
     try:
         guest = payment.identified_guest
     except:
-        raise RSVPException('No identified guest for this payment!')
+        return logger.error(f'cancel_payment_for_guest: No identified guest for payment {payment.pk}')
 
     guest.status = RSVP.STATUS_CANCELED
     guest.save()

@@ -61,6 +61,7 @@ class SystemPayWebhookView(APIView):
             payment.status = SYSTEMPAY_STATUS_CHOICE.get(request.data['vads_trans_status'])
             payment.save()
 
+        with transaction.atomic():
             notify_status_change(payment)
 
         return HttpResponse({'status': 'Accepted'}, 200)
