@@ -10,11 +10,9 @@ class EventsConfig(AppConfig):
 
     def ready(self):
         from .views import EventPaidView, notification_listener
-        from .actions.rsvps import retry_listener
         register_payment_type(
             self.PAYMENT_TYPE,
             'Événement payant',
             EventPaidView.as_view(),
             status_listener=notification_listener,
-            retry=retry_listener,
         )

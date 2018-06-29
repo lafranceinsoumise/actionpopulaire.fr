@@ -33,28 +33,17 @@ class RetryPaymentView(DetailView):
     def get_queryset(self):
         return Payment.objects.filter(
         mode__in=[mode.id for mode in PAYMENT_MODES.values() if mode.can_retry],
-        type__in=[type.id for type in PAYMENT_TYPES.values() if type.retry],
         status=Payment.STATUS_WAITING
     )
 
-    def post(self, request, *args, **kwargs):
-        old_payment = self.object = self.get_object()
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        payment_mode = PAYMENT_MODES.get(self.object.mode)
 
-        exclude = {'created', 'modified', 'id'}
+        if payment_mode is None:
+            return HttpResponseServerError()
 
-        # duplicate payment, except for id
-        new_payment = Payment(
-            **{f.name: getattr(old_payment, f.name) for f in old_payment._meta.fields if f.name not in exclude}
-        )
-
-        retry = PAYMENT_TYPES[old_payment.type].retry
-
-        with transaction.atomic():
-            new_payment.save()
-            if callable(retry):
-                retry(old_payment, new_payment)
-
-        return HttpResponseRedirect(reverse('payment_page', args=[new_payment.pk]))
+        return payment_mode.retry_payment_view(request, payment=self.object, *args, **kwargs)
 
 
 def return_view(request, pk):

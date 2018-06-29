@@ -1,5 +1,4 @@
 from django.contrib.postgres.fields import JSONField
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.template.defaultfilters import floatformat
 from django.urls import reverse

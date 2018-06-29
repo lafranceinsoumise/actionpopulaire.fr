@@ -17,6 +17,11 @@ class SystemPayPaymentMode(AbstractPaymentMode):
         from . import views
         return views.SystempayRedirectView.as_view()
 
+    @cached_property
+    def retry_payment_view(self):
+        from . import views
+        return views.SystempayRedirectView.as_view()
+
     @staticmethod
     def get_urls():
         from . import views

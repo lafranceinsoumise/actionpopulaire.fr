@@ -32,10 +32,7 @@
                     <li>
                         <strong>Status</strong> : {{ rsvp.payment.get_status_display }}
                         {% if rsvp.payment.can_retry %}
-                            <form method="post" action="{% url "payment_retry" rsvp.payment.pk %}">
-                                {% csrf_token %}
-                                <input type="submit" class="btn btn-info" value="Retenter le paiement">
-                            </form>
+                            <a href="{% url "payment_retry" rsvp.payment.pk %}">Retenter le paiement</a>
                         {% endif %}
                     </li>
                 </ul>

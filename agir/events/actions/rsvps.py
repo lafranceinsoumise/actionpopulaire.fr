@@ -238,16 +238,3 @@ def set_guest_number(event, person, guests):
         rsvp.save()
 
     send_guest_confirmation.delay(rsvp.pk)
-
-
-def retry_listener(old_payment, new_payment):
-    is_guest = old_payment.meta['is_guest']
-
-    if is_guest:
-        guest = old_payment.identified_guest
-        guest.payment = new_payment
-        guest.save()
-    else:
-        rsvp = old_payment.rsvp
-        rsvp.payment = new_payment
-        rsvp.save()

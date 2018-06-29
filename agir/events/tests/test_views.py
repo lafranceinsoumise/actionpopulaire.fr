@@ -657,17 +657,11 @@ class RSVPTestCase(TestCase):
         })
 
 
-        old_payment = Payment.objects.get()
-        self.assertRedirects(response, reverse('payment_page', args=[old_payment.pk ]))
+        payment = Payment.objects.get()
+        self.assertRedirects(response, reverse('payment_page', args=[payment.pk]))
 
-        response = self.client.post(reverse('payment_retry', args=[old_payment.pk]))
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-        self.assertEqual(len(Payment.objects.all()), 2)
-        new_payment = Payment.objects.latest('created')
-
-        self.assertNotEqual(old_payment.pk, new_payment.pk)
-        self.assertRedirects(response, reverse('payment_page', args=[new_payment.pk]))
+        response = self.client.get(reverse('payment_retry', args=[payment.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class CalendarPageTestCase(TestCase):

@@ -52,32 +52,32 @@ class SystempayRedirectForm(forms.Form):
         self.fields['signature'].initial = get_signature(data)
 
     @classmethod
-    def get_form_for_payment(cls, payment):
+    def get_form_for_transaction(cls, transaction):
         form = cls(initial={
-            'vads_order_id': payment.pk,
-            'vads_trans_id': str(payment.pk % 900000).zfill(6),
-            'vads_trans_date': timezone.datetime.utcnow().strftime('%Y%m%d%H%M%S'),
-            'vads_amount': payment.price,
-            'vads_cust_email': payment.email,
-            'vads_cust_id': str(payment.person.id),
-            'vads_cust_first_name': payment.first_name,
-            'vads_cust_last_name': payment.last_name,
-            'vads_cust_address': ', '.join([payment.location_address1, payment.location_address2]),
-            'vads_cust_zip': payment.location_zip,
-            'vads_cust_city': payment.location_city,
-            'vads_cust_state': payment.location_state,
-            'vads_cust_country': payment.location_country,
-            'vads_ext_info_type': payment.type
+            'vads_order_id': transaction.pk,
+            'vads_trans_id': str(transaction.pk % 900000).zfill(6),
+            'vads_trans_date': transaction.created.strftime('%Y%m%d%H%M%S'),
+            'vads_amount': transaction.payment.price,
+            'vads_cust_email': transaction.payment.email,
+            'vads_cust_id': str(transaction.payment.person.id),
+            'vads_cust_first_name': transaction.payment.first_name,
+            'vads_cust_last_name': transaction.payment.last_name,
+            'vads_cust_address': ', '.join([transaction.payment.location_address1, transaction.payment.location_address2]),
+            'vads_cust_zip': transaction.payment.location_zip,
+            'vads_cust_city': transaction.payment.location_city,
+            'vads_cust_state': transaction.payment.location_state,
+            'vads_cust_country': transaction.payment.location_country,
+            'vads_ext_info_type': transaction.payment.type
         })
 
-        if payment.phone_number:
-            if phonenumberutil.number_type(payment.phone_number) == PhoneNumberType.MOBILE:
-                form.add_field('vads_cust_cell_phone', payment.phone_number.as_e164)
+        if transaction.payment.phone_number:
+            if phonenumberutil.number_type(transaction.payment.phone_number) == PhoneNumberType.MOBILE:
+                form.add_field('vads_cust_cell_phone', transaction.payment.phone_number.as_e164)
             else:
-                form.add_field('vads_cust_phone', payment.phone_number.as_e164)
+                form.add_field('vads_cust_phone', transaction.payment.phone_number.as_e164)
 
-        for key in payment.meta:
-            form.add_field('vads_ext_info_meta_' + key, payment.meta[key])
+        for key in transaction.payment.meta:
+            form.add_field('vads_ext_info_meta_' + key, transaction.payment.meta[key])
 
         form.update_signature()
 
