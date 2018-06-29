@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from unittest import mock
 
 from agir.donations.apps import DonsConfig
 from agir.lib.tests.mixins import FakeDataMixin
@@ -10,7 +11,8 @@ from agir.system_pay.models import SystemPayTransaction
 
 
 class WebhookTestCase(FakeDataMixin, TestCase):
-    def test_transaction_ok(self):
+    @mock.patch('agir.donations.views.send_donation_email')
+    def test_transaction_ok(self, send_donation_email):
         payment = Payment.objects.create(
             person=self.data['people']['user1'],
             price=1000,
