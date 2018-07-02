@@ -191,7 +191,7 @@
                 {% else %}
                     Aucun participant n'a encore ajouté de photo de cet événement !
                 {% endif %}
-                {% if has_rsvp %}
+                {% if rsvp %}
                     <div>
                         <a class="btn btn-default" href="{% url "upload_event_image" event.pk %}">Ajouter une image</a>
                     </div>
