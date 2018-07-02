@@ -300,7 +300,7 @@ class EventPaidView(RedirectView):
         messages.add_message(
             request=self.request,
             level=messages.SUCCESS,
-            message=f"Votre paiement de {payment.get_price_display} pour l'événement « {event.name} » a bien été enregistré. "
+            message=f"Votre inscription {payment.get_price_display()} pour l'événement « {event.name} » a bien été enregistré. "
                     f"Votre inscription sera confirmée dès validation du paiement."
         )
         return reverse('view_event', args=[self.kwargs['payment'].meta['event_id']])
