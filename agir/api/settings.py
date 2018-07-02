@@ -11,9 +11,13 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import re
 import dj_database_url
 import dj_email_url
 from django.contrib.messages import ERROR
+from django.core.exceptions import ImproperlyConfigured
+
+ADMIN_RE = re.compile('^([\w -]+) <([^>]+)>$')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'true').lower() == 'true'
@@ -24,6 +28,15 @@ ENABLE_MAP = os.environ.get('ENABLE_MAP', 'n').lower() in ['y', 'yes', 'true'] o
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+admins = os.environ.get('ADMINS')
+if admins:
+    admins = [ADMIN_RE.match(s.strip()) for s in admins.split(';')]
+    if any(m is None for m in admins):
+        raise ImproperlyConfigured("ADMINS should be of the form 'Name 1 <address1@domain.fr>; Name 2 <address2@domain.fr>")
+
+    ADMINS = [m.groups() for m in admins]
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -355,6 +368,10 @@ if not DEBUG:
             'journald': {
                 'level': 'DEBUG',
                 'class': 'systemd.journal.JournaldLogHandler' if not LOG_DISABLE_JOURNALD else 'logging.StreamHandler',
+            },
+            'admins_mail': {
+                'level': 'ERROR',
+                'class': 'django.utils.log.AdminEmailHandler'
             }
         },
         'loggers': {
@@ -374,7 +391,7 @@ if not DEBUG:
                 'propagate': True,
             },
             'agir': {
-                'handlers': ['journald'],
+                'handlers': ['journald', 'admins_mail'],
                 'level': 'DEBUG',
                 'propagate': True
             }
