@@ -45,19 +45,21 @@ def geocode_ban(item):
         'limit': 5
     }
 
+    display_address = f"{q} ({item.location_zip})"
+
     try:
         res = requests.get(BAN_ENDPOINT, params=query)
         res.raise_for_status()
         results = res.json()
     except requests.RequestException:
-        logger.exception('Error while geocoding French address with BAN')
+        logger.warning(f"Error while geocoding French address '{display_address}' with BAN", exc_info=True)
         return False
     except ValueError:
-        logger.exception('Invalid JSON while geocoding French address with BAN')
+        logger.warning("Invalid JSON while geocoding French address '{display_address}' with BAN", exc_info=True)
         return False
 
     if 'features' not in results:
-        logger.error('Incorrect result from BAN')
+        logger.warning(f"Incorrect result from BAN for address '{display_address}'")
         return False
 
     types = {
@@ -95,15 +97,17 @@ def geocode_nominatim(item):
     if item.location_country:
         query['countrycodes'] = str(item.location_country)
 
+    display_address = f"{q} ({item.location_country})"
+
     try:
         res = requests.get(NOMINATIM_ENDPOINT, params=query)
         res.raise_for_status()
         results = res.json()
     except requests.RequestException:
-        logger.exception('Error while geocoding address with Nominatim')
+        logger.warning(f"Error while geocoding address '{display_address}' with Nominatim", exc_info=True)
         return False
     except ValueError:
-        logger.exception('Invalid JSON while geocoding address with Nominatim')
+        logger.warning(f"Invalid JSON while geocoding address '{display_address}' with Nominatim", exc_info=True)
         return False
 
     print(repr(results))
@@ -116,4 +120,3 @@ def geocode_nominatim(item):
         item.coordinates = None
         item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
         return True
-
