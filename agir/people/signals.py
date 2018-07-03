@@ -36,4 +36,8 @@ def delete_email_person(sender, instance, **kwargs):
     if settings.MAILTRAIN_DISABLE:
         return
 
-    tasks.update_mailtrain.delay(instance.person_id)
+    try:
+        person = Person.objects.get(pk=instance.person_id)
+        tasks.update_mailtrain.delay(instance.person_id)
+    except Person.DoesNotExist:
+        pass
