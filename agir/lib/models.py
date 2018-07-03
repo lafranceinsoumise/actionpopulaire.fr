@@ -162,7 +162,7 @@ class LocationMixin(models.Model):
         if self.location_country != 'FR':
             attrs.extend(['location_state', 'location_country'])
 
-        return ', '.join(getattr(self, attr) for attr in attrs if getattr(self, attr))
+        return ', '.join(str(getattr(self, attr)) for attr in attrs if getattr(self, attr))
 
     def has_location(self):
         return self.coordinates is not None
