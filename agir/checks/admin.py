@@ -14,14 +14,13 @@ def change_payment_status(status, description):
         with transaction.atomic():
             now = timezone.now().astimezone(timezone.utc).isoformat()
 
-            for payment in queryset:
-                if payment.status == CheckPayment.STATUS_WAITING:
-                    payment.status = status
-                    payment.events.append(
-                        {'change_status': status, 'date': now, 'origin': 'check_payment_model_admin'}
-                    )
-                    payment.save()
-                    notify_status_change(payment)
+            for payment in queryset.filter(status=CheckPayment.STATUS_WAITING):
+                payment.status = status
+                payment.events.append(
+                    {'change_status': status, 'date': now, 'origin': 'check_payment_model_admin'}
+                )
+                payment.save()
+                notify_status_change(payment)
     # have to change the function name so that django admin see that they are different functions
     action.__name__ = f'change_to_{status}'
     action.short_description = description
