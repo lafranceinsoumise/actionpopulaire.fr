@@ -7,13 +7,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView, DetailView, RedirectView
 
 from agir.front.view_mixins import HardLoginRequiredMixin
-from agir.payments.actions import redirect_to_payment
+from agir.payments.actions import redirect_to_payment, create_payment
 from agir.payments.models import Payment
+from agir.payments.payment_modes import PAYMENT_MODES
 from agir.people.models import PersonFormSubmission
 from agir.people.actions.person_forms import get_people_form_class, get_formatted_submission
 
 from ..actions.rsvps import (
-    rsvp_to_free_event, rsvp_to_paid_event_and_get_payment, validate_payment_for_rsvp, set_guest_number,
+    rsvp_to_free_event, rsvp_to_paid_event_and_create_payment, validate_payment_for_rsvp, set_guest_number,
     add_free_identified_guest, add_paid_identified_guest_and_get_payment, validate_payment_for_guest, is_participant,
     cancel_payment_for_guest, cancel_payment_for_rsvp, RSVPException
 )
@@ -193,6 +194,27 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
         return is_participant(self.event, self.request.user.person)
 
 
+class ChangeRSVPPaymentView(HardLoginRequiredMixin, DetailView):
+    def get_queryset(self):
+        return self.request.user.person.rsvps\
+            .exclude(payment=None)\
+            .exclude(payment__status=Payment.STATUS_COMPLETED)\
+            .filter(
+                payment__mode__in=[mode.id for mode in PAYMENT_MODES.values() if mode.can_cancel]
+            )
+
+    def get(self, *args, **kwargs):
+        rsvp = self.get_object()
+        if rsvp.form_submission:
+            self.request.session['rsvp_submission'] = rsvp.form_submission.pk
+        elif 'rsvp_submission' in self.request.session:
+            del self.request.session['rsvp_submission']
+        self.request.session['rsvp_event'] = str(rsvp.event.pk)
+        self.request.session['is_guest'] = False
+
+        return HttpResponseRedirect(reverse('pay_event'))
+
+
 class PayEventView(HardLoginRequiredMixin, UpdateView):
     """View for the billing form for paid events
 
@@ -271,7 +293,7 @@ class PayEventView(HardLoginRequiredMixin, UpdateView):
                 if is_guest:
                     payment = add_paid_identified_guest_and_get_payment(event, person, payment_mode, submission)
                 else:
-                    payment = rsvp_to_paid_event_and_get_payment(event, person, payment_mode, submission)
+                    payment = rsvp_to_paid_event_and_create_payment(event, person, payment_mode, submission)
 
             except RSVPException as e:
                 return self.display_error_message(str(e))

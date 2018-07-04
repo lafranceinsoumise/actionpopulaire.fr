@@ -69,5 +69,8 @@ class Payment(TimeStampedModel, LocationMixin):
     def can_retry(self):
         return self.mode in PAYMENT_MODES and PAYMENT_MODES[self.mode].can_retry and self.status != self.STATUS_COMPLETED
 
+    def can_cancel(self):
+        return self.mode in PAYMENT_MODES and PAYMENT_MODES[self.mode].can_cancel and self.status != self.STATUS_COMPLETED
+
     class Meta:
         get_latest_by = 'created'

@@ -31,10 +31,11 @@ class PaymentView(DetailView):
 
 class RetryPaymentView(DetailView):
     def get_queryset(self):
-        return Payment.objects.filter(
-        mode__in=[mode.id for mode in PAYMENT_MODES.values() if mode.can_retry],
-        status=Payment.STATUS_WAITING
-    )
+        return Payment.objects\
+            .exclude(status=Payment.STATUS_COMPLETED)\
+            .filter(
+                mode__in=[mode.id for mode in PAYMENT_MODES.values() if mode.can_retry],
+            )
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()

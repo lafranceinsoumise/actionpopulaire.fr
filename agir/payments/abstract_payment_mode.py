@@ -1,5 +1,6 @@
 class AbstractPaymentMode():
     can_retry = False
+    can_cancel = False
 
     @property
     def id(self):

@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from unittest import mock
 
+from agir.payments.actions import complete_payment
 from .views import notification_listener as donation_notification_listener
 from ..people.models import Person
 from ..payments.models import Payment
@@ -58,8 +59,7 @@ class DonationTestCase(TestCase):
 
 
         # fake systempay webhook
-        payment.status = Payment.STATUS_COMPLETED
-        payment.save()
+        complete_payment(payment)
         donation_notification_listener(payment)
         send_donation_email.delay.assert_called_once()
 

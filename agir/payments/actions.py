@@ -5,6 +5,10 @@ from .types import PAYMENT_TYPES
 from .payment_modes import DEFAULT_MODE
 
 
+class PaymentException(Exception):
+    pass
+
+
 def create_payment(person, type, price, mode=DEFAULT_MODE, meta=None):
     """Generate payment response for person with type and price
 
@@ -29,6 +33,21 @@ def create_payment(person, type, price, mode=DEFAULT_MODE, meta=None):
         meta=meta,
         **{f: getattr(person, f) for f in person_fields}
     )
+
+def complete_payment(payment):
+    if (payment.status == Payment.STATUS_CANCELED):
+        raise PaymentException("Le paiement a déjà été annulé.")
+
+    payment.status = Payment.STATUS_COMPLETED
+    payment.save()
+
+
+def cancel_payment(payment):
+    if (payment.status == Payment.STATUS_COMPLETED):
+        raise PaymentException("Le paiement a déjà été confirmé.")
+
+    payment.status = Payment.STATUS_CANCELED
+    payment.save()
 
 
 def redirect_to_payment(payment):

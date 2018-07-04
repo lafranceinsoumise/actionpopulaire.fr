@@ -9,6 +9,7 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 
 from agir.groups.models import SupportGroup, Membership
+from agir.payments.actions import complete_payment
 from agir.payments.models import Payment
 from agir.people.models import Person, PersonForm, PersonFormSubmission
 
@@ -502,8 +503,7 @@ class RSVPTestCase(TestCase):
         self.assertRedirects(response, reverse('payment_page', args=(payment.pk,)))
 
         # fake payment confirmation
-        payment.status = Payment.STATUS_COMPLETED
-        payment.save()
+        complete_payment(payment)
         event_notification_listener(payment)
 
         self.assertIn(self.person, self.simple_paying_event.attendees.all())
@@ -541,8 +541,7 @@ class RSVPTestCase(TestCase):
         payment = Payment.objects.get()
         self.assertRedirects(response, reverse('payment_page', args=(payment.pk,)))
 
-        payment.status = Payment.STATUS_COMPLETED
-        payment.save()
+        complete_payment(payment)
         event_notification_listener(payment)
 
         guest_confirmation.delay.assert_called_once()
@@ -581,8 +580,7 @@ class RSVPTestCase(TestCase):
         self.assertRedirects(response, reverse('payment_page', args=(payment.pk,)))
 
         # fake payment confirmation
-        payment.status = Payment.STATUS_COMPLETED
-        payment.save()
+        complete_payment(payment)
         event_notification_listener(payment)
 
         self.assertIn(self.person, self.form_paying_event.attendees.all())
@@ -631,8 +629,7 @@ class RSVPTestCase(TestCase):
         payment = Payment.objects.get()
         self.assertRedirects(response, reverse('payment_page', args=(payment.pk,)))
 
-        payment.status = Payment.STATUS_COMPLETED
-        payment.save()
+        complete_payment(payment)
         event_notification_listener(payment)
 
         self.assertEqual(2, self.form_paying_event.participants)

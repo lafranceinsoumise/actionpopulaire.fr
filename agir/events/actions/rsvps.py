@@ -3,7 +3,8 @@ from django.db.models import F
 from django.db import transaction, IntegrityError
 from django.utils.translation import ugettext as _
 
-from agir.payments.actions import create_payment
+from agir.payments.actions import create_payment, cancel_payment
+from agir.payments.models import Payment
 
 from ..apps import EventsConfig
 from ..models import RSVP, IdentifiedGuest
@@ -48,6 +49,7 @@ def _get_meta(event, form_submission, is_guest):
     }
 
 
+# idempotent if not confirmed
 def _get_rsvp_for_event(event, person, form_submission, paying):
     # TODO: add race conditions handling with explicit locking for maximum participants
     # see https://www.caktusgroup.com/blog/2009/05/26/explicit-table-locking-with-postgresql-and-django/
@@ -60,9 +62,6 @@ def _get_rsvp_for_event(event, person, form_submission, paying):
         rsvp = RSVP.objects.select_for_update().get(event=event, person=person)
 
         if rsvp.status == RSVP.STATUS_CONFIRMED:
-            raise RSVPException(MESSAGES['already_rsvped'])
-
-        if rsvp.status == RSVP.STATUS_AWAITING_PAYMENT and paying:
             raise RSVPException(MESSAGES['already_rsvped'])
 
         if rsvp.status == RSVP.STATUS_CANCELED:
@@ -86,7 +85,7 @@ def rsvp_to_free_event(event, person, form_submission=None):
     return rsvp
 
 
-def rsvp_to_paid_event_and_get_payment(event, person, payment_mode, form_submission=None):
+def rsvp_to_paid_event_and_create_payment(event, person, payment_mode, form_submission=None):
     if event.is_free:
         raise RSVPException("Cet événement est gratuit : aucun paiement n'est donc nécessaire.")
 
@@ -94,6 +93,11 @@ def rsvp_to_paid_event_and_get_payment(event, person, payment_mode, form_submiss
 
     with transaction.atomic():
         rsvp = _get_rsvp_for_event(event, person, form_submission, True)
+        if rsvp.payment is not None:
+            if not rsvp.payment.can_cancel():
+                raise RSVPException("Ce mode de paiement ne permet pas l'annulation.")
+            cancel_payment(rsvp.payment)
+
         payment = create_payment(
             person=person,
             type=EventsConfig.PAYMENT_TYPE,

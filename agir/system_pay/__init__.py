@@ -11,6 +11,7 @@ class SystemPayPaymentMode(AbstractPaymentMode):
     label = _('Paiement par carte bleue')
 
     can_retry = True
+    can_cancel = True
 
     @cached_property
     def payment_view(self):

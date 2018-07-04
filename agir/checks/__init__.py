@@ -10,6 +10,7 @@ class CheckPaymentMode(AbstractPaymentMode):
     label =_('Paiement par chèque')
 
     can_retry = True
+    can_cancel = True
 
     @cached_property
     def payment_view(self):
