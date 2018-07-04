@@ -12,12 +12,11 @@ from .models import CheckPayment
 def change_payment_status(status, description):
     def action(modeladmin, request, queryset):
         with transaction.atomic():
-            queryset.update(status=status)
-
             now = timezone.now().astimezone(timezone.utc).isoformat()
 
             for payment in queryset:
                 if payment.status == CheckPayment.STATUS_WAITING:
+                    payment.status = status
                     payment.events.append(
                         {'change_status': status, 'date': now, 'origin': 'check_payment_model_admin'}
                     )
