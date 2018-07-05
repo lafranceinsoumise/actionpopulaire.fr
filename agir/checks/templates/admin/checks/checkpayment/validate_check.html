@@ -1,0 +1,76 @@
+{% extends "admin/base_site.html" %}
+{% load crispy_forms_tags i18n display_lib %}
+
+{% if not is_popup %}
+    {% block breadcrumbs %}
+        <div class="breadcrumbs">
+            <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+            &rsaquo; <a
+                href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+            &rsaquo; <a
+                href="{% url 'admin:checks_checkpayment_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+            &rsaquo; Valider des chèques
+        </div>
+    {% endblock %}
+{% endif %}
+
+{% block content %}
+    <div id="content-main">
+        <h2>Voici les chèques retrouvés</h2>
+
+
+        <div class="module{% if cl.has_filters %} filtered{% endif %}" id="changelist">
+
+            <div class="results">
+                <table id="result_list">
+                    <thead>
+                    <tr>
+                        <th scope="col"><div class="text">Numéro de transaction</div></th>
+                        <th scope="col"><div class="text">Statut</div></th>
+                        <th scope="col"><div class="text">Nom de facturation</div></th>
+                        <th scope="col"><div class="text">Adresse de facturation</div></th>
+                        <th scope="col"><div class="text">Montant</div></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for check in checks %}
+                        <tr class="row{% cycle "1" "2" %}">
+                            <th><a href="{% url "admin:checks_checkpayment_change" check.pk %}">{{ check.pk }}</th>
+                            <td>
+                                {% if check.status == check.STATUS_WAITING %}
+                                {{ check.get_status_display }}
+                                {% else %}
+                                <strong style="color: red;">{{ check.get_status_display }}</strong>
+                                {% endif %}
+                            </td>
+                            <td>{{ check.last_name }}, {{ check.first_name }}</td>
+                            <td>{{ check.html_full_address }}</td>
+                            <td>{{ check.get_price_display }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="paginator">
+                {% if total_price == check_amount %}
+                    Le montant total ({{ total_price | display_price }}) correspond au montant du chèque.
+                {% else %}
+                    <strong style="color: red;">
+                        Le montant total ({{ total_price | display_price }}) ne correspond PAS au montant du chèque
+                        ({{ check_amount | display_price }}).
+                    </strong>
+                {% endif %}
+            </p>
+        </div>
+
+        {% if can_validate %}
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit">Valider ces chèques</button>
+            </form>
+        {% else %}
+            <p>Des problèmes (affichés ci-dessus en rouge) empêchent la validation de ces chèques.</p>
+            <button type="submit" disabled>Valider ces chèques</button>
+        {% endif %}
+    </div>
+{% endblock %}

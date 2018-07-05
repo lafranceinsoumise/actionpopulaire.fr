@@ -7,6 +7,7 @@ from model_utils.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.lib.models import LocationMixin
+from agir.lib.display import display_address
 from .types import get_payment_choices
 from .payment_modes import PAYMENT_MODES
 
@@ -71,6 +72,9 @@ class Payment(TimeStampedModel, LocationMixin):
 
     def can_cancel(self):
         return self.mode in PAYMENT_MODES and PAYMENT_MODES[self.mode].can_cancel and self.status != self.STATUS_COMPLETED
+
+    def html_full_address(self):
+        return display_address(self)
 
     class Meta:
         get_latest_by = 'created'

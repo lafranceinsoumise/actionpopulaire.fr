@@ -6,7 +6,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe, format_html, format_html_join
 from django_countries.fields import CountryField
 from django.conf import settings
-from django.db.models import NOT_PROVIDED
 
 from model_utils.models import TimeStampedModel
 from stdimage.models import StdImageField
@@ -14,6 +13,7 @@ from stdimage.utils import UploadTo
 
 from .form_fields import RichEditorWidget
 from .html import sanitize_html
+from .display import display_address
 
 
 class UUIDIdentified(models.Model):
@@ -111,33 +111,7 @@ class LocationMixin(models.Model):
     )
 
     def html_full_address(self):
-        parts = []
-        if self.location_name:
-            parts.append(format_html('<strong>{}</strong>', self.location_name))
-
-        if self.location_address1:
-            parts.append(self.location_address1)
-            if self.location_address2:
-                parts.append(self.location_address2)
-        elif self.location_address:
-            # use full address (copied from NationBuilder) only when we have no address1 field
-            parts.append(self.location_address)
-
-        if self.location_state:
-            parts.append(self.location_state)
-
-        if self.location_zip and self.location_city:
-            parts.append('{} {}'.format(self.location_zip, self.location_city))
-        else:
-            if self.location_zip:
-                parts.append(self.location_zip)
-            if self.location_city:
-                parts.append(self.location_city)
-
-        if self.location_country and str(self.location_country) != 'FR':
-            parts.append(self.location_country.name)
-
-        return format_html_join(mark_safe('<br/>'), '{}', ((part,) for part in parts))
+        return display_address(self)
 
     def short_location(self):
         local_part = self.location_name
