@@ -219,7 +219,9 @@ def get_rsvp(event, person):
 
 
 def is_participant(event, person):
-    return RSVP.objects.filter(event=event, person=person, status=RSVP.STATUS_CONFIRMED).exists()
+    return RSVP.objects.filter(
+        event=event, person=person, status__in=[RSVP.STATUS_CONFIRMED, RSVP.STATUS_AWAITING_PAYMENT]
+    ).exists()
 
 
 def set_guest_number(event, person, guests):
