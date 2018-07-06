@@ -1,3 +1,5 @@
+from typing import List, Dict, Tuple
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
@@ -12,6 +14,120 @@ from ..models import Person, PersonFormSubmission
 
 
 all_person_field_names = [field.name for field in Person._meta.get_fields()]
+
+
+class NotRequiredByDefaultMixin:
+    def __init__(self, *args, required=False, **kwargs):
+        super().__init__(*args, required=required, **kwargs)
+
+
+class LongTextField(forms.CharField):
+    widget = forms.Textarea
+
+
+class ChoiceField(forms.ChoiceField):
+    def __init__(self, *, choices, default_label=None, required=True, **kwargs):
+        if default_label is None:
+            default_label = '---' if required else _("Non applicable / ne souhaite pas répondre")
+
+        choices = [('', default_label), *choices]
+
+        super().__init__(choices=choices, required=required, **kwargs)
+
+
+class MultipleChoiceField(NotRequiredByDefaultMixin, forms.MultipleChoiceField):
+    widget = forms.CheckboxSelectMultiple
+
+
+class BooleanField(NotRequiredByDefaultMixin, forms.BooleanField):
+    pass
+
+
+class FieldSet:
+    def __init__(self, title: str, fields: List[Dict], **kwargs):
+        self.title = title
+        self.fields = fields
+
+    def set_up_fields(self, form):
+        for field_descriptor in self.fields:
+            if is_actual_model_field(field_descriptor):
+                # by default person fields are required
+                form.fields[field_descriptor['id']].required = True
+
+                if field_descriptor['id'] == 'date_of_birth':
+                    form.fields[field_descriptor['id']].help_text = _('Format JJ/MM/AAAA')
+            else:
+                form.fields[field_descriptor['id']] = get_form_field(field_descriptor)
+
+        form.helper.layout.append(
+            Fieldset(self.title, *(Row(FullCol(field_descriptor['id'])) for field_descriptor in self.fields))
+        )
+
+    def collect_results(self, cleaned_data):
+        return {field_descriptor['id']: cleaned_data[field_descriptor['id']] for field_descriptor in self.fields}
+
+
+class DoubleEntryTable:
+    def __init__(self, *, title, id, intro=None, row_name, rows: List[Tuple[str, str]], fields: List[Dict], **kwargs):
+        self.title = title
+        self.intro = intro
+        self.id = id
+        self.row_name = row_name
+        self.rows = rows
+        self.fields = fields
+
+    def get_id(self, row_id, field_id):
+        return f"{self.id}:{row_id}:{field_id}"
+
+    def get_header_row(self):
+        return f"<tr><th>{self.row_name}</th>" + "".join("<th>{}</th>".format(col['label']) for col in self.fields) + '</tr>'
+
+    def get_row(self, form, row_id, row_label):
+        return f"<tr><th>{row_label}</th>" + "".join("<td>{}</td>".format(form[self.get_id(row_id, col['id'])]) for col in self.fields) + '</tr>'
+
+    def set_up_fields(self, form: forms.Form):
+        for row_id, row_label in self.rows:
+            for field_descriptor in self.fields:
+                id = self.get_id(row_id, field_descriptor['id'])
+                field = get_form_field(field_descriptor)
+                form.fields[id] = field
+
+        intro = f"<p>{self.intro}</p>" if self.intro else ""
+
+        text = intro + f"""
+        <table class="table">
+        <thead>
+        {self.get_header_row()}
+        </thead>
+        <tbody>""" + ''.join(self.get_row(form, row_id, row_label) for row_id, row_label in self.rows) + """
+        </tbody>
+        </table>
+        """
+
+        form.helper.layout.append(Fieldset(self.title, HTML(text)))
+
+    def collect_results(self, cleaned_data):
+        return {
+            self.get_id(row_id, col['id']): cleaned_data[self.get_id(row_id, col['id'])]
+            for row_id, row_label in self.rows for col in self.fields
+        }
+
+
+FIELDS = {
+    'short_text': forms.CharField,
+    'long_text': LongTextField,
+    'choice': ChoiceField,
+    'multiple_choice': MultipleChoiceField,
+    'email_address': forms.EmailField,
+    'phone_number': PhoneNumberField,
+    'boolean': BooleanField,
+    'integer': forms.IntegerField
+}
+
+PARTS = {
+    'fieldset': FieldSet,
+    'double_entry': DoubleEntryTable,
+}
 
 
 class PersonTagChoiceField(forms.ModelChoiceField):
@@ -55,48 +171,34 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             for f in opts.fields:
                 self.fields[f].required = True
 
-        if self.person_form_instance.custom_fields:
-            for fieldset in self.person_form_instance.custom_fields:
-                for field_descriptor in fieldset['fields']:
-                    is_actual_model_field = field_descriptor.get('person_field', False) and field_descriptor['id'] in all_person_field_names
-
-                    if is_actual_model_field:
-                        # by default person fields are required
-                        self.fields[field_descriptor['id']].required = True
-
-                        if field_descriptor['id'] == 'date_of_birth':
-                            self.fields[field_descriptor['id']].help_text = _('Format JJ/MM/AAAA')
-                    else:
-                        self.fields[field_descriptor['id']] = get_form_field(field_descriptor)
-
-                    field_object = self.fields[field_descriptor['id']]
-
-                    for prop in ['label', 'help_text', 'required']:
-                        if prop in field_descriptor:
-                            setattr(field_object, prop, field_descriptor[prop])
-
-                parts.append(
-                    Fieldset(fieldset['title'], *(Row(FullCol(field['id'])) for field in fieldset['fields']))
-                )
-
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('submit', 'Envoyer'))
+        self.helper.layout = Layout()
 
-        self.helper.layout = Layout(*parts)
+        if self.person_form_instance.custom_fields:
+            self.parts = [
+                PARTS[part.get('type', 'fieldset')](**part) for part in self.person_form_instance.custom_fields
+            ]
+        else:
+            self.parts = []
+
+        for part in self.parts:
+            part.set_up_fields(self)
 
     def save_submission(self, person):
         if person is None:
             person = self.instance
 
+        data = {}
+
+        for part in self.parts:
+            data.update(part.collect_results(self.cleaned_data))
+
         self.submission = PersonFormSubmission.objects.create(
             person=person,
             form=self.person_form_instance,
-            data={
-                field['id']: str(self.cleaned_data[field['id']])
-                for fieldset in self.person_form_instance.custom_fields
-                for field in fieldset['fields']
-            }
+            data=data
         )
 
         return self.submission
@@ -115,34 +217,22 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         fields = []
 
 
-def get_form_field(field_descriptor):
-    kwargs = {'required': True}
-    if field_descriptor['type'] in ['short_text', 'long_text']:
-        klass = forms.CharField
-        if 'max_length' in field_descriptor:
-            kwargs['max_length'] = field_descriptor['max_length']
-        if field_descriptor['type'] == 'long_text':
-            kwargs['widget'] = forms.Textarea()
-    elif field_descriptor['type'] == 'choice':
-        klass = forms.ChoiceField
-        default_label = "----" if kwargs['required'] else _("Non applicable / ne souhaite pas répondre")
-        kwargs['choices'] = [('', default_label)] + field_descriptor['choices']
-    elif field_descriptor['type'] == 'multiple_choice':
-        klass = forms.MultipleChoiceField
-        kwargs['choices'] = field_descriptor['choices']
-        kwargs['widget'] = forms.CheckboxSelectMultiple()
-        # by default multiple choice field is not required
-        kwargs['required'] = False
-    elif field_descriptor['type'] == 'email_address':
-        klass = forms.EmailField
-    elif field_descriptor['type'] == 'phone_number':
-        klass = PhoneNumberField
-    else:
-        klass = forms.BooleanField
-        # by default boolean field should be false or one is forced to tick the checkbox to proceed
-        kwargs['required'] = False
+def is_actual_model_field(field_descriptor):
+    return field_descriptor.get('person_field', False) and field_descriptor['id'] in all_person_field_names
 
-    return klass(**kwargs)
+
+def get_form_field(field_descriptor: dict):
+    field_descriptor = field_descriptor.copy()
+    field_type = field_descriptor.pop('type')
+    field_descriptor.pop('id')
+    field_descriptor.pop('person_field', None)
+
+    klass = FIELDS.get(field_type)
+
+    if klass:
+        return klass(**field_descriptor)
+
+    raise ValueError()
 
 
 def get_people_form_class(person_form_instance, base_form=BasePersonForm):

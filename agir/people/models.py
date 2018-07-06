@@ -9,9 +9,12 @@ from django.utils.functional import cached_property
 from django.conf import settings
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
+from django.core.serializers.json import DjangoJSONEncoder
 
 from model_utils.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
+from phonenumber_field.phonenumber import PhoneNumber
+
 
 from agir.lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource, DescriptionField
 from agir.authentication.models import Role
@@ -356,6 +359,13 @@ class PersonFormQueryset(models.QuerySet):
         )
 
 
+class CustomJSONEncoder(DjangoJSONEncoder):
+    def default(self, o):
+        if isinstance(o, PhoneNumber):
+            return o.as_e164
+        return super().default(o)
+
+
 class PersonForm(TimeStampedModel):
     objects = PersonFormQueryset.as_manager()
 
@@ -447,4 +457,4 @@ class PersonFormSubmission(TimeStampedModel):
     form = models.ForeignKey('PersonForm', on_delete=models.CASCADE, related_name='submissions', editable=False)
     person = models.ForeignKey('Person', on_delete=models.CASCADE, related_name='form_submissions', editable=False)
 
-    data = JSONField(_('Données'), editable=False)
+    data = JSONField(_('Données'), editable=False, encoder=CustomJSONEncoder)
