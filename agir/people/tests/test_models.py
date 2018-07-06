@@ -83,15 +83,17 @@ class BasicPersonTestCase(TestCase):
         self.assertEqual(args[0], person.pk)
 
     @override_settings(MAILTRAIN_DISABLE=False)
+    @mock.patch('agir.people.tasks.update_person_mailtrain')
     @mock.patch('agir.people.tasks.delete_email_mailtrain')
-    def test_email_is_deleted_from_mailtrain_when_email_deleted(self, delete_mailtrain):
+    def test_email_is_deleted_from_mailtrain_when_email_deleted(self, delete_email_mailtrain, update_person_email):
         person = Person.objects.create_person('test1@domain.com')
         p2 = PersonEmail.objects.create(address='test2@domain.com', person=person)
 
-        delete_mailtrain.reset_mock()
+        delete_email_mailtrain.reset_mock()
 
+        address = p2.address
         p2.delete()
 
-        delete_mailtrain.delay.assert_called_once()
-        self.assertEqual(delete_mailtrain.delay.call_args[0][0], person.pk)
+        delete_email_mailtrain.delay.assert_called_once()
+        self.assertEqual(delete_email_mailtrain.delay.call_args[0][0], address)
 
