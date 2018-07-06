@@ -64,8 +64,8 @@ class PersonManager(models.Manager):
             person.add_email(email)
 
         if not settings.MAILTRAIN_DISABLE:
-            from .tasks import update_mailtrain
-            update_mailtrain.delay(person.pk)
+            from .tasks import update_person_mailtrain
+            update_person_mailtrain.delay(person.pk)
 
         return person
 

@@ -9,22 +9,22 @@ from agir.people.models import Person
 class MailTrainTestCase(TestCase):
     @mock.patch('agir.lib.mailtrain.s.post')
     def test_subscribe(self, request_post):
-        mailtrain.subscribe('test@example.com')
+        mailtrain.subscribe_email('test@example.com')
 
         request_post.assert_called_once()
         self.assertEqual(request_post.call_args[1]['data']['EMAIL'], 'test@example.com')
 
     @mock.patch('agir.lib.mailtrain.s.post')
     def test_unsubscribe(self, request_post):
-        mailtrain.unsubscribe('test@example.com')
+        mailtrain.unsubscribe_email('test@example.com')
 
         request_post.assert_called_once()
         self.assertEqual(request_post.call_args[1]['data']['EMAIL'], 'test@example.com')
 
-    @mock.patch('agir.people.tasks.update_mailtrain')
-    @mock.patch('agir.lib.mailtrain.delete')
-    @mock.patch('agir.lib.mailtrain.subscribe')
-    @mock.patch('agir.lib.mailtrain.unsubscribe')
+    @mock.patch('agir.people.tasks.update_person_mailtrain')
+    @mock.patch('agir.lib.mailtrain.delete_email')
+    @mock.patch('agir.lib.mailtrain.subscribe_email')
+    @mock.patch('agir.lib.mailtrain.unsubscribe_email')
     def test_update_person(self, unsubscribe, subscribe, delete, *args):
         person = Person.objects.create(email='email@example.com')
 

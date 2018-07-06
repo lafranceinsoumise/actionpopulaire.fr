@@ -6,7 +6,7 @@ from crispy_forms.bootstrap import FormActions
 from crispy_forms.helper import FormHelper
 from phonenumber_field.formfields import PhoneNumberField
 
-from agir.lib.mailtrain import delete
+from agir.lib.mailtrain import delete_email
 from agir.lib.form_components import *
 from agir.lib.form_mixins import TagMixin, LocationFormMixin
 from agir.lib.tasks import geocode_person
@@ -57,7 +57,7 @@ class UnsubscribeForm(forms.Form):
             person.subscribed = False
             person.save()
         except(Person.DoesNotExist):
-            delete(email)
+            delete_email(email)
 
 
 class BaseSubscriptionForm(forms.ModelForm):

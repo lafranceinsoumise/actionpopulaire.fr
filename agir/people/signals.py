@@ -23,7 +23,7 @@ def update_mailtrain(sender, instance, raw, **kwargs):
     if kwargs['created']:
         return
 
-    tasks.update_mailtrain.delay(instance.id)
+    tasks.update_person_mailtrain.delay(instance.id)
 
 
 @receiver(pre_delete, sender=Person, dispatch_uid="person_delete_mailtrain")
@@ -37,7 +37,6 @@ def delete_email_person(sender, instance, **kwargs):
         return
 
     try:
-        person = Person.objects.get(pk=instance.person_id)
-        tasks.update_mailtrain.delay(instance.person_id)
+        tasks.delete_email.delay(instance.address)
     except Person.DoesNotExist:
         pass

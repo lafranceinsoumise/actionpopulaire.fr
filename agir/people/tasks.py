@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from agir.lib.utils import front_url
-from agir.lib.mailtrain import update_person
+from agir.lib.mailtrain import update_person, delete_email
 from agir.people.actions.mailing import send_mosaico_email
 from .models import Person, PersonFormSubmission
 
@@ -38,10 +38,15 @@ def send_unsubscribe_email(person_pk):
     )
 
 @shared_task
-def update_mailtrain(person_pk):
+def update_person_mailtrain(person_pk):
     person = Person.objects.prefetch_related('emails').get(pk=person_pk)
 
     update_person(person)
+
+
+@shared_task
+def delete_email_mailtrain(email):
+    delete_email(email)
 
 
 @shared_task

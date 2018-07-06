@@ -219,7 +219,7 @@ class LegacyPersonEndpointTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     @override_settings(MAILTRAIN_DISABLE=False)
-    @mock.patch('agir.people.tasks.update_mailtrain')
+    @mock.patch('agir.people.tasks.update_person_mailtrain')
     def test_can_update_email_list(self, update_mailtrain):
         """
         We test at the same time that we can replace the list,

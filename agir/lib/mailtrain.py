@@ -50,7 +50,7 @@ def data_from_person(person, tmp_tags=None):
     return data
 
 
-def subscribe(email, fields=None):
+def subscribe_email(email, fields=None):
     data = {
         'EMAIL': email,
         'FORCE_SUBSCRIBE': 'yes',
@@ -77,7 +77,7 @@ def subscribe(email, fields=None):
     return True
 
 
-def unsubscribe(email):
+def unsubscribe_email(email):
     data = {
         'EMAIL': email,
         'MERGE_API_UPDATED': datetime.utcnow(),
@@ -90,7 +90,7 @@ def unsubscribe(email):
         .raise_for_status()
 
 
-def delete(email):
+def delete_email(email):
     data = {
         'EMAIL': email
     }
@@ -128,14 +128,14 @@ def update_person(person, tmp_tags=None):
 
     if primary_email is not None:
         if person.subscribed:
-            subscribe(primary_email.address, data)
+            subscribe_email(primary_email.address, data)
         else:
-            unsubscribe(primary_email.address)
+            unsubscribe_email(primary_email.address)
 
     for email in other_emails:
-        delete(email.address)
+        delete_email(email.address)
 
 
 def delete_person(person):
     for email in person.emails.all():
-        delete(email.address)
+        delete_email(email.address)
