@@ -364,9 +364,15 @@ class RSVP(TimeStampedModel):
         )
 
     def __str__(self):
-        return _('{person} --> {event} ({guests} invités').format(
+        info = '{person} --> {event} ({guests} invités)'.format(
             person=self.person, event=self.event, guests=self.guests
         )
+
+        if self.status == RSVP.STATUS_AWAITING_PAYMENT or \
+            any(guest.status == RSVP.STATUS_AWAITING_PAYMENT for guest in self.identified_guests.all()):
+            info = info + ' paiement(s) en attente'
+
+        return info
 
 
 class IdentifiedGuest(models.Model):
