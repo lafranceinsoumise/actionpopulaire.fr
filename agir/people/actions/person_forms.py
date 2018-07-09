@@ -232,7 +232,7 @@ def get_form_field(field_descriptor: dict):
     if klass:
         return klass(**field_descriptor)
 
-    raise ValueError()
+    raise ValueError(f"Unkwnown field type: '{field_type}'")
 
 
 def get_people_form_class(person_form_instance, base_form=BasePersonForm):
