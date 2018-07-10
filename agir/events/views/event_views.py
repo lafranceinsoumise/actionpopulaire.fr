@@ -18,9 +18,10 @@ from ..forms import (
     EventForm, AddOrganizerForm, EventGeocodingForm, EventReportForm, UploadEventImageForm, AuthorForm, SearchEventForm
 )
 from agir.front.view_mixins import (
-    HardLoginRequiredMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
+    ObjectOpengraphMixin,
     ChangeLocationBaseView, SearchByZipcodeBaseView,
 )
+from agir.authentication.view_mixins import HardLoginRequiredMixin, PermissionsRequiredMixin, SoftLoginRequiredMixin
 
 __all__ = [
     'CreateEventView', 'ManageEventView', 'ModifyEventView', 'QuitEventView', 'CancelEventView',

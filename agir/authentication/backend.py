@@ -7,8 +7,8 @@ from django.core.exceptions import ValidationError
 from urllib.parse import urlparse
 
 
-from ..people.models import Person
-from ..authentication.backend_mixins import GetRoleMixin
+from agir.people.models import Person
+from agir.authentication.backend_mixins import GetRoleMixin
 
 
 class ConnectionTokenGenerator(PasswordResetTokenGenerator):

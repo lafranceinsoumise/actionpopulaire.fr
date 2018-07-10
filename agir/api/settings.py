@@ -145,6 +145,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
+    'agir.authentication.middleware.MailLinkMiddleware',
 ]
 
 if DEBUG:
@@ -304,9 +305,9 @@ if ENABLE_API:
 if ENABLE_FRONT:
     AUTHENTICATION_BACKENDS.extend([
         # This backend is used for OAuth connection
-        'agir.front.backend.OAuth2Backend',
+        'agir.authentication.backend.OAuth2Backend',
         # This backend is used for connection through links found in emails
-        'agir.front.backend.MailLinkBackend'
+        'agir.authentication.backend.MailLinkBackend'
     ])
 
 # Admin

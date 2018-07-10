@@ -14,7 +14,8 @@ from django.utils import timezone
 from agir.people import tasks
 from .models import Person, PersonForm
 
-from agir.front.view_mixins import HardLoginRequiredMixin, SimpleOpengraphMixin
+from agir.front.view_mixins import SimpleOpengraphMixin
+from agir.authentication.view_mixins import HardLoginRequiredMixin, SoftLoginRequiredMixin
 from .forms import (
     SimpleSubscriptionForm, OverseasSubscriptionForm, ProfileForm,
     VolunteerForm, MessagePreferencesForm, UnsubscribeForm, AddEmailForm
@@ -22,7 +23,6 @@ from .forms import (
 from .actions.person_forms import get_people_form_class
 
 from agir.events.models import Event
-from agir.front.view_mixins import SoftLoginRequiredMixin
 from agir.groups.models import SupportGroup
 
 from agir.lib.tasks import geocode_person

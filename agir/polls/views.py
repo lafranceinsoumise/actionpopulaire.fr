@@ -7,7 +7,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
 from django.utils.translation import ugettext as _
 
-from agir.front.view_mixins import SoftLoginRequiredMixin
+from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from .forms import PollParticipationForm
 from .models import Poll, PollChoice
 
