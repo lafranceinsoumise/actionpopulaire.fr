@@ -35,7 +35,7 @@ class MailLinkMiddleware():
         user = authenticate(user_pk=request.GET['p'], code=request.GET['code'])
 
         # case where user is already authenticated and different from user above ==> redirect with warning message
-        if request.user.is_authenticated and request.user != user:
+        if hasattr(request.user, 'is_authenticated') and request.user.is_authenticated and request.user != user:
             messages.add_message(
                 request=request,
                 level=messages.WARNING,
@@ -60,7 +60,7 @@ class KnownEmailCookieMiddleWare():
     def __call__(self, request):
         response = self.get_response(request)
 
-        if not request.user.is_authenticated:
+        if not (hasattr(request.user, 'is_authenticated') and request.user.is_authenticated):
             return response
 
         if not (hasattr(request.user, 'type') and request.user.type == Role.PERSON_ROLE):
