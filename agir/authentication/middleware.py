@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext as _
 
+from agir.authentication.models import Role
+
 
 class MailLinkMiddleware():
     @staticmethod
@@ -59,6 +61,9 @@ class KnownEmailCookieMiddleWare():
         response = self.get_response(request)
 
         if not request.user.is_authenticated:
+            return response
+
+        if not (hasattr(request.user, 'type') and request.user.type == Role.PERSON_ROLE):
             return response
 
         domain = '.'.join(request.META.get('HTTP_HOST', '').split('.')[-2:])
