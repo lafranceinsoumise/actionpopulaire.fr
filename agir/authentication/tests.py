@@ -29,6 +29,16 @@ class AuthenticationTestCase(TestCase):
         self.assertRedirects(response, reverse('volunteer'))
         self.assertEqual(get_user(self.client), self.person.role)
 
+    def test_cannot_connect_with_wront_query_params(self):
+        p = self.person.pk
+
+        response = self.client.get(reverse('volunteer'), data={'p': p, 'code': 'prout'}, follow=True)
+
+        self.assertIn(
+            (reverse('oauth_redirect_view') + '?next=' + reverse('volunteer'), 302),
+            response.redirect_chain
+        )
+
     def test_can_access_soft_login_while_already_connected(self):
         self.client.force_login(self.person.role, self.soft_backend)
 

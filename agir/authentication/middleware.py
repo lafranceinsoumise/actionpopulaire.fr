@@ -41,7 +41,6 @@ class MailLinkMiddleware():
                 level=messages.WARNING,
                 message=self.get_message_string(request.user)
             )
-            return HttpResponseRedirect(url)
         # case where user is being authenticated ==> we show a message but only with info level
         elif user:
             login(request, user)
@@ -50,7 +49,8 @@ class MailLinkMiddleware():
                 level=messages.INFO,
                 message=self.get_message_string(user)
             )
-            return HttpResponseRedirect(url)
+
+        return HttpResponseRedirect(url)
 
 
 class KnownEmailCookieMiddleWare():
