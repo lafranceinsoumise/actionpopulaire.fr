@@ -15,7 +15,8 @@ from agir.people.models import Person
 
 class AuthenticationTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person('test@test.com', )
+        self.person = Person.objects.create_person('test@test.com')
+        self.person2 = Person.objects.create_person('test2@test.com')
 
         self.soft_backend = 'agir.authentication.backend.MailLinkBackend'
 
@@ -54,6 +55,19 @@ class AuthenticationTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         target_url = urlparse(response.url)
         self.assertEqual(target_url.path, message_preferences_path)
+
+    def test_know_user_cookie_middleware(self):
+        self.client.force_login(self.person.role)
+        response = self.client.get(reverse('volunteer'))
+        self.assertEqual(self.client.cookies.get('knownEmails').value, 'test@test.com')
+
+        self.client.force_login(self.person2.role)
+        response = self.client.get(reverse('volunteer'))
+        self.assertEqual(self.client.cookies.get('knownEmails').value, 'test2@test.com,test@test.com')
+
+        self.client.force_login(self.person.role)
+        response = self.client.get(reverse('volunteer'))
+        self.assertEqual(self.client.cookies.get('knownEmails').value, 'test@test.com,test2@test.com')
 
 
 class AuthorizationTestCase(TestCase):

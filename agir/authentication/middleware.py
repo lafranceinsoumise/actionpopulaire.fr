@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
@@ -48,3 +49,27 @@ class MailLinkMiddleware():
                 message=self.get_message_string(user)
             )
             return HttpResponseRedirect(url)
+
+
+class KnownEmailCookieMiddleWare():
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        if not request.user.is_authenticated:
+            return response
+
+        domain = '.'.join(request.META.get('HTTP_HOST', '').split('.')[-2:])
+
+        emails_cookie = request.COOKIES.get('knownEmails')
+        emails = emails_cookie.split(',') if emails_cookie is not None else []
+
+        if request.user.person.email in emails:
+            emails.remove(request.user.person.email)
+        emails.insert(0, request.user.person.email)
+
+        response.set_cookie('knownEmails', value=','.join(emails[0:4]), max_age=365, domain=domain, secure=True, httponly=True)
+
+        return response

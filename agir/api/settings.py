@@ -146,6 +146,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'agir.authentication.middleware.MailLinkMiddleware',
+    'agir.authentication.middleware.KnownEmailCookieMiddleWare',
 ]
 
 if DEBUG:
