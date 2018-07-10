@@ -239,9 +239,8 @@ class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, D
         for mapping in self.payment_parameters.get('mappings', []):
             values = [submission.data.get(field) for field in mapping['fields']]
 
-            d = {tuple(str(v) for v in m['values']): m['price'] for m in mapping['mapping']}
+            d = {tuple(v for v in m['values']): m['price'] for m in mapping['mapping']}
 
-            print(tuple(values), flush=True)
             price += d.get(tuple(values), 0)
 
         return price
