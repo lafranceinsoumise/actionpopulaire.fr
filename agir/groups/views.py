@@ -18,9 +18,10 @@ from agir.groups.actions.promo_codes import get_next_promo_code
 
 from .forms import SupportGroupForm, AddReferentForm, AddManagerForm, GroupGeocodingForm, SearchGroupForm
 from agir.front.view_mixins import (
-    HardLoginRequiredMixin, PermissionsRequiredMixin, ObjectOpengraphMixin,
+    ObjectOpengraphMixin,
     ChangeLocationBaseView, SearchByZipcodeBaseView
 )
+from agir.authentication.view_mixins import HardLoginRequiredMixin, PermissionsRequiredMixin
 
 __all__ = [
     'SupportGroupManagementView', 'CreateSupportGroupView', 'PerformCreateSupportGroupView', 'ModifySupportGroupView',

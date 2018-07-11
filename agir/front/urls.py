@@ -4,8 +4,8 @@ from django.urls import reverse_lazy, path, re_path
 from django.views.generic import RedirectView
 
 from ..front.sitemaps import sitemaps
-from . import views, oauth
-
+from . import views
+from agir.authentication import oauth
 
 urlpatterns = [
     # https://lafranceinsoumise.fr/

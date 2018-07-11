@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from agir.payments.actions import notify_status_change
 from agir.payments.models import Payment
 from agir.payments.views import handle_return
-from agir.system_pay.actions import update_payment_from_transactions
+from agir.system_pay.actions import update_payment_from_transaction
 from agir.system_pay.models import SystemPayTransaction
 
 from .crypto import check_signature
@@ -65,7 +65,7 @@ class SystemPayWebhookView(APIView):
             sp_transaction.status = SYSTEMPAY_STATUS_CHOICE.get(request.data['vads_trans_status'])
             sp_transaction.save()
 
-            update_payment_from_transactions(sp_transaction.payment)
+            update_payment_from_transaction(sp_transaction.payment, sp_transaction)
 
         with transaction.atomic():
             notify_status_change(sp_transaction.payment)

@@ -6,7 +6,7 @@ from django.http import QueryDict
 from django.urls import reverse
 from django.utils.functional import lazy
 
-from agir.front.backend import token_generator
+from agir.authentication.backend import token_generator
 
 
 def _querydict_from_dict(d):
