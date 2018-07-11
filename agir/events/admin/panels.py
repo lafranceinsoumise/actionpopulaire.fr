@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -72,14 +73,20 @@ class EventHasReportFilter(admin.SimpleListFilter):
             return queryset.filter(report_content='')
 
 
+class OrganizerConfigInlineAdminForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance._state.adding:
+            self.fields['as_group'].queryset = SupportGroup.objects.filter(memberships__person=self.instance.person,
+                                                                           memberships__is_manager=True)
+
+
 class OrganizerConfigInline(admin.TabularInline):
     model = models.OrganizerConfig
     fields = ('person_link', 'as_group')
     readonly_fields = ('person_link', )
-
-    def get_form(self, obj):
-        form = super().get_form()
-        form.fields['as_group'].queryset = SupportGroup.objects.filter(memberships__person=obj.person, memberships__is_manager=True)
+    extra = 0
+    form = OrganizerConfigInlineAdminForm
 
     def person_link(self, obj):
         return mark_safe(format_html(
