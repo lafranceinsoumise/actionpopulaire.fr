@@ -94,6 +94,9 @@ def rsvp_to_paid_event_and_create_payment(event, person, payment_mode, form_subm
     with transaction.atomic():
         rsvp = _get_rsvp_for_event(event, person, form_submission, True)
         if rsvp.payment is not None:
+            if rsvp.payment.mode == payment_mode.id and rsvp.payment.can_retry():
+                return rsvp.payment
+
             if not rsvp.payment.can_cancel():
                 raise RSVPException("Ce mode de paiement ne permet pas l'annulation.")
             cancel_payment(rsvp.payment)
