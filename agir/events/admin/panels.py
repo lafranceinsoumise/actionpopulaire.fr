@@ -76,7 +76,9 @@ class EventHasReportFilter(admin.SimpleListFilter):
 class OrganizerConfigInlineAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if not self.instance._state.adding:
+        if self.instance._state.adding:
+            self.fields['as_group'].queryset = SupportGroup.objects.none()
+        else:
             self.fields['as_group'].queryset = SupportGroup.objects.filter(memberships__person=self.instance.person,
                                                                            memberships__is_manager=True)
 
