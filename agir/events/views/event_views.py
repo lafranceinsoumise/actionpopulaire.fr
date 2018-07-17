@@ -294,8 +294,9 @@ class CalendarView(ObjectOpengraphMixin, DetailView):
         )
 
 
-class ChangeEventLocationView(ChangeLocationBaseView):
+class ChangeEventLocationView(HardLoginRequiredMixin, PermissionsRequiredMixin, ChangeLocationBaseView):
     template_name = 'events/change_location.html'
+    permissions_required = ('events.change_event',)
     form_class = EventGeocodingForm
     success_view_name = 'manage_event'
 
@@ -303,7 +304,7 @@ class ChangeEventLocationView(ChangeLocationBaseView):
         return Event.objects.upcoming(as_of=timezone.now())
 
 
-class EditEventReportView(PermissionsRequiredMixin, UpdateView):
+class EditEventReportView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
     template_name = 'events/edit_event_report.html'
     permissions_required = ('events.change_event',)
     form_class = EventReportForm
@@ -315,7 +316,7 @@ class EditEventReportView(PermissionsRequiredMixin, UpdateView):
         return Event.objects.past(as_of=timezone.now())
 
 
-class UploadEventImageView(CreateView):
+class UploadEventImageView(SoftLoginRequiredMixin, CreateView):
     template_name = 'events/upload_event_image.html'
     form_class = UploadEventImageForm
 
