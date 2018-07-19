@@ -134,7 +134,7 @@ def cancel_payment_for_rsvp(payment):
     try:
         rsvp = payment.rsvp
     except RSVP.DoesNotExist:
-        pass
+        return
 
     rsvp.status = RSVP.STATUS_CANCELED
     rsvp.save()
@@ -211,7 +211,7 @@ def cancel_payment_for_guest(payment):
     try:
         guest = payment.identified_guest
     except:
-        return logger.error(f'cancel_payment_for_guest: No identified guest for payment {payment.pk}')
+        return
 
     guest.status = RSVP.STATUS_CANCELED
     guest.save()
