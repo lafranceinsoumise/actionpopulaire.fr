@@ -30,8 +30,10 @@ class PollParticipationView(SoftLoginRequiredMixin, SingleObjectMixin, FormView)
         return {'poll': self.object, **super().get_form_kwargs()}
 
     def get_context_data(self, **kwargs):
+        poll_choice = PollChoice.objects.filter(person=self.request.user.person, poll=self.object).first()
         return super().get_context_data(
-            already_voted=PollChoice.objects.filter(person=self.request.user.person, poll=self.object).exists(),
+            already_voted=(poll_choice is not None),
+            anonymous_id=(poll_choice is not None and poll_choice.anonymous_id),
             **kwargs
         )
 

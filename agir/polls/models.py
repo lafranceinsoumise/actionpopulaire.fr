@@ -1,3 +1,5 @@
+import uuid
+
 import markdown
 from django.contrib.postgres.fields import JSONField
 from django.core.serializers.json import DjangoJSONEncoder
@@ -65,3 +67,7 @@ class PollChoice(BaseAPIResource):
     person = models.ForeignKey('people.Person', on_delete=models.SET_NULL, null=True)
     poll = models.ForeignKey('Poll', on_delete=models.CASCADE)
     selection = JSONField(encoder=DjangoJSONEncoder)
+    anonymous_id = models.UUIDField(_("Identifiant anonyme"), default=uuid.uuid4)
+
+    class Meta:
+        unique_together = (('person', 'poll'),)
