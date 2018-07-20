@@ -41,7 +41,8 @@ class PollParticipationView(SoftLoginRequiredMixin, SingleObjectMixin, FormView)
 
     def get(self, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.end < timezone.now():
+        if self.object.end < timezone.now()\
+                and PollChoice.objects.filter(person=self.request.user.person, poll=self.object).first() is None:
             return redirect('finished_poll')
 
         return super().get(*args, **kwargs)
