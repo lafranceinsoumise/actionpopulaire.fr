@@ -1,4 +1,6 @@
 from django.core.exceptions import PermissionDenied
+from django.db import IntegrityError
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -54,7 +56,11 @@ class PollParticipationView(SoftLoginRequiredMixin, SingleObjectMixin, FormView)
         return super().post(*args, **kwargs)
 
     def form_valid(self, form):
-        form.make_choice(self.request.user)
+        try:
+            form.make_choice(self.request.user)
+        except IntegrityError: # there probably has been a race condition when POSTing twice
+            return HttpResponseRedirect(self.get_success_url())
+
         messages.add_message(
             self.request,
             messages.SUCCESS,
