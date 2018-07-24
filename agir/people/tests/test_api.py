@@ -16,6 +16,7 @@ from agir.people.viewsets import LegacyPersonViewSet
 from agir.events.models import Event, RSVP
 from agir.groups.models import SupportGroup, Membership
 
+
 class LegacyPersonEndpointTestCase(APITestCase):
     def as_viewer(self, request):
         force_authenticate(request, self.viewer_person.role)

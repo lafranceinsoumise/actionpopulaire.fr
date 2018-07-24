@@ -1,23 +1,10 @@
-import json
-from unittest import skip, mock
-
-from django.core.exceptions import ValidationError
 from django.test import TestCase
-from django.db import IntegrityError, transaction
-from django.utils import timezone, formats
-from django.utils.http import urlquote_plus
-from django.contrib.auth.models import Permission, Group
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.gis.geos import Point
-from django.core import mail
 
-from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
-from rest_framework.reverse import reverse
-from rest_framework import status
+from agir.lib.tests.mixins import FakeDataMixin
 
-from ..models import Person, PersonTag, PersonEmail, PersonForm, PersonFormSubmission
-from .. import tasks
+from ..models import Person, PersonForm, PersonFormSubmission
 from ..actions.person_forms import get_form_field_labels, get_formatted_submission
+from ..actions.management import merge_persons
 
 
 class PeopleFormActionsTestCase(TestCase):
@@ -102,3 +89,11 @@ class PeopleFormActionsTestCase(TestCase):
                 {'label': 'disappearing-field', 'value': 'TUC'},
             ]
         )
+
+
+class MergePeopleTestCase(FakeDataMixin, TestCase):
+    def test_can_merge_people(self):
+        u1, u2 = self.people['user1'], self.people['user2']
+        merge_persons(u1, u2)
+
+        self.assertFalse(Person.objects.filter(pk=u2.pk).exists())

@@ -62,6 +62,15 @@ def merge_persons(p1, p2):
             e2.person = p1
             e2.save()
 
+        # We reassign simply for these categories
+        p2.form_submissions.update(person=p1)
+        p2.payments.update(person=p1)
+        p2.event_images.update(author=p1)
+
+        # we reassign poll choices only if p1 has not voted yet
+        p1_votes = set(pc.poll_id for pc in p1.poll_choices.all())
+        p2.poll_choices.exclude(poll_id__in=p1_votes).update(person=p1)
+
         # then we need to delete the second person and its role, before removing it from mailtrain
         r2 = p2.role
         p2.delete()

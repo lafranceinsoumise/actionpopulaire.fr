@@ -8,7 +8,7 @@ from django.contrib.gis.geos import Point
 from agir.clients.models import Client
 from agir.events.models import Calendar, Event, OrganizerConfig, RSVP
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
-from agir.people.models import Person
+from agir.people.models import Person, PersonForm, PersonFormSubmission
 
 PASSWORD = 'incredible password'
 
@@ -64,8 +64,12 @@ def load_fake_data():
     }
     groups_subtypes['local_group_default'].supportgroups.set(groups.values())
     groups_subtypes['certified_local_group'].supportgroups.set([groups['user1_group']])
-    Membership.objects.create(supportgroup=groups['user1_group'], person=people['user1'], is_manager=True, is_referent=True)
-    Membership.objects.create(supportgroup=groups['user2_group'], person=people['user2'], is_manager=True, is_referent=True)
+    Membership.objects.create(
+        supportgroup=groups['user1_group'], person=people['user1'], is_manager=True, is_referent=True
+    )
+    Membership.objects.create(
+        supportgroup=groups['user2_group'], person=people['user2'], is_manager=True, is_referent=True
+    )
     Membership.objects.create(supportgroup=groups['user1_group'], person=people['user2'])
     thematic_groups = {
         'thematic_booklet': SupportGroup.objects.create(name='Livret thématique fictif', type='B'),
@@ -118,6 +122,39 @@ def load_fake_data():
     [RSVP.objects.create(person=user, event=events['user1_past_event']) for user in [people['user1'], people['user2']]]
     [RSVP.objects.create(person=user, event=events['user1_unpublished_event']) for user in [people['user1'], people['user2']]]
 
+    # create a person form
+    person_form = PersonForm.objects.create(
+        title='Formulaire',
+        slug='formulaire',
+        description='Ma description',
+        confirmation_note='Ma note de fin',
+        main_question='QUESTION PRINCIPALE',
+        custom_fields=[{
+            'title': 'Questions',
+            'fields': [
+                {
+                    'id': 'custom-field',
+                    'type': 'short_text',
+                    'label': 'Mon label'
+                }]
+        }]
+    )
+
+    PersonFormSubmission.objects.create(
+        person=people['user1'],
+        form=person_form,
+        data={
+            'custom-field': 'saisie 1'
+        }
+    )
+    PersonFormSubmission.objects.create(
+        person=people['user2'],
+        form=person_form,
+        data={
+            'custom-field': 'saisie 2'
+        }
+    )
+
     return {
         'clients': clients,
         'people': people,
@@ -126,6 +163,7 @@ def load_fake_data():
         'calendars': calendars,
         'thematic_groups': thematic_groups,
         'group_subtypes': groups_subtypes,
+        'person_form': person_form
     }
 
 
