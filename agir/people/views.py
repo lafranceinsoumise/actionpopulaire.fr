@@ -10,8 +10,13 @@ from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
 from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView
 from django.views.generic.edit import FormView
 from django.utils import timezone
+from rest_framework.permissions import DjangoModelPermissions, BasePermission
+from rest_framework.response import Response
+
+from rest_framework.views import APIView
 
 from agir.people import tasks
+from agir.people.serializers import LegacyPersonSerializer
 from .models import Person, PersonForm
 
 from agir.front.view_mixins import SimpleOpengraphMixin
@@ -334,3 +339,28 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
         })
 
         return super().get_context_data(**kwargs)
+
+
+
+class CanViewPersonPermission(BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.has_perm('people.view_person')
+
+
+class SearchPersonView(APIView):
+    permission_classes = (CanViewPersonPermission, )
+
+    def get(self, request, *args, **kwargs):
+        address = request.query_params.get('address')
+
+        if not address:
+            raise Http404()
+
+        try:
+            p = Person.objects.get_by_natural_key(address)
+        except Person.DoesNotExist:
+            raise Http404()
+
+        s = LegacyPersonSerializer(p, context={'request': request})
+
+        return Response(s.data)

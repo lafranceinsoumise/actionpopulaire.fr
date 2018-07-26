@@ -24,6 +24,8 @@ urlpatterns = [
     path('formulaires/<slug:slug>/', views.PeopleFormView.as_view(), name='view_person_form'),
     path('formulaires/<slug:slug>/confirmation/', views.PeopleFormConfirmationView.as_view(), name='person_form_confirmation'),
 
+    path('chercher_email/', views.SearchPersonView.as_view(), name='search_person'),
+
     # dashboard
     path('', views.DashboardView.as_view(), name='dashboard'),
 ]

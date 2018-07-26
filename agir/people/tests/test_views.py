@@ -1,11 +1,15 @@
 from unittest import mock
 
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.reverse import reverse
+from rest_framework.test import APITestCase
 
+from agir.clients.models import Client
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 from agir.lib.tests.mixins import FakeDataMixin
 
@@ -366,3 +370,40 @@ class PersonFormTestCase(TestCase):
             'custom-person-field': 'Mon super champ texte libre à mettre dans Person.metas'
         })
         self.assertContains(res, "Ce formulaire est maintenant fermé.")
+
+
+class SearchPersonTestCase(FakeDataMixin, APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.url = reverse('search_person')
+
+        self.view_permission_client = Client.objects.create_client('client')
+        content_type = ContentType.objects.get_for_model(Person)
+        permission = Permission.objects.get(codename='view_person', content_type=content_type)
+
+        self.view_permission_client.role.user_permissions.add(permission)
+
+    def test_cannot_search_when_not_logged_in(self):
+        res = self.client.get(self.url, {'address': 'user1@example.com'})
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_search_without_permission(self):
+        self.client.force_login(self.people['user1'].role)
+
+        res = self.client.get(self.url, {'address': 'user1@example.com'})
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_search_with_proper_permission(self):
+        self.client.force_login(self.view_permission_client.role)
+
+        res = self.client.get(self.url, {'address': 'user1@example.com'})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(res.data['email'], 'user1@example.com')
+
+    def test_can_search_with_any_capitalization(self):
+        self.client.force_login(self.view_permission_client.role)
+
+        res = self.client.get(self.url, {'address': 'UsEr1@exAMple.com'})
+        self.assertEqual(res.data['email'], 'user1@example.com')
