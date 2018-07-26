@@ -23,13 +23,14 @@ def create_payment(person, type, price, mode=DEFAULT_MODE, meta=None):
         meta = {}
 
     person_fields = ['first_name', 'last_name', 'email', 'location_address1', 'location_address2', 'location_zip',
-                     'location_state', 'location_city', 'location_country',]
+                     'location_state', 'location_city', 'location_country']
 
     return Payment.objects.create(
         person=person,
         type=type,
         mode=mode,
         price=price,
+        phone_number=person.contact_phone,
         meta=meta,
         **{f: getattr(person, f) for f in person_fields}
     )

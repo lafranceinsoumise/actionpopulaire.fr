@@ -29,6 +29,7 @@
                         <th scope="col"><div class="text">Statut</div></th>
                         <th scope="col"><div class="text">Nom de facturation</div></th>
                         <th scope="col"><div class="text">Adresse de facturation</div></th>
+                        <th scope="col"><div class="text">Numéro de contact</div></th>
                         <th scope="col"><div class="text">Montant</div></th>
                     </tr>
                     </thead>
@@ -45,6 +46,9 @@
                             </td>
                             <td>{{ check.last_name }}, {{ check.first_name }}</td>
                             <td>{{ check.html_full_address }}</td>
+                            <td>{% if check.phone_number %}
+                                {{ check.phone_number.as_international }}
+                            {% else %}-{% endif %}</td>
                             <td>{{ check.get_price_display }}</td>
                         </tr>
                     {% endfor %}
