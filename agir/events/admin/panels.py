@@ -1,15 +1,17 @@
 from django import forms
 from django.contrib import admin
+from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.db.models import F, Sum
+from django.db.models import F, Sum, Count, Q
 from django.urls import path
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.html import format_html, escape
 
+from agir.events.models import RSVP
 from ...api.admin import admin_site
 from ...groups.models import SupportGroup
 from ...lib.admin import CenterOnFranceMixin
@@ -201,7 +203,14 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     add_organizer_button.short_description = _('Ajouter un organisateur')
 
     def attendee_count(self, object):
-        return object.attendee_count
+        all_attendee = object.attendee_count + object.identified_guests_count
+
+        if object.is_free:
+            return str(all_attendee)
+
+        confirmed_attendee = object.confirmed_attendee_count + object.confirmed_identified_guests_count
+        return _(f'{all_attendee} (dont {confirmed_attendee} confirmés)')
+
     attendee_count.short_description = _("Nombre de personnes inscrites")
     attendee_count.admin_order_field = 'attendee_count'
 
@@ -215,7 +224,14 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
 
-        return qs.annotate(attendee_count=Sum(1 + F('rsvps__guests')))
+        confirmed_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CONFIRMED)
+        confirmed_rsvps = Q(rsvps__status=RSVP.STATUS_CONFIRMED)
+
+        return qs \
+            .annotate(confirmed_identified_guests_count=Coalesce(Count('rsvps__identified_guests', filter=confirmed_guests), 0)) \
+            .annotate(confirmed_attendee_count=Coalesce(Sum(1 + F('rsvps__guests'), filter=confirmed_rsvps), 0)) \
+            .annotate(identified_guests_count=Coalesce(Count('rsvps__identified_guests'), 0)) \
+            .annotate(attendee_count=Coalesce(Sum(1 + F('rsvps__guests')), 0))
 
     def get_urls(self):
         return [
