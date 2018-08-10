@@ -11,7 +11,9 @@ from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.html import format_html, escape
 
-from agir.events.models import RSVP
+from agir.events.models import RSVP, Event
+from agir.people.admin import PersonFormAdminMixin
+from agir.people.models import PersonFormSubmission
 from ...api.admin import admin_site
 from ...groups.models import SupportGroup
 from ...lib.admin import CenterOnFranceMixin
@@ -131,7 +133,7 @@ class EventImageInline(admin.TabularInline):
 
 
 @admin.register(models.Event, site=admin_site)
-class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
+class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
     form = EventAdminForm
 
     fieldsets = (
@@ -142,7 +144,7 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('subtype', 'description', 'allow_html', 'image', 'start_time', 'end_time', 'calendars', 'tags', 'published'),
         }),
         (_('Inscription'), {
-            'fields': ('max_participants', 'allow_guests', 'subscription_form', 'payment_parameters'),
+            'fields': ('max_participants', 'allow_guests', 'subscription_form', 'rsvps_buttons', 'payment_parameters'),
         }),
         (_('Lieu'), {
             'fields': ('location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip',
@@ -161,7 +163,8 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     inlines = (OrganizerConfigInline, EventImageInline)
 
-    readonly_fields = ('id', 'link', 'add_organizer_button', 'organizers', 'created', 'modified', 'coordinates_type')
+    readonly_fields = (
+    'id', 'link', 'add_organizer_button', 'organizers', 'created', 'modified', 'coordinates_type', 'rsvps_buttons')
     date_hierarchy = 'start_time'
 
     list_display = ('name', 'published', 'calendar_names', 'location_short', 'attendee_count',
@@ -221,6 +224,29 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             return '-'
     link.short_description = _("Page sur le site")
 
+    def rsvps_buttons(self, object):
+        if object.subscription_form is None :
+            return mark_safe('-')
+        else:
+            return format_html(
+                '<a href="{view_results_link}" class="button">Voir les inscriptions</a><br>'
+                '<a href="{download_results_link}" class="button">Télécharger les inscriptions</a><br>',
+                view_results_link=reverse('admin:events_event_rsvps_view_results', args=(object.pk,)),
+                download_results_link=reverse('admin:events_event_rsvps_download_results', args=(object.pk,)),
+            )
+    rsvps_buttons.short_description = _("Inscriptions")
+
+    def get_form_submission_qs(self, form):
+        return PersonFormSubmission.objects.filter(Q(rsvp__event=self.instance) | Q(guest_rsvp__event=self.instance))
+
+    def view_results(self, request, pk):
+        self.instance = Event.objects.get(pk=pk)
+        return super().view_results(request, self.instance.subscription_form.id)
+
+    def download_results(self, request, pk):
+        self.instance = Event.objects.get(pk=pk)
+        return super().view_results(request, self.instance.subscription_form.id)
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
 
@@ -235,7 +261,9 @@ class EventAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     def get_urls(self):
         return [
-            path('<uuid:pk>/add_organizer/', admin_site.admin_view(self.add_organizer), name="events_event_add_organizer")
+            path('<uuid:pk>/add_organizer/', admin_site.admin_view(self.add_organizer), name="events_event_add_organizer"),
+            path('<uuid:pk>/view_rsvps/', self.admin_site.admin_view(self.view_results), name="events_event_rsvps_view_results"),
+            path('<uuid:pk>/download_rsvps/', self.admin_site.admin_view(self.download_results), name="events_event_rsvps_download_results"),
         ] + super().get_urls()
 
     def add_organizer(self, request, pk):

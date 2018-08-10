@@ -205,44 +205,16 @@ class PersonFormForm(forms.ModelForm):
         return value
 
 
-@admin.register(PersonForm, site=admin_site)
-class PersonFormAdmin(admin.ModelAdmin):
-    form = PersonFormForm
-    list_display = ('title', 'slug_link', 'published',)
-
-    fieldsets = (
-        (None, {
-            'fields': ('title', 'slug', 'published', 'start_time', 'end_time', 'send_answers_to')
-        }),
-        (_('Soumissions'), {
-            'fields': ('submissions_number', 'simple_link', 'action_buttons')
-        }),
-        (_('Champs'), {
-            'fields': ('main_question', 'tags', 'custom_fields')
-        }),
-        (_('Textes'), {
-            'fields': ('description', 'confirmation_note', 'send_confirmation', 'before_message', 'after_message')
-         }),
-    )
-
-    readonly_fields = ('submissions_number', 'simple_link', 'action_buttons')
-
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-
-        return qs.annotate(submissions_number=Count('submissions'))
-
-    def get_urls(self):
-        return [
-            path('<int:pk>/view_results/', self.admin_site.admin_view(self.view_results), name="people_personform_view_results"),
-            path('<int:pk>/download_results/', self.admin_site.admin_view(self.download_results), name="people_personform_download_results"),
-        ] + super().get_urls()
+class PersonFormAdminMixin:
+    def get_form_submission_qs(self, form):
+        return form.submissions.all()
 
     def generate_result_table(self, form, only_text=False):
+        submission_qs = self.get_form_submission_qs(form)
         fields = [field for fieldset in form.custom_fields for field in fieldset['fields']]
         submissions = []
 
-        for submission in form.submissions.all():
+        for submission in submission_qs:
             data = [submission.data.get(field['id'], 'NA') for field in fields]
             submissions.append([submission.modified]
                             + [submission.person if only_text is False else submission.person.email]
@@ -290,6 +262,40 @@ class PersonFormAdmin(admin.ModelAdmin):
             writer.writerow(submission)
 
         return response
+
+
+@admin.register(PersonForm, site=admin_site)
+class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
+    form = PersonFormForm
+    list_display = ('title', 'slug_link', 'published',)
+
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'slug', 'published', 'start_time', 'end_time', 'send_answers_to')
+        }),
+        (_('Soumissions'), {
+            'fields': ('submissions_number', 'simple_link', 'action_buttons')
+        }),
+        (_('Champs'), {
+            'fields': ('main_question', 'tags', 'custom_fields')
+        }),
+        (_('Textes'), {
+            'fields': ('description', 'confirmation_note', 'send_confirmation', 'before_message', 'after_message')
+         }),
+    )
+
+    readonly_fields = ('submissions_number', 'simple_link', 'action_buttons')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+
+        return qs.annotate(submissions_number=Count('submissions'))
+
+    def get_urls(self):
+        return [
+            path('<int:pk>/view_results/', self.admin_site.admin_view(self.view_results), name="people_personform_view_results"),
+            path('<int:pk>/download_results/', self.admin_site.admin_view(self.download_results), name="people_personform_download_results"),
+        ] + super().get_urls()
 
     def slug_link(self, object):
         if object.slug:
