@@ -245,7 +245,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def download_results(self, request, pk):
         self.instance = Event.objects.get(pk=pk)
-        return super().view_results(request, self.instance.subscription_form.id)
+        return super().download_results(request, self.instance.subscription_form.id)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
