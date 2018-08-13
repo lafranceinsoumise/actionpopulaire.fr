@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 
 import django_otp
 from django import forms
-from django.urls import path
+from django.urls import path, reverse_lazy
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Count
 from django.http import HttpResponse
@@ -15,10 +15,12 @@ from django.utils.html import escape, format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.utils import display_for_value
 from django.contrib.gis.admin import OSMGeoAdmin
+from django.views.generic import RedirectView
+
 from agir.api.admin import admin_site
 
 from .actions.person_forms import validate_custom_fields
-from .models import Person, PersonTag, PersonEmail, PersonForm
+from .models import Person, PersonTag, PersonEmail, PersonForm, PersonFormSubmission
 from agir.authentication.models import Role
 from agir.events.models import RSVP
 from agir.groups.models import Membership
@@ -216,11 +218,11 @@ class PersonFormAdminMixin:
 
         for submission in submission_qs:
             data = [submission.data.get(field['id'], 'NA') for field in fields]
-            submissions.append([submission.modified]
+            submissions.append([submission.pk] + [submission.modified]
                             + [submission.person if only_text is False else submission.person.email]
                             + data)
 
-        headers = ['Date', 'Personne'] + [(field.get('label') or Person._meta.get_field(field['id']).verbose_name) for field in fields]
+        headers = ['ID', 'Date', 'Personne'] + [(field.get('label') or Person._meta.get_field(field['id']).verbose_name) for field in fields]
 
         return {'form': form, 'headers': headers, 'submissions': submissions}
 
@@ -326,3 +328,10 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
     def submissions_number(self, object):
         return object.submissions_number
     submissions_number.short_description = 'Nombre de soumissions'
+
+@admin.register(PersonFormSubmission, site=admin_site)
+class PersonFormSubmissionAdmin(admin.ModelAdmin):
+    def get_urls(self):
+        return [
+            path('<object_id>/delete/', self.admin_site.admin_view(self.delete_view), name='people_personformsubmission_delete')
+        ]

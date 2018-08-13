@@ -458,3 +458,6 @@ class PersonFormSubmission(TimeStampedModel):
     person = models.ForeignKey('Person', on_delete=models.CASCADE, related_name='form_submissions', editable=False)
 
     data = JSONField(_('Données'), editable=False, encoder=CustomJSONEncoder)
+
+    def __str__(self):
+        return f"{self.form.title} : réponse de {str(self.person)}"

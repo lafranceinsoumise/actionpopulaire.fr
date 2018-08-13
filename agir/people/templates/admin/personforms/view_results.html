@@ -18,6 +18,7 @@
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
 &rsaquo; {% if has_change_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+&rsaquo; <a href="{% url 'admin:people_personform_change' form.pk|admin_urlquote %}">{{ form|truncatewords:"18" }}</a>
 &rsaquo; {% blocktrans %}Voir les résultats{% endblocktrans %}
 </div>
 {% endblock %}
@@ -35,8 +36,8 @@
             <tr>
             {%  for value in submission %}
                 {% if forloop.counter == 1 %}
-                    <td>{{ value }}</td>
-                {% elif forloop.counter == 2 %}
+                    <td><a href="{% url 'admin:people_personformsubmission_delete' 61 %}" class="deletelink"></a></td>
+                {% elif forloop.counter == 3 %}
                     <td><a href="{% url 'admin:people_person_change' value.id %}">{{ value.email }}</a></td>
                 {% else %}
                     <td>{{ value }}</td>
