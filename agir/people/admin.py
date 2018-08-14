@@ -336,7 +336,7 @@ class PersonFormSubmissionAdmin(admin.ModelAdmin):
         return super().delete_view(request, object_id, extra_context)
 
     def response_delete(self, request, obj_display, obj_id):
-        return HttpResponseRedirect(reverse('admin:people_personform_change', args=[self.personform.pk]))
+        return HttpResponseRedirect(reverse('admin:people_personform_view_results', args=[self.personform.pk]))
 
     def get_urls(self):
         return [
