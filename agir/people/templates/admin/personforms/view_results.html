@@ -36,7 +36,7 @@
             <tr>
             {%  for value in submission %}
                 {% if forloop.counter == 1 %}
-                    <td><a href="{% url 'admin:people_personformsubmission_delete' 61 %}" class="deletelink"></a></td>
+                    <td><a href="{% url 'admin:people_personformsubmission_delete' value %}" class="deletelink"></a></td>
                 {% elif forloop.counter == 3 %}
                     <td><a href="{% url 'admin:people_person_change' value.id %}">{{ value.email }}</a></td>
                 {% else %}

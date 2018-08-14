@@ -6,14 +6,14 @@ from django import forms
 from django.urls import path, reverse_lazy
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Count
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import reverse
 from django.contrib import admin
 from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.admin.utils import display_for_value
+from django.contrib.admin.utils import display_for_value, unquote
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.views.generic import RedirectView
 
@@ -331,6 +331,13 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
 
 @admin.register(PersonFormSubmission, site=admin_site)
 class PersonFormSubmissionAdmin(admin.ModelAdmin):
+    def delete_view(self, request, object_id, extra_context=None):
+        self.personform = self.get_object(request, unquote(object_id)).form
+        return super().delete_view(request, object_id, extra_context)
+
+    def response_delete(self, request, obj_display, obj_id):
+        return HttpResponseRedirect(reverse('admin:people_personform_change', args=[self.personform.pk]))
+
     def get_urls(self):
         return [
             path('<object_id>/delete/', self.admin_site.admin_view(self.delete_view), name='people_personformsubmission_delete')
