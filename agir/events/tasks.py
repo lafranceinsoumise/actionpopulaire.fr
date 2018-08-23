@@ -115,6 +115,9 @@ def send_rsvp_notification(rsvp_pk):
         bindings=attendee_bindings
     )
 
+    if rsvp.event.rsvps.count() > 50:
+        return
+
     organizer_bindings = {
         "EVENT_NAME": rsvp.event.name,
         "PERSON_INFORMATION": person_information,
