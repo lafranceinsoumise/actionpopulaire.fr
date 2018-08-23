@@ -11,6 +11,7 @@ class CheckPaymentMode(AbstractPaymentMode):
 
     can_retry = True
     can_cancel = True
+    can_admin = True
 
     @cached_property
     def payment_view(self):
