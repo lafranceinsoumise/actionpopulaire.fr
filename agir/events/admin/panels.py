@@ -206,12 +206,15 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
     add_organizer_button.short_description = _('Ajouter un organisateur')
 
     def attendee_count(self, object):
-        all_attendee = object.attendee_count + object.identified_guests_count
+        all_attendee = object.identified_guests_count +\
+                       object.rsvps.aggregate(participants=Sum(F('guests') + 1))['participants']
 
         if object.is_free:
             return str(all_attendee)
 
-        confirmed_attendee = object.confirmed_attendee_count + object.confirmed_identified_guests_count
+        confirmed_rsvps = Q(status=RSVP.STATUS_CONFIRMED)
+        confirmed_attendee = object.confirmed_identified_guests_count +\
+                    object.rsvps.aggregate(participants=Sum(F('guests') + 1, filter=confirmed_rsvps))['participants']
         return _(f'{all_attendee} (dont {confirmed_attendee} confirmés)')
 
     attendee_count.short_description = _("Nombre de personnes inscrites")
@@ -251,13 +254,10 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
         qs = super().get_queryset(request)
 
         confirmed_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CONFIRMED)
-        confirmed_rsvps = Q(rsvps__status=RSVP.STATUS_CONFIRMED)
 
         return qs \
             .annotate(confirmed_identified_guests_count=Coalesce(Count('rsvps__identified_guests', filter=confirmed_guests), 0)) \
-            .annotate(confirmed_attendee_count=Coalesce(Sum(1 + F('rsvps__guests'), filter=confirmed_rsvps), 0)) \
-            .annotate(identified_guests_count=Coalesce(Count('rsvps__identified_guests'), 0)) \
-            .annotate(attendee_count=Coalesce(Sum(1 + F('rsvps__guests')), 0))
+            .annotate(identified_guests_count=Coalesce(Count('rsvps__identified_guests'), 0))
 
     def get_urls(self):
         return [
