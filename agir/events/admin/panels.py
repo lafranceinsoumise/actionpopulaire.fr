@@ -206,15 +206,23 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
     add_organizer_button.short_description = _('Ajouter un organisateur')
 
     def attendee_count(self, object):
-        all_attendee = object.identified_guests_count +\
-                       object.rsvps.aggregate(participants=Sum(F('guests') + 1))['participants']
+        if object.identified_guests_count > 0:
+            all_attendee = object.identified_guests_count + object.rsvps.count()
+        else:
+            all_attendee = object.rsvps.aggregate(participants=Sum(F('guests') + 1))['participants']
 
         if object.is_free:
             return str(all_attendee)
 
         confirmed_rsvps = Q(status=RSVP.STATUS_CONFIRMED)
-        confirmed_attendee = object.confirmed_identified_guests_count +\
-                    object.rsvps.aggregate(participants=Sum(F('guests') + 1, filter=confirmed_rsvps))['participants']
+
+        if object.confirmed_identified_guests_count > 0:
+            confirmed_attendee = object.confirmed_identified_guests_count +\
+                                 object.rsvps.filter(status=RSVP.STATUS_CONFIRMED).count()
+        else:
+            confirmed_attendee = object.rsvps.aggregate(participants=Sum(F('guests') + 1, filter=confirmed_rsvps))[
+                'participants']
+
         return _(f'{all_attendee} (dont {confirmed_attendee} confirmés)')
 
     attendee_count.short_description = _("Nombre de personnes inscrites")
