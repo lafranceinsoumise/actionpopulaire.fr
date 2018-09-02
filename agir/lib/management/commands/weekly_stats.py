@@ -81,18 +81,16 @@ class Command(BaseCommand):
             main_week_stats['events_happened'] - previous_week_stats['events_happened']
         ))
 
-        print('{} personnes ont rejoint leur premier groupe local ({:+d})'.format(
-            main_week_stats['new_memberships'],
-            main_week_stats['new_memberships'] - previous_week_stats['new_memberships']
-        ))
-
-
-
         meetings = Event.objects.filter(subtype__id=10, published=True, end_time__range=(start, end)).count()
         last_week_meetings = Event.objects.filter(subtype__id=10, published=True,
                                                   end_time__range=(one_period_before, start)).count()
 
         print('dont {} réunions publiques ({:+d})'.format(meetings, meetings - last_week_meetings))
+
+        print('{} personnes ont rejoint leur premier groupe local ({:+d})'.format(
+            main_week_stats['new_memberships'],
+            main_week_stats['new_memberships'] - previous_week_stats['new_memberships']
+        ))
 
 
         print('\nActuellement :\n')

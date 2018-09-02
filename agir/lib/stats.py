@@ -13,7 +13,8 @@ def get_general_stats(start, end):
         'events_happened': Event.objects.filter(start_time__range=(start, end)).count(),
         'new_memberships': Person.objects.filter(
             memberships__created__range=(start, end),
-            memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP
+            memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
+            memberships__supportgroup__published=True
         ).exclude(memberships__in=Membership.objects.filter(
             created__lt=start,
             supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP
