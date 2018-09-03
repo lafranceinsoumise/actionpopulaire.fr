@@ -101,4 +101,5 @@ class Command(BaseCommand):
         print('{} membres de groupes certfifiés'.format(instant_stats['certified_group_members']))
         print('{} groupes locaux'.format(instant_stats['groups']))
         print('{} groupes locaux certifiés'.format(instant_stats['certified_groups']))
+        print('{} groupes thématiques'.format(instant_stats['thematic_groups']))
         print('{} groupes professionnels'.format(instant_stats['pro_groups']))
