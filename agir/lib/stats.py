@@ -30,7 +30,7 @@ def get_events_by_subtype(start, end):
 def get_instant_stats():
     return {
         'subscribers': Person.objects.filter(subscribed=True, emails___bounced=False).count(),
-        'groups': SupportGroup.objects.filter(published=True).count(),
+        'groups': SupportGroup.objects.filter(type=SupportGroup.TYPE_LOCAL_GROUP, published=True).count(),
         'group_members': Person.objects.filter(supportgroups__type=SupportGroup.TYPE_LOCAL_GROUP,
                                                supportgroups__published=True).count(),
         'certified_groups': SupportGroup.objects.filter(subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE,
@@ -40,4 +40,6 @@ def get_instant_stats():
             supportgroups__subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE,
             supportgroups__published=True
         ).count(),
+        'thematic_groups': SupportGroup.objects.filter(type=SupportGroup.TYPE_THEMATIC_BOOKLET, published=True).count(),
+        'pro_groups': SupportGroup.objects.filter(type=SupportGroup.TYPE_PROFESSIONAL, published=True).count(),
     }

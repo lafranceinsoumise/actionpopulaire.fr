@@ -99,5 +99,6 @@ class Command(BaseCommand):
         print('{} inscrit⋅e⋅s aux emails'.format(instant_stats['subscribers']))
         print('{} membres de groupes'.format(instant_stats['group_members']))
         print('{} membres de groupes certfifiés'.format(instant_stats['certified_group_members']))
-        print('{} groupes'.format(instant_stats['groups']))
-        print('{} groupes certifiés'.format(instant_stats['certified_groups']))
+        print('{} groupes locaux'.format(instant_stats['groups']))
+        print('{} groupes locaux certifiés'.format(instant_stats['certified_groups']))
+        print('{} groupes professionnels'.format(instant_stats['pro_groups']))
