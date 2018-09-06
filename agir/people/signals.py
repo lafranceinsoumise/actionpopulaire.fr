@@ -4,7 +4,7 @@ from django.conf import settings
 
 from agir.lib.mailtrain import delete_person
 from . import tasks
-from .models import Person, PersonEmail
+from .models import Person, PersonEmail, PersonValidationSMS
 from agir.authentication.models import Role
 
 

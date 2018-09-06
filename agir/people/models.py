@@ -1,3 +1,4 @@
+import secrets
 import warnings
 from collections import OrderedDict
 from django.db import models, transaction
@@ -155,7 +156,18 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
 
     tags = models.ManyToManyField('PersonTag', related_name='people', blank=True)
 
+    CONTACT_PHONE_UNVERIFIED = 'U'
+    CONTACT_PHONE_VERIFIED = 'V'
+    CONTACT_PHONE_PENDING = 'P'
+    CONTACT_PHONE_STATUS_CHOICES = (
+        (CONTACT_PHONE_UNVERIFIED, _("Non vérifié")),
+        (CONTACT_PHONE_VERIFIED, _("Vérifié")),
+        (CONTACT_PHONE_PENDING, _("En attente de validation manuelle"))
+    )
+
     contact_phone = PhoneNumberField(_("Numéro de téléphone de contact"), blank=True)
+    contact_phone_status = models.CharField(_("Statut du numéro de téléphone"), choices=CONTACT_PHONE_STATUS_CHOICES,
+                                            max_length=1, default=CONTACT_PHONE_UNVERIFIED)
 
     GENDER_FEMALE = 'F'
     GENDER_MALE = 'M'
@@ -184,9 +196,17 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
             GinIndex(fields=['search'], name='search_index'),
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__old_contact_phone = self.contact_phone
+
     def save(self, *args, **kwargs):
         if self._state.adding:
             metrics.subscriptions.inc()
+
+        if self.contact_phone != self.__old_contact_phone:
+            self.contact_phone_status = self.CONTACT_PHONE_UNVERIFIED
+            self.__old_contact_phone = self.contact_phone
 
         return super().save(*args, **kwargs)
 
@@ -461,3 +481,16 @@ class PersonFormSubmission(TimeStampedModel):
 
     def __str__(self):
         return f"{self.form.title} : réponse de {str(self.person)}"
+
+
+def generate_code(): return str(secrets.randbelow(1000000)).zfill(6)
+
+
+class PersonValidationSMS(TimeStampedModel):
+    person = models.ForeignKey('Person', on_delete=models.CASCADE, editable=False)
+    phone_number = PhoneNumberField(_("Numéro de mobile"), editable=False)
+    code = models.CharField(max_length=8, editable=False, default=generate_code)
+
+    class Meta:
+        verbose_name = _("SMS de validation")
+        verbose_name_plural = _("SMS de validation")

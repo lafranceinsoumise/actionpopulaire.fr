@@ -14,6 +14,7 @@ import os
 import re
 import dj_database_url
 import dj_email_url
+from django.contrib import messages
 from django.contrib.messages import ERROR
 from django.core.exceptions import ImproperlyConfigured
 
@@ -177,6 +178,7 @@ TEMPLATES = [
 MESSAGE_TAGS = {
     ERROR: 'danger'
 }
+MESSAGE_LEVEL = messages.DEBUG if DEBUG else messages.INFO
 
 WSGI_APPLICATION = 'agir.api.wsgi.application'
 
@@ -506,3 +508,14 @@ PAYMENT_MODES = [
     'agir.system_pay.SystemPayPaymentMode',
     'agir.checks.CheckPaymentMode',
 ]
+
+# OVH Settings
+OVH_SMS_DISABLE = os.environ.get('OVH_SMS_DISABLE', 'true').lower() == 'true'
+OVH_SMS_SERVICE = os.environ.get('OVH_SMS_SERVICE')
+OVH_APPLICATION_KEY = os.environ.get('OVH_APPLICATION_KEY')
+OVH_APPLICATION_SECRET = os.environ.get('OVH_APPLICATION_SECRET')
+OVH_CONSUMER_KEY = os.environ.get('OVH_CONSUMER_KEY')
+SMS_BUCKET_MAX = 3
+SMS_BUCKET_INTERVAL = 600
+SMS_IP_BUCKET_MAX = 30
+SMS_IP_BUCKET_INTERVAL = 3600

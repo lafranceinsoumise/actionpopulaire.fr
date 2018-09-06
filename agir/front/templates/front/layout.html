@@ -112,6 +112,9 @@
                     {% if user.is_authenticated %}
                         <ul id="menu-menu-principal" class="nav navbar-nav">
                             <li class="menu-item"><a title="Tableau de bord" href="{% url 'dashboard' %}">Tableau de bord</a></li>
+                            {% if user.person.contact_phone_status == 'U' %}
+                                <li class="menu-item"><a title="Vérifier mon compte" href="{% url 'send_validation_sms' %}">Vérifier mon compte</a></li>
+                            {% endif %}
                             <li class="menu-item"><a title="Mon profil" href="{% url "change_profile" %}">Mon profil
                             <li class="menu-item"><a title="J'agis" href="{% url "volunteer" %}">Me porter volontaire</a></li>
                             <li class="menu-item"><a title="Fiches pratiques" href="https://lafranceinsoumise.fr/fiches_pour_agir/">Fiches pratiques</a></li>
@@ -123,6 +126,9 @@
                                 <a href="#" data-toggle="dropdown" class="dropdown-toggle">{{ user.person.email }} <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     <li class="menu-item"><a title="Préférences" href="{% url "message_preferences" %}">Préférences</a></li>
+                                    {% if user.person.contact_phone_status == 'U' %}
+                                        <li class="menu-item"><a title="Vérifier mon compte" href="{% url 'send_validation_sms' %}">Vérifier mon compte</a></li>
+                                    {% endif %}
                                     <li class="menu-item"><a title="Déconnexion"
                                                      href="{% url "oauth_disconnect" %}">Déconnexion</a></li>
                                 </ul>

@@ -3,10 +3,10 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, DeleteView, TemplateView
+from django.views.generic import UpdateView, DeleteView, TemplateView, FormView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin, HardLoginRequiredMixin
-from agir.people.forms import MessagePreferencesForm, AddEmailForm
+from agir.people.forms import MessagePreferencesForm, AddEmailForm, SendValidationSMSForm, CodeValidationForm
 from agir.people.models import Person
 
 
@@ -127,3 +127,38 @@ class DeleteEmailAddressView(HardLoginRequiredMixin, DeleteView):
         if len(self.get_queryset()) <= 1:
             return HttpResponseRedirect(self.success_url)
         return super().post(request, *args, **kwargs)
+
+
+class SendValidationSMSView(HardLoginRequiredMixin, UpdateView):
+    success_url = reverse_lazy('sms_code_validation')
+    form_class = SendValidationSMSForm
+    template_name = 'people/send_validation_sms.html'
+
+    def get_object(self, queryset=None):
+        return self.request.user.person
+
+    def form_valid(self, form):
+        code = form.send_code()
+
+        if code is None:
+            return super().form_invalid(form)
+
+        messages.add_message(self.request, messages.DEBUG, f'Le code envoyé est {code}')
+        return super().form_valid(form)
+
+
+class CodeValidationView(HardLoginRequiredMixin, FormView):
+    success_url = reverse_lazy('message_preferences')
+    form_class = CodeValidationForm
+    template_name = 'people/send_validation_sms.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['person'] = self.request.user.person
+
+        return kwargs
+
+    def form_valid(self, form):
+        self.request.user.person.contact_phone_status = Person.CONTACT_PHONE_VERIFIED
+        self.request.user.person.save()
+        return super().form_valid(form)

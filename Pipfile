@@ -1,12 +1,17 @@
 [[source]]
+
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+
 [requires]
+
 python_version = '3.6'
 
+
 [packages]
+
 bleach = "==2.1.*"
 celery = "==4.0.*"
 celery-prometheus-exporter = "==1.*"
@@ -47,6 +52,9 @@ django-otp = "*"
 qrcode = "*"
 sympy = "*"
 idna = "==2.*"
+ovh = "*"
+
 
 [dev-packages]
+
 ipython = "*"
