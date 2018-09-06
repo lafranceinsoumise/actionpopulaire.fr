@@ -11,7 +11,7 @@ from agir.lib.tests.mixins import FakeDataMixin
 
 
 class DashboardTestCase(FakeDataMixin, TestCase):
-    @mock.patch('agir.people.views.geocode_person')
+    @mock.patch('agir.people.views.dashboard.geocode_person')
     def test_contains_everything(self, geocode_person):
         self.client.force_login(self.data['people']['user2'].role)
         response = self.client.get(reverse('dashboard'))

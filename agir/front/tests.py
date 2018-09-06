@@ -77,13 +77,13 @@ class PagesLoadingTestCase(TestCase):
             is_manager=True
         )
 
-    @mock.patch('agir.people.views.geocode_person')
+    @mock.patch('agir.people.views.dashboard.geocode_person')
     def test_see_event_list(self, geocode_person):
         response = self.client.get('/evenements/')
         self.assertRedirects(response, reverse('dashboard'))
         geocode_person.delay.assert_called_once()
 
-    @mock.patch('agir.people.views.geocode_person')
+    @mock.patch('agir.people.views.dashboard.geocode_person')
     def test_see_group_list(self, geocode_person):
         response = self.client.get('/groupes/')
         self.assertRedirects(response, reverse('dashboard'))
