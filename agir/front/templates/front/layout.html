@@ -40,7 +40,7 @@
             <meta name="twitter:creator" content="@FranceInsoumise"/>
         {% endif %}
     {% endblock %}
-    {% render_bundle 'theme' 'css' %}
+    {% render_bundle 'theme' 'css' attrs='data-turbolinks-track="reload"'%}
     <style>.help-dialog{display:none;}</style>
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-32x32.png" %}" sizes="32x32"/>
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>
@@ -52,7 +52,7 @@
     </script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js">
     </script>
-    {% render_bundle 'front/allPages' attrs='defer' %}
+    {% render_bundle 'front/allPages' attrs='defer data-turbolinks-track="reload"' %}
     {% block extra_scripts %}{% endblock %}
 
 </head>

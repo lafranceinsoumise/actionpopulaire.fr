@@ -5,7 +5,7 @@
 {% block title %}Créer un événement{% endblock %}
 
 {% block extra_scripts %}
-    {% render_bundle 'creationForms' attrs='defer' %}
+    {% render_bundle 'creationForms' attrs='defer data-turbolinks-track="reload"' %}
     <meta name="turbolinks-cache-control" content="no-cache">
 {%  endblock %}
 
