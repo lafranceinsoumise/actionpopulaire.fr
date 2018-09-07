@@ -5,7 +5,8 @@
 {% block title %}Créer un groupe d'action{% endblock %}
 
 {% block extra_scripts %}
-    {% render_bundle 'creationForms' %}
+    {% render_bundle 'creationForms' attrs='defer' %}
+    <meta name="turbolinks-cache-control" content="no-cache">
 {% endblock %}
 
 {% block main %}
@@ -17,9 +18,10 @@
         </ul>
     {% endif %}
     <h3 class="text-center">Créer un groupe d'action</h3>
-    <div id="create-group-react-app" data-turbolinks="false"></div>
+    <div id="create-group-react-app" data-turbolinks="false">
+      <div class="text-center"><i class="fa fa-refresh fa-spin fa-3x fa-fw"></i></div>
+    </div>
     <script>
-      var props = {{ props }};
-      creationForms.renderCreateGroupForm('create-group-react-app', props);
+        document.reactAppProps = {{ props }};
     </script>
 {% endblock %}

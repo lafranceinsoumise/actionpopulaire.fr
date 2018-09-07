@@ -1,6 +1,7 @@
 import {introJs} from 'intro.js/intro';
 import 'intro.js/introjs.css';
 import Turbolinks from 'turbolinks';
+import 'babel-polyfill';
 
 import './style.css';
 

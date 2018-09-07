@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import 'babel-polyfill';
 
 import './style.css';
 
@@ -14,5 +13,19 @@ const render = (Component) => (id, props = {}) => {
   );
 };
 
-export const renderCreateEventForm = render(CreateEventForm);
-export const renderCreateGroupForm = render(CreateGroupForm);
+const renderCreateEventForm = render(CreateEventForm);
+const renderCreateGroupForm = render(CreateGroupForm);
+
+
+function onLoad() {
+  if (document.getElementById('create-event-react-app')) {
+    renderCreateEventForm('create-event-react-app', document.reactAppProps || {});
+  }
+
+  if (document.getElementById('create-group-react-app')) {
+    renderCreateGroupForm('create-group-react-app', document.reactAppProps || {})
+  }
+}
+
+onLoad();
+document.addEventListener("turbolinks:load", onLoad);
