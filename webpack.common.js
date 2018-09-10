@@ -2,14 +2,13 @@ const path = require('path');
 const fs = require('fs');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const BundleTracker = require('webpack-bundle-tracker');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpack = require('webpack');
 
 const DISTPATH = path.resolve(__dirname, 'assets/components');
 const cssName = require('@fi/theme/dist/assets.json')['main.css'];
 const apiEndpoint = JSON.stringify(process.env.API_ENDPOINT || 'http://localhost:8000/legacy');
-
 
 const flatten = (array) => array.reduce((acc, curr) => acc.concat(curr));
 const isDirectory = f => fs.statSync(f).isDirectory();
@@ -49,7 +48,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin([DISTPATH]),
     new BundleTracker({path: DISTPATH}),
-    new ExtractTextPlugin(process.env.NODE_ENV !== 'production' ? 'theme.css' : 'theme-[contenthash].css'),
+    new MiniCssExtractPlugin(),
     new webpack.DefinePlugin({'API_ENDPOINT': apiEndpoint}),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new BundleAnalyzerPlugin({analyzerMode: 'static', openAnalyzer: false}),
@@ -75,10 +74,10 @@ module.exports = {
       },
       {
         test: new RegExp('@fi/theme/dist/styles/' + cssName),
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: 'css-loader'
-        })
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+        ]
       },
       {
         test: /\.css$/,
