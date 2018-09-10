@@ -13,9 +13,9 @@ require.context(
   /.*/
 );
 
-module.exports = function (selector) {
+const onLoad = function() {
   tinymce.init({
-    selector,
+    selector: 'textarea.richeditorwidget',
     plugins: 'link autolink image lists',
     toolbar: 'bold italic | formatselect | link image | bullist numlist',
     menubar: false,
@@ -25,3 +25,6 @@ module.exports = function (selector) {
     skin_url: '/static/components/skins/lightgray'
   });
 };
+
+window.onload = onLoad;
+document.addEventListener("turbolinks:load", onLoad);
