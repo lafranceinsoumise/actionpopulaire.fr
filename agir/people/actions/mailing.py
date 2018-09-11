@@ -9,7 +9,7 @@ from django.template import loader
 import html2text
 
 from agir.people.models import Person
-from agir.lib.utils import generate_token_params, front_url, is_front_url
+from agir.lib.utils import generate_token_params, front_url, is_front_url, AutoLoginUrl
 
 __all__ = ['send_mail', 'send_mosaico_email']
 
@@ -87,6 +87,8 @@ def send_mosaico_email(code, subject, from_email, recipients, bindings=None, con
         if link_bindings and isinstance(recipient, Person):
             connection_params = generate_token_params(recipient)
             for key, value in link_bindings.items():
+                if not isinstance(value, AutoLoginUrl):
+                    continue
                 bindings[key] = add_params_to_urls(value, connection_params)
 
         if isinstance(recipient, Person):
