@@ -112,7 +112,7 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
         person = self.request.user.person
 
         groups = [{'id': str(m.supportgroup.pk), 'name': m.supportgroup.name}
-                  for m in person.memberships.filter(is_manager=True)]
+                  for m in person.memberships.filter(supportgroup__published=True, is_manager=True)]
 
         initial = {
             'email': person.email

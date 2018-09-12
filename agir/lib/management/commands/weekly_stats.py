@@ -81,15 +81,25 @@ class Command(BaseCommand):
             main_week_stats['events_happened'] - previous_week_stats['events_happened']
         ))
 
-        print('{} nouveaux membres de groupes ({:+d})'.format(
-            main_week_stats['new_memberships'],
-            main_week_stats['new_memberships'] - previous_week_stats['new_memberships']
-        ))
-
-
-
         meetings = Event.objects.filter(subtype__id=10, published=True, end_time__range=(start, end)).count()
         last_week_meetings = Event.objects.filter(subtype__id=10, published=True,
                                                   end_time__range=(one_period_before, start)).count()
 
         print('dont {} réunions publiques ({:+d})'.format(meetings, meetings - last_week_meetings))
+
+        print('{} personnes ont rejoint leur premier groupe local ({:+d})'.format(
+            main_week_stats['new_memberships'],
+            main_week_stats['new_memberships'] - previous_week_stats['new_memberships']
+        ))
+
+
+        print('\nActuellement :\n')
+
+        instant_stats = get_instant_stats()
+        print('{} inscrit⋅e⋅s aux emails'.format(instant_stats['subscribers']))
+        print('{} membres de groupes'.format(instant_stats['group_members']))
+        print('{} membres de groupes certfifiés'.format(instant_stats['certified_group_members']))
+        print('{} groupes locaux'.format(instant_stats['groups']))
+        print('{} groupes locaux certifiés'.format(instant_stats['certified_groups']))
+        print('{} groupes thématiques'.format(instant_stats['thematic_groups']))
+        print('{} groupes professionnels'.format(instant_stats['pro_groups']))

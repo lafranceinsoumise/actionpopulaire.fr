@@ -38,7 +38,7 @@ def send_event_creation_notification(organizer_config_pk):
         "CONTACT_PHONE_VISIBILITY": _("caché") if event.contact_hide_phone else _("public"),
         "LOCATION_NAME": event.location_name,
         "LOCATION_ADDRESS": event.short_address,
-        "EVENT_LINK": front_url("view_event", kwargs={'pk': event.pk}),
+        "EVENT_LINK": front_url("view_event", auto_login=False, kwargs={'pk': event.pk}),
         "MANAGE_EVENT_LINK": front_url('manage_event', kwargs={'pk': event.pk}),
     }
 
@@ -104,7 +104,7 @@ def send_rsvp_notification(rsvp_pk):
         "CONTACT_EMAIL": rsvp.event.contact_email,
         "LOCATION_NAME": rsvp.event.location_name,
         "LOCATION_ADDRESS": rsvp.event.short_address,
-        "EVENT_LINK": front_url("view_event", args=[rsvp.event.pk])
+        "EVENT_LINK": front_url("view_event", auto_login=False, args=[rsvp.event.pk])
     }
 
     send_mosaico_email(
@@ -114,6 +114,9 @@ def send_rsvp_notification(rsvp_pk):
         recipients=[rsvp.person],
         bindings=attendee_bindings
     )
+
+    if rsvp.event.rsvps.count() > 50:
+        return
 
     organizer_bindings = {
         "EVENT_NAME": rsvp.event.name,

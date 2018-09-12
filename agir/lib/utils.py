@@ -15,13 +15,18 @@ def _querydict_from_dict(d):
     return q
 
 
-def front_url(*args, query=None, absolute=True, **kwargs):
+class AutoLoginUrl(str):
+    def __str__(self):
+        return self
+
+
+def front_url(*args, query=None, absolute=True, auto_login=True, **kwargs):
     url = reverse(*args, urlconf='agir.api.front_urls', **kwargs)
     if absolute:
         url = urljoin(settings.FRONT_DOMAIN, url)
     if query:
         url = "{}?{}".format(url, _querydict_from_dict(query).urlencode(safe='/'))
-    return url
+    return AutoLoginUrl(url) if auto_login else url
 
 
 front_url_lazy = lazy(front_url, six.text_type)

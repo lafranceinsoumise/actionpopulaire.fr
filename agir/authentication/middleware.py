@@ -63,7 +63,7 @@ class KnownEmailCookieMiddleWare():
         if not (hasattr(request.user, 'is_authenticated') and request.user.is_authenticated):
             return response
 
-        if not (hasattr(request.user, 'type') and request.user.type == Role.PERSON_ROLE):
+        if not (hasattr(request.user, 'type') and request.user.type == Role.PERSON_ROLE and hasattr(request.user, 'person')):
             return response
 
         domain = '.'.join(request.META.get('HTTP_HOST', '').split('.')[-2:])

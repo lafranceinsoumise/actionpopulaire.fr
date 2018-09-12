@@ -126,7 +126,7 @@
             {% crispy add_organizer_form %}
         </div>
     </div>
-
+    {% if rsvps|length < 50 %}
     <div>
         <div class="help-dialog">
             Finalement, voici la liste des participants.
@@ -157,4 +157,5 @@
             {% endfor %}
         </ul>
     </div>
+    {% endif %}
 {% endblock %}

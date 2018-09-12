@@ -36,7 +36,7 @@ def send_support_group_creation_notification(membership_pk):
         "CONTACT_PHONE_VISIBILITY": _("caché") if group.contact_hide_phone else _("public"),
         "LOCATION_NAME": group.location_name,
         "LOCATION_ADDRESS": group.short_address,
-        "GROUP_LINK": front_url("view_group", kwargs={'pk': group.pk}),
+        "GROUP_LINK": front_url("view_group", auto_login=False, kwargs={'pk': group.pk}),
         "MANAGE_GROUP_LINK": front_url('manage_group', kwargs={'pk': group.pk}),
     }
 

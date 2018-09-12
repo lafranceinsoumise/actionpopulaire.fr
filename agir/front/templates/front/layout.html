@@ -40,7 +40,7 @@
             <meta name="twitter:creator" content="@FranceInsoumise"/>
         {% endif %}
     {% endblock %}
-    {% render_bundle 'theme' 'css' %}
+    {% render_bundle 'theme' 'css' attrs='data-turbolinks-track="reload"'%}
     <style>.help-dialog{display:none;}</style>
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-32x32.png" %}" sizes="32x32"/>
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>
@@ -48,11 +48,9 @@
     <meta name="msapplication-TileImage" content="{% static "front/images/cropped-cropped-phi-270x270.png" %}"/>
     {% block additional_headers %}{% endblock %}
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js">
-    </script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js">
-    </script>
-    {% render_bundle 'front/allPages' attrs='defer' %}
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    {% render_bundle 'front/allPages' attrs='defer data-turbolinks-track="reload"' %}
     {% block extra_scripts %}{% endblock %}
 
 </head>

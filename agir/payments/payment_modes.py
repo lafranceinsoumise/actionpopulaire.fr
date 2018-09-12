@@ -27,6 +27,7 @@ class PaymentModeField(ChoiceField):
 
         # bypassing ChoiceField constructor, see ModelChoiceField implementation for reference
         Field.__init__(self, required=required, label=label, initial=initial, **kwargs)
+        self.widget.choices = self.choices
 
     @property
     def payment_modes(self):
@@ -51,14 +52,7 @@ class PaymentModeField(ChoiceField):
         # accessed) so that we can ensure the QuerySet has not been consumed. This
         # construct might look complicated but it allows for lazy evaluation of
         # the queryset.
-        return ((p.id, p.label) for p in self._payment_modes)
-
-    def choice_iterator(self):
-        if self.empty_label is not None:
-            yield ('', self.empty_label)
-
-        for mode in self._payment_modes:
-            yield (mode.id, mode.label)
+        return [(p.id, p.label) for p in self._payment_modes]
 
     choices.setter(ChoiceField._set_choices)
 

@@ -11,7 +11,7 @@ from agir.lib.tests.mixins import FakeDataMixin
 
 
 class DashboardTestCase(FakeDataMixin, TestCase):
-    @mock.patch('agir.people.views.geocode_person')
+    @mock.patch('agir.people.views.dashboard.geocode_person')
     def test_contains_everything(self, geocode_person):
         self.client.force_login(self.data['people']['user2'].role)
         response = self.client.get(reverse('dashboard'))
@@ -112,7 +112,7 @@ class ProfileFormTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn('info blogueur', [tag.label for tag in self.person.tags.all()])
 
-    @mock.patch('agir.people.forms.geocode_person')
+    @mock.patch('agir.people.forms.profile.geocode_person')
     def test_can_change_address(self, geocode_person):
         self.client.force_login(self.person.role)
 
@@ -141,7 +141,7 @@ class UnsubscribeFormTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person('test@test.com')
 
-    @mock.patch("agir.people.forms.send_unsubscribe_email")
+    @mock.patch("agir.people.forms.subscription.send_unsubscribe_email")
     def test_can_post(self, patched_send_unsubscribe_email):
         response = self.client.post(reverse('unsubscribe'), {'email': 'test@test.com'})
 
@@ -168,7 +168,7 @@ class DeleteFormTestCase(TestCase):
 
 
 class SimpleSubscriptionFormTestCase(TestCase):
-    @mock.patch("agir.people.forms.send_welcome_mail")
+    @mock.patch("agir.people.forms.subscription.send_welcome_mail")
     def test_can_post(self, patched_send_welcome_mail):
         response = self.client.post('/inscription/', {'email': 'example@example.com', 'location_zip': '75018'})
 
@@ -180,7 +180,7 @@ class SimpleSubscriptionFormTestCase(TestCase):
 
 
 class OverseasSubscriptionTestCase(TestCase):
-    @mock.patch("agir.people.forms.send_welcome_mail")
+    @mock.patch("agir.people.forms.subscription.send_welcome_mail")
     def test_can_post(self, patched_send_welcome_mail):
         response = self.client.post('/inscription/etranger/', {
             'email': 'example@example.com',

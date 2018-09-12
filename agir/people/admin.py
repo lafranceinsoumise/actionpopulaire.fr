@@ -3,22 +3,24 @@ from urllib.parse import urlencode
 
 import django_otp
 from django import forms
-from django.urls import path
+from django.urls import path, reverse_lazy
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Count
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import reverse
 from django.contrib import admin
 from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.admin.utils import display_for_value
+from django.contrib.admin.utils import display_for_value, unquote
 from django.contrib.gis.admin import OSMGeoAdmin
+from django.views.generic import RedirectView
+
 from agir.api.admin import admin_site
 
 from .actions.person_forms import validate_custom_fields
-from .models import Person, PersonTag, PersonEmail, PersonForm
+from .models import Person, PersonTag, PersonEmail, PersonForm, PersonFormSubmission
 from agir.authentication.models import Role
 from agir.events.models import RSVP
 from agir.groups.models import Membership
@@ -205,50 +207,22 @@ class PersonFormForm(forms.ModelForm):
         return value
 
 
-@admin.register(PersonForm, site=admin_site)
-class PersonFormAdmin(admin.ModelAdmin):
-    form = PersonFormForm
-    list_display = ('title', 'slug_link', 'published',)
-
-    fieldsets = (
-        (None, {
-            'fields': ('title', 'slug', 'published', 'start_time', 'end_time', 'send_answers_to')
-        }),
-        (_('Soumissions'), {
-            'fields': ('submissions_number', 'simple_link', 'action_buttons')
-        }),
-        (_('Champs'), {
-            'fields': ('main_question', 'tags', 'custom_fields')
-        }),
-        (_('Textes'), {
-            'fields': ('description', 'confirmation_note', 'send_confirmation', 'before_message', 'after_message')
-         }),
-    )
-
-    readonly_fields = ('submissions_number', 'simple_link', 'action_buttons')
-
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-
-        return qs.annotate(submissions_number=Count('submissions'))
-
-    def get_urls(self):
-        return [
-            path('<int:pk>/view_results/', self.admin_site.admin_view(self.view_results), name="people_personform_view_results"),
-            path('<int:pk>/download_results/', self.admin_site.admin_view(self.download_results), name="people_personform_download_results"),
-        ] + super().get_urls()
+class PersonFormAdminMixin:
+    def get_form_submission_qs(self, form):
+        return form.submissions.all()
 
     def generate_result_table(self, form, only_text=False):
+        submission_qs = self.get_form_submission_qs(form)
         fields = [field for fieldset in form.custom_fields for field in fieldset['fields']]
         submissions = []
 
-        for submission in form.submissions.all():
+        for submission in submission_qs:
             data = [submission.data.get(field['id'], 'NA') for field in fields]
-            submissions.append([submission.modified]
+            submissions.append([submission.pk] + [submission.modified]
                             + [submission.person if only_text is False else submission.person.email]
                             + data)
 
-        headers = ['Date', 'Personne'] + [(field.get('label') or Person._meta.get_field(field['id']).verbose_name) for field in fields]
+        headers = ['ID', 'Date', 'Personne'] + [(field.get('label') or Person._meta.get_field(field['id']).verbose_name) for field in fields]
 
         return {'form': form, 'headers': headers, 'submissions': submissions}
 
@@ -291,6 +265,40 @@ class PersonFormAdmin(admin.ModelAdmin):
 
         return response
 
+
+@admin.register(PersonForm, site=admin_site)
+class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
+    form = PersonFormForm
+    list_display = ('title', 'slug_link', 'published',)
+
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'slug', 'published', 'start_time', 'end_time', 'send_answers_to')
+        }),
+        (_('Soumissions'), {
+            'fields': ('submissions_number', 'simple_link', 'action_buttons')
+        }),
+        (_('Champs'), {
+            'fields': ('main_question', 'tags', 'custom_fields')
+        }),
+        (_('Textes'), {
+            'fields': ('description', 'confirmation_note', 'send_confirmation', 'before_message', 'after_message')
+         }),
+    )
+
+    readonly_fields = ('submissions_number', 'simple_link', 'action_buttons')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+
+        return qs.annotate(submissions_number=Count('submissions'))
+
+    def get_urls(self):
+        return [
+            path('<int:pk>/view_results/', self.admin_site.admin_view(self.view_results), name="people_personform_view_results"),
+            path('<int:pk>/download_results/', self.admin_site.admin_view(self.download_results), name="people_personform_download_results"),
+        ] + super().get_urls()
+
     def slug_link(self, object):
         if object.slug:
             return format_html('<a href="{}">{}</a>', front_url('view_person_form', args=(object.slug,)), object.slug)
@@ -320,3 +328,17 @@ class PersonFormAdmin(admin.ModelAdmin):
     def submissions_number(self, object):
         return object.submissions_number
     submissions_number.short_description = 'Nombre de soumissions'
+
+@admin.register(PersonFormSubmission, site=admin_site)
+class PersonFormSubmissionAdmin(admin.ModelAdmin):
+    def delete_view(self, request, object_id, extra_context=None):
+        self.personform = self.get_object(request, unquote(object_id)).form
+        return super().delete_view(request, object_id, extra_context)
+
+    def response_delete(self, request, obj_display, obj_id):
+        return HttpResponseRedirect(reverse('admin:people_personform_view_results', args=[self.personform.pk]))
+
+    def get_urls(self):
+        return [
+            path('<object_id>/delete/', self.admin_site.admin_view(self.delete_view), name='people_personformsubmission_delete')
+        ]
