@@ -16,7 +16,13 @@ export default async function itemMap(htmlElementId, coordinates, iconConfigurat
   const layer = new VectorLayer({
     source: new VectorSource({features: [feature]})
   });
-  await fontIsLoaded('FontAwesome');
+
+  try {
+    await fontIsLoaded('FontAwesome');
+  } catch (e) {
+    console.log('Error loading fonts.');
+  }
+
   const map = setUpMap(htmlElementId, [layer]);
   map.getView().setCenter(proj.fromLonLat(coordinates));
   map.getView().setZoom(14);

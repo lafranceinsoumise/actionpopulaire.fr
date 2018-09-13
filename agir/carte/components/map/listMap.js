@@ -75,7 +75,12 @@ export default async function listMap(htmlElementId, endpoint, types, subtypes, 
     return;
   }
 
-  await fontIsLoaded('FontAwesome');
+  try {
+    await fontIsLoaded('FontAwesome');
+  } catch (e) {
+    console.log('Error loading fonts.');
+  }
+
 
   disambiguate(res.data);
   for (let item of res.data) {
