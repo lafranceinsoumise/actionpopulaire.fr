@@ -8,13 +8,14 @@ module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
   output: {
-    publicPath: 'http://localhost:3000/assets/components/',
+    publicPath: 'http://agir.local:3000/assets/components/',
     filename: '[name]-[hash].js',
   },
   watchOptions: {
     poll: 1000
   },
   devServer: {
+    publicPath: 'http://agir.local:3000/assets/components/',
     contentBase: path.join(__dirname, '/assets/components/'),
     compress: true,
     hot: true,
@@ -23,7 +24,10 @@ module.exports = merge(common, {
     port: 3000,
     headers: {
       'Access-Control-Allow-Origin': '*'
-    }
+    },
+    allowedHosts: [
+      'agir.local'
+    ]
   },
   optimization: {
     namedModules: true,
