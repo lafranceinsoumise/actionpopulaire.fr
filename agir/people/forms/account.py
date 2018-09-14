@@ -19,6 +19,7 @@ from agir.people.models import PersonTag, Person, PersonEmail, PersonValidationS
 
 logger = logging.getLogger(__name__)
 
+
 class MessagePreferencesForm(TagMixin, forms.ModelForm):
     tags = [('newsletter_efi', _("Recevoir les informations liées aux cours de l'École de Formation insoumise"))]
     tag_model_class = PersonTag
@@ -46,7 +47,8 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
             </div>
         """
 
-        email_management_block = HTML(block_template.format(
+        email_management_block = HTML(format_html(
+            block_template,
             label=_("Gérez vos adresses emails"),
             value=format_html(
                 '<a href="{}" class="btn btn-default">{}</a>',
@@ -57,16 +59,17 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
         ))
 
         validation_link = format_html(
-            '<a href="{}" class="btn btn-default">{}</a>',
-            reverse('send_validation_sms'),
-            _("Valider mon numéro de téléphone"),
+            '<input type="submit" name="validation" value="{label}" class="btn btn-default">',
+            label=_("Valider mon numéro de téléphone")
         )
 
-        verified = self.instance.contact_phone_status == Person.CONTACT_PHONE_UNVERIFIED
-        validation_block = HTML(block_template.format(
+        unverified = self.instance.contact_phone_status == Person.CONTACT_PHONE_UNVERIFIED
+
+        validation_block = HTML(format_html(
+            block_template,
             label=_("Vérification de votre compte"),
-            value=validation_link if verified else f"Compte {self.instance.get_contact_phone_status_display().lower()}",
-            help_text=_("Validez votre numéro de téléphone afin de certifier votre compte") if verified else "",
+            value=validation_link if unverified else f"Compte {self.instance.get_contact_phone_status_display().lower()}",
+            help_text=_("Validez votre numéro de téléphone afin de certifier votre compte") if unverified else "",
         ))
 
         email_fieldset_name = _("Mes adresses emails")
@@ -272,5 +275,3 @@ class CodeValidationForm(Form):
                                   'de l\'expéditeur (5 chiffres).')
 
         raise ValidationError('Votre code est incorrect ou expiré.')
-
-

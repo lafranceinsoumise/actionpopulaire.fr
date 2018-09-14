@@ -21,10 +21,18 @@ from agir.lib.models import BaseAPIResource, LocationMixin, AbstractLabel, Natio
 from agir.authentication.models import Role
 from . import metrics
 
-from .model_fields import MandatesField
+from .model_fields import MandatesField, ValidatedPhoneNumberField
 
 
-class PersonManager(models.Manager):
+class PersonQueryset(models.QuerySet):
+    def with_contact_phone(self):
+        return self.exclude(contact_phone="")
+
+    def verified(self):
+        return self.filter(contact_phone_status=Person.CONTACT_PHONE_VERIFIED)
+
+
+class PersonManager(models.Manager.from_queryset(PersonQueryset)):
     def get(self, *args, **kwargs):
         if 'email' in kwargs:
             kwargs['emails__address'] = kwargs['email']
@@ -165,7 +173,9 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         (CONTACT_PHONE_PENDING, _("En attente de validation manuelle"))
     )
 
-    contact_phone = PhoneNumberField(_("Numéro de téléphone de contact"), blank=True)
+    contact_phone = ValidatedPhoneNumberField(_("Numéro de téléphone de contact"), blank=True,
+                                              validated_field_name='contact_phone_status',
+                                              unverified_value=CONTACT_PHONE_UNVERIFIED)
     contact_phone_status = models.CharField(_("Statut du numéro de téléphone"), choices=CONTACT_PHONE_STATUS_CHOICES,
                                             max_length=1, default=CONTACT_PHONE_UNVERIFIED)
 
@@ -196,17 +206,9 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
             GinIndex(fields=['search'], name='search_index'),
         )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.__old_contact_phone = self.contact_phone
-
     def save(self, *args, **kwargs):
         if self._state.adding:
             metrics.subscriptions.inc()
-
-        if self.contact_phone != self.__old_contact_phone:
-            self.contact_phone_status = self.CONTACT_PHONE_UNVERIFIED
-            self.__old_contact_phone = self.contact_phone
 
         return super().save(*args, **kwargs)
 

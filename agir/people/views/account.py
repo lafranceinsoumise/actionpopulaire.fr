@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
+from django.utils.translation import ugettext as _
 from django.views.generic import UpdateView, DeleteView, TemplateView, FormView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin, HardLoginRequiredMixin
@@ -17,6 +18,11 @@ class MessagePreferencesView(SoftLoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user.person
+
+    def get_success_url(self):
+        if self.request.POST.get('validation'):
+            return reverse('send_validation_sms')
+        return super().get_success_url()
 
     def form_valid(self, form):
         res = super().form_valid(form)
@@ -133,6 +139,13 @@ class SendValidationSMSView(HardLoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('sms_code_validation')
     form_class = SendValidationSMSForm
     template_name = 'people/send_validation_sms.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.person.contact_phone_status == Person.CONTACT_PHONE_VERIFIED:
+            messages.add_message(request, messages.INFO, _("Votre numéro a déjà été validé."))
+            return HttpResponseRedirect(reverse("message_preferences"))
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         return self.request.user.person

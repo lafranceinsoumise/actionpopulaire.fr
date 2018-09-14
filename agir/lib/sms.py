@@ -28,7 +28,8 @@ DROMS_PREFIX = {
 TOM_COUNTRY_CODES = {687, 689, 590, 590, 508, 681}
 DROMS_COUNTRY_CODES = set(DROMS_PREFIX.values())
 
-logger = logging.getLogger('agir.sms')
+logger = logging.getLogger(__name__)
+
 
 def normalize_mobile_phone(phone_number, messages):
     if phone_number.country_code == 33:
@@ -133,9 +134,10 @@ def is_valid_code(person, code):
         raise RateLimitedException()
     try:
         # possible race condition here
-        PersonValidationSMS.objects.get(code=code, person=person,
+        # TODO put delay in config variable
+        person_code = PersonValidationSMS.objects.get(code=code, person=person,
                                         created__gt=timezone.now() - timedelta(minutes=30))
-        if PersonValidationSMS.phone_number != person.contact_phone:
+        if person_code.phone_number != person.contact_phone:
             code_counter.labels('failure').inc()
             return False
 
