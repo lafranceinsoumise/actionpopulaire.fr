@@ -6,6 +6,8 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.reverse import reverse
 
+from phonenumber_field.phonenumber import to_python as to_phone_number
+
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission, PersonValidationSMS, generate_code
 from agir.lib.tests.mixins import FakeDataMixin
 
@@ -374,6 +376,24 @@ class SMSValidationTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person('test@example.com', contact_phone='0612345678')
         self.client.force_login(self.person.role)
+
+    def test_can_see_sms_page_when_not_validated(self):
+        res = self.client.get(reverse('send_validation_sms'))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_sms_sending_form_modify_phone_number(self):
+        res = self.client.post(reverse('send_validation_sms'), {'contact_phone': '0687654321'})
+        self.assertRedirects(res, reverse('sms_code_validation'))
+
+        self.person.refresh_from_db()
+        self.assertEqual(self.person.contact_phone, to_phone_number('0687654321'))
+
+    def test_cannot_validate_sms_form_without_number(self):
+        res = self.client.post(reverse('send_validation_sms'), {})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        res = self.client.post(reverse('send_validation_sms'), {'contact_phone': ''})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_cannot_ask_sms_if_already_validated(self):
         self.person.contact_phone_status = Person.CONTACT_PHONE_VERIFIED

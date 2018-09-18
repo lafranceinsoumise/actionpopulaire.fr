@@ -207,6 +207,11 @@ class SendValidationSMSForm(forms.ModelForm):
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data=data, *args, **kwargs)
 
+        self.fields['contact_phone'].required = True
+        self.fields['contact_phone'].error_messages['required'] = _(
+            'Vous devez indiquer le numéro de mobile qui vous servira à valider votre compte.'
+        )
+
         fields = [
             Row(HalfCol(FieldWithButtons(
                 'contact_phone',
