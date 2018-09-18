@@ -218,6 +218,9 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         else:
             return self.email
 
+    def __repr__(self):
+        return f'Person(pk={self.pk!r}, email={self.email})'
+
     @property
     def email(self):
         return self.primary_email.address if self.primary_email else ''

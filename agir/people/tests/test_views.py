@@ -1,6 +1,7 @@
 from unittest import mock
+from redislite import StrictRedis
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from rest_framework import status
@@ -10,6 +11,7 @@ from phonenumber_field.phonenumber import to_python as to_phone_number
 
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission, PersonValidationSMS, generate_code
 from agir.lib.tests.mixins import FakeDataMixin
+from agir.lib.sms import _initialize_buckets
 
 
 class DashboardTestCase(FakeDataMixin, TestCase):
@@ -494,3 +496,65 @@ class SMSValidationTestCase(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.person.refresh_from_db()
         self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED)
+
+
+class SMSRateLimitingTestCase(TestCase):
+    def setUp(self):
+        self.phone = '+33612345678'
+        self.other_phone = '+33687654321'
+        self.person1 = Person.objects.create_person('test1@example.com', contact_phone=self.phone)
+        self.person2 = Person.objects.create_person('test2@example.com', contact_phone=self.phone)
+
+        self.redis_instance = StrictRedis()
+        self.redis_patcher = mock.patch('agir.lib.token_bucket.get_redis_client')
+        mock_get_auth_redis_client = self.redis_patcher.start()
+        mock_get_auth_redis_client.return_value = self.redis_instance
+
+    @override_settings(
+        SMS_BUCKET_MAX=2,
+        SMS_BUCKET_INTERVAL=600,
+        SMS_BUCKET_IP_MAX=10,
+        SMS_BUCKET_IP_INTERVAL=600,
+    )
+    @mock.patch('agir.lib.token_bucket.get_current_timestamp')
+    def test_rate_limiting_on_sending_sms(self, current_timestamp):
+        # reinitialize token buckets to make sure the change of settings is taken into account
+        _initialize_buckets()
+
+        send_sms_page = reverse('send_validation_sms')
+        validate_code_page = reverse('sms_code_validation')
+
+        data = {'contact_phone': self.phone}
+
+        self.client.force_login(self.person1.role)
+
+        # should work
+        current_timestamp.return_value = 0
+        res = self.client.post(send_sms_page, data)
+        self.assertRedirects(res, validate_code_page)
+
+        # should block with short term bucket
+        current_timestamp.return_value = 10
+        res = self.client.post(send_sms_page, data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        # should work again
+        current_timestamp.return_value = 70
+        res = self.client.post(send_sms_page, data)
+        self.assertRedirects(res, validate_code_page)
+
+        # person and phone number buckets should be empty
+        current_timestamp.return_value = 140
+        res = self.client.post(send_sms_page, data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        # should not be possible to ask for sms with other person with same number
+        self.client.force_login(self.person2.role)
+        current_timestamp.return_value = 210
+        res = self.client.post(send_sms_page, data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        # sixth try ==> but possible to try with another number
+        current_timestamp.return_value = 280
+        res = self.client.post(send_sms_page, {'contact_phone': self.other_phone})
+        self.assertRedirects(res, validate_code_page)

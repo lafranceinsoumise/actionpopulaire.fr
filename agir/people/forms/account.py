@@ -225,9 +225,9 @@ class SendValidationSMSForm(forms.ModelForm):
     def clean_phone_number(self):
         return normalize_mobile_phone(self.cleaned_data['contact_phone'], self.error_messages)
 
-    def send_code(self):
+    def send_code(self, request):
         try:
-            return send_new_code(self.instance)
+            return send_new_code(self.instance , request=request)
         except RateLimitedException:
             self.add_error('contact_phone', self.error_messages['rate_limited'])
             return None

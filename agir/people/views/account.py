@@ -151,7 +151,7 @@ class SendValidationSMSView(HardLoginRequiredMixin, UpdateView):
         return self.request.user.person
 
     def form_valid(self, form):
-        code = form.send_code()
+        code = form.send_code(self.request)
 
         if code is None:
             return super().form_invalid(form)

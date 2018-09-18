@@ -7,6 +7,7 @@ import ovh
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 from prometheus_client import Counter
 
 from agir.lib.token_bucket import TokenBucket
@@ -27,6 +28,13 @@ DROMS_PREFIX = {
 
 TOM_COUNTRY_CODES = {687, 689, 590, 590, 508, 681}
 DROMS_COUNTRY_CODES = set(DROMS_PREFIX.values())
+
+RATE_LIMITED_1_MINUTE_MESSAGE = _(
+    "Vous êtes limités à un SMS toutes les minutes, merci de bien vouloir patienter quelques secondes."
+)
+RATE_LIMITED_MESSAGE = _(
+    "Vous avez déjà demandé plusieurs SMS : merci de bien vouloir patienter jusqu'à réception."
+)
 
 logger = logging.getLogger(__name__)
 
@@ -62,10 +70,35 @@ client = ovh.Client(
     consumer_key=settings.OVH_CONSUMER_KEY,
 )
 
-SMSShortTokenBucket = TokenBucket('SMSShort', 1, 60)
-SMSLongTokenBucket = TokenBucket('SMSLong', settings.SMS_BUCKET_MAX, settings.SMS_BUCKET_INTERVAL)
-SMSPersonTokenBucket = TokenBucket('SMSPerson', settings.SMS_IP_BUCKET_MAX, settings.SMS_BUCKET_INTERVAL)
+# short terms bucket: make sure maximum 1 SMS is sent every minute
+ShortPhoneNumberBucket = TokenBucket('SMSShortPhoneNumber', 1, 60)
+ShortPersonBucket = TokenBucket('SMSShortPerson', 1, 60)
+
+
+def _initialize_buckets():
+    global PhoneNumberBucket, PersonBucket, IPBucket
+    PhoneNumberBucket = TokenBucket(
+        'SMSPhoneNumber',
+        settings.SMS_BUCKET_MAX,
+        settings.SMS_BUCKET_INTERVAL
+    )
+    PersonBucket = TokenBucket(
+        'SMSPerson',
+        settings.SMS_BUCKET_MAX,
+        settings.SMS_BUCKET_INTERVAL
+    )
+    IPBucket = TokenBucket(
+        'SMSIP',
+        settings.SMS_BUCKET_IP_MAX,
+        settings.SMS_BUCKET_IP_INTERVAL
+    )
+
+
+_initialize_buckets()
+
+
 CodeValidationTokenBucket = TokenBucket('CodeValidation', 5, 60)
+
 
 sms_counter = Counter('agir_sms_requested_total', 'Number of SMS requested', ['result'])
 code_counter = Counter('agir_sms_code_checked_total', 'Number of code verifications requested', ['result'])
@@ -107,14 +140,22 @@ def send(message, phone_number):
         raise SMSSendException('Le message n\'a pas été envoyé.')
 
 
-def send_new_code(person):
-    if not SMSPersonTokenBucket.has_tokens(person.pk):
-        sms_counter.labels('person_limited').inc()
-        raise RateLimitedException('Trop de messages envoyés, réessayer dans quelques minutes.')
+def send_new_code(person, request):
+    # testing short term token buckets
+    if not ShortPhoneNumberBucket.has_tokens(person.contact_phone) or not ShortPersonBucket.has_tokens(person.pk):
+        raise RateLimitedException(RATE_LIMITED_1_MINUTE_MESSAGE)
 
-    if not (SMSShortTokenBucket.has_tokens(person.contact_phone) and SMSLongTokenBucket.has_tokens(person.contact_phone)):
+    if not PersonBucket.has_tokens(person.pk):
+        sms_counter.labels('person_limited').inc()
+        raise RateLimitedException(RATE_LIMITED_MESSAGE)
+
+    if not PhoneNumberBucket.has_tokens(person.contact_phone):
         sms_counter.labels('number_limited').inc()
-        raise RateLimitedException('Trop de messages envoyés, réessayer dans quelques minutes.')
+        raise RateLimitedException(RATE_LIMITED_MESSAGE)
+
+    if not IPBucket.has_tokens(request.META['REMOTE_ADDR']):
+        sms_counter.labels('ip_limited').inc()
+        raise RateLimitedException(RATE_LIMITED_MESSAGE)
 
     sms = PersonValidationSMS(phone_number=person.contact_phone, person=person)
     formatted_code = sms.code[:3] + ' ' + sms.code[3:]
@@ -135,8 +176,9 @@ def is_valid_code(person, code):
     try:
         # possible race condition here
         # TODO put delay in config variable
-        person_code = PersonValidationSMS.objects.get(code=code, person=person,
-                                        created__gt=timezone.now() - timedelta(minutes=30))
+        person_code = PersonValidationSMS.objects.get(
+            code=code, person=person, created__gt=timezone.now() - timedelta(minutes=30)
+        )
         if person_code.phone_number != person.contact_phone:
             code_counter.labels('failure').inc()
             return False
