@@ -1,14 +1,23 @@
-from crispy_forms.bootstrap import FormActions
+from datetime import timedelta
+
+import logging
+from crispy_forms.bootstrap import FormActions, FieldWithButtons
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Fieldset, Row, Div, Submit, Layout
 from django import forms
+from django.core.exceptions import ValidationError
+from django.forms import Form, CharField
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from agir.lib.form_components import HalfCol
 from agir.lib.form_mixins import TagMixin
-from agir.people.models import PersonTag, Person, PersonEmail
+from agir.lib.sms import normalize_mobile_phone, send_new_code, RateLimitedException, SMSSendException, is_valid_code
+from agir.people.models import PersonTag, Person, PersonEmail, PersonValidationSMS
+
+logger = logging.getLogger(__name__)
 
 
 class MessagePreferencesForm(TagMixin, forms.ModelForm):
@@ -38,7 +47,8 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
             </div>
         """
 
-        email_management_link = HTML(block_template.format(
+        email_management_block = HTML(format_html(
+            block_template,
             label=_("Gérez vos adresses emails"),
             value=format_html(
                 '<a href="{}" class="btn btn-default">{}</a>',
@@ -46,6 +56,20 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
                 _("Accéder au formulaire de gestion de vos emails"),
             ),
             help_text=_("Ce formulaire vous permet d'ajouter de nouvelles adresses ou de supprimer les existantes"),
+        ))
+
+        validation_link = format_html(
+            '<input type="submit" name="validation" value="{label}" class="btn btn-default">',
+            label=_("Valider mon numéro de téléphone")
+        )
+
+        unverified = self.instance.contact_phone_status == Person.CONTACT_PHONE_UNVERIFIED
+
+        validation_block = HTML(format_html(
+            block_template,
+            label=_("Vérification de votre compte"),
+            value=validation_link if unverified else f"Compte {self.instance.get_contact_phone_status_display().lower()}",
+            help_text=_("Validez votre numéro de téléphone afin de certifier votre compte") if unverified else "",
         ))
 
         email_fieldset_name = _("Mes adresses emails")
@@ -67,7 +91,7 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
                     email_fieldset_name,
                     Row(
                         HalfCol('primary_email'),
-                        HalfCol(email_management_link)
+                        HalfCol(email_management_block)
                     )
                 )
             )
@@ -82,11 +106,18 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
                             help_text=email_help_text
                         ))
                     ),
-                    HalfCol(email_management_link)
+                    HalfCol(email_management_block)
                 )
             ))
 
         fields.extend([
+            Fieldset(
+                _("Mon numéro de téléphone"),
+                Row(
+                    HalfCol('contact_phone'),
+                    HalfCol(validation_block)
+                )
+            ),
             Fieldset(
                 _("Préférences d'emails"),
                 'subscribed',
@@ -139,7 +170,8 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
 
     class Meta:
         model = Person
-        fields = ['subscribed', 'group_notifications', 'event_notifications', 'draw_participation', 'gender']
+        fields = ['subscribed', 'group_notifications', 'event_notifications', 'draw_participation', 'gender',
+                  'contact_phone']
 
 
 class AddEmailForm(forms.ModelForm):
@@ -159,3 +191,92 @@ class AddEmailForm(forms.ModelForm):
     class Meta:
         model = PersonEmail
         fields = ("address",)
+
+
+class SendValidationSMSForm(forms.ModelForm):
+    error_messages = {
+        'french_only': "Le numéro doit être un numéro de téléphone français.",
+        'mobile_only': "Vous devez donner un numéro de téléphone mobile.",
+        'rate_limited': "Trop de SMS envoyés. Merci de réessayer dans quelques minutes.",
+        'sending_error': "Le SMS n'a pu être envoyé suite à un problème technique. Merci de réessayer plus tard.",
+        'already_used': "Ce numéro a déjà été utilisé pour voter. Si vous le partagez avec une autre"
+                        " personne, <a href=\"{}\">vous pouvez"
+                        " exceptionnellement en demander le déblocage</a>.",
+    }
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data=data, *args, **kwargs)
+
+        self.fields['contact_phone'].required = True
+        self.fields['contact_phone'].error_messages['required'] = _(
+            'Vous devez indiquer le numéro de mobile qui vous servira à valider votre compte.'
+        )
+
+        fields = [
+            Row(HalfCol(FieldWithButtons(
+                'contact_phone',
+                Submit('submit', 'Recevoir mon code')
+            )))
+        ]
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.layout = Layout(*fields)
+
+    def clean_phone_number(self):
+        return normalize_mobile_phone(self.cleaned_data['contact_phone'], self.error_messages)
+
+    def send_code(self, request):
+        try:
+            return send_new_code(self.instance , request=request)
+        except RateLimitedException:
+            self.add_error('contact_phone', self.error_messages['rate_limited'])
+            return None
+        except SMSSendException:
+            self.add_error('contact_phone', self.error_messages['sending_error'])
+
+    class Meta:
+        model = Person
+        fields = ('contact_phone',)
+
+
+class CodeValidationForm(Form):
+    code = CharField(label=_("Code reçu par SMS"))
+
+    def __init__(self, *args, person, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.person = person
+
+        fields = [
+            Row(HalfCol(FieldWithButtons(
+                'code',
+                Submit('submit', 'Valider mon numéro')
+            )))
+        ]
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.layout = Layout(*fields)
+
+    def clean_code(self):
+        # remove spaces added by Cleave.js
+        code = self.cleaned_data['code'].replace(' ', '')
+
+        try:
+            if is_valid_code(self.person, code):
+                return code
+        except RateLimitedException:
+            raise ValidationError('Trop de tentative échouées. Veuillez patienter une minute par mesure de sécurité.')
+
+        codes = [code['code'] for code in PersonValidationSMS.objects.values('code').filter(person=self.person,
+                                                                  created__gt=timezone.now() - timedelta(
+                                                                      minutes=30))]
+        logger.warning(
+            f"{self.person.email} SMS code failure : tried {self.cleaned_data['code']} and valid"
+            f" codes were {', '.join(codes)}"
+        )
+
+        if len(code) == 5:
+            raise ValidationError('Votre code est incorrect. Attention : le code demandé figure '
+                                  'dans le SMS et comporte 6 chiffres. Ne le confondez pas avec le numéro court '
+                                  'de l\'expéditeur (5 chiffres).')
+
+        raise ValidationError('Votre code est incorrect ou expiré.')

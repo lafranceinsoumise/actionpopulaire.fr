@@ -1,0 +1,22 @@
+{% extends "front/layout.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Valider mon numéro de téléphone" %}{% endblock %}
+
+{% block main %}
+    <div class="row"><div class="col-responsive">
+    <h2 class="headline">Valider mon numéro de téléphone</h2>
+    <div>
+        <div class="intro">
+            <p> Nous vous demandons votre numéro de téléphone mobile afin de valider que vous êtes une vraie
+              personne. Si vous êtes abonné⋅e à la lettre d'information, vous pourrez aussi recevoir des SMS
+              vous informant d'événements importants.</p>
+        </div>
+        <div class="form-wrap">
+            {% crispy form %}
+        </div>
+    </div>
+    </div></div>
+{% endblock %}

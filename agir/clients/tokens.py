@@ -6,7 +6,6 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from ..api.redis import get_auth_redis_client
 from .models import Client
-from .scopes import scopes as all_scopes
 from ..people.models import Person
 
 

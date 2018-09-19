@@ -8,13 +8,20 @@ from agir.api.redis import get_auth_redis_client as get_redis_client
 __all__ = ['TokenBucket']
 
 
+def get_current_timestamp():
+    """Return current timestamp in second
+
+    this function is used to make testing easier"""
+    return timezone.now().timestamp()
+
+
 class TokenBucket:
     def __init__(self, name, max, interval):
         """Instancies a Token bucket value
 
         :param name: a unique name for the token bucket, used to name the redis keys
         :param max: the maximum (and initial) value of the token bucket
-        :param interval: the interval by which the bucket is refilled by one unit
+        :param interval: the interval (in seconds) by which the bucket is refilled by one unit
         """
         self.name = name
         self.max = max
@@ -32,7 +39,7 @@ class TokenBucket:
 
         res = token_bucket_script(
             keys=[f"{key_prefix}v", f"{key_prefix}t"],
-            args=[self.max, self.interval, timezone.now().timestamp(), amount],
+            args=[self.max, self.interval, get_current_timestamp(), amount],
             client=get_redis_client()
         )
 
