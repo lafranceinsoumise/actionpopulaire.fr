@@ -123,7 +123,12 @@
                     <ul id="menu-menu-connexion" class="nav navbar-nav navbar-right">
                         {% if user.is_authenticated %}
                             <li class="menu-item dropdown">
-                                <a href="#" data-toggle="dropdown" class="dropdown-toggle">{{ user.person.email }} <span class="caret"></span></a>
+                                <a href="#" data-toggle="dropdown" class="dropdown-toggle">
+                                    {{ user.person.email }}
+                                    {% if user.person.contact_phone_status == user.person.CONTACT_PHONE_VERIFIED %}
+                                        <i class="fa fa-check" title="Utilisateur vérifié !"></i>
+                                    {% endif %}
+                                    <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     <li class="menu-item"><a title="Préférences" href="{% url "message_preferences" %}">Préférences</a></li>
                                     {% if user.person.contact_phone_status == 'U' %}
