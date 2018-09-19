@@ -204,6 +204,7 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         default_permissions = ('add', 'change', 'delete', 'view')
         indexes = (
             GinIndex(fields=['search'], name='search_index'),
+            models.Index(fields=['contact_phone'], name='contact_phone_index')
         )
 
     def save(self, *args, **kwargs):

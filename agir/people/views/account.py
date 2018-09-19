@@ -135,17 +135,21 @@ class DeleteEmailAddressView(HardLoginRequiredMixin, DeleteView):
         return super().post(request, *args, **kwargs)
 
 
-class SendValidationSMSView(HardLoginRequiredMixin, UpdateView):
+class RedirectAlreadyValidatedPeopleMixin():
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.person.contact_phone_status == Person.CONTACT_PHONE_VERIFIED:
+            messages.add_message(request, messages.SUCCESS, _("Votre numéro a déjà été validé."))
+            return HttpResponseRedirect(reverse("message_preferences"))
+        elif request.user.person.contact_phone_status == Person.CONTACT_PHONE_PENDING:
+            messages.add_message(request, messages.INFO, _("Votre numéro était déjà validé par une autre personne et est en attente de validation manuelle."))
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class SendValidationSMSView(HardLoginRequiredMixin, RedirectAlreadyValidatedPeopleMixin, UpdateView):
     success_url = reverse_lazy('sms_code_validation')
     form_class = SendValidationSMSForm
     template_name = 'people/send_validation_sms.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.person.contact_phone_status == Person.CONTACT_PHONE_VERIFIED:
-            messages.add_message(request, messages.INFO, _("Votre numéro a déjà été validé."))
-            return HttpResponseRedirect(reverse("message_preferences"))
-
-        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         return self.request.user.person
@@ -160,7 +164,7 @@ class SendValidationSMSView(HardLoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class CodeValidationView(HardLoginRequiredMixin, FormView):
+class CodeValidationView(HardLoginRequiredMixin, RedirectAlreadyValidatedPeopleMixin, FormView):
     success_url = reverse_lazy('message_preferences')
     form_class = CodeValidationForm
     template_name = 'people/send_validation_sms.html'
@@ -172,6 +176,18 @@ class CodeValidationView(HardLoginRequiredMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        self.request.user.person.contact_phone_status = Person.CONTACT_PHONE_VERIFIED
-        self.request.user.person.save()
+        person = self.request.user.person
+
+        if Person.objects.filter(
+                contact_phone=person.contact_phone, contact_phone_status=Person.CONTACT_PHONE_VERIFIED
+        ).exists():
+            person.contact_phone_status = Person.CONTACT_PHONE_PENDING
+            messages.add_message(self.request, messages.INFO, _(
+                "Ce numéro est déjà utilisé par une autre personne : vous êtes en attente de validation manuelle."
+            ))
+        else:
+            person.contact_phone_status = Person.CONTACT_PHONE_VERIFIED
+            messages.add_message(self.request, messages.INFO, _("Votre numéro a été correctement validé."))
+
+        person.save()
         return super().form_valid(form)

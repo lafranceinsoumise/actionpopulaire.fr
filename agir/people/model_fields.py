@@ -35,3 +35,9 @@ class ValidatedPhoneNumberField(PhoneNumberField):
 
     def descriptor_class(self, _):
         return ValidatedPhoneNumberDescriptor(self, self.validated_field_name, self.unverified_value)
+
+    def deconstruct(self):
+        (name, path, [], keywords) = super().deconstruct()
+
+        keywords.update({'validated_field_name': self.validated_field_name, 'unverified_value': self.unverified_value})
+        return (name, path, [], keywords)
