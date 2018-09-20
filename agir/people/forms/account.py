@@ -14,7 +14,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from agir.lib.form_components import HalfCol
 from agir.lib.form_mixins import TagMixin
-from agir.lib.sms import normalize_mobile_phone, send_new_code, RateLimitedException, SMSSendException, is_valid_code
+from agir.lib.phone_numbers import normalize_overseas_numbers, is_french_number, is_mobile_number
+
+from agir.people.actions.validation_codes import send_new_code, RateLimitedException, ValidationCodeSendingException, is_valid_code
 from agir.people.models import PersonTag, Person, PersonEmail, PersonValidationSMS
 
 logger = logging.getLogger(__name__)
@@ -207,6 +209,13 @@ class SendValidationSMSForm(forms.ModelForm):
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data=data, *args, **kwargs)
 
+        if (not self.is_bound and
+            not (is_french_number(self.instance.contact_phone) and is_mobile_number(self.instance.contact_phone))):
+            self.initial['contact_phone'] = ''
+            self.fields['contact_phone'].help_text = _(
+                'Seul un numéro de téléphone mobile français (outremer inclus) peut être utilisé pour la validation.'
+            )
+
         self.fields['contact_phone'].required = True
         self.fields['contact_phone'].error_messages['required'] = _(
             'Vous devez indiquer le numéro de mobile qui vous servira à valider votre compte.'
@@ -222,8 +231,16 @@ class SendValidationSMSForm(forms.ModelForm):
         self.helper.form_method = 'POST'
         self.helper.layout = Layout(*fields)
 
-    def clean_phone_number(self):
-        return normalize_mobile_phone(self.cleaned_data['contact_phone'], self.error_messages)
+    def clean_contact_phone(self):
+        phone_number = normalize_overseas_numbers(self.cleaned_data['contact_phone'])
+
+        if not is_french_number(phone_number):
+            raise ValidationError(self.error_messages['french_only'])
+
+        if not is_mobile_number(phone_number):
+            raise ValidationError(self.error_messages['mobile_only'])
+
+        return phone_number
 
     def send_code(self, request):
         try:
@@ -231,7 +248,7 @@ class SendValidationSMSForm(forms.ModelForm):
         except RateLimitedException:
             self.add_error('contact_phone', self.error_messages['rate_limited'])
             return None
-        except SMSSendException:
+        except ValidationCodeSendingException:
             self.add_error('contact_phone', self.error_messages['sending_error'])
 
     class Meta:

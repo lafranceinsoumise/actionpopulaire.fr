@@ -10,8 +10,8 @@ from rest_framework.reverse import reverse
 from phonenumber_field.phonenumber import to_python as to_phone_number
 
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission, PersonValidationSMS, generate_code
+from agir.people.actions.validation_codes import _initialize_buckets
 from agir.lib.tests.mixins import FakeDataMixin
-from agir.lib.sms import _initialize_buckets
 
 
 class DashboardTestCase(FakeDataMixin, TestCase):
