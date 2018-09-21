@@ -209,7 +209,7 @@ class SendValidationSMSForm(forms.ModelForm):
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data=data, *args, **kwargs)
 
-        if (not self.is_bound and
+        if (not self.is_bound and self.instance.contact_phone and
             not (is_french_number(self.instance.contact_phone) and is_mobile_number(self.instance.contact_phone))):
             self.initial['contact_phone'] = ''
             self.fields['contact_phone'].help_text = _(
