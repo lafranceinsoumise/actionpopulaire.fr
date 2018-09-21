@@ -235,10 +235,10 @@ class SendValidationSMSForm(forms.ModelForm):
         phone_number = normalize_overseas_numbers(self.cleaned_data['contact_phone'])
 
         if not is_french_number(phone_number):
-            raise ValidationError(self.error_messages['french_only'])
+            raise ValidationError(self.error_messages['french_only'], 'french_only')
 
         if not is_mobile_number(phone_number):
-            raise ValidationError(self.error_messages['mobile_only'])
+            raise ValidationError(self.error_messages['mobile_only'], 'mobile_only')
 
         return phone_number
 
@@ -246,10 +246,10 @@ class SendValidationSMSForm(forms.ModelForm):
         try:
             return send_new_code(self.instance , request=request)
         except RateLimitedException:
-            self.add_error('contact_phone', self.error_messages['rate_limited'])
+            self.add_error('contact_phone', ValidationError(self.error_messages['rate_limited'], 'rate_limited'))
             return None
         except ValidationCodeSendingException:
-            self.add_error('contact_phone', self.error_messages['sending_error'])
+            self.add_error('contact_phone', ValidationError(self.error_messages['sending_error'], 'sending_error'))
 
     class Meta:
         model = Person

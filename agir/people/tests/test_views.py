@@ -374,12 +374,22 @@ class PersonFormTestCase(TestCase):
         self.assertContains(res, "Ce formulaire est maintenant fermé.")
 
 
+def form_has_error(form, field, code=None):
+    return form.has_error(form.fields[field], code)
+
+
 class SMSValidationTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person('test@example.com', contact_phone='0612345678')
         self.client.force_login(self.person.role)
 
     def test_can_see_sms_page_when_not_validated(self):
+        res = self.client.get(reverse('send_validation_sms'))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_can_display_page_even_when_no_contact_phone(self):
+        self.person.contact_phone = ''
+        self.person.save()
         res = self.client.get(reverse('send_validation_sms'))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -393,9 +403,21 @@ class SMSValidationTestCase(TestCase):
     def test_cannot_validate_sms_form_without_number(self):
         res = self.client.post(reverse('send_validation_sms'), {})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'required'))
 
         res = self.client.post(reverse('send_validation_sms'), {'contact_phone': ''})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'required'))
+
+    def test_cannot_validate_sms_form_with_fixed_number(self):
+        res = self.client.post(reverse('send_validation_sms'), {'contact_phone': '01 42 85 68 98'})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'mobile_only'))
+
+    def test_cannot_validate_sms_form_with_foreign_number(self):
+        res = self.client.post(reverse('send_validation_sms'), {'contact_phone': '+44 7554 456245'})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'french_only'))
 
     def test_cannot_ask_sms_if_already_validated(self):
         self.person.contact_phone_status = Person.CONTACT_PHONE_VERIFIED
@@ -537,6 +559,7 @@ class SMSRateLimitingTestCase(TestCase):
         current_timestamp.return_value = 10
         res = self.client.post(send_sms_page, data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'rate_limited'))
 
         # should work again
         current_timestamp.return_value = 70
@@ -547,12 +570,14 @@ class SMSRateLimitingTestCase(TestCase):
         current_timestamp.return_value = 140
         res = self.client.post(send_sms_page, data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'rate_limited'))
 
         # should not be possible to ask for sms with other person with same number
         self.client.force_login(self.person2.role)
         current_timestamp.return_value = 210
         res = self.client.post(send_sms_page, data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'rate_limited'))
 
         # sixth try ==> but possible to try with another number
         current_timestamp.return_value = 280
