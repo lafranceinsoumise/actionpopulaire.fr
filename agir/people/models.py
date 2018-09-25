@@ -1,3 +1,4 @@
+import secrets
 import warnings
 from collections import OrderedDict
 from django.db import models, transaction
@@ -20,10 +21,18 @@ from agir.lib.models import BaseAPIResource, LocationMixin, AbstractLabel, Natio
 from agir.authentication.models import Role
 from . import metrics
 
-from .model_fields import MandatesField
+from .model_fields import MandatesField, ValidatedPhoneNumberField
 
 
-class PersonManager(models.Manager):
+class PersonQueryset(models.QuerySet):
+    def with_contact_phone(self):
+        return self.exclude(contact_phone="")
+
+    def verified(self):
+        return self.filter(contact_phone_status=Person.CONTACT_PHONE_VERIFIED)
+
+
+class PersonManager(models.Manager.from_queryset(PersonQueryset)):
     def get(self, *args, **kwargs):
         if 'email' in kwargs:
             kwargs['emails__address'] = kwargs['email']
@@ -155,7 +164,20 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
 
     tags = models.ManyToManyField('PersonTag', related_name='people', blank=True)
 
-    contact_phone = PhoneNumberField(_("Numéro de téléphone de contact"), blank=True)
+    CONTACT_PHONE_UNVERIFIED = 'U'
+    CONTACT_PHONE_VERIFIED = 'V'
+    CONTACT_PHONE_PENDING = 'P'
+    CONTACT_PHONE_STATUS_CHOICES = (
+        (CONTACT_PHONE_UNVERIFIED, _("Non vérifié")),
+        (CONTACT_PHONE_VERIFIED, _("Vérifié")),
+        (CONTACT_PHONE_PENDING, _("En attente de validation manuelle"))
+    )
+
+    contact_phone = ValidatedPhoneNumberField(_("Numéro de téléphone de contact"), blank=True,
+                                              validated_field_name='contact_phone_status',
+                                              unverified_value=CONTACT_PHONE_UNVERIFIED)
+    contact_phone_status = models.CharField(_("Statut du numéro de téléphone"), choices=CONTACT_PHONE_STATUS_CHOICES,
+                                            max_length=1, default=CONTACT_PHONE_UNVERIFIED)
 
     GENDER_FEMALE = 'F'
     GENDER_MALE = 'M'
@@ -182,6 +204,7 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
         default_permissions = ('add', 'change', 'delete', 'view')
         indexes = (
             GinIndex(fields=['search'], name='search_index'),
+            models.Index(fields=['contact_phone'], name='contact_phone_index')
         )
 
     def save(self, *args, **kwargs):
@@ -195,6 +218,9 @@ class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
             return "{} {} <{}>".format(self.first_name, self.last_name, self.email)
         else:
             return self.email
+
+    def __repr__(self):
+        return f'Person(pk={self.pk!r}, email={self.email})'
 
     @property
     def email(self):
@@ -461,3 +487,16 @@ class PersonFormSubmission(TimeStampedModel):
 
     def __str__(self):
         return f"{self.form.title} : réponse de {str(self.person)}"
+
+
+def generate_code(): return str(secrets.randbelow(1000000)).zfill(6)
+
+
+class PersonValidationSMS(TimeStampedModel):
+    person = models.ForeignKey('Person', on_delete=models.CASCADE, editable=False)
+    phone_number = PhoneNumberField(_("Numéro de mobile"), editable=False)
+    code = models.CharField(max_length=8, editable=False, default=generate_code)
+
+    class Meta:
+        verbose_name = _("SMS de validation")
+        verbose_name_plural = _("SMS de validation")

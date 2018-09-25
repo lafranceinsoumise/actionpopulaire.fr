@@ -1,12 +1,16 @@
 from unittest import mock
+from redislite import StrictRedis
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.reverse import reverse
 
-from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
+from phonenumber_field.phonenumber import to_python as to_phone_number
+
+from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission, PersonValidationSMS, generate_code
+from agir.people.actions.validation_codes import _initialize_buckets
 from agir.lib.tests.mixins import FakeDataMixin
 
 
@@ -17,7 +21,7 @@ class DashboardTestCase(FakeDataMixin, TestCase):
         response = self.client.get(reverse('dashboard'))
 
         geocode_person.delay.assert_called_once()
-        self.assertEqual(geocode_person.delay.call_args[0], (self.data['people']['user2'].pk, ))
+        self.assertEqual(geocode_person.delay.call_args[0], (self.data['people']['user2'].pk,))
 
         # own email
         self.assertContains(response, 'user2@example.com')
@@ -258,21 +262,21 @@ class PersonFormTestCase(TestCase):
 
     def test_flatten_fields_property(self):
         self.assertEqual(self.complex_form.fields_dict, {
-             'custom-field': {
-                 'id': 'custom-field',
-                 'type': 'short_text',
-                 'label': 'Mon label'
-             },
-             'custom-person-field': {
-                 'id': 'custom-person-field',
-                 'type': 'short_text',
-                 'label': 'Prout',
-                 'person_field': True
-             },
-             'contact_phone': {
-                 'id': 'contact_phone',
-                 'person_field': True
-             }
+            'custom-field': {
+                'id': 'custom-field',
+                'type': 'short_text',
+                'label': 'Mon label'
+            },
+            'custom-person-field': {
+                'id': 'custom-person-field',
+                'type': 'short_text',
+                'label': 'Prout',
+                'person_field': True
+            },
+            'contact_phone': {
+                'id': 'contact_phone',
+                'person_field': True
+            }
         })
 
     def test_title_and_description(self):
@@ -340,13 +344,15 @@ class PersonFormTestCase(TestCase):
         self.person.refresh_from_db()
 
         self.assertCountEqual(self.person.tags.all(), [self.tag2])
-        self.assertEqual(self.person.meta['custom-person-field'], 'Mon super champ texte libre à mettre dans Person.metas')
+        self.assertEqual(self.person.meta['custom-person-field'],
+                         'Mon super champ texte libre à mettre dans Person.metas')
 
         submissions = PersonFormSubmission.objects.all()
         self.assertEqual(len(submissions), 1)
 
         self.assertEqual(submissions[0].data['custom-field'], 'Mon super champ texte libre')
-        self.assertEqual(submissions[0].data['custom-person-field'], 'Mon super champ texte libre à mettre dans Person.metas')
+        self.assertEqual(submissions[0].data['custom-person-field'],
+                         'Mon super champ texte libre à mettre dans Person.metas')
 
     def test_cannot_view_closed_forms(self):
         self.complex_form.end_time = timezone.now() - timezone.timedelta(days=1)
@@ -366,3 +372,214 @@ class PersonFormTestCase(TestCase):
             'custom-person-field': 'Mon super champ texte libre à mettre dans Person.metas'
         })
         self.assertContains(res, "Ce formulaire est maintenant fermé.")
+
+
+def form_has_error(form, field, code=None):
+    return form.has_error(form.fields[field], code)
+
+
+class SMSValidationTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person('test@example.com', contact_phone='0612345678')
+        self.client.force_login(self.person.role)
+
+    def test_can_see_sms_page_when_not_validated(self):
+        res = self.client.get(reverse('send_validation_sms'))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_can_display_page_even_when_no_contact_phone(self):
+        self.person.contact_phone = ''
+        self.person.save()
+        res = self.client.get(reverse('send_validation_sms'))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_sms_sending_form_modify_phone_number(self):
+        res = self.client.post(reverse('send_validation_sms'), {'contact_phone': '0687654321'})
+        self.assertRedirects(res, reverse('sms_code_validation'))
+
+        self.person.refresh_from_db()
+        self.assertEqual(self.person.contact_phone, to_phone_number('0687654321'))
+
+    def test_cannot_validate_sms_form_without_number(self):
+        res = self.client.post(reverse('send_validation_sms'), {})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'required'))
+
+        res = self.client.post(reverse('send_validation_sms'), {'contact_phone': ''})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'required'))
+
+    def test_cannot_validate_sms_form_with_fixed_number(self):
+        res = self.client.post(reverse('send_validation_sms'), {'contact_phone': '01 42 85 68 98'})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'mobile_only'))
+
+    def test_cannot_validate_sms_form_with_foreign_number(self):
+        res = self.client.post(reverse('send_validation_sms'), {'contact_phone': '+44 7554 456245'})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'french_only'))
+
+    def test_cannot_ask_sms_if_already_validated(self):
+        self.person.contact_phone_status = Person.CONTACT_PHONE_VERIFIED
+        self.person.save()
+
+        send_sms_page = reverse('send_validation_sms')
+        message_preferences_page = reverse('message_preferences')
+
+        response = self.client.get(send_sms_page)
+        self.assertRedirects(response, message_preferences_page)
+
+        response = self.client.post(send_sms_page)
+        self.assertRedirects(response, message_preferences_page)
+
+    def test_number_not_validated_when_changed(self):
+        self.person.contact_phone_status = Person.CONTACT_PHONE_VERIFIED
+        self.person.save()
+
+        message_preferences_page = reverse('message_preferences')
+
+        res = self.client.post(message_preferences_page, {
+            'subscribed': 'Y',
+            'group_notifications': 'Y',
+            'event_notifications': 'Y',
+            'draw_participation': 'Y',
+            'gender': 'F',
+            'contact_phone': '0687654321'
+        })
+        self.assertRedirects(res, message_preferences_page)
+
+        self.person.refresh_from_db()
+
+        self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED)
+
+    @mock.patch('agir.people.forms.account.send_new_code')
+    def test_can_send_sms(self, mock_send_new_code):
+        send_sms_page = reverse('send_validation_sms')
+
+        res = self.client.get(send_sms_page)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        res = self.client.post(send_sms_page, {
+            'contact_phone': self.person.contact_phone.as_e164
+        })
+
+        self.assertRedirects(res, reverse('sms_code_validation'))
+        mock_send_new_code.assert_called_once()
+        self.assertEqual(mock_send_new_code.call_args[0][0], self.person)
+
+    def test_can_validate_phone_number(self):
+        validate_code_page = reverse('sms_code_validation')
+
+        validation_code = PersonValidationSMS.objects.create(
+            person=self.person, phone_number=self.person.contact_phone
+        )
+
+        res = self.client.get(validate_code_page)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        res = self.client.post(validate_code_page, {
+            'code': validation_code.code
+        })
+
+        self.assertRedirects(res, reverse('message_preferences'))
+        self.person.refresh_from_db()
+        self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_VERIFIED)
+
+    def test_cannot_validate_with_wrong_code(self):
+        validate_code_page = reverse('sms_code_validation')
+
+        validation_code = PersonValidationSMS.objects.create(
+            person=self.person, phone_number=self.person.contact_phone
+        )
+
+        other_code = validation_code.code
+
+        while other_code == validation_code.code:
+            other_code = generate_code()
+
+        res = self.client.post(validate_code_page, {'code': other_code})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.person.refresh_from_db()
+        self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED)
+
+    def test_cannot_validate_with_code_after_changing_number(self):
+        validate_code_page = reverse('sms_code_validation')
+
+        validation_code = PersonValidationSMS.objects.create(
+            person=self.person, phone_number=self.person.contact_phone
+        )
+        self.person.contact_phone = '0687654321'
+        self.person.save()
+
+        res = self.client.post(validate_code_page, {
+            'code': validation_code.code
+        })
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.person.refresh_from_db()
+        self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED)
+
+
+class SMSRateLimitingTestCase(TestCase):
+    def setUp(self):
+        self.phone = '+33612345678'
+        self.other_phone = '+33687654321'
+        self.person1 = Person.objects.create_person('test1@example.com', contact_phone=self.phone)
+        self.person2 = Person.objects.create_person('test2@example.com', contact_phone=self.phone)
+
+        self.redis_instance = StrictRedis()
+        self.redis_patcher = mock.patch('agir.lib.token_bucket.get_redis_client')
+        mock_get_auth_redis_client = self.redis_patcher.start()
+        mock_get_auth_redis_client.return_value = self.redis_instance
+
+    @override_settings(
+        SMS_BUCKET_MAX=2,
+        SMS_BUCKET_INTERVAL=600,
+        SMS_BUCKET_IP_MAX=10,
+        SMS_BUCKET_IP_INTERVAL=600,
+    )
+    @mock.patch('agir.lib.token_bucket.get_current_timestamp')
+    def test_rate_limiting_on_sending_sms(self, current_timestamp):
+        # reinitialize token buckets to make sure the change of settings is taken into account
+        _initialize_buckets()
+
+        send_sms_page = reverse('send_validation_sms')
+        validate_code_page = reverse('sms_code_validation')
+
+        data = {'contact_phone': self.phone}
+
+        self.client.force_login(self.person1.role)
+
+        # should work
+        current_timestamp.return_value = 0
+        res = self.client.post(send_sms_page, data)
+        self.assertRedirects(res, validate_code_page)
+
+        # should block with short term bucket
+        current_timestamp.return_value = 10
+        res = self.client.post(send_sms_page, data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'rate_limited'))
+
+        # should work again
+        current_timestamp.return_value = 70
+        res = self.client.post(send_sms_page, data)
+        self.assertRedirects(res, validate_code_page)
+
+        # person and phone number buckets should be empty
+        current_timestamp.return_value = 140
+        res = self.client.post(send_sms_page, data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'rate_limited'))
+
+        # should not be possible to ask for sms with other person with same number
+        self.client.force_login(self.person2.role)
+        current_timestamp.return_value = 210
+        res = self.client.post(send_sms_page, data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'rate_limited'))
+
+        # sixth try ==> but possible to try with another number
+        current_timestamp.return_value = 280
+        res = self.client.post(send_sms_page, {'contact_phone': self.other_phone})
+        self.assertRedirects(res, validate_code_page)

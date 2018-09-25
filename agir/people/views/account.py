@@ -3,10 +3,11 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, DeleteView, TemplateView
+from django.utils.translation import ugettext as _
+from django.views.generic import UpdateView, DeleteView, TemplateView, FormView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin, HardLoginRequiredMixin
-from agir.people.forms import MessagePreferencesForm, AddEmailForm
+from agir.people.forms import MessagePreferencesForm, AddEmailForm, SendValidationSMSForm, CodeValidationForm
 from agir.people.models import Person
 
 
@@ -17,6 +18,11 @@ class MessagePreferencesView(SoftLoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user.person
+
+    def get_success_url(self):
+        if self.request.POST.get('validation'):
+            return reverse('send_validation_sms')
+        return super().get_success_url()
 
     def form_valid(self, form):
         res = super().form_valid(form)
@@ -127,3 +133,61 @@ class DeleteEmailAddressView(HardLoginRequiredMixin, DeleteView):
         if len(self.get_queryset()) <= 1:
             return HttpResponseRedirect(self.success_url)
         return super().post(request, *args, **kwargs)
+
+
+class RedirectAlreadyValidatedPeopleMixin():
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.person.contact_phone_status == Person.CONTACT_PHONE_VERIFIED:
+            messages.add_message(request, messages.SUCCESS, _("Votre numéro a déjà été validé."))
+            return HttpResponseRedirect(reverse("message_preferences"))
+        elif request.user.person.contact_phone_status == Person.CONTACT_PHONE_PENDING:
+            messages.add_message(request, messages.INFO, _("Votre numéro était déjà validé par une autre personne et est en attente de validation manuelle."))
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class SendValidationSMSView(HardLoginRequiredMixin, RedirectAlreadyValidatedPeopleMixin, UpdateView):
+    success_url = reverse_lazy('sms_code_validation')
+    form_class = SendValidationSMSForm
+    template_name = 'people/send_validation_sms.html'
+
+    def get_object(self, queryset=None):
+        return self.request.user.person
+
+    def form_valid(self, form):
+        code = form.send_code(self.request)
+
+        if code is None:
+            return super().form_invalid(form)
+
+        messages.add_message(self.request, messages.DEBUG, f'Le code envoyé est {code}')
+        return super().form_valid(form)
+
+
+class CodeValidationView(HardLoginRequiredMixin, RedirectAlreadyValidatedPeopleMixin, FormView):
+    success_url = reverse_lazy('message_preferences')
+    form_class = CodeValidationForm
+    template_name = 'people/send_validation_sms.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['person'] = self.request.user.person
+
+        return kwargs
+
+    def form_valid(self, form):
+        person = self.request.user.person
+
+        if Person.objects.filter(
+                contact_phone=person.contact_phone, contact_phone_status=Person.CONTACT_PHONE_VERIFIED
+        ).exists():
+            person.contact_phone_status = Person.CONTACT_PHONE_PENDING
+            messages.add_message(self.request, messages.INFO, _(
+                "Ce numéro est déjà utilisé par une autre personne : vous êtes en attente de validation manuelle."
+            ))
+        else:
+            person.contact_phone_status = Person.CONTACT_PHONE_VERIFIED
+            messages.add_message(self.request, messages.INFO, _("Votre numéro a été correctement validé."))
+
+        person.save()
+        return super().form_valid(form)

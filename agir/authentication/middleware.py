@@ -60,6 +60,9 @@ class KnownEmailCookieMiddleWare():
     def __call__(self, request):
         response = self.get_response(request)
 
+        if response.status_code >= 400:
+            return response
+
         if not (hasattr(request.user, 'is_authenticated') and request.user.is_authenticated):
             return response
 

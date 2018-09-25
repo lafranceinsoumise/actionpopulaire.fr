@@ -5,6 +5,7 @@ from agir.people.models import Person
 from agir.groups.models import SupportGroup, Membership
 from agir.events.models import Event, EventSubtype
 
+
 def get_general_stats(start, end):
     return {
         'new_supporters': Person.objects.filter(created__range=(start, end)).count(),

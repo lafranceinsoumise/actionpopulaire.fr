@@ -97,3 +97,24 @@ class BasicPersonTestCase(TestCase):
         delete_email_mailtrain.delay.assert_called_once()
         self.assertEqual(delete_email_mailtrain.delay.call_args[0][0], address)
 
+
+class ContactPhoneTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person(email='test@domain.com', contact_phone="0612345678")
+
+    def test_unverified_contact_phone_by_default(self):
+        self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED)
+
+    def test_unverified_when_changing_number(self):
+        self.person.contact_phone_status = Person.CONTACT_PHONE_VERIFIED
+        self.person.contact_phone = "0687654321"
+        self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED)
+
+    def test_still_verified_when_changing_for_same_number(self):
+        self.person.contact_phone_status = Person.CONTACT_PHONE_VERIFIED
+
+        self.person.contact_phone = "0612345678"
+        self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_VERIFIED)
+
+        self.person.contact_phone = "+33612345678"
+        self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_VERIFIED)
