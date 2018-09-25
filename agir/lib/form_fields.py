@@ -1,5 +1,5 @@
 from django.forms.widgets import Textarea, DateTimeBaseInput
-from django.forms import BooleanField
+from django.forms import BooleanField, forms
 from django.utils import formats
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,15 +28,20 @@ class RichEditorWidget(Textarea):
     template_name = 'custom_fields/rich_editor.html'
     admin = False
 
+    def __init__(self, attrs=None):
+        default_attrs = {'class': 'richeditorwidget'}
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(default_attrs)
+
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         context['widget']['admin'] = self.admin
         return context
 
-    class Media:
-        js = (
-            webpack_loader_utils.get_files('front/richEditor')[0]['url'],
-        )
+    @property
+    def media(self):
+        return forms.Media(js=(webpack_loader_utils.get_files('front/richEditor')[0]['url'],))
 
 
 class AdminRichEditorWidget(RichEditorWidget):
