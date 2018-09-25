@@ -165,7 +165,7 @@ class EventTypeStep extends FormStep {
             insoumis⋅es, indiquez le type d'événement que vous organisez.
           </p>
           <p>
-            Vous souhaitez inviter une oratrice ou un orateur national&nbsp;?
+            Vous souhaitez inviter un⋅e député⋅e, candidat⋅e, ou animateur⋅ice de livret&nbsp;?
             {' '}
             <a href="https://lafranceinsoumise.fr/groupes-appui/inviter-des-intervenants/">Suivez le mode d'emploi.</a>
           </p>

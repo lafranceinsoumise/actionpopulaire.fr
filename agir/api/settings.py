@@ -58,7 +58,7 @@ MAILTRAIN_HOST = os.environ.get('MAILTRAIN_HOST', 'http://localhost:8080')
 MAILTRAIN_LIST_ID = os.environ.get('MAILTRAIN_LIST_ID', 'SyWda9pi')
 MAILTRAIN_DISABLE = DEBUG
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,b4638677.ngrok.io').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
 # Application definition
 
