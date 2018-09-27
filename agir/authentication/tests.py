@@ -1,3 +1,4 @@
+from unittest import mock
 from urllib.parse import urlparse
 
 from django.contrib.auth import get_user
@@ -7,13 +8,14 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 
-from agir.authentication.backend import token_generator
+from agir.api.redis import using_redislite
+from agir.authentication.backend import connection_token_generator, short_code_generator
 from agir.events.models import Event
 from agir.groups.models import SupportGroup
 from agir.people.models import Person
 
 
-class AuthenticationTestCase(TestCase):
+class MailLinkTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person('test@test.com')
         self.person2 = Person.objects.create_person('test2@test.com')
@@ -22,7 +24,7 @@ class AuthenticationTestCase(TestCase):
 
     def test_can_connect_with_query_params(self):
         p = self.person.pk
-        code = token_generator.make_token(self.person)
+        code = connection_token_generator.make_token(self.person)
 
         response = self.client.get(reverse('volunteer'), data={'p': p, 'code': code})
 
@@ -35,7 +37,7 @@ class AuthenticationTestCase(TestCase):
         response = self.client.get(reverse('volunteer'), data={'p': p, 'code': 'prout'}, follow=True)
 
         self.assertIn(
-            (reverse('oauth_redirect_view') + '?next=' + reverse('volunteer'), 302),
+            (reverse('short_code_login') + '?next=' + reverse('volunteer'), 302),
             response.redirect_chain
         )
 
@@ -52,8 +54,7 @@ class AuthenticationTestCase(TestCase):
         response = self.client.get(reverse('create_group'))
 
         self.assertRedirects(
-            response, reverse('oauth_redirect_view') + '?next=' + reverse('create_group'),
-            target_status_code=status.HTTP_302_FOUND
+            response, reverse('short_code_login') + '?next=' + reverse('create_group')
         )
 
     def test_unsubscribe_redirects_to_message_preferences_when_logged(self):
@@ -66,18 +67,99 @@ class AuthenticationTestCase(TestCase):
         target_url = urlparse(response.url)
         self.assertEqual(target_url.path, message_preferences_path)
 
-    def test_know_user_cookie_middleware(self):
-        self.client.force_login(self.person.role)
-        response = self.client.get(reverse('volunteer'))
-        self.assertEqual(self.client.cookies.get('knownEmails').value, 'test@test.com')
 
-        self.client.force_login(self.person2.role)
-        response = self.client.get(reverse('volunteer'))
-        self.assertEqual(self.client.cookies.get('knownEmails').value, 'test2@test.com,test@test.com')
+@using_redislite
+class ShortCodeTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person('test@test.com')
 
-        self.client.force_login(self.person.role)
-        response = self.client.get(reverse('volunteer'))
-        self.assertEqual(self.client.cookies.get('knownEmails').value, 'test@test.com,test2@test.com')
+    def test_using_send_mail_form(self):
+        send_mail_link = reverse('short_code_login')
+
+        res = self.client.get(send_mail_link)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        res = self.client.post(send_mail_link, {'email': 'test@test.com'})
+        self.assertRedirects(res, reverse('check_short_code', kwargs={'user_pk': self.person.pk}))
+
+    def test_checking_code(self):
+        check_short_code_link = reverse('check_short_code', kwargs={'user_pk': self.person.pk})
+        code, expiry = short_code_generator.generate_short_code(self.person.pk)
+
+        res = self.client.get(check_short_code_link)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        res = self.client.post(check_short_code_link, {'code': code})
+        self.assertRedirects(res, '/')
+
+    def test_warned_if_using_wrong_format(self):
+        check_short_code_link = reverse('check_short_code', kwargs={'user_pk': self.person.pk})
+        res = self.client.post(check_short_code_link, {'code': 'mù**2,;'})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('code', 'incorrect_format'))
+
+
+    def test_cannot_send_mail_with_invalid_email(self):
+        send_mail_link = reverse('short_code_login')
+
+        res = self.client.post(send_mail_link, {'email': 'testtest.com'})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('email', 'invalid'))
+
+    def test_cannot_send_mail_with_unknown(self):
+        send_mail_link = reverse('short_code_login')
+
+        res = self.client.post(send_mail_link, {'email': 'unknown@test.com'})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('email', 'unknown'))
+
+    def test_known_mails_feature(self):
+        res = self.client.post(reverse('short_code_login'), {'email': 'test@test.com'})
+        self.assertRedirects(res, reverse('check_short_code', kwargs={'user_pk': self.person.pk}))
+
+        self.assertEqual(res.cookies['knownEmails'].value, 'test@test.com')
+
+    @mock.patch('agir.lib.token_bucket.get_current_timestamp')
+    def test_send_mail_rate_limiting(self, current_timestamp_mock):
+        send_mail_link = reverse('short_code_login')
+        send_mail = lambda: self.client.post(send_mail_link, {'email': 'test@test.com'})
+
+        # we should be limited when sending 10 mails in a go
+        for i in range(10):
+            current_timestamp_mock.return_value = i
+            res = send_mail()
+
+            if res.status_code == status.HTTP_200_OK and res.context_data['form'].has_error('email', 'rate_limited'):
+                break
+        else:
+            self.fail("Not rate limited")
+
+        # we should be able to send another mail 30 minutes later
+        current_timestamp_mock.return_value = 30 * 60
+        res = send_mail()
+        self.assertRedirects(res, reverse('check_short_code', kwargs={'user_pk': self.person.pk}))
+
+    @mock.patch('agir.lib.token_bucket.get_current_timestamp')
+    def test_check_code_rate_limiting(self, current_timestamp_mock):
+        check_code_link = reverse('check_short_code', kwargs={'user_pk': self.person.pk})
+        wrong_code = short_code_generator._make_code()
+        try_code = lambda: self.client.post(check_code_link, {'code': wrong_code})
+
+        # should be rate limited when trying 10 times
+        for i in range(10):
+            current_timestamp_mock.return_value = i
+            res = try_code()
+
+            if res.status_code == status.HTTP_200_OK and res.context_data['form'].has_error('code', 'rate_limited'):
+                break
+        else:
+            self.fail('Not rate limited')
+
+        # should be able to try again half an hour later
+        current_timestamp_mock.return_value = 30 * 60
+        res = try_code()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.context_data['form'].has_error('code', 'wrong_code'))
 
 
 class AuthorizationTestCase(TestCase):
@@ -104,7 +186,7 @@ class AuthorizationTestCase(TestCase):
             response = self.client.get(url)
             query = QueryDict(mutable=True)
             query['next'] = url
-            self.assertRedirects(response, '/authentification/?%s' % query.urlencode(safe='/'), target_status_code=302)
+            self.assertRedirects(response, '/connexion/?%s' % query.urlencode(safe='/'))
 
     def test_403_when_editing_event(self):
         self.client.force_login(self.person.role)
@@ -123,10 +205,3 @@ class AuthorizationTestCase(TestCase):
 
         response = self.client.post('/groupes/%s/modifier/' % self.group.pk)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_oauth_backend(self):
-        from agir.authentication.backend import OAuth2Backend
-        backend = OAuth2Backend()
-        profile_url = reverse('legacy:person-detail', kwargs={'pk': self.person.pk})
-
-        self.assertEqual(self.person.role, backend.authenticate(profile_url=profile_url))

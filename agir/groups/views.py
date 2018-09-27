@@ -84,7 +84,7 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
                 Q(person=self.request.user.person) & (Q(is_referent=True) | Q(is_manager=True))).exists()
         )
 
-    @method_decorator(login_required(login_url=reverse_lazy('oauth_redirect_view')), )
+    @method_decorator(login_required(login_url=reverse_lazy('short_code_login')), )
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 

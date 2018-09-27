@@ -1,5 +1,4 @@
 from unittest import mock
-from redislite import StrictRedis
 
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -9,6 +8,7 @@ from rest_framework.reverse import reverse
 
 from phonenumber_field.phonenumber import to_python as to_phone_number
 
+from agir.api.redis import using_redislite
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission, PersonValidationSMS, generate_code
 from agir.people.actions.validation_codes import _initialize_buckets
 from agir.lib.tests.mixins import FakeDataMixin
@@ -520,17 +520,13 @@ class SMSValidationTestCase(TestCase):
         self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED)
 
 
+@using_redislite
 class SMSRateLimitingTestCase(TestCase):
     def setUp(self):
         self.phone = '+33612345678'
         self.other_phone = '+33687654321'
         self.person1 = Person.objects.create_person('test1@example.com', contact_phone=self.phone)
         self.person2 = Person.objects.create_person('test2@example.com', contact_phone=self.phone)
-
-        self.redis_instance = StrictRedis()
-        self.redis_patcher = mock.patch('agir.lib.token_bucket.get_redis_client')
-        mock_get_auth_redis_client = self.redis_patcher.start()
-        mock_get_auth_redis_client.return_value = self.redis_instance
 
     @override_settings(
         SMS_BUCKET_MAX=2,

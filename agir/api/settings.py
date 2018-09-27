@@ -147,7 +147,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'agir.authentication.middleware.MailLinkMiddleware',
-    'agir.authentication.middleware.KnownEmailCookieMiddleWare',
 ]
 
 if DEBUG:
@@ -232,7 +231,9 @@ EMAIL_TEMPLATES = {
     # FORM_CONFIRMATION variables : CONFIRMATION_NOTE
     "FORM_CONFIRMATION": "https://mosaico.jlm2017.fr/emails/6172a755-0459-4f01-b3e4-fcfa835224b0.html",
     # FORM_NOTIFICATION variables : PERSON_EMAIL, INFORMATIONS
-    "FORM_NOTIFICATION": "https://mosaico.jlm2017.fr/emails/45cd8bc1-8fb6-4ab6-bb67-739fd7e2e68e.html"
+    "FORM_NOTIFICATION": "https://mosaico.jlm2017.fr/emails/45cd8bc1-8fb6-4ab6-bb67-739fd7e2e68e.html",
+    # LOGIN_MESSAGE variables: CODE, EXPIRY_TIME
+    "LOGIN_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/65cb8867-9d14-4448-bae8-8cf40c5fee78.html",
 }
 
 EMAIL_FROM = os.environ.get('EMAIL_FROM', 'La France insoumise <noreply@lafranceinsoumise.fr>')
@@ -307,8 +308,8 @@ if ENABLE_API:
 
 if ENABLE_FRONT:
     AUTHENTICATION_BACKENDS.extend([
-        # This backend is used for OAuth connection
-        'agir.authentication.backend.OAuth2Backend',
+        # This backend is used for email challenge connection
+        'agir.authentication.backend.ShortCodeBackend',
         # This backend is used for connection through links found in emails
         'agir.authentication.backend.MailLinkBackend'
     ])
@@ -447,15 +448,6 @@ CELERY_WORKER_SEND_TASK_EVENTS = True
 # enable task events to allow monitoring
 CELERY_TASK_SEND_SENT_EVENT = True
 
-OAUTH = {
-    'client_id': os.environ.get('OAUTH_CLIENT_ID', 'api_front'),
-    'client_secret': os.environ.get('OAUTH_CLIENT_SECRET', 'incredible password'),
-    'authorization_url': os.environ.get('OAUTH_AUTHORIZATION_URL', 'http://localhost:4002/autoriser'),
-    'token_exchange_url': os.environ.get('OAUTH_TOKEN_URL', 'http://localhost:4002/token'),
-    'redirect_domain': os.environ.get('OAUTH_REDIRECT_DOMAIN', 'http://localhost:8000'),
-    'logoff_url': os.environ.get('OAUTH_LOGOFF_URL', 'http://localhost:4002/deconnexion'),
-}
-
 DEFAULT_EVENT_IMAGE = "front/images/default_event_pic.jpg"
 
 PHONENUMBER_DEFAULT_REGION = 'FR'
@@ -519,3 +511,8 @@ SMS_BUCKET_MAX = 3
 SMS_BUCKET_INTERVAL = 600
 SMS_BUCKET_IP_MAX = 10
 SMS_BUCKET_IP_INTERVAL = 600
+
+
+# Short login codes settings
+SHORT_CODE_VALIDITY = 90
+MAX_CONCURRENT_SHORT_CODES = 3

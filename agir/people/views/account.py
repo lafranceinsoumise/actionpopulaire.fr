@@ -40,7 +40,7 @@ class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
     template_name = 'people/delete_account.html'
 
     def get_success_url(self):
-        return f"{settings.OAUTH['logoff_url']}?next={reverse('delete_account_success')}"
+        return reverse('delete_account_success')
 
     def get_object(self, queryset=None):
         return self.request.user.person
