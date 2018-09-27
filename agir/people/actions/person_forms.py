@@ -1,7 +1,15 @@
+import os
+from uuid import uuid4
 from typing import List, Dict, Tuple
 
+from pathlib import PurePath
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.files import File
+from django.core.files.storage import default_storage
+from django.core.validators import FileExtensionValidator
+from django.template.defaultfilters import filesizeformat
+from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext as _
 
 from crispy_forms.helper import FormHelper
@@ -41,6 +49,47 @@ class MultipleChoiceField(NotRequiredByDefaultMixin, forms.MultipleChoiceField):
 
 class BooleanField(NotRequiredByDefaultMixin, forms.BooleanField):
     pass
+
+
+def save_file(file, form_slug):
+    extension = os.path.splitext(file.name)[1].lower()
+    path = str(PurePath('person_forms') / form_slug / (str(uuid4()) + extension))
+    default_storage.save(path, file)
+    return path
+
+
+@deconstructible
+class FileSizeValidator:
+    message = _("Ce fichier est trop gros. Seuls les fichiers de moins de %(max_size) sont acceptés.")
+    code = 'file_too_big'
+
+    def __init__(self, max_size, message=None, code=None):
+        if message is not None:
+            self.message = message
+        if code is not None:
+            self.code = code
+        self.max_size = max_size
+
+    def __call__(self, value):
+        if value.size > self.max_size:
+            raise ValidationError(
+                self.message,
+                code=self.code,
+                params={
+                    'max_size': filesizeformat(self.max_size)
+                }
+            )
+
+
+class FileField(forms.FileField):
+    def __init__(self, *, max_size=None, allowed_extensions=None, validators=None, **kwargs):
+        validators = validators or []
+        if allowed_extensions:
+            validators.append(FileExtensionValidator(allowed_extensions))
+        if max_size:
+            validators.append(FileSizeValidator(max_size))
+
+        super().__init__(validators=validators, **kwargs)
 
 
 class FieldSet:
@@ -120,6 +169,8 @@ FIELDS = {
     'multiple_choice': MultipleChoiceField,
     'email_address': forms.EmailField,
     'phone_number': PhoneNumberField,
+    'url': forms.URLField,
+    'file': FileField,
     'boolean': BooleanField,
     'integer': forms.IntegerField
 }
@@ -194,6 +245,10 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         for part in self.parts:
             data.update(part.collect_results(self.cleaned_data))
+
+        for key, value in data.items():
+            if isinstance(value, File):
+                data[key] = save_file(value, self.person_form_instance.slug)
 
         self.submission = PersonFormSubmission.objects.create(
             person=person,
