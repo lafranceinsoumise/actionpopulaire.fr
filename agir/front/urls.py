@@ -5,7 +5,6 @@ from django.views.generic import RedirectView
 
 from ..front.sitemaps import sitemaps
 from . import views
-from agir.authentication import oauth
 
 urlpatterns = [
     # https://lafranceinsoumise.fr/
@@ -20,9 +19,4 @@ urlpatterns = [
 
     # old urls
     re_path('^old(.*)$', views.NBUrlsView.as_view(), name='old_urls'),
-
-    # authentication views
-    path('authentification/', oauth.OauthRedirectView.as_view(), name='oauth_redirect_view'),
-    path('authentification/retour/', oauth.OauthReturnView.as_view(), name='oauth_return_view'),
-    path('deconnexion/', oauth.LogOffView.as_view(), name='oauth_disconnect')
 ]

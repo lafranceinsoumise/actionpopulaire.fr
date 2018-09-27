@@ -135,12 +135,12 @@
                                         <li class="menu-item"><a title="Vérifier mon compte" href="{% url 'send_validation_sms' %}">Vérifier mon compte</a></li>
                                     {% endif %}
                                     <li class="menu-item"><a title="Déconnexion"
-                                                     href="{% url "oauth_disconnect" %}">Déconnexion</a></li>
+                                                     href="{% url "disconnect" %}">Déconnexion</a></li>
                                 </ul>
                             </li>
                         {% else %}
                             <li class="menu-item"><a title="Connexion"
-                                                     href="{% url "oauth_redirect_view" %}?next={{ request.get_full_path }}">Connexion</a></li>
+                                                     href="{% url "short_code_login" %}?next={{ request.get_full_path }}">Connexion</a></li>
                         {% endif %}
                         <li class="menu-item"><a class="help-button" style="display:none;" href="#"><i class="fa fa-question-circle-o"></i> Aide</a></li>
                     </ul>
