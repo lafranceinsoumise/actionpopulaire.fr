@@ -16,6 +16,7 @@ const requiredFields = ['locationName', 'locationAddress1', 'locationCity', 'loc
 
 export default class LocationStep extends FormStep {
   constructor(props) {
+    props.fields.locationCountryCode = props.fields.locationCountryCode || 'FR';
     super(props);
   }
 
@@ -122,7 +123,6 @@ export default class LocationStep extends FormStep {
               value={fields.locationCountryCode || ''}
               className="form-control"
               required>
-              <option value="">Indiquez votre pays</option>
               {fullCountryList.map(country => (
                 <option value={country.code} key={country.key}>{country.label}</option>))}
             </select>
