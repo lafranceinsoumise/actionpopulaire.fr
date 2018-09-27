@@ -10,6 +10,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate, APITestCa
 from rest_framework import status
 from rest_framework.reverse import reverse
 
+from agir.api.redis import using_redislite
 from agir.people.models import Person, PersonTag
 from agir.people.viewsets import LegacyPersonViewSet
 
@@ -17,6 +18,7 @@ from agir.events.models import Event, RSVP
 from agir.groups.models import SupportGroup, Membership
 
 
+@using_redislite
 class LegacyPersonEndpointTestCase(APITestCase):
     def as_viewer(self, request):
         force_authenticate(request, self.viewer_person.role)
@@ -82,11 +84,6 @@ class LegacyPersonEndpointTestCase(APITestCase):
             'get': 'list',
             'post': 'create'
         })
-
-        self.redis_instance = StrictRedis()
-        self.redis_patcher = mock.patch('agir.lib.token_bucket.get_redis_client')
-        mock_get_auth_redis_client = self.redis_patcher.start()
-        mock_get_auth_redis_client.return_value = self.redis_instance
 
     def test_cannot_list_while_unauthenticated(self):
         request = self.factory.get('')
