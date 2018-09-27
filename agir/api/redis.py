@@ -1,9 +1,9 @@
-from contextlib import contextmanager
 from functools import wraps
 
 import redis
 from django.conf import settings
 from unittest.mock import patch
+
 
 class RedisPool:
     def __init__(self, url, max_connections):

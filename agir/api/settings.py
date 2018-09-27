@@ -30,6 +30,8 @@ ENABLE_MAP = os.environ.get('ENABLE_MAP', 'n').lower() in ['y', 'yes', 'true'] o
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+TEST_RUNNER = 'agir.api.test_runner.TestRunner'
+
 admins = os.environ.get('ADMINS')
 if admins:
     admins = [ADMIN_RE.match(s.strip()) for s in admins.split(';')]
