@@ -4,9 +4,14 @@
 {% block title %}Gérer l'événement «&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
 {% block main %}
-    <h2 class="text-center">{{ event.name }}</h2>
+  <h2><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h2>
+  <ol class="breadcrumb">
+    <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
+    <li>Gestion de l'événement</li>
+  </ol>
 
     <h3>Les informations de mon événement</h3>
+
 
     <div class="panel panel-default">
         <div class="help-dialog" data-hint="Les informations de votre événement">

@@ -5,7 +5,12 @@
 {% block title %}Modifier la localisation de mon événement{% endblock %}
 
 {% block main %}
-    <h3 class="text-center">Modifier la localisation de mon événement</h3>
+    <h2><a href="{%  url "view_event" event.pk %}">{{ event.name }}</a></h2>
+    <ol class="breadcrumb">
+      <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
+      <li><a href="{% url "manage_event" event.pk %}">Gestion de l'événement</a></li>
+      <li>Modification de la localisation</li>
+    </ol>
 
     <p>
         Si votre événement n'apparaît au bon endroit sur la carte, vous pouvez utiliser ci-dessous la petite carte pour

@@ -4,7 +4,11 @@
 {% block title %}Gérer le groupe «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
 
 {% block main %}
-    <h2 class="text-center">{{ supportgroup.name }}</h2>
+  <h2><a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a></h2>
+  <ol class="breadcrumb">
+    <li><a href="{% url "view_group" supportgroup.pk %}">Page publique du groupe</a></li>
+    <li>Gestion du groupe</li>
+  </ol>
 
     <h3>Les informations de mon groupe</h3>
 

@@ -5,7 +5,12 @@
 {% block title %}Modifier la localisation de mon groupe{% endblock %}
 
 {% block main %}
-    <h3 class="text-center">Modifier la localisation de mon groupe</h3>
+    <h2><a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a></h2>
+    <ol class="breadcrumb">
+      <li><a href="{% url "view_group" supportgroup.pk %}">Page publique du groupe</a></li>
+      <li><a href="{% url "manage_group" supportgroup.pk %}">Gestion du groupe</a></li>
+      <li>Modification de la localisation</li>
+    </ol>
 
     <p>
         Si votre groupe n'apparaît au bon endroit sur la carte, vous pouvez utiliser ci-dessous la petite carte pour

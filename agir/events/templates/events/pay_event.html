@@ -21,6 +21,12 @@
 
 {% block main %}
     <div class="col-responsive">
+        <h2><a href="{%  url "view_event" event.pk %}">{{ event.name }}</a></h2>
+        <ol class="breadcrumb">
+          <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
+          <li><a href="{% url "rsvp_event" event.pk %}">Inscription à l'événement</a></li>
+          <li>Paiement</li>
+        </ol>
         {% if event.subscription_form is not None %}
             <h2 class="headline">Récapitulatif et paiement</h2>
             <div>
