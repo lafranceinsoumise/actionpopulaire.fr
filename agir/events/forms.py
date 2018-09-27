@@ -414,7 +414,7 @@ class BillingForm(forms.ModelForm):
         model = Person
         fields = (
             'first_name', 'last_name', 'location_address1', 'location_address2', 'location_zip', 'location_city',
-            'location_country', 'contact_phone', 'subscribed'
+            'location_country', 'contact_phone'
         )
 
 
