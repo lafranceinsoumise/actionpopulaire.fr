@@ -11,7 +11,7 @@ def interleave_spaces(s, n=3):
 
 @shared_task
 def send_login_email(email, short_code, expiry_time):
-    utc_expiry_time = timezone.make_aware(timezone.datetime.fromtimestamp(expiry_time), timezone.utc)
+    utc_expiry_time = timezone.make_aware(timezone.datetime.utcfromtimestamp(expiry_time), timezone.utc)
     local_expiry_time = timezone.localtime(utc_expiry_time)
 
     send_mosaico_email(
