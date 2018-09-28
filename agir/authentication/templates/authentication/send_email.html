@@ -8,8 +8,6 @@
 <div class="col-responsive">
     <h2>Formulaire de connexion</h2>
 
-    {{ bookmarked_emails }}
-
     {% if bookmarked_emails %}
         <form method="post">
         {% csrf_token %}
