@@ -378,6 +378,7 @@ def form_has_error(form, field, code=None):
     return form.has_error(form.fields[field], code)
 
 
+@using_redislite
 class SMSValidationTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person('test@example.com', contact_phone='0612345678')
