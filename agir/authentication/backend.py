@@ -45,3 +45,11 @@ class MailLinkBackend(GetRoleMixin):
                 return person.role
 
         return None
+
+
+class OAuth2Backend(GetRoleMixin):
+    """Legacy backend, use to preserve current connection from people."""
+    prefetch = ['person']
+
+    def authenticate(self, request):
+        return None

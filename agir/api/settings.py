@@ -313,7 +313,9 @@ if ENABLE_FRONT:
         # This backend is used for email challenge connection
         'agir.authentication.backend.ShortCodeBackend',
         # This backend is used for connection through links found in emails
-        'agir.authentication.backend.MailLinkBackend'
+        'agir.authentication.backend.MailLinkBackend',
+        # legacy backend only used to preserve currently connected sessions
+        'agir.authentication.backend.OAuth2Backend',
     ])
 
 # Admin
