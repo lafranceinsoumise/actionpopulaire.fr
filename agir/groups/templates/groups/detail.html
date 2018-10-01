@@ -33,7 +33,7 @@
                     <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:groups_supportgroup_change" supportgroup.pk %}">Administration</a>
                 {% endif %}
             {% else %}
-                <a class="btn btn-primary" title="Connexion" href="{% url "oauth_redirect_view" %}?next={{ request.get_full_path|urlencode }}">
+                <a class="btn btn-primary" title="Connexion" href="{% url "short_code_login" %}?next={{ request.get_full_path|urlencode }}">
                     Se connecter pour rejoindre le groupe</a>
             {% endif %}
         </div>

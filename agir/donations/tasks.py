@@ -8,7 +8,11 @@ from ..people.models import Person
 
 @shared_task
 def send_donation_email(person_pk):
-    person = Person.objects.prefetch_related('emails').get(pk=person_pk)
+    try:
+        person = Person.objects.prefetch_related('emails').get(pk=person_pk)
+    except Person.DoesNotExist:
+        return
+
     send_mosaico_email(
         code='DONATION_MESSAGE',
         subject="Merci d'avoir donné !",

@@ -1,0 +1,24 @@
+{% extends "front/layout.html" %}
+{% load crispy_forms_tags %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}Connexion à la plateforme{% endblock %}
+
+{% block main %}
+<div class="col-responsive">
+    <h2>Formulaire de connexion</h2>
+
+    {% if bookmarked_emails %}
+        <form method="post">
+        {% csrf_token %}
+        <label>Je me connecte avec une adresse précédemment utilisée</label>
+        <div>
+        {% for email in bookmarked_emails %}
+            <button type="submit" class="btn btn-default" name="email" value="{{ email }}">{{ email }}</button>
+        {% endfor %}
+        </div>
+        </form>
+    {% endif %}
+    {% crispy form %}
+</div>
+{% endblock %}

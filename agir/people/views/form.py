@@ -51,6 +51,7 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
 
         return r
 
+
 class PeopleFormConfirmationView(DetailView):
     template_name = 'people/person_form_confirmation.html'
     queryset = PersonForm.objects.filter(published=True)

@@ -37,6 +37,7 @@ def send_unsubscribe_email(person_pk):
         bindings=bindings
     )
 
+
 @shared_task
 def update_person_mailtrain(person_pk):
     person = Person.objects.prefetch_related('emails').get(pk=person_pk)

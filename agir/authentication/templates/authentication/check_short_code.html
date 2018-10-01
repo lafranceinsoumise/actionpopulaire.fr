@@ -1,0 +1,16 @@
+{% extends "front/layout.html" %}
+{% load crispy_forms_tags %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}Connexion à la plateforme{% endblock %}
+
+{% block main %}
+    <div class="col-responsive">
+        <h2>Un email vous a été envoyé</h2>
+        <p>
+            Verifiez votre boîte email. Vous pouvez cliquer sur le lien que vous avez reçu, ou entrer le code de
+            connexion à 5 chiffres et lettres qui se trouve dans l'email.
+        </p>
+        {% crispy form %}
+    </div>
+{% endblock %}

@@ -1,86 +1,55 @@
-from django.urls import resolve
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.http import base36_to_int
-from django.utils.crypto import constant_time_compare
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from urllib.parse import urlparse
-
 
 from agir.people.models import Person
 from agir.authentication.backend_mixins import GetRoleMixin
 
-
-class ConnectionTokenGenerator(PasswordResetTokenGenerator):
-    """Strategy object used to generate and check tokens used for connection"""
-    key_salt = 'front.backend.ConnectionTokenGenerator'
-
-    def _make_hash_value(self, user, timestamp):
-        # le hash n'est basé que sur l'ID de l'utilisateur et le timestamp
-        return (
-            str(user.pk) + str(timestamp)
-        )
-
-    def check_token(self, user, token):
-        """
-        Check that a connection token is correct for a given user.
-        """
-        if not (user and token):
-            return False
-        # Parse the token
-        try:
-            ts_b36, hash = token.split("-")
-        except ValueError:
-            return False
-
-        try:
-            ts = base36_to_int(ts_b36)
-        except ValueError:
-            return False
-
-        # Check that the timestamp/uid has not been tampered with
-        if not constant_time_compare(self._make_token_with_timestamp(user, ts), token):
-            return False
-
-        # Check the timestamp is within limit
-        if (self._num_days(self._today()) - ts) > settings.CONNECTION_LINK_VALIDITY:
-            return False
-
-        return True
+from .models import Role
+from .crypto import ConnectionTokenGenerator, ShortCodeGenerator
 
 
-token_generator = ConnectionTokenGenerator()
+connection_token_generator = ConnectionTokenGenerator(settings.CONNECTION_LINK_VALIDITY)
+
+short_code_generator = ShortCodeGenerator(
+    'LoginCode:', settings.SHORT_CODE_VALIDITY, settings.MAX_CONCURRENT_SHORT_CODES
+)
 
 
-class OAuth2Backend(GetRoleMixin):
+class ShortCodeBackend(GetRoleMixin):
     prefetch = ['person']
 
-    def authenticate(self, profile_url=None):
-        if profile_url:
-            path = urlparse(profile_url).path.replace('/legacy', '')
+    def authenticate(self, user_pk=None, short_code=None):
+        if user_pk and short_code:
+            if short_code_generator.check_short_code(user_pk, short_code):
+                try:
+                    role = Role.objects.select_related('person').get(person__pk=user_pk)
+                except (Person.DoesNotExist, ValidationError):
+                    return None
 
-            match = resolve(path, urlconf='agir.api.routers')
+                if self.user_can_authenticate(role):
+                    return role
 
-            if match.view_name == 'person-detail':
-                person_id = match.kwargs['pk']
-                person = Person.objects.select_related('role').get(pk=person_id)
-
-                return person.role if self.user_can_authenticate(person.role) else None
-
-            # not authenticated
-            return None
+        return None
 
 
 class MailLinkBackend(GetRoleMixin):
     prefetch = ['person']
 
-    def authenticate(self, user_pk=None, code=None):
-        if user_pk and code:
+    def authenticate(self, user_pk=None, token=None):
+        if user_pk and token:
             try:
-                user = Person.objects.select_related('role').get(pk=user_pk)
+                person = Person.objects.select_related('role').get(pk=user_pk)
             except (Person.DoesNotExist, ValidationError):
                 return None
-            if token_generator.check_token(user, code) and self.user_can_authenticate(user.role):
-                return user.role
+            if connection_token_generator.check_token(person, token) and self.user_can_authenticate(person.role):
+                return person.role
 
+        return None
+
+
+class OAuth2Backend(GetRoleMixin):
+    """Legacy backend, use to preserve current connection from people."""
+    prefetch = ['person']
+
+    def authenticate(self, request):
         return None

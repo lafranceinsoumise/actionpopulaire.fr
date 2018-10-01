@@ -6,7 +6,7 @@ from django.http import QueryDict
 from django.urls import reverse
 from django.utils.functional import lazy
 
-from agir.authentication.backend import token_generator
+from agir.authentication.backend import connection_token_generator
 
 
 def _querydict_from_dict(d):
@@ -39,5 +39,5 @@ def is_front_url(param):
 def generate_token_params(person):
     return {
         'p': person.pk,
-        'code': token_generator.make_token(person)
+        'code': connection_token_generator.make_token(person)
     }

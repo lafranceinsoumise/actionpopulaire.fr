@@ -10,7 +10,7 @@ class NBUrlsView(View):
     nb_paths = {
         '/unsubscribe': reverse_lazy('unsubscribe'),
         '/inscription': reverse_lazy('subscription_overseas'),
-        '/login': reverse_lazy('oauth_redirect_view'),
+        '/login': reverse_lazy('short_code_login'),
         '/users/event_pages/new?parent_id=103': reverse_lazy('create_event'),
         '/users/event_pages/new?parent_id=73': reverse_lazy('create_group'),
         '/users/event_pages/new?parent_id=38840': reverse_lazy('create_event'),
