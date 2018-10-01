@@ -15,12 +15,12 @@ class DateTimePickerWidget(DateTimeBaseInput):
     class Media:
         css = {
             'all': (
-            'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css',)
+            'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css',)
         }
         js = (
-            'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js',
-            'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/fr.js',
-            'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js'
+            'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/locale/fr.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js'
         )
 
 
