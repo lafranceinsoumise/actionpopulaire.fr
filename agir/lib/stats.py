@@ -42,5 +42,6 @@ def get_instant_stats():
             supportgroups__published=True
         ).count(),
         'thematic_groups': SupportGroup.objects.filter(type=SupportGroup.TYPE_THEMATIC_BOOKLET, published=True).count(),
+        'func_groups': SupportGroup.objects.filter(type=SupportGroup.TYPE_FUNCTIONAL, published=True).count(),
         'pro_groups': SupportGroup.objects.filter(type=SupportGroup.TYPE_PROFESSIONAL, published=True).count(),
     }
