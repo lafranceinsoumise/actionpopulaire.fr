@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django_prometheus.models import ExportModelOperationsMixin
 from model_utils.models import TimeStampedModel
 
 from agir.lib.models import (
@@ -17,7 +18,8 @@ class MembershipQuerySet(models.QuerySet):
         return self.filter(supportgroup__published=True)
 
 
-class SupportGroup(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, DescriptionMixin, ContactMixin):
+class SupportGroup(ExportModelOperationsMixin('support_group'), BaseAPIResource, NationBuilderResource, LocationMixin,
+                   ImageMixin, DescriptionMixin, ContactMixin):
     """
     Model that represents a support group 
     """
@@ -100,7 +102,7 @@ class SupportGroupSubtype(AbstractMapObjectLabel):
         verbose_name = _('sous-type')
 
 
-class Membership(TimeStampedModel):
+class Membership(ExportModelOperationsMixin('membership'), TimeStampedModel):
     """
     Model that represents the membership of a person in a support group
     

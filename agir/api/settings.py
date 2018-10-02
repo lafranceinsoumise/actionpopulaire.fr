@@ -137,6 +137,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'agir.lib.middleware.TurbolinksMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -149,6 +150,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'agir.authentication.middleware.MailLinkMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 if DEBUG:
