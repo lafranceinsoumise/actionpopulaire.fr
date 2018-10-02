@@ -14,7 +14,7 @@ class HttpResponseUnauthorized(HttpResponse):
 
     def __init__(self, content=b'', realm="api", *args, **kwargs):
         super().__init__(content, *args, **kwargs)
-        self['WWW-Authenticate'] = f'Basic realm="{realm}"'
+        self['WWW-Authenticate'] = f'Basic realm="{realm}", charset="UTF-8"'
 
 
 def check_basic_auth(request, identities):
@@ -24,7 +24,7 @@ def check_basic_auth(request, identities):
         return HttpResponseUnauthorized()
 
     try:
-        user, password = base64.b64decode(auth[1]).decode().split(':')
+        user, password = base64.b64decode(auth[1]).split(b':')
     except:
         return HttpResponseUnauthorized()
 
@@ -38,28 +38,28 @@ def check_basic_auth(request, identities):
     if not user_exists or not identical_password:
         return HttpResponseUnauthorized()
 
+    return None
+
 
 def with_http_basic_auth(identities):
     hashed_identities = {}
     for user, password in identities.items():
         h = sha1()
         h.update(password.encode('utf8'))
-        hashed_identities[user] = h.digest()
+        hashed_identities[user.encode('utf8')] = h.digest()
 
     def decorator(view):
         if isinstance(view, type):
             wrapped_dispatch = type.dispatch
             @wraps(wrapped_dispatch)
             def wrapper(self, request, *args, **kwargs):
-                check_basic_auth(request, hashed_identities)
-                return wrapped_dispatch(self, request, *args, **kwargs)
+                return check_basic_auth(request, hashed_identities) or wrapped_dispatch(self, request, *args, **kwargs)
             view.dispatch = wrapper
             return view
 
         @wraps(view)
         def wrapper(request, *args, **kwargs):
-            check_basic_auth(request, hashed_identities)
-            return view(request, *args, **kwargs)
+            return check_basic_auth(request, hashed_identities) or view(request, *args, **kwargs)
         return wrapper
 
     return decorator
