@@ -200,7 +200,7 @@
             {% else %}
                 <h4>Ajouter à mon agenda&ensp;<a href="{% url 'ics_event' event.pk %}"><span class="fa fa-calendar"></span></a>
                 <a
-                  href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ event.name }}&dates={{ event.start_time|date:"Ymd\\THi00" }}/{{ event.end_time|date:"Ymd\\THi00" }}&location={{ event.short_location }}&details={{ event.description }}"
+                  href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ event.name }}&dates={{ event.start_time|date:"Ymd\\THi00" }}/{{ event.end_time|date:"Ymd\\THi00" }}&location={{ event.short_address }}&details={{ event.description }}"
                   target="_blank"
                 ><img height="20" src="{% static 'events/google.png' %}" /></a>
                 <a href="{% url 'ics_event' event.pk %}"><img height="20" src="{% static 'events/outlook.png' %}" /></a>
