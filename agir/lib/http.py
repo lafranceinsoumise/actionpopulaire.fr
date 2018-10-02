@@ -25,7 +25,7 @@ def check_basic_auth(request, identities):
 
     try:
         user, password = base64.b64decode(auth[1]).split(b':')
-    except:
+    except ValueError:
         return HttpResponseUnauthorized()
 
     h = sha1()
