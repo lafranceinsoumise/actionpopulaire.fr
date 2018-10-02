@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.serializers.json import DjangoJSONEncoder
+from django_prometheus.models import ExportModelOperationsMixin
 
 from model_utils.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
@@ -112,7 +113,7 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         return self._create_person(email, password, **extra_fields)
 
 
-class Person(BaseAPIResource, NationBuilderResource, LocationMixin):
+class Person(ExportModelOperationsMixin('person'), BaseAPIResource, NationBuilderResource, LocationMixin):
     """
     Model that represents a physical person that signed as a JLM2017 supporter
 
@@ -321,7 +322,7 @@ class PersonEmailManager(models.Manager):
             return self.get(address=self.normalize_email(address, lowercase_local_part=True))
 
 
-class PersonEmail(models.Model):
+class PersonEmail(ExportModelOperationsMixin('person_email'), models.Model):
     """
     Model that represent a person email address
     """
@@ -479,7 +480,7 @@ class PersonForm(TimeStampedModel):
         verbose_name = _("Formulaire")
 
 
-class PersonFormSubmission(TimeStampedModel):
+class PersonFormSubmission(ExportModelOperationsMixin('person_form_submission'), TimeStampedModel):
     form = models.ForeignKey('PersonForm', on_delete=models.CASCADE, related_name='submissions', editable=False)
     person = models.ForeignKey('Person', on_delete=models.CASCADE, related_name='form_submissions', editable=False)
 
@@ -492,7 +493,7 @@ class PersonFormSubmission(TimeStampedModel):
 def generate_code(): return str(secrets.randbelow(1000000)).zfill(6)
 
 
-class PersonValidationSMS(TimeStampedModel):
+class PersonValidationSMS(ExportModelOperationsMixin('person_validation_sms'), TimeStampedModel):
     person = models.ForeignKey('Person', on_delete=models.CASCADE, editable=False)
     phone_number = PhoneNumberField(_("Numéro de mobile"), editable=False)
     code = models.CharField(max_length=8, editable=False, default=generate_code)

@@ -4,13 +4,14 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, _user_has_perm
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
+from django_prometheus.models import ExportModelOperationsMixin
 
 
 class RoleManager(BaseUserManager):
     pass
 
 
-class Role(PermissionsMixin, AbstractBaseUser):
+class Role(ExportModelOperationsMixin('role'), PermissionsMixin, AbstractBaseUser):
     PERSON_ROLE = 'P'
     CLIENT_ROLE = 'C'
 

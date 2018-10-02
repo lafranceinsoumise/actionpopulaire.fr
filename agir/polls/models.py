@@ -6,6 +6,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models, transaction
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django_prometheus.models import ExportModelOperationsMixin
 
 from agir.lib.models import BaseAPIResource
 
@@ -63,7 +64,7 @@ class PollOption(BaseAPIResource):
         return self.html_description()
 
 
-class PollChoice(BaseAPIResource):
+class PollChoice(ExportModelOperationsMixin('poll_choice'), BaseAPIResource):
     person = models.ForeignKey('people.Person', on_delete=models.SET_NULL, null=True, related_name='poll_choices')
     poll = models.ForeignKey('Poll', on_delete=models.CASCADE)
     selection = JSONField(encoder=DjangoJSONEncoder)

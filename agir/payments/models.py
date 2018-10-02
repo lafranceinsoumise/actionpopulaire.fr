@@ -3,6 +3,7 @@ from django.db import models
 from django.template.defaultfilters import floatformat
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from django_prometheus.models import ExportModelOperationsMixin
 from model_utils.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -26,7 +27,7 @@ class PaymentQueryset(models.QuerySet):
 PaymentManager = models.Manager.from_queryset(PaymentQueryset, class_name='PaymentManager')
 
 
-class Payment(TimeStampedModel, LocationMixin):
+class Payment(ExportModelOperationsMixin('payment'), TimeStampedModel, LocationMixin):
     objects = PaymentManager()
 
     STATUS_WAITING = 0

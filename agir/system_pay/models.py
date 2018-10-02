@@ -1,10 +1,11 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django_prometheus.models import ExportModelOperationsMixin
 from model_utils.models import TimeStampedModel
 
 
-class SystemPayTransaction(TimeStampedModel):
+class SystemPayTransaction(ExportModelOperationsMixin('system_pay_transaction'), TimeStampedModel):
     STATUS_WAITING = 0
     STATUS_COMPLETED = 1
     STATUS_ABANDONED = 2

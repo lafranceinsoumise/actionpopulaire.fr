@@ -5,6 +5,7 @@ from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import slugify
 from django.contrib.postgres.fields import JSONField
+from django_prometheus.models import ExportModelOperationsMixin
 from model_utils.models import TimeStampedModel
 
 from stdimage.models import StdImageField
@@ -81,7 +82,8 @@ def get_default_subtype():
     )
 
 
-class Event(BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin, DescriptionMixin, ContactMixin):
+class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderResource, LocationMixin, ImageMixin,
+            DescriptionMixin, ContactMixin):
     """
     Model that represents an event
     """
@@ -316,7 +318,7 @@ class Calendar(NationBuilderResource, ImageMixin):
         return self.name
 
 
-class CalendarItem(TimeStampedModel):
+class CalendarItem(ExportModelOperationsMixin('calendar_item'), TimeStampedModel):
     event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='calendar_items')
     calendar = models.ForeignKey('Calendar', on_delete=models.CASCADE, related_name='items')
 
@@ -324,7 +326,7 @@ class CalendarItem(TimeStampedModel):
         verbose_name = _('Élément de calendrier')
 
 
-class RSVP(TimeStampedModel):
+class RSVP(ExportModelOperationsMixin('rsvp'), TimeStampedModel):
     """
     Model that represents a RSVP for one person for an event.
     
@@ -374,7 +376,7 @@ class RSVP(TimeStampedModel):
         return info
 
 
-class IdentifiedGuest(models.Model):
+class IdentifiedGuest(ExportModelOperationsMixin('identified_guest'), models.Model):
     rsvp = models.ForeignKey('RSVP', on_delete=models.CASCADE, null=False, related_name='identified_guests')
     submission = models.ForeignKey('people.PersonFormSubmission', on_delete=models.SET_NULL, null=True, db_column='personformsubmission_id')
     status = models.CharField(_('Statut'), max_length=2, default=RSVP.STATUS_CONFIRMED, choices=RSVP.STATUS_CHOICES, blank=False)
@@ -385,7 +387,7 @@ class IdentifiedGuest(models.Model):
         unique_together = ('rsvp', 'submission')
 
 
-class OrganizerConfig(models.Model):
+class OrganizerConfig(ExportModelOperationsMixin('organizer_config'), models.Model):
     person = models.ForeignKey('people.Person', related_name='organizer_configs', on_delete=models.CASCADE,
                                editable=False)
     event = models.ForeignKey('Event', related_name='organizer_configs', on_delete=models.CASCADE, editable=False)
@@ -404,7 +406,7 @@ class OrganizerConfig(models.Model):
             raise ValidationError({'as_group': 'Le groupe doit être un groupe que vous gérez.'})
 
 
-class EventImage(TimeStampedModel):
+class EventImage(ExportModelOperationsMixin('event_image'), TimeStampedModel):
     event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='images', null=False)
     author = models.ForeignKey('people.Person', related_name='event_images', on_delete=models.CASCADE, null=False,
                                editable=False)

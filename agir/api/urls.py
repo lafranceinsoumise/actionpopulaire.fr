@@ -16,8 +16,9 @@ Including another URLconf
 from django.urls import path, include
 from django.conf.urls.static import static
 from ajax_select import urls as ajax_select_urls
+from django_prometheus.exports import ExportToDjangoView as metric_view
 
-from .metrics import get_metrics
+from agir.lib.http import with_http_basic_auth
 from . import routers, admin, settings
 
 from . import front_urls
@@ -27,7 +28,7 @@ urlpatterns = [
     path('admin/', admin.admin_site.urls),
     path('webhooks/', include(webhooks_urls)),
     path('ajax_select/', include(ajax_select_urls)),
-    path('metrics/', get_metrics)
+    path('metrics/', with_http_basic_auth({settings.PROMETHEUS_USER: settings.PROMETHEUS_PASSWORD})(metric_view))
 ]
 
 if settings.ENABLE_API:
