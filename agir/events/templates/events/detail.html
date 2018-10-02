@@ -198,12 +198,13 @@
                     </div>
                 {% endif %}
             {% else %}
-                <h4>Ajouter à mon agenda&ensp;<a href="{% url 'ics_event' event.pk %}"><span class="fa fa-calendar"></span></a>
-                <a
-                  href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ event.name }}&dates={{ event.start_time|date:"Ymd\\THi00" }}/{{ event.end_time|date:"Ymd\\THi00" }}&location={{ event.short_address }}&details={{ event.description }}"
+                <h4>Ajouter à mon agenda&ensp;
+                  <a href="{% url 'ics_event' event.pk %}"><span class="fa fa-calendar"></span></a>
+                  <a
+                  href="https://calendar.google.com/calendar/r/eventedit?text={{ event.name|urlencode }}&dates={{ event.start_time|date:"Ymd\\THi00" }}/{{ event.end_time|date:"Ymd\\THi00" }}&location={{ event.short_address|urlencode }}&details={{ event.description|urlencode }}"
                   target="_blank"
-                ><img height="20" src="{% static 'events/google.png' %}" /></a>
-                <a href="{% url 'ics_event' event.pk %}"><img height="20" src="{% static 'events/outlook.png' %}" /></a>
+                  ><img height="20" src="{% static 'events/google.png' %}" /></a>
+                  <a href="{% url 'ics_event' event.pk %}"><img height="20" src="{% static 'events/outlook.png' %}" /></a>
                 </h4>
                 <h4>Contact</h4>
                 <p>{{ event.html_full_contact }}</p>
