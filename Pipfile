@@ -53,6 +53,7 @@ qrcode = "*"
 sympy = "*"
 idna = "==2.*"
 ovh = "*"
+ics = "*"
 
 
 [dev-packages]
