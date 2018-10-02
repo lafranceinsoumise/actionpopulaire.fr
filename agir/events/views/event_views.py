@@ -1,11 +1,13 @@
 import json
+
+import ics
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, DetailView
 from django.views.generic.edit import ProcessFormView, FormMixin
 from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponse
 from django.conf import settings
 from django.utils import timezone
 from django.utils.html import format_html, mark_safe
@@ -25,8 +27,8 @@ from agir.authentication.view_mixins import HardLoginRequiredMixin, PermissionsR
 
 __all__ = [
     'CreateEventView', 'ManageEventView', 'ModifyEventView', 'QuitEventView', 'CancelEventView',
-    'EventDetailView', 'CalendarView', 'ChangeEventLocationView', 'EditEventReportView', 'UploadEventImageView',
-    'EventListView', 'PerformCreateEventView'
+    'EventDetailView', 'EventIcsView','CalendarView', 'ChangeEventLocationView', 'EditEventReportView',
+    'UploadEventImageView', 'EventListView', 'PerformCreateEventView'
 ]
 
 
@@ -57,6 +59,23 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
             organizers_groups=self.object.organizers_groups.distinct(),
             event_images=self.object.images.all(),
         )
+
+
+class EventIcsView(DetailView):
+    queryset = Event.objects.filter(published=True)
+
+    def render_to_response(self, context, **response_kwargs):
+        ics_event = ics.Event(
+            name=context['event'].name,
+            begin=context['event'].start_time,
+            end=context['event'].end_time,
+            uid=str(context['event'].pk),
+            description=context['event'].description,
+            location=context['event'].short_address,
+            url=reverse('view_event', args=[context['event'].pk])
+        )
+
+        return HttpResponse(ics_event, content_type="text/calendar")
 
 
 class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailView):

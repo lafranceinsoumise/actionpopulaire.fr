@@ -1,4 +1,5 @@
 {% extends "front/layout.html" %}
+{% load static %}
 
 {% block title %}«&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
@@ -50,7 +51,7 @@
                 {% endif %}
                 {% if not event.is_past %}
                     {% if rsvp %}
-                        <div class="dropdown">
+                        <span class="dropdown">
                             <button class="btn btn-primary" data-toggle="dropdown">
                                 {{ rsvp.get_status_display }}{% if rsvp.guests > 0 %} ({{ rsvp.guests|add:1 }} participant⋅e⋅s){% endif %}
                                 <span class="caret"></span>
@@ -79,7 +80,7 @@
                                     </li>
                                 {% endif %}
                             </ul>
-                        </div>
+                        </span>
                     {% else %}
                         {% if event.max_participants and event.participants >= event.max_participants %}
                             <span class="btn btn-primary">Évènement complet</span>
@@ -197,6 +198,13 @@
                     </div>
                 {% endif %}
             {% else %}
+                <h4>Ajouter à mon agenda&ensp;<a href="{% url 'ics_event' event.pk %}"><span class="fa fa-calendar"></span></a>
+                <a
+                  href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ event.name }}&dates={{ event.start_time|date:"Ymd\\THi00" }}/{{ event.end_time|date:"Ymd\\THi00" }}&location={{ event.short_location }}&details={{ event.description }}"
+                  target="_blank"
+                ><img height="20" src="{% static 'events/google.png' %}" /></a>
+                <a href="{% url 'ics_event' event.pk %}"><img height="20" src="{% static 'events/outlook.png' %}" /></a>
+                </h4>
                 <h4>Contact</h4>
                 <p>{{ event.html_full_contact }}</p>
             {% endif %}

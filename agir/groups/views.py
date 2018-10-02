@@ -1,11 +1,13 @@
 import json
+
+import ics
 from django.conf import settings
 from django.urls import reverse_lazy, reverse
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
+from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, HttpResponse
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html, mark_safe
 from django.utils.translation import ugettext as _, ugettext_lazy
@@ -95,6 +97,25 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
             return HttpResponseRedirect(reverse('view_group', kwargs={'pk': self.object.pk}))
 
         return HttpResponseBadRequest()
+
+
+class SupportGroupIcsView(DetailView):
+    queryset = SupportGroup.objects.active().all()
+
+    def render_to_response(self, context, **response_kwargs):
+        calendar = ics.Calendar(events=[
+            ics.event.Event(
+                name=event.name,
+                begin=event.start_time,
+                end=event.end_time,
+                uid=str(event.pk),
+                description=event.description,
+                location=event.short_address,
+                url=reverse('view_event', args=[event.pk])
+            ) for event in context['supportgroup'].organized_events.all()
+        ])
+
+        return HttpResponse(calendar, content_type="text/calendar")
 
 
 class SupportGroupManagementView(HardLoginRequiredMixin, CheckMembershipMixin, DetailView):

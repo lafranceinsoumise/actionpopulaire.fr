@@ -11,6 +11,7 @@ urlpatterns = [
     path('groupes/creer/form/', views.PerformCreateSupportGroupView.as_view(), name='perform_create_group'),
     path('groupes/liste/', views.SupportGroupListView.as_view(), name='list_all_groups'),
     path('groupes/<uuid:pk>/', views.SupportGroupDetailView.as_view(), name='view_group'),
+    path('groupes/<uuid:pk>/icalendar/', views.SupportGroupIcsView.as_view(), name='ics_group'),
     path('groupes/<uuid:pk>/manage/', views.SupportGroupManagementView.as_view(), name='manage_group'),
     path('groupes/<uuid:pk>/modifier/', views.ModifySupportGroupView.as_view(), name='edit_group'),
     path('groupes/<uuid:pk>/quitter/', views.QuitSupportGroupView.as_view(), name='quit_group'),

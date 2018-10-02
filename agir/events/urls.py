@@ -1,5 +1,4 @@
 from django.urls import path
-from django.urls import path
 
 from . import views
 
@@ -9,6 +8,7 @@ urlpatterns = [
     path('evenements/creer/form/', views.PerformCreateEventView.as_view(), name='perform_create_event'),
     path('evenements/liste/', views.EventListView.as_view(), name='list_all_events'),
     path('evenements/<uuid:pk>/', views.EventDetailView.as_view(), name='view_event'),
+    path('evenements/<uuid:pk>/icalendar/', views.EventIcsView.as_view(), name='ics_event'),
     path('evenements/<uuid:pk>/manage/', views.ManageEventView.as_view(), name='manage_event'),
     path('evenements/<uuid:pk>/modifier/', views.ModifyEventView.as_view(), name='edit_event'),
     path('evenements/<uuid:pk>/quitter/', views.QuitEventView.as_view(), name='quit_event'),
