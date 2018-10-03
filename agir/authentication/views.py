@@ -104,7 +104,7 @@ class CheckCodeView(RedirectToMixin, FormView):
     def dispatch(self, request, *args, **kwargs):
         try:
             self.person = Person.objects.get(pk=self.kwargs['user_pk'])
-            super().dispatch(request, *args, **kwargs)
+            return super().dispatch(request, *args, **kwargs)
         except Person.DoesNotExist:
             return HttpResponseRedirect(reverse('short_code_login'))
 
