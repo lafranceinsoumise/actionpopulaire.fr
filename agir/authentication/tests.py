@@ -1,3 +1,4 @@
+import uuid
 from unittest import mock
 from urllib.parse import urlparse
 
@@ -98,7 +99,6 @@ class ShortCodeTestCase(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertTrue(res.context_data['form'].has_error('code', 'incorrect_format'))
 
-
     def test_cannot_send_mail_with_invalid_email(self):
         send_mail_link = reverse('short_code_login')
 
@@ -138,6 +138,10 @@ class ShortCodeTestCase(TestCase):
         current_timestamp_mock.return_value = 30 * 60
         res = send_mail()
         self.assertRedirects(res, reverse('check_short_code', kwargs={'user_pk': self.person.pk}))
+
+    def test_cannot_check_code_with_unknown_person(self):
+        check_code_link = reverse('check_short_code', kwargs={'user_pk': uuid.uuid4()})
+        self.assertRedirects(self.client.post(check_code_link), reverse('short_code_login'))
 
     @mock.patch('agir.lib.token_bucket.get_current_timestamp')
     def test_check_code_rate_limiting(self, current_timestamp_mock):

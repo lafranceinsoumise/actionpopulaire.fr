@@ -101,12 +101,19 @@ class CheckCodeView(RedirectToMixin, FormView):
     template_name = "authentication/check_short_code.html"
     redirect_field_name = REDIRECT_FIELD_NAME
 
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.person = Person.objects.get(pk=self.kwargs['user_pk'])
+            super().dispatch(request, *args, **kwargs)
+        except Person.DoesNotExist:
+            return HttpResponseRedirect(reverse('short_code_login'))
+
     def get_success_url(self):
         return self.get_redirect_url() or '/'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['person'] = Person.objects.get(pk=self.kwargs['user_pk'])
+        kwargs['person'] = self.person
         return kwargs
 
     def form_valid(self, form):
