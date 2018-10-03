@@ -77,5 +77,8 @@ class Payment(ExportModelOperationsMixin('payment'), TimeStampedModel, LocationM
     def html_full_address(self):
         return display_address(self)
 
+    def __str__(self):
+        return _("Paiement n°") + str(self.id)
+
     class Meta:
         get_latest_by = 'created'
