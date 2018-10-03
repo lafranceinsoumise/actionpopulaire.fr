@@ -65,7 +65,7 @@ class EventIcsView(DetailView):
     queryset = Event.objects.filter(published=True)
 
     def render_to_response(self, context, **response_kwargs):
-        ics_event = ics.Event(
+        ics_calendar = ics.Calendar(events=[ics.Event(
             name=context['event'].name,
             begin=context['event'].start_time,
             end=context['event'].end_time,
@@ -73,9 +73,9 @@ class EventIcsView(DetailView):
             description=context['event'].description,
             location=context['event'].short_address,
             url=reverse('view_event', args=[context['event'].pk])
-        )
+        )])
 
-        return HttpResponse(ics_event, content_type="text/calendar")
+        return HttpResponse(ics_calendar, content_type="text/calendar")
 
 
 class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailView):
