@@ -1,5 +1,9 @@
 import json
+from datetime import timedelta
+
 from django.contrib.gis.geos import Polygon
+from django.db.models import Case, When, Value, BooleanField, Q, Count
+from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from django.utils.html import mark_safe
 from django.views.generic import TemplateView, DetailView
@@ -92,7 +96,7 @@ class GroupFilterSet(django_filters.rest_framework.FilterSet):
     )
     class Meta:
         model = SupportGroup
-        fields = ('subtype', )
+        fields = ('subtype',)
 
 
 class GroupsView(ListAPIView):
@@ -105,6 +109,18 @@ class GroupsView(ListAPIView):
     @cache.cache_control(max_age=300, public=True)
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return SupportGroup.objects.active() \
+            .filter(coordinates__isnull=False) \
+            .prefetch_related('subtypes') \
+            .annotate(current_events_count=Count(
+                'organized_events',
+                filter=Q(
+                    organized_events__start_time__range=(now() - timedelta(days=45), now() + timedelta(days=45)),
+                    organized_events__published=True
+                )
+            ))
 
 
 class MapViewMixin():

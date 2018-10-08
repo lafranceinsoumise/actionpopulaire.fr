@@ -20,6 +20,13 @@ Carte des groupes d'appui
           (displayableSubtypes.length ? '<br>' + displayableSubtypes.join(' &bull; ') : '');
       }
 
-      window['carte/map'].listMap('map', '{% url "carte:group_list" %}{{ querystring }}', types, subtypes, formatGroup, bounds);
+      window['carte/map'].listMap('map', {
+        endpoint: '{% url "carte:group_list" %}{{ querystring }}',
+        type: 'groups',
+        types,
+        subtypes,
+        formatPopup: formatGroup,
+        bounds
+      });
     </script>
 {% endblock %}

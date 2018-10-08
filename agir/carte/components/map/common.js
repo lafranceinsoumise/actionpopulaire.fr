@@ -1,14 +1,14 @@
-import Map from 'ol/map';
-import View from 'ol/view';
-import TileLayer from 'ol/layer/tile';
-import OSM from 'ol/source/osm';
-import Style from 'ol/style/style';
-import Text from 'ol/style/text';
-import Circle from 'ol/style/circle';
-import Fill from 'ol/style/fill';
-import Icon from 'ol/style/icon';
-import Overlay from 'ol/overlay';
-import proj from 'ol/proj';
+import Map from 'ol/Map';
+import View from 'ol/View';
+import TileLayer from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
+import Style from 'ol/style/Style';
+import Text from 'ol/style/Text';
+import Circle from 'ol/style/Circle';
+import Fill from 'ol/style/Fill';
+import Icon from 'ol/style/Icon';
+import Overlay from 'ol/Overlay';
+import * as proj from "ol/proj";
 import fontawesome from 'fontawesome';
 
 import {element} from './utils';

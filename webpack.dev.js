@@ -6,9 +6,10 @@ const common = require('./webpack.common.js');
 
 module.exports = merge(common, {
   mode: 'development',
-  devtool: 'inline-source-map',
+  devtool: 'eval',
   output: {
     publicPath: 'http://agir.local:3000/assets/components/',
+    devtoolModuleFilenameTemplate: 'webpack://[absolute-resource-path]',
     filename: '[name]-[hash].js',
   },
   watchOptions: {
@@ -16,6 +17,7 @@ module.exports = merge(common, {
   },
   devServer: {
     publicPath: 'http://agir.local:3000/assets/components/',
+    public: 'agir.local:3000',
     contentBase: path.join(__dirname, '/assets/components/'),
     compress: true,
     hot: true,

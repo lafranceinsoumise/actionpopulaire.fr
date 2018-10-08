@@ -12,10 +12,11 @@ class MapEventSerializer(serializers.ModelSerializer):
 
 class MapGroupSerializer(serializers.ModelSerializer):
     subtype = serializers.SerializerMethodField('get_first_subtype')
+    current_events_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = SupportGroup
-        fields = ('id', 'name', 'coordinates', 'type', 'subtype', 'subtypes')
+        fields = ('id', 'name', 'coordinates', 'type', 'subtype', 'subtypes', 'current_events_count')
 
     def get_first_subtype(self, obj):
         return obj.subtypes.all()[0].id if obj.subtypes.all() else None

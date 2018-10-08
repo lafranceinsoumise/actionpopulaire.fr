@@ -29,6 +29,13 @@
         );
       }
 
-      window['carte/map'].listMap('map', '{% url "carte:event_list" %}{{ querystring }}', types, subtypes, formatEvent, bounds);
+      window['carte/map'].listMap('map', {
+        endpoint: '{% url "carte:event_list" %}{{ querystring }}',
+        type: 'events',
+        types,
+        subtypes,
+        formatPopup: formatEvent,
+        bounds
+      });
     </script>
 {% endblock %}

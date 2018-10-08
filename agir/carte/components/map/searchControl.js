@@ -1,5 +1,5 @@
-import Control from 'ol/control/control';
-import proj from 'ol/proj';
+import Control from 'ol/control/Control';
+import * as proj from 'ol/proj';
 import {OpenStreetMapProvider} from 'leaflet-geosearch';
 
 import {element} from './utils';
