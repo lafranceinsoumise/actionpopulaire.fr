@@ -247,7 +247,16 @@ class AbstractMapObjectLabel(TimeStampedModel, AbstractLabel):
     """
     Abstract class for event and group labels which should have special appearance on map
     """
-    privileged_only = models.BooleanField(_('réservé aux administrateurs'), default=True)
+    VISIBILITY_NONE = 'N'
+    VISIBILITY_ADMIN = 'D'
+    VISIBILITY_ALL = 'A'
+    VISIBILITY_CHOICES = (
+        (VISIBILITY_NONE, _('Personne (plus utilisé)')),
+        (VISIBILITY_ADMIN, _("Seulement depuis l'administration")),
+        (VISIBILITY_ALL, _("N'importe qui"))
+    )
+
+    visibility = models.CharField(_('Qui peut créer avec ce sous-type ?'), default=VISIBILITY_ADMIN, max_length=1)
     hide_text_label = models.BooleanField(_('cacher le label texte'), default=False)
 
     icon = models.ImageField(

@@ -50,7 +50,7 @@ def load_fake_data():
         'local_group_default': SupportGroupSubtype.objects.get(label='groupe local'),
         'certified_local_group': SupportGroupSubtype.objects.create(label='certifié', description='Groupe certifié', type='L'),
         'booklet_redaction': SupportGroupSubtype.objects.get(label='rédaction du livret'),
-        'test_thematic_booklet': SupportGroupSubtype.objects.create(label='livret test', description='livret test', privileged_only=False, type='B')
+        'test_thematic_booklet': SupportGroupSubtype.objects.create(label='livret test', description='livret test', visibility=SupportGroupSubtype.VISIBILITY_ALL, type='B')
     }
     groups = {
         'user1_group': SupportGroup.objects.create(

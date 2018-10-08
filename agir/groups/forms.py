@@ -30,7 +30,7 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
     }
 
     subtypes = forms.ModelMultipleChoiceField(
-        queryset=SupportGroupSubtype.objects.filter(privileged_only=False),
+        queryset=SupportGroupSubtype.objects.filter(visibility=SupportGroupSubtype.VISIBILITY_ALL),
         to_field_name='label',
     )
 
