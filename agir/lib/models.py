@@ -256,7 +256,8 @@ class AbstractMapObjectLabel(TimeStampedModel, AbstractLabel):
         (VISIBILITY_ALL, _("N'importe qui"))
     )
 
-    visibility = models.CharField(_('Qui peut créer avec ce sous-type ?'), default=VISIBILITY_ADMIN, max_length=1)
+    visibility = models.CharField(_('Qui peut créer avec ce sous-type ?'), default=VISIBILITY_ADMIN, max_length=1,
+                                  choices=VISIBILITY_CHOICES)
     hide_text_label = models.BooleanField(_('cacher le label texte'), default=False)
 
     icon = models.ImageField(

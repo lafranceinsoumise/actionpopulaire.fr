@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='supportgroupsubtype',
             name='visibility',
-            field=models.CharField(default='D', max_length=1, verbose_name='Qui peut créer avec ce sous-type ?'),
+            field=models.CharField(choices=[('N', 'Personne (plus utilisé)'), ('D', "Seulement depuis l'administration"), ('A', "N'importe qui")], default='D', max_length=1, verbose_name='Qui peut créer avec ce sous-type ?'),
         ),
         migrations.RunPython(
             code=privileged_to_visibility,
