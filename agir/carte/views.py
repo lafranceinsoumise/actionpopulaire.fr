@@ -117,7 +117,7 @@ class GroupsView(ListAPIView):
             .annotate(current_events_count=Count(
                 'organized_events',
                 filter=Q(
-                    organized_events__start_time__range=(now() - timedelta(days=45), now() + timedelta(days=45)),
+                    organized_events__start_time__range=(now() - timedelta(days=62), now() + timedelta(days=31)),
                     organized_events__published=True
                 )
             ))
