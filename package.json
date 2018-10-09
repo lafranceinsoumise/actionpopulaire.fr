@@ -35,7 +35,7 @@
     "localized-countries": "^1.0.2",
     "masonry-layout": "^4.2.2",
     "moment": "^2.22.2",
-    "ol": "^4.6.5",
+    "ol": "^5.0.0",
     "prop-types": "^15.6.2",
     "react": "^16.5.2",
     "react-datetime": "^2.15.0",

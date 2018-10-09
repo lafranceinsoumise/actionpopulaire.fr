@@ -1,9 +1,9 @@
 import fontawesome from 'fontawesome';
-import Control from 'ol/control/control';
+import Control from 'ol/control/Control';
 
 import {element} from './utils';
 
-export default function makeLayerControl(layersConfig) {
+export default function makeLayerControl(layersConfig, drawingFunction) {
   const selectors = layersConfig.map(function (layerConfig) {
     const input = element('input', [], {type: 'checkbox', checked: true});
     const label = element('label', [
@@ -30,7 +30,22 @@ export default function makeLayerControl(layersConfig) {
     layerButton.textContent = layerBox.classList.toggle('visible') ? fontawesome('times') : fontawesome('bars');
   });
 
+  const activeCheckbox = element('input', [], {type: 'checkbox', checked: true});
+  const activeCheckboxLabel = element('label', [
+    activeCheckbox,
+    ' Groupes les plus actifs'
+  ]);
+  activeCheckbox.addEventListener('change', function() {
+    drawingFunction(activeCheckbox.checked);
+  });
+  const layerActiveCheckboxContainer = element(
+    'div', [activeCheckboxLabel],
+    {className: 'ol-unselectable ol-control active_groups_button'}
+  );
+
+
   return [
+    new Control({element: layerActiveCheckboxContainer}),
     new Control({element: layerButtonContainer}),
     new Control({element: layerBox})
   ];

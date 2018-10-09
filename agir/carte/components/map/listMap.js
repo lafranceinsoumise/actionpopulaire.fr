@@ -1,9 +1,9 @@
-import Feature from 'ol/feature';
-import proj from 'ol/proj';
-import VectorSource from 'ol/source/vector';
+import Feature from 'ol/Feature';
+import * as proj from 'ol/proj';
+import VectorSource from 'ol/source/Vector';
 import axios from 'axios/index';
-import Point from 'ol/geom/point';
-import VectorLayer from 'ol/layer/vector';
+import Point from 'ol/geom/Point';
+import VectorLayer from 'ol/layer/Vector';
 
 import {fontIsLoaded, ARROW_SIZE} from './utils';
 import {makeStyle, setUpMap, setUpPopup, fitBounds} from './common';
@@ -36,9 +36,10 @@ function disambiguate(points) {
   }
 }
 
-export default async function listMap(htmlElementId, endpoint, types, subtypes, formatPopup, bounds) {
+export default async function listMap(htmlElementId, {endpoint, type, types, subtypes, formatPopup, bounds}) {
   bounds = bounds || [-5.3, 41.2, 9.6, 51.2];
 
+  // Type filters
   const sources = {}, layers = {}, typeStyles = {};
   for (let type of types) {
     sources[type.id] = new VectorSource();
@@ -50,19 +51,7 @@ export default async function listMap(htmlElementId, endpoint, types, subtypes, 
   fitBounds(map, bounds);
   setUpPopup(map);
 
-  if (types.length > 1) {
-    const [layerControlButton, layerControl] = makeLayerControl(types.map(type => ({
-      label: type.label,
-      color: type.color,
-      layer: layers[type.id]
-    })));
-    layerControlButton.setMap(map);
-    layerControl.setMap(map);
-  }
-
-  const geosearchControl = makeSearchControl(map.getView());
-  map.addControl(geosearchControl);
-
+  // Subtypes
   const subtypeStyles = {}, popupAnchors = {}, sourceForSubtype = {};
   for (let subtype of subtypes) {
     subtypeStyles[subtype.id] = makeStyle(subtype) || typeStyles[subtype.type];
@@ -70,6 +59,39 @@ export default async function listMap(htmlElementId, endpoint, types, subtypes, 
     sourceForSubtype[subtype.id] = sources[subtype.type];
   }
 
+  // Drawing function
+  var draw = function(data, hideInactive) {
+    for (let item of data) {
+      const feature = new Feature({
+        geometry: new Point(proj.fromLonLat(item.coordinates.coordinates)),
+        popupAnchor: (popupAnchors[item.subtype] || -5) - ARROW_SIZE,
+        popupContent: formatPopup(item),
+      });
+      feature.setId(item.id);
+
+      if (item.subtype && subtypeStyles[item.subtype]) {
+        feature.setStyle(subtypeStyles[item.subtype]);
+        if (hideInactive && item.current_events_count === 0) {
+           if (sourceForSubtype[item.subtype].hasFeature(feature)) {
+             sourceForSubtype[item.subtype].removeFeature(sourceForSubtype[item.subtype].getFeatureById(item.id));
+           }
+        } else if (!sourceForSubtype[item.subtype].hasFeature(feature)) {
+          sourceForSubtype[item.subtype].addFeature(feature);
+        }
+      } else {
+        feature.setStyle(typeStyles[item.type]);
+        if (hideInactive && item.current_events_count === 0) {
+          if (sources[item.type].hasFeature(feature)) {
+            sources[item.type].removeFeature(sources[item.type].getFeatureById(item.id));
+          }
+        } else if (!sources[item.type].hasFeature(feature)) {
+          sources[item.type].addFeature(feature);
+        }
+      }
+    }
+  };
+
+  // Data request
   const res = await axios.get(endpoint);
   if (res.status !== 200) {
     return;
@@ -81,21 +103,25 @@ export default async function listMap(htmlElementId, endpoint, types, subtypes, 
     console.log('Error loading fonts.');
   }
 
-
   disambiguate(res.data);
-  for (let item of res.data) {
-    const feature = new Feature({
-      geometry: new Point(proj.fromLonLat(item.coordinates.coordinates)),
-      popupAnchor: (popupAnchors[item.subtype] || -5) - ARROW_SIZE,
-      popupContent: formatPopup(item),
-    });
+  draw(res.data, type === 'groups');
 
-    if (item.subtype && subtypeStyles[item.subtype]) {
-      feature.setStyle(subtypeStyles[item.subtype]);
-      sourceForSubtype[item.subtype].addFeature(feature);
-    } else {
-      feature.setStyle(typeStyles[item.type]);
-      sources[item.type].addFeature(feature);
-    }
+  // Controls
+  const [hideInactiveButton,layerControlButton, layerControl] = makeLayerControl(types.map(type => ({
+      label: type.label,
+      color: type.color,
+      layer: layers[type.id]
+  })), (hideInactive) => draw(res.data, hideInactive));
+
+  if (types.length > 1) {
+    layerControlButton.setMap(map);
+    layerControl.setMap(map);
   }
+
+  if (type === 'groups') {
+    map.addControl(hideInactiveButton);
+  }
+
+  const geosearchControl = makeSearchControl(map.getView());
+  map.addControl(geosearchControl);
 }
