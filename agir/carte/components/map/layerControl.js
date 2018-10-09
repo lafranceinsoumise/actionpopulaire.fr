@@ -33,7 +33,7 @@ export default function makeLayerControl(layersConfig, drawingFunction) {
   const activeCheckbox = element('input', [], {type: 'checkbox', checked: true});
   const activeCheckboxLabel = element('label', [
     activeCheckbox,
-    ' Cacher les groupes peu actifs'
+    ' Groupes les plus actifs'
   ]);
   activeCheckbox.addEventListener('change', function() {
     drawingFunction(activeCheckbox.checked);
