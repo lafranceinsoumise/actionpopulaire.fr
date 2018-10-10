@@ -1,9 +1,12 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.urls import path
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -37,6 +40,31 @@ class MembershipInline(admin.TabularInline):
         return False
 
 
+class GroupHasEventsFilter(admin.SimpleListFilter):
+    title = _('Événements organisés dans les 2 mois précédents ou mois à venir')
+
+    parameter_name = 'is_active'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', _('Oui')),
+            ('no', _('Non')),
+        )
+
+    def queryset(self, request, queryset):
+        queryset = queryset.annotate(current_events_count=Count(
+            'organized_events',
+            filter=Q(
+                organized_events__start_time__range=(timezone.now() - timedelta(days=62), timezone.now() + timedelta(days=31)),
+                organized_events__published=True
+            )
+        ))
+        if self.value() == 'yes':
+            return queryset.exclude(current_events_count=0)
+        if self.value() == 'no':
+            return queryset.filter(current_events_count=0)
+
+
 @admin.register(models.SupportGroup, site=admin_site)
 class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     form = SupportGroupAdminForm
@@ -64,10 +92,12 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     list_display = ('name', 'type', 'published', 'location_short', 'membership_count', 'created', 'referent')
     list_filter = (
-        'type',
         'published',
-        'tags',
+        GroupHasEventsFilter,
+        'coordinates_type',
+        'type',
         'subtypes',
+        'tags',
     )
 
     search_fields = ('name', 'description', 'location_city', 'location_country')

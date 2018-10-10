@@ -171,6 +171,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     'start_time', 'created')
     list_filter = (
         'published',
+        'coordinates_type',
         'subtype__type',
         'subtype',
         'calendars',
