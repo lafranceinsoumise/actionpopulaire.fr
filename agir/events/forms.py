@@ -48,7 +48,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
     image_accept_license = AcceptCreativeCommonsLicenceField()
 
     subtype = forms.ModelChoiceField(
-        queryset=EventSubtype.objects.filter(privileged_only=False),
+        queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
         to_field_name='label',
     )
 

@@ -98,4 +98,4 @@ class MembershipViewSet(ModelViewSet):
 class SupportGroupSubtypeViewSet(ModelViewSet):
     permission_classes = (PermissionsOrReadOnly,)
     serializer_class = serializers.SupportGroupSubtypeSerializer
-    queryset = models.SupportGroupSubtype.objects.exclude(privileged_only=True)
+    queryset = models.SupportGroupSubtype.objects.filter(visibility=models.SupportGroupSubtype.VISIBILITY_ALL)
