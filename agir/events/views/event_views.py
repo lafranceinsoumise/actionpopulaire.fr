@@ -290,10 +290,20 @@ class QuitEventView(SoftLoginRequiredMixin, DeleteView):
 
 
 class CalendarView(ObjectOpengraphMixin, DetailView):
-    template_name = "events/calendar.html"
     model = Calendar
     paginator_class = Paginator
     per_page = 10
+
+    def get(self, request, *args, **kwargs):
+        res = super().get(request, *args, **kwargs)
+        if request.GET.get('iframe'):
+            res.xframe_options_exempt = True
+        return res
+
+    def get_template_names(self):
+        if self.request.GET.get('iframe'):
+            return ['events/calendar_iframe.html']
+        return ['events/calendar.html']
 
     def get_context_data(self, **kwargs):
         # get all ids of calendar that are either the one selected, or children of it
