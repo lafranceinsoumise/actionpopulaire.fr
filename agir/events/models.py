@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.template.defaultfilters import floatformat
@@ -224,9 +225,9 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
             return None
 
         if min_price == max_price:
-            return "{} €".format(floatformat(min_price/100, 2))
+            return "{} €".format(floatformat(min_price / 100, 2))
         else:
-            return "de {} à {} €".format(floatformat(min_price/100, 2), floatformat(max_price/100, 2))
+            return "de {} à {} €".format(floatformat(min_price / 100, 2), floatformat(max_price / 100, 2))
 
     @property
     def is_free(self):
@@ -294,6 +295,8 @@ class Calendar(NationBuilderResource, ImageMixin):
     name = models.CharField(_("titre"), max_length=255)
     slug = models.SlugField(_("slug"))
 
+    parent = models.ForeignKey('Calendar', on_delete=models.SET_NULL, related_name='children',
+                               related_query_name='child', null=True, blank=True)
     events = models.ManyToManyField('Event', related_name='calendars', through='CalendarItem')
 
     user_contributed = models.BooleanField(_('Les utilisateurs peuvent ajouter des événements'), default=False)
@@ -312,10 +315,29 @@ class Calendar(NationBuilderResource, ImageMixin):
     )
 
     class Meta:
-        verbose_name = 'agenda'
+        verbose_name = _('Agenda')
 
     def __str__(self):
         return self.name
+
+    def clean_fields(self, exclude=None):
+        super().clean_fields()
+
+        if exclude is None:
+            exclude = []
+
+        if 'parent' not in exclude:
+            calendar = self
+            for i in range(settings.CALENDAR_MAXIMAL_DEPTH):
+                calendar = calendar.parent
+
+                if calendar is None:
+                    break
+            else:
+                raise ValidationError({
+                    'parent': ValidationError(_("Impossible d'utiliser ce calendrier comme parent :"
+                                                " cela excéderait la profondeur maximale autorisée."))
+                })
 
 
 class CalendarItem(ExportModelOperationsMixin('calendar_item'), TimeStampedModel):
@@ -370,7 +392,7 @@ class RSVP(ExportModelOperationsMixin('rsvp'), TimeStampedModel):
         )
 
         if self.status == RSVP.STATUS_AWAITING_PAYMENT or \
-            any(guest.status == RSVP.STATUS_AWAITING_PAYMENT for guest in self.identified_guests.all()):
+                any(guest.status == RSVP.STATUS_AWAITING_PAYMENT for guest in self.identified_guests.all()):
             info = info + ' paiement(s) en attente'
 
         return info

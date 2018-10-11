@@ -296,7 +296,10 @@ class CalendarView(ObjectOpengraphMixin, DetailView):
     per_page = 10
 
     def get_context_data(self, **kwargs):
-        all_events = self.object.events.upcoming(as_of=timezone.now()).order_by('start_time')
+        # get all ids of calendar that are either the one selected, or children of it
+        calendar_ids = self.get_calendar_ids(self.object.id)
+
+        all_events = Event.objects.upcoming(as_of=timezone.now()).filter(calendar_items__calendar_id__in=calendar_ids).order_by('start_time')
         paginator = self.paginator_class(all_events, self.per_page)
 
         page = self.request.GET.get('page')
@@ -311,6 +314,24 @@ class CalendarView(ObjectOpengraphMixin, DetailView):
             events=events,
             default_event_image=settings.DEFAULT_EVENT_IMAGE,
         )
+
+    @staticmethod
+    def get_calendar_ids(parent_id):
+        ids = Calendar.objects.raw('''
+        WITH RECURSIVE children AS (
+            SELECT id
+            FROM events_calendar
+            WHERE id = %s
+          UNION ALL
+            SELECT c.id
+            FROM events_calendar AS c
+            JOIN children
+            ON c.parent_id = children.id
+        )
+        SELECT id FROM children;
+        ''', [parent_id])
+
+        return list(ids)
 
 
 class ChangeEventLocationView(HardLoginRequiredMixin, PermissionsRequiredMixin, ChangeLocationBaseView):
