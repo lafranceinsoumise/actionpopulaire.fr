@@ -14,6 +14,7 @@
     <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>
     <link rel="apple-touch-icon-precomposed" href="{% static "front/images/cropped-cropped-phi-180x180.png" %}"/>
     <meta name="msapplication-TileImage" content="{% static "front/images/cropped-cropped-phi-270x270.png" %}"/>
+    <base target="_parent">
 </head>
 <body class="home archive">
 <!--[if IE]>
@@ -21,18 +22,20 @@
         Vous utilisez une version obsolète de votre navigateur. Veuillez le  <a href="http://browsehappy.com/">mettre à jour</a> pour visionner votre site correctement.      </div>
     <![endif]-->
 
-    {% if calendar.description %}
-        <div class="intro">
-            {{ calendar.description | safe }}
-        </div>
-    {% endif %}
-
     {% if events %}
+        <h2 style="text-align: center;">{{ calendar.name }}</h2>
+
+        {% if calendar.description %}
+            <div class="intro">
+                {{ calendar.description | safe }}
+            </div>
+        {% endif %}
+
         <div>
             <hr>
             {% for event in events %}
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-xs-3">
                         {% if event.image %}
                             <img src="{{ event.image.thumbnail.url }}" class="img-responsive">
                         {% elif calendar.image %}
@@ -41,7 +44,7 @@
                             <img src="{% static default_event_image %}" class="img-responsive">
                         {% endif %}
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-xs-9">
                         <h4><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h4>
                         <div class="date">{{ event.get_display_date }}</div>
                         <div>{{ event.html_full_address }}</div>
@@ -65,10 +68,7 @@
                 {% endif %}
             </ul>
         </nav>
-    {% else %}
-        <div class="lead text-center">
-            Pas d'événement prévu pour le moment
-        </div>
+
     {% endif %}
 
 </body>
