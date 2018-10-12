@@ -1,0 +1,75 @@
+{% load static %}
+
+{% load render_bundle from webpack_loader %}
+<!doctype html>
+<html lang="fr-FR" prefix="og: http://ogp.me/ns#">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ calendar.name }}</title>
+
+    {% render_bundle 'theme' 'css' attrs='data-turbolinks-track="reload"'%}
+    <link rel="icon" href="{% static "front/images/cropped-cropped-phi-32x32.png" %}" sizes="32x32"/>
+    <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>
+    <link rel="apple-touch-icon-precomposed" href="{% static "front/images/cropped-cropped-phi-180x180.png" %}"/>
+    <meta name="msapplication-TileImage" content="{% static "front/images/cropped-cropped-phi-270x270.png" %}"/>
+</head>
+<body class="home archive">
+<!--[if IE]>
+      <div class="alert alert-warning">
+        Vous utilisez une version obsolète de votre navigateur. Veuillez le  <a href="http://browsehappy.com/">mettre à jour</a> pour visionner votre site correctement.      </div>
+    <![endif]-->
+
+    {% if calendar.description %}
+        <div class="intro">
+            {{ calendar.description | safe }}
+        </div>
+    {% endif %}
+
+    {% if events %}
+        <div>
+            <hr>
+            {% for event in events %}
+                <div class="row">
+                    <div class="col-md-4">
+                        {% if event.image %}
+                            <img src="{{ event.image.thumbnail.url }}" class="img-responsive">
+                        {% elif calendar.image %}
+                            <img src="{{ calendar.image.url }}" class="img-responsive">
+                        {% else %}
+                            <img src="{% static default_event_image %}" class="img-responsive">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h4><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h4>
+                        <div class="date">{{ event.get_display_date }}</div>
+                        <div>{{ event.html_full_address }}</div>
+                    </div>
+                </div>
+                <hr/>
+            {% endfor %}
+        </div>
+
+        <nav>
+            <ul class="pager">
+                {% if events.has_previous %}
+                    <li class="previous">
+                        <a href="?page={{ events.previous_page_number }}">&lt;&lt;</a>
+                    </li>
+                {% endif %}
+                {% if events.has_next %}
+                    <li class="next">
+                        <a href="?page={{ events.next_page_number }}">&gt;&gt;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% else %}
+        <div class="lead text-center">
+            Pas d'événement prévu pour le moment
+        </div>
+    {% endif %}
+
+</body>
+</html>

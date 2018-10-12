@@ -282,8 +282,8 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
 @admin.register(models.Calendar, site=admin_site)
 class CalendarAdmin(admin.ModelAdmin):
-    fields = ('name', 'slug', 'link', 'user_contributed', 'description', 'image')
-    list_display = ('name', 'slug', 'user_contributed')
+    fields = ('name', 'slug', 'link', 'parent', 'user_contributed', 'description', 'image')
+    list_display = ('name', 'slug', 'user_contributed', 'parent')
     readonly_fields = ('link',)
 
     def link(self, object):
