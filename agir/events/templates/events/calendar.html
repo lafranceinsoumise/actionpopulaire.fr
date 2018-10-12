@@ -35,6 +35,9 @@
                         <h4><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h4>
                         <div class="date">{{ event.get_display_date }}</div>
                         <div>{{ event.html_full_address }}</div>
+                        <h6>Ajouter à mon agenda&ensp;
+                          {% include 'events/event_ics.html' with event=event %}
+                        </h6>
                     </div>
                 </div>
                 <hr/>
