@@ -23,7 +23,7 @@
     <![endif]-->
 
     {% if events %}
-        <h2 style="text-align: center;">{{ calendar.name }}</h2>
+        <h2 style="text-align: center; margin: 0 0 20px;">{{ calendar.name }}</h2>
 
         {% if calendar.description %}
             <div class="intro">
@@ -31,7 +31,7 @@
             </div>
         {% endif %}
 
-        <div>
+        <div class="container-fluid">
             <hr>
             {% for event in events %}
                 <div class="row">
