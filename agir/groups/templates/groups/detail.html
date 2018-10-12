@@ -68,14 +68,8 @@
     </div>
 
     <h3>Agenda du groupe
-      <small>S'abonner <a
-          href="{{ FRONT_DOMAIN }}{% url 'ics_group' supportgroup.pk %}"
-          data-toggle="tooltip"
-          title="Pour ajouter l'agenda sur Google Calendar, Outlook ou une autre application,
-faites un clic-droit, puis cliquez sur &laquo;Copier l'adresse du lien&raquo;. Importez l'adresse
-ainsi copiée dans votre application."
-      ><span class="fa fa-calendar"></span></a></small>
-    <script>$(function () {$('[data-toggle="tooltip"]').tooltip()})</script>
+      {% url 'ics_group' supportgroup.pk as calendar_url %}
+      <small>S'abonner {% include 'events/calendar_subscribe_modal.html' with url=calendar_url %}</small>
     </h3>
     <div class="list-group">
         {% for event in supportgroup.organized_events.upcoming %}

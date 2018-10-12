@@ -17,6 +17,7 @@ from django.views.generic.edit import ProcessFormView, FormMixin
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.groups.tasks import send_someone_joined_notification
 from agir.groups.actions.promo_codes import get_next_promo_code
+from agir.lib.utils import front_url
 
 from .forms import SupportGroupForm, AddReferentForm, AddManagerForm, GroupGeocodingForm, SearchGroupForm
 from agir.front.view_mixins import (
@@ -111,7 +112,7 @@ class SupportGroupIcsView(DetailView):
                 uid=str(event.pk),
                 description=event.description,
                 location=event.short_address,
-                url=reverse('view_event', args=[event.pk])
+                url=front_url('view_event', args=[event.pk], auto_login=False)
             ) for event in context['supportgroup'].organized_events.all()
         ])
 
