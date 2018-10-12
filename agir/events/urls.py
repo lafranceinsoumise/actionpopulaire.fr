@@ -21,4 +21,5 @@ urlpatterns = [
     path('evenements/<uuid:pk>/importer-image/', views.UploadEventImageView.as_view(),
         name='upload_event_image'),
     path('agenda/<slug:slug>/', views.CalendarView.as_view(), name='view_calendar'),
+    path('agenda/<slug:slug>/icalendar/', views.CalendarIcsView.as_view(), name='ics_calendar')
 ]

@@ -39,7 +39,6 @@ WantedBy=multi-user.target
 EOT
 sudo systemctl daemon-reload
 sudo systemctl enable mailhog
-sudo systemctl start mailhog
 
 echo "Install Celery..."
 sudo -H pip install celery
@@ -61,8 +60,6 @@ WantedBy=multi-user.target vagrant.mount
 EOT
 sudo systemctl daemon-reload
 sudo systemctl enable celery
-sudo systemctl start celery
-
 
 echo "Install django dev server..."
 sudo add-apt-repository ppa:deadsnakes/ppa
@@ -70,8 +67,8 @@ sudo apt-get -yqq update
 sudo apt-get -yqq install python3.6 python3.6-dev python3-pip libsystemd-dev
 sudo -H pip3 install pipenv
 cd /vagrant
-/urs/local/bin/pipenv install
-/urs/local/bin/pivenv run ./manage.py migrate
+/usr/local/bin/pipenv install
+/usr/local/bin/pipenv run ./manage.py migrate
 sudo bash -c "cat > /etc/systemd/system/django.service" <<EOT
 [Unit]
 Description=Django Development Server
@@ -90,11 +87,12 @@ WantedBy=multi-user.target vagrant.mount
 EOT
 sudo systemctl daemon-reload
 sudo systemctl enable django
-sudo systemctl start django
 
 echo "Install node..."
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - >> /dev/null 2>&1
+curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - >> /dev/null 2>&1
 sudo apt-get -yqq install nodejs
+cd /vagrant
+/usr/local/bin/pipenv run npm install
 sudo bash -c "cat > /etc/systemd/system/webpack.service" <<EOT
 [Unit]
 Description=Webpack Development Server
@@ -114,31 +112,9 @@ WantedBy=multi-user.target vagrant.mount
 EOT
 sudo systemctl daemon-reload
 sudo systemctl enable webpack
+
+
+sudo systemctl start django
+sudo systemctl start celery
+sudo systemctl start mailhog
 sudo systemctl start webpack
-
-echo "Install oauth..."
-cd /opt
-sudo apt-get -yqq install git
-sudo git clone https://github.com/lafranceinsoumise/oauth.git || (cd oauth; sudo git pull)
-cd /opt/oauth
-sudo npm install
-sudo bash -c "cat > /etc/systemd/system/oauth.service" <<EOT
-[Unit]
-Description=Oauth server
-After=syslog.target network.target
-
-[Service]
-User=vagrant
-Type=simple
-WorkingDirectory=/opt/oauth
-EnvironmentFile=/opt/oauth/envfile.sample
-ExecStart=/usr/bin/npm run start
-StandardOutput=journal
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-EOT
-sudo systemctl daemon-reload
-sudo systemctl enable oauth
-sudo systemctl start oauth

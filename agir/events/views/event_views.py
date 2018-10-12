@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.html import format_html, mark_safe
 from django.utils.translation import ugettext as _
 
+from agir.lib.utils import front_url
 from ..models import Event, RSVP, Calendar, EventSubtype
 from ..tasks import send_cancellation_notification
 
@@ -27,8 +28,8 @@ from agir.authentication.view_mixins import HardLoginRequiredMixin, PermissionsR
 
 __all__ = [
     'CreateEventView', 'ManageEventView', 'ModifyEventView', 'QuitEventView', 'CancelEventView',
-    'EventDetailView', 'EventIcsView','CalendarView', 'ChangeEventLocationView', 'EditEventReportView',
-    'UploadEventImageView', 'EventListView', 'PerformCreateEventView'
+    'EventDetailView', 'EventIcsView','CalendarView', 'CalendarIcsView', 'ChangeEventLocationView',
+    'EditEventReportView', 'UploadEventImageView', 'EventListView', 'PerformCreateEventView'
 ]
 
 
@@ -72,7 +73,7 @@ class EventIcsView(DetailView):
             uid=str(context['event'].pk),
             description=context['event'].description,
             location=context['event'].short_address,
-            url=reverse('view_event', args=[context['event'].pk])
+            url=front_url('view_event', args=[context['event'].pk], auto_login=False)
         )])
 
         return HttpResponse(ics_calendar, content_type="text/calendar")
@@ -342,6 +343,25 @@ class CalendarView(ObjectOpengraphMixin, DetailView):
         ''', [parent_id])
 
         return list(ids)
+
+
+class CalendarIcsView(DetailView):
+    model = Calendar
+
+    def render_to_response(self, context, **response_kwargs):
+        calendar = ics.Calendar(events=[
+            ics.event.Event(
+                name=event.name,
+                begin=event.start_time,
+                end=event.end_time,
+                uid=str(event.pk),
+                description=event.description,
+                location=event.short_address,
+                url=front_url('view_event', args=[event.pk], auto_login=False)
+            ) for event in self.object.events.all()
+        ])
+
+        return HttpResponse(calendar, content_type="text/calendar")
 
 
 class ChangeEventLocationView(HardLoginRequiredMixin, PermissionsRequiredMixin, ChangeLocationBaseView):

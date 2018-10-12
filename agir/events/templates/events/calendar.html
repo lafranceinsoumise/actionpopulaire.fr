@@ -8,7 +8,8 @@
         <img src="{{ calendar.image.url }}" class="img-responsive center-block">
     {% endif %}
 
-    <h2>{{ calendar.name }}</h2>
+    {% url 'ics_calendar' calendar.slug as calendar_url %}
+    <h2>{{ calendar.name }} <small>S'abonner {% include 'events/calendar_subscribe_modal.html' with url=calendar_url %}</small></h2>
 
     {% if calendar.description %}
         <div class="intro">
@@ -34,6 +35,9 @@
                         <h4><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h4>
                         <div class="date">{{ event.get_display_date }}</div>
                         <div>{{ event.html_full_address }}</div>
+                        <h6>Ajouter à mon agenda&ensp;
+                          {% include 'events/event_ics.html' with event=event %}
+                        </h6>
                     </div>
                 </div>
                 <hr/>
