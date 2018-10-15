@@ -173,7 +173,7 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
         try:
             return self._participants
         except AttributeError:
-            return self.rsvps.aggregate(participants=models.Sum(models.F('guests') + 1))['participants']
+            return self.rsvps.aggregate(participants=models.Sum(models.F('guests') + 1))['participants'] or 0
 
     @property
     def type(self):
