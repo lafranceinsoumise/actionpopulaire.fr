@@ -72,7 +72,7 @@ cd /vagrant
 sudo bash -c "cat > /etc/systemd/system/django.service" <<EOT
 [Unit]
 Description=Django Development Server
-After=syslog.target network.target webpack.service vagrant.mount
+After=webpack.service
 
 [Service]
 User=vagrant
@@ -83,7 +83,7 @@ StandardOutput=journal
 Restart=on-failure
 
 [Install]
-WantedBy=multi-user.target vagrant.mount
+WantedBy=vagrant.mount
 EOT
 sudo systemctl daemon-reload
 sudo systemctl enable django
@@ -96,7 +96,6 @@ cd /vagrant
 sudo bash -c "cat > /etc/systemd/system/webpack.service" <<EOT
 [Unit]
 Description=Webpack Development Server
-After=syslog.target network.target vagrant.mount
 
 [Service]
 User=vagrant
@@ -108,7 +107,7 @@ Restart=on-failure
 Wants=vagrant.mount
 
 [Install]
-WantedBy=multi-user.target vagrant.mount
+WantedBy=vagrant.mount
 EOT
 sudo systemctl daemon-reload
 sudo systemctl enable webpack
