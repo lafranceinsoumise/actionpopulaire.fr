@@ -1,8 +1,8 @@
-import Feature from 'ol';
-import proj from 'ol';
-import VectorSource from 'ol/source';
-import Point from 'ol/geom';
-import VectorLayer from 'ol/layer';
+import Feature from 'ol/Feature';
+import * as proj from 'ol/proj';
+import VectorSource from 'ol/source/Vector';
+import Point from 'ol/geom/Point';
+import VectorLayer from 'ol/layer/Vector';
 
 import {fontIsLoaded} from './utils';
 import {makeStyle, setUpMap} from './common';
