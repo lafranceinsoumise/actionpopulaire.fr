@@ -311,7 +311,7 @@ class CalendarView(ObjectOpengraphMixin, DetailView):
         calendar_ids = self.get_calendar_ids(self.object.id)
 
         all_events = Event.objects.upcoming(as_of=timezone.now()).filter(calendar_items__calendar_id__in=calendar_ids) \
-            .distinct('id').order_by('start_time')
+            .order_by('start_time', 'id').distinct('start_time', 'id')
         paginator = self.paginator_class(all_events, self.per_page)
 
         page = self.request.GET.get('page')
