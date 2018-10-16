@@ -22,14 +22,15 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
         try:
             return self.get_queryset().get(slug=self.kwargs['slug'])
         except PersonForm.DoesNotExist:
-            raise Http404("Formulaire does not exist")
+            raise Http404("Ce formulaire n'existe pas.")
 
     def get_form_class(self):
         return get_people_form_class(self.person_form_instance)
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            person_form=self.person_form_instance
+            person_form=self.person_form_instance,
+            is_authorized=self.person_form_instance.is_authorized(self.object)
         )
 
     def get(self, request, *args, **kwargs):
@@ -38,7 +39,8 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         self.person_form_instance = self.get_person_form_instance()
-        if not self.person_form_instance.is_open:
+        if not self.person_form_instance.is_open or \
+                not self.person_form_instance.is_authorized(self.request.user.person):
             return self.get(request, *args, **kwargs)
         return super().post(request, *args, **kwargs)
 

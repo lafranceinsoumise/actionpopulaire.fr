@@ -1,0 +1,227 @@
+from unittest import mock
+
+from django.test import TestCase
+from django.utils import timezone
+
+from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
+
+
+class SetUpPersonFormsMixin:
+    def setUp(self):
+        self.person = Person.objects.create_person('person@corp.com')
+        self.person.meta['custom-person-field'] = 'Valeur méta préexistante'
+        self.person.save()
+        self.tag1 = PersonTag.objects.create(label='tag1', description='Description TAG1')
+        self.tag2 = PersonTag.objects.create(label='tag2', description='Description TAG2')
+
+        self.single_tag_form = PersonForm.objects.create(
+            title='Formulaire simple',
+            slug='formulaire-simple',
+            description='Ma description simple',
+            confirmation_note='Ma note de fin',
+            main_question='QUESTION PRINCIPALE',
+            send_answers_to='test@example.com',
+            send_confirmation=True,
+            custom_fields=[{
+                'title': 'Profil',
+                'fields': [{
+                    'id': 'contact_phone',
+                    'person_field': True
+                }]
+            }],
+        )
+        self.single_tag_form.tags.add(self.tag1)
+
+        self.complex_form = PersonForm.objects.create(
+            title='Formulaire complexe',
+            slug='formulaire-complexe',
+            description='Ma description complexe',
+            confirmation_note='Ma note de fin',
+            main_question='QUESTION PRINCIPALE',
+            custom_fields=[{
+                'title': 'Détails',
+                'fields': [
+                    {
+                        'id': 'custom-field',
+                        'type': 'short_text',
+                        'label': 'Mon label'
+                    },
+                    {
+                        'id': 'custom-person-field',
+                        'type': 'short_text',
+                        'label': 'Prout',
+                        'person_field': True
+                    },
+                    {
+                        'id': 'contact_phone',
+                        'person_field': True
+                    }
+                ]
+            }]
+        )
+        self.complex_form.tags.add(self.tag1)
+        self.complex_form.tags.add(self.tag2)
+
+        self.client.force_login(self.person.role)
+
+
+
+class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
+    def test_flatten_fields_property(self):
+        self.assertEqual(self.complex_form.fields_dict, {
+            'custom-field': {
+                'id': 'custom-field',
+                'type': 'short_text',
+                'label': 'Mon label'
+            },
+            'custom-person-field': {
+                'id': 'custom-person-field',
+                'type': 'short_text',
+                'label': 'Prout',
+                'person_field': True
+            },
+            'contact_phone': {
+                'id': 'contact_phone',
+                'person_field': True
+            }
+        })
+
+    def test_title_and_description(self):
+        res = self.client.get('/formulaires/formulaire-simple/')
+
+        # Contient le titre et la description
+        self.assertContains(res, self.single_tag_form.title)
+        self.assertContains(res, self.single_tag_form.description)
+
+        res = self.client.get('/formulaires/formulaire-simple/confirmation/')
+        self.assertContains(res, self.single_tag_form.title)
+        self.assertContains(res, self.single_tag_form.confirmation_note)
+
+    @mock.patch('agir.people.tasks.send_person_form_confirmation')
+    @mock.patch('agir.people.tasks.send_person_form_notification')
+    def test_can_validate_simple_form(self, send_confirmation, send_notification):
+        res = self.client.get('/formulaires/formulaire-simple/')
+
+        # contains phone number field
+        self.assertContains(res, 'contact_phone')
+
+        # check contact phone is compulsory
+        res = self.client.post('/formulaires/formulaire-simple/', data={})
+        self.assertContains(res, 'has-error')
+
+        # check can validate
+        res = self.client.post('/formulaires/formulaire-simple/', data={'contact_phone': '06 04 03 02 04'})
+        self.assertRedirects(res, '/formulaires/formulaire-simple/confirmation/')
+
+        # check user has been well modified
+        self.person.refresh_from_db()
+
+        self.assertEqual(self.person.contact_phone, '+33604030204')
+        self.assertIn(self.tag1, self.person.tags.all())
+
+        submissions = PersonFormSubmission.objects.all()
+        self.assertEqual(len(submissions), 1)
+        self.assertEqual(submissions[0].data['contact_phone'], '+33604030204')
+
+        send_confirmation.delay.assert_called_once()
+        send_notification.delay.assert_called_once()
+
+    def test_can_validate_complex_form(self):
+        res = self.client.get('/formulaires/formulaire-complexe/')
+
+        self.assertContains(res, 'contact_phone')
+        self.assertContains(res, 'custom-field')
+        self.assertContains(res, 'Valeur méta préexistante')
+
+        # assert tag is compulsory
+        res = self.client.post('/formulaires/formulaire-complexe/', data={
+            'contact_phone': '06 34 56 78 90',
+            'custom-field': 'Mon super champ texte libre'
+        })
+        self.assertContains(res, 'has-error')
+
+        res = self.client.post('/formulaires/formulaire-complexe/', data={
+            'tag': 'tag2',
+            'contact_phone': '06 34 56 78 90',
+            'custom-field': 'Mon super champ texte libre',
+            'custom-person-field': 'Mon super champ texte libre à mettre dans Person.metas'
+        })
+        self.assertRedirects(res, '/formulaires/formulaire-complexe/confirmation/')
+
+        self.person.refresh_from_db()
+
+        self.assertCountEqual(self.person.tags.all(), [self.tag2])
+        self.assertEqual(self.person.meta['custom-person-field'],
+                         'Mon super champ texte libre à mettre dans Person.metas')
+
+        submissions = PersonFormSubmission.objects.all()
+        self.assertEqual(len(submissions), 1)
+
+        self.assertEqual(submissions[0].data['custom-field'], 'Mon super champ texte libre')
+        self.assertEqual(submissions[0].data['custom-person-field'],
+                         'Mon super champ texte libre à mettre dans Person.metas')
+
+
+class AccessControlTestCase(SetUpPersonFormsMixin, TestCase):
+    def test_cannot_view_closed_forms(self):
+        self.complex_form.end_time = timezone.now() - timezone.timedelta(days=1)
+        self.complex_form.save()
+
+        res = self.client.get('/formulaires/formulaire-complexe/')
+        self.assertContains(res, "Ce formulaire est maintenant fermé.")
+
+    def test_cannot_post_on_closed_forms(self):
+        self.complex_form.end_time = timezone.now() - timezone.timedelta(days=1)
+        self.complex_form.save()
+
+        res = self.client.post('/formulaires/formulaire-complexe/', data={
+            'tag': 'tag2',
+            'contact_phone': '06 34 56 78 90',
+            'custom-field': 'Mon super champ texte libre',
+            'custom-person-field': 'Mon super champ texte libre à mettre dans Person.metas'
+        })
+        self.assertContains(res, "Ce formulaire est maintenant fermé.")
+
+    def test_cannot_view_yet_to_open_forms(self):
+        self.complex_form.start_time = timezone.now() + timezone.timedelta(days=1)
+        self.complex_form.before_message = 'SENTINEL'
+        self.complex_form.save()
+
+        res = self.client.get('/formulaires/formulaire-complexe/')
+        self.assertContains(res, 'SENTINEL')
+
+    def test_cannot_post_on_yet_to_open_forms(self):
+        self.complex_form.start_time = timezone.now() + timezone.timedelta(days=1)
+        self.complex_form.before_message = 'SENTINEL'
+        self.complex_form.save()
+
+        res = self.client.post('/formulaires/formulaire-complexe/', data={
+            'tag': 'tag2',
+            'contact_phone': '06 34 56 78 90',
+            'custom-field': 'Mon super champ texte libre',
+            'custom-person-field': 'Mon super champ texte libre à mettre dans Person.metas'
+        })
+        self.assertContains(res, 'SENTINEL')
+
+    def test_can_access_restricted_form_with_tag(self):
+        self.single_tag_form.required_tags.add(self.tag2)
+        self.single_tag_form.unauthorized_message = 'SENTINEL'
+        self.single_tag_form.save()
+        self.person.tags.add(self.tag2)
+
+        res = self.client.get('/formulaires/formulaire-simple/')
+        self.assertNotContains(res, 'SENTINEL')
+
+        res = self.client.post('/formulaires/formulaire-simple/', {'contact_phone': '06 23 45 67 89'})
+        self.assertRedirects(res, '/formulaires/formulaire-simple/confirmation/')
+
+    def test_cannot_access_restricted_form_without_tag(self):
+        self.single_tag_form.required_tags.add(self.tag2)
+        self.single_tag_form.unauthorized_message = 'SENTINEL'
+        self.single_tag_form.save()
+
+        res = self.client.get('/formulaires/formulaire-simple/')
+        self.assertContains(res, 'SENTINEL')
+
+        res = self.client.post('/formulaires/formulaire-simple/', {'contact_phone': '06 23 45 67 89'})
+        self.assertEqual(res.status_code, 200)

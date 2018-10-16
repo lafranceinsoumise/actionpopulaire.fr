@@ -22,17 +22,23 @@
 {% endblock %}
 
 {% block main %}
-    <div class="row"><div class="col-responsive">
-        <h2 class="headline">{{ person_form.title }}</h2>
-        {% if person_form.is_open %}
-            <div class="intro">
-                {{ person_form.html_description }}
-            </div>
-            {% crispy form %}
-        {% else %}
-            <div class="intro">
-                {{ person_form.html_closed_message }}
-            </div>
-        {% endif %}
-    </div></div>
+    <div class="row">
+        <div class="col-responsive">
+            <h2 class="headline">{{ person_form.title }}</h2>
+            {% if not is_authorized %}
+                <div class="intro">
+                    {{ person_form.html_unauthorized_message }}
+                </div>
+            {% elif  person_form.is_open %}
+                <div class="intro">
+                    {{ person_form.html_description }}
+                </div>
+                {% crispy form %}
+            {% else %}
+                <div class="intro">
+                    {{ person_form.html_closed_message }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
