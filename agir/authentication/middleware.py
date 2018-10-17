@@ -1,4 +1,5 @@
-from django.conf import settings
+from datetime import datetime
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
@@ -6,10 +7,8 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext as _
 
-from agir.authentication.models import Role
 
-
-class MailLinkMiddleware():
+class MailLinkMiddleware:
     @staticmethod
     def get_message_string(user):
         return format_html(
@@ -44,6 +43,7 @@ class MailLinkMiddleware():
         # case where user is being authenticated ==> we show a message but only with info level
         elif user:
             login(request, user)
+            request.session['login_action'] = datetime.utcnow().timestamp()
             messages.add_message(
                 request=request,
                 level=messages.INFO,

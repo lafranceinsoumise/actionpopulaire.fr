@@ -95,6 +95,17 @@
                         {% endif %}
                     {% endif %}
                 {% endif %}
+            {% elif event.subtype.allow_external %}
+                  <form class="form-inline" method="post" action="{% url 'external_rsvp_event' event.pk %}">
+                    {% csrf_token %}
+                    <div class="input-group">
+                      <input type="email" name="email" class="form-control" placeholder="email@exemple.fr">
+                      <span class="input-group-btn">
+                        <button class="btn btn-primary" type="submit">Participer à cet événement <i class="fa fa-check"></i></button>
+                      </span>
+                    </div>
+                  </form>
+                  <p class="help-block"><small>Votre adresse email sera communiquée à l'organisateur⋅rice.</small></p>
             {% else %}
                 <a class="btn btn-primary" title="Connexion" href="{% url "short_code_login" %}?next={{ request.get_full_path|urlencode }}">Se connecter pour
                     participer à l'événement</a>

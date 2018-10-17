@@ -2,10 +2,12 @@ from collections import OrderedDict
 
 from celery import shared_task
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
+from agir.people.models import Person
 from ..lib.utils import front_url
 from ..people.actions.mailing import send_mosaico_email
 from .models import Event, RSVP, OrganizerConfig
@@ -186,5 +188,27 @@ def send_cancellation_notification(event_pk):
         subject=_("Un événement auquel vous participiez a été annulé"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
+        bindings=bindings
+    )
+
+
+@shared_task
+def send_external_rsvp_optin(event_pk, person_pk):
+    try:
+        event = Event.objects.get(pk=event_pk)
+        person = Person.objects.get(pk=person_pk)
+    except ObjectDoesNotExist:
+        return
+
+    bindings = {
+        'EVENT_NAME': event.name,
+        'RSVP_LINK': front_url('external_rsvp_event', args=[event.pk])
+    }
+
+    send_mosaico_email(
+        code='EVENT_EXTERNAL_RSVP_OPTIN',
+        subject=_("Merci de confirmer votre participation à l'événement"),
+        from_email=settings.EMAIL_FROM,
+        recipients=[person],
         bindings=bindings
     )
