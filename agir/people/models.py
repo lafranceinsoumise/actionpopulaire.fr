@@ -92,6 +92,12 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         """
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
+
+        if not extra_fields.get('is_insoumise', True):
+            extra_fields.setdefault('subscribed', False)
+            extra_fields.setdefault('event_notifications', False)
+            extra_fields.setdefault('group_notifications', False)
+
         return self._create_person(email, password, **extra_fields)
 
     def create_superperson(self, email, password, **extra_fields):
@@ -127,6 +133,8 @@ class Person(ExportModelOperationsMixin('person'), BaseAPIResource, NationBuilde
     objects = PersonManager()
 
     role = models.OneToOneField('authentication.Role', on_delete=models.PROTECT, related_name='person')
+
+    is_insoumise = models.BooleanField(_("Insoumis⋅e"), default=True)
 
     subscribed = models.BooleanField(
         _("Recevoir les lettres d'information"),

@@ -22,32 +22,27 @@ from agir.people.models import PersonTag, Person, PersonEmail, PersonValidationS
 logger = logging.getLogger(__name__)
 
 
-class MessagePreferencesForm(TagMixin, forms.ModelForm):
-    tags = [('newsletter_efi', _("Recevoir les informations liées aux cours de l'École de Formation insoumise"))]
-    tag_model_class = PersonTag
-
+class PreferencesFormMixin(forms.ModelForm):
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data=data, *args, **kwargs)
 
-        self.no_mail = data is not None and 'no_mail' in data
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.layout = Layout(*self.get_fields())
 
-        self.fields['gender'].help_text = _("La participation aux tirages au sort étant paritaire, merci d'indiquer"
-                                            " votre genre si vous souhaitez être tirés au sort.")
-        self.fields['newsletter_efi'].help_text = _('Je recevrai notamment des infos et des rappels sur les cours '
-                                                    'à venir.')
-
+    def get_fields(self, fields=None):
         emails = self.instance.emails.all()
         self.several_mails = len(emails) > 1
 
-        fields = []
+        fields = fields or []
 
         block_template = """
-            <label class="control-label">{label}</label>
-            <div class="controls">
-              <div>{value}</div>
-              <p class="help-block">{help_text}</p>
-            </div>
-        """
+                    <label class="control-label">{label}</label>
+                    <div class="controls">
+                      <div>{value}</div>
+                      <p class="help-block">{help_text}</p>
+                    </div>
+                """
 
         email_management_block = HTML(format_html(
             block_template,
@@ -112,7 +107,7 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
                 )
             ))
 
-        fields.extend([
+        fields.append(
             Fieldset(
                 _("Mon numéro de téléphone"),
                 Row(
@@ -120,6 +115,60 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
                     HalfCol(validation_block)
                 )
             ),
+        )
+
+        return fields
+
+    def _save_m2m(self):
+        """Reorder addresses so that the selected one is number one"""
+        super()._save_m2m()
+        if 'primary_email' in self.cleaned_data:
+            self.instance.set_primary_email(self.cleaned_data['primary_email'])
+
+    class Meta:
+        model = Person
+        fields = ['contact_phone']
+
+
+class ExternalPersonPreferencesForm(PreferencesFormMixin):
+    is_insoumise = forms.BooleanField(required=False, label=_(
+        "Je souhaite rejoindre la France insoumise"), help_text=_(
+        "Cette action transformera votre compte de manière à vous permettre d'utiliser"
+        " toutes les fonctionnalités de la plateforme. Vous recevrez les lettres d'information, et vous pourrez "
+        "participer à la vie du mouvement."))
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data['is_insoumise']:
+            cleaned_data['subscribed'] = True
+            cleaned_data['group_notifications'] = True
+            cleaned_data['event_notifications'] = True
+
+    def get_fields(self, fields=None):
+        fields = super().get_fields()
+        fields.append(FormActions(Submit('submit', 'Sauvegarder mes préférences')))
+        fields.extend([
+            Fieldset(
+                _("Rejoindre la France insoumise"),
+                'is_insoumise',
+                FormActions(Submit('submit', 'Valider'))
+            )
+        ])
+
+        return fields
+
+    class Meta(PreferencesFormMixin.Meta):
+        fields = ['contact_phone', 'is_insoumise']
+
+
+class InsoumisePreferencesForm(TagMixin, PreferencesFormMixin):
+    tags = [('newsletter_efi', _("Recevoir les informations liées aux cours de l'École de Formation insoumise"))]
+    tag_model_class = PersonTag
+
+    def get_fields(self, fields=None):
+        fields = super().get_fields()
+        fields.extend([
             Fieldset(
                 _("Préférences d'emails"),
                 'subscribed',
@@ -130,6 +179,10 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
                 'group_notifications',
                 'event_notifications',
             ),
+            FormActions(
+                Submit('no_mail', 'Ne plus recevoir d\'emails du tout', css_class='btn-danger'),
+                css_class='text-right'
+            ),
             Fieldset(
                 _("Ma participation"),
                 Row(
@@ -137,15 +190,21 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
                     HalfCol('gender'),
                 )
             ),
-            FormActions(
-                Submit('submit', 'Sauvegarder mes préférences'),
-                Submit('no_mail', 'Ne plus recevoir de mails du tout', css_class='btn-danger')
-            )
         ])
 
-        self.helper = FormHelper()
-        self.helper.form_method = 'POST'
-        self.helper.layout = Layout(*fields)
+        fields.append(FormActions(Submit('submit', 'Sauvegarder mes préférences')))
+
+        return fields
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data=data, *args, **kwargs)
+
+        self.no_mail = data is not None and 'no_mail' in data
+
+        self.fields['gender'].help_text = _("La participation aux tirages au sort étant paritaire, merci d'indiquer"
+                                            " votre genre si vous souhaitez être tirés au sort.")
+        self.fields['newsletter_efi'].help_text = _('Je recevrai notamment des infos et des rappels sur les cours '
+                                                    'à venir.')
 
     def clean(self):
         cleaned_data = super().clean()
@@ -164,14 +223,7 @@ class MessagePreferencesForm(TagMixin, forms.ModelForm):
 
         return cleaned_data
 
-    def _save_m2m(self):
-        """Reorder addresses so that the selected one is number one"""
-        super()._save_m2m()
-        if 'primary_email' in self.cleaned_data:
-            self.instance.set_primary_email(self.cleaned_data['primary_email'])
-
-    class Meta:
-        model = Person
+    class Meta(PreferencesFormMixin.Meta):
         fields = ['subscribed', 'group_notifications', 'event_notifications', 'draw_participation', 'gender',
                   'contact_phone']
 
