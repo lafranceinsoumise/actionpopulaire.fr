@@ -45,15 +45,11 @@ class EventQuerySet(models.QuerySet):
             condition &= models.Q(published=True)
         return self.filter(condition)
 
-
-class EventManager(models.Manager):
-    def get_queryset(self):
-        qs = EventQuerySet(self.model, using=self._db)
-
+    def with_participants(self):
         confirmed_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CONFIRMED)
         confirmed_rsvps = Q(rsvps__status=RSVP.STATUS_CONFIRMED)
 
-        qs = qs \
+        return self \
             .annotate(all_attendee_count=Case(
                 When(subscription_form=None, then=Coalesce(Sum('rsvps__guests') + Count('rsvps'), 0)),
                 default=Coalesce(Count('rsvps__identified_guests') + Count('rsvps'), 0),
@@ -68,17 +64,6 @@ class EventManager(models.Manager):
                 default=Coalesce(Count('rsvps__identified_guests', filter=confirmed_guests) + Count('rsvps', filter=confirmed_rsvps), 0),
                 output_field=CharField()
             ))
-
-        return qs
-
-    def published(self, *args, **kwargs):
-        return self.get_queryset().published(*args, **kwargs)
-
-    def upcoming(self, *args, **kwargs):
-        return self.get_queryset().upcoming(*args, **kwargs)
-
-    def past(self, *args, **kwargs):
-        return self.get_queryset().past(*args, **kwargs)
 
 
 class RSVPQuerySet(models.QuerySet):
@@ -125,7 +110,7 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
     """
     Model that represents an event
     """
-    objects = EventManager()
+    objects = EventQuerySet.as_manager()
 
     name = models.CharField(
         _("nom"),

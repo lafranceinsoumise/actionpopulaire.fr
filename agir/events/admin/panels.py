@@ -184,6 +184,9 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     actions = (actions.export_events, actions.make_published, actions.unpublish)
 
+    def get_queryset(self, request):
+        return Event.objects.with_participants()
+
     def location_short(self, object):
         return _('{zip} {city}, {country}').format(
             zip=object.location_zip,
