@@ -169,6 +169,12 @@ class EventTypeStep extends FormStep {
             {' '}
             <a href="https://lafranceinsoumise.fr/groupes-appui/inviter-des-intervenants/">Suivez le mode d'emploi.</a>
           </p>
+          <div className="alert alert-warning">
+            <p> Attention&nbsp;! Si vous engagez des frais pour l'organisation ou la promotion de votre événement,
+              vous devez respecter des contraintes légales.</p>
+            <p> <a href="https://lafranceinsoumise.fr/groupes-appui/foire-aux-questions/obligations-financement/">
+              &rarr; Lire la note juridique.</a></p>
+          </div>
         </div>
         <div className="col-sm-6 padbottom">
           <h3>Je veux créer...</h3>
