@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView, DetailView, RedirectView
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
-from agir.payments.actions import redirect_to_payment, create_payment
+from agir.payments.actions import redirect_to_payment
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PAYMENT_MODES
 from agir.people.models import PersonFormSubmission
@@ -51,25 +51,41 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
 
         return form_class(**kwargs)
 
+    def can_post_form(self):
+        person_form = self.event.subscription_form
+        person = self.request.user.person
+
+        return not person_form or (person_form.is_open and person_form.is_authorized(person))
+
     def get_context_data(self, **kwargs):
-        rsvp = None
-        if self.request.user.is_authenticated:
+        if 'rsvp' not in kwargs:
             try:
-                rsvp = RSVP.objects.get(event=self.event, person=self.request.user.person)
+                kwargs['rsvp'] = RSVP.objects.get(event=self.event, person=self.request.user.person)
             except RSVP.DoesNotExist:
                 pass
 
-        form = self.get_form()
+        if 'can_post_form' not in kwargs:
+            kwargs['can_post_form'] = self.can_post_form()
+
+        kwargs = {
+            'person_form_instance': self.event.subscription_form,
+            'event': self.event,
+            'submission_data': get_formatted_submission(kwargs['rsvp'].form_submission)
+                if 'rsvp' in kwargs and kwargs['rsvp'].form_submission else None,
+            'guests_submission_data': [
+                (guest.get_status_display(), get_formatted_submission(guest.submission) if guest.submission else [])
+                for guest in kwargs['rsvp'].identified_guests.select_related('submission')
+            ] if 'rsvp' in kwargs else None,
+            **kwargs
+        }
+
+        # we add a form when user is allowed AND either not subscribed, or allowed to add guests
+        will_add_form = kwargs['can_post_form'] and ('rsvp' not in kwargs or self.event.allow_guests)
+
+        if 'form' not in kwargs and will_add_form:
+            kwargs['form'] = self.get_form()
 
         return super().get_context_data(
-            form=form,
-            event=self.event,
-            rsvp=rsvp,
-            submission_data=get_formatted_submission(rsvp.form_submission) if rsvp and rsvp.form_submission else None,
-            guests_submission_data=[
-                (guest.get_status_display(), get_formatted_submission(guest.submission) if guest.submission else [])
-                for guest in rsvp.identified_guests.select_related('submission')
-            ] if rsvp else None,
             **kwargs
         )
 
@@ -83,6 +99,10 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
 
     def post(self, request, *args, **kwargs):
         self.event = self.object = self.get_object()
+
+        if not self.can_post_form():
+            context = self.get_context_data(object=self.event, can_post_form=False)
+            return self.render_to_response(context)
 
         if self.user_is_already_rsvped:
             return self.handle_adding_guests()
@@ -106,7 +126,7 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
             form = self.get_form()
 
             if not form.is_valid():
-                context = self.get_context_data(object=self.event)
+                context = self.get_context_data(object=self.event, form=form)
                 return self.render_to_response(context)
 
             if form.cleaned_data['is_guest']:

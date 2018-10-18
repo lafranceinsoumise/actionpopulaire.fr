@@ -240,7 +240,7 @@ def set_guest_number(event, person, guests):
         additional_guests = max(guests - rsvp.guests, 0)
         _ensure_can_rsvp(event, additional_guests)
 
-        if not event.allow_guests:
+        if additional_guests and not event.allow_guests:
             raise RSVPException(MESSAGES['forbidden_to_add_guest'])
 
         rsvp.guests = guests
