@@ -11,10 +11,12 @@
     {% if bookmarked_emails %}
         <form method="post">
         {% csrf_token %}
-        <label>Je me connecte avec une adresse précédemment utilisée</label>
+        <label>Je me connecte avec une adresse précédemment utilisée&nbsp;</label>
         <div>
         {% for email in bookmarked_emails %}
+          <p>
             <button type="submit" class="btn btn-default" name="email" value="{{ email }}">{{ email }}</button>
+          </p>
         {% endfor %}
         </div>
         </form>

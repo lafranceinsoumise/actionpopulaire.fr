@@ -30,8 +30,7 @@ def get_bookmarked_emails(request):
 
 
 def bookmark_email(email, request, response):
-    domain = '.'.join(request.META.get('HTTP_HOST', '').split('.')[-2:])
-
+    domain = '.'.join(request.META.get('HTTP_HOST', '').split(':')[0].split('.')[-2:])
     emails = get_bookmarked_emails(request)
 
     if email in emails:
@@ -39,7 +38,7 @@ def bookmark_email(email, request, response):
 
     emails.insert(0, email)
 
-    response.set_cookie('knownEmails', value=','.join(emails[0:4]), max_age=365, domain=domain, secure=True,
+    response.set_cookie('knownEmails', value=','.join(emails[0:4]), max_age=365 * 24 * 3600, domain=domain, secure=not settings.DEBUG,
                         httponly=True)
 
     return response
