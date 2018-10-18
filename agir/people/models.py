@@ -425,7 +425,7 @@ class PersonForm(TimeStampedModel):
     before_message = DescriptionField(
         _("Note avant ouverture"),
         allowed_tags=settings.ADMIN_ALLOWED_TAGS,
-        help_text=(
+        help_text=_(
             "Note montrée à l'utilisateur qui essaye d'accéder au formulaire avant son ouverture."
         ),
         blank=True
@@ -434,15 +434,29 @@ class PersonForm(TimeStampedModel):
     after_message = DescriptionField(
         _("Note de fermeture"),
         allowed_tags=settings.ADMIN_ALLOWED_TAGS,
-        help_text=(
+        help_text=_(
             "Note montrée à l'utilisateur qui essaye d'accéder au formulaire après sa date de fermeture."
         ),
         blank=True
     )
 
+    required_tags = models.ManyToManyField(
+        'PersonTag', related_name='authorized_forms', related_query_name='authorized_form'
+    )
+
+    unauthorized_message = DescriptionField(
+        _("Note pour les personnes non autorisées"),
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text=_(
+            "Note montrée à tout utilisateur qui n'aurait pas le tag nécessaire pour afficher le formulaire."
+        ),
+        blank=True,
+    )
+
     main_question = models.CharField(_("Intitulé de la question principale"), max_length=200,
                                      help_text=_('Uniquement utilisée si des choix de tags sont demandés.'), blank=True)
     tags = models.ManyToManyField('PersonTag', related_name='forms', related_query_name='form', blank=True)
+
 
     custom_fields = JSONField(_('Champs'), blank=False, default=list)
 
@@ -458,6 +472,9 @@ class PersonForm(TimeStampedModel):
         return (
             (self.start_time is None or self.start_time < now) and (self.end_time is None or now < self.end_time)
         )
+
+    def is_authorized(self, person):
+        return bool(not self.required_tags.all() or (person.tags.all() & self.required_tags.all()))
 
     @property
     def html_closed_message(self):

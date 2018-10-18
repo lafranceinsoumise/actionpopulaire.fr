@@ -11,7 +11,7 @@ from rest_framework import status
 from agir.groups.models import SupportGroup, Membership
 from agir.payments.actions import complete_payment
 from agir.payments.models import Payment
-from agir.people.models import Person, PersonForm, PersonFormSubmission
+from agir.people.models import Person, PersonForm, PersonFormSubmission, PersonTag
 
 from ..forms import EventForm
 from ..models import Event, Calendar, RSVP, OrganizerConfig, CalendarItem
@@ -653,12 +653,65 @@ class RSVPTestCase(TestCase):
             **self.billing_information
         })
 
-
         payment = Payment.objects.get()
         self.assertRedirects(response, reverse('payment_page', args=[payment.pk]))
 
         response = self.client.get(reverse('payment_retry', args=[payment.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_cannot_rsvp_if_not_authorized_for_form(self):
+        tag = PersonTag.objects.create(label='tag')
+        self.subscription_form.required_tags.add(tag)
+        self.subscription_form.unauthorized_message = 'SENTINEL'
+        self.subscription_form.save()
+
+        self.client.force_login(self.person.role)
+
+        event_url = reverse('view_event', kwargs={'pk': self.form_event.pk})
+        rsvp_url = reverse('rsvp_event', kwargs={'pk': self.form_event.pk})
+
+        response = self.client.get(rsvp_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, 'SENTINEL')
+
+        response = self.client.post(rsvp_url, data={'custom-field':'another custom value'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn('form', response.context_data)
+
+    @mock.patch('agir.events.actions.rsvps.send_rsvp_notification')
+    def test_can_rsvp_if_authorized_for_form(self, rsvp_notification):
+        tag = PersonTag.objects.create(label='tag')
+        self.person.tags.add(tag)
+        self.subscription_form.required_tags.add(tag)
+        self.subscription_form.unauthorized_message = 'SENTINEL'
+        self.subscription_form.save()
+
+        self.client.force_login(self.person.role)
+
+        event_url = reverse('view_event', kwargs={'pk': self.form_event.pk})
+        rsvp_url = reverse('rsvp_event', kwargs={'pk': self.form_event.pk})
+
+        response = self.client.get(rsvp_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(response, 'SENTINEL')
+        self.assertIn('form', response.context_data)
+
+        response = self.client.post(rsvp_url, data={'custom-field':'another custom value'})
+        self.assertRedirects(response, event_url)
+        msgs = list(messages.get_messages(response.wsgi_request))
+        self.assertEqual(msgs[0].level, messages.SUCCESS)
+
+        self.person.refresh_from_db()
+        self.assertIn(self.person, self.form_event.attendees.all())
+        self.assertEqual(self.person.meta['custom-field'], 'another custom value')
+        self.assertEqual(2, self.form_event.participants)
+
+        rsvp_notification.delay.assert_called_once()
+
+        rsvp = RSVP.objects.get(person=self.person, event=self.form_event)
+        self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+
+
 
 
 class CalendarPageTestCase(TestCase):

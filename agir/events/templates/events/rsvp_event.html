@@ -70,7 +70,7 @@
                     </ul>
                 {% endfor %}
             {% endif %}
-            {% if event.allow_guests %}
+            {% if form %}
                 <h3>Inscrire un⋅e autre participant⋅e</h3>
                 <div class="alert alert-info">
                 <p>
@@ -86,15 +86,19 @@
                 </div>
             {% endif %}
         {% endif %}
-        {% if not rsvp or event.allow_guests %}
-            {% if event.subscription_form.is_open %}
+        {% if form %}
                 <div class="intro">
-                    {{ event.subscription_form.html_description }}
+                    {{ person_form_instance.html_description }}
                 </div>
                 {% crispy form %}
-            {% else %}
+        {% else %}
+            {% if not can_post_form %}
                 <div class="intro">
-                    {{ event.subscription_form.html_closed_message }}
+                    {{ person_form_instance.html_unauthorized_message }}
+                </div>
+            {% elif not person_form_instance.is_open %}
+                <div class="intro">
+                    {{ person_form_instance.html_closed_message }}
                 </div>
             {% endif %}
         {% endif %}
