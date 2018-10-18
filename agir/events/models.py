@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Case, Sum, Count, When, CharField, F, Q
+from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
@@ -42,6 +44,41 @@ class EventQuerySet(models.QuerySet):
         if published_only:
             condition &= models.Q(published=True)
         return self.filter(condition)
+
+
+class EventManager(models.Manager):
+    def get_queryset(self):
+        qs = EventQuerySet(self.model, using=self._db)
+
+        confirmed_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CONFIRMED)
+        confirmed_rsvps = Q(rsvps__status=RSVP.STATUS_CONFIRMED)
+
+        qs = qs \
+            .annotate(all_attendee_count=Case(
+                When(subscription_form=None, then=Sum('rsvps__guests') + Count('rsvps')),
+                default=Coalesce(Count('rsvps__identified_guests'), 0) + Count('rsvps'),
+                output_field=CharField()
+            )) \
+            .annotate(confirmed_attendee_count=Case(
+                When(payment_parameters=None, then=F('all_attendee_count')),
+                When(
+                    subscription_form=None,
+                    then=Sum('rsvps__guests', filter=confirmed_rsvps) + Count('rsvps', filter=confirmed_rsvps)),
+                default=Coalesce(Count('rsvps__identified_guests', filter=confirmed_guests), 0) + Count('rsvps',
+                                                                                                        filter=confirmed_rsvps),
+                output_field=CharField()
+            ))
+
+        return qs
+
+    def published(self, *args, **kwargs):
+        return self.get_queryset().published(*args, **kwargs)
+
+    def upcoming(self, *args, **kwargs):
+        return self.get_queryset().upcoming(*args, **kwargs)
+
+    def past(self, *args, **kwargs):
+        return self.get_queryset().past(*args, **kwargs)
 
 
 class RSVPQuerySet(models.QuerySet):
@@ -88,7 +125,7 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
     """
     Model that represents an event
     """
-    objects = EventQuerySet.as_manager()
+    objects = EventManager()
 
     name = models.CharField(
         _("nom"),
@@ -171,9 +208,12 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
     @property
     def participants(self):
         try:
-            return self._participants
+            return self.all_attendee_count
         except AttributeError:
-            return self.rsvps.aggregate(participants=models.Sum(models.F('guests') + 1))['participants'] or 0
+            if self.subscription_form:
+                return self.rsvps.annotate(identified_guests_count=Count('identified_guests')) \
+                    .aggregate(participants=Sum(F('identified_guests_count') + 1))['participants'] or 0
+            return self.rsvps.aggregate(participants=Sum(models.F('guests') + 1))['participants'] or 0
 
     @property
     def type(self):

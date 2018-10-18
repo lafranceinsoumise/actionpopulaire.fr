@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.db.models import F, Sum, Count, Q
+from django.db.models import F, Sum, Count, Q, Case, When, CharField
 from django.urls import path
 from django.utils import timezone
 from django.utils.encoding import force_text
@@ -207,24 +207,10 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
     add_organizer_button.short_description = _('Ajouter un organisateur')
 
     def attendee_count(self, object):
-        if object.identified_guests_count > 0:
-            all_attendee = object.identified_guests_count + object.rsvps.count()
-        else:
-            all_attendee = object.rsvps.aggregate(participants=Sum(F('guests') + 1))['participants']
-
         if object.is_free:
-            return str(all_attendee)
+            return str(object.all_attendee_count)
 
-        confirmed_rsvps = Q(status=RSVP.STATUS_CONFIRMED)
-
-        if object.confirmed_identified_guests_count > 0:
-            confirmed_attendee = object.confirmed_identified_guests_count +\
-                                 object.rsvps.filter(status=RSVP.STATUS_CONFIRMED).count()
-        else:
-            confirmed_attendee = object.rsvps.aggregate(participants=Sum(F('guests') + 1, filter=confirmed_rsvps))[
-                'participants']
-
-        return _(f'{all_attendee} (dont {confirmed_attendee} confirmés)')
+        return _(f'{object.all_attendee_count} (dont {object.confirmed_attendee_count} confirmés)')
 
     attendee_count.short_description = _("Nombre de personnes inscrites")
     attendee_count.admin_order_field = 'attendee_count'
@@ -258,15 +244,6 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
     def download_results(self, request, pk):
         self.instance = Event.objects.get(pk=pk)
         return super().download_results(request, self.instance.subscription_form.id)
-
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-
-        confirmed_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CONFIRMED)
-
-        return qs \
-            .annotate(confirmed_identified_guests_count=Coalesce(Count('rsvps__identified_guests', filter=confirmed_guests), 0)) \
-            .annotate(identified_guests_count=Coalesce(Count('rsvps__identified_guests'), 0))
 
     def get_urls(self):
         return [
