@@ -55,17 +55,17 @@ class EventManager(models.Manager):
 
         qs = qs \
             .annotate(all_attendee_count=Case(
-                When(subscription_form=None, then=Sum('rsvps__guests') + Count('rsvps')),
-                default=Coalesce(Count('rsvps__identified_guests'), 0) + Count('rsvps'),
+                When(subscription_form=None, then=Coalesce(Sum('rsvps__guests') + Count('rsvps'), 0)),
+                default=Coalesce(Count('rsvps__identified_guests') + Count('rsvps'), 0),
                 output_field=CharField()
             )) \
             .annotate(confirmed_attendee_count=Case(
                 When(payment_parameters=None, then=F('all_attendee_count')),
                 When(
                     subscription_form=None,
-                    then=Sum('rsvps__guests', filter=confirmed_rsvps) + Count('rsvps', filter=confirmed_rsvps)),
-                default=Coalesce(Count('rsvps__identified_guests', filter=confirmed_guests), 0) + Count('rsvps',
-                                                                                                        filter=confirmed_rsvps),
+                    then=Coalesce(Sum('rsvps__guests', filter=confirmed_rsvps) + Count('rsvps', filter=confirmed_rsvps), 0)
+                ),
+                default=Coalesce(Count('rsvps__identified_guests', filter=confirmed_guests) + Count('rsvps', filter=confirmed_rsvps), 0),
                 output_field=CharField()
             ))
 

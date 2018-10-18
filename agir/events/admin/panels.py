@@ -213,7 +213,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
         return _(f'{object.all_attendee_count} (dont {object.confirmed_attendee_count} confirmés)')
 
     attendee_count.short_description = _("Nombre de personnes inscrites")
-    attendee_count.admin_order_field = 'attendee_count'
+    attendee_count.admin_order_field = 'all_attendee_count'
 
     def link(self, object):
         if object.pk:
