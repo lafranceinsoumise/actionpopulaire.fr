@@ -768,10 +768,10 @@ class PricingTestCase(TestCase):
 
         self.event.payment_parameters['free_pricing'] = 'price_field'
 
-        sub.data = {'mapping_field': 'A', 'price_field': 50}
-        self.assertEqual(self.event.get_price(sub), 1150)
-        sub.data = {'mapping_field': 'B', 'price_field': 5000}
-        self.assertEqual(self.event.get_price(sub), 6200)
+        sub.data = {'mapping_field': 'A', 'price_field': 5}
+        self.assertEqual(self.event.get_price(sub), 1600)
+        sub.data = {'mapping_field': 'B', 'price_field': 15}
+        self.assertEqual(self.event.get_price(sub), 2700)
 
 
 class CalendarPageTestCase(TestCase):
