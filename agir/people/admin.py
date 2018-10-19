@@ -273,7 +273,7 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('title', 'slug', 'published', 'start_time', 'end_time', 'send_answers_to')
+            'fields': ('title', 'slug', 'published', 'start_time', 'end_time', 'send_answers_to', 'required_tags')
         }),
         (_('Soumissions'), {
             'fields': ('submissions_number', 'simple_link', 'action_buttons')
@@ -282,7 +282,10 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
             'fields': ('main_question', 'tags', 'custom_fields')
         }),
         (_('Textes'), {
-            'fields': ('description', 'confirmation_note', 'send_confirmation', 'before_message', 'after_message')
+            'fields': (
+                'description', 'confirmation_note', 'send_confirmation', 'unauthorized_message', 'before_message',
+                'after_message'
+            )
          }),
     )
 
@@ -328,6 +331,7 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
     def submissions_number(self, object):
         return object.submissions_number
     submissions_number.short_description = 'Nombre de soumissions'
+
 
 @admin.register(PersonFormSubmission, site=admin_site)
 class PersonFormSubmissionAdmin(admin.ModelAdmin):
