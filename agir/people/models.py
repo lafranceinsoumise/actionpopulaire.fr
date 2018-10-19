@@ -441,7 +441,7 @@ class PersonForm(TimeStampedModel):
     )
 
     required_tags = models.ManyToManyField(
-        'PersonTag', related_name='authorized_forms', related_query_name='authorized_form'
+        'PersonTag', related_name='authorized_forms', related_query_name='authorized_form', blank=True,
     )
 
     unauthorized_message = DescriptionField(
