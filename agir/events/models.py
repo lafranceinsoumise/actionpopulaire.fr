@@ -281,7 +281,7 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
 
         if 'free_pricing' in self.payment_parameters:
             field = self.payment_parameters['free_pricing']
-            price += submission.data.get(field, 0)
+            price += int(submission.data.get(field, 0) * 100)
 
         return price
 
