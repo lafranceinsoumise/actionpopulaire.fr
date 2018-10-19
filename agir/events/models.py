@@ -247,12 +247,20 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
             max_price += max(prices)
 
         if min_price == max_price == 0:
-            return None
+            if 'free_pricing' in self.payment_parameters:
+                return 'Prix libre'
+            else:
+                return None
 
         if min_price == max_price:
-            return "{} €".format(floatformat(min_price / 100, 2))
+            display = "{} €".format(floatformat(min_price / 100, 2))
         else:
-            return "de {} à {} €".format(floatformat(min_price / 100, 2), floatformat(max_price / 100, 2))
+            display = "de {} à {} €".format(floatformat(min_price / 100, 2), floatformat(max_price / 100, 2))
+
+        if 'free_pricing' in self.payment_parameters:
+            display += ' + montant libre'
+
+        return display
 
     @property
     def is_free(self):
@@ -270,6 +278,10 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
             d = {tuple(v for v in m['values']): m['price'] for m in mapping['mapping']}
 
             price += d.get(tuple(values), 0)
+
+        if 'free_pricing' in self.payment_parameters:
+            field = self.payment_parameters['free_pricing']
+            price += submission.data.get(field, 0)
 
         return price
 

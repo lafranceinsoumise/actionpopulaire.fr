@@ -228,6 +228,7 @@ class EventPagesTestCase(TestCase):
 
 
 class RSVPTestCase(TestCase):
+    # TODO: refactor this test case... too big
     def setUp(self):
         self.person = Person.objects.create_person('test@test.com')
         self.already_rsvped = Person.objects.create_person('test2@test.com')
@@ -238,7 +239,7 @@ class RSVPTestCase(TestCase):
 
         self.simple_event = Event.objects.create(
             name='Simple Event',
-            start_time=now + 3*day,
+            start_time=now + 3 * day,
             end_time=now + 3 * day + 4 * hour
         )
 
@@ -378,7 +379,7 @@ class RSVPTestCase(TestCase):
         self.simple_event.allow_guests = True
         self.simple_event.save()
 
-        response = self.client.post(reverse('rsvp_event', kwargs={'pk': self.simple_event.pk}), data={'guests':1})
+        response = self.client.post(reverse('rsvp_event', kwargs={'pk': self.simple_event.pk}), data={'guests': 1})
         self.assertRedirects(response, reverse('view_event', kwargs={'pk': self.simple_event.pk}))
         self.assertEqual(2, self.simple_event.participants)
 
@@ -426,7 +427,7 @@ class RSVPTestCase(TestCase):
         response = self.client.get(rsvp_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client.post(rsvp_url, data={'custom-field':'another custom value'})
+        response = self.client.post(rsvp_url, data={'custom-field': 'another custom value'})
         self.assertRedirects(response, event_url)
         msgs = list(messages.get_messages(response.wsgi_request))
         self.assertEqual(msgs[0].level, messages.SUCCESS)
@@ -593,7 +594,6 @@ class RSVPTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, 'my own custom value')
 
-
     @mock.patch('agir.events.actions.rsvps.send_guest_confirmation')
     def test_can_add_guest_to_form_paying_event(self, guest_confirmation):
         self.form_paying_event.allow_guests = True
@@ -674,7 +674,7 @@ class RSVPTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, 'SENTINEL')
 
-        response = self.client.post(rsvp_url, data={'custom-field':'another custom value'})
+        response = self.client.post(rsvp_url, data={'custom-field': 'another custom value'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn('form', response.context_data)
 
@@ -696,7 +696,7 @@ class RSVPTestCase(TestCase):
         self.assertNotContains(response, 'SENTINEL')
         self.assertIn('form', response.context_data)
 
-        response = self.client.post(rsvp_url, data={'custom-field':'another custom value'})
+        response = self.client.post(rsvp_url, data={'custom-field': 'another custom value'})
         self.assertRedirects(response, event_url)
         msgs = list(messages.get_messages(response.wsgi_request))
         self.assertEqual(msgs[0].level, messages.SUCCESS)
@@ -712,6 +712,66 @@ class RSVPTestCase(TestCase):
         self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
 
 
+class PricingTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person('test@test.com')
+
+        self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+
+        self.event = Event.objects.create(
+            name='Simple Event',
+            start_time=now + 3 * day,
+            end_time=now + 3 * day + 4 * hour
+        )
+
+    def test_pricing_display(self):
+        self.assertEqual(self.event.get_price_display(), None)
+
+        self.event.payment_parameters = {'price': 1000}
+        self.assertEqual(self.event.get_price_display(), '10,00 €')
+
+        self.event.payment_parameters = {'free_pricing': 'value'}
+        self.assertEqual(self.event.get_price_display(), 'Prix libre')
+
+        self.event.payment_parameters = {
+            'mappings': [{'mapping': [
+                {'values': ['A'], 'price': 100},
+                {'values': ['B'], 'price': 200}
+            ], 'fields': ['f']}]
+        }
+        self.assertEqual(self.event.get_price_display(), 'de 1,00 à 2,00 €')
+
+        self.event.payment_parameters['price'] = 1000
+        self.assertEqual(self.event.get_price_display(), 'de 11,00 à 12,00 €')
+
+        self.event.payment_parameters['free_pricing'] = 'value'
+        self.assertEqual(self.event.get_price_display(), 'de 11,00 à 12,00 € + montant libre')
+
+    def test_simple_pricing_event(self):
+        self.event.payment_parameters = {
+            'price': 1000,
+        }
+        self.assertEqual(self.event.get_price(), 1000)
+
+        self.event.payment_parameters['mappings'] = [{'mapping': [
+            {'values': ['A'], 'price': 100},
+            {'values': ['B'], 'price': 200}
+        ], 'fields': ['mapping_field']}]
+        sub = PersonFormSubmission()
+
+        sub.data = {'mapping_field': 'A'}
+        self.assertEqual(self.event.get_price(sub), 1100)
+        sub.data = {'mapping_field': 'B'}
+        self.assertEqual(self.event.get_price(sub), 1200)
+
+        self.event.payment_parameters['free_pricing'] = 'price_field'
+
+        sub.data = {'mapping_field': 'A', 'price_field': 50}
+        self.assertEqual(self.event.get_price(sub), 1150)
+        sub.data = {'mapping_field': 'B', 'price_field': 5000}
+        self.assertEqual(self.event.get_price(sub), 6200)
 
 
 class CalendarPageTestCase(TestCase):
