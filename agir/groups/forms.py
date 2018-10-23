@@ -1,3 +1,6 @@
+from functools import reduce
+from operator import or_
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from crispy_forms.helper import FormHelper
@@ -39,6 +42,7 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
 
         self.person = person
         self.is_creation = self.instance._state.adding
+        excluded_fields = set()
 
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
@@ -48,6 +52,10 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         if self.instance.allow_html:
             del self.fields['description']
             description_field = []
+        else:
+            description_field = [Row(
+                FullCol('description'),
+            )]
 
         if not self.is_creation:
             self.fields['notify'] = forms.BooleanField(
@@ -62,6 +70,19 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             notify_field = [Row(
                 FullCol('notify')
             )]
+
+            excluded_fields = reduce(
+                or_,
+                (set(subtype.config.get('excluded_fields', [])) for subtype in self.instance.subtypes.all()),
+                set()
+            )
+
+            if 'image' in excluded_fields:
+                excluded_fields.add('image_accept_license')
+
+            for f in excluded_fields & set(self.fields):
+                del self.fields[f]
+
         else:
             notify_field = []
 
@@ -109,8 +130,11 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             Row(
                 FullCol('description'),
             ),
+            *description_field,
             *notify_field
         )
+
+        remove_excluded_field_from_layout(self.helper.layout, excluded_fields)
 
     def save(self, commit=True):
         res = super().save(commit=commit)

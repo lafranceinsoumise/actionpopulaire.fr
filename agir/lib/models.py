@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe, format_html, format_html_join
 from django_countries.fields import CountryField
 from django.conf import settings
+from django.contrib.postgres.fields import JSONField
 
 from model_utils.models import TimeStampedModel
 from stdimage.models import StdImageField
@@ -280,6 +281,8 @@ class AbstractMapObjectLabel(TimeStampedModel, AbstractLabel):
     icon_anchor_x = models.PositiveSmallIntegerField(_("ancre de l'icône (x)"), blank=True, null=True)
     icon_anchor_y = models.PositiveSmallIntegerField(_("ancre de l'icône (y)"), blank=True, null=True)
     popup_anchor_y = models.PositiveSmallIntegerField(_("placement de la popup (par rapport au point)"), blank=True, null=True)
+
+    config = JSONField(_('Configuration'), default=dict)
 
     class Meta:
         abstract = True

@@ -9,7 +9,7 @@ from agir.groups.models import SupportGroup
 from agir.lib.form_components import *
 from agir.lib.form_mixins import LocationFormMixin, ContactFormMixin, GeocodingBaseForm, SearchByZipCodeFormBase
 from agir.people.forms import BasePersonForm
-from agir.payments.payment_modes import PAYMENT_MODES, PaymentModeField
+from agir.payments.payment_modes import PaymentModeField
 
 from ..people.models import Person, PersonFormSubmission
 from .models import Event, OrganizerConfig, RSVP, EventImage, EventSubtype
@@ -57,6 +57,9 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
 
         self.person = person
 
+        excluded_fields = []
+
+        self.is_creation = self.instance._state.adding
         self.fields['image'].help_text = _("""
         Vous pouvez ajouter une image de bannière à votre événement : elle apparaîtra alors sur la page de votre
         événement, et comme illustration si vous le partagez sur les réseaux sociaux. Pour cela, choisissez une image
@@ -79,8 +82,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         self.fields['name'].label = "Nom de l'événement"
         self.fields['name'].help_text = None
 
-        self.is_creation = self.instance._state.adding
-
         if not self.is_creation:
             self.fields['notify'] = forms.BooleanField(
                 required=False,
@@ -95,6 +96,14 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             self.organizer_config = OrganizerConfig.objects.get(person=self.person, event=self.instance)
             self.fields['as_group'].initial = self.organizer_config.as_group
             del self.fields['subtype']
+
+            excluded_fields = self.instance.subtype.config.get('excluded_fields', [])
+            if 'image' in excluded_fields:
+                excluded_fields.append('image_accept_license')
+
+            for f in excluded_fields:
+                if f in self.fields:
+                    del self.fields[f]
         else:
             notify_field = []
 
@@ -167,6 +176,8 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             Row(FullCol('description')),
             *notify_field,
         )
+
+        remove_excluded_field_from_layout(self.helper.layout, excluded_fields)
 
     def clean_start_time(self):
         start_time = self.cleaned_data['start_time']
@@ -276,8 +287,9 @@ class AddOrganizerForm(forms.Form):
 class EventGeocodingForm(GeocodingBaseForm):
     geocoding_task = geocode_event
     messages = {
-        'use_geocoding': _("La localisation de votre événement sur la carte va être réinitialisée à partir de son adresse."
-                           " Patientez quelques minutes pour voir la nouvelle localisation apparaître."),
+        'use_geocoding': _(
+            "La localisation de votre événement sur la carte va être réinitialisée à partir de son adresse."
+            " Patientez quelques minutes pour voir la nouvelle localisation apparaître."),
         'coordinates_updated': _("La localisation de votre événement a été correctement mise à jour. Patientez quelques"
                                  " minutes pour la voir apparaître sur la carte.")
     }

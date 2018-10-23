@@ -14,7 +14,7 @@ from agir.payments.models import Payment
 from agir.people.models import Person, PersonForm, PersonFormSubmission, PersonTag
 
 from ..forms import EventForm
-from ..models import Event, Calendar, RSVP, OrganizerConfig, CalendarItem
+from ..models import Event, Calendar, RSVP, OrganizerConfig, CalendarItem, EventSubtype
 from ..views import notification_listener as event_notification_listener
 
 
@@ -61,8 +61,14 @@ class EventPagesTestCase(TestCase):
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
 
+        self.subtype = EventSubtype.objects.create(
+            label='subtype',
+            description='subtype',
+        )
+
         self.organized_event = Event.objects.create(
             name="Organized event",
+            subtype=self.subtype,
             start_time=now + day,
             end_time=now + day + 4 * hour,
         )
@@ -75,6 +81,7 @@ class EventPagesTestCase(TestCase):
 
         self.rsvped_event = Event.objects.create(
             name="RSVPed event",
+            subtype=self.subtype,
             start_time=now + 2 * day,
             end_time=now + 2 * day + 2 * hour,
             allow_guests=True
@@ -87,6 +94,7 @@ class EventPagesTestCase(TestCase):
 
         self.other_event = Event.objects.create(
             name="Other event",
+            subtype=self.subtype,
             start_time=now + 3 * day,
             end_time=now + 3 * day + 4 * hour,
         )
@@ -225,6 +233,44 @@ class EventPagesTestCase(TestCase):
     @skip('Redo with new creation form')
     def test_can_create_event(self):
         pass
+
+    def test_excluded_fields_are_not_in_form(self):
+        self.subtype.config = {
+            'excluded_fields': ['name']
+        }
+        self.subtype.save()
+
+        self.client.force_login(self.person.role)
+
+        response = self.client.get(reverse('edit_event', kwargs={'pk': self.organized_event.pk}))
+
+        self.assertNotContains(response, "Nom de l'événement")
+
+        response = self.client.post(
+            reverse('edit_event', kwargs={'pk': self.organized_event.pk}),
+            data={
+                'name': 'New Name',
+                'start_time': formats.localize_input(self.now + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"),
+                'end_time': formats.localize_input(self.now + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"),
+                'contact_name': 'Arthur',
+                'contact_email': 'a@ziefzji.fr',
+                'contact_phone': '06 06 06 06 06',
+                'location_name': 'somewhere',
+                'location_address1': 'over',
+                'location_zip': 'the',
+                'location_city': 'rainbow',
+                'location_country': 'FR',
+                'description': 'New description',
+                'notify': 'on',
+                'as_group': self.group.pk,
+            }
+        )
+
+        # the form redirects to the event manage page on success
+        self.assertRedirects(response, reverse('manage_event', kwargs={'pk': self.organized_event.pk}))
+
+        self.organized_event.refresh_from_db()
+        self.assertEqual(self.organized_event.name, "Organized event")
 
 
 class RSVPTestCase(TestCase):
