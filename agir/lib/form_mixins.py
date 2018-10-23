@@ -1,4 +1,5 @@
 from django import forms
+from django.db import IntegrityError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.html import format_html
 from django.contrib.gis.forms.widgets import OSMWidget
@@ -54,7 +55,10 @@ class TagMixin:
         # all tags that have to be added
         tags_missing = tags_in - current_tags
         if tags_missing:
-            self.instance.tags.add(*tags_missing)
+            try:
+                self.instance.tags.add(*tags_missing)
+            except IntegrityError:
+                pass
 
         tags_excess = tags_out & current_tags
         if tags_excess:
