@@ -257,6 +257,12 @@ class RSVPTestCase(TestCase):
                         "type": "short_text",
                         "label": "Mon label",
                         "person_field": True
+                    },
+                    {
+                        "id": "price",
+                        "type": "integer",
+                        "label": "Prix",
+                        "required": False
                     }
                 ]
             }]
@@ -711,6 +717,34 @@ class RSVPTestCase(TestCase):
         rsvp = RSVP.objects.get(person=self.person, event=self.form_event)
         self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
 
+    @mock.patch('agir.events.actions.rsvps.send_rsvp_notification')
+    def test_not_billed_if_free_pricing_to_zero(self, rsvp_notification):
+        self.client.force_login(self.person.role)
+
+        self.form_event.payment_parameters = {'free_pricing': 'price'}
+        self.form_event.save()
+
+        event_url = reverse('view_event', kwargs={'pk': self.form_event.pk})
+        rsvp_url = reverse('rsvp_event', kwargs={'pk': self.form_event.pk})
+
+        response = self.client.get(rsvp_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.post(rsvp_url, data={'custom-field': 'another custom value', 'price': "0"})
+        self.assertRedirects(response, event_url)
+        msgs = list(messages.get_messages(response.wsgi_request))
+        self.assertEqual(msgs[0].level, messages.SUCCESS)
+
+        self.person.refresh_from_db()
+        self.assertIn(self.person, self.form_event.attendees.all())
+        self.assertEqual(self.person.meta['custom-field'], 'another custom value')
+        self.assertEqual(2, self.form_event.participants)
+
+        rsvp_notification.delay.assert_called_once()
+
+        rsvp = RSVP.objects.get(person=self.person, event=self.form_event)
+        self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+
 
 class PricingTestCase(TestCase):
     def setUp(self):
@@ -762,16 +796,16 @@ class PricingTestCase(TestCase):
         sub = PersonFormSubmission()
 
         sub.data = {'mapping_field': 'A'}
-        self.assertEqual(self.event.get_price(sub), 1100)
+        self.assertEqual(self.event.get_price(sub.data), 1100)
         sub.data = {'mapping_field': 'B'}
-        self.assertEqual(self.event.get_price(sub), 1200)
+        self.assertEqual(self.event.get_price(sub.data), 1200)
 
         self.event.payment_parameters['free_pricing'] = 'price_field'
 
         sub.data = {'mapping_field': 'A', 'price_field': 5}
-        self.assertEqual(self.event.get_price(sub), 1600)
+        self.assertEqual(self.event.get_price(sub.data), 1600)
         sub.data = {'mapping_field': 'B', 'price_field': 15}
-        self.assertEqual(self.event.get_price(sub), 2700)
+        self.assertEqual(self.event.get_price(sub.data), 2700)
 
 
 class CalendarPageTestCase(TestCase):

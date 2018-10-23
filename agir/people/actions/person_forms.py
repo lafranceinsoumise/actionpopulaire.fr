@@ -237,15 +237,20 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         for part in self.parts:
             part.set_up_fields(self)
 
+    @property
+    def submission_data(self):
+        data = {}
+        for part in self.parts:
+            data.update(part.collect_results(self.cleaned_data))
+        return data
+
     def save_submission(self, person):
         if person is None:
             person = self.instance
 
-        data = {}
+        data = self.submission_data
 
-        for part in self.parts:
-            data.update(part.collect_results(self.cleaned_data))
-
+        # making sure files are saved
         for key, value in data.items():
             if isinstance(value, File):
                 data[key] = save_file(value, self.person_form_instance.slug)

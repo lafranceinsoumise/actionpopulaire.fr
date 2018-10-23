@@ -132,7 +132,7 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
             if form.cleaned_data['is_guest']:
                 self.redirect_to_event(message=self.default_error_message)
 
-            if self.event.is_free:
+            if self.event.is_free or self.event.get_price(form.submission_data) == 0:
                 with transaction.atomic():
                     form.save()
                     rsvp_to_free_event(self.event, self.request.user.person, form_submission=form.submission)
@@ -255,7 +255,7 @@ class PayEventView(HardLoginRequiredMixin, UpdateView):
         kwargs.update({
             'event': self.event,
             'submission': self.submission,
-            'price': self.event.get_price(self.submission) / 100,
+            'price': self.event.get_price(self.submission and self.submission.data) / 100,
             'submission_data': get_formatted_submission(self.submission) if self.submission else None
         })
         return super().get_context_data(**kwargs)

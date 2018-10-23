@@ -405,7 +405,10 @@ class BillingForm(forms.ModelForm):
         fields.append('payment_mode')
 
         self.helper = FormHelper()
-        self.helper.add_input(layout.Submit('valider', f'Je paie {floatformat(event.get_price(submission)/100, 2)} €'))
+        self.helper.add_input(layout.Submit(
+            'valider',
+            f'Je paie {floatformat(event.get_price(submission and submission.data)/100, 2)} €'
+        ))
         self.helper.layout = layout.Layout(
             *fields
         )

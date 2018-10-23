@@ -266,14 +266,14 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
     def is_free(self):
         return self.payment_parameters is None
 
-    def get_price(self, submission=None):
+    def get_price(self, submission_data: dict = None):
         price = self.payment_parameters.get('price', 0)
 
-        if submission is None:
+        if submission_data is None:
             return price
 
         for mapping in self.payment_parameters.get('mappings', []):
-            values = [submission.data.get(field) for field in mapping['fields']]
+            values = [submission_data.get(field) for field in mapping['fields']]
 
             d = {tuple(v for v in m['values']): m['price'] for m in mapping['mapping']}
 
@@ -281,7 +281,7 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
 
         if 'free_pricing' in self.payment_parameters:
             field = self.payment_parameters['free_pricing']
-            price += int(submission.data.get(field, 0) * 100)
+            price += max(0, int(submission_data.get(field, 0) * 100))
 
         return price
 

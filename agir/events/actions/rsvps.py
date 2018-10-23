@@ -89,7 +89,7 @@ def rsvp_to_paid_event_and_create_payment(event, person, payment_mode, form_subm
     if event.is_free:
         raise RSVPException("Cet événement est gratuit : aucun paiement n'est donc nécessaire.")
 
-    price = event.get_price(form_submission)
+    price = event.get_price(form_submission and form_submission.data)
 
     with transaction.atomic():
         rsvp = _get_rsvp_for_event(event, person, form_submission, True)
@@ -173,7 +173,7 @@ def add_free_identified_guest(event, person, submission):
 
 
 def add_paid_identified_guest_and_get_payment(event, person, payment_mode, form_submission=None):
-    price = event.get_price(form_submission)
+    price = event.get_price(form_submission and form_submission.data)
 
     try:
         with transaction.atomic():
