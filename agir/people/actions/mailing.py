@@ -51,7 +51,7 @@ def get_context_from_bindings(code, recipient, bindings):
 
 
 def send_mosaico_email(code, subject, from_email, recipients, bindings=None, connection=None, backend=None,
-                       fail_silently=False, preferences_link=True, reply_to=None):
+                       fail_silently=False, preferences_link=True, reply_to=None, attachment=None):
     """Send an email from a Mosaico template
 
     :param code: the code identifying the Mosaico template
@@ -108,6 +108,8 @@ def send_mosaico_email(code, subject, from_email, recipients, bindings=None, con
             connection=connection,
         )
         email.attach_alternative(html_message, "text/html")
+        if attachment is not None:
+            email.attach(*attachment)
         email.send(fail_silently=fail_silently)
 
 
