@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+import ics
 from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
@@ -48,7 +49,7 @@ def send_event_creation_notification(organizer_config_pk):
         from_email=settings.EMAIL_FROM,
         recipients=[organizer],
         bindings=bindings,
-        attachment=('event.ics', str(event.to_ics()), "text/calendar")
+        attachment=('event.ics', str(ics.Calendar(events=[event.to_ics()])), "text/calendar")
     )
 
 
@@ -82,7 +83,7 @@ def send_event_changed_notification(event_pk, changes):
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
-        attachment=('event.ics', str(event.to_ics()), "text/calendar")
+        attachment=('event.ics', str(ics.Calendar(events=[event.to_ics()])), "text/calendar")
     )
 
 
@@ -114,7 +115,7 @@ def send_rsvp_notification(rsvp_pk):
         from_email=settings.EMAIL_FROM,
         recipients=[rsvp.person],
         bindings=attendee_bindings,
-        attachment=('event.ics', str(rsvp.event.to_ics()), "text/calendar")
+        attachment=('event.ics', str(ics.Calendar(events=[rsvp.event.to_ics()])), "text/calendar")
     )
 
     if rsvp.event.rsvps.count() > 50:

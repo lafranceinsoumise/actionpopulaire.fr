@@ -194,7 +194,7 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
 
     def to_ics(self):
         event_url = front_url('view_event', args=[self.pk], auto_login=False)
-        return ics.Calendar(events=[ics.Event(
+        return ics.Event(
             name=self.name,
             begin=self.start_time,
             end=self.end_time,
@@ -202,7 +202,7 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
             description=self.description + f"<p>{event_url}</p>",
             location=self.short_address,
             url=event_url
-        )])
+        )
 
     @property
     def participants(self):
