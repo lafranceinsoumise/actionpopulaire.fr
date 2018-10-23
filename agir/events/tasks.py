@@ -48,6 +48,7 @@ def send_event_creation_notification(organizer_config_pk):
         from_email=settings.EMAIL_FROM,
         recipients=[organizer],
         bindings=bindings,
+        attachment=('event.ics', str(event.to_ics()), "text/calendar")
     )
 
 
@@ -75,13 +76,13 @@ def send_event_changed_notification(event_pk, changes):
         "EVENT_QUIT_LINK": front_url("quit_event", kwargs={'pk': event_pk})
     }
 
-
     send_mosaico_email(
         code='EVENT_CHANGED',
         subject=_("Les informations d'un événement auquel vous assistez ont été changées"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
+        attachment=('event.ics', str(event.to_ics()), "text/calendar")
     )
 
 
@@ -112,7 +113,8 @@ def send_rsvp_notification(rsvp_pk):
         subject=_("Confirmation de votre participation à l'événement"),
         from_email=settings.EMAIL_FROM,
         recipients=[rsvp.person],
-        bindings=attendee_bindings
+        bindings=attendee_bindings,
+        attachment=('event.ics', str(rsvp.event.to_ics()), "text/calendar")
     )
 
     if rsvp.event.rsvps.count() > 50:

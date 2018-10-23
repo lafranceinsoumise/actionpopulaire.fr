@@ -13,7 +13,6 @@ from django.utils import timezone
 from django.utils.html import format_html, mark_safe
 from django.utils.translation import ugettext as _
 
-from agir.lib.utils import front_url
 from ..models import Event, RSVP, Calendar, EventSubtype
 from ..tasks import send_cancellation_notification
 
@@ -66,16 +65,7 @@ class EventIcsView(DetailView):
     queryset = Event.objects.filter(published=True)
 
     def render_to_response(self, context, **response_kwargs):
-        event_url = front_url('view_event', args=[context['event'].pk], auto_login=False)
-        ics_calendar = ics.Calendar(events=[ics.Event(
-            name=context['event'].name,
-            begin=context['event'].start_time,
-            end=context['event'].end_time,
-            uid=str(context['event'].pk),
-            description=context['event'].description + f"<p>{event_url}</p>",
-            location=context['event'].short_address,
-            url=event_url
-        )])
+        ics_calendar = ics.Calendar(events=[context['event'].to_ics()])
 
         return HttpResponse(ics_calendar, content_type="text/calendar")
 
@@ -351,17 +341,7 @@ class CalendarIcsView(DetailView):
     model = Calendar
 
     def render_to_response(self, context, **response_kwargs):
-        calendar = ics.Calendar(events=[
-            ics.event.Event(
-                name=event.name,
-                begin=event.start_time,
-                end=event.end_time,
-                uid=str(event.pk),
-                description=event.description,
-                location=event.short_address,
-                url=front_url('view_event', args=[event.pk], auto_login=False)
-            ) for event in self.object.events.all()
-        ])
+        calendar = ics.Calendar(events=[event.to_ics() for event in self.object.events.all()])
 
         return HttpResponse(calendar, content_type="text/calendar")
 

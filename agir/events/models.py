@@ -1,3 +1,4 @@
+import ics
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -14,6 +15,7 @@ from model_utils.models import TimeStampedModel
 from stdimage.models import StdImageField
 from stdimage.utils import UploadToAutoSlug
 
+from agir.lib.utils import front_url
 from ..lib.models import (
     BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, ImageMixin, DescriptionMixin,
     DescriptionField, UploadToRelatedObjectDirectoryWithUUID, UploadToInstanceDirectoryWithFilename,
@@ -189,6 +191,18 @@ class Event(ExportModelOperationsMixin('event'), BaseAPIResource, NationBuilderR
 
     def __str__(self):
         return self.name
+
+    def to_ics(self):
+        event_url = front_url('view_event', args=[self.pk], auto_login=False)
+        return ics.Calendar(events=[ics.Event(
+            name=self.name,
+            begin=self.start_time,
+            end=self.end_time,
+            uid=str(self.pk),
+            description=self.description + f"<p>{event_url}</p>",
+            location=self.short_address,
+            url=event_url
+        )])
 
     @property
     def participants(self):
