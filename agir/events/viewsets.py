@@ -18,12 +18,12 @@ from . import serializers, models
 
 
 class EventFilterSet(django_filters.rest_framework.FilterSet):
-    close_to = DistanceFilter(name='coordinates', lookup_expr='distance_lte')
-    after = django_filters.IsoDateTimeFilter(name='end_time', lookup_expr='gte')
-    before = django_filters.IsoDateTimeFilter(name='start_time', lookup_expr='lte')
-    path = django_filters.CharFilter(name='nb_path', lookup_expr='exact')
+    close_to = DistanceFilter(field_name='coordinates', lookup_expr='distance_lte')
+    after = django_filters.IsoDateTimeFilter(field_name='end_time', lookup_expr='gte')
+    before = django_filters.IsoDateTimeFilter(field_name='start_time', lookup_expr='lte')
+    path = django_filters.CharFilter(field_name='nb_path', lookup_expr='exact')
     calendar = django_filters.ModelChoiceFilter(
-        name='calendars', to_field_name='slug', queryset=models.Calendar.objects.all()
+        field_name='calendars', to_field_name='slug', queryset=models.Calendar.objects.all()
     )
 
     class Meta:
@@ -39,7 +39,7 @@ class LegacyEventViewSet(NationBuilderViewMixin, ModelViewSet):
     pagination_class = LegacyPaginator
     serializer_class = serializers.LegacyEventSerializer
     filter_backends = (DjangoFilterBackend, OrderByDistanceToBackend)
-    filter_class = EventFilterSet
+    filterset_class = EventFilterSet
 
     def get_queryset(self):
         queryset = (models.Event.objects.all()

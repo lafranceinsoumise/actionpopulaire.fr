@@ -79,7 +79,7 @@ class EventFilterSet(django_filters.rest_framework.FilterSet):
 class EventsView(ListAPIView):
     serializer_class = serializers.MapEventSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend, )
-    filter_class = EventFilterSet
+    filterset_class = EventFilterSet
     authentication_classes = []
 
     def get_queryset(self):
@@ -102,7 +102,7 @@ class GroupFilterSet(django_filters.rest_framework.FilterSet):
 class GroupsView(ListAPIView):
     serializer_class = serializers.MapGroupSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend, )
-    filter_class = GroupFilterSet
+    filterset_class = GroupFilterSet
     queryset = SupportGroup.objects.active().filter(coordinates__isnull=False).prefetch_related('subtypes')
     authentication_classes = []
 

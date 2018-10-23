@@ -20,7 +20,7 @@ SubscribeIPBucket = TokenBucket('SubscribeIP', 2, 60)
 
 
 class PeopleFilter(django_filters.rest_framework.FilterSet):
-    email = django_filters.CharFilter(name='emails__address')
+    email = django_filters.CharFilter(field_name='emails__address')
 
     class Meta:
         model = models.Person
@@ -34,7 +34,7 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
     pagination_class = LegacyPaginator
     queryset = models.Person.objects.all()
     permission_classes = (RestrictViewPermissions, )
-    filter_class = PeopleFilter
+    filterset_class = PeopleFilter
 
     @action(detail=False)
     def me(self, request):

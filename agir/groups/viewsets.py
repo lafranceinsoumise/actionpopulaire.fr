@@ -16,8 +16,8 @@ from . import serializers, models
 
 
 class SupportGroupFilterSet(django_filters.rest_framework.FilterSet):
-    close_to = DistanceFilter(name='coordinates', lookup_expr='distance_lte')
-    path = django_filters.CharFilter(name='nb_path', lookup_expr='exact')
+    close_to = DistanceFilter(field_name='coordinates', lookup_expr='distance_lte')
+    path = django_filters.CharFilter(field_name='nb_path', lookup_expr='exact')
 
     class Meta:
         model = models.SupportGroup
@@ -33,7 +33,7 @@ class LegacySupportGroupViewSet(NationBuilderViewMixin, ModelViewSet):
     serializer_class = serializers.LegacySupportGroupSerializer
     queryset = models.SupportGroup.objects.all().prefetch_related('tags')
     filter_backends = (DjangoFilterBackend, OrderByDistanceToBackend)
-    filter_class = SupportGroupFilterSet
+    filterset_class = SupportGroupFilterSet
 
     def get_queryset(self):
         if not self.request.user.has_perm('groups.view_hidden_supportgroup'):
