@@ -33,7 +33,6 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'adhésion',
                 'verbose_name_plural': 'adhésions',
-                'permissions': (('view_membership', 'Peut afficher les adhésions'),),
             },
         ),
         migrations.CreateModel(

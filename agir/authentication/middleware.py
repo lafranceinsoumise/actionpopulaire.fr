@@ -32,7 +32,7 @@ class MailLinkMiddleware():
         del other_params['code']
         url = '{}?{}'.format(request.path, other_params.urlencode(safe='/')) if other_params else request.path
 
-        user = authenticate(user_pk=request.GET['p'], token=request.GET['code'])
+        user = authenticate(request, user_pk=request.GET['p'], token=request.GET['code'])
 
         # case where user is already authenticated and different from user above ==> redirect with warning message
         if hasattr(request.user, 'is_authenticated') and request.user.is_authenticated and request.user != user:

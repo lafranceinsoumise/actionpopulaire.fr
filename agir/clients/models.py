@@ -149,6 +149,3 @@ class Authorization(ExportModelOperationsMixin('authorization'), TimeStampedMode
         verbose_name = 'autorisation',
         verbose_name_plural = 'autorisations'
         unique_together = ('person', 'client')
-        permissions = (
-            ('view_authorization', _('Peut afficher les autorisations')),
-        )

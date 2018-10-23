@@ -31,7 +31,6 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': ('autorisation',),
                 'verbose_name_plural': 'autorisations',
-                'permissions': (('view_authorization', 'Peut afficher les autorisations'),),
             },
         ),
         migrations.CreateModel(

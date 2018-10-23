@@ -1,4 +1,5 @@
 from django.contrib import admin, messages
+from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.shortcuts import reverse
@@ -54,9 +55,11 @@ def add_member(model_admin, request, pk):
         'add': False,
         'save_as': True,
         'show_save': False,
-        'has_delete_permission': False,
-        'has_add_permission': False,
-        'has_change_permission': True,
+        'has_delete_permission': model_admin.has_delete_permission(request, event),
+        'has_add_permission': model_admin.has_add_permission(request),
+        'has_change_permission': model_admin.has_change_permission(request, event),
+        'has_view_permission': model_admin.has_view_permission(request, event),
+        'has_editable_inline_admin_formsets': False,
         'media': model_admin.media + admin_form.media
     }
     context.update(model_admin.admin_site.each_context(request))

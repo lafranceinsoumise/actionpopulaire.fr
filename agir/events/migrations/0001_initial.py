@@ -89,7 +89,6 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'RSVP',
                 'verbose_name_plural': 'RSVP',
-                'permissions': (('view_rsvp', 'Peut afficher les RSVPs'),),
             },
         ),
         migrations.AddField(

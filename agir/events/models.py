@@ -433,9 +433,6 @@ class RSVP(ExportModelOperationsMixin('rsvp'), TimeStampedModel):
         verbose_name = 'RSVP'
         verbose_name_plural = 'RSVP'
         unique_together = ('event', 'person',)
-        permissions = (
-            ('view_rsvp', _('Peut afficher les RSVPs')),
-        )
 
     def __str__(self):
         info = '{person} --> {event} ({guests} invités)'.format(

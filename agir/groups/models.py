@@ -136,9 +136,6 @@ class Membership(ExportModelOperationsMixin('membership'), TimeStampedModel):
         verbose_name = _('adhésion')
         verbose_name_plural = _('adhésions')
         unique_together = ('supportgroup', 'person')
-        permissions = (
-            ('view_membership', _('Peut afficher les adhésions')),
-        )
 
     def __str__(self):
         return _('{person} --> {supportgroup},  (animateur = {is_referent})').format(

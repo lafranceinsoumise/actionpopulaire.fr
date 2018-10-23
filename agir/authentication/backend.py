@@ -18,7 +18,7 @@ short_code_generator = ShortCodeGenerator(
 class ShortCodeBackend(GetRoleMixin):
     prefetch = ['person']
 
-    def authenticate(self, user_pk=None, short_code=None):
+    def authenticate(self, request, user_pk=None, short_code=None):
         if user_pk and short_code:
             if short_code_generator.check_short_code(user_pk, short_code):
                 try:
@@ -35,7 +35,7 @@ class ShortCodeBackend(GetRoleMixin):
 class MailLinkBackend(GetRoleMixin):
     prefetch = ['person']
 
-    def authenticate(self, user_pk=None, token=None):
+    def authenticate(self, request, user_pk=None, token=None):
         if user_pk and token:
             try:
                 person = Person.objects.select_related('role').get(pk=user_pk)
