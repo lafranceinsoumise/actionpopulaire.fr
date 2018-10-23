@@ -55,6 +55,7 @@ class RedirectToMixin():
         )
         url_is_safe = is_safe_url(
             url=redirect_to,
+            allowed_hosts=[s.rsplit('/', 1)[-1] for s in [settings.MAIN_DOMAIN, settings.API_DOMAIN, settings.FRONT_DOMAIN]],
             require_https=self.request.is_secure(),
         )
         return redirect_to if url_is_safe else ''

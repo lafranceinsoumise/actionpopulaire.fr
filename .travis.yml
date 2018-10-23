@@ -9,8 +9,6 @@ addons:
     packages:
       - libgdal-dev
       - postgresql-9.6-postgis-2.3
-      - libsystemd-daemon-dev
-      - libsystemd-journal-dev
 dist: trusty
 sudo: required
 
@@ -22,10 +20,11 @@ before_install:
   - export DATABASE_URL="postgis://postgres@localhost/api"
   - export PIP_USE_MIRRORS=true
   - export LOG_DISABLE_JOURNALD=true
+  - pip install -U pipenv
+  - pipenv lock -r > requirements.txt
 
 install:
-  - "grep -v systemd requirements.txt | pip install -r /dev/stdin"
-  - "npm i"
-  - "npm run build"
+  - grep -v systemd requirements.txt | pip install -r /dev/stdin
+  - npm i && npm run build
 
-script: "python manage.py test -v 2"
+script: python manage.py test -v 2

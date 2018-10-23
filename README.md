@@ -1,6 +1,8 @@
 api-django
 ==========
 
+[![Build Status](https://travis-ci.org/lafranceinsoumise/api-django.svg?branch=master)](https://travis-ci.org/lafranceinsoumise/api-django)
+
 1. [Vagrant installation](#vagrant)
 1. Manual installation
     1. [Configure PostgreSQL](#configure-postgresql)

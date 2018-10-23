@@ -32,7 +32,7 @@ class MailLinkTestCase(TestCase):
         self.assertRedirects(response, reverse('volunteer'))
         self.assertEqual(get_user(self.client), self.person.role)
 
-    def test_cannot_connect_with_wront_query_params(self):
+    def test_cannot_connect_with_wrong_query_params(self):
         p = self.person.pk
 
         response = self.client.get(reverse('volunteer'), data={'p': p, 'code': 'prout'}, follow=True)
