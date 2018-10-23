@@ -66,14 +66,15 @@ class EventIcsView(DetailView):
     queryset = Event.objects.filter(published=True)
 
     def render_to_response(self, context, **response_kwargs):
+        event_url = front_url('view_event', args=[context['event'].pk], auto_login=False)
         ics_calendar = ics.Calendar(events=[ics.Event(
             name=context['event'].name,
             begin=context['event'].start_time,
             end=context['event'].end_time,
             uid=str(context['event'].pk),
-            description=context['event'].description,
+            description=context['event'].description + f"<p>{event_url}</p>",
             location=context['event'].short_address,
-            url=front_url('view_event', args=[context['event'].pk], auto_login=False)
+            url=event_url
         )])
 
         return HttpResponse(ics_calendar, content_type="text/calendar")
