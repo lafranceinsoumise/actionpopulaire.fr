@@ -96,6 +96,7 @@
                     {% endif %}
                 {% endif %}
             {% elif event.subtype.allow_external %}
+              <p class="text-left"><em>{{ event.subtype.external_help_text }}</em></p>
                   <form class="form-inline" method="post" action="{% url 'external_rsvp_event' event.pk %}">
                     {% csrf_token %}
                     <div class="input-group">

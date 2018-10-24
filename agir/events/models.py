@@ -315,6 +315,7 @@ class EventSubtype(AbstractMapObjectLabel):
 
     type = models.CharField(_("Type d'événement"), max_length=1, choices=TYPE_CHOICES)
     allow_external = models.BooleanField(_("Les non-insoumis⋅es peuvent rejoindre"), default=False)
+    external_help_text = models.TextField(_("Phrase d'explication pour rejoindre le groupe"), blank=True)
 
     class Meta:
         verbose_name = _("Sous-type d'événement")

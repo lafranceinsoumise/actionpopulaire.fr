@@ -282,7 +282,7 @@ class AbstractMapObjectLabel(TimeStampedModel, AbstractLabel):
     icon_anchor_y = models.PositiveSmallIntegerField(_("ancre de l'icône (y)"), blank=True, null=True)
     popup_anchor_y = models.PositiveSmallIntegerField(_("placement de la popup (par rapport au point)"), blank=True, null=True)
 
-    config = JSONField(_('Configuration'), default=dict)
+    config = JSONField(_('Configuration'), default=dict, blank=True)
 
     class Meta:
         abstract = True
