@@ -14,6 +14,7 @@ urlpatterns = [
     path('evenements/<uuid:pk>/quitter/', views.QuitEventView.as_view(), name='quit_event'),
     path('evenements/<uuid:pk>/annuler/', views.CancelEventView.as_view(), name='cancel_event'),
     path('evenements/<uuid:pk>/inscription/', views.RSVPEventView.as_view(), name='rsvp_event'),
+    path('evenements/<uuid:pk>/inscription-externe/', views.ExternalRSVPView.as_view(), name='external_rsvp_event'),
     path('evenements/rsvp/<pk>/changer-paiement/', views.ChangeRSVPPaymentView.as_view(), name='rsvp_change_payment'),
     path('evenements/paiement/', views.PayEventView.as_view(), name='pay_event'),
     path('evenements/<uuid:pk>/localisation/', views.ChangeEventLocationView.as_view(), name='change_event_location'),

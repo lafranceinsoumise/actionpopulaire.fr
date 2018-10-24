@@ -445,3 +445,7 @@ class BaseRSVPForm(BasePersonForm):
 
         self.fields['is_guest'].initial = is_guest
         self.helper.layout.append('is_guest')
+
+
+class ExternalRSVPForm(forms.Form):
+    email = forms.EmailField()

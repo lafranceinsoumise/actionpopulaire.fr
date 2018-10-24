@@ -77,7 +77,7 @@ class EmailInline(admin.TabularInline):
 
 @admin.register(Person, site=admin_site)
 class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
-    list_display = ('first_name', 'last_name', 'email', 'contact_phone', 'subscribed', 'role_link', 'created')
+    list_display = ('first_name', 'last_name', 'email', 'contact_phone', 'is_insoumise', 'subscribed', 'role_link', 'created')
     list_display_links = ('email',)
     form = PersonAdminForm
 
@@ -92,7 +92,7 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('subscribed', 'event_notifications', 'group_notifications')
         }),
         (_('Paramètres de participation'), {
-            'fields': ('draw_participation', )
+            'fields': ('insoumise', 'draw_participation', )
         }),
         (_('Profil'), {
             'fields': ('gender', 'date_of_birth', 'tags', 'mandates')
@@ -127,6 +127,7 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     list_filter = (
         ('tags'),
+        ('is_insoumise', admin.BooleanFieldListFilter),
         ('subscribed', admin.BooleanFieldListFilter),
         ('draw_participation', admin.BooleanFieldListFilter),
         ('gender'),

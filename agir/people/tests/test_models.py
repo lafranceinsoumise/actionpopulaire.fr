@@ -15,6 +15,13 @@ class BasicPersonTestCase(TestCase):
         self.assertEqual(user.email, 'test@domain.com')
         self.assertEqual(user.pk, Person.objects.get_by_natural_key('test@domain.com').pk)
 
+    def test_non_insoumise(self):
+        user = Person.objects.create_person(email='test@domain.com', is_insoumise=False)
+
+        self.assertEqual(user.subscribed, False)
+        self.assertEqual(user.event_notifications, False)
+        self.assertEqual(user.group_notifications, False)
+
     @mock.patch('agir.people.models.metrics.subscriptions')
     def test_subscription_metric_is_called(self, subscriptions_metric):
         Person.objects.create_person(email='test@domain.com')

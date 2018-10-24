@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest import skip, mock
 
 from django.core.exceptions import ValidationError
@@ -896,3 +897,50 @@ class CalendarPageTestCase(TestCase):
         # there's no previous button
         self.assertContains(res, '<li class="previous">')
         self.assertContains(res, 'href="?page=1"')
+
+
+class ExternalRSVPTestCase(TestCase):
+    def setUp(self):
+        self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+        self.person = Person.objects.create_person('test@test.com', is_insoumise=False)
+        self.event = Event.objects.create(
+            name='Simple Event',
+            start_time=now + 3 * day,
+            end_time=now + 3 * day + 4 * hour,
+            subtype=EventSubtype.objects.create(type=EventSubtype.TYPE_PUBLIC_ACTION, allow_external=True)
+        )
+
+    def test_can_rsvp(self):
+        res = self.client.get(reverse('view_event', args=[self.event.pk]))
+        self.assertNotContains(res, "Se connecter pour")
+        self.assertContains(res, "Participer à cet événement")
+
+        self.client.post('external_rsvp_event', data={'email': 'test@test.com'})
+        self.assertEqual(self.person.rsvps.all().count(), 0)
+        self.client.force_login(self.person.role)
+        session = self.client.session
+        session['login_action'] = datetime.utcnow().timestamp()
+        session.save()
+        self.client.get(reverse('external_rsvp_event', args=[self.event.pk]))
+
+        self.assertEqual(self.person.rsvps.first().event, self.event)
+
+    def test_cannot_rsvp_by_csrf(self):
+        self.client.force_login(self.person.role)
+        self.client.get(reverse('external_rsvp_event', args=[self.event.pk]))
+
+        self.assertEqual(self.person.rsvps.count(), 0)
+
+    def test_can_rsvp_without_account(self):
+        self.client.post('external_rsvp_event', data={'email': 'test1@test.com'})
+        self.person = Person.objects.get(email='test1@test.com')
+        self.assertEqual(self.person.rsvps.all().count(), 0)
+        self.client.force_login(self.person.role)
+        session = self.client.session
+        session['login_action'] = datetime.utcnow().timestamp()
+        session.save()
+        self.client.get(reverse('external_rsvp_event', args=[self.event.pk]))
+
+        self.assertEqual(self.person.rsvps.first().event, self.event)

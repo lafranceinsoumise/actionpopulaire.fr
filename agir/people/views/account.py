@@ -6,17 +6,23 @@ from django.utils.translation import ugettext as _
 from django.views.generic import UpdateView, DeleteView, TemplateView, FormView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin, HardLoginRequiredMixin
-from agir.people.forms import MessagePreferencesForm, AddEmailForm, SendValidationSMSForm, CodeValidationForm
+from agir.people.forms import InsoumisePreferencesForm, AddEmailForm, SendValidationSMSForm, CodeValidationForm, \
+    ExternalPersonPreferencesForm
 from agir.people.models import Person
 
 
 class MessagePreferencesView(SoftLoginRequiredMixin, UpdateView):
     template_name = 'people/message_preferences.html'
-    form_class = MessagePreferencesForm
     success_url = reverse_lazy('message_preferences')
 
     def get_object(self, queryset=None):
         return self.request.user.person
+
+    def get_form_class(self):
+        if self.object.is_insoumise:
+            return InsoumisePreferencesForm
+
+        return ExternalPersonPreferencesForm
 
     def get_success_url(self):
         if self.request.POST.get('validation'):

@@ -36,7 +36,7 @@ class DashboardTestCase(FakeDataMixin, TestCase):
 
 class MessagePreferencesTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person('test@test.com')
+        self.person = Person.objects.create_person('test@test.com', is_insoumise=False)
         self.person.add_email('test2@test.com')
         self.client.force_login(self.person.role)
 
@@ -88,7 +88,41 @@ class MessagePreferencesTestCase(TestCase):
             ['test@test.com', 'test2@test.com', 'test3@test.com', 'test4@test.com']
         )
 
+    def test_cannot_see_subscribed_field_if_not_insoumise(self):
+        res = self.client.get(reverse('message_preferences'))
+        self.assertNotContains(res, 'subscribed')
+
+        res = self.client.post(reverse('message_preferences'), data={
+            'subscribed': 'on',
+            'gender': '',
+            'primary_email': self.person.emails.first().id
+        })
+        self.person.refresh_from_db()
+        self.assertEqual(self.person.subscribed, False)
+
+    def test_can_see_subscribed_field_if_insoumise(self):
+        self.person.is_insoumise = True
+        self.person.save()
+
+        res = self.client.get(reverse('message_preferences'))
+        self.assertContains(res, 'subscribed')
+
+        res = self.client.post(reverse('message_preferences'), data={
+            'subscribed': 'on',
+            'gender': '',
+            'primary_email': self.person.emails.first().id
+        })
+        self.person.refresh_from_db()
+        self.assertEqual(self.person.subscribed, True)
+
     def test_can_stop_messages(self):
+        self.person.is_insoumise = True
+        self.person.subscribed = True
+        self.person.event_notifications = True
+        self.person.group_notifications = True
+        self.person.draw_notifications = True
+        self.person.save()
+
         res = self.client.post('/message_preferences/', data={
             'no_mail': True,
             'gender': '',

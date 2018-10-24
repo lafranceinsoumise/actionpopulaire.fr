@@ -1,16 +1,18 @@
+from datetime import datetime, timedelta
+
 from django.contrib import messages
 from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import UpdateView, DetailView, RedirectView
+from django.views.generic import UpdateView, DetailView, RedirectView, FormView
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.payments.actions import redirect_to_payment
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PAYMENT_MODES
-from agir.people.models import PersonFormSubmission
+from agir.people.models import PersonFormSubmission, Person
 from agir.people.actions.person_forms import get_people_form_class, get_formatted_submission
 
 from ..actions.rsvps import (
@@ -19,8 +21,8 @@ from ..actions.rsvps import (
     cancel_payment_for_guest, cancel_payment_for_rsvp, RSVPException
 )
 from ..models import Event, RSVP
-from ..tasks import send_rsvp_notification
-from ..forms import BillingForm, GuestsForm, BaseRSVPForm
+from ..tasks import send_rsvp_notification, send_external_rsvp_optin
+from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
 
 
 class RSVPEventView(HardLoginRequiredMixin, DetailView):
@@ -409,3 +411,58 @@ def notification_listener(payment):
 
                 rsvp.save()
             send_rsvp_notification.delay(rsvp.pk)
+
+
+class ExternalRSVPView(FormView, DetailView):
+    model = Event
+    context_object_name = 'event'
+    form_class = ExternalRSVPForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.event = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.add_message(
+                request=request,
+                level=messages.WARNING,
+                message=_("Votre lien pour vous inscrire est expiré. Veuillez réessayer.")
+            )
+            return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+
+        if 'login_action' not in request.session or request.session['login_action'] < (
+                    datetime.utcnow() - timedelta(minutes=30)).timestamp():
+            messages.add_message(
+                request=request,
+                level=messages.WARNING,
+                message=_("L'action d'inscription a échoué.")
+            )
+            return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+
+        if self.event.is_free and not self.event.subscription_form:
+            RSVP.objects.create(
+                person=request.user.person,
+                event=self.event
+            )
+            messages.add_message(
+                request=request,
+                level=messages.INFO,
+                message=_("Vous avez bien été inscrit⋅e à l'événement.")
+            )
+
+        return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+
+    def form_valid(self, form):
+        try:
+            person = Person.objects.get(email=form.cleaned_data['email'])
+        except Person.DoesNotExist:
+            person = Person.objects.create_person(email=form.cleaned_data['email'], is_insoumise=False)
+        send_external_rsvp_optin.delay(self.event.pk, person.pk)
+        messages.add_message(
+            request=self.request,
+            level=messages.INFO,
+            message=_("Un email vous a été envoyé. Afin de confirmer votre participation, merci de cliquer sur le "
+                      "lien qu'il contient.")
+        )
+        return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))

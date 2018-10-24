@@ -112,12 +112,14 @@
                     {% if user.is_authenticated %}
                         <ul id="menu-menu-principal" class="nav navbar-nav">
                             <li class="menu-item"><a title="Tableau de bord" href="{% url 'dashboard' %}">Tableau de bord</a></li>
-                            {% if user.person.contact_phone_status == 'U' %}
-                                <li class="menu-item"><a title="Vérifier mon compte" href="{% url 'send_validation_sms' %}">Vérifier mon compte</a></li>
+                            {% if user.person.is_insoumise %}
+                                {% if user.person.contact_phone_status == 'U' %}
+                                    <li class="menu-item"><a title="Vérifier mon compte" href="{% url 'send_validation_sms' %}">Vérifier mon compte</a></li>
+                                {% endif %}
+                                <li class="menu-item"><a title="Mon profil" href="{% url "change_profile" %}">Mon profil</a></li>
+                                <li class="menu-item"><a title="J'agis" href="{% url "volunteer" %}">Me porter volontaire</a></li>
+                                <li class="menu-item"><a title="Fiches pratiques" href="https://lafranceinsoumise.fr/fiches_pour_agir/">Fiches pratiques</a></li>
                             {% endif %}
-                            <li class="menu-item"><a title="Mon profil" href="{% url "change_profile" %}">Mon profil</a></li>
-                            <li class="menu-item"><a title="J'agis" href="{% url "volunteer" %}">Me porter volontaire</a></li>
-                            <li class="menu-item"><a title="Fiches pratiques" href="https://lafranceinsoumise.fr/fiches_pour_agir/">Fiches pratiques</a></li>
                         </ul>
                     {% endif %}
                     <ul id="menu-menu-connexion" class="nav navbar-nav navbar-right">
