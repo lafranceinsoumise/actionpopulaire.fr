@@ -415,11 +415,10 @@ def notification_listener(payment):
 
 class ExternalRSVPView(FormView, DetailView):
     model = Event
-    context_object_name = 'event'
     form_class = ExternalRSVPForm
 
     def dispatch(self, request, *args, **kwargs):
-        self.event = self.get_object()
+        self.event = self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -465,4 +464,7 @@ class ExternalRSVPView(FormView, DetailView):
             message=_("Un email vous a été envoyé. Afin de confirmer votre participation, merci de cliquer sur le "
                       "lien qu'il contient.")
         )
+        return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+
+    def form_invalid(self, form):
         return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))

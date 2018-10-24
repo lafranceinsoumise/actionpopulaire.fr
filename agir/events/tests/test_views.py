@@ -917,7 +917,7 @@ class ExternalRSVPTestCase(TestCase):
         self.assertNotContains(res, "Se connecter pour")
         self.assertContains(res, "Participer à cet événement")
 
-        self.client.post('external_rsvp_event', data={'email': 'test@test.com'})
+        self.client.post(reverse('external_rsvp_event', args=[self.event.pk]), data={'email': 'test@test.com'})
         self.assertEqual(self.person.rsvps.all().count(), 0)
         self.client.force_login(self.person.role)
         session = self.client.session
@@ -934,7 +934,7 @@ class ExternalRSVPTestCase(TestCase):
         self.assertEqual(self.person.rsvps.count(), 0)
 
     def test_can_rsvp_without_account(self):
-        self.client.post('external_rsvp_event', data={'email': 'test1@test.com'})
+        self.client.post(reverse('external_rsvp_event', args=[self.event.pk]), data={'email': 'test1@test.com'})
         self.person = Person.objects.get(email='test1@test.com')
         self.assertEqual(self.person.rsvps.all().count(), 0)
         self.client.force_login(self.person.role)
