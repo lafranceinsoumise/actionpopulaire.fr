@@ -52,7 +52,10 @@ def resize_and_autorotate(file_name, variations, replace=False, storage=default_
     with storage.open(file_name) as f:
         with Image.open(f) as image:
             file_format = image.format
-            exif = image._getexif()
+            try:
+                exif = image._getexif()
+            except AttributeError:
+                exif = None
 
             # if image has exif data about orientation, let's rotate it
             orientation_key = 274 # cf ExifTags
