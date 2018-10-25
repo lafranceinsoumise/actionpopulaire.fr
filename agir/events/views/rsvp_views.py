@@ -430,6 +430,14 @@ class ExternalRSVPView(FormView, DetailView):
             )
             return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
 
+        if RSVP.objects.filter(person=request.user.person, event=self.event).exists():
+            messages.add_message(
+                request=request,
+                level=messages.INFO,
+                message=_("Vous êtes déjà inscrit⋅e à l'événement.")
+            )
+            return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+
         if 'login_action' not in request.session or request.session['login_action'] < (
                     datetime.utcnow() - timedelta(minutes=30)).timestamp():
             messages.add_message(
@@ -440,7 +448,7 @@ class ExternalRSVPView(FormView, DetailView):
             return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
 
         if self.event.is_free and not self.event.subscription_form:
-            RSVP.objects.create(
+            RSVP.objects.get_or_create(
                 person=request.user.person,
                 event=self.event
             )
