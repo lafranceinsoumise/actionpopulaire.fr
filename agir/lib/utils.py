@@ -1,4 +1,5 @@
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from io import BytesIO
 from urllib.parse import urljoin
 
@@ -47,7 +48,7 @@ def generate_token_params(person):
     }
 
 
-def resize_and_autorotate(file_name, variations, storage):
+def resize_and_autorotate(file_name, variations, replace=False, storage=default_storage):
     with storage.open(file_name) as f:
         with Image.open(f) as image:
             file_format = image.format
@@ -74,6 +75,6 @@ def resize_and_autorotate(file_name, variations, storage):
                 storage.save(file_name, f)
 
     # render stdimage variations
-    render_variations(file_name, variations, replace=True, storage=storage)
+    render_variations(file_name, variations, replace=replace, storage=storage)
 
     return False
