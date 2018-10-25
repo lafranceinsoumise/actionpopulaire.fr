@@ -92,7 +92,7 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             'fields': ('subscribed', 'event_notifications', 'group_notifications')
         }),
         (_('Paramètres de participation'), {
-            'fields': ('insoumise', 'draw_participation', )
+            'fields': ('is_insoumise', 'draw_participation', )
         }),
         (_('Profil'), {
             'fields': ('gender', 'date_of_birth', 'tags', 'mandates')
