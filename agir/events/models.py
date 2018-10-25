@@ -15,7 +15,7 @@ from model_utils.models import TimeStampedModel
 from stdimage.models import StdImageField
 from stdimage.utils import UploadToAutoSlug
 
-from agir.lib.utils import front_url
+from agir.lib.utils import front_url, resize_and_autorotate
 from ..lib.models import (
     BaseAPIResource, AbstractLabel, NationBuilderResource, ContactMixin, LocationMixin, ImageMixin, DescriptionMixin,
     DescriptionField, UploadToRelatedObjectDirectoryWithUUID, UploadToInstanceDirectoryWithFilename,
@@ -488,6 +488,7 @@ class EventImage(ExportModelOperationsMixin('event_image'), TimeStampedModel):
             'thumbnail': (200, 200, True),
             'admin_thumbnail': (100, 100, True),
         },
+        render_variations=resize_and_autorotate,
         upload_to=UploadToRelatedObjectDirectoryWithUUID(related='event'),
         null=False,
         blank=False,
