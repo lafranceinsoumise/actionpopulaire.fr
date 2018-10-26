@@ -72,7 +72,7 @@
       <small>S'abonner {% include 'events/calendar_subscribe_modal.html' with url=calendar_url %}</small>
     </h3>
     <div class="list-group">
-        {% for event in supportgroup.organized_events.upcoming %}
+        {% for event in supportgroup.organized_events.upcoming.distinct %}
             <div class="list-group-item">
                 <strong>
                     <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
@@ -92,7 +92,7 @@
 
     <h3>Événements passés</h3>
     <div class="list-group">
-        {% for event in supportgroup.organized_events.past %}
+        {% for event in supportgroup.organized_events.past.distinct %}
             <div class="list-group-item">
                 <strong>
                     <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
