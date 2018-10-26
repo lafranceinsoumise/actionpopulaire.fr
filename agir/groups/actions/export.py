@@ -12,8 +12,8 @@ from agir.api import front_urls
 __all__ = ['groups_to_csv', 'groups_to_csv_lines']
 
 
-COMMON_FIELDS = ['name', 'published', 'contact_email', 'contact_phone', 'description',]
-ADDRESS_FIELDS = ['location_name', 'location_address1', 'location_zip', 'location_city']
+COMMON_FIELDS = ['name', 'published', 'contact_email', 'contact_phone', 'description', 'location_zip', 'location_city']
+ADDRESS_FIELDS = ['location_name', 'location_address1', 'location_address2']
 LINK_FIELDS = ['link', 'admin_link']
 
 FIELDS = COMMON_FIELDS + ['address', 'animators'] + LINK_FIELDS
@@ -26,7 +26,6 @@ address_parts_extractor = attrgetter(*ADDRESS_FIELDS)
 
 animator_extractor = attrgetter(*ANIMATOR_SIMPLE_FIELDS)
 
-address_template = "{}, {}, {} {}"
 initiator_template = "{first_name} {last_name} {contact_phone} <{email}>"
 
 
@@ -49,8 +48,8 @@ def groups_to_csv_lines(queryset):
 def groups_to_dicts(queryset):
     for g in queryset.iterator():
         d = {k: v for k, v in zip(COMMON_FIELDS, common_extractor(g))}
+        d['address'] = '\n'.join(component for component in address_parts_extractor(g) if component)
         d['description'] = unescape(bleach.clean(d['description'].replace('<br />', '\n'), tags=[], strip=True))
-        d['address'] = address_template.format(*address_parts_extractor(g))
 
         animators = (initiator_template.format(**dict(
             zip(ANIMATOR_SIMPLE_FIELDS, animator_extractor(m.person))
@@ -62,6 +61,7 @@ def groups_to_dicts(queryset):
         d['admin_link'] = settings.API_DOMAIN + reverse('admin:groups_supportgroup_change', args=[g.id])
 
         yield d
+
 
 def memberships_to_dict(queryset):
     for m in queryset:
