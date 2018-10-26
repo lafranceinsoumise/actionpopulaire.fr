@@ -46,17 +46,18 @@ def add_member(model_admin, request, pk):
         'title': _('Ajouter un membre au groupe: %s') % escape(group.name),
         'adminform': admin_form,
         'form': form,
-        'is_popup': (IS_POPUP_VAR in request.POST or
-                     IS_POPUP_VAR in request.GET),
+        'is_popup': True,
         'opts': model_admin.model._meta,
         'original': group,
-        'change': False,
+        'change': True,
         'add': False,
-        'save_as': True,
-        'show_save': False,
-        'has_delete_permission': False,
-        'has_add_permission': False,
-        'has_change_permission': True,
+        'save_as': False,
+        'show_save': True,
+        'has_delete_permission': model_admin.has_delete_permission(request, group),
+        'has_add_permission': model_admin.has_add_permission(request),
+        'has_change_permission': model_admin.has_change_permission(request, group),
+        'has_view_permission': model_admin.has_view_permission(request, group),
+        'has_editable_inline_admin_formsets': False,
         'media': model_admin.media + admin_form.media
     }
     context.update(model_admin.admin_site.each_context(request))

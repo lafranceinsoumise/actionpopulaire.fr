@@ -1,5 +1,4 @@
 from django.contrib import admin, messages
-from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.shortcuts import reverse
@@ -47,14 +46,13 @@ def add_member(model_admin, request, pk):
         'title': _("Ajouter un participant à l'événement: %s") % escape(event.name),
         'adminform': admin_form,
         'form': form,
-        'is_popup': (IS_POPUP_VAR in request.POST or
-                     IS_POPUP_VAR in request.GET),
+        'is_popup': True,
         'opts': model_admin.model._meta,
         'original': event,
-        'change': False,
+        'change': True,
         'add': False,
-        'save_as': True,
-        'show_save': False,
+        'save_as': False,
+        'show_save': True,
         'has_delete_permission': model_admin.has_delete_permission(request, event),
         'has_add_permission': model_admin.has_add_permission(request),
         'has_change_permission': model_admin.has_change_permission(request, event),
@@ -62,6 +60,7 @@ def add_member(model_admin, request, pk):
         'has_editable_inline_admin_formsets': False,
         'media': model_admin.media + admin_form.media
     }
+    print(context)
     context.update(model_admin.admin_site.each_context(request))
 
     request.current_app = model_admin.admin_site.name
