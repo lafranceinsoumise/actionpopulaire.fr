@@ -1,5 +1,3 @@
-from django.contrib.auth.backends import ModelBackend
-
 from agir.authentication.models import Role
 from agir.authentication.backend_mixins import GetRoleMixin
 
@@ -12,7 +10,7 @@ class PersonBackend(GetRoleMixin):
 
     def authenticate(self, request, email=None, password=None):
         try:
-            role = Role._default_manager.select_related('person').get(person__emails__address=email)
+            role = Role._default_manager.select_related('person').get(person__emails__address__iexact=email)
         except Role.DoesNotExist:
             Role().set_password(password)
         else:

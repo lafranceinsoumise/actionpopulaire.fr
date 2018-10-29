@@ -53,4 +53,4 @@ class PaymentAdmin(admin.ModelAdmin):
                        'location_country', 'meta', 'events')
     fields = readonly_fields + ('mode', 'status')
     list_filter = ('price', 'status')
-    search_fields = ('email', 'person__emails__address')
+    search_fields = ('email', 'person__emails__address__iexact')

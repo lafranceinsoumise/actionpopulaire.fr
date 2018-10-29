@@ -94,7 +94,7 @@ class BasicPersonTestCase(TestCase):
     @mock.patch('agir.people.tasks.delete_email_mailtrain')
     def test_email_is_deleted_from_mailtrain_when_email_deleted(self, delete_email_mailtrain, update_person_email):
         person = Person.objects.create_person('test1@domain.com')
-        p2 = PersonEmail.objects.create(address='test2@domain.com', person=person)
+        p2 = PersonEmail.objects.create_email(address='test2@domain.com', person=person)
 
         delete_email_mailtrain.reset_mock()
 

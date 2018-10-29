@@ -85,7 +85,7 @@ class MessagePreferencesTestCase(TestCase):
 
         self.assertCountEqual(
             [e.address for e in self.person.emails.all()],
-            ['test@test.com', 'test2@test.com', 'test3@test.com', 'test4@test.com']
+            ['test@test.com', 'test2@test.com', 'test3@test.com', 'TeST4@test.com']
         )
 
     def test_cannot_see_subscribed_field_if_not_insoumise(self):

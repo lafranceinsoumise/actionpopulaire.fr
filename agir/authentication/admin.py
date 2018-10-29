@@ -27,7 +27,7 @@ class RoleAdmin(UserAdmin):
     list_filter = ('type', 'is_staff', 'is_superuser', 'groups')
     filter_horizontal = ('groups', 'user_permissions',)
 
-    search_fields = ('id', 'client__name', 'person__emails__address')
+    search_fields = ('id', 'client__name', 'person__emails__address__iexact')
     ordering = ('id',)
 
     def link(self, obj):

@@ -64,7 +64,7 @@ class BaseSubscriptionForm(forms.ModelForm):
         and calling `instance.save()`later.
         """
         super()._save_m2m()
-        PersonEmail.objects.create(address=self.cleaned_data['email'], person=self.instance)
+        PersonEmail.objects.create_email(address=self.cleaned_data['email'], person=self.instance)
         send_welcome_mail.delay(self.instance.pk)
 
     class Meta:

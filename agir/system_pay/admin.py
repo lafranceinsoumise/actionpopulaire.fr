@@ -10,7 +10,7 @@ class SystemPayTransactionAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'payment', 'person', 'status', 'webhook_calls')
     fields = readonly_fields
     list_filter = ('status',)
-    search_fields = ('payment__email', 'payment__person__emails__address')
+    search_fields = ('payment__email', 'payment__person__emails__address__iexact')
 
     def person(self, obj):
         return obj.payment.person

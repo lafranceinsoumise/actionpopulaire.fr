@@ -5,7 +5,7 @@ from django.db import models, transaction
 from django.contrib.postgres.fields import JSONField
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.functional import cached_property
 from django.conf import settings
 from django.contrib.postgres.search import SearchVectorField
@@ -305,7 +305,7 @@ class PersonTag(AbstractLabel):
 
 class PersonEmailManager(models.Manager):
     @classmethod
-    def normalize_email(cls, email, *, lowercase_local_part=True):
+    def normalize_email(cls, email, *, lowercase_local_part=False):
         try:
             local_part, domain = email.strip().rsplit('@', 1)
         except ValueError:
@@ -314,7 +314,7 @@ class PersonEmailManager(models.Manager):
             email = '@'.join([local_part.lower() if lowercase_local_part else local_part, domain.lower()])
         return email
 
-    def create_email(self, address, person, *, lowercase_local_part=True, **kwargs):
+    def create_email(self, address, person, *, lowercase_local_part=False, **kwargs):
         return self.create(
             address=self.normalize_email(address, lowercase_local_part=lowercase_local_part),
             person=person,
@@ -323,11 +323,7 @@ class PersonEmailManager(models.Manager):
 
     def get_by_natural_key(self, address):
         # look first without lowercasing email
-        try:
-            return self.get(address=self.normalize_email(address, lowercase_local_part=False))
-        # if it does not exist, lowercase it
-        except self.model.DoesNotExist:
-            return self.get(address=self.normalize_email(address, lowercase_local_part=True))
+        return self.get(address__iexact=address)
 
 
 class PersonEmail(ExportModelOperationsMixin('person_email'), models.Model):
@@ -338,7 +334,6 @@ class PersonEmail(ExportModelOperationsMixin('person_email'), models.Model):
 
     address = models.EmailField(
         _('adresse email'),
-        unique=True,
         blank=False,
         help_text=_("L'adresse email de la personne, utilisée comme identifiant")
     )
@@ -375,6 +370,27 @@ class PersonEmail(ExportModelOperationsMixin('person_email'), models.Model):
 
     def __str__(self):
         return self.address
+
+    def validate_unique(self, exclude=None):
+        errors = {}
+        try:
+            super().validate_unique(exclude=exclude)
+        except ValidationError as e:
+            errors = e.message_dict
+
+        if exclude is None or 'address' not in exclude:
+            qs = PersonEmail.objects.filter(address__iexact=self.address)
+            if not self._state.adding and self.pk:
+                qs = qs.exclude(pk=self.pk)
+
+            if qs.exists():
+                errors.setdefault('address', []).append(ValidationError(
+                    message=_('Cette adresse email est déjà utilisée.'),
+                    code='unique',
+                ))
+
+        if errors:
+            raise ValidationError(errors)
 
     def clean(self):
         self.address = PersonEmail.objects.normalize_email(self.address)

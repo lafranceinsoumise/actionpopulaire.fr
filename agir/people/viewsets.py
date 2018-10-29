@@ -20,7 +20,7 @@ SubscribeIPBucket = TokenBucket('SubscribeIP', 2, 60)
 
 
 class PeopleFilter(django_filters.rest_framework.FilterSet):
-    email = django_filters.CharFilter(field_name='emails__address')
+    email = django_filters.CharFilter(field_name='emails__address', lookup_expr='iexact')
 
     class Meta:
         model = models.Person

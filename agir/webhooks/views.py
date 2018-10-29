@@ -32,7 +32,7 @@ class BounceView(APIView):
 
     def handleBounce(self, recipient_email):
         try:
-            person_email = PersonEmail.objects.get(address=recipient_email)
+            person_email = PersonEmail.objects.get_by_natural_key(recipient_email)
         except PersonEmail.DoesNotExist:
             return
 
