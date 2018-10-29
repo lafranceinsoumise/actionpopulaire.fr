@@ -16,6 +16,10 @@ def merge_persons(p1, p2):
         current_memberships = p1.memberships.select_for_update()
         groups = {m.supportgroup_id: m for m in current_memberships}
 
+        # copying person tags
+        missing_tags = p2.tags.all().difference(p1.tags.all())
+        p1.tags.add(*missing_tags)
+
         for m2 in p2.memberships.all():
             if m2.supportgroup_id in groups:
                 m1 = groups[m2.supportgroup_id]
