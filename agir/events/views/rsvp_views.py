@@ -176,7 +176,7 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
             if not form.cleaned_data['is_guest']:
                 return self.redirect_to_event(message=self.default_error_message)
 
-            if self.event.is_free:
+            if self.event.is_free or self.event.get_price(form.submission_data) == 0:
                 with transaction.atomic():
                     # do not save the person, only the submission
                     form.save_submission(self.request.user.person)
