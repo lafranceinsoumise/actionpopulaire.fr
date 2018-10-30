@@ -94,10 +94,10 @@ class Command(BaseCommand):
 
         parser.add_argument('-c', '--certified-on', dest='certified', action='store_true')
         parser.add_argument('-n', '--not-certified-on', dest='not_certified', action='store_true')
-        parser.add_argument('-p', '--previous-tags', dest='previous_tags', action='append')
+        parser.add_argument('-p', '--previous-tags', dest='previous_tags', action='append', default=[])
 
     def handle(self, reference_date, draw_count, tag, gender, certified, not_certified, previous_tags, **kwargs):
-        exclude_ids = [p.id for p in Person.objects.filter(tags__label__in=previous_tags or [])]
+        exclude_ids = [p.id for p in Person.objects.filter(tags__label__in=previous_tags)]
 
         if certified and not_certified:
             raise CommandError('Set either --certified-only OR --not-certified-only')
@@ -122,7 +122,7 @@ class Command(BaseCommand):
             })
 
         else:
-            base_qs = Person.objects.filter(draw_participation=True, created__lt=reference_date)
+            base_qs = Person.objects.filter(draw_participation=True, created__lt=reference_date).exclude(id__in=exclude_ids)
             pk_iterator = lambda g: base_qs.filter(gender=g).values_list('id', flat=True).distinct()
 
         if not gender:
