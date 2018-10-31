@@ -178,6 +178,7 @@
                     {% else %}
                         {{ person.email }}
                     {% endif %}
+                    {% if not forloop.last %}<span style="font-size: 0; color: rgba(255,255,255,0);">,</span>{% endif %}
                 </li>
             {% endwith %}
         {% endfor %}
