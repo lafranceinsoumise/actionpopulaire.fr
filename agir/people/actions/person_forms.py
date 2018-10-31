@@ -15,7 +15,9 @@ from django.utils.translation import ugettext as _
 from crispy_forms.helper import FormHelper
 from phonenumber_field.formfields import PhoneNumberField
 
+from agir.events.models import CustomDateTimeField
 from agir.lib.form_components import *
+from agir.lib.form_fields import DateTimePickerWidget
 from ..form_mixins import MetaFieldsMixin
 
 from ..models import Person, PersonFormSubmission
@@ -31,6 +33,10 @@ class NotRequiredByDefaultMixin:
 
 class LongTextField(forms.CharField):
     widget = forms.Textarea
+
+
+class DateTimeField(forms.DateTimeField):
+    widget = DateTimePickerWidget
 
 
 class ChoiceField(forms.ChoiceField):
@@ -172,7 +178,9 @@ FIELDS = {
     'url': forms.URLField,
     'file': FileField,
     'boolean': BooleanField,
-    'integer': forms.IntegerField
+    'integer': forms.IntegerField,
+    'decimal': forms.DecimalField,
+    'datetime': DateTimeField,
 }
 
 PARTS = {
