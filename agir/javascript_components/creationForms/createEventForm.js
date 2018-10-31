@@ -150,32 +150,9 @@ class EventTypeStep extends FormStep {
     return !!this.props.fields.subtype;
   }
 
-  render() {
-    return (
-      <div className="row padtopmore">
-        <div className="col-sm-6">
-          <h2>Quel type d'événement voulez-vous créer ?</h2>
-          <p>
-            Chaque insoumis·e peut créer un événement sur la plateforme dès lors
-            qu’il respecte le cadre et la démarche de la France insoumise dans un esprit
-            d’ouverture, de bienveillance et de volonté de se projeter dans l’action.
-          </p>
-          <p>
-            Afin de mieux identifier les événements que vous créez, et de pouvoir mieux les recommander aux autres
-            insoumis⋅es, indiquez le type d'événement que vous organisez.
-          </p>
-          <p>
-            Vous souhaitez inviter un⋅e député⋅e, candidat⋅e, ou animateur⋅ice de livret&nbsp;?
-            {' '}
-            <a href="https://lafranceinsoumise.fr/groupes-appui/inviter-des-intervenants/">Suivez le mode d'emploi.</a>
-          </p>
-          <div className="alert alert-warning">
-            <p> Attention&nbsp;! Si vous engagez des frais pour l'organisation ou la promotion de votre événement,
-              vous devez respecter des contraintes légales.</p>
-            <p> <a href="https://lafranceinsoumise.fr/groupes-appui/foire-aux-questions/obligations-financement/">
-              &rarr; Lire la note juridique.</a></p>
-          </div>
-        </div>
+  getRightColumn() {
+    if (this.state.isNotCampaign) {
+      return (
         <div className="col-sm-6 padbottom">
           <h3>Je veux créer...</h3>
           {
@@ -196,6 +173,54 @@ class EventTypeStep extends FormStep {
             ))
           }
         </div>
+      );
+    }
+
+    return (
+      <div className="col-sm-6 padbottom">
+        <div class="alert alert-danger">
+          Attention&nbsp;! Nous sommes désormais officiellement en campagne
+          électorale. Cela signifie que vous ne pouvez engager de frais sans
+          la validation du mandataire financier de la campagne.
+        </div>
+        <h3>Je veux créer...</h3>
+        <h5>...un événement de campagne avec frais</h5>
+        <p>Un événement de campagne qui implique des moyens financiers. S'il remplit certains critères, il peut
+        être financé. Sinon, il doit être financé par des dons. Dans tous les cas, les factures doivent être réglées par
+          le mandataire financier de la campagne.</p>
+        <a className="btn btn-default" href="https://agir.lafranceinsoumise.fr/formulaires/E19-01/">
+          Je remplis le formulaire d'accord préalable</a>
+        <h5>...un autre événement</h5>
+        <p>Ce n'est pas un événement de campagne, ou c'est un événement de campagne qui ne nécessite pas de moyens
+        payants. S'il y a un concours gratuit en nature (prêt de matériel, de salle...), vous devez néanmoins
+        remplir <a href="https://lafranceinsoumise.fr/app/uploads/2018/10/europennes_dons_en_nature.pdf">
+            le formulaire dédié</a> à l'issue de l'événement.</p>
+        <button className="btn btn-default" onClick={() => this.setState({isNotCampaign: true})}>Je crée directement mon événement</button>
+      </div>
+    )
+  }
+
+  render() {
+    return (
+      <div className="row padtopmore">
+        <div className="col-sm-6">
+          <h2>Quel type d'événement voulez-vous créer ?</h2>
+          <p>
+            Chaque insoumis·e peut créer un événement sur la plateforme dès lors
+            qu’il respecte le cadre et la démarche de la France insoumise dans un esprit
+            d’ouverture, de bienveillance et de volonté de se projeter dans l’action.
+          </p>
+          <p>
+            Afin de mieux identifier les événements que vous créez, et de pouvoir mieux les recommander aux autres
+            insoumis⋅es, indiquez le type d'événement que vous organisez.
+          </p>
+          <p>
+            Vous souhaitez inviter un⋅e député⋅e, candidat⋅e, ou animateur⋅ice de livret&nbsp;?
+            {' '}
+            <a href="https://lafranceinsoumise.fr/groupes-appui/inviter-des-intervenants/">Suivez le mode d'emploi.</a>
+          </p>
+        </div>
+        {this.getRightColumn()}
       </div>
     );
   }
