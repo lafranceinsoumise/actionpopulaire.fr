@@ -32,11 +32,10 @@ machine, and launch four other services :
 * `django` which is the development server of this project
 * `MailHog`, a catch-all SMTP server used for development
 * `webpack`, the webpack dev server with hot reloading
-* `oauth`, the authentication service of France insoumise
 
 All port are forwarded to localhost, so once your vagrant box is up,
-you can access Django from [http://localhost:8000](http://localhost:8000), Oauth from
-[http://localhost:4002](http://localhost:4002) and Mailhog from [http://localhost:8025](http://localhost:8025).
+you can access Django from [http://localhost:8000](http://localhost:8000)
+and Mailhog from [http://localhost:8025](http://localhost:8025).
 Webpack dev server listen on port 3000 but you don't need
 to access it directly.
 
@@ -46,7 +45,7 @@ machine to get things running :
 vagrant ssh
 cd /vagrant
 pipenv run src/manage.py migrate # you will need to run this each time you migrate
-pipenv run src/manage.py load_fake_data # to create base users and oauth client
+pipenv run src/manage.py load_fake_data # to create base users
 ```
 
 The `/vagrant` directory in the box is syncrhonized with your
@@ -212,16 +211,6 @@ HTML frontend.
 
 * `ENABLE_FRONT` when set to `yes` enable the front pages routes. Leave
   unset, empty or set to `no` to disable it.
-* `OAUTH_CLIENT_ID` and `OAUTH_CLIENT_SECRET` are the id and secret of
-  the client that should be used to authenticate to the OAUTH provider.
-* `OAUTH_AUTHORIZATION_URL` and `OAUTH_TOKEN_URL` are the URIs for the
-  oauth authorization endpoint to which the end user should first be
-  redirected, and of the token exchange endpoint, at which the
-  authorization code can be exchanged for the access token.
-* `OAUTH_REDIRECT_DOMAIN` is the base domain that is to be used in the
-  uri redirection from the OAUTH provider back to the front pages server
-* `OAUTH_LOGOFF_URL` is the URI to which the end user should be sent to
-  disconnect her.
 
 ## Pages
 
