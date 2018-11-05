@@ -44,7 +44,7 @@ def is_front_url(param):
 def generate_token_params(person):
     return {
         'p': person.pk,
-        'code': connection_token_generator.make_token(person)
+        'code': connection_token_generator.make_token(user=person)
     }
 
 

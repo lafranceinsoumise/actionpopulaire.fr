@@ -5,18 +5,14 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 import django_filters
 
-from agir.lib.utils import generate_token_params
 from agir.lib.pagination import LegacyPaginator
 from agir.lib.permissions import RestrictViewPermissions
-from agir.lib.token_bucket import TokenBucket
 from agir.lib.views import NationBuilderViewMixin
 from agir.authentication.models import Role
-from agir.people.tasks import send_welcome_mail
+from agir.people.models import PersonEmail, PersonEmailManager
+from agir.people.token_buckets import SubscribeIPBucket, SubscribeEmailBucket
 
 from . import serializers, models
-
-
-SubscribeIPBucket = TokenBucket('SubscribeIP', 2, 60)
 
 
 class PeopleFilter(django_filters.rest_framework.FilterSet):
@@ -47,12 +43,14 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
         if not ip or not SubscribeIPBucket.has_tokens(ip):
             raise PermissionDenied()
 
-        serializer = self.get_serializer(data=request.data)
+        serializer = serializers.SubscriptionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        send_welcome_mail.delay(serializer.instance.id)
-        headers = self.get_success_headers(serializer.data)
-        return Response(generate_token_params(serializer.instance), status=status.HTTP_201_CREATED, headers=headers)
+
+        if not SubscribeEmailBucket.has_tokens(PersonEmailManager.normalize_email(serializer.validated_data['email'])):
+            raise PermissionDenied()
+
+        serializer.send_confirmation_email()
+        return Response(status=status.HTTP_201_CREATED)
 
     def get_queryset(self):
         if not ('pk' in self.kwargs or self.request.user.has_perm('people.view_person')):

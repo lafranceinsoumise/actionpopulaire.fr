@@ -41,7 +41,7 @@ class MailLinkBackend(GetRoleMixin):
                 person = Person.objects.select_related('role').get(pk=user_pk)
             except (Person.DoesNotExist, ValidationError):
                 return None
-            if connection_token_generator.check_token(person, token) and self.user_can_authenticate(person.role):
+            if connection_token_generator.check_token(token, user=person) and self.user_can_authenticate(person.role):
                 return person.role
 
         return None

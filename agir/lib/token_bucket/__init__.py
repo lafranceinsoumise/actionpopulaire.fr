@@ -16,7 +16,7 @@ def get_current_timestamp():
 
 
 class TokenBucket:
-    def __init__(self, name, max, interval):
+    def __init__(self, name: str, max: int, interval: int):
         """Instancies a Token bucket value
 
         :param name: a unique name for the token bucket, used to name the redis keys

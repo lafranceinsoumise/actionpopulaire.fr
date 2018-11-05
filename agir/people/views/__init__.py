@@ -6,7 +6,7 @@ from .subscription import *
 from .volunteer import *
 
 
-__all__ = ['SubscriptionSuccessView', 'SimpleSubscriptionView', 'OverseasSubscriptionView', 'ChangeProfileView',
+__all__ = ['ConfirmationMailSentView', 'SimpleSubscriptionView', 'OverseasSubscriptionView', 'ChangeProfileView',
            'ChangeProfileConfirmationView', 'VolunteerView', 'VolunteerConfirmationView', 'MessagePreferencesView',
            'UnsubscribeView', 'DeleteAccountView', 'EmailManagementView', 'DeleteEmailAddressView',
            'PeopleFormView', 'PeopleFormConfirmationView', 'DashboardView']

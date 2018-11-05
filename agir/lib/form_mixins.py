@@ -1,5 +1,6 @@
 from django import forms
 from django.db import IntegrityError
+from django.forms import fields_for_model
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.html import format_html
 from django.contrib.gis.forms.widgets import OSMWidget
@@ -71,7 +72,7 @@ class LocationFormMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        for f in ['location_name', 'location_address1', 'location_city', 'location_country']:
+        for f in ['location_address1', 'location_city', 'location_country']:
             if f in self.fields:
                 self.fields[f].required = True
 
@@ -80,7 +81,7 @@ class LocationFormMixin:
         self.fields['location_address1'].label = _('Adresse')
         self.fields['location_address2'].label = False
 
-        if not self.instance.location_country:
+        if not hasattr(self, 'location_country') or not self.instance.location_country:
             self.fields['location_country'].initial = 'FR'
 
     def clean(self):
@@ -108,6 +109,11 @@ class LocationFormMixin:
         if self.must_geolocate():
             self.geocoding_task.delay(self.instance.pk)
 
+
+LocationFormMixin.declared_fields = fields_for_model(
+    LocationMixin,
+    fields=['location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip', 'location_country']
+)
 
 
 class ContactFormMixin():

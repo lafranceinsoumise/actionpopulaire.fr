@@ -1,13 +1,11 @@
-import uuid
 from django.db import transaction
-from django.db.utils import IntegrityError
-from django.contrib.auth.base_user import BaseUserManager
-from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+from .tasks import send_confirmation_email
+
 from agir.lib.serializers import (
-    LegacyBaseAPISerializer, LegacyLocationMixin, RelatedLabelField, UpdatableListSerializer
+    LegacyBaseAPISerializer, LegacyLocationMixin, RelatedLabelField
 )
 from agir.clients.serializers import PersonAuthorizationSerializer
 
@@ -146,3 +144,15 @@ class PersonTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.PersonTag
         fields = ('url', 'id', 'label', 'description')
+
+
+class SubscriptionSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    location_zip = serializers.RegexField(regex=r'^[0-9]{5}$', required=True)
+
+    def send_confirmation_email(self):
+        """Sends the confirmation email to the subscribed person.
+
+        Use only after having validated the serializer
+        """
+        send_confirmation_email.delay(**self.validated_data)

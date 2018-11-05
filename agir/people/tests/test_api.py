@@ -4,7 +4,6 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from redislite import StrictRedis
 
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework import status
@@ -147,7 +146,7 @@ class LegacyPersonEndpointTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(('url', '_id', 'email', 'first_name', 'last_name', 'email_opt_in',
-        'events', 'groups', 'location'), response.data.keys())
+                               'events', 'groups', 'location'), response.data.keys())
 
     def test_return_correct_values(self):
         request = self.factory.get('')
@@ -185,27 +184,6 @@ class LegacyPersonEndpointTestCase(APITestCase):
 
         self.assertEqual(new_person.first_name, 'Jean-Luc')
         self.assertEqual(new_person.last_name, 'Mélenchon')
-
-    @mock.patch("agir.people.viewsets.send_welcome_mail")
-    def test_can_subscribe_new_person(self, patched_send_welcome_mail):
-        self.client.force_login(self.adder_person.role)
-        response = self.client.post(reverse('legacy:person-subscribe'), data={
-            'email': 'guillaume@email.com',
-        })
-
-        self.assertEqual(response.status_code, 403)
-
-        response = self.client.post(reverse('legacy:person-subscribe'), data={
-            'email': 'guillaume@email.com',
-        }, ** {'HTTP_X_WORDPRESS_CLIENT': '192.168.0.1'})
-
-        new_person = Person.objects.get(email='guillaume@email.com')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['p'], new_person.id)
-        self.assertIsNotNone(response.data['code'])
-        patched_send_welcome_mail.delay.assert_called_once()
-        self.assertEqual(patched_send_welcome_mail.delay.call_args[0], (new_person.id,))
 
     def test_cannot_post_new_person_with_existing_email(self):
         request = self.factory.post('', data={

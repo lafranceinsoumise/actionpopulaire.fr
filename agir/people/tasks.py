@@ -1,12 +1,17 @@
 from celery import shared_task
 from django.conf import settings
+from django.urls import reverse
+from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
+from agir.lib.display import pretty_time_since
 from agir.lib.utils import front_url
 from agir.lib.mailtrain import update_person, delete_email
 from agir.people.actions.mailing import send_mosaico_email
-from .models import Person, PersonFormSubmission
+from agir.authentication.subscription import subscription_confirmation_token_generator
+
+from .models import Person, PersonFormSubmission, PersonEmail
 
 
 @shared_task
@@ -18,6 +23,33 @@ def send_welcome_mail(person_pk):
         from_email=settings.EMAIL_FROM,
         bindings={'PROFILE_LINK': front_url('change_profile')},
         recipients=[person]
+    )
+
+
+@shared_task
+def send_confirmation_email(email, **kwargs):
+    if PersonEmail.objects.filter(address__iexact=email).exists():
+        p = Person.objects.get_by_natural_key(email)
+        send_mosaico_email(
+            code='ALREADY_SUBSCRIBED_MESSAGE',
+            subject=_("Vous êtes déjà inscrit !"),
+            from_email=settings.EMAIL_FROM,
+            bindings={'PANEL_LINK': front_url('dashboard', auto_login=True), 'AGO': pretty_time_since(p.created)},
+            recipients=[email]
+        )
+        return
+
+    subscription_token = subscription_confirmation_token_generator.make_token(email=email, **kwargs)
+    confirm_subscription_url = front_url('subscription_confirm', auto_login=False)
+    query_args = {'email': email, **kwargs, 'token': subscription_token}
+    confirm_subscription_url += '?' + urlencode(query_args)
+
+    send_mosaico_email(
+        code='SUBSCRIPTION_CONFIRMATION_MESSAGE',
+        subject=_("Plus qu'un clic pour vous inscrire"),
+        from_email=settings.EMAIL_FROM,
+        recipients=[email],
+        bindings={'CONFIRMATION_URL': confirm_subscription_url}
     )
 
 
