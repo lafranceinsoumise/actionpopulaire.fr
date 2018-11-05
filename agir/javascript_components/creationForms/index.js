@@ -27,5 +27,4 @@ function onLoad() {
   }
 }
 
-onLoad();
 document.addEventListener("turbolinks:load", onLoad);

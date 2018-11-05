@@ -22,5 +22,4 @@ const onLoad = function () {
   }
 };
 
-setImmediate(onLoad);
 document.addEventListener('turbolinks:load', onLoad);
