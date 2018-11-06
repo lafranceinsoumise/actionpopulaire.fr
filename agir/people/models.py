@@ -481,8 +481,8 @@ class PersonForm(TimeStampedModel):
                                      help_text=_('Uniquement utilisée si des choix de tags sont demandés.'), blank=True)
     tags = models.ManyToManyField('PersonTag', related_name='forms', related_query_name='form', blank=True)
 
-
-    custom_fields = JSONField(_('Champs'), blank=False, default=list)
+    custom_fields = JSONField(_('Champs'), blank=False, default=[{"title": "Mes informations", "fields":
+        [{ "id": "first_name", "person_field": True}, {"id": "last_name", "person_field": True}]}])
 
     @property
     def fields_dict(self):
