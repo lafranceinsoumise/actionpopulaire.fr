@@ -13,17 +13,13 @@ require.context(
   /.*/
 );
 
-const onLoad = function() {
-  tinymce.init({
-    selector: 'textarea.richeditorwidget',
-    plugins: 'link autolink image lists',
-    toolbar: 'bold italic | formatselect | link image | bullist numlist',
-    menubar: false,
-    statusbar: false,
-    language: 'fr_FR',
-    block_formats: 'Paragraphe=p;Titre=h2;Sous-titre=h3;Petit titre=h4',
-    skin_url: (process.env.NODE_ENV === 'production' ? '' : 'http://agir.local:3000') + '/static/components/skins/lightgray'
-  });
-};
-
-document.addEventListener("turbolinks:load", onLoad);
+tinymce.init({
+  selector: 'textarea.richeditorwidget',
+  plugins: 'link autolink image lists',
+  toolbar: 'bold italic | formatselect | link image | bullist numlist',
+  menubar: false,
+  statusbar: false,
+  language: 'fr_FR',
+  block_formats: 'Paragraphe=p;Titre=h2;Sous-titre=h3;Petit titre=h4',
+  skin_url: (process.env.NODE_ENV === 'production' ? '' : 'http://agir.local:3000') + '/static/components/skins/lightgray'
+});
