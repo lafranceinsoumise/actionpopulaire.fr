@@ -20,6 +20,7 @@ from phonenumber_field.phonenumber import PhoneNumber
 
 from agir.lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource, DescriptionField
 from agir.authentication.models import Role
+from agir.lib.search import PrefixSearchQuery
 from . import metrics
 
 from .model_fields import MandatesField, ValidatedPhoneNumberField
@@ -31,6 +32,10 @@ class PersonQueryset(models.QuerySet):
 
     def verified(self):
         return self.filter(contact_phone_status=Person.CONTACT_PHONE_VERIFIED)
+
+    def full_text_search(self, query):
+        filter = PrefixSearchQuery(query, config='simple_unaccented')
+        return self.filter(search=filter)
 
 
 class PersonManager(models.Manager.from_queryset(PersonQueryset)):

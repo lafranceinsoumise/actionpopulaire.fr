@@ -137,8 +137,7 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     def get_search_results(self, request, queryset, search_term):
         if search_term:
-            filter = PrefixSearchQuery(search_term, config='simple_unaccented')
-            queryset = queryset.filter(search=filter)
+            queryset = queryset.full_text_search(search_term)
 
         use_distinct = False
 
