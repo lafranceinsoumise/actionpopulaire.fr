@@ -192,8 +192,8 @@ class EventTypeStep extends FormStep {
           Je remplis le formulaire d'accord préalable</a>
         <h5>...un autre événement</h5>
         <p>Ce n'est pas un événement de campagne, ou c'est un événement de campagne qui ne nécessite pas de moyens
-        payants. S'il y a un concours gratuit en nature (prêt de matériel, de salle...), vous devez néanmoins
-        remplir <a href="https://lafranceinsoumise.fr/app/uploads/2018/10/europennes_dons_en_nature.pdf">
+        payants. S'il y a un concours gratuit en nature (prêt de salle, de matériel...), vous devez néanmoins
+        remplir <a href="https://lafranceinsoumise.fr/app/uploads/2018/11/europennes_dons_en_nature.pdf">
             le formulaire dédié</a> à l'issue de l'événement.</p>
         <button className="btn btn-default" onClick={() => this.setState({isNotCampaign: true})}>Je crée directement mon événement</button>
       </div>
