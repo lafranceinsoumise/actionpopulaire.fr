@@ -17,7 +17,6 @@ from model_utils.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
 from phonenumber_field.phonenumber import PhoneNumber
 
-
 from agir.lib.models import BaseAPIResource, LocationMixin, AbstractLabel, NationBuilderResource, DescriptionField
 from agir.authentication.models import Role
 from agir.lib.search import PrefixSearchQuery
@@ -153,24 +152,27 @@ class Person(ExportModelOperationsMixin('person'), BaseAPIResource, NationBuilde
         _('Recevoir les notifications des événements'),
         default=True,
         blank=True,
-        help_text=_("Vous recevrez des messages quand les informations des évènements auxquels vous souhaitez participer"
-                    " sont mis à jour ou annulés.")
+        help_text=_(
+            "Vous recevrez des messages quand les informations des évènements auxquels vous souhaitez participer"
+            " sont mis à jour ou annulés.")
     )
 
     group_notifications = models.BooleanField(
         _('Recevoir les notifications de mes groupes'),
         default=True,
         blank=True,
-        help_text=_("Vous recevrez des messages quand les informations du groupe change, ou quand le groupe organise des"
-                    " événements.")
+        help_text=_(
+            "Vous recevrez des messages quand les informations du groupe change, ou quand le groupe organise des"
+            " événements.")
     )
 
     draw_participation = models.BooleanField(
         _('Participer aux tirages au sort'),
         default=False,
         blank=True,
-        help_text=_("Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des événements comme la Convention."
-                    "Vous aurez la possibilité d'accepter ou de refuser cette participation.")
+        help_text=_(
+            "Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des événements comme la Convention."
+            "Vous aurez la possibilité d'accepter ou de refuser cette participation.")
     )
 
     first_name = models.CharField(_('prénom'), max_length=255, blank=True)
@@ -280,7 +282,8 @@ class Person(ExportModelOperationsMixin('person'), BaseAPIResource, NationBuilde
         try:
             email = self.emails.get_by_natural_key(email_address)
             email.bounced = kwargs['bounced'] if kwargs.get('bounced', None) is not None else email.bounced
-            email.bounced_date = kwargs['bounced_date'] if kwargs.get('bounced_date', None) is not None else email.bounced_date
+            email.bounced_date = kwargs['bounced_date'] if kwargs.get('bounced_date',
+                                                                      None) is not None else email.bounced_date
             email.save()
         except ObjectDoesNotExist:
             PersonEmail.objects.create_email(address=email_address, person=self, **kwargs)
@@ -422,6 +425,15 @@ class CustomJSONEncoder(DjangoJSONEncoder):
         return super().default(o)
 
 
+def default_custom_forms():
+    return [
+        {"title": "Mes informations", "fields": [
+            {"id": "first_name", "person_field": True},
+            {"id": "last_name", "person_field": True}
+        ]}
+    ]
+
+
 class PersonForm(TimeStampedModel):
     objects = PersonFormQueryset.as_manager()
 
@@ -432,7 +444,8 @@ class PersonForm(TimeStampedModel):
     start_time = models.DateTimeField(_("Date d'ouverture du formulaire"), null=True, blank=True)
     end_time = models.DateTimeField(_("Date de fermeture du formulaire"), null=True, blank=True)
 
-    send_answers_to = models.EmailField(_("Envoyer les réponses par email à une adresse email (facultatif)"), blank=True)
+    send_answers_to = models.EmailField(_("Envoyer les réponses par email à une adresse email (facultatif)"),
+                                        blank=True)
 
     description = DescriptionField(
         _('Description'),
@@ -486,8 +499,7 @@ class PersonForm(TimeStampedModel):
                                      help_text=_('Uniquement utilisée si des choix de tags sont demandés.'), blank=True)
     tags = models.ManyToManyField('PersonTag', related_name='forms', related_query_name='form', blank=True)
 
-    custom_fields = JSONField(_('Champs'), blank=False, default=[{"title": "Mes informations", "fields":
-        [{ "id": "first_name", "person_field": True}, {"id": "last_name", "person_field": True}]}])
+    custom_fields = JSONField(_('Champs'), blank=False, default=default_custom_forms)
 
     @property
     def fields_dict(self):
@@ -499,7 +511,7 @@ class PersonForm(TimeStampedModel):
     def is_open(self):
         now = timezone.now()
         return (
-            (self.start_time is None or self.start_time < now) and (self.end_time is None or now < self.end_time)
+                (self.start_time is None or self.start_time < now) and (self.end_time is None or now < self.end_time)
         )
 
     def is_authorized(self, person):
