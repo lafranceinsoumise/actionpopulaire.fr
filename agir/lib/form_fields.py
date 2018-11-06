@@ -48,6 +48,21 @@ class AdminRichEditorWidget(RichEditorWidget):
     admin = True
 
 
+class AdminJsonWidget(Textarea):
+    admin = True
+    template_name = 'custom_fields/admin_json.html'
+
+    def __init__(self, attrs=None):
+        default_attrs = {'class': 'jsoneditor'}
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(default_attrs)
+
+    @property
+    def media(self):
+        return forms.Media(js=(webpack_loader_utils.get_files('lib/adminJsonWidget')[0]['url'],))
+
+
 class AcceptCreativeCommonsLicenceField(BooleanField):
     default_error_messages = {
         "required": _("Vous devez accepter de placer votre image sous licence Creative Commons pour  l'ajouter à votre"

@@ -3,8 +3,8 @@ from urllib.parse import urlencode
 
 import django_otp
 from django import forms
-from django.urls import path, reverse_lazy
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.urls import path
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import reverse
@@ -15,7 +15,6 @@ from django.utils.html import escape, format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.utils import display_for_value, unquote
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.views.generic import RedirectView
 
 from agir.api.admin import admin_site
 
@@ -28,7 +27,7 @@ from agir.groups.models import Membership
 from agir.lib.utils import front_url, generate_token_params
 from agir.lib.admin import CenterOnFranceMixin
 from agir.lib.search import PrefixSearchQuery
-from agir.lib.form_fields import AdminRichEditorWidget
+from agir.lib.form_fields import AdminRichEditorWidget, AdminJsonWidget
 from agir.lib.forms import CoordinatesFormMixin
 
 
@@ -199,7 +198,11 @@ class PersonTagAdmin(admin.ModelAdmin):
 class PersonFormForm(forms.ModelForm):
     class Meta:
         fields = '__all__'
-        widgets = {'description': AdminRichEditorWidget(), 'confirmation_note': AdminRichEditorWidget()}
+        widgets = {
+            'description': AdminRichEditorWidget(),
+            'confirmation_note': AdminRichEditorWidget(),
+            'custom_fields': AdminJsonWidget(),
+        }
 
     def clean_custom_fields(self):
         value = self.cleaned_data['custom_fields']
