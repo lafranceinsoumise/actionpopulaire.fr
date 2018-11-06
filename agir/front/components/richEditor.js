@@ -22,7 +22,7 @@ const onLoad = function() {
     statusbar: false,
     language: 'fr_FR',
     block_formats: 'Paragraphe=p;Titre=h2;Sous-titre=h3;Petit titre=h4',
-    skin_url: '/static/components/skins/lightgray'
+    skin_url: (process.env.NODE_ENV === 'production' ? '' : 'http://agir.local:3000') + '/static/components/skins/lightgray'
   });
 };
 

@@ -8,7 +8,7 @@ module.exports = merge(common, {
   mode: 'development',
   devtool: 'eval',
   output: {
-    publicPath: 'http://agir.local:3000/assets/components/',
+    publicPath: 'http://agir.local:3000/static/components/',
     devtoolModuleFilenameTemplate: 'webpack://[absolute-resource-path]',
     filename: '[name]-[hash].js',
   },
@@ -16,7 +16,7 @@ module.exports = merge(common, {
     poll: 1000
   },
   devServer: {
-    publicPath: 'http://agir.local:3000/assets/components/',
+    publicPath: 'http://agir.local:3000/static/components/',
     public: 'agir.local:3000',
     contentBase: path.join(__dirname, '/assets/components/'),
     compress: true,
