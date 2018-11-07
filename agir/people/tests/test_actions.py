@@ -79,7 +79,8 @@ class PeopleFormActionsTestCase(TestCase):
 
     def test_get_formatted_submission(self):
         self.assertEqual(
-            get_formatted_submission(self.submission1),
+            # disregard first three default fields
+            get_formatted_submission(self.submission1, include_admin_fields=False),
             [
                 {'label': 'Mon label', 'value': 'saisie 1'},
                 {'label': 'Prout', 'value': 'saisie 2'},

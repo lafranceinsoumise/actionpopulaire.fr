@@ -1,7 +1,17 @@
+from functools import reduce
+from itertools import chain
+from operator import or_
+
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.formats import date_format
+from django.utils.safestring import mark_safe
+
+from phonenumber_field.phonenumber import PhoneNumber
+from phonenumbers import NumberParseException
 
 from ..models import Person
 
@@ -44,27 +54,101 @@ def get_form_field_labels(form):
     return field_information
 
 
-def get_formatted_submission(submission):
+def _get_choice_label(choices, value):
+    try:
+        return next(label for id, label in choices if id == value)
+    except StopIteration:
+        return value
+
+
+def _get_formatted_value(field, value):
+    field_type = field.get('type')
+
+    if field_type == 'choice' and 'choices' in field:
+        return _get_choice_label(field['choices'], value)
+    elif field_type == 'multiple_choice' and 'choices' in field:
+        if isinstance(value, list):
+            return [_get_choice_label(field['choices'], v) for v in value]
+        else:
+            return value
+    elif field_type == 'phone_number':
+        try:
+            phone_number = PhoneNumber.from_string(value)
+            return phone_number.as_international
+        except NumberParseException:
+            return value
+    elif field_type == 'file':
+        return format_html(
+            '<a href="{}">Accéder au fichier</a>',
+            settings.FRONT_DOMAIN + settings.MEDIA_URL + value
+        )
+
+    return value
+
+
+NA_PLACEHOLDER = mark_safe('<em style="color: #999;">N/A</em>')
+
+ADMIN_FIELDS_LABELS = ['ID', 'Personne', 'Date de la réponse']
+
+
+def _get_admin_fields(submission):
+    return [
+        format_html(
+            '<a href="{}" title="Supprimer cette submission">{} X</a>',
+            reverse('admin:people_personformsubmission_delete', args=(submission.pk,)),
+            submission.pk
+        ),
+        format_html(
+            '<a href="{}">{}</a>',
+            settings.API_DOMAIN + reverse('admin:people_person_change', args=(submission.person_id,)),
+            submission.person.email),
+        date_format(submission.created)
+    ]
+
+
+def get_formatted_submissions(submissions, include_admin_fields=True):
+    if not submissions:
+        return [], []
+
+    form = submissions[0].form
+    field_dict = form.fields_dict
+
+    labels = get_form_field_labels(form)
+
+    full_data = [sub.data for sub in submissions]
+    full_values = [{id: _get_formatted_value(field_dict[id], value) for id, value in d.items()} for d in full_data]
+
+    declared_fields = set(field_dict)
+    additional_fields = sorted(reduce(or_, (set(d) for d in full_data)).difference(declared_fields))
+
+    headers = [labels[id] for id in field_dict] + additional_fields
+
+    ordered_values = [[v.get(i, NA_PLACEHOLDER) for i in chain(field_dict, additional_fields)] for v in full_values]
+
+    if include_admin_fields:
+        admin_values = [_get_admin_fields(s) for s in submissions]
+        return ADMIN_FIELDS_LABELS + headers, [admin_values + values for admin_values, values in zip(admin_values, ordered_values)]
+
+    return headers, ordered_values
+
+
+def get_formatted_submission(submission, include_admin_fields=False):
     data = submission.data
     field_dicts = submission.form.fields_dict
     labels = get_form_field_labels(submission.form)
-    choice_fields = {id: dict(f['choices']) for id, f in field_dicts.items() if f.get('type') in ['choice', 'multiple_choice']}
 
-    res = []
+    if include_admin_fields:
+        res = [{'label': l, 'value': v} for l, v in zip(ADMIN_FIELDS_LABELS, _get_admin_fields(submission))]
+    else:
+        res = []
 
     for id, field in field_dicts.items():
         if id in data:
-            if id in choice_fields:
-                res.append({'label': labels[id], 'value': choice_fields[id].get(data[id], data[id])})
-            elif id in field_dicts and field_dicts[id].get('type') == 'file':
-                res.append({'label': labels[id], 'value': format_html(
-                    '<a href="{}">Accéder au fichier</a>',
-                    settings.FRONT_DOMAIN + settings.MEDIA_URL + data[id]
-                )})
-            else:
-                res.append({'label': labels[id], 'value': data[id]})
+            label = labels[id]
+            value = _get_formatted_value(field, data[id]) if id in data else NA_PLACEHOLDER
+            res.append({'label': label, 'value': value})
 
-    missing_fields = set(data) - set(field_dicts)
+    missing_fields = set(data).difference(set(field_dicts))
 
     for id in sorted(missing_fields):
         res.append({'label': id, 'value': data[id]})

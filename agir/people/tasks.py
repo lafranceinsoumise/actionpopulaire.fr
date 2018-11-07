@@ -87,8 +87,7 @@ def send_person_form_notification(submission_pk):
 
     person = submission.person
 
-    pretty_submission = get_formatted_submission(submission)
-    pretty_submission.insert(0, ('Date de la réponse', submission.modified))
+    pretty_submission = get_formatted_submission(submission, include_admin_fields=True)
 
     bindings = {
         "ANSWER_EMAIL": person.email,

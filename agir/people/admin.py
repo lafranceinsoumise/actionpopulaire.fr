@@ -18,7 +18,7 @@ from django.contrib.gis.admin import OSMGeoAdmin
 
 from agir.api.admin import admin_site
 
-from .actions.person_forms import validate_custom_fields
+from .actions.person_forms import validate_custom_fields, get_formatted_submissions
 from .models import Person, PersonTag, PersonEmail, PersonForm, PersonFormSubmission
 from agir.authentication.models import Role
 from agir.events.models import RSVP
@@ -26,7 +26,6 @@ from agir.groups.models import Membership
 
 from agir.lib.utils import front_url, generate_token_params
 from agir.lib.admin import CenterOnFranceMixin
-from agir.lib.search import PrefixSearchQuery
 from agir.lib.form_fields import AdminRichEditorWidget, AdminJsonWidget
 from agir.lib.forms import CoordinatesFormMixin
 
@@ -216,16 +215,8 @@ class PersonFormAdminMixin:
 
     def generate_result_table(self, form, only_text=False):
         submission_qs = self.get_form_submission_qs(form)
-        fields = [field for fieldset in form.custom_fields for field in fieldset['fields']]
-        submissions = []
 
-        for submission in submission_qs:
-            data = [submission.data.get(field['id'], 'NA') for field in fields]
-            submissions.append([submission.pk] + [submission.modified]
-                            + [submission.person if only_text is False else submission.person.email]
-                            + data)
-
-        headers = ['ID', 'Date', 'Personne'] + [(field.get('label') or Person._meta.get_field(field['id']).verbose_name) for field in fields]
+        headers, submissions = get_formatted_submissions(submission_qs)
 
         return {'form': form, 'headers': headers, 'submissions': submissions}
 
