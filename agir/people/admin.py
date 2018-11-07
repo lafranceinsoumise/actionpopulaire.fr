@@ -10,8 +10,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import reverse
 from django.contrib import admin
 from django.template.response import TemplateResponse
-from django.utils.safestring import mark_safe
-from django.utils.html import escape, format_html, format_html_join
+from django.utils.html import mark_safe, format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.utils import display_for_value, unquote
 from django.contrib.gis.admin import OSMGeoAdmin
@@ -41,12 +40,13 @@ class RSVPInline(admin.TabularInline):
     readonly_fields = ('event_link',)
 
     def event_link(self, obj):
-        return mark_safe('<a href="%s">%s</a>' % (
+        return format_html(
+            '<a href="{}">{}</a>',
             reverse('admin:events_event_change', args=(obj.event.id,)),
-            escape(obj.event.name)
-        ))
+            obj.event.name
+        )
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return False
 
 
@@ -57,12 +57,13 @@ class MembershipInline(admin.TabularInline):
     readonly_fields = ('supportgroup_link',)
 
     def supportgroup_link(self, obj):
-        return mark_safe('<a href="%s">%s</a>' % (
+        return format_html(
+            '<a href="{}">{}</a>',
             reverse('admin:groups_supportgroup_change', args=(obj.supportgroup.id,)),
-            escape(obj.supportgroup.name)
-        ))
+            obj.supportgroup.name
+        )
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return False
 
 
@@ -229,7 +230,7 @@ class PersonFormAdminMixin:
 
         context = {
             'has_change_permission': True,
-            'title': _('Réponses du formulaire: %s') % escape(form.title),
+            'title': _('Réponses du formulaire: %s') % form.title,
             'opts': self.model._meta,
             'form': table['form'],
             'headers': table['headers'],
@@ -305,7 +306,7 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
 
     def action_buttons(self, object):
         if object._state.adding:
-            return mark_safe('-')
+            return '-'
         else:
             return format_html(
                 '<a href="{view_results_link}" class="button">Voir les résultats</a><br>'
