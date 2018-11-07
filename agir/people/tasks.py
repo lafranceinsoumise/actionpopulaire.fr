@@ -1,11 +1,12 @@
 from celery import shared_task
 from django.conf import settings
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html_join, mark_safe
 from django.utils.translation import ugettext as _
 
 from agir.lib.utils import front_url
 from agir.lib.mailtrain import update_person, delete_email
 from agir.people.actions.mailing import send_mosaico_email
+from agir.people.actions.person_forms import get_formatted_submission
 from .models import Person, PersonFormSubmission
 
 
@@ -86,14 +87,17 @@ def send_person_form_notification(submission_pk):
 
     person = submission.person
 
-    fields = [field for fieldset in form.custom_fields for field in fieldset['fields']]
-    data = {(field.get('label') or Person._meta.get_field(field['id']).verbose_name): submission.data.get(field['id'], 'NA') for field in fields}
-    data['Date'] = submission.modified
+    pretty_submission = get_formatted_submission(submission)
+    pretty_submission.insert(0, ('Date de la réponse', submission.modified))
 
     bindings = {
         "ANSWER_EMAIL": person.email,
         "FORM_NAME": form.title,
-        "INFORMATIONS": mark_safe('<br>'.join([f'{key} : {data[key]}' for key in data.keys()]))
+        "INFORMATIONS": format_html_join(
+            sep=mark_safe('<br>'),
+            format_string="{} : {}",
+            args_generator=pretty_submission
+        )
     }
 
     send_mosaico_email(

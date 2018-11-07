@@ -1,5 +1,7 @@
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.utils.html import format_html
 
 from ..models import Person
 
@@ -54,6 +56,11 @@ def get_formatted_submission(submission):
         if id in data:
             if id in choice_fields:
                 res.append({'label': labels[id], 'value': choice_fields[id].get(data[id], data[id])})
+            elif id in field_dicts and field_dicts[id].get('type') == 'file':
+                res.append({'label': labels[id], 'value': format_html(
+                    '<a href="{}">Accéder au fichier</a>',
+                    settings.FRONT_DOMAIN + settings.MEDIA_URL + data[id]
+                )})
             else:
                 res.append({'label': labels[id], 'value': data[id]})
 
