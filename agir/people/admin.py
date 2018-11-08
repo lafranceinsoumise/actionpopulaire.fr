@@ -214,10 +214,10 @@ class PersonFormAdminMixin:
     def get_form_submission_qs(self, form):
         return form.submissions.all()
 
-    def generate_result_table(self, form, only_text=False):
+    def generate_result_table(self, form, html=True):
         submission_qs = self.get_form_submission_qs(form)
 
-        headers, submissions = get_formatted_submissions(submission_qs)
+        headers, submissions = get_formatted_submissions(submission_qs, html=html)
 
         return {'form': form, 'headers': headers, 'submissions': submissions}
 
@@ -248,7 +248,7 @@ class PersonFormAdminMixin:
             raise PermissionDenied
 
         form = PersonForm.objects.get(id=pk)
-        table = self.generate_result_table(form, only_text=True)
+        table = self.generate_result_table(form, html=False)
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="{0}.csv"'.format(form.slug)

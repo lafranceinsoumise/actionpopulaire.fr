@@ -61,7 +61,7 @@ def _get_choice_label(choices, value):
         return value
 
 
-def _get_formatted_value(field, value):
+def _get_formatted_value(field, value, html=True):
     field_type = field.get('type')
 
     if field_type == 'choice' and 'choices' in field:
@@ -78,10 +78,14 @@ def _get_formatted_value(field, value):
         except NumberParseException:
             return value
     elif field_type == 'file':
-        return format_html(
-            '<a href="{}">Accéder au fichier</a>',
-            settings.FRONT_DOMAIN + settings.MEDIA_URL + value
-        )
+        url = settings.FRONT_DOMAIN + settings.MEDIA_URL + value
+        if html:
+            return format_html(
+                '<a href="{}">Accéder au fichier</a>',
+                url
+            )
+        else:
+            return url
 
     return value
 
@@ -91,22 +95,22 @@ NA_PLACEHOLDER = mark_safe('<em style="color: #999;">N/A</em>')
 ADMIN_FIELDS_LABELS = ['ID', 'Personne', 'Date de la réponse']
 
 
-def _get_admin_fields(submission):
+def _get_admin_fields(submission, html=True):
     return [
         format_html(
             '<a href="{}" title="Supprimer cette submission">{} X</a>',
             reverse('admin:people_personformsubmission_delete', args=(submission.pk,)),
             submission.pk
-        ),
+        ) if html else submission.pk,
         format_html(
             '<a href="{}">{}</a>',
             settings.API_DOMAIN + reverse('admin:people_person_change', args=(submission.person_id,)),
-            submission.person.email),
+            submission.person.email) if html else submission.person.email,
         date_format(submission.created)
     ]
 
 
-def get_formatted_submissions(submissions, include_admin_fields=True):
+def get_formatted_submissions(submissions, include_admin_fields=True, html=True):
     if not submissions:
         return [], []
 
@@ -116,7 +120,7 @@ def get_formatted_submissions(submissions, include_admin_fields=True):
     labels = get_form_field_labels(form)
 
     full_data = [sub.data for sub in submissions]
-    full_values = [{id: _get_formatted_value(field_dict[id], value) for id, value in d.items()} for d in full_data]
+    full_values = [{id: _get_formatted_value(field_dict[id], value, html) for id, value in d.items()} for d in full_data]
 
     declared_fields = set(field_dict)
     additional_fields = sorted(reduce(or_, (set(d) for d in full_data)).difference(declared_fields))
@@ -126,7 +130,7 @@ def get_formatted_submissions(submissions, include_admin_fields=True):
     ordered_values = [[v.get(i, NA_PLACEHOLDER) for i in chain(field_dict, additional_fields)] for v in full_values]
 
     if include_admin_fields:
-        admin_values = [_get_admin_fields(s) for s in submissions]
+        admin_values = [_get_admin_fields(s, html) for s in submissions]
         return ADMIN_FIELDS_LABELS + headers, [admin_values + values for admin_values, values in zip(admin_values, ordered_values)]
 
     return headers, ordered_values
