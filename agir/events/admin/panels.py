@@ -42,7 +42,7 @@ class EventStatusFilter(admin.SimpleListFilter):
     def choices(self, changelist):
         for lookup, title in self.lookup_choices:
             yield {
-                'selected': (lookup == 'upcoming' and self.value() is None) or self.value() == force_text(lookup),
+                'selected': self.value() == force_text(lookup),
                 'query_string': changelist.get_query_string({self.parameter_name: lookup}, []),
                 'display': title,
             }
@@ -102,7 +102,7 @@ class OrganizerConfigInline(admin.TabularInline):
         ))
     person_link.short_description = _("Personne")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return False
 
 
@@ -112,7 +112,7 @@ class EventImageInline(admin.TabularInline):
     readonly_fields = ('image_link', 'author_link',)
     extra = 0
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return False
 
     def image_link(self, obj):
@@ -170,13 +170,13 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
     list_display = ('name', 'published', 'calendar_names', 'location_short', 'attendee_count',
                     'start_time', 'created')
     list_filter = (
+        EventStatusFilter,
         'published',
+        EventHasReportFilter,
         'coordinates_type',
         'subtype__type',
         'subtype',
         'calendars',
-        EventHasReportFilter,
-        EventStatusFilter,
         'tags',
     )
 
