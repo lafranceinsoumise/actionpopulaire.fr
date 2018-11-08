@@ -87,7 +87,7 @@ def send_person_form_notification(submission_pk):
 
     person = submission.person
 
-    pretty_submission = get_formatted_submission(submission, include_admin_fields=True)
+    pretty_submission = get_formatted_submission(submission)
 
     bindings = {
         "ANSWER_EMAIL": person.email,
@@ -95,7 +95,7 @@ def send_person_form_notification(submission_pk):
         "INFORMATIONS": format_html_join(
             sep=mark_safe('<br>'),
             format_string="{} : {}",
-            args_generator=pretty_submission
+            args_generator={(s['label'], s['value']) for s in pretty_submission}
         )
     }
 
