@@ -1,13 +1,14 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, Row
 from django import forms
+from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 
 from agir.lib.form_components import FormGroup, FullCol
 from agir.lib.form_mixins import LocationFormMixin
 from agir.lib.mailtrain import delete_email
-from agir.people.models import Person, PersonEmail
-from agir.people.tasks import send_unsubscribe_email, send_welcome_mail
+from agir.people.models import Person
+from agir.people.tasks import send_unsubscribe_email, send_confirmation_email
 
 
 class UnsubscribeForm(forms.Form):
@@ -37,7 +38,7 @@ class UnsubscribeForm(forms.Form):
             delete_email(email)
 
 
-class BaseSubscriptionForm(forms.ModelForm):
+class BaseSubscriptionForm(forms.Form):
     email = forms.EmailField(
         label='Adresse email',
         required=True,
@@ -47,36 +48,20 @@ class BaseSubscriptionForm(forms.ModelForm):
         }
     )
 
-    def clean_email(self):
-        """Ensures that the email address is not already in use"""
-        email = self.cleaned_data['email']
-
-        if PersonEmail.objects.filter(address=email).exists():
-            raise forms.ValidationError(self.fields['email'].error_messages['unique'], code="unique")
-
-        return email
-
-    def _save_m2m(self):
-        """Save the email
-
-        _save_m2m is called when the ModelForm instance is saved, whether it is made through
-        the form itself using `form.save(commit=True)` or later, using `instance = form.save(commit=False)`
-        and calling `instance.save()`later.
+    def send_confirmation_email(self):
+        """Sends the confirmation mail
         """
-        super()._save_m2m()
-        PersonEmail.objects.create_email(address=self.cleaned_data['email'], person=self.instance)
-        send_welcome_mail.delay(self.instance.pk)
-
-    class Meta:
-        abstract = True
+        send_confirmation_email.delay(**self.cleaned_data)
 
 
 class SimpleSubscriptionForm(BaseSubscriptionForm):
+    location_zip = forms.CharField(
+        validators=[RegexValidator(r'[0-9]{5}', message='Entrez un code postal français')],
+        required=True,
+    )
+
     def __init__(self, *args, **kwargs):
         super(SimpleSubscriptionForm, self).__init__(*args, **kwargs)
-
-        self.fields['location_zip'].required = True
-        self.fields['location_zip'].help_text = None
 
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
@@ -98,12 +83,11 @@ class SimpleSubscriptionForm(BaseSubscriptionForm):
             )
         )
 
-    class Meta:
-        model = Person
-        fields = ('email', 'location_zip')
-
 
 class OverseasSubscriptionForm(LocationFormMixin, BaseSubscriptionForm):
+    # make sure the location name field is not shown
+    location_name = None
+
     def __init__(self, *args, **kwargs):
         super(OverseasSubscriptionForm, self).__init__(*args, **kwargs)
 
@@ -129,10 +113,4 @@ class OverseasSubscriptionForm(LocationFormMixin, BaseSubscriptionForm):
             Row(
                 FullCol('location_country'),
             )
-        )
-
-    class Meta:
-        model = Person
-        fields = (
-            'email', 'location_address1', 'location_address2', 'location_zip', 'location_city', 'location_country'
         )

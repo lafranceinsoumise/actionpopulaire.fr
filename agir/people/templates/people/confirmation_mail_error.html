@@ -1,0 +1,20 @@
+{% extends "front/layout.html" %}
+
+{% block title %}Bienvenue ! - la France insoumise{% endblock %}
+
+{% block main %}
+    <h1 class="headline">Aïe aïe aïe !</h1>
+
+    <div id="content">
+        <div class="text-content">
+            <p>
+                Il y a eu un problème avec votre lien de confirmation. {{ message }}
+            </p>
+            <p>
+                Vous pouvez réessayer de <a href="{% url "subscription" %}">vous inscrire avec ce formulaire</a>
+                (<a href="{% url "subscription_overseas" %}">ou celui-ci, si vous n'êtes pas en France</a>)
+            </p>
+
+        </div>
+    </div>
+{% endblock %}

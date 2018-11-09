@@ -81,6 +81,9 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.redirects',
 
+    # humanize
+    'django.contrib.humanize',
+
     # security
     'corsheaders',
 
@@ -210,6 +213,10 @@ EMAIL_USE_SSL = email_config['EMAIL_USE_SSL']
 EMAIL_TEMPLATES = {
     # WELCOME_MESSAGE variables: [PROFILE_LINK]
     "WELCOME_MESSAGE": "https://mosaico.jlm2017.fr/emails/ac205f71-61a3-465b-8161-cec5729ecdbb.html",
+    # CONFIRM_SUBSCRIPTION_MESSAGE variables: [CONFIRMATION_URL]
+    "SUBSCRIPTION_CONFIRMATION_MESSAGE": "https://mosaico.jlm2017.fr/emails/cd878308-6fd7-4088-b525-a020c5bb3fe0.html",
+    # ALREADY_SUBSCRIBED_MESSAGE: [AGO], [PANEL_LINK]
+    "ALREADY_SUBSCRIBED_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/d7040d22-703f-4ac7-883c-d2f04c13be1a.html",
     # DONATION_MESSAGE variables : [PROFILE_LINK]
     "DONATION_MESSAGE": "https://mosaico.jlm2017.fr/emails/cab3c2ee-9444-4c70-b16e-9f7dce7929b1.html",
     # UNSUBSCRIBE_CONFIRMATION variables [MANAGE_SUBSCRIPTIONS_LINK]

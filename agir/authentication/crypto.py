@@ -1,5 +1,6 @@
 import json
 import re
+from typing import Mapping, Any
 from secrets import choice
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils import timezone
@@ -9,24 +10,41 @@ from django.utils.crypto import constant_time_compare
 from agir.api.redis import get_auth_redis_client
 
 
-class ConnectionTokenGenerator(PasswordResetTokenGenerator):
-    """Strategy object used to generate and check tokens used for connection"""
-    key_salt = 'front.backend.ConnectionTokenGenerator'
+def escape_character(string, character):
+    if not character:
+        return string
+    return string.replace('\\', '\\\\').replace(character, '\\' + character)
+
+
+class BaseTokenGenerator(PasswordResetTokenGenerator):
+    salt = None
+    token_params = []
+    params_separator = ''
 
     def __init__(self, validity):
         self.validity = validity
 
-    def _make_hash_value(self, user, timestamp):
-        # le hash n'est basé que sur l'ID de l'utilisateur et le timestamp
-        return (
-            str(user.pk) + str(timestamp)
-        )
+    def _check_params(self, params):
+        if not set(params).issuperset(set(self.token_params)):
+            raise TypeError(f"The following arguments are compulsory: {self.token_params!r}")
 
-    def check_token(self, user, token):
-        """
-        Check that a connection token is correct for a given user.
-        """
-        if not (user and token):
+    def make_token(self, **params):
+        self._check_params(params)
+        return self._make_token_with_timestamp(params, self._num_days(self._today()))
+
+    def _make_hash_value(self, params: Mapping[str, Any], timestamp):
+        # order the params by lexicographical order, so that there is some determinism
+        sorted_keys = sorted(params)
+        ordered_params = [params[k] for k in sorted_keys]
+
+        return (self.params_separator.join(
+            escape_character(param, self.params_separator)for param in ordered_params
+        ) + str(timestamp))
+
+    def check_token(self, token, **params):
+        """copied from """
+        self._check_params(params)
+        if not token:
             return False
         # Parse the token
         try:
@@ -40,7 +58,7 @@ class ConnectionTokenGenerator(PasswordResetTokenGenerator):
             return False
 
         # Check that the timestamp/uid has not been tampered with
-        if not constant_time_compare(self._make_token_with_timestamp(user, ts), token):
+        if not constant_time_compare(self._make_token_with_timestamp(params, ts), token):
             return False
 
         # Check the timestamp is within limit
@@ -48,6 +66,37 @@ class ConnectionTokenGenerator(PasswordResetTokenGenerator):
             return False
 
         return True
+
+
+class ConnectionTokenGenerator(BaseTokenGenerator):
+    """Strategy object used to generate and check tokens used for connection"""
+    # not up to date, but changing it would invalidate all tokens
+    key_salt = 'front.backend.ConnectionTokenGenerator'
+    token_params = ['user']
+
+    def make_token(self, user):
+        return super().make_token(user=user)
+
+    def _make_hash_value(self, params, timestamp):
+        # le hash n'est basé que sur l'ID de l'utilisateur et le timestamp
+
+        user = params['user']
+
+        return (
+            str(user.pk) + str(timestamp)
+        )
+
+
+class SubscriptionConfirmationTokenGenerator(BaseTokenGenerator):
+    key_salt = 'agir.people.crypto.SubscriptionConfirmationTokenGenerator'
+    token_params = ['email']
+    params_separator = '|'
+
+
+class AddEmailConfirmationTokenGenerator(BaseTokenGenerator):
+    key_salt = 'agir.people.crypto.AddEmailConfirmationTokenGenerator'
+    token_params = ['user', 'email']
+    params_separator = '|'
 
 
 class ShortCodeGenerator():

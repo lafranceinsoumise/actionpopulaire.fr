@@ -25,7 +25,7 @@ class MailLinkTestCase(TestCase):
 
     def test_can_connect_with_query_params(self):
         p = self.person.pk
-        code = connection_token_generator.make_token(self.person)
+        code = connection_token_generator.make_token(user=self.person)
 
         response = self.client.get(reverse('volunteer'), data={'p': p, 'code': code})
 
