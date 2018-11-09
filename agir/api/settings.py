@@ -81,9 +81,6 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.redirects',
 
-    # security
-    'corsheaders',
-
     # rest_framework
     'rest_framework',
 
@@ -134,6 +131,10 @@ INSTALLED_APPS = [
     'agir.donations',
     'agir.system_pay',
     'agir.checks',
+
+    # security
+    'corsheaders',
+    'oauth2_provider',
 ]
 
 MIDDLEWARE = [
@@ -321,6 +322,11 @@ if ENABLE_FRONT:
         # legacy backend only used to preserve currently connected sessions
         'agir.authentication.backend.OAuth2Backend',
     ])
+
+OAUTH2_PROVIDER_APPLICATION_MODEL = 'clients.Client'
+OAUTH2_PROVIDER = {
+    'SCOPES_BACKEND_CLASS': 'agir.clients.scopes.ScopesBackend',
+}
 
 # Admin
 

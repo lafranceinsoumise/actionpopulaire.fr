@@ -145,14 +145,14 @@ class LegacyEventViewSetTestCase(TestCase):
 
         response = self.list_view(request)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_cannot_modify_event_while_unauthenticated(self):
         request = self.factory.put('', data=self.new_event_data)
 
         response = self.detail_view(request, pk=self.event.pk)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_cannot_modify_event_without_permission(self):
         request = self.factory.put('', data=self.new_event_data)
@@ -504,7 +504,7 @@ class RSVPEndpointTestCase(TestCase):
 
         response = self.rsvp_list_view(request)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_can_see_own_rsvps(self):
         request = self.as_unprivileged(self.get_request())

@@ -17,6 +17,7 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from ajax_select import urls as ajax_select_urls
 from django_prometheus.exports import ExportToDjangoView as metric_view
+from oauth2_provider import urls as oauth2_provider_urls
 
 from agir.lib.http import with_http_basic_auth
 from . import routers, admin, settings
@@ -37,7 +38,10 @@ if settings.ENABLE_API:
     )
 
 if settings.ENABLE_FRONT:
-    urlpatterns.append(path('', include(front_urls)))
+    urlpatterns += [
+        path('', include(front_urls)),
+        path('o/', include((oauth2_provider_urls.base_urlpatterns, 'oauth2_provider'))),
+    ]
 
 if settings.ENABLE_MAP:
     urlpatterns.append(

@@ -46,6 +46,7 @@ ovh = "*"
 ics = "*"
 django-prometheus = "*"
 phonenumbers = "*"
+django-oauth-toolkit = "*"
 
 [dev-packages]
 ipython = "*"

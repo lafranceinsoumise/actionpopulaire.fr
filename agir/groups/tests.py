@@ -203,14 +203,14 @@ class LegacySupportGroupViewSetTestCase(TestCase):
 
         response = self.list_view(request)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_cannot_modify_group_while_unauthenticated(self):
         request = self.factory.put('', data=self.new_group_data)
 
         response = self.detail_view(request, pk=self.supportgroup.pk)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_cannot_modify_group_without_permission(self):
         request = self.factory.put('', data=self.new_group_data)
@@ -462,7 +462,7 @@ class MembershipEndpointTestCase(TestCase):
 
         response = self.membership_list_view(request)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_can_see_own_memberships(self):
         request = self.as_unprivileged(self.get_request())

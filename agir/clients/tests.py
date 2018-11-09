@@ -1,23 +1,18 @@
 import base64
-import json
 import uuid
-from urllib.parse import urlparse
 
-from redislite import StrictRedis
-from unittest import mock, skip
+from oauth2_provider.admin import AccessToken
 
 from django.test import TestCase
-from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 
-from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
-from rest_framework.reverse import reverse
+from rest_framework.test import APIRequestFactory, APITestCase
 from rest_framework import exceptions, status
 
-from . import models, authentication, tokens, scopes
-from .viewsets import LegacyClientViewSet
+from agir.clients.authentication import AccessTokenAuthentication
+from . import models, authentication, scopes
 
 from ..people.models import Person
 from ..events.models import Event, Calendar, OrganizerConfig, CalendarItem
@@ -32,41 +27,24 @@ class TokenTestCase(TestCase):
         self.client = models.Client.objects.create_client('client', scopes=[self.scope.name, self.other_scope.name])
         self.one_scope_client = models.Client.objects.create_client('noscope', scopes=[self.other_scope.name])
 
-        self.redis_instance = StrictRedis()
-
-        self.token = str(uuid.uuid4())
-        self.token_info = {
-            'clientId': self.client.label,
-            'userId': str(self.person.pk),
-            'scope': [self.scope.name, self.other_scope.name]
-        }
-
-        self.wrong_scope_token = str(uuid.uuid4())
-        self.wrong_scope_token_info = {
-            'clientId': self.one_scope_client.label,
-            'userId': str(self.person.pk),
-            'scope': [self.scope.name, self.other_scope.name]
-        }
-
-        self.redis_instance.set(
-            '{prefix}{token}:payload'.format(prefix=settings.AUTH_REDIS_PREFIX, token=self.token),
-            json.dumps(self.token_info)
+        self.token = AccessToken.objects.create(
+            user=self.person.role,
+            token=str(uuid.uuid4()),
+            scope=' '.join([self.scope.name, self.other_scope.name]),
+            application=self.client,
+            expires=timezone.now() + timezone.timedelta(days=1),
         )
 
-        self.redis_instance.set(
-            '{prefix}{token}:payload'.format(prefix=settings.AUTH_REDIS_PREFIX, token=self.wrong_scope_token),
-            json.dumps(self.wrong_scope_token_info)
+        self.wrong_scope_token = AccessToken.objects.create(
+            user=self.person.role,
+            token=str(uuid.uuid4()),
+            scope=' '.join([self.scope.name, self.other_scope.name]),
+            application=self.one_scope_client,
+            expires=timezone.now() + timezone.timedelta(days=1),
         )
-
-        self.redis_patcher = mock.patch('agir.clients.tokens.get_auth_redis_client')
-        mock_get_auth_redis_client = self.redis_patcher.start()
-        mock_get_auth_redis_client.return_value = self.redis_instance
 
         self.factory = APIRequestFactory()
-        self.token_authentifier = authentication.AccessTokenAuthentication()
-
-    def tearDown(self):
-        self.redis_patcher.stop()
+        self.token_authentifier = AccessTokenAuthentication()
 
     def test_cannot_authenticate_with_invalid_token(self):
         request = self.factory.get(
@@ -74,8 +52,7 @@ class TokenTestCase(TestCase):
             HTTP_AUTHORIZATION="Bearer {token}".format(token=str(uuid.uuid4()))
         )
 
-        with self.assertRaises(exceptions.AuthenticationFailed):
-            self.token_authentifier.authenticate(request=request)
+        self.assertIsNone(self.token_authentifier.authenticate(request=request))
 
     def test_can_authenticate_with_token(self):
         request = self.factory.get(
@@ -88,20 +65,9 @@ class TokenTestCase(TestCase):
         self.assertEqual(auth_user.type, Role.PERSON_ROLE)
         self.assertEqual(auth_user.person, self.person)
         self.assertEqual(auth_user.token, auth_info)
-        self.assertIsInstance(auth_info, tokens.AccessToken)
-        self.assertEqual(auth_info.client, self.client)
-        self.assertCountEqual(auth_info.scopes, [self.scope, self.other_scope])
-
-    def test_only_scopes_authorized_for_client_are_kept(self):
-        request = self.factory.get(
-            '',
-            HTTP_AUTHORIZATION="Bearer {token}".format(token=self.wrong_scope_token)
-        )
-
-        auth_user, auth_info = self.token_authentifier.authenticate(request=request)
-
-        self.assertEqual(auth_info.client, self.one_scope_client)
-        self.assertCountEqual(auth_info.scopes, [self.other_scope])
+        self.assertIsInstance(auth_info, AccessToken)
+        self.assertEqual(auth_info.application, self.client)
+        self.assertCountEqual(auth_info.scopes, [self.scope.name, self.other_scope.name])
 
 
 class ScopeTestCase(APITestCase):
@@ -132,24 +98,14 @@ class ScopeTestCase(APITestCase):
         )
 
         self.api_client = models.Client.objects.create_client('client', scopes=scopes.scopes_names)
-        self.redis_instance = StrictRedis()
-        self.redis_patcher = mock.patch('agir.clients.tokens.get_auth_redis_client')
-        mock_get_auth_redis_client = self.redis_patcher.start()
-        mock_get_auth_redis_client.return_value = self.redis_instance
-
-    def tearDown(self):
-        self.redis_patcher.stop()
 
     def generate_token(self, scopes_names):
-        self.token = str(uuid.uuid4())
-        self.token_info = {
-            'clientId': self.api_client.label,
-            'userId': str(self.person.pk),
-            'scope': scopes_names
-        }
-        self.redis_instance.set(
-            '{prefix}{token}:payload'.format(prefix=settings.AUTH_REDIS_PREFIX, token=self.token),
-            json.dumps(self.token_info)
+        self.token = AccessToken.objects.create(
+            user=self.person.role,
+            token=str(uuid.uuid4()),
+            scope=' '.join(scopes_names),
+            application=self.api_client,
+            expires=timezone.now() + timezone.timedelta(days=1)
         )
         self.client.credentials(HTTP_AUTHORIZATION="Bearer {token}".format(token=self.token))
 
@@ -256,115 +212,6 @@ class ClientTestCase(TestCase):
         assert authentified_user.has_perm('events.change_event')
 
 
-class LegacyClientViewSetTestCase(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.client_unprivileged = models.Client.objects.create_client('unprivileged', 'password')
-        self.viewer_client = models.Client.objects.create_client('viewer', 'password')
-
-        client_content_type = ContentType.objects.get_for_model(models.Client)
-        view_permission = Permission.objects.get(content_type=client_content_type, codename='view_client')
-
-        self.viewer_client.role.user_permissions.add(view_permission)
-
-        self.detail_view = LegacyClientViewSet.as_view({
-            'get': 'retrieve',
-            'put': 'update',
-            'patch': 'partial_update',
-            'delete': 'destroy'
-        })
-
-        self.list_view = LegacyClientViewSet.as_view({
-            'get': 'list',
-            'post': 'create'
-        })
-
-        self.authenticate_view = LegacyClientViewSet.as_view({
-            'post': 'authenticate_client'
-        })
-
-    def test_cannot_see_while_unauthenticated(self):
-        request = self.factory.get('')
-
-        response = self.list_view(request)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        response = self.detail_view(request, pk=self.client_unprivileged.pk)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_can_only_see_self_if_unprivileged(self):
-        request = self.factory.get('')
-        force_authenticate(request, self.client_unprivileged.role)
-        response = self.list_view(request)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['_items']), 1)
-        self.assertEqual(response.data['_items'][0]['id'], self.client_unprivileged.label)
-
-    def test_can_list_clients(self):
-        request = self.factory.get('')
-        force_authenticate(request, self.viewer_client.role)
-        response = self.list_view(request)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-
-class AuthenticateClientViewTestCase(APITestCase):
-    """Test the authenticate_view route of the :py:class:`clients.viewsets.LegacyClientViewSet`
-
-    Additional routes with specific permission classes must be tested through the APIClient as the
-    permission classes won't be replaced by
-    """
-
-    def setUp(self):
-        self.client_unprivileged = models.Client.objects.create_client('unprivileged', 'password')
-        self.client_oauth = models.Client.objects.create_client('oauth', 'password', oauth_enabled=True)
-        self.viewer_client = models.Client.objects.create_client('viewer', 'password')
-
-        client_content_type = ContentType.objects.get_for_model(models.Client)
-        view_permission = Permission.objects.get(content_type=client_content_type, codename='view_client')
-
-        self.viewer_client.role.user_permissions.add(view_permission)
-
-    def test_cannot_verify_client_if_unauthenticated(self):
-        response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'test', 'secret': 'test'})
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_cannot_verify_client_if_no_view_permission(self):
-        self.client.force_authenticate(user=self.client_unprivileged.role)
-        response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'test', 'secret': 'test'})
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_cannot_verify_non_oauth_client(self):
-        self.client.force_authenticate(user=self.viewer_client.role)
-        response = self.client.post('/legacy/clients/authenticate_client/',
-                                    data={'id': 'unprivileged', 'secret': 'password'})
-
-        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-    def test_can_verify_client_with_view_permission(self):
-        self.client.force_authenticate(user=self.viewer_client.role)
-        response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'oauth', 'secret': 'password'})
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['_id'], str(self.client_oauth.id))
-
-    def test_unprocessable_entity_if_wrong_client_id(self):
-        self.client.force_authenticate(user=self.viewer_client.role)
-        response = self.client.post('/legacy/clients/authenticate_client/', data={'id': 'wrong', 'secret': 'wrong'})
-
-        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-    def test_unprocessable_entity_if_wrong_client_secret(self):
-        self.client.force_authenticate(user=self.viewer_client.role)
-        response = self.client.post('/legacy/clients/authenticate_client/',
-                                    data={'id': 'unprivileged', 'secret': 'wrong'})
-
-        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-
 class ScopeViewSetTestCase(APITestCase):
     """Test the Scope endpoint"""
     def test_can_see_scopes_while_unauthenticated(self):
@@ -386,105 +233,4 @@ class ScopeViewSetTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], 'view_profile')
-        self.assertEqual(response.data['description'], 'Voir mon profil')
-
-
-class AuthorizationViewSetTestCase(APITestCase):
-    """Test the authorization endpoint
-    """
-
-    def setUp(self):
-        self.privileged_client = models.Client.objects.create_client('superclient')
-        self.unprivileged_client = models.Client.objects.create_client('client', oauth_enabled=True)
-
-        self.oauth_client = models.Client.objects.create_client('oauth_client', oauth_enabled=True)
-
-        self.target_person = Person.objects.create_person('test@deomain.com')
-        self.other_person = Person.objects.create_person('test2@fzejfzeji.fr')
-
-        permission_names = ['view_authorization', 'add_authorization', 'change_authorization', 'delete_authorization']
-
-        self.privileged_client.role.user_permissions.add(
-            *(Permission.objects.get(codename=p) for p in permission_names)
-        )
-
-        self.scope1 = scopes.view_profile
-        self.scope2 = scopes.edit_profile
-
-        self.auth_target_oauth = models.Authorization.objects.create(
-            person=self.target_person,
-            client=self.oauth_client
-        )
-        self.auth_target_oauth.scopes = [self.scope1.name, self.scope2.name]
-
-        self.auth_other_oauth = models.Authorization.objects.create(
-            person=self.other_person,
-            client=self.oauth_client
-        )
-        self.auth_other_oauth.scopes = [self.scope1.name]
-
-    def test_cannot_see_authorizations_while_unauthenticated(self):
-        response = self.client.get('/legacy/authorizations/')
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_persons_can_see_own_when_unprivileged(self):
-        self.client.force_login(self.target_person.role)
-        response = self.client.get('/legacy/authorizations/')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(
-            urlparse(response.data[0]['person']).path,
-            reverse('legacy:person-detail', kwargs={'pk': self.target_person.pk})
-        )
-
-    def test_can_see_all_with_privileges(self):
-        self.client.force_login(self.privileged_client.role)
-        response = self.client.get('/legacy/authorizations/')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
-
-        obj_urls = [
-            (reverse('legacy:person-detail', kwargs={'pk': a.person.pk}),
-             reverse('legacy:client-detail', kwargs={'pk': a.client.pk}))
-            for a in [self.auth_target_oauth, self.auth_other_oauth]
-        ]
-
-        self.assertCountEqual(
-            [tuple(urlparse(url).path for url in [a['person'], a['client']]) for a in response.data],
-            obj_urls
-        )
-
-    def test_person_can_modify_own_when_unprivileged(self):
-        self.client.force_login(self.target_person.role)
-        response = self.client.patch(
-            '/legacy/authorizations/%d/' % self.auth_target_oauth.pk,
-            data={'scopes': [scopes.view_profile.name]}
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.auth_target_oauth.refresh_from_db()
-
-        self.assertCountEqual(self.auth_target_oauth.scopes, [self.scope1.name])
-
-    def test_cannot_modify_other_than_own_when_unprivileged(self):
-        self.client.force_login(self.target_person.role)
-        response = self.client.patch(
-            '/legacy/authorizations/%d/' % self.auth_other_oauth.pk,
-            data={'scopes': ['scope2']}
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_can_delete_own(self):
-        self.client.force_login(self.target_person.role)
-        response = self.client.delete('/legacy/authorizations/%d/' % self.auth_target_oauth.pk)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-    def test_cannot_delete_other_than_own(self):
-        self.client.force_login(self.target_person.role)
-        response = self.client.delete('/legacy/authorizations/%d/' % self.auth_other_oauth.pk)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['description'], 'Voir votre profil')

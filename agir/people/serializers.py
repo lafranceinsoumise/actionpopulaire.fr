@@ -1,15 +1,10 @@
-import uuid
 from django.db import transaction
-from django.db.utils import IntegrityError
-from django.contrib.auth.base_user import BaseUserManager
-from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from agir.lib.serializers import (
-    LegacyBaseAPISerializer, LegacyLocationMixin, RelatedLabelField, UpdatableListSerializer
+    LegacyBaseAPISerializer, LegacyLocationMixin, RelatedLabelField
 )
-from agir.clients.serializers import PersonAuthorizationSerializer
 
 from . import models
 
@@ -80,11 +75,6 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         many=True
     )
 
-    authorizations = PersonAuthorizationSerializer(
-        many=True,
-        read_only=True
-    )
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not isinstance(self, LegacyUnprivilegedPersonSerializer):
@@ -123,7 +113,7 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
         fields = (
             'url', '_id', 'id', 'email', 'emails', 'first_name', 'last_name', 'bounced', 'bounced_date',
             '_created', '_updated', 'email_opt_in', 'events', 'rsvps', 'groups', 'memberships', 'tags',
-            'location', 'authorizations',
+            'location',
         )
         read_only_fields = ('url', '_id', '_created', '_updated')
         extra_kwargs = {

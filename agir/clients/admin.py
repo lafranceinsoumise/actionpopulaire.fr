@@ -22,18 +22,23 @@ class ClientAdmin(admin.ModelAdmin):
     form = ClientForm
     fieldsets = (
         (None, {
-            'fields': ('label', 'name', 'description')
+            'fields': ('name', 'description', 'created', 'modified', 'client_id', 'client_secret')
         }),
         ('OAuth', {
-            'fields': ('oauth_enabled', 'trusted', 'uris', 'scopes')
+            'fields': ('authorization_grant_type', 'client_type', 'skip_authorization', 'redirect_uris', 'scopes')
         }),
         (_('Role correspondant'), {
             'fields': ('role_link',)
         })
     )
 
-    list_display = ('label', 'name', 'role_link')
+    list_display = ('name', 'authorization_grant_type', 'client_type', 'skip_authorization', 'role_link')
     readonly_fields = ('created', 'modified', 'role_link')
+    list_filter = ('client_type', 'authorization_grant_type', 'skip_authorization')
+    radio_fields = {
+        "client_type": admin.HORIZONTAL,
+        "authorization_grant_type": admin.VERTICAL,
+    }
 
     def role_link(self, obj):
         return format_html(

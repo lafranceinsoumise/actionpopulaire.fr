@@ -1,8 +1,8 @@
+from oauth2_provider.models import AccessToken
 from rest_framework import exceptions
 from rest_framework.permissions import DjangoModelPermissions, BasePermission
 from django.core.exceptions import PermissionDenied
 
-from agir.clients.tokens import AccessToken
 from agir.clients.scopes import get_required_scopes
 
 
@@ -27,7 +27,7 @@ class ScopePermissionsMixin(object):
             required_permissions = self.get_required_permissions(request.method, model_cls)
             required_scopes = set(scope.name for permission in required_permissions for scope in get_required_scopes(permission))
 
-            if required_scopes and not bool(required_scopes & set(request.auth.scopes)):
+            if required_scopes and not request.auth.allow_scopes(required_scopes):
                 raise PermissionDenied('Incorrect scopes')
 
         return super().has_permission(request, view)
@@ -38,7 +38,7 @@ class ScopePermissionsMixin(object):
             required_permissions = self.get_required_object_permissions(request.method, model_cls)
             required_scopes = set(scope.name for permission in required_permissions for scope in get_required_scopes(permission))
 
-            if required_scopes and not bool(required_scopes & set(request.auth.scopes)):
+            if required_scopes and not request.auth.allow_scopes(required_scopes):
                 raise PermissionDenied('Incorrect scopes')
         return super().has_object_permission(request, view, obj)
 
