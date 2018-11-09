@@ -23,22 +23,6 @@ culpa qui officia deserunt mollit anim id est laborum.
 
 @transaction.atomic
 def load_fake_data():
-    clients = {
-        'api_front': Client.objects.create_client(
-            'api_front',
-            password=PASSWORD,
-            oauth_enabled=True,
-            uris=['http://localhost:8000/authentification/retour/'],
-            scopes=['view_profile']
-        ),
-        'oauth': Client.objects.create_client(
-            'oauth',
-            password=PASSWORD,
-            scopes=['view_profil']
-        ),
-    }
-    clients['oauth'].role.groups.add(Group.objects.get(name='oauth_providers'))
-
     people = {
         'admin': Person.objects.create_superperson('admin@example.com', PASSWORD),
         'user1': Person.objects.create_person('user1@example.com', PASSWORD),
@@ -156,7 +140,6 @@ def load_fake_data():
     )
 
     return {
-        'clients': clients,
         'people': people,
         'groups': groups,
         'events': events,

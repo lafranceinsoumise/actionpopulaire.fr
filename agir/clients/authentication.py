@@ -1,11 +1,14 @@
+import hmac
+from oauth2_provider.contrib.rest_framework import OAuth2Authentication
+from oauth2_provider.models import AccessToken
+
 from rules.permissions import ObjectPermissionBackend as RulesObjectPermissionBackend
 from django.utils.translation import ugettext as _
 from django.core.exceptions import PermissionDenied
 from rest_framework import exceptions
-from rest_framework.authentication import BaseAuthentication, BasicAuthentication, get_authorization_header
+from rest_framework.authentication import BasicAuthentication
 
-from ..authentication.models import Role
-from ..clients.tokens import AccessToken, InvalidTokenException
+from agir.clients.models import Client
 
 
 class AccessTokenRulesPermissionBackend(RulesObjectPermissionBackend):
@@ -21,51 +24,33 @@ class AccessTokenRulesPermissionBackend(RulesObjectPermissionBackend):
         return result
 
 
-class AccessTokenAuthentication(BaseAuthentication):
-    """
-    Access Token authentication
-    """
+class AccessTokenAuthentication(OAuth2Authentication):
     def authenticate(self, request):
-        """
-        Returns a `Person` if a correct access token has been supplied.  Otherwise returns `None`.
-        """
-        auth = get_authorization_header(request).split()
+        result = super().authenticate(request)
 
-        if not auth or auth[0].lower() != b'bearer':
+        if result is None:
             return None
 
-        if len(auth) == 1:
-            msg = _('Invalid basic header. No credentials provided.')
-            raise exceptions.AuthenticationFailed(msg)
-        elif len(auth) > 2:
-            msg = _('Invalid basic header. Credentials string should not contain spaces.')
-            raise exceptions.AuthenticationFailed(msg)
+        user, token = result
+        user.token = token
 
-        try:
-            token = AccessToken.get_token(auth[1].decode())
-        except (InvalidTokenException, UnicodeDecodeError):
-            msg = _('Token invalide.')
-            raise exceptions.AuthenticationFailed(msg)
-
-        token.person.role.token = token
-
-        return token.person.role, token
+        return user, token
 
 
 class ClientAuthentication(BasicAuthentication):
     """
     Client authentication
     """
-    def authenticate_credentials(self, client_label, password, request=None):
+    def authenticate_credentials(self, client_id, client_secret, request=None):
         try:
-            role = Role.objects.select_related('client').get(client__label=client_label)
-        except Role.DoesNotExist:
+            client = Client.objects.select_related('role').get(client_id=client_id)
+        except Client.DoesNotExist:
             # Run the default password hasher once to reduce the timing
             # difference between an existing and a non-existing user (#20760).
-            Role().set_password(password)
+            hmac.compare_digest(client_secret, '')
             raise exceptions.AuthenticationFailed(_('Invalid username/password.'))
 
-        if not role.check_password(password):
+        if not hmac.compare_digest(client.client_secret, client_secret):
             raise exceptions.AuthenticationFailed(_('Invalid username/password.'))
 
-        return role, None
+        return client.role, None

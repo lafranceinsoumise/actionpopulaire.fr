@@ -51,7 +51,7 @@ class Role(ExportModelOperationsMixin('role'), PermissionsMixin, AbstractBaseUse
             try:
                 return 'Person role -> %r' % self.person
             except ObjectDoesNotExist:
-                return 'Unknown Client role %s' % self.pk
+                return 'Unknown Person role %s' % self.pk
         else:
             return 'Unknown role %s' % self.pk
 

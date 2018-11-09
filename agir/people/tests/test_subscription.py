@@ -17,7 +17,7 @@ from agir.people.tasks import send_confirmation_email
 class APISubscriptionTestCase(TestCase):
     def setUp(self):
         self.wordpress_client = Client.objects.create_client(
-            label='wordpress'
+            client_id='wordpress'
         )
 
         person_content_type = ContentType.objects.get_for_model(Person)
