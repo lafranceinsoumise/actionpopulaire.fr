@@ -15,7 +15,6 @@ class PaymentAdminForm(forms.ModelForm):
 
     def clean_mode(self):
         mode = self.cleaned_data['mode']
-        print(mode, flush=True)
         if not mode.can_admin:
             raise forms.ValidationError("Seuls peuvent être modifiés les paiements par chèque.")
 

@@ -60,7 +60,6 @@ def add_member(model_admin, request, pk):
         'has_editable_inline_admin_formsets': False,
         'media': model_admin.media + admin_form.media
     }
-    print(context)
     context.update(model_admin.admin_site.each_context(request))
 
     request.current_app = model_admin.admin_site.name

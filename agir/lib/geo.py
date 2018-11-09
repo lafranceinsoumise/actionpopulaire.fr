@@ -110,8 +110,6 @@ def geocode_nominatim(item):
         logger.warning(f"Invalid JSON while geocoding address '{display_address}' with Nominatim", exc_info=True)
         return False
 
-    print(repr(results))
-
     if results:
         item.coordinates = Point(float(results[0]['lon']), float(results[0]['lat']))
         item.coordinates_type = LocationMixin.COORDINATES_UNKNOWN_PRECISION
