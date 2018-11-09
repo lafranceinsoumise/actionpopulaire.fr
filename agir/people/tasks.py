@@ -36,7 +36,7 @@ def send_confirmation_email(email, **kwargs):
             subject=_("Vous êtes déjà inscrit !"),
             from_email=settings.EMAIL_FROM,
             bindings={'PANEL_LINK': front_url('dashboard', auto_login=True), 'AGO': pretty_time_since(p.created)},
-            recipients=[email]
+            recipients=[p]
         )
         return
 
