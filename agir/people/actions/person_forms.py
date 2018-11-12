@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.formats import date_format
+from django.utils.formats import localize
 from django.utils.safestring import mark_safe
 
 from phonenumber_field.phonenumber import PhoneNumber
@@ -106,7 +106,7 @@ def _get_admin_fields(submission, html=True):
             '<a href="{}">{}</a>',
             settings.API_DOMAIN + reverse('admin:people_person_change', args=(submission.person_id,)),
             submission.person.email) if html else submission.person.email,
-        date_format(submission.created)
+        localize(submission.created)
     ]
 
 
