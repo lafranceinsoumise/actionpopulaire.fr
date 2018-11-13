@@ -8,7 +8,9 @@ from django.utils import timezone
 from django.views.generic import FormView, RedirectView
 from django.contrib.auth import login, logout, REDIRECT_FIELD_NAME
 from django.utils.http import is_safe_url, urlquote
+from oauth2_provider.views import AuthorizationView
 
+from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.people.models import Person
 from .forms import EmailForm, CodeForm
 
@@ -131,3 +133,7 @@ class DisconnectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         return super().get_redirect_url() or self.url
+
+
+class Oauth2AuthorizationView(HardLoginRequiredMixin, AuthorizationView):
+    pass

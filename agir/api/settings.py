@@ -329,6 +329,7 @@ if ENABLE_FRONT:
         # legacy backend only used to preserve currently connected sessions
         'agir.authentication.backend.OAuth2Backend',
     ])
+    LOGIN_URL = 'short_code_login'
 
 OAUTH2_PROVIDER_APPLICATION_MODEL = 'clients.Client'
 OAUTH2_PROVIDER = {

@@ -40,7 +40,6 @@ if settings.ENABLE_API:
 if settings.ENABLE_FRONT:
     urlpatterns += [
         path('', include(front_urls)),
-        path('o/', include((oauth2_provider_urls.base_urlpatterns, 'oauth2_provider'))),
     ]
 
 if settings.ENABLE_MAP:

@@ -5,23 +5,20 @@ from django.utils.translation import ugettext as _
 
 
 class SoftLoginRequiredMixin(object):
-    unlogged_redirect_url = 'short_code_login'
-
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return super().dispatch(request, *args, **kwargs)
 
-        return redirect_to_login(request.get_full_path(), self.unlogged_redirect_url)
+        return redirect_to_login(request.get_full_path())
 
 
 class HardLoginRequiredMixin(object):
-    unlogged_redirect_url = 'short_code_login'
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated and request.session[BACKEND_SESSION_KEY] != 'agir.authentication.backend.MailLinkBackend':
             return super().dispatch(request, *args, **kwargs)
 
-        return redirect_to_login(request.get_full_path(), self.unlogged_redirect_url)
+        return redirect_to_login(request.get_full_path())
 
 
 class PermissionsRequiredMixin(object):
