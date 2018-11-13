@@ -56,6 +56,7 @@ class BaseSubscriptionForm(forms.Form):
 
 class SimpleSubscriptionForm(BaseSubscriptionForm):
     location_zip = forms.CharField(
+        label='Code postal',
         validators=[RegexValidator(r'[0-9]{5}', message='Entrez un code postal français')],
         required=True,
     )
