@@ -51,6 +51,8 @@ class PersonForm(TimeStampedModel):
     start_time = models.DateTimeField(_("Date d'ouverture du formulaire"), null=True, blank=True)
     end_time = models.DateTimeField(_("Date de fermeture du formulaire"), null=True, blank=True)
 
+    editable = models.BooleanField(_("Les répondant⋅e⋅s peuvent modifier leurs réponses"), default=False)
+
     send_answers_to = models.EmailField(_("Envoyer les réponses par email à une adresse email (facultatif)"),
                                         blank=True)
 
@@ -156,7 +158,7 @@ class PersonFormSubmission(ExportModelOperationsMixin('person_form_submission'),
     form = models.ForeignKey('PersonForm', on_delete=models.CASCADE, related_name='submissions', editable=False)
     person = models.ForeignKey('Person', on_delete=models.CASCADE, related_name='form_submissions', editable=False)
 
-    data = JSONField(_('Données'), editable=False, encoder=CustomJSONEncoder)
+    data = JSONField(_('Données'), default=dict, editable=False, encoder=CustomJSONEncoder)
 
     def __str__(self):
         return f"{self.form.title} : réponse de {str(self.person)}"

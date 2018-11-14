@@ -12,7 +12,7 @@ class FieldSet:
         self.title = title
         self.fields = fields
 
-    def set_up_fields(self, form):
+    def set_up_fields(self, form, is_edition):
         for field_descriptor in self.fields:
             if is_actual_model_field(field_descriptor):
                 # by default person fields are required
@@ -21,7 +21,7 @@ class FieldSet:
                 if field_descriptor['id'] == 'date_of_birth':
                     form.fields[field_descriptor['id']].help_text = _('Format JJ/MM/AAAA')
             else:
-                form.fields[field_descriptor['id']] = get_form_field(field_descriptor)
+                form.fields[field_descriptor['id']] = get_form_field(field_descriptor, is_edition)
 
         form.helper.layout.append(
             Fieldset(self.title, *(Row(FullCol(field_descriptor['id'])) for field_descriptor in self.fields))
@@ -49,11 +49,11 @@ class DoubleEntryTable:
     def get_row(self, form, row_id, row_label):
         return f"<tr><th>{row_label}</th>" + "".join("<td>{}</td>".format(form[self.get_id(row_id, col['id'])]) for col in self.fields) + '</tr>'
 
-    def set_up_fields(self, form: forms.Form):
+    def set_up_fields(self, form: forms.Form, is_edition):
         for row_id, row_label in self.rows:
             for field_descriptor in self.fields:
                 id = self.get_id(row_id, field_descriptor['id'])
-                field = get_form_field(field_descriptor)
+                field = get_form_field(field_descriptor, is_edition)
                 form.fields[id] = field
 
         intro = f"<p>{self.intro}</p>" if self.intro else ""

@@ -268,7 +268,7 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('title', 'slug', 'published', 'start_time', 'end_time', 'send_answers_to', 'required_tags')
+            'fields': ('title', 'slug', 'published', 'start_time', 'end_time', 'editable', 'send_answers_to', 'required_tags')
         }),
         (_('Soumissions'), {
             'fields': ('submissions_number', 'simple_link', 'action_buttons')
@@ -285,6 +285,12 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
     )
 
     readonly_fields = ('submissions_number', 'simple_link', 'action_buttons')
+
+    def get_readonly_fields(self, request, obj=None):
+        pass
+        if obj is not None:
+            return self.readonly_fields + ('editable',)
+        return self.readonly_fields
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

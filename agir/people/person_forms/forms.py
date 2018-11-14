@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from pathlib import PurePath
 from django import forms
+from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.storage import default_storage
 from django.utils.translation import ugettext as _
@@ -23,7 +24,12 @@ class PersonTagChoiceField(forms.ModelChoiceField):
 
 
 class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
+    """base form class for using PersonForm models
+
+    It should not be used by itself, but only with people.actions.get_people_form_class
+    """
     person_form_instance = None
+    is_edition = False
 
     def get_meta_fields(self):
         return [field['id']
@@ -34,6 +40,18 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
+
+        if self.person_form_instance.editable:
+            try:
+                submission = PersonFormSubmission.objects.get(
+                    person=self.instance,
+                    form=self.person_form_instance
+                )
+                for id, value in submission.data.items():
+                    self.initial[id] = value
+                self.is_edition = True
+            except PersonFormSubmission.DoesNotExist:
+                pass
 
         parts = []
 
@@ -71,7 +89,20 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             self.parts = []
 
         for part in self.parts:
-            part.set_up_fields(self)
+            part.set_up_fields(self, self.is_edition)
+
+    def clean(self):
+        if not self.is_edition:
+            return super().clean()
+
+        cleaned_data = super().clean()
+
+        for id, field_descriptor in self.person_form_instance.fields_dict.items():
+            if not field_descriptor.get('editable', False) and cleaned_data.get(id) != self.initial.get(id):
+                self.add_error(id, ValidationError("Ce champ ne peut pas être modifié."))
+
+        return cleaned_data
+
 
     @property
     def submission_data(self):
@@ -81,6 +112,9 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         return data
 
     def save_submission(self, person):
+        """
+        Can be used to save a submission without saving the Person
+        """
         if person is None:
             person = self.instance
 
@@ -91,11 +125,19 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             if isinstance(value, File):
                 data[key] = self._save_file(value)
 
-        self.submission = PersonFormSubmission.objects.create(
-            person=person,
-            form=self.person_form_instance,
-            data=data
-        )
+        if self.person_form_instance.editable:
+            self.submission, created = PersonFormSubmission.objects.get_or_create(
+                person=person,
+                form=self.person_form_instance
+            )
+            self.submission.data = data
+            self.submission.save()
+        else:
+            self.submission = PersonFormSubmission.objects.create(
+                person=person,
+                form=self.person_form_instance,
+                data=data
+            )
 
         return self.submission
 
