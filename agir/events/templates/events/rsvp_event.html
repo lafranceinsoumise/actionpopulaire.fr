@@ -55,6 +55,10 @@
                         <li><strong>{{ item.label }}</strong>&nbsp;: {{ item.value }}</li>
                     {% endif %}
                 {% endfor %}
+                {% if person_form_instance.editable %}
+                    <a class="btn btn-default" href="{% url 'view_person_form' person_form_instance.slug %}">
+                        Modifier ces informations</a>
+                {% endif %}
             </ul>
             {% if guests_submission_data %}
                 <p>Vous avez inscrit d'autre personnes :</p>
@@ -92,7 +96,7 @@
                 </div>
                 {% crispy form %}
         {% else %}
-            {% if not can_post_form %}
+            {% if not is_authorized %}
                 <div class="intro">
                     {{ person_form_instance.html_unauthorized_message }}
                 </div>

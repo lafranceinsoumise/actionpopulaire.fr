@@ -100,11 +100,15 @@ def is_actual_model_field(field_descriptor):
     return field_descriptor.get('person_field', False) and field_descriptor['id'] in all_person_field_names
 
 
-def get_form_field(field_descriptor: dict):
+def get_form_field(field_descriptor: dict, is_edition):
     field_descriptor = field_descriptor.copy()
     field_type = field_descriptor.pop('type')
     field_descriptor.pop('id')
     field_descriptor.pop('person_field', None)
+    editable = field_descriptor.pop('editable', False)
+    if is_edition:
+        field_descriptor['disabled'] = not editable
+        field_descriptor['help_text'] = field_descriptor.get('help_text', '') + " Ce champ ne peut pas être modifié."
 
     klass = FIELDS.get(field_type)
 

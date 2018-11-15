@@ -66,8 +66,8 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
             except RSVP.DoesNotExist:
                 pass
 
-        if 'can_post_form' not in kwargs:
-            kwargs['can_post_form'] = self.can_post_form()
+        if 'is_authorized' not in kwargs:
+            kwargs['is_authorized'] = self.event.subscription_form.is_authorized(self.request.user.person)
 
         kwargs = {
             'person_form_instance': self.event.subscription_form,
@@ -82,7 +82,7 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
         }
 
         # we add a form when user is allowed AND either not subscribed, or allowed to add guests
-        will_add_form = kwargs['can_post_form'] and ('rsvp' not in kwargs or self.event.allow_guests)
+        will_add_form = self.can_post_form() and ('rsvp' not in kwargs or self.event.allow_guests)
 
         if 'form' not in kwargs and will_add_form:
             kwargs['form'] = self.get_form()

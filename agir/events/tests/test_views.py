@@ -495,6 +495,20 @@ class RSVPTestCase(TestCase):
         rsvp = RSVP.objects.get(person=self.person, event=self.form_event)
         self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
 
+    def test_can_edit_rsvp_form(self):
+        self.client.force_login(self.person.role)
+
+        rsvp_url = reverse('rsvp_event', kwargs={'pk': self.form_event.pk})
+        self.client.post(rsvp_url, data={'custom-field': 'another custom value'})
+
+        res = self.client.get(rsvp_url)
+        self.assertNotContains(res, "Modifier mon inscription")
+
+        self.form_event.subscription_form.editable = True
+        self.form_event.subscription_form.save()
+        res = self.client.get(rsvp_url)
+        self.assertContains(res, "Modifier ces informations")
+
     @mock.patch('agir.events.actions.rsvps.send_guest_confirmation')
     def test_can_add_guest_to_form_event(self, guest_confirmation):
         self.form_event.allow_guests = True
@@ -763,6 +777,30 @@ class RSVPTestCase(TestCase):
 
         rsvp = RSVP.objects.get(person=self.person, event=self.form_event)
         self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+
+    def test_cannot_rsvp_if_form_is_closed(self):
+        self.client.force_login(self.person.role)
+        self.form_event.subscription_form.end_time = timezone.now() - timezone.timedelta(days=1)
+        self.form_event.subscription_form.save()
+
+        res = self.client.get(reverse('rsvp_event', kwargs={'pk': self.form_event.pk}))
+        self.assertContains(res, "Ce formulaire est maintenant fermé.")
+
+        res = self.client.post(reverse('rsvp_event', kwargs={'pk': self.form_event.pk}),
+                                    data={'custom-field': 'another custom value'})
+        self.assertContains(res, "Ce formulaire est maintenant fermé.")
+
+    def test_cannot_rsvp_if_form_is_yet_to_open(self):
+        self.client.force_login(self.person.role)
+        self.form_event.subscription_form.start_time = timezone.now() + timezone.timedelta(days=1)
+        self.form_event.subscription_form.save()
+
+        res = self.client.get(reverse('rsvp_event', kwargs={'pk': self.form_event.pk}))
+        self.assertContains(res, "est pas encore ouvert.")
+
+        res = self.client.post(reverse('rsvp_event', kwargs={'pk': self.form_event.pk}),
+                                    data={'custom-field': 'another custom value'})
+        self.assertContains(res, "est pas encore ouvert.")
 
     @mock.patch('agir.events.actions.rsvps.send_rsvp_notification')
     def test_not_billed_if_free_pricing_to_zero(self, rsvp_notification):

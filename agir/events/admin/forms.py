@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from ajax_select.fields import AutoCompleteSelectField
 
@@ -86,6 +87,16 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields['calendars'].initial = self.instance.calendars.all()
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data.get('allow_guests') \
+                and cleaned_data.get('subscription_form') is not None and cleaned_data['subscription_form'].editable:
+            raise ValidationError("Vous ne pouvez pas accepter des invités si les gens peuvent modifier leur "
+                                  "inscription.")
+
+        return cleaned_data
 
     def _save_m2m(self):
         super()._save_m2m()
