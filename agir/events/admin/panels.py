@@ -184,6 +184,8 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     actions = (actions.export_events, actions.make_published, actions.unpublish)
 
+    autocomplete_fields = ('tags',)
+
     def get_queryset(self, request):
         return Event.objects.with_participants()
 
@@ -265,6 +267,7 @@ class CalendarAdmin(admin.ModelAdmin):
     fields = ('name', 'slug', 'link', 'parent', 'user_contributed', 'description', 'image')
     list_display = ('name', 'slug', 'user_contributed', 'parent')
     readonly_fields = ('link',)
+    search_fields = ('name', 'parent__name')
 
     def link(self, object):
         if object.slug:
@@ -276,6 +279,7 @@ class CalendarAdmin(admin.ModelAdmin):
 
 @admin.register(models.EventTag, site=admin_site)
 class EventTagAdmin(admin.ModelAdmin):
+    search_fields = ('label',)
     pass
 
 

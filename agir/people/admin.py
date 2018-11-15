@@ -134,6 +134,8 @@ class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     inlines = (RSVPInline, MembershipInline, EmailInline)
 
+    autocomplete_fields = ('tags',)
+
     def get_search_results(self, request, queryset, search_term):
         if search_term:
             queryset = queryset.full_text_search(search_term)
@@ -184,6 +186,7 @@ class PersonTagAdmin(admin.ModelAdmin):
     list_display = ('label', 'exported')
 
     actions = ('set_as_exported', 'set_as_not_exported')
+    search_fields = ('label',)
 
     def set_as_exported(self, request, queryset):
         queryset.update(exported=True)
@@ -285,6 +288,7 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
     )
 
     readonly_fields = ('submissions_number', 'simple_link', 'action_buttons')
+    autocomplete_fields = ('required_tags', 'tags')
 
     def get_readonly_fields(self, request, obj=None):
         pass
