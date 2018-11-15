@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from agir.lib.tests.mixins import FakeDataMixin
 
-from ..models import OrganizerConfig
+from ..models import OrganizerConfig, EventSubtype
 
 
 class SmokeTestCase(FakeDataMixin, TestCase):

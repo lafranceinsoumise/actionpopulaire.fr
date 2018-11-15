@@ -226,7 +226,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
     link.short_description = _("Page sur le site")
 
     def rsvps_buttons(self, object):
-        if object.subscription_form is None :
+        if object.subscription_form is None or object.pk is None:
             return mark_safe('-')
         else:
             return format_html(
