@@ -108,6 +108,7 @@ def get_form_field(field_descriptor: dict, is_edition):
     editable = field_descriptor.pop('editable', False)
     if is_edition:
         field_descriptor['disabled'] = not editable
+    if is_edition and not editable:
         field_descriptor['help_text'] = field_descriptor.get('help_text', '') + " Ce champ ne peut pas être modifié."
 
     klass = FIELDS.get(field_type)

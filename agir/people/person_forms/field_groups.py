@@ -16,7 +16,9 @@ class FieldSet:
         for field_descriptor in self.fields:
             if is_actual_model_field(field_descriptor):
                 # by default person fields are required
-                form.fields[field_descriptor['id']].required = True
+                form.fields[field_descriptor['id']].required = field_descriptor.get('required', True)
+                if is_edition:
+                    form.fields[field_descriptor['id']].disabled = not field_descriptor.get('editable', False)
 
                 if field_descriptor['id'] == 'date_of_birth':
                     form.fields[field_descriptor['id']].help_text = _('Format JJ/MM/AAAA')
