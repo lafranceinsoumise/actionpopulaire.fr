@@ -42,16 +42,15 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.person_form_instance.editable:
-            try:
-                submission = PersonFormSubmission.objects.get(
-                    person=self.instance,
-                    form=self.person_form_instance
-                )
+            submission = PersonFormSubmission.objects.filter(
+                person=self.instance,
+                form=self.person_form_instance
+            ).order_by('modified').last()
+
+            if submission is not None:
                 for id, value in submission.data.items():
                     self.initial[id] = value
                 self.is_edition = True
-            except PersonFormSubmission.DoesNotExist:
-                pass
 
         parts = []
 
