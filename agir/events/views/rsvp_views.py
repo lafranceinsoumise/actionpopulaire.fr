@@ -74,6 +74,7 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
             'event': self.event,
             'submission_data': get_formatted_submission(kwargs['rsvp'].form_submission)
                 if 'rsvp' in kwargs and kwargs['rsvp'].form_submission else None,
+            'submission': kwargs['rsvp'].form_submission if 'rsvp' in kwargs and kwargs['rsvp'].form_submission else None,
             'guests_submission_data': [
                 (guest.get_status_display(), get_formatted_submission(guest.submission) if guest.submission else [])
                 for guest in kwargs['rsvp'].identified_guests.select_related('submission')

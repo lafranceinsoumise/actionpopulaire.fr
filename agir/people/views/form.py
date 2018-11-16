@@ -1,11 +1,12 @@
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import UpdateView, DetailView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.people import tasks
 from agir.people.actions.person_forms import get_people_form_class
-from agir.people.models import PersonForm
+from agir.people.models import PersonForm, PersonFormSubmission
 
 
 class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
@@ -52,6 +53,17 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
             tasks.send_person_form_notification.delay(form.submission.pk)
 
         return r
+
+
+class PeopleFormEditSubmissionView(PeopleFormView):
+    def get_form_kwargs(self):
+        if self.person_form_instance.editable == False:
+            raise Http404()
+
+        kwargs = super().get_form_kwargs()
+        kwargs['submission'] = get_object_or_404(PersonFormSubmission, pk=self.kwargs['pk'])
+
+        return kwargs
 
 
 class PeopleFormConfirmationView(DetailView):

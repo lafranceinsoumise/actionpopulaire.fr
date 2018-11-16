@@ -38,17 +38,18 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                 if field.get('person_field') and not is_actual_model_field(field)]
 
     def __init__(self, *args, **kwargs):
+        self.submission = kwargs.pop('submission', None)
 
         super().__init__(*args, **kwargs)
 
         if self.person_form_instance.editable:
-            submission = PersonFormSubmission.objects.filter(
+            self.submission = self.submission or PersonFormSubmission.objects.filter(
                 person=self.instance,
                 form=self.person_form_instance
             ).order_by('modified').last()
 
-            if submission is not None:
-                for id, value in submission.data.items():
+            if self.submission is not None:
+                for id, value in self.submission.data.items():
                     self.initial[id] = value
                 self.is_edition = True
 
@@ -125,10 +126,11 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                 data[key] = self._save_file(value)
 
         if self.person_form_instance.editable:
-            self.submission, created = PersonFormSubmission.objects.get_or_create(
-                person=person,
-                form=self.person_form_instance
-            )
+            if self.submission is None:
+                self.submission, created = PersonFormSubmission.objects.get_or_create(
+                    person=person,
+                    form=self.person_form_instance
+                )
             self.submission.data = data
             self.submission.save()
         else:
@@ -146,8 +148,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         elif hasattr(self, 'tag'):
             self.instance.tags.add(self.tag)
 
-        if not hasattr(self, 'submission'):
-            self.save_submission(self.instance)
+        self.save_submission(self.instance)
 
     def _save_file(self, file):
         form_slug = self.person_form_instance.slug

@@ -56,7 +56,7 @@
                     {% endif %}
                 {% endfor %}
                 {% if person_form_instance.editable %}
-                    <a class="btn btn-default" href="{% url 'view_person_form' person_form_instance.slug %}">
+                    <a class="btn btn-default" href="{% url 'edit_person_form_submission' person_form_instance.slug submission.pk %}">
                         Modifier ces informations</a>
                 {% endif %}
             </ul>

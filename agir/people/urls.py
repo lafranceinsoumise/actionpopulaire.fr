@@ -23,6 +23,7 @@ urlpatterns = [
     path('message_preferences/adresses/', views.EmailManagementView.as_view(), name='email_management'),
     path('message_preferences/adresses/<int:pk>/supprimer/', views.DeleteEmailAddressView.as_view(), name='delete_email'),
     path('formulaires/<slug:slug>/', views.PeopleFormView.as_view(), name='view_person_form'),
+    path('formulaires/<slug:slug>/edit/<pk>', views.PeopleFormEditSubmissionView.as_view(), name='edit_person_form_submission'),
     path('formulaires/<slug:slug>/confirmation/', views.PeopleFormConfirmationView.as_view(), name='person_form_confirmation'),
     path('telephone/sms', views.SendValidationSMSView.as_view(), name='send_validation_sms'),
     path('telephone/validation', views.CodeValidationView.as_view(), name='sms_code_validation'),
