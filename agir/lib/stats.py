@@ -9,9 +9,9 @@ from agir.events.models import Event, EventSubtype
 def get_general_stats(start, end):
     return {
         'new_supporters': Person.objects.filter(created__range=(start, end)).count(),
-        'new_groups': SupportGroup.objects.filter(created__range=(start, end)).count(),
-        'new_events': Event.objects.filter(created__range=(start, end)).count(),
-        'events_happened': Event.objects.filter(start_time__range=(start, end)).count(),
+        'new_groups': SupportGroup.objects.filter(published=True, created__range=(start, end)).count(),
+        'new_events': Event.objects.filter(published=True, created__range=(start, end)).count(),
+        'events_happened': Event.objects.filter(published=True, start_time__range=(start, end)).count(),
         'new_memberships': Person.objects.filter(
             memberships__created__range=(start, end),
             memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
