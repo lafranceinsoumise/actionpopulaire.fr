@@ -63,6 +63,9 @@ class PeopleFormEditSubmissionView(PeopleFormView):
         kwargs = super().get_form_kwargs()
         kwargs['submission'] = get_object_or_404(PersonFormSubmission, pk=self.kwargs['pk'])
 
+        if kwargs['submission'].person != self.request.user.person:
+            raise PermissionError()
+
         return kwargs
 
 
