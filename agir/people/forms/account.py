@@ -210,9 +210,14 @@ class InsoumisePreferencesForm(TagMixin, PreferencesFormMixin):
         cleaned_data = super().clean()
 
         if self.no_mail:
+            # if the user clicked the "unsubscribe from all button", we want to put all fields thare are boolean
+            # to false, and keep all the others to their initial values: it allows posting to this form with
+            # the single "no_mail" content
             for k, v in cleaned_data.items():
-                if not isinstance(v, bool): continue
-                cleaned_data[k] = False
+                if isinstance(v, bool):
+                    cleaned_data[k] = False
+                else:
+                    cleaned_data[k] = self.get_initial_for_field(self.fields[k], k)
 
         if cleaned_data['draw_participation'] and not cleaned_data['gender']:
             self.add_error(

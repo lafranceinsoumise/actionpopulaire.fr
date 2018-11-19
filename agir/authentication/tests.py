@@ -58,15 +58,15 @@ class MailLinkTestCase(TestCase):
             response, reverse('short_code_login') + '?next=' + reverse('create_group')
         )
 
-    def test_unsubscribe_redirects_to_message_preferences_when_logged(self):
+    def test_unsubscribe_shows_direct_unsubscribe_form_when_logged_in(self):
         message_preferences_path = reverse('message_preferences')
         unsubscribe_path = reverse('unsubscribe')
 
         self.client.force_login(self.person.role)
         response = self.client.get(unsubscribe_path)
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        target_url = urlparse(response.url)
-        self.assertEqual(target_url.path, message_preferences_path)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, self.person.email)
+        self.assertContains(response, 'action="{}"'.format(message_preferences_path))
 
 
 @using_redislite

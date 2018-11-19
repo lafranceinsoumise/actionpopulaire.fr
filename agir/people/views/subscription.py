@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from agir.authentication.utils import soft_login
 from agir.front.view_mixins import SimpleOpengraphMixin
-from agir.people.forms import UnsubscribeForm, SimpleSubscriptionForm, OverseasSubscriptionForm
+from agir.people.forms import AnonymousUnsubscribeForm, SimpleSubscriptionForm, OverseasSubscriptionForm
 from agir.people.models import Person
 from agir.authentication.subscription import subscription_confirmation_token_generator
 from agir.people.tasks import send_welcome_mail
@@ -19,19 +19,20 @@ from agir.people.token_buckets import SubscribeIPBucket, SubscribeEmailBucket, i
 class UnsubscribeView(SimpleOpengraphMixin, FormView):
     template_name = "people/unsubscribe.html"
     success_url = reverse_lazy('unsubscribe_success')
-    form_class = UnsubscribeForm
+    form_class = AnonymousUnsubscribeForm
 
     meta_title = "Ne plus recevoir de emails"
     meta_description = "Désabonnez-vous des emails de la France insoumise"
 
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('message_preferences'))
-        return super().get(request, *args, **kwargs)
-
     def form_valid(self, form):
         form.unsubscribe()
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            email=self.request.user.person.email if self.request.user.is_authenticated else None,
+            **kwargs
+        )
 
 
 class ConfirmationMailSentView(TemplateView):

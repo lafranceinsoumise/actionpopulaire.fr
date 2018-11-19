@@ -32,11 +32,18 @@ class MessagePreferencesView(SoftLoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         res = super().form_valid(form)
 
-        messages.add_message(
-            self.request,
-            messages.SUCCESS,
-            "Vos préférences ont bien été enregistrées !"
-        )
+        if getattr(form, 'no_mail', False):
+            messages.add_message(
+                self.request,
+                messages.INFO,
+                "Vous êtes maintenant désinscrit⋅e de toutes les lettres d'information de la France insoumise."
+            )
+        else:
+            messages.add_message(
+                self.request,
+                messages.SUCCESS,
+                "Vos préférences ont bien été enregistrées !"
+            )
 
         return res
 

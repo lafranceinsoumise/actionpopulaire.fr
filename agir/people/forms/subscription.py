@@ -11,7 +11,7 @@ from agir.people.models import Person
 from agir.people.tasks import send_unsubscribe_email, send_confirmation_email
 
 
-class UnsubscribeForm(forms.Form):
+class AnonymousUnsubscribeForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
