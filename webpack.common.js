@@ -3,7 +3,7 @@ const fs = require('fs');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const BundleTracker = require('webpack-bundle-tracker');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const webpack = require('webpack');
 
 const DISTPATH = path.resolve(__dirname, 'assets/components');
@@ -98,5 +98,8 @@ module.exports = {
   resolve: {
     alias: aliases,
     modules: ['node_modules']
+  },
+  watchOptions: {
+    ignored: /node_modules/
   }
 };
