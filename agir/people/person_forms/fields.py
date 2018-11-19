@@ -11,7 +11,6 @@ from agir.lib.form_fields import DateTimePickerWidget
 
 from ..models import Person
 
-
 all_person_field_names = [field.name for field in Person._meta.get_fields()]
 
 
@@ -100,7 +99,7 @@ def is_actual_model_field(field_descriptor):
     return field_descriptor.get('person_field', False) and field_descriptor['id'] in all_person_field_names
 
 
-def get_form_field(field_descriptor: dict, is_edition):
+def get_form_field(field_descriptor: dict, is_edition=False):
     field_descriptor = field_descriptor.copy()
     field_type = field_descriptor.pop('type')
     field_descriptor.pop('id')
@@ -117,3 +116,20 @@ def get_form_field(field_descriptor: dict, is_edition):
         return klass(**field_descriptor)
 
     raise ValueError(f"Unkwnown field type: '{field_type}'")
+
+
+def get_data_from_submission(s):
+    data = s.data
+    fields = s.form.fields_dict
+
+    model_fields = {k for k in data if k in fields and is_actual_model_field(fields[k])}
+
+    return {
+        **{
+            k: get_form_field(fields[k]).to_python(v) if k in fields else v for k, v in data.items() if
+        k not in model_fields
+        },
+        **{
+            k: Person._meta.get_field(k).formfield().to_python(data[k]) for k in model_fields
+        }
+    }

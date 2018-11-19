@@ -16,7 +16,7 @@ from phonenumbers import NumberParseException
 from ..models import Person
 
 from ..person_forms.forms import BasePersonForm
-from ..person_forms.fields import is_actual_model_field
+from ..person_forms.fields import is_actual_model_field, get_data_from_submission
 
 
 def get_people_form_class(person_form_instance, base_form=BasePersonForm):
@@ -137,7 +137,7 @@ def get_formatted_submissions(submissions, include_admin_fields=True, html=True)
 
 
 def get_formatted_submission(submission, include_admin_fields=False):
-    data = submission.data
+    data = get_data_from_submission(submission)
     field_dicts = submission.form.fields_dict
     labels = get_form_field_labels(submission.form)
 

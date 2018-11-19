@@ -30,8 +30,6 @@ class PersonFormQueryset(models.QuerySet):
         )
 
 
-
-
 def default_custom_forms():
     return [
         {"title": "Mes informations", "fields": [

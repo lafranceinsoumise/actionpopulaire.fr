@@ -15,7 +15,7 @@ from agir.people.person_forms.field_groups import get_form_part
 
 from ..form_mixins import MetaFieldsMixin
 from ..models import Person, PersonFormSubmission
-from .fields import is_actual_model_field
+from .fields import is_actual_model_field, get_data_from_submission
 
 
 class PersonTagChoiceField(forms.ModelChoiceField):
@@ -49,7 +49,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             ).order_by('modified').last()
 
             if self.submission is not None:
-                for id, value in self.submission.data.items():
+                for id, value in get_data_from_submission(self.submission).items():
                     self.initial[id] = value
                 self.is_edition = True
 
