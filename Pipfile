@@ -44,6 +44,7 @@ ics = "*"
 django-prometheus = "*"
 phonenumbers = "*"
 django-oauth-toolkit = "*"
+redis = "==2.10.6"
 
 [dev-packages]
 ipython = "*"
