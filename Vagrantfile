@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   config.vm.provider "virtualbox" do |vb|
-      vb.memory = "1536"
+      vb.memory = "3000"
   end
 
   # Enable provisioning with a shell script.
