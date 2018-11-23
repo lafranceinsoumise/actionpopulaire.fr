@@ -67,7 +67,7 @@ sudo apt-get -yqq update
 sudo apt-get -yqq install python3.6 python3.6-dev python3-pip libsystemd-dev
 sudo -H pip3 install pipenv
 cd /vagrant
-/usr/local/bin/pipenv install
+/usr/local/bin/pipenv sync
 /usr/local/bin/pipenv run ./manage.py migrate
 sudo bash -c "cat > /etc/systemd/system/django.service" <<EOT
 [Unit]
