@@ -12,6 +12,7 @@ from django_countries.fields import CountryField
 
 from crispy_forms import layout
 from crispy_forms.helper import FormHelper
+from webpack_loader.utils import get_files
 
 from agir.groups.models import SupportGroup
 from ..people.form_mixins import MetaFieldsMixin
@@ -105,6 +106,10 @@ class DonationForm(forms.Form):
             self.group = self.cleaned_data.get('group')
 
         return self.cleaned_data
+
+    @property
+    def media(self):
+        return forms.Media(js=[script['url'] for script in get_files('donations/donationForm', 'js')])
 
 
 class DonatorForm(MetaFieldsMixin, forms.ModelForm):
