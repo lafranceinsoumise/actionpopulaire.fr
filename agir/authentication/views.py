@@ -55,9 +55,15 @@ class RedirectToMixin():
             self.redirect_field_name,
             self.request.GET.get(self.redirect_field_name, '')
         )
+
+        # we first strip to remove potential trailing slash, then rsplit and take last component to remove
+        # http:// or https://
+        allowed_hosts = {s.strip('/').rsplit('/', 1)[-1]
+                         for s in [settings.MAIN_DOMAIN, settings.API_DOMAIN, settings.FRONT_DOMAIN]}
+
         url_is_safe = is_safe_url(
             url=redirect_to,
-            allowed_hosts=[s.rsplit('/', 1)[-1] for s in [settings.MAIN_DOMAIN, settings.API_DOMAIN, settings.FRONT_DOMAIN]],
+            allowed_hosts=allowed_hosts,
             require_https=self.request.is_secure(),
         )
         return redirect_to if url_is_safe else ''
