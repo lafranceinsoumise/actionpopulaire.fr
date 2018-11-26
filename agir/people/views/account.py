@@ -2,10 +2,12 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
+from django.utils.http import urlquote
 from django.utils.translation import ugettext as _
 from django.views.generic import UpdateView, DeleteView, TemplateView, FormView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin, HardLoginRequiredMixin
+from agir.authentication.views import RedirectToMixin
 from agir.people.forms import InsoumisePreferencesForm, AddEmailForm, SendValidationSMSForm, CodeValidationForm, \
     ExternalPersonPreferencesForm
 from agir.people.models import Person
@@ -158,13 +160,20 @@ class RedirectAlreadyValidatedPeopleMixin():
         return super().dispatch(request, *args, **kwargs)
 
 
-class SendValidationSMSView(HardLoginRequiredMixin, RedirectAlreadyValidatedPeopleMixin, UpdateView):
-    success_url = reverse_lazy('sms_code_validation')
+class SendValidationSMSView(HardLoginRequiredMixin, RedirectAlreadyValidatedPeopleMixin, RedirectToMixin, UpdateView):
     form_class = SendValidationSMSForm
     template_name = 'people/send_validation_sms.html'
 
     def get_object(self, queryset=None):
         return self.request.user.person
+
+    def get_success_url(self):
+        success_url = reverse_lazy('sms_code_validation')
+        redirect_to = self.get_redirect_url()
+        if redirect_to:
+            success_url += f"?{self.redirect_field_name}={urlquote(redirect_to)}"
+
+        return success_url
 
     def form_valid(self, form):
         code = form.send_code(self.request)
@@ -176,8 +185,7 @@ class SendValidationSMSView(HardLoginRequiredMixin, RedirectAlreadyValidatedPeop
         return super().form_valid(form)
 
 
-class CodeValidationView(HardLoginRequiredMixin, RedirectAlreadyValidatedPeopleMixin, FormView):
-    success_url = reverse_lazy('message_preferences')
+class CodeValidationView(HardLoginRequiredMixin, RedirectAlreadyValidatedPeopleMixin, RedirectToMixin, FormView):
     form_class = CodeValidationForm
     template_name = 'people/send_validation_sms.html'
 
@@ -186,6 +194,9 @@ class CodeValidationView(HardLoginRequiredMixin, RedirectAlreadyValidatedPeopleM
         kwargs['person'] = self.request.user.person
 
         return kwargs
+
+    def get_success_url(self):
+        return self.get_redirect_url() or reverse_lazy('message_preferences')
 
     def form_valid(self, form):
         person = self.request.user.person

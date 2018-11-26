@@ -32,7 +32,7 @@ class Poll(BaseAPIResource):
         _('Les règles du vote'),
         encoder=DjangoJSONEncoder,
         help_text=_('Un object JSON décrivant les règles. Actuellement, sont reconnues `options`,'
-                    '`min_options` et `max_options'),
+                    '`min_options`, `max_options` et `verified_user`'),
         default=dict
     )
     tags = models.ManyToManyField('people.PersonTag', related_name='polls', related_query_name='poll', blank=True)
