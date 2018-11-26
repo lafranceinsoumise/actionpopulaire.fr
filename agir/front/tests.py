@@ -248,3 +248,20 @@ class PollTestCase(TestCase):
         })
         self.assertContains(res, 'maximum')
 
+    def test_redirects_if_not_verified(self):
+        self.poll.rules['require_verified'] = True
+        self.poll.save()
+
+        poll_url = reverse('participate_poll', args=[self.poll.pk])
+        res = self.client.get(poll_url)
+        self.assertRedirects(res, reverse('send_validation_sms') + "?next=" + poll_url)
+
+    def test_cannot_post_if_not_verified(self):
+        self.poll.rules['require_verified'] = True
+        self.poll.save()
+
+        res = self.client.post(reverse('participate_poll', args=[self.poll.pk]), data={
+            'choice': [str(self.poll1.pk), str(self.poll2.pk), str(self.poll3.pk)]
+        })
+        self.assertEqual(res.status_code, 403)
+

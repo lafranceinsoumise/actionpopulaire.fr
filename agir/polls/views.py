@@ -1,3 +1,4 @@
+from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
@@ -10,6 +11,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
+from agir.people.models import Person
 from .forms import PollParticipationForm
 from .models import Poll, PollChoice
 
@@ -45,10 +47,17 @@ class PollParticipationView(SoftLoginRequiredMixin, SingleObjectMixin, FormView)
                 and PollChoice.objects.filter(person=self.request.user.person, poll=self.object).first() is None:
             return redirect('finished_poll')
 
+        if self.object.rules.get(
+                 'require_verified') and self.request.user.person.contact_phone_status != Person.CONTACT_PHONE_VERIFIED:
+            return redirect_to_login(self.request.get_full_path(), reverse_lazy('send_validation_sms'))
+
         return super().get(*args, **kwargs)
 
     def post(self, *args, **kwargs):
         self.object = self.get_object()
+        if self.object.rules.get(
+                'require_verified') and self.request.user.person.contact_phone_status != Person.CONTACT_PHONE_VERIFIED:
+            raise PermissionDenied('Vous devez avoir vérifié votre compte pour participer.')
         if self.request.user.person.created > self.object.start:
             raise PermissionDenied('Vous vous êtes inscrit⋅e trop récemment pour participer.')
         if PollChoice.objects.filter(person=self.request.user.person, poll=self.object).exists():

@@ -350,6 +350,22 @@ class SMSValidationTestCase(TestCase):
         self.person.refresh_from_db()
         self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED)
 
+    def test_redirects_to_next_after_validation(self):
+        send_sms_page = reverse('send_validation_sms') + '?next=' + reverse('dashboard')
+        res = self.client.post(send_sms_page, {
+            'contact_phone': self.person.contact_phone.as_e164
+        })
+        self.assertRedirects(res, reverse('sms_code_validation') + '?next=' + reverse('dashboard'))
+
+        validate_code_page = reverse('sms_code_validation') + '?next=' + reverse('dashboard')
+        validation_code = PersonValidationSMS.objects.create(
+            person=self.person, phone_number=self.person.contact_phone
+        )
+        res = self.client.post(validate_code_page, {
+            'code': validation_code.code
+        })
+        self.assertRedirects(res, reverse('dashboard'))
+
 
 @using_redislite
 class SMSRateLimitingTestCase(TestCase):
