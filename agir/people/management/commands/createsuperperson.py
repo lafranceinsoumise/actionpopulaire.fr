@@ -1,4 +1,5 @@
 import sys
+import os
 import getpass
 
 from django.core.management.base import BaseCommand, CommandError
@@ -65,6 +66,8 @@ class Command(BaseCommand):
 
             except exceptions.ValidationError as e:
                 raise CommandError('; '.join(e.messages))
+
+            password = os.environ.get("SUPERPERSON_PASSWORD", None)
 
         else:
             try:
