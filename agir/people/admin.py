@@ -24,7 +24,7 @@ from agir.events.models import RSVP
 from agir.groups.models import Membership
 
 from agir.lib.utils import front_url, generate_token_params
-from agir.lib.admin import CenterOnFranceMixin
+from agir.lib.admin import CenterOnFranceMixin, DisplayContactPhoneMixin
 from agir.lib.form_fields import AdminRichEditorWidget, AdminJsonWidget
 from agir.lib.forms import CoordinatesFormMixin
 
@@ -75,8 +75,9 @@ class EmailInline(admin.TabularInline):
 
 
 @admin.register(Person, site=admin_site)
-class PersonAdmin(CenterOnFranceMixin, OSMGeoAdmin):
-    list_display = ('first_name', 'last_name', 'email', 'contact_phone', 'is_insoumise', 'subscribed', 'role_link', 'created')
+class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
+    list_display = ('first_name', 'last_name', 'email', 'display_contact_phone', 'is_insoumise', 'subscribed',
+                    'role_link', 'created')
     list_display_links = ('email',)
     form = PersonAdminForm
 
