@@ -16,79 +16,210 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('people', '0001_initial'),
+        ("people", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Authorization',
+            name="Authorization",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, editable=False, verbose_name='created')),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created",
+                    model_utils.fields.AutoCreatedField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name="created",
+                    ),
+                ),
+                (
+                    "modified",
+                    model_utils.fields.AutoLastModifiedField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name="modified",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': ('autorisation',),
-                'verbose_name_plural': 'autorisations',
+                "verbose_name": ("autorisation",),
+                "verbose_name_plural": "autorisations",
             },
         ),
         migrations.CreateModel(
-            name='Client',
+            name="Client",
             fields=[
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, editable=False, verbose_name='created')),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified')),
-                ('id', models.UUIDField(default=uuid.uuid4, help_text="UUID interne à l'API pour identifier la ressource", primary_key=True, serialize=False, verbose_name='UUID')),
-                ('label', models.CharField(help_text="L'identifiant du client, utilisé pour l'authentication.", max_length=40, unique=True, verbose_name='identifiant du client')),
-                ('name', models.CharField(help_text="Le nom du client, tel qu'affiché à l'utilisateur lorsqu'il autorise ce client.", max_length=150, verbose_name='nom du client')),
-                ('description', models.TextField(blank=True, help_text="Une description du client à l'intention des utilisateurs éventuels.", verbose_name='description du client')),
-                ('contact_email', models.EmailField(blank=True, help_text='Une adresse email de contact pour ce client.', max_length=254, verbose_name='email de contact')),
-                ('oauth_enabled', models.BooleanField(default=False, help_text="Indique si ce client peut obtenir des tokens d'accès OAuth pour le compte d'un utilisateur.", verbose_name='client OAuth')),
-                ('trusted', models.BooleanField(default=False, help_text="Indique si ce client est de confiance : s'il l'est, l'utilisateur n'a pas besoin de valider l'autorisation lors de la procédure OAuth.", verbose_name='client\xa0de confiance')),
-                ('uris', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=150), blank=True, default=list, help_text="La liste des URIs auxquelles le serveur d'authentification acceptera de rediriger les utilisateurs pendant la procédure OAuth.", size=4, verbose_name='URIs de redirection OAuth')),
-                ('role', models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='client', to=settings.AUTH_USER_MODEL)),
+                (
+                    "created",
+                    model_utils.fields.AutoCreatedField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name="created",
+                    ),
+                ),
+                (
+                    "modified",
+                    model_utils.fields.AutoLastModifiedField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name="modified",
+                    ),
+                ),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        help_text="UUID interne à l'API pour identifier la ressource",
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="UUID",
+                    ),
+                ),
+                (
+                    "label",
+                    models.CharField(
+                        help_text="L'identifiant du client, utilisé pour l'authentication.",
+                        max_length=40,
+                        unique=True,
+                        verbose_name="identifiant du client",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Le nom du client, tel qu'affiché à l'utilisateur lorsqu'il autorise ce client.",
+                        max_length=150,
+                        verbose_name="nom du client",
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        blank=True,
+                        help_text="Une description du client à l'intention des utilisateurs éventuels.",
+                        verbose_name="description du client",
+                    ),
+                ),
+                (
+                    "contact_email",
+                    models.EmailField(
+                        blank=True,
+                        help_text="Une adresse email de contact pour ce client.",
+                        max_length=254,
+                        verbose_name="email de contact",
+                    ),
+                ),
+                (
+                    "oauth_enabled",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Indique si ce client peut obtenir des tokens d'accès OAuth pour le compte d'un utilisateur.",
+                        verbose_name="client OAuth",
+                    ),
+                ),
+                (
+                    "trusted",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Indique si ce client est de confiance : s'il l'est, l'utilisateur n'a pas besoin de valider l'autorisation lors de la procédure OAuth.",
+                        verbose_name="client\xa0de confiance",
+                    ),
+                ),
+                (
+                    "uris",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(max_length=150),
+                        blank=True,
+                        default=list,
+                        help_text="La liste des URIs auxquelles le serveur d'authentification acceptera de rediriger les utilisateurs pendant la procédure OAuth.",
+                        size=4,
+                        verbose_name="URIs de redirection OAuth",
+                    ),
+                ),
+                (
+                    "role",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="client",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Client',
-                'verbose_name_plural': 'Clients',
-                'ordering': ('label',),
-                'default_permissions': ('add', 'change', 'delete', 'view'),
+                "verbose_name": "Client",
+                "verbose_name_plural": "Clients",
+                "ordering": ("label",),
+                "default_permissions": ("add", "change", "delete", "view"),
             },
         ),
         migrations.CreateModel(
-            name='Scope',
+            name="Scope",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('label', models.CharField(max_length=50, unique=True, verbose_name='nom')),
-                ('description', models.TextField(blank=True, verbose_name='description')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "label",
+                    models.CharField(max_length=50, unique=True, verbose_name="nom"),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, verbose_name="description"),
+                ),
             ],
-            options={
-                'verbose_name': 'scope',
-                'verbose_name_plural': 'scopes',
-            },
+            options={"verbose_name": "scope", "verbose_name_plural": "scopes"},
         ),
         migrations.AddField(
-            model_name='client',
-            name='scopes',
-            field=models.ManyToManyField(blank=True, help_text='La liste des scopes autorisés pour ce client.', related_name='clients', to='clients.Scope'),
+            model_name="client",
+            name="scopes",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="La liste des scopes autorisés pour ce client.",
+                related_name="clients",
+                to="clients.Scope",
+            ),
         ),
         migrations.AddField(
-            model_name='authorization',
-            name='client',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='authorizations', to='clients.Client'),
+            model_name="authorization",
+            name="client",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="authorizations",
+                to="clients.Client",
+            ),
         ),
         migrations.AddField(
-            model_name='authorization',
-            name='person',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='authorizations', to='people.Person'),
+            model_name="authorization",
+            name="person",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="authorizations",
+                to="people.Person",
+            ),
         ),
         migrations.AddField(
-            model_name='authorization',
-            name='scopes',
-            field=models.ManyToManyField(related_name='authorizations', to='clients.Scope'),
+            model_name="authorization",
+            name="scopes",
+            field=models.ManyToManyField(
+                related_name="authorizations", to="clients.Scope"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='authorization',
-            unique_together=set([('person', 'client')]),
+            name="authorization", unique_together=set([("person", "client")])
         ),
     ]

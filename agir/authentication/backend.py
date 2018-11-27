@@ -11,18 +11,18 @@ from .crypto import ConnectionTokenGenerator, ShortCodeGenerator
 connection_token_generator = ConnectionTokenGenerator(settings.CONNECTION_LINK_VALIDITY)
 
 short_code_generator = ShortCodeGenerator(
-    'LoginCode:', settings.SHORT_CODE_VALIDITY, settings.MAX_CONCURRENT_SHORT_CODES
+    "LoginCode:", settings.SHORT_CODE_VALIDITY, settings.MAX_CONCURRENT_SHORT_CODES
 )
 
 
 class ShortCodeBackend(GetRoleMixin):
-    prefetch = ['person']
+    prefetch = ["person"]
 
     def authenticate(self, request, user_pk=None, short_code=None):
         if user_pk and short_code:
             if short_code_generator.check_short_code(user_pk, short_code):
                 try:
-                    role = Role.objects.select_related('person').get(person__pk=user_pk)
+                    role = Role.objects.select_related("person").get(person__pk=user_pk)
                 except (Person.DoesNotExist, ValidationError):
                     return None
 
@@ -33,15 +33,17 @@ class ShortCodeBackend(GetRoleMixin):
 
 
 class MailLinkBackend(GetRoleMixin):
-    prefetch = ['person']
+    prefetch = ["person"]
 
     def authenticate(self, request, user_pk=None, token=None):
         if user_pk and token:
             try:
-                person = Person.objects.select_related('role').get(pk=user_pk)
+                person = Person.objects.select_related("role").get(pk=user_pk)
             except (Person.DoesNotExist, ValidationError):
                 return None
-            if connection_token_generator.check_token(token, user=person) and self.user_can_authenticate(person.role):
+            if connection_token_generator.check_token(
+                token, user=person
+            ) and self.user_can_authenticate(person.role):
                 return person.role
 
         return None
@@ -49,7 +51,8 @@ class MailLinkBackend(GetRoleMixin):
 
 class OAuth2Backend(GetRoleMixin):
     """Legacy backend, use to preserve current connection from people."""
-    prefetch = ['person']
+
+    prefetch = ["person"]
 
     def authenticate(self, request):
         return None

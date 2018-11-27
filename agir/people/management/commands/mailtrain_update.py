@@ -6,7 +6,7 @@ from agir.people.models import Person
 
 
 class Command(BaseCommand):
-    help = 'Synchronize all the database with mailtrain'
+    help = "Synchronize all the database with mailtrain"
 
     def handle(self, *args, **kwargs):
         start = datetime.now()
@@ -14,11 +14,11 @@ class Command(BaseCommand):
 
         for person in Person.objects.all().iterator():
             update_person(person)
-            if kwargs['verbosity'] > 1:
-                print('Updated %s ' % person.email)
+            if kwargs["verbosity"] > 1:
+                print("Updated %s " % person.email)
 
             i += 1
 
         duration = datetime.now() - start
 
-        print('Updated %d persons in %d seconds.' % (i, duration.seconds))
+        print("Updated %d persons in %d seconds." % (i, duration.seconds))

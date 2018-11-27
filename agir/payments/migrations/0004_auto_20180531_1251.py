@@ -7,30 +7,37 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('payments', '0003_auto_20180418_1512'),
-    ]
+    dependencies = [("payments", "0003_auto_20180418_1512")]
 
     operations = [
         migrations.RenameField(
-            model_name='payment',
-            old_name='systempay_responses',
-            new_name='events'
+            model_name="payment", old_name="systempay_responses", new_name="events"
         ),
         migrations.AlterField(
-            model_name='payment',
-            name='events',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=list, verbose_name='Événements de paiement'),
+            model_name="payment",
+            name="events",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                blank=True, default=list, verbose_name="Événements de paiement"
+            ),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='mode',
-            field=models.CharField(choices=[('system_pay', 'Paiement par carte bleue')], default='system_pay', max_length=70, verbose_name='Mode de paiement'),
+            model_name="payment",
+            name="mode",
+            field=models.CharField(
+                choices=[("system_pay", "Paiement par carte bleue")],
+                default="system_pay",
+                max_length=70,
+                verbose_name="Mode de paiement",
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='payment',
-            name='person',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='people.Person'),
+            model_name="payment",
+            name="person",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="people.Person",
+            ),
         ),
     ]

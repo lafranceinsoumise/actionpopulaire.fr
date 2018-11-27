@@ -9,19 +9,25 @@ import model_utils.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0022_auto_20180125_1530'),
-    ]
+    dependencies = [("groups", "0022_auto_20180125_1530")]
 
     operations = [
         migrations.AddField(
-            model_name='supportgroupsubtype',
-            name='created',
-            field=model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="supportgroupsubtype",
+            name="created",
+            field=model_utils.fields.AutoCreatedField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
         migrations.AddField(
-            model_name='supportgroupsubtype',
-            name='modified',
-            field=model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified'),
+            model_name="supportgroupsubtype",
+            name="modified",
+            field=model_utils.fields.AutoLastModifiedField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="modified",
+            ),
         ),
     ]

@@ -7,14 +7,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0002_auto_20170615_0849'),
-    ]
+    dependencies = [("groups", "0002_auto_20170615_0849")]
 
     operations = [
         migrations.AddField(
-            model_name='supportgroup',
-            name='published',
-            field=models.BooleanField(default=True, help_text='Le groupe doit-il être visible publiquement.', verbose_name='publié'),
-        ),
+            model_name="supportgroup",
+            name="published",
+            field=models.BooleanField(
+                default=True,
+                help_text="Le groupe doit-il être visible publiquement.",
+                verbose_name="publié",
+            ),
+        )
     ]

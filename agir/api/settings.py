@@ -18,25 +18,29 @@ from django.contrib import messages
 from django.contrib.messages import ERROR
 from django.core.exceptions import ImproperlyConfigured
 
-ADMIN_RE = re.compile('^([\w -]+) <([^>]+)>$')
+ADMIN_RE = re.compile("^([\w -]+) <([^>]+)>$")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'true').lower() == 'true'
+DEBUG = os.environ.get("DEBUG", "true").lower() == "true"
 
-ENABLE_API = not os.environ.get('ENABLE_API', 'y').lower() in ['n', 'no', 'false']
-ENABLE_FRONT = os.environ.get('ENABLE_FRONT', 'n').lower() in ['y', 'yes', 'true'] or DEBUG
-ENABLE_MAP = os.environ.get('ENABLE_MAP', 'n').lower() in ['y', 'yes', 'true'] or DEBUG
+ENABLE_API = not os.environ.get("ENABLE_API", "y").lower() in ["n", "no", "false"]
+ENABLE_FRONT = (
+    os.environ.get("ENABLE_FRONT", "n").lower() in ["y", "yes", "true"] or DEBUG
+)
+ENABLE_MAP = os.environ.get("ENABLE_MAP", "n").lower() in ["y", "yes", "true"] or DEBUG
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-TEST_RUNNER = 'agir.api.test_runner.TestRunner'
+TEST_RUNNER = "agir.api.test_runner.TestRunner"
 
-admins = os.environ.get('ADMINS')
+admins = os.environ.get("ADMINS")
 if admins:
-    admins = [ADMIN_RE.match(s.strip()) for s in admins.split(';')]
+    admins = [ADMIN_RE.match(s.strip()) for s in admins.split(";")]
     if any(m is None for m in admins):
-        raise ImproperlyConfigured("ADMINS should be of the form 'Name 1 <address1@domain.fr>; Name 2 <address2@domain.fr>")
+        raise ImproperlyConfigured(
+            "ADMINS should be of the form 'Name 1 <address1@domain.fr>; Name 2 <address2@domain.fr>"
+        )
 
     ADMINS = [m.groups() for m in admins]
 
@@ -45,170 +49,163 @@ if admins:
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET', '1d5a5&y9(220)phk0o9cqjwdpm$3+**d&+kru(2y)!5h-_qn4b')
-NB_WEBHOOK_KEY = os.environ.get('NB_WEBHOOK_KEY', 'prout')
-NB_API_KEY = os.environ.get('NB_API_KEY', 'mustbesecret')
-SENDGRID_SES_WEBHOOK_USER = os.environ.get('SENDGRID_SES_WEBHOOK_USER', 'fi')
-SENDGRID_SES_WEBHOOK_PASSWORD = os.environ.get('SENDGRID_SES_WEBHOOK_PASSWORD', 'prout')
-MAILTRAIN_API_KEY = os.environ.get('MAILTRAIN_API_KEY', 'prout')
+SECRET_KEY = os.environ.get(
+    "SECRET", "1d5a5&y9(220)phk0o9cqjwdpm$3+**d&+kru(2y)!5h-_qn4b"
+)
+NB_WEBHOOK_KEY = os.environ.get("NB_WEBHOOK_KEY", "prout")
+NB_API_KEY = os.environ.get("NB_API_KEY", "mustbesecret")
+SENDGRID_SES_WEBHOOK_USER = os.environ.get("SENDGRID_SES_WEBHOOK_USER", "fi")
+SENDGRID_SES_WEBHOOK_PASSWORD = os.environ.get("SENDGRID_SES_WEBHOOK_PASSWORD", "prout")
+MAILTRAIN_API_KEY = os.environ.get("MAILTRAIN_API_KEY", "prout")
 
 # these domain names are used when absolute URLs should be generated (e.g. to include in emails)
-MAIN_DOMAIN = os.environ.get('MAIN_DOMAIN', 'https://lafranceinsoumise.fr')
-API_DOMAIN = os.environ.get('API_DOMAIN', 'http://agir.local:8000' if DEBUG else 'https://api.lafranceinsoumise.fr')
-FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', 'http://agir.local:8000' if DEBUG else 'https://agir.lafranceinsoumise.fr')
-MAP_DOMAIN = os.environ.get('MAP_DOMAIN', 'http://agir.local:8000' if DEBUG else 'https://agir.lafranceinsoumise.fr')
-MAILTRAIN_HOST = os.environ.get('MAILTRAIN_HOST', 'http://agir.local:8000')
-MAILTRAIN_LIST_ID = os.environ.get('MAILTRAIN_LIST_ID', 'SyWda9pi')
+MAIN_DOMAIN = os.environ.get("MAIN_DOMAIN", "https://lafranceinsoumise.fr")
+API_DOMAIN = os.environ.get(
+    "API_DOMAIN",
+    "http://agir.local:8000" if DEBUG else "https://api.lafranceinsoumise.fr",
+)
+FRONT_DOMAIN = os.environ.get(
+    "FRONT_DOMAIN",
+    "http://agir.local:8000" if DEBUG else "https://agir.lafranceinsoumise.fr",
+)
+MAP_DOMAIN = os.environ.get(
+    "MAP_DOMAIN",
+    "http://agir.local:8000" if DEBUG else "https://agir.lafranceinsoumise.fr",
+)
+MAILTRAIN_HOST = os.environ.get("MAILTRAIN_HOST", "http://agir.local:8000")
+MAILTRAIN_LIST_ID = os.environ.get("MAILTRAIN_LIST_ID", "SyWda9pi")
 MAILTRAIN_DISABLE = DEBUG
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,agir.local').split(',')
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,agir.local").split(",")
 
 # Application definition
 
 INSTALLED_APPS = [
     # default contrib apps
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     # sitemaps
-    'django.contrib.sitemaps',
-
+    "django.contrib.sitemaps",
     # redirect
-    'django.contrib.sites',
-    'django.contrib.redirects',
-
+    "django.contrib.sites",
+    "django.contrib.redirects",
     # humanize
-    'django.contrib.humanize',
-
+    "django.contrib.humanize",
     # rest_framework
-    'rest_framework',
-
+    "rest_framework",
     # OTP for admin
-    'django_otp',
-    'django_otp.plugins.otp_totp',
-
+    "django_otp",
+    "django_otp.plugins.otp_totp",
     # geodjango
-    'django.contrib.gis',
-    'rest_framework_gis',
-
+    "django.contrib.gis",
+    "rest_framework_gis",
     # rules
-    'rules.apps.AutodiscoverRulesConfig',
-
+    "rules.apps.AutodiscoverRulesConfig",
     # crispy forms
-    'crispy_forms',
-
+    "crispy_forms",
     # django filters
-    'django_filters',
-
+    "django_filters",
     # django_countries
-    'django_countries',
-
+    "django_countries",
     # ajax_select
-    'ajax_select',
-
+    "ajax_select",
     # phone number field
-    'phonenumber_field',
-
+    "phonenumber_field",
     # stdimage
-    'stdimage',
-
+    "stdimage",
     # webpack
-    'webpack_loader',
-
+    "webpack_loader",
     # fi apps
-    'agir.authentication',
-    'agir.people',
-    'agir.events',
-    'agir.groups',
-    'agir.polls',
-    'agir.clients',
-    'agir.lib',
-    'agir.front',
-    'agir.carte',
-    'agir.webhooks',
-    'agir.payments',
-    'agir.donations',
-    'agir.system_pay',
-    'agir.checks',
-
+    "agir.authentication",
+    "agir.people",
+    "agir.events",
+    "agir.groups",
+    "agir.polls",
+    "agir.clients",
+    "agir.lib",
+    "agir.front",
+    "agir.carte",
+    "agir.webhooks",
+    "agir.payments",
+    "agir.donations",
+    "agir.system_pay",
+    "agir.checks",
     # security
-    'corsheaders',
-    'oauth2_provider',
+    "corsheaders",
+    "oauth2_provider",
 ]
 
 MIDDLEWARE = [
-    'django_prometheus.middleware.PrometheusBeforeMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'agir.lib.middleware.TurbolinksMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django_otp.middleware.OTPMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
-    'agir.authentication.middleware.MailLinkMiddleware',
-    'django_prometheus.middleware.PrometheusAfterMiddleware',
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "agir.lib.middleware.TurbolinksMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django_otp.middleware.OTPMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.contrib.redirects.middleware.RedirectFallbackMiddleware",
+    "agir.authentication.middleware.MailLinkMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 if DEBUG:
-    INSTALLED_APPS.append('debug_toolbar')
-    MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
-    INTERNAL_IPS = ['127.0.0.1']
+    INSTALLED_APPS.append("debug_toolbar")
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+    INTERNAL_IPS = ["127.0.0.1"]
 
 
-ROOT_URLCONF = 'agir.api.urls'
+ROOT_URLCONF = "agir.api.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'agir.api.context_processors.domain_names'
-            ],
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "agir.api.context_processors.domain_names",
+            ]
         },
-    },
+    }
 ]
 
-MESSAGE_TAGS = {
-    ERROR: 'danger'
-}
+MESSAGE_TAGS = {ERROR: "danger"}
 MESSAGE_LEVEL = messages.DEBUG if DEBUG else messages.INFO
 
-WSGI_APPLICATION = 'agir.api.wsgi.application'
+WSGI_APPLICATION = "agir.api.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(default="postgis://api:password@localhost/api")
+    "default": dj_database_url.config(default="postgis://api:password@localhost/api")
 }
 
 # Mails
 
 # by default configured for mailhog sending
-email_config = dj_email_url.parse(os.environ.get('SMTP_URL', 'smtp://localhost:1025/'))
+email_config = dj_email_url.parse(os.environ.get("SMTP_URL", "smtp://localhost:1025/"))
 
-EMAIL_FILE_PATH = email_config['EMAIL_FILE_PATH']
-EMAIL_HOST_USER = email_config['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD = email_config['EMAIL_HOST_PASSWORD']
-EMAIL_HOST = email_config['EMAIL_HOST']
-EMAIL_PORT = email_config['EMAIL_PORT']
-EMAIL_BACKEND = email_config['EMAIL_BACKEND']
-EMAIL_USE_TLS = email_config['EMAIL_USE_TLS']
-EMAIL_USE_SSL = email_config['EMAIL_USE_SSL']
+EMAIL_FILE_PATH = email_config["EMAIL_FILE_PATH"]
+EMAIL_HOST_USER = email_config["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = email_config["EMAIL_HOST_PASSWORD"]
+EMAIL_HOST = email_config["EMAIL_HOST"]
+EMAIL_PORT = email_config["EMAIL_PORT"]
+EMAIL_BACKEND = email_config["EMAIL_BACKEND"]
+EMAIL_USE_TLS = email_config["EMAIL_USE_TLS"]
+EMAIL_USE_SSL = email_config["EMAIL_USE_SSL"]
 
 # fixed for now ==> maybe more flexible?
 EMAIL_TEMPLATES = {
@@ -227,9 +224,9 @@ EMAIL_TEMPLATES = {
     # GROUP_CHANGED variables: GROUP_NAME, GROUP_CHANGES, GROUP_LINK
     "GROUP_CHANGED": "https://mosaico.jlm2017.fr/emails/3724b7ba-2a48-4954-9496-fc4c970a56b8.html",
     # GROUP_SOMEONE_JOINED_NOTIFICATION variables: GROUP_NAME, PERSON_INFORMATION, MANAGE_GROUP_LINK
-    'GROUP_SOMEONE_JOINED_NOTIFICATION': "https://mosaico.jlm2017.fr/emails/e25c5123-6a7d-428f-89c6-3ddca4a65096.html",
+    "GROUP_SOMEONE_JOINED_NOTIFICATION": "https://mosaico.jlm2017.fr/emails/e25c5123-6a7d-428f-89c6-3ddca4a65096.html",
     # EVENT_CREATION variables: [EVENT_NAME], [CONTACT_{NAME,EMAIL,PHONE,PHONE_VISIBILITY], [LOCATION_{NAME,LOCATION}], [EVENT_LINK], [MANAGE_EVENT_LINK]
-    'EVENT_CREATION': "https://mosaico.jlm2017.fr/emails/f44ff2c1-1050-41c4-8973-15573eba2741.html",
+    "EVENT_CREATION": "https://mosaico.jlm2017.fr/emails/f44ff2c1-1050-41c4-8973-15573eba2741.html",
     # EVENT_CHANGED variables: EVENT_NAME, EVENT_CHANGES, EVENT_LINK, EVENT_QUIT_LINK
     "EVENT_CHANGED": "https://mosaico.jlm2017.fr/emails/f8dfc882-4e7e-4ff2-bd8c-473fd41e54bf.html",
     # EVENT_RSVP_NOTIFICATION variables EVENT_NAME, PERSON_INFORMATION, MANAGE_EVENT_LINK
@@ -250,32 +247,28 @@ EMAIL_TEMPLATES = {
     "LOGIN_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/65cb8867-9d14-4448-bae8-8cf40c5fee78.html",
 }
 
-EMAIL_FROM = os.environ.get('EMAIL_FROM', 'La France insoumise <noreply@lafranceinsoumise.fr>')
+EMAIL_FROM = os.environ.get(
+    "EMAIL_FROM", "La France insoumise <noreply@lafranceinsoumise.fr>"
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'fr-fr'
+LANGUAGE_CODE = "fr-fr"
 
-TIME_ZONE = 'Europe/Paris'
+TIME_ZONE = "Europe/Paris"
 
 USE_I18N = True
 
@@ -286,155 +279,149 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
-STATIC_ROOT = os.environ.get('STATIC_ROOT')
+STATIC_ROOT = os.environ.get("STATIC_ROOT")
 
-STATICFILES_DIRS = [
-    os.path.join(os.path.dirname(BASE_DIR), "assets")
-]
+STATICFILES_DIRS = [os.path.join(os.path.dirname(BASE_DIR), "assets")]
 
 WEBPACK_LOADER = {
-    'DEFAULT': {
-        'BUNDLE_DIR_NAME': 'components/',
-        'STATS_FILE': os.path.join(STATICFILES_DIRS[0], 'components', 'webpack-stats.json'),
+    "DEFAULT": {
+        "BUNDLE_DIR_NAME": "components/",
+        "STATS_FILE": os.path.join(
+            STATICFILES_DIRS[0], "components", "webpack-stats.json"
+        ),
     }
 }
 
-MEDIA_URL = '/media/'
+MEDIA_URL = "/media/"
 
-MEDIA_ROOT = os.environ.get('MEDIA_ROOT', 'media')
+MEDIA_ROOT = os.environ.get("MEDIA_ROOT", "media")
 
 # Authentication
 
-AUTH_USER_MODEL = 'authentication.Role'
+AUTH_USER_MODEL = "authentication.Role"
 
 AUTHENTICATION_BACKENDS = [
     # Rules permission backend MUST be in first position
-    'agir.clients.authentication.AccessTokenRulesPermissionBackend',
+    "agir.clients.authentication.AccessTokenRulesPermissionBackend",
     # This backend is necessary to enforce database permissions
-    'django.contrib.auth.backends.ModelBackend',
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 if ENABLE_API:
     # This backend is used to connect to the administration panel
-    AUTHENTICATION_BACKENDS.append('agir.people.backend.PersonBackend')
+    AUTHENTICATION_BACKENDS.append("agir.people.backend.PersonBackend")
 
 if ENABLE_FRONT:
-    AUTHENTICATION_BACKENDS.extend([
-        # This backend is used for email challenge connection
-        'agir.authentication.backend.ShortCodeBackend',
-        # This backend is used for connection through links found in emails
-        'agir.authentication.backend.MailLinkBackend',
-        # legacy backend only used to preserve currently connected sessions
-        'agir.authentication.backend.OAuth2Backend',
-    ])
-    LOGIN_URL = 'short_code_login'
+    AUTHENTICATION_BACKENDS.extend(
+        [
+            # This backend is used for email challenge connection
+            "agir.authentication.backend.ShortCodeBackend",
+            # This backend is used for connection through links found in emails
+            "agir.authentication.backend.MailLinkBackend",
+            # legacy backend only used to preserve currently connected sessions
+            "agir.authentication.backend.OAuth2Backend",
+        ]
+    )
+    LOGIN_URL = "short_code_login"
 
-OAUTH2_PROVIDER_APPLICATION_MODEL = 'clients.Client'
-OAUTH2_PROVIDER = {
-    'SCOPES_BACKEND_CLASS': 'agir.clients.scopes.ScopesBackend',
-}
+OAUTH2_PROVIDER_APPLICATION_MODEL = "clients.Client"
+OAUTH2_PROVIDER = {"SCOPES_BACKEND_CLASS": "agir.clients.scopes.ScopesBackend"}
 
 # Admin
 
 DAS_ALLOWED_AJAX_SEARCH_PATHS = [
-    ('agir.people', 'person', 'location_zip'),
-    ('agir.people', 'person', 'location_city'),
-    ('agir.groups', 'supportgroup', 'location_city'),
-    ('agir.groups', 'supportgroup', 'location_city'),
-    ('agir.events', 'event', 'location_city'),
-    ('agir.events', 'event', 'location_city'),
+    ("agir.people", "person", "location_zip"),
+    ("agir.people", "person", "location_city"),
+    ("agir.groups", "supportgroup", "location_city"),
+    ("agir.groups", "supportgroup", "location_city"),
+    ("agir.events", "event", "location_city"),
+    ("agir.events", "event", "location_city"),
 ]
 
-OTP_TOTP_ISSUER = 'api.lafranceinsoumise.fr'
+OTP_TOTP_ISSUER = "api.lafranceinsoumise.fr"
 
 # REST_FRAMEWORK
 
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-        *(['rest_framework.renderers.BrowsableAPIRenderer'] if DEBUG else []),
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+        *(["rest_framework.renderers.BrowsableAPIRenderer"] if DEBUG else []),
     ),
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.JSONParser',
-        'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser'
+    "DEFAULT_PARSER_CLASSES": (
+        "rest_framework.parsers.JSONParser",
+        "rest_framework.parsers.FormParser",
+        "rest_framework.parsers.MultiPartParser",
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'agir.clients.authentication.AccessTokenAuthentication',
-        'agir.clients.authentication.ClientAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "agir.clients.authentication.AccessTokenAuthentication",
+        "agir.clients.authentication.ClientAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'agir.lib.permissions.PermissionsOrReadOnly',
+    "DEFAULT_PERMISSION_CLASSES": ("agir.lib.permissions.PermissionsOrReadOnly",),
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
+    "TEST_REQUEST_RENDERER_CLASSES": (
+        "rest_framework.renderers.MultiPartRenderer",
+        "rest_framework.renderers.JSONRenderer",
     ),
-    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
-    'TEST_REQUEST_RENDERER_CLASSES': (
-        'rest_framework.renderers.MultiPartRenderer',
-        'rest_framework.renderers.JSONRenderer',
-    ),
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
-    'EXCEPTION_HANDLER': 'agir.api.handlers.exception_handler',
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "EXCEPTION_HANDLER": "agir.api.handlers.exception_handler",
 }
 
 # Access tokens
 
-AUTH_REDIS_URL = os.environ.get('AUTH_REDIS_URL', 'redis://localhost?db=0')
+AUTH_REDIS_URL = os.environ.get("AUTH_REDIS_URL", "redis://localhost?db=0")
 AUTH_REDIS_MAX_CONNECTIONS = 5
-AUTH_REDIS_PREFIX = os.environ.get('AUTH_REDIS_PREFIX', 'AccessToken:')
+AUTH_REDIS_PREFIX = os.environ.get("AUTH_REDIS_PREFIX", "AccessToken:")
 
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING')
-LOG_FILE = os.environ.get('LOG_FILE', './errors.log')
-LOG_DISABLE_JOURNALD = os.environ.get('LOG_DISABLE_JOURNALD', '').lower() in ['y', 'yes', 'true']
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
+LOG_FILE = os.environ.get("LOG_FILE", "./errors.log")
+LOG_DISABLE_JOURNALD = os.environ.get("LOG_DISABLE_JOURNALD", "").lower() in [
+    "y",
+    "yes",
+    "true",
+]
 
 if not DEBUG:
     LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'journald': {
-                'level': 'DEBUG',
-                'class': 'systemd.journal.JournaldLogHandler' if not LOG_DISABLE_JOURNALD else 'logging.StreamHandler',
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "journald": {
+                "level": "DEBUG",
+                "class": "systemd.journal.JournaldLogHandler"
+                if not LOG_DISABLE_JOURNALD
+                else "logging.StreamHandler",
             },
-            'admins_mail': {
-                'level': 'ERROR',
-                'class': 'django.utils.log.AdminEmailHandler'
-            }
+            "admins_mail": {
+                "level": "ERROR",
+                "class": "django.utils.log.AdminEmailHandler",
+            },
         },
-        'loggers': {
-            'django.template': {
-                'handlers': ['journald'],
-                'level': 'INFO',
-                'propagate': False,
+        "loggers": {
+            "django.template": {
+                "handlers": ["journald"],
+                "level": "INFO",
+                "propagate": False,
             },
-            'django': {
-                'handlers': ['journald'],
-                'level': 'DEBUG',
-                'propagate': True
+            "django": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
+            "celery": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
+            "agir": {
+                "handlers": ["journald", "admins_mail"],
+                "level": "DEBUG",
+                "propagate": True,
             },
-            'celery': {
-                'handlers': ['journald'],
-                'level': 'DEBUG',
-                'propagate': True,
-            },
-            'agir': {
-                'handlers': ['journald', 'admins_mail'],
-                'level': 'DEBUG',
-                'propagate': True
-            }
-        }
+        },
     }
 
 # CACHING
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.environ.get('CACHING_REDIS_URL', 'redis://localhost?db=0'),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-        "KEY_PREFIX": "caching_"
+        "LOCATION": os.environ.get("CACHING_REDIS_URL", "redis://localhost?db=0"),
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+        "KEY_PREFIX": "caching_",
     }
 }
 
@@ -442,11 +429,11 @@ CACHES = {
 # SECURITY
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIAL = False
-CORS_URLS_REGEX = r'^/legacy/'
+CORS_URLS_REGEX = r"^/legacy/"
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = 'DENY'
+X_FRAME_OPTIONS = "DENY"
 
 if not DEBUG:
     # should be useless, but we never know
@@ -456,17 +443,15 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
 
 if DEBUG:
-    INSTALLED_APPS += ['silk']
-    MIDDLEWARE.insert(0, 'silk.middleware.SilkyMiddleware')
+    INSTALLED_APPS += ["silk"]
+    MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
 
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_TEMPLATE_PACK = "bootstrap3"
 
 # CELERY
-CELERY_BROKER_URL = os.environ.get('BROKER_URL', 'redis://')
+CELERY_BROKER_URL = os.environ.get("BROKER_URL", "redis://")
 # make sure there is a max_retries option
-CELERY_BROKER_TRANSPORT_OPTIONS = {
-    'max_retries': 2,
-}
+CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 2}
 # make sure celery does not mess with the root logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = DEBUG
 # enable worker events to allow monitoring
@@ -476,63 +461,79 @@ CELERY_TASK_SEND_SENT_EVENT = True
 
 DEFAULT_EVENT_IMAGE = "front/images/default_event_pic.jpg"
 
-PHONENUMBER_DEFAULT_REGION = 'FR'
+PHONENUMBER_DEFAULT_REGION = "FR"
 
 CONNECTION_LINK_VALIDITY = 7
 
 # allow insecure transports for OAUTHLIB in DEBUG mode
 if DEBUG:
-    os.environ.setdefault('OAUTHLIB_INSECURE_TRANSPORT', 'y')
+    os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "y")
 
 # Get the promo
-PROMO_CODE_KEY = os.environb.get(b'PROMO_CODE_KEY', b'prout')
-PROMO_CODE_TAG = os.environ.get('PROMO_CODE_TAG', 'Code promo matériel')
-CERTIFIED_GROUP_SUBTYPE = os.environ.get('CERTIFIED_GROUP_SUBTYPE', 'certifié')
+PROMO_CODE_KEY = os.environb.get(b"PROMO_CODE_KEY", b"prout")
+PROMO_CODE_TAG = os.environ.get("PROMO_CODE_TAG", "Code promo matériel")
+CERTIFIED_GROUP_SUBTYPE = os.environ.get("CERTIFIED_GROUP_SUBTYPE", "certifié")
 
 
 # HTML settings
 USER_ALLOWED_TAGS = [
-    'a', 'abbr', 'acronym', 'b', 'br', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'p', 'strong', 'ul', 'h2', 'h3', 'h4'
+    "a",
+    "abbr",
+    "acronym",
+    "b",
+    "br",
+    "blockquote",
+    "code",
+    "em",
+    "i",
+    "li",
+    "ol",
+    "p",
+    "strong",
+    "ul",
+    "h2",
+    "h3",
+    "h4",
 ]
-ADMIN_ALLOWED_TAGS = USER_ALLOWED_TAGS + ['table', 'tr', 'td', 'th']
+ADMIN_ALLOWED_TAGS = USER_ALLOWED_TAGS + ["table", "tr", "td", "th"]
 
 SITE_ID = 1
 
 FILE_UPLOAD_PERMISSIONS = 0o644
 
-PROMETHEUS_USER = os.environ.get('PROMETHEUS_USER', 'prometheus')
-PROMETHEUS_PASSWORD = os.environ.get('PROMETHEUS_PASSWORD', 'password')
+PROMETHEUS_USER = os.environ.get("PROMETHEUS_USER", "prometheus")
+PROMETHEUS_PASSWORD = os.environ.get("PROMETHEUS_PASSWORD", "password")
 
 # Systempay
-SYSTEMPAY_SITE_ID = os.environ.get('SYSTEMPAY_SITE_ID', 0)
-SYSTEMPAY_PRODUCTION = os.environ.get('SYSTEMPAY_PRODUCTION', False)
-SYSTEMPAY_CURRENCY = os.environ.get('SYSTEMPAY_CURRENCY', 978)
-SYSTEMPAY_CERTIFICATE = os.environ.get('SYSTEMPAY_CERTIFICATE', 'arbitrarystring')
+SYSTEMPAY_SITE_ID = os.environ.get("SYSTEMPAY_SITE_ID", 0)
+SYSTEMPAY_PRODUCTION = os.environ.get("SYSTEMPAY_PRODUCTION", False)
+SYSTEMPAY_CURRENCY = os.environ.get("SYSTEMPAY_CURRENCY", 978)
+SYSTEMPAY_CERTIFICATE = os.environ.get("SYSTEMPAY_CERTIFICATE", "arbitrarystring")
 
 DONATION_MINIMUM = 1
 DONATION_MAXIMUM = 1000
 
 # France + most numerous communities in France
-COUNTRIES_FIRST = ['FR', 'PT', 'DZ', 'MA', 'TR', 'IT', 'GB', 'ES']
+COUNTRIES_FIRST = ["FR", "PT", "DZ", "MA", "TR", "IT", "GB", "ES"]
 COUNTRIES_FIRST_REPEAT = True
 
 # allows the administrator to temporarily disable sending to specific domains
-EMAIL_DISABLED_DOMAINS = [d.lower() for d in os.environ.get('EMAIL_DISABLED_DOMAINS').split(',')] \
-    if 'EMAIL_DISABLED_DOMAINS' in os.environ else []
+EMAIL_DISABLED_DOMAINS = (
+    [d.lower() for d in os.environ.get("EMAIL_DISABLED_DOMAINS").split(",")]
+    if "EMAIL_DISABLED_DOMAINS" in os.environ
+    else []
+)
 
 
 # The first one will be the default one
-PAYMENT_MODES = [
-    'agir.system_pay.SystemPayPaymentMode',
-    'agir.checks.CheckPaymentMode',
-]
+PAYMENT_MODES = ["agir.system_pay.SystemPayPaymentMode", "agir.checks.CheckPaymentMode"]
 
 # OVH Settings
-OVH_SMS_DISABLE = os.environ.get('OVH_SMS_DISABLE', 'true').lower() == 'true'
-OVH_SMS_SERVICE = os.environ.get('OVH_SMS_SERVICE')
-OVH_APPLICATION_KEY = os.environ.get('OVH_APPLICATION_KEY')
-OVH_APPLICATION_SECRET = os.environ.get('OVH_APPLICATION_SECRET')
-OVH_CONSUMER_KEY = os.environ.get('OVH_CONSUMER_KEY')
+OVH_SMS_DISABLE = os.environ.get("OVH_SMS_DISABLE", "true").lower() == "true"
+OVH_SMS_SERVICE = os.environ.get("OVH_SMS_SERVICE")
+OVH_APPLICATION_KEY = os.environ.get("OVH_APPLICATION_KEY")
+OVH_APPLICATION_SECRET = os.environ.get("OVH_APPLICATION_SECRET")
+OVH_CONSUMER_KEY = os.environ.get("OVH_CONSUMER_KEY")
 SMS_BUCKET_MAX = 3
 SMS_BUCKET_INTERVAL = 600
 SMS_BUCKET_IP_MAX = 10

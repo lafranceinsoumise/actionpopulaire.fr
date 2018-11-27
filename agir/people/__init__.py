@@ -1,1 +1,1 @@
-default_app_config = 'agir.people.apps.PeopleConfig'
+default_app_config = "agir.people.apps.PeopleConfig"

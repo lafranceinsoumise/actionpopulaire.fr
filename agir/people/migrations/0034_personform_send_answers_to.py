@@ -5,14 +5,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0033_auto_20180605_1804'),
-    ]
+    dependencies = [("people", "0033_auto_20180605_1804")]
 
     operations = [
         migrations.AddField(
-            model_name='personform',
-            name='send_answers_to',
-            field=models.EmailField(blank=True, max_length=254, verbose_name='Envoyer les réponses par email à une adresse email (facultatif)'),
-        ),
+            model_name="personform",
+            name="send_answers_to",
+            field=models.EmailField(
+                blank=True,
+                max_length=254,
+                verbose_name="Envoyer les réponses par email à une adresse email (facultatif)",
+            ),
+        )
     ]

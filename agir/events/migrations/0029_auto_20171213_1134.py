@@ -9,19 +9,25 @@ import model_utils.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0028_auto_20171208_1945'),
-    ]
+    dependencies = [("events", "0028_auto_20171208_1945")]
 
     operations = [
         migrations.AddField(
-            model_name='eventimage',
-            name='created',
-            field=model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="eventimage",
+            name="created",
+            field=model_utils.fields.AutoCreatedField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
         migrations.AddField(
-            model_name='eventimage',
-            name='modified',
-            field=model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified'),
+            model_name="eventimage",
+            name="modified",
+            field=model_utils.fields.AutoLastModifiedField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="modified",
+            ),
         ),
     ]

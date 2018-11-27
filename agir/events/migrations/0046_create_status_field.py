@@ -5,19 +5,28 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0045_auto_20180523_1834'),
-    ]
+    dependencies = [("events", "0045_auto_20180523_1834")]
 
     operations = [
         migrations.AlterField(
-            model_name='rsvp',
-            name='guests_form_submissions',
-            field=models.ManyToManyField(related_name='guest_rsvp', to='people.PersonFormSubmission'),
+            model_name="rsvp",
+            name="guests_form_submissions",
+            field=models.ManyToManyField(
+                related_name="guest_rsvp", to="people.PersonFormSubmission"
+            ),
         ),
         migrations.AddField(
-            model_name='rsvp',
-            name='status',
-            field=models.CharField(choices=[('AP', 'En attente du paiement'), ('CO', 'Confirmé'), ('CA', 'Annulé')], default='CO', max_length=2, verbose_name='Statut'),
+            model_name="rsvp",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("AP", "En attente du paiement"),
+                    ("CO", "Confirmé"),
+                    ("CA", "Annulé"),
+                ],
+                default="CO",
+                max_length=2,
+                verbose_name="Statut",
+            ),
         ),
     ]

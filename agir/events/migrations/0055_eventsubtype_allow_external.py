@@ -5,14 +5,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0054_auto_20181009_2018'),
-    ]
+    dependencies = [("events", "0054_auto_20181009_2018")]
 
     operations = [
         migrations.AddField(
-            model_name='eventsubtype',
-            name='allow_external',
-            field=models.BooleanField(default=False, verbose_name='Les non-insoumis⋅es peuvent rejoindre'),
-        ),
+            model_name="eventsubtype",
+            name="allow_external",
+            field=models.BooleanField(
+                default=False, verbose_name="Les non-insoumis⋅es peuvent rejoindre"
+            ),
+        )
     ]

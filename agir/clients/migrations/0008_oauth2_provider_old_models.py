@@ -6,59 +6,49 @@ import oauth2_provider.generators
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('clients', '0007_oauth2_provider_populate'),
-    ]
+    dependencies = [("clients", "0007_oauth2_provider_populate")]
 
     operations = [
-        migrations.AlterUniqueTogether(
-            name='authorization',
-            unique_together=set(),
-        ),
-        migrations.RemoveField(
-            model_name='authorization',
-            name='client',
-        ),
-        migrations.RemoveField(
-            model_name='authorization',
-            name='person',
-        ),
+        migrations.AlterUniqueTogether(name="authorization", unique_together=set()),
+        migrations.RemoveField(model_name="authorization", name="client"),
+        migrations.RemoveField(model_name="authorization", name="person"),
         migrations.AlterModelOptions(
-            name='client',
-            options={'default_permissions': ('add', 'change', 'delete', 'view'), 'ordering': ('name',), 'verbose_name': 'Client', 'verbose_name_plural': 'Clients'},
+            name="client",
+            options={
+                "default_permissions": ("add", "change", "delete", "view"),
+                "ordering": ("name",),
+                "verbose_name": "Client",
+                "verbose_name_plural": "Clients",
+            },
         ),
-        migrations.RemoveField(
-            model_name='client',
-            name='label',
-        ),
-        migrations.RemoveField(
-            model_name='client',
-            name='oauth_enabled',
-        ),
-        migrations.RemoveField(
-            model_name='client',
-            name='trusted',
-        ),
-        migrations.RemoveField(
-            model_name='client',
-            name='uris',
+        migrations.RemoveField(model_name="client", name="label"),
+        migrations.RemoveField(model_name="client", name="oauth_enabled"),
+        migrations.RemoveField(model_name="client", name="trusted"),
+        migrations.RemoveField(model_name="client", name="uris"),
+        migrations.AlterField(
+            model_name="client",
+            name="client_id",
+            field=models.CharField(
+                db_index=True,
+                default=oauth2_provider.generators.generate_client_id,
+                max_length=100,
+                unique=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='client',
-            name='client_id',
-            field=models.CharField(db_index=True, default=oauth2_provider.generators.generate_client_id, max_length=100, unique=True),
+            model_name="client",
+            name="client_secret",
+            field=models.CharField(
+                blank=True,
+                db_index=True,
+                default=oauth2_provider.generators.generate_client_secret,
+                max_length=255,
+            ),
         ),
         migrations.AlterField(
-            model_name='client',
-            name='client_secret',
-            field=models.CharField(blank=True, db_index=True, default=oauth2_provider.generators.generate_client_secret, max_length=255),
-        ),
-        migrations.AlterField(
-            model_name='client',
-            name='name',
+            model_name="client",
+            name="name",
             field=models.CharField(blank=True, max_length=255),
         ),
-        migrations.DeleteModel(
-            name='Authorization',
-        ),
+        migrations.DeleteModel(name="Authorization"),
     ]

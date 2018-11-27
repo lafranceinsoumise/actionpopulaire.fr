@@ -1,1 +1,1 @@
-default_app_config = 'agir.clients.apps.ClientsConfig'
+default_app_config = "agir.clients.apps.ClientsConfig"

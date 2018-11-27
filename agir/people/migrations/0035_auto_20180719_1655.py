@@ -8,14 +8,16 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0034_personform_send_answers_to'),
-    ]
+    dependencies = [("people", "0034_personform_send_answers_to")]
 
     operations = [
         migrations.AlterField(
-            model_name='personformsubmission',
-            name='data',
-            field=django.contrib.postgres.fields.jsonb.JSONField(editable=False, encoder=agir.people.person_forms.models.CustomJSONEncoder, verbose_name='Données'),
-        ),
+            model_name="personformsubmission",
+            name="data",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                editable=False,
+                encoder=agir.people.person_forms.models.CustomJSONEncoder,
+                verbose_name="Données",
+            ),
+        )
     ]

@@ -6,18 +6,22 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0053_privileged_only_becoms_visibility'),
-    ]
+    dependencies = [("events", "0053_privileged_only_becoms_visibility")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='calendar',
-            options={'verbose_name': 'Agenda'},
+            name="calendar", options={"verbose_name": "Agenda"}
         ),
         migrations.AddField(
-            model_name='calendar',
-            name='parent',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='children', related_query_name='child', to='events.Calendar'),
+            model_name="calendar",
+            name="parent",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="children",
+                related_query_name="child",
+                to="events.Calendar",
+            ),
         ),
     ]

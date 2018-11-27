@@ -7,33 +7,30 @@ from django.contrib.contenttypes.models import ContentType
 
 
 def add_proper_checks_permissions(apps, schema):
-    model = apps.get_model('checks', 'CheckPayment')
+    model = apps.get_model("checks", "CheckPayment")
     opts = model._meta
     ctype, created = ContentType.objects.get_or_create(
-        app_label=opts.app_label,
-        model=opts.object_name.lower()
+        app_label=opts.app_label, model=opts.object_name.lower()
     )
 
     for codename, name in _get_all_permissions(opts):
         p, created = Permission.objects.get_or_create(
-            codename=codename,
-            content_type=ctype,
-            defaults={'name': f'{name} (Proxy)'}
+            codename=codename, content_type=ctype, defaults={"name": f"{name} (Proxy)"}
         )
 
 
 def delete_proper_checks_persmissions(apps, schema):
-    opts = apps.get_model('checks', 'CheckPayment')._meta
-    ctype = ContentType.objects.get(app_label=opts.app_label, model=opts.object_name.lower())
+    opts = apps.get_model("checks", "CheckPayment")._meta
+    ctype = ContentType.objects.get(
+        app_label=opts.app_label, model=opts.object_name.lower()
+    )
     permissions = Permission.objects.filter(content_type=ctype)
     permissions.delete()
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('checks', '0001_checkpayment'),
-    ]
+    dependencies = [("checks", "0001_checkpayment")]
 
     operations = [
         migrations.RunPython(

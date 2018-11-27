@@ -22,8 +22,17 @@ def create_payment(person, type, price, mode=DEFAULT_MODE, meta=None):
     if meta is None:
         meta = {}
 
-    person_fields = ['first_name', 'last_name', 'email', 'location_address1', 'location_address2', 'location_zip',
-                     'location_state', 'location_city', 'location_country']
+    person_fields = [
+        "first_name",
+        "last_name",
+        "email",
+        "location_address1",
+        "location_address2",
+        "location_zip",
+        "location_state",
+        "location_city",
+        "location_country",
+    ]
 
     return Payment.objects.create(
         person=person,
@@ -35,8 +44,9 @@ def create_payment(person, type, price, mode=DEFAULT_MODE, meta=None):
         **{f: getattr(person, f) for f in person_fields}
     )
 
+
 def complete_payment(payment):
-    if (payment.status == Payment.STATUS_CANCELED):
+    if payment.status == Payment.STATUS_CANCELED:
         raise PaymentException("Le paiement a déjà été annulé.")
 
     payment.status = Payment.STATUS_COMPLETED
@@ -44,7 +54,7 @@ def complete_payment(payment):
 
 
 def cancel_payment(payment):
-    if (payment.status == Payment.STATUS_COMPLETED):
+    if payment.status == Payment.STATUS_COMPLETED:
         raise PaymentException("Le paiement a déjà été confirmé.")
 
     payment.status = Payment.STATUS_CANCELED

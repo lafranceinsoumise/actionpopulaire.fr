@@ -8,19 +8,24 @@ from agir.lib import models as lib_models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0022_refactoring_description_and_datetime_fields'),
-    ]
+    dependencies = [("events", "0022_refactoring_description_and_datetime_fields")]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='allow_html',
-            field=models.BooleanField(default=False, verbose_name='autoriser le HTML étendu dans la description'),
+            model_name="event",
+            name="allow_html",
+            field=models.BooleanField(
+                default=False,
+                verbose_name="autoriser le HTML étendu dans la description",
+            ),
         ),
         migrations.AlterField(
-            model_name='event',
-            name='description',
-            field=lib_models.DescriptionField(blank=True, help_text='Une courte description', verbose_name='description'),
+            model_name="event",
+            name="description",
+            field=lib_models.DescriptionField(
+                blank=True,
+                help_text="Une courte description",
+                verbose_name="description",
+            ),
         ),
     ]

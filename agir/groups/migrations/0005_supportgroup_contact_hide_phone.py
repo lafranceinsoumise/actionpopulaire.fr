@@ -8,14 +8,14 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0004_auto_20170915_1458'),
-    ]
+    dependencies = [("groups", "0004_auto_20170915_1458")]
 
     operations = [
         migrations.AddField(
-            model_name='supportgroup',
-            name='contact_hide_phone',
-            field=models.BooleanField(default=False, verbose_name='Cacher mon numéro de téléphone'),
+            model_name="supportgroup",
+            name="contact_hide_phone",
+            field=models.BooleanField(
+                default=False, verbose_name="Cacher mon numéro de téléphone"
+            ),
         )
     ]

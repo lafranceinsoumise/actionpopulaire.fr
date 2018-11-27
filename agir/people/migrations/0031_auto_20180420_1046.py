@@ -7,19 +7,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0030_auto_20180420_1031'),
-    ]
+    dependencies = [("people", "0030_auto_20180420_1031")]
 
     operations = [
         migrations.AlterField(
-            model_name='personform',
-            name='end_time',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='Date de fermeture du formulaire'),
+            model_name="personform",
+            name="end_time",
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="Date de fermeture du formulaire"
+            ),
         ),
         migrations.AlterField(
-            model_name='personform',
-            name='start_time',
-            field=models.DateTimeField(blank=True, null=True, verbose_name="Date d'ouverture du formulaire"),
+            model_name="personform",
+            name="start_time",
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="Date d'ouverture du formulaire"
+            ),
         ),
     ]

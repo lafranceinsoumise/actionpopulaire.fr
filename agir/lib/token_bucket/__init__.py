@@ -5,7 +5,7 @@ from redis.client import Script
 
 from agir.api.redis import get_auth_redis_client as get_redis_client
 
-__all__ = ['TokenBucket']
+__all__ = ["TokenBucket"]
 
 
 def get_current_timestamp():
@@ -40,15 +40,20 @@ class TokenBucket:
         res = token_bucket_script(
             keys=[f"{key_prefix}v", f"{key_prefix}t"],
             args=[self.max, self.interval, get_current_timestamp(), amount],
-            client=get_redis_client()
+            client=get_redis_client(),
         )
 
         return bool(res)
 
     def reset(self, id):
         key_prefix = f"TokenBucket:{self.name}:{str(id)}:"
-        get_redis_client().pipeline().delete(f"{key_prefix}v").delete(f"{key_prefix}t").execute()
+        get_redis_client().pipeline().delete(f"{key_prefix}v").delete(
+            f"{key_prefix}t"
+        ).execute()
 
 
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'token_bucket.lua'), mode='rb') as f:
+with open(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "token_bucket.lua"),
+    mode="rb",
+) as f:
     token_bucket_script = Script(None, f.read())

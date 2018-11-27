@@ -6,14 +6,14 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0027_supportgroupsubtype_config'),
-    ]
+    dependencies = [("groups", "0027_supportgroupsubtype_config")]
 
     operations = [
         migrations.AlterField(
-            model_name='supportgroupsubtype',
-            name='config',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict, verbose_name='Configuration'),
-        ),
+            model_name="supportgroupsubtype",
+            name="config",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                blank=True, default=dict, verbose_name="Configuration"
+            ),
+        )
     ]

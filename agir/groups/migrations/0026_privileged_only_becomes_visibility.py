@@ -4,39 +4,49 @@ from django.db import migrations, models
 
 
 def privileged_to_visibility(apps, schema):
-    SupportGroupSubtype = apps.get_model('groups', 'SupportGroupSubtype')
+    SupportGroupSubtype = apps.get_model("groups", "SupportGroupSubtype")
 
     SupportGroupSubtype.objects.update(
-        visibility=models.Case(models.When(privileged_only=True, then=models.Value('D')), default=models.Value('A'))
+        visibility=models.Case(
+            models.When(privileged_only=True, then=models.Value("D")),
+            default=models.Value("A"),
+        )
     )
 
 
 def visibility_to_privileged(apps, schema):
-    SupportGroupSubtype = apps.get_model('groups', 'SupportGroupSubtype')
+    SupportGroupSubtype = apps.get_model("groups", "SupportGroupSubtype")
 
     SupportGroupSubtype.objects.update(
-        privileged_only=models.Case(models.When(visibility='A', then=False), default=True)
+        privileged_only=models.Case(
+            models.When(visibility="A", then=False), default=True
+        )
     )
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0025_auto_20180214_1249'),
-    ]
+    dependencies = [("groups", "0025_auto_20180214_1249")]
 
     operations = [
         migrations.AddField(
-            model_name='supportgroupsubtype',
-            name='visibility',
-            field=models.CharField(choices=[('N', 'Personne (plus utilisé)'), ('D', "Seulement depuis l'administration"), ('A', "N'importe qui")], default='D', max_length=1, verbose_name='Qui peut créer avec ce sous-type ?'),
+            model_name="supportgroupsubtype",
+            name="visibility",
+            field=models.CharField(
+                choices=[
+                    ("N", "Personne (plus utilisé)"),
+                    ("D", "Seulement depuis l'administration"),
+                    ("A", "N'importe qui"),
+                ],
+                default="D",
+                max_length=1,
+                verbose_name="Qui peut créer avec ce sous-type ?",
+            ),
         ),
         migrations.RunPython(
-            code=privileged_to_visibility,
-            reverse_code=visibility_to_privileged
+            code=privileged_to_visibility, reverse_code=visibility_to_privileged
         ),
         migrations.RemoveField(
-            model_name='supportgroupsubtype',
-            name='privileged_only',
+            model_name="supportgroupsubtype", name="privileged_only"
         ),
     ]

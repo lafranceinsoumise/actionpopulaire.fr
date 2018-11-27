@@ -8,24 +8,54 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0003_basic_tags'),
-    ]
+    dependencies = [("people", "0003_basic_tags")]
 
     operations = [
         migrations.CreateModel(
-            name='PersonEmail',
+            name="PersonEmail",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('address', models.EmailField(help_text="L'adresse email de la personne, utilisée comme identifiant", max_length=254, unique=True, verbose_name='adresse email')),
-                ('bounced', models.BooleanField(default=False, help_text='Indique que des mails envoyés ont été rejetés par le serveur distant', verbose_name='email rejeté')),
-                ('bounced_date', models.DateTimeField(blank=True, help_text='Si des mails ont été rejetés, indique la date du dernier rejet', null=True, verbose_name="date de rejet de l'email")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "address",
+                    models.EmailField(
+                        help_text="L'adresse email de la personne, utilisée comme identifiant",
+                        max_length=254,
+                        unique=True,
+                        verbose_name="adresse email",
+                    ),
+                ),
+                (
+                    "bounced",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Indique que des mails envoyés ont été rejetés par le serveur distant",
+                        verbose_name="email rejeté",
+                    ),
+                ),
+                (
+                    "bounced_date",
+                    models.DateTimeField(
+                        blank=True,
+                        help_text="Si des mails ont été rejetés, indique la date du dernier rejet",
+                        null=True,
+                        verbose_name="date de rejet de l'email",
+                    ),
+                ),
             ],
         ),
-
         migrations.AddField(
-            model_name='personemail',
-            name='person',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='people.Person'),
-        )
+            model_name="personemail",
+            name="person",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="people.Person"
+            ),
+        ),
     ]

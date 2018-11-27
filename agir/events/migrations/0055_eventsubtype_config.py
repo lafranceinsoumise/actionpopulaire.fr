@@ -6,14 +6,14 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0054_auto_20181009_2018'),
-    ]
+    dependencies = [("events", "0054_auto_20181009_2018")]
 
     operations = [
         migrations.AddField(
-            model_name='eventsubtype',
-            name='config',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default=dict, verbose_name='Configuration'),
-        ),
+            model_name="eventsubtype",
+            name="config",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default=dict, verbose_name="Configuration"
+            ),
+        )
     ]

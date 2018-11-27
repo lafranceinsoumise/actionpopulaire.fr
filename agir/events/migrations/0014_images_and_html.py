@@ -8,24 +8,32 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0013_calendar_user_contributed'),
-    ]
+    dependencies = [("events", "0013_calendar_user_contributed")]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='allow_html',
-            field=models.BooleanField(default=False, verbose_name='autoriser le HTML dans la description'),
+            model_name="event",
+            name="allow_html",
+            field=models.BooleanField(
+                default=False, verbose_name="autoriser le HTML dans la description"
+            ),
         ),
         migrations.AddField(
-            model_name='event',
-            name='image',
-            field=models.ImageField(null=True, upload_to='events/banners/', verbose_name="bannière de l'événement"),
+            model_name="event",
+            name="image",
+            field=models.ImageField(
+                null=True,
+                upload_to="events/banners/",
+                verbose_name="bannière de l'événement",
+            ),
         ),
         migrations.AlterField(
-            model_name='event',
-            name='calendar',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='events', to='events.Calendar'),
+            model_name="event",
+            name="calendar",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="events",
+                to="events.Calendar",
+            ),
         ),
     ]

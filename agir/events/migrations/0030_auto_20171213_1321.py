@@ -8,14 +8,17 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0029_auto_20171213_1134'),
-    ]
+    dependencies = [("events", "0029_auto_20171213_1134")]
 
     operations = [
         migrations.AlterField(
-            model_name='eventimage',
-            name='author',
-            field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.PROTECT, related_name='event_images', to='people.Person'),
-        ),
+            model_name="eventimage",
+            name="author",
+            field=models.ForeignKey(
+                editable=False,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="event_images",
+                to="people.Person",
+            ),
+        )
     ]

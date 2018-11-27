@@ -27,4 +27,6 @@ install:
   - grep -v systemd requirements.txt | pip install -r /dev/stdin
   - npm i && npm run build
 
-script: python manage.py test -v 2
+script:
+  - black --check .
+  - python manage.py test -v 2

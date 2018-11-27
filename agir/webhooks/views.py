@@ -15,8 +15,11 @@ from django.conf import settings
 
 class SendgridSesWebhookAuthentication(BasicAuthentication):
     def authenticate_credentials(self, userid, password, request=None):
-        if userid != settings.SENDGRID_SES_WEBHOOK_USER or password != settings.SENDGRID_SES_WEBHOOK_PASSWORD:
-            raise exceptions.AuthenticationFailed('Invalid username/password.')
+        if (
+            userid != settings.SENDGRID_SES_WEBHOOK_USER
+            or password != settings.SENDGRID_SES_WEBHOOK_PASSWORD
+        ):
+            raise exceptions.AuthenticationFailed("Invalid username/password.")
 
         return (userid, None)
 
@@ -36,8 +39,10 @@ class BounceView(APIView):
         except PersonEmail.DoesNotExist:
             return
 
-        older_than_one_hour = person_email.person.created + timezone.timedelta(hours=1) < timezone.now()
-        if (older_than_one_hour):
+        older_than_one_hour = (
+            person_email.person.created + timezone.timedelta(hours=1) < timezone.now()
+        )
+        if older_than_one_hour:
             person_email.bounced = True
             person_email.save()
             return
@@ -46,27 +51,27 @@ class BounceView(APIView):
 
 
 class WrongContentTypeJSONParser(JSONParser):
-    media_type = 'text/plain'
+    media_type = "text/plain"
 
 
 class SesBounceView(BounceView):
     parser_classes = (WrongContentTypeJSONParser,)
 
     def post(self, request):
-        response = Response({'status': 'Accepted'}, 202)
-        if (request.data['Type'] == 'SubscriptionConfirmation'):
-            requests.get(request.data['SubscribeURL'])
+        response = Response({"status": "Accepted"}, 202)
+        if request.data["Type"] == "SubscriptionConfirmation":
+            requests.get(request.data["SubscribeURL"])
             return response
-        if (request.data['Type'] != 'Notification'):
-            return response
-
-        message = json.loads(request.data['Message'])
-        if (message['notificationType'] != 'Bounce'):
-            return response
-        if (message['bounce']['bounceType'] != 'Permanent'):
+        if request.data["Type"] != "Notification":
             return response
 
-        self.handleBounce(message['mail']['destination'][0])
+        message = json.loads(request.data["Message"])
+        if message["notificationType"] != "Bounce":
+            return response
+        if message["bounce"]["bounceType"] != "Permanent":
+            return response
+
+        self.handleBounce(message["mail"]["destination"][0])
 
         return response
 
@@ -74,7 +79,7 @@ class SesBounceView(BounceView):
 class SendgridBounceView(BounceView):
     def post(self, request):
         for webhook in request.data:
-            if webhook['event'] != 'bounce' and webhook['event'] != 'dropped':
+            if webhook["event"] != "bounce" and webhook["event"] != "dropped":
                 continue
-            self.handleBounce(webhook['email'])
-        return Response({'status': 'Accepted'}, 202)
+            self.handleBounce(webhook["email"])
+        return Response({"status": "Accepted"}, 202)

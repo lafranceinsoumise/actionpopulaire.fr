@@ -9,14 +9,17 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('polls', '0003_auto_20171107_1600'),
-    ]
+    dependencies = [("polls", "0003_auto_20171107_1600")]
 
     operations = [
         migrations.AlterField(
-            model_name='poll',
-            name='rules',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder, help_text='Un object JSON décrivant les règles. Actuellement, sont reconnues `min_options` et`max_options', verbose_name='Les règles du vote'),
-        ),
+            model_name="poll",
+            name="rules",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default=dict,
+                encoder=django.core.serializers.json.DjangoJSONEncoder,
+                help_text="Un object JSON décrivant les règles. Actuellement, sont reconnues `min_options` et`max_options",
+                verbose_name="Les règles du vote",
+            ),
+        )
     ]

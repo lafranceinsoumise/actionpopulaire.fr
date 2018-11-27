@@ -7,7 +7,7 @@ import phonenumbers
 
 
 def format_phones(apps, schema):
-    Person = apps.get_model('people', 'Person')
+    Person = apps.get_model("people", "Person")
 
     for p in Person.objects.exclude(contact_phone__exact=""):
         try:
@@ -18,7 +18,9 @@ def format_phones(apps, schema):
             continue
 
         if phonenumbers.is_valid_number(num):
-            p.contact_phone = phonenumbers.format_number(num, phonenumbers.PhoneNumberFormat.E164)
+            p.contact_phone = phonenumbers.format_number(
+                num, phonenumbers.PhoneNumberFormat.E164
+            )
             p.save()
         else:
             p.contact_phone = ""
@@ -32,10 +34,6 @@ def unformat_phones(apps, schema):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0012_person_coordinates_type'),
-    ]
+    dependencies = [("people", "0012_person_coordinates_type")]
 
-    operations = [
-        migrations.RunPython(format_phones, unformat_phones)
-    ]
+    operations = [migrations.RunPython(format_phones, unformat_phones)]

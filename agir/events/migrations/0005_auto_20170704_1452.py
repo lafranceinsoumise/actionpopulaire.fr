@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0004_create_basic_calendars'),
-    ]
+    dependencies = [("events", "0004_create_basic_calendars")]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='name',
-            field=models.CharField(help_text="Le nom de l'événement", max_length=255, verbose_name='nom'),
-        ),
+            model_name="event",
+            name="name",
+            field=models.CharField(
+                help_text="Le nom de l'événement", max_length=255, verbose_name="nom"
+            ),
+        )
     ]

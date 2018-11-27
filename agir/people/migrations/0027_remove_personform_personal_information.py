@@ -6,47 +6,43 @@ from django.db import migrations
 
 
 def move_to_fields(apps, schema_editor):
-    PersonForm = apps.get_model('people', 'PersonForm')
+    PersonForm = apps.get_model("people", "PersonForm")
 
     for person_form in PersonForm.objects.all():
-        person_form.additional_fields = [{
-            'title': 'Informations personnelles requises',
-            'fields': [
-                {
-                    'id': field,
-                    'person_field': True
-                } for field in person_form.personal_information
-            ]
-        }] + person_form.additional_fields
+        person_form.additional_fields = [
+            {
+                "title": "Informations personnelles requises",
+                "fields": [
+                    {"id": field, "person_field": True}
+                    for field in person_form.personal_information
+                ],
+            }
+        ] + person_form.additional_fields
         person_form.save()
 
+
 def revert_to_personal_information(apps, schema_editor):
-    Person = apps.get_model('people', 'Person')
-    PersonForm = apps.get_model('people', 'PersonForm')
+    Person = apps.get_model("people", "Person")
+    PersonForm = apps.get_model("people", "PersonForm")
     all_person_field_names = [field.name for field in Person._meta.get_fields()]
 
     for person_form in PersonForm.objects.all():
-        person_form.personal_information = [field['id']
-                                            for fieldset in person_form.additional_fields
-                                            for field in fieldset['fields']
-                                            if field.get('person_field') and field['id'] in all_person_field_names]
+        person_form.personal_information = [
+            field["id"]
+            for fieldset in person_form.additional_fields
+            for field in fieldset["fields"]
+            if field.get("person_field") and field["id"] in all_person_field_names
+        ]
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0026_auto_20180306_1710'),
-    ]
+    dependencies = [("people", "0026_auto_20180306_1710")]
 
     operations = [
         migrations.RunPython(move_to_fields, revert_to_personal_information),
-        migrations.RemoveField(
-            model_name='personform',
-            name='personal_information',
-        ),
+        migrations.RemoveField(model_name="personform", name="personal_information"),
         migrations.RenameField(
-            model_name='personform',
-            old_name='additional_fields',
-            new_name='fields',
+            model_name="personform", old_name="additional_fields", new_name="fields"
         ),
     ]

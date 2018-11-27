@@ -5,13 +5,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0047_populate_status_field'),
-    ]
+    dependencies = [("events", "0047_populate_status_field")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='rsvp',
-            name='canceled',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="rsvp", name="canceled")]

@@ -7,19 +7,19 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0010_add_options_organizer_config'),
-    ]
+    dependencies = [("events", "0010_add_options_organizer_config")]
 
     operations = [
         migrations.RenameField(
-            model_name='organizerconfig',
-            old_name='send_notifications',
-            new_name='notifications_enabled',
+            model_name="organizerconfig",
+            old_name="send_notifications",
+            new_name="notifications_enabled",
         ),
         migrations.AddField(
-            model_name='rsvp',
-            name='notifications_enabled',
-            field=models.BooleanField(default=True, verbose_name='Recevoir les notifications'),
+            model_name="rsvp",
+            name="notifications_enabled",
+            field=models.BooleanField(
+                default=True, verbose_name="Recevoir les notifications"
+            ),
         ),
     ]

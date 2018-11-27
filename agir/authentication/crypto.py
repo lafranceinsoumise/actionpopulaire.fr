@@ -13,20 +13,22 @@ from agir.api.redis import get_auth_redis_client
 def escape_character(string, character):
     if not character:
         return string
-    return string.replace('\\', '\\\\').replace(character, '\\' + character)
+    return string.replace("\\", "\\\\").replace(character, "\\" + character)
 
 
 class BaseTokenGenerator(PasswordResetTokenGenerator):
     salt = None
     token_params = []
-    params_separator = ''
+    params_separator = ""
 
     def __init__(self, validity):
         self.validity = validity
 
     def _check_params(self, params):
         if not set(params).issuperset(set(self.token_params)):
-            raise TypeError(f"The following arguments are compulsory: {self.token_params!r}")
+            raise TypeError(
+                f"The following arguments are compulsory: {self.token_params!r}"
+            )
 
     def make_token(self, **params):
         self._check_params(params)
@@ -37,9 +39,9 @@ class BaseTokenGenerator(PasswordResetTokenGenerator):
         sorted_keys = sorted(params)
         ordered_params = [params[k] for k in sorted_keys]
 
-        return (self.params_separator.join(
-            escape_character(param, self.params_separator)for param in ordered_params
-        ) + str(timestamp))
+        return self.params_separator.join(
+            escape_character(param, self.params_separator) for param in ordered_params
+        ) + str(timestamp)
 
     def check_token(self, token, **params):
         """copied from """
@@ -58,7 +60,9 @@ class BaseTokenGenerator(PasswordResetTokenGenerator):
             return False
 
         # Check that the timestamp/uid has not been tampered with
-        if not constant_time_compare(self._make_token_with_timestamp(params, ts), token):
+        if not constant_time_compare(
+            self._make_token_with_timestamp(params, ts), token
+        ):
             return False
 
         # Check the timestamp is within limit
@@ -70,9 +74,10 @@ class BaseTokenGenerator(PasswordResetTokenGenerator):
 
 class ConnectionTokenGenerator(BaseTokenGenerator):
     """Strategy object used to generate and check tokens used for connection"""
+
     # not up to date, but changing it would invalidate all tokens
-    key_salt = 'front.backend.ConnectionTokenGenerator'
-    token_params = ['user']
+    key_salt = "front.backend.ConnectionTokenGenerator"
+    token_params = ["user"]
 
     def make_token(self, user):
         return super().make_token(user=user)
@@ -80,28 +85,26 @@ class ConnectionTokenGenerator(BaseTokenGenerator):
     def _make_hash_value(self, params, timestamp):
         # le hash n'est basé que sur l'ID de l'utilisateur et le timestamp
 
-        user = params['user']
+        user = params["user"]
 
-        return (
-            str(user.pk) + str(timestamp)
-        )
+        return str(user.pk) + str(timestamp)
 
 
 class SubscriptionConfirmationTokenGenerator(BaseTokenGenerator):
-    key_salt = 'agir.people.crypto.SubscriptionConfirmationTokenGenerator'
-    token_params = ['email']
-    params_separator = '|'
+    key_salt = "agir.people.crypto.SubscriptionConfirmationTokenGenerator"
+    token_params = ["email"]
+    params_separator = "|"
 
 
 class AddEmailConfirmationTokenGenerator(BaseTokenGenerator):
-    key_salt = 'agir.people.crypto.AddEmailConfirmationTokenGenerator'
-    token_params = ['user', 'email']
-    params_separator = '|'
+    key_salt = "agir.people.crypto.AddEmailConfirmationTokenGenerator"
+    token_params = ["user", "email"]
+    params_separator = "|"
 
 
-class ShortCodeGenerator():
+class ShortCodeGenerator:
     alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ123456789"
-    allowed_patterns = [r'[A-Z1-9]{5}', r'[0-9]{8}']
+    allowed_patterns = [r"[A-Z1-9]{5}", r"[0-9]{8}"]
     length = 5
 
     def __init__(self, key_prefix, validity, max_concurrent_codes):
@@ -117,15 +120,19 @@ class ShortCodeGenerator():
         self._allowed_patterns = [re.compile(p) for p in self.allowed_patterns]
 
     def _make_code(self):
-        return ''.join(choice(self.alphabet) for i in range(self.length))
+        return "".join(choice(self.alphabet) for i in range(self.length))
 
     def generate_short_code(self, user_pk):
         short_code = self._make_code()
         expiration = timezone.now() + timezone.timedelta(minutes=self.validity)
-        payload = json.dumps({
-            'code': short_code,
-            'expiration': int(expiration.timestamp()*1000)  # timestamp from epoch in microseconds
-        })
+        payload = json.dumps(
+            {
+                "code": short_code,
+                "expiration": int(
+                    expiration.timestamp() * 1000
+                ),  # timestamp from epoch in microseconds
+            }
+        )
         key = f"{self.key_prefix}{user_pk}"
 
         p = get_auth_redis_client().pipeline(transaction=False)
@@ -144,14 +151,21 @@ class ShortCodeGenerator():
         now = timezone.now()
 
         # get the raw payloads for all codes
-        raw_payloads = get_auth_redis_client().lrange(key, 0, self.max_concurrent_codes - 1)
+        raw_payloads = get_auth_redis_client().lrange(
+            key, 0, self.max_concurrent_codes - 1
+        )
         # parse the JSON payloads (but keep original payload to allow removing it from redis list)
         payloads = [json.loads(p) for p in raw_payloads]
-        valid_short_codes = [p['code'] for p in payloads
-                             if timezone.datetime.fromtimestamp(p['expiration'] / 1000, timezone.utc) > now]
+        valid_short_codes = [
+            p["code"]
+            for p in payloads
+            if timezone.datetime.fromtimestamp(p["expiration"] / 1000, timezone.utc)
+            > now
+        ]
 
         # to avoid timing attacks, always compare with every codes, and use constant time comparisons
-        correct_short_code_payloads = [c for c in valid_short_codes
-                               if constant_time_compare(c, short_code)]
+        correct_short_code_payloads = [
+            c for c in valid_short_codes if constant_time_compare(c, short_code)
+        ]
 
         return bool(correct_short_code_payloads)

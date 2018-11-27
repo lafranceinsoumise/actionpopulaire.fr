@@ -7,33 +7,37 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0016_populate_calendar_titles'),
-    ]
+    dependencies = [("events", "0016_populate_calendar_titles")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='calendar',
-            name='label',
+        migrations.RemoveField(model_name="calendar", name="label"),
+        migrations.AlterField(
+            model_name="calendar",
+            name="description",
+            field=models.TextField(
+                blank=True,
+                help_text="Saisissez une description (HTML accepté)",
+                verbose_name="description",
+            ),
         ),
         migrations.AlterField(
-            model_name='calendar',
-            name='description',
-            field=models.TextField(blank=True, help_text='Saisissez une description (HTML accepté)', verbose_name='description'),
+            model_name="calendar",
+            name="name",
+            field=models.CharField(max_length=255, verbose_name="titre"),
         ),
         migrations.AlterField(
-            model_name='calendar',
-            name='name',
-            field=models.CharField(max_length=255, verbose_name='titre'),
+            model_name="calendar",
+            name="slug",
+            field=models.SlugField(verbose_name="slug"),
         ),
         migrations.AlterField(
-            model_name='calendar',
-            name='slug',
-            field=models.SlugField(verbose_name='slug'),
-        ),
-        migrations.AlterField(
-            model_name='event',
-            name='image',
-            field=models.ImageField(blank=True, null=True, upload_to='events/banners/', verbose_name="bannière de l'événement"),
+            model_name="event",
+            name="image",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                upload_to="events/banners/",
+                verbose_name="bannière de l'événement",
+            ),
         ),
     ]

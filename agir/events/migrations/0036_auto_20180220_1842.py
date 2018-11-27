@@ -6,29 +6,38 @@ from django.db import migrations, models
 
 
 def add_other_subtype(apps, schema):
-    EventSubtype = apps.get_model('events', 'EventSubtype')
-    EventSubtype.objects.get_or_create(label='autre evenement', defaults={
-        'description': "Tout autre type d'événement",
-        'hide_text_label': True,
-        'type': 'O',
-        'privileged_only': False
-    })
+    EventSubtype = apps.get_model("events", "EventSubtype")
+    EventSubtype.objects.get_or_create(
+        label="autre evenement",
+        defaults={
+            "description": "Tout autre type d'événement",
+            "hide_text_label": True,
+            "type": "O",
+            "privileged_only": False,
+        },
+    )
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0035_auto_20180214_1249'),
-    ]
+    dependencies = [("events", "0035_auto_20180214_1249")]
 
     operations = [
         migrations.AlterField(
-            model_name='eventsubtype',
-            name='type',
-            field=models.CharField(choices=[('G', 'Réunion de groupe'), ('M', 'Réunion publique'), ('A', 'Action publique'), ('O', "Autres type d'événements")], max_length=1, verbose_name="Type d'événement"),
+            model_name="eventsubtype",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("G", "Réunion de groupe"),
+                    ("M", "Réunion publique"),
+                    ("A", "Action publique"),
+                    ("O", "Autres type d'événements"),
+                ],
+                max_length=1,
+                verbose_name="Type d'événement",
+            ),
         ),
         migrations.RunPython(
-            code=add_other_subtype,
-            reverse_code=migrations.RunPython.noop
-        )
+            code=add_other_subtype, reverse_code=migrations.RunPython.noop
+        ),
     ]

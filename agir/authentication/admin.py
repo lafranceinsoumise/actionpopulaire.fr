@@ -16,19 +16,28 @@ sensitive_post_parameters_m = method_decorator(sensitive_post_parameters())
 @admin.register(models.Role, site=admin_site)
 class RoleAdmin(UserAdmin):
     fieldsets = (
-        (None, {'fields': ('password', 'last_login', 'link')}),
-        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
-                                       'groups', 'user_permissions')}),
+        (None, {"fields": ("password", "last_login", "link")}),
+        (
+            _("Permissions"),
+            {
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
+                )
+            },
+        ),
     )
-    readonly_fields = ('last_login', 'link')
+    readonly_fields = ("last_login", "link")
 
+    list_display = ("id", "type", "link", "is_staff", "is_superuser")
+    list_filter = ("type", "is_staff", "is_superuser", "groups")
+    filter_horizontal = ("groups", "user_permissions")
 
-    list_display = ('id', 'type', 'link', 'is_staff', 'is_superuser')
-    list_filter = ('type', 'is_staff', 'is_superuser', 'groups')
-    filter_horizontal = ('groups', 'user_permissions',)
-
-    search_fields = ('id', 'client__name', 'person__emails__address__iexact')
-    ordering = ('id',)
+    search_fields = ("id", "client__name", "person__emails__address__iexact")
+    ordering = ("id",)
 
     def link(self, obj):
         link_schema = '<a href="{}">{}</a>'
@@ -36,16 +45,17 @@ class RoleAdmin(UserAdmin):
         if obj.type == obj.CLIENT_ROLE:
             return format_html(
                 link_schema,
-                reverse('admin:clients_client_change', args=(obj.client.pk,)),
-                obj.client.name
+                reverse("admin:clients_client_change", args=(obj.client.pk,)),
+                obj.client.name,
             )
         elif obj.type == obj.PERSON_ROLE:
             return format_html(
                 link_schema,
-                reverse('admin:people_person_change', args=(obj.person.pk,)),
-                obj.person.email
+                reverse("admin:people_person_change", args=(obj.person.pk,)),
+                obj.person.email,
             )
-    link.short_description = _('Lien vers la personne ou le client')
+
+    link.short_description = _("Lien vers la personne ou le client")
 
     def get_urls(self):
         urls = super(RoleAdmin, self).get_urls()

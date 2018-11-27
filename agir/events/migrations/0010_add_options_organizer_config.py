@@ -7,23 +7,22 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0009_add_through_model_organizers'),
-    ]
+    dependencies = [("events", "0009_add_through_model_organizers")]
 
     operations = [
         migrations.AddField(
-            model_name='organizerconfig',
-            name='is_creator',
-            field=models.BooleanField(default=False, verbose_name="Créateur de l'événement"),
+            model_name="organizerconfig",
+            name="is_creator",
+            field=models.BooleanField(
+                default=False, verbose_name="Créateur de l'événement"
+            ),
         ),
         migrations.AddField(
-            model_name='organizerconfig',
-            name='send_notifications',
-            field=models.BooleanField(default=True, verbose_name='Recevoir les notifications'),
+            model_name="organizerconfig",
+            name="send_notifications",
+            field=models.BooleanField(
+                default=True, verbose_name="Recevoir les notifications"
+            ),
         ),
-        migrations.AlterModelTable(
-            name='organizerconfig',
-            table=None,
-        ),
+        migrations.AlterModelTable(name="organizerconfig", table=None),
     ]

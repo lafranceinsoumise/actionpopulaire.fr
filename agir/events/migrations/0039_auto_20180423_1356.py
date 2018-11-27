@@ -10,19 +10,26 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('people', '0031_auto_20180420_1046'),
-        ('events', '0038_auto_20180411_1457'),
+        ("people", "0031_auto_20180420_1046"),
+        ("events", "0038_auto_20180411_1457"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='payment_parameters',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default=dict, verbose_name='Paramètres de paiement'),
+            model_name="event",
+            name="payment_parameters",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default=dict, verbose_name="Paramètres de paiement"
+            ),
         ),
         migrations.AddField(
-            model_name='event',
-            name='subscription_form',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='people.PersonForm'),
+            model_name="event",
+            name="subscription_form",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="people.PersonForm",
+            ),
         ),
     ]

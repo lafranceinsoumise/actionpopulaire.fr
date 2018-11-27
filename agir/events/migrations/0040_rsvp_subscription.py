@@ -9,14 +9,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('people', '0032_auto_20180426_1716'),
-        ('events', '0039_auto_20180423_1356'),
+        ("people", "0032_auto_20180426_1716"),
+        ("events", "0039_auto_20180423_1356"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='rsvp',
-            name='subscription',
-            field=models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.SET_NULL, to='people.PersonFormSubmission'),
-        ),
+            model_name="rsvp",
+            name="subscription",
+            field=models.ForeignKey(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="people.PersonFormSubmission",
+            ),
+        )
     ]

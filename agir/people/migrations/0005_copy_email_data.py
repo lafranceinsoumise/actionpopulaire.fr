@@ -8,13 +8,13 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0004_create_email_model'),
-    ]
+    dependencies = [("people", "0004_create_email_model")]
 
     operations = [
-        migrations.RunSQL("""
+        migrations.RunSQL(
+            """
             INSERT INTO people_personemail (address, bounced, bounced_date, person_id)
             SELECT email, bounced, bounced_date, id FROM people_person
-            """)
+            """
+        )
     ]

@@ -5,7 +5,7 @@ from agir.events.models import Event
 from agir.groups.models import SupportGroup
 from agir.people.models import Person
 
-__all__ = ['geocode_event', 'geocode_support_group', 'geocode_person']
+__all__ = ["geocode_event", "geocode_support_group", "geocode_person"]
 
 
 def create_geocoder(model):

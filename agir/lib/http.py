@@ -12,19 +12,19 @@ EMPTY_HASH = sha1().digest()
 class HttpResponseUnauthorized(HttpResponse):
     status_code = 401
 
-    def __init__(self, content=b'', realm="api", *args, **kwargs):
+    def __init__(self, content=b"", realm="api", *args, **kwargs):
         super().__init__(content, *args, **kwargs)
-        self['WWW-Authenticate'] = f'Basic realm="{realm}", charset="UTF-8"'
+        self["WWW-Authenticate"] = f'Basic realm="{realm}", charset="UTF-8"'
 
 
 def check_basic_auth(request, identities):
-    auth = request.META.get('HTTP_AUTHORIZATION', '').split()
+    auth = request.META.get("HTTP_AUTHORIZATION", "").split()
 
-    if len(auth) != 2 or auth[0].lower() != 'basic':
+    if len(auth) != 2 or auth[0].lower() != "basic":
         return HttpResponseUnauthorized()
 
     try:
-        user, password = base64.b64decode(auth[1]).split(b':')
+        user, password = base64.b64decode(auth[1]).split(b":")
     except ValueError:
         return HttpResponseUnauthorized()
 
@@ -45,21 +45,28 @@ def with_http_basic_auth(identities):
     hashed_identities = {}
     for user, password in identities.items():
         h = sha1()
-        h.update(password.encode('utf8'))
-        hashed_identities[user.encode('utf8')] = h.digest()
+        h.update(password.encode("utf8"))
+        hashed_identities[user.encode("utf8")] = h.digest()
 
     def decorator(view):
         if isinstance(view, type):
             wrapped_dispatch = type.dispatch
+
             @wraps(wrapped_dispatch)
             def wrapper(self, request, *args, **kwargs):
-                return check_basic_auth(request, hashed_identities) or wrapped_dispatch(self, request, *args, **kwargs)
+                return check_basic_auth(request, hashed_identities) or wrapped_dispatch(
+                    self, request, *args, **kwargs
+                )
+
             view.dispatch = wrapper
             return view
 
         @wraps(view)
         def wrapper(request, *args, **kwargs):
-            return check_basic_auth(request, hashed_identities) or view(request, *args, **kwargs)
+            return check_basic_auth(request, hashed_identities) or view(
+                request, *args, **kwargs
+            )
+
         return wrapper
 
     return decorator

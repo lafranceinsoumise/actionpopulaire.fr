@@ -7,14 +7,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0005_supportgroup_contact_hide_phone'),
-    ]
+    dependencies = [("groups", "0005_supportgroup_contact_hide_phone")]
 
     operations = [
         migrations.AddField(
-            model_name='membership',
-            name='notifications_enabled',
-            field=models.BooleanField(default=True, help_text='Je recevrai des messages en cas de modification du groupe.', verbose_name='Recevoir les notifications de ce groupe'),
-        ),
+            model_name="membership",
+            name="notifications_enabled",
+            field=models.BooleanField(
+                default=True,
+                help_text="Je recevrai des messages en cas de modification du groupe.",
+                verbose_name="Recevoir les notifications de ce groupe",
+            ),
+        )
     ]

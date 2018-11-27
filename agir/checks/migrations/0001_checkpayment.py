@@ -7,21 +7,18 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('payments', '0005_auto_20180615_1804'),
-    ]
+    dependencies = [("payments", "0005_auto_20180615_1804")]
 
     operations = [
         migrations.CreateModel(
-            name='CheckPayment',
-            fields=[
-            ],
+            name="CheckPayment",
+            fields=[],
             options={
-                'verbose_name': 'Paiement par chèque',
-                'verbose_name_plural': 'Paiements par chèque',
-                'proxy': True,
-                'indexes': [],
+                "verbose_name": "Paiement par chèque",
+                "verbose_name_plural": "Paiements par chèque",
+                "proxy": True,
+                "indexes": [],
             },
-            bases=('payments.payment',),
-        ),
+            bases=("payments.payment",),
+        )
     ]

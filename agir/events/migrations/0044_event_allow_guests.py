@@ -7,14 +7,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0043_event_max_participants'),
-    ]
+    dependencies = [("events", "0043_event_max_participants")]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='allow_guests',
-            field=models.BooleanField(default=False, verbose_name='Autoriser les participant⋅e⋅s à inscrire des invité⋅e⋅s'),
-        ),
+            model_name="event",
+            name="allow_guests",
+            field=models.BooleanField(
+                default=False,
+                verbose_name="Autoriser les participant⋅e⋅s à inscrire des invité⋅e⋅s",
+            ),
+        )
     ]

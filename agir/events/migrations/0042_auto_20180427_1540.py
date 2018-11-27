@@ -8,14 +8,14 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0041_auto_20180427_1525'),
-    ]
+    dependencies = [("events", "0041_auto_20180427_1525")]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='payment_parameters',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, null=True, verbose_name='Paramètres de paiement'),
-        ),
+            model_name="event",
+            name="payment_parameters",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                blank=True, null=True, verbose_name="Paramètres de paiement"
+            ),
+        )
     ]

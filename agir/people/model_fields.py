@@ -8,7 +8,7 @@ from . import form_fields
 
 class MandatesField(JSONField):
     def formfield(self, **kwargs):
-        defaults = {'form_class': form_fields.MandatesField}
+        defaults = {"form_class": form_fields.MandatesField}
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
@@ -20,7 +20,7 @@ class ValidatedPhoneNumberDescriptor(PhoneNumberDescriptor):
         self.unverified_value = unverified_value
 
     def __set__(self, instance, value):
-        value = to_python(value) or ''
+        value = to_python(value) or ""
 
         if instance.__dict__.get(self.field.name) != value:
             instance.__dict__[self.field.name] = value
@@ -29,15 +29,22 @@ class ValidatedPhoneNumberDescriptor(PhoneNumberDescriptor):
 
 class ValidatedPhoneNumberField(PhoneNumberField):
     def __init__(self, *args, **kwargs):
-        self.validated_field_name = kwargs.pop('validated_field_name')
-        self.unverified_value = kwargs.pop('unverified_value')
+        self.validated_field_name = kwargs.pop("validated_field_name")
+        self.unverified_value = kwargs.pop("unverified_value")
         super().__init__(*args, **kwargs)
 
     def descriptor_class(self, _):
-        return ValidatedPhoneNumberDescriptor(self, self.validated_field_name, self.unverified_value)
+        return ValidatedPhoneNumberDescriptor(
+            self, self.validated_field_name, self.unverified_value
+        )
 
     def deconstruct(self):
         (name, path, [], keywords) = super().deconstruct()
 
-        keywords.update({'validated_field_name': self.validated_field_name, 'unverified_value': self.unverified_value})
+        keywords.update(
+            {
+                "validated_field_name": self.validated_field_name,
+                "unverified_value": self.unverified_value,
+            }
+        )
         return (name, path, [], keywords)

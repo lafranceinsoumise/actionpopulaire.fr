@@ -9,24 +9,30 @@ from agir.lib import models as lib_models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0021_auto_20171106_1833'),
-    ]
+    dependencies = [("events", "0021_auto_20171106_1833")]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='description',
-            field=lib_models.DescriptionField(blank=True, help_text='Une description, en MarkDown', verbose_name='description'),
+            model_name="event",
+            name="description",
+            field=lib_models.DescriptionField(
+                blank=True,
+                help_text="Une description, en MarkDown",
+                verbose_name="description",
+            ),
         ),
         migrations.AlterField(
-            model_name='event',
-            name='end_time',
-            field=events_models.CustomDateTimeField(verbose_name='date et heure de fin'),
+            model_name="event",
+            name="end_time",
+            field=events_models.CustomDateTimeField(
+                verbose_name="date et heure de fin"
+            ),
         ),
         migrations.AlterField(
-            model_name='event',
-            name='start_time',
-            field=events_models.CustomDateTimeField(verbose_name='date et heure de début'),
+            model_name="event",
+            name="start_time",
+            field=events_models.CustomDateTimeField(
+                verbose_name="date et heure de début"
+            ),
         ),
     ]

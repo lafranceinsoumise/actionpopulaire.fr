@@ -6,18 +6,14 @@ from django.db import migrations
 
 
 def create_basic_calendars(app, schema):
-    Calendar = app.get_model('events', 'Calendar')
+    Calendar = app.get_model("events", "Calendar")
 
-    for label in ['evenements_locaux', 'national']:
+    for label in ["evenements_locaux", "national"]:
         Calendar.objects.get_or_create(label=label)
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0003_auto_20170616_1314'),
-    ]
+    dependencies = [("events", "0003_auto_20170616_1314")]
 
-    operations = [
-        migrations.RunPython(create_basic_calendars)
-    ]
+    operations = [migrations.RunPython(create_basic_calendars)]

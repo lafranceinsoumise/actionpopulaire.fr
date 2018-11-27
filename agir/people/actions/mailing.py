@@ -11,7 +11,7 @@ import html2text
 from agir.people.models import Person
 from agir.lib.utils import generate_token_params, front_url, is_front_url, AutoLoginUrl
 
-__all__ = ['send_mail', 'send_mosaico_email']
+__all__ = ["send_mail", "send_mosaico_email"]
 
 _h = html2text.HTML2Text()
 _h.ignore_images = True
@@ -25,7 +25,9 @@ def add_params_to_urls(url, params):
     parts = urlsplit(url)
     query = parse_qsl(parts.query)
     query.extend(params.items())
-    return urlunsplit([parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment])
+    return urlunsplit(
+        [parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment]
+    )
 
 
 def get_context_from_bindings(code, recipient, bindings):
@@ -37,21 +39,32 @@ def get_context_from_bindings(code, recipient, bindings):
     url = settings.EMAIL_TEMPLATES[code]
 
     res = dict(bindings)
-    res['EMAIL'] = recipient
+    res["EMAIL"] = recipient
 
     qs = QueryDict(mutable=True)
     qs.update(res)
 
     # We first initialize the LINK_BROWSER variable as "#" (same page)
-    qs['LINK_BROWSER'] = "#"
+    qs["LINK_BROWSER"] = "#"
     # we generate the final browser link and add it to result dictionary
-    res['LINK_BROWSER'] = f"{url}?{qs.urlencode()}"
+    res["LINK_BROWSER"] = f"{url}?{qs.urlencode()}"
 
     return res
 
 
-def send_mosaico_email(code, subject, from_email, recipients, bindings=None, connection=None, backend=None,
-                       fail_silently=False, preferences_link=True, reply_to=None, attachment=None):
+def send_mosaico_email(
+    code,
+    subject,
+    from_email,
+    recipients,
+    bindings=None,
+    connection=None,
+    backend=None,
+    fail_silently=False,
+    preferences_link=True,
+    reply_to=None,
+    attachment=None,
+):
     """Send an email from a Mosaico template
 
     :param code: the code identifying the Mosaico template
@@ -76,11 +89,13 @@ def send_mosaico_email(code, subject, from_email, recipients, bindings=None, con
         connection = get_connection(backend, fail_silently)
 
     if preferences_link:
-        bindings['PREFERENCES_LINK'] = front_url('message_preferences')
+        bindings["PREFERENCES_LINK"] = front_url("message_preferences")
 
-    link_bindings = {key: value for key, value in bindings.items() if is_front_url(value)}
+    link_bindings = {
+        key: value for key, value in bindings.items() if is_front_url(value)
+    }
 
-    template = loader.get_template(f'mail_templates/{code}.html')
+    template = loader.get_template(f"mail_templates/{code}.html")
 
     for recipient in recipients:
         # recipient can be either a Person or an email address
@@ -113,11 +128,20 @@ def send_mosaico_email(code, subject, from_email, recipients, bindings=None, con
         email.send(fail_silently=fail_silently)
 
 
-def send_mail(subject, html_message, from_email, recipient_list, fail_silently=False, connection=None):
+def send_mail(
+    subject,
+    html_message,
+    from_email,
+    recipient_list,
+    fail_silently=False,
+    connection=None,
+):
     text_message = generate_plain_text(html_message)
 
     address_list = [recipient.email for recipient in recipient_list]
 
-    msg = EmailMultiAlternatives(subject, text_message, from_email, address_list, connection=connection)
+    msg = EmailMultiAlternatives(
+        subject, text_message, from_email, address_list, connection=connection
+    )
     msg.attach_alternative(html_message, "text/html")
     msg.send(fail_silently=fail_silently)

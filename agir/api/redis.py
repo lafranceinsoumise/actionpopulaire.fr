@@ -15,8 +15,7 @@ class RedisPool:
     def pool(self):
         if self._pool is None:
             self._pool = redis.ConnectionPool.from_url(
-                url=self._url,
-                max_connections=self._max_connections
+                url=self._url, max_connections=self._max_connections
             )
 
         return self._pool
@@ -33,7 +32,7 @@ def get_auth_redis_client():
     return _get_auth_redis_client()
 
 
-class _UsingRedisLite():
+class _UsingRedisLite:
     def __call__(self, decorated=None):
         if decorated is None:
             return self.get_patcher()
@@ -63,8 +62,9 @@ class _UsingRedisLite():
 
     def get_patcher(self):
         import redislite
+
         connection = redislite.StrictRedis()
-        return patch('agir.api.redis._get_auth_redis_client', lambda: connection)
+        return patch("agir.api.redis._get_auth_redis_client", lambda: connection)
 
 
 using_redislite = _UsingRedisLite()

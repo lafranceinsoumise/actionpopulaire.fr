@@ -6,14 +6,14 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0026_privileged_only_becomes_visibility'),
-    ]
+    dependencies = [("groups", "0026_privileged_only_becomes_visibility")]
 
     operations = [
         migrations.AddField(
-            model_name='supportgroupsubtype',
-            name='config',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default=dict, verbose_name='Configuration'),
-        ),
+            model_name="supportgroupsubtype",
+            name="config",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default=dict, verbose_name="Configuration"
+            ),
+        )
     ]

@@ -12,52 +12,79 @@ import model_utils.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0032_add_subtypes'),
-    ]
+    dependencies = [("events", "0032_add_subtypes")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='eventsubtype',
-            options={'verbose_name': "Sous-type d'événement", 'verbose_name_plural': "Sous-types d'événement"},
+            name="eventsubtype",
+            options={
+                "verbose_name": "Sous-type d'événement",
+                "verbose_name_plural": "Sous-types d'événement",
+            },
         ),
-        migrations.RemoveField(
-            model_name='eventsubtype',
-            name='popup_anchor_x',
+        migrations.RemoveField(model_name="eventsubtype", name="popup_anchor_x"),
+        migrations.AddField(
+            model_name="eventsubtype",
+            name="created",
+            field=model_utils.fields.AutoCreatedField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
         migrations.AddField(
-            model_name='eventsubtype',
-            name='created',
-            field=model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
-        ),
-        migrations.AddField(
-            model_name='eventsubtype',
-            name='modified',
-            field=model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified'),
-        ),
-        migrations.AlterField(
-            model_name='event',
-            name='subtype',
-            field=models.ForeignKey(default=events_models.get_default_subtype, on_delete=django.db.models.deletion.PROTECT, related_name='events', to='events.EventSubtype'),
+            model_name="eventsubtype",
+            name="modified",
+            field=model_utils.fields.AutoLastModifiedField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="modified",
+            ),
         ),
         migrations.AlterField(
-            model_name='eventsubtype',
-            name='color',
-            field=models.CharField(blank=True, help_text='La couleur associée aux marqueurs sur la carte.', max_length=7, validators=[django.core.validators.RegexValidator(regex='^#[0-9a-f]{6}$')], verbose_name='couleur'),
+            model_name="event",
+            name="subtype",
+            field=models.ForeignKey(
+                default=events_models.get_default_subtype,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="events",
+                to="events.EventSubtype",
+            ),
         ),
         migrations.AlterField(
-            model_name='eventsubtype',
-            name='icon_anchor_x',
-            field=models.PositiveSmallIntegerField(blank=True, null=True, verbose_name="ancre de l'icône (x)"),
+            model_name="eventsubtype",
+            name="color",
+            field=models.CharField(
+                blank=True,
+                help_text="La couleur associée aux marqueurs sur la carte.",
+                max_length=7,
+                validators=[
+                    django.core.validators.RegexValidator(regex="^#[0-9a-f]{6}$")
+                ],
+                verbose_name="couleur",
+            ),
         ),
         migrations.AlterField(
-            model_name='eventsubtype',
-            name='icon_anchor_y',
-            field=models.PositiveSmallIntegerField(blank=True, null=True, verbose_name="ancre de l'icône (y)"),
+            model_name="eventsubtype",
+            name="icon_anchor_x",
+            field=models.PositiveSmallIntegerField(
+                blank=True, null=True, verbose_name="ancre de l'icône (x)"
+            ),
         ),
         migrations.AlterField(
-            model_name='eventsubtype',
-            name='popup_anchor_y',
-            field=models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='placement de la popup (par rapport au point)'),
+            model_name="eventsubtype",
+            name="icon_anchor_y",
+            field=models.PositiveSmallIntegerField(
+                blank=True, null=True, verbose_name="ancre de l'icône (y)"
+            ),
+        ),
+        migrations.AlterField(
+            model_name="eventsubtype",
+            name="popup_anchor_y",
+            field=models.PositiveSmallIntegerField(
+                blank=True,
+                null=True,
+                verbose_name="placement de la popup (par rapport au point)",
+            ),
         ),
     ]

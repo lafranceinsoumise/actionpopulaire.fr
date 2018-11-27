@@ -1,6 +1,6 @@
 from django import forms
 
-__all__ = ['MetaFieldsMixin']
+__all__ = ["MetaFieldsMixin"]
 
 
 class MetaFieldsMixin(forms.Form):
@@ -19,21 +19,25 @@ class MetaFieldsMixin(forms.Form):
         """Handles meta fields"""
         cleaned_data = super().clean()
 
-        meta_update = {f: cleaned_data.get(f) for f in self.get_meta_fields() if cleaned_data.get(f)}
+        meta_update = {
+            f: cleaned_data.get(f)
+            for f in self.get_meta_fields()
+            if cleaned_data.get(f)
+        }
         self.instance.meta.update(meta_update)
 
         return cleaned_data
 
 
-class ContactPhoneNumberMixin():
+class ContactPhoneNumberMixin:
     """Solves a bug in phonenumbers_fields when field is missing from POSTed data
 
     """
 
     def clean_contact_phone(self):
-        contact_phone = self.cleaned_data.get('contact_phone')
+        contact_phone = self.cleaned_data.get("contact_phone")
 
         if contact_phone is None:
-            contact_phone = ''
+            contact_phone = ""
 
         return contact_phone

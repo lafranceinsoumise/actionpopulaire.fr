@@ -8,14 +8,15 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0044_remove_previous_address'),
-    ]
+    dependencies = [("people", "0044_remove_previous_address")]
 
     operations = [
         migrations.AlterField(
-            model_name='personform',
-            name='custom_fields',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default=agir.people.person_forms.models.default_custom_forms, verbose_name='Champs'),
-        ),
+            model_name="personform",
+            name="custom_fields",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default=agir.people.person_forms.models.default_custom_forms,
+                verbose_name="Champs",
+            ),
+        )
     ]

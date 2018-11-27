@@ -10,19 +10,29 @@ from agir.lib.export import dicts_to_csv_lines
 from agir.api import front_urls
 
 
-__all__ = ['events_to_csv', 'events_to_csv_lines']
+__all__ = ["events_to_csv", "events_to_csv_lines"]
 
 
-COMMON_FIELDS = ['name', 'published', 'contact_email', 'contact_phone', 'description', 'start_time', 'end_time', 'location_zip', 'location_city']
-ADRESS_FIELDS = ['location_name', 'location_address1', 'location_address2']
-LINK_FIELDS = ['link', 'admin_link']
+COMMON_FIELDS = [
+    "name",
+    "published",
+    "contact_email",
+    "contact_phone",
+    "description",
+    "start_time",
+    "end_time",
+    "location_zip",
+    "location_city",
+]
+ADRESS_FIELDS = ["location_name", "location_address1", "location_address2"]
+LINK_FIELDS = ["link", "admin_link"]
 
-FIELDS = COMMON_FIELDS + ['address', 'animators'] + LINK_FIELDS
+FIELDS = COMMON_FIELDS + ["address", "animators"] + LINK_FIELDS
 
 common_extractor = attrgetter(*COMMON_FIELDS)
 address_parts_extractor = attrgetter(*ADRESS_FIELDS)
 
-initiator_extractor = attrgetter('first_name', 'last_name', 'contact_phone', 'email')
+initiator_extractor = attrgetter("first_name", "last_name", "contact_phone", "email")
 initiator_template = "{} {} {} <{}>"
 
 
@@ -43,17 +53,27 @@ def events_to_dicts(queryset, timezone=None):
     for e in queryset.iterator():
         d = {k: v for k, v in zip(COMMON_FIELDS, common_extractor(e))}
 
-        d['start_time'] = d['start_time'].astimezone(timezone).strftime('%d/%m %H:%M')
-        d['end_time'] = d['end_time'].astimezone(timezone).strftime('%d/%m %H:%M')
+        d["start_time"] = d["start_time"].astimezone(timezone).strftime("%d/%m %H:%M")
+        d["end_time"] = d["end_time"].astimezone(timezone).strftime("%d/%m %H:%M")
 
-        d['description'] = unescape(bleach.clean(d['description'].replace('<br />', '\n'), tags=[], strip=True))
+        d["description"] = unescape(
+            bleach.clean(d["description"].replace("<br />", "\n"), tags=[], strip=True)
+        )
 
-        d['address'] = '\n'.join(component for component in address_parts_extractor(e) if component)
+        d["address"] = "\n".join(
+            component for component in address_parts_extractor(e) if component
+        )
 
-        d['animators'] = ' / '.join(
-            initiator_template.format(*initiator_extractor(og.person)).strip() for og in e.organizer_configs.all())
+        d["animators"] = " / ".join(
+            initiator_template.format(*initiator_extractor(og.person)).strip()
+            for og in e.organizer_configs.all()
+        )
 
-        d['link'] = settings.FRONT_DOMAIN + reverse('manage_event', urlconf=front_urls, args=[e.id])
-        d['admin_link'] = settings.API_DOMAIN + reverse('admin:events_event_change', args=[e.id])
+        d["link"] = settings.FRONT_DOMAIN + reverse(
+            "manage_event", urlconf=front_urls, args=[e.id]
+        )
+        d["admin_link"] = settings.API_DOMAIN + reverse(
+            "admin:events_event_change", args=[e.id]
+        )
 
         yield d

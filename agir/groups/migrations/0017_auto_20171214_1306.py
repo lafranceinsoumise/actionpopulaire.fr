@@ -10,36 +10,102 @@ import stdimage.models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0016_auto_20171208_1945'),
-    ]
+    dependencies = [("groups", "0016_auto_20171208_1945")]
 
     operations = [
         migrations.CreateModel(
-            name='SupportGroupSubtype',
+            name="SupportGroupSubtype",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('label', models.CharField(max_length=50, unique=True, verbose_name='nom')),
-                ('description', models.TextField(blank=True, verbose_name='description')),
-                ('privileged_only', models.BooleanField(default=True, verbose_name='réservé aux administrateurs')),
-                ('hide_text_label', models.BooleanField(default=False, verbose_name='cacher le label texte')),
-                ('icon', stdimage.models.StdImageField(help_text="L'icône associée aux marqueurs sur la carte.", upload_to=lib_models.UploadToInstanceDirectoryWithFilename(filename='icon'), verbose_name='icon')),
-                ('color', models.CharField(help_text='La couleur associée aux marqueurs sur la carte.', max_length=7, validators=[django.core.validators.RegexValidator(regex='^#[0-9a-f]{6}$')], verbose_name='couleur')),
-                ('type', models.CharField(choices=[('L', 'Groupe local'), ('B', 'Groupe thématique'), ('F', 'Groupe fonctionnel'), ('P', 'Groupe professionel')], max_length=1, verbose_name='type de groupe')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "label",
+                    models.CharField(max_length=50, unique=True, verbose_name="nom"),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, verbose_name="description"),
+                ),
+                (
+                    "privileged_only",
+                    models.BooleanField(
+                        default=True, verbose_name="réservé aux administrateurs"
+                    ),
+                ),
+                (
+                    "hide_text_label",
+                    models.BooleanField(
+                        default=False, verbose_name="cacher le label texte"
+                    ),
+                ),
+                (
+                    "icon",
+                    stdimage.models.StdImageField(
+                        help_text="L'icône associée aux marqueurs sur la carte.",
+                        upload_to=lib_models.UploadToInstanceDirectoryWithFilename(
+                            filename="icon"
+                        ),
+                        verbose_name="icon",
+                    ),
+                ),
+                (
+                    "color",
+                    models.CharField(
+                        help_text="La couleur associée aux marqueurs sur la carte.",
+                        max_length=7,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                regex="^#[0-9a-f]{6}$"
+                            )
+                        ],
+                        verbose_name="couleur",
+                    ),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[
+                            ("L", "Groupe local"),
+                            ("B", "Groupe thématique"),
+                            ("F", "Groupe fonctionnel"),
+                            ("P", "Groupe professionel"),
+                        ],
+                        max_length=1,
+                        verbose_name="type de groupe",
+                    ),
+                ),
             ],
-            options={
-                'abstract': False,
-                'verbose_name': 'sous-type'
-            },
+            options={"abstract": False, "verbose_name": "sous-type"},
         ),
         migrations.AlterField(
-            model_name='supportgroup',
-            name='type',
-            field=models.CharField(choices=[('L', 'Groupe local'), ('B', 'Groupe thématique'), ('F', 'Groupe fonctionnel'), ('P', 'Groupe professionel')], default='L', max_length=1, verbose_name='type de groupe'),
+            model_name="supportgroup",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("L", "Groupe local"),
+                    ("B", "Groupe thématique"),
+                    ("F", "Groupe fonctionnel"),
+                    ("P", "Groupe professionel"),
+                ],
+                default="L",
+                max_length=1,
+                verbose_name="type de groupe",
+            ),
         ),
         migrations.AddField(
-            model_name='supportgroup',
-            name='subtypes',
-            field=models.ManyToManyField(blank=True, related_name='supportgroups', to='groups.SupportGroupSubtype'),
+            model_name="supportgroup",
+            name="subtypes",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="supportgroups",
+                to="groups.SupportGroupSubtype",
+            ),
         ),
     ]

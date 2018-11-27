@@ -17,4 +17,4 @@ class ChangeProfileView(SoftLoginRequiredMixin, UpdateView):
 
 
 class ChangeProfileConfirmationView(SimpleOpengraphMixin, TemplateView):
-    template_name = 'people/confirmation_profile.html'
+    template_name = "people/confirmation_profile.html"

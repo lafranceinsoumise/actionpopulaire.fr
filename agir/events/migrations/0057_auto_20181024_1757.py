@@ -6,19 +6,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0056_merge_20181024_1733'),
-    ]
+    dependencies = [("events", "0056_merge_20181024_1733")]
 
     operations = [
         migrations.AddField(
-            model_name='eventsubtype',
-            name='external_help_text',
-            field=models.TextField(blank=True, verbose_name="Phrase d'explication pour rejoindre le groupe"),
+            model_name="eventsubtype",
+            name="external_help_text",
+            field=models.TextField(
+                blank=True, verbose_name="Phrase d'explication pour rejoindre le groupe"
+            ),
         ),
         migrations.AlterField(
-            model_name='eventsubtype',
-            name='config',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict, verbose_name='Configuration'),
+            model_name="eventsubtype",
+            name="config",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                blank=True, default=dict, verbose_name="Configuration"
+            ),
         ),
     ]

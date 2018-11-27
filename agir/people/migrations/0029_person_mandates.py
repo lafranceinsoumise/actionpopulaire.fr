@@ -8,14 +8,14 @@ from agir.people import model_fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0028_auto_20180411_1731'),
-    ]
+    dependencies = [("people", "0028_auto_20180411_1731")]
 
     operations = [
         migrations.AddField(
-            model_name='person',
-            name='mandates',
-            field=model_fields.MandatesField(blank=True, default=list, verbose_name='Mandats électoraux'),
-        ),
+            model_name="person",
+            name="mandates",
+            field=model_fields.MandatesField(
+                blank=True, default=list, verbose_name="Mandats électoraux"
+            ),
+        )
     ]

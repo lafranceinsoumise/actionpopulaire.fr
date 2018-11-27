@@ -13,5 +13,6 @@ class DisplayContactPhoneMixin:
         if object.contact_phone:
             return object.contact_phone.as_international
         return "-"
+
     display_contact_phone.short_description = _("Numéro de contact")
-    display_contact_phone.admin_order_field = 'contact_phone'
+    display_contact_phone.admin_order_field = "contact_phone"

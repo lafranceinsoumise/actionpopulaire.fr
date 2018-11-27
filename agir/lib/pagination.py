@@ -8,6 +8,7 @@ class LegacyPaginator(PageNumberPagination):
     """
     A legacy paginator that mocks the one from Eve Python
     """
+
     page_size = 25
     page_size_query_param = "max_results"
     max_page_size = 100
@@ -15,24 +16,22 @@ class LegacyPaginator(PageNumberPagination):
     def get_paginated_response(self, data):
         links = OrderedDict()
         if self.page.has_next():
-            links['next'] = OrderedDict([
-                ('href', self.get_next_link()),
-                ('title', _('page suivante')),
-            ])
+            links["next"] = OrderedDict(
+                [("href", self.get_next_link()), ("title", _("page suivante"))]
+            )
         if self.page.has_previous():
-            links['prev'] = OrderedDict([
-                ('href', self.get_previous_link()),
-                ('title', _('page précédente')),
-            ])
+            links["prev"] = OrderedDict(
+                [("href", self.get_previous_link()), ("title", _("page précédente"))]
+            )
 
-        meta = OrderedDict([
-            ('max_results', self.page.paginator.per_page),
-            ('total', self.page.paginator.count),
-            ('page', self.page.number),
-        ])
+        meta = OrderedDict(
+            [
+                ("max_results", self.page.paginator.per_page),
+                ("total", self.page.paginator.count),
+                ("page", self.page.number),
+            ]
+        )
 
-        return Response(OrderedDict([
-            ('_items', data),
-            ('_links', links),
-            ('_meta', meta),
-        ]))
+        return Response(
+            OrderedDict([("_items", data), ("_links", links), ("_meta", meta)])
+        )

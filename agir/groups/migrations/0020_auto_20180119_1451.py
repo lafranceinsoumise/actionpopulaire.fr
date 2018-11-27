@@ -8,34 +8,47 @@ from agir.lib import models as lib_models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0019_merge_20171221_1605'),
-    ]
+    dependencies = [("groups", "0019_merge_20171221_1605")]
 
     operations = [
         migrations.AddField(
-            model_name='supportgroupsubtype',
-            name='icon_anchor_x',
-            field=models.PositiveSmallIntegerField(null=True, verbose_name="ancre de l'icône (x)"),
+            model_name="supportgroupsubtype",
+            name="icon_anchor_x",
+            field=models.PositiveSmallIntegerField(
+                null=True, verbose_name="ancre de l'icône (x)"
+            ),
         ),
         migrations.AddField(
-            model_name='supportgroupsubtype',
-            name='icon_anchor_y',
-            field=models.PositiveSmallIntegerField(null=True, verbose_name="ancre de l'icône (y)"),
+            model_name="supportgroupsubtype",
+            name="icon_anchor_y",
+            field=models.PositiveSmallIntegerField(
+                null=True, verbose_name="ancre de l'icône (y)"
+            ),
         ),
         migrations.AddField(
-            model_name='supportgroupsubtype',
-            name='popup_anchor_x',
-            field=models.PositiveSmallIntegerField(null=True, verbose_name='ancre de la popup (x)'),
+            model_name="supportgroupsubtype",
+            name="popup_anchor_x",
+            field=models.PositiveSmallIntegerField(
+                null=True, verbose_name="ancre de la popup (x)"
+            ),
         ),
         migrations.AddField(
-            model_name='supportgroupsubtype',
-            name='popup_anchor_y',
-            field=models.PositiveSmallIntegerField(null=True, verbose_name='ancre de la popup (y)'),
+            model_name="supportgroupsubtype",
+            name="popup_anchor_y",
+            field=models.PositiveSmallIntegerField(
+                null=True, verbose_name="ancre de la popup (y)"
+            ),
         ),
         migrations.AlterField(
-            model_name='supportgroupsubtype',
-            name='icon',
-            field=models.ImageField(blank=True, help_text="L'icône associée aux marqueurs sur la carte.", upload_to=lib_models.UploadToInstanceDirectoryWithFilename(filename='icon'), verbose_name='icon'),
+            model_name="supportgroupsubtype",
+            name="icon",
+            field=models.ImageField(
+                blank=True,
+                help_text="L'icône associée aux marqueurs sur la carte.",
+                upload_to=lib_models.UploadToInstanceDirectoryWithFilename(
+                    filename="icon"
+                ),
+                verbose_name="icon",
+            ),
         ),
     ]

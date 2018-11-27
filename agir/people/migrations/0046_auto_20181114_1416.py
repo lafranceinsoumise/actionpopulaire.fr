@@ -7,19 +7,25 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0045_auto_20181106_1504'),
-    ]
+    dependencies = [("people", "0045_auto_20181106_1504")]
 
     operations = [
         migrations.AddField(
-            model_name='personform',
-            name='editable',
-            field=models.BooleanField(default=False, verbose_name='Les répondant⋅e⋅s peuvent modifier leurs réponses'),
+            model_name="personform",
+            name="editable",
+            field=models.BooleanField(
+                default=False,
+                verbose_name="Les répondant⋅e⋅s peuvent modifier leurs réponses",
+            ),
         ),
         migrations.AlterField(
-            model_name='personformsubmission',
-            name='data',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default=dict, editable=False, encoder=agir.people.person_forms.models.CustomJSONEncoder, verbose_name='Données'),
+            model_name="personformsubmission",
+            name="data",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default=dict,
+                editable=False,
+                encoder=agir.people.person_forms.models.CustomJSONEncoder,
+                verbose_name="Données",
+            ),
         ),
     ]

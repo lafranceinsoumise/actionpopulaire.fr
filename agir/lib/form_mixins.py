@@ -12,7 +12,7 @@ from agir.lib.models import LocationMixin
 from django.utils.translation import ugettext as _
 from django_countries import countries
 
-__all__ = ['TagMixin', 'LocationFormMixin', 'ContactFormMixin']
+__all__ = ["TagMixin", "LocationFormMixin", "ContactFormMixin"]
 
 
 class TagMixin:
@@ -22,13 +22,16 @@ class TagMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        active_tags = [tag.label for tag in self.instance.tags.filter(label__in=[tag for tag, tag_label in self.tags])]
+        active_tags = [
+            tag.label
+            for tag in self.instance.tags.filter(
+                label__in=[tag for tag, tag_label in self.tags]
+            )
+        ]
 
         for tag, tag_label in self.tags:
             self.fields[tag] = forms.BooleanField(
-                label=tag_label,
-                required=False,
-                initial=tag in active_tags
+                label=tag_label, required=False, initial=tag in active_tags
             )
 
     def _save_m2m(self):
@@ -37,10 +40,14 @@ class TagMixin:
         """
         super()._save_m2m()
 
-        tags = list(self.tag_model_class.objects.filter(label__in=[tag for tag, _ in self.tags]))
-        tags_to_create = [self.tag_model_class(label=tag_label)
-                          for tag_label, _ in self.tags
-                          if tag_label not in {tag.label for tag in tags}]
+        tags = list(
+            self.tag_model_class.objects.filter(label__in=[tag for tag, _ in self.tags])
+        )
+        tags_to_create = [
+            self.tag_model_class(label=tag_label)
+            for tag_label, _ in self.tags
+            if tag_label not in {tag.label for tag in tags}
+        ]
 
         if tags_to_create:
             # PostgreSQL only will set the id on original objects
@@ -72,29 +79,38 @@ class LocationFormMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        for f in ['location_address1', 'location_city', 'location_country']:
+        for f in ["location_address1", "location_city", "location_country"]:
             if f in self.fields:
                 self.fields[f].required = True
 
-        self.fields['location_country'].choices = countries
+        self.fields["location_country"].choices = countries
 
-        self.fields['location_address1'].label = _('Adresse')
-        self.fields['location_address2'].label = False
+        self.fields["location_address1"].label = _("Adresse")
+        self.fields["location_address2"].label = False
 
-        if not hasattr(self, 'location_country') or not self.instance.location_country:
-            self.fields['location_country'].initial = 'FR'
+        if not hasattr(self, "location_country") or not self.instance.location_country:
+            self.fields["location_country"].initial = "FR"
 
     def clean(self):
         """Makes zip code compulsory for French address"""
         cleaned_data = super().clean()
 
-        if 'location_country' in cleaned_data and cleaned_data['location_country'] == 'FR' and not cleaned_data['location_zip']:
-            self.add_error('location_zip', _('Le code postal est obligatoire pour les adresses françaises.'))
+        if (
+            "location_country" in cleaned_data
+            and cleaned_data["location_country"] == "FR"
+            and not cleaned_data["location_zip"]
+        ):
+            self.add_error(
+                "location_zip",
+                _("Le code postal est obligatoire pour les adresses françaises."),
+            )
 
         return cleaned_data
 
     def must_geolocate(self):
-        address_changed = any(f in LocationMixin.GEOCODING_FIELDS for f in self.changed_data)
+        address_changed = any(
+            f in LocationMixin.GEOCODING_FIELDS for f in self.changed_data
+        )
         return address_changed and self.instance.should_relocate_when_address_changed()
 
     def save(self, commit=True):
@@ -112,83 +128,86 @@ class LocationFormMixin:
 
 LocationFormMixin.declared_fields = fields_for_model(
     LocationMixin,
-    fields=['location_name', 'location_address1', 'location_address2', 'location_city', 'location_zip', 'location_country']
+    fields=[
+        "location_name",
+        "location_address1",
+        "location_address2",
+        "location_city",
+        "location_zip",
+        "location_country",
+    ],
 )
 
 
-class ContactFormMixin():
+class ContactFormMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['contact_email'].required = True
-        self.fields['contact_phone'].required = True
+        self.fields["contact_email"].required = True
+        self.fields["contact_phone"].required = True
 
 
 class GeocodingBaseForm(forms.ModelForm):
     geocoding_task = None
-    messages = {
-        'use_geocoding': None,
-        'coordinates_updated': None,
-    }
+    messages = {"use_geocoding": None, "coordinates_updated": None}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['coordinates'].widget = OSMWidget()
+        self.fields["coordinates"].widget = OSMWidget()
 
         self.helper = FormHelper()
-        self.helper.form_method = 'POST'
-        self.helper.add_input(Submit('submit', 'Sauvegarder'))
+        self.helper.form_method = "POST"
+        self.helper.add_input(Submit("submit", "Sauvegarder"))
 
         form_elements = []
 
         form_elements += [
+            Row(FullCol(Div("coordinates"))),
             Row(
                 FullCol(
-                    Div('coordinates')
-                )
-            ),
-            Row(
-                FullCol(
-                    HTML(format_html(ugettext("<strong>Type de coordonnées actuelles</strong> : {}"),
-                        self.instance.get_coordinates_type_display()
-                    ))
+                    HTML(
+                        format_html(
+                            ugettext(
+                                "<strong>Type de coordonnées actuelles</strong> : {}"
+                            ),
+                            self.instance.get_coordinates_type_display(),
+                        )
+                    )
                 )
             ),
         ]
 
         if self.instance.has_manual_location():
-            self.fields['use_geocoding'] = forms.BooleanField(
+            self.fields["use_geocoding"] = forms.BooleanField(
                 required=False,
                 label="Revenir à la localisation automatique à partir de l'adresse",
-                help_text=_("Cochez cette case pour annuler la localisation manuelle de votre groupe d'action.")
+                help_text=_(
+                    "Cochez cette case pour annuler la localisation manuelle de votre groupe d'action."
+                ),
             )
-            form_elements.append(
-                Row(
-                    FullCol('use_geocoding')
-                )
-            )
+            form_elements.append(Row(FullCol("use_geocoding")))
 
         self.helper.layout = Layout(*form_elements)
 
     def save(self, commit=True):
-        if self.cleaned_data.get('use_geocoding'):
+        if self.cleaned_data.get("use_geocoding"):
             self.instance.coordinates_type = None
             self.instance.coordinates = None
             super().save(commit=commit)
             self.geocoding_task.delay(self.instance.pk)
         else:
-            if 'coordinates' in self.changed_data:
+            if "coordinates" in self.changed_data:
                 self.instance.coordinates_type = self.instance.COORDINATES_MANUAL
                 super().save(commit=commit)
 
         return self.instance
 
     def get_message(self):
-        if self.cleaned_data.get('use_geocoding'):
-            return self.messages['use_geocoding']
-        elif 'coordinates' in self.changed_data:
-            return self.messages['coordinates_updated']
+        if self.cleaned_data.get("use_geocoding"):
+            return self.messages["use_geocoding"]
+        elif "coordinates" in self.changed_data:
+            return self.messages["coordinates_updated"]
 
         return None
 
@@ -200,8 +219,10 @@ class SearchByZipCodeFormBase(forms.Form):
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _("Indiquez une autre adresse autour de laquelle rechercher"),
-                'class': 'form-control'
+                "placeholder": _(
+                    "Indiquez une autre adresse autour de laquelle rechercher"
+                ),
+                "class": "form-control",
             }
-        )
+        ),
     )

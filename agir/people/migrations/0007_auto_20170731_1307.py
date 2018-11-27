@@ -8,18 +8,19 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0006_auto_20170728_1639'),
-    ]
+    dependencies = [("people", "0006_auto_20170728_1639")]
 
     operations = [
         migrations.AlterField(
-            model_name='personemail',
-            name='person',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='email', to='people.Person'),
+            model_name="personemail",
+            name="person",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="email",
+                to="people.Person",
+            ),
         ),
         migrations.AlterOrderWithRespectTo(
-            name='personemail',
-            order_with_respect_to='person',
+            name="personemail", order_with_respect_to="person"
         ),
     ]

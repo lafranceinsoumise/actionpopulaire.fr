@@ -1,6 +1,16 @@
 from operator import itemgetter
 from typing import Iterable
-from crispy_forms.layout import Layout, Submit, Div, Field, MultiField, HTML, Row, Fieldset, LayoutObject
+from crispy_forms.layout import (
+    Layout,
+    Submit,
+    Div,
+    Field,
+    MultiField,
+    HTML,
+    Row,
+    Fieldset,
+    LayoutObject,
+)
 
 
 class FullCol(Div):
@@ -20,13 +30,10 @@ class FormGroup(Div):
 
 
 def Section(title, *args):
-    return Div(
-        HTML(f'<h4 class="padtopmore padbottom">{title}</h4>'),
-        *args
-    )
+    return Div(HTML(f'<h4 class="padtopmore padbottom">{title}</h4>'), *args)
 
 
-def remove_excluded_field_from_layout(layout : Layout, excluded_fields : Iterable[str]):
+def remove_excluded_field_from_layout(layout: Layout, excluded_fields: Iterable[str]):
     """Remove excluded fields, and their parents elements, from the layout
 
     The algorithm is very naïve but works:
@@ -46,14 +53,19 @@ def remove_excluded_field_from_layout(layout : Layout, excluded_fields : Iterabl
     empty, we do not delete it: this case include html elements with warning text, for example, and
     without this special case, we would delete it every time.
     """
-    layout_objects = sorted(layout.get_layout_objects(LayoutObject, greedy=True), key=itemgetter(0), reverse=True)
+    layout_objects = sorted(
+        layout.get_layout_objects(LayoutObject, greedy=True),
+        key=itemgetter(0),
+        reverse=True,
+    )
     fields = layout.get_field_names()
     excluded_fields = set(excluded_fields) & {f[1] for f in fields}
 
-    if not excluded_fields: return
+    if not excluded_fields:
+        return
 
     for pos, _ in layout_objects:
-        relevant_fields = set(f[1] for f in fields if f[0][:len(pos)] == pos)
+        relevant_fields = set(f[1] for f in fields if f[0][: len(pos)] == pos)
         if relevant_fields and excluded_fields.issuperset(relevant_fields):
             last, *prefix = reversed(pos)
             obj = layout

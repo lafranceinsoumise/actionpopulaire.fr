@@ -67,22 +67,22 @@ class APIResourceTestCase(TestCase):
 
 class LabelTestCase(TestCase):
     def test_has_name(self):
-        instance = models.Label.objects.create(label='label')
+        instance = models.Label.objects.create(label="label")
 
-        self.assertEqual(instance.label, 'label')
+        self.assertEqual(instance.label, "label")
 
     def test_unique_labels(self):
-        models.Label.objects.create(label='label')
+        models.Label.objects.create(label="label")
 
         with self.assertRaises(IntegrityError):
-            models.Label.objects.create(label='label')
+            models.Label.objects.create(label="label")
 
     def test_can_get_by_label(self):
-        instance = models.Label.objects.create(label='label')
+        instance = models.Label.objects.create(label="label")
 
-        self.assertEqual(instance, models.Label.objects.get_by_natural_key('label'))
+        self.assertEqual(instance, models.Label.objects.get_by_natural_key("label"))
 
     def test_str_is_label(self):
-        instance = models.Label.objects.create(label='label')
+        instance = models.Label.objects.create(label="label")
 
-        self.assertEqual(str(instance), 'label')
+        self.assertEqual(str(instance), "label")

@@ -14,13 +14,6 @@ DROP INDEX uppercase_email;
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0042_merge_20181024_1733'),
-    ]
+    dependencies = [("people", "0042_merge_20181024_1733")]
 
-    operations = [
-        migrations.RunSQL(
-            sql=ADD_INDEX_SQL,
-            reverse_sql=REMOVE_INDEX_SQL,
-        )
-    ]
+    operations = [migrations.RunSQL(sql=ADD_INDEX_SQL, reverse_sql=REMOVE_INDEX_SQL)]

@@ -11,19 +11,49 @@ import stdimage.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('people', '0023_auto_20171129_1824'),
-        ('events', '0026_add_report_fields'),
+        ("people", "0023_auto_20171129_1824"),
+        ("events", "0026_add_report_fields"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='EventImage',
+            name="EventImage",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', stdimage.models.StdImageField(upload_to=lib_models.UploadToRelatedObjectDirectoryWithUUID(related='event'), verbose_name='Fichier')),
-                ('legend', models.CharField(max_length=280, verbose_name='légende')),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='event_images', to='people.Person')),
-                ('event', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='events.Event')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "image",
+                    stdimage.models.StdImageField(
+                        upload_to=lib_models.UploadToRelatedObjectDirectoryWithUUID(
+                            related="event"
+                        ),
+                        verbose_name="Fichier",
+                    ),
+                ),
+                ("legend", models.CharField(max_length=280, verbose_name="légende")),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="event_images",
+                        to="people.Person",
+                    ),
+                ),
+                (
+                    "event",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="images",
+                        to="events.Event",
+                    ),
+                ),
             ],
-        ),
+        )
     ]

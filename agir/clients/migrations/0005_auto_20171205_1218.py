@@ -8,19 +8,63 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('clients', '0004_auto_20170921_0729'),
-    ]
+    dependencies = [("clients", "0004_auto_20170921_0729")]
 
     operations = [
         migrations.AlterField(
-            model_name='authorization',
-            name='scopes',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(choices=[('view_profile', 'Voir mon profil'), ('edit_profile', 'Changer mon profil'), ('edit_event', 'Éditer mes événements'), ('edit_rsvp', 'Voir et éditer mes participations aux événements'), ('edit_supportgroup', "Éditer mes groupes d'action"), ('edit_membership', "Voir et éditer mes participations aux groupes d'action"), ('edit_authorization', "Éditer mes autorisations d'accès")], max_length=255), blank=True, default=list, help_text='La liste des scopes autorisés.', size=None),
+            model_name="authorization",
+            name="scopes",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(
+                    choices=[
+                        ("view_profile", "Voir mon profil"),
+                        ("edit_profile", "Changer mon profil"),
+                        ("edit_event", "Éditer mes événements"),
+                        (
+                            "edit_rsvp",
+                            "Voir et éditer mes participations aux événements",
+                        ),
+                        ("edit_supportgroup", "Éditer mes groupes d'action"),
+                        (
+                            "edit_membership",
+                            "Voir et éditer mes participations aux groupes d'action",
+                        ),
+                        ("edit_authorization", "Éditer mes autorisations d'accès"),
+                    ],
+                    max_length=255,
+                ),
+                blank=True,
+                default=list,
+                help_text="La liste des scopes autorisés.",
+                size=None,
+            ),
         ),
         migrations.AlterField(
-            model_name='client',
-            name='scopes',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(choices=[('view_profile', 'Voir mon profil'), ('edit_profile', 'Changer mon profil'), ('edit_event', 'Éditer mes événements'), ('edit_rsvp', 'Voir et éditer mes participations aux événements'), ('edit_supportgroup', "Éditer mes groupes d'action"), ('edit_membership', "Voir et éditer mes participations aux groupes d'action"), ('edit_authorization', "Éditer mes autorisations d'accès")], max_length=255), blank=True, default=list, help_text='La liste des scopes autorisés pour ce client.', size=None),
+            model_name="client",
+            name="scopes",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(
+                    choices=[
+                        ("view_profile", "Voir mon profil"),
+                        ("edit_profile", "Changer mon profil"),
+                        ("edit_event", "Éditer mes événements"),
+                        (
+                            "edit_rsvp",
+                            "Voir et éditer mes participations aux événements",
+                        ),
+                        ("edit_supportgroup", "Éditer mes groupes d'action"),
+                        (
+                            "edit_membership",
+                            "Voir et éditer mes participations aux groupes d'action",
+                        ),
+                        ("edit_authorization", "Éditer mes autorisations d'accès"),
+                    ],
+                    max_length=255,
+                ),
+                blank=True,
+                default=list,
+                help_text="La liste des scopes autorisés pour ce client.",
+                size=None,
+            ),
         ),
     ]

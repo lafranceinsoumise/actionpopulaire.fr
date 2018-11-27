@@ -7,19 +7,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0007_supportgroup_coordinates_type'),
-    ]
+    dependencies = [("groups", "0007_supportgroup_coordinates_type")]
 
     operations = [
         migrations.AlterField(
-            model_name='membership',
-            name='is_manager',
-            field=models.BooleanField(default=False, verbose_name='autre gestionnaire du groupe'),
+            model_name="membership",
+            name="is_manager",
+            field=models.BooleanField(
+                default=False, verbose_name="autre gestionnaire du groupe"
+            ),
         ),
         migrations.AlterField(
-            model_name='membership',
-            name='is_referent',
-            field=models.BooleanField(default=False, verbose_name='animateur du groupe'),
+            model_name="membership",
+            name="is_referent",
+            field=models.BooleanField(
+                default=False, verbose_name="animateur du groupe"
+            ),
         ),
     ]

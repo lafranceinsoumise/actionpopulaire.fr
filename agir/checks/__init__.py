@@ -5,9 +5,9 @@ from ..payments.abstract_payment_mode import AbstractPaymentMode
 
 
 class CheckPaymentMode(AbstractPaymentMode):
-    id = 'check'
-    url_fragment = 'cheque'
-    label =_('Paiement par chèque')
+    id = "check"
+    url_fragment = "cheque"
+    label = _("Paiement par chèque")
 
     can_retry = True
     can_cancel = True
@@ -16,9 +16,11 @@ class CheckPaymentMode(AbstractPaymentMode):
     @cached_property
     def payment_view(self):
         from . import views
+
         return views.CheckView.as_view()
 
     @cached_property
     def retry_payment_view(self):
         from . import views
+
         return views.CheckView.as_view()

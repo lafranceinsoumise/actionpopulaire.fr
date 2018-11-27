@@ -11,14 +11,14 @@ from django.db.models import Q
 from agir.lib.utils import generate_token_params
 from urllib.parse import urlencode
 
-params = {'access_token': settings.MAILTRAIN_API_KEY}
+params = {"access_token": settings.MAILTRAIN_API_KEY}
 
 
 s = requests.Session()
 a = requests.adapters.HTTPAdapter(max_retries=Retry(total=5, backoff_factor=1))
 b = requests.adapters.HTTPAdapter(max_retries=Retry(total=5, backoff_factor=1))
-s.mount('https://', a)
-s.mount('http://', b)
+s.mount("https://", a)
+s.mount("http://", b)
 
 
 def data_from_person(person, tmp_tags=None):
@@ -26,35 +26,62 @@ def data_from_person(person, tmp_tags=None):
 
     is_animateur = Q(is_referent=True) | Q(is_manager=True)
     inscriptions = [
-        ('evenements_yes' if person.events.upcoming().count() > 0 else 'evenements_no'),
-        ('groupe_yes' if person.supportgroups.active().count() > 0 else 'groupe_no'),
-        ('groupe_certifié_yes' if person.supportgroups.active().filter(subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE).count() > 0 else 'groupe_certifié_no'),
-        ('groupe_anim_yes' if person.memberships.active().filter(is_animateur).count() > 0 else 'groupe_anim_no'),
-        ('groupe_certifié_anim_yes' if person.memberships.active().filter(is_animateur & Q(supportgroup__subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE)).count() > 0 else 'groupe_certifié_anim_no'),
-        ('country-{}'.format(person.location_country if person.location_country else 'FR'))
+        ("evenements_yes" if person.events.upcoming().count() > 0 else "evenements_no"),
+        ("groupe_yes" if person.supportgroups.active().count() > 0 else "groupe_no"),
+        (
+            "groupe_certifié_yes"
+            if person.supportgroups.active()
+            .filter(subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE)
+            .count()
+            > 0
+            else "groupe_certifié_no"
+        ),
+        (
+            "groupe_anim_yes"
+            if person.memberships.active().filter(is_animateur).count() > 0
+            else "groupe_anim_no"
+        ),
+        (
+            "groupe_certifié_anim_yes"
+            if person.memberships.active()
+            .filter(
+                is_animateur
+                & Q(supportgroup__subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE)
+            )
+            .count()
+            > 0
+            else "groupe_certifié_anim_no"
+        ),
+        (
+            "country-{}".format(
+                person.location_country if person.location_country else "FR"
+            )
+        ),
     ]
 
-    data['FIRST_NAME'] = person.first_name
-    data['LAST_NAME'] = person.last_name
-    data['MERGE_ZIPCODE'] = person.location_zip
-    data['MERGE_INSCRIPTIONS'] = ','.join(inscriptions)
-    data['MERGE_LOGIN_QUERY'] = urlencode(generate_token_params(person))
-    data['MERGE_TAGS'] = ',' + ','.join(t.label for t in person.tags.filter(exported=True)) + ','
+    data["FIRST_NAME"] = person.first_name
+    data["LAST_NAME"] = person.last_name
+    data["MERGE_ZIPCODE"] = person.location_zip
+    data["MERGE_INSCRIPTIONS"] = ",".join(inscriptions)
+    data["MERGE_LOGIN_QUERY"] = urlencode(generate_token_params(person))
+    data["MERGE_TAGS"] = (
+        "," + ",".join(t.label for t in person.tags.filter(exported=True)) + ","
+    )
 
     if tmp_tags:
-        data['MERGE_TAGS'] = ',' + ','.join(tmp_tags) + data['MERGE_TAGS']
+        data["MERGE_TAGS"] = "," + ",".join(tmp_tags) + data["MERGE_TAGS"]
 
-    if len(data['MERGE_TAGS']) > 255:
-        warnings.warn('Tag string is longer than 255 characters for ' + person.email)
+    if len(data["MERGE_TAGS"]) > 255:
+        warnings.warn("Tag string is longer than 255 characters for " + person.email)
 
     return data
 
 
 def subscribe_email(email, fields=None):
     data = {
-        'EMAIL': email,
-        'FORCE_SUBSCRIBE': 'yes',
-        'MERGE_API_UPDATED': datetime.utcnow(),
+        "EMAIL": email,
+        "FORCE_SUBSCRIBE": "yes",
+        "MERGE_API_UPDATED": datetime.utcnow(),
     }
 
     if fields is not None:
@@ -66,7 +93,12 @@ def subscribe_email(email, fields=None):
         return True
 
     try:
-        response = s.post(settings.MAILTRAIN_HOST + '/api/subscribe/' + settings.MAILTRAIN_LIST_ID, data=data, params=params, json=True)
+        response = s.post(
+            settings.MAILTRAIN_HOST + "/api/subscribe/" + settings.MAILTRAIN_LIST_ID,
+            data=data,
+            params=params,
+            json=True,
+        )
         response.raise_for_status()
     except HTTPError as err:
         if response.status_code == 400:
@@ -78,22 +110,21 @@ def subscribe_email(email, fields=None):
 
 
 def unsubscribe_email(email):
-    data = {
-        'EMAIL': email,
-        'MERGE_API_UPDATED': datetime.utcnow(),
-    }
+    data = {"EMAIL": email, "MERGE_API_UPDATED": datetime.utcnow()}
 
     if settings.MAILTRAIN_DISABLE:
         return True
 
-    s.post(settings.MAILTRAIN_HOST + '/api/unsubscribe/' + settings.MAILTRAIN_LIST_ID, data=data, params=params, json=True)\
-        .raise_for_status()
+    s.post(
+        settings.MAILTRAIN_HOST + "/api/unsubscribe/" + settings.MAILTRAIN_LIST_ID,
+        data=data,
+        params=params,
+        json=True,
+    ).raise_for_status()
 
 
 def delete_email(email):
-    data = {
-        'EMAIL': email
-    }
+    data = {"EMAIL": email}
 
     response = None
 
@@ -101,7 +132,12 @@ def delete_email(email):
         return True
 
     try:
-        response = s.post(settings.MAILTRAIN_HOST + '/api/delete/' + settings.MAILTRAIN_LIST_ID, data=data, params=params, json=True)
+        response = s.post(
+            settings.MAILTRAIN_HOST + "/api/delete/" + settings.MAILTRAIN_LIST_ID,
+            data=data,
+            params=params,
+            json=True,
+        )
         response.raise_for_status()
     except HTTPError as err:
         if response is not None and response.status_code == 404:
@@ -117,10 +153,10 @@ def update_person(person, tmp_tags=None):
     emails = list(person.emails.all())
 
     for i, email in enumerate(emails):
-        local_part, domain = email.address.rsplit('@', 1)
+        local_part, domain = email.address.rsplit("@", 1)
         if not email.bounced and domain.lower() not in settings.EMAIL_DISABLED_DOMAINS:
             primary_email = email
-            other_emails = emails[:i] + emails[i+1:]
+            other_emails = emails[:i] + emails[i + 1 :]
             break
     else:
         primary_email = None

@@ -9,20 +9,24 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('polls', '0002_auto_20171107_1111'),
-    ]
+    dependencies = [("polls", "0002_auto_20171107_1111")]
 
     operations = [
         migrations.AddField(
-            model_name='poll',
-            name='rules',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default={}, encoder=django.core.serializers.json.DjangoJSONEncoder, verbose_name='Les règles du vote'),
+            model_name="poll",
+            name="rules",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default={},
+                encoder=django.core.serializers.json.DjangoJSONEncoder,
+                verbose_name="Les règles du vote",
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='pollchoice',
-            name='selection',
-            field=django.contrib.postgres.fields.jsonb.JSONField(encoder=django.core.serializers.json.DjangoJSONEncoder),
+            model_name="pollchoice",
+            name="selection",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                encoder=django.core.serializers.json.DjangoJSONEncoder
+            ),
         ),
     ]

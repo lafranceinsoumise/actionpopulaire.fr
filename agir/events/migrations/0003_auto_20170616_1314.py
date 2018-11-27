@@ -7,13 +7,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0002_auto_20170615_0849'),
-    ]
+    dependencies = [("events", "0002_auto_20170615_0849")]
 
     operations = [
         migrations.AddIndex(
-            model_name='event',
-            index=models.Index(fields=['end_time'], name='events_even_end_tim_a200ed_idx'),
-        ),
+            model_name="event",
+            index=models.Index(
+                fields=["end_time"], name="events_even_end_tim_a200ed_idx"
+            ),
+        )
     ]

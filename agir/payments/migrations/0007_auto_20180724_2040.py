@@ -6,14 +6,17 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('payments', '0006_auto_20180628_1503'),
-    ]
+    dependencies = [("payments", "0006_auto_20180628_1503")]
 
     operations = [
         migrations.AlterField(
-            model_name='payment',
-            name='person',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='payments', to='people.Person'),
-        ),
+            model_name="payment",
+            name="person",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="payments",
+                to="people.Person",
+            ),
+        )
     ]

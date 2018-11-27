@@ -8,14 +8,14 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0018_person_form'),
-    ]
+    dependencies = [("people", "0018_person_form")]
 
     operations = [
         migrations.AlterField(
-            model_name='person',
-            name='meta',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict, verbose_name='Autres données'),
-        ),
+            model_name="person",
+            name="meta",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                blank=True, default=dict, verbose_name="Autres données"
+            ),
+        )
     ]

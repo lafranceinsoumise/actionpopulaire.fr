@@ -8,14 +8,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('people', '0019_auto_20171107_1641'),
-        ('polls', '0004_auto_20171107_1717'),
+        ("people", "0019_auto_20171107_1641"),
+        ("polls", "0004_auto_20171107_1717"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='poll',
-            name='tags',
-            field=models.ManyToManyField(blank=True, related_name='polls', related_query_name='poll', to='people.PersonTag'),
-        ),
+            model_name="poll",
+            name="tags",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="polls",
+                related_query_name="poll",
+                to="people.PersonTag",
+            ),
+        )
     ]

@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0007_event_published'),
-    ]
+    dependencies = [("events", "0007_event_published")]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='contact_hide_phone',
-            field=models.BooleanField(default=False, verbose_name='Cacher mon numéro de téléphone'),
-        ),
+            model_name="event",
+            name="contact_hide_phone",
+            field=models.BooleanField(
+                default=False, verbose_name="Cacher mon numéro de téléphone"
+            ),
+        )
     ]

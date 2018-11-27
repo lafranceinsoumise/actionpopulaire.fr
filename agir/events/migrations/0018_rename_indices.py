@@ -9,33 +9,30 @@ import stdimage.utils
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0017_clean_up_events_models'),
-    ]
+    dependencies = [("events", "0017_clean_up_events_models")]
 
     operations = [
         migrations.RemoveIndex(
-            model_name='event',
-            name='events_even_start_t_0e446b_idx',
+            model_name="event", name="events_even_start_t_0e446b_idx"
         ),
         migrations.RemoveIndex(
-            model_name='event',
-            name='events_even_nb_path_2e6795_idx',
+            model_name="event", name="events_even_nb_path_2e6795_idx"
         ),
         migrations.RemoveIndex(
-            model_name='event',
-            name='events_even_end_tim_a200ed_idx',
+            model_name="event", name="events_even_end_tim_a200ed_idx"
         ),
         migrations.AddIndex(
-            model_name='event',
-            index=models.Index(fields=['start_time', 'end_time'], name='events_datetime_index'),
+            model_name="event",
+            index=models.Index(
+                fields=["start_time", "end_time"], name="events_datetime_index"
+            ),
         ),
         migrations.AddIndex(
-            model_name='event',
-            index=models.Index(fields=['end_time'], name='events_end_time_index'),
+            model_name="event",
+            index=models.Index(fields=["end_time"], name="events_end_time_index"),
         ),
         migrations.AddIndex(
-            model_name='event',
-            index=models.Index(fields=['nb_path'], name='events_nb_path_index'),
+            model_name="event",
+            index=models.Index(fields=["nb_path"], name="events_nb_path_index"),
         ),
     ]

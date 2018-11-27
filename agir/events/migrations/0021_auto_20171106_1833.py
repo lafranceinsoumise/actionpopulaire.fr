@@ -7,14 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0020_change_image_attrs'),
-    ]
+    dependencies = [("events", "0020_change_image_attrs")]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='location_address',
-            field=models.CharField(blank=True, help_text="L'adresse telle qu'elle a éventuellement été copiée depuis NationBuilder. Ne plus utiliser.", max_length=255, verbose_name='adresse complète'),
-        ),
+            model_name="event",
+            name="location_address",
+            field=models.CharField(
+                blank=True,
+                help_text="L'adresse telle qu'elle a éventuellement été copiée depuis NationBuilder. Ne plus utiliser.",
+                max_length=255,
+                verbose_name="adresse complète",
+            ),
+        )
     ]

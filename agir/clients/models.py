@@ -12,26 +12,39 @@ from .scopes import scopes
 
 class ClientManager(models.Manager):
     def get_by_natural_key(self, label):
-        return self.select_related('role').get(label=label)
+        return self.select_related("role").get(label=label)
 
-    def _create_client(self, client_id, password, *, is_superuser, is_active=True, oauth_enabled=None, trusted=None,
-                       **extra_fields):
+    def _create_client(
+        self,
+        client_id,
+        password,
+        *,
+        is_superuser,
+        is_active=True,
+        oauth_enabled=None,
+        trusted=None,
+        **extra_fields
+    ):
         """
         Creates and saves a client with the given client_id and password.
         """
         if not client_id:
-            raise ValueError('Label must be set')
+            raise ValueError("Label must be set")
 
         if oauth_enabled is not None:
-            extra_fields['authorization_grant_type'] = 'authorization-code' if oauth_enabled else 'client-credentials'
+            extra_fields["authorization_grant_type"] = (
+                "authorization-code" if oauth_enabled else "client-credentials"
+            )
 
         if trusted is not None:
-            extra_fields['skip_authorizations'] = trusted
+            extra_fields["skip_authorizations"] = trusted
 
         if password is not None:
-            extra_fields['client_secret'] = password
+            extra_fields["client_secret"] = password
 
-        role = Role(type=Role.CLIENT_ROLE, is_superuser=is_superuser, is_active=is_active)
+        role = Role(
+            type=Role.CLIENT_ROLE, is_superuser=is_superuser, is_active=is_active
+        )
 
         with transaction.atomic():
             role.save()
@@ -48,7 +61,7 @@ class ClientManager(models.Manager):
         :param extra_fields: any other field
         :return: 
         """
-        extra_fields.setdefault('is_superuser', False)
+        extra_fields.setdefault("is_superuser", False)
         return self._create_client(client_id, password, **extra_fields)
 
     def create_superclient(self, client_id, password, **extra_fields):
@@ -59,10 +72,10 @@ class ClientManager(models.Manager):
         :param extra_fields: 
         :return: 
         """
-        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault("is_superuser", True)
 
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
 
         return self._create_client(client_id, password, **extra_fields)
 
@@ -70,32 +83,42 @@ class ClientManager(models.Manager):
 class Client(BaseAPIResource, AbstractApplication):
     objects = ClientManager()
 
-    role = models.OneToOneField('authentication.Role', on_delete=models.PROTECT, related_name='client', null=False)
+    role = models.OneToOneField(
+        "authentication.Role",
+        on_delete=models.PROTECT,
+        related_name="client",
+        null=False,
+    )
 
     description = models.TextField(
-        _('description du client'),
+        _("description du client"),
         blank=True,
-        help_text=_("Une description du client à l'intention des utilisateurs éventuels.")
+        help_text=_(
+            "Une description du client à l'intention des utilisateurs éventuels."
+        ),
     )
 
     contact_email = models.EmailField(
-        _('email de contact'),
+        _("email de contact"),
         blank=True,
-        help_text=_("Une adresse email de contact pour ce client.")
+        help_text=_("Une adresse email de contact pour ce client."),
     )
 
     scopes = ArrayField(
-        models.CharField(max_length=255, choices=[(scope.name, scope.description) for scope in scopes]),
-        help_text=_('La liste des scopes autorisés pour ce client.'),
+        models.CharField(
+            max_length=255,
+            choices=[(scope.name, scope.description) for scope in scopes],
+        ),
+        help_text=_("La liste des scopes autorisés pour ce client."),
         blank=True,
         default=list,
     )
 
     class Meta:
-        verbose_name = 'Client'
-        verbose_name_plural = 'Clients'
-        ordering = ('name',)
-        default_permissions = ('add', 'change', 'delete', 'view')
+        verbose_name = "Client"
+        verbose_name_plural = "Clients"
+        ordering = ("name",)
+        default_permissions = ("add", "change", "delete", "view")
 
     def __str__(self):
         return self.name

@@ -1,7 +1,7 @@
 from django.db import transaction
 
 
-__all__ = ['merge_persons']
+__all__ = ["merge_persons"]
 
 
 def merge_attr_or(e1, e2, attr):
@@ -24,11 +24,12 @@ def merge_persons(p1, p2):
             if m2.supportgroup_id in groups:
                 m1 = groups[m2.supportgroup_id]
                 m1.created = min(m1.created, m2.created)
-                merge_attr_or(m1, m2, 'is_referent')
-                merge_attr_or(m1, m2, 'is_manager')
-                merge_attr_or(m1, m2, 'notifications_enabled')
+                merge_attr_or(m1, m2, "is_referent")
+                merge_attr_or(m1, m2, "is_manager")
+                merge_attr_or(m1, m2, "notifications_enabled")
 
-                m1.save(); m2.delete()
+                m1.save()
+                m2.delete()
             else:
                 m2.person = p1
                 m2.save()
@@ -41,11 +42,12 @@ def merge_persons(p1, p2):
             if o2.event_id in organized_events:
                 o1 = organized_events[o2.event_id]
                 o1.created = min(o1.created, o2.created)
-                merge_attr_or(o1, o2, 'is_creator')
-                merge_attr_or(o1, o2, 'notifications_enabled')
-                merge_attr_or(o1, o2, 'as_group')
+                merge_attr_or(o1, o2, "is_creator")
+                merge_attr_or(o1, o2, "notifications_enabled")
+                merge_attr_or(o1, o2, "as_group")
 
-                o1.save(); o2.delete()
+                o1.save()
+                o2.delete()
             else:
                 o2.person = p1
                 o2.save()

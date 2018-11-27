@@ -7,14 +7,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0012_event_coordinates_type'),
-    ]
+    dependencies = [("events", "0012_event_coordinates_type")]
 
     operations = [
         migrations.AddField(
-            model_name='calendar',
-            name='user_contributed',
-            field=models.BooleanField(default=False, verbose_name='Les utilisateurs peuvent ajouter des événements'),
-        ),
+            model_name="calendar",
+            name="user_contributed",
+            field=models.BooleanField(
+                default=False,
+                verbose_name="Les utilisateurs peuvent ajouter des événements",
+            ),
+        )
     ]

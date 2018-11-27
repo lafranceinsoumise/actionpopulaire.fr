@@ -13,12 +13,23 @@ from agir.payments.actions import redirect_to_payment
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PAYMENT_MODES
 from agir.people.models import PersonFormSubmission, Person
-from agir.people.actions.person_forms import get_people_form_class, get_formatted_submission
+from agir.people.actions.person_forms import (
+    get_people_form_class,
+    get_formatted_submission,
+)
 
 from ..actions.rsvps import (
-    rsvp_to_free_event, rsvp_to_paid_event_and_create_payment, validate_payment_for_rsvp, set_guest_number,
-    add_free_identified_guest, add_paid_identified_guest_and_get_payment, validate_payment_for_guest, is_participant,
-    cancel_payment_for_guest, cancel_payment_for_rsvp, RSVPException
+    rsvp_to_free_event,
+    rsvp_to_paid_event_and_create_payment,
+    validate_payment_for_rsvp,
+    set_guest_number,
+    add_free_identified_guest,
+    add_paid_identified_guest_and_get_payment,
+    validate_payment_for_guest,
+    is_participant,
+    cancel_payment_for_guest,
+    cancel_payment_for_rsvp,
+    RSVPException,
 )
 from ..models import Event, RSVP
 from ..tasks import send_rsvp_notification, send_external_rsvp_optin
@@ -29,13 +40,14 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
     """RSVP to an event, check one's RSVP, or add guests to your RSVP
 
     """
+
     model = Event
-    template_name = 'events/rsvp_event.html'
+    template_name = "events/rsvp_event.html"
     default_error_message = _(
         "Il y a eu un problème avec votre inscription. Merci de bien vouloir vérifier si vous n'êtes "
         "pas déjà inscrit⋅e, et retenter si nécessaire."
     )
-    context_object_name = 'event'
+    context_object_name = "event"
 
     def get_form(self):
         if self.event.subscription_form is None:
@@ -44,12 +56,14 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
         form_class = get_people_form_class(self.event.subscription_form, BaseRSVPForm)
 
         kwargs = {
-            'instance': None if self.user_is_already_rsvped else self.request.user.person,
-            'is_guest': self.user_is_already_rsvped,
+            "instance": None
+            if self.user_is_already_rsvped
+            else self.request.user.person,
+            "is_guest": self.user_is_already_rsvped,
         }
 
-        if self.request.method in ('POST', 'PUT'):
-            kwargs['data'] = self.request.POST
+        if self.request.method in ("POST", "PUT"):
+            kwargs["data"] = self.request.POST
 
         return form_class(**kwargs)
 
@@ -57,45 +71,63 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
         person_form = self.event.subscription_form
         person = self.request.user.person
 
-        return not person_form or (person_form.is_open and person_form.is_authorized(person))
+        return not person_form or (
+            person_form.is_open and person_form.is_authorized(person)
+        )
 
     def get_context_data(self, **kwargs):
-        if 'rsvp' not in kwargs:
+        if "rsvp" not in kwargs:
             try:
-                kwargs['rsvp'] = RSVP.objects.get(event=self.event, person=self.request.user.person)
+                kwargs["rsvp"] = RSVP.objects.get(
+                    event=self.event, person=self.request.user.person
+                )
             except RSVP.DoesNotExist:
                 pass
 
-        if 'is_authorized' not in kwargs:
-            kwargs['is_authorized'] = self.event.subscription_form.is_authorized(self.request.user.person)
+        if "is_authorized" not in kwargs:
+            kwargs["is_authorized"] = self.event.subscription_form.is_authorized(
+                self.request.user.person
+            )
 
         kwargs = {
-            'person_form_instance': self.event.subscription_form,
-            'event': self.event,
-            'submission_data': get_formatted_submission(kwargs['rsvp'].form_submission)
-                if 'rsvp' in kwargs and kwargs['rsvp'].form_submission else None,
-            'submission': kwargs['rsvp'].form_submission if 'rsvp' in kwargs and kwargs['rsvp'].form_submission else None,
-            'guests_submission_data': [
-                (guest.get_status_display(), get_formatted_submission(guest.submission) if guest.submission else [])
-                for guest in kwargs['rsvp'].identified_guests.select_related('submission')
-            ] if 'rsvp' in kwargs else None,
-            **kwargs
+            "person_form_instance": self.event.subscription_form,
+            "event": self.event,
+            "submission_data": get_formatted_submission(kwargs["rsvp"].form_submission)
+            if "rsvp" in kwargs and kwargs["rsvp"].form_submission
+            else None,
+            "submission": kwargs["rsvp"].form_submission
+            if "rsvp" in kwargs and kwargs["rsvp"].form_submission
+            else None,
+            "guests_submission_data": [
+                (
+                    guest.get_status_display(),
+                    get_formatted_submission(guest.submission)
+                    if guest.submission
+                    else [],
+                )
+                for guest in kwargs["rsvp"].identified_guests.select_related(
+                    "submission"
+                )
+            ]
+            if "rsvp" in kwargs
+            else None,
+            **kwargs,
         }
 
         # we add a form when user is allowed AND either not subscribed, or allowed to add guests
-        will_add_form = self.can_post_form() and ('rsvp' not in kwargs or self.event.allow_guests)
-
-        if 'form' not in kwargs and will_add_form:
-            kwargs['form'] = self.get_form()
-
-        return super().get_context_data(
-            **kwargs
+        will_add_form = self.can_post_form() and (
+            "rsvp" not in kwargs or self.event.allow_guests
         )
+
+        if "form" not in kwargs and will_add_form:
+            kwargs["form"] = self.get_form()
+
+        return super().get_context_data(**kwargs)
 
     def get(self, request, *args, **kwargs):
         self.event = self.object = self.get_object()
         if self.event.subscription_form is None:
-            return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+            return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))
 
         context = self.get_context_data(object=self.event)
         return self.render_to_response(context)
@@ -120,8 +152,10 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
                     # we create the RSVP here for free events
                     rsvp_to_free_event(self.event, self.request.user.person)
                     return self.redirect_to_event(
-                        message=_("Merci de nous avoir signalé votre participation à cet événement."),
-                        level=messages.SUCCESS
+                        message=_(
+                            "Merci de nous avoir signalé votre participation à cet événement."
+                        ),
+                        level=messages.SUCCESS,
                     )
                 else:
                     return self.redirect_to_billing_form()
@@ -132,16 +166,22 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
                 context = self.get_context_data(object=self.event, form=form)
                 return self.render_to_response(context)
 
-            if form.cleaned_data['is_guest']:
+            if form.cleaned_data["is_guest"]:
                 self.redirect_to_event(message=self.default_error_message)
 
             if self.event.is_free or self.event.get_price(form.submission_data) == 0:
                 with transaction.atomic():
                     form.save()
-                    rsvp_to_free_event(self.event, self.request.user.person, form_submission=form.submission)
+                    rsvp_to_free_event(
+                        self.event,
+                        self.request.user.person,
+                        form_submission=form.submission,
+                    )
                     return self.redirect_to_event(
-                        message=_("Merci de nous avoir signalé votre participation à cet événenement."),
-                        level=messages.SUCCESS
+                        message=_(
+                            "Merci de nous avoir signalé votre participation à cet événenement."
+                        ),
+                        level=messages.SUCCESS,
                     )
 
             else:
@@ -157,12 +197,12 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
                 if not guests_form.is_valid():
                     return self.redirect_to_event(message=self.default_error_message)
 
-                guests = guests_form.cleaned_data['guests']
+                guests = guests_form.cleaned_data["guests"]
 
                 set_guest_number(self.event, self.request.user.person, guests)
                 return self.redirect_to_event(
                     message=_("Merci, votre nombre d'invités a été mis à jour !"),
-                    level=messages.SUCCESS
+                    level=messages.SUCCESS,
                 )
 
             if not self.event.subscription_form:
@@ -174,17 +214,19 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
                 context = self.get_context_data(object=self.event)
                 return self.render_to_response(context)
 
-            if not form.cleaned_data['is_guest']:
+            if not form.cleaned_data["is_guest"]:
                 return self.redirect_to_event(message=self.default_error_message)
 
             if self.event.is_free or self.event.get_price(form.submission_data) == 0:
                 with transaction.atomic():
                     # do not save the person, only the submission
                     form.save_submission(self.request.user.person)
-                    add_free_identified_guest(self.event, self.request.user.person, form.submission)
+                    add_free_identified_guest(
+                        self.event, self.request.user.person, form.submission
+                    )
                 return self.redirect_to_event(
                     message=_("Merci, votre invité a bien été enregistré !"),
-                    level=messages.SUCCESS
+                    level=messages.SUCCESS,
                 )
             else:
                 form.save_submission(self.request.user.person)
@@ -194,23 +236,19 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
 
     def redirect_to_event(self, *, message, level=messages.ERROR):
         if message is not None:
-            messages.add_message(
-                request=self.request,
-                level=level,
-                message=message
-            )
+            messages.add_message(request=self.request, level=level, message=message)
 
-        return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+        return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))
 
     def redirect_to_billing_form(self, submission=None, is_guest=False):
         if submission:
-            self.request.session['rsvp_submission'] = submission.pk
-        elif 'rsvp_submission' in self.request.session:
-            del self.request.session['rsvp_submission']
-        self.request.session['rsvp_event'] = str(self.event.pk)
-        self.request.session['is_guest'] = is_guest
+            self.request.session["rsvp_submission"] = submission.pk
+        elif "rsvp_submission" in self.request.session:
+            del self.request.session["rsvp_submission"]
+        self.request.session["rsvp_event"] = str(self.event.pk)
+        self.request.session["is_guest"] = is_guest
 
-        return HttpResponseRedirect(reverse('pay_event'))
+        return HttpResponseRedirect(reverse("pay_event"))
 
     @cached_property
     def user_is_already_rsvped(self):
@@ -219,31 +257,35 @@ class RSVPEventView(HardLoginRequiredMixin, DetailView):
 
 class ChangeRSVPPaymentView(HardLoginRequiredMixin, DetailView):
     def get_queryset(self):
-        return self.request.user.person.rsvps\
-            .exclude(payment=None)\
-            .exclude(payment__status=Payment.STATUS_COMPLETED)\
+        return (
+            self.request.user.person.rsvps.exclude(payment=None)
+            .exclude(payment__status=Payment.STATUS_COMPLETED)
             .filter(
-                payment__mode__in=[mode.id for mode in PAYMENT_MODES.values() if mode.can_cancel]
+                payment__mode__in=[
+                    mode.id for mode in PAYMENT_MODES.values() if mode.can_cancel
+                ]
             )
+        )
 
     def get(self, *args, **kwargs):
         rsvp = self.get_object()
         if rsvp.form_submission:
-            self.request.session['rsvp_submission'] = rsvp.form_submission.pk
-        elif 'rsvp_submission' in self.request.session:
-            del self.request.session['rsvp_submission']
-        self.request.session['rsvp_event'] = str(rsvp.event.pk)
-        self.request.session['is_guest'] = False
+            self.request.session["rsvp_submission"] = rsvp.form_submission.pk
+        elif "rsvp_submission" in self.request.session:
+            del self.request.session["rsvp_submission"]
+        self.request.session["rsvp_event"] = str(rsvp.event.pk)
+        self.request.session["is_guest"] = False
 
-        return HttpResponseRedirect(reverse('pay_event'))
+        return HttpResponseRedirect(reverse("pay_event"))
 
 
 class PayEventView(HardLoginRequiredMixin, UpdateView):
     """View for the billing form for paid events
 
     """
+
     form_class = BillingForm
-    template_name = 'events/pay_event.html'
+    template_name = "events/pay_event.html"
     generic_error_message = _(
         "Il y a eu un problème avec votre paiement. Merci de réessayer plus tard"
     )
@@ -255,25 +297,30 @@ class PayEventView(HardLoginRequiredMixin, UpdateView):
         if self.submission:
             # this form is instantiated only to get the labels for every field
             form = get_people_form_class(self.submission.form)(self.request.user.person)
-        kwargs.update({
-            'event': self.event,
-            'submission': self.submission,
-            'price': self.event.get_price(self.submission and self.submission.data) / 100,
-            'submission_data': get_formatted_submission(self.submission) if self.submission else None
-        })
+        kwargs.update(
+            {
+                "event": self.event,
+                "submission": self.submission,
+                "price": self.event.get_price(self.submission and self.submission.data)
+                / 100,
+                "submission_data": get_formatted_submission(self.submission)
+                if self.submission
+                else None,
+            }
+        )
         return super().get_context_data(**kwargs)
 
     def dispatch(self, request, *args, **kwargs):
-        submission_pk = self.request.session.get('rsvp_submission')
-        event_pk = self.request.session.get('rsvp_event')
+        submission_pk = self.request.session.get("rsvp_submission")
+        event_pk = self.request.session.get("rsvp_event")
 
         if not event_pk:
-            return HttpResponseBadRequest('no event')
+            return HttpResponseBadRequest("no event")
 
         try:
             self.event = Event.objects.upcoming().get(pk=event_pk)
         except Event.DoesNotExist:
-            return HttpResponseBadRequest('no event')
+            return HttpResponseBadRequest("no event")
 
         if self.event.subscription_form:
             if not submission_pk:
@@ -289,23 +336,23 @@ class PayEventView(HardLoginRequiredMixin, UpdateView):
         else:
             self.submission = None
 
-        self.is_guest = self.request.session.get('is_guest', False)
+        self.is_guest = self.request.session.get("is_guest", False)
 
         return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['submission'] = self.submission
-        kwargs['event'] = self.event
-        kwargs['is_guest'] = self.is_guest
+        kwargs["submission"] = self.submission
+        kwargs["event"] = self.event
+        kwargs["is_guest"] = self.is_guest
         return kwargs
 
     def form_valid(self, form):
-        event = form.cleaned_data['event']
+        event = form.cleaned_data["event"]
         person = self.request.user.person
-        submission = form.cleaned_data['submission']
-        is_guest = form.cleaned_data['is_guest']
-        payment_mode = form.cleaned_data['payment_mode']
+        submission = form.cleaned_data["submission"]
+        is_guest = form.cleaned_data["is_guest"]
+        payment_mode = form.cleaned_data["payment_mode"]
 
         if not is_guest:
             # we save the billing information only if the person is paying for herself or himself
@@ -314,9 +361,13 @@ class PayEventView(HardLoginRequiredMixin, UpdateView):
         with transaction.atomic():
             try:
                 if is_guest:
-                    payment = add_paid_identified_guest_and_get_payment(event, person, payment_mode, submission)
+                    payment = add_paid_identified_guest_and_get_payment(
+                        event, person, payment_mode, submission
+                    )
                 else:
-                    payment = rsvp_to_paid_event_and_create_payment(event, person, payment_mode, submission)
+                    payment = rsvp_to_paid_event_and_create_payment(
+                        event, person, payment_mode, submission
+                    )
 
             except RSVPException as e:
                 return self.display_error_message(str(e))
@@ -324,13 +375,9 @@ class PayEventView(HardLoginRequiredMixin, UpdateView):
         return redirect_to_payment(payment)
 
     def display_error_message(self, message, level=messages.ERROR):
-        messages.add_message(
-            request=self.request,
-            message=message,
-            level=level
-        )
+        messages.add_message(request=self.request, message=message, level=level)
 
-        return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+        return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))
 
 
 class EventPaidView(RedirectView):
@@ -339,28 +386,32 @@ class EventPaidView(RedirectView):
     """
 
     def get_redirect_url(self, *args, **kwargs):
-        payment = self.kwargs['payment']
-        event = Event.objects.get(pk=self.kwargs['payment'].meta['event_id'])
+        payment = self.kwargs["payment"]
+        event = Event.objects.get(pk=self.kwargs["payment"].meta["event_id"])
 
         messages.add_message(
             request=self.request,
             level=messages.SUCCESS,
             message=f"Votre inscription {payment.get_price_display()} pour l'événement « {event.name} » a bien été enregistré. "
-                    f"Votre inscription sera confirmée dès validation du paiement."
+            f"Votre inscription sera confirmée dès validation du paiement.",
         )
-        return reverse('view_event', args=[self.kwargs['payment'].meta['event_id']])
+        return reverse("view_event", args=[self.kwargs["payment"].meta["event_id"]])
 
 
 def notification_listener(payment):
-    submission_pk = payment.meta.get('submission_id')
-    event_pk = payment.meta.get('event_id')
+    submission_pk = payment.meta.get("submission_id")
+    event_pk = payment.meta.get("event_id")
     event = Event.objects.get(pk=event_pk)
 
-    if payment.meta.get('VERSION') == '2':
+    if payment.meta.get("VERSION") == "2":
         # VERSION 2
-        is_guest = payment.meta['is_guest']
+        is_guest = payment.meta["is_guest"]
 
-        if payment.status in [Payment.STATUS_REFUSED, Payment.STATUS_CANCELED, Payment.STATUS_ABANDONED]:
+        if payment.status in [
+            Payment.STATUS_REFUSED,
+            Payment.STATUS_CANCELED,
+            Payment.STATUS_ABANDONED,
+        ]:
             if is_guest:
                 cancel_payment_for_guest(payment)
             else:
@@ -381,23 +432,22 @@ def notification_listener(payment):
         if payment.status == Payment.STATUS_COMPLETED:
             if event.subscription_form:
                 if not submission_pk:
-                    return HttpResponseBadRequest('no submission')
+                    return HttpResponseBadRequest("no submission")
                 try:
                     submission = PersonFormSubmission.objects.get(pk=submission_pk)
                 except PersonFormSubmission.DoesNotExist:
-                    return HttpResponseBadRequest('no submission')
+                    return HttpResponseBadRequest("no submission")
             else:
                 submission = None
 
             with transaction.atomic():
                 try:
-                    rsvp = RSVP.objects.select_for_update().get(person=payment.person, event=event)
+                    rsvp = RSVP.objects.select_for_update().get(
+                        person=payment.person, event=event
+                    )
                     created = False
                 except RSVP.DoesNotExist:
-                    rsvp = RSVP.objects.create(
-                        person=payment.person,
-                        event=event
-                    )
+                    rsvp = RSVP.objects.create(person=payment.person, event=event)
                     created = True
 
                 if created:
@@ -427,53 +477,59 @@ class ExternalRSVPView(FormView, DetailView):
             messages.add_message(
                 request=request,
                 level=messages.WARNING,
-                message=_("Votre lien pour vous inscrire est expiré. Veuillez réessayer.")
+                message=_(
+                    "Votre lien pour vous inscrire est expiré. Veuillez réessayer."
+                ),
             )
-            return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+            return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))
 
         if RSVP.objects.filter(person=request.user.person, event=self.event).exists():
             messages.add_message(
                 request=request,
                 level=messages.INFO,
-                message=_("Vous êtes déjà inscrit⋅e à l'événement.")
+                message=_("Vous êtes déjà inscrit⋅e à l'événement."),
             )
-            return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+            return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))
 
-        if 'login_action' not in request.session or request.session['login_action'] < (
-                    datetime.utcnow() - timedelta(minutes=30)).timestamp():
+        if (
+            "login_action" not in request.session
+            or request.session["login_action"]
+            < (datetime.utcnow() - timedelta(minutes=30)).timestamp()
+        ):
             messages.add_message(
                 request=request,
                 level=messages.WARNING,
-                message=_("L'action d'inscription a échoué.")
+                message=_("L'action d'inscription a échoué."),
             )
-            return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+            return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))
 
         if self.event.is_free and not self.event.subscription_form:
-            RSVP.objects.get_or_create(
-                person=request.user.person,
-                event=self.event
-            )
+            RSVP.objects.get_or_create(person=request.user.person, event=self.event)
             messages.add_message(
                 request=request,
                 level=messages.INFO,
-                message=_("Vous avez bien été inscrit⋅e à l'événement.")
+                message=_("Vous avez bien été inscrit⋅e à l'événement."),
             )
 
-        return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+        return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))
 
     def form_valid(self, form):
         try:
-            person = Person.objects.get(email=form.cleaned_data['email'])
+            person = Person.objects.get(email=form.cleaned_data["email"])
         except Person.DoesNotExist:
-            person = Person.objects.create_person(email=form.cleaned_data['email'], is_insoumise=False)
+            person = Person.objects.create_person(
+                email=form.cleaned_data["email"], is_insoumise=False
+            )
         send_external_rsvp_optin.delay(self.event.pk, person.pk)
         messages.add_message(
             request=self.request,
             level=messages.INFO,
-            message=_("Un email vous a été envoyé. Afin de confirmer votre participation, merci de cliquer sur le "
-                      "lien qu'il contient.")
+            message=_(
+                "Un email vous a été envoyé. Afin de confirmer votre participation, merci de cliquer sur le "
+                "lien qu'il contient."
+            ),
         )
-        return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+        return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))
 
     def form_invalid(self, form):
-        return HttpResponseRedirect(reverse('view_event', args=[self.event.pk]))
+        return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))

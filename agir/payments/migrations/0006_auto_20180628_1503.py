@@ -5,13 +5,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('payments', '0005_auto_20180615_1804'),
-    ]
+    dependencies = [("payments", "0005_auto_20180615_1804")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='payment',
-            options={'get_latest_by': 'created'},
-        ),
+            name="payment", options={"get_latest_by": "created"}
+        )
     ]

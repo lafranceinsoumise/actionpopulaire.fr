@@ -7,14 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0016_person_draw_participation'),
-    ]
+    dependencies = [("people", "0016_person_draw_participation")]
 
     operations = [
         migrations.AlterField(
-            model_name='person',
-            name='location_address',
-            field=models.CharField(blank=True, help_text="L'adresse telle qu'elle a éventuellement été copiée depuis NationBuilder. Ne plus utiliser.", max_length=255, verbose_name='adresse complète'),
-        ),
+            model_name="person",
+            name="location_address",
+            field=models.CharField(
+                blank=True,
+                help_text="L'adresse telle qu'elle a éventuellement été copiée depuis NationBuilder. Ne plus utiliser.",
+                max_length=255,
+                verbose_name="adresse complète",
+            ),
+        )
     ]

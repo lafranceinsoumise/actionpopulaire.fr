@@ -5,14 +5,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0043_add_email_uppercase_index'),
-    ]
+    dependencies = [("people", "0043_add_email_uppercase_index")]
 
     operations = [
         migrations.AlterField(
-            model_name='personemail',
-            name='address',
-            field=models.EmailField(help_text="L'adresse email de la personne, utilisée comme identifiant", max_length=254, verbose_name='adresse email'),
-        ),
+            model_name="personemail",
+            name="address",
+            field=models.EmailField(
+                help_text="L'adresse email de la personne, utilisée comme identifiant",
+                max_length=254,
+                verbose_name="adresse email",
+            ),
+        )
     ]

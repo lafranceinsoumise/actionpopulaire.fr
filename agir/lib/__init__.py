@@ -1,1 +1,1 @@
-default_app_config = 'agir.lib.apps.LibConfig'
+default_app_config = "agir.lib.apps.LibConfig"

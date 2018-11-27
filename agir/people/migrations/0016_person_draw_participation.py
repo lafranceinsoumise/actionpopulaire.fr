@@ -7,14 +7,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0015_auto_20171004_2006'),
-    ]
+    dependencies = [("people", "0015_auto_20171004_2006")]
 
     operations = [
         migrations.AddField(
-            model_name='person',
-            name='draw_participation',
-            field=models.BooleanField(default=False, help_text="Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des événements comme la Convention.Vous aurez la possibilité d'accepter ou de refuser cette participation.", verbose_name='Participer aux tirages au sort'),
-        ),
+            model_name="person",
+            name="draw_participation",
+            field=models.BooleanField(
+                default=False,
+                help_text="Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des événements comme la Convention.Vous aurez la possibilité d'accepter ou de refuser cette participation.",
+                verbose_name="Participer aux tirages au sort",
+            ),
+        )
     ]

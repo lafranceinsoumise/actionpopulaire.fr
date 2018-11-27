@@ -10,21 +10,35 @@ import stdimage.validators
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0018_rename_indices'),
-    ]
+    dependencies = [("events", "0018_rename_indices")]
 
     operations = [
         migrations.AlterField(
-            model_name='calendar',
-            name='image',
-            field=stdimage.models.StdImageField(blank=True, default='', upload_to=stdimage.utils.UploadToAutoSlug('name', path='events/calendars/'), verbose_name='bannière'),
+            model_name="calendar",
+            name="image",
+            field=stdimage.models.StdImageField(
+                blank=True,
+                default="",
+                upload_to=stdimage.utils.UploadToAutoSlug(
+                    "name", path="events/calendars/"
+                ),
+                verbose_name="bannière",
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='event',
-            name='image',
-            field=stdimage.models.StdImageField(blank=True, default='', help_text="L'image à utiliser pour l'affichage sur la page, comme miniature dans les listes, et pour le partage sur les réseaux sociaux. Elle doit faire au minimum 1200 pixels de large, et 630 de haut. Préférer un rapport largeur/hauteur de 2 (deux fois plus large que haut)?", upload_to=stdimage.utils.UploadToAutoSlugClassNameDir('name', path='banners'), validators=[stdimage.validators.MinSizeValidator(1200, 630)], verbose_name='image'),
+            model_name="event",
+            name="image",
+            field=stdimage.models.StdImageField(
+                blank=True,
+                default="",
+                help_text="L'image à utiliser pour l'affichage sur la page, comme miniature dans les listes, et pour le partage sur les réseaux sociaux. Elle doit faire au minimum 1200 pixels de large, et 630 de haut. Préférer un rapport largeur/hauteur de 2 (deux fois plus large que haut)?",
+                upload_to=stdimage.utils.UploadToAutoSlugClassNameDir(
+                    "name", path="banners"
+                ),
+                validators=[stdimage.validators.MinSizeValidator(1200, 630)],
+                verbose_name="image",
+            ),
             preserve_default=False,
         ),
     ]

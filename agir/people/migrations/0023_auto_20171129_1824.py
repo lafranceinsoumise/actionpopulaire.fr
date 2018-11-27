@@ -8,19 +8,23 @@ from agir.lib import models as lib_models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0022_persontag_exported'),
-    ]
+    dependencies = [("people", "0022_persontag_exported")]
 
     operations = [
         migrations.AlterField(
-            model_name='personform',
-            name='confirmation_note',
-            field=lib_models.DescriptionField(help_text="Note montrée à l'utilisateur une fois le formulaire validé.", verbose_name='Note après complétion'),
+            model_name="personform",
+            name="confirmation_note",
+            field=lib_models.DescriptionField(
+                help_text="Note montrée à l'utilisateur une fois le formulaire validé.",
+                verbose_name="Note après complétion",
+            ),
         ),
         migrations.AlterField(
-            model_name='personform',
-            name='description',
-            field=lib_models.DescriptionField(help_text='Description visible en haut de la page de remplissage du formulaire', verbose_name='Description'),
+            model_name="personform",
+            name="description",
+            field=lib_models.DescriptionField(
+                help_text="Description visible en haut de la page de remplissage du formulaire",
+                verbose_name="Description",
+            ),
         ),
     ]

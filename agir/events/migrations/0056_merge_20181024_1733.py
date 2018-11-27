@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('events', '0055_eventsubtype_config'),
-        ('events', '0055_eventsubtype_allow_external'),
+        ("events", "0055_eventsubtype_config"),
+        ("events", "0055_eventsubtype_allow_external"),
     ]
 
-    operations = [
-    ]
+    operations = []

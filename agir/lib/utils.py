@@ -26,11 +26,11 @@ class AutoLoginUrl(str):
 
 
 def front_url(*args, query=None, absolute=True, auto_login=True, **kwargs):
-    url = reverse(*args, urlconf='agir.api.front_urls', **kwargs)
+    url = reverse(*args, urlconf="agir.api.front_urls", **kwargs)
     if absolute:
         url = urljoin(settings.FRONT_DOMAIN, url)
     if query:
-        url = "{}?{}".format(url, _querydict_from_dict(query).urlencode(safe='/'))
+        url = "{}?{}".format(url, _querydict_from_dict(query).urlencode(safe="/"))
     return AutoLoginUrl(url) if auto_login else url
 
 
@@ -42,13 +42,12 @@ def is_front_url(param):
 
 
 def generate_token_params(person):
-    return {
-        'p': person.pk,
-        'code': connection_token_generator.make_token(user=person)
-    }
+    return {"p": person.pk, "code": connection_token_generator.make_token(user=person)}
 
 
-def resize_and_autorotate(file_name, variations, replace=False, storage=default_storage):
+def resize_and_autorotate(
+    file_name, variations, replace=False, storage=default_storage
+):
     with storage.open(file_name) as f:
         with Image.open(f) as image:
             file_format = image.format
@@ -58,14 +57,14 @@ def resize_and_autorotate(file_name, variations, replace=False, storage=default_
                 exif = None
 
             # if image has exif data about orientation, let's rotate it
-            orientation_key = 274 # cf ExifTags
+            orientation_key = 274  # cf ExifTags
             if exif and orientation_key in exif:
                 orientation = exif[orientation_key]
 
                 rotate_values = {
                     3: Image.ROTATE_180,
                     6: Image.ROTATE_270,
-                    8: Image.ROTATE_90
+                    8: Image.ROTATE_90,
                 }
 
                 if orientation in rotate_values:

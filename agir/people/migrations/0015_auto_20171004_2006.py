@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0014_switch_to_phone_number_field'),
-    ]
+    dependencies = [("people", "0014_switch_to_phone_number_field")]
 
     operations = [
         migrations.AlterField(
-            model_name='person',
-            name='date_of_birth',
-            field=models.DateField(blank=True, null=True, verbose_name='Date de naissance'),
-        ),
+            model_name="person",
+            name="date_of_birth",
+            field=models.DateField(
+                blank=True, null=True, verbose_name="Date de naissance"
+            ),
+        )
     ]

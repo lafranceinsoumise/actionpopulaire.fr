@@ -6,19 +6,25 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0038_contact_phone_index'),
-    ]
+    dependencies = [("people", "0038_contact_phone_index")]
 
     operations = [
         migrations.AddField(
-            model_name='personform',
-            name='required_tags',
-            field=models.ManyToManyField(related_name='authorized_forms', related_query_name='authorized_form', to='people.PersonTag'),
+            model_name="personform",
+            name="required_tags",
+            field=models.ManyToManyField(
+                related_name="authorized_forms",
+                related_query_name="authorized_form",
+                to="people.PersonTag",
+            ),
         ),
         migrations.AddField(
-            model_name='personform',
-            name='unauthorized_message',
-            field=agir.lib.models.DescriptionField(blank=True, help_text="Note montrée à tout utilisateur qui n'aurait pas le tag nécessaire pour afficher le formulaire.", verbose_name='Note pour les personnes non autorisées'),
+            model_name="personform",
+            name="unauthorized_message",
+            field=agir.lib.models.DescriptionField(
+                blank=True,
+                help_text="Note montrée à tout utilisateur qui n'aurait pas le tag nécessaire pour afficher le formulaire.",
+                verbose_name="Note pour les personnes non autorisées",
+            ),
         ),
     ]

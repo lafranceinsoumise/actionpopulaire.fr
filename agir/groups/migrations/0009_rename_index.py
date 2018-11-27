@@ -7,17 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0008_change_vocabulary'),
-    ]
+    dependencies = [("groups", "0008_change_vocabulary")]
 
     operations = [
         migrations.RemoveIndex(
-            model_name='supportgroup',
-            name='groups_supp_nb_path_0a4cde_idx',
+            model_name="supportgroup", name="groups_supp_nb_path_0a4cde_idx"
         ),
         migrations.AddIndex(
-            model_name='supportgroup',
-            index=models.Index(fields=['nb_path'], name='groups_nb_path_index'),
+            model_name="supportgroup",
+            index=models.Index(fields=["nb_path"], name="groups_nb_path_index"),
         ),
     ]

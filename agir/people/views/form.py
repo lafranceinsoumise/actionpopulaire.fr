@@ -11,17 +11,19 @@ from agir.people.models import PersonForm, PersonFormSubmission
 
 class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
     queryset = PersonForm.objects.published()
-    template_name = 'people/person_form.html'
+    template_name = "people/person_form.html"
 
     def get_success_url(self):
-        return reverse('person_form_confirmation', args=(self.person_form_instance.slug,))
+        return reverse(
+            "person_form_confirmation", args=(self.person_form_instance.slug,)
+        )
 
     def get_object(self, queryset=None):
         return self.request.user.person
 
     def get_person_form_instance(self):
         try:
-            return self.get_queryset().get(slug=self.kwargs['slug'])
+            return self.get_queryset().get(slug=self.kwargs["slug"])
         except PersonForm.DoesNotExist:
             raise Http404("Ce formulaire n'existe pas.")
 
@@ -31,7 +33,7 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(
             person_form=self.person_form_instance,
-            is_authorized=self.person_form_instance.is_authorized(self.object)
+            is_authorized=self.person_form_instance.is_authorized(self.object),
         )
 
     def get(self, request, *args, **kwargs):
@@ -40,8 +42,10 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         self.person_form_instance = self.get_person_form_instance()
-        if not self.person_form_instance.is_open or \
-                not self.person_form_instance.is_authorized(self.request.user.person):
+        if (
+            not self.person_form_instance.is_open
+            or not self.person_form_instance.is_authorized(self.request.user.person)
+        ):
             return self.get(request, *args, **kwargs)
         return super().post(request, *args, **kwargs)
 
@@ -61,19 +65,19 @@ class PeopleFormEditSubmissionView(PeopleFormView):
             raise Http404()
 
         kwargs = super().get_form_kwargs()
-        kwargs['submission'] = get_object_or_404(PersonFormSubmission, pk=self.kwargs['pk'])
+        kwargs["submission"] = get_object_or_404(
+            PersonFormSubmission, pk=self.kwargs["pk"]
+        )
 
-        if kwargs['submission'].person != self.request.user.person:
+        if kwargs["submission"].person != self.request.user.person:
             raise PermissionError()
 
         return kwargs
 
 
 class PeopleFormConfirmationView(DetailView):
-    template_name = 'people/person_form_confirmation.html'
+    template_name = "people/person_form_confirmation.html"
     queryset = PersonForm.objects.filter(published=True)
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(
-            person_form=self.object
-        )
+        return super().get_context_data(person_form=self.object)

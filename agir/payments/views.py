@@ -9,10 +9,10 @@ from .types import PAYMENT_TYPES
 from .payment_modes import PAYMENT_MODES
 
 
-PAYMENT_ID_SESSION_KEY = '_payment_id'
+PAYMENT_ID_SESSION_KEY = "_payment_id"
 
 
-def payment_view(request, ):
+def payment_view(request,):
     pass
 
 
@@ -31,11 +31,9 @@ class PaymentView(DetailView):
 
 class RetryPaymentView(DetailView):
     def get_queryset(self):
-        return Payment.objects\
-            .exclude(status=Payment.STATUS_COMPLETED)\
-            .filter(
-                mode__in=[mode.id for mode in PAYMENT_MODES.values() if mode.can_retry],
-            )
+        return Payment.objects.exclude(status=Payment.STATUS_COMPLETED).filter(
+            mode__in=[mode.id for mode in PAYMENT_MODES.values() if mode.can_retry]
+        )
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -44,14 +42,16 @@ class RetryPaymentView(DetailView):
         if payment_mode is None:
             return HttpResponseServerError()
 
-        return payment_mode.retry_payment_view(request, payment=self.object, *args, **kwargs)
+        return payment_mode.retry_payment_view(
+            request, payment=self.object, *args, **kwargs
+        )
 
 
 def return_view(request, pk):
     try:
         payment = Payment.objects.get(pk=pk)
     except Payment.DoesNotExist:
-        raise Http404('Ce paiement n\'existe pas')
+        raise Http404("Ce paiement n'existe pas")
 
     return handle_return(request, payment)
 
@@ -62,5 +62,7 @@ def handle_return(request, payment):
     else:
         return TemplateResponse(
             request,
-            'payments/success.html' if payment.status == payment.STATUS_COMPLETED else 'payments/failure.html',
+            "payments/success.html"
+            if payment.status == payment.STATUS_COMPLETED
+            else "payments/failure.html",
         )

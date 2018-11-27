@@ -4,15 +4,16 @@ from ..payments.types import register_payment_type
 
 
 class EventsConfig(AppConfig):
-    name = 'agir.events'
+    name = "agir.events"
 
-    PAYMENT_TYPE = 'evenement'
+    PAYMENT_TYPE = "evenement"
 
     def ready(self):
         from .views import EventPaidView, notification_listener
+
         register_payment_type(
             self.PAYMENT_TYPE,
-            'Événement payant',
+            "Événement payant",
             EventPaidView.as_view(),
             status_listener=notification_listener,
         )

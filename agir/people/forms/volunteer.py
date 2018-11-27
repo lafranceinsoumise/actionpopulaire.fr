@@ -13,37 +13,38 @@ from agir.people.tags import action_tags
 
 class VolunteerForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
     tags = [
-        (tag, format_html('<strong>{}</strong><br><small><em>{}</em></small>', title, description))
-        for _, tags in action_tags.items() for tag, title, description in tags]
+        (
+            tag,
+            format_html(
+                "<strong>{}</strong><br><small><em>{}</em></small>", title, description
+            ),
+        )
+        for _, tags in action_tags.items()
+        for tag, title, description in tags
+    ]
     tag_model_class = PersonTag
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
-        self.helper.form_method = 'POST'
-        self.helper.add_input(Submit('submit', _("M'enregistrer comme volontaire")))
+        self.helper.form_method = "POST"
+        self.helper.add_input(Submit("submit", _("M'enregistrer comme volontaire")))
 
         self.helper.layout = Layout(
             Row(
                 HalfCol(
                     HTML(format_html("<h4>{}</h4>", "Agir près de chez vous")),
-                    *(tag for tag, title, desc in action_tags['nearby'])
+                    *(tag for tag, title, desc in action_tags["nearby"])
                 ),
                 HalfCol(
                     HTML(format_html("<h4>{}</h4>", "Agir sur internet")),
-                    *(tag for tag, title, desc in action_tags['internet'])
+                    *(tag for tag, title, desc in action_tags["internet"])
                 ),
             ),
-            Row(
-                HalfCol(
-                    'contact_phone'
-                )
-            )
+            Row(HalfCol("contact_phone")),
         )
 
     class Meta:
         model = Person
-        fields = (
-            'contact_phone',
-        )
+        fields = ("contact_phone",)

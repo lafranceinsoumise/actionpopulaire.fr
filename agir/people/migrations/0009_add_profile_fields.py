@@ -7,19 +7,22 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0008_auto_20170904_1944'),
-    ]
+    dependencies = [("people", "0008_auto_20170904_1944")]
 
     operations = [
         migrations.AddField(
-            model_name='person',
-            name='date_of_birth',
-            field=models.DateField(null=True, verbose_name='Date de naissance'),
+            model_name="person",
+            name="date_of_birth",
+            field=models.DateField(null=True, verbose_name="Date de naissance"),
         ),
         migrations.AddField(
-            model_name='person',
-            name='gender',
-            field=models.CharField(blank=True, choices=[('F', 'Femme'), ('M', 'Homme'), ('O', 'Autre/Non défini')], max_length=1, verbose_name='Genre'),
+            model_name="person",
+            name="gender",
+            field=models.CharField(
+                blank=True,
+                choices=[("F", "Femme"), ("M", "Homme"), ("O", "Autre/Non défini")],
+                max_length=1,
+                verbose_name="Genre",
+            ),
         ),
     ]

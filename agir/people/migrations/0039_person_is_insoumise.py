@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0038_contact_phone_index'),
-    ]
+    dependencies = [("people", "0038_contact_phone_index")]
 
     operations = [
         migrations.AddField(
-            model_name='person',
-            name='is_insoumise',
-            field=models.BooleanField(default=True, verbose_name='Insoumis⋅e'),
-        ),
+            model_name="person",
+            name="is_insoumise",
+            field=models.BooleanField(default=True, verbose_name="Insoumis⋅e"),
+        )
     ]

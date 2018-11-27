@@ -15,18 +15,16 @@ class AnonymousUnsubscribeForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.add_input(Submit('submit', 'Me désabonner'))
+        self.helper.add_input(Submit("submit", "Me désabonner"))
 
     email = forms.EmailField(
-        label='Adresse email',
+        label="Adresse email",
         required=True,
-        error_messages={
-            'required': _("Vous devez saisir votre adresse email")
-        }
+        error_messages={"required": _("Vous devez saisir votre adresse email")},
     )
 
     def unsubscribe(self):
-        email = self.cleaned_data['email']
+        email = self.cleaned_data["email"]
         try:
             person = Person.objects.get(email=email)
             send_unsubscribe_email.delay(person.id)
@@ -34,18 +32,18 @@ class AnonymousUnsubscribeForm(forms.Form):
             person.event_notifications = False
             person.subscribed = False
             person.save()
-        except(Person.DoesNotExist):
+        except (Person.DoesNotExist):
             delete_email(email)
 
 
 class BaseSubscriptionForm(forms.Form):
     email = forms.EmailField(
-        label='Adresse email',
+        label="Adresse email",
         required=True,
         error_messages={
-            'required': _("Vous devez saisir votre adresse email"),
-            'unique': _("Cette adresse email est déjà utilisée")
-        }
+            "required": _("Vous devez saisir votre adresse email"),
+            "unique": _("Cette adresse email est déjà utilisée"),
+        },
     )
 
     def send_confirmation_email(self):
@@ -56,8 +54,10 @@ class BaseSubscriptionForm(forms.Form):
 
 class SimpleSubscriptionForm(BaseSubscriptionForm):
     location_zip = forms.CharField(
-        label='Code postal',
-        validators=[RegexValidator(r'[0-9]{5}', message='Entrez un code postal français')],
+        label="Code postal",
+        validators=[
+            RegexValidator(r"[0-9]{5}", message="Entrez un code postal français")
+        ],
         required=True,
     )
 
@@ -65,23 +65,31 @@ class SimpleSubscriptionForm(BaseSubscriptionForm):
         super(SimpleSubscriptionForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
-        self.helper.form_method = 'POST'
+        self.helper.form_method = "POST"
         self.helper.form_show_labels = False
         self.helper.layout = Layout(
             FormGroup(
-                Field("email", placeholder=self.fields['email'].label, css_class='input-lg'),
-                css_class="col-sm-12"
+                Field(
+                    "email",
+                    placeholder=self.fields["email"].label,
+                    css_class="input-lg",
+                ),
+                css_class="col-sm-12",
             ),
             FormGroup(
                 Div(
-                    Field("location_zip", placeholder=self.fields['location_zip'].label, css_class='input-lg'),
-                    css_class="col-sm-6"
+                    Field(
+                        "location_zip",
+                        placeholder=self.fields["location_zip"].label,
+                        css_class="input-lg",
+                    ),
+                    css_class="col-sm-6",
                 ),
                 Div(
-                    Submit('submit', 'Appuyer', css_class="btn-block btn-lg"),
-                    css_class="col-sm-6"
-                )
-            )
+                    Submit("submit", "Appuyer", css_class="btn-block btn-lg"),
+                    css_class="col-sm-6",
+                ),
+            ),
         )
 
 
@@ -93,25 +101,20 @@ class OverseasSubscriptionForm(LocationFormMixin, BaseSubscriptionForm):
         super(OverseasSubscriptionForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
-        self.helper.form_method = 'POST'
-        self.helper.add_input(Submit('submit', 'Appuyer'))
+        self.helper.form_method = "POST"
+        self.helper.add_input(Submit("submit", "Appuyer"))
 
         self.helper.layout = Layout(
-            Row(
-                FullCol('email'),
-            ),
+            Row(FullCol("email")),
             Row(
                 FullCol(
-                    Field('location_address1', placeholder='Ligne 1*'),
-                    Field('location_address2', placeholder='Ligne 2'),
+                    Field("location_address1", placeholder="Ligne 1*"),
+                    Field("location_address2", placeholder="Ligne 2"),
                 )
-
             ),
             Row(
-                Div('location_zip', css_class='col-md-4'),
-                Div('location_city', css_class='col-md-8'),
+                Div("location_zip", css_class="col-md-4"),
+                Div("location_city", css_class="col-md-8"),
             ),
-            Row(
-                FullCol('location_country'),
-            )
+            Row(FullCol("location_country")),
         )

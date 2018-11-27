@@ -1,4 +1,7 @@
-from .crypto import SubscriptionConfirmationTokenGenerator, AddEmailConfirmationTokenGenerator
+from .crypto import (
+    SubscriptionConfirmationTokenGenerator,
+    AddEmailConfirmationTokenGenerator,
+)
 
 
 subscription_confirmation_token_generator = SubscriptionConfirmationTokenGenerator(7)

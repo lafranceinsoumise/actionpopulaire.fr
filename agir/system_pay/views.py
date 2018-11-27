@@ -1,5 +1,10 @@
 from django.db import transaction
-from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponseNotFound, HttpResponse
+from django.http import (
+    HttpResponseForbidden,
+    HttpResponseBadRequest,
+    HttpResponseNotFound,
+    HttpResponse,
+)
 from django.template.response import TemplateResponse
 from django.views.generic import TemplateView
 from rest_framework.views import APIView
@@ -15,17 +20,17 @@ from .forms import SystempayRedirectForm
 
 
 SYSTEMPAY_STATUS_CHOICE = {
-    'ABANDONED': SystemPayTransaction.STATUS_ABANDONED,
-    'CANCELED': SystemPayTransaction.STATUS_CANCELED,
-    'REFUSED': SystemPayTransaction.STATUS_REFUSED,
-    'AUTHORISED': SystemPayTransaction.STATUS_COMPLETED,
-    'AUTHORISED_TO_VALIDATE': SystemPayTransaction.STATUS_COMPLETED,
+    "ABANDONED": SystemPayTransaction.STATUS_ABANDONED,
+    "CANCELED": SystemPayTransaction.STATUS_CANCELED,
+    "REFUSED": SystemPayTransaction.STATUS_REFUSED,
+    "AUTHORISED": SystemPayTransaction.STATUS_COMPLETED,
+    "AUTHORISED_TO_VALIDATE": SystemPayTransaction.STATUS_COMPLETED,
 }
-PAYMENT_ID_SESSION_KEY = '_payment_id'
+PAYMENT_ID_SESSION_KEY = "_payment_id"
 
 
 class SystempayRedirectView(TemplateView):
-    template_name = 'system_pay/redirect.html'
+    template_name = "system_pay/redirect.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
@@ -34,7 +39,7 @@ class SystempayRedirectView(TemplateView):
         )
 
     def get(self, request, *args, **kwargs):
-        self.payment = kwargs['payment']
+        self.payment = kwargs["payment"]
         self.transaction = SystemPayTransaction.objects.create(payment=self.payment)
         res = super().get(request, *args, **kwargs)
 
@@ -47,22 +52,27 @@ class SystempayRedirectView(TemplateView):
 class SystemPayWebhookView(APIView):
     permission_classes = []
 
-    def post(self, request, ):
+    def post(self, request):
         if not check_signature(request.data):
             return HttpResponseForbidden()
 
-        if request.data.get('vads_trans_status') not in SYSTEMPAY_STATUS_CHOICE or not request.data.get(
-                'vads_order_id'):
+        if request.data.get(
+            "vads_trans_status"
+        ) not in SYSTEMPAY_STATUS_CHOICE or not request.data.get("vads_order_id"):
             return HttpResponseBadRequest()
 
         try:
-            sp_transaction = SystemPayTransaction.objects.get(pk=request.data['vads_order_id'])
+            sp_transaction = SystemPayTransaction.objects.get(
+                pk=request.data["vads_order_id"]
+            )
         except SystemPayTransaction.DoesNotExist:
             return HttpResponseNotFound()
 
         with transaction.atomic():
             sp_transaction.webhook_calls.append(request.data)
-            sp_transaction.status = SYSTEMPAY_STATUS_CHOICE.get(request.data['vads_trans_status'])
+            sp_transaction.status = SYSTEMPAY_STATUS_CHOICE.get(
+                request.data["vads_trans_status"]
+            )
             sp_transaction.save()
 
             update_payment_from_transaction(sp_transaction.payment, sp_transaction)
@@ -70,14 +80,14 @@ class SystemPayWebhookView(APIView):
         with transaction.atomic():
             notify_status_change(sp_transaction.payment)
 
-        return HttpResponse({'status': 'Accepted'}, 200)
+        return HttpResponse({"status": "Accepted"}, 200)
 
 
 def return_view(request):
     payment_id = request.session.get(PAYMENT_ID_SESSION_KEY)
     payment = None
 
-    status = request.GET.get('status')
+    status = request.GET.get("status")
 
     if payment_id:
         try:
@@ -86,13 +96,9 @@ def return_view(request):
             pass
 
     if payment is None:
-        return TemplateResponse(
-            request, 'system_pay/payment_not_identified.html'
-        )
+        return TemplateResponse(request, "system_pay/payment_not_identified.html")
 
-    if status != 'success':
-        return TemplateResponse(
-            request, 'system_pay/payment_failed.html'
-        )
+    if status != "success":
+        return TemplateResponse(request, "system_pay/payment_failed.html")
 
     return handle_return(request, payment)

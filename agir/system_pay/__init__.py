@@ -6,9 +6,9 @@ from ..payments.abstract_payment_mode import AbstractPaymentMode
 
 
 class SystemPayPaymentMode(AbstractPaymentMode):
-    id = 'system_pay'
-    url_fragment = 'carte'
-    label = _('Paiement par carte bleue')
+    id = "system_pay"
+    url_fragment = "carte"
+    label = _("Paiement par carte bleue")
 
     can_retry = True
     can_cancel = True
@@ -16,11 +16,13 @@ class SystemPayPaymentMode(AbstractPaymentMode):
     @cached_property
     def payment_view(self):
         from . import views
+
         return views.SystempayRedirectView.as_view()
 
     @cached_property
     def retry_payment_view(self):
         from . import views
+
         return views.SystempayRedirectView.as_view()
 
     @staticmethod
@@ -28,6 +30,6 @@ class SystemPayPaymentMode(AbstractPaymentMode):
         from . import views
 
         return [
-            path('webhook/', views.SystemPayWebhookView.as_view(), name='webhook'),
-            path('retour/', views.return_view, name='return')
+            path("webhook/", views.SystemPayWebhookView.as_view(), name="webhook"),
+            path("retour/", views.return_view, name="return"),
         ]

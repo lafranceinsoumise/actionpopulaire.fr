@@ -9,18 +9,21 @@ from agir.events import models as events_models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0037_calendars_many_to_many'),
-    ]
+    dependencies = [("events", "0037_calendars_many_to_many")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='calendaritem',
-            options={'verbose_name': 'Élément de calendrier'},
+            name="calendaritem", options={"verbose_name": "Élément de calendrier"}
         ),
         migrations.AlterField(
-            model_name='event',
-            name='subtype',
-            field=models.ForeignKey(default=events_models.get_default_subtype, on_delete=django.db.models.deletion.PROTECT, related_name='events', to='events.EventSubtype', verbose_name='Sous-type'),
+            model_name="event",
+            name="subtype",
+            field=models.ForeignKey(
+                default=events_models.get_default_subtype,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="events",
+                to="events.EventSubtype",
+                verbose_name="Sous-type",
+            ),
         ),
     ]

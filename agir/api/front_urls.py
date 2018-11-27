@@ -10,12 +10,12 @@ from agir.polls import urls as polls_urls
 from agir.authentication import urls as authentication_urls
 
 urlpatterns = [
-    path('', include(front_urls)),
-    path('', include(people_urls)),
-    path('', include(groups_urls)),
-    path('', include(events_urls)),
-    path('', include(payments_urls)),
-    path('', include(donations_urls)),
-    path('', include(polls_urls)),
-    path('', include(authentication_urls))
+    path("", include(front_urls)),
+    path("", include(people_urls)),
+    path("", include(groups_urls)),
+    path("", include(events_urls)),
+    path("", include(payments_urls)),
+    path("", include(donations_urls)),
+    path("", include(polls_urls)),
+    path("", include(authentication_urls)),
 ]

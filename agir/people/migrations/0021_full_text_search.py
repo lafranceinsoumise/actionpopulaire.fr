@@ -134,23 +134,22 @@ DROP TEXT SEARCH CONFIGURATION simple_unaccented;
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0020_auto_20171113_2013'),
-    ]
+    dependencies = [("people", "0020_auto_20171113_2013")]
 
     operations = [
         migrations.AddField(
-            model_name='person',
-            name='search',
-            field=django.contrib.postgres.search.SearchVectorField(editable=False, null=True, verbose_name='Données de recherche'),
+            model_name="person",
+            name="search",
+            field=django.contrib.postgres.search.SearchVectorField(
+                editable=False, null=True, verbose_name="Données de recherche"
+            ),
         ),
         django.contrib.postgres.operations.UnaccentExtension(),
-        migrations.RunSQL(
-            sql=add_search_trigger,
-            reverse_sql=remove_search_trigger
-        ),
+        migrations.RunSQL(sql=add_search_trigger, reverse_sql=remove_search_trigger),
         migrations.AddIndex(
-            model_name='person',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['search'], name='search_index'),
+            model_name="person",
+            index=django.contrib.postgres.indexes.GinIndex(
+                fields=["search"], name="search_index"
+            ),
         ),
     ]

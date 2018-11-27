@@ -6,14 +6,17 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('polls', '0008_auto_20180719_1655'),
-    ]
+    dependencies = [("polls", "0008_auto_20180719_1655")]
 
     operations = [
         migrations.AlterField(
-            model_name='pollchoice',
-            name='person',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='poll_choices', to='people.Person'),
-        ),
+            model_name="pollchoice",
+            name="person",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="poll_choices",
+                to="people.Person",
+            ),
+        )
     ]

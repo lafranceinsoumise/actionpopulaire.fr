@@ -6,32 +6,29 @@ from ..groups.models import SupportGroup
 
 
 class EventSitemap(Sitemap):
-    changefreq = 'always'
+    changefreq = "always"
 
     def items(self):
         return Event.objects.published()
 
     def location(self, obj):
-        return reverse('view_event', args=[obj.id])
+        return reverse("view_event", args=[obj.id])
 
     def lastmod(self, obj):
         return max(obj.modified, obj.end_time)
 
 
 class SupportGroupSitemap(Sitemap):
-    changefreq = 'always'
+    changefreq = "always"
 
     def items(self):
         return SupportGroup.objects.active().all()
 
     def location(self, obj):
-        return reverse('view_group', args=[obj.id])
+        return reverse("view_group", args=[obj.id])
 
     def lastmod(self, obj):
         return obj.modified
 
 
-sitemaps = {
-    'events': EventSitemap,
-    'groups': SupportGroupSitemap,
-}
+sitemaps = {"events": EventSitemap, "groups": SupportGroupSitemap}

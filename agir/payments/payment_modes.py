@@ -5,7 +5,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 from django.forms import ChoiceField, Field, RadioSelect
 
-__all__ = ['PAYMENT_MODES', 'DEFAULT_MODE']
+__all__ = ["PAYMENT_MODES", "DEFAULT_MODE"]
 
 
 _payment_classes = [import_string(name) for name in settings.PAYMENT_MODES]
@@ -16,9 +16,19 @@ DEFAULT_MODE = _payment_classes[0].id
 class PaymentModeField(ChoiceField):
     widget = RadioSelect
 
-    def __init__(self, *, payment_modes=None, empty_label=_('Choisissez votre moyen de paiement'), required=True,
-                 initial=None, label=_('Mode de paiement'), **kwargs):
-        self._payment_modes = payment_modes if payment_modes is not None else list(PAYMENT_MODES.values())
+    def __init__(
+        self,
+        *,
+        payment_modes=None,
+        empty_label=_("Choisissez votre moyen de paiement"),
+        required=True,
+        initial=None,
+        label=_("Mode de paiement"),
+        **kwargs
+    ):
+        self._payment_modes = (
+            payment_modes if payment_modes is not None else list(PAYMENT_MODES.values())
+        )
 
         if required:
             self.empty_label = None
@@ -42,7 +52,7 @@ class PaymentModeField(ChoiceField):
     def choices(self):
         # If self._choices is set, then somebody must have manually set
         # the property self.choices. In this case, just return self._choices.
-        if hasattr(self, '_choices'):
+        if hasattr(self, "_choices"):
             return self._choices
 
         # Otherwise, execute the QuerySet in self.queryset to determine the
@@ -57,7 +67,7 @@ class PaymentModeField(ChoiceField):
     choices.setter(ChoiceField._set_choices)
 
     def prepare_value(self, value):
-        if hasattr(value, 'id'):
+        if hasattr(value, "id"):
             return value.id
         return super().prepare_value(value)
 
@@ -68,7 +78,9 @@ class PaymentModeField(ChoiceField):
         if value in PAYMENT_MODES:
             return PAYMENT_MODES[value]
 
-        raise ValidationError(self.error_messages['invalid_choice'], code='invalid_choice')
+        raise ValidationError(
+            self.error_messages["invalid_choice"], code="invalid_choice"
+        )
 
     def validate(self, value):
         return Field.validate(self, value)
@@ -76,8 +88,8 @@ class PaymentModeField(ChoiceField):
     def has_changed(self, initial, data):
         if self.disabled:
             return False
-        initial_value = initial if initial is not None else ''
-        data_value = data if data is not None else ''
+        initial_value = initial if initial is not None else ""
+        data_value = data if data is not None else ""
         return str(self.prepare_value(initial_value)) != str(data_value)
 
     def __deepcopy__(self, memo):

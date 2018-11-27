@@ -8,14 +8,16 @@ from agir.lib import models as lib_models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0011_auto_20171106_1833'),
-    ]
+    dependencies = [("groups", "0011_auto_20171106_1833")]
 
     operations = [
         migrations.AlterField(
-            model_name='supportgroup',
-            name='description',
-            field=lib_models.DescriptionField(blank=True, help_text='Une description, en MarkDown', verbose_name='description'),
-        ),
+            model_name="supportgroup",
+            name="description",
+            field=lib_models.DescriptionField(
+                blank=True,
+                help_text="Une description, en MarkDown",
+                verbose_name="description",
+            ),
+        )
     ]

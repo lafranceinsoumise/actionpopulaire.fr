@@ -7,18 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0021_auto_20180119_1740'),
-    ]
+    dependencies = [("groups", "0021_auto_20180119_1740")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='supportgroupsubtype',
-            name='popup_anchor_x',
-        ),
+        migrations.RemoveField(model_name="supportgroupsubtype", name="popup_anchor_x"),
         migrations.AlterField(
-            model_name='supportgroupsubtype',
-            name='popup_anchor_y',
-            field=models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='placement de la popup (par rapport au point)'),
+            model_name="supportgroupsubtype",
+            name="popup_anchor_y",
+            field=models.PositiveSmallIntegerField(
+                blank=True,
+                null=True,
+                verbose_name="placement de la popup (par rapport au point)",
+            ),
         ),
     ]

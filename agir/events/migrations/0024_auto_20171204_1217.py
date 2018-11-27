@@ -9,19 +9,29 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('groups', '0013_change_description_help_text'),
-        ('events', '0023_change_description_help_text'),
+        ("groups", "0013_change_description_help_text"),
+        ("events", "0023_change_description_help_text"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='organizers_groups',
-            field=models.ManyToManyField(related_name='organized_events', through='events.OrganizerConfig', to='groups.SupportGroup'),
+            model_name="event",
+            name="organizers_groups",
+            field=models.ManyToManyField(
+                related_name="organized_events",
+                through="events.OrganizerConfig",
+                to="groups.SupportGroup",
+            ),
         ),
         migrations.AddField(
-            model_name='organizerconfig',
-            name='as_group',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='organizer_configs', to='groups.SupportGroup'),
+            model_name="organizerconfig",
+            name="as_group",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="organizer_configs",
+                to="groups.SupportGroup",
+            ),
         ),
     ]

@@ -5,34 +5,34 @@ import oauth2_provider.generators
 
 
 def populate_columns(apps, schema_editor):
-    Client = apps.get_model('clients', 'Client')
+    Client = apps.get_model("clients", "Client")
 
     for c in Client.objects.all():
         c.client_id = c.label
         c.name = c.label
         c.client_secret = oauth2_provider.generators.generate_client_secret()
-        c.authorization_grant_type = 'authorization-code' if c.oauth_enabled else 'client-credentials'
+        c.authorization_grant_type = (
+            "authorization-code" if c.oauth_enabled else "client-credentials"
+        )
         c.skip_authorization = c.trusted
-        c.redirect_uris = ' '.join(c.uris)
+        c.redirect_uris = " ".join(c.uris)
         c.save()
 
 
 def populate_columns_reverse(apps, schema_editor):
-    Client = apps.get_model('clients', 'Client')
+    Client = apps.get_model("clients", "Client")
 
     for c in Client.objects.all():
         c.label = c.client_id
-        c.oauth_enabled = (c.authorization_grant_type == 'authorization-code')
+        c.oauth_enabled = c.authorization_grant_type == "authorization-code"
         c.trusted = c.skip_authorization
-        c.uris = c.redirect_uris.split(' ')
+        c.uris = c.redirect_uris.split(" ")
         c.save()
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('clients', '0006_oauth2_provider'),
-    ]
+    dependencies = [("clients", "0006_oauth2_provider")]
 
     operations = [
         migrations.RunPython(populate_columns, reverse_code=populate_columns_reverse)

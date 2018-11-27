@@ -26,32 +26,33 @@ from . import front_urls
 from ..webhooks import urls as webhooks_urls
 
 urlpatterns = [
-    path('admin/', admin.admin_site.urls),
-    path('webhooks/', include(webhooks_urls)),
-    path('ajax_select/', include(ajax_select_urls)),
-    path('metrics/', with_http_basic_auth({settings.PROMETHEUS_USER: settings.PROMETHEUS_PASSWORD})(metric_view))
+    path("admin/", admin.admin_site.urls),
+    path("webhooks/", include(webhooks_urls)),
+    path("ajax_select/", include(ajax_select_urls)),
+    path(
+        "metrics/",
+        with_http_basic_auth({settings.PROMETHEUS_USER: settings.PROMETHEUS_PASSWORD})(
+            metric_view
+        ),
+    ),
 ]
 
 if settings.ENABLE_API:
     urlpatterns.append(
-        path('legacy/', include((routers.legacy_api.urls, 'legacy'), namespace='legacy'))
+        path(
+            "legacy/", include((routers.legacy_api.urls, "legacy"), namespace="legacy")
+        )
     )
 
 if settings.ENABLE_FRONT:
-    urlpatterns += [
-        path('', include(front_urls)),
-    ]
+    urlpatterns += [path("", include(front_urls))]
 
 if settings.ENABLE_MAP:
-    urlpatterns.append(
-        path('carte/', include('agir.carte.urls')),
-    )
+    urlpatterns.append(path("carte/", include("agir.carte.urls")))
 
 if settings.DEBUG:
     import debug_toolbar
 
-    urlpatterns = [
-                      path('__debug__/', include(debug_toolbar.urls))
-                  ] + urlpatterns
+    urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
+    urlpatterns += [path("silk/", include("silk.urls", namespace="silk"))]

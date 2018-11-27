@@ -5,10 +5,10 @@ from phonenumbers.phonenumberutil import number_type, PhoneNumberType
 
 
 OVERSEAS_PREFIXES = {
-    262: ['262', '269',  '639', '692', '693'],  # Réunion and Mayotte
-    590: ['590', '690', '691'],  # Guadeloupe, Saint-Martin, Saint Barthélemy
-    594: ['594', '694'],  # Guyane
-    596: ['596', '696', '727'],  # Martinique
+    262: ["262", "269", "639", "692", "693"],  # Réunion and Mayotte
+    590: ["590", "690", "691"],  # Guadeloupe, Saint-Martin, Saint Barthélemy
+    594: ["594", "694"],  # Guyane
+    596: ["596", "696", "727"],  # Martinique
 }
 
 TOM_COUNTRY_CODES = {
@@ -20,7 +20,11 @@ TOM_COUNTRY_CODES = {
 
 OVERSEAS_MAPPING_PREFIXES = defaultdict(
     lambda: 33,
-    {prefix: code for code, prefixes in OVERSEAS_PREFIXES.items() for prefix in prefixes}
+    {
+        prefix: code
+        for code, prefixes in OVERSEAS_PREFIXES.items()
+        for prefix in prefixes
+    },
 )
 
 FRENCH_COUNTRY_CODES = {33, *TOM_COUNTRY_CODES, *OVERSEAS_PREFIXES.keys()}

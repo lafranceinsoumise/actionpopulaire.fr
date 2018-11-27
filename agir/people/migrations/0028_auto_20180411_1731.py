@@ -8,19 +8,17 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0027_remove_personform_personal_information'),
-    ]
+    dependencies = [("people", "0027_remove_personform_personal_information")]
 
     operations = [
         migrations.AlterField(
-            model_name='personform',
-            name='fields',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default=list, verbose_name='Champs'),
+            model_name="personform",
+            name="fields",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default=list, verbose_name="Champs"
+            ),
         ),
         migrations.RenameField(
-            model_name='personform',
-            old_name='fields',
-            new_name='custom_fields',
+            model_name="personform", old_name="fields", new_name="custom_fields"
         ),
     ]

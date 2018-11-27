@@ -5,15 +5,16 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('people', '0034_personform_send_answers_to'),
-        ('events', '0051_auto_20180613_1623'),
+        ("people", "0034_personform_send_answers_to"),
+        ("events", "0051_auto_20180613_1623"),
     ]
 
     operations = [
-        migrations.SeparateDatabaseAndState(state_operations=[
-            migrations.AlterUniqueTogether(
-                name='identifiedguest',
-                unique_together={('rsvp', 'submission')},
-            ),
-        ]),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AlterUniqueTogether(
+                    name="identifiedguest", unique_together={("rsvp", "submission")}
+                )
+            ]
+        )
     ]

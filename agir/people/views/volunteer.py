@@ -16,4 +16,4 @@ class VolunteerView(SoftLoginRequiredMixin, UpdateView):
 
 
 class VolunteerConfirmationView(TemplateView):
-    template_name = 'people/confirmation_volunteer.html'
+    template_name = "people/confirmation_volunteer.html"

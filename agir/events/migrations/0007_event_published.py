@@ -7,14 +7,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0006_auto_20170915_1510'),
-    ]
+    dependencies = [("events", "0006_auto_20170915_1510")]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='published',
-            field=models.BooleanField(default=True, help_text="L'évenement doit-il être visible publiquement.", verbose_name='publié'),
-        ),
+            model_name="event",
+            name="published",
+            field=models.BooleanField(
+                default=True,
+                help_text="L'évenement doit-il être visible publiquement.",
+                verbose_name="publié",
+            ),
+        )
     ]

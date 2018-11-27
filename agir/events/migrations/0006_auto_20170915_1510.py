@@ -7,13 +7,19 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0005_auto_20170704_1452'),
-    ]
+    dependencies = [("events", "0005_auto_20170704_1452")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='event',
-            options={'ordering': ('-start_time', '-end_time'), 'permissions': (('every_event', 'Peut éditer tous les événements'), ('view_hidden_event', 'Peut voir les événements non publiés')), 'verbose_name': 'événement', 'verbose_name_plural': 'événements'},
-        ),
+            name="event",
+            options={
+                "ordering": ("-start_time", "-end_time"),
+                "permissions": (
+                    ("every_event", "Peut éditer tous les événements"),
+                    ("view_hidden_event", "Peut voir les événements non publiés"),
+                ),
+                "verbose_name": "événement",
+                "verbose_name_plural": "événements",
+            },
+        )
     ]

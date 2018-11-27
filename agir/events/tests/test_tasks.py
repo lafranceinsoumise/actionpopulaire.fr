@@ -13,7 +13,7 @@ class EventTasksTestCase(TestCase):
     def setUp(self):
         now = timezone.now()
 
-        self.calendar = Calendar.objects.create_calendar('default')
+        self.calendar = Calendar.objects.create_calendar("default")
 
         self.creator = Person.objects.create_person("moi@moi.fr")
         self.event = Event.objects.create(
@@ -28,23 +28,25 @@ class EventTasksTestCase(TestCase):
             location_address1="Place denfert-rochereau",
             location_zip="75014",
             location_city="Paris",
-            location_country="FR"
+            location_country="FR",
         )
 
         self.organizer_config = OrganizerConfig.objects.create(
             person=self.creator, event=self.event
         )
 
-        self.attendee1 = Person.objects.create_person('person1@participants.fr')
-        self.attendee2 = Person.objects.create_person('person2@participants.fr')
-        self.attendee_no_notification = Person.objects.create_person('person3@participants.fr')
+        self.attendee1 = Person.objects.create_person("person1@participants.fr")
+        self.attendee2 = Person.objects.create_person("person2@participants.fr")
+        self.attendee_no_notification = Person.objects.create_person(
+            "person3@participants.fr"
+        )
 
         self.rsvp1 = RSVP.objects.create(event=self.event, person=self.attendee1)
         self.rsvp2 = RSVP.objects.create(event=self.event, person=self.attendee2)
         self.rsvp3 = RSVP.objects.create(
             event=self.event,
             person=self.attendee_no_notification,
-            notifications_enabled=False
+            notifications_enabled=False,
         )
 
     def test_event_creation_mail(self):
@@ -57,8 +59,16 @@ class EventTasksTestCase(TestCase):
 
         text = message.body
 
-        for item in ['name', 'location_name', 'short_address', 'contact_name', 'contact_phone']:
-            self.assert_(getattr(self.event, item) in text, "{} missing in message".format(item))
+        for item in [
+            "name",
+            "location_name",
+            "short_address",
+            "contact_name",
+            "contact_phone",
+        ]:
+            self.assert_(
+                getattr(self.event, item) in text, "{} missing in message".format(item)
+            )
 
     def test_rsvp_notification_mail(self):
         tasks.send_rsvp_notification(self.rsvp1.pk)
@@ -68,28 +78,30 @@ class EventTasksTestCase(TestCase):
         attendee_message = mail.outbox[0]
         self.assertEqual(attendee_message.recipients(), ["person1@participants.fr"])
 
-        text = attendee_message.body.replace('\n', '')
+        text = attendee_message.body.replace("\n", "")
         mail_content = {
-            'event name': self.event.name,
-            'event link': front_url('view_event', kwargs={'pk': self.event.pk})
+            "event name": self.event.name,
+            "event link": front_url("view_event", kwargs={"pk": self.event.pk}),
         }
 
         for name, value in mail_content.items():
-            self.assert_(value in text, '{} missing from mail'.format(name))
+            self.assert_(value in text, "{} missing from mail".format(name))
 
         org_message = mail.outbox[1]
         self.assertEqual(org_message.recipients(), ["moi@moi.fr"])
 
-        text = org_message.body.replace('\n', '')
+        text = org_message.body.replace("\n", "")
 
         mail_content = {
-            'attendee information': str(self.attendee1),
-            'event name': self.event.name,
-            'event management link': front_url('manage_event', kwargs={'pk': self.event.pk})
+            "attendee information": str(self.attendee1),
+            "event name": self.event.name,
+            "event management link": front_url(
+                "manage_event", kwargs={"pk": self.event.pk}
+            ),
         }
 
         for name, value in mail_content.items():
-            self.assert_(value in text, '{} missing from mail'.format(name))
+            self.assert_(value in text, "{} missing from mail".format(name))
 
     def test_changed_event_notification_mail(self):
         tasks.send_event_changed_notification(self.event.pk, ["information", "timing"])
@@ -101,17 +113,19 @@ class EventTasksTestCase(TestCase):
 
         messages = {message.recipients()[0]: message for message in mail.outbox}
 
-        self.assertCountEqual(messages.keys(), [self.attendee1.email, self.attendee2.email])
+        self.assertCountEqual(
+            messages.keys(), [self.attendee1.email, self.attendee2.email]
+        )
 
         for recipient, message in messages.items():
-            text = message.body.replace('\n', '')
+            text = message.body.replace("\n", "")
 
-            self.assert_(self.event.name in text, 'event name not in message')
+            self.assert_(self.event.name in text, "event name not in message")
             self.assert_(
-                front_url('quit_event', kwargs={'pk': self.event.pk}) in text,
-                'quit event link not in message'
+                front_url("quit_event", kwargs={"pk": self.event.pk}) in text,
+                "quit event link not in message",
             )
 
-            self.assert_(str(tasks.CHANGE_DESCRIPTION['information']) in text)
-            self.assert_(str(tasks.CHANGE_DESCRIPTION['timing']) in text)
-            self.assert_(str(tasks.CHANGE_DESCRIPTION['contact']) not in text)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION["information"]) in text)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION["timing"]) in text)
+            self.assert_(str(tasks.CHANGE_DESCRIPTION["contact"]) not in text)

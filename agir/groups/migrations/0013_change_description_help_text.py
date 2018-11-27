@@ -8,19 +8,24 @@ from agir.lib import models as lib_models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0012_refactoring_description'),
-    ]
+    dependencies = [("groups", "0012_refactoring_description")]
 
     operations = [
         migrations.AlterField(
-            model_name='supportgroup',
-            name='allow_html',
-            field=models.BooleanField(default=False, verbose_name='autoriser le HTML étendu dans la description'),
+            model_name="supportgroup",
+            name="allow_html",
+            field=models.BooleanField(
+                default=False,
+                verbose_name="autoriser le HTML étendu dans la description",
+            ),
         ),
         migrations.AlterField(
-            model_name='supportgroup',
-            name='description',
-            field=lib_models.DescriptionField(blank=True, help_text='Une courte description', verbose_name='description'),
+            model_name="supportgroup",
+            name="description",
+            field=lib_models.DescriptionField(
+                blank=True,
+                help_text="Une courte description",
+                verbose_name="description",
+            ),
         ),
     ]

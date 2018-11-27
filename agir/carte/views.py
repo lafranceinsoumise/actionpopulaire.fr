@@ -38,20 +38,24 @@ def parse_bounds(bounds):
     except ValueError:
         return None
 
-    if not (-180. <= bbox[0] < bbox[2] <= 180.) or not (-90. <= bbox[1] < bbox[3] <= 90):
+    if not (-180.0 <= bbox[0] < bbox[2] <= 180.0) or not (
+        -90.0 <= bbox[1] < bbox[3] <= 90
+    ):
         return None
 
     return bbox
 
 
 class BBoxFilterBackend(object):
-    error_message = _("Le paramètre bbox devrait être un tableau de 4 flottants [lon1, lat1, lon2, lat2].")
+    error_message = _(
+        "Le paramètre bbox devrait être un tableau de 4 flottants [lon1, lat1, lon2, lat2]."
+    )
 
     def filter_queryset(self, request, queryset, view):
-        if not 'bbox' in request.query_params:
+        if not "bbox" in request.query_params:
             return queryset
 
-        bbox = request.query_params['bbox']
+        bbox = request.query_params["bbox"]
 
         if bbox is None:
             raise ValidationError(self.error_message)
@@ -68,22 +72,26 @@ class FixedModelMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
 
 class EventFilterSet(django_filters.rest_framework.FilterSet):
     subtype = FixedModelMultipleChoiceFilter(
-        field_name='subtype', to_field_name='label', queryset=EventSubtype.objects.all()
+        field_name="subtype", to_field_name="label", queryset=EventSubtype.objects.all()
     )
 
     class Meta:
         model = Event
-        fields = ('subtype', )
+        fields = ("subtype",)
 
 
 class EventsView(ListAPIView):
     serializer_class = serializers.MapEventSerializer
-    filter_backends = (BBoxFilterBackend, DjangoFilterBackend, )
+    filter_backends = (BBoxFilterBackend, DjangoFilterBackend)
     filterset_class = EventFilterSet
     authentication_classes = []
 
     def get_queryset(self):
-        return Event.objects.upcoming().filter(coordinates__isnull=False).select_related('subtype')
+        return (
+            Event.objects.upcoming()
+            .filter(coordinates__isnull=False)
+            .select_related("subtype")
+        )
 
     @cache.cache_control(max_age=300, public=True)
     def get(self, request, *args, **kwargs):
@@ -92,18 +100,25 @@ class EventsView(ListAPIView):
 
 class GroupFilterSet(django_filters.rest_framework.FilterSet):
     subtype = FixedModelMultipleChoiceFilter(
-        field_name='subtypes', to_field_name='label', queryset=SupportGroupSubtype.objects.all()
+        field_name="subtypes",
+        to_field_name="label",
+        queryset=SupportGroupSubtype.objects.all(),
     )
+
     class Meta:
         model = SupportGroup
-        fields = ('subtype',)
+        fields = ("subtype",)
 
 
 class GroupsView(ListAPIView):
     serializer_class = serializers.MapGroupSerializer
-    filter_backends = (BBoxFilterBackend, DjangoFilterBackend, )
+    filter_backends = (BBoxFilterBackend, DjangoFilterBackend)
     filterset_class = GroupFilterSet
-    queryset = SupportGroup.objects.active().filter(coordinates__isnull=False).prefetch_related('subtypes')
+    queryset = (
+        SupportGroup.objects.active()
+        .filter(coordinates__isnull=False)
+        .prefetch_related("subtypes")
+    )
     authentication_classes = []
 
     @cache.cache_control(max_age=300, public=True)
@@ -111,19 +126,26 @@ class GroupsView(ListAPIView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        return SupportGroup.objects.active() \
-            .filter(coordinates__isnull=False) \
-            .prefetch_related('subtypes') \
-            .annotate(current_events_count=Count(
-                'organized_events',
-                filter=Q(
-                    organized_events__start_time__range=(now() - timedelta(days=62), now() + timedelta(days=31)),
-                    organized_events__published=True
+        return (
+            SupportGroup.objects.active()
+            .filter(coordinates__isnull=False)
+            .prefetch_related("subtypes")
+            .annotate(
+                current_events_count=Count(
+                    "organized_events",
+                    filter=Q(
+                        organized_events__start_time__range=(
+                            now() - timedelta(days=62),
+                            now() + timedelta(days=31),
+                        ),
+                        organized_events__published=True,
+                    ),
                 )
-            ))
+            )
+        )
 
 
-class MapViewMixin():
+class MapViewMixin:
     @xframe_options_exempt
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -131,36 +153,36 @@ class MapViewMixin():
     @classmethod
     def get_type_information(cls, id, label):
         return {
-            'id': id,
-            'label': label,
-            'color': cls.TYPES_INFO[id][0],
-            'iconName': cls.TYPES_INFO[id][1],
+            "id": id,
+            "label": label,
+            "color": cls.TYPES_INFO[id][0],
+            "iconName": cls.TYPES_INFO[id][1],
         }
 
     @staticmethod
     def get_subtype_information(subtype):
         res = {
-            'id': subtype.id,
-            'label': subtype.label,
-            'description': subtype.description,
-            'type': subtype.type,
-            'hideLabel': subtype.hide_text_label
+            "id": subtype.id,
+            "label": subtype.label,
+            "description": subtype.description,
+            "type": subtype.type,
+            "hideLabel": subtype.hide_text_label,
         }
 
         if subtype.icon:
-            res['iconUrl'] = subtype.icon.url
+            res["iconUrl"] = subtype.icon.url
             if subtype.icon_anchor_x is not None and subtype.icon_anchor_y is not None:
-                res['iconAnchor'] = [subtype.icon_anchor_x, subtype.icon_anchor_y]
+                res["iconAnchor"] = [subtype.icon_anchor_x, subtype.icon_anchor_y]
             else:
-                res['iconAnchor'] = [subtype.icon.width // 2, subtype.icon.height // 2]
+                res["iconAnchor"] = [subtype.icon.width // 2, subtype.icon.height // 2]
 
             if subtype.popup_anchor_y is not None:
-                res['popupAnchor'] = -subtype.popup_anchor_y
+                res["popupAnchor"] = -subtype.popup_anchor_y
             else:
-                res['popupAnchor'] = -res['iconAnchor'][1]
+                res["popupAnchor"] = -res["iconAnchor"][1]
         elif subtype.icon_name:
-            res['iconName'] = subtype.icon_name
-            res['color'] = subtype.color
+            res["iconName"] = subtype.icon_name
+            res["color"] = subtype.color
 
         return res
 
@@ -173,20 +195,18 @@ class AbstractListMapView(MapViewMixin, TemplateView):
 
         params = QueryDict(mutable=True)
 
-        subtype_label = self.request.GET.getlist('subtype')
+        subtype_label = self.request.GET.getlist("subtype")
         if subtype_label:
             subtypes = subtypes.filter(label__in=subtype_label)
-            params.setlist('subtype', subtype_label)
+            params.setlist("subtype", subtype_label)
 
         subtype_info = [self.get_subtype_information(st) for st in subtypes]
-        types = self.subtype_model._meta.get_field('type').choices
-        type_info = [
-            self.get_type_information(id, str(label)) for id, label in types
-        ]
+        types = self.subtype_model._meta.get_field("type").choices
+        type_info = [self.get_type_information(id, str(label)) for id, label in types]
 
-        bounds = parse_bounds(self.request.GET.get('bounds'))
+        bounds = parse_bounds(self.request.GET.get("bounds"))
 
-        querystring = ('?' + params.urlencode()) if params else ''
+        querystring = ("?" + params.urlencode()) if params else ""
 
         return super().get_context_data(
             type_config=mark_safe(json.dumps(type_info)),
@@ -206,7 +226,7 @@ class AbstractSingleItemMapView(MapViewMixin, DetailView):
         type_info = self.get_type_information(subtype.type, subtype.get_type_display())
         subtype_info = self.get_subtype_information(subtype)
 
-        if 'iconUrl' in subtype_info or 'iconName' in subtype_info:
+        if "iconUrl" in subtype_info or "iconName" in subtype_info:
             icon_config = subtype_info
         else:
             icon_config = type_info
@@ -218,31 +238,31 @@ class AbstractSingleItemMapView(MapViewMixin, DetailView):
         )
 
 
-class EventMapMixin():
+class EventMapMixin:
     subtype_model = EventSubtype
     queryset = Event.objects.published()
 
     TYPES_INFO = {
-            "G": ["#4a64ac", "comments"],
-            "M": ["#e14b35", "bullhorn"],
-            "A": ["#c2306c", "exclamation"],
-            "O": ["#49b37d", "calendar"]
+        "G": ["#4a64ac", "comments"],
+        "M": ["#e14b35", "bullhorn"],
+        "A": ["#c2306c", "exclamation"],
+        "O": ["#49b37d", "calendar"],
     }
 
     def get_subtype(self):
         return self.object.subtype
 
 
-class GroupMapMixin():
+class GroupMapMixin:
     subtype_model = SupportGroupSubtype
     queryset = SupportGroup.objects.active()
-    context_object_name = 'group'
+    context_object_name = "group"
 
     TYPES_INFO = {
-        "L": ['#4a64ac', 'users'],
-        "B": ['#49b37d', 'book'],
-        "F": ['#e14b35', 'cog'],
-        "P": ['#f4981e', 'industry'],
+        "L": ["#4a64ac", "users"],
+        "B": ["#49b37d", "book"],
+        "F": ["#e14b35", "cog"],
+        "P": ["#f4981e", "industry"],
     }
 
     def get_subtype(self):
@@ -250,16 +270,16 @@ class GroupMapMixin():
 
 
 class EventMapView(EventMapMixin, AbstractListMapView):
-    template_name = 'carte/events.html'
+    template_name = "carte/events.html"
 
 
 class GroupMapView(GroupMapMixin, AbstractListMapView):
-    template_name = 'carte/groups.html'
+    template_name = "carte/groups.html"
 
 
 class SingleEventMapView(EventMapMixin, AbstractSingleItemMapView):
-    template_name = 'carte/single_event.html'
+    template_name = "carte/single_event.html"
 
 
 class SingleGroupMapView(GroupMapMixin, AbstractSingleItemMapView):
-    template_name = 'carte/single_group.html'
+    template_name = "carte/single_group.html"

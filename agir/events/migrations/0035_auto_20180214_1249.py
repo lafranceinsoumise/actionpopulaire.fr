@@ -8,14 +8,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0034_eventsubtype_icon_name'),
-    ]
+    dependencies = [("events", "0034_eventsubtype_icon_name")]
 
     operations = [
         migrations.AlterField(
-            model_name='eventsubtype',
-            name='color',
-            field=models.CharField(blank=True, help_text='La couleur associée aux marqueurs sur la carte.', max_length=7, validators=[django.core.validators.RegexValidator(regex='^#[0-9A-Fa-f]{6}$')], verbose_name='couleur'),
-        ),
+            model_name="eventsubtype",
+            name="color",
+            field=models.CharField(
+                blank=True,
+                help_text="La couleur associée aux marqueurs sur la carte.",
+                max_length=7,
+                validators=[
+                    django.core.validators.RegexValidator(regex="^#[0-9A-Fa-f]{6}$")
+                ],
+                verbose_name="couleur",
+            ),
+        )
     ]

@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0021_full_text_search'),
-    ]
+    dependencies = [("people", "0021_full_text_search")]
 
     operations = [
         migrations.AddField(
-            model_name='persontag',
-            name='exported',
-            field=models.BooleanField(default=False, verbose_name='Exporté vers mailtrain'),
-        ),
+            model_name="persontag",
+            name="exported",
+            field=models.BooleanField(
+                default=False, verbose_name="Exporté vers mailtrain"
+            ),
+        )
     ]

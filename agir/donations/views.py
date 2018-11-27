@@ -11,29 +11,31 @@ from ..payments.models import Payment
 from . import forms
 
 
-__all__ = ('AskAmountView', 'PersonalInformationView')
+__all__ = ("AskAmountView", "PersonalInformationView")
 
 
-SESSION_DONATION_AMOUNT_KEY = '_donation_amount'
+SESSION_DONATION_AMOUNT_KEY = "_donation_amount"
 
 
 class AskAmountView(FormView):
     form_class = forms.DonationForm
-    template_name = 'donations/ask_amount.html'
-    success_url = reverse_lazy('donation_information')
+    template_name = "donations/ask_amount.html"
+    success_url = reverse_lazy("donation_information")
 
     def form_valid(self, form):
-        self.request.session[SESSION_DONATION_AMOUNT_KEY] = int(form.cleaned_data['amount']*100)
+        self.request.session[SESSION_DONATION_AMOUNT_KEY] = int(
+            form.cleaned_data["amount"] * 100
+        )
         return super().form_valid(form)
 
 
 class PersonalInformationView(UpdateView):
     form_class = forms.DonatorForm
-    template_name = 'donations/personal_information.html'
+    template_name = "donations/personal_information.html"
 
     def dispatch(self, request, *args, **kwargs):
         if SESSION_DONATION_AMOUNT_KEY not in request.session:
-            return redirect('donation_amount')
+            return redirect("donation_amount")
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
@@ -43,7 +45,7 @@ class PersonalInformationView(UpdateView):
         form = self.get_form()
         if form.is_valid():
             try:
-                return Person.objects.get_by_natural_key(form.cleaned_data['email'])
+                return Person.objects.get_by_natural_key(form.cleaned_data["email"])
             except Person.DoesNotExist:
                 pass
 
@@ -51,25 +53,25 @@ class PersonalInformationView(UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['amount'] = self.request.session[SESSION_DONATION_AMOUNT_KEY]
+        kwargs["amount"] = self.request.session[SESSION_DONATION_AMOUNT_KEY]
         return kwargs
 
     def form_valid(self, form):
         person = form.save()
-        amount = form.cleaned_data['amount']
+        amount = form.cleaned_data["amount"]
 
         payment = create_payment(
             person=person,
             type=DonsConfig.PAYMENT_TYPE,
             price=amount,
-            meta={'nationality': person.meta['nationality']}
+            meta={"nationality": person.meta["nationality"]},
         )
 
         return redirect_to_payment(payment)
 
 
 class ReturnView(TemplateView):
-    template_name = 'donations/thanks.html'
+    template_name = "donations/thanks.html"
 
 
 def notification_listener(payment):

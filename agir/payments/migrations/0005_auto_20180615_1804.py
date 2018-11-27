@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('payments', '0004_auto_20180531_1251'),
-    ]
+    dependencies = [("payments", "0004_auto_20180531_1251")]
 
     operations = [
         migrations.AlterField(
-            model_name='payment',
-            name='mode',
-            field=models.CharField(max_length=70, verbose_name='Mode de paiement'),
-        ),
+            model_name="payment",
+            name="mode",
+            field=models.CharField(max_length=70, verbose_name="Mode de paiement"),
+        )
     ]

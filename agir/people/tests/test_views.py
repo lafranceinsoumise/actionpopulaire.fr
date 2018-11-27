@@ -14,89 +14,106 @@ from agir.lib.tests.mixins import FakeDataMixin
 
 
 class DashboardTestCase(FakeDataMixin, TestCase):
-    @mock.patch('agir.people.views.dashboard.geocode_person')
+    @mock.patch("agir.people.views.dashboard.geocode_person")
     def test_contains_everything(self, geocode_person):
-        self.client.force_login(self.data['people']['user2'].role)
-        response = self.client.get(reverse('dashboard'))
+        self.client.force_login(self.data["people"]["user2"].role)
+        response = self.client.get(reverse("dashboard"))
 
         geocode_person.delay.assert_called_once()
-        self.assertEqual(geocode_person.delay.call_args[0], (self.data['people']['user2'].pk,))
+        self.assertEqual(
+            geocode_person.delay.call_args[0], (self.data["people"]["user2"].pk,)
+        )
 
         # own email
-        self.assertContains(response, 'user2@example.com')
+        self.assertContains(response, "user2@example.com")
         # managed group
-        self.assertContains(response, self.data['groups']['user2_group'].name)
+        self.assertContains(response, self.data["groups"]["user2_group"].name)
         # member groups
-        self.assertContains(response, self.data['groups']['user1_group'].name)
+        self.assertContains(response, self.data["groups"]["user1_group"].name)
         # next events
-        self.assertContains(response, self.data['events']['user1_event1'].name)
+        self.assertContains(response, self.data["events"]["user1_event1"].name)
         # events of group
-        self.assertContains(response, self.data['events']['user1_event2'].name)
+        self.assertContains(response, self.data["events"]["user1_event2"].name)
 
 
 class MessagePreferencesTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person('test@test.com', is_insoumise=False)
-        self.person.add_email('test2@test.com')
+        self.person = Person.objects.create_person("test@test.com", is_insoumise=False)
+        self.person.add_email("test2@test.com")
         self.client.force_login(self.person.role)
 
     def test_can_load_message_preferences_page(self):
-        res = self.client.get('/message_preferences/')
+        res = self.client.get("/message_preferences/")
 
         # should show the current email address
-        self.assertContains(res, 'test@test.com')
-        self.assertContains(res, 'test2@test.com')
+        self.assertContains(res, "test@test.com")
+        self.assertContains(res, "test2@test.com")
 
     def test_can_see_email_management(self):
-        res = self.client.get('/message_preferences/adresses/')
+        res = self.client.get("/message_preferences/adresses/")
 
         # should show the current email address
-        self.assertContains(res, 'test@test.com')
-        self.assertContains(res, 'test2@test.com')
+        self.assertContains(res, "test@test.com")
+        self.assertContains(res, "test2@test.com")
 
     def test_can_add_delete_address(self):
         emails = list(self.person.emails.all())
 
         # should be possible to get the delete page for one of the two addresses, and to actually delete
-        res = self.client.get('/message_preferences/adresses/{}/supprimer/'.format(emails[1].pk))
+        res = self.client.get(
+            "/message_preferences/adresses/{}/supprimer/".format(emails[1].pk)
+        )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        res = self.client.post('/message_preferences/adresses/{}/supprimer/'.format(emails[1].pk))
-        self.assertRedirects(res, reverse('email_management'))
+        res = self.client.post(
+            "/message_preferences/adresses/{}/supprimer/".format(emails[1].pk)
+        )
+        self.assertRedirects(res, reverse("email_management"))
 
         # address should indeed be gone
         self.assertEqual(len(self.person.emails.all()), 1)
         self.assertEqual(self.person.emails.first(), emails[0])
 
         # both get and post should give 403 when there is only one primary address
-        res = self.client.get('/message_preferences/adresses/{}/supprimer/'.format(emails[0].pk))
-        self.assertRedirects(res, reverse('email_management'))
+        res = self.client.get(
+            "/message_preferences/adresses/{}/supprimer/".format(emails[0].pk)
+        )
+        self.assertRedirects(res, reverse("email_management"))
 
-        res = self.client.post('/message_preferences/adresses/{}/supprimer/'.format(emails[0].pk))
-        self.assertRedirects(res, reverse('email_management'))
+        res = self.client.post(
+            "/message_preferences/adresses/{}/supprimer/".format(emails[0].pk)
+        )
+        self.assertRedirects(res, reverse("email_management"))
         self.assertEqual(len(self.person.emails.all()), 1)
 
     def test_can_add_address(self):
-        res = self.client.post('/message_preferences/adresses/', data={'address': 'test3@test.com'})
-        self.assertRedirects(res, '/message_preferences/adresses/')
+        res = self.client.post(
+            "/message_preferences/adresses/", data={"address": "test3@test.com"}
+        )
+        self.assertRedirects(res, "/message_preferences/adresses/")
 
-        res = self.client.post('/message_preferences/adresses/', data={'address': 'TeST4@TeSt.COM'})
-        self.assertRedirects(res, '/message_preferences/adresses/')
+        res = self.client.post(
+            "/message_preferences/adresses/", data={"address": "TeST4@TeSt.COM"}
+        )
+        self.assertRedirects(res, "/message_preferences/adresses/")
 
         self.assertCountEqual(
             [e.address for e in self.person.emails.all()],
-            ['test@test.com', 'test2@test.com', 'test3@test.com', 'TeST4@test.com']
+            ["test@test.com", "test2@test.com", "test3@test.com", "TeST4@test.com"],
         )
 
     def test_cannot_see_subscribed_field_if_not_insoumise(self):
-        res = self.client.get(reverse('message_preferences'))
-        self.assertNotContains(res, 'subscribed')
+        res = self.client.get(reverse("message_preferences"))
+        self.assertNotContains(res, "subscribed")
 
-        res = self.client.post(reverse('message_preferences'), data={
-            'subscribed': 'on',
-            'gender': '',
-            'primary_email': self.person.emails.first().id
-        })
+        res = self.client.post(
+            reverse("message_preferences"),
+            data={
+                "subscribed": "on",
+                "gender": "",
+                "primary_email": self.person.emails.first().id,
+            },
+        )
         self.person.refresh_from_db()
         self.assertEqual(self.person.subscribed, False)
 
@@ -104,14 +121,17 @@ class MessagePreferencesTestCase(TestCase):
         self.person.is_insoumise = True
         self.person.save()
 
-        res = self.client.get(reverse('message_preferences'))
-        self.assertContains(res, 'subscribed')
+        res = self.client.get(reverse("message_preferences"))
+        self.assertContains(res, "subscribed")
 
-        res = self.client.post(reverse('message_preferences'), data={
-            'subscribed': 'on',
-            'gender': '',
-            'primary_email': self.person.emails.first().id
-        })
+        res = self.client.post(
+            reverse("message_preferences"),
+            data={
+                "subscribed": "on",
+                "gender": "",
+                "primary_email": self.person.emails.first().id,
+            },
+        )
         self.person.refresh_from_db()
         self.assertEqual(self.person.subscribed, True)
 
@@ -123,11 +143,14 @@ class MessagePreferencesTestCase(TestCase):
         self.person.draw_notifications = True
         self.person.save()
 
-        res = self.client.post('/message_preferences/', data={
-            'no_mail': True,
-            'gender': '',
-            'primary_email': self.person.emails.first().id
-        })
+        res = self.client.post(
+            "/message_preferences/",
+            data={
+                "no_mail": True,
+                "gender": "",
+                "primary_email": self.person.emails.first().id,
+            },
+        )
         self.assertEqual(res.status_code, 302)
         self.person.refresh_from_db()
         self.assertEqual(self.person.subscribed, False)
@@ -138,49 +161,46 @@ class MessagePreferencesTestCase(TestCase):
 
 class ProfileFormTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person(
-            'test@test.com'
-        )
+        self.person = Person.objects.create_person("test@test.com")
 
     def test_can_add_tag(self):
         self.client.force_login(self.person.role)
-        response = self.client.post(reverse('change_profile'), {'info blogueur': 'on'})
+        response = self.client.post(reverse("change_profile"), {"info blogueur": "on"})
 
         self.assertEqual(response.status_code, 302)
-        self.assertIn('info blogueur', [tag.label for tag in self.person.tags.all()])
+        self.assertIn("info blogueur", [tag.label for tag in self.person.tags.all()])
 
-    @mock.patch('agir.people.forms.profile.geocode_person')
+    @mock.patch("agir.people.forms.profile.geocode_person")
     def test_can_change_address(self, geocode_person):
         self.client.force_login(self.person.role)
 
         address_fields = {
-            'location_address1': '73 boulevard Arago',
-            'location_zip': '75013',
-            'location_country': 'FR',
-            'location_city': 'Paris',
+            "location_address1": "73 boulevard Arago",
+            "location_zip": "75013",
+            "location_country": "FR",
+            "location_city": "Paris",
         }
 
-        response = self.client.post(reverse('change_profile'), address_fields)
+        response = self.client.post(reverse("change_profile"), address_fields)
 
         geocode_person.delay.assert_called_once()
         self.assertEqual(geocode_person.delay.call_args[0], (self.person.pk,))
 
         geocode_person.reset_mock()
-        response = self.client.post(reverse('change_profile'), {
-            'first_name': 'Arthur',
-            'last_name': 'Cheysson',
-            **address_fields
-        })
+        response = self.client.post(
+            reverse("change_profile"),
+            {"first_name": "Arthur", "last_name": "Cheysson", **address_fields},
+        )
         geocode_person.delay.assert_not_called()
 
 
 class UnsubscribeFormTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person('test@test.com')
+        self.person = Person.objects.create_person("test@test.com")
 
     @mock.patch("agir.people.forms.subscription.send_unsubscribe_email")
     def test_can_post(self, patched_send_unsubscribe_email):
-        response = self.client.post(reverse('unsubscribe'), {'email': 'test@test.com'})
+        response = self.client.post(reverse("unsubscribe"), {"email": "test@test.com"})
 
         self.person.refresh_from_db()
         self.assertEqual(response.status_code, 302)
@@ -188,17 +208,19 @@ class UnsubscribeFormTestCase(TestCase):
         self.assertEqual(self.person.event_notifications, False)
         self.assertEqual(self.person.group_notifications, False)
         patched_send_unsubscribe_email.delay.assert_called_once()
-        self.assertEqual(patched_send_unsubscribe_email.delay.call_args[0], (self.person.pk,))
+        self.assertEqual(
+            patched_send_unsubscribe_email.delay.call_args[0], (self.person.pk,)
+        )
 
 
 class DeleteFormTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person('delete@delete.com')
+        self.person = Person.objects.create_person("delete@delete.com")
 
     def test_can_delete_account(self):
         self.client.force_login(self.person.role)
 
-        response = self.client.post(reverse('delete_account'))
+        response = self.client.post(reverse("delete_account"))
         self.assertEqual(response.status_code, 302)
         with self.assertRaises(Person.DoesNotExist):
             Person.objects.get(pk=self.person.pk)
@@ -211,51 +233,63 @@ def form_has_error(form, field, code=None):
 @using_redislite
 class SMSValidationTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person('test@example.com', contact_phone='0612345678')
+        self.person = Person.objects.create_person(
+            "test@example.com", contact_phone="0612345678"
+        )
         self.client.force_login(self.person.role)
 
     def test_can_see_sms_page_when_not_validated(self):
-        res = self.client.get(reverse('send_validation_sms'))
+        res = self.client.get(reverse("send_validation_sms"))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_can_display_page_even_when_no_contact_phone(self):
-        self.person.contact_phone = ''
+        self.person.contact_phone = ""
         self.person.save()
-        res = self.client.get(reverse('send_validation_sms'))
+        res = self.client.get(reverse("send_validation_sms"))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_sms_sending_form_modify_phone_number(self):
-        res = self.client.post(reverse('send_validation_sms'), {'contact_phone': '0687654321'})
-        self.assertRedirects(res, reverse('sms_code_validation'))
+        res = self.client.post(
+            reverse("send_validation_sms"), {"contact_phone": "0687654321"}
+        )
+        self.assertRedirects(res, reverse("sms_code_validation"))
 
         self.person.refresh_from_db()
-        self.assertEqual(self.person.contact_phone, to_phone_number('0687654321'))
+        self.assertEqual(self.person.contact_phone, to_phone_number("0687654321"))
 
     def test_cannot_validate_sms_form_without_number(self):
-        res = self.client.post(reverse('send_validation_sms'), {})
+        res = self.client.post(reverse("send_validation_sms"), {})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'required'))
+        self.assertTrue(res.context_data["form"].has_error("contact_phone", "required"))
 
-        res = self.client.post(reverse('send_validation_sms'), {'contact_phone': ''})
+        res = self.client.post(reverse("send_validation_sms"), {"contact_phone": ""})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'required'))
+        self.assertTrue(res.context_data["form"].has_error("contact_phone", "required"))
 
     def test_cannot_validate_sms_form_with_fixed_number(self):
-        res = self.client.post(reverse('send_validation_sms'), {'contact_phone': '01 42 85 68 98'})
+        res = self.client.post(
+            reverse("send_validation_sms"), {"contact_phone": "01 42 85 68 98"}
+        )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'mobile_only'))
+        self.assertTrue(
+            res.context_data["form"].has_error("contact_phone", "mobile_only")
+        )
 
     def test_cannot_validate_sms_form_with_foreign_number(self):
-        res = self.client.post(reverse('send_validation_sms'), {'contact_phone': '+44 7554 456245'})
+        res = self.client.post(
+            reverse("send_validation_sms"), {"contact_phone": "+44 7554 456245"}
+        )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'french_only'))
+        self.assertTrue(
+            res.context_data["form"].has_error("contact_phone", "french_only")
+        )
 
     def test_cannot_ask_sms_if_already_validated(self):
         self.person.contact_phone_status = Person.CONTACT_PHONE_VERIFIED
         self.person.save()
 
-        send_sms_page = reverse('send_validation_sms')
-        message_preferences_page = reverse('message_preferences')
+        send_sms_page = reverse("send_validation_sms")
+        message_preferences_page = reverse("message_preferences")
 
         response = self.client.get(send_sms_page)
         self.assertRedirects(response, message_preferences_page)
@@ -267,39 +301,44 @@ class SMSValidationTestCase(TestCase):
         self.person.contact_phone_status = Person.CONTACT_PHONE_VERIFIED
         self.person.save()
 
-        message_preferences_page = reverse('message_preferences')
+        message_preferences_page = reverse("message_preferences")
 
-        res = self.client.post(message_preferences_page, {
-            'subscribed': 'Y',
-            'group_notifications': 'Y',
-            'event_notifications': 'Y',
-            'draw_participation': 'Y',
-            'gender': 'F',
-            'contact_phone': '0687654321'
-        })
+        res = self.client.post(
+            message_preferences_page,
+            {
+                "subscribed": "Y",
+                "group_notifications": "Y",
+                "event_notifications": "Y",
+                "draw_participation": "Y",
+                "gender": "F",
+                "contact_phone": "0687654321",
+            },
+        )
         self.assertRedirects(res, message_preferences_page)
 
         self.person.refresh_from_db()
 
-        self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED)
+        self.assertEqual(
+            self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED
+        )
 
-    @mock.patch('agir.people.forms.account.send_new_code')
+    @mock.patch("agir.people.forms.account.send_new_code")
     def test_can_send_sms(self, mock_send_new_code):
-        send_sms_page = reverse('send_validation_sms')
+        send_sms_page = reverse("send_validation_sms")
 
         res = self.client.get(send_sms_page)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        res = self.client.post(send_sms_page, {
-            'contact_phone': self.person.contact_phone.as_e164
-        })
+        res = self.client.post(
+            send_sms_page, {"contact_phone": self.person.contact_phone.as_e164}
+        )
 
-        self.assertRedirects(res, reverse('sms_code_validation'))
+        self.assertRedirects(res, reverse("sms_code_validation"))
         mock_send_new_code.assert_called_once()
         self.assertEqual(mock_send_new_code.call_args[0][0], self.person)
 
     def test_can_validate_phone_number(self):
-        validate_code_page = reverse('sms_code_validation')
+        validate_code_page = reverse("sms_code_validation")
 
         validation_code = PersonValidationSMS.objects.create(
             person=self.person, phone_number=self.person.contact_phone
@@ -308,16 +347,16 @@ class SMSValidationTestCase(TestCase):
         res = self.client.get(validate_code_page)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        res = self.client.post(validate_code_page, {
-            'code': validation_code.code
-        })
+        res = self.client.post(validate_code_page, {"code": validation_code.code})
 
-        self.assertRedirects(res, reverse('message_preferences'))
+        self.assertRedirects(res, reverse("message_preferences"))
         self.person.refresh_from_db()
-        self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_VERIFIED)
+        self.assertEqual(
+            self.person.contact_phone_status, Person.CONTACT_PHONE_VERIFIED
+        )
 
     def test_cannot_validate_with_wrong_code(self):
-        validate_code_page = reverse('sms_code_validation')
+        validate_code_page = reverse("sms_code_validation")
 
         validation_code = PersonValidationSMS.objects.create(
             person=self.person, phone_number=self.person.contact_phone
@@ -328,52 +367,60 @@ class SMSValidationTestCase(TestCase):
         while other_code == validation_code.code:
             other_code = generate_code()
 
-        res = self.client.post(validate_code_page, {'code': other_code})
+        res = self.client.post(validate_code_page, {"code": other_code})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.person.refresh_from_db()
-        self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED)
+        self.assertEqual(
+            self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED
+        )
 
     def test_cannot_validate_with_code_after_changing_number(self):
-        validate_code_page = reverse('sms_code_validation')
+        validate_code_page = reverse("sms_code_validation")
 
         validation_code = PersonValidationSMS.objects.create(
             person=self.person, phone_number=self.person.contact_phone
         )
-        self.person.contact_phone = '0687654321'
+        self.person.contact_phone = "0687654321"
         self.person.save()
 
-        res = self.client.post(validate_code_page, {
-            'code': validation_code.code
-        })
+        res = self.client.post(validate_code_page, {"code": validation_code.code})
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.person.refresh_from_db()
-        self.assertEqual(self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED)
+        self.assertEqual(
+            self.person.contact_phone_status, Person.CONTACT_PHONE_UNVERIFIED
+        )
 
     def test_redirects_to_next_after_validation(self):
-        send_sms_page = reverse('send_validation_sms') + '?next=' + reverse('dashboard')
-        res = self.client.post(send_sms_page, {
-            'contact_phone': self.person.contact_phone.as_e164
-        })
-        self.assertRedirects(res, reverse('sms_code_validation') + '?next=' + reverse('dashboard'))
+        send_sms_page = reverse("send_validation_sms") + "?next=" + reverse("dashboard")
+        res = self.client.post(
+            send_sms_page, {"contact_phone": self.person.contact_phone.as_e164}
+        )
+        self.assertRedirects(
+            res, reverse("sms_code_validation") + "?next=" + reverse("dashboard")
+        )
 
-        validate_code_page = reverse('sms_code_validation') + '?next=' + reverse('dashboard')
+        validate_code_page = (
+            reverse("sms_code_validation") + "?next=" + reverse("dashboard")
+        )
         validation_code = PersonValidationSMS.objects.create(
             person=self.person, phone_number=self.person.contact_phone
         )
-        res = self.client.post(validate_code_page, {
-            'code': validation_code.code
-        })
-        self.assertRedirects(res, reverse('dashboard'))
+        res = self.client.post(validate_code_page, {"code": validation_code.code})
+        self.assertRedirects(res, reverse("dashboard"))
 
 
 @using_redislite
 class SMSRateLimitingTestCase(TestCase):
     def setUp(self):
-        self.phone = '+33612345678'
-        self.other_phone = '+33687654321'
-        self.person1 = Person.objects.create_person('test1@example.com', contact_phone=self.phone)
-        self.person2 = Person.objects.create_person('test2@example.com', contact_phone=self.phone)
+        self.phone = "+33612345678"
+        self.other_phone = "+33687654321"
+        self.person1 = Person.objects.create_person(
+            "test1@example.com", contact_phone=self.phone
+        )
+        self.person2 = Person.objects.create_person(
+            "test2@example.com", contact_phone=self.phone
+        )
 
     @override_settings(
         SMS_BUCKET_MAX=2,
@@ -381,15 +428,15 @@ class SMSRateLimitingTestCase(TestCase):
         SMS_BUCKET_IP_MAX=10,
         SMS_BUCKET_IP_INTERVAL=600,
     )
-    @mock.patch('agir.lib.token_bucket.get_current_timestamp')
+    @mock.patch("agir.lib.token_bucket.get_current_timestamp")
     def test_rate_limiting_on_sending_sms(self, current_timestamp):
         # reinitialize token buckets to make sure the change of settings is taken into account
         _initialize_buckets()
 
-        send_sms_page = reverse('send_validation_sms')
-        validate_code_page = reverse('sms_code_validation')
+        send_sms_page = reverse("send_validation_sms")
+        validate_code_page = reverse("sms_code_validation")
 
-        data = {'contact_phone': self.phone}
+        data = {"contact_phone": self.phone}
 
         self.client.force_login(self.person1.role)
 
@@ -402,7 +449,9 @@ class SMSRateLimitingTestCase(TestCase):
         current_timestamp.return_value = 10
         res = self.client.post(send_sms_page, data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'rate_limited'))
+        self.assertTrue(
+            res.context_data["form"].has_error("contact_phone", "rate_limited")
+        )
 
         # should work again
         current_timestamp.return_value = 70
@@ -413,16 +462,20 @@ class SMSRateLimitingTestCase(TestCase):
         current_timestamp.return_value = 140
         res = self.client.post(send_sms_page, data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'rate_limited'))
+        self.assertTrue(
+            res.context_data["form"].has_error("contact_phone", "rate_limited")
+        )
 
         # should not be possible to ask for sms with other person with same number
         self.client.force_login(self.person2.role)
         current_timestamp.return_value = 210
         res = self.client.post(send_sms_page, data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(res.context_data['form'].has_error('contact_phone', 'rate_limited'))
+        self.assertTrue(
+            res.context_data["form"].has_error("contact_phone", "rate_limited")
+        )
 
         # sixth try ==> but possible to try with another number
         current_timestamp.return_value = 280
-        res = self.client.post(send_sms_page, {'contact_phone': self.other_phone})
+        res = self.client.post(send_sms_page, {"contact_phone": self.other_phone})
         self.assertRedirects(res, validate_code_page)

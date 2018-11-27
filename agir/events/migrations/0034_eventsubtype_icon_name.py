@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0033_auto_20180209_1855'),
-    ]
+    dependencies = [("events", "0033_auto_20180209_1855")]
 
     operations = [
         migrations.AddField(
-            model_name='eventsubtype',
-            name='icon_name',
-            field=models.CharField(blank=True, max_length=200, verbose_name="Nom de l'icône Font Awesome"),
-        ),
+            model_name="eventsubtype",
+            name="icon_name",
+            field=models.CharField(
+                blank=True, max_length=200, verbose_name="Nom de l'icône Font Awesome"
+            ),
+        )
     ]

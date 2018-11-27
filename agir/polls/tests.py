@@ -9,22 +9,19 @@ from .models import Poll, PollOption, PollChoice
 
 class PollTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create(
-            email='participant@example.com',
-        )
+        self.person = Person.objects.create(email="participant@example.com")
         self.poll = Poll.objects.create(
-            start=timezone.now(),
-            end=timezone.now() + timedelta(days=1)
+            start=timezone.now(), end=timezone.now() + timedelta(days=1)
         )
-        PollOption.objects.create(poll=self.poll, description='Premier')
-        PollOption.objects.create(poll=self.poll, description='Deuxième')
-        PollOption.objects.create(poll=self.poll, description='Troisième')
+        PollOption.objects.create(poll=self.poll, description="Premier")
+        PollOption.objects.create(poll=self.poll, description="Deuxième")
+        PollOption.objects.create(poll=self.poll, description="Troisième")
 
     def test_can_make_choice(self):
         option = self.poll.options.all()[0]
         self.poll.make_choice(self.person, [option])
 
-        choice= PollChoice.objects.first()
+        choice = PollChoice.objects.first()
         self.assertEqual(choice.person, self.person)
         self.assertEqual(choice.selection, [str(option.pk)])
 

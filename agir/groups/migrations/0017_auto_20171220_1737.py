@@ -7,14 +7,25 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0016_auto_20171208_1945'),
-    ]
+    dependencies = [("groups", "0016_auto_20171208_1945")]
 
     operations = [
         migrations.AlterField(
-            model_name='supportgroup',
-            name='coordinates_type',
-            field=models.PositiveSmallIntegerField(choices=[(0, 'Coordonnées manuelles'), (10, 'Coordonnées automatiques précises'), (20, 'Coordonnées automatiques approximatives (niveau rue)'), (30, 'Coordonnées automatiques approximatives (ville)'), (50, 'Coordonnées automatiques (qualité inconnue)'), (255, 'Coordonnées introuvables')], editable=False, help_text='Comment les coordonnées ci-dessus ont-elle été acquises', null=True, verbose_name='type de coordonnées'),
-        ),
+            model_name="supportgroup",
+            name="coordinates_type",
+            field=models.PositiveSmallIntegerField(
+                choices=[
+                    (0, "Coordonnées manuelles"),
+                    (10, "Coordonnées automatiques précises"),
+                    (20, "Coordonnées automatiques approximatives (niveau rue)"),
+                    (30, "Coordonnées automatiques approximatives (ville)"),
+                    (50, "Coordonnées automatiques (qualité inconnue)"),
+                    (255, "Coordonnées introuvables"),
+                ],
+                editable=False,
+                help_text="Comment les coordonnées ci-dessus ont-elle été acquises",
+                null=True,
+                verbose_name="type de coordonnées",
+            ),
+        )
     ]

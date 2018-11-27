@@ -7,24 +7,24 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0014_images_and_html'),
-    ]
+    dependencies = [("events", "0014_images_and_html")]
 
     operations = [
         migrations.AddField(
-            model_name='calendar',
-            name='name',
-            field=models.CharField(blank=True, max_length=255, verbose_name='titre'),
+            model_name="calendar",
+            name="name",
+            field=models.CharField(blank=True, max_length=255, verbose_name="titre"),
         ),
         migrations.AddField(
-            model_name='calendar',
-            name='slug',
-            field=models.SlugField(blank=True, verbose_name='slug')
+            model_name="calendar",
+            name="slug",
+            field=models.SlugField(blank=True, verbose_name="slug"),
         ),
         migrations.AddField(
-            model_name='calendar',
-            name='image',
-            field=models.ImageField(blank=True, null=True, upload_to='calendars/', verbose_name='bannière'),
-        )
+            model_name="calendar",
+            name="image",
+            field=models.ImageField(
+                blank=True, null=True, upload_to="calendars/", verbose_name="bannière"
+            ),
+        ),
     ]

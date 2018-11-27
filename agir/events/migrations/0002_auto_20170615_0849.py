@@ -8,14 +8,19 @@ import uuid
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0001_initial'),
-    ]
+    dependencies = [("events", "0001_initial")]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='id',
-            field=models.UUIDField(default=uuid.uuid4, editable=False, help_text="UUID interne à l'API pour identifier la ressource", primary_key=True, serialize=False, verbose_name='UUID'),
-        ),
+            model_name="event",
+            name="id",
+            field=models.UUIDField(
+                default=uuid.uuid4,
+                editable=False,
+                help_text="UUID interne à l'API pour identifier la ressource",
+                primary_key=True,
+                serialize=False,
+                verbose_name="UUID",
+            ),
+        )
     ]

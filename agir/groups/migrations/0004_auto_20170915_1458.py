@@ -7,13 +7,21 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0003_supportgroup_published'),
-    ]
+    dependencies = [("groups", "0003_supportgroup_published")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='supportgroup',
-            options={'ordering': ('-created',), 'permissions': (('view_hidden_supportgroup', 'Peut afficher les groupes non publiés'),), 'verbose_name': "groupe d'action", 'verbose_name_plural': "groupes d'appui"},
-        ),
+            name="supportgroup",
+            options={
+                "ordering": ("-created",),
+                "permissions": (
+                    (
+                        "view_hidden_supportgroup",
+                        "Peut afficher les groupes non publiés",
+                    ),
+                ),
+                "verbose_name": "groupe d'action",
+                "verbose_name_plural": "groupes d'appui",
+            },
+        )
     ]

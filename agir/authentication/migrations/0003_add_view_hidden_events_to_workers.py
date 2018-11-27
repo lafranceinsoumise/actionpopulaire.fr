@@ -16,9 +16,9 @@ def add_view_hidden_event_permission_to_worker(apps, schema):
     Permission = apps.get_model("auth", "Permission")
     Group = apps.get_model("auth", "Group")
 
-    workers = Group.objects.get(name='workers')
-    group_perm = Permission.objects.get(codename='view_hidden_supportgroup')
-    event_perm = Permission.objects.get(codename='view_hidden_event')
+    workers = Group.objects.get(name="workers")
+    group_perm = Permission.objects.get(codename="view_hidden_supportgroup")
+    event_perm = Permission.objects.get(codename="view_hidden_event")
 
     if not workers.permissions.filter(pk=group_perm.pk).exists():
         workers.permissions.add(group_perm)
@@ -31,9 +31,9 @@ def remove_view_hidden_event_permission_from_worker(apps, schema):
     Permission = apps.get_model("auth", "Permission")
     Group = apps.get_model("auth", "Group")
 
-    workers = Group.objects.get(name='workers')
-    group_perm = Permission.objects.get(codename='view_hidden_supportgroup')
-    event_perm = Permission.objects.get(codename='view_hidden_event')
+    workers = Group.objects.get(name="workers")
+    group_perm = Permission.objects.get(codename="view_hidden_supportgroup")
+    event_perm = Permission.objects.get(codename="view_hidden_event")
 
     if workers.permissions.filter(pk=event_perm.pk).exists():
         workers.permissions.remove(event_perm)
@@ -44,12 +44,14 @@ def remove_view_hidden_event_permission_from_worker(apps, schema):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('authentication', '0002_create_basic_groups'),
-        ('events', '0006_auto_20170915_1510'),
-        ('groups', '0004_auto_20170915_1458')
+        ("authentication", "0002_create_basic_groups"),
+        ("events", "0006_auto_20170915_1510"),
+        ("groups", "0004_auto_20170915_1458"),
     ]
 
     operations = [
-        migrations.RunPython(add_view_hidden_event_permission_to_worker,
-                             remove_view_hidden_event_permission_from_worker)
+        migrations.RunPython(
+            add_view_hidden_event_permission_to_worker,
+            remove_view_hidden_event_permission_from_worker,
+        )
     ]

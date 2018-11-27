@@ -8,34 +8,48 @@ from agir.lib import models as lib_models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0029_person_mandates'),
-    ]
+    dependencies = [("people", "0029_person_mandates")]
 
     operations = [
         migrations.AddField(
-            model_name='personform',
-            name='after_message',
-            field=lib_models.DescriptionField(blank=True, help_text="Note montrée à l'utilisateur qui essaye d'accéder au formulaire après sa date de fermeture.", verbose_name='Note de fermeture'),
+            model_name="personform",
+            name="after_message",
+            field=lib_models.DescriptionField(
+                blank=True,
+                help_text="Note montrée à l'utilisateur qui essaye d'accéder au formulaire après sa date de fermeture.",
+                verbose_name="Note de fermeture",
+            ),
         ),
         migrations.AddField(
-            model_name='personform',
-            name='before_message',
-            field=lib_models.DescriptionField(blank=True, help_text="Note montrée à l'utilisateur qui essaye d'accéder au formulaire avant son ouverture.", verbose_name='Note avant ouverture'),
+            model_name="personform",
+            name="before_message",
+            field=lib_models.DescriptionField(
+                blank=True,
+                help_text="Note montrée à l'utilisateur qui essaye d'accéder au formulaire avant son ouverture.",
+                verbose_name="Note avant ouverture",
+            ),
         ),
         migrations.AddField(
-            model_name='personform',
-            name='end_time',
-            field=models.DateTimeField(null=True, verbose_name='Date de fermeture du formulaire'),
+            model_name="personform",
+            name="end_time",
+            field=models.DateTimeField(
+                null=True, verbose_name="Date de fermeture du formulaire"
+            ),
         ),
         migrations.AddField(
-            model_name='personform',
-            name='start_time',
-            field=models.DateTimeField(null=True, verbose_name="Date d'ouverture du formulaire"),
+            model_name="personform",
+            name="start_time",
+            field=models.DateTimeField(
+                null=True, verbose_name="Date d'ouverture du formulaire"
+            ),
         ),
         migrations.AlterField(
-            model_name='person',
-            name='subscribed',
-            field=models.BooleanField(default=True, help_text="Vous recevrez les lettres de la France insoumise, notamment : les lettres d'information, les appels à volontaires, les annonces d'émissions ou d'événements...", verbose_name="Recevoir les lettres d'information"),
+            model_name="person",
+            name="subscribed",
+            field=models.BooleanField(
+                default=True,
+                help_text="Vous recevrez les lettres de la France insoumise, notamment : les lettres d'information, les appels à volontaires, les annonces d'émissions ou d'événements...",
+                verbose_name="Recevoir les lettres d'information",
+            ),
         ),
     ]

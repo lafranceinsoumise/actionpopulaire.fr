@@ -8,21 +8,10 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0005_copy_email_data'),
-    ]
+    dependencies = [("people", "0005_copy_email_data")]
 
     operations = [
-        migrations.RemoveField(
-            model_name='person',
-            name='bounced',
-        ),
-        migrations.RemoveField(
-            model_name='person',
-            name='bounced_date',
-        ),
-        migrations.RemoveField(
-            model_name='person',
-            name='email',
-        ),
+        migrations.RemoveField(model_name="person", name="bounced"),
+        migrations.RemoveField(model_name="person", name="bounced_date"),
+        migrations.RemoveField(model_name="person", name="email"),
     ]

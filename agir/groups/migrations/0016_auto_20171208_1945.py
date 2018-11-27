@@ -9,14 +9,19 @@ import stdimage.models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0015_auto_20171205_1849'),
-    ]
+    dependencies = [("groups", "0015_auto_20171205_1849")]
 
     operations = [
         migrations.AlterField(
-            model_name='supportgroup',
-            name='image',
-            field=stdimage.models.StdImageField(blank=True, help_text='Vous pouvez ajouter une image de bannière : elle apparaîtra sur la page, et sur les réseaux sociaux en cas de partage. Préférez une image à peu près deux fois plus large que haute. Elle doit faire au minimum 1200 pixels de large et 630 de haut pour une qualité optimale.', upload_to=lib_models.UploadToInstanceDirectoryWithFilename(filename='banner'), verbose_name='image'),
-        ),
+            model_name="supportgroup",
+            name="image",
+            field=stdimage.models.StdImageField(
+                blank=True,
+                help_text="Vous pouvez ajouter une image de bannière : elle apparaîtra sur la page, et sur les réseaux sociaux en cas de partage. Préférez une image à peu près deux fois plus large que haute. Elle doit faire au minimum 1200 pixels de large et 630 de haut pour une qualité optimale.",
+                upload_to=lib_models.UploadToInstanceDirectoryWithFilename(
+                    filename="banner"
+                ),
+                verbose_name="image",
+            ),
+        )
     ]

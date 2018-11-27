@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0042_auto_20180427_1540'),
-    ]
+    dependencies = [("events", "0042_auto_20180427_1540")]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='max_participants',
-            field=models.IntegerField(blank=True, null=True, verbose_name='Nombre maximum de participants'),
-        ),
+            model_name="event",
+            name="max_participants",
+            field=models.IntegerField(
+                blank=True, null=True, verbose_name="Nombre maximum de participants"
+            ),
+        )
     ]

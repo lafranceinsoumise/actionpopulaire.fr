@@ -17,22 +17,21 @@ class PollOptionInline(admin.TabularInline):
 
 class PollAdminForm(forms.ModelForm):
     class Meta:
-        widgets = {
-            'rules': AdminJsonWidget(),
-        }
+        widgets = {"rules": AdminJsonWidget()}
+
 
 @admin.register(Poll, site=admin_site)
 class PollAdmin(admin.ModelAdmin):
     form = PollAdminForm
     inlines = [PollOptionInline]
 
-    fields = ['title', 'link', 'description', 'start', 'end', 'rules', 'tags']
-    readonly_fields = ['link']
+    fields = ["title", "link", "description", "start", "end", "rules", "tags"]
+    readonly_fields = ["link"]
 
     def link(self, object):
         if object.pk:
             return format_html(
                 '<a href="{url}">{text}</a>',
-                url=front_url('participate_poll', args=[object.pk]),
-                text=_("Voir la consultation")
+                url=front_url("participate_poll", args=[object.pk]),
+                text=_("Voir la consultation"),
             )

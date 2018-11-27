@@ -17,18 +17,21 @@ class CalendarIterator:
     picklable.
 
     """
+
     def __init__(self, field):
         self.field = field
 
     def __iter__(self):
-        return ((c.pk, self.field.label_from_instance(c)) for c in self.field.get_queryset())
+        return (
+            (c.pk, self.field.label_from_instance(c)) for c in self.field.get_queryset()
+        )
 
 
 class CalendarField(forms.Field):
     widget = forms.SelectMultiple
     default_error_messages = {
-        'invalid_choice': "Choix invalide",
-        'invalid_list': 'Devrait être une liste'
+        "invalid_choice": "Choix invalide",
+        "invalid_list": "Devrait être une liste",
     }
 
     def __init__(self, **kwargs):
@@ -42,21 +45,26 @@ class CalendarField(forms.Field):
         try:
             value = frozenset(str(c) for c in value)
         except TypeError:
-            raise forms.ValidationError(self.error_messages['invalid_list'], 'invalid_list')
+            raise forms.ValidationError(
+                self.error_messages["invalid_list"], "invalid_list"
+            )
 
         queryset = self.get_queryset()
         ids = {str(c.pk) for c in queryset}
         for pk in value:
             if str(pk) not in ids:
-                raise forms.ValidationError(self.error_messages['invalid_choice'], params={'value': value})
+                raise forms.ValidationError(
+                    self.error_messages["invalid_choice"], params={"value": value}
+                )
 
         return [c for c in queryset if str(c.pk) in value]
 
     def prepare_value(self, value):
-        return [getattr(c, 'pk', c) for c in value]
+        return [getattr(c, "pk", c) for c in value]
 
     def get_queryset(self):
-            return models.Calendar.objects.raw('''
+        return models.Calendar.objects.raw(
+            """
                         WITH RECURSIVE calendars AS (
                             SELECT id, name, 0 AS depth, slug::text AS path
                             FROM events_calendar
@@ -70,31 +78,41 @@ class CalendarField(forms.Field):
                         SELECT id, name, depth
                         FROM calendars
                         ORDER BY path;
-                    ''')
+                    """
+        )
 
     def label_from_instance(self, obj):
-        return (((obj.depth -1 ) * "\u2003" + "\u2ba1 ") if obj.depth else "") + obj.name
+        return (
+            ((obj.depth - 1) * "\u2003" + "\u2ba1 ") if obj.depth else ""
+        ) + obj.name
 
 
 class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
     calendars = CalendarField(
         required=False,
-        label='Agendas',
-        help_text=_('Maintenez appuyé « Ctrl », ou « Commande (touche pomme) » sur un Mac, pour en sélectionner plusieurs.')
+        label="Agendas",
+        help_text=_(
+            "Maintenez appuyé « Ctrl », ou « Commande (touche pomme) » sur un Mac, pour en sélectionner plusieurs."
+        ),
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['calendars'].initial = self.instance.calendars.all()
+        self.fields["calendars"].initial = self.instance.calendars.all()
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if cleaned_data.get('allow_guests') \
-                and cleaned_data.get('subscription_form') is not None and cleaned_data['subscription_form'].editable:
-            raise ValidationError("Vous ne pouvez pas accepter des invités si les gens peuvent modifier leur "
-                                  "inscription.")
+        if (
+            cleaned_data.get("allow_guests")
+            and cleaned_data.get("subscription_form") is not None
+            and cleaned_data["subscription_form"].editable
+        ):
+            raise ValidationError(
+                "Vous ne pouvez pas accepter des invités si les gens peuvent modifier leur "
+                "inscription."
+            )
 
         return cleaned_data
 
@@ -102,7 +120,7 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
         super()._save_m2m()
 
         current_calendars = set(c.pk for c in self.instance.calendars.all())
-        new_calendars = set(c.pk for c in self.cleaned_data['calendars'])
+        new_calendars = set(c.pk for c in self.cleaned_data["calendars"])
 
         # delete items for removed calendars
         models.CalendarItem.objects.filter(
@@ -111,25 +129,21 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
 
         # add items for added calendars
         models.CalendarItem.objects.bulk_create(
-            models.CalendarItem(event=self.instance, calendar_id=c) for c in new_calendars - current_calendars
+            models.CalendarItem(event=self.instance, calendar_id=c)
+            for c in new_calendars - current_calendars
         )
 
     class Meta:
-        exclude = (
-            'id', 'organizers', 'attendees'
-        )
+        exclude = ("id", "organizers", "attendees")
         widgets = {
-            'description': AdminRichEditorWidget(),
-            'report_content': AdminRichEditorWidget(),
+            "description": AdminRichEditorWidget(),
+            "report_content": AdminRichEditorWidget(),
         }
 
 
 class AddOrganizerForm(forms.Form):
     person = AutoCompleteSelectField(
-        "people",
-        required=True,
-        label=_("Personne à ajouter"),
-        help_text=""
+        "people", required=True, label=_("Personne à ajouter"), help_text=""
     )
 
     def __init__(self, event, *args, **kwargs):
@@ -137,11 +151,17 @@ class AddOrganizerForm(forms.Form):
         self.event = event
 
     def clean_person(self):
-        person = self.cleaned_data['person']
-        if models.OrganizerConfig.objects.filter(person=person, event=self.event).exists():
-            raise forms.ValidationError(_("Cette personne organise déjà à cet événement"))
+        person = self.cleaned_data["person"]
+        if models.OrganizerConfig.objects.filter(
+            person=person, event=self.event
+        ).exists():
+            raise forms.ValidationError(
+                _("Cette personne organise déjà à cet événement")
+            )
 
         return person
 
     def save(self):
-        return models.OrganizerConfig.objects.create(person=self.cleaned_data['person'], event=self.event)
+        return models.OrganizerConfig.objects.create(
+            person=self.cleaned_data["person"], event=self.event
+        )

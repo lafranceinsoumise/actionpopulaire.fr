@@ -20,7 +20,7 @@ def check_coordinates(coordinates):
     except ValueError:
         return False
 
-    if not (-180. <= coordinates[0] <= 180.) or not (-90. <= coordinates[1] <= 90.):
+    if not (-180.0 <= coordinates[0] <= 180.0) or not (-90.0 <= coordinates[1] <= 90.0):
         return False
 
     return True
@@ -28,11 +28,14 @@ def check_coordinates(coordinates):
 
 class LegacyDistanceField(forms.Field):
     default_error_messages = {
-        'invalid_json': _('Saississez un object JSON valide'),
-        'invalid_fields': _("L'objet doit contenir les champs 'max_distance' et 'coordinates'"),
-        'invalid_max_distance': _("'max_distance' doit être de type numérique"),
-        'invalid_coordinates': _(
-            "'coordinates' doit être un tableau de coordonnées géographiques [Longitude, Latitude]")
+        "invalid_json": _("Saississez un object JSON valide"),
+        "invalid_fields": _(
+            "L'objet doit contenir les champs 'max_distance' et 'coordinates'"
+        ),
+        "invalid_max_distance": _("'max_distance' doit être de type numérique"),
+        "invalid_coordinates": _(
+            "'coordinates' doit être un tableau de coordonnées géographiques [Longitude, Latitude]"
+        ),
     }
 
     def to_python(self, value):
@@ -42,22 +45,31 @@ class LegacyDistanceField(forms.Field):
         try:
             obj = json.loads(value)
         except JSONDecodeError:
-            raise DjangoValidationError(self.default_error_messages['invalid_json'], code='invalid_json')
+            raise DjangoValidationError(
+                self.default_error_messages["invalid_json"], code="invalid_json"
+            )
 
-        if set(obj) != {'max_distance', 'coordinates'}:
-            raise DjangoValidationError(self.default_error_messages['invalid_fields'], code='invalid_fields')
+        if set(obj) != {"max_distance", "coordinates"}:
+            raise DjangoValidationError(
+                self.default_error_messages["invalid_fields"], code="invalid_fields"
+            )
 
-        max_distance = obj['max_distance']
-        coordinates = obj['coordinates']
+        max_distance = obj["max_distance"]
+        coordinates = obj["coordinates"]
 
         try:
             max_distance = float(max_distance)
         except ValueError:
-            raise DjangoValidationError(self.default_error_messages['invalid_max_distance'], code='invalid_max_distance')
-
+            raise DjangoValidationError(
+                self.default_error_messages["invalid_max_distance"],
+                code="invalid_max_distance",
+            )
 
         if not check_coordinates(coordinates):
-            raise DjangoValidationError(self.default_error_messages['invalid_coordinates'], code='invalid_coordinates')
+            raise DjangoValidationError(
+                self.default_error_messages["invalid_coordinates"],
+                code="invalid_coordinates",
+            )
 
         return Point(*coordinates), Distance(m=max_distance)
 
@@ -71,18 +83,22 @@ class OrderByDistanceToBackend(object):
 
     """
 
-    error_message = _("le paramètre 'order_by_distance_to' devrait être un tableau JSON [lon, lat]")
+    error_message = _(
+        "le paramètre 'order_by_distance_to' devrait être un tableau JSON [lon, lat]"
+    )
 
     def filter_queryset(self, request, queryset, view):
-        if not 'order_by_distance_to' in request.query_params:
+        if not "order_by_distance_to" in request.query_params:
             return queryset
 
         try:
-            coordinates = json.loads(request.query_params['order_by_distance_to'])
+            coordinates = json.loads(request.query_params["order_by_distance_to"])
         except JSONDecodeError:
             raise DRFValidationError(detail=self.error_message)
 
         if not check_coordinates(coordinates):
             raise DRFValidationError(detail=self.error_message)
 
-        return queryset.annotate(distance=DistanceFunction('coordinates', Point(coordinates, srid=4326))).order_by('distance')
+        return queryset.annotate(
+            distance=DistanceFunction("coordinates", Point(coordinates, srid=4326))
+        ).order_by("distance")

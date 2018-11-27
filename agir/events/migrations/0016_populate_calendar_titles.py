@@ -7,25 +7,25 @@ from django.utils.text import slugify
 
 
 def populate_calendar_titles(apps, schema):
-    Calendar = apps.get_model('events', 'Calendar')
+    Calendar = apps.get_model("events", "Calendar")
 
     for calendar in Calendar.objects.all():
-        calendar.name = calendar.description[:255] if calendar.description else calendar.label
+        calendar.name = (
+            calendar.description[:255] if calendar.description else calendar.label
+        )
         calendar.slug = slugify(calendar.label)[:50]
         calendar.save()
 
 
 def unpopulate_calendar_titles(apps, schema):
-    Calendar = apps.get_model('events', 'Calendar')
+    Calendar = apps.get_model("events", "Calendar")
 
-    Calendar.objects.update(title='', slug='')
+    Calendar.objects.update(title="", slug="")
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0015_calendar_new_fields'),
-    ]
+    dependencies = [("events", "0015_calendar_new_fields")]
 
     operations = [
         migrations.RunPython(populate_calendar_titles, unpopulate_calendar_titles)

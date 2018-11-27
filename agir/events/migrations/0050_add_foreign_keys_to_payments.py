@@ -7,29 +7,52 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payments', '0004_auto_20180531_1251'),
-        ('events', '0049_add_status_field_for_guests'),
+        ("payments", "0004_auto_20180531_1251"),
+        ("events", "0049_add_status_field_for_guests"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='identifiedguest',
-            name='payment',
-            field=models.OneToOneField(editable=False, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='identified_guest', to='payments.Payment'),
+            model_name="identifiedguest",
+            name="payment",
+            field=models.OneToOneField(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="identified_guest",
+                to="payments.Payment",
+            ),
         ),
         migrations.AlterField(
-            model_name='identifiedguest',
-            name='submission',
-            field=models.ForeignKey(db_column='personformsubmission_id', null=True, on_delete=django.db.models.deletion.SET_NULL, to='people.PersonFormSubmission'),
+            model_name="identifiedguest",
+            name="submission",
+            field=models.ForeignKey(
+                db_column="personformsubmission_id",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="people.PersonFormSubmission",
+            ),
         ),
         migrations.AddField(
-            model_name='rsvp',
-            name='payment',
-            field=models.OneToOneField(editable=False, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='rsvp', to='payments.Payment'),
+            model_name="rsvp",
+            name="payment",
+            field=models.OneToOneField(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="rsvp",
+                to="payments.Payment",
+            ),
         ),
         migrations.AlterField(
-            model_name='rsvp',
-            name='form_submission',
-            field=models.OneToOneField(editable=False, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='rsvp', to='people.PersonFormSubmission'),
+            model_name="rsvp",
+            name="form_submission",
+            field=models.OneToOneField(
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="rsvp",
+                to="people.PersonFormSubmission",
+            ),
         ),
     ]

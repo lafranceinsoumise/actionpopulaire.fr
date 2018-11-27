@@ -10,24 +10,63 @@ import phonenumber_field.modelfields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0036_person_contact_phone_status'),
-    ]
+    dependencies = [("people", "0036_person_contact_phone_status")]
 
     operations = [
         migrations.CreateModel(
-            name='PersonValidationSMS',
+            name="PersonValidationSMS",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, editable=False, verbose_name='created')),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified')),
-                ('phone_number', phonenumber_field.modelfields.PhoneNumberField(editable=False, max_length=128, verbose_name='Numéro de mobile')),
-                ('code', models.CharField(default=agir.people.models.generate_code, editable=False, max_length=8)),
-                ('person', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, to='people.Person')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created",
+                    model_utils.fields.AutoCreatedField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name="created",
+                    ),
+                ),
+                (
+                    "modified",
+                    model_utils.fields.AutoLastModifiedField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name="modified",
+                    ),
+                ),
+                (
+                    "phone_number",
+                    phonenumber_field.modelfields.PhoneNumberField(
+                        editable=False, max_length=128, verbose_name="Numéro de mobile"
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(
+                        default=agir.people.models.generate_code,
+                        editable=False,
+                        max_length=8,
+                    ),
+                ),
+                (
+                    "person",
+                    models.ForeignKey(
+                        editable=False,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="people.Person",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'SMS de validation',
-                'verbose_name_plural': 'SMS de validation',
+                "verbose_name": "SMS de validation",
+                "verbose_name_plural": "SMS de validation",
             },
-        ),
+        )
     ]

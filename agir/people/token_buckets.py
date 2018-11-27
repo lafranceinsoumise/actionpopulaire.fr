@@ -2,7 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from agir.lib.token_bucket import TokenBucket
 
 
-SubscribeIPBucket = TokenBucket('SubscribeIP', 4, 600)
+SubscribeIPBucket = TokenBucket("SubscribeIP", 4, 600)
 """Bucket used to limit subscription by IP
 
 Burst of 4, then 1 every 10 minutes (more than enough for one person,
@@ -11,7 +11,7 @@ persons.
 """
 
 
-SubscribeEmailBucket = TokenBucket('SubscribeEmail', 3, 1800)
+SubscribeEmailBucket = TokenBucket("SubscribeEmail", 3, 1800)
 """Bucket used to limit subscription by email
 
 Burst of 3, then 1 every half an hour (should be more than enough,
@@ -26,4 +26,6 @@ subscription_rate_limited_message = _(
 
 
 def is_rate_limited_for_subscription(*, ip, email):
-    return not SubscribeIPBucket.has_tokens(ip) or not SubscribeEmailBucket.has_tokens(email)
+    return not SubscribeIPBucket.has_tokens(ip) or not SubscribeEmailBucket.has_tokens(
+        email
+    )

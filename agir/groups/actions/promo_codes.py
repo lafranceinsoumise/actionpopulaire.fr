@@ -14,7 +14,7 @@ DIGESTMOD = hashlib.sha1
 BASE64ENC = base64.urlsafe_b64encode
 
 
-__all__ = ['get_next_promo_code']
+__all__ = ["get_next_promo_code"]
 
 
 def generate_date_fragment(expiration_date):
@@ -35,10 +35,12 @@ def generate_date_fragment(expiration_date):
     :return: base64 encoding of the input date (bytes object)
     """
     days = (expiration_date - REFERENCE_DATE).days
-    assert days < 4096  # 2^12 or the maximum value that can be set in 2 Base64 characters
+    assert (
+        days < 4096
+    )  # 2^12 or the maximum value that can be set in 2 Base64 characters
 
     # use little-endian for packing
-    b = bytearray(struct.pack('<I', days)[:2])
+    b = bytearray(struct.pack("<I", days)[:2])
     b[1] <<= 4
 
     return BASE64ENC(b)[:2]
@@ -72,9 +74,7 @@ def generate_msg_part_for_group(group, expiration_date):
 def sign_code(msg):
     keep_bytes = (SIGNATURE_SIZE * 3 // 4) + 1
     sig_bytes = hmac.new(
-        key=settings.PROMO_CODE_KEY,
-        msg=msg,
-        digestmod=DIGESTMOD
+        key=settings.PROMO_CODE_KEY, msg=msg, digestmod=DIGESTMOD
     ).digest()[:keep_bytes]
 
     signature_frag = BASE64ENC(sig_bytes)[:SIGNATURE_SIZE]
@@ -84,15 +84,15 @@ def sign_code(msg):
 
 def generate_code_for_group(group, expiration_date):
     msg = generate_msg_part_for_group(group, expiration_date)
-    return sign_code(msg).decode('ascii')
+    return sign_code(msg).decode("ascii")
 
 
 def get_next_promo_code(group):
     today = timezone.now().astimezone(timezone.get_default_timezone())
 
     if today.month == 12:
-        expiration_date = date(today.year+1, 1, 1)
+        expiration_date = date(today.year + 1, 1, 1)
     else:
-        expiration_date = date(today.year, today.month+1, 1)
+        expiration_date = date(today.year, today.month + 1, 1)
 
     return generate_code_for_group(group, expiration_date)

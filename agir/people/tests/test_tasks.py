@@ -7,7 +7,7 @@ from agir.people import tasks
 
 class PeopleTasksTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person('me@me.org')
+        self.person = Person.objects.create_person("me@me.org")
 
     def test_welcome_mail(self):
         tasks.send_welcome_mail(self.person.pk)

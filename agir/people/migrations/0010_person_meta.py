@@ -8,14 +8,14 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0009_add_profile_fields'),
-    ]
+    dependencies = [("people", "0009_add_profile_fields")]
 
     operations = [
         migrations.AddField(
-            model_name='person',
-            name='meta',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default=dict, verbose_name='Autres données'),
-        ),
+            model_name="person",
+            name="meta",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default=dict, verbose_name="Autres données"
+            ),
+        )
     ]

@@ -1,15 +1,15 @@
-class AbstractPaymentMode():
+class AbstractPaymentMode:
     can_retry = False
     can_cancel = False
     can_admin = False
 
     @property
     def id(self):
-        raise NotImplementedError('Must implement this property.')
+        raise NotImplementedError("Must implement this property.")
 
     @property
     def payment_view(self):
-        raise NotImplementedError('Must implement this property.')
+        raise NotImplementedError("Must implement this property.")
 
     @property
     def url_fragment(self):

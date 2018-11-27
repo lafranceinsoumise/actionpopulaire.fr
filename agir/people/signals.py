@@ -20,7 +20,7 @@ def update_mailtrain(sender, instance, raw, **kwargs):
     if settings.MAILTRAIN_DISABLE:
         return
 
-    if kwargs['created']:
+    if kwargs["created"]:
         return
 
     tasks.update_person_mailtrain.delay(instance.id)
