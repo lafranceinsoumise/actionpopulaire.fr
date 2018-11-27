@@ -229,7 +229,7 @@ class PollTestCase(TestCase):
         })
 
         res = self.client.get(reverse('participate_poll', args=[self.poll.pk]))
-        self.assertContains(res, 'Vous avez déjà participé')
+        self.assertContains(res, 'Vous avez bien participé')
 
         res = self.client.post(reverse('participate_poll', args=[self.poll.pk]), data={
             'choice': [str(self.poll1.pk), str(self.poll3.pk)]
