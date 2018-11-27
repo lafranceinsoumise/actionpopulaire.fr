@@ -18,12 +18,19 @@ class Command(BaseCommand):
             action='store_true', dest='create', default=False,
             help=(
                 'In case emails without a corresponding account are found in input, create '
-                'a corresponding account and add it with the tag. WARNING: make sure you have the '
-                'full consent of all concerned individuals.'
+                'a corresponding account and add it with the tag. By default those accounts are non'
+                'members account. WARNING: make sure you have the full consent of all concerned individuals.'
             ),
         )
+        parser.add_argument(
+            '-i', '--insoumis',
+            action='store_true', dest='insoumis', default=False,
+            help=(
+                'Make new accounts full members.'
+            )
+        )
 
-    def handle(self, *args, tag, create, **options):
+    def handle(self, *args, tag, create, insoumis, **options):
         emails = re.findall(self.EMAIL_RE, sys.stdin.read())
 
         persons = []
@@ -33,7 +40,7 @@ class Command(BaseCommand):
                 persons.append(Person.objects.get_by_natural_key(e))
             except Person.DoesNotExist:
                 if create:
-                    persons.append(Person.objects.create_person(email=e))
+                    persons.append(Person.objects.create_person(email=e, is_insoumise=insoumis))
                     self.stdout.write('Created person "{}"'.format(e))
                 else:
                     self.stdout.write('Missing person "{}"'.format(e))
