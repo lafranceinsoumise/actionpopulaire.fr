@@ -8,7 +8,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView, DetailView, RedirectView, FormView
 
-from agir.authentication.view_mixins import HardLoginRequiredMixin
+from agir.authentication.view_mixins import HardLoginRequiredMixin, SoftLoginRequiredMixin
 from agir.payments.actions import redirect_to_payment
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PAYMENT_MODES
@@ -36,7 +36,7 @@ from ..tasks import send_rsvp_notification, send_external_rsvp_optin
 from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
 
 
-class RSVPEventView(HardLoginRequiredMixin, DetailView):
+class RSVPEventView(SoftLoginRequiredMixin, DetailView):
     """RSVP to an event, check one's RSVP, or add guests to your RSVP
 
     """
@@ -279,7 +279,7 @@ class ChangeRSVPPaymentView(HardLoginRequiredMixin, DetailView):
         return HttpResponseRedirect(reverse("pay_event"))
 
 
-class PayEventView(HardLoginRequiredMixin, UpdateView):
+class PayEventView(SoftLoginRequiredMixin, UpdateView):
     """View for the billing form for paid events
 
     """
