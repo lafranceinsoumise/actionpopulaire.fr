@@ -71,7 +71,9 @@ class PeopleFormEditSubmissionView(PeopleFormView):
         )
 
         if kwargs["submission"].person != self.request.user.person:
-            raise PermissionDenied("Impossible de modifier le formulaire de quelqu'un d'autre")
+            raise PermissionDenied(
+                "Impossible de modifier le formulaire de quelqu'un d'autre"
+            )
 
         return kwargs
 

@@ -8,7 +8,10 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView, DetailView, RedirectView, FormView
 
-from agir.authentication.view_mixins import HardLoginRequiredMixin, SoftLoginRequiredMixin
+from agir.authentication.view_mixins import (
+    HardLoginRequiredMixin,
+    SoftLoginRequiredMixin,
+)
 from agir.payments.actions import redirect_to_payment
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PAYMENT_MODES
