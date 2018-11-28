@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import UpdateView, DetailView
@@ -70,7 +71,7 @@ class PeopleFormEditSubmissionView(PeopleFormView):
         )
 
         if kwargs["submission"].person != self.request.user.person:
-            raise PermissionError()
+            raise PermissionDenied("Impossible de modifier le formulaire de quelqu'un d'autre")
 
         return kwargs
 
