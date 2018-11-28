@@ -75,22 +75,38 @@ DROP FUNCTION check_spendings(groups_supportgroup.id%TYPE, INTEGER);
 
 
 class Migration(migrations.Migration):
-    dependencies = [
-        ('donations', '0001_initial'),
-    ]
+    dependencies = [("donations", "0001_initial")]
 
     operations = [
         migrations.CreateModel(
-            name='Spending',
+            name="Spending",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount', models.PositiveIntegerField(editable=False, verbose_name="dépense en centimes d'euros")),
-                ('group', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.PROTECT,
-                                            to='groups.SupportGroup')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "amount",
+                    models.PositiveIntegerField(
+                        editable=False, verbose_name="dépense en centimes d'euros"
+                    ),
+                ),
+                (
+                    "group",
+                    models.ForeignKey(
+                        editable=False,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="groups.SupportGroup",
+                    ),
+                ),
             ],
         ),
         migrations.RunSQL(
-            sql=add_spending_triggers,
-            reverse_sql=remove_spending_triggers,
-        )
+            sql=add_spending_triggers, reverse_sql=remove_spending_triggers
+        ),
     ]

@@ -30,18 +30,18 @@ class AskAmountView(FormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['group_id'] = self.request.GET.get('group')
-        kwargs['user'] = self.request.user
+        kwargs["group_id"] = self.request.GET.get("group")
+        kwargs["user"] = self.request.user
         return kwargs
 
     def form_valid(self, form):
-        amount = int(form.cleaned_data['amount']*100)
+        amount = int(form.cleaned_data["amount"] * 100)
         # use int to floor down the value as well as converting to an int
-        allocation = int(form.cleaned_data.get('allocation', 0) * amount / 100)
+        allocation = int(form.cleaned_data.get("allocation", 0) * amount / 100)
 
-        self.request.session[session_key('amount')] = amount
-        self.request.session[session_key('allocation')] = allocation
-        self.request.session[session_key('group')] = form.group and str(form.group.pk)
+        self.request.session[session_key("amount")] = amount
+        self.request.session[session_key("allocation")] = allocation
+        self.request.session[session_key("group")] = form.group and str(form.group.pk)
         return super().form_valid(form)
 
 
@@ -50,8 +50,8 @@ class PersonalInformationView(UpdateView):
     template_name = "donations/personal_information.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if session_key('amount') not in request.session:
-            return redirect('donation_amount')
+        if session_key("amount") not in request.session:
+            return redirect("donation_amount")
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
@@ -69,29 +69,27 @@ class PersonalInformationView(UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['amount'] = self.request.session[session_key('amount')]
-        kwargs['allocation'] = self.request.session[session_key('allocation')]
-        kwargs['group_id'] = self.request.session[session_key('group')]
+        kwargs["amount"] = self.request.session[session_key("amount")]
+        kwargs["allocation"] = self.request.session[session_key("allocation")]
+        kwargs["group_id"] = self.request.session[session_key("group")]
         return kwargs
 
     def form_valid(self, form):
         person = form.save()
-        amount = form.cleaned_data['amount']
-        allocation = form.cleaned_data['allocation']
-        group = form.cleaned_data['group']
+        amount = form.cleaned_data["amount"]
+        allocation = form.cleaned_data["allocation"]
+        group = form.cleaned_data["group"]
 
         with transaction.atomic():
             payment = create_payment(
                 person=person,
                 type=DonsConfig.PAYMENT_TYPE,
                 price=amount,
-                meta={'nationality': person.meta['nationality']}
+                meta={"nationality": person.meta["nationality"]},
             )
             if allocation and group:
                 DonationAllocation.objects.create(
-                    payment=payment,
-                    group=group,
-                    amount=allocation
+                    payment=payment, group=group, amount=allocation
                 )
 
         return redirect_to_payment(payment)

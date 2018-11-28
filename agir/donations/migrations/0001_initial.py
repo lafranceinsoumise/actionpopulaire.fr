@@ -49,22 +49,48 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('groups', '0028_auto_20181024_1757'),
-        ('payments', '0007_auto_20180724_2040'),
+        ("groups", "0028_auto_20181024_1757"),
+        ("payments", "0007_auto_20180724_2040"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='DonationAllocation',
+            name="DonationAllocation",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount', models.PositiveIntegerField(editable=False, verbose_name="allocation en centimes d'euros")),
-                ('group', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.PROTECT, to='groups.SupportGroup')),
-                ('payment', models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, to='payments.Payment')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "amount",
+                    models.PositiveIntegerField(
+                        editable=False, verbose_name="allocation en centimes d'euros"
+                    ),
+                ),
+                (
+                    "group",
+                    models.ForeignKey(
+                        editable=False,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="groups.SupportGroup",
+                    ),
+                ),
+                (
+                    "payment",
+                    models.OneToOneField(
+                        editable=False,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="payments.Payment",
+                    ),
+                ),
             ],
         ),
         migrations.RunSQL(
-            sql=add_allocations_triggers,
-            reverse_sql=remove_allocations_triggers,
-        )
+            sql=add_allocations_triggers, reverse_sql=remove_allocations_triggers
+        ),
     ]
