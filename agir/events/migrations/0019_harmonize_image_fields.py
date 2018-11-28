@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 import stdimage.models
-import stdimage.utils
 import stdimage.validators
+import dynamic_filenames
 
 
 class Migration(migrations.Migration):
@@ -19,8 +19,8 @@ class Migration(migrations.Migration):
             field=stdimage.models.StdImageField(
                 blank=True,
                 default="",
-                upload_to=stdimage.utils.UploadToAutoSlug(
-                    "name", path="events/calendars/"
+                upload_to=dynamic_filenames.FilePattern(
+                    filename_pattern="{app_label}/{model_name}/{instance.name:slug}{ext}"
                 ),
                 verbose_name="bannière",
             ),
@@ -33,8 +33,8 @@ class Migration(migrations.Migration):
                 blank=True,
                 default="",
                 help_text="L'image à utiliser pour l'affichage sur la page, comme miniature dans les listes, et pour le partage sur les réseaux sociaux. Elle doit faire au minimum 1200 pixels de large, et 630 de haut. Préférer un rapport largeur/hauteur de 2 (deux fois plus large que haut)?",
-                upload_to=stdimage.utils.UploadToAutoSlugClassNameDir(
-                    "name", path="banners"
+                upload_to=dynamic_filenames.FilePattern(
+                    filename_pattern="{app_label}/{model_name}/{instance.id}/banner{ext}"
                 ),
                 validators=[stdimage.validators.MinSizeValidator(1200, 630)],
                 verbose_name="image",

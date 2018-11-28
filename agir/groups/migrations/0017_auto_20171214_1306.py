@@ -3,8 +3,8 @@
 from __future__ import unicode_literals
 
 import django.core.validators
+import dynamic_filenames
 from django.db import migrations, models
-from agir.lib import models as lib_models
 import stdimage.models
 
 
@@ -49,8 +49,8 @@ class Migration(migrations.Migration):
                     "icon",
                     stdimage.models.StdImageField(
                         help_text="L'icône associée aux marqueurs sur la carte.",
-                        upload_to=lib_models.UploadToInstanceDirectoryWithFilename(
-                            filename="icon"
+                        upload_to=dynamic_filenames.FilePattern(
+                            filename_pattern="{app_label}/{model_name}/{instance.id}/icon{ext}"
                         ),
                         verbose_name="icon",
                     ),

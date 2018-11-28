@@ -7,13 +7,13 @@ from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
-from django.utils.text import slugify
 from django.contrib.postgres.fields import JSONField
 from django_prometheus.models import ExportModelOperationsMixin
+from dynamic_filenames import FilePattern
 from model_utils.models import TimeStampedModel
 
 from stdimage.models import StdImageField
-from stdimage.utils import UploadToAutoSlug
+from slugify import slugify
 
 from agir.lib.utils import front_url, resize_and_autorotate
 from ..lib.models import (
@@ -25,8 +25,6 @@ from ..lib.models import (
     ImageMixin,
     DescriptionMixin,
     DescriptionField,
-    UploadToRelatedObjectDirectoryWithUUID,
-    UploadToInstanceDirectoryWithFilename,
     AbstractMapObjectLabel,
 )
 from ..lib.form_fields import DateTimePickerWidget
@@ -127,6 +125,11 @@ def get_default_subtype():
     )
 
 
+report_image_path = FilePattern(
+    filename_pattern="{app_label}/{model_name}/{instance.id}/report_banner{ext}"
+)
+
+
 class Event(
     ExportModelOperationsMixin("event"),
     BaseAPIResource,
@@ -190,7 +193,7 @@ class Event(
         verbose_name=_("image de couverture"),
         blank=True,
         variations={"thumbnail": (400, 250), "banner": (1200, 400)},
-        upload_to=UploadToInstanceDirectoryWithFilename("report_banner"),
+        upload_to=report_image_path,
         help_text=_(
             "Cette image apparaîtra en tête de votre compte-rendu, et dans les partages que vous ferez du"
             " compte-rendu sur les réseaux sociaux."
@@ -432,7 +435,9 @@ class Calendar(NationBuilderResource, ImageMixin):
 
     image = StdImageField(
         _("bannière"),
-        upload_to=UploadToAutoSlug("name", path="events/calendars/"),
+        upload_to=FilePattern(
+            filename_pattern="{app_label}/{model_name}/{instance.name:slug}{ext}"
+        ),
         variations={"thumbnail": (400, 250), "banner": (1200, 400)},
         blank=True,
     )
@@ -629,6 +634,11 @@ class OrganizerConfig(ExportModelOperationsMixin("organizer_config"), models.Mod
             )
 
 
+event_image_path = FilePattern(
+    filename_pattern="events/event/{instance.event_id}/{uuid:s}{ext}"
+)
+
+
 class EventImage(ExportModelOperationsMixin("event_image"), TimeStampedModel):
     event = models.ForeignKey(
         "Event", on_delete=models.CASCADE, related_name="images", null=False
@@ -644,7 +654,7 @@ class EventImage(ExportModelOperationsMixin("event_image"), TimeStampedModel):
         _("Fichier"),
         variations={"thumbnail": (200, 200, True), "admin_thumbnail": (100, 100, True)},
         render_variations=resize_and_autorotate,
-        upload_to=UploadToRelatedObjectDirectoryWithUUID(related="event"),
+        upload_to=event_image_path,
         null=False,
         blank=False,
     )

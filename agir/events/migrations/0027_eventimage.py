@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
-from agir.lib import models as lib_models
+import dynamic_filenames
 import stdimage.models
 
 
@@ -31,8 +31,8 @@ class Migration(migrations.Migration):
                 (
                     "image",
                     stdimage.models.StdImageField(
-                        upload_to=lib_models.UploadToRelatedObjectDirectoryWithUUID(
-                            related="event"
+                        upload_to=dynamic_filenames.FilePattern(
+                            filename_pattern="events/event/{instance.event_id}/{uuid:s}{ext}"
                         ),
                         verbose_name="Fichier",
                     ),

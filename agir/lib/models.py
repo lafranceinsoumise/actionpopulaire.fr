@@ -1,5 +1,4 @@
 import uuid
-import os
 from django.contrib.gis.db import models
 from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
@@ -7,10 +6,10 @@ from django.utils.html import mark_safe, format_html, format_html_join
 from django_countries.fields import CountryField
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
+from dynamic_filenames import FilePattern
 
 from model_utils.models import TimeStampedModel
 from stdimage.models import StdImageField
-from stdimage.utils import UploadTo
 
 from .form_fields import RichEditorWidget
 from .html import sanitize_html
@@ -258,37 +257,9 @@ class AbstractLabel(models.Model):
         return self.label
 
 
-class UploadToInstanceDirectoryWithFilename(UploadTo):
-    def __init__(self, filename):
-        # make sure it will be correctly deconstructed
-        super().__init__(filename=filename)
-        self.filename = filename
-
-    def __call__(self, instance, filename):
-        _, ext = os.path.splitext(filename)
-
-        return os.path.join(
-            instance.__class__.__name__,
-            str(instance.pk),
-            "{}{}".format(self.filename, ext),
-        )
-
-
-class UploadToRelatedObjectDirectoryWithUUID(UploadTo):
-    def __init__(self, related):
-        # make sure it will be correctly deconstructed
-        super().__init__(related=related)
-        self.related = related
-
-    def __call__(self, instance, filename):
-        _, ext = os.path.splitext(filename)
-        related_object = getattr(instance, self.related)
-
-        return os.path.join(
-            related_object.__class__.__name__,
-            str(related_object.pk),
-            "{}{}".format(str(uuid.uuid4()), ext),
-        )
+icon_path = FilePattern(
+    filename_pattern="{app_label}/{model_name}/{instance.id}/icon{ext}"
+)
 
 
 class AbstractMapObjectLabel(TimeStampedModel, AbstractLabel):
@@ -315,7 +286,7 @@ class AbstractMapObjectLabel(TimeStampedModel, AbstractLabel):
 
     icon = models.ImageField(
         verbose_name=_("icon"),
-        upload_to=UploadToInstanceDirectoryWithFilename("icon"),
+        upload_to=icon_path,
         help_text=_("L'icône associée aux marqueurs sur la carte."),
         blank=True,
     )
@@ -348,10 +319,15 @@ class AbstractMapObjectLabel(TimeStampedModel, AbstractLabel):
         abstract = True
 
 
+banner_path = FilePattern(
+    filename_pattern="{app_label}/{model_name}/{instance.id}/banner{ext}"
+)
+
+
 class ImageMixin(models.Model):
     image = StdImageField(
         _("image"),
-        upload_to=UploadToInstanceDirectoryWithFilename("banner"),
+        upload_to=banner_path,
         variations={"thumbnail": (400, 250), "banner": (1200, 400)},
         blank=True,
         help_text=_(
