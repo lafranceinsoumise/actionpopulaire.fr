@@ -3,7 +3,7 @@ from django.views.generic import FormView, UpdateView, TemplateView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
 
-from agir.donations.models import DonationAllocation
+from agir.donations.models import Operation
 from .apps import DonsConfig
 from .tasks import send_donation_email
 from ..people.models import Person
@@ -88,7 +88,7 @@ class PersonalInformationView(UpdateView):
                 meta={"nationality": person.meta["nationality"]},
             )
             if allocation and group:
-                DonationAllocation.objects.create(
+                Operation.objects.create(
                     payment=payment, group=group, amount=allocation
                 )
 

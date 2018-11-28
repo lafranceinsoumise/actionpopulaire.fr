@@ -1,9 +1,9 @@
 from django.db import IntegrityError, transaction
 from django.test import TestCase
 from django.urls import reverse
-from unittest import mock
+from unittest import mock, skip
 
-from agir.donations.models import DonationAllocation, Spending
+from agir.donations.models import Operation, Spending
 from agir.groups.models import SupportGroup, Membership
 from agir.payments.actions import complete_payment
 from .views import notification_listener as donation_notification_listener
@@ -209,7 +209,7 @@ class DonationTestCase(TestCase):
         self.assertRedirects(res, reverse("payment_page", args=(payment.pk,)))
 
         # no other allocation
-        allocation = DonationAllocation.objects.get()
+        allocation = Operation.objects.get()
         self.assertEqual(allocation.amount, 10000)
         self.assertEqual(allocation.group, self.group)
 
@@ -230,8 +230,8 @@ class FinancialTriggersTestCase(TestCase):
         )
 
         if group is not None:
-            DonationAllocation.objects.create(
-                payment=p, group=group, amount=allocation or p.price
+            Operation.objects.create(
+                payment=p, amount=allocation or p.price, group=group
             )
 
         return p
@@ -243,7 +243,7 @@ class FinancialTriggersTestCase(TestCase):
     def test_cannot_allocate_more_than_payment(self):
         p = self.create_payment(1000)
         with self.assertRaises(IntegrityError):
-            DonationAllocation.objects.create(payment=p, group=self.group1, amount=1500)
+            Operation.objects.create(payment=p, group=self.group1, amount=1500)
 
     def test_cannot_reduce_payment_if_allocated(self):
         p = self.create_payment(1000, group=self.group1, allocation=900)
@@ -253,46 +253,59 @@ class FinancialTriggersTestCase(TestCase):
 
     def test_can_spend_less_than_allocation(self):
         self.create_payment(1000, group=self.group1, allocation=500)
-        Spending.objects.create(group=self.group1, amount=300)
+        Spending.objects.create(group=self.group1, amount=-300)
 
     def test_can_spend_less_than_multiple_allocations(self):
         self.create_payment(1000, group=self.group1, allocation=800)
         self.create_payment(1000, group=self.group1, allocation=800)
-        Spending.objects.create(group=self.group1, amount=1500)
+        Spending.objects.create(group=self.group1, amount=-1500)
+
+    def test_cannot_spend_more_than_allocation(self):
+        self.create_payment(1000, group=self.group1)
+        with self.assertRaises(IntegrityError):
+            Spending.objects.create(group=self.group1, amount=-1800)
 
     def test_cannot_spend_allocation_from_other_group(self):
         self.create_payment(1000, group=self.group1)
         with self.assertRaises(IntegrityError):
-            Spending.objects.create(group=self.group2, amount=800)
+            Spending.objects.create(group=self.group2, amount=-800)
+
+    def test_cannot_reallocation_operation_if_it_creates_integrity_error(self):
+        self.create_payment(1000, group=self.group1)
+        o = Operation.objects.get()
+        s = Spending.objects.create(group=self.group1, amount=-800)
+        with self.assertRaises(IntegrityError):
+            o.group = self.group2
+            o.save()
 
     def test_cannot_spend_more_in_several_times(self):
         self.create_payment(1000, group=self.group1, allocation=600)
         self.create_payment(1000, group=self.group1, allocation=600)
 
-        Spending.objects.create(group=self.group1, amount=500)
-        Spending.objects.create(group=self.group1, amount=500)
+        Spending.objects.create(group=self.group1, amount=-500)
+        Spending.objects.create(group=self.group1, amount=-500)
         with self.assertRaises(IntegrityError):
-            Spending.objects.create(group=self.group1, amount=500)
+            Spending.objects.create(group=self.group1, amount=-500)
 
     def test_cannot_spend_more_by_modifying_spending(self):
         self.create_payment(1000, group=self.group1, allocation=500)
 
-        s = Spending.objects.create(group=self.group1, amount=500)
+        s = Spending.objects.create(group=self.group1, amount=-500)
 
-        s.amount = 600
+        s.amount = -600
         with self.assertRaises(IntegrityError):
             s.save()
 
     def test_cannot_spend_more_by_modifying_allocation(self):
         p = self.create_payment(1000, group=self.group1)
-        a = p.donationallocation
+        o = Operation.objects.get(payment=p)
 
-        s = Spending.objects.create(group=self.group1, amount=800)
+        Spending.objects.create(group=self.group1, amount=-800)
 
-        a.amount = 500
+        o.amount = 500
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
-                a.save()
+                o.save()
 
         with self.assertRaises(IntegrityError):
-            a.delete()
+            o.delete()

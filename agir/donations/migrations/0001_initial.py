@@ -5,7 +5,7 @@ import django.db.models.deletion
 
 
 add_allocations_triggers = """
-CREATE FUNCTION check_allocations_when_allocations_modified() RETURNS TRIGGER AS $process_allocation$
+CREATE FUNCTION check_allocation_lt_payment() RETURNS TRIGGER AS $process_allocation$
     DECLARE
        payment_amount INTEGER;
     BEGIN
@@ -17,11 +17,11 @@ CREATE FUNCTION check_allocations_when_allocations_modified() RETURNS TRIGGER AS
     END
 $process_allocation$ LANGUAGE plpgsql;
     
-CREATE FUNCTION check_allocations_when_donations_modified() RETURNS TRIGGER AS $process_donation$
+CREATE FUNCTION check_payment_gt_allocation() RETURNS TRIGGER AS $process_donation$
     DECLARE 
         allocation INTEGER;
     BEGIN
-        SELECT amount INTO allocation FROM donations_donationallocation WHERE payment_id = OLD.id;
+        SELECT donations_operation.amount INTO allocation FROM donations_operation WHERE payment_id = OLD.id;
         IF allocation IS NOT NULL AND (allocation > NEW.price OR  OLD.id <> NEW.id) THEN
             RAISE EXCEPTION integrity_constraint_violation;
         END IF;
@@ -29,18 +29,18 @@ CREATE FUNCTION check_allocations_when_donations_modified() RETURNS TRIGGER AS $
     END
 $process_donation$ LANGUAGE plpgsql;
 
-CREATE TRIGGER check_allocations_when_allocations_modified BEFORE INSERT OR UPDATE ON donations_donationallocation
-    FOR EACH ROW EXECUTE PROCEDURE check_allocations_when_allocations_modified();
+CREATE TRIGGER check_allocation_lt_payment BEFORE INSERT OR UPDATE ON donations_operation
+    FOR EACH ROW EXECUTE PROCEDURE check_allocation_lt_payment();
 
-CREATE TRIGGER check_allocations_when_donations_modified BEFORE UPDATE ON payments_payment
-    FOR EACH ROW EXECUTE PROCEDURE check_allocations_when_donations_modified();
+CREATE TRIGGER check_payment_gt_allocation BEFORE UPDATE ON payments_payment
+    FOR EACH ROW EXECUTE PROCEDURE check_payment_gt_allocation();
 """
 
-remove_allocations_triggers = """
-DROP TRIGGER check_allocations_when_donations_modified ON payments_payment;
-DROP TRIGGER check_allocations_when_allocations_modified ON donations_donationallocation;
-DROP FUNCTION check_allocations_when_donations_modified();
-DROP FUNCTION check_allocations_when_allocations_modified();
+remove_operation_triggers = """
+DROP TRIGGER check_allocation_lt_payment ON donations_operation;
+DROP TRIGGER check_payment_gt_allocation ON payments_payment;
+DROP FUNCTION check_allocation_lt_payment();
+DROP FUNCTION check_payment_gt_allocation();
 """
 
 
@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="DonationAllocation",
+            name="Operation",
             fields=[
                 (
                     "id",
@@ -68,8 +68,8 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "amount",
-                    models.PositiveIntegerField(
-                        editable=False, verbose_name="allocation en centimes d'euros"
+                    models.IntegerField(
+                        editable=False, verbose_name="opération en centimes d'euros"
                     ),
                 ),
                 (
@@ -83,14 +83,22 @@ class Migration(migrations.Migration):
                 (
                     "payment",
                     models.OneToOneField(
+                        blank=True,
                         editable=False,
-                        on_delete=django.db.models.deletion.CASCADE,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
                         to="payments.Payment",
                     ),
                 ),
             ],
         ),
+        migrations.CreateModel(
+            name="Spending",
+            fields=[],
+            options={"proxy": True, "indexes": []},
+            bases=("donations.operation",),
+        ),
         migrations.RunSQL(
-            sql=add_allocations_triggers, reverse_sql=remove_allocations_triggers
+            sql=add_allocations_triggers, reverse_sql=remove_operation_triggers
         ),
     ]
