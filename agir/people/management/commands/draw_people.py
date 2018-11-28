@@ -1,32 +1,13 @@
 import argparse
 from random import sample
 
-from sympy import symbols
-from sympy.polys import Poly, rem
-
 from django.core.management.base import BaseCommand, CommandError
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.db import connection
 from django.utils import timezone
 
 from agir.groups.models import SupportGroupSubtype
 from agir.people.models import Person, PersonTag
-
-X = symbols("x")
-
-CORR_CHARS = {i: str(i) for i in range(10)}
-CORR_CHARS[10] = "A"
-CORR_CHARS[11] = "B"
-CORR_CHARS[12] = "C"
-
-INVERSE_CORR = {v: k for k, v in CORR_CHARS.items()}
-
-
-def normalize_poly(p):
-    return Poly.from_list((c % 13 for c in p.all_coeffs()), X)
-
-
-G = normalize_poly(Poly((X - 2) * (X - 4) * (X - 8)))
 
 
 CERTIFIED_QUERY = """
