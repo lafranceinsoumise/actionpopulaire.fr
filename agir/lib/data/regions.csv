@@ -1,0 +1,19 @@
+id,nom,article,locatif,possessif
+01,Guadeloupe,la ,en ,de 
+02,Martinique,la ,en ,de 
+03,Guyane,la ,en ,de 
+04,La Réunion,,à ,de 
+06,Mayotte,,à ,de 
+11,Île-de-France,l',en ,d'
+24,Centre-Val de Loire,le ,au ,du 
+27,Bourgogne-Franche-Comté,la ,en ,de la 
+28,Normandie,la ,en ,de la 
+32,Hauts-de-France,les ,dans les ,des 
+44,Grand Est,le ,dans le ,du 
+52,Pays de la Loire,les ,dans les ,des 
+53,Bretagne,la ,en ,de la 
+75,Nouvelle-Aquitaine,la ,en ,de la 
+76,Occitanie,l',en ,de l'
+84,Auvergne-Rhône-Alpes,l',en ,de l'
+93,Provence-Alpes-Côte d'Azur,,en région ,de la région 
+94,Corse,la ,en ,de 

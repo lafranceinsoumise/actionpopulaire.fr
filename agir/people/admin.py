@@ -24,7 +24,11 @@ from agir.events.models import RSVP
 from agir.groups.models import Membership
 
 from agir.lib.utils import front_url, generate_token_params
-from agir.lib.admin import CenterOnFranceMixin, DisplayContactPhoneMixin
+from agir.lib.admin import (
+    CenterOnFranceMixin,
+    DisplayContactPhoneMixin,
+    DepartementListFilter,
+)
 from agir.lib.form_fields import AdminRichEditorWidget, AdminJsonWidget
 from agir.lib.forms import CoordinatesFormMixin
 
@@ -154,11 +158,12 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     )
 
     list_filter = (
-        ("tags"),
+        DepartementListFilter,
         ("is_insoumise", admin.BooleanFieldListFilter),
         ("subscribed", admin.BooleanFieldListFilter),
         ("draw_participation", admin.BooleanFieldListFilter),
         ("gender"),
+        ("tags"),
     )
 
     inlines = (RSVPInline, MembershipInline, EmailInline)

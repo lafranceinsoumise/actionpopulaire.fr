@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from agir.api.admin import admin_site
 
-from agir.lib.admin import CenterOnFranceMixin
+from agir.lib.admin import CenterOnFranceMixin, DepartementListFilter
 from agir.lib.utils import front_url
 
 from .. import models
@@ -157,6 +157,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     list_filter = (
         "published",
         GroupHasEventsFilter,
+        DepartementListFilter,
         "coordinates_type",
         "type",
         "subtypes",
