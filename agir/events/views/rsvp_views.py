@@ -8,19 +8,15 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView, DetailView, RedirectView, FormView
 
-from agir.authentication.view_mixins import (
-    HardLoginRequiredMixin,
-    SoftLoginRequiredMixin,
-)
+from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.payments.actions import redirect_to_payment
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PAYMENT_MODES
-from agir.people.models import PersonFormSubmission, Person
 from agir.people.actions.person_forms import (
     get_people_form_class,
     get_formatted_submission,
 )
-
+from agir.people.models import PersonFormSubmission, Person
 from ..actions.rsvps import (
     rsvp_to_free_event,
     rsvp_to_paid_event_and_create_payment,
@@ -34,9 +30,9 @@ from ..actions.rsvps import (
     cancel_payment_for_rsvp,
     RSVPException,
 )
+from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
 from ..models import Event, RSVP
 from ..tasks import send_rsvp_notification, send_external_rsvp_optin
-from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
 
 
 class RSVPEventView(SoftLoginRequiredMixin, DetailView):
@@ -258,7 +254,7 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
         return is_participant(self.event, self.request.user.person)
 
 
-class ChangeRSVPPaymentView(HardLoginRequiredMixin, DetailView):
+class ChangeRSVPPaymentView(SoftLoginRequiredMixin, DetailView):
     def get_queryset(self):
         return (
             self.request.user.person.rsvps.exclude(payment=None)
