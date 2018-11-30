@@ -117,12 +117,6 @@ class DonationForm(forms.Form):
 
         return self.cleaned_data
 
-    @property
-    def media(self):
-        return forms.Media(
-            js=[script["url"] for script in get_files("donations/donationForm", "js")]
-        )
-
 
 class DonatorForm(MetaFieldsMixin, forms.ModelForm):
     meta_fields = ["nationality"]

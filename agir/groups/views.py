@@ -123,6 +123,9 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
                 Q(person=self.request.user.person)
                 & (Q(is_referent=True) | Q(is_manager=True))
             ).exists(),
+            is_certified=self.object.subtypes.filter(
+                label=settings.CERTIFIED_GROUP_SUBTYPE
+            ).exists(),
         )
 
     @method_decorator(login_required(login_url=reverse_lazy("short_code_login")))
