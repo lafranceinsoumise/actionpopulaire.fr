@@ -16,7 +16,7 @@ class DonationForm extends React.Component {
     this.state = {
       group: props.initialGroup,
       amount: null,
-      allocationRatio: 50
+      nationalRatio: 50
     };
   }
 
@@ -31,7 +31,7 @@ class DonationForm extends React.Component {
 
   render() {
     const {groupChoices, csrfToken, minAmount, maxAmount} = this.props;
-    const {group, amount, allocationRatio} = this.state;
+    const {group, amount, nationalRatio} = this.state;
 
     const customError = amount === null
       ? null
@@ -49,8 +49,8 @@ class DonationForm extends React.Component {
       }
       {(group || groupChoices) &&
       <AllocationSlider
-        disabled={!group} donation={amount} allocationRatio={allocationRatio} groupName={this.groupName()}
-        onAllocationChange={allocationRatio => this.setState({allocationRatio})}
+        disabled={!group} donation={amount} nationalRatio={nationalRatio} groupName={this.groupName()}
+        onAllocationChange={nationalRatio => this.setState({nationalRatio})}
       />
       }
       <div className="form-group">

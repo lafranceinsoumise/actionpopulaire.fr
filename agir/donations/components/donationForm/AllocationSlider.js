@@ -34,10 +34,10 @@ const Amount = styled.span`
   margin: 5px auto;
 `;
 
-const AllocationSlider = ({donation, allocationRatio, onAllocationChange, disabled, groupName}) => {
-  const allocation = donation ? Math.round(donation * allocationRatio) / 100 : '';
-  const nationalAmount = donation ? donation - allocation : '';
-  const shownRatio = Math.round(allocationRatio);
+const AllocationSlider = ({donation, nationalRatio, onAllocationChange, disabled, groupName}) => {
+  const nationalAmount = donation ? Math.round(donation * nationalRatio) / 100 : '';
+  const allocation = donation ? donation - nationalAmount : '';
+  const shownRatio = Math.round(nationalRatio);
 
   return <Container className="form-group" open={!disabled}>
     <input type="hidden" name="allocation" value={allocation}/>
@@ -48,7 +48,7 @@ const AllocationSlider = ({donation, allocationRatio, onAllocationChange, disabl
           <div>
             <Amount>{nationalAmount === '' ? '--,-- €' : displayPrice(nationalAmount)}</Amount>
           </div>
-          Activités nationales de la FI
+          Activités et campagnes nationales de la France insoumise
         </ValueBlock>
         <ValueBlock right>
           <div>
