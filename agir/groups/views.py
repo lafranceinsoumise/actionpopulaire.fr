@@ -2,11 +2,12 @@ import json
 
 import ics
 from django.conf import settings
+from django.template.defaultfilters import floatformat
 from django.urls import reverse_lazy, reverse
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import (
     Http404,
     HttpResponseRedirect,
@@ -123,9 +124,6 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
                 Q(person=self.request.user.person)
                 & (Q(is_referent=True) | Q(is_manager=True))
             ).exists(),
-            is_certified=self.object.subtypes.filter(
-                label=settings.CERTIFIED_GROUP_SUBTYPE
-            ).exists(),
         )
 
     @method_decorator(login_required(login_url=reverse_lazy("short_code_login")))
@@ -208,6 +206,9 @@ class SupportGroupManagementView(
 
         kwargs["certifiable"] = self.object.type == SupportGroup.TYPE_LOCAL_GROUP
         kwargs["satisfy_requirements"] = len(kwargs["referents"]) > 1
+        kwargs["allocation_balance"] = (
+            self.object.operation_set.all().aggregate(Sum("amount"))["amount__sum"] or 0
+        ) / 100
 
         return super().get_context_data(
             is_referent=self.user_membership is not None

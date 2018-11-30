@@ -87,6 +87,10 @@ class SupportGroup(
         "people.Person", related_name="supportgroups", through="Membership", blank=True
     )
 
+    @property
+    def is_certified(self):
+        return self.subtypes.filter(label=settings.CERTIFIED_GROUP_SUBTYPE).exists()
+
     class Meta:
         verbose_name = _("groupe d'action")
         verbose_name_plural = _("groupes d'action")

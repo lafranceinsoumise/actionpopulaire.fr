@@ -72,8 +72,8 @@
             Ce code peut être utilisé sur le <a href="https://materiel.lafranceinsoumise.fr">site d'achat de
             matériel</a>.
         </p>
-
-    {% elif certifiable %}
+    {% endif %}
+    {% if not supportgroup.is_certified and certifiable %}
         <h3>Certification de votre groupe</h3>
 
         {% if satisfy_requirements %}
@@ -89,6 +89,19 @@
                 animateur du groupe. Il doit s'agir d'une personne d'un genre différent, qui n'appartient pas, le cas
                 échéant, à la même formation politique. Utilisez pour cela le formulaire ci-dessous.
             </div>
+        {% endif %}
+    {% endif %}
+
+    {% if supportgroup.is_certified %}
+        <h3>Dons alloués aux actions de mon groupe</h3>
+        {% if allocation_balance > 0 %}
+            <p>La somme alloués à vos actions est de {{ allocation_balance|floatformat:2 }}&nbsp;€. Le formulaire
+            pour effectuer des demandes de dépenses sera disponible dans les prochains jours.</p>
+        {% else %}
+            <p>
+                Personne n'a encore alloué de dons à vos actions.
+                Vous pouvez le faire <a href="{% url "donation_amount" %}">sur la page de dons</a>.
+            </p>
         {% endif %}
     {% endif %}
 

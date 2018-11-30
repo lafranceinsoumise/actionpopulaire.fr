@@ -59,7 +59,7 @@
                     <hr/>
                 </div>
             {% endif %}
-            {% if is_certified %}
+            {% if supportgroup.is_certified %}
                 <a class="btn btn-primary" href="{% url "donation_amount" %}?group={{ supportgroup.pk }}">Financer les actions de ce groupe</a>
             {% endif %}
         </div>
