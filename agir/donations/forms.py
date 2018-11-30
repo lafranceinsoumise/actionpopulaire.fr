@@ -48,7 +48,7 @@ class DonationForm(forms.Form):
 
     group = forms.ModelChoiceField(
         label="Groupe à financer",
-        queryset=SupportGroup.objects.active().order_by("name"),
+        queryset=SupportGroup.objects.active().certified().order_by("name"),
         empty_label="Aucun groupe",
         required=False,
         help_text="Vous pouvez désigner un groupe auquel votre don sera en partie ou en totalité alloué.",
