@@ -13,14 +13,17 @@
                 {% endif %}
             {% endfor %}
         </h1>
-        <div>
+        <div class="text-right">
             {% if user.is_authenticated %}
+                {% if user.is_staff %}
+                    <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:groups_supportgroup_change" supportgroup.pk %}">Administration</a>
+                {% endif %}
                 {% if is_member %}
-                    <a class="btn btn-primary" href="{% url "quit_group" supportgroup.pk %}">Quitter le groupe</a>
                     {% if is_referent_or_manager %}
                         <a class="btn btn-default" href="{% url "manage_group" supportgroup.pk %}">Gérer mon groupe</a>
                         <a class="btn btn-default" href="{% url "create_event" %}?as_group={{ supportgroup.pk }}"><i class="fa fa-plus"></i> Créer un événement organisé par ce groupe</a>
                     {% endif %}
+                    <a class="btn btn-primary" href="{% url "quit_group" supportgroup.pk %}">Quitter le groupe</a>
                 {% else %}
                     <form style="display:inline;" action="{% url "view_group" supportgroup.pk %}" method="post" class="padbottom">
                         {% csrf_token %}
@@ -28,9 +31,6 @@
                         <input type="submit" class="btn btn-primary" value="Rejoindre ce groupe"/>
                     </form>
                     <p class="help-block"><small>Votre adresse email sera communiquée aux gestionnaires du groupe.</small></p>
-                {% endif %}
-                {% if user.is_staff %}
-                    <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:groups_supportgroup_change" supportgroup.pk %}">Administration</a>
                 {% endif %}
             {% else %}
                 <a class="btn btn-primary" title="Connexion" href="{% url "short_code_login" %}?next={{ request.get_full_path|urlencode }}">
