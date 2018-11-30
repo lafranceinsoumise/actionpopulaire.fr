@@ -2,6 +2,7 @@ import logging
 
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import keep_lazy_text
 from django.utils.html import mark_safe, format_html
@@ -71,7 +72,7 @@ class DonationForm(forms.Form):
 
         if group_id:
             try:
-                self.group = SupportGroup.objects.get(pk=group_id)
+                self.group = self.fields["group"].queryset.get(pk=group_id)
                 self.fields["allocation"].label = format_html(
                     "{} &laquo;&nbsp;{}&nbsp;&raquo;",
                     "Montant alloué au groupe",
@@ -79,7 +80,7 @@ class DonationForm(forms.Form):
                 )
                 self.helper.attrs["data-group-id"] = group_id
                 self.helper.attrs["data-group-name"] = self.group.name
-            except SupportGroup.DoesNotExist:
+            except (SupportGroup.DoesNotExist, ValidationError):
                 pass
 
         if self.group is None and user.is_authenticated:

@@ -1,10 +1,16 @@
+from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.test import TestCase
 from django.urls import reverse
 from unittest import mock, skip
 
 from agir.donations.models import Operation, Spending
-from agir.groups.models import SupportGroup, Membership
+from agir.groups.models import (
+    SupportGroup,
+    Membership,
+    SupportGroupTag,
+    SupportGroupSubtype,
+)
 from agir.payments.actions import complete_payment
 from .views import notification_listener as donation_notification_listener
 from ..people.models import Person
@@ -33,6 +39,14 @@ class DonationTestCase(TestCase):
 
         self.group = SupportGroup.objects.create(
             name="Groupe", type=SupportGroup.TYPE_LOCAL_GROUP
+        )
+        self.group.subtypes.set(
+            [
+                SupportGroupSubtype.objects.create(
+                    type=SupportGroup.TYPE_LOCAL_GROUP,
+                    label=settings.CERTIFIED_GROUP_SUBTYPE,
+                )
+            ]
         )
         Membership.objects.create(supportgroup=self.group, person=self.p1)
 
@@ -173,6 +187,25 @@ class DonationTestCase(TestCase):
             "email",
         ]:
             self.assertEqual(getattr(p2, f), self.donation_information_payload[f])
+
+    def test_cannot_donate_to_uncertified_group(self):
+        self.group.subtypes.all().delete()
+        self.client.force_login(self.p1.role)
+        session = self.client.session
+
+        amount_url = reverse("donation_amount")
+        information_url = reverse("donation_information")
+
+        res = self.client.get(amount_url)
+        self.assertEqual(res.status_code, 200)
+
+        res = self.client.post(
+            amount_url,
+            {"amount": "200", "group": str(self.group.pk), "allocation": "100"},
+        )
+        self.assertRedirects(res, information_url)
+
+        self.assertEqual(session["_donation_group"], None)
 
     def test_can_donate_with_allocation(self):
         self.client.force_login(self.p1.role)
