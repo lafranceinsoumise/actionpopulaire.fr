@@ -77,7 +77,7 @@ class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
         return response
 
 
-class EmailManagementView(HardLoginRequiredMixin, TemplateView):
+class EmailManagementView(SoftLoginRequiredMixin, TemplateView):
     template_name = "people/email_management.html"
     queryset = Person.objects.all()
 
@@ -162,7 +162,7 @@ class RedirectAlreadyValidatedPeopleMixin:
 
 
 class SendValidationSMSView(
-    HardLoginRequiredMixin,
+    SoftLoginRequiredMixin,
     RedirectAlreadyValidatedPeopleMixin,
     RedirectToMixin,
     UpdateView,
@@ -192,7 +192,7 @@ class SendValidationSMSView(
 
 
 class CodeValidationView(
-    HardLoginRequiredMixin,
+    SoftLoginRequiredMixin,
     RedirectAlreadyValidatedPeopleMixin,
     RedirectToMixin,
     FormView,
