@@ -1,8 +1,10 @@
+import logging
+
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import keep_lazy_text
-from django.utils.html import mark_safe
+from django.utils.html import mark_safe, format_html
 from django.utils.formats import number_format
 from django.utils.text import format_lazy
 
@@ -10,14 +12,18 @@ from django_countries.fields import CountryField
 
 from crispy_forms import layout
 from crispy_forms.helper import FormHelper
+from webpack_loader.utils import get_files
 
+from agir.groups.models import SupportGroup
 from ..people.form_mixins import MetaFieldsMixin
 from ..lib.form_components import *
 from ..people.models import Person, PersonEmail
 
-from .form_fields import AmountWidget
 
 __all__ = ("DonationForm", "DonatorForm")
+
+
+logger = logging.getLogger(__name__)
 
 
 class DonationForm(forms.Form):
@@ -38,14 +44,83 @@ class DonationForm(forms.Form):
                 max=settings.DONATION_MAXIMUM,
             ),
         },
-        widget=AmountWidget(),
     )
 
-    def __init__(self, *args, **kwargs):
+    group = forms.ModelChoiceField(
+        label="Groupe à financer",
+        queryset=SupportGroup.objects.active().order_by("name"),
+        empty_label="Aucun groupe",
+        required=False,
+        help_text="Vous pouvez désigner un groupe auquel votre don sera en partie ou en totalité alloué.",
+    )
+
+    allocation = forms.IntegerField(
+        label="Montant alloué au groupe choisi",
+        min_value=0,
+        required=False,
+        help_text="Indiquez le montant que vous souhaitez allouer à votre groupe. Le reste du don permettra de financer "
+        "les actions nationales de la France insoumise.",
+    )
+
+    def __init__(self, *args, group_id=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.group = None
 
         self.helper = FormHelper()
+        self.helper.form_class = "donation-form"
+
+        if group_id:
+            try:
+                self.group = SupportGroup.objects.get(pk=group_id)
+                self.fields["allocation"].label = format_html(
+                    "{} &laquo;&nbsp;{}&nbsp;&raquo;",
+                    "Montant alloué au groupe",
+                    self.group.name,
+                )
+                self.helper.attrs["data-group-id"] = group_id
+                self.helper.attrs["data-group-name"] = self.group.name
+            except SupportGroup.DoesNotExist:
+                pass
+
+        if self.group is None and user.is_authenticated:
+            self.fields["group"].queryset = self.fields["group"].queryset.filter(
+                memberships__person=user.person
+            )
+
+        if self.group is not None:
+            del self.fields["group"]
+        elif user.is_anonymous or not self.fields["group"].queryset:
+            del self.fields["group"]
+            del self.fields["allocation"]
+
         self.helper.add_input(layout.Submit("valider", "Je donne !"))
+
+    def clean_allocation(self):
+        # return 0 when allocation is empty
+        return self.cleaned_data.get("allocation") or 0
+
+    def clean(self):
+        amount = self.cleaned_data.get("amount")
+        allocation = self.cleaned_data.get("allocation", 0)
+
+        if amount and allocation > amount:
+            self.add_error(
+                "allocation",
+                ValueError(
+                    "Vous ne pouvez pas attribuer plus que vous n'avez donné !", "al"
+                ),
+            )
+
+        if self.group is None:
+            self.group = self.cleaned_data.get("group")
+
+        return self.cleaned_data
+
+    @property
+    def media(self):
+        return forms.Media(
+            js=[script["url"] for script in get_files("donations/donationForm", "js")]
+        )
 
 
 class DonatorForm(MetaFieldsMixin, forms.ModelForm):
@@ -64,6 +139,14 @@ class DonatorForm(MetaFieldsMixin, forms.ModelForm):
         min_value=settings.DONATION_MINIMUM * 100,
         required=True,
         widget=forms.HiddenInput,
+    )
+
+    allocation = forms.IntegerField(
+        min_value=0, required=True, widget=forms.HiddenInput
+    )
+
+    group = forms.ModelChoiceField(
+        queryset=SupportGroup.objects.active(), required=False, widget=forms.HiddenInput
     )
 
     declaration = forms.BooleanField(
@@ -95,10 +178,12 @@ class DonatorForm(MetaFieldsMixin, forms.ModelForm):
         label=_("Je certifie être domicilié⋅e fiscalement en France"),
     )
 
-    def __init__(self, amount, *args, **kwargs):
+    def __init__(self, amount, allocation, group_id, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields["amount"].initial = amount
+        self.fields["allocation"].initial = allocation
+        self.fields["group"].initial = group_id
 
         self.adding = self.instance._state.adding
 
@@ -125,7 +210,7 @@ class DonatorForm(MetaFieldsMixin, forms.ModelForm):
         self.fields["location_address1"].label = "Adresse"
         self.fields["location_address2"].label = False
 
-        fields = ["amount"]
+        fields = ["amount", "group", "allocation"]
 
         if "email" in self.fields:
             fields.append("email")
@@ -172,6 +257,18 @@ class DonatorForm(MetaFieldsMixin, forms.ModelForm):
                         "Les personnes non-françaises doivent être fiscalement domiciliées en France."
                     ),
                     code="not_fiscal_resident",
+                ),
+            )
+
+        amount = self.cleaned_data.get("amount")
+        allocation = self.cleaned_data.get("allocation", 0)
+
+        if amount and allocation > amount:
+            self.add_error(
+                None,
+                ValueError(
+                    "Il y a une erreur inattendue sur le formulaire. Réessayez la procédure depuis le tout début",
+                    "allocation",
                 ),
             )
 
