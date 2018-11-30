@@ -76,13 +76,14 @@ markdown = "==3.*"
 # image handling
 pillow = "==5.*"
 
+# command line helpers
+tqdm = "*"
 
 # third party techs
 prometheus-client = "*"
 systemd = "==0.*"
 ovh = "*"
 ics = "*"
-
 
 [dev-packages]
 ipython = "*"

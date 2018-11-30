@@ -2,7 +2,9 @@ import sys
 import re
 
 from django.core.management.base import BaseCommand
+from tqdm import tqdm
 
+from agir.lib.mailtrain import update_person
 from ...models import Person, PersonTag
 
 
@@ -33,8 +35,25 @@ class Command(BaseCommand):
             default=False,
             help=("Make new accounts full members."),
         )
+        parser.add_argument(
+            "--tmp",
+            action="store_true",
+            dest="tmp",
+            default=False,
+            help=(
+                "Does not write the tag in api. If mailtrain is off and create missing is off, the command does nothing."
+            ),
+        )
+        parser.add_argument(
+            "-m",
+            "--mailtrain",
+            action="store_true",
+            dest="mailtrain",
+            default=False,
+            help=("Copy the tag in mailtrain"),
+        )
 
-    def handle(self, *args, tag, create, insoumis, **options):
+    def handle(self, *args, tag, create, insoumis, tmp, mailtrain, **options):
         emails = re.findall(self.EMAIL_RE, sys.stdin.read())
 
         persons = []
@@ -52,9 +71,14 @@ class Command(BaseCommand):
                     self.stdout.write('Missing person "{}"'.format(e))
 
         if persons:
-            tag_object, created = PersonTag.objects.get_or_create(label=tag)
+            if tmp is False:
+                tag_object, created = PersonTag.objects.get_or_create(label=tag)
 
-            if created:
-                self.stdout.write('Created tag "{}"'.format(tag))
+                if created:
+                    self.stdout.write('Created tag "{}"'.format(tag))
 
-            tag_object.people.add(*persons)
+                tag_object.people.add(*persons)
+
+            if mailtrain is True:
+                for p in tqdm(persons):
+                    update_person(p, tmp_tags=[tag])
