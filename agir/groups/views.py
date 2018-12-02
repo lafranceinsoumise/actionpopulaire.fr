@@ -2,6 +2,7 @@ import json
 
 import ics
 from django.conf import settings
+from django.db import IntegrityError
 from django.template.defaultfilters import floatformat
 from django.urls import reverse_lazy, reverse
 from django.core.exceptions import PermissionDenied
@@ -131,11 +132,13 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
         self.object = self.get_object()
 
         if request.POST["action"] == "join":
-            if not self.object.memberships.filter(person=request.user.person).exists():
+            try:
                 membership = Membership.objects.create(
                     supportgroup=self.object, person=request.user.person
                 )
                 send_someone_joined_notification.delay(membership.pk)
+            except IntegrityError:
+                pass  # the person is already a member of the group
             return HttpResponseRedirect(
                 reverse("view_group", kwargs={"pk": self.object.pk})
             )
