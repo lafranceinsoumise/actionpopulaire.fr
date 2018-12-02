@@ -2,21 +2,21 @@ from functools import reduce
 from itertools import chain
 from operator import or_
 
+import iso8601
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.urls import reverse
-from django.utils.html import format_html
 from django.utils.formats import localize
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-
+from django.utils.timezone import get_current_timezone
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import NumberParseException
 
 from ..models import Person
-
+from ..person_forms.fields import is_actual_model_field
 from ..person_forms.forms import BasePersonForm
-from ..person_forms.fields import is_actual_model_field, get_data_from_submission
 
 
 def get_people_form_class(person_form_instance, base_form=BasePersonForm):
@@ -77,6 +77,9 @@ def _get_formatted_value(field, value, html=True):
             return [_get_choice_label(field["choices"], v) for v in value]
         else:
             return value
+    elif field_type == "date":
+        date = iso8601.parse_date(value)
+        return localize(date.astimezone(get_current_timezone()))
     elif field_type == "phone_number":
         try:
             phone_number = PhoneNumber.from_string(value)
@@ -115,7 +118,7 @@ def _get_admin_fields(submission, html=True):
         )
         if html
         else submission.person.email,
-        localize(submission.created),
+        localize(submission.created.astimezone(get_current_timezone())),
     ]
 
 
@@ -163,7 +166,7 @@ def get_formatted_submissions(submissions, include_admin_fields=True, html=True)
 
 
 def get_formatted_submission(submission, include_admin_fields=False):
-    data = get_data_from_submission(submission)
+    data = submission.data
     field_dicts = submission.form.fields_dict
     labels = get_form_field_labels(submission.form)
 

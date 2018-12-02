@@ -1,9 +1,10 @@
-from unittest import mock, skip
+from unittest import mock
 
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from agir.people.actions.person_forms import get_formatted_submission
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 
 
@@ -367,3 +368,54 @@ class AccessControlTestCase(SetUpPersonFormsMixin, TestCase):
             "/formulaires/formulaire-simple/", {"contact_phone": "06 23 45 67 89"}
         )
         self.assertEqual(res.status_code, 200)
+
+
+class SubmissionFormatTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person("person@corp.com")
+        self.form = PersonForm.objects.create(
+            title="Formulaire",
+            slug="formulaire",
+            description="Ma description simple",
+            confirmation_note="Ma note de fin",
+            custom_fields=[
+                {
+                    "title": "Une partie",
+                    "fields": [
+                        {"id": "date", "type": "date", "label": "Date"},
+                        {"id": "phone_number", "type": "phone_number", "label": "Tel."},
+                        {"id": "file", "type": "file", "label": "Fichier"},
+                    ],
+                }
+            ],
+        )
+
+        self.some_date = timezone.make_aware(timezone.datetime(2050, 5, 2))
+
+        self.submission = PersonFormSubmission.objects.create(
+            form=self.form,
+            person=self.person,
+            data={
+                "date": self.some_date,
+                "phone_number": "+33612345678",
+                "file": "/test/truc.pdf",
+                "missing_field": "Unknown value",
+            },
+        )
+        self.submission.refresh_from_db()
+
+    def test_display_single_formatting(self):
+        formatted_submission = get_formatted_submission(self.submission)
+
+        self.assertEqual(
+            formatted_submission,
+            [
+                {"label": "Date", "value": "2 mai 2050 00:00"},
+                {"label": "Tel.", "value": "+33 6 12 34 56 78"},
+                {
+                    "label": "Fichier",
+                    "value": '<a href="http://agir.local:8000/media//test/truc.pdf">Accéder au fichier</a>',
+                },
+                {"label": "missing_field", "value": "Unknown value"},
+            ],
+        )

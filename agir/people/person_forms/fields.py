@@ -1,3 +1,4 @@
+import logging
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
@@ -5,11 +6,17 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext as _
 
+import iso8601
+
 from phonenumber_field.formfields import PhoneNumberField
 
 from agir.lib.form_fields import DateTimePickerWidget
 
 from ..models import Person
+
+
+logger = logging.getLogger(__name__)
+
 
 all_person_field_names = [field.name for field in Person._meta.get_fields()]
 
@@ -128,6 +135,36 @@ def get_form_field(field_descriptor: dict, is_edition=False):
     raise ValueError(f"Unkwnown field type: '{field_type}'")
 
 
+def form_value_to_python(field_descriptor, value):
+    if field_descriptor is None:
+        return value
+
+    if field_descriptor.get("type") == "datetime":
+        try:
+            return iso8601.parse_date(value)
+        except iso8601.ParseError:
+            logger.info(
+                "Cannot parse date from field '%s' : '%s'",
+                field_descriptor.get("id"),
+                value,
+            )
+            return str(value)
+    elif field_descriptor.get("type") == "file":
+        return value
+
+    field_instance = get_form_field(field_descriptor, is_edition=False)
+    try:
+        return field_instance.to_python(value)
+    except ValidationError:
+        logger.info(
+            "Cannot parse field '%s' of type '%s' : '%s''",
+            field_descriptor.get("id"),
+            field_descriptor.get("type"),
+            value,
+        )
+        return str(value)
+
+
 def get_data_from_submission(s):
     data = s.data
     fields = s.form.fields_dict
@@ -136,7 +173,7 @@ def get_data_from_submission(s):
 
     return {
         **{
-            k: get_form_field(fields[k]).to_python(v) if k in fields else v
+            k: form_value_to_python(fields.get(k), v)
             for k, v in data.items()
             if k not in model_fields
         },
