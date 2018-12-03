@@ -9,6 +9,10 @@ class Operation(models.Model):
         (STATUS_COMPLETE, "Opération terminée"),
         (STATUS_PENDING_VALIDATION, "Opération en attente de validation"),
     )
+
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
     group = models.ForeignKey(
         to="groups.SupportGroup",
         null=False,
