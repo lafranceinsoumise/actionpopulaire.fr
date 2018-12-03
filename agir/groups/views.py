@@ -227,7 +227,7 @@ class SupportGroupManagementView(
 
         # only managers can access the page
         if not self.user_is_manager():
-            raise PermissionDenied("Vous n'etes pas gestionnaire de cet événement.")
+            raise PermissionDenied("Vous n'etes pas gestionnaire de ce groupe.")
 
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
@@ -238,7 +238,7 @@ class SupportGroupManagementView(
         # only referents can add referents and managers
         if not self.user_is_referent():
             raise PermissionDenied(
-                "Vous n'êtes pas animateur de cet événement et ne pouvez donc pas modifier les "
+                "Vous n'êtes pas animateur de ce groupe et ne pouvez donc pas modifier les "
                 "animateurs et gestionnaires."
             )
 
