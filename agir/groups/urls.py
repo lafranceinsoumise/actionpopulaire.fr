@@ -1,4 +1,6 @@
 from django.urls import path
+from django.views.generic import RedirectView
+
 from . import views
 
 uuid = r"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}"
@@ -26,11 +28,21 @@ urlpatterns = [
     ),
     path(
         "groupes/<uuid:pk>/manage/",
+        RedirectView.as_view(pattern_name="manage_group"),
+        name="manage_group_legacy",
+    ),
+    path(
+        "groupes/<uuid:pk>/modifier/",
+        RedirectView.as_view(pattern_name="edit_group"),
+        name="edit_group_legacy",
+    ),
+    path(
+        "groupes/<uuid:pk>/gestion/",
         views.SupportGroupManagementView.as_view(),
         name="manage_group",
     ),
     path(
-        "groupes/<uuid:pk>/modifier/",
+        "groupes/<uuid:pk>/gestion/modifier/",
         views.ModifySupportGroupView.as_view(),
         name="edit_group",
     ),
