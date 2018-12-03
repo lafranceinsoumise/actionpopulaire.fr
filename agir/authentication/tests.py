@@ -32,6 +32,21 @@ class MailLinkTestCase(TestCase):
         self.assertRedirects(response, reverse("volunteer"))
         self.assertEqual(get_user(self.client), self.person.role)
 
+    def test_cannot_connect_with_query_params_if_salt_changed(self):
+        p = self.person.pk
+        code = connection_token_generator.make_token(user=self.person)
+        self.person.auto_login_salt = "something"
+        self.person.save()
+
+        response = self.client.get(
+            reverse("volunteer"), data={"p": p, "code": code}, follow=True
+        )
+
+        self.assertIn(
+            (reverse("short_code_login") + "?next=" + reverse("volunteer"), 302),
+            response.redirect_chain,
+        )
+
     def test_cannot_connect_with_wrong_query_params(self):
         p = self.person.pk
 

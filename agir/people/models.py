@@ -160,6 +160,7 @@ class Person(
     role = models.OneToOneField(
         "authentication.Role", on_delete=models.PROTECT, related_name="person"
     )
+    auto_login_salt = models.CharField(max_length=255, blank=True, default="")
 
     is_insoumise = models.BooleanField(_("Insoumis⋅e"), default=True)
 

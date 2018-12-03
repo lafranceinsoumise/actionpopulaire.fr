@@ -87,7 +87,7 @@ class ConnectionTokenGenerator(BaseTokenGenerator):
 
         user = params["user"]
 
-        return str(user.pk) + str(timestamp)
+        return str(user.pk) + str(user.auto_login_salt) + str(timestamp)
 
 
 class SubscriptionConfirmationTokenGenerator(BaseTokenGenerator):
