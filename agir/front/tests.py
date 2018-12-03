@@ -102,7 +102,7 @@ class PagesLoadingTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_see_update_group(self):
-        response = self.client.get("/groupes/%s/modifier/" % self.group.pk)
+        response = self.client.get(reverse("edit_group", args=[self.group.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 

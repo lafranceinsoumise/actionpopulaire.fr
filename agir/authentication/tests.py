@@ -205,8 +205,8 @@ class AuthorizationTestCase(TestCase):
             "/",
             "/evenements/creer/",
             "/groupes/creer/",
-            "/evenements/%s/modifier/" % self.event.pk,
-            "/groupes/%s/modifier/" % self.group.pk,
+            reverse("edit_event", args=[self.group.pk]),
+            reverse("edit_group", args=[self.group.pk]),
         ]:
             response = self.client.get(url)
             query = QueryDict(mutable=True)
@@ -225,8 +225,8 @@ class AuthorizationTestCase(TestCase):
     def test_403_when_editing_group(self):
         self.client.force_login(self.person.role)
 
-        response = self.client.get("/groupes/%s/modifier/" % self.group.pk)
+        response = self.client.get(reverse("edit_group", args=[self.group.pk]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        response = self.client.post("/groupes/%s/modifier/" % self.group.pk)
+        response = self.client.post(reverse("edit_group", args=[self.group.pk]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
