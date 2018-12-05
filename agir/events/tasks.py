@@ -275,7 +275,7 @@ def update_ticket(rsvp_pk, metas=None):
         "event": rsvp.event.scanner_event,
         "category": rsvp.event.scanner_category,
         "uuid": str(rsvp.person.id),
-        "numero": rsvp.form_submission.id,
+        "numero": str(rsvp.id),
         "full_name": rsvp.person.get_full_name(),
         "contact_email": rsvp.person.email,
         "gender": rsvp.person.gender,
@@ -293,10 +293,10 @@ def update_ticket(rsvp_pk, metas=None):
             f"{settings.SCANNER_API}api/registrations/",
             auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
             data=data,
-        )
+        ).raise_for_status()
     else:
         s.patch(
-            f"{settings.SCANNER_API}api/registrations/{r.json()[0]['id']}",
+            f"{settings.SCANNER_API}api/registrations/{r.json()[0]['id']}/",
             auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
             data=data,
-        )
+        ).raise_for_status()
