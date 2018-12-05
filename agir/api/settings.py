@@ -52,11 +52,12 @@ if admins:
 SECRET_KEY = os.environ.get(
     "SECRET", "1d5a5&y9(220)phk0o9cqjwdpm$3+**d&+kru(2y)!5h-_qn4b"
 )
-NB_WEBHOOK_KEY = os.environ.get("NB_WEBHOOK_KEY", "prout")
-NB_API_KEY = os.environ.get("NB_API_KEY", "mustbesecret")
 SENDGRID_SES_WEBHOOK_USER = os.environ.get("SENDGRID_SES_WEBHOOK_USER", "fi")
 SENDGRID_SES_WEBHOOK_PASSWORD = os.environ.get("SENDGRID_SES_WEBHOOK_PASSWORD", "prout")
 MAILTRAIN_API_KEY = os.environ.get("MAILTRAIN_API_KEY", "prout")
+SCANNER_API = os.environ.get("SCANNER_API", "http://agir.local:8000")
+SCANNER_API_KEY = os.environ.get("SCANNER_API_KEY", "prout")
+SCANNER_API_SECRET = os.environ.get("SCANNER_API_SECRET", "prout")
 
 # these domain names are used when absolute URLs should be generated (e.g. to include in emails)
 MAIN_DOMAIN = os.environ.get("MAIN_DOMAIN", "https://lafranceinsoumise.fr")

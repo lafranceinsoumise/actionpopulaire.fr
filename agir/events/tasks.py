@@ -1,17 +1,23 @@
 from collections import OrderedDict
 
 import ics
+import requests
 from celery import shared_task
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from urllib3 import Retry
 
 from agir.people.models import Person
 from ..lib.utils import front_url
 from ..people.actions.mailing import send_mosaico_email
 from .models import Event, RSVP, OrganizerConfig
+
+a = requests.adapters.HTTPAdapter(max_retries=Retry(total=5, backoff_factor=1))
+s = requests.Session()
+s.mount("https://", a)
 
 # encodes the preferred order when showing the messages
 CHANGE_DESCRIPTION = OrderedDict(
@@ -256,3 +262,38 @@ def send_external_rsvp_optin(event_pk, person_pk):
         recipients=[person],
         bindings=bindings,
     )
+
+
+@shared_task
+def update_ticket(rsvp_pk, metas=None):
+    try:
+        rsvp = RSVP.objects.get(pk=rsvp_pk)
+    except RSVP.DoesNotExist:
+        return
+
+    data = {
+        "event": rsvp.event,
+        "uuid": rsvp.person.uuid,
+        "numero": rsvp.form_submission.id,
+        "gender": rsvp.person.gender,
+        "metas": metas or {},
+    }
+
+    r = s.get(
+        f"{settings.SCANNER_API}api/registrations/",
+        auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
+        params={"event": rsvp.event.scanner_id, "uuid": rsvp.person.uuid},
+    )
+
+    if len(r.json()) == 0:
+        s.post(
+            f"{settings.SCANNER_API}api/registrations/",
+            auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
+            data=data,
+        )
+    else:
+        s.patch(
+            f"{settings.SCANNER_API}api/registrations/{r.json()[0].id}",
+            auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
+            data=data,
+        )
