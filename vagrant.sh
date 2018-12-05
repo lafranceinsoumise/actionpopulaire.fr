@@ -88,7 +88,7 @@ KillSignal=SIGTERM
 Type=simple
 
 [Install]
-WantedBy=multi-user.target vagrant.mount
+WantedBy=vagrant.mount
 EOT
 
 sudo bash -c "cat > /etc/systemd/system/django.service" <<EOT
