@@ -272,10 +272,11 @@ def update_ticket(rsvp_pk, metas=None):
         return
 
     data = {
-        "event": rsvp.scanner_event,
-        "category": rsvp.scanner_category,
-        "uuid": rsvp.person.uuid,
+        "event": rsvp.event.scanner_event,
+        "category": rsvp.event.scanner_category,
+        "uuid": str(rsvp.person.id),
         "numero": rsvp.form_submission.id,
+        "full_name": rsvp.person.get_full_name(),
         "gender": rsvp.person.gender,
         "metas": metas or {},
     }
@@ -283,7 +284,7 @@ def update_ticket(rsvp_pk, metas=None):
     r = s.get(
         f"{settings.SCANNER_API}api/registrations/",
         auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
-        params={"event": rsvp.event.scanner_id, "uuid": rsvp.person.uuid},
+        params={"event": rsvp.event.scanner_event, "uuid": str(rsvp.person.id)},
     )
 
     if len(r.json()) == 0:
@@ -294,7 +295,7 @@ def update_ticket(rsvp_pk, metas=None):
         )
     else:
         s.patch(
-            f"{settings.SCANNER_API}api/registrations/{r.json()[0].id}",
+            f"{settings.SCANNER_API}api/registrations/{r.json()[0]['id']}",
             auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
             data=data,
         )
