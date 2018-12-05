@@ -216,6 +216,13 @@ class Event(
         verbose_name=_("Paramètres de paiement"), null=True, blank=True
     )
 
+    scanner_event = models.IntegerField(
+        "L'ID de l'événement sur le logiciel de tickets", blank=True, null=True
+    )
+    scanner_category = models.IntegerField(
+        "La catégorie que doivent avoir les tickets sur scanner", blank=True, null=True
+    )
+
     class Meta:
         verbose_name = _("événement")
         verbose_name_plural = _("événements")

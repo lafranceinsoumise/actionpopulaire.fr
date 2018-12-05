@@ -272,7 +272,8 @@ def update_ticket(rsvp_pk, metas=None):
         return
 
     data = {
-        "event": rsvp.event,
+        "event": rsvp.scanner_event,
+        "category": rsvp.scanner_category,
         "uuid": rsvp.person.uuid,
         "numero": rsvp.form_submission.id,
         "gender": rsvp.person.gender,
