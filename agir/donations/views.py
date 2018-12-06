@@ -13,7 +13,6 @@ from django.views.generic import (
     DetailView,
     CreateView,
 )
-from reversion.models import Version
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.donations.actions import (

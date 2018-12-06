@@ -54,8 +54,9 @@ class DonationForm(forms.Form):
         help_text="Vous pouvez désigner un groupe auquel votre don sera en partie ou en totalité alloué.",
     )
 
-    allocation = forms.IntegerField(
+    allocation = forms.DecimalField(
         label="Montant alloué au groupe choisi",
+        decimal_places=2,
         min_value=0,
         required=False,
         help_text="Indiquez le montant que vous souhaitez allouer à votre groupe. Le reste du don permettra de financer "
