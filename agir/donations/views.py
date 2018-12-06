@@ -13,7 +13,6 @@ from django.views.generic import (
     DetailView,
     CreateView,
 )
-from reversion.models import Version
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.donations.actions import (
@@ -61,7 +60,7 @@ class AskAmountView(FormView):
     def form_valid(self, form):
         amount = int(form.cleaned_data["amount"] * 100)
         # use int to floor down the value as well as converting to an int
-        allocation = int(form.cleaned_data.get("allocation", 0) * amount / 100)
+        allocation = int(form.cleaned_data.get("allocation", 0) * 100)
 
         self.request.session[session_key("amount")] = amount
         self.request.session[session_key("allocation")] = allocation
@@ -96,7 +95,28 @@ class PersonalInformationView(UpdateView):
         kwargs["amount"] = self.request.session[session_key("amount")]
         kwargs["allocation"] = self.request.session.get(session_key("allocation"), 0)
         kwargs["group_id"] = self.request.session.get(session_key("group"), None)
+
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        amount = self.request.session[session_key("amount")]
+        allocation = self.request.session.get(session_key("allocation"), 0)
+        group_id = self.request.session.get(session_key("group"), None)
+        group_name = None
+
+        if group_id:
+            try:
+                group_name = SupportGroup.objects.get(pk=group_id).name
+            except SupportGroup.DoesNotExist:
+                pass
+
+        return super().get_context_data(
+            amount=amount,
+            allocation=allocation,
+            national=amount - allocation,
+            group_name=group_name,
+            **kwargs
+        )
 
     def form_valid(self, form):
         person = form.save()

@@ -1,17 +1,18 @@
 from unittest import mock
 
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from agir.donations.models import Operation, Spending, SpendingRequest
+from agir.donations.models import Operation, Spending, SpendingRequest, Document
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.payments.actions import complete_payment
 from agir.payments.models import Payment
 from agir.people.models import Person
-from .views import notification_listener as donation_notification_listener
+from ..views import notification_listener as donation_notification_listener
 
 
 class DonationTestCase(TestCase):
@@ -446,3 +447,33 @@ class SpendingRequestTestCase(TestCase):
 
         spending_request.refresh_from_db()
         self.assertEqual(spending_request.amount, 7700)
+
+    def test_can_add_attachment(self):
+        self.client.force_login(self.p1.role)
+        spending_request = SpendingRequest.objects.create(
+            group=self.group1, **self.spending_request_data
+        )
+
+        res = self.client.get(reverse("create_document", args=(spending_request.pk,)))
+        self.assertEqual(res.status_code, 200)
+
+        file = SimpleUploadedFile(
+            "document.odt",
+            b"Un faux fichier",
+            content_type="application/vnd.oasis.opendocument.text",
+        )
+
+        res = self.client.post(
+            reverse("create_document", args=(spending_request.pk,)),
+            data={
+                "title": "Mon super fichier",
+                "type": Document.TYPE_INVOICE,
+                "file": file,
+            },
+        )
+        self.assertRedirects(
+            res, reverse("manage_spending_request", args=(spending_request.pk,))
+        )
+
+        self.assertEqual(len(spending_request.documents.all()), 1)
+        self.assertEqual(spending_request.documents.first().title, "Mon super fichier")
