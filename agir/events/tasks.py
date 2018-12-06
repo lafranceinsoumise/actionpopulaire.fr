@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from requests import HTTPError
 from urllib3 import Retry
 
 from agir.people.models import Person
@@ -282,21 +283,24 @@ def update_ticket(rsvp_pk, metas=None):
         "metas": metas or {},
     }
 
-    r = s.get(
-        f"{settings.SCANNER_API}api/registrations/",
-        auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
-        params={"event": rsvp.event.scanner_event, "uuid": str(rsvp.person.id)},
-    )
-
-    if len(r.json()) == 0:
-        s.post(
+    try:
+        r = s.get(
             f"{settings.SCANNER_API}api/registrations/",
             auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
-            data=data,
-        ).raise_for_status()
-    else:
-        s.patch(
-            f"{settings.SCANNER_API}api/registrations/{r.json()[0]['id']}/",
-            auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
-            data=data,
-        ).raise_for_status()
+            params={"event": rsvp.event.scanner_event, "uuid": str(rsvp.person.id)},
+        )
+
+        if len(r.json()) == 0:
+            r = s.post(
+                f"{settings.SCANNER_API}api/registrations/",
+                auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
+                json=data,
+            ).raise_for_status()
+        else:
+            r = s.patch(
+                f"{settings.SCANNER_API}api/registrations/{r.json()[0]['id']}/",
+                auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
+                json=data,
+            ).raise_for_status()
+    except HTTPError:
+        print(r.text())
