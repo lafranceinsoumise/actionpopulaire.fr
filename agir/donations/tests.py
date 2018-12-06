@@ -1,20 +1,17 @@
+from unittest import mock
+
 from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.test import TestCase
 from django.urls import reverse
-from unittest import mock, skip
+from django.utils import timezone
 
-from agir.donations.models import Operation, Spending
-from agir.groups.models import (
-    SupportGroup,
-    Membership,
-    SupportGroupTag,
-    SupportGroupSubtype,
-)
+from agir.donations.models import Operation, Spending, SpendingRequest
+from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.payments.actions import complete_payment
+from agir.payments.models import Payment
+from agir.people.models import Person
 from .views import notification_listener as donation_notification_listener
-from ..people.models import Person
-from ..payments.models import Payment
 
 
 class DonationTestCase(TestCase):
@@ -342,3 +339,110 @@ class FinancialTriggersTestCase(TestCase):
 
         with self.assertRaises(IntegrityError):
             o.delete()
+
+
+class SpendingRequestTestCase(TestCase):
+    def setUp(self):
+        self.p1 = Person.objects.create_person("test@test.com")
+
+        self.certified_subtype = SupportGroupSubtype.objects.create(
+            label=settings.CERTIFIED_GROUP_SUBTYPE,
+            description="Groupe certifié",
+            type=SupportGroup.TYPE_LOCAL_GROUP,
+        )
+
+        self.group1 = SupportGroup.objects.create(
+            name="Groupe 1", type=SupportGroup.TYPE_LOCAL_GROUP
+        )
+        self.group1.subtypes.add(self.certified_subtype)
+
+        self.membership1 = Membership.objects.create(
+            person=self.p1, supportgroup=self.group1, is_manager=True
+        )
+
+        self.payment = Payment.objects.create(
+            status=Payment.STATUS_COMPLETED, price=1000, type="don", mode="system_pay"
+        )
+
+        self.allocation = Operation.objects.create(
+            payment=self.payment, amount=1000, group=self.group1
+        )
+
+        date = (timezone.now() + timezone.timedelta(days=20)).date()
+
+        self.spending_request_data = {
+            "title": "Ma demande de dépense",
+            "event": None,
+            "category": SpendingRequest.CATEGORY_HARDWARE,
+            "category_precisions": "Super truc trop cool",
+            "explanation": "On en a VRAIMENT VRAIMENT besoin.",
+            "spending_date": (timezone.now() + timezone.timedelta(days=20)).date(),
+            "provider": "Super CLIENT",
+            "iban": "1234567890",
+            "amount": 8500,
+        }
+
+        self.form_data = {
+            **self.spending_request_data,
+            "event": "",
+            "amount": "85.00",
+            "documents-TOTAL_FORMS": "3",
+            "documents-INITIAL_FORMS": "0",
+            "documents-MIN_NUM_FORMS": "0",
+        }
+
+    def test_can_create_spending_request(self):
+        self.client.force_login(self.p1.role)
+
+        res = self.client.get(
+            reverse("create_spending_request", args=(self.group1.pk,))
+        )
+
+        self.assertEqual(res.status_code, 200)
+
+        res = self.client.post(
+            reverse("create_spending_request", args=(self.group1.pk,)),
+            data=self.form_data,
+        )
+
+        spending_request = SpendingRequest.objects.get()
+
+        self.assertRedirects(
+            res, reverse("manage_spending_request", args=(spending_request.pk,))
+        )
+
+    def test_can_manage_spending_request(self):
+        self.client.force_login(self.p1.role)
+
+        spending_request = SpendingRequest.objects.create(
+            group=self.group1, **self.spending_request_data
+        )
+
+        res = self.client.get(
+            reverse("manage_spending_request", args=(spending_request.pk,))
+        )
+        self.assertEqual(res.status_code, 200)
+
+    def test_can_edit_spending_request(self):
+        self.client.force_login(self.p1.role)
+        spending_request = SpendingRequest.objects.create(
+            group=self.group1, **self.spending_request_data
+        )
+
+        res = self.client.get(
+            reverse("edit_spending_request", args=(spending_request.pk,))
+        )
+        self.assertEqual(res.status_code, 200)
+
+        self.form_data["amount"] = "77"
+        self.form_data["comment"] = "Petite modification du montant"
+        res = self.client.post(
+            reverse("edit_spending_request", args=(spending_request.pk,)),
+            data=self.form_data,
+        )
+        self.assertRedirects(
+            res, reverse("manage_spending_request", args=(spending_request.pk,))
+        )
+
+        spending_request.refresh_from_db()
+        self.assertEqual(spending_request.amount, 7700)

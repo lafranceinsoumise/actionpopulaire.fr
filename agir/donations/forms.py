@@ -1,10 +1,12 @@
 import logging
 
+import reversion
 from crispy_forms import layout
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.utils.formats import number_format
 from django.utils.functional import keep_lazy_text
 from django.utils.html import mark_safe, format_html
@@ -13,11 +15,12 @@ from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 
 from agir.groups.models import SupportGroup
-from ..lib.form_components import *
-from ..people.form_mixins import MetaFieldsMixin
-from ..people.models import Person, PersonEmail
+from agir.lib.form_components import *
+from agir.people.form_mixins import MetaFieldsMixin
+from agir.people.models import Person, PersonEmail
+from .models import SpendingRequest, Document
 
-__all__ = ("DonationForm", "DonatorForm")
+__all__ = ("DonationForm", "DonorForm")
 
 
 logger = logging.getLogger(__name__)
@@ -114,7 +117,7 @@ class DonationForm(forms.Form):
         return self.cleaned_data
 
 
-class DonatorForm(MetaFieldsMixin, forms.ModelForm):
+class DonorForm(MetaFieldsMixin, forms.ModelForm):
     meta_fields = ["nationality"]
 
     email = forms.EmailField(
@@ -284,3 +287,123 @@ class DonatorForm(MetaFieldsMixin, forms.ModelForm):
             "contact_phone",
             "subscribed",
         )
+
+
+class SpendingRequestFormMixin:
+    def __init__(self, *args, user, group, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        condition = Q(organizer_configs__person=user.person) | Q(
+            organizer_configs__as_group=group
+        )
+        self.fields["event"].queryset = (
+            self.fields["event"].queryset.filter(condition).distinct().order_by("name")
+        )
+
+
+class DocumentHelper(FormHelper):
+    template = "bootstrap/table_inline_formset.html"
+    form_tag = False
+    disable_csrf = True
+
+
+DocumentOnCreationFormset = forms.inlineformset_factory(
+    SpendingRequest, Document, fields=["title", "type", "file"], can_delete=False
+)
+
+
+class SpendingRequestCreationForm(SpendingRequestFormMixin, forms.ModelForm):
+    def __init__(self, *args, group, **kwargs):
+        super().__init__(*args, group=group, **kwargs)
+
+        self.instance.group = group
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.disable_csrf = True
+
+        self.helper.layout = Layout(
+            "title",
+            "event",
+            Row(
+                Div("category", css_class="col-md-4"),
+                Div("category_precisions", css_class="col-md-8"),
+            ),
+            "explanation",
+            Row(
+                Div("amount", css_class="col-md-4"),
+                Div("spending_date", css_class="col-md-8"),
+            ),
+            "provider",
+            "iban",
+        )
+
+    class Meta:
+        model = SpendingRequest
+        fields = (
+            "title",
+            "event",
+            "category",
+            "category_precisions",
+            "explanation",
+            "amount",
+            "spending_date",
+            "provider",
+            "iban",
+        )
+
+
+class SpendingRequestEditForm(SpendingRequestFormMixin, forms.ModelForm):
+    comment = forms.CharField(
+        label="Commentaire",
+        widget=forms.Textarea,
+        required=True,
+        strip=True,
+        help_text=_(
+            "Merci de bien vouloir justifier les changements que vous avez apporté à votre demande."
+        ),
+    )
+
+    def __init__(self, *args, instance, user, **kwargs):
+        self.user = user
+        super().__init__(
+            *args, user=user, group=instance.group, instance=instance, **kwargs
+        )
+
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("submit", _("Modifier")))
+
+    # noinspection PyMethodOverriding
+    def save(self):
+        if self.has_changed():
+            with reversion.create_revision():
+                reversion.set_user(self.user)
+                reversion.set_comment(self.cleaned_data["comment"])
+                return super().save()
+
+    class Meta:
+        model = SpendingRequest
+        fields = (
+            "title",
+            "event",
+            "category",
+            "category_precisions",
+            "explanation",
+            "amount",
+            "spending_date",
+            "provider",
+            "iban",
+        )
+
+
+class DocumentForm(forms.ModelForm):
+    def __init__(self, *args, spending_request=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if spending_request is not None:
+            self.instance.request = spending_request
+
+        self.helper = FormHelper()
+        self.helper.add_input(layout.Submit("valider", "Valider"))
+
+    class Meta:
+        model = Document
+        fields = ("title", "type", "file")

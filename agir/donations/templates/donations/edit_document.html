@@ -1,0 +1,12 @@
+{% extends 'front/layout.html' %}{% load crispy_forms_tags %}{% load static %}
+
+{% block title %}Modifier une pièce justificative{% endblock %}
+
+{% block main %}
+  <div class="row">
+    <div class="col-responsive">
+      <h1>Modifier une pièce justificative</h1>
+      {% crispy form %}
+    </div>
+  </div>
+{% endblock %}

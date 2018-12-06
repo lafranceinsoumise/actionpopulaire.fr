@@ -138,6 +138,7 @@ INSTALLED_APPS = [
     # security
     "corsheaders",
     "oauth2_provider",
+    "reversion",
 ]
 
 MIDDLEWARE = [

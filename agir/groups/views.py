@@ -3,7 +3,6 @@ import json
 import ics
 from django.conf import settings
 from django.db import IntegrityError
-from django.template.defaultfilters import floatformat
 from django.urls import reverse_lazy, reverse
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
@@ -28,6 +27,7 @@ from django.views.generic import (
 )
 from django.views.generic.edit import ProcessFormView, FormMixin
 
+from agir.donations.models import SpendingRequest
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.groups.tasks import send_someone_joined_notification
 from agir.groups.actions.promo_codes import get_next_promo_code
@@ -212,6 +212,9 @@ class SupportGroupManagementView(
         kwargs["allocation_balance"] = (
             self.object.operation_set.all().aggregate(Sum("amount"))["amount__sum"] or 0
         ) / 100
+        kwargs["spending_requests"] = SpendingRequest.objects.filter(
+            group=self.object
+        ).exclude(status=SpendingRequest.STATUS_PAID)
 
         return super().get_context_data(
             is_referent=self.user_membership is not None

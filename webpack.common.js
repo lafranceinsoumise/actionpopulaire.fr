@@ -8,7 +8,7 @@ const webpack = require('webpack');
 
 const DISTPATH = path.resolve(__dirname, 'assets/components');
 const cssName = require('@fi/theme/dist/assets.json')['main.css'];
-const apiEndpoint = JSON.stringify(process.env.API_ENDPOINT || 'http://localhost:8000/legacy');
+const apiEndpoint = JSON.stringify(process.env.API_ENDPOINT || '/legacy');
 
 const flatten = (array) => array.reduce((acc, curr) => acc.concat(curr));
 const isDirectory = f => fs.statSync(f).isDirectory();

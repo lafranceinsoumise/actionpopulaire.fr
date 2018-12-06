@@ -31,6 +31,8 @@ django-otp = "*"  # 2FA in admin
 django-filter = "==2.*"  # add useful filters
 django-oauth-toolkit = "*"  # add OAuth server
 rules = "==2.0.*"  # add useful authorization rules
+django-reversion = "==3.*"  # versioning of models
+
 
 ## Django Rest Framework
 djangorestframework = "==3.8.*"
@@ -59,7 +61,7 @@ celery-prometheus-exporter = "==1.*"
 # redis
 redis = "==2.10.6"
 hiredis = "==0.3.*"
-redislite = "==3.2.*"
+redislite = "==3.2.*"  # used for testing
 
 
 # HTTP
@@ -68,9 +70,9 @@ requests = "==2.*"
 
 
 # HTML
-bleach = "==3.*"
-"html2text" = "==2018.*"
-markdown = "==3.*"
+bleach = "==3.*"  # sanitize HTML
+"html2text" = "==2018.*"  # transforms HTML to text (used for plain text versions of HTML emails)
+markdown = "==3.*"  # convert markdown text to HTML (should be deprecated)
 
 
 # image handling

@@ -4,9 +4,7 @@ add_spending_triggers = """
 CREATE FUNCTION check_spendings_when_operation_modified() RETURNS TRIGGER AS
 $check_spendings$
     DECLARE
-        new_amount INTEGER;
         former_amount INTEGER;
-        group_id UUID;
         former_total INTEGER;
     BEGIN
         IF TG_OP = 'INSERT' THEN
@@ -41,7 +39,7 @@ CREATE TRIGGER check_spendings_when_operation_modified BEFORE INSERT OR UPDATE O
 
 remove_spending_triggers = """
 DROP TRIGGER check_spendings_when_operation_modified ON donations_operation;
-DROP FUNCTION check_spendings_when_operations_modified();
+DROP FUNCTION check_spendings_when_operation_modified();
 """
 
 

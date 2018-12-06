@@ -1,5 +1,4 @@
-{% extends "front/layout.html" %}
-{% load crispy_forms_tags %}
+{% extends "front/layout.html" %}{% load crispy_forms_tags %}
 
 {% block title %}Gérer le groupe «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
 
@@ -10,190 +9,213 @@
     <li>Gestion du groupe</li>
   </ol>
 
-    <h3>Les informations de mon groupe</h3>
+  <h3>Les informations de mon groupe</h3>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <strong>{{ supportgroup.name }}</strong>
-            <small>{{ supportgroup.get_type_display }}</small>
-            {% for subtype in supportgroup.subtypes.all %}
-                {% if not subtype.hide_text_label %}
-                    <span class="badge">{{ subtype.description }}</span>
-                {% endif %}
-            {% endfor %}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <strong>{{ supportgroup.name }}</strong>
+      <small>{{ supportgroup.get_type_display }}</small>
+      {% for subtype in supportgroup.subtypes.all %}
+        {% if not subtype.hide_text_label %}
+          <span class="badge">{{ subtype.description }}</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-md-6">
+          <h6 class="subhead">Où</h6>
+          <p>
+            {{ supportgroup.html_full_address|default:"Pas d'adresse enregistrée." }}
+          </p>
+
+          <h6 class="subhead">Contact</h6>
+          <p>{{ supportgroup.html_full_contact|default:"Pas de contact enregistré." }}</p>
         </div>
-        <div class="panel-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <h6 class="subhead">Où</h6>
-                    <p>
-                        {{ supportgroup.html_full_address|default:"Pas d'adresse enregistrée." }}
-                    </p>
-
-                    <h6 class="subhead">Contact</h6>
-                    <p>{{ supportgroup.html_full_contact|default:"Pas de contact enregistré." }}</p>
-                </div>
-                <div class="col-md-6">
-                    {% if supportgroup.coordinates_type == None %}
-                        <div class="alert alert-info">Localisation sur la carte en cours</div>
-                    {% elif supportgroup.coordinates_type == 255 %}
-                        <div class="alert alert-danger">
-                            Localisation sur la carte à partir de l'adresse non réussie. Merci de
-                            <a href="{% url "edit_group" supportgroup.pk %}">préciser l'adresse</a> ou
-                            <a href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la
-                                position</a>.
-                        </div>
-                    {% else %}
-                        <iframe title="Carte" class="col-sm-6"
-                                src="{{ MAP_DOMAIN }}{% url "carte:single_group_map" supportgroup.id %}"
-                                height="300" style="width: 100%;" scrolling="no" frameBorder="0"></iframe>
-                    {% endif %}
-                </div>
+        <div class="col-md-6">
+          {% if supportgroup.coordinates_type == None %}
+            <div class="alert alert-info">Localisation sur la carte en cours</div>
+          {% elif supportgroup.coordinates_type == 255 %}
+            <div class="alert alert-danger">
+              Localisation sur la carte à partir de l'adresse non réussie. Merci de <a
+                href="{% url "edit_group" supportgroup.pk %}">préciser l'adresse</a> ou <a
+                href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
             </div>
+          {% else %}
+            <iframe title="Carte" class="col-sm-6"
+                    src="{{ MAP_DOMAIN }}{% url "carte:single_group_map" supportgroup.id %}" height="300"
+                    style="width: 100%;" scrolling="no" frameBorder="0"></iframe>
+          {% endif %}
         </div>
-        <div class="panel-footer">
-            <ul class="list-inline">
-                <li><a class="btn btn-default" href="{% url "edit_group" supportgroup.pk %}">Modifier ces
-                    informations</a>
-                <li><a class="btn btn-default" href="{% url "change_group_location" supportgroup.pk %}">Corriger la
-                    localisation</a>
-            </ul>
-        </div>
+      </div>
+    </div>
+    <div class="panel-footer">
+      <ul class="list-inline">
+        <li><a class="btn btn-default" href="{% url "edit_group" supportgroup.pk %}">Modifier ces informations</a>
+        <li><a class="btn btn-default" href="{% url "change_group_location" supportgroup.pk %}">Corriger la
+          localisation</a>
+      </ul>
+    </div>
+  </div>
+
+  {% if has_promo_code %}
+    <h3>Mon code promo pour ce mois-ci</h3>
+
+    <div style="text-align: center; margin: 2em auto;">
+      <span
+          style="padding: 10px; font-weight: bolder; font-size: 2em; border: 2px solid darkgrey;">{{ group_promo_code }}</span>
     </div>
 
-    {% if has_promo_code %}
-        <h3>Mon code promo pour ce mois-ci</h3>
+    <p>
+      Ce code peut être utilisé sur le <a href="https://materiel.lafranceinsoumise.fr">site d'achat de matériel</a>.
+    </p>
+  {% endif %}
+  {% if not supportgroup.is_certified and certifiable %}
+    <h3>Certification de votre groupe</h3>
 
-        <div style="text-align: center; margin: 2em auto;">
-            <span style="padding: 10px; font-weight: bolder; font-size: 2em; border: 2px solid darkgrey;">{{ group_promo_code }}</span>
-        </div>
-
-        <p>
-            Ce code peut être utilisé sur le <a href="https://materiel.lafranceinsoumise.fr">site d'achat de
-            matériel</a>.
-        </p>
-    {% endif %}
-    {% if not supportgroup.is_certified and certifiable %}
-        <h3>Certification de votre groupe</h3>
-
-        {% if satisfy_requirements %}
-            <div>
-                Votre groupe n'est pas encore certifié. Vous pouvez en demander la certification en cliquant sur le
-                bouton ci-dessous.
-            </div>
-            <a href="https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/?group-id={{ supportgroup.pk }}&email={{ user.person.email }}&animateur={{ user.person.get_full_name }}"
-               class="btn btn-primary">Demander la certification</a>
-        {% else %}
-            <div>
-                Pour pouvoir demander la certification, vous devez nous indiquer l'identité du deuxième
-                animateur du groupe. Il doit s'agir d'une personne d'un genre différent, qui n'appartient pas, le cas
-                échéant, à la même formation politique. Utilisez pour cela le formulaire ci-dessous.
-            </div>
-        {% endif %}
-    {% endif %}
-
-    {% if supportgroup.is_certified %}
-        <h3>Dons alloués aux actions de mon groupe</h3>
-        {% if allocation_balance > 0 %}
-            <p>La somme alloués à vos actions est de {{ allocation_balance|floatformat:2 }}&nbsp;€. Le formulaire
-            pour effectuer des demandes de dépenses sera disponible dans les prochains jours.</p>
-        {% else %}
-            <p>
-                Personne n'a encore alloué de dons à vos actions.
-                Vous pouvez le faire <a href="{% url "donation_amount" %}">sur la page de dons</a>.
-            </p>
-        {% endif %}
-    {% endif %}
-
-    <h3>Les animateur⋅rice⋅s et autres gestionnaires du groupe</h3>
-
-    <h4>Les animateur⋅rices⋅s du groupe</h4>
-
-    <ul class="list-group">
-        {% for membership in referents %}
-            {% with person=membership.person %}
-                <li class="list-group-item list-group-item-success">
-                    {% if person.first_name and person.last_name %}
-                        {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
-                    {% else %}
-                        {{ person.email }}
-                    {% endif %}
-                </li>
-            {% endwith %}
-        {% endfor %}
-    </ul>
-
-    {% if referents|length == 1 and is_referent %}
-        <div>
-            <p>
-                Vous etes à l'heure actuelle l'unique animatrice ou animateur enregistré de ce groupe d'action. La
-                charte des groupes d'action de la France insoumise prévoit que les groupes d'action</p>
-            <blockquote>
-                sont animés par deux personnes de genres différents, n’appartenant pas, le cas échéant, toutes les deux
-                à une même formation politique qui soutient la France insoumise.
-            </blockquote>
-            <p>
-                Si vous souhaitez ne plus être animatrice ou animateur de ce groupe d'action, il vous faut d'abord
-                indiquer une autre personne, car un groupe d'action ne peut se trouver sans animation.
-            </p>
-            <p>
-                Vous pouvez nous indiquer ici qui est l'autre animatrice ou animateur au sein du groupe.
-            </p>
-            {% crispy add_referent_form %}
-        </div>
-    {% endif %}
-
-    <h4>Les autres gestionnaires du groupe</h4>
-
-    <p>Les autres gestionnaires ont accès à la liste des membres, peuvent modifier les informations du groupe, et créer
-        des événements au nom du groupe. Ils peuvent ainsi assister les animateurs pour la gestion technique
-        au quotidien du groupe sur la plateforme.</p>
-
-    {% if managers %}
-        <ul class="list-group">
-            {% for membership in managers %}
-                {% with person=membership.person %}
-                    <li class="list-group-item list-group-item-info">
-                        {% if person.first_name and person.last_name %}
-                            {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
-                        {% else %}
-                            {{ person.email }}
-                        {% endif %}
-                        <a href="{% url 'remove_manager' pk=membership.pk %}" aria-label="Retirer ce gestionnaire">
-                            <i class="fa fa-remove" aria-hidden="true" title="Retirer ce gestionnaire"></i>
-                        </a>
-                    </li>
-                {% endwith %}
-            {% endfor %}
-        </ul>
+    {% if satisfy_requirements %}
+      <div>
+        Votre groupe n'est pas encore certifié. Vous pouvez en demander la certification en cliquant sur le bouton
+        ci-dessous.
+      </div>
+      <a href="https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/?group-id={{ supportgroup.pk }}&email={{ user.person.email }}&animateur={{ user.person.get_full_name }}"
+         class="btn btn-primary">Demander la certification</a>
     {% else %}
-        <p><strong>Il n'y a pas de membres gestionnaires dans le groupe pour le moment !</strong></p>
+      <div>
+        Pour pouvoir demander la certification, vous devez nous indiquer l'identité du deuxième animateur du groupe. Il
+        doit s'agir d'une personne d'un genre différent, qui n'appartient pas, le cas échéant, à la même formation
+        politique. Utilisez pour cela le formulaire ci-dessous.
+      </div>
+    {% endif %}
+  {% endif %}
+
+  {% if supportgroup.is_certified %}
+    <h3>Dons alloués aux actions de mon groupe</h3>
+    {% if allocation_balance > 0 %}
+      <p>La somme alloués à vos actions est de {{ allocation_balance|floatformat:2 }}&nbsp;€. Vous pouvez créer une
+        nouvelle demande de dépense si vous avez des dépenses à effectuer pour le groupe.</p>
+
+    {% else %}
+      <p>
+        Personne n'a encore alloué de dons à vos actions. Vous pouvez le faire <a href="{% url "donation_amount" %}">sur
+        la page de dons</a>. </p>
+      <p>
+        Vous pouvez déjà créer une demande de dépense, mais vous ne pourrez la faire valider que lorsque votre
+        allocation sera suffisante. </p>
     {% endif %}
 
-    {% if is_referent %}
-        <p>Ajouter un membre gestionnaire :</p>
-        {% crispy add_manager_form %}
-    {% endif %}
+    <a href="{% url "create_spending_request" supportgroup.pk %}" class="btn btn-primary">Je crée une demande de
+      dépense</a>
 
-    <h3>Liste des membres</h3>
-
-    <p>Votre groupe comprend à l'heure actuelle {{ members|length }}
-        membre{% if members|length > 1 %}s{% endif %}.</p>
-
-    <p>Cette liste peut etre copiée-collée directement dans votre logiciel de messagerie !</p>
-
-    <ul class="list-group">
-        {% for membership in members %}
-            {% with person=membership.person %}
-                <li class="list-group-item">
-                    {% if person.first_name and person.last_name %}
-                        {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
-                    {% else %}
-                        {{ person.email }}
-                    {% endif %}
-                    {% if not forloop.last %}<span style="font-size: 0; color: rgba(255,255,255,0);">,</span>{% endif %}
-                </li>
-            {% endwith %}
+    {% if spending_requests %}
+      <h4>Les demandes de mon groupe en cours de traitement</h4>
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Statut</th>
+          <th>Gérer la demande</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for spending_request in spending_requests %}
+          <tr>
+            <td>{{ spending_request.title }}</td>
+            <td>{{ spending_request.get_status_display }}</td>
+            <td><a href="{% url "manage_spending_request" spending_request.pk %}" class="btn btn-default"> Gérer </a>
+            </td>
+          </tr>
         {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  {% endif %}
+
+  <h3>Les animateur⋅rice⋅s et autres gestionnaires du groupe</h3>
+
+  <h4>Les animateur⋅rices⋅s du groupe</h4>
+
+  <ul class="list-group">
+    {% for membership in referents %}
+      {% with person=membership.person %}
+        <li class="list-group-item list-group-item-success">
+          {% if person.first_name and person.last_name %}
+            {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
+          {% else %}
+            {{ person.email }}
+          {% endif %}
+        </li>
+      {% endwith %}
+    {% endfor %}
+  </ul>
+
+  {% if referents|length == 1 and is_referent %}
+    <div>
+      <p>
+        Vous etes à l'heure actuelle l'unique animatrice ou animateur enregistré de ce groupe d'action. La charte des
+        groupes d'action de la France insoumise prévoit que les groupes d'action</p>
+      <blockquote>
+        sont animés par deux personnes de genres différents, n’appartenant pas, le cas échéant, toutes les deux à une
+        même formation politique qui soutient la France insoumise.
+      </blockquote>
+      <p>
+        Si vous souhaitez ne plus être animatrice ou animateur de ce groupe d'action, il vous faut d'abord indiquer une
+        autre personne, car un groupe d'action ne peut se trouver sans animation. </p>
+      <p>
+        Vous pouvez nous indiquer ici qui est l'autre animatrice ou animateur au sein du groupe. </p>
+      {% crispy add_referent_form %}
+    </div>
+  {% endif %}
+
+  <h4>Les autres gestionnaires du groupe</h4>
+
+  <p>Les autres gestionnaires ont accès à la liste des membres, peuvent modifier les informations du groupe, et créer
+    des événements au nom du groupe. Ils peuvent ainsi assister les animateurs pour la gestion technique au quotidien du
+    groupe sur la plateforme.</p>
+
+  {% if managers %}
+    <ul class="list-group">
+      {% for membership in managers %}
+        {% with person=membership.person %}
+          <li class="list-group-item list-group-item-info">
+            {% if person.first_name and person.last_name %}
+              {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
+            {% else %}
+              {{ person.email }}
+            {% endif %}
+            <a href="{% url 'remove_manager' pk=membership.pk %}" aria-label="Retirer ce gestionnaire"> <i
+                class="fa fa-remove" aria-hidden="true" title="Retirer ce gestionnaire"></i> </a>
+          </li>
+        {% endwith %}
+      {% endfor %}
     </ul>
+  {% else %}
+    <p><strong>Il n'y a pas de membres gestionnaires dans le groupe pour le moment !</strong></p>
+  {% endif %}
+
+  {% if is_referent %}
+    <p>Ajouter un membre gestionnaire :</p>
+    {% crispy add_manager_form %}
+  {% endif %}
+
+  <h3>Liste des membres</h3>
+
+  <p>Votre groupe comprend à l'heure actuelle {{ members|length }} membre{% if members|length > 1 %}s{% endif %}.</p>
+
+  <p>Cette liste peut etre copiée-collée directement dans votre logiciel de messagerie !</p>
+
+  <ul class="list-group">
+    {% for membership in members %}
+      {% with person=membership.person %}
+        <li class="list-group-item">
+          {% if person.first_name and person.last_name %}
+            {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
+          {% else %}
+            {{ person.email }}
+          {% endif %}
+          {% if not forloop.last %}<span style="font-size: 0; color: rgba(255,255,255,0);">,</span>{% endif %}
+        </li>
+      {% endwith %}
+    {% endfor %}
+  </ul>
 {% endblock %}

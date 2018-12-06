@@ -1,0 +1,103 @@
+{% extends 'front/layout.html' %}{% load static %}
+
+{% block title %}
+  Gérer l'avancement de votre demande de dépense
+{% endblock %}
+
+{% block main %}
+  <h2>Gérer ma demande de dépense</h2>
+  <ol class="breadcrumb">
+    <li><a href="{% url "view_group" supportgroup.pk %}">Page publique du groupe</a></li>
+    <li><a href="{% url "manage_group" supportgroup.pk %}">Gestion du groupe</a></li>
+  </ol>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8">
+        <h3>Les détails de ma demande</h3>
+        <table class="table">
+          {% for field in summary %}
+            <tr>
+              <th>{{ field.label }}</th>
+              <td>{{ field.value }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+
+        <h4>Mes pièces justificatives</h4>
+
+        {% if documents %}
+
+          <table class="table">
+            <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Type</th>
+              <th>Modifier</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for document in documents %}
+              <tr>
+                <td><a href="{{ document.file.url }}">{{ document.title }} <span class="fa fa-download"></span></a></td>
+                <td>{{ document.get_type_display }}</td>
+                <td><a href="{% url "edit_document" spendingrequest.pk document.pk %}" class="btn btn-default"><span class="fa fa-edit"
+                                                                                             title="Modifier {{ document.title }}"></span></a>
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>Vous n'avez pas encore joint de pièce justificative à votre demande. Vous devez joindre au moins une
+            facture, ainsi que l'ensemble des pièces nécessaires pour évaluer votre demane.</p>
+        {% endif %}
+
+      </div>
+      <div class="col-md-4">
+        <div class="panel-body">
+          <h4>Transmission de la demande</h4>
+          {% if can_send_for_review %}
+            <p>
+              Lorsque votre demande est prête, cliquez sur le bouton pour transmettre votre demande et permettre son
+            examen par l'équipe de suivi des questions financières.
+            </p>
+
+            <form method="post" style="display: inline;">
+              {% csrf_token %} <input type="hidden" name="validate" value="{{ spendingrequest.status }}"> <input
+                type="submit" value="Transmettre la demande" class="btn btn-primary">
+            </form>
+          {% else %}
+            <p><strong> Pour transmettre la demande, vous devez ajouter au moins une facture en tant que pièce
+              justificative. </strong>
+            </p>
+
+          {% endif %}
+
+
+          <h4>Historique de ma demande</h4>
+
+          <div class="list-group">
+            {% for step in history %}
+              <div class="list-group-item">
+                <h5>{{ step.title }}{% if step.user %}
+                  <small>({{ step.user }})</small>{% endif %}</h5>
+                <div><em>Le {{ step.modified }}</em></div>
+                {% if step.content %}<p>{{ step.content }}</p>{% endif %}
+                {% if step.comment %}<p>{{ step.comment }}</p>{% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container" style="margin-bottom: 1em;">
+    <div class="btn-toolbar" role="toolbar">
+      <a class="btn btn-default" href="{% url "edit_spending_request" spendingrequest.pk %}">Modifier la demande</a> <a
+        class="btn btn-default" href="{% url "create_document" spendingrequest.pk %}">Ajouter une pièce
+      justificative</a>
+
+    </div>
+  </div>
+{% endblock %}

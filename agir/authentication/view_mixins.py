@@ -13,12 +13,15 @@ class SoftLoginRequiredMixin(object):
 
 
 class HardLoginRequiredMixin(object):
-    def dispatch(self, request, *args, **kwargs):
-        if (
+    def is_authorized(self, request):
+        return (
             request.user.is_authenticated
             and request.session[BACKEND_SESSION_KEY]
             != "agir.authentication.backend.MailLinkBackend"
-        ):
+        )
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.is_authorized(request):
             return super().dispatch(request, *args, **kwargs)
 
         return redirect_to_login(request.get_full_path())

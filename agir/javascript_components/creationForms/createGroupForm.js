@@ -13,7 +13,7 @@ import ContactStep from './steps/ContactStep';
 import LocationStep from './steps/LocationStep';
 
 import './style.css';
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 
 // defined by webpack
 const apiEndpoint = API_ENDPOINT; // eslint-disable-line no-undef
