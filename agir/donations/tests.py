@@ -12,7 +12,7 @@ from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.payments.actions import complete_payment
 from agir.payments.models import Payment
 from agir.people.models import Person
-from ..views import notification_listener as donation_notification_listener
+from .views import notification_listener as donation_notification_listener
 
 
 class DonationTestCase(TestCase):
