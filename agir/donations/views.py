@@ -1,17 +1,15 @@
 from django.db import transaction
-from django.views.generic import FormView, UpdateView, TemplateView
-from django.urls import reverse_lazy
 from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.views.generic import FormView, UpdateView, TemplateView
 
 from agir.donations.models import Operation
+from . import forms
 from .apps import DonsConfig
 from .tasks import send_donation_email
-from ..people.models import Person
 from ..payments.actions import create_payment, redirect_to_payment
 from ..payments.models import Payment
-
-from . import forms
-
+from ..people.models import Person
 
 __all__ = ("AskAmountView", "PersonalInformationView")
 
@@ -70,8 +68,8 @@ class PersonalInformationView(UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["amount"] = self.request.session[session_key("amount")]
-        kwargs["allocation"] = self.request.session[session_key("allocation")]
-        kwargs["group_id"] = self.request.session[session_key("group")]
+        kwargs["allocation"] = self.request.session.get(session_key("allocation"), 0)
+        kwargs["group_id"] = self.request.session.get(session_key("group"), None)
         return kwargs
 
     def form_valid(self, form):
@@ -91,6 +89,12 @@ class PersonalInformationView(UpdateView):
                 Operation.objects.create(
                     payment=payment, group=group, amount=allocation
                 )
+
+        del self.request.session[session_key("amount")]
+        if session_key("allocation") in self.request.session:
+            del self.request.session[session_key("allocation")]
+        if session_key("group") in self.request.session:
+            del self.request.session[session_key("group")]
 
         return redirect_to_payment(payment)
 

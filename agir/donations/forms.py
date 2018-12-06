@@ -1,25 +1,21 @@
 import logging
 
+from crispy_forms import layout
+from crispy_forms.helper import FormHelper
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.formats import number_format
 from django.utils.functional import keep_lazy_text
 from django.utils.html import mark_safe, format_html
-from django.utils.formats import number_format
 from django.utils.text import format_lazy
-
+from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 
-from crispy_forms import layout
-from crispy_forms.helper import FormHelper
-from webpack_loader.utils import get_files
-
 from agir.groups.models import SupportGroup
-from ..people.form_mixins import MetaFieldsMixin
 from ..lib.form_components import *
+from ..people.form_mixins import MetaFieldsMixin
 from ..people.models import Person, PersonEmail
-
 
 __all__ = ("DonationForm", "DonatorForm")
 
