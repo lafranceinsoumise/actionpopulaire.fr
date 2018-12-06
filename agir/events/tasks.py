@@ -303,4 +303,4 @@ def update_ticket(rsvp_pk, metas=None):
                 json=data,
             ).raise_for_status()
     except HTTPError:
-        print(r.text())
+        print(r.text)

@@ -105,16 +105,16 @@ class PersonalInformationView(UpdateView):
         group = form.cleaned_data["group"]
 
         with transaction.atomic():
+            if allocation and group:
+                allocation_metas = {"allocation": allocation, "group_id": str(group.id)}
+            else:
+                allocation_metas = {}
             payment = create_payment(
                 person=person,
                 type=DonsConfig.PAYMENT_TYPE,
                 price=amount,
-                meta={"nationality": person.meta["nationality"]},
+                meta={"nationality": person.meta["nationality"], **allocation_metas},
             )
-            if allocation and group:
-                Operation.objects.create(
-                    payment=payment, group=group, amount=allocation
-                )
 
         del self.request.session[session_key("amount")]
         if session_key("allocation") in self.request.session:
@@ -132,6 +132,16 @@ class ReturnView(TemplateView):
 def notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         send_donation_email.delay(payment.person.pk)
+
+        if (
+            payment.meta.get("allocation") is not None
+            and payment.meta.get("group_id") is not None
+        ):
+            Operation.objects.create(
+                payment=payment,
+                group_id=payment.meta.get("group_id"),
+                amount=payment.meta.get("allocation"),
+            )
 
 
 class CreateSpendingRequestView(HardLoginRequiredMixin, TemplateView):
