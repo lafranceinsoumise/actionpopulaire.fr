@@ -1,5 +1,7 @@
 from datetime import datetime
+import string
 from django.core.management import BaseCommand
+from django.utils import timezone
 
 from agir.lib.mailtrain import update_person
 from agir.people.models import Person
@@ -12,7 +14,12 @@ class Command(BaseCommand):
         start = datetime.now()
         i = 0
 
-        for person in Person.objects.all().iterator():
+        min_letter = string.hexdigits[timezone.now().day % 8 * 2]
+        max_letter = string.hexdigits[(timezone.now().day + 1) % 8 * 2]
+
+        for person in Person.objects.filter(
+            id__gt=min_letter, id_lt=max_letter
+        ).iterator():
             update_person(person)
             if kwargs["verbosity"] > 1:
                 print("Updated %s " % person.email)
