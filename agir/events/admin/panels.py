@@ -16,7 +16,7 @@ from agir.people.admin import PersonFormAdminMixin
 from agir.people.models import PersonFormSubmission
 from ...api.admin import admin_site
 from ...groups.models import SupportGroup
-from ...lib.admin import CenterOnFranceMixin, DepartementListFilter
+from ...lib.admin import CenterOnFranceMixin, DepartementListFilter, RegionListFilter
 from ...lib.utils import front_url
 
 from .. import models
@@ -247,6 +247,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "published",
         EventHasReportFilter,
         DepartementListFilter,
+        RegionListFilter,
         "coordinates_type",
         "subtype__type",
         "subtype",
