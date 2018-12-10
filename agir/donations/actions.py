@@ -1,4 +1,5 @@
 import reversion
+from django.conf import settings
 from django.db.models import Sum
 from django.urls import reverse
 from django.utils.html import format_html
@@ -13,6 +14,10 @@ def get_balance(group):
     return (
         Operation.objects.filter(group=group).aggregate(sum=Sum("amount"))["sum"] or 0
     )
+
+
+def group_can_handle_allocation(group):
+    return group.subtypes.filter(label=settings.CERTIFIED_GROUP_SUBTYPE).exists()
 
 
 def get_spending_request_field_label(f):
