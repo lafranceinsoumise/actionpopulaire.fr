@@ -7,12 +7,15 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from agir.api.redis import using_redislite
+from agir.donations.apps import DonsConfig
 from agir.donations.models import Operation, Spending, SpendingRequest, Document
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
-from agir.payments.actions import complete_payment
+from agir.payments.actions import complete_payment, create_payment, notify_status_change
 from agir.payments.models import Payment
 from agir.people.models import Person
-from ..views import notification_listener as donation_notification_listener
+from agir.system_pay import SystemPayPaymentMode
+from .views import notification_listener as donation_notification_listener
 
 
 class DonationTestCase(TestCase):
@@ -239,10 +242,30 @@ class DonationTestCase(TestCase):
         payment = Payment.objects.get()
         self.assertRedirects(res, reverse("payment_page", args=(payment.pk,)))
 
-        # no other allocation
-        allocation = Operation.objects.get()
-        self.assertEqual(allocation.amount, 10000)
-        self.assertEqual(allocation.group, self.group)
+        self.assertIn("allocation", payment.meta)
+        self.assertIn("group_id", payment.meta)
+
+        self.assertEqual(payment.meta["allocation"], 10000)
+        self.assertEqual(payment.meta["group_id"], str(self.group.pk))
+
+    @using_redislite
+    def test_allocation_created_on_payment(self):
+        payment = create_payment(
+            person=self.p1,
+            type=DonsConfig.PAYMENT_TYPE,
+            price=10000,
+            mode=SystemPayPaymentMode.id,
+            meta={"allocation": 10000, "group_id": str(self.group.pk)},
+        )
+
+        complete_payment(payment)
+        notify_status_change(payment)
+
+        self.assertTrue(Operation.objects.exists())
+        operation = Operation.objects.get()
+
+        self.assertEqual(operation.amount, 10000)
+        self.assertEqual(operation.group, self.group)
 
 
 class FinancialTriggersTestCase(TestCase):
