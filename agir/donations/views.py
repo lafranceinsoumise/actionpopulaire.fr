@@ -2,7 +2,7 @@ import reversion
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils.translation import ugettext as _
@@ -20,6 +20,7 @@ from agir.donations.actions import (
     history,
     can_send_for_review,
     send_for_review,
+    group_can_handle_allocation,
 )
 from agir.donations.forms import (
     DocumentOnCreationFormset,
@@ -170,16 +171,19 @@ class CreateSpendingRequestView(HardLoginRequiredMixin, TemplateView):
     def is_authorized(self, request):
         return (
             super().is_authorized(request)
+            and group_can_handle_allocation(self.group)
             and Membership.objects.filter(
-                person=request.user.person,
-                supportgroup_id=self.kwargs["group_id"],
-                is_manager=True,
+                person=request.user.person, supportgroup=self.group, is_manager=True
             ).exists()
-            and SupportGroup.objects.filter(
-                pk=self.kwargs["group_id"],
-                subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE,
-            )
         )
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.group = SupportGroup.objects.get(pk=self.kwargs["group_id"])
+        except SupportGroup.DoesNotExist:
+            raise Http404()
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         self.spending_request = None

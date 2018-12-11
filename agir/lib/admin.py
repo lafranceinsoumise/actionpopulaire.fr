@@ -21,34 +21,30 @@ class DisplayContactPhoneMixin:
     display_contact_phone.admin_order_field = "contact_phone"
 
 
-class ZoneListFilter(admin.SimpleListFilter):
-    zone_choices = None
-    filter_func = None
+class DepartementListFilter(admin.SimpleListFilter):
+    title = "Département"
+    parameter_name = "departement"
+    template = "admin/dropdown_filter.html"
 
     def lookups(self, request, model_admin):
-        return self.zone_choices
+        return data.departements_choices
 
     def queryset(self, request, queryset):
         if self.value() is None:
             return queryset
-        return queryset.filter(self.filter_func())
+        return queryset.filter(data.filtre_departement(self.value()))
 
 
-class DepartementListFilter(ZoneListFilter):
-    title = "Département"
-    parameter_name = "departement"
-    template = "admin/dropdown_filter.html"
-    zone_choices = data.departements_choices
-
-    def filter_func(self):
-        return data.filtre_departement(self.value())
-
-
-class RegionListFilter(ZoneListFilter):
+class RegionListFilter(admin.SimpleListFilter):
     title = "Région"
     parameter_name = "region"
     template = "admin/dropdown_filter.html"
     zone_choices = data.regions_choices
 
-    def filter_func(self):
-        return data.filtre_region(self.value())
+    def lookups(self, request, model_admin):
+        return data.regions_choices
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+        return queryset.filter(data.filtre_region(self.value()))
