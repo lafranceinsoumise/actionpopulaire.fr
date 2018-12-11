@@ -31,6 +31,12 @@ def delete_mailtrain(sender, instance, **kwargs):
     delete_person(instance)
 
 
+@receiver(post_delete, sender=Person, dispatch_uid="person_delete_role")
+def delete_role(sender, instance, **kwargs):
+    if instance.role is not None:
+        instance.role.delete()
+
+
 @receiver(post_delete, sender=PersonEmail, dispatch_uid="personemail_delete_mailtrain")
 def delete_email_person(sender, instance, **kwargs):
     if settings.MAILTRAIN_DISABLE:
