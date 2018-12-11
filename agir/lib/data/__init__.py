@@ -26,6 +26,8 @@ regions_choices = tuple(
     (r["id"], r["nom"]) for r in sorted(regions, key=lambda d: unidecode(d["nom"]))
 )
 
+anciennes_regions_map = {r["id"]: r for r in anciennes_regions}
+
 _CORSE_RE = re.compile("^[A|B]")
 
 
@@ -41,21 +43,9 @@ def filtre_region(code):
 
 def departement_from_zipcode(zipcode):
     if zipcode.startswith("97"):
-        return next(
-            (
-                departement
-                for departement in departements
-                if zipcode[:3] == departement["id"]
-            ),
-            None,
-        )
+        return departements_map.get(zipcode[:3], None)
 
     # on retourne toujours par défaut le premier département Corse
-    return next(
-        (
-            departement
-            for departement in departements
-            if zipcode[:2] == _CORSE_RE.sub("0", departement["id"])
-        ),
-        None,
-    )
+    if zipcode[:2] == "20":
+        zipcode = "2A"
+    return departements_map.get(zipcode[:2], None)
