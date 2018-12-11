@@ -1,102 +1,102 @@
-id,region,nom,article,locatif
-01,84,Ain,l',dans l'
-02,32,Aisne,l',dans l'
-03,84,Allier,l',dans l'
-04,93,Alpes-de-Haute-Provence,les ,dans les 
-05,93,Hautes-Alpes,les ,dans les 
-06,93,Alpes-Maritimes,les ,dans les 
-07,84,Ardèche,l',dans l'
-08,44,Ardennes,les ,dans les 
-09,76,Ariège,l',dans l'
-10,44,Aube,l',dans l'
-11,76,Aude,l',dans l'
-12,76,Aveyron,l',dans l'
-13,93,Bouches-du-Rhône,les ,dans les 
-14,28,Calvados,le ,dans le 
-15,84,Cantal,le ,dans le 
-16,75,Charente,la,dans la
-17,75,Charente-Maritime,la,dans la
-18,24,Cher,le ,dans le 
-19,75,Corrèze,la,dans la
-21,27,Côte-d'Or,la,dans la
-22,53,Côtes-d'Armor,les ,dans les 
-23,75,Creuse,la,dans la
-24,75,Dordogne,la,dans la
-25,27,Doubs,le ,dans le 
-26,84,Drôme,la,dans la
-27,28,Eure,l',dans l'
-28,24,Eure-et-Loir,l',dans l'
-29,53,Finistère,le ,dans le 
-2A,94,Corse-du-Sud,la,dans la
-2B,94,Haute-Corse,la,dans la
-30,76,Gard,le ,dans le 
-31,76,Haute-Garonne,la,dans la
-32,76,Gers,le ,dans le 
-33,75,Gironde,la,dans la
-34,76,Hérault,l',dans l'
-35,53,Ille-et-Vilaine,l',dans l'
-36,24,Indre,l',dans l'
-37,24,Indre-et-Loire,l',dans l'
-38,84,Isère,l',dans l'
-39,27,Jura,le ,dans le 
-40,75,Landes,les ,dans les 
-41,24,Loir-et-Cher,le ,dans le 
-42,84,Loire,la,dans la
-43,84,Haute-Loire,la,dans la
-44,52,Loire-Atlantique,la,dans la
-45,24,Loiret,le ,dans le 
-46,76,Lot,le ,dans le 
-47,75,Lot-et-Garonne,le ,dans le 
-48,76,Lozère,la,dans la
-49,52,Maine-et-Loire,la,dans la
-50,28,Manche,la,dans la
-51,44,Marne,la,dans la
-52,44,Haute-Marne,la,dans la
-53,52,Mayenne,la,dans la
-54,44,Meurthe-et-Moselle,la,dans la
-55,44,Meuse,la,dans la
-56,53,Morbihan,le ,dans le 
-57,44,Moselle,la,dans la
-58,27,Nièvre,la,dans la
-59,32,Nord,le ,dans le 
-60,32,Oise,l',dans l'
-61,28,Orne,l',dans l'
-62,32,Pas-de-Calais,le ,dans le 
-63,84,Puy-de-Dôme,le ,dans le 
-64,75,Pyrénées-Atlantiques,les ,dans les 
-65,76,Hautes-Pyrénées,les ,dans les 
-66,76,Pyrénées-Orientales,les ,dans les 
-67,44,Bas-Rhin,le ,dans le 
-68,44,Haut-Rhin,le ,dans le 
-69,84,Rhône,le ,dans le 
-70,27,Haute-Saône,la,dans la
-71,27,Saône-et-Loire,la,dans la
-72,52,Sarthe,la,dans la
-73,84,Savoie,la,dans la
-74,84,Haute-Savoie,la,dans la
-75,11,Paris,,à 
-76,28,Seine-Maritime,la,dans la
-77,11,Seine-et-Marne,la,dans la
-78,11,Yvelines,les ,dans les 
-79,75,Deux-Sèvres,les ,dans les 
-80,32,Somme,la,dans la
-81,76,Tarn,le ,dans le 
-82,76,Tarn-et-Garonne,le ,dans le 
-83,93,Var,le ,dans le 
-84,93,Vaucluse,le ,dans le 
-85,52,Vendée,la,dans la
-86,75,Vienne,la,dans la
-87,75,Haute-Vienne,la,dans la
-88,44,Vosges,les ,dans les 
-89,27,Yonne,l',dans l'
-90,27,Territoire de Belfort,le ,dans le 
-91,11,Essonne,l',dans l'
-92,11,Hauts-de-Seine,les ,dans les 
-93,11,Seine-Saint-Denis,la,dans la
-94,11,Val-de-Marne,le ,dans le 
-95,11,Val-d'Oise,le ,dans le 
-971,01,Guadeloupe,la ,en 
-972,02,Martinique,la,en 
-973,03,Guyane,la,en 
-974,04,La Réunion,,à 
-976,06,Mayotte,,à 
+"id","ancienne_region","region","cheflieu","nom","tncc","article","locatif"
+"01","82","84","01053","Ain","5","l'","dans l'"
+"02","22","32","02408","Aisne","5","l'","dans l'"
+"03","83","84","03190","Allier","5","l'","dans l'"
+"04","93","93","04070","Alpes-de-Haute-Provence","4","les","dans les"
+"05","93","93","05061","Hautes-Alpes","4","les","dans les"
+"06","93","93","06088","Alpes-Maritimes","4","les","dans les"
+"07","82","84","07186","Ardèche","5","l'","dans l'"
+"08","21","44","08105","Ardennes","4","les","dans les"
+"09","73","76","09122","Ariège","5","l'","dans l'"
+"10","21","44","10387","Aube","5","l'","dans l'"
+"11","91","76","11069","Aude","5","l'","dans l'"
+"12","73","76","12202","Aveyron","5","l'","dans l'"
+"13","93","93","13055","Bouches-du-Rhône","4","les","dans les"
+"14","25","28","14118","Calvados","2","le","dans le"
+"15","83","84","15014","Cantal","2","le","dans le"
+"16","54","75","16015","Charente","3","la","dans la"
+"17","54","75","17300","Charente-Maritime","3","la","dans la"
+"18","24","24","18033","Cher","2","le","dans le"
+"19","74","75","19272","Corrèze","3","la","dans la"
+"21","94","27","2A004","Côte-d'Or","3","la","dans la"
+"22","94","53","2B033","Côtes-d'Armor","3","les","dans les"
+"23","26","75","21231","Creuse","3","la","dans la"
+"24","53","75","22278","Dordogne","4","la","dans la"
+"25","74","27","23096","Doubs","3","le","dans le"
+"26","72","84","24322","Drôme","3","la","dans la"
+"27","43","28","25056","Eure","2","l'","dans l'"
+"28","82","24","26362","Eure-et-Loir","3","l'","dans l'"
+"29","23","53","27229","Finistère","5","le","dans le"
+"2A","94","94","28085","Corse-du-Sud","1","la","dans la"
+"2B","94","94","29232","Haute-Corse","2","la","dans la"
+"30","91","76","30189","Gard","2","le","dans le"
+"31","73","76","31555","Haute-Garonne","3","la","dans la"
+"32","73","76","32013","Gers","2","le","dans le"
+"33","72","75","33063","Gironde","3","la","dans la"
+"34","91","76","34172","Hérault","5","l'","dans l'"
+"35","53","53","35238","Ille-et-Vilaine","1","l'","dans l'"
+"36","24","24","36044","Indre","5","l'","dans l'"
+"37","24","24","37261","Indre-et-Loire","1","l'","dans l'"
+"38","82","84","38185","Isère","5","l'","dans l'"
+"39","43","27","39300","Jura","2","le","dans le"
+"40","72","75","40192","Landes","4","les","dans les"
+"41","24","24","41018","Loir-et-Cher","0","le","dans le"
+"42","82","84","42218","Loire","3","la","dans la"
+"43","83","84","43157","Haute-Loire","3","la","dans la"
+"44","52","52","44109","Loire-Atlantique","3","la","dans la"
+"45","24","24","45234","Loiret","2","le","dans le"
+"46","73","76","46042","Lot","2","le","dans le"
+"47","72","75","47001","Lot-et-Garonne","2","le","dans le"
+"48","91","76","48095","Lozère","3","la","dans la"
+"49","52","52","49007","Maine-et-Loire","2","la","dans la"
+"50","25","28","50502","Manche","3","la","dans la"
+"51","21","44","51108","Marne","3","la","dans la"
+"52","21","44","52121","Haute-Marne","3","la","dans la"
+"53","52","52","53130","Mayenne","3","la","dans la"
+"54","41","44","54395","Meurthe-et-Moselle","0","la","dans la"
+"55","41","44","55029","Meuse","3","la","dans la"
+"56","53","53","56260","Morbihan","2","le","dans le"
+"57","41","44","57463","Moselle","3","la","dans la"
+"58","26","27","58194","Nièvre","3","la","dans la"
+"59","31","32","59350","Nord","2","le","dans le"
+"60","22","32","60057","Oise","5","l'","dans l'"
+"61","25","28","61001","Orne","5","l'","dans l'"
+"62","31","32","62041","Pas-de-Calais","2","le","dans le"
+"63","83","84","63113","Puy-de-Dôme","2","le","dans le"
+"64","72","75","64445","Pyrénées-Atlantiques","4","les","dans les"
+"65","73","76","65440","Hautes-Pyrénées","4","les","dans les"
+"66","91","76","66136","Pyrénées-Orientales","4","les","dans les"
+"67","42","44","67482","Bas-Rhin","2","le","dans le"
+"68","42","44","68066","Haut-Rhin","2","le","dans le"
+"69","82","84","69123","Rhône","2","le","dans le"
+"70","43","27","70550","Haute-Saône","3","la","dans la"
+"71","26","27","71270","Saône-et-Loire","0","la","dans la"
+"72","52","52","72181","Sarthe","3","la","dans la"
+"73","82","84","73065","Savoie","3","la","dans la"
+"74","82","84","74010","Haute-Savoie","3","la","dans la"
+"75","11","11","75056","Paris","0","à",""
+"76","23","28","76540","Seine-Maritime","3","la","dans la"
+"77","11","11","77288","Seine-et-Marne","0","la","dans la"
+"78","11","11","78646","Yvelines","4","les","dans les"
+"79","54","75","79191","Deux-Sèvres","4","les","dans les"
+"80","22","32","80021","Somme","3","la","dans la"
+"81","73","76","81004","Tarn","2","le","dans le"
+"82","73","76","82121","Tarn-et-Garonne","2","le","dans le"
+"83","93","93","83137","Var","2","le","dans le"
+"84","93","93","84007","Vaucluse","2","le","dans le"
+"85","52","52","85191","Vendée","3","la","dans la"
+"86","54","75","86194","Vienne","3","la","dans la"
+"87","74","75","87085","Haute-Vienne","3","la","dans la"
+"88","41","44","88160","Vosges","4","les","dans les"
+"89","26","27","89024","Yonne","5","l'","dans l'"
+"90","43","27","90010","Territoire de Belfort","2","le","dans le"
+"91","11","11","91228","Essonne","5","l'","dans l'"
+"92","11","11","92050","Hauts-de-Seine","4","les","dans les"
+"93","11","11","93008","Seine-Saint-Denis","3","la","dans la"
+"94","11","11","94028","Val-de-Marne","2","le","dans le"
+"95","11","11","95500","Val-d'Oise","2","le","dans le"
+"971","01","01","97105","Guadeloupe","3","la","en"
+"972","02","02","97209","Martinique","3","la","en"
+"973","03","03","97302","Guyane","3","la","en"
+"974","04","04","97411","La Réunion","0","à",
+"976","06","06","97608","Mayotte","0","à",

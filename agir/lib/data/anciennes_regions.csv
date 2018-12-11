@@ -1,0 +1,28 @@
+id,cheflieu,tncc,nom
+01,97105,3,Guadeloupe
+02,97209,3,Martinique
+03,97302,3,Guyane
+04,97411,0,La Réunion
+06,97608,0,Mayotte
+11,75056,1,Île-de-France
+21,51108,0,Champagne-Ardenne
+22,80021,0,Picardie
+23,76540,0,Haute-Normandie
+24,45234,2,Centre
+25,14118,0,Basse-Normandie
+26,21231,0,Bourgogne
+31,59350,2,Nord-Pas-de-Calais
+41,57463,0,Lorraine
+42,67482,1,Alsace
+43,25056,0,Franche-Comté
+52,44109,4,Pays de la Loire
+53,35238,0,Bretagne
+54,86194,2,Poitou-Charentes
+72,33063,1,Aquitaine
+73,31555,0,Midi-Pyrénées
+74,87085,2,Limousin
+82,69123,0,Rhône-Alpes
+83,63113,1,Auvergne
+91,34172,2,Languedoc-Roussillon
+93,13055,0,Provence-Alpes-Côte d'Azur
+94,2A004,0,Corse
