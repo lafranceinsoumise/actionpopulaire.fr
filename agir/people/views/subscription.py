@@ -58,6 +58,12 @@ class BaseSubscriptionView(SimpleOpengraphMixin, FormView):
     meta_title = "Rejoignez la France insoumise"
     meta_description = "Rejoignez la France insoumise sur lafranceinsoumise.fr"
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return HttpResponseRedirect(reverse("dashboard"))
+
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         if is_rate_limited_for_subscription(
             ip=self.request.META["REMOTE_ADDR"], email=form.cleaned_data["email"]
@@ -98,7 +104,7 @@ class ConfirmSubscriptionView(View):
         "location_address1",
         "location_address2",
         "location_city",
-        "location_contry",
+        "location_country",
     ]
 
     def get(self, request, *args, **kwargs):
