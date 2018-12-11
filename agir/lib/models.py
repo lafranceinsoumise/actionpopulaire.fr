@@ -14,6 +14,7 @@ from model_utils.models import TimeStampedModel
 from stdimage.models import StdImageField
 
 from agir.lib import data
+from agir.lib.data import departement_from_zipcode
 from .form_fields import RichEditorWidget
 from .html import sanitize_html
 from .display import display_address
@@ -192,25 +193,29 @@ class LocationMixin(models.Model):
     @property
     def departement(self):
         if self.location_country == "FR" and RE_FRENCH_ZIPCODE.match(self.location_zip):
-            dep = self.location_zip[:2]
-            if dep == "20":
-                dep = "2A"
-
-            return data.departements_map[dep]["nom"]
+            return departement_from_zipcode(self.location_zip)["nom"] or ""
 
         return ""
 
     @property
     def region(self):
         if self.location_country == "FR" and RE_FRENCH_ZIPCODE.match(self.location_zip):
-            code = self.location_zip[:2]
+            departement = departement_from_zipcode(self.location_zip)
 
-            # impossible de distinguer les deux départements de Corse pour le moment
-            if code == "20":
-                code = "2A"
+            if departement is not None:
+                return data.regions_map.get(departement["region"])["nom"]
 
-            if code in data.departements_map:
-                return data.regions_map[data.departements_map[code]["region"]]["nom"]
+        return ""
+
+    @property
+    def ancienne_region(self):
+        if self.location_country == "FR" and RE_FRENCH_ZIPCODE.match(self.location_zip):
+            departement = departement_from_zipcode(self.location_zip)
+
+            if departement is not None:
+                return data.anciennes_regions_map.get(departement["ancienne_region"])[
+                    "nom"
+                ]
 
         return ""
 

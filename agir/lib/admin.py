@@ -39,7 +39,6 @@ class RegionListFilter(admin.SimpleListFilter):
     title = "Région"
     parameter_name = "region"
     template = "admin/dropdown_filter.html"
-    zone_choices = data.regions_choices
 
     def lookups(self, request, model_admin):
         return data.regions_choices

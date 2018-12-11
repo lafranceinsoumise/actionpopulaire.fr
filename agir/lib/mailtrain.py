@@ -8,6 +8,7 @@ from requests import HTTPError
 from django.conf import settings
 from django.db.models import Q
 
+from agir.lib.data import anciennes_regions, departement_from_zipcode, regions
 from agir.lib.utils import generate_token_params
 from urllib.parse import urlencode
 
@@ -67,6 +68,8 @@ def data_from_person(person, tmp_tags=None):
     data["MERGE_TAGS"] = (
         "," + ",".join(t.label for t in person.tags.filter(exported=True)) + ","
     )
+
+    data["MERGE_REGION"] = " ".join([person.region, person.ancienne_region])
 
     if tmp_tags:
         data["MERGE_TAGS"] = "," + ",".join(tmp_tags) + data["MERGE_TAGS"]

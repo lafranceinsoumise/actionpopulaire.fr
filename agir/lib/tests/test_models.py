@@ -86,3 +86,21 @@ class LabelTestCase(TestCase):
         instance = models.Label.objects.create(label="label")
 
         self.assertEqual(str(instance), "label")
+
+
+class LocationMixinTestCase(TestCase):
+    def test_metropole(self):
+        instance = models.LocationModel.objects.create(
+            location_zip="59000", location_country="FR"
+        )
+        self.assertEqual(instance.departement, "Nord")
+        self.assertEqual(instance.region, "Hauts-de-France")
+        self.assertEqual(instance.ancienne_region, "Nord-Pas-de-Calais")
+
+    def test_outremer(self):
+        instance = models.LocationModel.objects.create(
+            location_zip="97100", location_country="FR"
+        )
+        self.assertEqual(instance.departement, "Guadeloupe")
+        self.assertEqual(instance.region, "Guadeloupe")
+        self.assertEqual(instance.ancienne_region, "Guadeloupe")
