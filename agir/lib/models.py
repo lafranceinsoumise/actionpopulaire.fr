@@ -1,4 +1,6 @@
 import uuid
+
+import re
 from django.contrib.gis.db import models
 from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
@@ -11,9 +13,13 @@ from dynamic_filenames import FilePattern
 from model_utils.models import TimeStampedModel
 from stdimage.models import StdImageField
 
+from agir.lib import data
 from .form_fields import RichEditorWidget
 from .html import sanitize_html
 from .display import display_address
+
+
+RE_FRENCH_ZIPCODE = re.compile("^[0-9]{5}$")
 
 
 class UUIDIdentified(models.Model):
@@ -182,6 +188,31 @@ class LocationMixin(models.Model):
 
     def should_relocate_when_address_changed(self):
         return not self.has_location() or self.has_automatic_location()
+
+    @property
+    def departement(self):
+        if self.location_country == "FR" and RE_FRENCH_ZIPCODE.match(self.location_zip):
+            dep = self.location_zip[:2]
+            if dep == "20":
+                dep = "2A"
+
+            return data.departements_map[dep]["nom"]
+
+        return ""
+
+    @property
+    def region(self):
+        if self.location_country == "FR" and RE_FRENCH_ZIPCODE.match(self.location_zip):
+            code = self.location_zip[:2]
+
+            # impossible de distinguer les deux départements de Corse pour le moment
+            if code == "20":
+                code = "2A"
+
+            if code in data.departements_map:
+                return data.regions_map[data.departements_map[code]["region"]]["nom"]
+
+        return ""
 
     class Meta:
         abstract = True

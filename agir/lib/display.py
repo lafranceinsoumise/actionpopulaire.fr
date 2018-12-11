@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _, ngettext
 def display_address(object):
     parts = []
     if getattr(object, "location_name", None):
-        parts.append(format_html("<strong>{}</strong>", object.location_name))
+        parts.append(format_html("<em>{}</em>", object.location_name))
 
     if object.location_address1:
         parts.append(object.location_address1)

@@ -13,9 +13,10 @@ with open(os.path.dirname(os.path.realpath(__file__)) + "/departements.csv") as 
 with open(os.path.dirname(os.path.realpath(__file__)) + "/regions.csv") as file:
     regions = list(csv.DictReader(file))
 
-
+departements_map = {d["id"]: d for d in departements}
 departements_choices = tuple((d["id"], f'{d["id"]} - {d["nom"]}') for d in departements)
 
+regions_map = {r["id"]: r for r in regions}
 regions_choices = tuple(
     (r["id"], r["nom"]) for r in sorted(regions, key=lambda d: unidecode(d["nom"]))
 )

@@ -337,6 +337,9 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
             Q(rsvp__event=self.instance) | Q(guest_rsvp__event=self.instance)
         )
 
+    def add_organizer(self, request, pk):
+        return views.add_member(self, request, pk)
+
     def view_results(self, request, pk):
         self.instance = Event.objects.get(pk=pk)
         return super().view_results(request, self.instance.subscription_form.id)
@@ -345,11 +348,14 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
         self.instance = Event.objects.get(pk=pk)
         return super().download_results(request, self.instance.subscription_form.id)
 
+    def export_summary(self, request):
+        return views.EventSummaryView.as_view()(request, model_admin=self)
+
     def get_urls(self):
         return [
             path(
                 "<uuid:pk>/add_organizer/",
-                admin_site.admin_view(self.add_organizer),
+                self.admin_site.admin_view(self.add_organizer),
                 name="events_event_add_organizer",
             ),
             path(
@@ -362,10 +368,12 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 self.admin_site.admin_view(self.download_results),
                 name="events_event_rsvps_download_results",
             ),
+            path(
+                "resume/",
+                self.admin_site.admin_view(self.export_summary),
+                name="events_event_export_summary",
+            ),
         ] + super().get_urls()
-
-    def add_organizer(self, request, pk):
-        return views.add_member(self, request, pk)
 
 
 @admin.register(models.Calendar, site=admin_site)
@@ -405,3 +413,5 @@ class EventTagAdmin(admin.ModelAdmin):
 class EventSubtypeAdmin(admin.ModelAdmin):
     list_display = ("label", "description", "type")
     list_filter = ("type",)
+
+    search_fields = ("label", "description")

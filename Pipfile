@@ -92,6 +92,7 @@ ovh = "*"
 # parsing and formats
 ics = "*"  # calendar format
 iso8601 = "*"  # parse ISO8601 dates
+glom = "*"  # data wrangling
 
 
 [dev-packages]

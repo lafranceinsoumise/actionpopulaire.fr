@@ -1,7 +1,10 @@
+from crispy_forms.helper import FormHelper
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from ajax_select.fields import AutoCompleteSelectField
+
+from agir.lib.form_components import *
 
 from ...lib.forms import CoordinatesFormMixin
 from ...lib.form_fields import AdminRichEditorWidget
