@@ -3,15 +3,12 @@ import uuid
 import reversion
 from django.core import validators
 from django.db import models
-from django.urls import reverse
-from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from dynamic_filenames import FilePattern
 from model_utils.models import TimeStampedModel
 from reversion.models import Revision, Version
 
 from agir.donations.model_fields import AmountField
-from agir.lib.display import display_price
 
 
 class Operation(models.Model):
@@ -59,6 +56,7 @@ class SpendingRequest(TimeStampedModel):
     STATUS_AWAITING_REVIEW = "R"
     STATUS_AWAITING_SUPPLEMENTARY_INFORMATION = "I"
     STATUS_VALIDATED = "V"
+    STATUS_TO_PAY = "T"
     STATUS_PAID = "P"
     STATUS_CHOICES = (
         (STATUS_DRAFT, _("Brouillon à compléter")),
@@ -71,7 +69,8 @@ class SpendingRequest(TimeStampedModel):
             STATUS_AWAITING_SUPPLEMENTARY_INFORMATION,
             _("Informations supplémentaires requises"),
         ),
-        (STATUS_VALIDATED, _("Validée, en attente du paiement")),
+        (STATUS_VALIDATED, _("Validée, en attente des fonds")),
+        (STATUS_TO_PAY, _("Décomptée de l'allocation du groupe, à payer")),
         (STATUS_PAID, _("Payée")),
     )
 
@@ -102,6 +101,10 @@ class SpendingRequest(TimeStampedModel):
     title = models.CharField(_("Titre"), max_length=200)
     status = models.CharField(
         _("Statut"), max_length=1, default=STATUS_DRAFT, choices=STATUS_CHOICES
+    )
+
+    operation = models.ForeignKey(
+        Operation, on_delete=models.PROTECT, related_name="spending_request", null=True
     )
 
     group = models.ForeignKey(
@@ -150,7 +153,7 @@ class SpendingRequest(TimeStampedModel):
         null=False,
         blank=False,
         help_text=_(
-            "Pour que cette demande soit revue et acceptée, la somme allouée à votre groupe doit être suffisante."
+            "Pour que cette demande soit payée, la somme allouée à votre groupe doit être suffisante."
         ),
     )
 
@@ -205,6 +208,8 @@ class Document(models.Model):
         on_delete=models.CASCADE,
         related_name="documents",
         related_query_name="document",
+        null=False,
+        blank=False,
     )
 
     type = models.CharField(
