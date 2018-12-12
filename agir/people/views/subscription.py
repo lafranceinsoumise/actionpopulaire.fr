@@ -1,12 +1,14 @@
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy, reverse
+from django.utils.translation import ugettext_lazy as _
 from django.views import View
 from django.views.generic import FormView, TemplateView
-from django.utils.translation import ugettext_lazy as _
 
+from agir.authentication.subscription import subscription_confirmation_token_generator
 from agir.authentication.utils import soft_login
 from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.people.forms import (
@@ -15,13 +17,8 @@ from agir.people.forms import (
     OverseasSubscriptionForm,
 )
 from agir.people.models import Person
-from agir.authentication.subscription import subscription_confirmation_token_generator
 from agir.people.tasks import send_welcome_mail
-from agir.people.token_buckets import (
-    SubscribeIPBucket,
-    SubscribeEmailBucket,
-    is_rate_limited_for_subscription,
-)
+from agir.people.token_buckets import is_rate_limited_for_subscription
 
 
 class UnsubscribeView(SimpleOpengraphMixin, FormView):
@@ -132,12 +129,13 @@ class ConfirmSubscriptionView(View):
 
     def perform_create(self, params):
         try:
+            self.person = Person.objects.create_person(**params)
+        except IntegrityError:
             self.person = Person.objects.get_by_natural_key(params["email"])
             messages.add_message(
                 self.request, messages.INFO, self.error_messages["already_created"]
             )
-        except Person.DoesNotExist:
-            self.person = Person.objects.create_person(**params)
+        else:
             send_welcome_mail.delay(self.person.pk)
 
         soft_login(self.request, self.person)
