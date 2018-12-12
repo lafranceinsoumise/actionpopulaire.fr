@@ -12,7 +12,7 @@ db.sqlite3
 .coverage
 
 # media directory in development
-/src/media
+/media
 
 /node_modules/
 
