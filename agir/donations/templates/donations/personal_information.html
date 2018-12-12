@@ -17,9 +17,10 @@
 
   <div class="row">
     <div class="col-md-6">
-      <div class="alert alert-success">Je souhaite donner <strong>{{ amount | display_price }}</strong>
-        {% if group_name %} dont <strong>{{ national | display_price }}</strong> aux activités et campagnes nationales
-          et <strong>{{ allocation | display_price }}</strong> au groupe d'action
+      <div class="alert alert-success">Je souhaite donner <strong>{{ amount | display_price }}</strong> à la France
+        insoumise.
+        {% if group_name %}<strong>{{ national | display_price }}</strong> seront alloués aux activités et campagnes
+          nationales et <strong>{{ allocation | display_price }}</strong> au financement des actvités du groupe d'action
           &laquo;&nbsp;<em>{{ group_name }}</em>&nbsp;&raquo;.{% endif %}</div>
 
       {% crispy form %}
@@ -55,18 +56,18 @@
     </div>
   </div>
   <script>
-    var fiscalResident = document.getElementById('id_fiscal_resident');
-    var nationality = document.getElementById('id_nationality');
+    var fiscalResident = document.getElementById('id_fiscal_resident')
+    var nationality = document.getElementById('id_nationality')
 
-    function updateFiscalResident() {
-      var currentNationality = nationality.value;
-      var display = currentNationality !== '' && currentNationality !== 'FR';
-      fiscalResident.parentNode.style.display = display ? 'block' : 'none';
-      fiscalResident.disabled = !display;
-      fiscalResident.required = display;
+    function updateFiscalResident () {
+      var currentNationality = nationality.value
+      var display = currentNationality !== '' && currentNationality !== 'FR'
+      fiscalResident.parentNode.style.display = display ? 'block' : 'none'
+      fiscalResident.disabled = !display
+      fiscalResident.required = display
     }
 
-    nationality.addEventListener('change', updateFiscalResident);
-    updateFiscalResident();
+    nationality.addEventListener('change', updateFiscalResident)
+    updateFiscalResident()
   </script>
 {% endblock %}
