@@ -78,6 +78,4 @@ def merge_persons(p1, p2):
         p2.poll_choices.exclude(poll_id__in=p1_votes).update(person=p1)
 
         # then we need to delete the second person and its role, before removing it from mailtrain
-        r2 = p2.role
         p2.delete()
-        r2.delete()
