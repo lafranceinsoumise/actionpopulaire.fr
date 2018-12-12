@@ -18,7 +18,11 @@ from agir.payments.payment_modes import PaymentModeField
 
 from ..people.models import Person, PersonFormSubmission
 from .models import Event, OrganizerConfig, RSVP, EventImage, EventSubtype
-from .tasks import send_event_creation_notification, send_event_changed_notification
+from .tasks import (
+    send_event_creation_notification,
+    send_event_changed_notification,
+    send_external_rsvp_confirmation,
+)
 from ..lib.tasks import geocode_event
 from ..lib.form_fields import AcceptCreativeCommonsLicenceField
 
@@ -482,3 +486,6 @@ class BaseRSVPForm(BasePersonForm):
 
 class ExternalRSVPForm(forms.Form):
     email = forms.EmailField()
+
+    def send_confirmation_email(self, event):
+        send_external_rsvp_confirmation.delay(event.pk, **self.cleaned_data)
