@@ -18,7 +18,7 @@ class Command(BaseCommand):
         max_letter = string.hexdigits[(timezone.now().day + 1) % 8 * 2]
 
         for person in Person.objects.filter(
-            id__gt=min_letter, id_lt=max_letter
+            id__gt=min_letter, id__lt=max_letter
         ).iterator():
             update_person(person)
             if kwargs["verbosity"] > 1:
@@ -28,4 +28,6 @@ class Command(BaseCommand):
 
         duration = datetime.now() - start
 
-        print("Updated %d persons in %d seconds." % (i, duration.seconds))
+        print(
+            f"Updated people from {min_letter} to {max_letter} ({str(i)}) in {str(duration.seconds)} seconds."
+        )
