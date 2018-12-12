@@ -54,7 +54,7 @@ def pretty_time_since(d, now=None):
     delta_seconds = delta.days * 24 * 3600 + delta.seconds
 
     if delta.days > 365 and d.year != now.year and d.month != now.month:
-        return _("en {:d}").format(d.year)
+        return _("en {:d} ou avant").format(d.year)
     elif delta.days > 30 and (d.month != now.month):
         return _("en {} dernier").format(date_format(d, "F"))
     elif delta.days > 14:
