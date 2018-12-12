@@ -136,6 +136,7 @@ def get_formatted_submissions(submissions, include_admin_fields=True, html=True)
         {
             id: _get_formatted_value(field_dict[id], value, html)
             for id, value in d.items()
+            if id in field_dict
         }
         for d in full_data
     ]
