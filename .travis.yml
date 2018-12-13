@@ -31,4 +31,5 @@ install:
 
 script:
   - black --check .
+  - node_modules/.bin/eslint agir
   - python manage.py test -v 2

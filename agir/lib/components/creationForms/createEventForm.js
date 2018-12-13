@@ -1,4 +1,4 @@
-import axios from "lib/axios";
+import axios from "lib/utils/axios";
 import React from "react";
 import PropTypes from "prop-types";
 import "react-stepzilla/src/css/main.css";
@@ -205,7 +205,7 @@ class EventTypeStep extends FormStep {
 
     return (
       <div className="col-sm-6 padbottom">
-        <div class="alert alert-danger">
+        <div className="alert alert-danger">
           Attention&nbsp;! Nous sommes désormais officiellement en campagne
           électorale. Cela signifie que vous ne pouvez engager de frais sans la
           validation du mandataire financier de la campagne.
