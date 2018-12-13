@@ -1,26 +1,32 @@
-import Feature from 'ol/Feature';
-import * as proj from 'ol/proj';
-import VectorSource from 'ol/source/Vector';
-import Point from 'ol/geom/Point';
-import VectorLayer from 'ol/layer/Vector';
+/* eslint-env browser */
 
-import {fontIsLoaded} from './utils';
-import {makeStyle, setUpMap} from './common';
+import Feature from "ol/Feature";
+import * as proj from "ol/proj";
+import VectorSource from "ol/source/Vector";
+import Point from "ol/geom/Point";
+import VectorLayer from "ol/layer/Vector";
 
-export default async function itemMap(htmlElementId, coordinates, iconConfiguration) {
+import { fontIsLoaded } from "./utils";
+import { makeStyle, setUpMap } from "./common";
+
+export default async function itemMap(
+  htmlElementId,
+  coordinates,
+  iconConfiguration
+) {
   const style = makeStyle(iconConfiguration);
   const feature = new Feature({
     geometry: new Point(proj.fromLonLat(coordinates))
   });
   feature.setStyle(style);
   const layer = new VectorLayer({
-    source: new VectorSource({features: [feature]})
+    source: new VectorSource({ features: [feature] })
   });
 
   try {
-    await fontIsLoaded('FontAwesome');
+    await fontIsLoaded("FontAwesome");
   } catch (e) {
-    console.log('Error loading fonts.');
+    console.log("Error loading fonts."); // eslint-disable-line no-console
   }
 
   const map = setUpMap(htmlElementId, [layer]);

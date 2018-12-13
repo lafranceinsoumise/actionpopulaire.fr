@@ -1,14 +1,14 @@
-import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import {Transition} from 'react-transition-group';
+import React from "react";
+import classNames from "classnames";
+import PropTypes from "prop-types";
+import { Transition } from "react-transition-group";
 
 export default class Modal extends React.Component {
   render() {
-    const {show, onHide, title, children, size} = this.props;
+    const { show, onHide, title, children, size } = this.props;
 
     let ignoringNext = false;
-    const ignoreNext = () => ignoringNext = true;
+    const ignoreNext = () => (ignoringNext = true);
     const modalClicked = () => {
       if (ignoringNext) {
         ignoringNext = false;
@@ -17,37 +17,56 @@ export default class Modal extends React.Component {
       onHide();
     };
 
-    return <Transition in={show} timeout={300} enter={false}>
-      {state =>
-        <div>
-          <div
-            className={classNames('modal', 'fade', {in: state === 'entered'})}
-            style={{display: ['entered', 'exiting'].includes(state) ? 'block' : 'none'}}
-            onClick={modalClicked}
-          >
+    return (
+      <Transition in={show} timeout={300} enter={false}>
+        {state => (
+          <div>
             <div
-              className={classNames('modal-dialog', size && `modal-${size}`)} role="document" onMouseDown={ignoreNext}
+              className={classNames("modal", "fade", {
+                in: state === "entered"
+              })}
+              style={{
+                display: ["entered", "exiting"].includes(state)
+                  ? "block"
+                  : "none"
+              }}
+              onClick={modalClicked}
             >
-              <div className="modal-content">
-                <div className="modal-header">
-                  <button
-                    type="button" className="close" aria-label="Fermer"
-                    onClick={onHide}
-                  >
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                  <h4 className="modal-title">{title}</h4>
+              <div
+                className={classNames("modal-dialog", size && `modal-${size}`)}
+                role="document"
+                onMouseDown={ignoreNext}
+              >
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <button
+                      type="button"
+                      className="close"
+                      aria-label="Fermer"
+                      onClick={onHide}
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 className="modal-title">{title}</h4>
+                  </div>
+                  {children}
                 </div>
-                {children}
               </div>
             </div>
+            {["entered", "exiting"].includes(state) && (
+              <div
+                className={classNames(
+                  "modal-backdrop",
+                  "fade",
+                  state === "entered" && "in"
+                )}
+                onClick={onHide}
+              />
+            )}
           </div>
-          {['entered', 'exiting'].includes(state) &&
-            <div className={classNames('modal-backdrop', 'fade', state === 'entered' && 'in')} onClick={onHide}/>
-          }
-        </div>
-      }
-    </Transition>;
+        )}
+      </Transition>
+    );
   }
 }
 
@@ -56,22 +75,17 @@ Modal.propTypes = {
   title: PropTypes.string.isRequired,
   show: PropTypes.bool.isRequired,
   onHide: PropTypes.func,
-  size: PropTypes.string,
+  size: PropTypes.string
 };
 
 Modal.defaultProps = {
-  onHide: () => {
-  }
+  onHide: () => {}
 };
 
-Modal.Body = ({children}) => <div className="modal-body">
-  {children}
-</div>;
-Modal.Body.displayName = 'Modal.Body';
-Modal.Body.propTypes = {children: PropTypes.node};
+Modal.Body = ({ children }) => <div className="modal-body">{children}</div>;
+Modal.Body.displayName = "Modal.Body";
+Modal.Body.propTypes = { children: PropTypes.node };
 
-Modal.Footer = ({children}) => <div className="modal-footer">
-  {children}
-</div>;
-Modal.Footer.displayName = 'Modal.Footer'
-Modal.Footer.propTypes = {children: PropTypes.node};
+Modal.Footer = ({ children }) => <div className="modal-footer">{children}</div>;
+Modal.Footer.displayName = "Modal.Footer";
+Modal.Footer.propTypes = { children: PropTypes.node };

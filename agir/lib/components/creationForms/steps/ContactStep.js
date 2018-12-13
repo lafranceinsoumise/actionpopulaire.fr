@@ -1,5 +1,5 @@
 import React from "react";
-import { PhoneNumberUtil, PhoneNumberFormat } from "google-libphonenumber";
+import { PhoneNumberUtil } from "google-libphonenumber";
 import Cleave from "cleave.js/react";
 import "cleave.js/dist/addons/cleave-phone.fr";
 

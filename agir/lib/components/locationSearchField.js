@@ -93,7 +93,7 @@ module.exports = function(input) {
 
         submitButton.disabled = false;
       },
-      function(error) {
+      function(_error) {
         resultList.appendChild(
           createLinkElement(
             "Erreur de connexion au serveur de géolocalisation... Réessayez plus tard."

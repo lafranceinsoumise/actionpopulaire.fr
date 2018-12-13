@@ -58,7 +58,8 @@ class NavSelect extends React.Component {
 NavSelect.propTypes = {
   choices: PropTypes.array,
   value: PropTypes.array,
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+  max: PropTypes.number
 };
 
 export default NavSelect;

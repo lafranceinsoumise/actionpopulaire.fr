@@ -1,17 +1,17 @@
-import Map from 'ol/Map';
-import View from 'ol/View';
-import TileLayer from 'ol/layer/Tile';
-import OSM from 'ol/source/OSM';
-import Style from 'ol/style/Style';
-import Text from 'ol/style/Text';
-import Circle from 'ol/style/Circle';
-import Fill from 'ol/style/Fill';
-import Icon from 'ol/style/Icon';
-import Overlay from 'ol/Overlay';
+import Map from "ol/Map";
+import View from "ol/View";
+import TileLayer from "ol/layer/Tile";
+import OSM from "ol/source/OSM";
+import Style from "ol/style/Style";
+import Text from "ol/style/Text";
+import Circle from "ol/style/Circle";
+import Fill from "ol/style/Fill";
+import Icon from "ol/style/Icon";
+import Overlay from "ol/Overlay";
 import * as proj from "ol/proj";
-import fontawesome from 'fontawesome';
+import fontawesome from "fontawesome";
 
-import {element} from './utils';
+import { element } from "./utils";
 
 const ARROW_SIZE = 20;
 
@@ -33,47 +33,47 @@ export function setUpMap(elementId, layers) {
 }
 
 export function fitBounds(map, bounds) {
-  map.getView().fit(
-    proj.transformExtent(bounds, 'EPSG:4326', 'EPSG:3857'), map.getSize()
-  );
+  map
+    .getView()
+    .fit(proj.transformExtent(bounds, "EPSG:4326", "EPSG:3857"), map.getSize());
 }
 
 export function setUpPopup(map) {
-  const popupElement = element('div', [], {
-    'className': 'map_popup'
+  const popupElement = element("div", [], {
+    className: "map_popup"
   });
-  popupElement.addEventListener('mousedown', function (evt) {
+  popupElement.addEventListener("mousedown", function(evt) {
     evt.stopPropagation();
   });
 
   const popup = new Overlay({
     element: popupElement,
-    positioning: 'bottom-center',
+    positioning: "bottom-center",
     offset: [0, -ARROW_SIZE],
-    stopEvent: false,
+    stopEvent: false
   });
 
   map.addOverlay(popup);
 
-  map.on('singleclick', function (evt) {
+  map.on("singleclick", function(evt) {
     popup.setPosition();
-    map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+    map.forEachFeatureAtPixel(evt.pixel, function(feature) {
       const coords = feature.getGeometry().getCoordinates();
-      popup.getElement().innerHTML = feature.get('popupContent');
-      popup.setOffset([0, feature.get('popupAnchor')]);
+      popup.getElement().innerHTML = feature.get("popupContent");
+      popup.setOffset([0, feature.get("popupAnchor")]);
       popup.setPosition(coords);
       return true;
     });
   });
 
-  map.on('pointermove', function (evt) {
-    const hit = this.forEachFeatureAtPixel(evt.pixel, function () {
+  map.on("pointermove", function(evt) {
+    const hit = this.forEachFeatureAtPixel(evt.pixel, function() {
       return true;
     });
     if (hit) {
-      this.getTargetElement().style.cursor = 'pointer';
+      this.getTargetElement().style.cursor = "pointer";
     } else {
-      this.getTargetElement().style.cursor = '';
+      this.getTargetElement().style.cursor = "";
     }
   });
 }
@@ -85,27 +85,26 @@ export function makeStyle(style) {
         image: new Circle({
           radius: 12,
           fill: new Fill({
-            color: 'white'
+            color: "white"
           })
         })
       }),
       new Style({
         text: new Text({
           text: fontawesome(style.iconName),
-          font: 'normal 18px FontAwesome',
+          font: "normal 18px FontAwesome",
           fill: new Fill({
             color: style.color
           })
         })
       })
     ];
-  }
-  else if (style.iconUrl && style.iconAnchor) {
+  } else if (style.iconUrl && style.iconAnchor) {
     return new Style({
       image: new Icon({
         anchor: style.iconAnchor,
-        anchorXUnits: 'pixels',
-        anchorYUnits: 'pixels',
+        anchorXUnits: "pixels",
+        anchorYUnits: "pixels",
         opacity: 1,
         src: style.iconUrl
       })
