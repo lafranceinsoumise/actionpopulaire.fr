@@ -1,11 +1,11 @@
 import reversion
-from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils.translation import ugettext as _
+from django.views import View
 from django.views.generic import (
     FormView,
     UpdateView,
@@ -13,6 +13,7 @@ from django.views.generic import (
     DetailView,
     CreateView,
 )
+from django.views.generic.detail import SingleObjectMixin
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.donations.actions import (
@@ -263,7 +264,7 @@ class ManageSpendingRequestView(IsGroupManagerMixin, DetailView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(
             supportgroup=self.object.group,
-            documents=self.object.documents.all(),
+            documents=self.object.documents.filter(deleted=False),
             can_send_for_review=can_send_for_review(self.object, self.request.user),
             summary=summary(self.object),
             history=history(self.object),
@@ -339,6 +340,7 @@ class CreateDocument(IsGroupManagerMixin, CreateView):
 
 class EditDocument(IsGroupManagerMixin, UpdateView):
     model = Document
+    queryset = Document.objects.filter(deleted=False)
     form_class = DocumentForm
     spending_request_pk_field = "spending_request_id"
     template_name = "donations/edit_document.html"
@@ -370,3 +372,29 @@ class EditDocument(IsGroupManagerMixin, UpdateView):
             self.object = form.save()
 
         return HttpResponseRedirect(self.get_success_url())
+
+
+class DeleteDocument(IsGroupManagerMixin, SingleObjectMixin, View):
+    model = Document
+    spending_request_pk_field = "spending_request_id"
+
+    def post(self, request, *args, **kwargs):
+        self.spending_request = get_object_or_404(
+            SpendingRequest,
+            pk=self.kwargs[self.spending_request_pk_field],
+            document__pk=self.kwargs["pk"],
+        )
+        self.object = self.get_object()
+
+        with reversion.create_revision():
+            reversion.set_user(request.user)
+            self.object.deleted = True
+            self.object.save()
+
+        messages.add_message(
+            request, messages.SUCCESS, _("Ce document a bien été supprimé.")
+        )
+
+        return HttpResponseRedirect(
+            reverse("manage_spending_request", args=(self.spending_request.pk,))
+        )

@@ -1,4 +1,5 @@
-{% extends 'front/layout.html' %}{% load static %}
+{% extends 'front/layout.html' %}{% load static %}{% load render_bundle from webpack_loader %}
+
 
 {% block title %}
   Gérer l'avancement de votre demande de dépense
@@ -41,13 +42,19 @@
               <tr>
                 <td><a href="{{ document.file.url }}">{{ document.title }} <span class="fa fa-download"></span></a></td>
                 <td>{{ document.get_type_display }}</td>
-                <td><a href="{% url "edit_document" spendingrequest.pk document.pk %}" class="btn btn-default"><span class="fa fa-edit"
-                                                                                             title="Modifier {{ document.title }}"></span></a>
+                <td>
+                    <a href="{% url "edit_document" spendingrequest.pk document.pk %}" class="btn btn-default">
+                        <span class="fa fa-edit" title="Modifier {{ document.title }}"></span>
+                    </a>
+                    <div style="display: inline-block" class="delete-document"
+                         data-document-name="{{ document.title }}"
+                         data-delete-url="{% url "delete_document" spendingrequest.pk document.pk %}"></div>
                 </td>
               </tr>
             {% endfor %}
             </tbody>
           </table>
+            {% render_bundle "donations/spendingRequestLib" %}
         {% else %}
           <p>Vous n'avez pas encore joint de pièce justificative à votre demande. Vous devez joindre au moins une
             facture, ainsi que l'ensemble des pièces nécessaires pour évaluer votre demane.</p>
