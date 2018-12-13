@@ -14,6 +14,7 @@ from django.http import (
     HttpResponseBadRequest,
     JsonResponse,
     HttpResponse,
+    HttpResponseForbidden,
 )
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html, mark_safe
@@ -25,13 +26,14 @@ from django.views.generic import (
     DetailView,
     TemplateView,
 )
-from django.views.generic.edit import ProcessFormView, FormMixin
+from django.views.generic.edit import ProcessFormView, FormMixin, FormView
 
 from agir.donations.models import SpendingRequest
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.groups.tasks import send_someone_joined_notification
 from agir.groups.actions.promo_codes import get_next_promo_code
 from agir.lib.utils import front_url
+from agir.people.views import ConfirmSubscriptionView
 
 from .forms import (
     SupportGroupForm,
@@ -39,6 +41,7 @@ from .forms import (
     AddManagerForm,
     GroupGeocodingForm,
     SearchGroupForm,
+    ExternalJoinForm,
 )
 from agir.front.view_mixins import (
     ObjectOpengraphMixin,
@@ -130,6 +133,9 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
     @method_decorator(login_required(login_url=reverse_lazy("short_code_login")))
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
+
+        if not request.user.person.is_insoumise and not self.object.allow_external:
+            return HttpResponseForbidden()
 
         if request.POST["action"] == "join":
             try:
@@ -469,6 +475,52 @@ class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
             )
 
         return HttpResponseRedirect(success_url)
+
+
+class ExternalJoinSupportGroupView(ConfirmSubscriptionView, FormView, DetailView):
+    queryset = SupportGroup.objects.filter(subtypes__allow_external=True)
+    form_class = ExternalJoinForm
+    show_already_created_message = False
+    create_insoumise = False
+
+    def dispatch(self, request, *args, **kwargs):
+        self.group = self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+
+    def success_page(self):
+        if Membership.objects.filter(
+            person=self.person, supportgroup=self.group
+        ).exists():
+            messages.add_message(
+                request=self.request,
+                level=messages.INFO,
+                message=_("Vous êtes déjà membre."),
+            )
+            return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
+
+        Membership.objects.get_or_create(person=self.person, supportgroup=self.group)
+        messages.add_message(
+            request=self.request,
+            level=messages.INFO,
+            message=_("Vous avez bien rejoint le groupe."),
+        )
+
+        return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
+
+    def form_valid(self, form):
+        form.send_confirmation_email(self.group)
+        messages.add_message(
+            request=self.request,
+            level=messages.INFO,
+            message=_(
+                "Un email vous a été envoyé. Merrci de cliquer sur le "
+                "lien qu'il contient pour confirmer."
+            ),
+        )
+        return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
+
+    def form_invalid(self, form):
+        return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
 
 
 class ThematicBookletViews(ListView):
