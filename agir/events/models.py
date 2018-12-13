@@ -25,7 +25,7 @@ from ..lib.models import (
     ImageMixin,
     DescriptionMixin,
     DescriptionField,
-    AbstractMapObjectLabel,
+    BaseSubtype,
 )
 from ..lib.form_fields import DateTimePickerWidget
 
@@ -370,7 +370,7 @@ class Event(
         return price
 
 
-class EventSubtype(AbstractMapObjectLabel):
+class EventSubtype(BaseSubtype):
     TYPE_GROUP_MEETING = "G"
     TYPE_PUBLIC_MEETING = "M"
     TYPE_PUBLIC_ACTION = "A"
@@ -384,12 +384,6 @@ class EventSubtype(AbstractMapObjectLabel):
     )
 
     type = models.CharField(_("Type d'événement"), max_length=1, choices=TYPE_CHOICES)
-    allow_external = models.BooleanField(
-        _("Les non-insoumis⋅es peuvent rejoindre"), default=False
-    )
-    external_help_text = models.TextField(
-        _("Phrase d'explication pour rejoindre le groupe"), blank=True
-    )
 
     class Meta:
         verbose_name = _("Sous-type d'événement")

@@ -12,7 +12,7 @@ from agir.lib.models import (
     LocationMixin,
     ImageMixin,
     DescriptionMixin,
-    AbstractMapObjectLabel,
+    BaseSubtype,
 )
 
 
@@ -91,6 +91,15 @@ class SupportGroup(
     def is_certified(self):
         return self.subtypes.filter(label=settings.CERTIFIED_GROUP_SUBTYPE).exists()
 
+    @property
+    def allow_external(self):
+        return self.subtypes.filter(allow_external=True).exists()
+
+    @property
+    def external_help_text(self):
+        subtype = self.subtypes.filter(allow_external=True).first()
+        return subtype.external_help_text or ""
+
     class Meta:
         verbose_name = _("groupe d'action")
         verbose_name_plural = _("groupes d'action")
@@ -109,7 +118,7 @@ class SupportGroupTag(AbstractLabel):
         verbose_name = _("tag")
 
 
-class SupportGroupSubtype(AbstractMapObjectLabel):
+class SupportGroupSubtype(BaseSubtype):
     type = models.CharField(
         _("type de groupe"),
         max_length=1,

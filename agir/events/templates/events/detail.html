@@ -81,7 +81,7 @@
                                 {% endif %}
                             </ul>
                         </span>
-                    {% else %}
+                    {% elif user.person.is_insoumise or event.subtype.allow_external %}
                         {% if event.max_participants and event.participants >= event.max_participants %}
                             <span class="btn btn-primary">Évènement complet</span>
                         {% else %}
@@ -93,6 +93,8 @@
                             </form>
                             <p class="help-block"><small>Votre adresse email sera communiquée à l'organisateur⋅rice.</small></p>
                         {% endif %}
+                    {% else %}
+                        <span class="btn btn-primary">Évènement réservé aux insoumis⋅es</span>
                     {% endif %}
                 {% endif %}
             {% elif event.subtype.allow_external %}

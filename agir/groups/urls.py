@@ -57,6 +57,11 @@ urlpatterns = [
         name="change_group_location",
     ),
     path(
+        "groupes/<uuid:pk>/rejoindre/",
+        views.ExternalJoinSupportGroupView.as_view(),
+        name="external_join_group",
+    ),
+    path(
         "groupes/retirer_gestionnaire/<int:pk>/",
         views.RemoveManagerView.as_view(),
         name="remove_manager",

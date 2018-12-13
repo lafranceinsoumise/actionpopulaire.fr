@@ -7,11 +7,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.geos import Point
 from django.shortcuts import reverse as dj_reverse
 from django.core import mail
+from django.utils.http import urlencode
 
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
 
+from agir.authentication.subscription import subscription_confirmation_token_generator
 from agir.groups.tasks import send_someone_joined_notification
 from agir.lib.tests.mixins import FakeDataMixin
 from . import tasks
@@ -846,3 +848,91 @@ class GroupPageTestCase(TestCase):
         response = self.client.get(reverse("view_group", args=[self.referent_group.pk]))
 
         self.assertContains(response, "événement test pour groupe")
+
+    def test_cannot_join_group_if_external(self):
+        self.other_person.is_insoumise = False
+        self.other_person.save()
+        self.client.force_login(self.other_person.role)
+
+        # cannot see button
+        url = reverse("view_group", kwargs={"pk": self.manager_group.pk})
+        response = self.client.get(url)
+        self.assertNotIn("Rejoindre ce groupe", response.content.decode())
+        self.assertIn("Groupe réservé aux insoumis⋅es", response.content.decode())
+
+        # cannot join
+        self.client.post(url, data={"action": "join"}, follow=True)
+        self.assertNotIn(self.other_person, self.manager_group.members.all())
+
+
+class ExternalJoinSupportGroupTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person("test@test.com", is_insoumise=False)
+        self.subtype = SupportGroupSubtype.objects.create(
+            type=SupportGroup.TYPE_LOCAL_GROUP, allow_external=True
+        )
+        self.group = SupportGroup.objects.create(name="Simple Event")
+        self.group.subtypes.add(self.subtype)
+
+    def test_cannot_external_join_if_does_not_allow_external(self):
+        self.subtype.allow_external = False
+        self.subtype.save()
+        subscription_token = subscription_confirmation_token_generator.make_token(
+            email="test1@test.com"
+        )
+        query_args = {"email": "test1@test.com", "token": subscription_token}
+        self.client.get(
+            reverse("external_join_group", args=[self.group.pk])
+            + "?"
+            + urlencode(query_args)
+        )
+
+        with self.assertRaises(Person.DoesNotExist):
+            Person.objects.get(email="test1@test.com")
+
+    def test_can_join(self):
+        res = self.client.get(reverse("view_group", args=[self.group.pk]))
+        self.assertNotContains(res, "Se connecter pour")
+        self.assertContains(res, "Rejoindre ce groupe")
+
+        self.client.post(
+            reverse("external_join_group", args=[self.group.pk]),
+            data={"email": self.person.email},
+        )
+        self.assertEqual(self.person.rsvps.all().count(), 0)
+
+        subscription_token = subscription_confirmation_token_generator.make_token(
+            email=self.person.email
+        )
+        query_args = {"email": self.person.email, "token": subscription_token}
+        self.client.get(
+            reverse("external_join_group", args=[self.group.pk])
+            + "?"
+            + urlencode(query_args)
+        )
+
+        self.assertEqual(self.person.supportgroups.first(), self.group)
+
+    def test_can_rsvp_without_account(self):
+        self.client.post(
+            reverse("external_join_group", args=[self.group.pk]),
+            data={"email": "test1@test.com"},
+        )
+
+        with self.assertRaises(Person.DoesNotExist):
+            Person.objects.get(email="test1@test.com")
+
+        subscription_token = subscription_confirmation_token_generator.make_token(
+            email="test1@test.com"
+        )
+        query_args = {"email": "test1@test.com", "token": subscription_token}
+        self.client.get(
+            reverse("external_join_group", args=[self.group.pk])
+            + "?"
+            + urlencode(query_args)
+        )
+
+        self.assertEqual(
+            Person.objects.get(email="test1@test.com").supportgroups.first(), self.group
+        )
+        self.assertEqual(Person.objects.get(email="test1@test.com").is_insoumise, False)

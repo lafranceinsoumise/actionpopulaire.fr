@@ -4,8 +4,10 @@ from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
 from django.template.loader import render_to_string
+from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
+from agir.authentication.subscription import subscription_confirmation_token_generator
 from agir.lib.utils import front_url
 from agir.people.actions.mailing import send_mosaico_email
 from .models import SupportGroup, Membership
@@ -131,5 +133,32 @@ def send_someone_joined_notification(membership_pk):
         subject=_("Un nouveau membre dans votre groupe d'action"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
+        bindings=bindings,
+    )
+
+
+@shared_task
+def send_external_join_confirmation(group_pk, email, **kwargs):
+    try:
+        group = SupportGroup.objects.get(pk=group_pk)
+    except SupportGroup.DoesNotExist:
+        return
+
+    subscription_token = subscription_confirmation_token_generator.make_token(
+        email=email, **kwargs
+    )
+    confirm_subscription_url = front_url(
+        "external_join_group", args=[group_pk], auto_login=False
+    )
+    query_args = {"email": email, **kwargs, "token": subscription_token}
+    confirm_subscription_url += "?" + urlencode(query_args)
+
+    bindings = {"GROUP_NAME": group.name, "JOIN_LINK": confirm_subscription_url}
+
+    send_mosaico_email(
+        code="GROUP_EXTERNAL_JOIN_OPTIN",
+        subject=_(f"Confirmez que vous souhaitez rejoindre « {group.name} »"),
+        from_email=settings.EMAIL_FROM,
+        recipients=[email],
         bindings=bindings,
     )

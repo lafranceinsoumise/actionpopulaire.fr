@@ -9,7 +9,7 @@ from django.views import View
 from django.views.generic import FormView, TemplateView
 
 from agir.authentication.subscription import subscription_confirmation_token_generator
-from agir.authentication.utils import soft_login
+from agir.authentication.utils import hard_login
 from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.people.forms import (
     AnonymousUnsubscribeForm,
@@ -103,6 +103,8 @@ class ConfirmSubscriptionView(View):
         "location_city",
         "location_country",
     ]
+    show_already_created_message = True
+    create_insoumise = True
 
     def get(self, request, *args, **kwargs):
         params = request.GET.dict()
@@ -122,23 +124,30 @@ class ConfirmSubscriptionView(View):
         return self.success_page()
 
     def error_page(self, message):
-        return self.render(self.error_template, {"message": message})
+        return self.render(
+            self.error_template,
+            {"message": message, "show_retry": self.create_insoumise},
+        )
 
     def success_page(self):
         return self.render(self.success_template)
 
     def perform_create(self, params):
         try:
-            self.person = Person.objects.create_person(**params)
+            self.person = Person.objects.create_person(
+                is_insoumise=self.create_insoumise, **params
+            )
         except IntegrityError:
             self.person = Person.objects.get_by_natural_key(params["email"])
-            messages.add_message(
-                self.request, messages.INFO, self.error_messages["already_created"]
-            )
+            if self.show_already_created_message:
+                messages.add_message(
+                    self.request, messages.INFO, self.error_messages["already_created"]
+                )
         else:
-            send_welcome_mail.delay(self.person.pk)
+            if self.create_insoumise:
+                send_welcome_mail.delay(self.person.pk)
 
-        soft_login(self.request, self.person)
+        hard_login(self.request, self.person)
 
     def render(self, template, context=None, **kwargs):
         if context is None:
