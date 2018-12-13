@@ -1,11 +1,11 @@
-import axios from "../lib/axios";
+import axios from "../utils/axios";
 import React from "react";
 import "react-stepzilla/src/css/main.css";
 import { Transition } from "react-transition-group";
 import qs from "querystring";
 import { hot } from "react-hot-loader";
 
-import NavSelect from "../lib/navSelect";
+import NavSelect from "../utils/navSelect";
 
 import MultiStepForm from "./MultiStepForm";
 import FormStep from "./steps/FormStep";

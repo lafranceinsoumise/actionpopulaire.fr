@@ -1,14 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 class NavSelect extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {choices: [], error: false};
+    this.state = { choices: [], error: false };
   }
 
   setChoice(choice) {
-    return (e) => {
+    return e => {
       e.preventDefault();
       let previousChoices = this.props.value;
       let newChoices;
@@ -27,17 +27,26 @@ class NavSelect extends React.Component {
   }
 
   render() {
-    const {choices, value} = this.props;
+    const { choices, value } = this.props;
 
     return (
       <div>
         <ul className="nav nav-pills">
           {choices.map(choice => (
-            <li key={choice.value} className={value.includes(choice.value) ? 'active' : ''}>
+            <li
+              key={choice.value}
+              className={value.includes(choice.value) ? "active" : ""}
+            >
               <a href="#" onClick={this.setChoice(choice.value)}>
                 <i
-                  className={'fa ' + (value.includes(choice.value) ? 'fa-check-circle' : 'fa-circle-o')}
-                />&nbsp;{choice.label}
+                  className={
+                    "fa " +
+                    (value.includes(choice.value)
+                      ? "fa-check-circle"
+                      : "fa-circle-o")
+                  }
+                />
+                &nbsp;{choice.label}
               </a>
             </li>
           ))}
@@ -49,7 +58,7 @@ class NavSelect extends React.Component {
 NavSelect.propTypes = {
   choices: PropTypes.array,
   value: PropTypes.array,
-  onChange: PropTypes.func,
+  onChange: PropTypes.func
 };
 
 export default NavSelect;
