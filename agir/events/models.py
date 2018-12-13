@@ -25,7 +25,7 @@ from ..lib.models import (
     ImageMixin,
     DescriptionMixin,
     DescriptionField,
-    AbstractMapObjectLabel,
+    BaseSubtype,
 )
 from ..lib.form_fields import DateTimePickerWidget
 
@@ -370,7 +370,7 @@ class Event(
         return price
 
 
-class EventSubtype(AbstractMapObjectLabel):
+class EventSubtype(BaseSubtype):
     TYPE_GROUP_MEETING = "G"
     TYPE_PUBLIC_MEETING = "M"
     TYPE_PUBLIC_ACTION = "A"

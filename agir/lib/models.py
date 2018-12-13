@@ -298,7 +298,7 @@ icon_path = FilePattern(
 )
 
 
-class AbstractMapObjectLabel(TimeStampedModel, AbstractLabel):
+class BaseSubtype(TimeStampedModel, AbstractLabel):
     """
     Abstract class for event and group labels which should have special appearance on map
     """

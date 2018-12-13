@@ -12,7 +12,7 @@ from agir.lib.models import (
     LocationMixin,
     ImageMixin,
     DescriptionMixin,
-    AbstractMapObjectLabel,
+    BaseSubtype,
 )
 
 
@@ -109,7 +109,7 @@ class SupportGroupTag(AbstractLabel):
         verbose_name = _("tag")
 
 
-class SupportGroupSubtype(AbstractMapObjectLabel):
+class SupportGroupSubtype(BaseSubtype):
     type = models.CharField(
         _("type de groupe"),
         max_length=1,
