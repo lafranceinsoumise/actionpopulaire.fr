@@ -1,16 +1,11 @@
-api-django
-==========
+# api-django
 
 [![Build Status](https://travis-ci.org/lafranceinsoumise/api-django.svg?branch=master)](https://travis-ci.org/lafranceinsoumise/api-django)
 
 1. [Vagrant installation](#vagrant)
-2. [Usage : public endpoints](#public-endpoints)
-    1. [/events](#events)
-    1. [/groups](#groups)
-    2. [Resources filters](#resources-filters)
-3. [Usage: frontend pages](#frontend-pages)
+2. [Useful commands](#frontend-pages)
 
-# Vagrant installation
+## Vagrant installation
 
 You can use Vagrant to create a virtual machine running the project out of the box.
 You need to have Vagrant and VirtualBox installed on your computer.
@@ -31,24 +26,46 @@ machine, and launch three more systemd services :
 * `MailHog`, a catch-all SMTP server used for development
 * `webpack`, the webpack dev server with hot reloading
 
-You can access Django from [http://agir.local:8000](http://agir.local:8000)
-and Mailhog from [http://agir.local:8025](http://agir.local:8025).
+You can access Django from [http://agir.local:8000][django-server]
+and Mailhog from [http://agir.local:8025][mailhog].
 Webpack dev server listens on port 3000.
 
-You need to run a few commands in the VM to get things running :
-```bash
-vagrant ssh
-cd /vagrant
-pipenv run src/manage.py migrate # you will need to run this each time you migrate
-pipenv run src/manage.py load_fake_data # to create base users
-```
+Initial migrations are automatically applied, and some fake data has been
+loaded up. You can connect directly connect to the [django admin][django-admin] using the
+default superuser `admin@agir.local` with password `password`.
 
-The `/vagrant` directory in the box is syncrhonized with your
+
+The `/vagrant` directory in the box is synchronized with your
 project directory on the host.
 
-Create super user
---------------------------
+## Useful commands
+
+Whenever you change the django models, you'll have to generate the migrations and apply them.
+
+Connect to the vagrant box and move to the project directory :
+```bash
+
+$ vagrant ssh
+$ cd /vagrant
+```
+
+Generate, then apply the migrations :
+```bash
+$ pipenv run ./manage.py makemigrations
+$ pipenv run ./manage.py migrate
+```
+
+We use Travis to automatically test our code. To make sure you won't have to
+recommit again, you should run the tests and the linters before pushing (again, this should
+be ran from inside the `/vagrant` folder in the vagrant box).
 
 ```bash
-pipenv run src/manage.py createsuperperson
-```
+$ black agir/
+$ node_modules/.bin/esling --fix agir/
+$ pipenv run ./manage.py test
+``` 
+
+
+[django-server]: http://agir.local:8000/
+[mailhog]: http://agir.local:8025/
+[django-admin]: http://agir.local:8000/admin/
