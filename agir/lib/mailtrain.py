@@ -70,6 +70,9 @@ def data_from_person(person, tmp_tags=None):
     )
 
     data["MERGE_REGION"] = " ".join([person.region, person.ancienne_region])
+    data["MERGE_ANNEE_DE_NAISSANCE"] = (
+        person.date_of_birth.year if person.date_of_birth else None
+    )
 
     if tmp_tags:
         data["MERGE_TAGS"] = "," + ",".join(tmp_tags) + data["MERGE_TAGS"]
