@@ -5,10 +5,12 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.test import TestCase
 from django.utils import timezone, formats
+from django.utils.http import urlencode
 
 from rest_framework.reverse import reverse
 from rest_framework import status
 
+from agir.authentication.subscription import subscription_confirmation_token_generator
 from agir.groups.models import SupportGroup, Membership
 from agir.payments.actions import complete_payment
 from agir.payments.models import Payment
@@ -897,6 +899,21 @@ class RSVPTestCase(TestCase):
         )
         self.assertContains(res, "Ce formulaire est maintenant fermé.")
 
+    def test_cannot_rsvp_if_external(self):
+        self.person.is_insoumise = False
+        self.person.save()
+        self.client.force_login(self.person.role)
+
+        url = reverse("view_event", kwargs={"pk": self.simple_event.pk})
+
+        # cannot see the form
+        response = self.client.get(url)
+        self.assertNotIn("Participer à cet événement", response.content.decode())
+
+        # cannot actually post the form
+        self.client.post(reverse("rsvp_event", kwargs={"pk": self.simple_event.pk}))
+        self.assertNotIn(self.person, self.simple_event.attendees.all())
+
     def test_cannot_rsvp_if_form_is_yet_to_open(self):
         self.client.force_login(self.person.role)
         self.form_event.subscription_form.start_time = timezone.now() + timezone.timedelta(
@@ -1063,14 +1080,31 @@ class ExternalRSVPTestCase(TestCase):
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
         self.person = Person.objects.create_person("test@test.com", is_insoumise=False)
+        self.subtype = EventSubtype.objects.create(
+            type=EventSubtype.TYPE_PUBLIC_ACTION, allow_external=True
+        )
         self.event = Event.objects.create(
             name="Simple Event",
             start_time=now + 3 * day,
             end_time=now + 3 * day + 4 * hour,
-            subtype=EventSubtype.objects.create(
-                type=EventSubtype.TYPE_PUBLIC_ACTION, allow_external=True
-            ),
+            subtype=self.subtype,
         )
+
+    def test_cannot_external_rsvp_if_does_not_allow_external(self):
+        self.subtype.allow_external = False
+        self.subtype.save()
+        subscription_token = subscription_confirmation_token_generator.make_token(
+            email="test1@test.com"
+        )
+        query_args = {"email": "test1@test.com", "token": subscription_token}
+        self.client.get(
+            reverse("external_rsvp_event", args=[self.event.pk])
+            + "?"
+            + urlencode(query_args)
+        )
+
+        with self.assertRaises(Person.DoesNotExist):
+            Person.objects.get(email="test1@test.com")
 
     def test_can_rsvp(self):
         res = self.client.get(reverse("view_event", args=[self.event.pk]))
@@ -1079,34 +1113,42 @@ class ExternalRSVPTestCase(TestCase):
 
         self.client.post(
             reverse("external_rsvp_event", args=[self.event.pk]),
-            data={"email": "test@test.com"},
+            data={"email": self.person.email},
         )
         self.assertEqual(self.person.rsvps.all().count(), 0)
-        self.client.force_login(self.person.role)
-        session = self.client.session
-        session["login_action"] = datetime.utcnow().timestamp()
-        session.save()
-        self.client.get(reverse("external_rsvp_event", args=[self.event.pk]))
+
+        subscription_token = subscription_confirmation_token_generator.make_token(
+            email=self.person.email
+        )
+        query_args = {"email": self.person.email, "token": subscription_token}
+        self.client.get(
+            reverse("external_rsvp_event", args=[self.event.pk])
+            + "?"
+            + urlencode(query_args)
+        )
 
         self.assertEqual(self.person.rsvps.first().event, self.event)
-
-    def test_cannot_rsvp_by_csrf(self):
-        self.client.force_login(self.person.role)
-        self.client.get(reverse("external_rsvp_event", args=[self.event.pk]))
-
-        self.assertEqual(self.person.rsvps.count(), 0)
 
     def test_can_rsvp_without_account(self):
         self.client.post(
             reverse("external_rsvp_event", args=[self.event.pk]),
             data={"email": "test1@test.com"},
         )
-        self.person = Person.objects.get(email="test1@test.com")
-        self.assertEqual(self.person.rsvps.all().count(), 0)
-        self.client.force_login(self.person.role)
-        session = self.client.session
-        session["login_action"] = datetime.utcnow().timestamp()
-        session.save()
-        self.client.get(reverse("external_rsvp_event", args=[self.event.pk]))
 
-        self.assertEqual(self.person.rsvps.first().event, self.event)
+        with self.assertRaises(Person.DoesNotExist):
+            Person.objects.get(email="test1@test.com")
+
+        subscription_token = subscription_confirmation_token_generator.make_token(
+            email="test1@test.com"
+        )
+        query_args = {"email": "test1@test.com", "token": subscription_token}
+        self.client.get(
+            reverse("external_rsvp_event", args=[self.event.pk])
+            + "?"
+            + urlencode(query_args)
+        )
+
+        self.assertEqual(
+            Person.objects.get(email="test1@test.com").rsvps.first().event, self.event
+        )
+        self.assertEqual(Person.objects.get(email="test1@test.com").is_insoumise, False)

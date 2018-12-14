@@ -298,7 +298,7 @@ icon_path = FilePattern(
 )
 
 
-class AbstractMapObjectLabel(TimeStampedModel, AbstractLabel):
+class BaseSubtype(TimeStampedModel, AbstractLabel):
     """
     Abstract class for event and group labels which should have special appearance on map
     """
@@ -350,6 +350,13 @@ class AbstractMapObjectLabel(TimeStampedModel, AbstractLabel):
     )
 
     config = JSONField(_("Configuration"), default=dict, blank=True)
+
+    allow_external = models.BooleanField(
+        _("Les non-insoumis⋅es peuvent rejoindre"), default=False
+    )
+    external_help_text = models.TextField(
+        _("Phrase d'explication pour rejoindre le groupe ou l'événement"), blank=True
+    )
 
     class Meta:
         abstract = True

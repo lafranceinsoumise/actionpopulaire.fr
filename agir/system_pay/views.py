@@ -1,3 +1,4 @@
+import logging
 from django.db import transaction
 from django.http import (
     HttpResponseForbidden,
@@ -18,6 +19,7 @@ from agir.system_pay.models import SystemPayTransaction
 from .crypto import check_signature
 from .forms import SystempayRedirectForm
 
+logger = logging.getLogger(__name__)
 
 SYSTEMPAY_STATUS_CHOICE = {
     "ABANDONED": SystemPayTransaction.STATUS_ABANDONED,
@@ -53,13 +55,16 @@ class SystemPayWebhookView(APIView):
     permission_classes = []
 
     def post(self, request):
+        if (
+            request.data.get("vads_trans_status") not in SYSTEMPAY_STATUS_CHOICE
+            or "vads_order_id" not in request.data
+            or "signature" not in request.data
+        ):
+            logger.exception("Requête malformée de Systempay")
+            return HttpResponseBadRequest()
+
         if not check_signature(request.data):
             return HttpResponseForbidden()
-
-        if request.data.get(
-            "vads_trans_status"
-        ) not in SYSTEMPAY_STATUS_CHOICE or not request.data.get("vads_order_id"):
-            return HttpResponseBadRequest()
 
         try:
             sp_transaction = SystemPayTransaction.objects.get(

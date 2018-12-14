@@ -17,6 +17,7 @@ from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.groups.tasks import (
     send_support_group_changed_notification,
     send_support_group_creation_notification,
+    send_external_join_confirmation,
 )
 from agir.lib.tasks import geocode_support_group
 
@@ -281,3 +282,10 @@ class GroupGeocodingForm(GeocodingBaseForm):
 
 class SearchGroupForm(SearchByZipCodeFormBase):
     pass
+
+
+class ExternalJoinForm(forms.Form):
+    email = forms.EmailField()
+
+    def send_confirmation_email(self, event):
+        send_external_join_confirmation.delay(event.pk, **self.cleaned_data)
