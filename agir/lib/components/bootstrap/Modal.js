@@ -5,7 +5,7 @@ import { Transition } from "react-transition-group";
 
 export default class Modal extends React.Component {
   render() {
-    const { show, onHide, title, children, size } = this.props;
+    const { show, onHide, title, children, size, showClosingIcon } = this.props;
 
     let ignoringNext = false;
     const ignoreNext = () => (ignoringNext = true);
@@ -39,14 +39,16 @@ export default class Modal extends React.Component {
               >
                 <div className="modal-content">
                   <div className="modal-header">
-                    <button
-                      type="button"
-                      className="close"
-                      aria-label="Fermer"
-                      onClick={onHide}
-                    >
-                      <span aria-hidden="true">&times;</span>
-                    </button>
+                    {showClosingIcon && (
+                      <button
+                        type="button"
+                        className="close"
+                        aria-label="Fermer"
+                        onClick={onHide}
+                      >
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    )}
                     <h4 className="modal-title">{title}</h4>
                   </div>
                   {children}
@@ -75,11 +77,13 @@ Modal.propTypes = {
   title: PropTypes.string.isRequired,
   show: PropTypes.bool.isRequired,
   onHide: PropTypes.func,
-  size: PropTypes.string
+  size: PropTypes.string,
+  showClosingIcon: PropTypes.bool
 };
 
 Modal.defaultProps = {
-  onHide: () => {}
+  onHide: () => {},
+  showClosingIcon: true
 };
 
 Modal.Body = ({ children }) => <div className="modal-body">{children}</div>;

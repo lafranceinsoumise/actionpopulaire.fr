@@ -237,3 +237,5 @@ class Document(models.Model):
             )
         ],
     )
+
+    deleted = models.BooleanField(_("Supprimé"), null=False, default=False)
