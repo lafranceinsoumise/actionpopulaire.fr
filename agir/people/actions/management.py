@@ -70,7 +70,7 @@ def merge_persons(p1, p2):
             e2.person = p1
             e2.save()
         # and set back the order
-        p1.set_personemail_order(email_order_1 + email_order_2)
+        p1.set_personemail_order(list(email_order_1) + list(email_order_2))
 
         # We reassign simply for these categories
         p2.form_submissions.update(person=p1)
