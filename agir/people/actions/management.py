@@ -64,9 +64,13 @@ def merge_persons(p1, p2):
                 r2.save()
 
         # we reassign email addresses as well
+        email_order_1 = p1.get_personemail_order()
+        email_order_2 = p2.get_personemail_order()
         for e2 in p2.emails.all():
             e2.person = p1
             e2.save()
+        # and set back the order
+        p1.set_personemail_order(email_order_1 + email_order_2)
 
         # We reassign simply for these categories
         p2.form_submissions.update(person=p1)
@@ -77,5 +81,5 @@ def merge_persons(p1, p2):
         p1_votes = set(pc.poll_id for pc in p1.poll_choices.all())
         p2.poll_choices.exclude(poll_id__in=p1_votes).update(person=p1)
 
-        # then we need to delete the second person and its role, before removing it from mailtrain
+        # then we need to delete the second person, before removing it from mailtrain
         p2.delete()
