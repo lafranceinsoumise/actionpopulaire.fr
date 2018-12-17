@@ -61,7 +61,7 @@ __all__ = [
     "QuitSupportGroupView",
     "RemoveManagerView",
     "SupportGroupDetailView",
-    "ThematicBookletViews",
+    "ThematicTeamsViews",
     "ChangeGroupLocationView",
     "SupportGroupListView",
 ]
@@ -523,8 +523,8 @@ class ExternalJoinSupportGroupView(ConfirmSubscriptionView, FormView, DetailView
         return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
 
 
-class ThematicBookletViews(ListView):
-    template_name = "groups/thematic_booklets.html"
+class ThematicTeamsViews(ListView):
+    template_name = "groups/thematic_teams.html"
     context_object_name = "groups"
 
     def get_queryset(self):

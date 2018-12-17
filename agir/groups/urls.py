@@ -68,7 +68,12 @@ urlpatterns = [
     ),
     path(
         "livrets_thematiques/",
-        views.ThematicBookletViews.as_view(),
+        RedirectView.as_view(pattern_name="thematic_teams_list"),
         name="thematic_groups_list",
+    ),
+    path(
+        "equipes-thematiques/",
+        views.ThematicTeamsViews.as_view(),
+        name="thematic_teams_list",
     ),
 ]
