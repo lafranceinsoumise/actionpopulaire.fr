@@ -1,10 +1,14 @@
 from datetime import datetime
 import string
+from uuid import UUID
+
 from django.core.management import BaseCommand
 from django.utils import timezone
 
 from agir.lib.mailtrain import update_person
 from agir.people.models import Person
+
+PADDING = "0000000-0000-0000-0000-000000000000"
 
 
 class Command(BaseCommand):
@@ -18,7 +22,7 @@ class Command(BaseCommand):
         max_letter = string.hexdigits[(timezone.now().day + 1) % 8 * 2]
 
         for person in Person.objects.filter(
-            id__gt=min_letter, id__lt=max_letter
+            id__gt=UUID(min_letter + PADDING), id__lt=UUID(max_letter + PADDING)
         ).iterator():
             update_person(person)
             if kwargs["verbosity"] > 1:
