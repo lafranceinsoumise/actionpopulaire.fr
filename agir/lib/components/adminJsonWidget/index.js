@@ -12,13 +12,34 @@ document.addEventListener("DOMContentLoaded", function() {
       onChangeText: content => {
         document.getElementById(`id_${e.dataset.fieldname}`).value = content;
       },
-      mode: "code"
+      templates: [
+        {
+          text: "Groupe de champs",
+          title: "Insérer un groupe de champs",
+          value: {
+            "title": "Mon groupe de champs",
+            "fields": []
+          }
+        },
+        {
+            text: 'Champ',
+            title: 'Insérer un champ',
+            value: {
+              "id": "identifiant_du_champ",
+              "label": "Label du champ",
+              "type": "short_text"
+            }
+        }
+      ],
+      modes: ["tree", "code"],
+      schema: require('./schema')
     });
     editor.set(
       JSON.parse(
         document.getElementById(e.dataset.fieldname + "-data").textContent
       )
     );
+    editor.expandAll();
     loaded.push(e.dataset.fieldname);
   });
 });
