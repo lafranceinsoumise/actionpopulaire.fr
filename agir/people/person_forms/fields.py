@@ -10,6 +10,7 @@ import iso8601
 
 from phonenumber_field.formfields import PhoneNumberField
 
+from agir.lib.data import departements_choices, regions_choices
 from agir.lib.form_fields import DateTimePickerWidget
 
 from ..models import Person
@@ -105,6 +106,8 @@ FIELDS = {
     "datetime": DateTimeField,
 }
 
+PREDEFINED_CHOICES = {"departements": departements_choices, "regions": regions_choices}
+
 
 def is_actual_model_field(field_descriptor):
     return (
@@ -128,6 +131,11 @@ def get_form_field(field_descriptor: dict, is_edition=False):
         )
 
     klass = FIELDS.get(field_type)
+
+    if "choices" in field_descriptor and isinstance(field_descriptor["choices"], str):
+        field_descriptor["choices"] = PREDEFINED_CHOICES.get(
+            field_descriptor["choices"]
+        )
 
     if klass:
         return klass(**field_descriptor)
