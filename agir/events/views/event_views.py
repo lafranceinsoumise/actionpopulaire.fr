@@ -19,6 +19,7 @@ from django.utils import timezone
 from django.utils.html import format_html, mark_safe
 from django.utils.translation import ugettext as _
 
+from agir.events.actions.legal import QUESTIONS
 from ..models import Event, RSVP, Calendar, EventSubtype
 from ..tasks import send_cancellation_notification
 
@@ -174,16 +175,45 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
         if initial_group in [g["id"] for g in groups]:
             initial["organizerGroup"] = initial_group
 
-        subtype_label = self.request.GET.get("subtype")
-        if subtype_label:
+        subtype_queryset = EventSubtype.objects.filter(
+            visibility=EventSubtype.VISIBILITY_ALL
+        )
+
+        if "subtype" in self.request.GET:
             try:
-                subtype = EventSubtype.objects.get(label=subtype_label)
+                subtype = subtype_queryset.get(label=self.request.GET["subtype"])
                 initial["subtype"] = subtype.label
             except EventSubtype.DoesNotExist:
                 pass
 
+        types = [
+            {
+                "id": id,
+                "label": str(label),
+                "description": str(EventSubtype.TYPE_DESCRIPTION[id]),
+            }
+            for id, label in EventSubtype.TYPE_CHOICES
+        ]
+
+        subtypes = [
+            {"id": s.id, "label": s.label, "description": s.description, "type": s.type}
+            for s in subtype_queryset
+        ]
+
+        questions = QUESTIONS
+
         return super().get_context_data(
-            props=mark_safe(json.dumps({"initial": initial, "groups": groups})),
+            props=mark_safe(
+                json.dumps(
+                    {
+                        "initial": initial,
+                        "groups": groups,
+                        "types": types,
+                        "subtypes": subtypes,
+                        "questions": questions,
+                    }
+                )
+            ),
             **kwargs
         )
 

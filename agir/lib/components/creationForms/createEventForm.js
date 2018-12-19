@@ -6,45 +6,13 @@ import qs from "querystring";
 import { hot } from "react-hot-loader";
 
 import MultiStepForm from "./MultiStepForm";
+import Question from "./Question";
 import FormStep from "./steps/FormStep";
 import ContactStep from "./steps/ContactStep";
 import LocationStep from "./steps/LocationStep";
 import ScheduleStep from "./steps/ScheduleStep";
 
 import "./style.css";
-
-// defined by webpack
-const apiEndpoint = API_ENDPOINT; // eslint-disable-line no-undef
-
-const groupTypes = [
-  {
-    id: "G",
-    label: "Une réunion de groupe",
-    description:
-      "Une réunion qui concerne principalement les membres du groupes, et non le public de façon générale. " +
-      "Par exemple, la réunion hebdomadaire du groupe, une réunion de travail, ou l'audition d'une association"
-  },
-  {
-    id: "M",
-    label: "Une réunion publique",
-    description:
-      "Une réunion ouverts à tous les publics, au-delà des membres du groupe d'action, mais qui aura lieu " +
-      "dans un lieu privé. Par exemple, une réunion publique avec un orateur, une projection ou un concert."
-  },
-  {
-    id: "A",
-    label: "Une action publique",
-    description:
-      "Une action qui se déroulera dans un lieu public et qui aura comme objectif principal d'aller à la" +
-      "rencontre ou d'atteindre des personnes extérieures à la FI"
-  },
-  {
-    id: "O",
-    label: "Un autre type d'événement",
-    description:
-      "Tout autre type d'événement qui ne rentre pas dans les catégories ci-dessus."
-  }
-];
 
 class CreateEventForm extends React.Component {
   constructor(props) {
@@ -53,20 +21,15 @@ class CreateEventForm extends React.Component {
     this.setFields = this.setFields.bind(this);
   }
 
-  async componentDidMount() {
-    let subtypes = (await axios.get(apiEndpoint + "/events_subtypes/")).data;
-    this.setState({ subtypes });
-  }
-
   setFields(fields) {
     this.setState({ fields: Object.assign({}, this.state.fields, fields) });
   }
 
-  render() {
-    if (!this.state.subtypes) {
-      return null;
-    }
+  hasGroupStep() {
+    return this.props.groups && this.props.groups.length > 0;
+  }
 
+  render() {
     let steps = [
       {
         name: "Quel type ?",
@@ -74,7 +37,20 @@ class CreateEventForm extends React.Component {
           <EventTypeStep
             setFields={this.setFields}
             fields={this.state.fields}
-            subtypes={this.state.subtypes}
+            types={this.props.types}
+            subtypes={this.props.subtypes}
+          />
+        )
+      },
+      {
+        name: "Questions légales",
+        component: (
+          <LegalQuestionsStep
+            setFields={this.setFields}
+            fields={this.state.fields}
+            subtypes={this.props.subtypes}
+            questions={this.props.questions}
+            nextStep={this.hasGroupStep() ? 3 : 2}
           />
         )
       },
@@ -102,7 +78,7 @@ class CreateEventForm extends React.Component {
       }
     ];
 
-    if (this.props.groups && this.props.groups.length > 0) {
+    if (this.hasGroupStep()) {
       steps.splice(1, 0, {
         name: "Qui organise ?",
         component: (
@@ -121,7 +97,10 @@ class CreateEventForm extends React.Component {
 
 CreateEventForm.propTypes = {
   groups: PropTypes.array,
-  initial: PropTypes.object
+  initial: PropTypes.object,
+  types: PropTypes.array,
+  subtypes: PropTypes.array,
+  questions: PropTypes.array
 };
 
 function CheckBoxList({ children }) {
@@ -159,10 +138,6 @@ CheckBox.propTypes = {
 class EventTypeStep extends FormStep {
   constructor(props) {
     super(props);
-    this.rankedSubtypes = props.subtypes.reduce((acc, s) => {
-      (acc[s.type] = acc[s.type] || []).push(s);
-      return acc;
-    }, {});
   }
 
   setSubtype(subtype) {
@@ -179,73 +154,12 @@ class EventTypeStep extends FormStep {
     return !!this.props.fields.subtype;
   }
 
-  getRightColumn() {
-    if (this.state.isNotCampaign) {
-      return (
-        <div className="col-sm-6 padbottom">
-          <h3>Je veux créer...</h3>
-          {groupTypes.map(type => (
-            <div key={type.id}>
-              <h4>{type.label}</h4>
-              <CheckBoxList>
-                {this.rankedSubtypes[type.id].map(subtype => (
-                  <CheckBox
-                    key={subtype.description}
-                    active={this.isCurrentSubtype(subtype)}
-                    label={subtype.description}
-                    onClick={() => this.setSubtype(subtype)}
-                  />
-                ))}
-              </CheckBoxList>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    return (
-      <div className="col-sm-6 padbottom">
-        <div className="alert alert-danger">
-          Attention&nbsp;! Nous sommes désormais officiellement en campagne
-          électorale. Cela signifie que vous ne pouvez engager de frais sans la
-          validation du mandataire financier de la campagne.
-        </div>
-        <h3>Je veux créer...</h3>
-        <h5>...un événement de campagne avec frais</h5>
-        <p>
-          Un événement de campagne qui implique des moyens financiers. S'il
-          remplit certains critères, il peut être financé. Sinon, il doit être
-          financé par des dons. Dans tous les cas, les factures doivent être
-          réglées par le mandataire financier de la campagne.
-        </p>
-        <a
-          className="btn btn-default"
-          href="https://agir.lafranceinsoumise.fr/formulaires/E19-01/"
-        >
-          Je remplis le formulaire d'accord préalable
-        </a>
-        <h5>...un autre événement</h5>
-        <p>
-          Ce n'est pas un événement de campagne, ou c'est un événement de
-          campagne qui ne nécessite pas de moyens payants. S'il y a un concours
-          gratuit en nature (prêt de salle, de matériel...), vous devez
-          néanmoins remplir{" "}
-          <a href="https://lafranceinsoumise.fr/app/uploads/2018/11/europennes_dons_en_nature.pdf">
-            le formulaire dédié
-          </a>{" "}
-          à l'issue de l'événement.
-        </p>
-        <button
-          className="btn btn-default"
-          onClick={() => this.setState({ isNotCampaign: true })}
-        >
-          Je crée directement mon événement
-        </button>
-      </div>
-    );
-  }
-
   render() {
+    const rankedSubtypes = this.props.subtypes.reduce((acc, s) => {
+      (acc[s.type] = acc[s.type] || []).push(s);
+      return acc;
+    }, {});
+
     return (
       <div className="row padtopmore">
         <div className="col-sm-6">
@@ -269,7 +183,94 @@ class EventTypeStep extends FormStep {
             </a>
           </p>
         </div>
-        {this.getRightColumn()}
+        <div className="col-sm-6 padbottom">
+          <h3>Je veux créer...</h3>
+          {this.props.types.map(type => (
+            <div key={type.id}>
+              <h4>{type.label}</h4>
+              <CheckBoxList>
+                {rankedSubtypes[type.id].map(subtype => (
+                  <CheckBox
+                    key={subtype.description}
+                    active={this.isCurrentSubtype(subtype)}
+                    label={subtype.description}
+                    onClick={() => this.setSubtype(subtype)}
+                  />
+                ))}
+              </CheckBoxList>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+}
+
+class LegalQuestionsStep extends FormStep {
+  constructor(props) {
+    super(props);
+    this.state = { question: 0 };
+  }
+
+  getAnswer(id) {
+    const legal = this.props.fields.legal || {};
+    if (legal.hasOwnProperty(id)) {
+      return legal[id];
+    }
+    return null;
+  }
+
+  getQuestions() {
+    const subtype = this.props.subtypes.find(
+      s => s.label === this.props.fields.subtype
+    );
+    return this.props.questions.filter(
+      q =>
+        (!q.type || q.type.includes(subtype.type)) &&
+        (!q.when || this.getAnswer(q.when))
+    );
+  }
+
+  setAnswer(id, value) {
+    this.props.setFields({
+      legal: Object.assign({}, this.props.fields.legal || {}, {
+        [id]: value
+      })
+    });
+
+    if (this.state.question >= this.getQuestions().length - 1) {
+      return this.props.jumpToStep(this.props.nextStep);
+    }
+    this.setState({ question: this.state.question + 1 });
+  }
+
+  isValidated() {
+    return this.getQuestions().every(q => this.getAnswer(q.id) !== null);
+  }
+
+  render() {
+    let q = this.getQuestions()[this.state.question];
+    return (
+      <div className="row padtopmore">
+        <div className="col-sm-6 padbottom">
+          <div className="alert alert-danger">
+            Attention&nbsp;! Nous sommes désormais officiellement en campagne
+            électorale. Cela signifie que vous ne pouvez engager de frais sans
+            la validation du mandataire financier de la campagne. Pour bien
+            identifier la situation légale dans laquelle vous vous trouvez,
+            merci de bien vouloir répondre à ces quelques questions.
+          </div>
+        </div>
+        <div className="col-sm-6 padbottom">
+          <div>
+            <Question
+              key={q.id}
+              question={q}
+              value={this.getAnswer(q.id)}
+              setValue={v => this.setAnswer(q.id, v)}
+            />
+          </div>
+        </div>
       </div>
     );
   }
@@ -361,7 +362,8 @@ class ValidateStep extends FormStep {
       location_city: fields.locationCity,
       location_country: fields.locationCountryCode,
       subtype: fields.subtype,
-      as_group: fields.organizerGroup
+      as_group: fields.organizerGroup,
+      legal: JSON.stringify(fields.legal)
     });
 
     try {

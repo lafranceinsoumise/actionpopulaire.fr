@@ -269,6 +269,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             "location_country",
             "description",
             "subtype",
+            "legal",
         )
 
 

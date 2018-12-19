@@ -172,6 +172,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "calendars",
                     "tags",
                     "published",
+                    "legal",
                 )
             },
         ),
@@ -230,6 +231,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "modified",
         "coordinates_type",
         "rsvps_buttons",
+        "legal",
     )
     date_hierarchy = "start_time"
 
