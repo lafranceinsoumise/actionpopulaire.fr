@@ -17,22 +17,22 @@ document.addEventListener("DOMContentLoaded", function() {
           text: "Groupe de champs",
           title: "Insérer un groupe de champs",
           value: {
-            "title": "Mon groupe de champs",
-            "fields": []
+            title: "Mon groupe de champs",
+            fields: []
           }
         },
         {
-            text: 'Champ',
-            title: 'Insérer un champ',
-            value: {
-              "id": "identifiant_du_champ",
-              "label": "Label du champ",
-              "type": "short_text"
-            }
+          text: "Champ",
+          title: "Insérer un champ",
+          value: {
+            id: "identifiant_du_champ",
+            label: "Label du champ",
+            type: "short_text"
+          }
         }
       ],
       modes: ["tree", "code"],
-      schema: require('./schema')
+      schema: require("./schema")
     });
     editor.set(
       JSON.parse(
