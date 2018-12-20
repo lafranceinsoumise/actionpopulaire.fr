@@ -13,6 +13,7 @@ import LocationStep from "./steps/LocationStep";
 import ScheduleStep from "./steps/ScheduleStep";
 
 import "./style.css";
+import { Spring } from "react-spring";
 
 class CreateEventForm extends React.Component {
   constructor(props) {
@@ -262,14 +263,17 @@ class LegalQuestionsStep extends FormStep {
           </div>
         </div>
         <div className="col-sm-6 padbottom">
-          <div>
-            <Question
-              key={q.id}
-              question={q}
-              value={this.getAnswer(q.id)}
-              setValue={v => this.setAnswer(q.id, v)}
-            />
-          </div>
+          <Spring key={q.id} from={{ opacity: 0 }} to={{ opacity: 1 }}>
+            {props => (
+              <Question
+                style={props}
+                key={q.id}
+                question={q}
+                value={this.getAnswer(q.id)}
+                setValue={v => this.setAnswer(q.id, v)}
+              />
+            )}
+          </Spring>
         </div>
       </div>
     );
