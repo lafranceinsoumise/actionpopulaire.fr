@@ -1,9 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const Question = ({ question, value, setValue, style }) => (
+const Question = ({ question, setValue, style }) => (
   <div style={style}>
     <h4>{question.question}</h4>
+    <p>{question.helpText}</p>
     <button className="btn btn-default" onClick={() => setValue(true)}>
       Oui
     </button>
@@ -15,8 +16,8 @@ const Question = ({ question, value, setValue, style }) => (
 );
 Question.propTypes = {
   question: PropTypes.object,
-  value: PropTypes.bool,
-  setValue: PropTypes.func
+  setValue: PropTypes.func,
+  style: PropTypes.object
 };
 
 export default Question;

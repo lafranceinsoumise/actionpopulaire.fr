@@ -228,7 +228,8 @@ class LegalQuestionsStep extends FormStep {
     return this.props.questions.filter(
       q =>
         (!q.type || q.type.includes(subtype.type)) &&
-        (!q.when || this.getAnswer(q.when))
+        (!q.when || this.getAnswer(q.when)) &&
+        (!q.notWhen || !this.getAnswer(q.notWhen))
     );
   }
 
