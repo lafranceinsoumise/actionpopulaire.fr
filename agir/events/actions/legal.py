@@ -8,7 +8,7 @@ QUESTIONS = [
         "type": [EventSubtype.TYPE_PUBLIC_MEETING, EventSubtype.TYPE_OTHER_EVENTS],
     },
     {
-        "id": "installation-technique",
+        "id": "installation_technique",
         "question": "Cet événement nécessite-t-il une installation technique (sono, barnum, praticable...) ?",
         "type": [
             EventSubtype.TYPE_PUBLIC_MEETING,
@@ -26,7 +26,7 @@ QUESTIONS = [
         ],
     },
     {
-        "id": "materiel-campagne",
+        "id": "materiel_campagne",
         "question": "Utiliserez-vous du matériel siglé campagne européenne pendant votre événement ?",
         "type": [
             EventSubtype.TYPE_PUBLIC_ACTION,
@@ -36,7 +36,7 @@ QUESTIONS = [
         "notWhen": "candidat",
     },
     {
-        "id": "impressions-propres-moyens",
+        "id": "impressions_propres_moyens",
         "question": "Imprimerez-vous ce matériel grâce à une imprimante personnelle ?",
         "helpText": "Vous ne pouvez pas payer vous-mêmes une impression chez un imprimeur. Toutes les dépenses"
         " électorales doivent être réalisées par l'association de financement de la campagne européenne.",
@@ -45,12 +45,12 @@ QUESTIONS = [
             EventSubtype.TYPE_PUBLIC_ACTION,
             EventSubtype.TYPE_OTHER_EVENTS,
         ],
-        "when": "materiel-campagne",
+        "when": "materiel_campagne",
     },
     {
         "id": "frais",
-        "question": "Allez-vous engager des frais auprès de commerçants ou entreprises ?",
-        "helpText": "Si vous souhaitez engager des frais, il vaut le déclarer dès maintenant afin que la dépense soit"
-        "autorisée par la campagne.",
+        "question": "Souhaitez-vous engager des frais auprès de commerçants ou entreprises ?",
+        "helpText": "Si vous souhaitez engager des frais, il faut le déclarer dès maintenant afin que la dépense soit"
+        "préalablement autorisée par l'association de financement.",
     },
 ]
