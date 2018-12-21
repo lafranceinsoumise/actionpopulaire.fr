@@ -171,7 +171,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "end_time",
                     "calendars",
                     "tags",
-                    "published",
+                    "visibility",
                     "legal",
                 )
             },
@@ -237,7 +237,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     list_display = (
         "name",
-        "published",
+        "visibility",
         "calendar_names",
         "location_short",
         "attendee_count",
@@ -246,7 +246,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
     )
     list_filter = (
         EventStatusFilter,
-        "published",
+        "visibility",
         EventHasReportFilter,
         DepartementListFilter,
         RegionListFilter,

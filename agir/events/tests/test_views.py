@@ -106,6 +106,39 @@ class EventPagesTestCase(TestCase):
             person=self.other_person, event=self.other_event
         )
 
+    def test_can_see_public_event(self):
+        res = self.client.get(
+            reverse("view_event", kwargs={"pk": self.organized_event.pk})
+        )
+
+        self.assertContains(res, self.organized_event.name)
+
+    def test_cannot_see_private_event_only_if_organizer(self):
+        self.organized_event.visibility = Event.VISIBILITY_ORGANIZER
+        self.organized_event.save()
+
+        self.client.force_login(self.other_person.role)
+        res = self.client.get(
+            reverse("view_event", kwargs={"pk": self.organized_event.pk})
+        )
+        self.assertNotContains(res, self.organized_event.name, status_code=404)
+
+        self.client.force_login(self.person.role)
+        res = self.client.get(
+            reverse("view_event", kwargs={"pk": self.organized_event.pk})
+        )
+        self.assertContains(res, self.organized_event.name)
+
+    def test_cannot_see_admin_event(self):
+        self.organized_event.visibility = Event.VISIBILITY_ADMIN
+        self.organized_event.save()
+
+        self.client.force_login(self.person.role)
+        res = self.client.get(
+            reverse("view_event", kwargs={"pk": self.organized_event.pk})
+        )
+        self.assertNotContains(res, self.organized_event.name, status_code=404)
+
     @mock.patch.object(EventForm, "geocoding_task")
     @mock.patch("agir.events.forms.send_event_changed_notification")
     def test_can_modify_organized_event(

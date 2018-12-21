@@ -84,7 +84,7 @@ class LegacyEventSerializer(
             "participants",
             "organizers",
             "is_organizer",
-            "published",
+            "visibility",
             "subtype",
         )
         extra_kwargs = {"url": {"view_name": "legacy:event-detail"}}

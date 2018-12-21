@@ -2,6 +2,7 @@ import json
 
 import ics
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic import (
@@ -73,9 +74,11 @@ class EventListView(SearchByZipcodeBaseView):
         return Event.objects.upcoming().order_by("start_time")
 
 
-class EventDetailView(ObjectOpengraphMixin, DetailView):
+class EventDetailView(ObjectOpengraphMixin, PermissionsRequiredMixin, DetailView):
     template_name = "events/detail.html"
-    queryset = Event.objects.filter(published=True)
+    permissions_required = ("events.view_event",)
+    permission_denied_to_not_found = True
+    model = Event
 
     title_prefix = _("Evénement local")
     meta_description = _(
@@ -93,8 +96,9 @@ class EventDetailView(ObjectOpengraphMixin, DetailView):
         )
 
 
-class EventIcsView(DetailView):
-    queryset = Event.objects.filter(published=True)
+class EventIcsView(PermissionsRequiredMixin, DetailView):
+    permissions_required = ("events.view_event",)
+    permission_denied_to_not_found = True
 
     def render_to_response(self, context, **response_kwargs):
         ics_calendar = ics.Calendar(events=[context["event"].to_ics()])
@@ -105,7 +109,7 @@ class EventIcsView(DetailView):
 class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailView):
     template_name = "events/manage.html"
     permissions_required = ("events.change_event",)
-    queryset = Event.objects.filter(published=True)
+    model = Event
 
     error_messages = {
         "denied": _(
@@ -129,6 +133,8 @@ class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
             kwargs["add_organizer_form"] = self.get_form()
 
         return super().get_context_data(
+            is_organizer=self.request.user.is_authenticated
+            and self.object.organizers.filter(pk=self.request.user.person.id).exists(),
             organizers=self.object.organizers.all(),
             rsvps=self.object.rsvps.all(),
             **kwargs
@@ -261,7 +267,7 @@ class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateVi
         return reverse("manage_event", kwargs={"pk": self.object.pk})
 
     def get_queryset(self):
-        return Event.objects.upcoming(as_of=timezone.now())
+        return Event.objects.upcoming(as_of=timezone.now(), published_only=False)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -295,7 +301,7 @@ class CancelEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
     success_url = reverse_lazy("list_events")
 
     def get_queryset(self):
-        return Event.objects.upcoming(as_of=timezone.now())
+        return Event.objects.upcoming(as_of=timezone.now(), published_only=False)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -314,13 +320,15 @@ class CancelEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
         return HttpResponseRedirect(self.success_url)
 
 
-class QuitEventView(SoftLoginRequiredMixin, DeleteView):
+class QuitEventView(SoftLoginRequiredMixin, PermissionsRequiredMixin, DeleteView):
+    permissions_required = ("events.view_event",)
+    permission_denied_to_not_found = True
     template_name = "events/quit.html"
     success_url = reverse_lazy("list_events")
     context_object_name = "rsvp"
 
     def get_queryset(self):
-        return RSVP.objects.upcoming(as_of=timezone.now())
+        return RSVP.objects.upcoming(as_of=timezone.now(), published_only=False)
 
     def get_object(self, queryset=None):
         try:
@@ -421,7 +429,12 @@ class CalendarIcsView(DetailView):
 
     def render_to_response(self, context, **response_kwargs):
         calendar = ics.Calendar(
-            events=[event.to_ics() for event in self.object.events.all()]
+            events=[
+                event.to_ics()
+                for event in self.object.events.filter(
+                    visibility=Event.VISIBILITY_PUBLIC
+                )
+            ]
         )
 
         return HttpResponse(calendar, content_type="text/calendar")
@@ -436,7 +449,7 @@ class ChangeEventLocationView(
     success_view_name = "manage_event"
 
     def get_queryset(self):
-        return Event.objects.upcoming(as_of=timezone.now())
+        return Event.objects.upcoming(as_of=timezone.now(), published_only=False)
 
 
 class EditEventReportView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
@@ -451,9 +464,13 @@ class EditEventReportView(HardLoginRequiredMixin, PermissionsRequiredMixin, Upda
         return Event.objects.past(as_of=timezone.now())
 
 
-class UploadEventImageView(SoftLoginRequiredMixin, CreateView):
+class UploadEventImageView(
+    SoftLoginRequiredMixin, PermissionsRequiredMixin, CreateView
+):
     template_name = "events/upload_event_image.html"
     form_class = UploadEventImageForm
+    permissions_required = ("events.view_event",)
+    permission_denied_to_not_found = True
 
     def get_queryset(self):
         return Event.objects.past(as_of=timezone.now())

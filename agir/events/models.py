@@ -32,7 +32,7 @@ from ..lib.form_fields import DateTimePickerWidget
 
 class EventQuerySet(models.QuerySet):
     def published(self):
-        return self.filter(published=True)
+        return self.filter(visibility=Event.VISIBILITY_PUBLIC)
 
     def upcoming(self, as_of=None, published_only=True):
         if as_of is None:
@@ -40,7 +40,7 @@ class EventQuerySet(models.QuerySet):
 
         condition = models.Q(end_time__gte=as_of)
         if published_only:
-            condition &= models.Q(published=True)
+            condition &= models.Q(visibility=Event.VISIBILITY_PUBLIC)
 
         return self.filter(condition)
 
@@ -50,7 +50,7 @@ class EventQuerySet(models.QuerySet):
 
         condition = models.Q(end_time__lt=as_of)
         if published_only:
-            condition &= models.Q(published=True)
+            condition &= models.Q(visibility=Event.VISIBILITY_PUBLIC)
         return self.filter(condition)
 
     def with_participants(self):
@@ -94,7 +94,7 @@ class RSVPQuerySet(models.QuerySet):
 
         condition = models.Q(event__end_time__gte=as_of)
         if published_only:
-            condition &= models.Q(event__published=True)
+            condition &= models.Q(event__visibility=Event.VISIBILITY_PUBLIC)
 
         return self.filter(condition)
 
@@ -104,7 +104,7 @@ class RSVPQuerySet(models.QuerySet):
 
         condition = models.Q(event__end_time__lt=as_of)
         if published_only:
-            condition &= models.Q(event__published=True)
+            condition &= models.Q(event__visibility=Event.VISIBILITY_PUBLIC)
 
         return self.filter(condition)
 
@@ -149,10 +149,20 @@ class Event(
         _("nom"), max_length=255, blank=False, help_text=_("Le nom de l'événement")
     )
 
-    published = models.BooleanField(
-        _("publié"),
-        default=True,
-        help_text=_("L'évenement doit-il être visible publiquement."),
+    VISIBILITY_ADMIN = "A"
+    VISIBILITY_ORGANIZER = "O"
+    VISIBILITY_PUBLIC = "P"
+    VISIBILITY_CHOICES = (
+        (VISIBILITY_ADMIN, "Caché"),
+        (VISIBILITY_ORGANIZER, "Visible par les organisateurs"),
+        (VISIBILITY_PUBLIC, "Public"),
+    )
+
+    visibility = models.CharField(
+        "Visibilité",
+        max_length=1,
+        choices=VISIBILITY_CHOICES,
+        default=VISIBILITY_PUBLIC,
     )
 
     subtype = models.ForeignKey(

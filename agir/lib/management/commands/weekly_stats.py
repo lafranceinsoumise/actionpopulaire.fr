@@ -113,11 +113,13 @@ class Command(BaseCommand):
         )
 
         meetings = Event.objects.filter(
-            subtype__id__in=[10, 26, 21], published=True, end_time__range=(start, end)
+            subtype__id__in=[10, 26, 21],
+            visibility=Event.VISIBILITY_PUBLIC,
+            end_time__range=(start, end),
         ).count()
         last_week_meetings = Event.objects.filter(
             subtype__id__in=[10, 26, 21],
-            published=True,
+            visibility=Event.VISIBILITY_PUBLIC,
             end_time__range=(one_period_before, start),
         ).count()
 
