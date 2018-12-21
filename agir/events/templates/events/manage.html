@@ -106,29 +106,32 @@
         </div>
         <h3>Les organisateurs de l'événement</h3>
 
-        <ul class="list-group">
-            {% for organizer in organizers %}
-                <li class="list-group-item list-group-item-success">
-                    {% if organizer.first_name and organizer.last_name %}
-                        {{ organizer.first_name }} {{ organizer.last_name }} &lt;{{ organizer.email }}&gt;
-                    {% else %}
-                        {{ organizer.email }}
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-
-        <div>
-            <div class="help-dialog">
-                Utilisez ce formulaire pour sélectionner d'autres organisateurs. Pour pouvoir les sélectionner,
-                elles doivent s'êtres inscrites comme participants.
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="list-group">
+                    {% for organizer in organizers %}
+                        <li class="list-group-item list-group-item-success">
+                            {% if organizer.first_name and organizer.last_name %}
+                                {{ organizer.first_name }} {{ organizer.last_name }} &lt;{{ organizer.email }}&gt;
+                            {% else %}
+                                {{ organizer.email }}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
-            <p>
-                Vous pouvez sélectionner d'autres personnes pour co-organiser l'événement avec vous parmi celles qui
-                ont
-                indiqué participer à l'événement.
-            </p>
-            {% crispy add_organizer_form %}
+            <div class="col-md-6">
+                <div class="help-dialog">
+                    Utilisez ce formulaire pour sélectionner d'autres organisateurs. Pour pouvoir les sélectionner,
+                    elles doivent s'êtres inscrites comme participants.
+                </div>
+                <p>
+                    Vous pouvez sélectionner d'autres personnes pour co-organiser l'événement avec vous parmi celles qui
+                    ont
+                    indiqué participer à l'événement.
+                </p>
+                {% crispy add_organizer_form %}
+            </div>
         </div>
     </div>
     {% if rsvps|length < 50 %}
@@ -151,7 +154,7 @@
             </div>
             {% for rsvp in rsvps %}
                 {% with person=rsvp.person %}
-                    <li class="list-group-item">
+                    <li class="list-group-item col-sm-6">
                         {% if person.first_name and person.last_name %}
                             {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
                         {% else %}
