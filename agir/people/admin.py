@@ -5,7 +5,7 @@ import django_otp
 from django import forms
 from django.urls import path
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count
+from django.db.models import Count, Max
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import reverse
 from django.contrib import admin
@@ -320,7 +320,14 @@ class PersonFormAdminMixin:
 @admin.register(PersonForm, site=admin_site)
 class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
     form = PersonFormForm
-    list_display = ("title", "slug_link", "published")
+    list_display = (
+        "title",
+        "slug_link",
+        "published",
+        "created",
+        "submissions_number",
+        "last_submission",
+    )
 
     fieldsets = (
         (
@@ -358,8 +365,19 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
         ),
     )
 
-    readonly_fields = ("submissions_number", "simple_link", "action_buttons")
+    readonly_fields = (
+        "submissions_number",
+        "simple_link",
+        "action_buttons",
+        "last_submission",
+    )
     autocomplete_fields = ("required_tags", "tags")
+
+    def last_submission(self, obj):
+        return obj.submissions.last().created
+
+    last_submission.short_description = "Dernière réponse"
+    last_submission.admin_order_field = "last_submission"
 
     def get_readonly_fields(self, request, obj=None):
         pass
@@ -370,7 +388,10 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
 
-        return qs.annotate(submissions_number=Count("submissions"))
+        return qs.annotate(
+            submissions_number=Count("submissions"),
+            last_submission=Max("submissions__created"),
+        )
 
     def get_urls(self):
         return [
@@ -429,7 +450,7 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
     def submissions_number(self, object):
         return object.submissions_number
 
-    submissions_number.short_description = "Nombre de soumissions"
+    submissions_number.short_description = "Nombre de réponses"
 
 
 @admin.register(PersonFormSubmission, site=admin_site)
