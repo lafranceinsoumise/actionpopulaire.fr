@@ -111,9 +111,13 @@ FIELDS = {
 PREDEFINED_CHOICES = {
     "departements": departements_choices,
     "regions": regions_choices,
-    "organized_events": lambda form: (
+    "organized_events": lambda instance: (
         (e.id, f"{e.name} ({localize_input(e.start_time, '%d/%m/%Y %H:%M')})")
-        for e in form.instance.organized_events.published()
+        for e in (
+            instance.organized_events.published()
+            if instance is not None
+            else Event.objects.published()
+        )
     ),
 }
 
@@ -129,7 +133,7 @@ def is_actual_model_field(field_descriptor):
     )
 
 
-def get_form_field(form, field_descriptor: dict, is_edition=False):
+def get_form_field(field_descriptor: dict, is_edition=False, instance=None):
     field_descriptor = field_descriptor.copy()
     field_type = field_descriptor.pop("type")
     field_descriptor.pop("id")
@@ -148,7 +152,7 @@ def get_form_field(form, field_descriptor: dict, is_edition=False):
     if "choices" in field_descriptor and isinstance(field_descriptor["choices"], str):
         choices = PREDEFINED_CHOICES.get(field_descriptor["choices"])
         field_descriptor["choices"] = (
-            choices if not callable(choices) else choices(form)
+            choices if not callable(choices) else choices(instance)
         )
 
     if klass:

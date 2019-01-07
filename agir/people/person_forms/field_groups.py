@@ -30,7 +30,7 @@ class FieldSet:
                     )
             else:
                 form.fields[field_descriptor["id"]] = get_form_field(
-                    form, field_descriptor, is_edition
+                    field_descriptor, is_edition, form.instance
                 )
 
         form.helper.layout.append(
@@ -93,7 +93,7 @@ class DoubleEntryTable:
         for row_id, row_label in self.rows:
             for field_descriptor in self.fields:
                 id = self.get_id(row_id, field_descriptor["id"])
-                field = get_form_field(form, field_descriptor, is_edition)
+                field = get_form_field(field_descriptor, is_edition, form.instance)
                 form.fields[id] = field
 
         intro = f"<p>{self.intro}</p>" if self.intro else ""
