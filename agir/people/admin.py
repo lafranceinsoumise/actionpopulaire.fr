@@ -374,7 +374,10 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
     autocomplete_fields = ("required_tags", "tags")
 
     def last_submission(self, obj):
-        return obj.submissions.last().created
+        last_submission = obj.submissions.last()
+        if last_submission is None:
+            return mark_safe("-")
+        return last_submission.created
 
     last_submission.short_description = "Dernière réponse"
     last_submission.admin_order_field = "last_submission"
