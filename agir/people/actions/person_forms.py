@@ -15,7 +15,11 @@ from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import NumberParseException
 
 from ..models import Person
-from ..person_forms.fields import is_actual_model_field
+from ..person_forms.fields import (
+    is_actual_model_field,
+    PREDEFINED_CHOICES,
+    PREDEFINED_CHOICES_REVERSE,
+)
 from ..person_forms.forms import BasePersonForm
 
 
@@ -60,7 +64,18 @@ def get_form_field_labels(form):
     return field_information
 
 
-def _get_choice_label(choices, value):
+def _get_choice_label(field_descriptor, value, html=False):
+    if isinstance(field_descriptor["choices"], str):
+        if callable(PREDEFINED_CHOICES.get(field_descriptor["choices"])):
+            value = PREDEFINED_CHOICES_REVERSE.get(field_descriptor["choices"])(value)
+            if hasattr(value, "get_absolute_url") and html:
+                return format_html(
+                    '<a href="{0}">{1}</a>', value.get_absolute_url(), str(value)
+                )
+            return str(value)
+        choices = PREDEFINED_CHOICES.get(field_descriptor["choices"])
+    else:
+        choices = field_descriptor["choices"]
     try:
         return next(label for id, label in choices if id == value)
     except StopIteration:
@@ -71,10 +86,10 @@ def _get_formatted_value(field, value, html=True):
     field_type = field.get("type")
 
     if field_type == "choice" and "choices" in field:
-        return _get_choice_label(field["choices"], value)
+        return _get_choice_label(field, value, html)
     elif field_type == "multiple_choice" and "choices" in field:
         if isinstance(value, list):
-            return [_get_choice_label(field["choices"], v) for v in value]
+            return [_get_choice_label(field, v, html) for v in value]
         else:
             return value
     elif field_type == "date":

@@ -5,11 +5,13 @@ from django.core.validators import FileExtensionValidator
 from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext as _
+from django.utils.formats import localize_input
 
 import iso8601
 
 from phonenumber_field.formfields import PhoneNumberField
 
+from agir.events.models import Event
 from agir.lib.data import departements_choices, regions_choices
 from agir.lib.form_fields import DateTimePickerWidget
 
@@ -106,7 +108,18 @@ FIELDS = {
     "datetime": DateTimeField,
 }
 
-PREDEFINED_CHOICES = {"departements": departements_choices, "regions": regions_choices}
+PREDEFINED_CHOICES = {
+    "departements": departements_choices,
+    "regions": regions_choices,
+    "organized_events": lambda form: (
+        (e.id, f"{e.name} ({localize_input(e.start_time, '%d/%m/%Y %H:%M')})")
+        for e in form.instance.organized_events.published()
+    ),
+}
+
+PREDEFINED_CHOICES_REVERSE = {
+    "organized_events": lambda id: Event.objects.filter(id=id).first()
+}
 
 
 def is_actual_model_field(field_descriptor):
@@ -116,7 +129,7 @@ def is_actual_model_field(field_descriptor):
     )
 
 
-def get_form_field(field_descriptor: dict, is_edition=False):
+def get_form_field(form, field_descriptor: dict, is_edition=False):
     field_descriptor = field_descriptor.copy()
     field_type = field_descriptor.pop("type")
     field_descriptor.pop("id")
@@ -133,8 +146,9 @@ def get_form_field(field_descriptor: dict, is_edition=False):
     klass = FIELDS.get(field_type)
 
     if "choices" in field_descriptor and isinstance(field_descriptor["choices"], str):
-        field_descriptor["choices"] = PREDEFINED_CHOICES.get(
-            field_descriptor["choices"]
+        choices = PREDEFINED_CHOICES.get(field_descriptor["choices"])
+        field_descriptor["choices"] = (
+            choices if not callable(choices) else choices(form)
         )
 
     if klass:
