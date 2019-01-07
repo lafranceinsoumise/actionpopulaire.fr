@@ -81,6 +81,7 @@ class LocationMixin(models.Model):
     COORDINATES_STREET = 20
     COORDINATES_CITY = 30
     COORDINATES_UNKNOWN_PRECISION = 50
+    COORDINATES_NO_POSITION = 254
     COORDINATES_NOT_FOUND = 255
     COORDINATES_TYPE_CHOICES = (
         (COORDINATES_MANUAL, _("Coordonnées manuelles")),
@@ -91,6 +92,7 @@ class LocationMixin(models.Model):
             COORDINATES_UNKNOWN_PRECISION,
             _("Coordonnées automatiques (qualité inconnue)"),
         ),
+        (COORDINATES_NO_POSITION, _("Pas de position géographique")),
         (COORDINATES_NOT_FOUND, _("Coordonnées introuvables")),
     )
 
