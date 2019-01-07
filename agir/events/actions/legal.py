@@ -54,3 +54,5 @@ QUESTIONS = [
         "préalablement autorisée par l'association de financement.",
     },
 ]
+
+QUESTIONS_DICT = {question.get("id"): question for question in QUESTIONS}
