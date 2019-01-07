@@ -34,13 +34,21 @@
         </div>
         <div class="col-md-6">
           {% if supportgroup.coordinates_type == None %}
-            <div class="alert alert-info">Localisation sur la carte en cours</div>
-          {% elif supportgroup.coordinates_type == 255 %}
+            <div class="alert alert-info">Localisation sur la carte en cours... Si cela dure trop longtemps, essayez <a
+                href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.</div>
+          {% elif supportgroup.coordinates_type == supportgroup.COORDINATES_NO_POSITION %}
+            <div class="alert alert-info">Ce groupe n'a pas d'adresse, ni de positionnement manuel sur le carte.</div>
+          {% elif supportgroup.coordinates_type == supportgroup.COORDINATES_NOT_FOUND %}
             <div class="alert alert-danger">
               Localisation sur la carte à partir de l'adresse non réussie. Merci de <a
                 href="{% url "edit_group" supportgroup.pk %}">préciser l'adresse</a> ou <a
                 href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
             </div>
+          {% elif supportgroup.coordinates == None %}
+              <div class="alert alert-danger">
+                Il semble y avoir un problème avec les coordonnées de votre groupe. Essayez <a
+                href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
+              </div>
           {% else %}
             <iframe title="Carte" class="col-sm-6"
                     src="{{ MAP_DOMAIN }}{% url "carte:single_group_map" supportgroup.id %}" height="300"

@@ -1,9 +1,8 @@
-import re
+import logging
+
 import requests
 from django.contrib.gis.geos import Point
-from django.core.cache import cache
 
-import logging
 from .models import LocationMixin
 
 logger = logging.getLogger(__name__)
@@ -27,14 +26,13 @@ def geocode_element(item):
             geocode_nominatim(item)
     else:
         item.coordinates = None
-        item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
+        item.coordinates_type = LocationMixin.COORDINATES_NO_POSITION
 
 
 def geocode_ban(item):
     """Find the location of an item using its location fields
 
     :param item:
-    :return: True if the item has changed (and should be saved), False in the other case
     """
     q = " ".join(
         l
@@ -60,17 +58,17 @@ def geocode_ban(item):
             f"Error while geocoding French address '{display_address}' with BAN",
             exc_info=True,
         )
-        return False
+        return
     except ValueError:
         logger.warning(
             "Invalid JSON while geocoding French address '{display_address}' with BAN",
             exc_info=True,
         )
-        return False
+        return
 
     if "features" not in results:
         logger.warning(f"Incorrect result from BAN for address '{display_address}'")
-        return False
+        return
 
     types = {
         "housenumber": LocationMixin.COORDINATES_EXACT,
@@ -84,7 +82,7 @@ def geocode_ban(item):
         if feature["properties"]["type"] in types:
             item.coordinates = Point(*feature["geometry"]["coordinates"])
             item.coordinates_type = types[feature["properties"]["type"]]
-            return True
+            return
 
     item.coordinates = None
     item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
@@ -123,19 +121,19 @@ def geocode_nominatim(item):
             f"Error while geocoding address '{display_address}' with Nominatim",
             exc_info=True,
         )
-        return False
+        return
     except ValueError:
         logger.warning(
             f"Invalid JSON while geocoding address '{display_address}' with Nominatim",
             exc_info=True,
         )
-        return False
+        return
 
     if results:
         item.coordinates = Point(float(results[0]["lon"]), float(results[0]["lat"]))
         item.coordinates_type = LocationMixin.COORDINATES_UNKNOWN_PRECISION
-        return True
+        return
     else:
         item.coordinates = None
         item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
-        return True
+        return
