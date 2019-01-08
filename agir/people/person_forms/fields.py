@@ -1,4 +1,6 @@
 import logging
+from uuid import UUID
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
@@ -124,9 +126,16 @@ PREDEFINED_CHOICES = {
     ),
 }
 
-PREDEFINED_CHOICES_REVERSE = {
-    "organized_events": lambda id: Event.objects.filter(id=id).first()
-}
+
+def event_from_value(uuid):
+    try:
+        UUID(uuid)
+        return Event.objects.filter(id=uuid).first()
+    except ValueError:
+        return uuid
+
+
+PREDEFINED_CHOICES_REVERSE = {"organized_events": event_from_value}
 
 
 def is_actual_model_field(field_descriptor):
