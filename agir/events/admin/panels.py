@@ -260,7 +260,12 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     search_fields = ("name", "description", "location_city", "location_country")
 
-    actions = (actions.export_events, actions.make_published, actions.unpublish)
+    actions = (
+        actions.export_events,
+        actions.make_published,
+        actions.make_private,
+        actions.unpublish,
+    )
 
     autocomplete_fields = ("tags",)
 
