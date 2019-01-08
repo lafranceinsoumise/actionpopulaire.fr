@@ -97,6 +97,7 @@ class EventDetailView(ObjectOpengraphMixin, PermissionsRequiredMixin, DetailView
 
 
 class EventIcsView(PermissionsRequiredMixin, DetailView):
+    model = Event
     permissions_required = ("events.view_event",)
     permission_denied_to_not_found = True
 
