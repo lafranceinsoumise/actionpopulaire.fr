@@ -13,10 +13,10 @@ def get_general_stats(start, end):
             published=True, created__range=(start, end)
         ).count(),
         "new_events": Event.objects.filter(
-            published=True, created__range=(start, end)
+            visibility=Event.VISIBILITY_PUBLIC, created__range=(start, end)
         ).count(),
         "events_happened": Event.objects.filter(
-            published=True, start_time__range=(start, end)
+            visibility=Event.VISIBILITY_PUBLIC, start_time__range=(start, end)
         ).count(),
         "new_memberships": Person.objects.filter(
             memberships__created__range=(start, end),

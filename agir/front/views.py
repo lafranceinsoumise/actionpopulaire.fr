@@ -44,7 +44,9 @@ class NBUrlsView(View):
     }
 
     def get(self, request, nb_path):
-        event = Event.objects.filter(nb_path=nb_path, published=True).first()
+        event = Event.objects.filter(
+            nb_path=nb_path, visibility=Event.VISIBILITY_PUBLIC
+        ).first()
         if event:
             return HttpResponsePermanentRedirect(reverse("view_event", args=[event.id]))
 

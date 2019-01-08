@@ -112,11 +112,14 @@ PREDEFINED_CHOICES = {
     "departements": departements_choices,
     "regions": regions_choices,
     "organized_events": lambda instance: (
-        (e.id, f"{e.name} ({localize_input(e.start_time, '%d/%m/%Y %H:%M')})")
+        (
+            e.id,
+            f"{e.name} ({localize_input(e.start_time, '%d/%m/%Y %H:%M')}) - {e.get_visibility_display()}",
+        )
         for e in (
-            instance.organized_events.published()
+            instance.organized_events.exclude(visibility=Event.VISIBILITY_ADMIN)
             if instance is not None
-            else Event.objects.published()
+            else Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
         )
     ),
 }

@@ -15,17 +15,11 @@ const renderCreateGroupForm = render(CreateGroupForm);
 
 function onLoad() {
   if (document.getElementById("create-event-react-app")) {
-    renderCreateEventForm(
-      "create-event-react-app",
-      document.reactAppProps || {}
-    );
+    renderCreateEventForm("create-event-react-app", window.reactAppProps || {});
   }
 
   if (document.getElementById("create-group-react-app")) {
-    renderCreateGroupForm(
-      "create-group-react-app",
-      document.reactAppProps || {}
-    );
+    renderCreateGroupForm("create-group-react-app", window.reactAppProps || {});
   }
 }
 

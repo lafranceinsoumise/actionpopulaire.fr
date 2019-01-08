@@ -1,6 +1,7 @@
 from django.contrib.auth import BACKEND_SESSION_KEY
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.utils.translation import ugettext as _
 
 
@@ -29,6 +30,7 @@ class HardLoginRequiredMixin(object):
 
 class PermissionsRequiredMixin(object):
     permissions_required = ()
+    permission_denied_to_not_found = False
     permission_denied_message = _(
         "Vous n'avez pas l'autorisation d'accéder à cette page."
     )
@@ -50,6 +52,8 @@ class PermissionsRequiredMixin(object):
 
             for perm in local_perms:
                 if not user.has_perm(perm, obj):
+                    if self.permission_denied_to_not_found:
+                        raise Http404()
                     raise PermissionDenied(self.permission_denied_message)
 
         return super().dispatch(*args, **kwargs)

@@ -206,6 +206,13 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
                 self.fields["image_accept_license"].error_messages["required"],
             )
 
+        if (
+            self.is_creation
+            and isinstance(cleaned_data["legal"], dict)
+            and any(cleaned_data["legal"].values())
+        ):
+            self.instance.visibility = Event.VISIBILITY_ORGANIZER
+
         return cleaned_data
 
     def save(self, commit=True):
@@ -269,6 +276,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             "location_country",
             "description",
             "subtype",
+            "legal",
         )
 
 

@@ -1,17 +1,18 @@
 from django import forms
 from django.contrib import admin
-from django.db.models.functions import Coalesce
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.db.models import F, Sum, Count, Q, Case, When, CharField
+from django.db.models import Q
 from django.urls import path
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.html import format_html, escape
 
-from agir.events.models import RSVP, Event
+from agir.events.actions import legal
+from agir.events.models import Event
 from agir.people.admin import PersonFormAdminMixin
 from agir.people.models import PersonFormSubmission
 from ...api.admin import admin_site
@@ -171,7 +172,8 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "end_time",
                     "calendars",
                     "tags",
-                    "published",
+                    "visibility",
+                    "legal_questions",
                 )
             },
         ),
@@ -230,12 +232,13 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "modified",
         "coordinates_type",
         "rsvps_buttons",
+        "legal_questions",
     )
     date_hierarchy = "start_time"
 
     list_display = (
         "name",
-        "published",
+        "visibility",
         "calendar_names",
         "location_short",
         "attendee_count",
@@ -244,7 +247,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
     )
     list_filter = (
         EventStatusFilter,
-        "published",
+        "visibility",
         EventHasReportFilter,
         DepartementListFilter,
         RegionListFilter,
@@ -314,6 +317,25 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
             return "-"
 
     link.short_description = _("Page sur le site")
+
+    def legal_questions(self, object):
+        if not isinstance(object.legal, dict):
+            return mark_safe("-")
+        return mark_safe(
+            render_to_string(
+                "admin/events/legal.html",
+                {
+                    "questions": {
+                        legal.QUESTIONS_DICT[question_id]["question"]: object.legal[
+                            question_id
+                        ]
+                        for question_id in object.legal
+                    }
+                },
+            )
+        )
+
+    legal_questions.short_description = "Questions légales"
 
     def rsvps_buttons(self, object):
         if object.subscription_form is None or object.pk is None:

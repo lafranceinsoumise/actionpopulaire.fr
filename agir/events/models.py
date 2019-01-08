@@ -32,7 +32,7 @@ from ..lib.form_fields import DateTimePickerWidget
 
 class EventQuerySet(models.QuerySet):
     def published(self):
-        return self.filter(published=True)
+        return self.filter(visibility=Event.VISIBILITY_PUBLIC)
 
     def upcoming(self, as_of=None, published_only=True):
         if as_of is None:
@@ -40,7 +40,7 @@ class EventQuerySet(models.QuerySet):
 
         condition = models.Q(end_time__gte=as_of)
         if published_only:
-            condition &= models.Q(published=True)
+            condition &= models.Q(visibility=Event.VISIBILITY_PUBLIC)
 
         return self.filter(condition)
 
@@ -50,7 +50,7 @@ class EventQuerySet(models.QuerySet):
 
         condition = models.Q(end_time__lt=as_of)
         if published_only:
-            condition &= models.Q(published=True)
+            condition &= models.Q(visibility=Event.VISIBILITY_PUBLIC)
         return self.filter(condition)
 
     def with_participants(self):
@@ -94,7 +94,7 @@ class RSVPQuerySet(models.QuerySet):
 
         condition = models.Q(event__end_time__gte=as_of)
         if published_only:
-            condition &= models.Q(event__published=True)
+            condition &= models.Q(event__visibility=Event.VISIBILITY_PUBLIC)
 
         return self.filter(condition)
 
@@ -104,7 +104,7 @@ class RSVPQuerySet(models.QuerySet):
 
         condition = models.Q(event__end_time__lt=as_of)
         if published_only:
-            condition &= models.Q(event__published=True)
+            condition &= models.Q(event__visibility=Event.VISIBILITY_PUBLIC)
 
         return self.filter(condition)
 
@@ -149,10 +149,20 @@ class Event(
         _("nom"), max_length=255, blank=False, help_text=_("Le nom de l'événement")
     )
 
-    published = models.BooleanField(
-        _("publié"),
-        default=True,
-        help_text=_("L'évenement doit-il être visible publiquement."),
+    VISIBILITY_ADMIN = "A"
+    VISIBILITY_ORGANIZER = "O"
+    VISIBILITY_PUBLIC = "P"
+    VISIBILITY_CHOICES = (
+        (VISIBILITY_ADMIN, "Caché"),
+        (VISIBILITY_ORGANIZER, "Visible par les organisateurs"),
+        (VISIBILITY_PUBLIC, "Public"),
+    )
+
+    visibility = models.CharField(
+        "Visibilité",
+        max_length=1,
+        choices=VISIBILITY_CHOICES,
+        default=VISIBILITY_PUBLIC,
     )
 
     subtype = models.ForeignKey(
@@ -222,6 +232,8 @@ class Event(
     scanner_category = models.IntegerField(
         "La catégorie que doivent avoir les tickets sur scanner", blank=True, null=True
     )
+
+    legal = JSONField(_("Informations juridiques"), null=True, blank=True, default=dict)
 
     class Meta:
         verbose_name = _("événement")
@@ -382,6 +394,26 @@ class EventSubtype(BaseSubtype):
         (TYPE_PUBLIC_ACTION, _("Action publique")),
         (TYPE_OTHER_EVENTS, _("Autres type d'événements")),
     )
+
+    TYPE_DESCRIPTION = {
+        TYPE_GROUP_MEETING: _(
+            "Une réunion qui concerne principalement les membres du groupes, et non le public de"
+            " façon générale. Par exemple, la réunion hebdomadaire du groupe, une réunion de travail,"
+            " ou l'audition d'une association"
+        ),
+        TYPE_PUBLIC_MEETING: _(
+            "Une réunion ouverts à tous les publics, au-delà des membres du groupe d'action, mais"
+            " qui aura lieu dans un lieu privé. Par exemple, une réunion publique avec un orateur,"
+            " une projection ou un concert."
+        ),
+        TYPE_PUBLIC_ACTION: _(
+            "Une action qui se déroulera dans un lieu public et qui aura comme objectif principal"
+            " d'aller à la rencontre ou d'atteindre des personnes extérieures à la FI"
+        ),
+        TYPE_OTHER_EVENTS: _(
+            "Tout autre type d'événement qui ne rentre pas dans les catégories ci-dessus."
+        ),
+    }
 
     type = models.CharField(_("Type d'événement"), max_length=1, choices=TYPE_CHOICES)
 
