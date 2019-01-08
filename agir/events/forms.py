@@ -5,6 +5,7 @@ from django.utils import timezone
 from crispy_forms.helper import FormHelper
 from crispy_forms import layout
 
+from agir.events.actions.legal import needs_approval
 from agir.groups.models import SupportGroup
 from agir.lib.form_components import *
 from agir.lib.form_mixins import (
@@ -209,7 +210,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         if (
             self.is_creation
             and isinstance(cleaned_data["legal"], dict)
-            and any(cleaned_data["legal"].values())
+            and needs_approval(cleaned_data["legal"])
         ):
             self.instance.visibility = Event.VISIBILITY_ORGANIZER
 
