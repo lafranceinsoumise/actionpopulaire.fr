@@ -12,6 +12,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from agir.api.admin import admin_site
+from agir.events.models import Event
 
 from agir.lib.admin import CenterOnFranceMixin, DepartementListFilter, RegionListFilter
 from agir.lib.utils import front_url
@@ -61,7 +62,7 @@ class GroupHasEventsFilter(admin.SimpleListFilter):
                         timezone.now() - timedelta(days=62),
                         timezone.now() + timedelta(days=31),
                     ),
-                    organized_events__published=True,
+                    organized_events__visibility=Event.VISIBILITY_PUBLIC,
                 ),
             )
         )
