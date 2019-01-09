@@ -322,24 +322,26 @@ class CancelEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
 
 
 class QuitEventView(SoftLoginRequiredMixin, PermissionsRequiredMixin, DeleteView):
-    permissions_required = ("events.view_event",)
-    permission_denied_to_not_found = True
     template_name = "events/quit.html"
-    success_url = reverse_lazy("list_events")
+    success_url = reverse_lazy("dashboard")
     context_object_name = "rsvp"
 
     def get_queryset(self):
-        return RSVP.objects.upcoming(as_of=timezone.now(), published_only=False)
+        return RSVP.objects.filter(event__end_time__gte=timezone.now())
 
     def get_object(self, queryset=None):
         try:
-            return (
+            rsvp = (
                 self.get_queryset()
                 .select_related("event")
                 .get(event__pk=self.kwargs["pk"], person=self.request.user.person)
             )
+            if not self.request.user.has_perm("events.view_event", rsvp.event):
+                raise Http404
         except RSVP.DoesNotExist:
             raise Http404()
+
+        return rsvp
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

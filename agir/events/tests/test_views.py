@@ -441,7 +441,7 @@ class RSVPTestCase(TestCase):
         }
 
     @mock.patch("agir.events.actions.rsvps.send_rsvp_notification")
-    def test_can_rsvp_to_simple_event(self, rsvp_notification):
+    def test_can_rsvp_to_simple_event_and_quit(self, rsvp_notification):
         self.client.force_login(self.person.role)
 
         url = reverse("view_event", kwargs={"pk": self.simple_event.pk})
@@ -462,6 +462,13 @@ class RSVPTestCase(TestCase):
 
         rsvp = RSVP.objects.get(person=self.person, event=self.simple_event)
         self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+
+        res = self.client.post(
+            reverse("quit_event", kwargs={"pk": self.simple_event.pk})
+        )
+        self.assertRedirects(res, reverse("dashboard"))
+        self.assertNotIn(self.person, self.simple_event.attendees.all())
+        self.assertEqual(1, self.simple_event.participants)
 
     def test_can_view_rsvp(self):
         self.client.force_login(self.already_rsvped.role)
