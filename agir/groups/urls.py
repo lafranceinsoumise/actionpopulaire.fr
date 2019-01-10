@@ -62,6 +62,11 @@ urlpatterns = [
         name="external_join_group",
     ),
     path(
+        "groupes/<uuid:pk>/impression/",
+        views.RedirectToPresseroView.as_view(),
+        name="redirect_to_pressero",
+    ),
+    path(
         "groupes/retirer_gestionnaire/<int:pk>/",
         views.RemoveManagerView.as_view(),
         name="remove_manager",

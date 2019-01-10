@@ -1,12 +1,12 @@
 import json
+import logging
 
 import ics
 from django.conf import settings
-from django.db import IntegrityError
-from django.urls import reverse_lazy, reverse
-from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.db import IntegrityError
 from django.db.models import Q, Sum
 from django.http import (
     Http404,
@@ -16,6 +16,8 @@ from django.http import (
     HttpResponse,
     HttpResponseForbidden,
 )
+from django.template.response import TemplateResponse
+from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html, mark_safe
 from django.utils.translation import ugettext as _, ugettext_lazy
@@ -28,13 +30,22 @@ from django.views.generic import (
 )
 from django.views.generic.edit import ProcessFormView, FormMixin, FormView
 
+from agir.authentication.view_mixins import (
+    HardLoginRequiredMixin,
+    PermissionsRequiredMixin,
+)
 from agir.donations.models import SpendingRequest
+from agir.front.view_mixins import (
+    ObjectOpengraphMixin,
+    ChangeLocationBaseView,
+    SearchByZipcodeBaseView,
+)
+from agir.groups.actions.pressero import redirect_to_pressero
+from agir.groups.actions.promo_codes import get_next_promo_code
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.groups.tasks import send_someone_joined_notification
-from agir.groups.actions.promo_codes import get_next_promo_code
 from agir.lib.utils import front_url
 from agir.people.views import ConfirmSubscriptionView
-
 from .forms import (
     SupportGroupForm,
     AddReferentForm,
@@ -42,15 +53,6 @@ from .forms import (
     GroupGeocodingForm,
     SearchGroupForm,
     ExternalJoinForm,
-)
-from agir.front.view_mixins import (
-    ObjectOpengraphMixin,
-    ChangeLocationBaseView,
-    SearchByZipcodeBaseView,
-)
-from agir.authentication.view_mixins import (
-    HardLoginRequiredMixin,
-    PermissionsRequiredMixin,
 )
 
 __all__ = [
@@ -65,6 +67,8 @@ __all__ = [
     "ChangeGroupLocationView",
     "SupportGroupListView",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 class CheckMembershipMixin:
@@ -542,3 +546,27 @@ class ChangeGroupLocationView(ChangeLocationBaseView):
     form_class = GroupGeocodingForm
     queryset = SupportGroup.objects.active().all()
     success_view_name = "manage_group"
+
+
+class RedirectToPresseroView(HardLoginRequiredMixin, DetailView):
+    template_name = "groups/pressero_error.html"
+    queryset = SupportGroup.objects.active()
+
+    def get(self, request, *args, **kwargs):
+        group = self.get_object()
+        person = request.user.person
+
+        if not group.is_certified:
+            raise Http404("Cette page n'existe pas")
+
+        if not Membership.objects.filter(
+            supportgroup=group, person=person, is_manager=True
+        ).exists:
+            raise PermissionDenied("Vous ne pouvez pas accéder à cette page.")
+
+        try:
+            return redirect_to_pressero(person)
+        except Exception as e:
+            logger.error("Problème rencontré avec l'API Pressero", exc_info=True)
+
+            return TemplateResponse(request, self.template_name)
