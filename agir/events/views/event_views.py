@@ -210,17 +210,13 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
         questions = QUESTIONS
 
         return super().get_context_data(
-            props=mark_safe(
-                json.dumps(
-                    {
-                        "initial": initial,
-                        "groups": groups,
-                        "types": types,
-                        "subtypes": subtypes,
-                        "questions": questions,
-                    }
-                )
-            ),
+            props={
+                "initial": initial,
+                "groups": groups,
+                "types": types,
+                "subtypes": subtypes,
+                "questions": questions,
+            },
             **kwargs
         )
 

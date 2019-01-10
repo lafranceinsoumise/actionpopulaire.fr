@@ -283,9 +283,7 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
         if person.first_name and person.last_name:
             initial["name"] = "{} {}".format(person.first_name, person.last_name)
 
-        return super().get_context_data(
-            props=mark_safe(json.dumps({"initial": initial})), **kwargs
-        )
+        return super().get_context_data(props={"initial": initial}, **kwargs)
 
 
 class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFormView):
