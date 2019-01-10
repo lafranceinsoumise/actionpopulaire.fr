@@ -63,41 +63,44 @@ class DonationForm(forms.Form):
         "les actions nationales de la France insoumise.",
     )
 
-    def __init__(self, *args, group_id=None, user=None, **kwargs):
+    def __init__(self, *args, enable_allocations, group_id=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.group = None
 
         self.helper = FormHelper()
         self.helper.form_class = "donation-form"
 
-        if group_id:
-            try:
-                self.group = self.fields["group"].queryset.get(pk=group_id)
-                self.fields["allocation"].label = format_html(
-                    "{} &laquo;&nbsp;{}&nbsp;&raquo;",
-                    "Montant alloué au groupe",
-                    self.group.name,
+        if enable_allocations:
+            if group_id:
+                try:
+                    self.group = self.fields["group"].queryset.get(pk=group_id)
+                    self.fields["allocation"].label = format_html(
+                        "{} &laquo;&nbsp;{}&nbsp;&raquo;",
+                        "Montant alloué au groupe",
+                        self.group.name,
+                    )
+                    self.helper.attrs["data-group-id"] = group_id
+                    self.helper.attrs["data-group-name"] = self.group.name
+                except (SupportGroup.DoesNotExist, ValidationError):
+                    pass
+
+            if self.group is None and user.is_authenticated:
+                self.fields["group"].queryset = self.fields["group"].queryset.filter(
+                    memberships__person=user.person
                 )
-                self.helper.attrs["data-group-id"] = group_id
-                self.helper.attrs["data-group-name"] = self.group.name
-            except (SupportGroup.DoesNotExist, ValidationError):
-                pass
 
-        if self.group is None and user.is_authenticated:
-            self.fields["group"].queryset = self.fields["group"].queryset.filter(
-                memberships__person=user.person
-            )
-
-        if self.group is not None:
-            del self.fields["group"]
-        elif user.is_anonymous or not self.fields["group"].queryset:
+            if self.group is not None:
+                del self.fields["group"]
+            elif user.is_anonymous or not self.fields["group"].queryset:
+                del self.fields["group"]
+                del self.fields["allocation"]
+        else:
             del self.fields["group"]
             del self.fields["allocation"]
 
         self.helper.add_input(layout.Submit("valider", "Je donne !"))
 
     def clean_allocation(self):
-        # return 0 when allocation is empty
         return self.cleaned_data.get("allocation") or 0
 
     def clean(self):
@@ -173,11 +176,18 @@ class DonorForm(MetaFieldsMixin, forms.ModelForm):
         label=_("Je certifie être domicilié⋅e fiscalement en France"),
     )
 
-    def __init__(self, amount, allocation, group_id, *args, **kwargs):
+    def __init__(
+        self, enable_allocations, amount, allocation, group_id, *args, **kwargs
+    ):
         super().__init__(*args, **kwargs)
 
         self.fields["amount"].initial = amount
-        self.fields["allocation"].initial = allocation
+
+        if enable_allocations:
+            self.fields["allocation"].initial = allocation
+        else:
+            del self.fields["allocation"]
+
         self.fields["group"].initial = group_id
 
         self.adding = self.instance._state.adding

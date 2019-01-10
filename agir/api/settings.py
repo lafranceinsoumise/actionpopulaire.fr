@@ -135,6 +135,7 @@ INSTALLED_APPS = [
     "agir.donations",
     "agir.system_pay",
     "agir.checks",
+    "agir.europeennes",
     # security
     "corsheaders",
     "oauth2_provider",
@@ -514,6 +515,12 @@ SYSTEMPAY_PRODUCTION = os.environ.get("SYSTEMPAY_PRODUCTION", False)
 SYSTEMPAY_CURRENCY = os.environ.get("SYSTEMPAY_CURRENCY", 978)
 SYSTEMPAY_CERTIFICATE = os.environ.get("SYSTEMPAY_CERTIFICATE", "arbitrarystring")
 
+SYSTEMPAY_AFCE_SITE_ID = os.environ.get("SYSTEMPAY_AFCE_SITE_ID", 0)
+SYSTEMPAY_AFCE_PRODUCTION = os.environ.get("SYSTEMPAY_AFCE_PRODUCTION", False)
+SYSTEMPAY_AFCE_CERTIFICATE = os.environ.get(
+    "SYSTEMPAY_AFCE_CERTIFICATE", "arbitrarystring"
+)
+
 DONATION_MINIMUM = 1
 DONATION_MAXIMUM = 1000
 
@@ -530,7 +537,11 @@ EMAIL_DISABLED_DOMAINS = (
 
 
 # The first one will be the default one
-PAYMENT_MODES = ["agir.system_pay.SystemPayPaymentMode", "agir.checks.CheckPaymentMode"]
+PAYMENT_MODES = [
+    "agir.system_pay.SystemPayPaymentMode",
+    "agir.checks.CheckPaymentMode",
+    "agir.europeennes.AFCESystemPayPaymentMode",
+]
 
 # OVH Settings
 OVH_SMS_DISABLE = os.environ.get("OVH_SMS_DISABLE", "true").lower() == "true"
