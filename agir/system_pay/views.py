@@ -1,4 +1,6 @@
 import logging
+
+from django.conf import settings
 from django.db import transaction
 from django.http import (
     HttpResponseForbidden,
@@ -33,10 +35,13 @@ PAYMENT_ID_SESSION_KEY = "_payment_id"
 
 class SystempayRedirectView(TemplateView):
     template_name = "system_pay/redirect.html"
+    sp_config = None
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            form=SystempayRedirectForm.get_form_for_transaction(self.transaction),
+            form=SystempayRedirectForm.get_form_for_transaction(
+                self.transaction, self.sp_config
+            ),
             **kwargs
         )
 
@@ -53,6 +58,7 @@ class SystempayRedirectView(TemplateView):
 
 class SystemPayWebhookView(APIView):
     permission_classes = []
+    sp_config = None
 
     def post(self, request):
         if (
@@ -63,7 +69,7 @@ class SystemPayWebhookView(APIView):
             logger.exception("Requête malformée de Systempay")
             return HttpResponseBadRequest()
 
-        if not check_signature(request.data):
+        if not check_signature(request.data, self.sp_config["certificate"]):
             return HttpResponseForbidden()
 
         try:
