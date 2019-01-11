@@ -2,6 +2,7 @@ from django.http import StreamingHttpResponse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from agir.events.models import Event
 from ..actions import events_to_csv_lines
 
 
@@ -22,14 +23,25 @@ export_events.short_description = _("Exporter les événements en CSV")
 
 
 def make_published(modeladmin, request, queryset):
-    queryset.update(published=True)
+    queryset.update(visibility=Event.VISIBILITY_PUBLIC)
 
 
-make_published.short_description = _("Publier les événements")
+make_published.short_description = _("Passer les événements en visibilité publique")
+
+
+def make_private(modeladmin, request, queryset):
+    queryset.update(visibility=Event.VISIBILITY_ORGANIZER)
+
+
+make_private.short_description = _(
+    "Passer les événements en visibilité organisateurices"
+)
 
 
 def unpublish(modeladmin, request, queryset):
-    queryset.update(published=False)
+    queryset.update(visibility=Event.VISIBILITY_ADMIN)
 
 
-unpublish.short_description = _("Dépublier les événements")
+unpublish.short_description = _(
+    "Passer les événements en visibilité administrateurices"
+)

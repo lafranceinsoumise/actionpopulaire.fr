@@ -1,11 +1,10 @@
 import django_filters
 from django_filters import filters
 
-from agir.events.models import Calendar, EventSubtype
+from agir.events.models import Calendar, EventSubtype, Event
 
 
 class EventFilterSet(django_filters.FilterSet):
-    published = filters.BooleanFilter("published")
     calendars = filters.ModelMultipleChoiceFilter(
         field_name="calendars", queryset=Calendar.objects.all(), label="Calendriers"
     )
@@ -15,3 +14,7 @@ class EventFilterSet(django_filters.FilterSet):
     subtype = django_filters.filterset.ModelMultipleChoiceFilter(
         queryset=EventSubtype.objects.all()
     )
+
+    class Meta:
+        model = Event
+        fields = ["visibility"]

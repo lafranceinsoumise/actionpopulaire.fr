@@ -138,7 +138,7 @@ class GroupsView(ListAPIView):
                             now() - timedelta(days=62),
                             now() + timedelta(days=31),
                         ),
-                        organized_events__published=True,
+                        organized_events__visibility=Event.VISIBILITY_PUBLIC,
                     ),
                 )
             )

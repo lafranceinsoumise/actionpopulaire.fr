@@ -106,6 +106,39 @@ class EventPagesTestCase(TestCase):
             person=self.other_person, event=self.other_event
         )
 
+    def test_can_see_public_event(self):
+        res = self.client.get(
+            reverse("view_event", kwargs={"pk": self.organized_event.pk})
+        )
+
+        self.assertContains(res, self.organized_event.name)
+
+    def test_cannot_see_private_event_only_if_organizer(self):
+        self.organized_event.visibility = Event.VISIBILITY_ORGANIZER
+        self.organized_event.save()
+
+        self.client.force_login(self.other_person.role)
+        res = self.client.get(
+            reverse("view_event", kwargs={"pk": self.organized_event.pk})
+        )
+        self.assertNotContains(res, self.organized_event.name, status_code=404)
+
+        self.client.force_login(self.person.role)
+        res = self.client.get(
+            reverse("view_event", kwargs={"pk": self.organized_event.pk})
+        )
+        self.assertContains(res, self.organized_event.name)
+
+    def test_cannot_see_admin_event(self):
+        self.organized_event.visibility = Event.VISIBILITY_ADMIN
+        self.organized_event.save()
+
+        self.client.force_login(self.person.role)
+        res = self.client.get(
+            reverse("view_event", kwargs={"pk": self.organized_event.pk})
+        )
+        self.assertNotContains(res, self.organized_event.name, status_code=404)
+
     @mock.patch.object(EventForm, "geocoding_task")
     @mock.patch("agir.events.forms.send_event_changed_notification")
     def test_can_modify_organized_event(
@@ -408,7 +441,7 @@ class RSVPTestCase(TestCase):
         }
 
     @mock.patch("agir.events.actions.rsvps.send_rsvp_notification")
-    def test_can_rsvp_to_simple_event(self, rsvp_notification):
+    def test_can_rsvp_to_simple_event_and_quit(self, rsvp_notification):
         self.client.force_login(self.person.role)
 
         url = reverse("view_event", kwargs={"pk": self.simple_event.pk})
@@ -429,6 +462,13 @@ class RSVPTestCase(TestCase):
 
         rsvp = RSVP.objects.get(person=self.person, event=self.simple_event)
         self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+
+        res = self.client.post(
+            reverse("quit_event", kwargs={"pk": self.simple_event.pk})
+        )
+        self.assertRedirects(res, reverse("dashboard"))
+        self.assertNotIn(self.person, self.simple_event.attendees.all())
+        self.assertEqual(1, self.simple_event.participants)
 
     def test_can_view_rsvp(self):
         self.client.force_login(self.already_rsvped.role)

@@ -41,15 +41,18 @@
 
         {% for date, events in events_by_date %}
           <h3>{{ date }}</h3>
-          {% for event in events %}
+          <ul>
+          {% for event in events %}<li>
             <h4>{{ event.name }}{% if event.calendars.all %}<br>
               <small>({% for c in event.calendars.all %}{{ c.name }}{% if not forloop.last %},
               {% endif %}{% endfor %})
               </small>
             {% endif %}</h4>
+            <p>{{ event.get_display_date }}</p>
             <p>{{ event.html_full_address }}</p>
             <p>{{ event.html_description }}</p>
-          {% endfor %}
+          </li>{% endfor %}
+          </ul>
         {% endfor %}
       {% endfor %}
     </div>

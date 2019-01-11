@@ -115,7 +115,7 @@ def load_fake_data():
         ),
         "user1_unpublished_event": Event.objects.create(
             name="Évenement non publié créé par user1",
-            published=False,
+            visibility=Event.VISIBILITY_ADMIN,
             start_time=timezone.now() + timedelta(days=1),
             end_time=timezone.now() + timedelta(days=1, hours=1),
             coordinates=Point(2.294444, 48.858333),  # Tour Eiffel

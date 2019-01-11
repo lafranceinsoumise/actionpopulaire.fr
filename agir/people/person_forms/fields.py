@@ -1,4 +1,6 @@
 import logging
+from uuid import UUID
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
@@ -112,18 +114,28 @@ PREDEFINED_CHOICES = {
     "departements": departements_choices,
     "regions": regions_choices,
     "organized_events": lambda instance: (
-        (e.id, f"{e.name} ({localize_input(e.start_time, '%d/%m/%Y %H:%M')})")
+        (
+            e.id,
+            f"{e.name} ({localize_input(e.start_time, '%d/%m/%Y %H:%M')}) - {e.get_visibility_display()}",
+        )
         for e in (
-            instance.organized_events.published()
+            instance.organized_events.exclude(visibility=Event.VISIBILITY_ADMIN)
             if instance is not None
-            else Event.objects.published()
+            else Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
         )
     ),
 }
 
-PREDEFINED_CHOICES_REVERSE = {
-    "organized_events": lambda id: Event.objects.filter(id=id).first()
-}
+
+def event_from_value(uuid):
+    try:
+        UUID(uuid)
+        return Event.objects.filter(id=uuid).first()
+    except ValueError:
+        return uuid
+
+
+PREDEFINED_CHOICES_REVERSE = {"organized_events": event_from_value}
 
 
 def is_actual_model_field(field_descriptor):

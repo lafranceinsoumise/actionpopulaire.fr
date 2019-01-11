@@ -1,0 +1,5 @@
+<p>
+    {% for question, answer in questions.items %}
+        <b>{{ question }}</b>&nbsp;: {{ answer|yesno:"Oui,Non,Peut-être" }}{% if not forloop.last %}<br />{% endif %}
+    {% endfor %}
+</p>

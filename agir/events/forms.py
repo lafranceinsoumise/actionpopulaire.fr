@@ -5,6 +5,7 @@ from django.utils import timezone
 from crispy_forms.helper import FormHelper
 from crispy_forms import layout
 
+from agir.events.actions.legal import needs_approval
 from agir.groups.models import SupportGroup
 from agir.lib.form_components import *
 from agir.lib.form_mixins import (
@@ -206,6 +207,13 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
                 self.fields["image_accept_license"].error_messages["required"],
             )
 
+        if (
+            self.is_creation
+            and isinstance(cleaned_data["legal"], dict)
+            and needs_approval(cleaned_data["legal"])
+        ):
+            self.instance.visibility = Event.VISIBILITY_ORGANIZER
+
         return cleaned_data
 
     def save(self, commit=True):
@@ -269,6 +277,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
             "location_country",
             "description",
             "subtype",
+            "legal",
         )
 
 

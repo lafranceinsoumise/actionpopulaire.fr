@@ -23,6 +23,22 @@ PRESSERO_LOGIN = "person-{pk}"
 PRESSERO_EMAIL = "person-{pk}@lafranceinsoumise.fr"
 
 
+def is_pressero_enabled():
+    return all(
+        getattr(settings, a)
+        for a in [
+            "PRESSERO_API_URL",
+            "PRESSERO_USER_NAME",
+            "PRESSERO_SUBSCRIBER_ID",
+            "PRESSERO_CONSUMER_ID",
+            "PRESSERO_PASSWORD",
+            "PRESSERO_SITE",
+            "PRESSERO_APPROBATOR_ID",
+            "PRESSERO_GROUP_ID",
+        ]
+    )
+
+
 def authenticate_and_get_token(s: Optional[requests.Session] = None) -> str:
     if s is None:
         s = requests.Session()

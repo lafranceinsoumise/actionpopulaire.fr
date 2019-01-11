@@ -26,7 +26,7 @@ before_install:
   - pip install -U pipenv
 
 install:
-  - npm i && npm run build
+  - npm ci && npm run build
   - pipenv install --dev --deploy
 
 script:

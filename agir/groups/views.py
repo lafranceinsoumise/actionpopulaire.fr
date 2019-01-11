@@ -40,7 +40,7 @@ from agir.front.view_mixins import (
     ChangeLocationBaseView,
     SearchByZipcodeBaseView,
 )
-from agir.groups.actions.pressero import redirect_to_pressero
+from agir.groups.actions.pressero import redirect_to_pressero, is_pressero_enabled
 from agir.groups.actions.promo_codes import get_next_promo_code
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.groups.tasks import send_someone_joined_notification
@@ -225,6 +225,7 @@ class SupportGroupManagementView(
         kwargs["spending_requests"] = SpendingRequest.objects.filter(
             group=self.object
         ).exclude(status=SpendingRequest.STATUS_PAID)
+        kwargs["is_pressero_enabled"] = is_pressero_enabled()
 
         return super().get_context_data(
             is_referent=self.user_membership is not None
@@ -287,9 +288,7 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
         if person.first_name and person.last_name:
             initial["name"] = "{} {}".format(person.first_name, person.last_name)
 
-        return super().get_context_data(
-            props=mark_safe(json.dumps({"initial": initial})), **kwargs
-        )
+        return super().get_context_data(props={"initial": initial}, **kwargs)
 
 
 class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFormView):
@@ -555,6 +554,9 @@ class RedirectToPresseroView(HardLoginRequiredMixin, DetailView):
     def get(self, request, *args, **kwargs):
         group = self.get_object()
         person = request.user.person
+
+        if not is_pressero_enabled():
+            raise Http404("Cette page n'existe pas")
 
         if not group.is_certified:
             raise Http404("Cette page n'existe pas")

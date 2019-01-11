@@ -103,7 +103,7 @@ class LegacyEventViewSetTestCase(TestCase):
         }.issubset(item)
 
     def unpublish_event(self):
-        self.event.published = False
+        self.event.visibility = Event.VISIBILITY_ADMIN
         self.event.save()
 
     def test_cannot_list_unpublished_events_while_unauthicated(self):
@@ -182,7 +182,7 @@ class LegacyEventViewSetTestCase(TestCase):
             "",
             data={
                 "description": "Plus mieux!",
-                "published": False,
+                "visibility": "A",
                 "organizers": [
                     reverse(
                         "legacy:person-detail",
@@ -201,7 +201,7 @@ class LegacyEventViewSetTestCase(TestCase):
         self.event.refresh_from_db()
 
         self.assertEqual(self.event.description, "Plus mieux!")
-        self.assertEqual(self.event.published, False)
+        self.assertEqual(self.event.visibility, Event.VISIBILITY_ADMIN)
         # When PATCHing through a client, the organizers should be repaced by
         # the new list
         self.assertIn(self.unprivileged_person, self.event.organizers.all())
@@ -556,7 +556,7 @@ class EventWorkerTestCase(TestCase):
             name="event",
             start_time=timezone.now() + timezone.timedelta(hours=2),
             end_time=timezone.now() + timezone.timedelta(hours=4),
-            published=False,
+            visibility=Event.VISIBILITY_ADMIN,
         )
 
         self.past_event = Event.objects.create(
