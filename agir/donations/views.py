@@ -133,8 +133,9 @@ class PersonalInformationView(UpdateView):
     def form_valid(self, form):
         person = form.save()
         amount = form.cleaned_data["amount"]
-        allocation = form.cleaned_data["allocation"]
-        group = form.cleaned_data["group"]
+        if self.enable_allocations:
+            allocation = form.cleaned_data["allocation"]
+            group = form.cleaned_data["group"]
 
         with transaction.atomic():
             if self.enable_allocations and allocation and group:
