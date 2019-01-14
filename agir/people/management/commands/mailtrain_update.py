@@ -21,9 +21,11 @@ class Command(BaseCommand):
         min_letter = string.hexdigits[timezone.now().day % 8 * 2]
         max_letter = string.hexdigits[(timezone.now().day + 1) % 8 * 2]
 
-        for person in Person.objects.filter(
-            id__gt=UUID(min_letter + PADDING), id__lt=UUID(max_letter + PADDING)
-        ).iterator():
+        qs = Person.objects.filter(id__gte=UUID(min_letter + PADDING))
+        if max_letter > min_letter:
+            qs = qs.filter(id__lt=UUID(max_letter + PADDING))
+
+        for person in qs.iterator():
             update_person(person)
             if kwargs["verbosity"] > 1:
                 print("Updated %s " % person.email)
