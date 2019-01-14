@@ -6,24 +6,34 @@ import django.utils.timezone
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('groups', '0030_auto_20190114_1514'),
-    ]
+    dependencies = [("groups", "0030_auto_20190114_1514")]
 
     operations = [
         migrations.AlterField(
-            model_name='membership',
-            name='created',
-            field=models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="membership",
+            name="created",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
         migrations.AlterField(
-            model_name='supportgroup',
-            name='created',
-            field=models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="supportgroup",
+            name="created",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
         migrations.AlterField(
-            model_name='supportgroupsubtype',
-            name='created',
-            field=models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="supportgroupsubtype",
+            name="created",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
     ]

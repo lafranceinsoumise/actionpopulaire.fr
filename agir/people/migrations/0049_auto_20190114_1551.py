@@ -6,29 +6,43 @@ import django.utils.timezone
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('people', '0048_auto_20190114_1514'),
-    ]
+    dependencies = [("people", "0048_auto_20190114_1514")]
 
     operations = [
         migrations.AlterField(
-            model_name='person',
-            name='created',
-            field=models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="person",
+            name="created",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
         migrations.AlterField(
-            model_name='personform',
-            name='created',
-            field=models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="personform",
+            name="created",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
         migrations.AlterField(
-            model_name='personformsubmission',
-            name='created',
-            field=models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="personformsubmission",
+            name="created",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
         migrations.AlterField(
-            model_name='personvalidationsms',
-            name='created',
-            field=models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="personvalidationsms",
+            name="created",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
     ]

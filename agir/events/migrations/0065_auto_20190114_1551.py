@@ -6,34 +6,52 @@ import django.utils.timezone
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('events', '0064_auto_20190114_1514'),
-    ]
+    dependencies = [("events", "0064_auto_20190114_1514")]
 
     operations = [
         migrations.AlterField(
-            model_name='calendaritem',
-            name='created',
-            field=models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="calendaritem",
+            name="created",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
         migrations.AlterField(
-            model_name='event',
-            name='created',
-            field=models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="event",
+            name="created",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
         migrations.AlterField(
-            model_name='eventimage',
-            name='created',
-            field=models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="eventimage",
+            name="created",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
         migrations.AlterField(
-            model_name='eventsubtype',
-            name='created',
-            field=models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="eventsubtype",
+            name="created",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
         migrations.AlterField(
-            model_name='rsvp',
-            name='created',
-            field=models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='created'),
+            model_name="rsvp",
+            name="created",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now,
+                editable=False,
+                verbose_name="created",
+            ),
         ),
     ]
