@@ -5,10 +5,8 @@ from __future__ import unicode_literals
 import django.contrib.gis.db.models.fields
 import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
-import django.db.models.deletion
 import django.utils.timezone
 import django_countries.fields
-import model_utils.fields
 
 
 class Migration(migrations.Migration):
@@ -32,7 +30,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "created",
-                    model_utils.fields.AutoCreatedField(
+                    models.DateTimeField(
                         default=django.utils.timezone.now,
                         editable=False,
                         verbose_name="created",
@@ -40,7 +38,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "modified",
-                    model_utils.fields.AutoLastModifiedField(
+                    models.DateTimeField(
                         default=django.utils.timezone.now,
                         editable=False,
                         verbose_name="modified",

@@ -4,10 +4,8 @@ from __future__ import unicode_literals
 
 import django.core.validators
 from django.db import migrations, models
-import django.db.models.deletion
 import django.utils.timezone
 from agir.events import models as events_models
-import model_utils.fields
 
 
 class Migration(migrations.Migration):
@@ -26,7 +24,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="eventsubtype",
             name="created",
-            field=model_utils.fields.AutoCreatedField(
+            field=models.DateTimeField(
                 default=django.utils.timezone.now,
                 editable=False,
                 verbose_name="created",
@@ -35,7 +33,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="eventsubtype",
             name="modified",
-            field=model_utils.fields.AutoLastModifiedField(
+            field=models.DateTimeField(
                 default=django.utils.timezone.now,
                 editable=False,
                 verbose_name="modified",
