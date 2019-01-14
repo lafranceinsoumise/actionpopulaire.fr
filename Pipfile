@@ -50,7 +50,6 @@ django-debug-toolbar = "==1.*"
 
 ## deprecated
 django-ajax-selects = "==1.7.*"  # should be removed once replaced with native ajax fields from Django 2
-django-model-utils = "==3.*"  # used only to add fields created and modified, could be replace by simple AbstractModel
 
 
 # celery

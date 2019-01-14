@@ -12,7 +12,6 @@ from django.contrib.postgres.indexes import GinIndex
 from django_prometheus.models import ExportModelOperationsMixin
 from django.utils import timezone
 
-from model_utils.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.lib.models import (
@@ -20,6 +19,7 @@ from agir.lib.models import (
     LocationMixin,
     AbstractLabel,
     NationBuilderResource,
+    TimeStampedModel,
 )
 from agir.authentication.models import Role
 from agir.lib.search import PrefixSearchQuery

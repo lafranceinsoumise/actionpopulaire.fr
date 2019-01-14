@@ -4,10 +4,9 @@ from django.template.defaultfilters import floatformat
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
-from model_utils.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
 
-from agir.lib.models import LocationMixin
+from agir.lib.models import LocationMixin, TimeStampedModel
 from agir.lib.display import display_address
 from .types import get_payment_choices
 from .payment_modes import PAYMENT_MODES

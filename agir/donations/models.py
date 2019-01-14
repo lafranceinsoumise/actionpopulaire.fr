@@ -5,10 +5,10 @@ from django.core import validators
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from dynamic_filenames import FilePattern
-from model_utils.models import TimeStampedModel
 from reversion.models import Revision, Version
 
 from agir.donations.model_fields import AmountField
+from agir.lib.models import TimeStampedModel
 
 
 class Operation(models.Model):

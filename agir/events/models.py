@@ -10,7 +10,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.postgres.fields import JSONField
 from django_prometheus.models import ExportModelOperationsMixin
 from dynamic_filenames import FilePattern
-from model_utils.models import TimeStampedModel
 
 from stdimage.models import StdImageField
 from slugify import slugify
@@ -26,6 +25,7 @@ from ..lib.models import (
     DescriptionMixin,
     DescriptionField,
     BaseSubtype,
+    TimeStampedModel,
 )
 from ..lib.form_fields import DateTimePickerWidget
 

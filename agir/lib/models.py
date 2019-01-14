@@ -3,6 +3,7 @@ import uuid
 import re
 from django.contrib.gis.db import models
 from django.core.validators import RegexValidator
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe, format_html, format_html_join
 from django_countries.fields import CountryField
@@ -10,7 +11,6 @@ from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from dynamic_filenames import FilePattern
 
-from model_utils.models import TimeStampedModel
 from stdimage.models import StdImageField
 
 from agir.lib import data
@@ -21,6 +21,14 @@ from .display import display_address
 
 
 RE_FRENCH_ZIPCODE = re.compile("^[0-9]{5}$")
+
+
+class TimeStampedModel(models.Model):
+    created = models.DateTimeField(_("created"), default=timezone.now)
+    modified = models.DateTimeField(_("modified"), auto_now=True)
+
+    class Meta:
+        abstract = True
 
 
 class UUIDIdentified(models.Model):

@@ -7,14 +7,11 @@ from agir.people.models import Person, PersonEmail
 
 class WebhookTestCase(APITestCase):
     def setUp(self):
-        self.new_bounced_person = Person.objects.create_person(
-            email="new@bounce.com", created=timezone.now()
-        )
+        self.new_bounced_person = Person.objects.create_person(email="new@bounce.com")
 
         self.old_bounced_person = Person.objects.create_person(
             email="old@bounce.com", created=timezone.now() - timezone.timedelta(hours=2)
         )
-
         self.old_bounced_person.add_email("other_old@bounce.com")
 
         self.sendgrid_payload = [

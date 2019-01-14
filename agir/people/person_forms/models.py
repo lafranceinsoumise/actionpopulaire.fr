@@ -7,11 +7,9 @@ from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django_prometheus.models import ExportModelOperationsMixin
 
-from model_utils.models import TimeStampedModel
 from phonenumber_field.phonenumber import PhoneNumber
 
-from agir.lib.models import DescriptionField
-
+from agir.lib.models import DescriptionField, TimeStampedModel
 
 __all__ = ["PersonForm", "PersonFormSubmission"]
 
