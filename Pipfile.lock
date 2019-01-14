@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d6265bddb9778b6b5ed0c4f524b662c6dbf4981ea19940c3c4783aacd5de97a9"
+            "sha256": "da6397e3c5dc778f5584d1e4b3489c834667ef49c1133e2acd0780c0e3ad8b54"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -18,10 +18,10 @@
     "default": {
         "amqp": {
             "hashes": [
-                "sha256:073dd02fdd73041bffc913b767866015147b61f2a9bc104daef172fc1a0066eb",
-                "sha256:eed41946890cd43e8dee44a316b85cf6fee5a1a34bb4a562b660a358eb529e1b"
+                "sha256:9f181e4aef6562e6f9f45660578fc1556150ca06e836ecb9e733e6ea10b48464",
+                "sha256:c3d7126bfbc640d076a01f1f4f6e609c0e4348508150c1f61336b0d83c738d2b"
             ],
-            "version": "==2.3.2"
+            "version": "==2.4.0"
         },
         "arrow": {
             "hashes": [
@@ -57,11 +57,11 @@
         },
         "bleach": {
             "hashes": [
-                "sha256:48d39675b80a75f6d1c3bdbffec791cf0bbbab665cf01e20da701c77de278718",
-                "sha256:73d26f018af5d5adcdabf5c1c974add4361a9c76af215fe32fdec8a6fc5fb9b9"
+                "sha256:213336e49e102af26d9cde77dd2d0397afabc5a6bf2fed985dc35b5d1e285a16",
+                "sha256:3fdf7f77adcf649c9911387df51254b813185e32b2c6619f690b593a617e19fa"
             ],
             "index": "pypi",
-            "version": "==3.0.2"
+            "version": "==3.1.0"
         },
         "boltons": {
             "hashes": [
@@ -416,10 +416,10 @@
         },
         "oauthlib": {
             "hashes": [
-                "sha256:ac35665a61c1685c56336bda97d5eefa246f1202618a1d6f34fccb1bdd404162",
-                "sha256:d883b36b21a6ad813953803edfa563b1b579d79ca758fe950d1bc9e8b326025b"
+                "sha256:0a8b2e0daa7afb62bd1b0b387b7a3723fa9a35d1183694ca5a5c8e3d6df59913",
+                "sha256:8932fb34f7c6a4fc50c9f423b105923ed2e6df091b3c388d182540db02c581a0"
             ],
-            "version": "==2.1.0"
+            "version": "==3.0.0"
         },
         "ovh": {
             "hashes": [
@@ -431,11 +431,11 @@
         },
         "phonenumbers": {
             "hashes": [
-                "sha256:e8e5cec198d7aad477867c23aa897525a4c112971d4b378cc8c49bb57b975d7a",
-                "sha256:f1c0af036f0d7084a9a5f112f75b76da7f55753df59a4c61fb4aa5ba76959721"
+                "sha256:0d870906c6019b41bd4b3720f804aec85a21fd78a7676ac260dcbf218b4e7097",
+                "sha256:e038bde747aa967d890c9a59528b00a24fba0ad883404901c8318c137510d732"
             ],
             "index": "pypi",
-            "version": "==8.10.2"
+            "version": "==8.10.3"
         },
         "pillow": {
             "hashes": [
@@ -628,11 +628,11 @@
         },
         "tqdm": {
             "hashes": [
-                "sha256:79420109a762f82e20e8ecdc3b3bc1bc6c6536884a8de5fa86a50eb99386376a",
-                "sha256:7fa801cf60e318bf7d2ac7498254df0f3d7a3ad23c622ae63666257d5f833967"
+                "sha256:b856be5cb6cfaee3b2733655c7c5bbc7751291bb5d1a4f54f020af4727570b3e",
+                "sha256:c9b9b5eeba13994a4c266aae7eef7aeeb0ba2973e431027e942b4faea139ef49"
             ],
             "index": "pypi",
-            "version": "==4.29.0"
+            "version": "==4.29.1"
         },
         "unicode-slugify": {
             "hashes": [
