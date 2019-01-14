@@ -218,7 +218,7 @@ def send_cancellation_notification(event_pk):
         return
 
     # check it is indeed cancelled
-    if event.published:
+    if event.visibility != Event.VISIBILITY_ADMIN:
         return
 
     event_name = event.name

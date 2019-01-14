@@ -30,6 +30,7 @@ from agir.donations.forms import (
     DocumentForm,
 )
 from agir.groups.models import SupportGroup, Membership
+from agir.payments import payment_modes
 from agir.payments.actions import create_payment, redirect_to_payment
 from agir.payments.models import Payment
 from agir.people.models import Person
@@ -52,27 +53,35 @@ class AskAmountView(FormView):
     form_class = forms.DonationForm
     template_name = "donations/ask_amount.html"
     success_url = reverse_lazy("donation_information")
+    enable_allocations = True
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
+        kwargs["enable_allocations"] = self.enable_allocations
         kwargs["group_id"] = self.request.GET.get("group")
         kwargs["user"] = self.request.user
         return kwargs
 
     def form_valid(self, form):
         amount = int(form.cleaned_data["amount"] * 100)
-        # use int to floor down the value as well as converting to an int
-        allocation = int(form.cleaned_data.get("allocation", 0) * 100)
-
         self.request.session[session_key("amount")] = amount
-        self.request.session[session_key("allocation")] = allocation
-        self.request.session[session_key("group")] = form.group and str(form.group.pk)
+
+        if self.enable_allocations:
+            # use int to floor down the value as well as converting to an int
+            allocation = int(form.cleaned_data.get("allocation", 0) * 100)
+            self.request.session[session_key("allocation")] = allocation
+            self.request.session[session_key("group")] = form.group and str(
+                form.group.pk
+            )
+
         return super().form_valid(form)
 
 
 class PersonalInformationView(UpdateView):
     form_class = forms.DonorForm
     template_name = "donations/personal_information.html"
+    enable_allocations = True
+    payment_mode = payment_modes.DEFAULT_MODE
 
     def dispatch(self, request, *args, **kwargs):
         if session_key("amount") not in request.session:
@@ -94,6 +103,7 @@ class PersonalInformationView(UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
+        kwargs["enable_allocations"] = self.enable_allocations
         kwargs["amount"] = self.request.session[session_key("amount")]
         kwargs["allocation"] = self.request.session.get(session_key("allocation"), 0)
         kwargs["group_id"] = self.request.session.get(session_key("group"), None)
@@ -123,16 +133,18 @@ class PersonalInformationView(UpdateView):
     def form_valid(self, form):
         person = form.save()
         amount = form.cleaned_data["amount"]
-        allocation = form.cleaned_data["allocation"]
-        group = form.cleaned_data["group"]
+        if self.enable_allocations:
+            allocation = form.cleaned_data["allocation"]
+            group = form.cleaned_data["group"]
 
         with transaction.atomic():
-            if allocation and group:
+            if self.enable_allocations and allocation and group:
                 allocation_metas = {"allocation": allocation, "group_id": str(group.id)}
             else:
                 allocation_metas = {}
             payment = create_payment(
                 person=person,
+                mode=self.payment_mode,
                 type=DonsConfig.PAYMENT_TYPE,
                 price=amount,
                 meta={"nationality": person.meta["nationality"], **allocation_metas},

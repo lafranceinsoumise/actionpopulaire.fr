@@ -301,10 +301,10 @@ class CancelEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
         return Event.objects.upcoming(as_of=timezone.now(), published_only=False)
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        self.object = self.event = self.get_object()
 
-        self.object.published = False
-        self.object.save()
+        self.event.visibility = Event.VISIBILITY_ADMIN
+        self.event.save()
 
         send_cancellation_notification.delay(self.object.pk)
 

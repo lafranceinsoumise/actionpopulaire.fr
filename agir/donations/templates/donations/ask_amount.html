@@ -10,9 +10,7 @@
 {% block extra_scripts %}
     {% render_bundle 'donations/donationForm' attrs='defer data-turbolinks-track="reload"' %}
     <meta name="turbolinks-cache-control" content="no-cache">
-{% endblock %}
 
-{% block full_width %}
     <style>
         body {
             background: url({% static "donations/convention_plan_large_comp.jpg" %}) no-repeat;
@@ -21,9 +19,13 @@
             min-height: 100vh;
         }
     </style>
+{% endblock %}
+
+{% block full_width %}
 
     <div style="background-color: white; margin-top: -22px; padding: 22px;">
         <div class="container">
+            {% block donation_intro %}
             <p>Pour financer les dépenses liées à l’organisation d’événements, aux campagnes présidentielle et
                 législatives, à l’achat de matériel, au fonctionnement de ce site, etc., nous avons besoin du soutien
                 financier de chacun.e d’entre vous. Sur cette page, vous pouvez faire un don à la France insoumise du
@@ -37,18 +39,20 @@
                 La France Insoumise) en envoyant votre chèque avec
                 <a href="{% static "donations/formulaire_dons_20180104.pdf" %}">ce formulaire téléchargeable</a>.
             </p>
+            {% endblock %}
         </div>
     </div>
     <div class="container">
         <div class="col-responsive"
              style="background-color: rgba(100%, 100%, 100%, 0.8); margin-top: 100px; margin-bottom: 100px; padding: 20px 40px;">
-            <h2>Je veux aider la France insoumise</h2>
+            <h2>Je veux aider {% block donation_dest %}la France insoumise{% endblock %}</h2>
             {% crispy form %}
         </div>
         <div style="clear: both;"></div>
     </div>
     <div style="background-color: white; padding: 22px; font-size: smaller;">
         <div class="container">
+            {% block legal %}
             <b>Premier alinéa de l'article 11-4 </b> de la loi 88-227 du 11 mars 1988 modifiée : <i><b>Une personne
             physique peut verser un don à un parti ou groupement politique si elle est de nationalité française ou si
             elle réside en France.</b></i><i> </i><i><b>Les dons consentis et les cotisations versées en qualité
@@ -68,6 +72,7 @@
             <b>Premier alinéa de l'article 11-5</b> : <i>Les personnes qui ont versé un don ou consenti un prêt à un ou
             plusieurs partis ou groupements politiques en violation des articles 11-3-1 et 11-4 sont punies de trois ans
             d'emprisonnement et de 45 000 € d'amende.</i>
+            {% endblock legal %}
         </div>
     </div>
 {% endblock %}

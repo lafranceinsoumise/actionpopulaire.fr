@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from unittest import mock
@@ -41,7 +42,9 @@ class WebhookTestCase(FakeDataMixin, TestCase):
             .last()
             .pk,
         }
-        systempay_data["signature"] = get_signature(systempay_data)
+        systempay_data["signature"] = get_signature(
+            systempay_data, settings.SYSTEMPAY_CERTIFICATE
+        )
         res = self.client.post(reverse("system_pay:webhook"), systempay_data)
         self.assertEqual(res.status_code, 200)
         payment.refresh_from_db()
@@ -53,7 +56,9 @@ class WebhookTestCase(FakeDataMixin, TestCase):
             .first()
             .pk,
         }
-        systempay_data["signature"] = get_signature(systempay_data)
+        systempay_data["signature"] = get_signature(
+            systempay_data, settings.SYSTEMPAY_CERTIFICATE
+        )
         res = self.client.post(reverse("system_pay:webhook"), systempay_data)
         self.assertEqual(res.status_code, 200)
         payment.refresh_from_db()
@@ -86,7 +91,9 @@ class WebhookTestCase(FakeDataMixin, TestCase):
             .last()
             .pk,
         }
-        systempay_data["signature"] = get_signature(systempay_data)
+        systempay_data["signature"] = get_signature(
+            systempay_data, settings.SYSTEMPAY_CERTIFICATE
+        )
         res = self.client.post(reverse("system_pay:webhook"), systempay_data)
         self.assertEqual(res.status_code, 200)
         payment.refresh_from_db()

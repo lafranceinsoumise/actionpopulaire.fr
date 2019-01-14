@@ -1,0 +1,37 @@
+{% extends "donations/ask_amount.html" %}
+
+{% block intro %}
+    <p>Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au fonctionnement de
+        ce site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous. Sur cette page, vous pouvez
+        faire un don à la France insoumise du montant de votre choix par carte de crédit.</p>
+    <p>Un reçu, édité par la CNCCFP, vous sera adressé et vous permettra de déduire cette somme de vos impôts
+        sur le revenu, dans les limites fixées par la loi. Votre don donne droit à une réduction d’impôt de 66%
+        des sommes versées dans la limité de 20% du revenu imposable. <strong>Attention : il s'agit d'une
+            réduction d'impôt, et non d'un crédit d'impôt. Vous ne pouvez en faire usage que si vous payez des
+            impôts sur le revenu.</strong></p>
+    </p>
+{% endblock %}
+
+{% block donation_dest %}la campagne européenne{% endblock %}
+
+{% block legal %}
+    <p><strong>Article L. 52-8 : réglementation des dons</strong>
+        Les dons -consentis par une personne physique dûment identifiée pour le financement de la campagne d'un ou
+        plusieurs candidats lors des mêmes élections ne peuvent excéder 4 600 euros. Les personnes morales, à
+        l'exception des partis ou groupements politiques, ne peuvent participer au financement de la campagne
+        électorale d'un candidat, ni en lui consentant des dons sous quelque forme que ce soit, ni en lui fournissant
+        des biens, services ou autres avantages directs ou indirects à des prix inférieurs à ceux qui sont
+        habituellement pratiqués. Tout don de plus de 150 euros consenti à un candidat en vue de sa campagne doit être
+        versé par chèque, virement, prélèvement automatique ou carte bancaire. Le montant global des dons en espèces
+        faits au candidat ne peut excéder 20 % du montant des dépenses autorisées lorsque ce montant est égal ou
+        supérieur à 15 000 euros en application de l'article L. 52-11.
+Aucun candidat ne peut recevoir, directement ou indirectement, pour quelque dépense que ce soit, des contributions ou
+        aides matérielles d'un Etat étranger ou d'une personne morale de droit étranger.
+    </p>
+    <p>
+        L’AFCE LFI 2019 (Association de Financement de la Campagne Européenne de la liste soutenue par La France
+        Insoumise 2019), déclarée à la Sous-Préfecture de Palaiseau le 8 novembre 2018 sous le numéro W9130011929, est
+        la seule habilitée à recevoir les dons en faveur de la liste soutenue par La France Insoumise, conformément à
+        l’article L52-9 du code électoral.
+    </p>
+{% endblock %}

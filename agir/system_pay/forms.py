@@ -11,20 +11,13 @@ from .crypto import get_signature
 class SystempayRedirectForm(forms.Form):
     form_action = "https://paiement.systempay.fr/vads-payment/"
 
-    vads_site_id = fields.IntegerField(
-        initial=settings.SYSTEMPAY_SITE_ID, widget=forms.HiddenInput()
-    )
-    vads_ctx_mode = fields.CharField(
-        initial="PRODUCTION" if settings.SYSTEMPAY_PRODUCTION else "TEST",
-        widget=forms.HiddenInput(),
-    )
+    vads_site_id = fields.IntegerField(widget=forms.HiddenInput())
+    vads_ctx_mode = fields.CharField(widget=forms.HiddenInput())
     vads_order_id = fields.CharField(widget=forms.HiddenInput())
     vads_trans_id = fields.CharField(widget=forms.HiddenInput())
     vads_trans_date = fields.CharField(widget=forms.HiddenInput())
     vads_amount = fields.IntegerField(widget=forms.HiddenInput())
-    vads_currency = fields.IntegerField(
-        initial=settings.SYSTEMPAY_CURRENCY, widget=forms.HiddenInput()
-    )
+    vads_currency = fields.IntegerField(widget=forms.HiddenInput())
     vads_action_mode = fields.CharField(
         initial="INTERACTIVE", widget=forms.HiddenInput()
     )
@@ -72,17 +65,20 @@ class SystempayRedirectForm(forms.Form):
             return
         self.fields[name] = forms.CharField(initial=value, widget=forms.HiddenInput())
 
-    def update_signature(self):
+    def update_signature(self, certificate):
         data = {
             field: str(self.get_initial_for_field(self.fields[field], field))
             for field in self.fields.keys()
         }
-        self.fields["signature"].initial = get_signature(data)
+        self.fields["signature"].initial = get_signature(data, certificate)
 
     @classmethod
-    def get_form_for_transaction(cls, transaction):
+    def get_form_for_transaction(cls, transaction, sp_config):
         form = cls(
             initial={
+                "vads_site_id": sp_config["site_id"],
+                "vads_ctx_mode": "PRODUCTION" if sp_config["production"] else "TEST",
+                "vads_currency": sp_config["currency"],
                 "vads_order_id": transaction.pk,
                 "vads_trans_id": str(transaction.pk % 900000).zfill(6),
                 "vads_trans_date": transaction.created.strftime("%Y%m%d%H%M%S"),
@@ -121,6 +117,6 @@ class SystempayRedirectForm(forms.Form):
         for key in transaction.payment.meta:
             form.add_field("vads_ext_info_meta_" + key, transaction.payment.meta[key])
 
-        form.update_signature()
+        form.update_signature(sp_config["certificate"])
 
         return form
