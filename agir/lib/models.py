@@ -24,7 +24,7 @@ RE_FRENCH_ZIPCODE = re.compile("^[0-9]{5}$")
 
 
 class TimeStampedModel(models.Model):
-    created = models.DateTimeField(_("created"), default=timezone.now)
+    created = models.DateTimeField(_("created"), default=timezone.now, editable=False)
     modified = models.DateTimeField(_("modified"), auto_now=True)
 
     class Meta:
