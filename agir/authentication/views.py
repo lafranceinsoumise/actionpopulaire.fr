@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import FormView, RedirectView
-from django.contrib.auth import login, logout, REDIRECT_FIELD_NAME
+from django.contrib.auth import login, logout, REDIRECT_FIELD_NAME, BACKEND_SESSION_KEY
 from django.utils.http import is_safe_url, urlquote
 from oauth2_provider.views import AuthorizationView
 
@@ -80,6 +80,17 @@ class SendEmailView(RedirectToMixin, FormView):
     form_class = EmailForm
     template_name = "authentication/send_email.html"
 
+    def get_initial(self):
+        initial = super().get_initial()
+        is_soft_logged = (
+            self.request.user.is_authenticated
+            and self.request.session[BACKEND_SESSION_KEY]
+            == "agir.authentication.backend.MailLinkBackend"
+        )
+        if is_soft_logged:
+            initial.update({"email": self.request.user.person.email})
+        return initial
+
     def form_valid(self, form):
         if not form.send_email():
             return self.form_invalid(form)
@@ -103,8 +114,21 @@ class SendEmailView(RedirectToMixin, FormView):
         )
 
     def get_context_data(self, **kwargs):
+        is_soft_logged = (
+            self.request.user.is_authenticated
+            and self.request.session[BACKEND_SESSION_KEY]
+            == "agir.authentication.backend.MailLinkBackend"
+        )
+        is_hard_logged = (
+            self.request.user.is_authenticated
+            and self.request.session[BACKEND_SESSION_KEY]
+            != "agir.authentication.backend.MailLinkBackend"
+        )
         return super().get_context_data(
-            bookmarked_emails=get_bookmarked_emails(self.request), **kwargs
+            bookmarked_emails=get_bookmarked_emails(self.request),
+            is_soft_logged=is_soft_logged,
+            is_hard_logged=is_hard_logged,
+            **kwargs,
         )
 
 
