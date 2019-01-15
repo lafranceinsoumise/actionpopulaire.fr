@@ -11,6 +11,7 @@ from rest_framework import status
 
 from agir.api.redis import using_redislite
 from agir.authentication.backend import connection_token_generator, short_code_generator
+from agir.authentication.forms import EmailForm
 from agir.events.models import Event
 from agir.groups.models import SupportGroup
 from agir.people.models import Person
@@ -84,6 +85,13 @@ class MailLinkTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.person.email)
         self.assertContains(response, 'action="{}"'.format(message_preferences_path))
+
+    def test_on_connexion_prefiled_form_when_soft_logged(self):
+        self.client.force_login(self.person.role, self.soft_backend)
+
+        response = self.client.get(reverse("short_code_login"))
+        text = f'value="{self.person.email}"'
+        self.assertContains(response, text, count=1)
 
 
 @using_redislite
@@ -245,3 +253,11 @@ class AuthorizationTestCase(TestCase):
 
         response = self.client.post(reverse("edit_group", args=[self.group.pk]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_deconnexion_link_when_hard_login_in(self):
+        self.client.force_login(self.person.role)
+
+        response = self.client.get(reverse("short_code_login"))
+        self.assertContains(
+            response, "Vous êtes deja connecté", count=1, status_code=200, msg_prefix=""
+        )
