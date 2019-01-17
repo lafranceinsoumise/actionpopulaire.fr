@@ -79,15 +79,25 @@ class PeopleFormActionsTestCase(TestCase):
             # disregard first three default fields
             get_formatted_submission(self.submission1, include_admin_fields=False),
             [
-                {"label": "Mon label", "value": "saisie 1"},
-                {"label": "Prout", "value": "saisie 2"},
                 {
-                    "label": Person._meta.get_field("contact_phone").verbose_name,
-                    "value": "+33612345678",
+                    "title": "Détails",
+                    "data": [
+                        {"label": "Mon label", "value": "saisie 1"},
+                        {"label": "Prout", "value": "saisie 2"},
+                        {
+                            "label": Person._meta.get_field(
+                                "contact_phone"
+                            ).verbose_name,
+                            "value": "+33612345678",
+                        },
+                        {"label": "SUPER PRENOM", "value": "Truc"},
+                        {"label": "Choix", "value": "La réponse B"},
+                    ],
                 },
-                {"label": "SUPER PRENOM", "value": "Truc"},
-                {"label": "Choix", "value": "La réponse B"},
-                {"label": "disappearing-field", "value": "TUC"},
+                {
+                    "title": "Champs inconnus",
+                    "data": [{"label": "disappearing-field", "value": "TUC"}],
+                },
             ],
         )
 

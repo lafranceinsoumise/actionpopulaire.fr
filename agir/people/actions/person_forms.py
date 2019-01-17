@@ -14,6 +14,7 @@ from django.utils.timezone import get_current_timezone
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import NumberParseException
 
+from agir.lib.html import sanitize_html
 from ..models import Person
 from ..person_forms.fields import (
     is_actual_model_field,
@@ -46,20 +47,28 @@ def get_people_form_class(person_form_instance, base_form=BasePersonForm):
     return form_class
 
 
-def get_form_field_labels(form):
-    field_dicts = form.fields_dict
+def get_form_field_labels(form, fieldsets_titles=False):
     field_information = {}
 
     person_fields = {f.name: f for f in Person._meta.get_fields()}
 
-    for id, field in field_dicts.items():
-        if field.get("person_field") and id in person_fields:
-            field_information[id] = field_dicts[id].get(
-                "label",
-                getattr(person_fields[id], "verbose_name", person_fields[id].name),
+    for fieldset in form.custom_fields:
+        for field in fieldset["fields"]:
+            if field.get("person_field") and field["id"] in person_fields:
+                label = field.get(
+                    "label",
+                    getattr(
+                        person_fields[field["id"]],
+                        "verbose_name",
+                        person_fields[field["id"]].name,
+                    ),
+                )
+            else:
+                label = field["label"]
+
+            field_information[field["id"]] = sanitize_html(
+                f"{fieldset['title']}&nbsp;:<br> {label}" if fieldsets_titles else label
             )
-        else:
-            field_information[id] = field_dicts[id]["label"]
 
     return field_information
 
@@ -119,8 +128,10 @@ ADMIN_FIELDS_LABELS = ["ID", "Personne", "Date de la réponse"]
 def _get_admin_fields(submission, html=True):
     return [
         format_html(
-            '<a href="{}" title="Supprimer cette submission">{} X</a>',
+            '<a href="{}" title="Supprimer cette submission">&#x274c;</a>&ensp;'
+            '<a href="{}" title="Voir le détail">&#128269;</a>&ensp;{}',
             reverse("admin:people_personformsubmission_delete", args=(submission.pk,)),
+            reverse("admin:people_personformsubmission_detail", args=(submission.pk,)),
             submission.pk,
         )
         if html
@@ -144,7 +155,7 @@ def get_formatted_submissions(submissions, include_admin_fields=True, html=True)
     form = submissions[0].form
     field_dict = form.fields_dict
 
-    labels = get_form_field_labels(form)
+    labels = get_form_field_labels(form, fieldsets_titles=True)
 
     full_data = [sub.data for sub in submissions]
     full_values = [
@@ -189,24 +200,38 @@ def get_formatted_submission(submission, include_admin_fields=False):
 
     if include_admin_fields:
         res = [
-            {"label": l, "value": v}
-            for l, v in zip(ADMIN_FIELDS_LABELS, _get_admin_fields(submission))
+            {
+                "title": "Administration",
+                "data": [
+                    {"label": l, "value": v}
+                    for l, v in zip(ADMIN_FIELDS_LABELS, _get_admin_fields(submission))
+                ],
+            }
         ]
     else:
         res = []
 
-    for id, field in field_dicts.items():
-        if id in data:
-            label = labels[id]
-            value = (
-                _get_formatted_value(field, data[id]) if id in data else NA_PLACEHOLDER
-            )
-            res.append({"label": label, "value": value})
+    for fieldset in submission.form.custom_fields:
+        fieldset_data = []
+        for field in fieldset["fields"]:
+            id = field["id"]
+            if id in data:
+                label = labels[id]
+                value = (
+                    _get_formatted_value(field, data[id])
+                    if id in data
+                    else NA_PLACEHOLDER
+                )
+                fieldset_data.append({"label": label, "value": value})
+        res.append({"title": fieldset["title"], "data": fieldset_data})
 
     missing_fields = set(data).difference(set(field_dicts))
 
+    missing_fields_data = []
     for id in sorted(missing_fields):
-        res.append({"label": id, "value": data[id]})
+        missing_fields_data.append({"label": id, "value": data[id]})
+    if len(missing_fields_data) > 0:
+        res.append({"title": "Champs inconnus", "data": missing_fields_data})
 
     return res
 

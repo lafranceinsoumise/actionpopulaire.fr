@@ -1,0 +1,10 @@
+{% for fieldset in submission_data %}
+    <p><strong>{{ fieldset.title }}</strong></p>
+    <ul>
+    {% for item in fieldset.data %}
+        {% if item.value %}
+            <li><strong>{{ item.label }}</strong>&nbsp;: {{ item.value }}</li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+{% endfor %}

@@ -49,29 +49,17 @@
                 Voici les informations que vous avez donné :
             </p>
 
-            <ul>
-                {% for item in submission_data %}
-                    {% if item.value %}
-                        <li><strong>{{ item.label }}</strong>&nbsp;: {{ item.value }}</li>
-                    {% endif %}
-                {% endfor %}
-                {% if person_form_instance.editable %}
-                    <a class="btn btn-default" href="{% url 'edit_person_form_submission' person_form_instance.slug submission.pk %}">
-                        Modifier ces informations</a>
-                {% endif %}
-            </ul>
+            {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
+            {% if person_form_instance.editable %}
+                <a class="btn btn-default" href="{% url 'edit_person_form_submission' person_form_instance.slug submission.pk %}">
+                   Modifier ces informations</a>
+            {% endif %}
+
             {% if guests_submission_data %}
                 <p>Vous avez inscrit d'autre personnes :</p>
                 {% for status, submission_data in guests_submission_data %}
                     <h4>Invité {{ forloop.counter }}</h4>
-                    <ul>
-                        <li><strong>{{ status }}</strong></li>
-                    {% for item in submission_data %}
-                        {% if item.value %}
-                            <li><strong>{{ item.label }}</strong>&nbsp;: {{ item.value }}</li>
-                        {% endif %}
-                    {% endfor %}
-                    </ul>
+                    {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
                 {% endfor %}
             {% endif %}
             {% if form %}

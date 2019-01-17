@@ -17,7 +17,11 @@ from django.contrib.gis.admin import OSMGeoAdmin
 
 from agir.api.admin import admin_site
 
-from .actions.person_forms import validate_custom_fields, get_formatted_submissions
+from .actions.person_forms import (
+    validate_custom_fields,
+    get_formatted_submissions,
+    get_formatted_submission,
+)
 from .models import Person, PersonTag, PersonEmail, PersonForm, PersonFormSubmission
 from agir.authentication.models import Role
 from agir.events.models import RSVP
@@ -462,6 +466,29 @@ class PersonFormSubmissionAdmin(admin.ModelAdmin):
         self.personform = self.get_object(request, unquote(object_id)).form
         return super().delete_view(request, object_id, extra_context)
 
+    def detail_view(self, request, object_id):
+        self.object = self.get_object(request, unquote(object_id))
+        if not self.has_view_permission(request, self.object):
+            raise PermissionDenied
+        return TemplateResponse(
+            request=request,
+            template="admin/personforms/detail.html",
+            context={
+                "submission_data": get_formatted_submission(self.object),
+                "submission": self.object,
+                "title": "Détails",
+                "opts": PersonForm._meta,
+                "add": False,
+                "change": False,
+                "is_popup": False,
+                "save_as": False,
+                "has_change_permission": True,
+                "has_view_permission": True,
+                "has_delete_permission": False,
+                "show_close": False,
+            },
+        )
+
     def response_delete(self, request, obj_display, obj_id):
         return HttpResponseRedirect(
             reverse("admin:people_personform_view_results", args=[self.personform.pk])
@@ -473,5 +500,10 @@ class PersonFormSubmissionAdmin(admin.ModelAdmin):
                 "<object_id>/delete/",
                 self.admin_site.admin_view(self.delete_view),
                 name="people_personformsubmission_delete",
-            )
+            ),
+            path(
+                "<object_id>/detail/",
+                self.admin_site.admin_view(self.detail_view),
+                name="people_personformsubmission_detail",
+            ),
         ]

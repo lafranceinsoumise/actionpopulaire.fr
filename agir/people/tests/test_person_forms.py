@@ -410,12 +410,20 @@ class SubmissionFormatTestCase(TestCase):
         self.assertEqual(
             formatted_submission,
             [
-                {"label": "Date", "value": "2 mai 2050 00:00"},
-                {"label": "Tel.", "value": "+33 6 12 34 56 78"},
                 {
-                    "label": "Fichier",
-                    "value": '<a href="http://agir.local:8000/media//test/truc.pdf">Accéder au fichier</a>',
+                    "title": "Une partie",
+                    "data": [
+                        {"label": "Date", "value": "2 mai 2050 00:00"},
+                        {"label": "Tel.", "value": "+33 6 12 34 56 78"},
+                        {
+                            "label": "Fichier",
+                            "value": '<a href="http://agir.local:8000/media//test/truc.pdf">Accéder au fichier</a>',
+                        },
+                    ],
                 },
-                {"label": "missing_field", "value": "Unknown value"},
+                {
+                    "title": "Champs inconnus",
+                    "data": [{"label": "missing_field", "value": "Unknown value"}],
+                },
             ],
         )

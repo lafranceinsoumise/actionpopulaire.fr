@@ -32,13 +32,7 @@
             <div>
 
                 <h3>Les informations que vous avez entré&nbsp;:</h3>
-                <ul>
-                    {% for item in submission_data %}
-                        {% if item.value %}
-                            <li><b>{{ item.label }}&nbsp;: {{ item.value }}</b></li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
+                {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
                 <b>Total&nbsp;:</b> {{ price|floatformat:2 }} €
                 <h3 class="headline">Informations de facturation</h3>
                 <div class="alert alert-warning">

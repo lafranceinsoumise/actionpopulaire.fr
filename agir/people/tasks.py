@@ -1,5 +1,6 @@
 from celery import shared_task
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.utils.html import format_html_join
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
@@ -126,10 +127,11 @@ def send_person_form_notification(submission_pk):
     bindings = {
         "ANSWER_EMAIL": person.email,
         "FORM_NAME": form.title,
-        "INFORMATIONS": format_html_join(
-            sep=mark_safe("<br>"),
-            format_string="{} : {}",
-            args_generator={(s["label"], s["value"]) for s in pretty_submission},
+        "INFORMATIONS": mark_safe(
+            render_to_string(
+                "people/includes/personform_submission_data.html",
+                {"submission_data": pretty_submission},
+            )
         ),
     }
 
