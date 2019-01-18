@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import Case, Sum, Count, When, CharField, F, Q
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
+from django.urls import reverse
 from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.postgres.fields import JSONField
@@ -380,6 +381,9 @@ class Event(
             price += max(0, int(submission_data.get(field, 0) * 100))
 
         return price
+
+    def get_absolute_url(self):
+        return reverse("view_event", args=[self.pk])
 
 
 class EventSubtype(BaseSubtype):
