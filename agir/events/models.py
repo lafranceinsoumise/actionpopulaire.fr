@@ -383,7 +383,7 @@ class Event(
         return price
 
     def get_absolute_url(self):
-        return reverse("view_event", args=[self.pk])
+        return front_url("view_event", args=[self.pk])
 
 
 class EventSubtype(BaseSubtype):
