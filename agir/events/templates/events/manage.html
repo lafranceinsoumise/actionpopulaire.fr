@@ -110,6 +110,17 @@
                         </div>
                         <a class="btn btn-default" href="{% url "edit_event_report" event.pk %}">
                             {% if event.report_content %}Modifier{% else %}Rédiger{% endif %} le compte-rendu</a></li>
+                    {% if event.report_content %}
+                        {% if not event.report_summary_sent %}
+                            <li><form action="{% url "send_event_report" event.pk %}" method="POST">
+                                {% csrf_token %}
+                                <div class="help-dialog">Attention cette action ne peut être effectués qu'une seule fois par événement.</div>
+                                <input class="btn btn-default" type="submit" value="Envoyer le compte-rendu">
+                            </form></li>
+                        {% else %}
+                            Ce compte-rendu a déja été envoyé.
+                        {% endif %}
+                    {% endif %}
                 {% endif %}
             </ul>
         </div>

@@ -106,6 +106,57 @@ class EventPagesTestCase(TestCase):
             person=self.other_person, event=self.other_event
         )
 
+        self.past_event = Event.objects.create(
+            name="past Event",
+            subtype=self.subtype,
+            start_time=now - 2 * day,
+            end_time=now - 2 * day + 2 * hour,
+            report_content="Ceci est un compt rendu de l'evenement",
+            report_summary_sent=False,
+        )
+
+        self.futur_event = Event.objects.create(
+            name="past Event",
+            subtype=self.subtype,
+            start_time=now + 2 * day,
+            end_time=now + 2 * day + 2 * hour,
+            report_content="Ceci est un compt rendu de l'evenement",
+            report_summary_sent=False,
+        )
+
+        self.no_report_event = Event.objects.create(
+            name="no report event",
+            subtype=self.subtype,
+            start_time=now + 2 * day,
+            end_time=now + 2 * day + 2 * hour,
+            report_content="",
+            report_summary_sent=False,
+        )
+
+        self.all_ready_sent_event = Event.objects.create(
+            name="all ready sent event",
+            subtype=self.subtype,
+            start_time=now + 2 * day,
+            end_time=now + 2 * day + 2 * hour,
+            report_content="",
+            report_summary_sent=True,
+        )
+
+        OrganizerConfig.objects.create(
+            event=self.past_event, person=self.person, is_creator=True
+        )
+        OrganizerConfig.objects.create(
+            event=self.futur_event, person=self.person, is_creator=True
+        )
+        OrganizerConfig.objects.create(
+            event=self.no_report_event, person=self.person, is_creator=True
+        )
+        OrganizerConfig.objects.create(
+            event=self.all_ready_sent_event, person=self.person, is_creator=True
+        )
+
+        self.the_rsvp = RSVP.objects.create(person=self.person, event=self.past_event)
+
     def test_can_see_public_event(self):
         res = self.client.get(
             reverse("view_event", kwargs={"pk": self.organized_event.pk})
@@ -341,6 +392,27 @@ class EventPagesTestCase(TestCase):
 
         self.organized_event.refresh_from_db()
         self.assertEqual(self.organized_event.name, "Organized event")
+
+    @mock.patch("agir.events.views.event_views.send_event_report")
+    def test_can_send_event_report_if_its_possible(self, send_event_report):
+        """ Si les conditions sont reunie on peut envoyer le resumé par mail.
+
+        Les conditions sont: Le mail n'a jamais été envoyé, l'événement est passé, Le compte-rendu n'est pas vide"""
+        self.client.force_login(self.person.role)
+        response = self.client.post(
+            reverse("send_event_report", kwargs={"pk": self.past_event.pk})
+        )
+        self.assertRedirects(
+            response, reverse("manage_event", kwargs={"pk": self.past_event.pk})
+        )
+
+        # on simule le fait que le compte-rendu a bien été envoyé
+        self.past_event.report_summary_sent = True
+        self.past_event.save()
+        response = self.client.get(
+            reverse("manage_event", kwargs={"pk": self.past_event.pk})
+        )
+        self.assertContains(response, "Ce compte-rendu a déja été envoyé")
 
 
 class RSVPTestCase(TestCase):

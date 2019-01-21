@@ -68,6 +68,11 @@ urlpatterns = [
         views.UploadEventImageView.as_view(),
         name="upload_event_image",
     ),
+    path(
+        "evenements/<uuid:pk>/envoyer-compte-rendu/",
+        views.SendEventReportView.as_view(),
+        name="send_event_report",
+    ),
     path("agenda/<slug:slug>/", views.CalendarView.as_view(), name="view_calendar"),
     path(
         "agenda/<slug:slug>/icalendar/",

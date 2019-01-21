@@ -250,6 +250,8 @@ EMAIL_TEMPLATES = {
     "FORM_NOTIFICATION": "https://mosaico.jlm2017.fr/emails/45cd8bc1-8fb6-4ab6-bb67-739fd7e2e68e.html",
     # LOGIN_MESSAGE variables: CODE, EXPIRY_TIME
     "LOGIN_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/65cb8867-9d14-4448-bae8-8cf40c5fee78.html",
+    # EVENT_REPORT variables: EVENT_NAME,EVENT_REPORT_SUMMARY, EVENT_REPORT_LINK, PREFERENCES_LINK, EMAIL
+    "EVENT_REPORT": "https://mosaico.lafranceinsoumise.fr/emails/7b39830d-8cf5-4d01-abbd-ab41e77c444e.html",
 }
 
 EMAIL_FROM = os.environ.get(
