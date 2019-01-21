@@ -13,6 +13,8 @@ from requests import HTTPError
 from urllib3 import Retry
 
 from agir.authentication.subscription import subscription_confirmation_token_generator
+from agir.lib.display import str_summary
+from agir.lib.html import sanitize_html
 from agir.people.models import Person
 from ..lib.utils import front_url
 from ..people.actions.mailing import send_mosaico_email
@@ -270,6 +272,45 @@ def send_external_rsvp_confirmation(event_pk, email, **kwargs):
         recipients=[email],
         bindings=bindings,
     )
+
+
+@shared_task
+def send_event_report(event_pk):
+    try:
+        event = Event.objects.get(pk=event_pk)
+    except Event.DoesNotExist:
+        # event does not exist anymore ?! nothing to do
+        return
+    if event.report_summary_sent:
+        return
+
+    notifications_enabled = Q(notifications_enabled=True) & Q(
+        person__event_notifications=True
+    )
+    recipients = [
+        rsvp.person
+        for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
+            "person__emails"
+        )
+    ]
+
+    bindings = {
+        "EVENT_NAME": event.name,
+        "EVENT_REPORT_SUMMARY": sanitize_html(
+            str_summary(event.report_content, length_max=500)
+        ),
+        "EVENT_REPORT_LINK": front_url("view_event", kwargs={"pk": event_pk}),
+    }
+
+    send_mosaico_email(
+        code="EVENT_REPORT",
+        subject=_("toto"),
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
+        bindings=bindings,
+    )
+    event.report_summary_sent = True
+    event.save()
 
 
 @shared_task

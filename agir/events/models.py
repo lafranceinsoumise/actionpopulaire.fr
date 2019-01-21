@@ -220,6 +220,10 @@ class Event(
         ),
     )
 
+    report_summary_sent = models.BooleanField(
+        "Le mail de compte-rendu a été envoyé", default=False
+    )
+
     subscription_form = models.ForeignKey(
         "people.PersonForm", null=True, blank=True, on_delete=models.PROTECT
     )

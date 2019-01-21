@@ -5,6 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.views import View
 from django.views.generic import (
     CreateView,
     UpdateView,
@@ -12,17 +13,19 @@ from django.views.generic import (
     DeleteView,
     DetailView,
 )
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import ProcessFormView, FormMixin
 from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponse
 from django.conf import settings
 from django.utils import timezone
 from django.utils.html import format_html, mark_safe
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ngettext
 
 from agir.events.actions.legal import QUESTIONS
+from agir.lib.display import str_summary
 from ..models import Event, RSVP, Calendar, EventSubtype
-from ..tasks import send_cancellation_notification
+from ..tasks import send_cancellation_notification, send_event_report
 
 from ..forms import (
     EventForm,
@@ -56,6 +59,7 @@ __all__ = [
     "CalendarIcsView",
     "ChangeEventLocationView",
     "EditEventReportView",
+    "SendEventReportView",
     "UploadEventImageView",
     "EventListView",
     "PerformCreateEventView",
@@ -138,7 +142,7 @@ class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
             and self.object.organizers.filter(pk=self.request.user.person.id).exists(),
             organizers=self.object.organizers.all(),
             rsvps=self.object.rsvps.all(),
-            **kwargs
+            **kwargs,
         )
 
     def post(self, request, *args, **kwargs):
@@ -217,7 +221,7 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
                 "subtypes": subtypes,
                 "questions": questions,
             },
-            **kwargs
+            **kwargs,
         )
 
 
@@ -461,6 +465,33 @@ class EditEventReportView(HardLoginRequiredMixin, PermissionsRequiredMixin, Upda
 
     def get_queryset(self):
         return Event.objects.past(as_of=timezone.now())
+
+
+class SendEventReportView(
+    HardLoginRequiredMixin, PermissionsRequiredMixin, SingleObjectMixin, View
+):
+    permissions_required = ("events.change_event",)
+    model = Event
+
+    def post(self, request, pk, *args, **kwargs):
+        event = self.get_object()
+        if (
+            not event.report_summary_sent
+            and event.is_past()
+            and event.report_content.isspace()
+        ):
+            send_event_report.delay(event.pk)
+            participants = event.participants
+            messages.add_message(
+                self.request,
+                messages.SUCCESS,
+                ngettext(
+                    "Votre mail a correctement été envoyé à {participants} participant⋅e.",
+                    "Votre mail a correctement été envoyé à {participants} participant⋅e⋅s.",
+                    participants,
+                ).format(participants=participants),
+            )
+        return HttpResponseRedirect(reverse("manage_event", kwargs={"pk": pk}))
 
 
 class UploadEventImageView(

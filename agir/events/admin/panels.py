@@ -217,7 +217,10 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 )
             },
         ),
-        (_("Compte-rendu"), {"fields": ("report_content", "report_image")}),
+        (
+            _("Compte-rendu"),
+            {"fields": ("report_content", "report_image", "report_summary_sent")},
+        ),
         (_("NationBuilder"), {"fields": ("nb_id", "nb_path", "location_address")}),
     )
 
