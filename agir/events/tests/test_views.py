@@ -395,10 +395,12 @@ class EventPagesTestCase(TestCase):
 
     @mock.patch("agir.events.views.event_views.send_event_report")
     def test_can_send_event_report_if_its_possible(self, send_event_report):
-        """ Si les conditions sont reunie on peut envoyer le resumé par mail.
+        """ Si les conditions sont réunies, on peut envoyer le résumé par mail.
 
-        Les conditions sont: Le mail n'a jamais été envoyé, l'événement est passé, Le compte-rendu n'est pas vide"""
+        Les conditions sont : le mail n'a jamais été envoyé, l'événement est passé, le compte-rendu n'est pas vide."""
         self.client.force_login(self.person.role)
+        session = self.client.session
+
         response = self.client.post(
             reverse("send_event_report", kwargs={"pk": self.past_event.pk})
         )
@@ -407,19 +409,42 @@ class EventPagesTestCase(TestCase):
         )
         send_event_report.delay.assert_called_once()
 
-        # on simule le fait que le compte-rendu a bien été envoyé
+        # # on simule le fait que le compte-rendu a bien été envoyé
         self.past_event.report_summary_sent = True
         self.past_event.save()
         response = self.client.get(
             reverse("manage_event", kwargs={"pk": self.past_event.pk})
         )
-        self.assertContains(response, "Ce compte-rendu a déja été envoyé")
+        self.assertContains(response, "Ce compte-rendu a déjà été envoyé")
+
+    @mock.patch("agir.events.views.event_views.send_event_report")
+    def test_report_is_sent_in_event_manage(self, send_event_report):
+        """
+        Test si le template affiche bien le fait que le compte-rendu à été envoyé la première fois que l'on retourne sur la page, mais pas les fois suivantes.
+        """
+        self.client.force_login(self.person.role)
+
+        self.client.post(
+            reverse("send_event_report", kwargs={"pk": self.past_event.pk})
+        )
+
+        response = self.client.get(
+            reverse("manage_event", kwargs={"pk": self.past_event.pk})
+        )
+        # la tache `send event_report` n'est pas appeler. Mais une variable de session temporaire est utliser pour informer que le mail à été envoyé
+        self.assertContains(response, "Ce compte-rendu a déjà été envoyé.")
+
+        response = self.client.get(
+            reverse("manage_event", kwargs={"pk": self.past_event.pk})
+        )
+        # la deuxième fois la variable de session n'existe plus
+        self.assertNotContains(response, "Ce compte-rendu a déjà été envoyé")
 
     @mock.patch("agir.events.views.event_views.send_event_report")
     def test_can_not_send_event_report_when_nocondition(self, send_event_report):
-        """ Si les conditions une des condition manque, on envoye pas le mail
+        """ Si les conditions une des condition manque, l'envoi du mail ne se fait pas.
 
-        Les conditions sont: Le mail n'a jamais été envoyé, l'événement est passé, Le compte-rendu n'est pas vide"""
+Les conditions sont : le mail n'a jamais été envoyé, l'événement est passé, le compte-rendu n'est pas vide."""
         self.client.force_login(self.person.role)
         response = self.client.post(
             reverse("send_event_report", kwargs={"pk": self.no_report_event.pk})

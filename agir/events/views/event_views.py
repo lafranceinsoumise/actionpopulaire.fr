@@ -137,7 +137,14 @@ class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
         if "add_organizer_form" not in kwargs:
             kwargs["add_organizer_form"] = self.get_form()
 
+        try:
+            report_is_sent = self.request.session["report_sent"] == str(self.object.pk)
+            del self.request.session["report_sent"]
+        except KeyError:
+            report_is_sent = False
+
         return super().get_context_data(
+            report_is_sent=report_is_sent,
             is_organizer=self.request.user.is_authenticated
             and self.object.organizers.filter(pk=self.request.user.person.id).exists(),
             organizers=self.object.organizers.all(),
@@ -491,6 +498,7 @@ class SendEventReportView(
                     participants,
                 ).format(participants=participants),
             )
+            request.session["report_sent"] = str(event.pk)
         return HttpResponseRedirect(reverse("manage_event", kwargs={"pk": pk}))
 
 

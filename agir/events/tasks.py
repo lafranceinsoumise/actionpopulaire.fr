@@ -304,7 +304,7 @@ def send_event_report(event_pk):
 
     send_mosaico_email(
         code="EVENT_REPORT",
-        subject=_("toto"),
+        subject=f"Compte-rendu de l'événement {event.name}",
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,

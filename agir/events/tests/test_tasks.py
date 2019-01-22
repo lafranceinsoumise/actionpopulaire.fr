@@ -137,3 +137,6 @@ class EventTasksTestCase(TestCase):
         text = mail.outbox[0].body
         self.assert_(self.event.name in text)
         self.assert_(self.event.report_content[:100] in text)
+        tasks.send_event_report(self.event.pk)
+        # on verifie qu'il n'y a pas de mail suplémentaire
+        self.assertEqual(len(mail.outbox), 2)
