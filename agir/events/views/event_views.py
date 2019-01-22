@@ -478,7 +478,7 @@ class SendEventReportView(
         if (
             not event.report_summary_sent
             and event.is_past()
-            and event.report_content.isspace()
+            and not event.report_content.isspace()
         ):
             send_event_report.delay(event.pk)
             participants = event.participants

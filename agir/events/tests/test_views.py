@@ -405,6 +405,7 @@ class EventPagesTestCase(TestCase):
         self.assertRedirects(
             response, reverse("manage_event", kwargs={"pk": self.past_event.pk})
         )
+        send_event_report.delay.assert_called_once()
 
         # on simule le fait que le compte-rendu a bien été envoyé
         self.past_event.report_summary_sent = True
@@ -413,6 +414,25 @@ class EventPagesTestCase(TestCase):
             reverse("manage_event", kwargs={"pk": self.past_event.pk})
         )
         self.assertContains(response, "Ce compte-rendu a déja été envoyé")
+
+    @mock.patch("agir.events.views.event_views.send_event_report")
+    def test_can_not_send_event_report_when_nocondition(self, send_event_report):
+        """ Si les conditions une des condition manque, on envoye pas le mail
+
+        Les conditions sont: Le mail n'a jamais été envoyé, l'événement est passé, Le compte-rendu n'est pas vide"""
+        self.client.force_login(self.person.role)
+        response = self.client.post(
+            reverse("send_event_report", kwargs={"pk": self.no_report_event.pk})
+        )
+        send_event_report.delay.assert_not_called()
+        response = self.client.post(
+            reverse("send_event_report", kwargs={"pk": self.futur_event.pk})
+        )
+        send_event_report.delay.assert_not_called()
+        response = self.client.post(
+            reverse("send_event_report", kwargs={"pk": self.all_ready_sent_event.pk})
+        )
+        send_event_report.delay.assert_not_called()
 
 
 class RSVPTestCase(TestCase):

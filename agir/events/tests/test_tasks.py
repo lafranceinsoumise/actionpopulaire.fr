@@ -129,3 +129,11 @@ class EventTasksTestCase(TestCase):
             self.assert_(str(tasks.CHANGE_DESCRIPTION["information"]) in text)
             self.assert_(str(tasks.CHANGE_DESCRIPTION["timing"]) in text)
             self.assert_(str(tasks.CHANGE_DESCRIPTION["contact"]) not in text)
+
+    def test_send_event_report_mail(self):
+        tasks.send_event_report(self.event.pk)
+        self.assertEqual(len(mail.outbox), 2)
+
+        text = mail.outbox[0].body
+        self.assert_(self.event.name in text)
+        self.assert_(self.event.report_content[:100] in text)
