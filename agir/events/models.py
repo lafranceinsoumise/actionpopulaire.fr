@@ -260,7 +260,7 @@ class Event(
         )
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.get_display_date()})"
 
     def to_ics(self):
         event_url = front_url("view_event", args=[self.pk], auto_login=False)
