@@ -347,7 +347,11 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "form": {
                         section[0]: {
                             form.fields[field].label: form.get_formatted_value(
-                                field, object.legal.get(field, "NA"), html=True
+                                field,
+                                object.legal.get(
+                                    EventLegalForm.meta_prefix + field, "NA"
+                                ),
+                                html=True,
                             )
                             for field in section[1]
                         }
