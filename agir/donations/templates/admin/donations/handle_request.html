@@ -1,0 +1,120 @@
+{% extends "admin/change_form.html" %}{% load crispy_forms_tags i18n admin_modify static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    .request-history h2 {
+      margin: 0;
+      padding: 5px 10px 5px;
+      border-bottom: 5px solid white;
+    }
+
+    .request-history h5 {
+      margin: 0 auto 5px;
+    }
+
+    .request-history-step {
+      padding: 5px 10px 5px;
+      border-top: 5px solid white;
+    }
+
+  </style>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content_title %}
+  <h1>Traiter la requête {{ request_id }}</h1>
+{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+
+    <fieldset class="module aligned">
+      <h2>Informations de la demande</h2>
+      {% for field in fields %}
+        <div class="form-row">
+          <label>{{ field.label }}</label>
+          <div class="readonly">{{ field.value }}</div>
+        </div>
+      {% endfor %}
+    </fieldset>
+
+    <div class="tabular inline-related">
+      <fieldset class="module">
+        <h2>Documents justificatifs</h2>
+        <table>
+          <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Type</th>
+            <th>Voir le document</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for document in documents %}
+            <tr class="form-row row{% cycle "1" "2" %}">
+              <td>{{ document.title }}</td>
+              <td>{{ document.get_type_display }}</td>
+              <td><a href="{{ document.file.url }}">Voir le document</a></td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </fieldset>
+    </div>
+
+    <form method="post" id="export_summary_form" novalidate>{% csrf_token %}
+
+      {% if errors %}
+        <p class="errornote">
+          {% if errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}
+            {% trans "Please correct the errors below." %}{% endif %}
+        </p>
+        {{ adminform.form.non_field_errors }}
+      {% endif %}
+
+      {% for fieldset in adminform %}
+        {% include "admin/includes/fieldset.html" %}
+      {% endfor %}
+
+      <input type="submit" value="Valider">
+
+      {% block admin_change_form_document_ready %}
+        <script type="text/javascript" id="django-admin-form-add-constants"
+                src="{% static 'admin/js/change_form.js' %}"
+            {% if adminform and add %}
+                data-model-name="{{ opts.model_name }}"
+            {% endif %}></script>
+      {% endblock %}
+
+      {# JavaScript for prepopulated fields #} {% prepopulated_fields_js %}
+
+    </form>
+  </div>
+  <div id="content-related">
+    <div class="request-history">
+      <h2>Historique de la demande</h2>
+      {% for step in history %}
+        <div class="request-history-step">
+          <h5>{{ step.title }}{% if step.user %}
+            <small>({{ step.user }})</small>{% endif %}</h5>
+          <div><em>Le {{ step.modified }}</em></div>
+          {% if step.comment %}
+            <blockquote>{{ step.comment }}</blockquote>
+          {% endif %}
+          {% if step.diff %}
+            <div>
+              Ont été modifiés :
+              <ul>
+                {% for field in step.diff %}
+                  <li>{{ field }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

@@ -15,6 +15,7 @@ from unidecode import unidecode
 
 from agir.events.admin.filters import EventFilterSet
 from agir.events.models import Event, EventSubtype, Calendar
+from agir.lib.admin import AdminViewMixin
 from .forms import AddOrganizerForm
 
 
@@ -83,7 +84,7 @@ def add_member(model_admin, request, pk):
     return TemplateResponse(request, "admin/events/add_organizer.html", context)
 
 
-class EventSummaryView(FilterView):
+class EventSummaryView(AdminViewMixin, FilterView):
     filterset_class = EventFilterSet
     template_name = "admin/events/event_summary.html"
 
@@ -118,7 +119,7 @@ class EventSummaryView(FilterView):
 
             return res
 
-    def get_admin_helpers(self):
+    def get_context_data(self, *, object_list=None, **kwargs):
         calendars_field = self.filterset.form.fields["calendars"]
         subtype_field = self.filterset.form.fields["subtype"]
 
@@ -135,20 +136,6 @@ class EventSummaryView(FilterView):
             visibility=EventSubtype.VISIBILITY_NONE
         )
 
-        admin_form = helpers.AdminForm(
-            form=self.filterset.form,
-            fieldsets=[(None, {"fields": list(self.filterset.base_filters)})],
-            model_admin=self.kwargs["model_admin"],
-            prepopulated_fields={},
-        )
-
-        return {
-            "adminform": admin_form,
-            "errors": helpers.AdminErrorList(self.filterset.form, []),
-            "media": self.kwargs["model_admin"].media + admin_form.media,
-        }
-
-    def get_context_data(self, *, object_list=None, **kwargs):
         return super().get_context_data(
             title="Résumé des événements",
             opts=self.kwargs["model_admin"].model._meta,
@@ -163,7 +150,7 @@ class EventSummaryView(FilterView):
             has_delete_permission=False,
             show_close=False,
             events_by_region=self.get_grouped_events(),
-            **self.get_admin_helpers(),
+            **self.get_admin_helpers(self.filterset.form, self.filterset.base_filters),
             **kwargs
         )
 

@@ -64,11 +64,15 @@ class Migration(migrations.Migration):
                 choices=[
                     ("D", "Brouillon à compléter"),
                     ("G", "En attente de validation par un autre animateur"),
-                    ("R", "En attente de vérification par la Trésorerie"),
+                    (
+                        "R",
+                        "En attente de vérification par l'équipe de suivi des questions financières",
+                    ),
                     ("I", "Informations supplémentaires requises"),
                     ("V", "Validée, en attente des fonds"),
                     ("T", "Décomptée de l'allocation du groupe, à payer"),
                     ("P", "Payée"),
+                    ("B", "Cette demande a été refusée"),
                 ],
                 default="D",
                 max_length=1,

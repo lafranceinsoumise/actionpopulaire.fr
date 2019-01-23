@@ -58,13 +58,19 @@ class SpendingRequest(TimeStampedModel):
     STATUS_VALIDATED = "V"
     STATUS_TO_PAY = "T"
     STATUS_PAID = "P"
+    STATUS_REFUSED = "B"
     STATUS_CHOICES = (
         (STATUS_DRAFT, _("Brouillon à compléter")),
         (
             STATUS_AWAITING_GROUP_VALIDATION,
             _("En attente de validation par un autre animateur"),
         ),
-        (STATUS_AWAITING_REVIEW, _("En attente de vérification par la Trésorerie")),
+        (
+            STATUS_AWAITING_REVIEW,
+            _(
+                "En attente de vérification par l'équipe de suivi des questions financières"
+            ),
+        ),
         (
             STATUS_AWAITING_SUPPLEMENTARY_INFORMATION,
             _("Informations supplémentaires requises"),
@@ -72,17 +78,19 @@ class SpendingRequest(TimeStampedModel):
         (STATUS_VALIDATED, _("Validée, en attente des fonds")),
         (STATUS_TO_PAY, _("Décomptée de l'allocation du groupe, à payer")),
         (STATUS_PAID, _("Payée")),
+        (STATUS_REFUSED, _("Cette demande a été refusée")),
     )
 
     STATUS_NEED_ACTION = {
         STATUS_DRAFT,
         STATUS_AWAITING_GROUP_VALIDATION,
         STATUS_AWAITING_SUPPLEMENTARY_INFORMATION,
-    }
-    STATUS_ADMINISTRATOR_ACTION = {
-        STATUS_AWAITING_SUPPLEMENTARY_INFORMATION,
         STATUS_VALIDATED,
-        STATUS_PAID,
+    }
+    STATUS_ADMINISTRATOR_ACTION = {STATUS_AWAITING_REVIEW, STATUS_TO_PAY}
+    STATUS_EDITION_MESSAGES = {
+        STATUS_AWAITING_REVIEW: "Votre requête a déjà été transmise ! Si vous l'éditez, il vous faudra la retransmettre à nouveau.",
+        STATUS_VALIDATED: "Votre requête a déjà été validée par l'équipe de suivi des questions financières. Si vous l'éditez, il vous faudra recommencer le processus de validation.",
     }
 
     CATEGORY_HARDWARE = "H"
@@ -179,6 +187,11 @@ class SpendingRequest(TimeStampedModel):
             "Indiquez le RIB du prestataire s'il s'agit d'un réglement, ou le RIB de la personne concernée s'il s'agit d'un remboursement."
         ),
     )
+
+    class Meta:
+        permissions = (
+            ("review_spendingrequest", _("Peut traiter les demandes de dépenses")),
+        )
 
 
 document_path = FilePattern(
