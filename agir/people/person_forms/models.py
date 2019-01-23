@@ -4,11 +4,9 @@ from django.contrib.postgres.fields import JSONField
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
-from django.core.serializers.json import DjangoJSONEncoder
 from django_prometheus.models import ExportModelOperationsMixin
 
-from phonenumber_field.phonenumber import PhoneNumber
-
+from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.models import DescriptionField, TimeStampedModel
 
 __all__ = ["PersonForm", "PersonFormSubmission"]
@@ -165,13 +163,6 @@ class PersonForm(TimeStampedModel):
 
     class Meta:
         verbose_name = _("Formulaire")
-
-
-class CustomJSONEncoder(DjangoJSONEncoder):
-    def default(self, o):
-        if isinstance(o, PhoneNumber):
-            return o.as_e164
-        return super().default(o)
 
 
 class PersonFormSubmission(

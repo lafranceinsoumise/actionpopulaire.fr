@@ -25,7 +25,11 @@ from django.utils.translation import ugettext as _, ngettext
 from agir.events.actions.legal import QUESTIONS
 from agir.lib.display import str_summary
 from ..models import Event, RSVP, Calendar, EventSubtype
-from ..tasks import send_cancellation_notification, send_event_report
+from ..tasks import (
+    send_cancellation_notification,
+    send_event_report,
+    send_secretariat_notification,
+)
 
 from ..forms import (
     EventForm,
@@ -35,6 +39,7 @@ from ..forms import (
     UploadEventImageForm,
     AuthorForm,
     SearchEventForm,
+    EventLegalForm,
 )
 from agir.front.view_mixins import (
     ObjectOpengraphMixin,
@@ -60,6 +65,7 @@ __all__ = [
     "ChangeEventLocationView",
     "EditEventReportView",
     "SendEventReportView",
+    "EditEventLegalView",
     "UploadEventImageView",
     "EventListView",
     "PerformCreateEventView",
@@ -143,12 +149,16 @@ class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
         except KeyError:
             report_is_sent = False
 
+        legal_form = EventLegalForm(self.object)
+
         return super().get_context_data(
             report_is_sent=report_is_sent,
             is_organizer=self.request.user.is_authenticated
             and self.object.organizers.filter(pk=self.request.user.person.id).exists(),
             organizers=self.object.organizers.all(),
             rsvps=self.object.rsvps.all(),
+            legal_sections=legal_form.included_sections,
+            incomplete_sections=list(legal_form.incomplete_sections),
             **kwargs,
         )
 
@@ -500,6 +510,31 @@ class SendEventReportView(
             )
             request.session["report_sent"] = str(event.pk)
         return HttpResponseRedirect(reverse("manage_event", kwargs={"pk": pk}))
+
+
+class EditEventLegalView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
+    template_name = "events/edit_legal.html"
+    permissions_required = ("events.change_event",)
+    form_class = EventLegalForm
+    model = Event
+
+    def form_valid(self, form):
+        if len(list(form.incomplete_sections)) == 0:
+            message = (
+                "Les informations légales sont complètes. Le secrétariat général de la campagne en a été "
+                "averti, votre demande sera examinée dans les plus brefs délais."
+            )
+            send_secretariat_notification.delay(
+                self.object.pk, self.request.user.person.pk
+            )
+        else:
+            message = "Les informations légales ont bien été mises à jour."
+        messages.add_message(self.request, messages.SUCCESS, message)
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("manage_event", args=(self.object.pk,))
 
 
 class UploadEventImageView(

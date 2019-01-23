@@ -244,6 +244,8 @@ EMAIL_TEMPLATES = {
     "EVENT_GUEST_CONFIRMATION": "https://mosaico.jlm2017.fr/emails/eded7af1-8ded-4150-a33c-b4902b34d54c.html",
     # EVENT_CANCELLATION variables: EVENT_NAME
     "EVENT_CANCELLATION": "https://mosaico.jlm2017.fr/emails/94c7cbb3-afdc-4d14-a07a-cf9503db5b5f.html",
+    # EVENT_SECRETARIAT_NOTIFICATION variables : EVENT_NAME EVENT_SCHEDULE CONTACT_NAME CONTACT_EMAIL LOCATION_NAME LOCATION_ADDRESS EVENT_LINK LEGAL_INFORMATIONS
+    "EVENT_SECRETARIAT_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/d7ebb6a3-f693-4c33-934f-df4335b23621.html",
     # FORM_CONFIRMATION variables : CONFIRMATION_NOTE
     "FORM_CONFIRMATION": "https://mosaico.jlm2017.fr/emails/6172a755-0459-4f01-b3e4-fcfa835224b0.html",
     # FORM_NOTIFICATION variables : PERSON_EMAIL, INFORMATIONS
@@ -257,6 +259,7 @@ EMAIL_TEMPLATES = {
 EMAIL_FROM = os.environ.get(
     "EMAIL_FROM", "La France insoumise <noreply@lafranceinsoumise.fr>"
 )
+EMAIL_SECRETARIAT = os.environ.get("EMAIL_SECRETARIAT", "nospam@lafranceinsoumise.fr")
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

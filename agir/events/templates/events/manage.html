@@ -128,21 +128,32 @@
 
     {% if True in event.legal.values %}
         <div>
-            <h3 id="section-legal">Formulaires légaux</h3>
+            <h3 id="section-legal">Formalités légales</h3>
             <div class="row">
                 <div class="col-md-6">
                     <p>
-                        Afin que votre évenement soit approuvé, vous devez remplir les formulaires suivants.
+                        Afin que votre évenement soit approuvé, vous devez remplir les informations suivantes.
+                    </p>
+                    <p>
+                        {% for section in legal_sections %}
+                            <span class="text-{% if section in incomplete_sections %}danger{% else %}success{% endif %}">
+                                <i class="fa fa-{% if section in incomplete_sections %}exclamation-circle{% else %}check{% endif %}"></i>
+                                {{ section.0 }}
+                            </span>{% if not forloop.last %}<br/>{% endif %}
+                        {% endfor %}
                     </p>
                 </div>
                 <div class="col-md-6">
                     <p>
                         {% if event.legal.candidat or event.legal.materiel_campagne %}
-                            <a href="{% url "view_person_form" "E19-01" %}" class="btn btn-default">
-                                Formulaire événement de campagne
+                            <a href="{% url "event_legal_form" event.pk %}" class="btn btn-default">
+                                Mettre à jour les informations légales
                             </a>
-                        {% else %}
-                            Vous devez remplir un formulaire de dépense sur votre groupe d'action certifié.
+                            <p>
+                                Lorsque tous les documents sont remplis, le secrétariat général de la campagne
+                            peut valider votre événement. Ceci ne nécesssite pas d'action de votre part
+                            et prend habituellement deux à trois jours ouvrés.
+                            </p>
                         {% endif %}
                     </p>
                 </div>

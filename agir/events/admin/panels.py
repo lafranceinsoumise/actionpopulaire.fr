@@ -12,6 +12,7 @@ from django.utils.encoding import force_text
 from django.utils.html import format_html, escape
 
 from agir.events.actions import legal
+from agir.events.forms import EventLegalForm
 from agir.events.models import Event
 from agir.people.admin import PersonFormAdminMixin
 from agir.people.models import PersonFormSubmission
@@ -173,7 +174,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "calendars",
                     "tags",
                     "visibility",
-                    "legal_questions",
+                    "legal_informations",
                 )
             },
         ),
@@ -235,7 +236,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "modified",
         "coordinates_type",
         "rsvps_buttons",
-        "legal_questions",
+        "legal_informations",
     )
     date_hierarchy = "start_time"
 
@@ -326,9 +327,12 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     link.short_description = _("Page sur le site")
 
-    def legal_questions(self, object):
+    @staticmethod
+    def legal_informations(object):
         if not isinstance(object.legal, dict):
             return mark_safe("-")
+
+        form = EventLegalForm(object)
         return mark_safe(
             render_to_string(
                 "admin/events/legal.html",
@@ -337,13 +341,23 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
                         legal.QUESTIONS_DICT[question_id]["question"]: object.legal[
                             question_id
                         ]
-                        for question_id in object.legal
-                    }
+                        for question_id in legal.QUESTIONS_DICT
+                        if question_id in object.legal
+                    },
+                    "form": {
+                        section[0]: {
+                            form.fields[field].label: form.get_formatted_value(
+                                field, object.legal.get(field, "NA"), html=True
+                            )
+                            for field in section[1]
+                        }
+                        for section in form.included_sections
+                    },
                 },
             )
         )
 
-    legal_questions.short_description = "Questions légales"
+    legal_informations.short_description = "Questions légales"
 
     def rsvps_buttons(self, object):
         if object.subscription_form is None or object.pk is None:

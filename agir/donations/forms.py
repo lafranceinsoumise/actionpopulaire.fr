@@ -16,7 +16,7 @@ from django_countries.fields import CountryField
 
 from agir.groups.models import SupportGroup
 from agir.lib.form_components import *
-from agir.people.form_mixins import MetaFieldsMixin
+from agir.lib.form_mixins import MetaFieldsMixin
 from agir.people.models import Person, PersonEmail
 from .models import SpendingRequest, Document
 

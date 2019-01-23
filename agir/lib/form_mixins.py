@@ -1,10 +1,23 @@
+from pathlib import PurePath
+from uuid import uuid4
+
+import iso8601
+import os
 from django import forms
+from django.conf import settings
+from django.core.files import File
+from django.core.files.storage import default_storage
 from django.db import IntegrityError
 from django.forms import fields_for_model
+from django.utils.formats import localize
+from django.utils.timezone import get_current_timezone
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.html import format_html
 from django.contrib.gis.forms.widgets import OSMWidget
 from crispy_forms.helper import FormHelper
+from phonenumber_field.formfields import PhoneNumberField
+from phonenumber_field.phonenumber import PhoneNumber
+from phonenumbers import NumberParseException
 
 from agir.lib.form_components import *
 from agir.lib.models import LocationMixin
@@ -12,7 +25,7 @@ from agir.lib.models import LocationMixin
 from django.utils.translation import ugettext as _
 from django_countries import countries
 
-__all__ = ["TagMixin", "LocationFormMixin", "ContactFormMixin"]
+__all__ = ["TagMixin", "LocationFormMixin", "ContactFormMixin", "MetaFieldsMixin"]
 
 
 class TagMixin:
@@ -226,3 +239,78 @@ class SearchByZipCodeFormBase(forms.Form):
             }
         ),
     )
+
+
+class MetaFieldsMixin:
+    meta_fields = []
+    meta_attr = "meta"
+    meta_prefix = ""
+    filepath = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.update_meta_initial(check_field_type=False)
+
+    def update_meta_initial(self, check_field_type=True):
+        for f in self.get_meta_fields():
+            stored_value = getattr(self.instance, self.meta_attr).get(
+                self.meta_prefix + f
+            )
+            if (
+                check_field_type
+                and isinstance(self.fields[f], forms.FileField)
+                and stored_value
+            ):
+                path = stored_value
+                stored_value = default_storage.open(path)
+                stored_value.name = os.path.basename(path)
+                stored_value.url = settings.MEDIA_URL + path
+            self.initial[f] = stored_value
+
+    def get_formatted_value(self, field_name, value, html=False):
+        if field_name not in self.fields:
+            return value
+
+        field = self.fields[field_name]
+
+        if isinstance(field, forms.DateTimeField):
+            date = iso8601.parse_date(value)
+            return localize(date.astimezone(get_current_timezone()))
+        elif isinstance(field, PhoneNumberField):
+            try:
+                phone_number = PhoneNumber.from_string(value)
+                return phone_number.as_international
+            except NumberParseException:
+                return value
+        elif isinstance(field, forms.FileField):
+            url = settings.FRONT_DOMAIN + settings.MEDIA_URL + value
+            if html:
+                return format_html('<a href="{}">Accéder au fichier</a>', url)
+            else:
+                return url
+
+        return value
+
+    def get_meta_fields(self):
+        return self.meta_fields
+
+    def clean(self):
+        """Handles meta fields"""
+        cleaned_data = super().clean()
+
+        meta_update = {
+            self.meta_prefix + f: cleaned_data.get(f)
+            for f in self.get_meta_fields()
+            if cleaned_data.get(f)
+        }
+        getattr(self.instance, self.meta_attr).update(meta_update)
+
+        return cleaned_data
+
+    def _save_files(self):
+        for key, value in self.cleaned_data.items():
+            if isinstance(value, File):
+                extension = os.path.splitext(value.name)[1].lower()
+                path = str(PurePath(self.filepath) / (str(uuid4()) + extension))
+                default_storage.save(path, value)
+                getattr(self.instance, self.meta_attr)[self.meta_prefix + key] = path

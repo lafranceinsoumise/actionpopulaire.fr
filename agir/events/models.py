@@ -16,6 +16,7 @@ from stdimage.models import StdImageField
 from slugify import slugify
 
 from agir.lib.utils import front_url, resize_and_autorotate
+from agir.lib.form_fields import CustomJSONEncoder
 from ..lib.models import (
     BaseAPIResource,
     AbstractLabel,
@@ -238,7 +239,13 @@ class Event(
         "La catégorie que doivent avoir les tickets sur scanner", blank=True, null=True
     )
 
-    legal = JSONField(_("Informations juridiques"), null=True, blank=True, default=dict)
+    legal = JSONField(
+        _("Informations juridiques"),
+        null=True,
+        blank=True,
+        default=dict,
+        encoder=CustomJSONEncoder,
+    )
 
     class Meta:
         verbose_name = _("événement")

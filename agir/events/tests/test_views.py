@@ -11,6 +11,7 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 
 from agir.authentication.subscription import subscription_confirmation_token_generator
+from agir.events.actions import legal
 from agir.groups.models import SupportGroup, Membership
 from agir.payments.actions import complete_payment
 from agir.payments.models import Payment
@@ -75,6 +76,7 @@ class EventPagesTestCase(TestCase):
             subtype=self.subtype,
             start_time=now + day,
             end_time=now + day + 4 * hour,
+            legal={legal.QUESTION_SALLE: True, legal.QUESTION_MATERIEL_CAMPAGNE: True},
         )
 
         OrganizerConfig.objects.create(
@@ -348,6 +350,29 @@ class EventPagesTestCase(TestCase):
     @skip("Redo with new creation form")
     def test_can_create_event(self):
         pass
+
+    def test_can_edit_legal_fields(self):
+        self.client.force_login(self.person.role)
+        res = self.client.get(
+            reverse("event_legal_form", args=[self.organized_event.pk])
+        )
+
+        self.assertContains(res, "Salle")
+        self.assertNotContains(res, "Hébergement militant")
+
+        self.client.post(
+            reverse("event_legal_form", args=[self.organized_event.pk]),
+            data={"salle": "gratuite", "salle_name": "Nom de la salle"},
+        )
+        self.organized_event.refresh_from_db()
+        self.assertEqual(self.organized_event.legal["documents_salle"], "gratuite")
+        self.assertEqual(
+            self.organized_event.legal["documents_salle_name"], "Nom de la salle"
+        )
+        res = self.client.get(
+            reverse("event_legal_form", args=[self.organized_event.pk])
+        )
+        self.assertContains(res, "Nom de la salle")
 
     def test_excluded_fields_are_not_in_form(self):
         self.subtype.config = {"excluded_fields": ["name"]}

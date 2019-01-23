@@ -4,9 +4,9 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from agir.lib.form_components import HalfCol, FullCol
-from agir.lib.form_mixins import TagMixin
+from agir.lib.form_mixins import TagMixin, MetaFieldsMixin
 from agir.lib.tasks import geocode_person
-from agir.people.form_mixins import MetaFieldsMixin, ContactPhoneNumberMixin
+from agir.people.form_mixins import ContactPhoneNumberMixin
 from agir.people.models import PersonTag, Person
 from agir.people.tags import skills_tags
 
