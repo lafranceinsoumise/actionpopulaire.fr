@@ -57,7 +57,7 @@ QUESTIONS = [
     {
         "id": QUESTION_FRAIS,
         "question": "Souhaitez-vous engager des frais auprès de commerçants ou entreprises ?",
-        "helpText": "Si vous souhaitez engager des frais, il faut le déclarer dès maintenant afin que la dépense soit"
+        "helpText": "Si vous souhaitez engager des frais, il faut le déclarer dès maintenant afin que la dépense soit "
         "préalablement autorisée par l'association de financement.",
     },
 ]
