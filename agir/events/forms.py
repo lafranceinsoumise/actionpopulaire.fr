@@ -13,6 +13,7 @@ from agir.lib.form_mixins import (
     ContactFormMixin,
     GeocodingBaseForm,
     SearchByZipCodeFormBase,
+    MetaFieldsMixin,
 )
 from agir.people.forms import BasePersonForm
 from agir.payments.payment_modes import PaymentModeField

@@ -1,7 +1,9 @@
+from django.core.serializers.json import DjangoJSONEncoder
 from django.forms.widgets import Textarea, DateTimeBaseInput
 from django.forms import BooleanField, forms
 from django.utils import formats
 from django.utils.translation import ugettext_lazy as _
+from phonenumber_field.phonenumber import PhoneNumber
 
 from webpack_loader import utils as webpack_loader_utils
 
@@ -86,3 +88,10 @@ class AcceptCreativeCommonsLicenceField(BooleanField):
         kwargs.setdefault("required", False)
         kwargs.setdefault("label", self.default_label)
         super().__init__(*args, **kwargs)
+
+
+class CustomJSONEncoder(DjangoJSONEncoder):
+    def default(self, o):
+        if isinstance(o, PhoneNumber):
+            return o.as_e164
+        return super().default(o)

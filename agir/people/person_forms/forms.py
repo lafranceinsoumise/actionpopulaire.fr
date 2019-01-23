@@ -13,7 +13,7 @@ from crispy_forms.helper import FormHelper
 from agir.lib.form_components import *
 from agir.people.person_forms.field_groups import get_form_part
 
-from ..form_mixins import MetaFieldsMixin
+from agir.lib.form_mixins import MetaFieldsMixin
 from ..models import Person, PersonFormSubmission
 from .fields import is_actual_model_field, get_data_from_submission
 
@@ -94,6 +94,8 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         for part in self.parts:
             part.set_up_fields(self, self.is_edition)
+
+        self.update_meta_initial()
 
     def clean(self):
         if not self.is_edition:
