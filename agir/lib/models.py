@@ -87,6 +87,7 @@ class LocationMixin(models.Model):
     COORDINATES_MANUAL = 0
     COORDINATES_EXACT = 10
     COORDINATES_STREET = 20
+    COORDINATES_DISTRICT = 25
     COORDINATES_CITY = 30
     COORDINATES_UNKNOWN_PRECISION = 50
     COORDINATES_NO_POSITION = 254
@@ -95,6 +96,10 @@ class LocationMixin(models.Model):
         (COORDINATES_MANUAL, _("Coordonnées manuelles")),
         (COORDINATES_EXACT, _("Coordonnées automatiques précises")),
         (COORDINATES_STREET, _("Coordonnées automatiques approximatives (niveau rue)")),
+        (
+            COORDINATES_DISTRICT,
+            "Coordonnées automatique approximatives (arrondissement)",
+        ),
         (COORDINATES_CITY, _("Coordonnées automatiques approximatives (ville)")),
         (
             COORDINATES_UNKNOWN_PRECISION,
@@ -131,6 +136,7 @@ class LocationMixin(models.Model):
     location_address2 = models.CharField(
         _("adresse (2ème ligne)"), max_length=100, blank=True
     )
+    location_citycode = models.CharField(_("code INSEE"), max_length=20, blank=True)
     location_city = models.CharField(_("ville"), max_length=100, blank=True)
     location_zip = models.CharField(_("code postal"), max_length=20, blank=True)
     location_state = models.CharField(_("état"), max_length=40, blank=True)
