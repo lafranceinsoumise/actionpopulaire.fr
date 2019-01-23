@@ -88,7 +88,10 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
             )
 
         organized_events = (
-            Event.objects.upcoming().filter(organizers=person).order_by("start_time")
+            Event.objects.upcoming(published_only=False)
+            .filter(organizers=person)
+            .exclude(visibility=Event.VISIBILITY_ADMIN)
+            .order_by("start_time")
         )
         past_organized_events = (
             Event.objects.past()
