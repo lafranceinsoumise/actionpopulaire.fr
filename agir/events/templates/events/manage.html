@@ -105,20 +105,19 @@
                         <a class="btn btn-default" href="{% url "cancel_event" event.pk %}">Annuler l'événement</a></li>
                 {% else %}
                     <li>
-                        <div class="help-dialog">Une fois l'événement terminé, vous pouvez seulement rédiger ou modifier
-                            son compte-rendu.
+                        <div class="help-dialog">Une fois l'événement terminé, vous pouvez seulement rédiger ou modifier son compte-rendu.
                         </div>
                         <a class="btn btn-default" href="{% url "edit_event_report" event.pk %}">
                             {% if event.report_content %}Modifier{% else %}Rédiger{% endif %} le compte-rendu</a></li>
                     {% if event.report_content %}
-                        {% if not event.report_summary_sent %}
+                        {% if event.report_summary_sent or report_is_sent %}
+                            Ce compte-rendu a déjà été envoyé.
+                        {% else %}
                             <li><form action="{% url "send_event_report" event.pk %}" method="POST">
                                 {% csrf_token %}
-                                <div class="help-dialog">Attention cette action ne peut être effectués qu'une seule fois par événement.</div>
                                 <input class="btn btn-default" type="submit" value="Envoyer le compte-rendu">
                             </form></li>
-                        {% else %}
-                            Ce compte-rendu a déja été envoyé.
+                            Attention : l'envoi de mail ne peut être effectué qu'une seule fois par événement.
                         {% endif %}
                     {% endif %}
                 {% endif %}
