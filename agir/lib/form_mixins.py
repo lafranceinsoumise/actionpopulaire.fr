@@ -271,6 +271,9 @@ class MetaFieldsMixin:
         if field_name not in self.fields:
             return value
 
+        if value is None:
+            return "NA"
+
         field = self.fields[field_name]
 
         if isinstance(field, forms.DateTimeField):
