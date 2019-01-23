@@ -311,3 +311,35 @@ def update_ticket(rsvp_pk, metas=None):
             ).raise_for_status()
     except HTTPError:
         print(r.text)
+
+
+@shared_task
+def send_secretariat_notification(event_pk, person_pk):
+    try:
+        event = Event.objects.get(pk=event_pk)
+        person = Person.objects.get(pk=person_pk)
+    except (Event.DoesNotExist, Person.DoesNotExist):
+        return
+
+    from agir.events.admin import EventAdmin
+
+    bindings = {
+        "EVENT_NAME": event.name,
+        "EVENT_SCHEDULE": event.get_display_date(),
+        "CONTACT_NAME": event.contact_name,
+        "CONTACT_EMAIL": event.contact_email,
+        "CONTACT_PHONE": event.contact_phone,
+        "LOCATION_NAME": event.location_name,
+        "LOCATION_ADDRESS": event.short_address,
+        "EVENT_LINK": front_url("view_event", args=[event.pk]),
+        "LEGAL_INFORMATIONS": EventAdmin.legal_informations(event),
+    }
+
+    send_mosaico_email(
+        code="EVENT_SECRETARIAT_NOTIFICATION",
+        subject=_("Nouvel événement avec informations légales remplies"),
+        from_email=settings.EMAIL_FROM,
+        reply_to=[person.email],
+        recipients=[settings.EMAIL_SECRETARIAT],
+        bindings=bindings,
+    )

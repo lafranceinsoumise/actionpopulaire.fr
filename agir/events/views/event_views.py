@@ -22,7 +22,7 @@ from django.utils.translation import ugettext as _
 
 from agir.events.actions.legal import QUESTIONS
 from ..models import Event, RSVP, Calendar, EventSubtype
-from ..tasks import send_cancellation_notification
+from ..tasks import send_cancellation_notification, send_secretariat_notification
 
 from ..forms import (
     EventForm,
@@ -32,6 +32,7 @@ from ..forms import (
     UploadEventImageForm,
     AuthorForm,
     SearchEventForm,
+    EventLegalForm,
 )
 from agir.front.view_mixins import (
     ObjectOpengraphMixin,
@@ -56,6 +57,7 @@ __all__ = [
     "CalendarIcsView",
     "ChangeEventLocationView",
     "EditEventReportView",
+    "EditEventLegalView",
     "UploadEventImageView",
     "EventListView",
     "PerformCreateEventView",
@@ -133,12 +135,16 @@ class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
         if "add_organizer_form" not in kwargs:
             kwargs["add_organizer_form"] = self.get_form()
 
+        legal_form = EventLegalForm(self.object)
+
         return super().get_context_data(
             is_organizer=self.request.user.is_authenticated
             and self.object.organizers.filter(pk=self.request.user.person.id).exists(),
             organizers=self.object.organizers.all(),
             rsvps=self.object.rsvps.all(),
-            **kwargs
+            legal_sections=legal_form.included_sections,
+            incomplete_sections=list(legal_form.incomplete_sections),
+            **kwargs,
         )
 
     def post(self, request, *args, **kwargs):
@@ -217,7 +223,7 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
                 "subtypes": subtypes,
                 "questions": questions,
             },
-            **kwargs
+            **kwargs,
         )
 
 
@@ -461,6 +467,31 @@ class EditEventReportView(HardLoginRequiredMixin, PermissionsRequiredMixin, Upda
 
     def get_queryset(self):
         return Event.objects.past(as_of=timezone.now())
+
+
+class EditEventLegalView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
+    template_name = "events/edit_legal.html"
+    permissions_required = ("events.change_event",)
+    form_class = EventLegalForm
+    model = Event
+
+    def form_valid(self, form):
+        if len(list(form.incomplete_sections)) == 0:
+            message = (
+                "Les informations légales sont complètes. Le secrétariat général de la campagne en a été "
+                "averti, votre demande sera examinée dans les plus brefs délais."
+            )
+            send_secretariat_notification.delay(
+                self.object.pk, self.request.user.person.pk
+            )
+        else:
+            message = "Les informations légales ont bien été mises à jour."
+        messages.add_message(self.request, messages.SUCCESS, message)
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("manage_event", args=(self.object.pk,))
 
 
 class UploadEventImageView(

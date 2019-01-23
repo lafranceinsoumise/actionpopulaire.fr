@@ -6,7 +6,7 @@
         Cet événement n'est visible que par ses organisateur⋅ice⋅s.
         {% if is_organizer %}
             Vous devez <a href="{% url 'manage_event' event.pk %}#section-legal">remplir les formulaires légaux</a> avant qu'il
-            puisse être approuvé.
+            puisse être approuvé. Si ceux-ci sont bien remplis, la validation prend deux à trois jours ouvrés.
         {% endif %}
     </div>
 {% endif %}
