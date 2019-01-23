@@ -492,11 +492,7 @@ class SendEventReportView(
 
     def post(self, request, pk, *args, **kwargs):
         event = self.get_object()
-        if (
-            not event.report_summary_sent
-            and event.is_past()
-            and not event.report_content.isspace()
-        ):
+        if not event.report_summary_sent and event.is_past() and event.report_content:
             send_event_report.delay(event.pk)
             participants = event.participants
             messages.add_message(
