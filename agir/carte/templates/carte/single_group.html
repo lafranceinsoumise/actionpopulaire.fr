@@ -9,7 +9,7 @@ Localisation du groupe {{ group.name }}
       var subtype = {{ subtype_config }};
       var coordinates = {{ coordinates }};
       var popupContent = '<a href="{{ FRONT_DOMAIN }}{% url "view_group" group.id %}" style="color:' + subtype.color +
-          ';" target="_blank">{{ group.name }}</a>';
+          ';">{{ group.name }}</a>';
 
       window['carte/map'].itemMap('map', coordinates, subtype, popupContent);
     </script>

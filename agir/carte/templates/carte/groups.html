@@ -15,8 +15,8 @@ Carte des groupes d'appui
           return (group.subtypes.indexOf(subtype.id) !== -1) && !subtype.hideLabel;
         }).map(function(subtype) {return subtype.description;});
         var type = types.find(function(type) { return type.id === group.type });
-        return '<a href="{{ FRONT_DOMAIN }}/groupes/' + group.id +
-          '" target="_blank">' + group.name + '</a><br><strong>' + type.label + '</strong>' +
+        return '<a href="{{ FRONT_DOMAIN }}/groupes/' + group.id + '">' +
+          group.name + '</a><br><strong>' + type.label + '</strong>' +
           (displayableSubtypes.length ? '<br>' + displayableSubtypes.join(' &bull; ') : '');
       }
 
