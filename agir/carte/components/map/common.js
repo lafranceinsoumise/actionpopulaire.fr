@@ -50,7 +50,7 @@ export function setUpPopup(map) {
     element: popupElement,
     positioning: "bottom-center",
     offset: [0, -ARROW_SIZE],
-    stopEvent: false
+    stopEvent: true
   });
 
   map.addOverlay(popup);
