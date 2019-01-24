@@ -31,10 +31,7 @@ def data_from_person(person, tmp_tags=None):
         ("groupe_yes" if person.supportgroups.active().count() > 0 else "groupe_no"),
         (
             "groupe_certifié_yes"
-            if person.supportgroups.active()
-            .filter(subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE)
-            .count()
-            > 0
+            if person.supportgroups.active().certified().count() > 0
             else "groupe_certifié_no"
         ),
         (
@@ -47,7 +44,7 @@ def data_from_person(person, tmp_tags=None):
             if person.memberships.active()
             .filter(
                 is_animateur
-                & Q(supportgroup__subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE)
+                & Q(supportgroup__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES)
             )
             .count()
             > 0

@@ -52,12 +52,10 @@ def get_instant_stats():
             supportgroups__type=SupportGroup.TYPE_LOCAL_GROUP,
             supportgroups__published=True,
         ).count(),
-        "certified_groups": SupportGroup.objects.filter(
-            subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE, published=True
-        ).count(),
+        "certified_groups": SupportGroup.objects.certified().count(),
         "certified_group_members": Person.objects.filter(
             supportgroups__type=SupportGroup.TYPE_LOCAL_GROUP,
-            supportgroups__subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE,
+            supportgroups__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
             supportgroups__published=True,
         ).count(),
         "thematic_groups": SupportGroup.objects.filter(

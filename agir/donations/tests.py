@@ -45,7 +45,7 @@ class DonationTestCase(TestCase):
             [
                 SupportGroupSubtype.objects.create(
                     type=SupportGroup.TYPE_LOCAL_GROUP,
-                    label=settings.CERTIFIED_GROUP_SUBTYPE,
+                    label=settings.CERTIFIED_GROUP_SUBTYPES[0],
                 )
             ]
         )
@@ -370,7 +370,7 @@ class SpendingRequestTestCase(TestCase):
         self.p1 = Person.objects.create_person("test@test.com")
 
         self.certified_subtype = SupportGroupSubtype.objects.create(
-            label=settings.CERTIFIED_GROUP_SUBTYPE,
+            label=settings.CERTIFIED_GROUP_SUBTYPES[0],
             description="Groupe certifié",
             type=SupportGroup.TYPE_LOCAL_GROUP,
         )

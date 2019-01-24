@@ -17,7 +17,7 @@ def get_balance(group):
 
 
 def group_can_handle_allocation(group):
-    return group.subtypes.filter(label=settings.CERTIFIED_GROUP_SUBTYPE).exists()
+    return group.subtypes.filter(label__in=settings.CERTIFIED_GROUP_SUBTYPES).exists()
 
 
 def get_spending_request_field_label(f):

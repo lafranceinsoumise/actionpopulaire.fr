@@ -21,7 +21,7 @@ class SupportGroupQuerySet(models.QuerySet):
         return self.filter(published=True)
 
     def certified(self):
-        return self.filter(subtypes__label=settings.CERTIFIED_GROUP_SUBTYPE)
+        return self.filter(subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES)
 
 
 class MembershipQuerySet(models.QuerySet):
@@ -89,7 +89,9 @@ class SupportGroup(
 
     @property
     def is_certified(self):
-        return self.subtypes.filter(label=settings.CERTIFIED_GROUP_SUBTYPE).exists()
+        return self.subtypes.filter(
+            label__in=settings.CERTIFIED_GROUP_SUBTYPES
+        ).exists()
 
     @property
     def allow_external(self):
