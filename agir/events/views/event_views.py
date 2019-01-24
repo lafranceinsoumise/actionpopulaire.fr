@@ -515,6 +515,8 @@ class EditEventLegalView(HardLoginRequiredMixin, PermissionsRequiredMixin, Updat
     model = Event
 
     def form_valid(self, form):
+        result = super().form_valid(form)
+
         if len(list(form.incomplete_sections)) == 0:
             message = (
                 "Les informations légales sont complètes. Le secrétariat général de la campagne en a été "
@@ -527,7 +529,7 @@ class EditEventLegalView(HardLoginRequiredMixin, PermissionsRequiredMixin, Updat
             message = "Les informations légales ont bien été mises à jour."
         messages.add_message(self.request, messages.SUCCESS, message)
 
-        return super().form_valid(form)
+        return result
 
     def get_success_url(self):
         return reverse("manage_event", args=(self.object.pk,))
