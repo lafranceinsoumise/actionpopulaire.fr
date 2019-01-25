@@ -457,7 +457,7 @@ class EventTagAdmin(admin.ModelAdmin):
 
 @admin.register(models.EventSubtype, site=admin_site)
 class EventSubtypeAdmin(admin.ModelAdmin):
-    list_display = ("label", "description", "type")
+    list_display = ("label", "description", "type", "visibility")
     list_filter = ("type", "visibility")
 
     search_fields = ("label", "description")
