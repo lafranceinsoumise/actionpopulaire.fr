@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from agir.lib.form_components import HalfCol, FullCol
 from agir.lib.form_mixins import TagMixin, MetaFieldsMixin
+from agir.lib.models import RE_FRENCH_ZIPCODE
 from agir.lib.tasks import geocode_person
 from agir.people.form_mixins import ContactPhoneNumberMixin
 from agir.people.models import PersonTag, Person
@@ -45,6 +46,7 @@ class ProfileForm(MetaFieldsMixin, ContactPhoneNumberMixin, TagMixin, forms.Mode
 
         self.fields["location_address1"].label = _("Adresse")
         self.fields["location_address2"].label = False
+        self.fields["location_country"].required = True
 
         self.helper.layout = Layout(
             Row(
@@ -79,6 +81,26 @@ class ProfileForm(MetaFieldsMixin, ContactPhoneNumberMixin, TagMixin, forms.Mode
                 ),
             )
         )
+
+    def clean(self):
+        if self.cleaned_data.get("location_country") == "FR":
+            if self.cleaned_data["location_zip"] == "":
+                self.add_error(
+                    "location_zip",
+                    forms.ValidationError(
+                        self.fields["location_zip"].error_messages["required"],
+                        code="required",
+                    ),
+                )
+            elif not RE_FRENCH_ZIPCODE.match(self.cleaned_data["location_zip"]):
+                self.add_error(
+                    "location_zip",
+                    forms.ValidationError(
+                        _("Merci d'indiquer un code postal valide"), code="invalid"
+                    ),
+                )
+
+        return self.cleaned_data
 
     def _save_m2m(self):
         super()._save_m2m()

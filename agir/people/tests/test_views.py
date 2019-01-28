@@ -215,6 +215,28 @@ class ProfileFormTestCase(TestCase):
         self.assertRedirects(response, reverse("confirmation_profile"))
         geocode_person.delay.assert_not_called()
 
+    def test_cannot_validate_form_without_country(self):
+        del self.sample_data["location_country"]
+
+        response = self.client.post(reverse("change_profile"), data=self.sample_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, "has-error")
+
+    def test_can_validate_without_zip_code_when_abroad(self):
+        self.sample_data["location_city"] = "Berlin"
+        self.sample_data["location_zip"] = ""
+        self.sample_data["location_country"] = "DE"
+
+        response = self.client.post(reverse("change_profile"), data=self.sample_data)
+        self.assertRedirects(response, reverse("confirmation_profile"))
+
+    def test_cannot_validate_form_without_zip_code_when_in_france(self):
+        self.sample_data["location_zip"] = ""
+
+        response = self.client.post(reverse("change_profile"), data=self.sample_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, "has-error")
+
     def test_weird_values_for_mandates_should_not_crash_the_form(self):
         del self.sample_data["mandates"]
 
