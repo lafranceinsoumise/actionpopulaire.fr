@@ -29,7 +29,7 @@
 
       window['carte/map'].listMap('map', {
         endpoint: '{% url "carte:event_list" %}{{ querystring }}',
-        type: 'events',
+        listType: 'events',
         types,
         subtypes,
         formatPopup: formatEvent,

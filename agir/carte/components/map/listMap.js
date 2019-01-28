@@ -38,18 +38,22 @@ function disambiguate(points) {
 
 export default async function listMap(
   htmlElementId,
-  { endpoint, type, types, subtypes, formatPopup, bounds }
+  { endpoint, listType, types, subtypes, formatPopup, bounds }
 ) {
   bounds = bounds || [-5.3, 41.2, 9.6, 51.2];
 
   // Type filters
   const sources = {},
     layers = {},
-    typeStyles = {};
+    typeStyles = {},
+    typePastStyles = {};
   for (let type of types) {
     sources[type.id] = new VectorSource();
     layers[type.id] = new VectorLayer({ source: sources[type.id] });
     typeStyles[type.id] = makeStyle(type);
+    if (listType === "events") {
+      typePastStyles[type.id] = makeStyle(type, { color: false });
+    }
   }
 
   const map = setUpMap(htmlElementId, types.map(type => layers[type.id]));
@@ -58,10 +62,17 @@ export default async function listMap(
 
   // Subtypes
   const subtypeStyles = {},
+    subtypePastStyles = {},
     popupAnchors = {},
     sourceForSubtype = {};
   for (let subtype of subtypes) {
     subtypeStyles[subtype.id] = makeStyle(subtype) || typeStyles[subtype.type];
+    if (listType === "events") {
+      subtypePastStyles[subtype.id] =
+        makeStyle(subtype, {
+          color: false
+        }) || typePastStyles[subtype.type];
+    }
     popupAnchors[subtype.id] = subtype.popupAnchor;
     sourceForSubtype[subtype.id] = sources[subtype.type];
   }
@@ -77,7 +88,15 @@ export default async function listMap(
       feature.setId(item.id);
 
       if (item.subtype && subtypeStyles[item.subtype]) {
-        feature.setStyle(subtypeStyles[item.subtype]);
+        if (
+          typeof item.end_time === "undefined" ||
+          item.end_time > new Date()
+        ) {
+          feature.setStyle(subtypeStyles[item.subtype]);
+        } else {
+          feature.setStyle(subtypePastStyles[item.subtype]);
+        }
+
         if (hideInactive && item.current_events_count === 0) {
           if (sourceForSubtype[item.subtype].hasFeature(feature)) {
             sourceForSubtype[item.subtype].removeFeature(
@@ -115,7 +134,7 @@ export default async function listMap(
   }
 
   disambiguate(res.data);
-  draw(res.data, type === "groups");
+  draw(res.data, listType === "groups");
 
   // Controls
   const [
@@ -136,7 +155,7 @@ export default async function listMap(
     layerControl.setMap(map);
   }
 
-  if (type === "groups") {
+  if (listType === "groups") {
     map.addControl(hideInactiveButton);
   }
 

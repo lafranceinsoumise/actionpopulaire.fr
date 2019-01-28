@@ -78,7 +78,9 @@ export function setUpPopup(map) {
   });
 }
 
-export function makeStyle(style) {
+export function makeStyle(style, options = {}) {
+  options = Object.assign({ color: true }, options);
+
   if (style.color && style.iconName) {
     return [
       new Style({
@@ -94,7 +96,7 @@ export function makeStyle(style) {
           text: fontawesome(style.iconName),
           font: "normal 18px FontAwesome",
           fill: new Fill({
-            color: style.color
+            color: options.color ? style.color : "#999"
           })
         })
       })

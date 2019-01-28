@@ -74,10 +74,29 @@ class EventFilterSet(django_filters.rest_framework.FilterSet):
     subtype = FixedModelMultipleChoiceFilter(
         field_name="subtype", to_field_name="label", queryset=EventSubtype.objects.all()
     )
+    include_past = django_filters.BooleanFilter(
+        "start_time",
+        label="Inclure les événements passés",
+        method="filter_include_past",
+    )
+
+    def __init__(self, data=None, *args, **kwargs):
+        if data is not None:
+            data = data.copy()
+            if data.get("include_past") is None:
+                data["include_past"] = False
+
+        super().__init__(data, *args, **kwargs)
+
+    def filter_include_past(self, queryset, name, value):
+        if not value:
+            return queryset.upcoming()
+        else:
+            return queryset
 
     class Meta:
         model = Event
-        fields = ("subtype",)
+        fields = ("subtype", "include_past")
 
 
 class EventsView(ListAPIView):
@@ -88,7 +107,7 @@ class EventsView(ListAPIView):
 
     def get_queryset(self):
         return (
-            Event.objects.upcoming()
+            Event.objects.published()
             .filter(coordinates__isnull=False)
             .select_related("subtype")
         )
@@ -200,6 +219,9 @@ class AbstractListMapView(MapViewMixin, TemplateView):
             subtypes = subtypes.filter(label__in=subtype_label)
             params.setlist("subtype", subtype_label)
 
+        if self.request.GET.get("include_past"):
+            params["include_past"] = "1"
+
         subtype_info = [self.get_subtype_information(st) for st in subtypes]
         types = self.subtype_model._meta.get_field("type").choices
         type_info = [self.get_type_information(id, str(label)) for id, label in types]
@@ -212,7 +234,7 @@ class AbstractListMapView(MapViewMixin, TemplateView):
             type_config=mark_safe(json.dumps(type_info)),
             subtype_config=mark_safe(json.dumps(subtype_info)),
             bounds=json.dumps(bounds),
-            querystring=querystring,
+            querystring=mark_safe(querystring),
             **kwargs
         )
 

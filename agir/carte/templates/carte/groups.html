@@ -22,7 +22,7 @@ Carte des groupes d'appui
 
       window['carte/map'].listMap('map', {
         endpoint: '{% url "carte:group_list" %}{{ querystring }}',
-        type: 'groups',
+        listType: 'groups',
         types,
         subtypes,
         formatPopup: formatGroup,
