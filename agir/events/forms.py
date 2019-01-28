@@ -26,6 +26,7 @@ from .tasks import (
     send_event_creation_notification,
     send_event_changed_notification,
     send_external_rsvp_confirmation,
+    send_secretariat_notification,
 )
 from ..lib.tasks import geocode_event
 from ..lib.form_fields import AcceptCreativeCommonsLicenceField
@@ -255,6 +256,12 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         if self.is_creation:
             # membership attribute created by _save_m2m
             send_event_creation_notification.delay(self.organizer_config.pk)
+            if self.organizer_config.event.visibility == Event.VISIBILITY_ORGANIZER:
+                send_secretariat_notification.delay(
+                    self.organizer_config.event.pk,
+                    self.organizer_config.person.pk,
+                    complete=False,
+                )
         else:
             # send changes notification if the notify checkbox was checked
             if changes and self.cleaned_data.get("notify"):

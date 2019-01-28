@@ -355,7 +355,7 @@ def update_ticket(rsvp_pk, metas=None):
 
 
 @shared_task
-def send_secretariat_notification(event_pk, person_pk):
+def send_secretariat_notification(event_pk, person_pk, complete=True):
     try:
         event = Event.objects.get(pk=event_pk)
         person = Person.objects.get(pk=person_pk)
@@ -378,7 +378,9 @@ def send_secretariat_notification(event_pk, person_pk):
 
     send_mosaico_email(
         code="EVENT_SECRETARIAT_NOTIFICATION",
-        subject=_("Nouvel événement avec informations légales remplies"),
+        subject=_(
+            f"Événement {'complété' if complete else 'en attente'} : {str(event)}"
+        ),
         from_email=settings.EMAIL_FROM,
         reply_to=[person.email],
         recipients=[settings.EMAIL_SECRETARIAT],
