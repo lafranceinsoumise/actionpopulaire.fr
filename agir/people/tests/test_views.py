@@ -161,19 +161,32 @@ class MessagePreferencesTestCase(TestCase):
 
 class ProfileFormTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com")
+        self.sample_data = {
+            "first_name": "Jean",
+            "last_name": "Forgeron",
+            "gender": "M",
+            "location_address1": "",
+            "location_address2": "",
+            "location_city": "Paris",
+            "location_zip": "75002",
+            "location_country": "FR",
+            "contact_phone": "+33612345678",
+            "mandates": "[]",
+        }
+
+        self.person = Person.objects.create_person("test@test.com", **self.sample_data)
+        self.client.force_login(self.person.role)
 
     def test_can_add_tag(self):
-        self.client.force_login(self.person.role)
-        response = self.client.post(reverse("change_profile"), {"info blogueur": "on"})
+        response = self.client.post(
+            reverse("change_profile"), {**self.sample_data, "info blogueur": "on"}
+        )
 
         self.assertEqual(response.status_code, 302)
         self.assertIn("info blogueur", [tag.label for tag in self.person.tags.all()])
 
     @mock.patch("agir.people.forms.profile.geocode_person")
     def test_can_change_address(self, geocode_person):
-        self.client.force_login(self.person.role)
-
         address_fields = {
             "location_address1": "73 boulevard Arago",
             "location_zip": "75013",
@@ -181,7 +194,10 @@ class ProfileFormTestCase(TestCase):
             "location_city": "Paris",
         }
 
-        response = self.client.post(reverse("change_profile"), address_fields)
+        response = self.client.post(
+            reverse("change_profile"), {**self.sample_data, **address_fields}
+        )
+        self.assertRedirects(response, reverse("confirmation_profile"))
 
         geocode_person.delay.assert_called_once()
         self.assertEqual(geocode_person.delay.call_args[0], (self.person.pk,))
@@ -189,9 +205,34 @@ class ProfileFormTestCase(TestCase):
         geocode_person.reset_mock()
         response = self.client.post(
             reverse("change_profile"),
-            {"first_name": "Arthur", "last_name": "Cheysson", **address_fields},
+            {
+                **self.sample_data,
+                "first_name": "Arthur",
+                "last_name": "Cheysson",
+                **address_fields,
+            },
         )
+        self.assertRedirects(response, reverse("confirmation_profile"))
         geocode_person.delay.assert_not_called()
+
+    def test_weird_values_for_mandates_should_not_crash_the_form(self):
+        del self.sample_data["mandates"]
+
+        res = self.client.post(reverse("change_profile"), data=self.sample_data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        testing_values = ["", "hhfedhgyu", '"huihui"', '{"key": "value"}', None]
+
+        for test_value in testing_values:
+            res = self.client.post(
+                reverse("change_profile"),
+                data={**self.sample_data, "mandates": test_value},
+            )
+            self.assertEqual(
+                res.status_code,
+                status.HTTP_200_OK,
+                msg=f"Mauvais statut pour mandates={test_value}",
+            )
 
 
 class UnsubscribeFormTestCase(TestCase):

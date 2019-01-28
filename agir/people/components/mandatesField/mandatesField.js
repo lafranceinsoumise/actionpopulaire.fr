@@ -82,7 +82,10 @@ class MandatesField extends React.Component {
     this.prepareSelection = this.prepareSelection.bind(this);
 
     const fieldValue = hiddenField.value;
-    const mandates = fieldValue ? JSON.parse(fieldValue) : [];
+    let mandates = fieldValue ? JSON.parse(fieldValue) : [];
+    if (!Array.isArray(mandates)) {
+      mandates = [];
+    }
 
     const currentSelection = mandates
       .filter(m => m.type in mandateDict)
