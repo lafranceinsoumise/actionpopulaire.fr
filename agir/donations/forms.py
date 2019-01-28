@@ -389,6 +389,12 @@ class SpendingRequestEditForm(SpendingRequestFormMixin, forms.ModelForm):
             with reversion.create_revision():
                 reversion.set_user(self.user)
                 reversion.set_comment(self.cleaned_data["comment"])
+
+                if self.instance.status in SpendingRequest.STATUS_EDITION_MESSAGES:
+                    self.instance.status = (
+                        SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION
+                    )
+
                 return super().save()
 
     class Meta:
@@ -407,13 +413,33 @@ class SpendingRequestEditForm(SpendingRequestFormMixin, forms.ModelForm):
 
 
 class DocumentForm(forms.ModelForm):
-    def __init__(self, *args, spending_request=None, **kwargs):
+    def __init__(self, *args, user, spending_request=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
         if spending_request is not None:
             self.instance.request = spending_request
 
         self.helper = FormHelper()
         self.helper.add_input(layout.Submit("valider", "Valider"))
+
+    # noinspection PyMethodOverriding
+    def save(self):
+        creating = self.instance._state.adding
+        spending_request = self.instance.request
+
+        if creating or self.has_changed():
+            with reversion.create_revision():
+                reversion.set_user(self.user)
+                reversion.set_comment(
+                    "Ajout d'un document" if creating else "Modification d'un document"
+                )
+                super().save()
+
+                if spending_request.status in SpendingRequest.STATUS_EDITION_MESSAGES:
+                    spending_request.status = (
+                        SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION
+                    )
+                    spending_request.save()
 
     class Meta:
         model = Document

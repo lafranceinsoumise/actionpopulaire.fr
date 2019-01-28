@@ -1,12 +1,13 @@
 import reversion
 from django.conf import settings
+from django.db import IntegrityError
 from django.db.models import Sum
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from reversion.models import Version
 
-from agir.donations.models import Operation, SpendingRequest, Document
+from agir.donations.models import Operation, SpendingRequest, Document, Spending
 from agir.lib.display import display_price
 
 
@@ -30,7 +31,17 @@ def can_be_sent(spending_request):
     )
 
 
+def are_funds_sufficient(spending_request):
+    return spending_request.amount <= get_balance(spending_request.group)
+
+
 def summary(spending_request):
+    """Renvoie un résumé de la demande de dépense pour l'affichage sur la page de gestion
+
+    :param spending_request: la demande de dépense à résumer
+    :return: un itérateur vers les différents champs constituant le résumé
+    """
+
     other_display_fields = [
         "category_precisions",
         "explanation",
@@ -53,7 +64,7 @@ def summary(spending_request):
             "Dès que votre brouillon est complet, vous pouvez le confirmer pour validation par l'équipe de suivi."
         )
 
-    if spending_request.status in spending_request.STATUS_NEED_ACTION:
+    if spending_request.status in SpendingRequest.STATUS_NEED_ACTION:
         status = format_html("<strong>{}</strong>", status)
     yield {"label": get_spending_request_field_label("status"), "value": status}
 
@@ -90,89 +101,97 @@ def summary(spending_request):
         }
 
 
-def history(spending_request):
+DIFFED_FIELDS = [
+    "title",
+    "event",
+    "category",
+    "category_precisions",
+    "explanation",
+    "amount",
+    "spending_date",
+    "provider",
+    "iban",
+]
+
+
+def get_diff(before, after):
+    return [
+        get_spending_request_field_label(f)
+        for f in DIFFED_FIELDS
+        if after.get(f) != before.get(f)
+    ]
+
+
+HISTORY_MESSAGES = {
+    SpendingRequest.STATUS_DRAFT: "Création de la demande",
+    SpendingRequest.STATUS_AWAITING_GROUP_VALIDATION: "Validé par l'auteur d'origine",
+    SpendingRequest.STATUS_AWAITING_REVIEW: "Renvoyé pour validation à l'équipe de suivi des questions financières",
+    SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION: "Informations supplémentaires requises",
+    SpendingRequest.STATUS_VALIDATED: "Demande validée par l'équipe de suivi des questions financières",
+    SpendingRequest.STATUS_TO_PAY: "Demande en attente de réglement",
+    SpendingRequest.STATUS_PAID: "Demande réglée",
+    SpendingRequest.STATUS_REFUSED: "Demande rejetée par l'équipe de suivi des questions financières",
+    (
+        SpendingRequest.STATUS_AWAITING_GROUP_VALIDATION,
+        SpendingRequest.STATUS_AWAITING_REVIEW,
+    ): "Validé par un⋅e second⋅e animateur⋅rice",
+}
+for status, label in SpendingRequest.STATUS_CHOICES:
+    HISTORY_MESSAGES[(status, status)] = "Modification de la demande"
+
+
+def get_history_step(old, new, admin):
+    old_fields = old.field_dict if old else {}
+    new_fields = new.field_dict
+    old_status, new_status = old_fields.get("status"), new_fields["status"]
+    revision = new.revision
+    person = revision.user.person if revision.user else None
+
+    res = {
+        "modified": new_fields["modified"],
+        "comment": revision.get_comment(),
+        "diff": get_diff(old_fields, new_fields) if old_fields else [],
+    }
+
+    if person and admin:
+        res["user"] = format_html(
+            '<a href="{url}">{text}</a>',
+            url=reverse("admin:people_person_change", args=[person.pk]),
+            text=person.get_short_name(),
+        )
+    elif person:
+        res["user"] = person.get_short_name()
+    else:
+        res["user"] = "Équipe de suivi"
+
+    # cas spécifique : si on revient à "attente d'informations supplémentaires suite à une modification par un non admin
+    # c'est forcément une modification
+    if (
+        new_status == SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION
+        and person is not None
+    ):
+        res["title"] = "Modification de la demande"
+    # some couples (old_status, new_status)
+    elif (old_status, new_status) in HISTORY_MESSAGES:
+        res["title"] = HISTORY_MESSAGES[(old_status, new_status)]
+    else:
+        res["title"] = HISTORY_MESSAGES.get(new_status, "[Modification non identifiée]")
+
+    return res
+
+
+def history(spending_request, admin=False):
     versions = (
         Version.objects.get_for_object(spending_request)
         .order_by("pk")
         .select_related("revision__user__person")
     )
 
-    diffed_fields = [
-        "title",
-        "event",
-        "category",
-        "category_precisions",
-        "explanation",
-        "amount",
-        "spending_date",
-        "provider",
-        "iban",
-    ]
-
-    current_fields = {}
-    diff = {}
+    previous_version = None
 
     for version in versions:
-        fields = version.field_dict
-        person = version.revision.user.person.get_short_name()
-        modified = fields["modified"]
-
-        if current_fields:
-            diff = {
-                get_spending_request_field_label(f)
-                for f in diffed_fields
-                if fields.get(f) != current_fields.get(f)
-            }
-
-        if fields["status"] == current_fields.get("status"):
-            content = format_html(
-                "<blockquote>{comment}</blockquote><p><em>Champs modifiés : {fields}</em>",
-                comment=version.revision.get_comment(),
-                fields=", ".join(diff),
-            )
-
-            yield {
-                "title": "Modification de la demande",
-                "user": person,
-                "modified": modified,
-                "content": content,
-            }
-        elif fields["status"] == spending_request.STATUS_DRAFT:
-            yield {
-                "title": "Création de la demande",
-                "user": person,
-                "modified": modified,
-            }
-        elif fields["status"] == spending_request.STATUS_AWAITING_GROUP_VALIDATION:
-            yield {
-                "title": "Validé par l'auteur d'origine",
-                "user": person,
-                "modified": modified,
-            }
-        elif fields["status"] == spending_request.STATUS_AWAITING_REVIEW:
-            if (
-                current_fields.get("status")
-                == spending_request.STATUS_AWAITING_GROUP_VALIDATION
-            ):
-                yield {
-                    "title": "Validé par un⋅e second⋅e animateur⋅rice",
-                    "user": person,
-                    "modified": modified,
-                }
-            else:
-                yield {
-                    "title": "Renvoyé pour validation à la Trésorerie",
-                    "user": person,
-                    "modified": modified,
-                }
-        else:
-            yield {
-                "title": "Modification non classée.",
-                "user": person,
-                "modified": modified,
-            }
-
-        current_fields = fields
+        yield get_history_step(previous_version, version, admin)
+        previous_version = version
 
 
 def _get_first_validator(spending_request):
@@ -192,13 +211,17 @@ def _get_first_validator(spending_request):
         return None
 
 
+EDITABLE_STATUSES = [
+    SpendingRequest.STATUS_DRAFT,
+    SpendingRequest.STATUS_AWAITING_GROUP_VALIDATION,
+    SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION,
+    SpendingRequest.STATUS_AWAITING_REVIEW,
+    SpendingRequest.STATUS_VALIDATED,
+]
+
+
 def can_edit(spending_request):
-    return spending_request.status in [
-        SpendingRequest.STATUS_DRAFT,
-        SpendingRequest.STATUS_AWAITING_GROUP_VALIDATION,
-        SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION,
-        SpendingRequest.STATUS_AWAITING_REVIEW,
-    ]
+    return spending_request.status in EDITABLE_STATUSES
 
 
 def can_send_for_review(spending_request, user):
@@ -208,10 +231,6 @@ def can_send_for_review(spending_request, user):
     :param user: the user that could send for review
     :return: boolean
     """
-
-    # the spending_request cannot be sent for review if it is already under review, or the review has been done
-    if spending_request.status not in SpendingRequest.STATUS_NEED_ACTION:
-        return False
 
     # the spending request must has at least one invoice
     if not can_be_sent(spending_request):
@@ -229,29 +248,122 @@ def can_send_for_review(spending_request, user):
     return user != _get_first_validator(spending_request)
 
 
-REVIEW_STATES_MAP = {
+TRANSFER_STATES_MAP = {
     SpendingRequest.STATUS_DRAFT: SpendingRequest.STATUS_AWAITING_GROUP_VALIDATION,
     SpendingRequest.STATUS_AWAITING_GROUP_VALIDATION: SpendingRequest.STATUS_AWAITING_REVIEW,
     SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION: SpendingRequest.STATUS_AWAITING_REVIEW,
 }
 
 
-def send_for_review(spending_request, user):
-    """Send spending request for review is user is allowed to
+def get_current_action(spending_request, user):
+    if spending_request.status in TRANSFER_STATES_MAP:
+        if not can_be_sent(spending_request):
+            return {
+                "button": None,
+                "explanation": "Avant de pouvoir être envoyée pour validation, votre demande de dépense doit être"
+                " complète et comporter au moins une facture.",
+            }
+
+        if spending_request.status == SpendingRequest.STATUS_DRAFT:
+            return {
+                "button": "Valider",
+                "explanation": "Une fois votre brouillon terminé, vous pouvez le valider ci-dessous. Avant qu'il ne soit"
+                " transmis à l'équipe de suivi des questions financières, il devra d'abord être validé par un autre des"
+                " animateurs ou gestionnaires de votre groupe d'action.",
+            }
+        elif (
+            spending_request.status == SpendingRequest.STATUS_AWAITING_GROUP_VALIDATION
+        ):
+            if not can_send_for_review(spending_request, user):
+                return {
+                    "button": None,
+                    "explanation": "Vous avez déjà validé cette demande. Avant sa transmission à l'équipe de suivi des"
+                    " questions financières, elle doit tout d'abord être validé par un⋅e autre"
+                    " animateur⋅rice ou gestionnaire",
+                }
+            else:
+                return {
+                    "button": "Transmettre",
+                    "explanation": "Cette demande a déjà été validé par un⋅e animateur⋅rice ou gestionnaire du groupe."
+                    "Pour permettre sa transmission, elle doit encore être validée par un deuxième animateur⋅rice ou"
+                    " gestionnaire.",
+                }
+        else:
+            return {
+                "button": "Transmettre",
+                "explanation": "Lorsque vous aurez intégré les modifications demandées, vous pourrez de nouveau"
+                " transmettre cette demande à l'équipe de suivi.",
+            }
+
+    if spending_request.status == SpendingRequest.STATUS_AWAITING_REVIEW:
+        return {
+            "button": None,
+            "explanation": "Votre demande est en cours d'évaluation par l'équipe de suivi des questions financières."
+            "Vous serez prévenus une fois celle-ci traitée.",
+        }
+
+    if spending_request.status == SpendingRequest.STATUS_VALIDATED:
+        if are_funds_sufficient(spending_request):
+            return {
+                "button": "Demander le paiement",
+                "explanation": "L'allocation de votre groupe est maintenant suffisante pour permettre le paiement de"
+                " cette demande.",
+            }
+        else:
+            return {
+                "button": None,
+                "explanation": "Votre groupe ne dispose pas d'une allocation suffisante pour obtenir le réglement de"
+                " cette demande pour le moment. Dès que votre allocation sera suffisante, vous pourrez demander le"
+                " paiement de cette demande avec ce formulaire.",
+            }
+
+    if spending_request.status == SpendingRequest.STATUS_TO_PAY:
+        return {
+            "button": None,
+            "explanation": "Votre demande est en attente de paiement par l'équipe de suivi. Cela ne devrait pas tarder !",
+        }
+
+    if spending_request.status == SpendingRequest.STATUS_PAID:
+        return {
+            "button": None,
+            "explanation": "Votre demande a été correctement réglée.",
+        }
+
+    return {
+        "button": None,
+        "explanation": "Votre demande a été refusée car elle ne rentrait pas dans le cadre des demandes de dépense/",
+    }
+
+
+def validate_action(spending_request, user):
+    """Valide la requête pour vérification pour l'administration, ou confirme la demande de paiement
 
     :param spending_request:
     :param user:
     :return: whether the spending request was successfully sent for review
     """
 
-    if spending_request.status not in REVIEW_STATES_MAP or not can_send_for_review(
+    if spending_request.status == SpendingRequest.STATUS_VALIDATED:
+        try:
+            with reversion.create_revision(atomic=True):
+                reversion.set_user(user)
+                spending_request.operation = Spending.objects.create(
+                    group=spending_request.group, amount=-spending_request.amount
+                )
+                spending_request.status = SpendingRequest.STATUS_TO_PAY
+                spending_request.save()
+        except IntegrityError:
+            return False
+        return True
+
+    if spending_request.status not in TRANSFER_STATES_MAP or not can_send_for_review(
         spending_request, user
     ):
         return False
 
     with reversion.create_revision():
         reversion.set_user(user)
-        spending_request.status = REVIEW_STATES_MAP[spending_request.status]
+        spending_request.status = TRANSFER_STATES_MAP[spending_request.status]
         spending_request.save()
 
     return True

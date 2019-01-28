@@ -19,9 +19,11 @@ from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.donations.actions import (
     summary,
     history,
-    can_send_for_review,
-    send_for_review,
+    validate_action,
     group_can_handle_allocation,
+    can_edit,
+    EDITABLE_STATUSES,
+    get_current_action,
 )
 from agir.donations.forms import (
     DocumentOnCreationFormset,
@@ -40,7 +42,6 @@ from .models import SpendingRequest, Operation, Document
 from .tasks import send_donation_email
 
 __all__ = ("AskAmountView", "PersonalInformationView")
-
 
 SESSION_DONATION_PREFIX = "_donation_"
 
@@ -260,12 +261,23 @@ class IsGroupManagerMixin(HardLoginRequiredMixin):
     spending_request_pk_field = "pk"
 
     def is_authorized(self, request):
-        return super().is_authorized(request) and Membership.objects.filter(
+        return super().is_authorized(request) and self.get_membership(request)
+
+    def get_membership(self, request):
+        return Membership.objects.filter(
             person=request.user.person,
             supportgroup__spending_request__id=self.kwargs[
                 self.spending_request_pk_field
             ],
-            is_manager=True,
+        )
+
+
+class CanEdit(IsGroupManagerMixin):
+    def get_membership(self, request):
+        return (
+            super()
+            .get_membership(request)
+            .filter(supportgroup__spending_request__status__in=EDITABLE_STATUSES)
         )
 
 
@@ -277,7 +289,8 @@ class ManageSpendingRequestView(IsGroupManagerMixin, DetailView):
         return super().get_context_data(
             supportgroup=self.object.group,
             documents=self.object.documents.filter(deleted=False),
-            can_send_for_review=can_send_for_review(self.object, self.request.user),
+            can_edit=can_edit(self.object),
+            action=get_current_action(self.object, self.request.user),
             summary=summary(self.object),
             history=history(self.object),
             **kwargs
@@ -287,14 +300,15 @@ class ManageSpendingRequestView(IsGroupManagerMixin, DetailView):
         self.object = self.get_object()
         validate = self.request.POST.get("validate")
 
-        if validate != self.object.status or not send_for_review(
+        if validate != self.object.status or not validate_action(
             self.object, request.user
         ):
             messages.add_message(
                 request,
                 messages.WARNING,
-                _("Vous ne pouvez pas valider cette demande."),
+                _("Il y a eu un problème, veuillez réessayer."),
             )
+            return self.render_to_response(self.get_context_data())
 
         return HttpResponseRedirect(
             reverse("manage_spending_request", args=(self.object.pk,))
@@ -313,6 +327,15 @@ class EditSpendingRequestView(IsGroupManagerMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("manage_spending_request", args=(self.object.pk,))
+
+    def render_to_response(self, context, **response_kwargs):
+        if self.object.status in SpendingRequest.STATUS_EDITION_MESSAGES:
+            messages.add_message(
+                self.request,
+                messages.WARNING,
+                SpendingRequest.STATUS_EDITION_MESSAGES[self.object.status],
+            )
+        return super().render_to_response(context, **response_kwargs)
 
 
 class CreateDocument(IsGroupManagerMixin, CreateView):
@@ -336,18 +359,20 @@ class CreateDocument(IsGroupManagerMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["spending_request"] = self.spending_request
+        kwargs["user"] = self.request.user
         return kwargs
 
     def get_success_url(self):
         return reverse("manage_spending_request", args=(self.spending_request.pk,))
 
-    def form_valid(self, form):
-        with reversion.create_revision():
-            reversion.set_user(user=self.request.user)
-            reversion.set_comment(_("Création du document"))
-            self.object = form.save()
-
-        return HttpResponseRedirect(self.get_success_url())
+    def render_to_response(self, context, **response_kwargs):
+        if self.spending_request.status in SpendingRequest.STATUS_EDITION_MESSAGES:
+            messages.add_message(
+                self.request,
+                messages.WARNING,
+                SpendingRequest.STATUS_EDITION_MESSAGES[self.object.status],
+            )
+        return super().render_to_response(context, **response_kwargs)
 
 
 class EditDocument(IsGroupManagerMixin, UpdateView):
@@ -374,16 +399,21 @@ class EditDocument(IsGroupManagerMixin, UpdateView):
         )
         return super().post(*args, **kwargs)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
     def get_success_url(self):
         return reverse("manage_spending_request", args=(self.spending_request.pk,))
 
-    def form_valid(self, form):
-        with reversion.create_revision():
-            reversion.set_user(user=self.request.user)
-            reversion.set_comment(_("Modification du document"))
-            self.object = form.save()
-
-        return HttpResponseRedirect(self.get_success_url())
+    def render_to_response(self, context, **response_kwargs):
+        if self.spending_request.status in SpendingRequest.STATUS_EDITION_MESSAGES:
+            messages.add_message(
+                self.request,
+                messages.WARNING,
+                SpendingRequest.STATUS_EDITION_MESSAGES[self.object.status],
+            )
 
 
 class DeleteDocument(IsGroupManagerMixin, SingleObjectMixin, View):

@@ -40,47 +40,43 @@
             <tbody>
             {% for document in documents %}
               <tr>
-                <td><a href="{{ document.file.url }}">{{ document.title }} <span class="fa fa-download"></span></a></td>
+                <td><a href="{{ document.file.url }}">{{ document.title }} <span
+                    class="fa fa-download"></span></a></td>
                 <td>{{ document.get_type_display }}</td>
                 <td>
-                    <a href="{% url "edit_document" spendingrequest.pk document.pk %}" class="btn btn-default">
-                        <span class="fa fa-edit" title="Modifier {{ document.title }}"></span>
-                    </a>
-                    <div style="display: inline-block" class="delete-document"
-                         data-document-name="{{ document.title }}"
-                         data-delete-url="{% url "delete_document" spendingrequest.pk document.pk %}"></div>
+                  <a href="{% url "edit_document" spendingrequest.pk document.pk %}"
+                     class="btn btn-default">
+                    <span class="fa fa-edit" title="Modifier {{ document.title }}"></span>
+                  </a>
+                  <div style="display: inline-block" class="delete-document"
+                       data-document-name="{{ document.title }}"
+                       data-delete-url="{% url "delete_document" spendingrequest.pk document.pk %}"></div>
                 </td>
               </tr>
             {% endfor %}
             </tbody>
           </table>
-            {% render_bundle "donations/spendingRequestLib" %}
+          {% render_bundle "donations/spendingRequestLib" %}
         {% else %}
-          <p>Vous n'avez pas encore joint de pièce justificative à votre demande. Vous devez joindre au moins une
+          <p>Vous n'avez pas encore joint de pièce justificative à votre demande. Vous devez joindre au moins
+            une
             facture, ainsi que l'ensemble des pièces nécessaires pour évaluer votre demane.</p>
         {% endif %}
 
       </div>
       <div class="col-md-4">
         <div class="panel-body">
-          <h4>Transmission de la demande</h4>
-          {% if can_send_for_review %}
-            <p>
-              Lorsque votre demande est prête, cliquez sur le bouton pour transmettre votre demande et permettre son
-            examen par l'équipe de suivi des questions financières.
-            </p>
+          <h4>Statut de la demande</h4>
 
+          <p>{{ action.explanation }}</p>
+
+          {% if action.button %}
             <form method="post" style="display: inline;">
-              {% csrf_token %} <input type="hidden" name="validate" value="{{ spendingrequest.status }}"> <input
-                type="submit" value="Transmettre la demande" class="btn btn-primary">
+              {% csrf_token %} <input type="hidden" name="validate" value="{{ spendingrequest.status }}">
+              <input
+                  type="submit" value="{{ action.button }}" class="btn btn-primary">
             </form>
-          {% else %}
-            <p><strong> Pour transmettre la demande, vous devez ajouter au moins une facture en tant que pièce
-              justificative. </strong>
-            </p>
-
           {% endif %}
-
 
           <h4>Historique de ma demande</h4>
 
@@ -90,8 +86,19 @@
                 <h5>{{ step.title }}{% if step.user %}
                   <small>({{ step.user }})</small>{% endif %}</h5>
                 <div><em>Le {{ step.modified }}</em></div>
-                {% if step.content %}<p>{{ step.content }}</p>{% endif %}
-                {% if step.comment %}<p>{{ step.comment }}</p>{% endif %}
+                {% if step.comment %}
+                  <blockquote>{{ step.comment }}</blockquote>
+                {% endif %}
+                {% if step.diff %}
+                  <div>
+                    Ont été modifiés :
+                    <ul class="list-inline">
+                      {% for field in step.diff %}
+                        <li>{{ field }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                {% endif %}
               </div>
             {% endfor %}
           </div>
@@ -99,12 +106,14 @@
       </div>
     </div>
   </div>
-  <div class="container" style="margin-bottom: 1em;">
-    <div class="btn-toolbar" role="toolbar">
-      <a class="btn btn-default" href="{% url "edit_spending_request" spendingrequest.pk %}">Modifier la demande</a> <a
-        class="btn btn-default" href="{% url "create_document" spendingrequest.pk %}">Ajouter une pièce
-      justificative</a>
-
+  {% if can_edit %}
+    <div class="container" style="margin-bottom: 1em;">
+      <div class="btn-toolbar" role="toolbar">
+        <a class="btn btn-default" href="{% url "edit_spending_request" spendingrequest.pk %}">Modifier la
+          demande</a> <a
+          class="btn btn-default" href="{% url "create_document" spendingrequest.pk %}">Ajouter une pièce
+        justificative</a>
+      </div>
     </div>
-  </div>
+  {% endif %}
 {% endblock %}
