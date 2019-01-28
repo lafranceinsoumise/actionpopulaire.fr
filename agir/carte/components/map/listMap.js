@@ -90,7 +90,7 @@ export default async function listMap(
       if (item.subtype && subtypeStyles[item.subtype]) {
         if (
           typeof item.end_time === "undefined" ||
-          item.end_time > new Date()
+          new Date(item.end_time) > new Date()
         ) {
           feature.setStyle(subtypeStyles[item.subtype]);
         } else {

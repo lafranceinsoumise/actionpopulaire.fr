@@ -110,7 +110,7 @@ class EventsView(ListAPIView):
             Event.objects.published()
             .filter(coordinates__isnull=False)
             .select_related("subtype")
-        )
+        )[:5000]
 
     @cache.cache_control(max_age=300, public=True)
     def get(self, request, *args, **kwargs):
