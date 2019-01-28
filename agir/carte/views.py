@@ -92,7 +92,7 @@ class EventFilterSet(django_filters.rest_framework.FilterSet):
         if not value:
             return queryset.upcoming()
         else:
-            return queryset
+            return queryset[:5000]
 
     class Meta:
         model = Event
@@ -110,7 +110,7 @@ class EventsView(ListAPIView):
             Event.objects.published()
             .filter(coordinates__isnull=False)
             .select_related("subtype")
-        )[:5000]
+        )
 
     @cache.cache_control(max_age=300, public=True)
     def get(self, request, *args, **kwargs):
