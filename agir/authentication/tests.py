@@ -1,6 +1,5 @@
 import uuid
 from unittest import mock
-from urllib.parse import urlparse
 
 from django.contrib.auth import get_user
 from django.http import QueryDict
@@ -11,12 +10,12 @@ from rest_framework import status
 
 from agir.api.redis import using_redislite
 from agir.authentication.backend import connection_token_generator, short_code_generator
-from agir.authentication.forms import EmailForm
 from agir.events.models import Event
 from agir.groups.models import SupportGroup
 from agir.people.models import Person
 
 
+@using_redislite
 class MailLinkTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person("test@test.com")
@@ -67,14 +66,24 @@ class MailLinkTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_cannot_access_hard_login_page_while_soft_logged_in(self):
+    @mock.patch("agir.authentication.forms.send_login_email")
+    def test_short_code_page_when_access_hard_loggin_page_while_soft_logged_in(
+        self, send_login_email
+    ):
         self.client.force_login(self.person.role, self.soft_backend)
 
-        response = self.client.get(reverse("create_group"))
-
-        self.assertRedirects(
-            response, reverse("short_code_login") + "?next=" + reverse("create_group")
+        response = self.client.get(reverse("create_group"), follow=True)
+        self.assertContains(
+            response,
+            f"Pour vous authentifier, un e-mail vous a été envoyé à {self.person.email}",
         )
+        self.assertRedirects(
+            response,
+            reverse("check_short_code", args=[self.person.pk])
+            + "?next="
+            + reverse("create_group"),
+        )
+        send_login_email.delay.assert_called_once()
 
     def test_unsubscribe_shows_direct_unsubscribe_form_when_logged_in(self):
         message_preferences_path = reverse("message_preferences")
@@ -85,13 +94,6 @@ class MailLinkTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.person.email)
         self.assertContains(response, 'action="{}"'.format(message_preferences_path))
-
-    def test_on_connexion_prefiled_form_when_soft_logged(self):
-        self.client.force_login(self.person.role, self.soft_backend)
-
-        response = self.client.get(reverse("short_code_login"))
-        text = f'value="{self.person.email}"'
-        self.assertContains(response, text, count=1)
 
 
 @using_redislite
@@ -259,5 +261,5 @@ class AuthorizationTestCase(TestCase):
 
         response = self.client.get(reverse("short_code_login"))
         self.assertContains(
-            response, "Vous êtes deja connecté", count=1, status_code=200, msg_prefix=""
+            response, "Vous êtes déjà connecté", count=1, status_code=200, msg_prefix=""
         )

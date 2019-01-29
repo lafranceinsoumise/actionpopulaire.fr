@@ -7,12 +7,8 @@
 {% block main %}
 <div class="col-responsive">
     <h2>Formulaire de connexion</h2>
-
     {% if is_hard_logged %}
-        <p>Vous êtes deja connecté, <a href={% url 'disconnect' %}>cliquez ici</a> pour vous déconnecter.</p>
-    {% elif is_soft_logged %}
-        <p>Vous cherchez à accéder à une page contenant des données personnelles. Pour continuer veuillez vous authentifier.</p>
-        {% crispy form %}
+        <p>Vous êtes déjà connecté⋅e, <a href={% url 'disconnect' %}>cliquez ici</a> pour vous déconnecter.</p>
     {% else %}
         {% if bookmarked_emails %}
             <form method="post">

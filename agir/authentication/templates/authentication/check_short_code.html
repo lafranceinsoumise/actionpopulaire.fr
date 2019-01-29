@@ -7,9 +7,17 @@
 {% block main %}
     <div class="col-responsive">
         <h2>Un email vous a été envoyé</h2>
+        {% if is_soft_logged %}
+            <p>
+                Vous cherchez à accéder à une page contenant des données personnelles.
+                Pour vous authentifier, un e-mail vous a été envoyé à {{ email }}. (ce n'est pas vous ?
+                <a href="{% url "disconnect" %}?next={% url "short_code_login" %}">Cliquez-ici pour vous reconnecter
+                </a> avec votre compte.)
+            </p>
+        {% endif %}
         <p>
-            Verifiez votre boîte email. Vous pouvez cliquer sur le lien que vous avez reçu, ou entrer le code de
-            connexion à 5 chiffres et lettres qui se trouve dans l'email.
+            Vérifiez votre boîte email. Vous devez entrer le code de
+            connexion à 5 chiffres et lettres qui se trouve dans l'e-mail.
         </p>
         {% crispy form %}
     </div>
