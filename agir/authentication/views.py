@@ -6,10 +6,11 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import FormView, RedirectView
-from django.contrib.auth import login, logout, REDIRECT_FIELD_NAME, BACKEND_SESSION_KEY
+from django.contrib.auth import login, logout, REDIRECT_FIELD_NAME
 from django.utils.http import is_safe_url, urlquote
 from oauth2_provider.views import AuthorizationView
 
+from agir.authentication.utils import is_soft_logged, is_hard_logged
 from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.people.models import Person
 from .forms import EmailForm, CodeForm
@@ -67,7 +68,6 @@ class RedirectToMixin:
             s.strip("/").rsplit("/", 1)[-1]
             for s in [settings.MAIN_DOMAIN, settings.API_DOMAIN, settings.FRONT_DOMAIN]
         }
-
         url_is_safe = is_safe_url(
             url=redirect_to,
             allowed_hosts=allowed_hosts,
@@ -80,23 +80,18 @@ class SendEmailView(RedirectToMixin, FormView):
     form_class = EmailForm
     template_name = "authentication/send_email.html"
 
-    def get_initial(self):
-        initial = super().get_initial()
-        is_soft_logged = (
-            self.request.user.is_authenticated
-            and self.request.session[BACKEND_SESSION_KEY]
-            == "agir.authentication.backend.MailLinkBackend"
-        )
-        if is_soft_logged:
-            initial.update({"email": self.request.user.person.email})
-        return initial
+    def get(self, request, *args, **kwargs):
+        if is_soft_logged(request):
+            form = self.form_class(data={"email": request.user.person.email})
+
+            if form.is_valid():
+                return self.form_valid(form)
+
+        return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
         if not form.send_email():
             return self.form_invalid(form)
-
-        redirect_to = self.get_redirect_url()
-        success_url = reverse("check_short_code", kwargs={"user_pk": form.person.pk})
 
         local_expiration_time = timezone.localtime(form.expiration).strftime("%H:%M")
 
@@ -106,6 +101,9 @@ class SendEmailView(RedirectToMixin, FormView):
             f"Le code de connexion est {form.short_code} (expiration à {local_expiration_time}).",
         )
 
+        redirect_to = self.get_redirect_url()
+        success_url = reverse("check_short_code", kwargs={"user_pk": form.person.pk})
+
         if redirect_to:
             success_url += f"?{self.redirect_field_name}={urlquote(redirect_to)}"
 
@@ -114,20 +112,9 @@ class SendEmailView(RedirectToMixin, FormView):
         )
 
     def get_context_data(self, **kwargs):
-        is_soft_logged = (
-            self.request.user.is_authenticated
-            and self.request.session[BACKEND_SESSION_KEY]
-            == "agir.authentication.backend.MailLinkBackend"
-        )
-        is_hard_logged = (
-            self.request.user.is_authenticated
-            and self.request.session[BACKEND_SESSION_KEY]
-            != "agir.authentication.backend.MailLinkBackend"
-        )
         return super().get_context_data(
             bookmarked_emails=get_bookmarked_emails(self.request),
-            is_soft_logged=is_soft_logged,
-            is_hard_logged=is_hard_logged,
+            is_hard_logged=is_hard_logged(self.request),
             **kwargs,
         )
 
@@ -157,8 +144,14 @@ class CheckCodeView(RedirectToMixin, FormView):
 
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        kwargs.update(
+            {"is_soft_logged": is_soft_logged(self.request), "email": self.person.email}
+        )
+        return super().get_context_data(**kwargs)
 
-class DisconnectView(RedirectView):
+
+class DisconnectView(RedirectToMixin, RedirectView):
     url = settings.MAIN_DOMAIN
 
     def get(self, request, *args, **kwargs):

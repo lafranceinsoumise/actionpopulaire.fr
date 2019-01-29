@@ -13,10 +13,11 @@ class MailLinkMiddleware:
     def get_just_connected_message(user):
         return format_html(
             _(
-                'Bonjour {person} (ce n\'est pas vous ? <a href="{login_url}">Cliquez-ici pour vous reconnecter'
+                'Bonjour {person} (ce n\'est pas vous ? <a href="{logout_url}?next={login_url}">Cliquez-ici pour vous reconnecter'
                 "</a> avec votre compte.)"
             ),
             person=user.person.get_short_name(),
+            logout_url=reverse("disconnect"),
             login_url=reverse("short_code_login"),
         )
 
