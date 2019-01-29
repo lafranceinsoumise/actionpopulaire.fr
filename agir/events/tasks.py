@@ -386,3 +386,30 @@ def send_secretariat_notification(event_pk, person_pk, complete=True):
         recipients=[settings.EMAIL_SECRETARIAT],
         bindings=bindings,
     )
+
+
+@shared_task
+def send_organizer_validation_notification(event_pk):
+    try:
+        event = Event.objects.get(pk=event_pk)
+    except (Event.DoesNotExist):
+        return
+
+    bindings = {
+        "EVENT_NAME": event.name,
+        "EVENT_SCHEDULE": event.get_display_date(),
+        "LOCATION_NAME": event.location_name,
+        "LOCATION_ADDRESS": event.short_address,
+        "EVENT_LINK": front_url(
+            "view_event", auto_login=False, kwargs={"pk": event.pk}
+        ),
+        "MANAGE_EVENT_LINK": front_url("manage_event", kwargs={"pk": event.pk}),
+    }
+
+    send_mosaico_email(
+        code="EVENT_ORGANIZER_VALIDATION_NOTIFICATION",
+        subject=_(f'Votre événement "{event.name}" a été publié'),
+        from_email=settings.EMAIL_FROM,
+        recipients=event.organizers.all(),
+        bindings=bindings,
+    )

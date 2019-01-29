@@ -1,15 +1,14 @@
-from crispy_forms.helper import FormHelper
 from django import forms
 from django.core.exceptions import ValidationError
+from django.forms import BooleanField
 from django.utils.translation import ugettext_lazy as _
 from ajax_select.fields import AutoCompleteSelectField
-
-from agir.lib.form_components import *
 
 from ...lib.forms import CoordinatesFormMixin
 from ...lib.form_fields import AdminRichEditorWidget
 
 from .. import models
+from ..tasks import send_organizer_validation_notification
 
 
 class CalendarIterator:
@@ -99,6 +98,12 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
         ),
     )
 
+    send_visibility_notification = BooleanField(
+        required=False,
+        label="Envoyer une notification de changement de statut aux organisateurices",
+        help_text=("Cela ne fonctionne qu'en cas de passage en visibilité publique"),
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -117,7 +122,29 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
                 "inscription."
             )
 
+        if self.cleaned_data["send_visibility_notification"] and (
+            "visibility" not in self.changed_data
+            or self.initial["visibility"] != models.Event.VISIBILITY_ORGANIZER
+            or self.cleaned_data["visibility"] != models.Event.VISIBILITY_PUBLIC
+        ):
+            raise ValidationError(
+                "Demande incorrecte : vous ne pouvez pas envoyer de notification pour ce type de modification. "
+                "Rien n'a été enregistré, merci de recommencer."
+            )
+
         return cleaned_data
+
+    def save(self, commit=True):
+        result = super().save(commit)
+        if (
+            self.cleaned_data["send_visibility_notification"]
+            and "visibility" in self.changed_data
+            and self.initial["visibility"] == models.Event.VISIBILITY_ORGANIZER
+            and self.cleaned_data["visibility"] == models.Event.VISIBILITY_PUBLIC
+        ):
+            send_organizer_validation_notification.delay(self.instance.pk)
+
+        return result
 
     def _save_m2m(self):
         super()._save_m2m()

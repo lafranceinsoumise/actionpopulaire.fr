@@ -174,6 +174,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "calendars",
                     "tags",
                     "visibility",
+                    "send_visibility_notification",
                     "legal_informations",
                 )
             },
