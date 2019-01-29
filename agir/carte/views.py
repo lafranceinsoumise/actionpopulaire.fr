@@ -9,6 +9,7 @@ from django.utils.html import mark_safe
 from django.views.generic import TemplateView, DetailView
 from django.views.decorators import cache
 from django.views.decorators.clickjacking import xframe_options_exempt
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 import django_filters
@@ -79,20 +80,35 @@ class EventFilterSet(django_filters.rest_framework.FilterSet):
         label="Inclure les événements passés",
         method="filter_include_past",
     )
+    include_hidden = django_filters.BooleanFilter(
+        label="Include les événements non publiés", method="filter_include_hidden"
+    )
 
     def __init__(self, data=None, *args, **kwargs):
         if data is not None:
             data = data.copy()
             if data.get("include_past") is None:
                 data["include_past"] = False
+            if data.get("include_hidden") is None:
+                data["include_hidden"] = False
 
         super().__init__(data, *args, **kwargs)
 
+    @property
+    def qs(self):
+        return super().qs[:5000]
+
     def filter_include_past(self, queryset, name, value):
         if not value:
-            return queryset.upcoming()
+            return queryset.upcoming(published_only=False)
         else:
-            return queryset[:5000]
+            return queryset
+
+    def filter_include_hidden(self, qs, name, value):
+        if not value:
+            return qs.published()
+        else:
+            return qs
 
     class Meta:
         model = Event
@@ -103,14 +119,15 @@ class EventsView(ListAPIView):
     serializer_class = serializers.MapEventSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend)
     filterset_class = EventFilterSet
-    authentication_classes = []
+    authentication_classes = [SessionAuthentication]
 
     def get_queryset(self):
-        return (
-            Event.objects.published()
-            .filter(coordinates__isnull=False)
-            .select_related("subtype")
-        )
+        qs = Event.objects.all()
+        if self.request.user is None or not self.request.user.has_perms(
+            "view_hidden_event"
+        ):
+            qs = qs.published()
+        return qs.filter(coordinates__isnull=False).select_related("subtype")
 
     @cache.cache_control(max_age=300, public=True)
     def get(self, request, *args, **kwargs):
@@ -221,6 +238,9 @@ class AbstractListMapView(MapViewMixin, TemplateView):
 
         if self.request.GET.get("include_past"):
             params["include_past"] = "1"
+
+        if self.request.GET.get("include_hidden"):
+            params["include_hidden"] = "1"
 
         subtype_info = [self.get_subtype_information(st) for st in subtypes]
         types = self.subtype_model._meta.get_field("type").choices
