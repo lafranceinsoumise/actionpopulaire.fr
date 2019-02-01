@@ -1,41 +1,37 @@
-const path = require('path');
-const merge = require('webpack-merge');
-const webpack = require('webpack');
+const path = require("path");
+const merge = require("webpack-merge");
+const webpack = require("webpack");
 
-const common = require('./webpack.common.js');
+const common = require("./webpack.common.js");
 
 module.exports = merge(common, {
-  mode: 'development',
-  devtool: 'eval',
+  mode: "development",
+  devtool: "eval",
   output: {
-    publicPath: 'http://agir.local:3000/static/components/',
-    devtoolModuleFilenameTemplate: 'webpack://[absolute-resource-path]',
-    filename: '[name]-[hash].js',
+    publicPath: "http://agir.local:3000/static/components/",
+    devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
+    filename: "[name]-[hash].js"
   },
   watchOptions: {
     poll: 1000
   },
   devServer: {
-    publicPath: 'http://agir.local:3000/static/components/',
-    public: 'agir.local:3000',
-    contentBase: path.join(__dirname, '/assets/components/'),
+    publicPath: "http://agir.local:3000/static/components/",
+    public: "agir.local:3000",
+    contentBase: path.join(__dirname, "/assets/components/"),
     compress: true,
     hot: true,
     hotOnly: true,
-    host: '0.0.0.0',
+    host: "0.0.0.0",
     port: 3000,
     headers: {
-      'Access-Control-Allow-Origin': '*'
+      "Access-Control-Allow-Origin": "*"
     },
-    allowedHosts: [
-      'agir.local'
-    ]
+    allowedHosts: ["agir.local"]
   },
   optimization: {
     namedModules: true,
-    noEmitOnErrors: true,
+    noEmitOnErrors: true
   },
-  plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-  ],
+  plugins: [new webpack.HotModuleReplacementPlugin()]
 });
