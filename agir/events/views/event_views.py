@@ -1,8 +1,5 @@
-import json
-
 import ics
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views import View
@@ -19,11 +16,11 @@ from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponse
 from django.conf import settings
 from django.utils import timezone
-from django.utils.html import format_html, mark_safe
+from django.utils.html import format_html
 from django.utils.translation import ugettext as _, ngettext
 
 from agir.events.actions.legal import QUESTIONS
-from agir.lib.display import str_summary
+from agir.lib.views import SocialNetworkImageMixin
 from ..models import Event, RSVP, Calendar, EventSubtype
 from ..tasks import (
     send_cancellation_notification,
@@ -51,6 +48,7 @@ from agir.authentication.view_mixins import (
     PermissionsRequiredMixin,
     SoftLoginRequiredMixin,
 )
+
 
 __all__ = [
     "CreateEventView",
@@ -276,10 +274,16 @@ class PerformCreateEventView(SoftLoginRequiredMixin, FormMixin, ProcessFormView)
         )
 
 
-class ModifyEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
+class ModifyEventView(
+    HardLoginRequiredMixin,
+    PermissionsRequiredMixin,
+    SocialNetworkImageMixin,
+    UpdateView,
+):
     permissions_required = ("events.change_event",)
     template_name = "events/modify.html"
     form_class = EventForm
+    social_image_field = "image"
 
     def get_success_url(self):
         return reverse("manage_event", kwargs={"pk": self.object.pk})
@@ -472,10 +476,16 @@ class ChangeEventLocationView(
         return Event.objects.upcoming(as_of=timezone.now(), published_only=False)
 
 
-class EditEventReportView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
+class EditEventReportView(
+    HardLoginRequiredMixin,
+    PermissionsRequiredMixin,
+    SocialNetworkImageMixin,
+    UpdateView,
+):
     template_name = "events/edit_event_report.html"
     permissions_required = ("events.change_event",)
     form_class = EventReportForm
+    social_image_field = "report_image"
 
     def get_success_url(self):
         return reverse("manage_event", args=(self.object.pk,))
