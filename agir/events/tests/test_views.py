@@ -1,4 +1,3 @@
-from datetime import datetime
 from unittest import skip, mock
 
 from django.core.exceptions import ValidationError
@@ -469,7 +468,8 @@ class EventPagesTestCase(TestCase):
     def test_can_not_send_event_report_when_nocondition(self, send_event_report):
         """ Si les conditions une des condition manque, l'envoi du mail ne se fait pas.
 
-Les conditions sont : le mail n'a jamais été envoyé, l'événement est passé, le compte-rendu n'est pas vide."""
+        Les conditions sont : le mail n'a jamais été envoyé, l'événement est passé,
+        le compte-rendu n'est pas vide."""
         self.client.force_login(self.person.role)
         response = self.client.post(
             reverse("send_event_report", kwargs={"pk": self.no_report_event.pk})
