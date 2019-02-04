@@ -7,16 +7,6 @@ export default class Modal extends React.Component {
   render() {
     const { show, onHide, title, children, size, showClosingIcon } = this.props;
 
-    let ignoringNext = false;
-    const ignoreNext = () => (ignoringNext = true);
-    const modalClicked = () => {
-      if (ignoringNext) {
-        ignoringNext = false;
-        return;
-      }
-      onHide();
-    };
-
     return (
       <Transition in={show} timeout={300} enter={false}>
         {state => (
@@ -30,12 +20,12 @@ export default class Modal extends React.Component {
                   ? "block"
                   : "none"
               }}
-              onClick={modalClicked}
+              onClick={onHide}
             >
               <div
                 className={classNames("modal-dialog", size && `modal-${size}`)}
                 role="document"
-                onMouseDown={ignoreNext}
+                onClick={e => e.stopPropagation()}
               >
                 <div className="modal-content">
                   <div className="modal-header">
