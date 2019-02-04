@@ -1,0 +1,25 @@
+<script>
+  (function () {
+    var assets = {{ assets }};
+    var head = document.querySelector("head");
+    var i;
+
+    for (i = 0; i < assets.js.length; i++) {
+      if (!document.querySelector('script[src="' + assets.js[i] + '"]')) {
+        var script = document.createElement("script");
+        script.src = assets.js[i];
+        head.append(script);
+      }
+    }
+    for (i = 0; i < assets.css.length; i++) {
+      if (!document.querySelector('link[href = "' + assets.css[i] + '"]')) {
+        var link = documents.createElement("link");
+        link.rel = "stylesheet";
+        link.href = assets.css[i][0];
+        link.media = assets.css[i][1];
+        head.append(link);
+      }
+    }
+
+  })();
+</script>

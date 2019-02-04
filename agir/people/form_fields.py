@@ -1,4 +1,5 @@
 import json
+import uuid
 from django import forms
 from django.contrib.postgres.forms import JSONField
 from django.contrib.postgres.forms.jsonb import InvalidJSONInput
@@ -11,6 +12,12 @@ from webpack_loader.utils import get_files
 class MandatesWidget(Input):
     input_type = "hidden"
     is_hidden = False
+
+    def __init__(self, attrs=None):
+        if attrs is None:
+            attrs = {}
+        attrs["data-mandates"] = "Y"
+        super().__init__(attrs=attrs)
 
     @property
     def media(self):

@@ -2,21 +2,23 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import MandatesField from "./mandatesField";
+import onDOMReady from "lib/onDOMReady";
 
-const render = (hiddenField, element) => {
-  ReactDOM.render(<MandatesField hiddenField={hiddenField} />, element);
-};
+const renderMandatesFields = function() {
+  const hiddenFields = document.querySelectorAll('input[data-mandates="Y"]');
 
-const onLoad = function() {
-  const hiddenField = document.querySelector('input[name="mandates"]');
-
-  if (hiddenField && !document.getElementById("mandatesControl")) {
-    const insertingNode = document.createElement("div");
-    insertingNode.id = "mandatesControl";
-    hiddenField.type = "hidden";
-    hiddenField.parentNode.appendChild(insertingNode);
-    render(hiddenField, insertingNode);
+  for (let hiddenField of hiddenFields) {
+    if (!hiddenField.dataset.mandatesRendered) {
+      const renderingNode = document.createElement("div");
+      hiddenField.type = "hidden";
+      hiddenField.parentNode.appendChild(renderingNode);
+      ReactDOM.render(
+        <MandatesField hiddenField={hiddenField} />,
+        renderingNode
+      );
+      hiddenField.dataset.mandatesRendered = true;
+    }
   }
 };
 
-document.addEventListener("turbolinks:load", onLoad);
+onDOMReady(renderMandatesFields);

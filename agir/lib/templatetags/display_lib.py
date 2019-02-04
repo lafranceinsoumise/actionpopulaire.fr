@@ -1,8 +1,4 @@
-import datetime
 from django import template
-from django.utils.formats import date_format
-from django.utils.timezone import utc, is_aware
-from django.utils.translation import ugettext as _, ngettext
 
 from ..display import (
     display_price as original_display_price,

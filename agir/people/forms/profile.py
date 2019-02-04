@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from agir.lib.form_components import HalfCol, FullCol
 from agir.lib.form_mixins import TagMixin, MetaFieldsMixin
+from agir.lib.forms import MediaInHead
 from agir.lib.models import RE_FRENCH_ZIPCODE
 from agir.lib.tasks import geocode_person
 from agir.people.form_mixins import ContactPhoneNumberMixin
@@ -111,6 +112,10 @@ class ProfileForm(MetaFieldsMixin, ContactPhoneNumberMixin, TagMixin, forms.Mode
 
         if address_has_changed and self.instance.should_relocate_when_address_changed():
             geocode_person.delay(self.instance.pk)
+
+    @property
+    def media(self):
+        return MediaInHead.from_media(super().media)
 
     class Meta:
         model = Person

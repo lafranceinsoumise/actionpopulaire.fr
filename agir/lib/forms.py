@@ -1,4 +1,10 @@
+import json
+
 from django import forms
+from django.core.serializers.json import DjangoJSONEncoder
+from django.template import loader
+from django.utils.html import _json_script_escapes
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from .geo import geocode_element
@@ -40,3 +46,33 @@ class CoordinatesFormMixin(forms.Form):
             geocode_element(self.instance)
 
         return super().save(commit=commit)
+
+
+class MediaInHead(forms.Media):
+    def __repr__(self):
+        return "MediaInHead(css=%r, js=%r)" % (self._css, self._js)
+
+    def render(self):
+        assets = {
+            "js": [self.absolute_path(path) for path in self._js],
+            "css": [
+                [self.absolute_path(path), medium]
+                for medium in self._css
+                for path in self._css[medium]
+            ],
+        }
+
+        json_assets = mark_safe(
+            json.dumps(assets, cls=DjangoJSONEncoder).translate(_json_script_escapes)
+        )
+
+        return loader.get_template("lib/media_in_head.html").render(
+            {"assets": json_assets}
+        )
+
+    def __add__(self, other):
+        return MediaInHead.from_media(super().__add__(other))
+
+    @classmethod
+    def from_media(cls, media):
+        return MediaInHead(js=media._js, css=media._css)
