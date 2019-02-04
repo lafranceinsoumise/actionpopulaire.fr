@@ -29,10 +29,19 @@
             <div class="list-group">
                 {% for event in rsvped_events %}
                     <div class="list-group-item">
-                        <i class="fa fa-calendar" aria-hidden="true"></i>
-                        <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
-                        {{ event.get_display_date }} - {{ event.short_location }}
-                        {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+                        <div class="media">
+                            <div class="media-left media-middle"  style="min-width:64px">
+                                {% if event.image %}
+                                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                                {% endif %}
+                            </div>
+                            <div class="media-body">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                                <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
+                                {{ event.get_display_date }} - {{ event.short_location }}
+                                {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+                            </div>
+                        </div>
                     </div>
                 {% empty %}
                     <div class="list-group-item">
@@ -87,12 +96,21 @@
             <div class="list-group">
                 {% for event in suggested_events %}
                     <div class="list-group-item">
-                        <span class="small text-muted pull-right" data-toggle="tooltip"
-                              title="{{ event.reason }}">Pourquoi ?</span>
-                        <i class="fa fa-calendar" aria-hidden="true"></i>
-                        <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
-                        {{ event.get_display_date }} - {{ event.short_location }}
-                        {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+                        <div class="media">
+                            <div class="media-left media-middle"  style="min-width:64px">
+                                {% if event.image %}
+                                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                                {% endif %}
+                            </div>
+                            <div class="media-body">
+                                <span class="small text-muted pull-right" data-toggle="tooltip"
+                                      title="{{ event.reason }}">Pourquoi ?</span>
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+                                {{ event.get_display_date }} - {{ event.short_location }}
+                                {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+                            </div>
+                        </div>
                     </div>
                 {% empty %}
                     <div class="list-group-item">
@@ -111,9 +129,18 @@
             <div class="list-group">
                 {% for event in last_events %}
                     <div class="list-group-item">
-                        <i class="fa fa-calendar" aria-hidden="true"></i>
-                        <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
-                        {{ event.get_display_date }} - {{ event.short_location }}
+                        <div class="media">
+                            <div class="media-left media-middle"  style="min-width:64px">
+                                {% if event.image %}
+                                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                                {% endif %}
+                            </div>
+                            <div class="media-body">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+                                {{ event.get_display_date }} - {{ event.short_location }}
+                            </div>
+                        </div>
                     </div>
                 {% empty %}
                     <div class="list-group-item">
@@ -131,11 +158,20 @@
             <div class="list-group">
                 {% for event in past_reports %}
                     <div class="list-group-item">
-                        <i class="fa fa-calendar" aria-hidden="true"></i>
-                        <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
-                        {%  if event.organizers_groups %}(organisé par {{  event.organizers_groups.all|join:', ' }}){% endif %}
-                        <br>
-                        {{ event.get_display_date }} - {{ event.short_location }}
+                        <div class="media">
+                            <div class="media-left media-middle"  style="min-width:64px">
+                                {% if event.image %}
+                                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                                {% endif %}
+                            </div>
+                            <div class="media-body">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+                                {%  if event.organizers_groups %}(organisé par {{  event.organizers_groups.all|join:', ' }}){% endif %}
+                                <br>
+                                {{ event.get_display_date }} - {{ event.short_location }}
+                            </div>
+                        </div>
                     </div>
                 {% empty %}
                     <div class="list-group-item">
@@ -160,8 +196,17 @@
             <div class="list-group">
                 {% for event in organized_events %}
                     <div class="list-group-item">
-                        <i class="fa fa-calendar" aria-hidden="true"></i>
-                        <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+                        <div class="media">
+                            <div class="media-left media-middle"  style="min-width:64px">
+                                {% if event.image %}
+                                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                                {% endif %}
+                            </div>
+                            <div class="media-body">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+                            </div>
+                        </div>
                     </div>
                 {% empty %}
                     <div class="list-group-item">
@@ -176,8 +221,17 @@
             <div class="list-group">
                 {% for event in past_organized_events %}
                     <div class="list-group-item">
-                        <i class="fa fa-calendar" aria-hidden="true"></i>
-                        <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+                        <div class="media">
+                            <div class="media-left media-middle"  style="min-width:64px">
+                                {% if event.image %}
+                                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                                {% endif %}
+                            </div>
+                            <div class="media-body">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+                            </div>
+                        </div>
                     </div>
                 {% empty %}
                     <div class="list-group-item">
