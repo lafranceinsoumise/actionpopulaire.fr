@@ -106,7 +106,7 @@
                                 <span class="small text-muted pull-right" data-toggle="tooltip"
                                       title="{{ event.reason }}">Pourquoi ?</span>
                                 <i class="fa fa-calendar" aria-hidden="true"></i>
-                                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+                                <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
                                 {{ event.get_display_date }} - {{ event.short_location }}
                                 {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
                             </div>
@@ -137,7 +137,7 @@
                             </div>
                             <div class="media-body">
                                 <i class="fa fa-calendar" aria-hidden="true"></i>
-                                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+                                <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
                                 {{ event.get_display_date }} - {{ event.short_location }}
                             </div>
                         </div>
@@ -166,7 +166,7 @@
                             </div>
                             <div class="media-body">
                                 <i class="fa fa-calendar" aria-hidden="true"></i>
-                                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+                                <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
                                 {%  if event.organizers_groups %}(organisé par {{  event.organizers_groups.all|join:', ' }}){% endif %}
                                 <br>
                                 {{ event.get_display_date }} - {{ event.short_location }}
