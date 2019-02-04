@@ -13,8 +13,9 @@ class MailLinkMiddleware:
     def get_just_connected_message(user):
         return format_html(
             _(
-                'Bonjour {person} (ce n\'est pas vous ? <a href="{logout_url}?next={login_url}">Cliquez-ici pour vous reconnecter'
-                "</a> avec votre compte.)"
+                "Vous avez été connecté automatiquement comme <em>{person}</em> car vous avez suivi un lien qui lui a"
+                " été envoyé par email. S'il ne s'agit pas de vous, <a href=\"{logout_url}?next={login_url}\">cliquez-ici pour vous"
+                " reconnecter </a> avec votre compte."
             ),
             person=user.person.get_short_name(),
             logout_url=reverse("disconnect"),
@@ -73,7 +74,7 @@ class MailLinkMiddleware:
 
             messages.add_message(
                 request=request,
-                level=messages.INFO,
+                level=messages.WARNING,
                 message=self.get_just_connected_message(link_user),
             )
         elif request.user != link_user:
