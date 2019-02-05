@@ -4,7 +4,7 @@ from django.conf import settings
 from django.urls import path
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, escape
@@ -15,6 +15,7 @@ from agir.api.admin import admin_site
 from agir.events.models import Event
 
 from agir.lib.admin import CenterOnFranceMixin, DepartementListFilter, RegionListFilter
+from agir.lib.display import display_price
 from agir.lib.utils import front_url
 
 from .. import models
@@ -87,6 +88,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "modified",
                     "action_buttons",
                     "promo_code",
+                    "allocation",
                 )
             },
         ),
@@ -154,6 +156,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "membership_count",
         "created",
         "referent",
+        "allocation",
     )
     list_filter = (
         "published",
@@ -206,6 +209,12 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     membership_count.short_description = _("Nombre de membres")
     membership_count.admin_order_field = "membership_count"
 
+    def allocation(self, object):
+        return display_price(object.allocation) if object.allocation else "-"
+
+    allocation.short_description = _("Allocation")
+    allocation.admin_order_field = "allocation"
+
     def link(self, object):
         if object.pk:
             return format_html(
@@ -234,7 +243,9 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
 
-        return qs.annotate(membership_count=Count("memberships"))
+        return qs.annotate(
+            membership_count=Count("memberships"), allocation=Sum("operation__amount")
+        )
 
     def get_urls(self):
         return [

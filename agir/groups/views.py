@@ -34,6 +34,7 @@ from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
     PermissionsRequiredMixin,
 )
+from agir.donations.actions import get_balance
 from agir.donations.models import SpendingRequest
 from agir.front.view_mixins import (
     ObjectOpengraphMixin,
@@ -219,9 +220,7 @@ class SupportGroupManagementView(
 
         kwargs["certifiable"] = self.object.type == SupportGroup.TYPE_LOCAL_GROUP
         kwargs["satisfy_requirements"] = len(kwargs["referents"]) > 1
-        kwargs["allocation_balance"] = (
-            self.object.operation_set.all().aggregate(Sum("amount"))["amount__sum"] or 0
-        ) / 100
+        kwargs["allocation_balance"] = get_balance(self.object)
         kwargs["spending_requests"] = SpendingRequest.objects.filter(
             group=self.object
         ).exclude(status=SpendingRequest.STATUS_PAID)

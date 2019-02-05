@@ -1,4 +1,5 @@
 {% extends "front/layout.html" %}{% load crispy_forms_tags %}
+{% load display_lib %}
 
 {% block title %}Gérer le groupe «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
 
@@ -100,7 +101,7 @@
   {% if supportgroup.is_certified %}
     <h3>Dons alloués aux actions de mon groupe</h3>
     {% if allocation_balance > 0 %}
-      <p>La somme alloués à vos actions est de {{ allocation_balance|floatformat:2 }}&nbsp;€. Vous pouvez créer une
+      <p>La somme alloués à vos actions est de {{ allocation_balance | display_price }}&nbsp;€. Vous pouvez créer une
         nouvelle demande de dépense si vous avez des dépenses à effectuer pour le groupe.</p>
 
     {% else %}

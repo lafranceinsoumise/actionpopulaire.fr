@@ -21,6 +21,8 @@ class Operation(models.Model):
         editable=False,
         blank=False,
         on_delete=models.PROTECT,
+        related_name="operations",
+        related_query_name="operation",
     )
     amount = models.IntegerField(
         _("opération en centimes d'euros"), null=False, blank=False, editable=False
