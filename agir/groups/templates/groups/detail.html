@@ -4,6 +4,9 @@
 
 {% block main %}
     <header>
+        {% if supportgroup.image %}
+            <img src="{{ supportgroup.image.banner.url }}" class="img-responsive center-block">
+        {% endif %}
         <h1>
             {{ supportgroup.name }}
             <small>{{ supportgroup.get_type_display }}</small>

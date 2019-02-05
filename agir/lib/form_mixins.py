@@ -20,6 +20,7 @@ from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import NumberParseException
 
 from agir.lib.form_components import *
+from agir.lib.form_fields import AcceptCreativeCommonsLicenceField
 from agir.lib.models import LocationMixin
 
 from django.utils.translation import ugettext as _
@@ -317,3 +318,21 @@ class MetaFieldsMixin:
                 path = str(PurePath(self.filepath) / (str(uuid4()) + extension))
                 default_storage.save(path, value)
                 getattr(self.instance, self.meta_attr)[self.meta_prefix + key] = path
+
+
+class ImageFormMixin(forms.Form):
+    image_field = None
+    image_accept_license = AcceptCreativeCommonsLicenceField()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        report_image = cleaned_data.get(self.image_field, None)
+        accept_license = cleaned_data.get("image_accept_license", False)
+
+        if report_image and not accept_license:
+            self.add_error(
+                "image_accept_license",
+                self.fields["image_accept_license"].error_messages["required"],
+            )
+
+        return cleaned_data

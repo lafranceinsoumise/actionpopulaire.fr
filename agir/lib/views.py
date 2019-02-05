@@ -2,6 +2,8 @@ from django.contrib import messages
 from rest_framework.generics import GenericAPIView, get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
+from agir.lib.form_fields import AcceptCreativeCommonsLicenceField
+
 PICT_RATIO_MIN = 1.8
 PICT_RATIO_MAX = 2.1
 
@@ -45,17 +47,17 @@ class CreationSerializerMixin(object):
         return self.serializer_class
 
 
-class SocialNetworkImageMixin(object):
+class ImageSizeWarningMixin(object):
     """Affiche un message d'avertissement lors d'un upload d'image mal dimensionné.
 
     Cette mixin fonctionne avec sur un champ de model de type StdImageField dont on renseigne
-    le nom dans l'attribut de view 'social_image_field'
+    le nom dans l'attribut de view `image_field`
     """
 
-    social_image_field = None
+    image_field = None
 
     def form_valid(self, form):
-        image = form.cleaned_data[self.social_image_field]
+        image = form.cleaned_data[self.image_field]
         if hasattr(image, "image"):
             size = image.image.size
             if size[1] == 0:

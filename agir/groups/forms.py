@@ -11,6 +11,7 @@ from agir.lib.form_mixins import (
     ContactFormMixin,
     GeocodingBaseForm,
     SearchByZipCodeFormBase,
+    ImageFormMixin,
 )
 
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
@@ -30,7 +31,9 @@ __all__ = [
 ]
 
 
-class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
+class SupportGroupForm(
+    LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.ModelForm
+):
     geocoding_task = geocode_support_group
 
     CHANGES = {
@@ -46,6 +49,8 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         "location_country": "location",
         "description": "information",
     }
+
+    image_field = "image"
 
     subtypes = forms.ModelMultipleChoiceField(
         queryset=SupportGroupSubtype.objects.filter(
@@ -106,6 +111,8 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
 
         self.helper.layout = Layout(
             Row(FullCol("name")),
+            Row(FullCol("image")),
+            Row(FullCol("image_accept_license")),
             Section(
                 _("Informations de contact"),
                 Row(Div("contact_name", css_class="col-md-12")),
@@ -140,7 +147,6 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
                 ),
                 Row(FullCol("location_country")),
             ),
-            Row(FullCol("description")),
             *description_field,
             *notify_field
         )
@@ -190,6 +196,7 @@ class SupportGroupForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         model = SupportGroup
         fields = (
             "name",
+            "image",
             "type",
             "subtypes",
             "contact_name",
