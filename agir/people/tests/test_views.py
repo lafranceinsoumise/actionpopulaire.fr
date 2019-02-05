@@ -1,6 +1,8 @@
 from unittest import mock
 
+from django.contrib.gis.geos import Point
 from django.test import TestCase, override_settings
+from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -8,12 +10,50 @@ from rest_framework.reverse import reverse
 from phonenumber_field.phonenumber import to_python as to_phone_number
 
 from agir.api.redis import using_redislite
+from agir.events.models import Event, OrganizerConfig
+from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person, PersonValidationSMS, generate_code
 from agir.people.actions.validation_codes import _initialize_buckets
 from agir.lib.tests.mixins import FakeDataMixin
 
 
 class DashboardTestCase(FakeDataMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        paris_nd = Point(2.349_722, 48.853_056)  # ND de Paris
+
+        self.person1 = Person.objects.create_person(
+            "test@test.com", coordinates=paris_nd
+        )
+        self.person2 = Person.objects.create_person("test2@test.com")
+        self.person3 = Person.objects.create_person("test3@test.com")
+        now = timezone.now()
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+        self.event = Event.objects.create(
+            name="__== test name ==__",
+            start_time=now + 3 * day,
+            end_time=now + 3 * day + 4 * hour,
+            coordinates=paris_nd,
+        )
+
+        self.group1 = SupportGroup.objects.create(name="group1")
+        Membership.objects.create(person=self.person1, supportgroup=self.group1)
+        OrganizerConfig.objects.create(
+            event=self.event, person=self.person2, as_group=self.group1
+        )
+
+        self.group2 = SupportGroup.objects.create(name="group2")
+        Membership.objects.create(person=self.person1, supportgroup=self.group2)
+        OrganizerConfig.objects.create(
+            event=self.event, person=self.person3, as_group=self.group2
+        )
+
+    def test_same_event_is_not_suggested_multiple_times(self):
+        self.client.force_login(self.person1.role)
+        response = self.client.get(reverse("dashboard"))
+        self.assertContains(response, self.event.name, count=1)
+
     @mock.patch("agir.people.views.dashboard.geocode_person")
     def test_contains_everything(self, geocode_person):
         self.client.force_login(self.data["people"]["user2"].role)

@@ -47,10 +47,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
         suggested_events = (
             Event.objects.upcoming()
             .exclude(rsvps__person=person)
-            .filter(
-                Q(organizers_groups__in=person.supportgroups.all())
-                & ~Q(attendees=person)
-            )
+            .filter(organizers_groups__in=person.supportgroups.all())
             .annotate(
                 reason=Value(
                     "Cet événément est organisé par un groupe dont vous êtes membre.",
@@ -73,6 +70,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
             close_events = (
                 Event.objects.upcoming()
                 .filter(start_time__lt=timezone.now() + timedelta(days=30))
+                .exclude(pk__in=suggested_events)
                 .exclude(rsvps__person=person)
                 .annotate(
                     reason=Value(
