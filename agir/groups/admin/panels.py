@@ -145,6 +145,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "modified",
         "coordinates_type",
         "promo_code",
+        "allocation",
     )
     date_hierarchy = "created"
 
