@@ -16,6 +16,7 @@ from agir.lib.form_mixins import (
     GeocodingBaseForm,
     SearchByZipCodeFormBase,
     MetaFieldsMixin,
+    ImageFormMixin,
 )
 from agir.people.forms import BasePersonForm
 from agir.payments.payment_modes import PaymentModeField
@@ -46,7 +47,7 @@ class AgendaChoiceField(forms.ModelChoiceField):
         return obj.name
 
 
-class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
+class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.ModelForm):
     geocoding_task = geocode_event
 
     CHANGES = {
@@ -65,7 +66,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
         "description": "information",
     }
 
-    image_accept_license = AcceptCreativeCommonsLicenceField()
+    image_field = "image"
 
     subtype = forms.ModelChoiceField(
         queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
@@ -200,17 +201,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        image = cleaned_data.get("image", None)
-        image_accept_license = cleaned_data.get("image_accept_license", False)
-
-        if not image:
-            cleaned_data["image_accept_license"] = False
-        elif not image_accept_license:
-            self.add_error(
-                "image_accept_license",
-                self.fields["image_accept_license"].error_messages["required"],
-            )
-
         if (
             self.is_creation
             and isinstance(cleaned_data["legal"], dict)
@@ -339,8 +329,8 @@ class EventGeocodingForm(GeocodingBaseForm):
         fields = ("coordinates",)
 
 
-class EventReportForm(forms.ModelForm):
-    accept_license = AcceptCreativeCommonsLicenceField()
+class EventReportForm(ImageFormMixin, forms.ModelForm):
+    image_field = "image"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -349,20 +339,9 @@ class EventReportForm(forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", _("Sauvegarder et publier")))
-        self.helper.layout = Layout("report_content", "report_image", "accept_license")
-
-    def clean(self):
-        cleaned_data = super().clean()
-        report_image = cleaned_data.get("report_image", None)
-        accept_license = cleaned_data.get("accept_license", False)
-
-        if report_image and not accept_license:
-            self.add_error(
-                "accept_license",
-                self.fields["accept_license"].error_messages["required"],
-            )
-
-        return cleaned_data
+        self.helper.layout = Layout(
+            "report_content", "report_image", "image_accept_license"
+        )
 
     class Meta:
         model = Event

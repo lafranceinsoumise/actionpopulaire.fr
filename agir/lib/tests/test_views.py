@@ -11,7 +11,7 @@ from agir.people.models import Person
 IMG_TEST_DIR = Path(__file__).parent / "data"
 
 
-class SocialNetworkImageTestCase(TestCase):
+class ImageSizeWarningTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person("test@test_other.com")
         self.role = self.person.role
@@ -41,9 +41,9 @@ class SocialNetworkImageTestCase(TestCase):
         )
         self.person.save()
 
-    def test_sociale_image_mixin_warning_dimension(self):
+    def test_image_size_warning_dimension(self):
         """
-        Test SocialEventsImageMixin dans des vue.
+        Test ImageSizeWarningMixin dans des vues.
 
         Les test sur chaque vue sont:
             - pas de problème si aucun fichier n'est uploadé

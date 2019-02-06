@@ -73,8 +73,7 @@ class AdminJsonWidget(Textarea):
 class AcceptCreativeCommonsLicenceField(BooleanField):
     default_error_messages = {
         "required": _(
-            "Vous devez accepter de placer votre image sous licence Creative Commons pour  l'ajouter à votre"
-            " événement."
+            "Vous devez accepter de placer votre image sous licence Creative Commons pour la téléverser"
         )
     }
 
