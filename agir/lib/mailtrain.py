@@ -1,16 +1,14 @@
-from datetime import datetime
-
 import warnings
-from urllib3 import Retry
-import requests
-from requests import HTTPError
+from datetime import datetime
+from urllib.parse import urlencode
 
+import requests
 from django.conf import settings
 from django.db.models import Q
+from requests import HTTPError
+from urllib3 import Retry
 
-from agir.lib.data import anciennes_regions, departement_from_zipcode, regions
 from agir.lib.utils import generate_token_params
-from urllib.parse import urlencode
 
 params = {"access_token": settings.MAILTRAIN_API_KEY}
 
@@ -118,12 +116,17 @@ def unsubscribe_email(email):
     if settings.MAILTRAIN_DISABLE:
         return True
 
-    s.post(
-        settings.MAILTRAIN_HOST + "/api/unsubscribe/" + settings.MAILTRAIN_LIST_ID,
-        data=data,
-        params=params,
-        json=True,
-    ).raise_for_status()
+    try:
+        s.post(
+            settings.MAILTRAIN_HOST + "/api/unsubscribe/" + settings.MAILTRAIN_LIST_ID,
+            data=data,
+            params=params,
+            json=True,
+        ).raise_for_status()
+    except requests.HTTPError as e:
+        # if subscription did not exist, the status code will be 404: we don't want to fail in this situation
+        if not hasattr(e, "response") or e.response.status_code != 404:
+            raise
 
 
 def delete_email(email):
