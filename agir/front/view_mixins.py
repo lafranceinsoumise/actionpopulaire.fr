@@ -17,6 +17,7 @@ class SimpleOpengraphMixin:
     meta_title = None
     meta_description = None
     meta_type = "article"
+    meta_image = None
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
@@ -35,7 +36,7 @@ class SimpleOpengraphMixin:
         return self.meta_description
 
     def get_meta_image(self):
-        return None
+        return self.meta_image
 
 
 class ObjectOpengraphMixin(SimpleOpengraphMixin):

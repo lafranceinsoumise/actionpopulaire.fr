@@ -1,3 +1,6 @@
+from urllib.parse import urljoin
+
+from django.conf import settings
 from django.urls import reverse_lazy
 
 from agir.donations.views import (
@@ -15,6 +18,9 @@ class AskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
         " besoin de votre soutien pour pouvoir mener cette campagne. Votre contribution sera décisive !"
     )
     meta_type = "website"
+    meta_image = urljoin(
+        urljoin(settings.FRONT_DOMAIN, settings.STATIC_URL), "europeennes/dons.jpg"
+    )
 
     enable_allocations = False
     template_name = "europeennes/ask_amount.html"
