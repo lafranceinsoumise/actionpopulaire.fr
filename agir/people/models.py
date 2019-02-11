@@ -3,9 +3,9 @@ import warnings
 
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
-from django.db import models, transaction
+from django.db import models, transaction, IntegrityError
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.utils.functional import cached_property
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
@@ -319,21 +319,14 @@ class Person(
     def add_email(self, email_address, **kwargs):
         try:
             email = self.emails.get_by_natural_key(email_address)
-            email.bounced = (
-                kwargs["bounced"]
-                if kwargs.get("bounced", None) is not None
-                else email.bounced
-            )
-            email.bounced_date = (
-                kwargs["bounced_date"]
-                if kwargs.get("bounced_date", None) is not None
-                else email.bounced_date
-            )
-            email.save()
-        except ObjectDoesNotExist:
+        except PersonEmail.DoesNotExist:
             PersonEmail.objects.create_email(
                 address=email_address, person=self, **kwargs
             )
+        else:
+            email.bounced = kwargs.get("bounced", email.bounced) or False
+            email.bounced_date = kwargs.get("bounced_date", email.bounced_date)
+            email.save()
 
     def set_primary_email(self, email_address):
         if isinstance(email_address, PersonEmail):

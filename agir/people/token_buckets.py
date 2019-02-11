@@ -18,6 +18,11 @@ Burst of 3, then 1 every half an hour (should be more than enough,
 as emails should only be subscribed once in theory)
 """
 
+ChangeMailBucket = TokenBucket("ConfirmationChangeMail", 5, 180)
+"""Bucket used to limit subscription by email
+
+Burst of 10, then 1 every 3 minutes
+"""
 
 subscription_rate_limited_message = _(
     "Vous avez fait trop de tentatives d'inscription. Consultez vos mails, pour vérifier que vous n'avez pas reçu le"

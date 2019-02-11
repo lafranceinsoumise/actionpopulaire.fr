@@ -102,9 +102,8 @@ def send_mosaico_email(
         if link_bindings and isinstance(recipient, Person):
             connection_params = generate_token_params(recipient)
             for key, value in link_bindings.items():
-                if not isinstance(value, AutoLoginUrl):
-                    continue
-                bindings[key] = add_params_to_urls(value, connection_params)
+                if isinstance(value, AutoLoginUrl):
+                    bindings[key] = add_params_to_urls(value, connection_params)
 
         if isinstance(recipient, Person):
             context = get_context_from_bindings(code, recipient, bindings)

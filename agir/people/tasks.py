@@ -1,7 +1,6 @@
 from celery import shared_task
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.utils.html import format_html_join
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
@@ -11,7 +10,10 @@ from agir.lib.utils import front_url
 from agir.lib.mailtrain import update_person, delete_email
 from agir.people.actions.mailing import send_mosaico_email
 from agir.people.actions.person_forms import get_formatted_submission
-from agir.authentication.subscription import subscription_confirmation_token_generator
+from agir.authentication.subscription import (
+    subscription_confirmation_token_generator,
+    add_email_confirmation_token_generator,
+)
 
 from .models import Person, PersonFormSubmission, PersonEmail
 
@@ -57,6 +59,35 @@ def send_confirmation_email(email, **kwargs):
         from_email=settings.EMAIL_FROM,
         recipients=[email],
         bindings={"CONFIRMATION_URL": confirm_subscription_url},
+    )
+
+
+@shared_task
+def send_confirmation_change_email(new_email, user_pk, **kwargs):
+    try:
+        person = Person.objects.get(pk=user_pk)
+    except Person.DoesNotExist:
+        return
+
+    subscription_token = add_email_confirmation_token_generator.make_token(
+        new_email=new_email, user=user_pk
+    )
+    query_args = {
+        "new_email": new_email,
+        "user": user_pk,
+        "token": subscription_token,
+        **kwargs,
+    }
+    confirm_change_mail_url = front_url(
+        "confirm_change_mail", query=query_args, auto_login=False
+    )
+
+    send_mosaico_email(
+        code="CHANGE_MAIL_CONFIRMATION",
+        subject="confirmer votre changement d'adresse",
+        from_email=settings.EMAIL_FROM,
+        recipients=[new_email],
+        bindings={"CONFIRMATION_URL": confirm_change_mail_url},
     )
 
 

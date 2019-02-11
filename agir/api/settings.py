@@ -256,6 +256,8 @@ EMAIL_TEMPLATES = {
     "LOGIN_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/65cb8867-9d14-4448-bae8-8cf40c5fee78.html",
     # EVENT_REPORT variables: EVENT_NAME,EVENT_REPORT_SUMMARY, EVENT_REPORT_LINK, PREFERENCES_LINK, EMAIL
     "EVENT_REPORT": "https://mosaico.lafranceinsoumise.fr/emails/7b39830d-8cf5-4d01-abbd-ab41e77c444e.html",
+    # CHANGE_MAIL_CONFIRMATION variables: CONFIRMATION_URL
+    "CHANGE_MAIL_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/55429415-6611-45a9-8667-929e445ff7c4.html",
 }
 
 EMAIL_FROM = os.environ.get(

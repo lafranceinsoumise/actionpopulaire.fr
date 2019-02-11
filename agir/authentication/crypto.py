@@ -43,6 +43,20 @@ class BaseTokenGenerator(PasswordResetTokenGenerator):
             escape_character(param, self.params_separator) for param in ordered_params
         ) + str(timestamp)
 
+    def is_expired(self, token):
+        # Parse the token
+        try:
+            ts_b36, hash = token.split("-")
+            ts = base36_to_int(ts_b36)
+        except ValueError:
+            return False
+
+        # Check the timestamp is within limit
+        if (self._num_days(self._today()) - ts) > self.validity:
+            return True
+
+        return False
+
     def check_token(self, token, **params):
         """copied from """
         self._check_params(params)
@@ -98,7 +112,7 @@ class SubscriptionConfirmationTokenGenerator(BaseTokenGenerator):
 
 class AddEmailConfirmationTokenGenerator(BaseTokenGenerator):
     key_salt = "agir.people.crypto.AddEmailConfirmationTokenGenerator"
-    token_params = ["user", "email"]
+    token_params = ["user", "new_email"]
     params_separator = "|"
 
 

@@ -1,8 +1,14 @@
+from time import sleep
+
+from django.utils.http import base36_to_int, int_to_base36, urlencode
+from os import wait
 from unittest import mock
 
+import re
 from django.contrib.gis.geos import Point
 from django.test import TestCase, override_settings
 from django.utils import timezone
+from django.core import mail
 
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -15,6 +21,7 @@ from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person, PersonValidationSMS, generate_code
 from agir.people.actions.validation_codes import _initialize_buckets
 from agir.lib.tests.mixins import FakeDataMixin
+from agir.people.tasks import send_confirmation_change_email
 
 
 class DashboardTestCase(FakeDataMixin, TestCase):
@@ -126,21 +133,88 @@ class MessagePreferencesTestCase(TestCase):
         self.assertRedirects(res, reverse("email_management"))
         self.assertEqual(len(self.person.emails.all()), 1)
 
-    def test_can_add_address(self):
-        res = self.client.post(
-            "/message_preferences/adresses/", data={"address": "test3@test.com"}
-        )
-        self.assertRedirects(res, "/message_preferences/adresses/")
+    @using_redislite
+    @mock.patch("agir.people.forms.account.send_confirmation_change_email")
+    def test_can_add_address(self, patched_send_confirmation_change_email):
+        old_mails = [e.address for e in self.person.emails.all()]
+        new_mails = ["test3@test.com", "try@other.test", "TeST4@test.com"]
+        # regex_url = r"http:\/+[a-zA-Z0-9.:\/_?&=%-]*token[a-zA-Z0-9.:\/_?&=%-]*"
+        regex_url = r'/message_preferences/adresses/confirmer\?[^\s"]*token=[a-z0-9-]+'
 
-        res = self.client.post(
-            "/message_preferences/adresses/", data={"address": "TeST4@TeSt.COM"}
-        )
-        self.assertRedirects(res, "/message_preferences/adresses/")
+        for i, email in enumerate(new_mails):
+            res = self.client.post(reverse("email_management"), data={"address": email})
+            self.assertRedirects(
+                res, reverse("confirmation_change_mail_sent") + "?new_email=" + email
+            )
+            patched_send_confirmation_change_email.delay.assert_called_with(
+                new_email=email, user_pk=str(self.person.pk)
+            )
+
+            send_confirmation_change_email(email, str(self.person.pk))
+            url_confirm = re.search(regex_url, mail.outbox[i].body).group(0)
+            self.assertIsNotNone(url_confirm)
+            res = self.client.get(url_confirm)
+            self.assertRedirects(res, reverse("message_preferences"))
+            self.assertEqual(str(self.person.emails.first()), email)
 
         self.assertCountEqual(
-            [e.address for e in self.person.emails.all()],
-            ["test@test.com", "test2@test.com", "test3@test.com", "TeST4@test.com"],
+            [e.address for e in self.person.emails.all()], old_mails + new_mails
         )
+
+    def test_cannot_change_mail_if_already_used(self):
+        res = self.client.post(
+            reverse("email_management"), data={"address": self.person.email}
+        )
+        self.assertContains(res, "Cette adresse est déjà rattaché à un autre compte.")
+
+    def test_cannot_change_mail_if_time_expired(self):
+        regex_token = r"token=(([0-9a-z]*)-([0-9a-f]*))"
+        new_mail = "hello@iam.new"
+
+        send_confirmation_change_email(new_mail, str(self.person.pk))
+        match = re.search(regex_token, mail.outbox[0].body)
+        ts = match.group(2)
+        signature = match.group(3)
+        token_expired = int_to_base36((base36_to_int(ts) - 8)) + "-" + signature
+        params = {
+            "new_email": new_mail,
+            "user": str(self.person.pk),
+            "token": token_expired,
+        }
+        ulr_expired = reverse("confirm_change_mail") + "?" + urlencode(params)
+        res = self.client.get(ulr_expired)
+        self.assertContains(res, "Il semble que celui-ci est expiré.")
+
+    def test_cannot_change_mail_if_wrong_link(self):
+        """
+           Teste differente maniere de produire un liens de changement d'adresse email erroné.
+
+           Pour que le liens les varbiable : (new_email, user, token) soient manquantes ou invalide
+        """
+        regex_token = r"token=(([0-9a-z]*)-([0-9a-f]*))"
+        new_mail = "hello@iam.new"
+        send_confirmation_change_email("new_mail", str(self.person.pk))
+        match = re.search(regex_token, mail.outbox[0].body)
+
+        # data erroné
+        token = match.group(1)
+        post_data = {"new_email": new_mail, "user": str(self.person.pk), "token": token}
+        for key, val in post_data.items():
+            wrong_data = post_data.copy()
+            wrong_data.update({key: val[:-1]})
+            ulr_wrong = reverse("confirm_change_mail") + "?" + urlencode(wrong_data)
+            res = self.client.get(ulr_wrong)
+            self.assertContains(res, "Il semble que celui-ci est invalide.")
+
+        # data manquante
+        token = match.group(1)
+        post_data = {"new_email": new_mail, "user": str(self.person.pk), "token": token}
+        for key, val in post_data.items():
+            wrong_data = post_data.copy()
+            wrong_data.pop(key)
+            ulr_wrong = reverse("confirm_change_mail") + "?" + urlencode(wrong_data)
+            res = self.client.get(ulr_wrong)
+            self.assertContains(res, "Il semble que celui-ci est invalide.")
 
     def test_cannot_see_subscribed_field_if_not_insoumise(self):
         res = self.client.get(reverse("message_preferences"))
