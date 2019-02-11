@@ -1,3 +1,4 @@
+import nuntius
 from django.contrib.auth import authenticate, admin as auth_admin, BACKEND_SESSION_KEY
 from django import forms
 from django.contrib.redirects.admin import RedirectAdmin
@@ -76,3 +77,4 @@ admin_site.register(auth_admin.Group, auth_admin.GroupAdmin)
 admin_site.register(Redirect, RedirectAdmin)
 admin_site.register(Site, SiteAdmin)
 admin_site.register(django_otp.plugins.otp_totp.models.TOTPDevice, DeviceAdmin)
+admin_site.register(nuntius.models.Campaign, nuntius.admin.CampaignAdmin)
