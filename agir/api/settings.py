@@ -598,8 +598,10 @@ NUNTIUS_MOSAICO_TEMPLATES = [
 ]
 
 ANYMAIL = {
-    "aws_access_key_id": os.environ.get("AWS_ACCESS_KEY_FOR_ANYMAIL_SES"),
-    "aws_secret_access_key": os.environ.get("AWS_SECRET_KEY_FOR_ANYMAIL_SES"),
-    "region_name": "eu-west-1",
-    "config": {"connect_timeout": 30, "read_timeout": 30},
+    "AMAZON_SES_CLIENT_PARAMS": {
+        "aws_access_key_id": os.environ.get("AWS_ACCESS_KEY_FOR_ANYMAIL_SES"),
+        "aws_secret_access_key": os.environ.get("AWS_SECRET_KEY_FOR_ANYMAIL_SES"),
+        "region_name": "eu-west-1",
+        "config": {"connect_timeout": 30, "read_timeout": 30},
+    }
 }
