@@ -121,6 +121,7 @@ INSTALLED_APPS = [
     # webpack
     "webpack_loader",
     # fi apps
+    "nuntius",
     "agir.authentication",
     "agir.people",
     "agir.events",
@@ -136,6 +137,7 @@ INSTALLED_APPS = [
     "agir.system_pay",
     "agir.checks",
     "agir.europeennes",
+    "agir.mailing",
     # security
     "corsheaders",
     "oauth2_provider",
@@ -581,3 +583,23 @@ PRESSERO_PASSWORD = os.environ.get("PRESSERO_PASSWORD")
 PRESSERO_SITE = os.environ.get("PRESSERO_SITE", "").rstrip("/")
 PRESSERO_APPROBATOR_ID = os.environ.get("PRESSERO_APPROBATOR_ID")
 PRESSERO_GROUP_ID = os.environ.get("PRESSERO_GROUP_ID")
+
+# nuntius
+NUNTIUS_SUBSCRIBER_MODEL = "people.Person"
+NUNTIUS_SEGMENT_MODELS = ["mailing.segment"]
+NUNTIUS_CELERY_BROKER_URL = "redis://"
+NUNTIUS_EMAIL_BACKEND = "anymail.backends.amazon_ses.EmailBackend"
+NUNTIUS_MOSAICO_TEMPLATES = [
+    (
+        "/static/mosaico_templates/versafix-blank/template.html",
+        "Template sans bannière",
+    ),
+    ("/static/mosaico_templates/versafix-fi/template.html", "Template LFI"),
+]
+
+ANYMAIL = {
+    "aws_access_key_id": os.environ.get("AWS_ACCESS_KEY_FOR_ANYMAIL_SES"),
+    "aws_secret_access_key": os.environ.get("AWS_SECRET_KEY_FOR_ANYMAIL_SES"),
+    "region_name": "eu-west-1",
+    "config": {"connect_timeout": 30, "read_timeout": 30},
+}

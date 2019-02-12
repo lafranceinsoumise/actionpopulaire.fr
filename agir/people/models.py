@@ -11,6 +11,7 @@ from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 from django_prometheus.models import ExportModelOperationsMixin
 from django.utils import timezone
+from nuntius.models import AbstractSubscriber
 
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -139,6 +140,7 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
 
 
 class Person(
+    AbstractSubscriber,
     ExportModelOperationsMixin("person"),
     BaseAPIResource,
     NationBuilderResource,
@@ -345,6 +347,16 @@ class Person(
         order.insert(0, email_instance.id)
         self.set_personemail_order(order)
         self.primary_email = email_instance
+
+    def get_subscriber_status(self):
+        if self.bounced:
+            return AbstractSubscriber.STATUS_BOUNCED
+        if not self.subscribed:
+            return AbstractSubscriber.STATUS_UNSUBSCRIBED
+        return AbstractSubscriber.STATUS_SUBSCRIBED
+
+    def get_subscriber_email(self):
+        return self.email
 
 
 class PersonTag(AbstractLabel):
