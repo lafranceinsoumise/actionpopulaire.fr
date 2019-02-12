@@ -12,7 +12,7 @@ from django.views.generic import DetailView
 from functools import partial
 
 from agir.api.admin import admin_site
-from agir.donations.actions import history
+from agir.donations.actions import history, admin_summary
 from agir.lib.admin import AdminViewMixin
 from .models import SpendingRequest, Document, Spending
 
@@ -38,20 +38,6 @@ class HandleRequestView(AdminViewMixin, DetailView):
     model = SpendingRequest
     template_name = "admin/donations/handle_request.html"
     form_class = HandleRequestForm
-    shown_fields = [
-        "id",
-        "title",
-        "status",
-        "group",
-        "event",
-        "category",
-        "category_precisions",
-        "explanation",
-        "amount",
-        "spending_date",
-        "provider",
-        "iban",
-    ]
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm("donations.review_spendingrequest"):
@@ -69,19 +55,11 @@ class HandleRequestView(AdminViewMixin, DetailView):
         if "form" not in kwargs:
             kwargs["form"] = self.get_form()
 
-        fields = [
-            {
-                "label": SpendingRequest._meta.get_field(f).verbose_name,
-                "value": getattr(self.object, f),
-            }
-            for f in self.shown_fields
-        ]
-
         return super().get_context_data(
             title="Résumé des événements",
             spending_request=self.object,
             documents=self.object.documents.all(),
-            fields=fields,
+            fields=admin_summary(self.object),
             history=history(self.object, True),
             **self.get_admin_helpers(kwargs["form"], kwargs["form"].fields),
             **kwargs

@@ -1,3 +1,5 @@
+from urllib.parse import urljoin
+
 import reversion
 from django.conf import settings
 from django.db import IntegrityError
@@ -9,6 +11,7 @@ from reversion.models import Version
 
 from agir.donations.models import Operation, SpendingRequest, Document, Spending
 from agir.lib.display import display_price
+from agir.lib.utils import front_url
 
 
 def get_balance(group):
@@ -33,6 +36,41 @@ def can_be_sent(spending_request):
 
 def are_funds_sufficient(spending_request):
     return spending_request.amount <= get_balance(spending_request.group)
+
+
+def admin_summary(spending_request):
+    shown_fields = [
+        "id",
+        "title",
+        "status",
+        "group",
+        "event",
+        "category",
+        "category_precisions",
+        "explanation",
+        "amount",
+        "spending_date",
+        "provider",
+        "iban",
+    ]
+
+    values = {f: getattr(spending_request, f) for f in shown_fields}
+
+    values["group"] = format_html(
+        '<a href="{group_link}">{group_name}</a> ({group_balance})<br><a href="mailto:{group_email}">{group_email}</a><br>{group_phone}',
+        group_name=spending_request.group.name,
+        group_email=spending_request.group.contact_email,
+        group_phone=spending_request.group.contact_phone,
+        group_link=front_url("view_group", args=(spending_request.group_id,)),
+        group_balance=display_price(get_balance(spending_request.group)),
+    )
+
+    values["amount"] = display_price(spending_request.amount)
+
+    return [
+        {"label": SpendingRequest._meta.get_field(f).verbose_name, "value": values[f]}
+        for f in shown_fields
+    ]
 
 
 def summary(spending_request):
