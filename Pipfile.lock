@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "adc8008690a4f7d53a4963d1215af40f75ede4886997b12599f8d3c2c33bc8d5"
+            "sha256": "88db4b99bf16c38e089d5096df6ad4413067e9df502a65cb953ecfc6d90b3e2f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -72,18 +72,18 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:428c6d535f373a7203ed7ec687bb826b88e62de7befc3816e0aacd305f7572a2",
-                "sha256:4a693170c79b4275d8bb6884e9930c82e6bb4e303597ca545f288333db77c6a7"
+                "sha256:2bcda6aa7cbc51a30fc49f9129500c4df8b92fee3b4a44562c9d595bf32c4dcd",
+                "sha256:609900ca26f379123911b51ced68e437322ff3c347deaac7d84a53710d612c2c"
             ],
             "markers": "extra == 'amazon_ses'",
-            "version": "==1.9.91"
+            "version": "==1.9.92"
         },
         "botocore": {
             "hashes": [
-                "sha256:4ca7da7128915d7ac149e12f8a3efeb4e590793189cabe0bcd3c3eee5b84f656",
-                "sha256:bd788c6ebae55db17d9cc125fa3817fddb20d3fc8bd15791995d82c466238a3b"
+                "sha256:19a48491bb0f22ea95f26ed3bd9ca9e0cd35aadf04027774995817d6403abec9",
+                "sha256:97a43a70876dae5ebe4334db8ea846181467b80adc45f681720c9bb859491bf5"
             ],
-            "version": "==1.12.91"
+            "version": "==1.12.92"
         },
         "celery": {
             "hashes": [
@@ -213,11 +213,11 @@
         },
         "django-otp": {
             "hashes": [
-                "sha256:529f936e9b6acbb011ac575d2e7e1a6c823661627ebcb314c11cd721237da433",
-                "sha256:9b67805244b8bc48bb5b14600dc1d05a8dca54ad2ff8d6ded758c39856b860e1"
+                "sha256:1860e72cfcd95fe73117f3543d2e53f7847cf59e894ae0aa9399a10a50fb081f",
+                "sha256:5756050ec09ecf8e6ce2b0f9f370ebd26249f326a1010a413b61c6a4c554f25f"
             ],
             "index": "pypi",
-            "version": "==0.5.1"
+            "version": "==0.5.2"
         },
         "django-phonenumber-field": {
             "hashes": [
@@ -449,11 +449,11 @@
         },
         "nuntius": {
             "hashes": [
-                "sha256:3019a8bba45ec57f8b4e7dfdd2c27d9692ea1cbc9cc623dae1b2df5b5e78ea03",
-                "sha256:d44016ec0d793f18b1a7a168285fc76fd03e7a57068592187e4c79ef54fb5329"
+                "sha256:4d881ec7045a2ec66ef51372af06e62959ba156a1a591017cc93ced64f459b69",
+                "sha256:867256ffbf7b2a22fd6540d97f9b2c5a02ed653b950630be52dd5d3fe49991e8"
             ],
             "index": "pypi",
-            "version": "==0.2.4"
+            "version": "==0.3.2"
         },
         "oauthlib": {
             "hashes": [

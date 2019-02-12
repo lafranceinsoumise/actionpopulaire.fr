@@ -589,6 +589,13 @@ NUNTIUS_SUBSCRIBER_MODEL = "people.Person"
 NUNTIUS_SEGMENT_MODELS = ["mailing.segment"]
 NUNTIUS_CELERY_BROKER_URL = "redis://"
 NUNTIUS_EMAIL_BACKEND = "anymail.backends.amazon_ses.EmailBackend"
+NUNTIUS_MOSAICO_TEMPLATES = [
+    (
+        "/static/mosaico_templates/versafix-blank/template.html",
+        "Template sans bannière",
+    ),
+    ("/static/mosaico_templates/versafix-fi/template.html", "Template LFI"),
+]
 
 ANYMAIL = {
     "aws_access_key_id": os.environ.get("AWS_ACCESS_KEY_FOR_ANYMAIL_SES"),
