@@ -1,11 +1,20 @@
+import sys
+from uuid import UUID
+
 from django.contrib import messages
 from django.contrib.auth import logout
+from django.db import IntegrityError
 from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
 from django.urls import reverse_lazy, reverse
-from django.utils.http import urlquote
+from django.utils.http import urlquote, urlencode
 from django.utils.translation import ugettext as _
+from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, FormView
+from prompt_toolkit.validation import ValidationError
 
+from agir.authentication.subscription import add_email_confirmation_token_generator
+from agir.authentication.utils import hard_login
 from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
     HardLoginRequiredMixin,
@@ -17,6 +26,7 @@ from agir.people.forms import (
     SendValidationSMSForm,
     CodeValidationForm,
     ExternalPersonPreferencesForm,
+    PersonEmail,
 )
 from agir.people.models import Person
 
@@ -77,6 +87,85 @@ class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
         return response
 
 
+class ConfirmChangeMail(View):
+    """
+    Confirme et enregistre une nouvelle adresse email.
+
+    Cette vue peut être atteinte depuis n'importe quel navigateur donc pas besoin d'être connecté.
+    Elle vérifie l'integriter du mail + user_pk + token
+    Elle redirige vers la vue `message_preferences` en cas de succès
+    En cas de problème vérification du token une page est affiché explicant le problème: `invalid`, `expiration`
+    """
+
+    success_url = reverse_lazy("message_preferences")
+    error_template = "people/confirmation_mail_change_error.html"
+    error_messages = {
+        "invalid": "Il semble que celui-ci est invalide. Avez-vous bien cliqué sur le bouton, ou copié la totalité du lien ?",
+        "expired": "Il semble que celui-ci est expiré.",
+        "already_used": "L'adresse {0} est déjà utilisée",
+    }
+
+    def error_page(self, key_error, email=""):
+        return TemplateResponse(
+            self.request,
+            [self.error_template],
+            context={"message": self.error_messages[key_error].format(email)},
+        )
+
+    def get(self, request, **kwargs):
+        new_mail = request.GET.get("new_email")
+        user_pk = request.GET.get("user")
+        token = request.GET.get("token")
+
+        # Check part
+        if not new_mail or not user_pk or not token:
+            return self.error_page(key_error="invalid")
+
+        try:
+            user_pk = str(UUID(user_pk))
+        except ValueError:
+            return self.error_page(key_error="invalid")
+
+        try:
+            self.person = Person.objects.get(pk=user_pk)
+        except Person.DoesNotExist:
+            return self.error_page(key_error="invalid")
+
+        if add_email_confirmation_token_generator.is_expired(token):
+            return self.error_page(key_error="expired")
+
+        params = {"new_email": new_mail, "user": user_pk}
+        if not add_email_confirmation_token_generator.check_token(token, **params):
+            return self.error_page(key_error="invalid")
+
+        try:
+            self.person.add_email(new_mail)
+        except IntegrityError:
+            return self.error_page(key_error="already_used", email=new_mail)
+
+        # success part
+        hard_login(request, self.person)
+        self.person.set_primary_email(new_mail)
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            "Votre changement de email à été effectué avec succès",
+        )
+
+        return HttpResponseRedirect(self.success_url)
+
+
+class SendConfirmationChangeMail(SoftLoginRequiredMixin, TemplateView):
+    template_name = "people/confirmation_change_mail_sent.html"
+
+    def get(self, request):
+        self.new_email = request.GET.get("new_email")
+        return super().get(request)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(new_mail=self.new_email, **kwargs)
+
+
 class EmailManagementView(SoftLoginRequiredMixin, TemplateView):
     template_name = "people/email_management.html"
     queryset = Person.objects.all()
@@ -113,8 +202,12 @@ class EmailManagementView(SoftLoginRequiredMixin, TemplateView):
         add_email_form = self.get_add_email_form()
 
         if add_email_form.is_valid():
-            add_email_form.save()
-            return HttpResponseRedirect(reverse("email_management"))
+            new_mail = add_email_form.send_confirmation(self.object.pk)
+            if not new_mail:
+                context = self.get_context_data(add_email_form=add_email_form)
+                return self.render_to_response(context)
+            url = reverse("confirmation_change_mail_sent") + "?new_email=" + new_mail
+            return HttpResponseRedirect(url)
         else:
             context = self.get_context_data(add_email_form=add_email_form)
             return self.render_to_response(context)

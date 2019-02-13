@@ -12,7 +12,11 @@
             <p>Vous pouvez ci-dessous ajouter ou supprimer des adresses emails.</p>
         </div>
 
-        <h3>Mes adresses</h3>
+        <h3>Ma nouvelle adresse email</h3>
+
+        {% crispy add_email_form %}
+
+        <h3>Les autres adresses pour me connecter</h3>
 
         <ul class="list-group">
             {% for email in emails %}
@@ -22,10 +26,6 @@
             </li>
             {% endfor %}
         </ul>
-
-        <h3>Ajouter une adresse email</h3>
-
-        {% crispy add_email_form %}
 
     </div>
 {% endblock %}

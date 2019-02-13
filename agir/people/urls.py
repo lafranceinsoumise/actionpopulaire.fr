@@ -58,6 +58,16 @@ urlpatterns = [
         name="email_management",
     ),
     path(
+        "message_preferences/adresses/confirmer",
+        views.ConfirmChangeMail.as_view(),
+        name="confirm_change_mail",
+    ),
+    path(
+        "message_preferences/adresses/attente/",
+        views.SendConfirmationChangeMail.as_view(),
+        name="confirmation_change_mail_sent",
+    ),
+    path(
         "message_preferences/adresses/<int:pk>/supprimer/",
         views.DeleteEmailAddressView.as_view(),
         name="delete_email",

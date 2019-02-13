@@ -27,6 +27,8 @@ from agir.people.actions.validation_codes import (
     is_valid_code,
 )
 from agir.people.models import PersonTag, Person, PersonEmail, PersonValidationSMS
+from agir.people.tasks import send_confirmation_change_email
+from agir.people.token_buckets import ChangeMailBucket
 
 logger = logging.getLogger(__name__)
 
@@ -289,13 +291,27 @@ class AddEmailForm(forms.ModelForm):
             "Utiliser ce champ pour ajouter une adresse supplémentaire que vous pouvez"
             " utiliser pour vous connecter."
         )
-        self.fields["address"].error_messages["unique"] = _(
-            "Cette adresse est déjà rattaché à un autre compte."
+        self.fields["address"].error_messages.update(
+            {
+                "unique": "Cette adresse est déjà rattaché à un autre compte.",
+                "rate_limit": "Trop d'email de confirmation envoyés. Merci de réessayer dans quelques minutes.",
+            }
         )
 
         self.helper = FormHelper()
         self.helper.form_method = "POST"
         self.helper.add_input(Submit("submit", "Ajouter"))
+
+    def send_confirmation(self, user_pk):
+        new_mail = self.cleaned_data["address"]
+        if not ChangeMailBucket.has_tokens(user_pk):
+            self.add_error(
+                "address", self.fields["address"].error_messages["rate_limit"]
+            )
+            return None
+
+        send_confirmation_change_email.delay(new_email=new_mail, user_pk=str(user_pk))
+        return new_mail
 
     class Meta:
         model = PersonEmail
