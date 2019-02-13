@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.functional import lazy
 from stdimage.utils import render_variations
 
-from agir.authentication.backend import connection_token_generator
+from agir.authentication.crypto import connection_token_generator
 
 
 def _querydict_from_dict(d):

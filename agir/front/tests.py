@@ -14,7 +14,7 @@ from ..events.models import Event, OrganizerConfig
 from ..groups.models import SupportGroup, Membership
 from ..polls.models import Poll, PollOption, PollChoice
 
-from agir.authentication.backend import connection_token_generator
+from agir.authentication.crypto import connection_token_generator
 
 
 class NavbarTestCase(TestCase):

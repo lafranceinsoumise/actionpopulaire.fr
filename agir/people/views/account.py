@@ -7,11 +7,10 @@ from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy, reverse
-from django.utils.http import urlquote, urlencode
+from django.utils.http import urlquote
 from django.utils.translation import ugettext as _
 from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, FormView
-from prompt_toolkit.validation import ValidationError
 
 from agir.authentication.subscription import add_email_confirmation_token_generator
 from agir.authentication.utils import hard_login
@@ -26,7 +25,6 @@ from agir.people.forms import (
     SendValidationSMSForm,
     CodeValidationForm,
     ExternalPersonPreferencesForm,
-    PersonEmail,
 )
 from agir.people.models import Person
 

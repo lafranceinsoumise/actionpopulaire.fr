@@ -1,18 +1,10 @@
-from django.conf import settings
 from django.core.exceptions import ValidationError
 
+from agir.authentication.crypto import connection_token_generator, short_code_generator
 from agir.people.models import Person
 from agir.authentication.backend_mixins import GetRoleMixin
 
 from .models import Role
-from .crypto import ConnectionTokenGenerator, ShortCodeGenerator
-
-
-connection_token_generator = ConnectionTokenGenerator(settings.CONNECTION_LINK_VALIDITY)
-
-short_code_generator = ShortCodeGenerator(
-    "LoginCode:", settings.SHORT_CODE_VALIDITY, settings.MAX_CONCURRENT_SHORT_CODES
-)
 
 
 class ShortCodeBackend(GetRoleMixin):

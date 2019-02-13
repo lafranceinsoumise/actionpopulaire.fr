@@ -2,6 +2,8 @@ import json
 import re
 from typing import Mapping, Any
 from secrets import choice
+
+from django.conf import settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils import timezone
 from django.utils.http import base36_to_int
@@ -183,3 +185,9 @@ class ShortCodeGenerator:
         ]
 
         return bool(correct_short_code_payloads)
+
+
+connection_token_generator = ConnectionTokenGenerator(settings.CONNECTION_LINK_VALIDITY)
+short_code_generator = ShortCodeGenerator(
+    "LoginCode:", settings.SHORT_CODE_VALIDITY, settings.MAX_CONCURRENT_SHORT_CODES
+)

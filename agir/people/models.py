@@ -4,6 +4,7 @@ import warnings
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models, transaction, IntegrityError
+from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.utils.functional import cached_property
@@ -24,6 +25,7 @@ from agir.lib.models import (
 )
 from agir.authentication.models import Role
 from agir.lib.search import PrefixSearchQuery
+from agir.lib.utils import generate_token_params
 from . import metrics
 
 from .model_fields import MandatesField, ValidatedPhoneNumberField
@@ -350,6 +352,11 @@ class Person(
 
     def get_subscriber_email(self):
         return self.email
+
+    def get_subscriber_data(self):
+        data = super().get_subscriber_data()
+
+        return {**data, "login_query": urlencode(generate_token_params(self))}
 
 
 class PersonTag(AbstractLabel):
