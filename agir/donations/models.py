@@ -8,6 +8,7 @@ from dynamic_filenames import FilePattern
 from reversion.models import Revision, Version
 
 from agir.donations.model_fields import AmountField
+from agir.lib.model_fields import IBANField
 from agir.lib.models import TimeStampedModel
 
 
@@ -180,14 +181,15 @@ class SpendingRequest(TimeStampedModel):
         _("Raison sociale du prestataire"), blank=False, null=False, max_length=200
     )
 
-    iban = models.CharField(
+    iban = IBANField(
         _("RIB (format IBAN)"),
         blank=False,
         null=False,
-        max_length=100,
         help_text=_(
-            "Indiquez le RIB du prestataire s'il s'agit d'un réglement, ou le RIB de la personne concernée s'il s'agit d'un remboursement."
+            "Indiquez le RIB du prestataire s'il s'agit d'un réglement, ou le RIB de la personne concernée s'il s'agit"
+            " d'un remboursement."
         ),
+        allowed_countries=["FR"],
     )
 
     class Meta:

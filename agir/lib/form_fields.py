@@ -1,11 +1,15 @@
+from django import forms
+from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.forms.widgets import Textarea, DateTimeBaseInput
-from django.forms import BooleanField, forms
 from django.utils import formats
 from django.utils.translation import ugettext_lazy as _
+from django_countries import countries
 from phonenumber_field.phonenumber import PhoneNumber
-
 from webpack_loader import utils as webpack_loader_utils
+
+from agir.donations.validators import validate_iban
+from agir.lib.iban import IBAN
 
 
 class DateTimePickerWidget(DateTimeBaseInput):
@@ -70,7 +74,7 @@ class AdminJsonWidget(Textarea):
         )
 
 
-class AcceptCreativeCommonsLicenceField(BooleanField):
+class AcceptCreativeCommonsLicenceField(forms.BooleanField):
     default_error_messages = {
         "required": _(
             "Vous devez accepter de placer votre image sous licence Creative Commons pour la téléverser"
@@ -94,3 +98,46 @@ class CustomJSONEncoder(DjangoJSONEncoder):
         if isinstance(o, PhoneNumber):
             return o.as_e164
         return super().default(o)
+
+
+class IBANField(forms.Field):
+    default_validators = [validate_iban]
+    empty_value = ""
+    default_error_messages = {
+        "invalid": "Indiquez un numéro IBAN identifiant un compte existant. Ce numéro, composé de 14 à 34 chiffres et"
+        " lettres, commence par deux lettres identifiant le pays du compte.",
+        "forbidden_country": "Seuls des comptes des pays suivants sont autorisés : %(countries)s",
+    }
+
+    def __init__(self, *args, allowed_countries=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.allowed_countries = allowed_countries
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return self.empty_value
+
+        return IBAN(str(value))
+
+    def validate(self, value):
+        super().validate(value)
+        if value != self.empty_value and not value.is_valid():
+            raise ValidationError(self.error_messages["invalid"], code="invalid")
+
+        if self.allowed_countries and value.country not in self.allowed_countries:
+            raise ValidationError(
+                self.error_messages["forbidden_country"]
+                % {
+                    "countries": ", ".join(
+                        countries.name(code) or code for code in self.allowed_countries
+                    )
+                },
+                code="forbidden_country",
+            )
+
+    def widget_attrs(self, widget):
+        attrs = super().widget_attrs(widget)
+        if not widget.is_hidden:
+            attrs["minlength"] = 14
+            attrs["maxlength"] = 34
+        return attrs

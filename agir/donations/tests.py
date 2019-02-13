@@ -414,7 +414,7 @@ class SpendingRequestTestCase(TestCase):
             "explanation": "On en a VRAIMENT VRAIMENT besoin.",
             "spending_date": date,
             "provider": "Super CLIENT",
-            "iban": "1234567890",
+            "iban": "FR65 0382 9038 7327 9323 466",
             "amount": 8500,
         }
 
