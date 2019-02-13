@@ -1,20 +1,15 @@
 from datetime import timedelta
 from unittest import mock
-from urllib.parse import urlparse
 
+from django.shortcuts import reverse
 from django.test import TestCase
 from django.utils import timezone
-from django.http import QueryDict
 from rest_framework import status
-from django.shortcuts import reverse
-from django.contrib.auth import get_user
 
-from ..people.models import Person, PersonTag
 from ..events.models import Event, OrganizerConfig
 from ..groups.models import SupportGroup, Membership
+from ..people.models import Person, PersonTag
 from ..polls.models import Poll, PollOption, PollChoice
-
-from agir.authentication.backend import connection_token_generator
 
 
 class NavbarTestCase(TestCase):

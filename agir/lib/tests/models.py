@@ -1,4 +1,7 @@
+from django.db.models import Model
+
 from .. import models
+from agir.lib.model_fields import IBANField
 
 
 class UUIDModel(models.UUIDIdentified):
@@ -23,3 +26,7 @@ class APIResource(models.BaseAPIResource):
 
 class Label(models.AbstractLabel):
     pass
+
+
+class IBANTestModel(Model):
+    iban = IBANField("IBAN")
