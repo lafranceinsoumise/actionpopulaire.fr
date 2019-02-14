@@ -96,6 +96,14 @@ class ContactStep extends FormStep {
             l'adresse email peut être créée pour l'occasion et être relevée par
             plusieurs personnes.
           </p>
+          <p>
+            À l'exception du téléphone que vous pouvez choisir de ne pas rendre
+            public,{" "}
+            <strong>ces informations seront visibles par tout le monde</strong>.
+            Elle seront aussi indexées par les moteurs de recherche, donc
+            n'entrez pas votre nom complet si vous ne souhaitez pas apparaître
+            dans les résultats de recherche.
+          </p>
           <p className={errors.phone ? "help-block" : ""}>
             Vous pouvez ne pas rendre le numéro de téléphone public (surtout si
             c'est votre numéro personnel). Néanmoins, il est obligatoire de le
@@ -158,6 +166,11 @@ class ContactStep extends FormStep {
               </div>
             </div>
           </div>
+        </div>
+        <div>
+          Ces informations seront <strong>visibles par tous</strong> et seront
+          potentiellement{" "}
+          <strong>indexées par les moteurs de recherche.</strong>
         </div>
       </div>
     );
