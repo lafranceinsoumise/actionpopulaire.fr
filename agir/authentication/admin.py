@@ -52,7 +52,7 @@ class RoleAdmin(UserAdmin):
             return format_html(
                 link_schema,
                 reverse("admin:people_person_change", args=(obj.person.pk,)),
-                obj.person.email,
+                str(obj.person),
             )
 
     link.short_description = _("Lien vers la personne ou le client")
