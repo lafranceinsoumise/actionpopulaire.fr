@@ -1,11 +1,10 @@
 from django.contrib import admin, messages
-from django.utils.translation import ugettext_lazy as _
-from django.utils.html import escape
-from django.shortcuts import reverse
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, Http404
-from django.contrib.admin.options import IS_POPUP_VAR
+from django.shortcuts import reverse
 from django.template.response import TemplateResponse
+from django.utils.html import escape
+from django.utils.translation import ugettext_lazy as _
 
 from .forms import AddMemberForm
 

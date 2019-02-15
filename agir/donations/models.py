@@ -2,12 +2,14 @@ import uuid
 
 import reversion
 from django.core import validators
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from dynamic_filenames import FilePattern
 from reversion.models import Revision, Version
 
-from agir.donations.model_fields import AmountField
+from agir.donations.model_fields import AmountField, BalanceField
+from agir.lib.display import display_price
 from agir.lib.model_fields import IBANField
 from agir.lib.models import TimeStampedModel
 
@@ -19,14 +21,18 @@ class Operation(models.Model):
     group = models.ForeignKey(
         to="groups.SupportGroup",
         null=False,
-        editable=False,
         blank=False,
         on_delete=models.PROTECT,
         related_name="operations",
         related_query_name="operation",
     )
-    amount = models.IntegerField(
-        _("opération en centimes d'euros"), null=False, blank=False, editable=False
+    amount = BalanceField(
+        _("montant net"),
+        null=False,
+        blank=False,
+        help_text=_(
+            "La valeur doit être positive pour une augmentation d'allocation et négative pour une diminution."
+        ),
     )
     payment = models.OneToOneField(
         to="payments.Payment",
@@ -35,6 +41,31 @@ class Operation(models.Model):
         blank=True,
         on_delete=models.PROTECT,
     )
+
+    def validate_unique(self, exclude=None):
+        try:
+            super().validate_unique(exclude)
+        except ValidationError as e:
+            errors = e.message_dict
+        else:
+            errors = {}
+
+        from agir.donations.actions import get_balance
+
+        if self.group and isinstance(self.amount, int) and self.amount < 0:
+            balance = get_balance(self.group)
+
+            if balance + self.amount < 0:
+
+                errors.setdefault("amount", []).append(
+                    ValidationError(
+                        f"La balance d'un groupe ne peut pas devenir négative (actuellement : {display_price(balance)})",
+                        code="negative_balance",
+                    )
+                )
+
+        if errors:
+            raise ValidationError(errors)
 
 
 class Spending(Operation):

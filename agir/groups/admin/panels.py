@@ -1,10 +1,11 @@
 from datetime import timedelta
+from functools import partial, update_wrapper
 
 from django.conf import settings
-from django.urls import path
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import Count, Q, Sum
+from django.urls import path
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, escape
@@ -13,17 +14,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from agir.api.admin import admin_site
 from agir.events.models import Event
-
 from agir.lib.admin import CenterOnFranceMixin, DepartementListFilter, RegionListFilter
 from agir.lib.display import display_price
 from agir.lib.utils import front_url
-
-from .. import models
-from ..actions.promo_codes import get_next_promo_code
-
 from . import actions
 from . import views
 from .forms import SupportGroupAdminForm
+from .. import models
+from ..actions.promo_codes import get_next_promo_code
 
 
 class MembershipInline(admin.TabularInline):
@@ -210,8 +208,19 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     membership_count.short_description = _("Nombre de membres")
     membership_count.admin_order_field = "membership_count"
 
-    def allocation(self, object):
-        return display_price(object.allocation) if object.allocation else "-"
+    def allocation(self, object, show_add_button=False):
+        value = display_price(object.allocation) if object.allocation else "-"
+
+        if show_add_button:
+            value = format_html(
+                '{value} (<a href="{link}">Changer</a>)',
+                value=value,
+                link=reverse("admin:donations_operation_add")
+                + "?group="
+                + str(object.pk),
+            )
+
+        return value
 
     allocation.short_description = _("Allocation")
     allocation.admin_order_field = "allocation"
@@ -232,11 +241,16 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             return mark_safe("-")
         else:
             return format_html(
-                '<a href="{add_member_link}" class="button">Ajouter un membre</a> <small>Attention : cliquer'
+                '<a href="{add_member_link}" class="button">Ajouter un membre</a> '
+                '<a href="{add_allocation_link}" class="button">Changer l\'allocation</a>'
+                " <small>Attention : cliquer"
                 " sur ces boutons quitte la page et perd vos modifications courantes.</small>",
                 add_member_link=reverse(
                     "admin:groups_supportgroup_add_member", args=(object.pk,)
                 ),
+                add_allocation_link=reverse("admin:donations_operation_add")
+                + "?group="
+                + str(object.pk),
             )
 
     action_buttons.short_description = _("Actions")
@@ -259,6 +273,19 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     def add_member(self, request, pk):
         return views.add_member(self, request, pk)
+
+    def get_changelist_instance(self, request):
+        cl = super().get_changelist_instance(request)
+        if request.user.has_perm("donations.add_operation"):
+            try:
+                idx = cl.list_display.index("allocation")
+            except ValueError:
+                pass
+            else:
+                cl.list_display[idx] = update_wrapper(
+                    partial(self.allocation, show_add_button=True), self.allocation
+                )
+        return cl
 
 
 @admin.register(models.SupportGroupTag, site=admin_site)

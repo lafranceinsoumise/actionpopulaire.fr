@@ -1,13 +1,14 @@
+from functools import partial
+
 from django.contrib import admin
 from django.urls import reverse, path
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
-from functools import partial
 
 from agir.api.admin import admin_site
 from agir.donations.admin.forms import HandleRequestForm
 from agir.donations.admin.views import HandleRequestView
-from agir.donations.models import SpendingRequest, Document
+from agir.donations.models import SpendingRequest, Document, Operation
 
 
 class DocumentInline(admin.TabularInline):
@@ -113,3 +114,14 @@ class SpendingRequestAdmin(admin.ModelAdmin):
                 name="donations_spendingrequest_review",
             )
         ] + super().get_urls()
+
+
+@admin.register(Operation, site=admin_site)
+class OperationAdmin(admin.ModelAdmin):
+    list_display = ("group", "amount", "payment", "created")
+
+    fields = ("group", "amount")
+    autocomplete_fields = ("group",)
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
