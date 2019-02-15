@@ -154,6 +154,15 @@ class EventSummaryView(AdminViewMixin, FilterView):
             **kwargs
         )
 
+    def get(self, request, *args, **kwargs):
+        filterset_class = self.get_filterset_class()
+        self.filterset = self.get_filterset(filterset_class)
+
+        self.object_list = None
+
+        context = self.get_context_data(filter=self.filterset)
+        return self.render_to_response(context)
+
     def post(self, request, *args, **kwargs):
         filterset_class = self.get_filterset_class()
         self.filterset = self.get_filterset(filterset_class)
