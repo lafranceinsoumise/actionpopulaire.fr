@@ -275,7 +275,7 @@ class Person(
         if self.first_name and self.last_name:
             return "{} {} <{}>".format(self.first_name, self.last_name, self.email)
         else:
-            return self.email
+            return self.email or "<pas d'email>"
 
     def __repr__(self):
         return f"Person(pk={self.pk!r}, email={self.email})"

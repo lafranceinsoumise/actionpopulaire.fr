@@ -86,16 +86,14 @@ class EmailInline(admin.TabularInline):
 @admin.register(Person, site=admin_site)
 class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     list_display = (
-        "first_name",
-        "last_name",
-        "email",
+        "__str__",
         "display_contact_phone",
         "is_insoumise",
         "subscribed",
         "role_link",
         "created",
     )
-    list_display_links = ("email",)
+    list_display_links = ("__str__",)
     form = PersonAdminForm
 
     fieldsets = (
