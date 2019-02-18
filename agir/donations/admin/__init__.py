@@ -58,7 +58,7 @@ class SpendingRequestAdmin(admin.ModelAdmin):
         "spending_request_actions",
     ]
     sortable_by = ("id", "title", "spending_date", "amount")
-    search_fields = ("id", "title", "supportgroup__name")
+    search_fields = ("id", "title", "group__name")
     list_filter = (RequestStatusFilter,)
 
     fieldsets = (
