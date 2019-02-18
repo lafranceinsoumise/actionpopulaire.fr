@@ -370,7 +370,7 @@ class CreateDocument(IsGroupManagerMixin, CreateView):
             messages.add_message(
                 self.request,
                 messages.WARNING,
-                SpendingRequest.STATUS_EDITION_MESSAGES[self.object.status],
+                SpendingRequest.STATUS_EDITION_MESSAGES[self.spending_request.status],
             )
         return super().render_to_response(context, **response_kwargs)
 
@@ -414,6 +414,8 @@ class EditDocument(IsGroupManagerMixin, UpdateView):
                 messages.WARNING,
                 SpendingRequest.STATUS_EDITION_MESSAGES[self.object.status],
             )
+
+        return super().render_to_response(context, **response_kwargs)
 
 
 class DeleteDocument(IsGroupManagerMixin, SingleObjectMixin, View):

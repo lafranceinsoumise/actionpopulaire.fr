@@ -511,7 +511,7 @@ class SpendingRequestTestCase(TestCase):
         spending_request.refresh_from_db()
         self.assertEqual(spending_request.amount, 7700)
 
-    def test_can_add_attachment(self):
+    def test_can_add_document(self):
         """Peut ajouter un document justificatif
         """
         self.client.force_login(self.p1.role)
@@ -542,6 +542,50 @@ class SpendingRequestTestCase(TestCase):
 
         self.assertEqual(len(spending_request.documents.all()), 1)
         self.assertEqual(spending_request.documents.first().title, "Mon super fichier")
+
+    def test_can_modify_document(self):
+        """Peut modifier un document justificatif
+        """
+        self.client.force_login(self.p1.role)
+        spending_request = SpendingRequest.objects.create(
+            group=self.group1, **self.spending_request_data
+        )
+
+        file1 = SimpleUploadedFile(
+            "document.odt",
+            b"Un faux fichier",
+            content_type="application/vnd.oasis.opendocument.text",
+        )
+
+        file2 = SimpleUploadedFile(
+            "document.odt",
+            b"Un autre document",
+            content_type="application/vnd.oasis.opendocument.text",
+        )
+
+        document = Document.objects.create(
+            title="Mon document",
+            request=spending_request,
+            type=Document.TYPE_INVOICE,
+            file=file1,
+        )
+
+        res = self.client.get(
+            reverse("edit_document", args=(spending_request.pk, document.pk))
+        )
+        self.assertEqual(res.status_code, 200)
+
+        res = self.client.post(
+            reverse("edit_document", args=(spending_request.pk, document.pk)),
+            data={
+                "title": "Mon SUPER document",
+                "type": Document.TYPE_OTHER,
+                "file": file2,
+            },
+        )
+        self.assertRedirects(
+            res, reverse("manage_spending_request", args=(spending_request.pk,))
+        )
 
     def test_admin_can_validate_without_funds(self):
         """Un membre de l'équipe de suivi peut valider une demande même sans fonds"""
