@@ -13,7 +13,7 @@
 
     <style>
         body {
-            background: url({% static "donations/convention_plan_large_comp.jpg" %}) no-repeat;
+            background: url({% block background_url %}{% static "donations/convention_plan_large_comp.jpg" %}{% endblock %}) no-repeat;
             background-size: cover;
             background-position: center bottom;
             min-height: 100vh;
