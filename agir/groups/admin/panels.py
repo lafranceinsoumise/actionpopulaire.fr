@@ -1,16 +1,17 @@
 from datetime import timedelta
-from functools import partial, update_wrapper
 
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, Q, QuerySet
+from django.db.models.expressions import RawSQL
 from django.urls import path
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from functools import partial, update_wrapper
 
 from agir.api.admin import admin_site
 from agir.events.models import Event
@@ -256,10 +257,17 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     action_buttons.short_description = _("Actions")
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request)
+        qs: QuerySet = super().get_queryset(request)
 
         return qs.annotate(
-            membership_count=Count("memberships"), allocation=Sum("operation__amount")
+            membership_count=RawSQL(
+                'SELECT COUNT(*) FROM "groups_membership" WHERE "supportgroup_id" = "groups_supportgroup"."id"',
+                (),
+            ),
+            allocation=RawSQL(
+                'SELECT SUM(amount) FROM "donations_operation" WHERE "group_id" = "groups_supportgroup"."id"',
+                (),
+            ),
         )
 
     def get_urls(self):
