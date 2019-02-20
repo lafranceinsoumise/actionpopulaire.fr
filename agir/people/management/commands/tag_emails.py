@@ -56,29 +56,34 @@ class Command(BaseCommand):
     def handle(self, *args, tag, create, insoumis, tmp, mailtrain, **options):
         emails = re.findall(self.EMAIL_RE, sys.stdin.read())
 
+        self.stdout.write(f"{len(emails)} email addresses found...")
+
         persons = []
+        missing = 0
 
-        for e in emails:
+        if tmp is False:
+            tag_object, created = PersonTag.objects.get_or_create(label=tag)
+            if created:
+                self.stdout.write(f"Tag {tag} did not exist. Created... ")
+
+        for e in tqdm(emails):
             try:
-                persons.append(Person.objects.get_by_natural_key(e))
+                person = Person.objects.get_by_natural_key(e)
             except Person.DoesNotExist:
+                missing += 1
                 if create:
-                    persons.append(
-                        Person.objects.create_person(email=e, is_insoumise=insoumis)
+                    person = Person.objects.create_person(
+                        email=e, is_insoumise=insoumis
                     )
-                    self.stdout.write('Created person "{}"'.format(e))
                 else:
-                    self.stdout.write('Missing person "{}"'.format(e))
+                    continue
 
-        if persons:
             if tmp is False:
-                tag_object, created = PersonTag.objects.get_or_create(label=tag)
-
-                if created:
-                    self.stdout.write('Created tag "{}"'.format(tag))
-
-                tag_object.people.add(*persons)
-
+                tag_object.people.add(person)
             if mailtrain is True:
-                for p in tqdm(persons):
-                    update_person(p, tmp_tags=[tag])
+                update_person(person, tmp_tags=[tag])
+
+        if create:
+            self.stdout.write(f"Users for {missing} / {len(emails)} were created.")
+        else:
+            self.stdout.write(f"{missing} / {len(emails)} emails were not found")
