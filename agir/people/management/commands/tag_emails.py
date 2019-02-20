@@ -10,7 +10,7 @@ from ...models import Person, PersonTag
 
 class Command(BaseCommand):
     help = "Tag all emails found in standard input"
-    EMAIL_RE = "[a-zA-Z0-9_.+-]+@[a-zA-Z_-]+(?:\.[a-zA-Z_-]+)+"
+    EMAIL_RE = r"[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+"
 
     def add_arguments(self, parser):
         parser.add_argument("tag")
