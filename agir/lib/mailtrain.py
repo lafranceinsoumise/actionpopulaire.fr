@@ -57,7 +57,11 @@ def data_from_person(person, tmp_tags=None):
 
     data["FIRST_NAME"] = person.first_name
     data["LAST_NAME"] = person.last_name
-    data["MERGE_ZIPCODE"] = person.location_zip
+    data["MERGE_ZIPCODE"] = (
+        person.location_zip
+        if person.location_country and person.location_country == "FR"
+        else person.location_country
+    )
     data["MERGE_INSCRIPTIONS"] = ",".join(inscriptions)
     data["MERGE_LOGIN_QUERY"] = urlencode(generate_token_params(person))
     data["MERGE_TAGS"] = (
