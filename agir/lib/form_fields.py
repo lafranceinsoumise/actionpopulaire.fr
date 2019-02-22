@@ -1,12 +1,13 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
-from django.forms.widgets import Textarea, DateTimeBaseInput
+from django.forms.widgets import Textarea, DateTimeBaseInput, Input
 from django.utils import formats
 from django.utils.translation import ugettext_lazy as _
 from django_countries import countries
 from phonenumber_field.phonenumber import PhoneNumber
 from webpack_loader import utils as webpack_loader_utils
+from webpack_loader.utils import get_files
 
 from agir.donations.validators import validate_iban
 from agir.lib.iban import IBAN
@@ -100,6 +101,20 @@ class CustomJSONEncoder(DjangoJSONEncoder):
         return super().default(o)
 
 
+class IBANWidget(Input):
+    def __init__(self, attrs=None):
+        if attrs is None:
+            attrs = {}
+        attrs["data-component"] = "IBANField"
+        super().__init__(attrs=attrs)
+
+    @property
+    def media(self):
+        return forms.Media(
+            js=[script["url"] for script in get_files("lib/IBANField", "js")]
+        )
+
+
 class IBANField(forms.Field):
     default_validators = [validate_iban]
     empty_value = ""
@@ -108,6 +123,7 @@ class IBANField(forms.Field):
         " lettres, commence par deux lettres identifiant le pays du compte.",
         "forbidden_country": "Seuls des comptes des pays suivants sont autorisés : %(countries)s",
     }
+    widget = IBANWidget
 
     def __init__(self, *args, allowed_countries=None, **kwargs):
         super().__init__(*args, **kwargs)
