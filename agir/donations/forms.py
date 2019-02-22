@@ -155,8 +155,8 @@ class DonorForm(MetaFieldsMixin, forms.ModelForm):
             " personnel."
         ),
         help_text=keep_lazy_text(mark_safe)(
-            'Un reçu, édité par la <abbr title="Commission Nationale des comptes de campagne et des financements'
-            ' politiques">CNCCFP</abbr>, me sera adressé, et me permettra de déduire cette somme de mes impôts'
+            "Un reçu détaché d'une formule numérotée éditée par la Commission nationale des comptes de campagne"
+            " me sera adressé, et me permettra de déduire cette somme de mes impôts"
             " dans les limites fixées par la loi."
         ),
     )
