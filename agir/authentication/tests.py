@@ -83,7 +83,7 @@ class MailLinkTestCase(TestCase):
             + "?next="
             + reverse("create_group"),
         )
-        send_login_email.delay.assert_called_once()
+        send_login_email.apply_async.assert_called_once()
 
     def test_unsubscribe_shows_direct_unsubscribe_form_when_logged_in(self):
         message_preferences_path = reverse("message_preferences")

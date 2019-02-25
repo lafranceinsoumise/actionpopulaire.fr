@@ -48,8 +48,13 @@ class EmailForm(forms.Form):
         self.short_code, self.expiration = short_code_generator.generate_short_code(
             self.person.pk
         )
-        send_login_email.delay(
-            self.cleaned_data["email"], self.short_code, self.expiration.timestamp()
+        send_login_email.apply_async(
+            args=(
+                self.cleaned_data["email"],
+                self.short_code,
+                self.expiration.timestamp(),
+            ),
+            expires=10 * 60,
         )
         return True
 
