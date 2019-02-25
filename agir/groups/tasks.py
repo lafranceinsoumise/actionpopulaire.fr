@@ -1,5 +1,7 @@
+import smtplib
 from collections import OrderedDict
 
+import socket
 from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
@@ -22,8 +24,8 @@ CHANGE_DESCRIPTION = OrderedDict(
 )
 
 
-@shared_task
-def send_support_group_creation_notification(membership_pk):
+@shared_task(max_retries=2, bind=True)
+def send_support_group_creation_notification(self, membership_pk):
     try:
         membership = Membership.objects.select_related("supportgroup", "person").get(
             pk=membership_pk
@@ -50,17 +52,20 @@ def send_support_group_creation_notification(membership_pk):
         "MANAGE_GROUP_LINK": front_url("manage_group", kwargs={"pk": group.pk}),
     }
 
-    send_mosaico_email(
-        code="GROUP_CREATION",
-        subject=_("Les informations de votre nouveau groupe d'action"),
-        from_email=settings.EMAIL_FROM,
-        recipients=[referent],
-        bindings=bindings,
-    )
+    try:
+        send_mosaico_email(
+            code="GROUP_CREATION",
+            subject=_("Les informations de votre nouveau groupe d'action"),
+            from_email=settings.EMAIL_FROM,
+            recipients=[referent],
+            bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def send_support_group_changed_notification(support_group_pk, changes):
+@shared_task(max_retries=2, bind=True)
+def send_support_group_changed_notification(self, support_group_pk, changes):
     try:
         group = SupportGroup.objects.get(pk=support_group_pk, published=True)
     except SupportGroup.DoesNotExist:
@@ -89,18 +94,20 @@ def send_support_group_changed_notification(support_group_pk, changes):
             notifications_enabled
         ).prefetch_related("person__emails")
     ]
+    try:
+        send_mosaico_email(
+            code="GROUP_CHANGED",
+            subject=_("Les informations de votre groupe d'action ont été changées"),
+            from_email=settings.EMAIL_FROM,
+            recipients=recipients,
+            bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
-    send_mosaico_email(
-        code="GROUP_CHANGED",
-        subject=_("Les informations de votre groupe d'action ont été changées"),
-        from_email=settings.EMAIL_FROM,
-        recipients=recipients,
-        bindings=bindings,
-    )
 
-
-@shared_task
-def send_someone_joined_notification(membership_pk):
+@shared_task(max_retries=2, bind=True)
+def send_someone_joined_notification(self, membership_pk):
     try:
         membership = Membership.objects.select_related("person", "supportgroup").get(
             pk=membership_pk
@@ -128,17 +135,20 @@ def send_someone_joined_notification(membership_pk):
         ),
     }
 
-    send_mosaico_email(
-        code="GROUP_SOMEONE_JOINED_NOTIFICATION",
-        subject=_("Un nouveau membre dans votre groupe d'action"),
-        from_email=settings.EMAIL_FROM,
-        recipients=recipients,
-        bindings=bindings,
-    )
+    try:
+        send_mosaico_email(
+            code="GROUP_SOMEONE_JOINED_NOTIFICATION",
+            subject=_("Un nouveau membre dans votre groupe d'action"),
+            from_email=settings.EMAIL_FROM,
+            recipients=recipients,
+            bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def send_external_join_confirmation(group_pk, email, **kwargs):
+@shared_task(max_retries=2, bind=True)
+def send_external_join_confirmation(self, group_pk, email, **kwargs):
     try:
         group = SupportGroup.objects.get(pk=group_pk)
     except SupportGroup.DoesNotExist:
@@ -155,10 +165,13 @@ def send_external_join_confirmation(group_pk, email, **kwargs):
 
     bindings = {"GROUP_NAME": group.name, "JOIN_LINK": confirm_subscription_url}
 
-    send_mosaico_email(
-        code="GROUP_EXTERNAL_JOIN_OPTIN",
-        subject=_(f"Confirmez que vous souhaitez rejoindre « {group.name} »"),
-        from_email=settings.EMAIL_FROM,
-        recipients=[email],
-        bindings=bindings,
-    )
+    try:
+        send_mosaico_email(
+            code="GROUP_EXTERNAL_JOIN_OPTIN",
+            subject=_(f"Confirmez que vous souhaitez rejoindre « {group.name} »"),
+            from_email=settings.EMAIL_FROM,
+            recipients=[email],
+            bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)

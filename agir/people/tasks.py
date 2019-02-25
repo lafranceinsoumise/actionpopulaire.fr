@@ -1,3 +1,8 @@
+import smtplib
+
+import socket
+
+import requests
 from celery import shared_task
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -18,32 +23,41 @@ from agir.authentication.subscription import (
 from .models import Person, PersonFormSubmission, PersonEmail
 
 
-@shared_task
-def send_welcome_mail(person_pk):
+@shared_task(max_retries=2, bind=True)
+def send_welcome_mail(self, person_pk):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
-    send_mosaico_email(
-        code="WELCOME_MESSAGE",
-        subject=_("Bienvenue sur la plateforme de la France insoumise"),
-        from_email=settings.EMAIL_FROM,
-        bindings={"PROFILE_LINK": front_url("change_profile")},
-        recipients=[person],
-    )
+
+    try:
+        send_mosaico_email(
+            code="WELCOME_MESSAGE",
+            subject=_("Bienvenue sur la plateforme de la France insoumise"),
+            from_email=settings.EMAIL_FROM,
+            bindings={"PROFILE_LINK": front_url("change_profile")},
+            recipients=[person],
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def send_confirmation_email(email, **kwargs):
+@shared_task(max_retries=2, bind=True)
+def send_confirmation_email(self, email, **kwargs):
     if PersonEmail.objects.filter(address__iexact=email).exists():
         p = Person.objects.get_by_natural_key(email)
-        send_mosaico_email(
-            code="ALREADY_SUBSCRIBED_MESSAGE",
-            subject=_("Vous êtes déjà inscrit !"),
-            from_email=settings.EMAIL_FROM,
-            bindings={
-                "PANEL_LINK": front_url("dashboard", auto_login=True),
-                "AGO": pretty_time_since(p.created),
-            },
-            recipients=[p],
-        )
+
+        try:
+            send_mosaico_email(
+                code="ALREADY_SUBSCRIBED_MESSAGE",
+                subject=_("Vous êtes déjà inscrit !"),
+                from_email=settings.EMAIL_FROM,
+                bindings={
+                    "PANEL_LINK": front_url("dashboard", auto_login=True),
+                    "AGO": pretty_time_since(p.created),
+                },
+                recipients=[p],
+            )
+        except (smtplib.SMTPException, socket.error) as exc:
+            self.retry(countdown=60, exc=exc)
+
         return
 
     subscription_token = subscription_confirmation_token_generator.make_token(
@@ -53,19 +67,22 @@ def send_confirmation_email(email, **kwargs):
     query_args = {"email": email, **kwargs, "token": subscription_token}
     confirm_subscription_url += "?" + urlencode(query_args)
 
-    send_mosaico_email(
-        code="SUBSCRIPTION_CONFIRMATION_MESSAGE",
-        subject=_("Plus qu'un clic pour vous inscrire"),
-        from_email=settings.EMAIL_FROM,
-        recipients=[email],
-        bindings={"CONFIRMATION_URL": confirm_subscription_url},
-    )
-
-
-@shared_task
-def send_confirmation_change_email(new_email, user_pk, **kwargs):
     try:
-        person = Person.objects.get(pk=user_pk)
+        send_mosaico_email(
+            code="SUBSCRIPTION_CONFIRMATION_MESSAGE",
+            subject=_("Plus qu'un clic pour vous inscrire"),
+            from_email=settings.EMAIL_FROM,
+            recipients=[email],
+            bindings={"CONFIRMATION_URL": confirm_subscription_url},
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
+
+
+@shared_task(max_retries=2, bind=True)
+def send_confirmation_change_email(self, new_email, user_pk, **kwargs):
+    try:
+        Person.objects.get(pk=user_pk)
     except Person.DoesNotExist:
         return
 
@@ -82,44 +99,56 @@ def send_confirmation_change_email(new_email, user_pk, **kwargs):
         "confirm_change_mail", query=query_args, auto_login=False
     )
 
-    send_mosaico_email(
-        code="CHANGE_MAIL_CONFIRMATION",
-        subject="confirmer votre changement d'adresse",
-        from_email=settings.EMAIL_FROM,
-        recipients=[new_email],
-        bindings={"CONFIRMATION_URL": confirm_change_mail_url},
-    )
+    try:
+        send_mosaico_email(
+            code="CHANGE_MAIL_CONFIRMATION",
+            subject="confirmer votre changement d'adresse",
+            from_email=settings.EMAIL_FROM,
+            recipients=[new_email],
+            bindings={"CONFIRMATION_URL": confirm_change_mail_url},
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def send_unsubscribe_email(person_pk):
+@shared_task(max_retries=2, bind=True)
+def send_unsubscribe_email(self, person_pk):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
 
     bindings = {"MANAGE_SUBSCRIPTIONS_LINK": front_url("message_preferences")}
 
-    send_mosaico_email(
-        code="UNSUBSCRIBE_CONFIRMATION",
-        subject=_("Vous avez été désabonné⋅e des emails de la France insoumise"),
-        from_email=settings.EMAIL_FROM,
-        recipients=[person],
-        bindings=bindings,
-    )
+    try:
+        send_mosaico_email(
+            code="UNSUBSCRIBE_CONFIRMATION",
+            subject=_("Vous avez été désabonné⋅e des emails de la France insoumise"),
+            from_email=settings.EMAIL_FROM,
+            recipients=[person],
+            bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def update_person_mailtrain(person_pk):
+@shared_task(max_retries=2, bind=True)
+def update_person_mailtrain(self, person_pk):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
 
-    update_person(person)
+    try:
+        update_person(person)
+    except requests.RequestException as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def delete_email_mailtrain(email):
-    delete_email(email)
+@shared_task(max_retries=2, bind=True)
+def delete_email_mailtrain(self, email):
+    try:
+        delete_email(email)
+    except requests.RequestException as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def send_person_form_confirmation(submission_pk):
+@shared_task(max_retries=2, bind=True)
+def send_person_form_confirmation(self, submission_pk):
     try:
         submission = PersonFormSubmission.objects.get(pk=submission_pk)
     except:
@@ -130,17 +159,20 @@ def send_person_form_confirmation(submission_pk):
 
     bindings = {"CONFIRMATION_NOTE": mark_safe(form.confirmation_note)}
 
-    send_mosaico_email(
-        code="FORM_CONFIRMATION",
-        subject=_("Confirmation"),
-        from_email=settings.EMAIL_FROM,
-        recipients=[person],
-        bindings=bindings,
-    )
+    try:
+        send_mosaico_email(
+            code="FORM_CONFIRMATION",
+            subject=_("Confirmation"),
+            from_email=settings.EMAIL_FROM,
+            recipients=[person],
+            bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def send_person_form_notification(submission_pk):
+@shared_task(max_retries=2, bind=True)
+def send_person_form_notification(self, submission_pk):
     try:
         submission = PersonFormSubmission.objects.get(pk=submission_pk)
     except:
@@ -166,11 +198,14 @@ def send_person_form_notification(submission_pk):
         ),
     }
 
-    send_mosaico_email(
-        code="FORM_NOTIFICATION",
-        subject=_("Formulaire : " + form.title),
-        from_email=settings.EMAIL_FROM,
-        reply_to=[person.email],
-        recipients=[form.send_answers_to],
-        bindings=bindings,
-    )
+    try:
+        send_mosaico_email(
+            code="FORM_NOTIFICATION",
+            subject=_("Formulaire : " + form.title),
+            from_email=settings.EMAIL_FROM,
+            reply_to=[person.email],
+            recipients=[form.send_answers_to],
+            bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)

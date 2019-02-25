@@ -1,3 +1,4 @@
+import requests
 from celery import shared_task
 
 from .geo import geocode_element
@@ -9,18 +10,21 @@ __all__ = ["geocode_event", "geocode_support_group", "geocode_person"]
 
 
 def create_geocoder(model):
-    def geocode_model(pk):
+    def geocode_model(self, pk):
         try:
             item = model.objects.get(pk=pk)
         except model.DoesNotExist:
             return
 
-        geocode_element(item)
-        item.save()
+        try:
+            geocode_element(item)
+            item.save()
+        except (ValueError, requests.RequestException) as exc:
+            self.retry(countdown=60, exc=exc)
 
     geocode_model.__name__ = "geocode_{}".format(model.__name__.lower())
 
-    return shared_task(geocode_model)
+    return shared_task(geocode_model, bind=True)
 
 
 geocode_event = create_geocoder(Event)

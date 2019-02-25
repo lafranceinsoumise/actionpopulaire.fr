@@ -1,7 +1,9 @@
+import smtplib
 from collections import OrderedDict
 
 import ics
 import requests
+import socket
 from celery import shared_task
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -35,8 +37,8 @@ CHANGE_DESCRIPTION = OrderedDict(
 )
 
 
-@shared_task
-def send_event_creation_notification(organizer_config_pk):
+@shared_task(max_retries=2, bind=True)
+def send_event_creation_notification(self, organizer_config_pk):
     try:
         organizer_config = OrganizerConfig.objects.select_related(
             "event", "person"
@@ -64,22 +66,25 @@ def send_event_creation_notification(organizer_config_pk):
         "MANAGE_EVENT_LINK": front_url("manage_event", kwargs={"pk": event.pk}),
     }
 
-    send_mosaico_email(
-        code="EVENT_CREATION",
-        subject=_("Les informations de votre nouvel événement"),
-        from_email=settings.EMAIL_FROM,
-        recipients=[organizer],
-        bindings=bindings,
-        attachment=(
-            "event.ics",
-            str(ics.Calendar(events=[event.to_ics()])),
-            "text/calendar",
-        ),
-    )
+    try:
+        send_mosaico_email(
+            code="EVENT_CREATION",
+            subject=_("Les informations de votre nouvel événement"),
+            from_email=settings.EMAIL_FROM,
+            recipients=[organizer],
+            bindings=bindings,
+            attachment=(
+                "event.ics",
+                str(ics.Calendar(events=[event.to_ics()])),
+                "text/calendar",
+            ),
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def send_event_changed_notification(event_pk, changes):
+@shared_task(max_retries=2, bind=True)
+def send_event_changed_notification(self, event_pk, changes):
     try:
         event = Event.objects.get(pk=event_pk)
     except Event.DoesNotExist:
@@ -109,25 +114,27 @@ def send_event_changed_notification(event_pk, changes):
         "EVENT_LINK": front_url("view_event", kwargs={"pk": event_pk}),
         "EVENT_QUIT_LINK": front_url("quit_event", kwargs={"pk": event_pk}),
     }
+    try:
+        send_mosaico_email(
+            code="EVENT_CHANGED",
+            subject=_(
+                "Les informations d'un événement auquel vous assistez ont été changées"
+            ),
+            from_email=settings.EMAIL_FROM,
+            recipients=recipients,
+            bindings=bindings,
+            attachment=(
+                "event.ics",
+                str(ics.Calendar(events=[event.to_ics()])),
+                "text/calendar",
+            ),
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
-    send_mosaico_email(
-        code="EVENT_CHANGED",
-        subject=_(
-            "Les informations d'un événement auquel vous assistez ont été changées"
-        ),
-        from_email=settings.EMAIL_FROM,
-        recipients=recipients,
-        bindings=bindings,
-        attachment=(
-            "event.ics",
-            str(ics.Calendar(events=[event.to_ics()])),
-            "text/calendar",
-        ),
-    )
 
-
-@shared_task
-def send_rsvp_notification(rsvp_pk):
+@shared_task(max_retries=2, bind=True)
+def send_rsvp_notification(self, rsvp_pk):
     try:
         rsvp = RSVP.objects.select_related("person", "event").get(pk=rsvp_pk)
     except RSVP.DoesNotExist:
@@ -176,17 +183,20 @@ def send_rsvp_notification(rsvp_pk):
         "MANAGE_EVENT_LINK": front_url("manage_event", kwargs={"pk": rsvp.event.pk}),
     }
 
-    send_mosaico_email(
-        code="EVENT_RSVP_NOTIFICATION",
-        subject=_("Un nouveau participant à l'un de vos événements"),
-        from_email=settings.EMAIL_FROM,
-        recipients=recipients,
-        bindings=organizer_bindings,
-    )
+    try:
+        send_mosaico_email(
+            code="EVENT_RSVP_NOTIFICATION",
+            subject=_("Un nouveau participant à l'un de vos événements"),
+            from_email=settings.EMAIL_FROM,
+            recipients=recipients,
+            bindings=organizer_bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def send_guest_confirmation(rsvp_pk):
+@shared_task(max_retries=2, bind=True)
+def send_guest_confirmation(self, rsvp_pk):
     try:
         rsvp = RSVP.objects.select_related("person", "event").get(pk=rsvp_pk)
     except RSVP.DoesNotExist:
@@ -203,17 +213,20 @@ def send_guest_confirmation(rsvp_pk):
         "EVENT_LINK": front_url("view_event", args=[rsvp.event.pk]),
     }
 
-    send_mosaico_email(
-        code="EVENT_GUEST_CONFIRMATION",
-        subject=_("Confirmation pour votre invité à l'événement"),
-        from_email=settings.EMAIL_FROM,
-        recipients=[rsvp.person],
-        bindings=attendee_bindings,
-    )
+    try:
+        send_mosaico_email(
+            code="EVENT_GUEST_CONFIRMATION",
+            subject=_("Confirmation pour votre invité à l'événement"),
+            from_email=settings.EMAIL_FROM,
+            recipients=[rsvp.person],
+            bindings=attendee_bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def send_cancellation_notification(event_pk):
+@shared_task(max_retries=2, bind=True)
+def send_cancellation_notification(self, event_pk):
     try:
         event = Event.objects.get(pk=event_pk)
     except Event.DoesNotExist:
@@ -238,17 +251,20 @@ def send_cancellation_notification(event_pk):
 
     bindings = {"EVENT_NAME": event_name}
 
-    send_mosaico_email(
-        code="EVENT_CANCELLATION",
-        subject=_("Un événement auquel vous participiez a été annulé"),
-        from_email=settings.EMAIL_FROM,
-        recipients=recipients,
-        bindings=bindings,
-    )
+    try:
+        send_mosaico_email(
+            code="EVENT_CANCELLATION",
+            subject=_("Un événement auquel vous participiez a été annulé"),
+            from_email=settings.EMAIL_FROM,
+            recipients=recipients,
+            bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def send_external_rsvp_confirmation(event_pk, email, **kwargs):
+@shared_task(max_retries=2, bind=True)
+def send_external_rsvp_confirmation(self, event_pk, email, **kwargs):
     try:
         event = Event.objects.get(pk=event_pk)
     except ObjectDoesNotExist:
@@ -265,17 +281,20 @@ def send_external_rsvp_confirmation(event_pk, email, **kwargs):
 
     bindings = {"EVENT_NAME": event.name, "RSVP_LINK": confirm_subscription_url}
 
-    send_mosaico_email(
-        code="EVENT_EXTERNAL_RSVP_OPTIN",
-        subject=_("Merci de confirmer votre participation à l'événement"),
-        from_email=settings.EMAIL_FROM,
-        recipients=[email],
-        bindings=bindings,
-    )
+    try:
+        send_mosaico_email(
+            code="EVENT_EXTERNAL_RSVP_OPTIN",
+            subject=_("Merci de confirmer votre participation à l'événement"),
+            from_email=settings.EMAIL_FROM,
+            recipients=[email],
+            bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def send_event_report(event_pk):
+@shared_task(max_retries=2, bind=True)
+def send_event_report(self, event_pk):
     try:
         event = Event.objects.get(pk=event_pk)
     except Event.DoesNotExist:
@@ -302,19 +321,23 @@ def send_event_report(event_pk):
         "EVENT_REPORT_LINK": front_url("view_event", kwargs={"pk": event_pk}),
     }
 
-    send_mosaico_email(
-        code="EVENT_REPORT",
-        subject=f"Compte-rendu de l'événement {event.name}",
-        from_email=settings.EMAIL_FROM,
-        recipients=recipients,
-        bindings=bindings,
-    )
+    try:
+        send_mosaico_email(
+            code="EVENT_REPORT",
+            subject=f"Compte-rendu de l'événement {event.name}",
+            from_email=settings.EMAIL_FROM,
+            recipients=recipients,
+            bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
+
     event.report_summary_sent = True
     event.save()
 
 
-@shared_task
-def update_ticket(rsvp_pk, metas=None):
+@shared_task(max_retries=2, bind=True)
+def update_ticket(self, rsvp_pk, metas=None):
     try:
         rsvp = RSVP.objects.get(pk=rsvp_pk)
     except RSVP.DoesNotExist:
@@ -350,12 +373,12 @@ def update_ticket(rsvp_pk, metas=None):
                 auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
                 json=data,
             ).raise_for_status()
-    except HTTPError:
-        print(r.text)
+    except HTTPError as exc:
+        self.retry(countdown=60, exc=exc)
 
 
-@shared_task
-def send_secretariat_notification(event_pk, person_pk, complete=True):
+@shared_task(max_retries=2, bind=True)
+def send_secretariat_notification(self, event_pk, person_pk, complete=True):
     try:
         event = Event.objects.get(pk=event_pk)
         person = Person.objects.get(pk=person_pk)
@@ -375,21 +398,23 @@ def send_secretariat_notification(event_pk, person_pk, complete=True):
         "EVENT_LINK": front_url("view_event", args=[event.pk]),
         "LEGAL_INFORMATIONS": EventAdmin.legal_informations(event),
     }
+    try:
+        send_mosaico_email(
+            code="EVENT_SECRETARIAT_NOTIFICATION",
+            subject=_(
+                f"Événement {'complété' if complete else 'en attente'} : {str(event)}"
+            ),
+            from_email=settings.EMAIL_FROM,
+            reply_to=[person.email],
+            recipients=[settings.EMAIL_SECRETARIAT],
+            bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
 
-    send_mosaico_email(
-        code="EVENT_SECRETARIAT_NOTIFICATION",
-        subject=_(
-            f"Événement {'complété' if complete else 'en attente'} : {str(event)}"
-        ),
-        from_email=settings.EMAIL_FROM,
-        reply_to=[person.email],
-        recipients=[settings.EMAIL_SECRETARIAT],
-        bindings=bindings,
-    )
 
-
-@shared_task
-def send_organizer_validation_notification(event_pk):
+@shared_task(max_retries=2, bind=True)
+def send_organizer_validation_notification(self, event_pk):
     try:
         event = Event.objects.get(pk=event_pk)
     except (Event.DoesNotExist):
@@ -406,10 +431,13 @@ def send_organizer_validation_notification(event_pk):
         "MANAGE_EVENT_LINK": front_url("manage_event", kwargs={"pk": event.pk}),
     }
 
-    send_mosaico_email(
-        code="EVENT_ORGANIZER_VALIDATION_NOTIFICATION",
-        subject=_(f'Votre événement "{event.name}" a été publié'),
-        from_email=settings.EMAIL_FROM,
-        recipients=event.organizers.all(),
-        bindings=bindings,
-    )
+    try:
+        send_mosaico_email(
+            code="EVENT_ORGANIZER_VALIDATION_NOTIFICATION",
+            subject=_(f'Votre événement "{event.name}" a été publié'),
+            from_email=settings.EMAIL_FROM,
+            recipients=event.organizers.all(),
+            bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)

@@ -44,12 +44,12 @@ def geocode_ban_process_request(query):
         logger.warning(
             f"Network error while geocoding '{query!r}' with BAN", exc_info=True
         )
-        return None
+        raise
     except ValueError:
         logger.warning(
             f"Invalid JSON while geocoding '{query!r}' with BAN", exc_info=True
         )
-        return None
+        raise
 
     if "features" not in results:
         logger.warning(f"Incorrect result from BAN for address '{query!r}'")
@@ -192,13 +192,13 @@ def geocode_nominatim(item):
             f"Error while geocoding address '{display_address}' with Nominatim",
             exc_info=True,
         )
-        return
+        raise
     except ValueError:
         logger.warning(
             f"Invalid JSON while geocoding address '{display_address}' with Nominatim",
             exc_info=True,
         )
-        return
+        raise
 
     if results:
         item.coordinates = Point(float(results[0]["lon"]), float(results[0]["lat"]))
