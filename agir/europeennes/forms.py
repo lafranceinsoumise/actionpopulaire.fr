@@ -60,6 +60,13 @@ class LenderForm(SimpleDonorForm):
         label="Département de naissance", choices=departements_choices, required=False
     )
 
+    amount = forms.IntegerField(
+        max_value=settings.LOAN_MAXIMUM * 100,
+        min_value=settings.LOAN_MINIMUM * 100,
+        required=True,
+        widget=forms.HiddenInput,
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -67,6 +74,8 @@ class LenderForm(SimpleDonorForm):
             "Je certifie sur l'honneur être une personne physique et que le réglement de mon prêt ne provient pas d'une"
             "personne morale mais de mon compte ne banque personnel."
         )
+        # retirer le help_text qui indique qu'un reçu fiscal sera émis (ce qui n'est pas le cas pour un prêt)
+        self.fields["declaration"].help_text = None
 
         del self.fields["fiscal_resident"]
 
