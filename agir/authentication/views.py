@@ -141,6 +141,11 @@ class CheckCodeView(RedirectToMixin, FormView):
 
     def form_valid(self, form):
         login(self.request, form.role)
+        email = form.role.person.primary_email
+        if email.bounced:
+            email.bounced = False
+            email.bounced_date = None
+            email.save()
 
         return super().form_valid(form)
 
