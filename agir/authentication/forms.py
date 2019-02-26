@@ -3,11 +3,10 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.contrib.auth import authenticate
 
+from agir.authentication.crypto import short_code_generator
 from agir.lib.token_bucket import TokenBucket
 from agir.people.models import Person
-from agir.authentication.crypto import short_code_generator
 from .tasks import send_login_email
-
 
 send_mail_bucket = TokenBucket("SendMail", 5, 600)
 check_short_code_bucket = TokenBucket("CheckShortCode", 5, 180)
@@ -46,7 +45,7 @@ class EmailForm(forms.Form):
             return False
 
         self.short_code, self.expiration = short_code_generator.generate_short_code(
-            self.person.pk
+            self.person.pk, meta={"email": self.cleaned_data["email"]}
         )
         send_login_email.apply_async(
             args=(

@@ -1,7 +1,9 @@
 import uuid
 from unittest import mock
 
+import re
 from django.contrib.auth import get_user
+from django.core import mail
 from django.http import QueryDict
 from django.test import TestCase
 from django.urls import reverse
@@ -209,6 +211,34 @@ class ShortCodeTestCase(TestCase):
         res = try_code()
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertTrue(res.context_data["form"].has_error("code", "wrong_code"))
+
+    def test_get_debounced_when_connecting(self):
+        primary_email = self.person.primary_email
+        primary_email.bounced = True
+        primary_email.save()
+
+        self.person.add_email("another_address@example.com", _bounced=True)
+
+        check_short_code_url = reverse(
+            "check_short_code", kwargs={"user_pk": self.person.pk}
+        )
+
+        res = self.client.post(
+            reverse("short_code_login"), data={"email": "another_address@example.com"}
+        )
+        self.assertRedirects(res, check_short_code_url)
+
+        code_email = mail.outbox[0]
+        code = re.search(
+            r"^\| {2}([A-Z0-9]{3} [A-Z0-9]{2})", code_email.body, re.MULTILINE
+        ).group(1)
+
+        res = self.client.post(check_short_code_url, data={"code": code})
+        self.assertRedirects(res, "/")
+
+        new_primary_email = self.person.emails.first()
+        self.assertEqual(new_primary_email.address, "another_address@example.com")
+        self.assertFalse(new_primary_email.bounced)
 
 
 class AuthorizationTestCase(TestCase):

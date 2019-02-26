@@ -1,9 +1,8 @@
 from django.core.exceptions import ValidationError
 
+from agir.authentication.backend_mixins import GetRoleMixin
 from agir.authentication.crypto import connection_token_generator, short_code_generator
 from agir.people.models import Person
-from agir.authentication.backend_mixins import GetRoleMixin
-
 from .models import Role
 
 
@@ -12,13 +11,17 @@ class ShortCodeBackend(GetRoleMixin):
 
     def authenticate(self, request, user_pk=None, short_code=None):
         if user_pk and short_code:
-            if short_code_generator.check_short_code(user_pk, short_code):
+            login_meta = short_code_generator.check_short_code(user_pk, short_code)
+            if login_meta is not None:
                 try:
                     role = Role.objects.select_related("person").get(person__pk=user_pk)
                 except (Person.DoesNotExist, ValidationError):
                     return None
 
                 if self.user_can_authenticate(role):
+                    role.login_meta = (
+                        login_meta
+                    )  # on annote le role avec les metas de connexion
                     return role
 
         return None

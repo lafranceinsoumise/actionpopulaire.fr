@@ -1,18 +1,18 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import login, logout, REDIRECT_FIELD_NAME
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import FormView, RedirectView
-from django.contrib.auth import login, logout, REDIRECT_FIELD_NAME
 from django.utils.http import is_safe_url, urlquote
+from django.views.generic import FormView, RedirectView
 from oauth2_provider.views import AuthorizationView
 
 from agir.authentication.utils import is_soft_logged, is_hard_logged
 from agir.authentication.view_mixins import HardLoginRequiredMixin
-from agir.people.models import Person
+from agir.people.models import Person, PersonEmail
 from .forms import EmailForm, CodeForm
 
 
@@ -141,11 +141,24 @@ class CheckCodeView(RedirectToMixin, FormView):
 
     def form_valid(self, form):
         login(self.request, form.role)
-        email = form.role.person.primary_email
-        if email.bounced:
-            email.bounced = False
-            email.bounced_date = None
-            email.save()
+        validated_email = form.role.login_meta.get("email")
+
+        if validated_email:
+            validated_email_instance = PersonEmail.objects.get_by_natural_key(
+                validated_email
+            )
+
+            if (
+                validated_email_instance.person == form.role.person
+                and form.role.person.primary_email.bounced
+            ):
+                if validated_email_instance.bounced:
+                    validated_email_instance.bounced = False
+                    validated_email_instance.bounced_date = None
+                    validated_email_instance.save()
+
+                if validated_email_instance != form.role.person.primary_email:
+                    form.role.person.set_primary_email(validated_email_instance)
 
         return super().form_valid(form)
 

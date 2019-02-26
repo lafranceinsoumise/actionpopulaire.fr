@@ -1,13 +1,13 @@
 import json
-import re
-from typing import Mapping, Any
 from secrets import choice
+from typing import Mapping, Any
 
+import re
 from django.conf import settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils import timezone
-from django.utils.http import base36_to_int
 from django.utils.crypto import constant_time_compare
+from django.utils.http import base36_to_int
 
 from agir.api.redis import get_auth_redis_client
 
@@ -138,7 +138,10 @@ class ShortCodeGenerator:
     def _make_code(self):
         return "".join(choice(self.alphabet) for i in range(self.length))
 
-    def generate_short_code(self, user_pk):
+    def generate_short_code(self, user_pk, meta: dict = None):
+        if meta is None:
+            meta = {}
+
         short_code = self._make_code()
         expiration = timezone.now() + timezone.timedelta(minutes=self.validity)
         payload = json.dumps(
@@ -147,6 +150,7 @@ class ShortCodeGenerator:
                 "expiration": int(
                     expiration.timestamp() * 1000
                 ),  # timestamp from epoch in microseconds
+                "meta": meta,
             }
         )
         key = f"{self.key_prefix}{user_pk}"
@@ -173,7 +177,7 @@ class ShortCodeGenerator:
         # parse the JSON payloads (but keep original payload to allow removing it from redis list)
         payloads = [json.loads(p) for p in raw_payloads]
         valid_short_codes = [
-            p["code"]
+            p
             for p in payloads
             if timezone.datetime.fromtimestamp(p["expiration"] / 1000, timezone.utc)
             > now
@@ -181,10 +185,17 @@ class ShortCodeGenerator:
 
         # to avoid timing attacks, always compare with every codes, and use constant time comparisons
         correct_short_code_payloads = [
-            c for c in valid_short_codes if constant_time_compare(c, short_code)
+            p for p in valid_short_codes if constant_time_compare(p["code"], short_code)
         ]
 
-        return bool(correct_short_code_payloads)
+        if correct_short_code_payloads:
+            meta = correct_short_code_payloads[0].get("meta", {})
+            meta.setdefault(
+                "_valid", True
+            )  # comme ça la valeur booléenne du dict est vraie pour pouvoir faire `if gen.check_short_code(pk, tok):`
+            return meta
+
+        return None
 
 
 connection_token_generator = ConnectionTokenGenerator(settings.CONNECTION_LINK_VALIDITY)
