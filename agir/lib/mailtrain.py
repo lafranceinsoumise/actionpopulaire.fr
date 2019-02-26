@@ -57,6 +57,7 @@ def data_from_person(person, tmp_tags=None):
 
     data["FIRST_NAME"] = person.first_name
     data["LAST_NAME"] = person.last_name
+    data["MERGE_GENDER"] = person.gender
     data["MERGE_ZIPCODE"] = (
         person.location_zip
         if (person.location_country == "FR" or not person.location_country)
