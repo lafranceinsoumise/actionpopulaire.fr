@@ -105,7 +105,8 @@ module.exports = {
         exclude: [/node_modules\/tinymce/],
         loader: "file-loader",
         options: {
-          name: "files/[name]-[hash].[ext]"
+          name: "[name]-[hash].[ext]",
+          outputPath: "files"
         }
       }
     ]
