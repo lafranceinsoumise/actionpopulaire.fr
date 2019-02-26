@@ -29,6 +29,7 @@ urlpatterns = [
     path("admin/", admin.admin_site.urls),
     path("nuntius/", include("nuntius.urls")),
     path("webhooks/", include(webhooks_urls)),
+    path("anymail/", include("anymail.urls")),
     path("ajax_select/", include(ajax_select_urls)),
     path(
         "metrics/",

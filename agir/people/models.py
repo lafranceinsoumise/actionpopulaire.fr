@@ -140,6 +140,15 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
 
         return self._create_person(email, password, **extra_fields)
 
+    def set_subscriber_status(self, email, status):
+        p = self.get(email=email)
+        if status == AbstractSubscriber.STATUS_BOUNCED:
+            p.bounced = True
+            p.save()
+        elif status == AbstractSubscriber.STATUS_COMPLAINED:
+            p.subscribed = False
+            p.save()
+
 
 class Person(
     AbstractSubscriber,

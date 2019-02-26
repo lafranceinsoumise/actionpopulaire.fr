@@ -605,5 +605,8 @@ ANYMAIL = {
         "aws_secret_access_key": os.environ.get("AWS_SECRET_KEY_FOR_ANYMAIL_SES"),
         "region_name": "eu-west-1",
         "config": {"connect_timeout": 30, "read_timeout": 30},
-    }
+    },
+    "WEBHOOK_SECRET": os.environ.get("SENDGRID_SES_WEBHOOK_USER", "fi")
+    + ":"
+    + os.environ.get("SENDGRID_SES_WEBHOOK_PASSWORD", "fi"),
 }
