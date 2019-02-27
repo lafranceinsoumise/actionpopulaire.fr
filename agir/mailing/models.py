@@ -26,7 +26,9 @@ class Segment(BaseSegment, models.Model):
     area = PolygonField("Territoire", blank=True, null=True)
 
     def get_subscribers_queryset(self):
-        qs = Person.objects.filter(subscribed=True)
+        qs = Person.objects.filter(
+            subscribed=True, emails___bounced=False, emails___order=0
+        )
 
         if self.tags.all().count() > 0:
             qs = qs.filter(tags__in=self.tags.all())
