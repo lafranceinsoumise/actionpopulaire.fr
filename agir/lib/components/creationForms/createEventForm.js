@@ -1,4 +1,4 @@
-import axios from "lib/utils/axios";
+import axios from "@agir/lib/utils/axios";
 import React from "react";
 import PropTypes from "prop-types";
 import "react-stepzilla/src/css/main.css";

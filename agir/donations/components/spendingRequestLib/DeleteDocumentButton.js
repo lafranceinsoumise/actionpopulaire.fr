@@ -2,9 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
-import Modal from "lib/bootstrap/Modal";
-import Button from "lib/bootstrap/Button";
-import { getCookie } from "lib/utils/cookies";
+import Modal from "@agir/lib/bootstrap/Modal";
+import Button from "@agir/lib/bootstrap/Button";
+import { getCookie } from "@agir/lib/utils/cookies";
 
 const Centerer = styled.div`
   display: flex;

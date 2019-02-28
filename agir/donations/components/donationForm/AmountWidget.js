@@ -1,8 +1,8 @@
 import React from "react";
 import { hot } from "react-hot-loader";
 import PropTypes from "prop-types";
-import InputGroup from "lib/bootstrap/InputGroup";
-import { displayNumber, displayPrice } from "lib/utils/display";
+import InputGroup from "@agir/lib/bootstrap/InputGroup";
+import { displayNumber, displayPrice } from "@agir/lib/utils/display";
 import styled from "styled-components";
 
 import "./style.css";
@@ -53,7 +53,7 @@ class AmountWidget extends React.Component {
 
   render() {
     const { custom, customText } = this.state;
-    const { amount, onAmountChange, error } = this.props;
+    const { amount, error } = this.props;
     return (
       <div className="amount-component">
         <div className="form-group">
@@ -62,10 +62,7 @@ class AmountWidget extends React.Component {
             <AmountButton
               key={value}
               type="button"
-              onClick={() => {
-                this.setState({ custom: false });
-                onAmountChange(value);
-              }}
+              onClick={() => this.updateWithButton(value)}
               className={[
                 "btn",
                 custom || amount !== value ? "btn-default" : "btn-primary"

@@ -4,8 +4,8 @@ import PropTypes from "prop-types";
 import Select from "react-select";
 import Symbol from "es6-symbol";
 
-import Modal from "lib/bootstrap/Modal";
-import Button from "lib/bootstrap/Button";
+import Modal from "@agir/lib/bootstrap/Modal";
+import Button from "@agir/lib/bootstrap/Button";
 
 import "react-select/dist/react-select.min.css";
 

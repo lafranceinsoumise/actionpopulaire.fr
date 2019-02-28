@@ -48,7 +48,7 @@ const components = flatten(
 
 // create import aliases with the django app names leading to their `components` folders
 const aliases = applications.reduce((obj, app) => {
-  obj[path.basename(app)] = path.resolve(app, "components") + "/";
+  obj["@agir/" + path.basename(app)] = path.resolve(app, "components") + "/";
   return obj;
 }, {});
 

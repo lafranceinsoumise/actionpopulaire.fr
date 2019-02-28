@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import MandatesField from "./mandatesField";
-import onDOMReady from "lib/onDOMReady";
+import onDOMReady from "@agir/lib/onDOMReady";
 
 const renderMandatesFields = function() {
   const hiddenFields = document.querySelectorAll('input[data-mandates="Y"]');

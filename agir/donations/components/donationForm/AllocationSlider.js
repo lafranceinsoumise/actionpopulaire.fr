@@ -5,7 +5,7 @@ import styled from "styled-components";
 
 import "./AllocationSlider.css";
 
-import { displayPrice } from "lib/utils/display";
+import { displayPrice } from "@agir/lib/utils/display";
 
 const Container = styled.div`
   max-height: ${props => (props.open ? "600px" : "0")};

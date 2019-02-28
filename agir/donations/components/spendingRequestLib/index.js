@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import DeleteDocumentButton from "donations/spendingRequestLib/DeleteDocumentButton";
+import DeleteDocumentButton from "@agir/donations/spendingRequestLib/DeleteDocumentButton";
 
 for (let documentDelete of document.querySelectorAll(".delete-document")) {
   ReactDOM.render(

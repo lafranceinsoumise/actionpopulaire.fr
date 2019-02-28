@@ -6,8 +6,8 @@ import AmountWidget from "./AmountWidget";
 import GroupSelector from "./GroupSelector";
 import PropTypes from "prop-types";
 
-import Button from "lib/bootstrap/Button";
-import { displayPrice } from "lib/utils/display";
+import Button from "@agir/lib/bootstrap/Button";
+import { displayPrice } from "@agir/lib/utils/display";
 
 class DonationForm extends React.Component {
   constructor(props) {
