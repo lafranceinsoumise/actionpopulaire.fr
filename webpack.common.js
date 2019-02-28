@@ -80,15 +80,7 @@ module.exports = {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
         use: {
-          loader: "babel-loader?cacheDirectory=true",
-          options: {
-            presets: ["babel-preset-env", "babel-preset-react"],
-            plugins: [
-              "react-hot-loader/babel",
-              "transform-runtime",
-              "transform-object-rest-spread"
-            ]
-          }
+          loader: "babel-loader?cacheDirectory=true"
         }
       },
       {
