@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Render IBANField 1`] = `
+<div
+  className=""
+>
+  <input
+    className="form-control"
+    onBlur={[Function]}
+    onChange={[Function]}
+    onFocus={[Function]}
+    placeholder="Entrez votre IBAN."
+    type="text"
+    value=""
+  />
+</div>
+`;
