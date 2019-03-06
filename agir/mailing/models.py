@@ -49,7 +49,7 @@ class Segment(BaseSegment, models.Model):
         if self.area is not None:
             qs = qs.filter(coordinates__coveredby=self.area)
 
-        return qs
+        return qs.order_by("id").distinct("id")
 
     def get_subscribers_count(self):
         return self.get_subscribers_queryset().count()
