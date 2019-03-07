@@ -326,6 +326,15 @@ class Event(
             end_time=formats.date_format(end_time, "TIME_FORMAT"),
         )
 
+    def get_simple_display_date(self):
+        tz = timezone.get_current_timezone()
+        start_time = self.start_time.astimezone(tz)
+
+        return _("le {date} à {time}").format(
+            date=formats.date_format(start_time, "DATE_FORMAT"),
+            time=formats.time_format(start_time, "TIME_FORMAT"),
+        )
+
     def is_past(self):
         return timezone.now() > self.end_time
 
