@@ -218,7 +218,12 @@ class SupportGroupManagementView(
         if kwargs["has_promo_code"]:
             kwargs["group_promo_code"] = get_next_promo_code(self.object)
 
-        kwargs["certifiable"] = self.object.type == SupportGroup.TYPE_LOCAL_GROUP
+        kwargs["certifiable"] = (
+            self.object.type in settings.CERTIFIABLE_GROUP_TYPES
+            or self.object.subtypes.filter(
+                label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
+            ).exists()
+        )
         kwargs["satisfy_requirements"] = len(kwargs["referents"]) > 1
         kwargs["allocation_balance"] = get_balance(self.object)
         kwargs["spending_requests"] = SpendingRequest.objects.filter(

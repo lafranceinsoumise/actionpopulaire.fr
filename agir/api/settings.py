@@ -488,10 +488,11 @@ if DEBUG:
 # Get the promo
 PROMO_CODE_KEY = os.environb.get(b"PROMO_CODE_KEY", b"prout")
 PROMO_CODE_TAG = os.environ.get("PROMO_CODE_TAG", "Code promo matériel")
-CERTIFIED_GROUP_SUBTYPES = os.environ.get("CERTIFIED_GROUP_SUBTYPES", "certifié").split(
-    ","
-)
-
+CERTIFIED_GROUP_SUBTYPES = os.environ.get(
+    "CERTIFIED_GROUP_SUBTYPES", "certifié,thématique certifié"
+).split(",")
+CERTIFIABLE_GROUP_TYPES = ["L", "B"]  # groupes locaux  # groupes thématiques
+CERTIFIABLE_GROUP_SUBTYPES = ["comité d'appui"]
 
 # HTML settings
 USER_ALLOWED_TAGS = [

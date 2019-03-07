@@ -21,7 +21,7 @@ def create_basic_subtypes(apps, schema_editor):
             "label": "rédaction du livret",
             "description": "Groupe de rédaction du livret.",
             "privileged_only": True,
-            "type": SupportGroupClass.TYPE_THEMATIC_BOOKLET,
+            "type": SupportGroupClass.TYPE_THEMATIC,
         },
     ]
     for subtype in subtypes:
@@ -31,7 +31,7 @@ def create_basic_subtypes(apps, schema_editor):
     local_groups_subtype = SupportGroupSubtype.objects.get(label="groupe local")
     local_groups_subtype.supportgroups.set(local_groups)
 
-    booklets = SupportGroup.objects.filter(type=SupportGroupClass.TYPE_THEMATIC_BOOKLET)
+    booklets = SupportGroup.objects.filter(type=SupportGroupClass.TYPE_THEMATIC)
     booklet_groups_subtype = SupportGroupSubtype.objects.get(
         label="rédaction du livret"
     )

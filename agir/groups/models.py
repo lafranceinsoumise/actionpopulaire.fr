@@ -43,13 +43,13 @@ class SupportGroup(
     """
 
     TYPE_LOCAL_GROUP = "L"
-    TYPE_THEMATIC_BOOKLET = "B"
+    TYPE_THEMATIC = "B"
     TYPE_FUNCTIONAL = "F"
     TYPE_PROFESSIONAL = "P"
 
     TYPE_CHOICES = (
         (TYPE_LOCAL_GROUP, _("Groupe local")),
-        (TYPE_THEMATIC_BOOKLET, _("Groupe thématique")),
+        (TYPE_THEMATIC, _("Groupe thématique")),
         (TYPE_FUNCTIONAL, _("Groupe fonctionnel")),
         (TYPE_PROFESSIONAL, _("Groupe professionel")),
     )
