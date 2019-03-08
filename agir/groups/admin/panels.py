@@ -303,5 +303,6 @@ class SupportGroupTagAdmin(admin.ModelAdmin):
 
 @admin.register(models.SupportGroupSubtype, site=admin_site)
 class SupportGroupSubtypeAdmin(admin.ModelAdmin):
+    search_fields = ("label", "description")
     list_display = ("label", "description", "type", "visibility")
     list_filter = ("type", "visibility")

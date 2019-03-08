@@ -8,5 +8,5 @@ from agir.mailing.models import Segment
 
 @admin.register(Segment, site=admin_site)
 class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
-    autocomplete_fields = ("tags",)
+    autocomplete_fields = ("tags", "supportgroup_subtypes")
     readonly_fields = ("get_subscribers_count",)
