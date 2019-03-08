@@ -72,18 +72,18 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:52a93f08096199b83eb8de787230dd65523fe21bf87e76fc15bdc2d0150655d4",
-                "sha256:9bd71622338f007f22c1192ecf8518bb5d5e3f0840adfeac847d40c18004b71d"
+                "sha256:084fcb90fb1a8d4834cff2fbd842ec546f5bad334acf740ed8a16fc0ebf47f61",
+                "sha256:1a1da1d9ec446e50ec04b21a6ec6eaf37f614161d24a8ba92b92e93ad78e18fc"
             ],
             "markers": "extra == 'amazon_ses'",
-            "version": "==1.9.109"
+            "version": "==1.9.110"
         },
         "botocore": {
             "hashes": [
-                "sha256:2da1a61785dde17b3bb18deb8e5fdfdd096033f5c3860c2a9117318af3969b2a",
-                "sha256:85c063a49cd24a8bf0c560b39d2738943c2adb48299ac42e283c243d78d63719"
+                "sha256:995c29b9913f8ae9dc95408db48034c7040fb1b5378a2e9e1e4030167c6b80ee",
+                "sha256:b18d7b0949a613331160af20e9517a3663e0009a2edb4cb1e1177ab4fdff6c9d"
             ],
-            "version": "==1.12.109"
+            "version": "==1.12.110"
         },
         "celery": {
             "hashes": [
@@ -449,11 +449,11 @@
         },
         "nuntius": {
             "hashes": [
-                "sha256:9bade2c6c8458f72d24733baf261ec5fd0e8d5b3f5471334222ccecee6e64f9a",
-                "sha256:f8a16978f51975c93bb118692bfe385bccb061df5e915a455a529ecea2b7e7bc"
+                "sha256:79158781b8c4880c656bd938154db47dbcc215b3888c00325e0214278bb1e9bb",
+                "sha256:f02fd146131e54303dd38da765902a60bbcdf86cecc9755c9752d8d22c9560e1"
             ],
             "index": "pypi",
-            "version": "==0.3.9"
+            "version": "==0.3.10"
         },
         "oauthlib": {
             "hashes": [
