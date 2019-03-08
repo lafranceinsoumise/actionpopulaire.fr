@@ -78,3 +78,6 @@ admin_site.register(Redirect, RedirectAdmin)
 admin_site.register(Site, SiteAdmin)
 admin_site.register(django_otp.plugins.otp_totp.models.TOTPDevice, DeviceAdmin)
 admin_site.register(nuntius.models.Campaign, nuntius.admin.CampaignAdmin)
+admin_site.register(
+    nuntius.models.CampaignSentEvent, nuntius.admin.CampaignSentEventAdmin
+)
