@@ -14,10 +14,16 @@ sudo locale-gen
 sudo localectl set-locale LANG=fr_FR.UTF-8
 
 echo "## Install Python..."
-sudo add-apt-repository ppa:deadsnakes/ppa
+sudo add-apt-repository ppa:deadsnakes/ppa > /dev/null
 sudo apt-get -yqq update > /dev/null
 sudo apt-get -yqq install python3.6 python3.6-dev python3-pip libsystemd-dev > /dev/null
 sudo -H pip3 install pipenv
+
+echo "## Install wkhtmltopdf"
+RELEASE=$(. /etc/lsb_release ; echo $DISTRIB_CODENAME)
+curl https://builds.wkhtmltopdf.org/0.12.1.3/wkhtmltox_0.12.1.3-1~${RELEASE}_amd64.deb --output wkhtmltox.deb -q
+sudo apt-get -yqq install libpng16-16 xfonts-75dpi xfonts-base > /dev/null
+sudo dpkg -i wkhtmltox.deb
 
 echo "## Install node..."
 curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - > /dev/null
@@ -138,3 +144,11 @@ sudo systemctl start django
 sudo systemctl start celery
 sudo systemctl start mailhog
 sudo systemctl start webpack
+
+echo "## Installing manage script"
+sudo bash -c "cat > /usr/local/bin/manage" <<'EOT'
+PYTHON=$(cd /vagrant && pipenv --venv)/bin/python
+
+$PYTHON /vagrant/manage.py "$@"
+EOT
+sudo chmod a+x /usr/local/bin/manage

@@ -1,28 +1,24 @@
 from urllib.parse import urljoin
-from uuid import uuid4
 
 from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponseRedirect
-from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
-from django.utils.safestring import mark_safe
 from django.views.generic import FormView, TemplateView
-from markdown import markdown
 
 from agir.authentication.utils import hard_login
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.checks.views import CheckView
-from agir.donations.apps import DonsConfig
 from agir.donations.base_views import BaseAskAmountView
 from agir.donations.views import BasePersonalInformationView
 from agir.europeennes import AFCESystemPayPaymentMode
+from agir.europeennes.actions import generate_html_contract
 from agir.europeennes.apps import EuropeennesConfig
 from agir.europeennes.forms import LoanForm, ContractForm, LenderForm
+from agir.europeennes.tasks import generate_contract, send_contract_confirmation_email
 from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.payments.actions import create_payment, redirect_to_payment
 from agir.payments.models import Payment
-from agir.europeennes.tasks import send_loan_email
 
 DONATIONS_SESSION_NAMESPACE = "_europeennes_donations"
 LOANS_INFORMATION_SESSION_NAMESPACE = "_europeennes_loans"
@@ -68,7 +64,6 @@ class LoanAskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
 
 class LoanPersonalInformationView(BasePersonalInformationView):
     template_name = "europeennes/loans/personal_information.html"
-    payment_mode = AFCESystemPayPaymentMode.id
     session_namespace = LOANS_INFORMATION_SESSION_NAMESPACE
     form_class = LenderForm
 
@@ -76,8 +71,9 @@ class LoanPersonalInformationView(BasePersonalInformationView):
         return {
             **data,
             "contact_phone": data["contact_phone"].as_e164,
-            "date_of_birth": data["date_of_birth"].strftime("%D/%M/%Y"),
+            "date_of_birth": data["date_of_birth"].strftime("%d/%m/%Y"),
             "payment_mode": data["payment_mode"].id,
+            "iban": data["iban"].as_stored_value,
         }
 
     def form_valid(self, form):
@@ -93,7 +89,7 @@ class LoanPersonalInformationView(BasePersonalInformationView):
 
 class LoanContractView(SoftLoginRequiredMixin, FormView):
     form_class = ContractForm
-    template_name = "europeennes/loans/contract.html"
+    template_name = "europeennes/loans/validate_contract.html"
 
     def dispatch(self, request, *args, **kwargs):
         if LOANS_CONTRACT_SESSION_NAMESPACE not in request.session:
@@ -107,7 +103,11 @@ class LoanContractView(SoftLoginRequiredMixin, FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(**self.contract_information, **kwargs)
+        return super().get_context_data(
+            contract=generate_html_contract(self.contract_information, baselevel=3),
+            **self.contract_information,
+            **kwargs
+        )
 
     def clear_session(self):
         del self.request.session[LOANS_INFORMATION_SESSION_NAMESPACE]
@@ -134,7 +134,10 @@ class LoanReturnView(TemplateView):
 
 def loan_notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
-        send_loan_email.delay(payment.person.pk)
+        (
+            generate_contract.si(payment.id)
+            | send_contract_confirmation_email.si(payment.id)
+        ).delay()
 
 
 class AFCECheckView(CheckView):

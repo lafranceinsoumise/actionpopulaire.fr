@@ -2,6 +2,7 @@ from crispy_forms import layout
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.conf import settings
+from django.contrib.postgres.forms import JSONField
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django_countries import countries
@@ -9,6 +10,7 @@ from django_countries.fields import LazyTypedChoiceField
 
 from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
 from agir.lib.data import departements_choices
+from agir.lib.form_fields import IBANField
 from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
 from agir.people.models import Person
 
@@ -69,6 +71,13 @@ class LenderForm(SimpleDonorForm):
         label="Comment souhaitez-vous prêtez l'argent ?",
     )
 
+    iban = IBANField(
+        label="Votre IBAN",
+        required=True,
+        allowed_countries=["FR"],
+        help_text="Le numéro IBAN du compte sur lequel le remboursement du prêt sera effectué.",
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -87,6 +96,7 @@ class LenderForm(SimpleDonorForm):
             "nationality",
             "first_name",
             "last_name",
+            "gender",
             layout.Field("date_of_birth", placeholder="JJ/MM/AAAA"),
             "country_of_birth",
             "city_of_birth",
@@ -99,6 +109,7 @@ class LenderForm(SimpleDonorForm):
             ),
             "location_country",
             "contact_phone",
+            "iban",
             "payment_mode",
         )
 
@@ -123,6 +134,7 @@ class LenderForm(SimpleDonorForm):
         fields = (
             "first_name",
             "last_name",
+            "gender",
             "location_address1",
             "location_address2",
             "location_zip",
@@ -135,8 +147,7 @@ class LenderForm(SimpleDonorForm):
 
 
 class ContractForm(forms.Form):
-    """Need to include all previous values?!
-
+    """
     """
 
     acceptance = forms.BooleanField(

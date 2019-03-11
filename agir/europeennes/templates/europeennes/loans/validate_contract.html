@@ -1,0 +1,21 @@
+{% extends "front/layout.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Mon contrat de prêt
+{% endblock %}
+
+{% block main %}
+  <h1>Validation du contrat</h1>
+
+  <p>
+    Ci-dessous, vous pouvez voir le texte du contrat de prêt. Une version signée de ce texte vous sera envoyé par email
+    à la validation de votre prêt.
+  </p>
+
+  <div style="border: 1px solid black; padding: 0 2em;">
+  {{ contract }}
+  </div>
+
+  {% crispy form %}
+{% endblock %}

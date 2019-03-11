@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3a6718bb9fffe06c6126b4ba542900383173bc1dea8b5cfeaeb67bb3ccb3bac1"
+            "sha256": "c616e0209857a232a50d609b6db7528855c5937da8b34f745bf492067343e645"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -75,7 +75,6 @@
                 "sha256:084fcb90fb1a8d4834cff2fbd842ec546f5bad334acf740ed8a16fc0ebf47f61",
                 "sha256:1a1da1d9ec446e50ec04b21a6ec6eaf37f614161d24a8ba92b92e93ad78e18fc"
             ],
-            "markers": "extra == 'amazon_ses'",
             "version": "==1.9.110"
         },
         "botocore": {
@@ -290,6 +289,12 @@
             "index": "pypi",
             "version": "==0.13"
         },
+        "docopt": {
+            "hashes": [
+                "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"
+            ],
+            "version": "==0.6.2"
+        },
         "docutils": {
             "hashes": [
                 "sha256:02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6",
@@ -446,6 +451,14 @@
                 "sha256:e249096428b3ae81b08327a63a485ad0878de3fb939049038579ac0ef61e17e7"
             ],
             "version": "==1.1.1"
+        },
+        "num2words": {
+            "hashes": [
+                "sha256:c2b9ee11299f97a2c60ad71619b6344a975dbf65c44b7103077700706af4b378",
+                "sha256:f2f561a8ee02b57e7f17837198d353f05ea1199792c4860da57322f7aa86d171"
+            ],
+            "index": "pypi",
+            "version": "==0.5.9"
         },
         "nuntius": {
             "hashes": [

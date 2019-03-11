@@ -261,6 +261,8 @@ EMAIL_TEMPLATES = {
     "EVENT_REPORT": "https://mosaico.lafranceinsoumise.fr/emails/7b39830d-8cf5-4d01-abbd-ab41e77c444e.html",
     # CHANGE_MAIL_CONFIRMATION variables: CONFIRMATION_URL
     "CHANGE_MAIL_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/55429415-6611-45a9-8667-929e445ff7c4.html",
+    # CONTRACT_CONFIRMATION
+    "CONTRACT_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/c63e76d7-d8a1-434c-bdd6-75337312ca28.html",
 }
 
 EMAIL_FROM = os.environ.get(
@@ -475,6 +477,8 @@ CELERY_WORKER_HIJACK_ROOT_LOGGER = DEBUG
 CELERY_WORKER_SEND_TASK_EVENTS = True
 # enable task events to allow monitoring
 CELERY_TASK_SEND_SENT_EVENT = True
+
+CELERY_RESULT_BACKEND = os.environ.get("BROKER_URL", "redis://")
 
 DEFAULT_EVENT_IMAGE = "front/images/default_event_pic.jpg"
 
