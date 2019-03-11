@@ -158,6 +158,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "first_name",
         "last_name",
         "location_zip",
+        "contact_phone",
     )
 
     list_filter = (
