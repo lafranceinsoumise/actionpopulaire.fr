@@ -2,55 +2,59 @@
 {% load static %}
 
 {% block title %}
-    Votre paiement par chèque
+  Votre paiement par chèque
 {% endblock %}
 
 {% block main %}
-    <div class="col-responsive">
-        <h1>Votre paiement par chèque</h1>
+  <div class="col-responsive">
+    <h1>Votre paiement par chèque</h1>
 
-        <div>
-            <p>
-                Pour valider votre paiement, il vous faut maintenant envoyer votre chèque.
-            </p>
-            <ul>
-                <li>Ordre : <strong>AFLFI</strong></li>
-                <li>Montant : <strong>{{ payment.get_price_display }}</strong></li>
-                <li>Numéro de commande à inscrire au dos du chèque : <strong>{{ payment.id }}</strong></li>
-            </ul>
-            <p>
-                Merci d'envoyer votre chèque à l'adresse suivante :
-            </p>
-            <div class="well">
-                AFLFI &mdash; Service événements<br>
-                43 rue de Dunkerque<br>
-                75010 Paris<br>
-            </div>
+    <div>
+      <p>
+        Pour valider votre paiement, il vous faut maintenant envoyer votre chèque.
+      </p>
 
-            <p>
-                Votre participation ne sera confirmée qu'à réception du chèque. Vous recevrez un message de confirmation
-                quand ce sera fait (à moins que vous n'ayez désactivé les notifications d'événement).
-            </p>
-
-            <div class="alert alert-warning">
-                <p>
-                    Pour permettre le traitement de votre chèque dans de bonnes conditions, merci de respecter les
-                    éléments suivants :
-                </p>
-                <ul>
-                    <li><strong>N'oubliez pas d'indiquer le numéro de commande au dos de votre chèque</strong></li>
-                    <li>Votre chèque doit être envoyé par la poste : aucune remise du chèque au moment de l'événement
-                    n'est généralement possible, et votre participation ne sera pas garantie si vous ne tenez pas compte
-                    de cette consigne.</li>
-                </ul>
-            </div>
-
-            <div class="alert alert-info">
-                Vous pouvez tout à fait régler plusieurs achats avec un seul chèque : transmettez votre chèque unique
-                en indiquant bien <em>tous</em> les numéros de commande au dos du chèque.
-            </div>
-
-            <a class="btn btn-primary" href="{% url "payment_return" payment.pk %}">Retour</a>
+        <ul>
+          <li>Ordre : <strong>AFLFI</strong></li>
+          <li>Montant : <strong>{{ payment.get_price_display }}</strong></li>
+          <li>Numéro de commande à inscrire au dos du chèque : <strong>{{ payment.id }}</strong></li>
+        </ul>
+        <p>
+          Merci d'envoyer votre chèque à l'adresse suivante :
+        </p>
+        <div class="well">
+          AFLFI &mdash; Service événements<br>
+          43 rue de Dunkerque<br>
+          75010 Paris<br>
         </div>
+
+
+      <p>
+          Votre participation ne sera confirmée qu'à réception du chèque. Vous recevrez un message de confirmation
+          quand ce sera fait (à moins que vous n'ayez désactivé les notifications d'événement).
+      </p>
+
+
+      <div class="alert alert-warning">
+        <p>
+          Pour permettre le traitement de votre chèque dans de bonnes conditions, merci de respecter les
+          éléments suivants :
+        </p>
+        <ul>
+          <li><strong>N'oubliez pas d'indiquer le numéro de commande au dos de votre chèque</strong></li>
+          <li>Votre chèque doit être envoyé par la poste : aucune remise du chèque au moment de l'événement
+            n'est généralement possible, et votre participation ne sera pas garantie si vous ne tenez pas compte
+            de cette consigne.
+          </li>
+        </ul>
+      </div>
+
+      <div class="alert alert-info">
+        Vous pouvez tout à fait régler plusieurs achats avec un seul chèque : transmettez votre chèque unique
+        en indiquant bien <em>tous</em> les numéros de commande au dos du chèque.
+      </div>
+
+      <a class="btn btn-primary" href="{% url "payment_return" payment.pk %}">Retour</a>
     </div>
+  </div>
 {% endblock %}

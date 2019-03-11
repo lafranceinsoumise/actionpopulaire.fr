@@ -1,18 +1,15 @@
-import datetime
-
 from crispy_forms import layout
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Row
 from django import forms
 from django.conf import settings
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django_countries import countries
 from django_countries.fields import LazyTypedChoiceField
-from phonenumber_field.phonenumber import PhoneNumber
 
 from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
 from agir.lib.data import departements_choices
+from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
 from agir.people.models import Person
 
 
@@ -67,6 +64,11 @@ class LenderForm(SimpleDonorForm):
         widget=forms.HiddenInput,
     )
 
+    payment_mode = PaymentModeField(
+        payment_modes=[PAYMENT_MODES["system_pay_afce"], PAYMENT_MODES["check_afce"]],
+        label="Comment souhaitez-vous prêtez l'argent ?",
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -97,6 +99,7 @@ class LenderForm(SimpleDonorForm):
             ),
             "location_country",
             "contact_phone",
+            "payment_mode",
         )
 
     def clean(self):

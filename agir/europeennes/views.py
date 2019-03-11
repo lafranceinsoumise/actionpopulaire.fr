@@ -1,17 +1,23 @@
 from urllib.parse import urljoin
+from uuid import uuid4
 
 from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponseRedirect
+from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
+from django.utils.safestring import mark_safe
 from django.views.generic import FormView, TemplateView
+from markdown import markdown
 
 from agir.authentication.utils import hard_login
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
+from agir.checks.views import CheckView
 from agir.donations.apps import DonsConfig
 from agir.donations.base_views import BaseAskAmountView
 from agir.donations.views import BasePersonalInformationView
 from agir.europeennes import AFCESystemPayPaymentMode
+from agir.europeennes.apps import EuropeennesConfig
 from agir.europeennes.forms import LoanForm, ContractForm, LenderForm
 from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.payments.actions import create_payment, redirect_to_payment
@@ -71,6 +77,7 @@ class LoanPersonalInformationView(BasePersonalInformationView):
             **data,
             "contact_phone": data["contact_phone"].as_e164,
             "date_of_birth": data["date_of_birth"].strftime("%D/%M/%Y"),
+            "payment_mode": data["payment_mode"].id,
         }
 
     def form_valid(self, form):
@@ -107,14 +114,13 @@ class LoanContractView(SoftLoginRequiredMixin, FormView):
         del self.request.session[LOANS_CONTRACT_SESSION_NAMESPACE]
 
     def form_valid(self, form):
-
         with transaction.atomic():
             payment = create_payment(
                 person=self.request.user.person,
-                mode=AFCESystemPayPaymentMode.id,
-                type=DonsConfig.PAYMENT_TYPE,
-                price=form.cleaned_data["amount"],
-                meta={"nationality": form.cleaned_data["nationality"]},
+                mode=self.contract_information["payment_mode"],
+                type=EuropeennesConfig.LOAN_PAYMENT_TYPE,
+                price=self.contract_information["amount"],
+                meta=self.contract_information,
             )
 
         self.clear_session()
@@ -129,3 +135,7 @@ class LoanReturnView(TemplateView):
 def loan_notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         send_loan_email.delay(payment.person.pk)
+
+
+class AFCECheckView(CheckView):
+    template_name = "europeennes/checks/payment.html"

@@ -1,0 +1,53 @@
+{% extends "front/layout.html" %}
+{% load static %}
+
+{% block title %}
+  Votre prêt par chèque
+{% endblock %}
+
+{% block main %}
+  <div class="col-responsive">
+    <h1>Votre prêt par chèque</h1>
+
+    <div>
+      <p>
+        Pour valider votre prêt, il vous faut maintenant envoyer votre chèque.
+      </p>
+
+      {% block check_order %}
+        <ul>
+          <li>Ordre : <strong>AFCE LFI</strong></li>
+          <li>Montant : <strong>{{ payment.get_price_display }}</strong></li>
+          <li>Numéro de prêt à inscrire au dos du chèque : <strong>{{ payment.id }}</strong></li>
+        </ul>
+        <p>
+          Merci d'envoyer votre chèque à l'adresse suivante :
+        </p>
+        <div class="well">
+          AFCE LFI<br>
+          43 rue de Dunkerque<br>
+          75010 Paris<br>
+        </div>
+
+      {% endblock %}
+
+
+      <p>
+        {% block information_text %}
+          Votre prêt ne sera confirmée qu'à réception du chèque. Vous recevrez par email un exemplaire du contrat de
+          prêt signé lorsque ce sera fait.
+        {% endblock %}
+      </p>
+
+
+      <div class="alert alert-warning">
+        <p>
+          Pour permettre le traitement de votre chèque dans de bonnes conditions, n'oubliez pas d'indiquer le numéro de
+          prêt au dos.
+        </p>
+      </div>
+
+      <a class="btn btn-primary" href="{% url "payment_return" payment.pk %}">Retour</a>
+    </div>
+  </div>
+{% endblock %}
