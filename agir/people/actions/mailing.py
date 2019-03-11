@@ -97,34 +97,35 @@ def send_mosaico_email(
 
     template = loader.get_template(f"mail_templates/{code}.html")
 
-    for recipient in recipients:
-        # recipient can be either a Person or an email address
-        if link_bindings and isinstance(recipient, Person):
-            connection_params = generate_token_params(recipient)
-            for key, value in link_bindings.items():
-                if isinstance(value, AutoLoginUrl):
-                    bindings[key] = add_params_to_urls(value, connection_params)
+    with connection:
+        for recipient in recipients:
+            # recipient can be either a Person or an email address
+            if link_bindings and isinstance(recipient, Person):
+                connection_params = generate_token_params(recipient)
+                for key, value in link_bindings.items():
+                    if isinstance(value, AutoLoginUrl):
+                        bindings[key] = add_params_to_urls(value, connection_params)
 
-        if isinstance(recipient, Person):
-            context = get_context_from_bindings(code, recipient, bindings)
-        else:
-            context = dict(bindings)
+            if isinstance(recipient, Person):
+                context = get_context_from_bindings(code, recipient, bindings)
+            else:
+                context = dict(bindings)
 
-        html_message = template.render(context=context)
-        text_message = generate_plain_text(html_message)
+            html_message = template.render(context=context)
+            text_message = generate_plain_text(html_message)
 
-        email = EmailMultiAlternatives(
-            subject=subject,
-            body=text_message,
-            from_email=from_email,
-            reply_to=reply_to,
-            to=[recipient.email if isinstance(recipient, Person) else recipient],
-            connection=connection,
-        )
-        email.attach_alternative(html_message, "text/html")
-        if attachment is not None:
-            email.attach(*attachment)
-        email.send(fail_silently=fail_silently)
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_message,
+                from_email=from_email,
+                reply_to=reply_to,
+                to=[recipient.email if isinstance(recipient, Person) else recipient],
+                connection=connection,
+            )
+            email.attach_alternative(html_message, "text/html")
+            if attachment is not None:
+                email.attach(*attachment)
+            email.send(fail_silently=fail_silently)
 
 
 def send_mail(
