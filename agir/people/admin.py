@@ -153,14 +153,6 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "coordinates_type",
     )
 
-    search_fields = (
-        "emails__address__iexact",
-        "first_name",
-        "last_name",
-        "location_zip",
-        "contact_phone",
-    )
-
     list_filter = (
         DepartementListFilter,
         RegionListFilter,

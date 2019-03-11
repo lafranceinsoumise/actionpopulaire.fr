@@ -1,9 +1,12 @@
 import secrets
+
+import phonenumbers
 import warnings
 
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models, transaction, IntegrityError
+from django.db.models import Q
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
@@ -41,8 +44,13 @@ class PersonQueryset(models.QuerySet):
         return self.filter(contact_phone_status=Person.CONTACT_PHONE_VERIFIED)
 
     def full_text_search(self, query):
-        filter = PrefixSearchQuery(query, config="simple_unaccented")
-        return self.filter(search=filter)
+        q = Q(search=PrefixSearchQuery(query, config="simple_unaccented"))
+        try:
+            phonenumbers.parse(query, "FR")
+        except phonenumbers.phonenumberutil.NumberParseException:
+            return self.filter(q)
+        else:
+            return self.filter(q | Q(contact_phone__icontains=query[1:]))
 
 
 class PersonManager(models.Manager.from_queryset(PersonQueryset)):
