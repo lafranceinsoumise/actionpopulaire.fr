@@ -33,7 +33,15 @@ class DonationForm extends React.Component {
   }
 
   render() {
-    const { groupChoices, csrfToken, minAmount, maxAmount } = this.props;
+    const {
+      groupChoices,
+      csrfToken,
+      minAmount,
+      maxAmount,
+      amountChoices,
+      showTaxCredit,
+      buttonLabel
+    } = this.props;
     const { group, amount, nationalRatio } = this.state;
 
     const customError =
@@ -54,6 +62,8 @@ class DonationForm extends React.Component {
         <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
         <AmountWidget
           amount={amount}
+          amountChoices={amountChoices}
+          showTaxCredit={showTaxCredit}
           error={customError}
           onAmountChange={amount => this.setState({ amount })}
         />
@@ -77,7 +87,7 @@ class DonationForm extends React.Component {
         )}
         <div className="form-group">
           <Button type="submit" bsStyle="primary">
-            Je donne !
+            {buttonLabel}
           </Button>
         </div>
       </div>
@@ -88,6 +98,8 @@ class DonationForm extends React.Component {
 DonationForm.propTypes = {
   minAmount: PropTypes.number,
   maxAmount: PropTypes.number,
+  amountChoices: PropTypes.array,
+  showTaxCredit: PropTypes.bool,
   initialGroup: PropTypes.string,
   groupName: PropTypes.string,
   groupChoices: PropTypes.arrayOf(
@@ -96,6 +108,7 @@ DonationForm.propTypes = {
       label: PropTypes.string
     })
   ),
+  buttonLabel: PropTypes.string,
   csrfToken: PropTypes.string
 };
 

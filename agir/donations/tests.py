@@ -211,7 +211,7 @@ class DonationTestCase(TestCase):
         )
         self.assertRedirects(res, information_url)
 
-        self.assertEqual(session["_donation_group"], None)
+        self.assertEqual(session["_donation_"]["group_id"], None)
 
     def test_can_donate_with_allocation(self):
         self.client.force_login(self.p1.role)
@@ -229,7 +229,7 @@ class DonationTestCase(TestCase):
         )
         self.assertRedirects(res, information_url)
 
-        self.assertEqual(session["_donation_group"], str(self.group.pk))
+        self.assertEqual(session["_donation_"]["group_id"], str(self.group.pk))
 
         res = self.client.get(information_url)
         self.assertEqual(res.status_code, 200)

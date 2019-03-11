@@ -7,7 +7,7 @@ import styled from "styled-components";
 
 import "./style.css";
 
-const AMOUNTS = [100, 50, 25, 15, 10];
+const DEFAULT_AMOUNTS = [100, 50, 25, 15, 10];
 
 const AmountButton = styled.button`
   display: block;
@@ -26,7 +26,9 @@ class AmountWidget extends React.Component {
   constructor(props) {
     super();
 
-    const custom = props.amount && !AMOUNTS.includes(props.amount);
+    const amountChoices = props.amountChoices || DEFAULT_AMOUNTS;
+
+    const custom = props.amount && !amountChoices.includes(props.amount);
     const customText = custom ? displayNumber(props.amount, 2) : "";
 
     this.state = {
@@ -53,12 +55,15 @@ class AmountWidget extends React.Component {
 
   render() {
     const { custom, customText } = this.state;
-    const { amount, error } = this.props;
+    const { amount, error, showTaxCredit } = this.props;
+
+    const amountChoices = this.props.amountChoices || DEFAULT_AMOUNTS;
+
     return (
       <div className="amount-component">
         <div className="form-group">
           <input type="hidden" value={amount ? amount : ""} name="amount" />
-          {AMOUNTS.map(value => (
+          {amountChoices.map(value => (
             <AmountButton
               key={value}
               type="button"
@@ -92,21 +97,22 @@ class AmountWidget extends React.Component {
           {error && <span className="help-block">{error}</span>}
         </div>
         <p>
-          {amount ? (
-            <em>
-              Si je paye des impôts, après réduction, ma contribution nette sera
-              de seulement{" "}
-              <strong className="text-danger">
-                {displayPrice(amount * 0.34)}
-              </strong>
-              &nbsp;!
-            </em>
-          ) : (
-            <em>
-              Si je paye des impôts, je profite d&apos;une réduction
-              d&apos;impôt de <strong>66&nbsp;%</strong> de la somme donnée !
-            </em>
-          )}
+          {showTaxCredit &&
+            (amount ? (
+              <em>
+                Si je paye des impôts, après réduction, ma contribution nette
+                sera de seulement{" "}
+                <strong className="text-danger">
+                  {displayPrice(amount * 0.34)}
+                </strong>
+                &nbsp;!
+              </em>
+            ) : (
+              <em>
+                Si je paye des impôts, je profite d&apos;une réduction
+                d&apos;impôt de <strong>66&nbsp;%</strong> de la somme donnée !
+              </em>
+            ))}
         </p>
       </div>
     );
@@ -116,7 +122,9 @@ class AmountWidget extends React.Component {
 AmountWidget.propTypes = {
   amount: PropTypes.number,
   onAmountChange: PropTypes.func,
-  error: PropTypes.string
+  error: PropTypes.string,
+  amountChoices: PropTypes.array,
+  showTaxCredit: PropTypes.bool
 };
 
 export default hot(module)(AmountWidget);

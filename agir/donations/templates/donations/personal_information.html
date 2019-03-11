@@ -17,8 +17,9 @@
 
   <div class="row">
     <div class="col-md-6">
-      <div class="alert alert-success">Je souhaite donner <strong>{{ amount | display_price }}</strong> à {% block donation_dest %}la France
-        insoumise.{% endblock %}
+      <div class="alert alert-success">{% block donation_reminder %}Je souhaite donner
+        <strong>{{ amount | display_price }}</strong> à {% block donation_dest %}la France
+        insoumise.{% endblock %}{% endblock %}
         {% if group_name %}<strong>{{ national | display_price }}</strong> seront alloués aux activités et campagnes
           nationales et <strong>{{ allocation | display_price }}</strong> au financement des activités du groupe d'action
           &laquo;&nbsp;<em>{{ group_name }}</em>&nbsp;&raquo;.{% endif %}</div>
@@ -33,6 +34,7 @@
       </div>
     </div>
   </div>
+  {% block script %}
   <script>
     var fiscalResident = document.getElementById('id_fiscal_resident');
     var nationality = document.getElementById('id_nationality');
@@ -50,4 +52,5 @@
       updateFiscalResident();
     }
   </script>
+    {% endblock %}
 {% endblock %}
