@@ -68,6 +68,30 @@ class SimpleSubscriptionFormTestCase(TestCase):
         response = self.client.post("/inscription/", data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_france_country_is_set_by_default(self):
+        data = {"email": "my@e.mail", "location_zip": "01337"}
+
+        send_confirmation_email(**data)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        confirmation_url = reverse("subscription_confirm")
+        match = re.search(confirmation_url + r'\?[^" )]+', mail.outbox[0].body)
+
+        self.assertIsNotNone(match)
+        url_with_params = match.group(0)
+
+        response = self.client.get(url_with_params)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertContains(response, "Bienvenue !")
+
+        # check that the person has been created
+        person = Person.objects.get_by_natural_key("my@e.mail")
+
+        # check if france is set by default
+        self.assertEqual("France", person.location_country.name)
+
 
 @using_redislite
 class OverseasSubscriptionTestCase(TestCase):
