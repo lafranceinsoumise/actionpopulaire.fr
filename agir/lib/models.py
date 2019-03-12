@@ -387,7 +387,7 @@ class ImageMixin(models.Model):
     image = StdImageField(
         _("image"),
         upload_to=banner_path,
-        variations={"thumbnail": (400, 250), "banner": (1200, 400)},
+        variations=settings.BANNER_CONFIG,
         blank=True,
         help_text=_(
             "Vous pouvez ajouter une image de bannière : elle apparaîtra sur la page, et sur les réseaux"

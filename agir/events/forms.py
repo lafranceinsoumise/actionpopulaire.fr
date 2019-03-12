@@ -211,8 +211,12 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         return cleaned_data
 
     def save(self, commit=True):
-        res = super().save(commit)
+        if not self.cleaned_data["description"]:
+            self.instance.description = self.cleaned_data["subtype"].default_description
+        if not self.cleaned_data["image"]:
+            self.instance.image = self.cleaned_data["subtype"].default_image
 
+        res = super().save(commit)
         if commit:
             self.schedule_tasks()
 

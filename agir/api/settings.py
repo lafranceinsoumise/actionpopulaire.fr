@@ -611,3 +611,5 @@ ANYMAIL = {
     + ":"
     + os.environ.get("SENDGRID_SES_WEBHOOK_PASSWORD", "fi"),
 }
+
+BANNER_CONFIG = {"thumbnail": (400, 250), "banner": (1200, 400)}

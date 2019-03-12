@@ -28,6 +28,7 @@ from ..lib.models import (
     DescriptionField,
     BaseSubtype,
     TimeStampedModel,
+    banner_path,
 )
 from ..lib.form_fields import DateTimePickerWidget
 
@@ -440,6 +441,21 @@ class EventSubtype(BaseSubtype):
     }
 
     type = models.CharField(_("Type d'événement"), max_length=1, choices=TYPE_CHOICES)
+
+    default_description = DescriptionField(
+        verbose_name=_("description par défaut"),
+        blank=True,
+        help_text="La description par défaut pour les événements de ce sous-type.",
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+    )
+
+    default_image = StdImageField(
+        _("image par défaut"),
+        upload_to=banner_path,
+        variations=settings.BANNER_CONFIG,
+        blank=True,
+        help_text=_("L'image associée par défaut à un événement de ce sous-type."),
+    )
 
     class Meta:
         verbose_name = _("Sous-type d'événement")
