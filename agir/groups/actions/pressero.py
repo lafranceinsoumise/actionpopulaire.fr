@@ -89,7 +89,7 @@ def create_user_for_person(
         },
         "UserSiteCust": {
             "IsApproved": True,
-            "IsShared": True,
+            "IsShared": False,
             "ApprovalGroupId": settings.PRESSERO_APPROBATOR_ID,
         },
         "UserContactPermisssion": [
@@ -151,7 +151,14 @@ def update_user_password(
     res = s.put(
         f"{settings.PRESSERO_API_URL}/site/{settings.PRESSERO_SITE}/users/{user_id}",
         auth=PresseroAuthentication(token),
-        json={"NewPassword": new_password},
+        json={
+            "NewPassword": new_password,
+            "UserSiteCust": {
+                "IsApproved": True,
+                "IsShared": False,
+                "ApprovalGroupId": settings.PRESSERO_APPROBATOR_ID,
+            },
+        },
     )
 
     res.raise_for_status()
