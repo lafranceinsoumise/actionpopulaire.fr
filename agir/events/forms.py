@@ -211,10 +211,14 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         return cleaned_data
 
     def save(self, commit=True):
+        subtype = (
+            self.cleaned_data["subtype"] if self.is_creation else self.instance.subtype
+        )
+
         if not self.cleaned_data["description"]:
-            self.instance.description = self.cleaned_data["subtype"].default_description
+            self.instance.description = subtype.default_description
         if not self.cleaned_data["image"]:
-            self.instance.image = self.cleaned_data["subtype"].default_image
+            self.instance.image = subtype.default_image
 
         res = super().save(commit)
         if commit:
