@@ -1,12 +1,19 @@
+from django.contrib import messages
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
+from django.http.response import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import UpdateView, DetailView
+from django.views.generic.list import ListView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.people import tasks
-from agir.people.actions.person_forms import get_people_form_class
+from agir.people.actions.person_forms import (
+    get_people_form_class,
+    get_formatted_submissions,
+    get_public_fields,
+)
 from agir.people.models import PersonForm, PersonFormSubmission
 
 
@@ -84,3 +91,39 @@ class PeopleFormConfirmationView(DetailView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(person_form=self.object)
+
+
+class PeopleFormSubmissionsView(ListView):
+    template_name = "people/person_form_results.html"
+    paginate_by = 20
+
+    def get(self, request, *args, **kwargs):
+        try:
+            self.person_form = PersonForm.objects.get(slug=self.kwargs["slug"])
+        except PersonForm.DoesNotExist:
+            raise Http404("Ce formulaire n'existe pas.")
+
+        if not self.person_form.config.get("public"):
+            messages.add_message(
+                request,
+                messages.ERROR,
+                "Les réponses à ce formulaire ne sont pas publiques.",
+            )
+            return HttpResponseRedirect(
+                reverse("view_person_form", args=(self.person_form.pk,))
+            )
+
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.person_form.submissions.order_by("created")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(person_form=self.person_form, **kwargs)
+
+        if context["page_obj"]:
+            context["submissions"] = get_public_fields(context["page_obj"])
+        else:
+            context["submissions"] = None
+
+        return context

@@ -123,6 +123,8 @@ class PersonForm(TimeStampedModel):
 
     custom_fields = JSONField(_("Champs"), blank=False, default=default_custom_forms)
 
+    config = JSONField(_("Configuration"), blank=False, default=dict)
+
     @property
     def fields_dict(self):
         return OrderedDict(

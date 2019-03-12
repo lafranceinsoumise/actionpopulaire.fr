@@ -255,6 +255,7 @@ class PersonFormForm(forms.ModelForm):
             "description": AdminRichEditorWidget(),
             "confirmation_note": AdminRichEditorWidget(),
             "custom_fields": AdminJsonWidget(),
+            "config": AdminJsonWidget(),
         }
 
     def clean_custom_fields(self):
@@ -349,7 +350,7 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
             _("Soumissions"),
             {"fields": ("submissions_number", "simple_link", "action_buttons")},
         ),
-        (_("Champs"), {"fields": ("main_question", "tags", "custom_fields")}),
+        (_("Champs"), {"fields": ("main_question", "tags", "custom_fields", "config")}),
         (
             _("Textes"),
             {

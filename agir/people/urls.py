@@ -88,6 +88,11 @@ urlpatterns = [
         name="person_form_confirmation",
     ),
     path(
+        "formulaires/<slug:slug>/reponses/",
+        views.PeopleFormSubmissionsView.as_view(),
+        name="person_form_submissions",
+    ),
+    path(
         "telephone/sms",
         views.SendValidationSMSView.as_view(),
         name="send_validation_sms",
