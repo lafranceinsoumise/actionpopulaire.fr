@@ -167,6 +167,11 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     autocomplete_fields = ("tags",)
 
+    # doit être non vide pour afficher le formulaire de recherche,
+    # mais n'est en réalité pas utilisé pour déterminer les champs
+    # de recherche
+    search_fields = ["search", "contact_phone"]
+
     def get_search_results(self, request, queryset, search_term):
         if search_term:
             queryset = queryset.full_text_search(search_term)
