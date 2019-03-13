@@ -6,39 +6,44 @@
 {% block title %}{{ person_form.title }}{% endblock %}
 
 {% block additional_headers %}
-    <style>
-        fieldset legend {
-            font-family: Montserrat, sans-serif;
-            font-weight: 500;
-            line-height: 1.1;
-            color: #0098b6;
-            font-size: 28px;
-        }
+  <style>
+    fieldset legend {
+      font-family: Montserrat, sans-serif;
+      font-weight: 500;
+      line-height: 1.1;
+      color: #0098b6;
+      font-size: 28px;
+    }
 
-        fieldset {
-            margin-top: 2em;
-        }
-    </style>
+    fieldset {
+      margin-top: 2em;
+    }
+  </style>
 {% endblock %}
 
 {% block main %}
-    <div class="row">
-        <div class="col-responsive">
-            <h2 class="headline">{{ person_form.title }}</h2>
-            {% if not is_authorized %}
-                <div class="intro">
-                    {{ person_form.html_unauthorized_message }}
-                </div>
-            {% elif person_form.is_open %}
-                <div class="intro">
-                    {{ person_form.html_description }}
-                </div>
-                {% crispy form %}
-            {% else %}
-                <div class="intro">
-                    {{ person_form.html_closed_message }}
-                </div>
-            {% endif %}
+  <div class="row">
+    <div class="col-responsive">
+      <h2 class="headline">
+        {{ person_form.title }}
+        {% if person_form.config.public %}
+          <a href="{% url "person_form_submissions" person_form.slug %}" class="btn btn-default">Voir les réponses</a>
+        {% endif %}
+      </h2>
+      {% if not is_authorized %}
+        <div class="intro">
+          {{ person_form.html_unauthorized_message }}
         </div>
+      {% elif person_form.is_open %}
+        <div class="intro">
+          {{ person_form.html_description }}
+        </div>
+        {% crispy form %}
+      {% else %}
+        <div class="intro">
+          {{ person_form.html_closed_message }}
+        </div>
+      {% endif %}
     </div>
+  </div>
 {% endblock %}

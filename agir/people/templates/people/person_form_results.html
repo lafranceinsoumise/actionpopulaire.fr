@@ -17,7 +17,7 @@
       {% for submission in submissions %}
         <div>{{ submission.date }}</div>
         {% for field in submission.values %}
-          <div class="row">
+          <div class="row" style="margin-top: 10px;">
             <div class="col-md-3"><strong>{{ field.label }}</strong></div>
             <div class="col-md-9">{{ field.value }}</div>
           </div>
