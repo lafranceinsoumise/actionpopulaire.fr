@@ -141,7 +141,7 @@ class LocationMixin(models.Model):
     location_zip = models.CharField(_("code postal"), max_length=20, blank=True)
     location_state = models.CharField(_("état"), max_length=40, blank=True)
     location_country = CountryField(
-        _("pays"), blank=True, blank_label=_("(sélectionner un pays)")
+        _("pays"), blank=True, blank_label=_("(sélectionner un pays)"), default="FR"
     )
 
     # legacy fields --> copied from NationBuilder
