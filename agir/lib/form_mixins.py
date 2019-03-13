@@ -298,18 +298,15 @@ class MetaFieldsMixin:
     def get_meta_fields(self):
         return self.meta_fields
 
-    def clean(self):
-        """Handles meta fields"""
-        cleaned_data = super().clean()
+    def _post_clean(self):
+        super()._post_clean()
 
         meta_update = {
-            self.meta_prefix + f: cleaned_data.get(f)
+            self.meta_prefix + f: self.cleaned_data.get(f)
             for f in self.get_meta_fields()
-            if cleaned_data.get(f)
+            if self.cleaned_data.get(f)
         }
         getattr(self.instance, self.meta_attr).update(meta_update)
-
-        return cleaned_data
 
     def _save_files(self):
         for key, value in self.cleaned_data.items():
