@@ -75,7 +75,12 @@ class CreateEventForm extends React.Component {
       },
       {
         name: "Validation et nom",
-        component: <ValidateStep fields={this.state.fields} />
+        component: (
+          <ValidateStep
+            fields={this.state.fields}
+            subtypes={this.props.subtypes}
+          />
+        )
       }
     ];
 
@@ -379,6 +384,11 @@ class ValidateStep extends FormStep {
     }
   }
 
+  getSubtypeDescription() {
+    return this.props.subtypes.find(s => s.label === this.props.fields.subtype)
+      .description;
+  }
+
   render() {
     const { fields } = this.props;
     return (
@@ -387,7 +397,8 @@ class ValidateStep extends FormStep {
           <p>Voici les informations que vous avez entrées.</p>
           <ul>
             <li>
-              <strong>Type d'événement&nbsp;:</strong> {fields.subtype.label}
+              <strong>Type d'événement&nbsp;:</strong>{" "}
+              {this.getSubtypeDescription()}
             </li>
             <li>
               <strong>Numéro de téléphone&nbsp;:</strong> {fields.phone} (
