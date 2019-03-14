@@ -11,6 +11,13 @@ from agir.donations.admin.views import HandleRequestView
 from agir.donations.models import SpendingRequest, Document, Operation
 
 
+def mark_as_paid(model_admin, request, queryset):
+    queryset.update(status=SpendingRequest.STATUS_PAID)
+
+
+mark_as_paid.short_description = _("Indiquer ces demandes comme payées")
+
+
 class DocumentInline(admin.TabularInline):
     model = Document
     extra = 0
@@ -122,6 +129,7 @@ class OperationAdmin(admin.ModelAdmin):
 
     fields = ("group", "amount")
     autocomplete_fields = ("group",)
+    actions = (mark_as_paid,)
 
     def has_change_permission(self, request, obj=None):
         return request.user.is_superuser
