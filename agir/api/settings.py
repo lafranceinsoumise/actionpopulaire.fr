@@ -82,6 +82,8 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,agir.local").split(",
 # Application definition
 
 INSTALLED_APPS = [
+    # before to override templates
+    "agir.lib",
     # default contrib apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -128,7 +130,6 @@ INSTALLED_APPS = [
     "agir.groups",
     "agir.polls",
     "agir.clients",
-    "agir.lib",
     "agir.front",
     "agir.carte",
     "agir.webhooks",
