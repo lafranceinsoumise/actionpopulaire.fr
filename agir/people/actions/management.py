@@ -12,6 +12,10 @@ def merge_persons(p1, p2):
     """Merge the two persons together, keeping p1 and deleting p2, associating all information linked to p2 to p1"""
 
     with transaction.atomic():
+        # check if it's not the same user
+        if p1.pk == p2.pk:
+            raise ValueError
+
         # for memberships, we want to carefully copy the properties in case there is a duplicate
         current_memberships = p1.memberships.select_for_update()
         groups = {m.supportgroup_id: m for m in current_memberships}
