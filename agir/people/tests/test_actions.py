@@ -108,3 +108,11 @@ class MergePeopleTestCase(FakeDataMixin, TestCase):
         merge_persons(u1, u2)
 
         self.assertFalse(Person.objects.filter(pk=u2.pk).exists())
+
+    def test_cannot_merge_the_same_person(self):
+        user = self.people["user1"]
+
+        with self.assertRaises(ValueError):
+            merge_persons(user, user)
+
+        self.assertTrue(Person.objects.filter(pk=user.pk).exists())
