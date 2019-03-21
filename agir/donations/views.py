@@ -85,6 +85,8 @@ class PersonalInformationView(UpdateView):
     payment_mode = payment_modes.DEFAULT_MODE
 
     def dispatch(self, request, *args, **kwargs):
+        if request.GET.get("amount") is not None:
+            request.session[session_key("amount")] = int(request.GET.get("amount"))
         if session_key("amount") not in request.session:
             return redirect("donation_amount")
         return super().dispatch(request, *args, **kwargs)
