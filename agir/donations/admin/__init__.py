@@ -67,6 +67,7 @@ class SpendingRequestAdmin(admin.ModelAdmin):
     sortable_by = ("id", "title", "spending_date", "amount")
     search_fields = ("id", "title", "group__name")
     list_filter = (RequestStatusFilter,)
+    actions = (mark_as_paid,)
 
     fieldsets = (
         (
@@ -129,7 +130,6 @@ class OperationAdmin(admin.ModelAdmin):
 
     fields = ("group", "amount")
     autocomplete_fields = ("group",)
-    actions = (mark_as_paid,)
 
     def has_change_permission(self, request, obj=None):
         return request.user.is_superuser
