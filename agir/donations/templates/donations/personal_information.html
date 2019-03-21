@@ -34,18 +34,20 @@
     </div>
   </div>
   <script>
-    var fiscalResident = document.getElementById('id_fiscal_resident')
-    var nationality = document.getElementById('id_nationality')
+    var fiscalResident = document.getElementById('id_fiscal_resident');
+    var nationality = document.getElementById('id_nationality');
 
     function updateFiscalResident () {
-      var currentNationality = nationality.value
-      var display = currentNationality !== '' && currentNationality !== 'FR'
-      fiscalResident.parentNode.style.display = display ? 'block' : 'none'
-      fiscalResident.disabled = !display
-      fiscalResident.required = display
+      var currentNationality = nationality.value;
+      var display = currentNationality !== '' && currentNationality !== 'FR';
+      fiscalResident.parentNode.style.display = display ? 'block' : 'none';
+      fiscalResident.disabled = !display;
+      fiscalResident.required = display;
     }
 
-    nationality.addEventListener('change', updateFiscalResident)
-    updateFiscalResident()
+    if (fiscalResident) {
+      nationality.addEventListener('change', updateFiscalResident);
+      updateFiscalResident();
+    }
   </script>
 {% endblock %}

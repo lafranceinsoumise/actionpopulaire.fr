@@ -249,9 +249,10 @@ class DonorForm(MetaFieldsMixin, forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        nationality, fiscal_resident = (
+        nationality, fiscal_resident, location_country = (
             cleaned_data.get("nationality"),
             cleaned_data.get("fiscal_resident"),
+            cleaned_data.get("location_country"),
         )
 
         if nationality != "FR" and not fiscal_resident:
@@ -262,6 +263,17 @@ class DonorForm(MetaFieldsMixin, forms.ModelForm):
                         "Les personnes non-françaises doivent être fiscalement domiciliées en France."
                     ),
                     code="not_fiscal_resident",
+                ),
+            )
+
+        if fiscal_resident and not location_country == "FR":
+            self.add_error(
+                "location_country",
+                forms.ValidationError(
+                    _(
+                        "Pour pouvoir donner si vous n'êtes pas français, vous devez être domicilié⋅e fiscalement en"
+                        " France et nous indiquer votre adresse fiscale en France."
+                    )
                 ),
             )
 
