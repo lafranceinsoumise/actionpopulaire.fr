@@ -134,6 +134,27 @@
             {% if user.is_authenticated %}
               <li class="menu-item dropdown">
                 <a href="#" data-toggle="dropdown" class="dropdown-toggle">
+                  <i class="fa fa-comment"></i>
+                  {% if notifications.unread %}<span class="badge">{{ notifications.unread }}</span>{% endif %}
+                </a>
+                <ul class="dropdown-menu">
+                  {% for notification in notifications %}
+                    <li class="menu-item small"
+                        {% if not notification.seen %}style="background-color: #cdf7ff;"{% endif %}>
+                      <a href="{% url "follow_notification" notification.id %}" style="white-space: normal;">
+                        {{ notification.html_content }}
+                      </a>
+                    </li>
+
+                  {% empty %}
+                    <li class="menu-item small">
+                      <a>Pas de notifications pour le moment...</a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </li>
+              <li class="menu-item dropdown">
+                <a href="#" data-toggle="dropdown" class="dropdown-toggle">
                   {{ user.person.email }}
                   {% if user.person.contact_phone_status == user.person.CONTACT_PHONE_VERIFIED %}
                     <i class="fa fa-check" title="Utilisateur vérifié !"></i>
