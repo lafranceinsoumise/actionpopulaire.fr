@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 
 from agir.groups.models import SupportGroup
+from agir.lib.data import FRANCE_COUNTRY_CODES
 from agir.lib.form_components import *
 from agir.lib.form_mixins import MetaFieldsMixin
 from agir.people.models import Person, PersonEmail
@@ -266,7 +267,7 @@ class DonorForm(MetaFieldsMixin, forms.ModelForm):
                 ),
             )
 
-        if fiscal_resident and not location_country == "FR":
+        if fiscal_resident and location_country not in FRANCE_COUNTRY_CODES:
             self.add_error(
                 "location_country",
                 forms.ValidationError(

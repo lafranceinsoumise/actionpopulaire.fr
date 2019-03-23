@@ -49,3 +49,20 @@ def departement_from_zipcode(zipcode):
     if zipcode[:2] == "20":
         zipcode = "2A"
     return departements_map.get(zipcode[:2], None)
+
+
+FRANCE_COUNTRY_CODES = [
+    "FR",  # France
+    "GF",  # Guyane française
+    "PF",  # Polynésie française
+    "TF",  # Territoires australs
+    "BL",  # Saint-Barthélémy
+    "MF",  # Saint-Martin
+    "PM",  # Saint-Pierre-et-Miquelon
+    "GP",  # Guadeloupe
+    "MQ",  # Martinique
+    "YT",  # Mayotte
+    "RE",  # Réunion
+    "NC",  # Nouvelle Calédonie
+    "WF",  # Wallis-et-Futuna
+]
