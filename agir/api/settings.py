@@ -545,7 +545,7 @@ SYSTEMPAY_AFCE_CERTIFICATE = os.environ.get(
 DONATION_MINIMUM = 1
 DONATION_MAXIMUM = 1000
 
-LOAN_MINIMUM = 100
+LOAN_MINIMUM = 400
 LOAN_MAXIMUM = 10000
 
 # France + most numerous communities in France

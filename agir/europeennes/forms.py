@@ -40,7 +40,7 @@ class LoanForm(SimpleDonationForm):
         widget=forms.NumberInput(
             attrs={
                 "data-amount-choices": ",".join(
-                    str(i) for i in [5000, 2000, 1000, 500, 100]
+                    str(i) for i in [10000, 5000, 2000, 1000, 400]
                 ),
                 "data-hide-tax-credit": "Y",
             }
@@ -83,7 +83,7 @@ class LenderForm(SimpleDonorForm):
 
         self.fields["declaration"].label = _(
             "Je certifie sur l'honneur être une personne physique et que le réglement de mon prêt ne provient pas d'une"
-            "personne morale mais de mon compte ne banque personnel."
+            " personne morale mais de mon compte ne banque personnel."
         )
         # retirer le help_text qui indique qu'un reçu fiscal sera émis (ce qui n'est pas le cas pour un prêt)
         self.fields["declaration"].help_text = None
