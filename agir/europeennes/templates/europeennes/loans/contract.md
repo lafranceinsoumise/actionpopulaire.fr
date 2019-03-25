@@ -46,6 +46,6 @@ L'emprunteuse,
 Candidate tête de liste 
 
 {{ le }} {{ preteur }}  
-**{{ name }}**
+**{{ name }}**  
 {{ signature }}
 </div>

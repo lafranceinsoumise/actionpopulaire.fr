@@ -31,11 +31,10 @@ def generate_contract(self, payment_id, force=False):
         return payment.meta["contract_path"]
 
     contract_information = payment.meta
-    contract_information["signature_date"] = (
+    contract_information["signature_datetime"] = (
         timezone.now()
         .astimezone(timezone.get_default_timezone())
-        .date()
-        .strftime("%d/%m/%Y")
+        .strftime("%d/%m/%Y à %H:%M")
     )
 
     pdf_media_path = contract_path(payment)

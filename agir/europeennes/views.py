@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.views.generic import FormView, TemplateView
 
 from agir.authentication.utils import hard_login
@@ -114,6 +115,12 @@ class LoanContractView(SoftLoginRequiredMixin, FormView):
         del self.request.session[LOANS_CONTRACT_SESSION_NAMESPACE]
 
     def form_valid(self, form):
+        self.contract_information["acceptance_datetime"] = (
+            timezone.now()
+            .astimezone(timezone.get_default_timezone())
+            .strftime("%d/%m/%Y à %H:%M")
+        )
+
         with transaction.atomic():
             payment = create_payment(
                 person=self.request.user.person,

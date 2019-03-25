@@ -38,11 +38,12 @@ PAYMENT = {
 
 def generate_html_contract(contract_information, baselevel=1):
     gender = contract_information["gender"]
+    signed = "signature_datetime" in contract_information
 
     contract_markdown = get_template("europeennes/loans/contract.md").render(
         context={
-            "lender_date_of_birth": "XX/XX/XXXX",
-            "lender_place_of_birth": "XXXXXXX",
+            "lender_date_of_birth": "22/12/1989",
+            "lender_place_of_birth": "Fréjus (Var)",
             "name": f'{contract_information["first_name"]} {contract_information["last_name"]}',
             "address": "personal address",
             "date_of_birth": contract_information["date_of_birth"],
@@ -51,7 +52,9 @@ def generate_html_contract(contract_information, baselevel=1):
             "amount_letters": num2words(contract_information["amount"] / 100, lang="fr")
             + " euros",
             "amount_figure": display_price(contract_information["amount"]),
-            "signature_date": contract_information.get("signature_date", "XX/XX/XXXX"),
+            "signature_date": contract_information.get(
+                "signature_datetime", "XX/XX/XXXX"
+            ),
             "e": FINAL_E[gender],
             "preteur": LENDER[gender],
             "le": ARTICLE[gender],
@@ -59,6 +62,9 @@ def generate_html_contract(contract_information, baselevel=1):
             "du": DETERMINANT[gender],
             "il": PRONOUN[gender],
             "mode_paiement": PAYMENT[contract_information["payment_mode"]],
+            "signature": f"Accepté en ligne le {contract_information['acceptance_datetime']}"
+            if signed
+            else "",
         }
     )
 
