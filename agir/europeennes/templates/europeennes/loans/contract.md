@@ -25,7 +25,7 @@ Le prêt s’inscrit dans le cadre de l’article 26 de la Loi n°2017-1339 du 1
 {{ Le }} {{ preteur }} consent à l'emprunteuse qui l’accepte un prêt d'un montant de {{ amount_letters }} ({{ amount_figure }}) dans les conditions suivantes :
 
 ### Mise à disposition
-Les sommes prêtées seront versées par {{ le }} {{ preteur }} par chèque bancaire tiré de son compte personnel et portées au crédit du compte du mandataire financier de la liste : AFCE LFI 2019.
+Les sommes prêtées seront versées par {{ le }} {{ preteur }} par {{ mode_paiement }} et portées au crédit du compte du mandataire financier de la liste : AFCE LFI 2019.
 							
 ### Coût et durée du prêt
 Le prêt est consenti sans intérêt et pour une durée maximale de douze mois.
@@ -41,10 +41,11 @@ Pour l'exécution des présentes et de leurs suites, les parties font élection 
 Fait en deux exemplaires originaux à Paris, le {{ signature_date }}
 
 <div class="signatures" markdown="1">
-Signature de l'emprunteuse,  
+L'emprunteuse,  
 **Manon AUBRY**  
 Candidate tête de liste 
 
-Signature {{ du }} {{ preteur }}  
+{{ le }} {{ preteur }}  
 **{{ name }}**
+{{ signature }}
 </div>

@@ -30,6 +30,10 @@ LENDER = {"M": "prêteur", "F": "prêteuse", "O": "prêteur⋅euse"}
 ARTICLE = {"M": "le", "F": "la", "O": "le-la"}
 PRONOUN = {"M": "il", "F": "elle", "O": "il-elle"}
 DETERMINANT = {"M": "du", "F": "de la", "O": "du/de la"}
+PAYMENT = {
+    "check_afce": "chèque bancaire tiré de son compte personnel",
+    "system_pay_afce": "paiement par carte bancaire depuis son compte personnel",
+}
 
 
 def generate_html_contract(contract_information, baselevel=1):
@@ -54,6 +58,7 @@ def generate_html_contract(contract_information, baselevel=1):
             "Le": ARTICLE[gender].capitalize(),
             "du": DETERMINANT[gender],
             "il": PRONOUN[gender],
+            "mode_paiement": PAYMENT[contract_information["payment_mode"]],
         }
     )
 
