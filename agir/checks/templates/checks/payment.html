@@ -15,7 +15,7 @@
       </p>
 
         <ul>
-          <li>Ordre : <strong>AFLFI</strong></li>
+          <li>Ordre : <strong>{{ order }}</strong></li>
           <li>Montant : <strong>{{ payment.get_price_display }}</strong></li>
           <li>Numéro de commande à inscrire au dos du chèque : <strong>{{ payment.id }}</strong></li>
         </ul>
@@ -23,9 +23,7 @@
           Merci d'envoyer votre chèque à l'adresse suivante :
         </p>
         <div class="well">
-          AFLFI &mdash; Service événements<br>
-          43 rue de Dunkerque<br>
-          75010 Paris<br>
+          {{ address }}
         </div>
 
 

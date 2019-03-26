@@ -1,26 +1,12 @@
 from django.utils.translation import ugettext_lazy as _
-from django.utils.functional import cached_property
 
-from ..payments.abstract_payment_mode import AbstractPaymentMode
+from agir.checks.payment_mode import AbstractCheckPaymentMode
 
 
-class CheckPaymentMode(AbstractPaymentMode):
+class CheckPaymentMode(AbstractCheckPaymentMode):
     id = "check"
     url_fragment = "cheque"
     label = _("Paiement par chèque")
 
-    can_retry = True
-    can_cancel = True
-    can_admin = True
-
-    @cached_property
-    def payment_view(self):
-        from . import views
-
-        return views.CheckView.as_view()
-
-    @cached_property
-    def retry_payment_view(self):
-        from . import views
-
-        return views.CheckView.as_view()
+    order = "AFLFI"
+    address = ["AFLFI - Service événements", "43 rue de Dunkerque", "75010 Paris"]

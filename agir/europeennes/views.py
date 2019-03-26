@@ -145,7 +145,3 @@ def loan_notification_listener(payment):
             generate_contract.si(payment.id)
             | send_contract_confirmation_email.si(payment.id)
         ).delay()
-
-
-class AFCECheckView(CheckView):
-    template_name = "europeennes/checks/payment.html"
