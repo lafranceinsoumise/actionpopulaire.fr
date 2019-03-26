@@ -43,6 +43,12 @@ class AmountWidget extends React.Component {
   }
 
   updateWithCustomValue(s) {
+    if (s === "") {
+      this.setState({ custom: false });
+      this.props.onAmountChange(null);
+      return;
+    }
+
     const m = s.match(/^([0-9]+)(?:(,[0-9]*))?$/);
 
     if (m !== null) {
