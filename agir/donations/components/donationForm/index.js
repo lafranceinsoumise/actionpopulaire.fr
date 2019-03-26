@@ -35,6 +35,8 @@ const replaceForm = selector => {
   const amountInput = form.querySelector('input[name="amount"]');
   props.minAmount = parseFloat(amountInput.min);
   props.maxAmount = parseFloat(amountInput.max);
+  props.minAmountError = amountInput.dataset.minAmountError;
+  props.maxAmountError = amountInput.dataset.maxAmountError;
   props.amountChoices = amountInput.dataset.amountChoices
     ? amountInput.dataset.amountChoices.split(",").map(n => +n)
     : null;

@@ -38,6 +38,8 @@ class DonationForm extends React.Component {
       csrfToken,
       minAmount,
       maxAmount,
+      minAmountError,
+      maxAmountError,
       amountChoices,
       showTaxCredit,
       buttonLabel
@@ -47,14 +49,10 @@ class DonationForm extends React.Component {
     const customError =
       amount === null
         ? null
-        : amount < minAmount
-        ? `Il n'est pas possible de donner moins de ${displayPrice(
-            minAmount
-          )} par carte bleue.`
-        : amount > maxAmount
-        ? `Il n'est pas possible de donner plus de ${displayPrice(
-            maxAmount
-          )} par carte bleue.`
+        : minAmount && amount < minAmount
+        ? minAmountError
+        : maxAmount && amount > maxAmount
+        ? maxAmountError
         : null;
 
     return (
@@ -98,6 +96,8 @@ class DonationForm extends React.Component {
 DonationForm.propTypes = {
   minAmount: PropTypes.number,
   maxAmount: PropTypes.number,
+  minAmountError: PropTypes.string,
+  maxAmountError: PropTypes.string,
   amountChoices: PropTypes.array,
   showTaxCredit: PropTypes.bool,
   initialGroup: PropTypes.string,

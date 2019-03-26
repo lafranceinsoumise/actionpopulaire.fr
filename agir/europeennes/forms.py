@@ -9,6 +9,7 @@ from django_countries import countries
 from django_countries.fields import LazyTypedChoiceField
 
 from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
+from agir.donations.form_fields import AskAmountField
 from agir.lib.data import departements_choices
 from agir.lib.form_fields import IBANField
 from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
@@ -18,7 +19,7 @@ from agir.people.models import Person
 class LoanForm(SimpleDonationForm):
     button_label = "Je prête !"
 
-    amount = forms.DecimalField(
+    amount = AskAmountField(
         label="Montant du prêt",
         max_value=settings.LOAN_MAXIMUM,
         min_value=settings.LOAN_MINIMUM,
@@ -27,7 +28,7 @@ class LoanForm(SimpleDonationForm):
         error_messages={
             "invalid": _("Indiquez le montant à prêter."),
             "min_value": format_lazy(
-                _("Il n'est pas possible de prêter moins que {min} €."),
+                _("Les prêts de moins de 400 € ne sont pas acceptés."),
                 min=settings.LOAN_MINIMUM,
             ),
             "max_value": format_lazy(
@@ -37,14 +38,8 @@ class LoanForm(SimpleDonationForm):
                 max=settings.LOAN_MAXIMUM,
             ),
         },
-        widget=forms.NumberInput(
-            attrs={
-                "data-amount-choices": ",".join(
-                    str(i) for i in [10000, 5000, 2000, 1000, 400]
-                ),
-                "data-hide-tax-credit": "Y",
-            }
-        ),
+        amount_choices=[10000, 5000, 2000, 1000, 400],
+        show_tax_credit=False,
     )
 
 

@@ -10,6 +10,7 @@ from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 
+from agir.donations.form_fields import AskAmountField
 from agir.lib.form_mixins import MetaFieldsMixin
 from agir.people.models import PersonEmail, Person
 
@@ -17,7 +18,7 @@ from agir.people.models import PersonEmail, Person
 class SimpleDonationForm(forms.Form):
     button_label = "Je donne !"
 
-    amount = forms.DecimalField(
+    amount = AskAmountField(
         label="Montant du don",
         max_value=settings.DONATION_MAXIMUM,
         min_value=settings.DONATION_MINIMUM,
@@ -27,11 +28,11 @@ class SimpleDonationForm(forms.Form):
             "invalid": _("Indiquez le montant à donner."),
             "min_value": format_lazy(
                 _("Il n'est pas possible de donner moins que {min} €."),
-                min=settings.LOAN_MINIMUM,
+                min=settings.DONATION_MINIMUM,
             ),
             "max_value": format_lazy(
                 _("Les dons de plus de {max} € ne peuvent être faits par carte bleue."),
-                max=settings.LOAN_MAXIMUM,
+                max=settings.DONATION_MAXIMUM,
             ),
         },
     )

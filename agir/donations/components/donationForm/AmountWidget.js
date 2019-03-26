@@ -61,7 +61,7 @@ class AmountWidget extends React.Component {
 
     return (
       <div className="amount-component">
-        <div className="form-group">
+        <div className={`form-group${error ? " has-error" : ""}`}>
           <input type="hidden" value={amount ? amount : ""} name="amount" />
           {amountChoices.map(value => (
             <AmountButton
