@@ -1,4 +1,5 @@
 import ics
+from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -85,13 +86,17 @@ class EventListView(SearchByZipcodeBaseView):
 class EventDetailView(ObjectOpengraphMixin, PermissionsRequiredMixin, DetailView):
     template_name = "events/detail.html"
     permissions_required = ("events.view_event",)
-    permission_denied_to_not_found = True
     model = Event
 
     title_prefix = _("Evénement local")
     meta_description = _(
         "Participez aux événements organisés par les membres de la France insoumise."
     )
+
+    def get_permission_denied_response(self, event):
+        if event.visibility == Event.VISIBILITY_ADMIN:
+            raise Http404()
+        return redirect_to_login(self.request.get_full_path())
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(

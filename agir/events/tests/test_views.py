@@ -173,7 +173,12 @@ class EventPagesTestCase(TestCase):
         res = self.client.get(
             reverse("view_event", kwargs={"pk": self.organized_event.pk})
         )
-        self.assertNotContains(res, self.organized_event.name, status_code=404)
+        self.assertRedirects(
+            res,
+            reverse("short_code_login")
+            + "?next="
+            + reverse("view_event", kwargs={"pk": self.organized_event.pk}),
+        )
 
         self.client.force_login(self.person.role)
         res = self.client.get(

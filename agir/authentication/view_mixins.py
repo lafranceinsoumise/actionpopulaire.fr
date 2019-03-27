@@ -40,6 +40,11 @@ class PermissionsRequiredMixin(object):
             self._cached_object = super().get_object()
         return self._cached_object
 
+    def get_permission_denied_response(self, object):
+        if self.permission_denied_to_not_found:
+            raise Http404()
+        raise PermissionDenied(self.permission_denied_message)
+
     def dispatch(self, *args, **kwargs):
         # check if there are some perms that the user does not have globally
         user = self.request.user
@@ -52,8 +57,6 @@ class PermissionsRequiredMixin(object):
 
             for perm in local_perms:
                 if not user.has_perm(perm, obj):
-                    if self.permission_denied_to_not_found:
-                        raise Http404()
-                    raise PermissionDenied(self.permission_denied_message)
+                    return self.get_permission_denied_response(obj)
 
         return super().dispatch(*args, **kwargs)
