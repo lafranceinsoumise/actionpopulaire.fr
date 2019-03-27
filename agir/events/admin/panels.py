@@ -78,6 +78,24 @@ class EventHasReportFilter(admin.SimpleListFilter):
             return queryset.filter(report_content="")
 
 
+class LegalFileFilter(admin.SimpleListFilter):
+    title = _("Document légal téléversé")
+    parameter_name = "has_legal_file"
+
+    def lookups(self, request, model_admin):
+        return (("yes", _("Présent")), ("no", _("Absent")))
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(
+                legal__has_any_keys=["salle_file", "bill_file"]
+            ).exclude(legal__salle_file__isnull=True, legal__bill_file__isnull=True)
+        if self.value() == "no":
+            return queryset.exclude(
+                legal__salle_file__isnull=True, legal__bill_file__isnull=True
+            )
+
+
 class OrganizerConfigInlineAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -254,6 +272,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
         EventStatusFilter,
         "visibility",
         EventHasReportFilter,
+        LegalFileFilter,
         DepartementListFilter,
         RegionListFilter,
         "coordinates_type",
