@@ -94,9 +94,8 @@ class LegalFileFilter(admin.SimpleListFilter):
                 legal__documents_bill_file__isnull=True,
             )
         if self.value() == "no":
-            return queryset.exclude(
-                legal__documents_salle_file__isnull=True,
-                legal__documents_bill_file__isnull=True,
+            return queryset.exclude(legal__documents_salle_file__isnull=False).exclude(
+                legal__documents_bill_file__isnull=False
             )
 
 
