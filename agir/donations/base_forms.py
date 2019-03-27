@@ -12,7 +12,7 @@ from django_countries.fields import CountryField
 
 from agir.donations.form_fields import AskAmountField
 from agir.lib.form_mixins import MetaFieldsMixin
-from agir.people.models import PersonEmail, Person
+from agir.people.models import Person
 
 
 class SimpleDonationForm(forms.Form):
@@ -58,6 +58,13 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
         ),
     )
 
+    subscribed = forms.BooleanField(
+        label=_(
+            "Je souhaite être tenu informé de l'actualité de la France insoumise par email."
+        ),
+        required=False,
+    )
+
     amount = forms.IntegerField(
         max_value=settings.DONATION_MAXIMUM * 100,
         min_value=settings.DONATION_MINIMUM * 100,
@@ -101,17 +108,12 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
 
         self.adding = self.instance._state.adding
 
-        self.fields["gender"].required = True
-
         if not self.adding:
             del self.fields["email"]
 
         # we remove the subscribed field for people who are already subscribed
         if not self.adding and self.instance.subscribed:
             del self.fields["subscribed"]
-        else:
-            # we want the subscribed field to be prechecked only for new email subscribers
-            self.fields["subscribed"].initial = self.adding
 
         for f in [
             "first_name",
@@ -131,7 +133,7 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
         if "email" in self.fields:
             fields.append("email")
 
-        fields.extend(["declaration", "nationality", "fiscal_resident"])
+        fields.extend(["nationality", "fiscal_resident"])
         fields.extend(["first_name", "last_name"])
         fields.extend(
             [
@@ -150,6 +152,11 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
         fields.append("location_country")
 
         fields.append("contact_phone")
+
+        fields.append("declaration")
+
+        if "subscribed" in self.fields:
+            fields.append("subscribed")
 
         self.helper = FormHelper()
         self.helper.add_input(
@@ -184,12 +191,6 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
             )
 
         return cleaned_data
-
-    def _save_m2m(self):
-        if self.adding:
-            PersonEmail.objects.create_email(
-                address=self.cleaned_data["email"], person=self.instance
-            )
 
     class Meta:
         model = Person

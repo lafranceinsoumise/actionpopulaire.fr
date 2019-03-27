@@ -2,7 +2,6 @@ from crispy_forms import layout
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.conf import settings
-from django.contrib.postgres.forms import JSONField
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django_countries import countries
@@ -79,6 +78,7 @@ class LenderForm(SimpleDonorForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["gender"].required = True
         self.fields["date_of_birth"].required = True
         self.fields["declaration"].label = _(
             "Je certifie sur l'honneur être une personne physique et que le réglement de mon prêt ne provient pas d'une"
@@ -89,28 +89,40 @@ class LenderForm(SimpleDonorForm):
 
         del self.fields["fiscal_resident"]
 
-        self.helper.layout = layout.Layout(
-            "amount",
-            "declaration",
-            "nationality",
-            "first_name",
-            "last_name",
-            "gender",
-            layout.Field("date_of_birth", placeholder="JJ/MM/AAAA"),
-            "country_of_birth",
-            "city_of_birth",
-            "departement_of_birth",
-            layout.Field("location_address1", placeholder="Ligne 1"),
-            layout.Field("location_address2", placeholder="Ligne 2"),
-            layout.Row(
-                layout.Div("location_zip", css_class="col-md-4"),
-                layout.Div("location_city", css_class="col-md-8"),
-            ),
-            "location_country",
-            "contact_phone",
-            "iban",
-            "payment_mode",
+        fields = ["amount"]
+
+        if "email" in self.fields:
+            fields.append("email")
+
+        fields.extend(
+            [
+                "amount",
+                "nationality",
+                "first_name",
+                "last_name",
+                "gender",
+                layout.Field("date_of_birth", placeholder="JJ/MM/AAAA"),
+                "country_of_birth",
+                "city_of_birth",
+                "departement_of_birth",
+                layout.Field("location_address1", placeholder="Ligne 1"),
+                layout.Field("location_address2", placeholder="Ligne 2"),
+                layout.Row(
+                    layout.Div("location_zip", css_class="col-md-4"),
+                    layout.Div("location_city", css_class="col-md-8"),
+                ),
+                "location_country",
+                "contact_phone",
+                "iban",
+                "payment_mode",
+                "declaration",
+            ]
         )
+
+        if "subscribed" in self.fields:
+            fields.append("subscribed")
+
+        self.helper.layout = layout.Layout(*fields)
 
     def clean(self):
         cleaned_data = super().clean()

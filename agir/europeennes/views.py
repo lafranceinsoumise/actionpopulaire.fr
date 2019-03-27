@@ -7,9 +7,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import FormView, TemplateView
 
-from agir.authentication.utils import hard_login
-from agir.authentication.view_mixins import SoftLoginRequiredMixin
-from agir.checks.views import CheckView
+from agir.donations.actions import find_or_create_person_from_payment
 from agir.donations.base_views import BaseAskAmountView
 from agir.donations.views import BasePersonalInformationView
 from agir.europeennes import AFCESystemPayPaymentMode
@@ -80,9 +78,6 @@ class LoanPersonalInformationView(BasePersonalInformationView):
         }
 
     def form_valid(self, form):
-        person = form.save()
-        if self.request.user.is_anonymous:
-            hard_login(self.request, person)
         self.request.session[
             LOANS_CONTRACT_SESSION_NAMESPACE
         ] = self.prepare_data_for_serialization(form.cleaned_data)
@@ -90,7 +85,7 @@ class LoanPersonalInformationView(BasePersonalInformationView):
         return HttpResponseRedirect(reverse("europeennes_loan_sign_contract"))
 
 
-class LoanContractView(SoftLoginRequiredMixin, FormView):
+class LoanContractView(FormView):
     form_class = ContractForm
     template_name = "europeennes/loans/validate_contract.html"
 
@@ -123,13 +118,26 @@ class LoanContractView(SoftLoginRequiredMixin, FormView):
             .strftime("%d/%m/%Y à %H:%M")
         )
 
+        person = None
+        if self.request.user.is_authenticated:
+            person = self.request.user.person
+
+        payment_fields = [f.name for f in Payment._meta.get_fields()]
+
+        kwargs = {
+            f: v for f, v in self.contract_information.items() if f in payment_fields
+        }
+        if "email" in self.contract_information:
+            kwargs["email"] = self.contract_information["email"]
+
         with transaction.atomic():
             payment = create_payment(
-                person=self.request.user.person,
+                person=person,
                 mode=self.contract_information["payment_mode"],
                 type=EuropeennesConfig.LOAN_PAYMENT_TYPE,
                 price=self.contract_information["amount"],
                 meta=self.contract_information,
+                **kwargs
             )
 
         self.clear_session()
@@ -143,6 +151,7 @@ class LoanReturnView(TemplateView):
 
 def loan_notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
+        find_or_create_person_from_payment(payment)
         (
             generate_contract.si(payment.id)
             | send_contract_confirmation_email.si(payment.id)

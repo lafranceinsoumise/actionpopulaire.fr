@@ -17,6 +17,7 @@ from agir.donations.actions import (
     can_edit,
     EDITABLE_STATUSES,
     get_current_action,
+    find_or_create_person_from_payment,
 )
 from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
 from agir.donations.forms import (
@@ -28,6 +29,7 @@ from agir.donations.forms import (
 from agir.groups.models import SupportGroup, Membership
 from agir.payments import payment_modes
 from agir.payments.models import Payment
+from agir.people.models import Person
 from . import forms
 from .models import SpendingRequest, Operation, Document
 from .tasks import send_donation_email
@@ -92,17 +94,17 @@ class PersonalInformationView(BasePersonalInformationView):
             **kwargs
         )
 
-    def get_payment_metas(self, form):
-        metas = super().get_payment_metas(form)
+    def get_payment_meta(self, form):
+        meta = super().get_payment_meta(form)
 
         allocation = form.cleaned_data["allocation"]
         group = form.cleaned_data["group"]
 
         if allocation and group:
-            metas["allocation"] = allocation
-            metas["group_id"] = str(group.pk)
+            meta["allocation"] = allocation
+            meta["group_id"] = str(group.pk)
 
-        return metas
+        return meta
 
 
 class ReturnView(TemplateView):
@@ -111,6 +113,7 @@ class ReturnView(TemplateView):
 
 def notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
+        find_or_create_person_from_payment(payment)
         send_donation_email.delay(payment.person.pk)
 
         if (

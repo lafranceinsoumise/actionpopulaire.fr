@@ -5,6 +5,7 @@ from django.views.generic import FormView, UpdateView
 import agir.donations.base_forms
 from agir.donations.apps import DonsConfig
 from agir.payments.actions import create_payment, redirect_to_payment
+from agir.payments.models import Payment
 from agir.people.models import Person
 
 
@@ -48,15 +49,8 @@ class BasePersonalInformationView(UpdateView):
     def get_object(self, queryset=None):
         if self.request.user.is_authenticated:
             return self.request.user.person
-
-        form = self.get_form()
-        if form.is_valid():
-            try:
-                return Person.objects.get_by_natural_key(form.cleaned_data["email"])
-            except Person.DoesNotExist:
-                pass
-
-        return None
+        else:
+            return None
 
     def get_form_kwargs(self):
         return {**super().get_form_kwargs(), **self.persistent_data}
@@ -64,21 +58,32 @@ class BasePersonalInformationView(UpdateView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(amount=self.persistent_data["amount"], **kwargs)
 
-    def get_payment_metas(self, form):
-        return {"nationality": form.cleaned_data["nationality"]}
+    def get_payment_meta(self, form):
+        return {
+            "nationality": form.cleaned_data["nationality"],
+            **{
+                k: v for k, v in form.cleaned_data.items() if k in form._meta.fields
+            },  # person fields
+        }
 
     def form_valid(self, form):
-        person = form.save()
         amount = self.persistent_data["amount"]
-        payment_metas = self.get_payment_metas(form)
+        payment_metas = self.get_payment_meta(form)
+
+        payment_fields = [f.name for f in Payment._meta.get_fields()]
+
+        kwargs = {f: v for f, v in form.cleaned_data.items() if f in payment_fields}
+        if "email" in form.cleaned_data:
+            kwargs["email"] = form.cleaned_data["email"]
 
         with transaction.atomic():
             payment = create_payment(
-                person=person,
+                person=self.object,
                 mode=self.payment_mode,
                 type=DonsConfig.PAYMENT_TYPE,
                 price=amount,
                 meta=payment_metas,
+                **kwargs
             )
 
         self.clear_session()
