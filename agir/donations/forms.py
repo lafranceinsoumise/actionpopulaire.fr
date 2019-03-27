@@ -223,7 +223,7 @@ class DonorForm(MetaFieldsMixin, forms.ModelForm):
         if "email" in self.fields:
             fields.append("email")
 
-        fields.extend(["declaration", "nationality", "fiscal_resident"])
+        fields.extend(["nationality", "fiscal_resident"])
         fields.extend(["first_name", "last_name"])
         fields.extend(
             [
@@ -242,6 +242,8 @@ class DonorForm(MetaFieldsMixin, forms.ModelForm):
         fields.append("location_country")
 
         fields.append("contact_phone")
+
+        fields.append("declaration")
 
         self.helper = FormHelper()
         self.helper.add_input(
