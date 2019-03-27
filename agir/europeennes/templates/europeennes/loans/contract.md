@@ -31,7 +31,7 @@ Les sommes prêtées seront versées par {{ le }} {{ preteur }} par {{ mode_paie
 Le prêt est consenti sans intérêt et pour une durée maximale de douze mois.
 
 ### Modalités de remboursement
-Il est d'ores et déjà convenu entre les soussigné{{ e }}s que le remboursement sera effectué sur le compte personnel {{ du }} {{ preteur }} par virement bancaire au plus tard le 28/02/2020.  
+Il est d'ores et déjà convenu entre les soussigné{{ e }}s que le remboursement sera effectué sur le compte personnel {{ du }} {{ preteur }} par virement bancaire au plus tard le 31/03/2020.  
 L'emprunteuse aura toutefois la faculté de se libérer par anticipation de tout ou partie du prêt à sa pure convenance.
 
 ### Domicile

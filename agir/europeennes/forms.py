@@ -65,7 +65,7 @@ class LenderForm(SimpleDonorForm):
             PAYMENT_MODES["system_pay_afce_pret"],
             PAYMENT_MODES["check_afce"],
         ],
-        label="Comment souhaitez-vous prêtez l'argent ?",
+        label="Comment souhaitez-vous prêter l'argent ?",
     )
 
     iban = IBANField(
