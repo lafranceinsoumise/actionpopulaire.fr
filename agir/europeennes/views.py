@@ -45,6 +45,7 @@ class DonationPersonalInformationView(BasePersonalInformationView):
     template_name = "europeennes/donations/personal_information.html"
     payment_mode = AFCESystemPayPaymentMode.id
     session_namespace = DONATIONS_SESSION_NAMESPACE
+    base_redirect_url = "europeennes_donation_amount"
 
 
 class LoanAskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
@@ -67,6 +68,7 @@ class LoanPersonalInformationView(BasePersonalInformationView):
     template_name = "europeennes/loans/personal_information.html"
     session_namespace = LOANS_INFORMATION_SESSION_NAMESPACE
     form_class = LenderForm
+    base_redirect_url = "europeennes_loan_amount"
 
     def prepare_data_for_serialization(self, data):
         return {

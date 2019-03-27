@@ -79,6 +79,7 @@ class LenderForm(SimpleDonorForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["date_of_birth"].required = True
         self.fields["declaration"].label = _(
             "Je certifie sur l'honneur être une personne physique et que le réglement de mon prêt ne provient pas d'une"
             " personne morale mais de mon compte ne banque personnel."

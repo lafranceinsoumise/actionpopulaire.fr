@@ -30,10 +30,14 @@ class BasePersonalInformationView(UpdateView):
     template_name = "donations/personal_information.html"
     payment_mode = None
     session_namespace = "_donation_"
+    base_redirect_url = None
 
     def dispatch(self, request, *args, **kwargs):
-        if not isinstance(request.session.get(self.session_namespace, None), dict):
-            return redirect("donation_amount")
+        if (
+            not isinstance(request.session.get(self.session_namespace, None), dict)
+            or "amount" not in request.session[self.session_namespace]
+        ):
+            return redirect(self.base_redirect_url)
 
         self.persistent_data = request.session[self.session_namespace]
         return super().dispatch(request, *args, **kwargs)

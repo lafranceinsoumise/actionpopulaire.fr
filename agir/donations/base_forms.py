@@ -101,6 +101,8 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
 
         self.adding = self.instance._state.adding
 
+        self.fields["gender"].required = True
+
         if not self.adding:
             del self.fields["email"]
 

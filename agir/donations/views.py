@@ -71,6 +71,7 @@ class PersonalInformationView(BasePersonalInformationView):
     enable_allocations = True
     payment_mode = payment_modes.DEFAULT_MODE
     session_namespace = DONATION_SESSION_NAMESPACE
+    base_redirect_url = "donation_amount"
 
     def get_context_data(self, **kwargs):
         amount = self.persistent_data["amount"]
