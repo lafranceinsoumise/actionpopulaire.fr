@@ -52,7 +52,9 @@ class DonationForm(forms.Form):
         queryset=SupportGroup.objects.active().certified().order_by("name"),
         empty_label="Aucun groupe",
         required=False,
-        help_text="Vous pouvez désigner un groupe auquel votre don sera en partie ou en totalité alloué.",
+        help_text="Vous pouvez désigner un groupe auquel votre don sera en partie ou en totalité alloué. Si vous "
+        "voulez choisir un groupe dont vous n'être pas membre, rendez-vous sur la page de ce groupe et "
+        "cliquez sur &laquo;&nbsp;Financer les actions de ce groupe&nbsp;&raquo;",
     )
 
     allocation = forms.DecimalField(

@@ -20,6 +20,11 @@ const GroupSelector = ({ choices, value, onGroupChange }) => (
         </option>
       ))}
     </select>
+    <div className="small help-text padtop">
+      Si vous voulez choisir un groupe dont vous n'être pas membre, rendez-vous
+      sur la page de ce groupe et cliquez sur &laquo;&nbsp;Financer les actions
+      de ce groupe&nbsp;&raquo;.
+    </div>
   </div>
 );
 
