@@ -88,11 +88,15 @@ class LegalFileFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() == "yes":
             return queryset.filter(
-                legal__has_any_keys=["salle_file", "bill_file"]
-            ).exclude(legal__salle_file__isnull=True, legal__bill_file__isnull=True)
+                legal__has_any_keys=["documents_salle_file", "documents_bill_file"]
+            ).exclude(
+                legal__documents_salle_file__isnull=True,
+                legal__documents_bill_file__isnull=True,
+            )
         if self.value() == "no":
             return queryset.exclude(
-                legal__salle_file__isnull=True, legal__bill_file__isnull=True
+                legal__documents_salle_file__isnull=True,
+                legal__documents_bill_file__isnull=True,
             )
 
 
