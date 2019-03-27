@@ -198,7 +198,13 @@ class InsoumisePreferencesForm(TagMixin, PreferencesFormMixin):
             _(
                 "Recevoir les informations liées aux cours de l'École de Formation insoumise"
             ),
-        )
+        ),
+        (
+            "volontaire_procurations",
+            _(
+                "J'accepte d'être solicité⋅e pour prendre des procurations lors d'élections."
+            ),
+        ),
     ]
     tag_model_class = PersonTag
 
@@ -224,6 +230,7 @@ class InsoumisePreferencesForm(TagMixin, PreferencesFormMixin):
                 Fieldset(
                     _("Ma participation"),
                     Row(HalfCol("draw_participation"), HalfCol("gender")),
+                    Row(HalfCol("volontaire_procurations")),
                 ),
             ]
         )
@@ -243,6 +250,11 @@ class InsoumisePreferencesForm(TagMixin, PreferencesFormMixin):
         )
         self.fields["newsletter_efi"].help_text = _(
             "Je recevrai notamment des infos et des rappels sur les cours " "à venir."
+        )
+
+        self.fields["volontaire_procurations"].help_text = _(
+            "Si des électrices ou des électeurs nous contactent pour trouver une personne à qui donner procuration lors "
+            "d'une élection, nous nous tournerons vers vous."
         )
 
     def clean(self):
