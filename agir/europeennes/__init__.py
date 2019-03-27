@@ -22,12 +22,23 @@ class AFCESystemPayPaymentMode(SystemPayPaymentMode):
     }
 
 
+class AFCELoansSystemPayPaymentMode(SystemPayPaymentMode):
+    id = "system_pay_afce_pret"
+    url_fragment = "carte-afce-pret"
+    label = _("Versement par carte bleue à l'AFCE LFI")
+
+    sp_config = {
+        "site_id": settings.SYSTEMPAY_AFCE_LOANS_SITE_ID,
+        "production": settings.SYSTEMPAY_AFCE_LOANS_PRODUCTION,
+        "currency": settings.SYSTEMPAY_CURRENCY,
+        "certificate": settings.SYSTEMPAY_AFCE_LOANS_CERTIFICATE,
+    }
+
+
 class AFCECheckPaymentMode(AbstractCheckPaymentMode):
     id = "check_afce"
     url_fragment = "afce_cheque"
-    label = _(
-        "Chèque à l'ordre de l'AFCFE LFI (Association de financement de la campagne européenne de la France insoumise)"
-    )
+    label = _("Chèque à l'ordre de l'AFCFE LFI")
 
     order = "AFCE LFI 2019"
     address = ["AFCE LFI 2019", "43 rue de Dunkerque", "75010 Paris"]

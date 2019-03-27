@@ -32,7 +32,7 @@ PRONOUN = {"M": "il", "F": "elle", "O": "il-elle"}
 DETERMINANT = {"M": "du", "F": "de la", "O": "du/de la"}
 PAYMENT = {
     "check_afce": "chèque bancaire tiré de son compte personnel",
-    "system_pay_afce": "paiement par carte bancaire depuis son compte personnel",
+    "system_pay_afce_pret": "paiement par carte bancaire depuis son compte personnel",
 }
 
 

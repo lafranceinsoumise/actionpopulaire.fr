@@ -62,7 +62,10 @@ class LenderForm(SimpleDonorForm):
     )
 
     payment_mode = PaymentModeField(
-        payment_modes=[PAYMENT_MODES["system_pay_afce"], PAYMENT_MODES["check_afce"]],
+        payment_modes=[
+            PAYMENT_MODES["system_pay_afce_pret"],
+            PAYMENT_MODES["check_afce"],
+        ],
         label="Comment souhaitez-vous prêtez l'argent ?",
     )
 

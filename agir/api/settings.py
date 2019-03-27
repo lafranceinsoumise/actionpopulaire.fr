@@ -542,6 +542,15 @@ SYSTEMPAY_AFCE_CERTIFICATE = os.environ.get(
     "SYSTEMPAY_AFCE_CERTIFICATE", "arbitrarystring"
 )
 
+SYSTEMPAY_AFCE_LOANS_SITE_ID = os.environ.get("SYSTEMPAY_AFCE_LOANS_SITE_ID", 0)
+SYSTEMPAY_AFCE_LOANS_PRODUCTION = (
+    os.environ.get("SYSTEMPAY_AFCE_LOANS_PRODUCTION", "false").lower() == "true"
+)
+SYSTEMPAY_AFCE_LOANS_CERTIFICATE = os.environ.get(
+    "SYSTEMPAY_AFCE_LOANS_CERTIFICATE", "arbitrarystring"
+)
+
+
 DONATION_MINIMUM = 1
 DONATION_MAXIMUM = 1000
 
@@ -565,6 +574,7 @@ PAYMENT_MODES = [
     "agir.system_pay.SystemPayPaymentMode",
     "agir.checks.CheckPaymentMode",
     "agir.europeennes.AFCESystemPayPaymentMode",
+    "agir.europeennes.AFCELoansSystemPayPaymentMode",
     "agir.europeennes.AFCECheckPaymentMode",
 ]
 
