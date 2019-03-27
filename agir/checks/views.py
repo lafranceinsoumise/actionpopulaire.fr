@@ -11,8 +11,8 @@ class CheckView(TemplateView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(
             payment=kwargs["payment"],
-            order=self.kwargs["order"],
+            order=self.order,
             address=mark_safe(
-                "<br>".join(conditional_escape(part) for part in self.kwargs["address"])
+                "<br>".join(conditional_escape(part) for part in self.address)
             ),
         )

@@ -1,4 +1,4 @@
-from urllib.parse import urljoin
+from datetime import datetime
 
 import reversion
 from django.conf import settings
@@ -417,8 +417,16 @@ def find_or_create_person_from_payment(payment):
                 payment.person.save()
         except Person.DoesNotExist:
             person_fields = [f.name for f in Person._meta.get_fields()]
+            person_kwargs = {
+                k: v for k, v in payment.meta.items() if k in person_fields
+            }
+
+            if "date_of_birth" in person_kwargs:
+                person_kwargs["date_of_birth"] = datetime.strptime(
+                    person_kwargs["date_of_birth"], "%d/%m/%Y"
+                ).date()
+
             payment.person = Person.objects.create_person(
-                email=payment.email,
-                **{k: v for k, v in payment.meta.items() if k in person_fields}
+                email=payment.email, **person_kwargs
             )
         payment.save()
