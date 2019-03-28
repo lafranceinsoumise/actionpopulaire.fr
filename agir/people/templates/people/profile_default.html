@@ -1,0 +1,14 @@
+{% extends "front/layout.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Profil" %}{% endblock %}
+{% block main %}
+    <div class="row">
+        {% block navbar %} {% include "people/profile_nav.html" %} {% endblock %}
+        <div class="col-xs-12 col-md-10">
+            {% crispy form %}
+        </div>
+    </div>
+{% endblock %}

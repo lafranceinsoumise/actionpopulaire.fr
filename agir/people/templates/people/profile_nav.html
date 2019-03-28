@@ -1,0 +1,30 @@
+<div class="col-xs-12 col-md-2">
+    <menue class="nav nav-pills nav-stacked" >
+
+    {% if person.is_insoumise %}
+        <li name="nav-tabs" id="nav-tabs-0" role="presentation" class="{% if tab_code == "IDENTITY" %} active {% endif %}">
+            <a href="{%  url "personal_information" %}">Identité</a>
+        </li>
+    {% endif %}
+        <li name="nav-tabs" id="nav-tabs-0" role="presentation" class="{% if tab_code == "CONTACT" %} active {% endif %}">
+            <a href="{% url "contact"%}">Contacts</a>
+        </li>
+    {% if person.is_insoumise %}
+        <li name="nav-tabs" id="nav-tabs-0" role="presentation" class="{% if tab_code == "SKILLS" %} active {% endif %}">
+            <a href="{% url "skills" %}">Expérience et savoir faire</a>
+        </li>
+        <li name="nav-tabs" id="nav-tabs-0" role="presentation" class="{% if tab_code == "ACT" %} active {% endif %}">
+            <a href="{% url "voluteer" %}">Engagement</a>
+        </li>
+    {% endif %}
+    {% if not person.is_insoumise %}
+        <li name="nav-tabs" id="nav-tabs-0" role="presentation" class="{% if tab_code == "BECOME_INSOUMISE" %} active {% endif %}">
+            <a href="{% url "become_insoumise" %}">Devenir insoumis⋅e</a>
+        </li>
+    {% endif %}
+        <li name="nav-tabs" id="nav-tabs-0" role="presentation" class="{% if tab_code == "PERSONAL_DATA" %} active {% endif %}">
+            <a href="{% url "personal_data" %}">Données personnelles</a>
+        </li>
+
+    </menue>
+</div>

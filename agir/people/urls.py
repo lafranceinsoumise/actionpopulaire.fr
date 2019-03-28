@@ -1,8 +1,7 @@
-from django.urls import path
-from django.views.generic import TemplateView
+from django.urls import path, reverse_lazy
+from django.views.generic import TemplateView, RedirectView
 
 from . import views
-
 
 urlpatterns = [
     # people views
@@ -13,7 +12,12 @@ urlpatterns = [
         TemplateView.as_view(template_name="people/unsubscribe_success.html"),
         name="unsubscribe_success",
     ),
-    path("supprimer/", views.DeleteAccountView.as_view(), name="delete_account"),
+    path(
+        "supprimer/",
+        views.RedirectView.as_view(url=reverse_lazy("delete_account")),
+        name="delete_account_old",
+    ),
+    path("profil/supprimer/", views.DeleteAccountView.as_view(), name="delete_account"),
     path(
         "supprimer/succes",
         TemplateView.as_view(template_name="people/delete_account_success.html"),
@@ -35,43 +39,58 @@ urlpatterns = [
         views.ConfirmSubscriptionView.as_view(),
         name="subscription_confirm",
     ),
-    path("profil/", views.ChangeProfileView.as_view(), name="change_profile"),
     path(
-        "profil/confirmation/",
-        views.ChangeProfileConfirmationView.as_view(),
-        name="confirmation_profile",
+        "profil/identite/",
+        views.PersonalInformationsView.as_view(),
+        name="personal_information",
     ),
-    path("agir/", views.VolunteerView.as_view(), name="volunteer"),
-    path(
-        "agir/confirmation/",
-        views.VolunteerConfirmationView.as_view(),
-        name="confirmation_volunteer",
-    ),
+    path("profil/competences", views.SkillsView.as_view(), name="skills"),
+    path("profil/engagement/", views.VolunteerView.as_view(), name="voluteer"),
     path(
         "message_preferences/",
-        views.MessagePreferencesView.as_view(),
-        name="message_preferences",
+        RedirectView.as_view(url=reverse_lazy("contact")),
+        name="preferences",
     ),
     path(
-        "message_preferences/adresses/",
-        views.EmailManagementView.as_view(),
-        name="email_management",
+        "profil/rejoindre/",
+        views.BecomeInsoumiseView.as_view(),
+        name="become_insoumise",
+    ),
+    path("profil/contact/", views.ContactView.as_view(), name="contact"),
+    path(
+        "profil/contact/adresses/",
+        views.AddEmailMergeAccountView.as_view(),
+        name="manage_account",
     ),
     path(
-        "message_preferences/adresses/confirmer",
-        views.ConfirmChangeMail.as_view(),
-        name="confirm_change_mail",
+        "profil/contact/adresses/confirmer",
+        views.ConfirmMergeAccountView.as_view(),
+        name="confirm_merge_account",
     ),
     path(
-        "message_preferences/adresses/attente/",
-        views.SendConfirmationChangeMail.as_view(),
-        name="confirmation_change_mail_sent",
+        "profil/contact/adresses/<int:pk>/principale/",
+        views.ChangePrimaryEmailView.as_view(),
+        name="change_primary_mail",
     ),
     path(
-        "message_preferences/adresses/<int:pk>/supprimer/",
+        "profil/contact/adresses/fusion_attente/",
+        views.SendConfirmationMergeAccountView.as_view(),
+        name="confirm_merge_account_sent",
+    ),
+    path(
+        "profil/contact/adresses/<int:pk>/supprimer/",
         views.DeleteEmailAddressView.as_view(),
         name="delete_email",
     ),
+    path(
+        "profil/adresses/confirmer",
+        views.ConfirmChangeMailView.as_view(),
+        name="confirm_change_mail",
+    ),
+    path(
+        "profil/confidentialite/", views.PesonalDataView.as_view(), name="personal_data"
+    ),
+    path("agir/", views.VolunteerView.as_view(), name="volunteer"),
     path(
         "formulaires/<slug:slug>/",
         views.PeopleFormView.as_view(),
@@ -83,14 +102,14 @@ urlpatterns = [
         name="edit_person_form_submission",
     ),
     path(
-        "formulaires/<slug:slug>/confirmation/",
-        views.PeopleFormConfirmationView.as_view(),
-        name="person_form_confirmation",
-    ),
-    path(
         "formulaires/<slug:slug>/reponses/",
         views.PeopleFormSubmissionsView.as_view(),
         name="person_form_submissions",
+    ),
+    path(
+        "formulaires/<slug:slug>/confirmation/",
+        views.PeopleFormConfirmationView.as_view(),
+        name="person_form_confirmation",
     ),
     path(
         "telephone/sms",

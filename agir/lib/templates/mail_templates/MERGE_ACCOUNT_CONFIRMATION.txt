@@ -1,17 +1,18 @@
-Changement d'adresse email
-  
+Fusion de compte
+
 Bonjour,
 
-**Vous n'êtes qu'à un clic de changer votre adresse e-mail.**
-  
-  
->> Je confirme ma nouvelle adresse email
+**Vous êtes sur le point d'accepter une fusion de compte avec {{ REQUESTER_EMAIL }}.**
+
+
+>> Je confirme la fusion de compte
 {{ CONFIRMATION_URL }}
 
-**Pourquoi cette confirmation ?**
-Cette étape nous permet de vérifier que vous êtes bien propriétaire de l'adresse e-mail dont le changement est demandé.
 
-Si vous n'êtes pas à l'origine de cette demande ignorez ce message : nous ne conserverons aucune information vous concernant.  
+**Pourquoi cette confirmation ?**
+Cette étape nous permet de vérifier que vous êtes bien propriétaire de l'adresse e-mail dont la fusion de compte est demandée.
+
+Si vous n'êtes pas à l'origine de cette demande ignorez ce message : nous ne conserverons aucune information vous concernant.
 
 
 -----------------------------------------------------------------

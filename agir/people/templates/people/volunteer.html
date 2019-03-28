@@ -3,22 +3,29 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% block title %}{% trans "J'agis" %}{% endblock %}
+{% block title %}{% trans "Engagement" %}{% endblock %}
 
 {% block main %}
-    <h2 class="headline">J'agis</h2>
-    <div>
-        <div class="intro">
-            <p> N’attendez pas les consignes pour agir. Faites ce que vous trouverez de plus utile et convaincant pour
-                élargir le nombre de ceux qui peuvent nous rejoindre et nous aider. Sur
-                <a href="https://materiel.lafranceinsoumise.fr/">la partie matériel du site</a>, vous
-                pourrez commander des tracts, des affiches et des autocollants pour agir.
-                Mais vous pouvez aussi trouver sur ce site des idées à mettre en œuvre, des projets auxquels participer.
-                En remplissant ce formulaire, vous nous permettez de vous contacter par téléphone ou par email selon vos
-                centres d'intérêts.</p>
-        </div>
-        <div class="form-wrap">
-            {% crispy form %}
+    <div class="row">
+        {% block navbar %} {% include "people/profile_nav.html" %} {% endblock %}
+        <div class="col-xs-12 col-md-10">
+            <div>
+                <div class="intro">
+                    <p> N’attendez pas les consignes pour agir. Faites ce que vous trouverez de plus utile et
+                        convaincant pour
+                        élargir le nombre de ceux qui peuvent nous rejoindre et nous aider. Sur
+                        <a href="https://materiel.lafranceinsoumise.fr/">la partie matériel du site</a>, vous
+                        pourrez commander des tracts, des affiches et des autocollants pour agir.
+                        Mais vous pouvez aussi trouver sur ce site des idées à mettre en œuvre, des projets auxquels
+                        participer.
+                        En remplissant ce formulaire, vous nous permettez de vous contacter par téléphone ou par email
+                        selon vos
+                        centres d'intérêts.</p>
+                </div>
+                <div class="form-wrap">
+                    {% crispy form %}
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

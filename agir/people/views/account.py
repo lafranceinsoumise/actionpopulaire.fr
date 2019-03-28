@@ -1,8 +1,6 @@
-import sys
 from uuid import UUID
 
 from django.contrib import messages
-from django.contrib.auth import logout
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -10,7 +8,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils.http import urlquote
 from django.utils.translation import ugettext as _
 from django.views import View
-from django.views.generic import UpdateView, DeleteView, TemplateView, FormView
+from django.views.generic import UpdateView, DeleteView, FormView
 
 from agir.authentication.subscription import add_email_confirmation_token_generator
 from agir.authentication.utils import hard_login
@@ -19,83 +17,21 @@ from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
 )
 from agir.authentication.views import RedirectToMixin
-from agir.people.forms import (
-    InsoumisePreferencesForm,
-    AddEmailForm,
-    SendValidationSMSForm,
-    CodeValidationForm,
-    ExternalPersonPreferencesForm,
-)
+from agir.people.forms import SendValidationSMSForm, CodeValidationForm
 from agir.people.models import Person
 
 
-class MessagePreferencesView(SoftLoginRequiredMixin, UpdateView):
-    template_name = "people/message_preferences.html"
-    success_url = reverse_lazy("message_preferences")
-
-    def get_object(self, queryset=None):
-        return self.request.user.person
-
-    def get_form_class(self):
-        if self.object.is_insoumise:
-            return InsoumisePreferencesForm
-
-        return ExternalPersonPreferencesForm
-
-    def get_success_url(self):
-        if self.request.POST.get("validation"):
-            return reverse("send_validation_sms")
-        return super().get_success_url()
-
-    def form_valid(self, form):
-        res = super().form_valid(form)
-
-        if getattr(form, "no_mail", False):
-            messages.add_message(
-                self.request,
-                messages.INFO,
-                "Vous êtes maintenant désinscrit⋅e de toutes les lettres d'information de la France insoumise.",
-            )
-        else:
-            messages.add_message(
-                self.request,
-                messages.SUCCESS,
-                "Vos préférences ont bien été enregistrées !",
-            )
-
-        return res
-
-
-class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
-    template_name = "people/delete_account.html"
-
-    def get_success_url(self):
-        return reverse("delete_account_success")
-
-    def get_object(self, queryset=None):
-        return self.request.user.person
-
-    def delete(self, request, *args, **kwargs):
-        messages.add_message(
-            self.request, messages.SUCCESS, "Votre compte a bien été supprimé !"
-        )
-        response = super().delete(request, *args, **kwargs)
-        logout(self.request)
-
-        return response
-
-
-class ConfirmChangeMail(View):
+class ConfirmChangeMailView(View):
     """
     Confirme et enregistre une nouvelle adresse email.
 
     Cette vue peut être atteinte depuis n'importe quel navigateur donc pas besoin d'être connecté.
     Elle vérifie l'integriter du mail + user_pk + token
-    Elle redirige vers la vue `message_preferences` en cas de succès
+    Elle redirige vers la vue `profile_contact` en cas de succès
     En cas de problème vérification du token une page est affiché explicant le problème: `invalid`, `expiration`
     """
 
-    success_url = reverse_lazy("message_preferences")
+    success_url = reverse_lazy("contact")
     error_template = "people/confirmation_mail_change_error.html"
     error_messages = {
         "invalid": "Il semble que celui-ci est invalide. Avez-vous bien cliqué sur le bouton, ou copié la totalité du lien ?",
@@ -153,66 +89,8 @@ class ConfirmChangeMail(View):
         return HttpResponseRedirect(self.success_url)
 
 
-class SendConfirmationChangeMail(SoftLoginRequiredMixin, TemplateView):
-    template_name = "people/confirmation_change_mail_sent.html"
-
-    def get(self, request):
-        self.new_email = request.GET.get("new_email")
-        return super().get(request)
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(new_mail=self.new_email, **kwargs)
-
-
-class EmailManagementView(SoftLoginRequiredMixin, TemplateView):
-    template_name = "people/email_management.html"
-    queryset = Person.objects.all()
-
-    def get_object(self):
-        return self.request.user.person
-
-    def get_add_email_form(self):
-        kwargs = {}
-
-        if self.request.method in ("POST", "PUT"):
-            kwargs.update({"data": self.request.POST, "files": self.request.FILES})
-
-        return AddEmailForm(person=self.object, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        emails = self.object.emails.all()
-
-        kwargs.update(
-            {"person": self.object, "emails": emails, "can_delete": len(emails) > 1}
-        )
-
-        kwargs.setdefault("add_email_form", self.get_add_email_form())
-
-        return super().get_context_data(**kwargs)
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        add_email_form = self.get_add_email_form()
-
-        if add_email_form.is_valid():
-            new_mail = add_email_form.send_confirmation(self.object.pk)
-            if not new_mail:
-                context = self.get_context_data(add_email_form=add_email_form)
-                return self.render_to_response(context)
-            url = reverse("confirmation_change_mail_sent") + "?new_email=" + new_mail
-            return HttpResponseRedirect(url)
-        else:
-            context = self.get_context_data(add_email_form=add_email_form)
-            return self.render_to_response(context)
-
-
 class DeleteEmailAddressView(HardLoginRequiredMixin, DeleteView):
-    success_url = reverse_lazy("email_management")
+    success_url = reverse_lazy("contact")
     template_name = "people/confirm_email_deletion.html"
     context_object_name = "email"
 
@@ -239,7 +117,7 @@ class RedirectAlreadyValidatedPeopleMixin:
             messages.add_message(
                 request, messages.SUCCESS, _("Votre numéro a déjà été validé.")
             )
-            return HttpResponseRedirect(reverse("message_preferences"))
+            return HttpResponseRedirect(reverse("contact"))
         elif request.user.person.contact_phone_status == Person.CONTACT_PHONE_PENDING:
             messages.add_message(
                 request,
@@ -260,6 +138,9 @@ class SendValidationSMSView(
 ):
     form_class = SendValidationSMSForm
     template_name = "people/send_validation_sms.html"
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs)
 
     def get_object(self, queryset=None):
         return self.request.user.person
@@ -298,7 +179,7 @@ class CodeValidationView(
         return kwargs
 
     def get_success_url(self):
-        return self.get_redirect_url() or reverse_lazy("message_preferences")
+        return self.get_redirect_url() or reverse_lazy("contact")
 
     def form_valid(self, form):
         person = self.request.user.person

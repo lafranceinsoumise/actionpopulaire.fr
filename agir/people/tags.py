@@ -77,6 +77,16 @@ action_tags = {
             _("Prendre des photos ou vidéos près de chez vous"),
             _("Filmer ou photographier des évènements locaux de la France insoumise."),
         ),
+        (
+            "volontaire_procurations",
+            _(
+                "J'accepte d'être solicité⋅e pour prendre des procurations lors d'élections."
+            ),
+            _(
+                "Si des électrices ou des électeurs nous contactent pour trouver une personne à qui donner "
+                "procuration lors d'une élection, nous nous tournerons vers vous."
+            ),
+        ),
     ],
     "internet": [
         (

@@ -97,7 +97,7 @@ def send_mosaico_email(
         connection = get_connection(backend, fail_silently)
 
     if preferences_link:
-        bindings["PREFERENCES_LINK"] = front_url("message_preferences")
+        bindings["PREFERENCES_LINK"] = front_url("contact")
 
     link_bindings = {
         key: value for key, value in bindings.items() if is_front_url(value)

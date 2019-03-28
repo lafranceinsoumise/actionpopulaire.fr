@@ -88,7 +88,7 @@ class MailLinkTestCase(TestCase):
         send_login_email.apply_async.assert_called_once()
 
     def test_unsubscribe_shows_direct_unsubscribe_form_when_logged_in(self):
-        message_preferences_path = reverse("message_preferences")
+        message_preferences_path = reverse("contact")
         unsubscribe_path = reverse("unsubscribe")
 
         self.client.force_login(self.person.role)
