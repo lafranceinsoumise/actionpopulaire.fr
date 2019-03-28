@@ -77,7 +77,7 @@ def send_event_creation_notification(self, organizer_config_pk):
                 {
                     "filename": "event.ics",
                     "content": str(ics.Calendar(events=[event.to_ics()])),
-                    "filetype": "text/calendar",
+                    "mimetype": "text/calendar",
                 },
             ),
         )
@@ -129,7 +129,7 @@ def send_event_changed_notification(self, event_pk, changes):
                 {
                     "filename": "event.ics",
                     "content": str(ics.Calendar(events=[event.to_ics()])),
-                    "filetype": "text/calendar",
+                    "mimetype": "text/calendar",
                 },
             ),
         )
@@ -175,7 +175,7 @@ def send_rsvp_notification(self, rsvp_pk):
             {
                 "filename": "event.ics",
                 "content": str(ics.Calendar(events=[rsvp.event.to_ics()])),
-                "filetype": "text/calendar",
+                "mimetype": "text/calendar",
             },
         ),
     )

@@ -64,9 +64,13 @@ class BasePersonalInformationView(UpdateView):
             **{
                 k: v for k, v in form.cleaned_data.items() if k in form._meta.fields
             },  # person fields
+            "contact_phone": form.cleaned_data["contact_phone"].as_e164,
         }
 
     def form_valid(self, form):
+        if not form.adding:
+            self.object = form.save()
+
         amount = self.persistent_data["amount"]
         payment_metas = self.get_payment_meta(form)
 
