@@ -144,6 +144,7 @@ class DonationTestCase(TestCase):
         payment = Payment.objects.get()
         self.assertRedirects(res, reverse("payment_page", args=[payment.pk]))
 
+    @using_redislite
     def test_create_person_when_using_new_address(self):
         information_url = reverse("donation_information")
 

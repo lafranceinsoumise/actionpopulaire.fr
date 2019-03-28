@@ -97,10 +97,10 @@ class LenderForm(SimpleDonorForm):
         fields.extend(
             [
                 "amount",
-                "nationality",
                 "first_name",
                 "last_name",
                 "gender",
+                "nationality",
                 layout.Field("date_of_birth", placeholder="JJ/MM/AAAA"),
                 "country_of_birth",
                 "city_of_birth",

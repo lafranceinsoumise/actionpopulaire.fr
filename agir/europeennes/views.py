@@ -14,7 +14,7 @@ from agir.europeennes import AFCESystemPayPaymentMode
 from agir.europeennes.actions import generate_html_contract
 from agir.europeennes.apps import EuropeennesConfig
 from agir.europeennes.forms import LoanForm, ContractForm, LenderForm
-from agir.europeennes.tasks import generate_contract, send_contract_confirmation_email
+from agir.europeennes.tasks import generate_and_send_contract
 from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.payments.actions import create_payment, redirect_to_payment
 from agir.payments.models import Payment
@@ -78,6 +78,9 @@ class LoanPersonalInformationView(BasePersonalInformationView):
         }
 
     def form_valid(self, form):
+        if not form.adding:
+            form.save()
+
         self.request.session[
             LOANS_CONTRACT_SESSION_NAMESPACE
         ] = self.prepare_data_for_serialization(form.cleaned_data)
@@ -152,7 +155,4 @@ class LoanReturnView(TemplateView):
 def loan_notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         find_or_create_person_from_payment(payment)
-        (
-            generate_contract.si(payment.id)
-            | send_contract_confirmation_email.si(payment.id)
-        ).delay()
+        generate_and_send_contract(payment.id).delay()

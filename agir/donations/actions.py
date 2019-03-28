@@ -427,6 +427,6 @@ def find_or_create_person_from_payment(payment):
                 ).date()
 
             payment.person = Person.objects.create_person(
-                email=payment.email, **person_kwargs
+                email=payment.email, is_insoumise=False, **person_kwargs
             )
         payment.save()
