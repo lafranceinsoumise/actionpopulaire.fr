@@ -25,14 +25,21 @@ def display_full_address(contract_information):
     )
 
 
-FINAL_E = {"M": "", "F": "e", "O": "⋅e"}
-LENDER = {"M": "prêteur", "F": "prêteuse", "O": "prêteur⋅euse"}
-ARTICLE = {"M": "le", "F": "la", "O": "le-la"}
-PRONOUN = {"M": "il", "F": "elle", "O": "il-elle"}
-DETERMINANT = {"M": "du", "F": "de la", "O": "du/de la"}
-PAYMENT = {
-    "check_afce": "chèque bancaire tiré de son compte personnel",
-    "system_pay_afce_pret": "paiement par carte bancaire depuis son compte personnel",
+SUBSTITUTIONS = {
+    "cher_preteur": {
+        "M": "Cher prêteur",
+        "F": "Chère prêteuse",
+        "   O": "Cher⋅e prêteur⋅se",
+    },
+    "final_e": {"M": "", "F": "e", "O": "⋅e"},
+    "lender": {"M": "prêteur", "F": "prêteuse", "O": "prêteur⋅euse"},
+    "article": {"M": "le", "F": "la", "O": "le-la"},
+    "pronoun": {"M": "il", "F": "elle", "O": "il-elle"},
+    "determinant": {"M": "du", "F": "de la", "O": "du/de la"},
+    "payment": {
+        "check_afce": "chèque bancaire tiré de son compte personnel",
+        "system_pay_afce_pret": "paiement par carte bancaire depuis son compte personnel",
+    },
 }
 
 
@@ -55,13 +62,15 @@ def generate_html_contract(contract_information, baselevel=1):
             "signature_date": contract_information.get(
                 "signature_datetime", "XX/XX/XXXX"
             ),
-            "e": FINAL_E[gender],
-            "preteur": LENDER[gender],
-            "le": ARTICLE[gender],
-            "Le": ARTICLE[gender].capitalize(),
-            "du": DETERMINANT[gender],
-            "il": PRONOUN[gender],
-            "mode_paiement": PAYMENT[contract_information["payment_mode"]],
+            "e": SUBSTITUTIONS["final_e"][gender],
+            "preteur": SUBSTITUTIONS["lender"][gender],
+            "le": SUBSTITUTIONS["article"][gender],
+            "Le": SUBSTITUTIONS["article"][gender].capitalize(),
+            "du": SUBSTITUTIONS["determinant"][gender],
+            "il": SUBSTITUTIONS["pronoun"][gender],
+            "mode_paiement": SUBSTITUTIONS["payment"][
+                contract_information["payment_mode"]
+            ],
             "signature": f"Accepté en ligne le {contract_information['acceptance_datetime']}"
             if signed
             else "",

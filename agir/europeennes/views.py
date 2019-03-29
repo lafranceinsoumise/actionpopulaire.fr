@@ -11,7 +11,7 @@ from agir.donations.actions import find_or_create_person_from_payment
 from agir.donations.base_views import BaseAskAmountView
 from agir.donations.views import BasePersonalInformationView
 from agir.europeennes import AFCESystemPayPaymentMode
-from agir.europeennes.actions import generate_html_contract
+from agir.europeennes.actions import generate_html_contract, SUBSTITUTIONS
 from agir.europeennes.apps import EuropeennesConfig
 from agir.europeennes.forms import LoanForm, ContractForm, LenderForm
 from agir.europeennes.tasks import generate_and_send_contract
@@ -150,17 +150,12 @@ class LoanContractView(FormView):
 
 class LoanReturnView(TemplateView):
     template_name = "europeennes/loans/return.html"
-    cher_preteur = {
-        "M": "Cher prêteur",
-        "F": "Chère prêteuse",
-        "O": "Cher⋅e prêteur⋅se",
-    }
 
     def get_context_data(self, **kwargs):
         gender = self.kwargs["payment"].meta["gender"]
 
         return super().get_context_data(
-            chere_preteur=self.cher_preteur[gender], **kwargs
+            chere_preteur=SUBSTITUTIONS["cher_preteur"][gender], **kwargs
         )
 
 

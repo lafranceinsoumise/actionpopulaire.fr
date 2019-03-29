@@ -9,7 +9,7 @@ from django.conf import settings
 from django.utils import timezone
 from slugify import slugify
 
-from agir.europeennes.actions import save_pdf_contract
+from agir.europeennes.actions import save_pdf_contract, SUBSTITUTIONS
 from agir.payments.models import Payment
 from agir.people.actions.mailing import send_mosaico_email
 
@@ -75,7 +75,11 @@ def send_contract_confirmation_email(self, payment_id):
                 code="CONTRACT_CONFIRMATION",
                 subject="Votre contrat de prêt",
                 from_email=settings.EMAIL_FROM,
-                bindings={},
+                bindings={
+                    "CHER_PRETEUR": SUBSTITUTIONS["cher_preteur"][
+                        payment.meta["gender"]
+                    ]
+                },
                 recipients=[person],
                 attachments=[
                     {
