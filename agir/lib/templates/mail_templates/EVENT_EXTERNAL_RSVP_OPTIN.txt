@@ -1,0 +1,15 @@
+ Bonjour,
+
+Vous avez demandé à vous inscrire à l'événement « {{ EVENT_NAME }} ».  
+  
+>> Je confirme mon inscription :
+{{ RSVP_LINK }}
+
+Si vous n'êtes pas à l'origine de cette demande, vous pouvez simplement ignorer ce message, nous ne conserverons pas votre adresse email.
+
+
+-----------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}.
+
+>> Voir cet email dans votre navigateur
+{{ LINK_BROWSER }}

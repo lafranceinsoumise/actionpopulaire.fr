@@ -4,16 +4,17 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.http import QueryDict
 from django.core.mail import EmailMultiAlternatives, get_connection
-from django.template import loader
+from django.template import loader, TemplateDoesNotExist
 
 import html2text
+from django.utils.safestring import mark_safe
 
 from agir.people.models import Person
 from agir.lib.utils import generate_token_params, front_url, is_front_url, AutoLoginUrl
 
 __all__ = ["send_mail", "send_mosaico_email"]
 
-_h = html2text.HTML2Text()
+_h = html2text.HTML2Text(bodywidth=0)
 _h.ignore_images = True
 
 
@@ -95,7 +96,11 @@ def send_mosaico_email(
         key: value for key, value in bindings.items() if is_front_url(value)
     }
 
-    template = loader.get_template(f"mail_templates/{code}.html")
+    html_template = loader.get_template(f"mail_templates/{code}.html")
+    try:
+        text_template = loader.get_template(f"mail_templates/{code}.txt")
+    except TemplateDoesNotExist:
+        text_template = None
 
     with connection:
         for recipient in recipients:
@@ -111,8 +116,19 @@ def send_mosaico_email(
             else:
                 context = dict(bindings)
 
-            html_message = template.render(context=context)
-            text_message = generate_plain_text(html_message)
+            html_message = html_template.render(context=context)
+            text_message = (
+                text_template.render(
+                    context={
+                        k: mark_safe(generate_plain_text(v))
+                        if hasattr(v, "__html__")
+                        else mark_safe(v)
+                        for k, v in context.items()
+                    }
+                )
+                if text_template
+                else generate_plain_text(html_message)
+            )
 
             email = EmailMultiAlternatives(
                 subject=subject,

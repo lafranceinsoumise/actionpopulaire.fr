@@ -1,0 +1,21 @@
+Cher prêteur, chère prêteuse,
+
+Par ce prêt, maintenant confirmé, vous avez apporté votre soutien à la campagne européenne de la France insoumise. Nous vous en remercions très chaleureusement.
+
+Vous trouverez ci-joint à ce mail le contrat de prêt signé qui correspond à votre versement. Son texte est identique à la version qui vous avait été présenté lors de la validation.
+
+
+Avec tous nous remerciements,
+L'équipe de la campagne européenne
+  
+-----------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}.
+
+>> Voir cet email dans votre navigateur
+{{ LINK_BROWSER }}
+
+>> Choisir les emails que vous recevez
+http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+
+>> Arrêter complètement de recevoir des emails
+https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}

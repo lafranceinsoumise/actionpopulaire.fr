@@ -1,0 +1,21 @@
+Bonjour,
+
+Les organisateurs de l'événement « **{{ EVENT_NAME }}** » viennent de signaler son annulation.
+
+Vous recevez ce message automatique car vous aviez signalé votre souhait de participer à cet événement.
+
+Amitiés insoumises,  
+L'équipe de la plateforme France insoumise  
+
+
+-----------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}.
+
+>> Voir cet email dans votre navigateur
+{{ LINK_BROWSER }}
+
+>> Choisir les emails que vous recevez
+http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+
+>> Arrêter complètement de recevoir des emails
+https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}

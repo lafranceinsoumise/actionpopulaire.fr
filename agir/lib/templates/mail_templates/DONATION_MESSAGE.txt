@@ -1,0 +1,34 @@
+Chère donatrice, Cher donateur,
+
+ **Vous venez d’apporter votre appui financier** à la France Insoumise.
+
+ **Je vous remercie très chaleureusement.** Cet appui est crucial pour nous. En effet, nous ne pouvons pas compter comme nos adversaires sur le soutien des oligarques ni de la finance. Notre force, c’est notre nombre. Ils ont les millions, mais nous sommes des millions !
+
+ **Je mesure combien donner quelques euros est souvent un effort financier important** tant les temps sont durs pour beaucoup de Français. Votre argent ne sera pas gaspillé. Il sera utilisé avec rigueur et un souci constant de le rendre utile à notre action commune. Je m’y engage.
+
+Courage, les mauvais jours finiront.
+
+Fidèlement,  
+
+
+-----------------------------------------------------------------
+Pour aller plus loin
+
+>> Je rejoins un groupe d'action
+https://lafranceinsoumise.fr/groupes-appui/carte/
+
+>> J'en dis plus sur moi
+{{ PROFILE_LINK }}
+
+
+-----------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}.
+
+>> Voir cet email dans votre navigateur
+{{ LINK_BROWSER }}
+
+>> Choisir les emails que vous recevez
+http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+
+>> Arrêter complètement de recevoir des emails
+https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}

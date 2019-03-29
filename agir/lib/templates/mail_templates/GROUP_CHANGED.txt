@@ -1,0 +1,46 @@
+  
+  
+| 
+
+|   
+---  
+  
+[Voir dans le navigateur]({{ LINK_BROWSER }})  
+---  
+  
+|   
+---  
+  
+| 
+
+Bonjour,  
+
+
+Les animateurs du groupe d'action {{ GROUP_NAME }} ont changé ses informations.  
+
+
+Les informations suivantes ont été changées :  
+
+
+{{ GROUP_CHANGES }}  
+
+
+>> Voir les informations mises à jour de ce groupe d'action
+{{ GROUP_LINK }}  
+
+
+Amitiés insoumises,  
+L'équipe nationale de la France insoumise  
+  
+
+-----------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}.
+
+>> Voir cet email dans votre navigateur
+{{ LINK_BROWSER }}
+
+>> Choisir les emails que vous recevez
+http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+
+>> Arrêter complètement de recevoir des emails
+https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}

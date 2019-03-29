@@ -230,7 +230,7 @@ class ShortCodeTestCase(TestCase):
 
         code_email = mail.outbox[0]
         code = re.search(
-            r"^\| {2}([A-Z0-9]{3} [A-Z0-9]{2})", code_email.body, re.MULTILINE
+            r"^ {4}([A-Z0-9]{3} [A-Z0-9]{2})", code_email.body, re.MULTILINE
         ).group(1)
 
         res = self.client.post(check_short_code_url, data={"code": code})

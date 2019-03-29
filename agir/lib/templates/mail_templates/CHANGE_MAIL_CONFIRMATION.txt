@@ -1,0 +1,21 @@
+Changement d'adresse email
+  
+Bonjour,
+
+**Vous n'êtes qu'à un clic de changer votre adresse e-mail.**
+  
+  
+>> Je confirme ma nouvelle adresse email
+{{ CONFIRMATION_URL }}
+
+**Pourquoi cette confirmation ?**
+Cette étape nous permet de vérifier que vous êtes bien la personne derrière l'adresse e-mail dont le changement d'adresse e-mail est demandé.
+
+Si vous n'êtes pas à l'origine de cette demande ignorez ce message : nous ne conserverons aucune information vous concernant.  
+
+
+-----------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}.
+
+>> Voir cet email dans votre navigateur
+{{ LINK_BROWSER }}

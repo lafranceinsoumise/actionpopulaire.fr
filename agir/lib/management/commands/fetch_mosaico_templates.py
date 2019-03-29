@@ -1,9 +1,14 @@
-import re
 from pathlib import Path
-import requests
 
-from django.core.management.base import BaseCommand, CommandError
+import re
+import requests
 from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
+
+from agir.people.actions.mailing import generate_plain_text
+
+
+LIB_APP_DIR = Path(__file__).parent.parent.parent
 
 
 class Command(BaseCommand):
@@ -11,15 +16,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # create target directory in case it does not exist
-        target = Path("./agir/lib/templates/mail_templates/")
-        target.mkdir(0o755, True, True)
+        target_dir = LIB_APP_DIR / "templates" / "mail_templates"
+        target_dir.mkdir(0o755, parents=True, exist_ok=True)
 
         var_regex = re.compile(r"\[([-A-Z_]+)\]")
-        var_files = re.compile(r"^([-A-Za-z_]+)\.html$")
+        var_files = re.compile(r"^([-A-Za-z_]+)\.(?:html|txt)$")
 
-        for file in target.glob("*.html"):
+        for file in target_dir.iterdir():
             match = var_files.match(file.name)
             if match and match.group(1) not in settings.EMAIL_TEMPLATES:
+                # delete all
                 file.unlink()
 
         for name, url in settings.EMAIL_TEMPLATES.items():
@@ -31,5 +37,19 @@ class Command(BaseCommand):
 
             content = var_regex.sub(r"{{ \1 }}", res.text)
 
-            with target.joinpath(name + ".html").open("w") as f:
+            html_file = target_dir.joinpath(f"{name}.html")
+            txt_file = target_dir.joinpath(f"{name}.txt")
+
+            previous_content = None
+            if html_file.exists():
+                with html_file.open("r") as f:
+                    previous_content = f.read()
+
+            with html_file.open("w") as f:
                 f.write(content)
+
+            if not txt_file.exists() or content != previous_content:
+                txt_content = generate_plain_text(content)
+
+                with txt_file.open("w") as f:
+                    f.write(txt_content)

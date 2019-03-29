@@ -76,7 +76,7 @@ class SimpleSubscriptionFormTestCase(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
         confirmation_url = reverse("subscription_confirm")
-        match = re.search(confirmation_url + r'\?[^" )]+', mail.outbox[0].body)
+        match = re.search(confirmation_url + r'\?[^" \n)]+', mail.outbox[0].body)
 
         self.assertIsNotNone(match)
         url_with_params = match.group(0)
@@ -122,7 +122,7 @@ class SubscriptionConfirmationTestCase(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
         confirmation_url = reverse("subscription_confirm")
-        match = re.search(confirmation_url + r'\?[^" )]+', mail.outbox[0].body)
+        match = re.search(confirmation_url + r'\?[^" \n)]+', mail.outbox[0].body)
 
         self.assertIsNotNone(match)
         url_with_params = match.group(0)

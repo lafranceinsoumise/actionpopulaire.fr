@@ -1,0 +1,17 @@
+Connexion à la France insoumise
+
+Quelqu'un a demandé à se connecter à votre compte sur l'un des sites de la France insoumise avec votre adresse {{ EMAIL }}.
+
+Si vous êtes bien à l'origine de cette connexion, vous pouvez utiliser le code ci-dessous pour la confirmer :  
+
+    {{ CODE }}
+
+**Ce code est valable jusqu'à {{ EXPIRY_TIME }}. Après cette heure, il vous faudra redemander un nouveau code.**
+
+
+Amitiés insoumises,  
+L'équipe de la France insoumise.  
+  
+
+-----------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}.

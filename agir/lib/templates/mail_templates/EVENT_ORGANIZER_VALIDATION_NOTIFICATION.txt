@@ -1,0 +1,31 @@
+Bonjour,
+
+Votre événement **«  {{ EVENT_NAME }} »** a été validé. Il est maintenant public et visible par l'ensemble des insoumis⋅es sur la plateforme.
+
+
+Pour rappel, voici les informations de votre événement :
+
+ **Horaires :** {{ EVENT_SCHEDULE }}  
+ **Nom du lieu de RDV :** {{ LOCATION_NAME }}  
+ **Adresse de RDV :** {{ LOCATION_ADDRESS }}  
+
+
+>> J'accède à la page publique de mon événement
+{{ EVENT_LINK }}
+
+
+>> J'accède à la page de gestion de mon événement
+{{ MANAGE_EVENT_LINK }}
+
+
+-----------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}.
+
+>> Voir cet email dans votre navigateur
+{{ LINK_BROWSER }}
+
+>> Choisir les emails que vous recevez
+http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+
+>> Arrêter complètement de recevoir des emails
+https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}

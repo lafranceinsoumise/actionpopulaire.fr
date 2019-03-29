@@ -31,7 +31,7 @@ CHANGE_DESCRIPTION = OrderedDict(
     (
         ("information", _("les informations générales de l'événement")),
         ("location", _("le lieu de l'événement")),
-        ("timing", _("les horaires de l'événements")),
+        ("timing", _("les horaires de l'événement")),
         ("contact", _("les informations de contact des organisateurs")),
     )
 )

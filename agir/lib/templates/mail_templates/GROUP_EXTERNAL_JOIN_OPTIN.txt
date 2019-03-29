@@ -1,0 +1,15 @@
+Bonjour,
+
+Vous avez demandé à vous rejoindre « {{ GROUP_NAME }} ». En confirmant cette demande, votre adresse email sera transmise au gestionnaire de ce groupe et un compte sera créé pour vous sur la plateforme d'action de la France insoumise.  
+  
+>>  Je rejoins « {{ GROUP_NAME }} »
+{{ JOIN_LINK }}
+
+Si vous n'êtes pas à l'origine de cette demande, merci d'ignorer cet email.  
+  
+
+-----------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}.
+
+>> Voir cet email dans votre navigateur
+{{ LINK_BROWSER }}

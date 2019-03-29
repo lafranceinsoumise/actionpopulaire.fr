@@ -1,0 +1,27 @@
+Bonjour,
+
+Une nouvelle personne s'est inscrite à un événement dont vous êtes l'organisateur :  
+
+
+ **{{ PERSON_INFORMATION }}**  
+Evénement : **{{ EVENT_NAME }}**  
+
+
+>> Accéder à la page d'administration de votre événement
+{{ MANAGE_EVENT_LINK }}
+
+Amitiés insoumises,  
+L'équipe de la plateforme France insoumise  
+  
+  
+-----------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}.
+
+>> Voir cet email dans votre navigateur
+{{ LINK_BROWSER }}
+
+>> Choisir les emails que vous recevez
+http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+
+>> Arrêter complètement de recevoir des emails
+https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}
