@@ -40,12 +40,20 @@ Pour l'exécution des présentes et de leurs suites, les parties font élection 
 
 Fait en deux exemplaires originaux à Paris, le {{ signature_date }}
 
-<div class="signatures" markdown="1">
-L'emprunteuse,  
-**Manon AUBRY**  
-Candidate tête de liste 
-
-{{ le }} {{ preteur }}  
-**{{ name }}**  
+<div>
+<div class="signature emprunteuse">
+<p>
+L'emprunteuse,<br>
+<strong>Manon AUBRY</strong><br>
+Candidate tête de liste
+</p>
+{{ signature_emprunteuse }}
+</div>
+<div class="signature preteur">
+<p>
+{{ le }} {{ preteur }},<br>  
+<strong>{{ name }}</strong><br>
 {{ signature }}
+</p>
+</div>
 </div>

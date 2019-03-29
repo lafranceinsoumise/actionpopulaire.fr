@@ -47,6 +47,13 @@ def generate_html_contract(contract_information, baselevel=1):
     gender = contract_information["gender"]
     signed = "signature_datetime" in contract_information
 
+    signature_image_path = (
+        Path(__file__)
+        .parent.joinpath("static", "europeennes", "signature_manon_aubry.png")
+        .absolute()
+        .as_uri()
+    )
+
     contract_markdown = get_template("europeennes/loans/contract.md").render(
         context={
             "lender_date_of_birth": "22/12/1989",
@@ -72,6 +79,11 @@ def generate_html_contract(contract_information, baselevel=1):
                 contract_information["payment_mode"]
             ],
             "signature": f"Accepté en ligne le {contract_information['acceptance_datetime']}"
+            if signed
+            else "",
+            "signature_emprunteuse": mark_safe(
+                f'<img title="Signature de Manon Aubry" src="{signature_image_path}">'
+            )
             if signed
             else "",
         }
