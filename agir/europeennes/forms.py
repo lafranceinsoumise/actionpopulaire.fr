@@ -82,7 +82,7 @@ class LenderForm(SimpleDonorForm):
         self.fields["date_of_birth"].required = True
         self.fields["declaration"].label = _(
             "Je certifie sur l'honneur être une personne physique et que le réglement de mon prêt ne provient pas d'une"
-            " personne morale mais de mon compte ne banque personnel."
+            " personne morale mais de mon compte en banque personnel."
         )
         # retirer le help_text qui indique qu'un reçu fiscal sera émis (ce qui n'est pas le cas pour un prêt)
         self.fields["declaration"].help_text = None

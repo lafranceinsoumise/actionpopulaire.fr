@@ -150,6 +150,18 @@ class LoanContractView(FormView):
 
 class LoanReturnView(TemplateView):
     template_name = "europeennes/loans/return.html"
+    cher_preteur = {
+        "M": "Cher prêteur",
+        "F": "Chère prêteuse",
+        "O": "Cher⋅e prêteur⋅se",
+    }
+
+    def get_context_data(self, **kwargs):
+        gender = self.kwargs["payment"].meta["gender"]
+
+        return super().get_context_data(
+            chere_preteur=self.cher_preteur[gender], **kwargs
+        )
 
 
 def loan_notification_listener(payment):
