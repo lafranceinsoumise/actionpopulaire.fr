@@ -73,10 +73,12 @@ def send_event_creation_notification(self, organizer_config_pk):
             from_email=settings.EMAIL_FROM,
             recipients=[organizer],
             bindings=bindings,
-            attachment=(
-                "event.ics",
-                str(ics.Calendar(events=[event.to_ics()])),
-                "text/calendar",
+            attachments=(
+                {
+                    "filename": "event.ics",
+                    "content": str(ics.Calendar(events=[event.to_ics()])),
+                    "mimetype": "text/calendar",
+                },
             ),
         )
     except (smtplib.SMTPException, socket.error) as exc:
@@ -123,10 +125,12 @@ def send_event_changed_notification(self, event_pk, changes):
             from_email=settings.EMAIL_FROM,
             recipients=recipients,
             bindings=bindings,
-            attachment=(
-                "event.ics",
-                str(ics.Calendar(events=[event.to_ics()])),
-                "text/calendar",
+            attachments=(
+                {
+                    "filename": "event.ics",
+                    "content": str(ics.Calendar(events=[event.to_ics()])),
+                    "mimetype": "text/calendar",
+                },
             ),
         )
     except (smtplib.SMTPException, socket.error) as exc:
@@ -167,10 +171,12 @@ def send_rsvp_notification(self, rsvp_pk):
         from_email=settings.EMAIL_FROM,
         recipients=[rsvp.person],
         bindings=attendee_bindings,
-        attachment=(
-            "event.ics",
-            str(ics.Calendar(events=[rsvp.event.to_ics()])),
-            "text/calendar",
+        attachments=(
+            {
+                "filename": "event.ics",
+                "content": str(ics.Calendar(events=[rsvp.event.to_ics()])),
+                "mimetype": "text/calendar",
+            },
         ),
     )
 

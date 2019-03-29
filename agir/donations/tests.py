@@ -144,31 +144,7 @@ class DonationTestCase(TestCase):
         payment = Payment.objects.get()
         self.assertRedirects(res, reverse("payment_page", args=[payment.pk]))
 
-    def test_update_person_when_using_existing_address(self):
-        information_url = reverse("donation_information")
-
-        res = self.client.post(reverse("donation_amount"), {"amount": "200"})
-        self.assertRedirects(res, information_url)
-
-        self.donation_information_payload["email"] = self.p1.email
-        res = self.client.post(information_url, self.donation_information_payload)
-        payment = Payment.objects.get()
-        self.assertRedirects(res, reverse("payment_page", args=[payment.pk]))
-
-        self.p1.refresh_from_db()
-
-        # assert fields have been saved on model
-        for f in [
-            "first_name",
-            "last_name",
-            "location_address1",
-            "location_address2",
-            "location_zip",
-            "location_city",
-            "location_country",
-        ]:
-            self.assertEqual(getattr(self.p1, f), self.donation_information_payload[f])
-
+    @using_redislite
     def test_create_person_when_using_new_address(self):
         information_url = reverse("donation_information")
 
@@ -179,6 +155,10 @@ class DonationTestCase(TestCase):
         res = self.client.post(information_url, self.donation_information_payload)
         payment = Payment.objects.get()
         self.assertRedirects(res, reverse("payment_page", args=[payment.pk]))
+
+        # simulate correct payment
+        complete_payment(payment)
+        donation_notification_listener(payment)
 
         p2 = Person.objects.exclude(pk=self.p1.pk).get()
         # assert fields have been saved on model
@@ -211,7 +191,7 @@ class DonationTestCase(TestCase):
         )
         self.assertRedirects(res, information_url)
 
-        self.assertEqual(session["_donation_group"], None)
+        self.assertEqual(session["_donation_"]["group_id"], None)
 
     def test_can_donate_with_allocation(self):
         self.client.force_login(self.p1.role)
@@ -229,7 +209,7 @@ class DonationTestCase(TestCase):
         )
         self.assertRedirects(res, information_url)
 
-        self.assertEqual(session["_donation_group"], str(self.group.pk))
+        self.assertEqual(session["_donation_"]["group_id"], str(self.group.pk))
 
         res = self.client.get(information_url)
         self.assertEqual(res.status_code, 200)

@@ -1,3 +1,4 @@
+from email.mime.base import MIMEBase
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 
 from django.conf import settings
@@ -64,7 +65,7 @@ def send_mosaico_email(
     fail_silently=False,
     preferences_link=True,
     reply_to=None,
-    attachment=None,
+    attachments=None,
 ):
     """Send an email from a Mosaico template
 
@@ -139,8 +140,15 @@ def send_mosaico_email(
                 connection=connection,
             )
             email.attach_alternative(html_message, "text/html")
-            if attachment is not None:
-                email.attach(*attachment)
+            email.attach_alternative(html_message, "text/html")
+            if attachments is not None:
+                for attachment in attachments:
+                    if isinstance(attachment, MIMEBase):
+                        email.attach(attachment)
+                    elif isinstance(attachment, dict):
+                        email.attach(**attachment)
+                    else:
+                        email.attach(*attachment)
             email.send(fail_silently=fail_silently)
 
 

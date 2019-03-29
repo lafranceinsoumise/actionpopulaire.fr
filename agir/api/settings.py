@@ -261,6 +261,8 @@ EMAIL_TEMPLATES = {
     "EVENT_REPORT": "https://mosaico.lafranceinsoumise.fr/emails/7b39830d-8cf5-4d01-abbd-ab41e77c444e.html",
     # CHANGE_MAIL_CONFIRMATION variables: CONFIRMATION_URL
     "CHANGE_MAIL_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/55429415-6611-45a9-8667-929e445ff7c4.html",
+    # CONTRACT_CONFIRMATION
+    "CONTRACT_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/c63e76d7-d8a1-434c-bdd6-75337312ca28.html",
 }
 
 EMAIL_FROM = os.environ.get(
@@ -476,6 +478,8 @@ CELERY_WORKER_SEND_TASK_EVENTS = True
 # enable task events to allow monitoring
 CELERY_TASK_SEND_SENT_EVENT = True
 
+CELERY_RESULT_BACKEND = os.environ.get("BROKER_URL", "redis://")
+
 DEFAULT_EVENT_IMAGE = "front/images/default_event_pic.jpg"
 
 PHONENUMBER_DEFAULT_REGION = "FR"
@@ -538,8 +542,20 @@ SYSTEMPAY_AFCE_CERTIFICATE = os.environ.get(
     "SYSTEMPAY_AFCE_CERTIFICATE", "arbitrarystring"
 )
 
+SYSTEMPAY_AFCE_LOANS_SITE_ID = os.environ.get("SYSTEMPAY_AFCE_LOANS_SITE_ID", 0)
+SYSTEMPAY_AFCE_LOANS_PRODUCTION = (
+    os.environ.get("SYSTEMPAY_AFCE_LOANS_PRODUCTION", "false").lower() == "true"
+)
+SYSTEMPAY_AFCE_LOANS_CERTIFICATE = os.environ.get(
+    "SYSTEMPAY_AFCE_LOANS_CERTIFICATE", "arbitrarystring"
+)
+
+
 DONATION_MINIMUM = 1
 DONATION_MAXIMUM = 1000
+
+LOAN_MINIMUM = 400
+LOAN_MAXIMUM = 10000
 
 # France + most numerous communities in France
 COUNTRIES_FIRST = ["FR", "PT", "DZ", "MA", "TR", "IT", "GB", "ES"]
@@ -558,6 +574,8 @@ PAYMENT_MODES = [
     "agir.system_pay.SystemPayPaymentMode",
     "agir.checks.CheckPaymentMode",
     "agir.europeennes.AFCESystemPayPaymentMode",
+    "agir.europeennes.AFCELoansSystemPayPaymentMode",
+    "agir.europeennes.AFCECheckPaymentMode",
 ]
 
 # OVH Settings

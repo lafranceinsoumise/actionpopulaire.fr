@@ -33,20 +33,26 @@ class DonationForm extends React.Component {
   }
 
   render() {
-    const { groupChoices, csrfToken, minAmount, maxAmount } = this.props;
+    const {
+      groupChoices,
+      csrfToken,
+      minAmount,
+      maxAmount,
+      minAmountError,
+      maxAmountError,
+      amountChoices,
+      showTaxCredit,
+      buttonLabel
+    } = this.props;
     const { group, amount, nationalRatio } = this.state;
 
     const customError =
       amount === null
         ? null
-        : amount < minAmount
-        ? `Il n'est pas possible de donner moins de ${displayPrice(
-            minAmount
-          )} par carte bleue.`
-        : amount > maxAmount
-        ? `Il n'est pas possible de donner plus de ${displayPrice(
-            maxAmount
-          )} par carte bleue.`
+        : minAmount && amount < minAmount
+        ? minAmountError
+        : maxAmount && amount > maxAmount
+        ? maxAmountError
         : null;
 
     return (
@@ -54,6 +60,8 @@ class DonationForm extends React.Component {
         <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
         <AmountWidget
           amount={amount}
+          amountChoices={amountChoices}
+          showTaxCredit={showTaxCredit}
           error={customError}
           onAmountChange={amount => this.setState({ amount })}
         />
@@ -77,7 +85,7 @@ class DonationForm extends React.Component {
         )}
         <div className="form-group">
           <Button type="submit" bsStyle="primary">
-            Je donne !
+            {buttonLabel}
           </Button>
         </div>
       </div>
@@ -88,6 +96,10 @@ class DonationForm extends React.Component {
 DonationForm.propTypes = {
   minAmount: PropTypes.number,
   maxAmount: PropTypes.number,
+  minAmountError: PropTypes.string,
+  maxAmountError: PropTypes.string,
+  amountChoices: PropTypes.array,
+  showTaxCredit: PropTypes.bool,
   initialGroup: PropTypes.string,
   groupName: PropTypes.string,
   groupChoices: PropTypes.arrayOf(
@@ -96,6 +108,7 @@ DonationForm.propTypes = {
       label: PropTypes.string
     })
   ),
+  buttonLabel: PropTypes.string,
   csrfToken: PropTypes.string
 };
 

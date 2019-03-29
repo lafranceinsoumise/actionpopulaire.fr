@@ -1,11 +1,18 @@
+from django.utils.html import conditional_escape
+from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
-
-from .models import CheckPayment
 
 
 class CheckView(TemplateView):
-    queryset = CheckPayment.objects.all()
     template_name = "checks/payment.html"
+    order = None
+    address = None
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(payment=kwargs["payment"])
+        return super().get_context_data(
+            payment=kwargs["payment"],
+            order=self.order,
+            address=mark_safe(
+                "<br>".join(conditional_escape(part) for part in self.address)
+            ),
+        )

@@ -5,7 +5,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 from django.forms import ChoiceField, Field, RadioSelect
 
-__all__ = ["PAYMENT_MODES", "DEFAULT_MODE"]
+__all__ = ["PAYMENT_MODES", "DEFAULT_MODE", "PaymentModeField"]
 
 
 _payment_classes = [import_string(name) for name in settings.PAYMENT_MODES]
@@ -27,7 +27,9 @@ class PaymentModeField(ChoiceField):
         **kwargs
     ):
         self._payment_modes = (
-            payment_modes if payment_modes is not None else list(PAYMENT_MODES.values())
+            payment_modes
+            if payment_modes is not None
+            else [PAYMENT_MODES["system_pay"], PAYMENT_MODES["check"]]
         )
 
         if required:

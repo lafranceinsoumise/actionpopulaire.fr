@@ -9,7 +9,7 @@ class PaymentException(Exception):
     pass
 
 
-def create_payment(person, type, price, mode=DEFAULT_MODE, meta=None):
+def create_payment(*, person=None, type, price, mode=DEFAULT_MODE, meta=None, **kwargs):
     """Generate payment response for person with type and price
 
     :param person: person that is paying, must have all necessary fields (name and location)
@@ -34,14 +34,13 @@ def create_payment(person, type, price, mode=DEFAULT_MODE, meta=None):
         "location_country",
     ]
 
+    if person is not None:
+        for f in person_fields:
+            kwargs.setdefault(f, getattr(person, f))
+        kwargs.setdefault("phone_number", person.contact_phone)
+
     return Payment.objects.create(
-        person=person,
-        type=type,
-        mode=mode,
-        price=price,
-        phone_number=person.contact_phone,
-        meta=meta,
-        **{f: getattr(person, f) for f in person_fields}
+        person=person, type=type, mode=mode, price=price, meta=meta, **kwargs
     )
 
 

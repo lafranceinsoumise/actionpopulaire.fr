@@ -1,13 +1,25 @@
-Cher prêteur, chère prêteuse,
-
-Par ce prêt, maintenant confirmé, vous avez apporté votre soutien à la campagne européenne de la France insoumise. Nous vous en remercions très chaleureusement.
-
-Vous trouverez ci-joint à ce mail le contrat de prêt signé qui correspond à votre versement. Son texte est identique à la version qui vous avait été présenté lors de la validation.
+{{ CHER_PRETEUR }},
 
 
-Avec tous nous remerciements,
-L'équipe de la campagne européenne
+Par ce prêt, vous avez apporté votre soutien à la campagne européenne de la France insoumise._
+
+Je vous remercie très chaleureusement. Cet appui est crucial pour nous. En effet, nous ne pouvons pas compter comme nos adversaires sur le soutien des oligarques ni de la finance. Notre force, c’est notre nombre. Ils ont les millions, mais nous sommes des millions !_
+
+Je mesure combien prêter quelques centaines d'euros est souvent un effort financier important tant les temps sont durs pour beaucoup de Français. Votre argent ne sera pas gaspillé. Il sera utilisé avec rigueur et un souci constant de le rendre utile à notre action commune. Je m’y engage._
+
+Courage, les jours heureux viendront._
+
+Fidèlement,_
+**Manon Aubry**
+
+
+Vous trouverez ci-joint à ce mail **le contrat de prêt signé** qui correspond à votre versement. Son texte est identique à la version qui vous avait été présenté lors de la validation.  
+
+
+Avec tous nous remerciements,  
+L'équipe de la campagne européenne  
   
+
 -----------------------------------------------------------------
 Cet email a été envoyé à {{ EMAIL }}.
 

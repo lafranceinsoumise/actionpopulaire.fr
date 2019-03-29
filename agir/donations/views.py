@@ -1,18 +1,11 @@
 import reversion
 from django.contrib import messages
-from django.db import transaction
 from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils.translation import ugettext as _
 from django.views import View
-from django.views.generic import (
-    FormView,
-    UpdateView,
-    TemplateView,
-    DetailView,
-    CreateView,
-)
+from django.views.generic import UpdateView, TemplateView, DetailView, CreateView
 from django.views.generic.detail import SingleObjectMixin
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
@@ -24,7 +17,9 @@ from agir.donations.actions import (
     can_edit,
     EDITABLE_STATUSES,
     get_current_action,
+    find_or_create_person_from_payment,
 )
+from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
 from agir.donations.forms import (
     DocumentOnCreationFormset,
     DocumentHelper,
@@ -33,90 +28,57 @@ from agir.donations.forms import (
 )
 from agir.groups.models import SupportGroup, Membership
 from agir.payments import payment_modes
-from agir.payments.actions import create_payment, redirect_to_payment
 from agir.payments.models import Payment
 from agir.people.models import Person
 from . import forms
-from .apps import DonsConfig
 from .models import SpendingRequest, Operation, Document
 from .tasks import send_donation_email
 
 __all__ = ("AskAmountView", "PersonalInformationView")
 
-SESSION_DONATION_PREFIX = "_donation_"
+
+DONATION_SESSION_NAMESPACE = "_donation_"
 
 
-def session_key(key):
-    return SESSION_DONATION_PREFIX + key
+class AskAmountView(BaseAskAmountView):
+    meta_title = "Je donne à la France insoumise"
+    meta_description = (
+        "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
+        "fonctionnement du site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous !"
+    )
+    meta_type = "website"
 
-
-class AskAmountView(FormView):
-    form_class = forms.DonationForm
+    form_class = forms.AllocationDonationForm
     template_name = "donations/ask_amount.html"
     success_url = reverse_lazy("donation_information")
-    enable_allocations = True
+    session_namespace = DONATION_SESSION_NAMESPACE
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["enable_allocations"] = self.enable_allocations
         kwargs["group_id"] = self.request.GET.get("group")
         kwargs["user"] = self.request.user
         return kwargs
 
     def form_valid(self, form):
-        amount = int(form.cleaned_data["amount"] * 100)
-        self.request.session[session_key("amount")] = amount
-
-        if self.enable_allocations:
-            # use int to floor down the value as well as converting to an int
-            allocation = int(form.cleaned_data.get("allocation", 0) * 100)
-            self.request.session[session_key("allocation")] = allocation
-            self.request.session[session_key("group")] = form.group and str(
-                form.group.pk
-            )
-
+        # use int to floor down the value as well as converting to an int
+        allocation = int(form.cleaned_data.get("allocation", 0) * 100)
+        self.data_to_persist["allocation"] = allocation
+        self.data_to_persist["group_id"] = form.group and str(form.group.pk)
         return super().form_valid(form)
 
 
-class PersonalInformationView(UpdateView):
-    form_class = forms.DonorForm
+class PersonalInformationView(BasePersonalInformationView):
+    form_class = forms.AllocationDonorForm
     template_name = "donations/personal_information.html"
     enable_allocations = True
     payment_mode = payment_modes.DEFAULT_MODE
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.GET.get("amount") is not None:
-            request.session[session_key("amount")] = int(request.GET.get("amount"))
-        if session_key("amount") not in request.session:
-            return redirect("donation_amount")
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_object(self, queryset=None):
-        if self.request.user.is_authenticated:
-            return self.request.user.person
-
-        form = self.get_form()
-        if form.is_valid():
-            try:
-                return Person.objects.get_by_natural_key(form.cleaned_data["email"])
-            except Person.DoesNotExist:
-                pass
-
-        return None
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["enable_allocations"] = self.enable_allocations
-        kwargs["amount"] = self.request.session[session_key("amount")]
-        kwargs["allocation"] = self.request.session.get(session_key("allocation"), 0)
-        kwargs["group_id"] = self.request.session.get(session_key("group"), None)
-
-        return kwargs
+    session_namespace = DONATION_SESSION_NAMESPACE
+    base_redirect_url = "donation_amount"
 
     def get_context_data(self, **kwargs):
-        amount = self.request.session[session_key("amount")]
-        allocation = self.request.session.get(session_key("allocation"), 0)
-        group_id = self.request.session.get(session_key("group"), None)
+        amount = self.persistent_data["amount"]
+        allocation = self.persistent_data.get("allocation", 0)
+        group_id = self.persistent_data.get("group_id", None)
         group_name = None
 
         if group_id:
@@ -126,40 +88,23 @@ class PersonalInformationView(UpdateView):
                 pass
 
         return super().get_context_data(
-            amount=amount,
             allocation=allocation,
             national=amount - allocation,
             group_name=group_name,
             **kwargs
         )
 
-    def form_valid(self, form):
-        person = form.save()
-        amount = form.cleaned_data["amount"]
-        if self.enable_allocations:
-            allocation = form.cleaned_data["allocation"]
-            group = form.cleaned_data["group"]
+    def get_payment_meta(self, form):
+        meta = super().get_payment_meta(form)
 
-        with transaction.atomic():
-            if self.enable_allocations and allocation and group:
-                allocation_metas = {"allocation": allocation, "group_id": str(group.id)}
-            else:
-                allocation_metas = {}
-            payment = create_payment(
-                person=person,
-                mode=self.payment_mode,
-                type=DonsConfig.PAYMENT_TYPE,
-                price=amount,
-                meta={"nationality": person.meta["nationality"], **allocation_metas},
-            )
+        allocation = form.cleaned_data["allocation"]
+        group = form.cleaned_data["group"]
 
-        del self.request.session[session_key("amount")]
-        if session_key("allocation") in self.request.session:
-            del self.request.session[session_key("allocation")]
-        if session_key("group") in self.request.session:
-            del self.request.session[session_key("group")]
+        if allocation and group:
+            meta["allocation"] = allocation
+            meta["group_id"] = str(group.pk)
 
-        return redirect_to_payment(payment)
+        return meta
 
 
 class ReturnView(TemplateView):
@@ -168,6 +113,7 @@ class ReturnView(TemplateView):
 
 def notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
+        find_or_create_person_from_payment(payment)
         send_donation_email.delay(payment.person.pk)
 
         if (

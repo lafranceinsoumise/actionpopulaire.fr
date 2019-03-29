@@ -74,6 +74,13 @@ class SystempayRedirectForm(forms.Form):
 
     @classmethod
     def get_form_for_transaction(cls, transaction, sp_config):
+
+        person_id = (
+            str(transaction.payment.person.pk)
+            if transaction.payment.person
+            else "anonymous"
+        )
+
         form = cls(
             initial={
                 "vads_site_id": sp_config["site_id"],
@@ -84,7 +91,7 @@ class SystempayRedirectForm(forms.Form):
                 "vads_trans_date": transaction.created.strftime("%Y%m%d%H%M%S"),
                 "vads_amount": transaction.payment.price,
                 "vads_cust_email": transaction.payment.email,
-                "vads_cust_id": str(transaction.payment.person.id),
+                "vads_cust_id": person_id,
                 "vads_cust_first_name": transaction.payment.first_name,
                 "vads_cust_last_name": transaction.payment.last_name,
                 "vads_cust_address": ", ".join(

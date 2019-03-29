@@ -1,13 +1,20 @@
 from django.utils.translation import ugettext_lazy as _
 
+from agir.checks import AbstractCheckPaymentMode
 from agir.payments.models import Payment, PaymentManager
-
-from . import CheckPaymentMode
 
 
 class CheckPaymentManager(PaymentManager):
     def get_queryset(self):
-        return super().get_queryset().filter(mode=CheckPaymentMode.id)
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                mode__in=[
+                    klass.id for klass in AbstractCheckPaymentMode.__subclasses__()
+                ]
+            )
+        )
 
 
 class CheckPayment(Payment):
