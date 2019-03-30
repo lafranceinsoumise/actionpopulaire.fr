@@ -26,11 +26,13 @@ class PaymentModeField(ChoiceField):
         label=_("Mode de paiement"),
         **kwargs
     ):
-        self._payment_modes = (
-            payment_modes
-            if payment_modes is not None
-            else [PAYMENT_MODES["system_pay"], PAYMENT_MODES["check"]]
-        )
+
+        if payment_modes == "ALL":
+            self._payment_modes = settings.PAYMENT_MODES
+        elif payment_modes is None:
+            self._payment_modes = [PAYMENT_MODES["system_pay"], PAYMENT_MODES["check"]]
+        else:
+            self._payment_modes = payment_modes
 
         if required:
             self.empty_label = None

@@ -19,7 +19,7 @@ from agir.lib.form_mixins import (
     ImageFormMixin,
 )
 from agir.people.forms import BasePersonForm
-from agir.payments.payment_modes import PaymentModeField
+from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
 
 from ..people.models import Person, PersonFormSubmission
 from .models import Event, OrganizerConfig, RSVP, EventImage, EventSubtype
@@ -524,7 +524,10 @@ class BillingForm(forms.ModelForm):
     submission = forms.ModelChoiceField(
         PersonFormSubmission.objects.all(), widget=forms.HiddenInput, required=False
     )
-    payment_mode = PaymentModeField(required=True)
+    payment_mode = PaymentModeField(
+        required=True,
+        payment_modes=[PAYMENT_MODES["system_pay"], PAYMENT_MODES["check"]],
+    )
     is_guest = forms.BooleanField(required=False, widget=forms.HiddenInput)
 
     def __init__(self, *args, event, submission, is_guest, **kwargs):

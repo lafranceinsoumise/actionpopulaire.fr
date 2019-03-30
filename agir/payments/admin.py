@@ -1,74 +1,20 @@
-from django import forms
 from django.contrib import admin
-from django.db import transaction
-from django.utils import timezone
 
 from agir.api.admin import admin_site
 from agir.payments.actions import notify_status_change
-from agir.payments.models import Payment
-from agir.payments.payment_modes import PaymentModeField
 from . import models
 
 
-class PaymentAdminForm(forms.ModelForm):
-    mode = PaymentModeField(required=True)
+def notify_status_action(model_admin, request, queryset):
+    for p in queryset:
+        notify_status_change(p)
 
-    def clean_mode(self):
-        mode = self.cleaned_data["mode"]
-        if not mode.can_admin:
-            raise forms.ValidationError(
-                "Seuls peuvent être modifiés les paiements par chèque."
-            )
 
-        return mode
-
-    def clean_status(self):
-        if self.instance.status != Payment.STATUS_WAITING:
-            raise forms.ValidationError(
-                "Seuls peuvent être modifiés les paiements en attente."
-            )
-
-        return self.cleaned_data["status"]
-
-    def save(self, *args, **kwargs):
-        with transaction.atomic():
-            notify_status_change(self.instance)
-            now = timezone.now().astimezone(timezone.utc).isoformat()
-            self.instance.events.append(
-                {
-                    "change_status": self.instance.status,
-                    "date": now,
-                    "origin": "check_payment_admin_change_button",
-                }
-            )
-
-            return super().save(*args, **kwargs)
-
-    class Meta:
-        model = Payment
-        fields = (
-            "type",
-            "person",
-            "email",
-            "first_name",
-            "last_name",
-            "price",
-            "phone_number",
-            "location_address1",
-            "location_address2",
-            "location_zip",
-            "location_city",
-            "location_country",
-            "meta",
-            "events",
-            "status",
-            "mode",
-        )
+notify_status_action.short_description = "Renotifier le statut"
 
 
 @admin.register(models.Payment, site=admin_site)
 class PaymentAdmin(admin.ModelAdmin):
-    form = PaymentAdminForm
     list_display = (
         "id",
         "type",
@@ -83,6 +29,7 @@ class PaymentAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         "type",
+        "mode",
         "person",
         "email",
         "first_name",
@@ -97,6 +44,8 @@ class PaymentAdmin(admin.ModelAdmin):
         "meta",
         "events",
     )
-    fields = readonly_fields + ("mode", "status")
+    fields = readonly_fields + ("status",)
     list_filter = ("price", "status")
     search_fields = ("email", "person__emails__address__iexact")
+
+    actions = (notify_status_action,)
