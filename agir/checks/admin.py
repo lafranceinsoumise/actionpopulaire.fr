@@ -250,7 +250,10 @@ class CheckPaymentAdmin(admin.ModelAdmin):
                         }
                     )
                     p.save()
-                    notify_status_change(p)
+
+            # notifier en dehors de la transaction, pour être sûr que ça ait été committé
+            for p in payments:
+                notify_status_change(p)
 
             messages.add_message(
                 request,

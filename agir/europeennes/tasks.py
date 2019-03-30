@@ -25,10 +25,11 @@ def generate_contract(self, payment_id, force=False):
     except Payment.DoesNotExist:
         return None
 
-    if not force and (
-        "contract_path" in payment.meta or payment.status != payment.STATUS_COMPLETED
-    ):
-        return payment.meta["contract_path"]
+    if not force and payment.status != Payment.STATUS_COMPLETED:
+        return None
+
+    if not force and ("contract_path" in payment.meta):
+        return payment.meta.get("contract_path")
 
     contract_information = payment.meta
     contract_information["signature_datetime"] = (
