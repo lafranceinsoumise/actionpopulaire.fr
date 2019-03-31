@@ -29,7 +29,7 @@ SUBSTITUTIONS = {
     "cher_preteur": {
         "M": "Cher prêteur",
         "F": "Chère prêteuse",
-        "   O": "Cher⋅e prêteur⋅se",
+        "O": "Cher⋅e prêteur⋅se",
     },
     "final_e": {"M": "", "F": "e", "O": "⋅e"},
     "lender": {"M": "prêteur", "F": "prêteuse", "O": "prêteur⋅euse"},
