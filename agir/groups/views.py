@@ -2,6 +2,7 @@ import json
 import logging
 
 import ics
+from datetime import timedelta
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -20,6 +21,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html, mark_safe
+from django.utils.timezone import now
 from django.utils.translation import ugettext as _, ugettext_lazy
 from django.views.generic import (
     UpdateView,
@@ -217,6 +219,14 @@ class SupportGroupManagementView(
         ).exists()
         if kwargs["has_promo_code"]:
             kwargs["group_promo_code"] = get_next_promo_code(self.object)
+
+        if (
+            settings.PROMO_CODE_DELAY is not None
+            and settings.PROMO_CODE_DELAY.year == now().year
+            and settings.PROMO_CODE_DELAY.month == now().month
+            and settings.PROMO_CODE_DELAY > (now() - timedelta(days=1))
+        ):
+            kwargs["promo_code_delay"] = settings.PROMO_CODE_DELAY
 
         kwargs["certifiable"] = (
             self.object.type in settings.CERTIFIABLE_GROUP_TYPES

@@ -190,14 +190,19 @@
       {% if has_promo_code %}
         <h3>Mon code promo pour ce mois-ci</h3>
 
-        <div style="text-align: center; margin: 2em auto;">
-          <span
-              style="padding: 10px; font-weight: bolder; font-size: 2em; border: 2px solid darkgrey;">{{ group_promo_code }}</span>
-        </div>
+        {% if promo_code_delay %}
+          <div class="alert alert-info">Dans l'attente d'un nouveau matériel que nous vous inviterons à commander, le
+            code promo sera disponible à partir du {{ promo_code_delay|date }}.</div>
+        {% else %}
+          <div style="text-align: center; margin: 2em auto;">
+            <span
+                style="padding: 10px; font-weight: bolder; font-size: 2em; border: 2px solid darkgrey;">{{ group_promo_code }}</span>
+          </div>
 
-        <p>
-          Ce code peut être utilisé sur le <a href="https://materiel.lafranceinsoumise.fr">site d'achat de matériel</a>.
-        </p>
+          <p>
+            Ce code peut être utilisé sur le <a href="https://materiel.lafranceinsoumise.fr">site d'achat de matériel</a>.
+          </p>
+        {% endif %}
       {% endif %}
 
       {% if is_pressero_enabled %}

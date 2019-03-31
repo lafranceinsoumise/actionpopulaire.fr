@@ -17,6 +17,8 @@ import dj_email_url
 from django.contrib import messages
 from django.contrib.messages import ERROR
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.datetime_safe import datetime
+from django.utils.timezone import make_aware
 
 ADMIN_RE = re.compile("^([\w -]+) <([^>]+)>$")
 
@@ -496,6 +498,13 @@ PROMO_CODE_TAG = os.environ.get("PROMO_CODE_TAG", "Code promo matériel")
 CERTIFIED_GROUP_SUBTYPES = os.environ.get(
     "CERTIFIED_GROUP_SUBTYPES", "certifié,thématique certifié"
 ).split(",")
+if os.environ.get("PROMO_CODE_DELAY") is not None:
+    year, month, day = (
+        int(value) for value in os.environ.get("PROMO_CODE_DELAY").split("-")
+    )
+    PROMO_CODE_DELAY = make_aware(datetime(year, month, day))
+else:
+    PROMO_CODE_DELAY = None
 CERTIFIABLE_GROUP_TYPES = ["L", "B"]  # groupes locaux  # groupes thématiques
 CERTIFIABLE_GROUP_SUBTYPES = ["comité d'appui"]
 
