@@ -38,7 +38,7 @@ class AFCELoansSystemPayPaymentMode(SystemPayPaymentMode):
 class AFCECheckPaymentMode(AbstractCheckPaymentMode):
     id = "check_afce"
     url_fragment = "afce_cheque"
-    label = _("Chèque à l'ordre de l'AFCFE LFI 2019")
+    label = _("Chèque à l'ordre de l'AFCE LFI 2019")
 
     order = "AFCE LFI 2019"
     address = ["AFCE LFI 2019", "43 rue de Dunkerque", "75010 Paris"]
