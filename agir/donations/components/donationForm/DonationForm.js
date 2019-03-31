@@ -7,7 +7,6 @@ import GroupSelector from "./GroupSelector";
 import PropTypes from "prop-types";
 
 import Button from "@agir/lib/bootstrap/Button";
-import { displayPrice } from "@agir/lib/utils/display";
 
 class DonationForm extends React.Component {
   constructor(props) {
