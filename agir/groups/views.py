@@ -224,9 +224,9 @@ class SupportGroupManagementView(
             settings.PROMO_CODE_DELAY is not None
             and settings.PROMO_CODE_DELAY.year == now().year
             and settings.PROMO_CODE_DELAY.month == now().month
-            and settings.PROMO_CODE_DELAY > (now() - timedelta(days=1))
+            and now() < (settings.PROMO_CODE_DELAY + timedelta(days=1))
         ):
-            kwargs["promo_code_delay"] = settings.PROMO_CODE_DELAY
+            kwargs["promo_code_delay"] = settings.PROMO_CODE_DELAY + timedelta(days=1)
 
         kwargs["certifiable"] = (
             self.object.type in settings.CERTIFIABLE_GROUP_TYPES
