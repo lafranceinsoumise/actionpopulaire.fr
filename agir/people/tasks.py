@@ -131,7 +131,10 @@ def send_unsubscribe_email(self, person_pk):
 
 @shared_task(max_retries=2, bind=True)
 def update_person_mailtrain(self, person_pk):
-    person = Person.objects.prefetch_related("emails").get(pk=person_pk)
+    try:
+        person = Person.objects.prefetch_related("emails").get(pk=person_pk)
+    except Person.DoesNotExist:
+        return
 
     try:
         update_person(person)

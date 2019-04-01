@@ -1,6 +1,8 @@
+from django.db import transaction
 from django.db.models.signals import pre_save, post_save, pre_delete, post_delete
 from django.dispatch import receiver
 from django.conf import settings
+from functools import partial
 
 from agir.lib.mailtrain import delete_person
 from . import tasks
@@ -23,7 +25,7 @@ def update_mailtrain(sender, instance, raw, **kwargs):
     if kwargs["created"]:
         return
 
-    tasks.update_person_mailtrain.delay(instance.id)
+    transaction.on_commit(partial(tasks.update_person_mailtrain.delay, instance.id))
 
 
 @receiver(pre_delete, sender=Person, dispatch_uid="person_delete_mailtrain")

@@ -15,6 +15,7 @@ from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 from django_prometheus.models import ExportModelOperationsMixin
 from django.utils import timezone
+from functools import partial
 from nuntius.models import AbstractSubscriber
 
 from phonenumber_field.modelfields import PhoneNumberField
@@ -108,7 +109,7 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         if not settings.MAILTRAIN_DISABLE:
             from .tasks import update_person_mailtrain
 
-            update_person_mailtrain.delay(person.pk)
+            transaction.on_commit(partial(update_person_mailtrain.delay, person.pk))
 
         return person
 
