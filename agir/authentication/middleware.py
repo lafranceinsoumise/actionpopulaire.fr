@@ -27,7 +27,7 @@ class MailLinkMiddleware:
         return format_html(
             _(
                 "Vous êtes actuellement connecté comme {current_person}, mais vous avez suivi un lien qui a été envoyé "
-                'à {link_person}. Souhaitez vous <a href="{link_url}"> vous connecter comme {link_person} ?'
+                'à {link_person}. Souhaitez vous <a href="{link_url}"> vous connecter comme {link_person} ?</a>'
             ),
             current_person=current_user.person.get_short_name(),
             link_person=link_user.person.get_short_name(),
