@@ -255,6 +255,10 @@ class Person(
         choices=CONTACT_PHONE_STATUS_CHOICES,
         max_length=1,
         default=CONTACT_PHONE_UNVERIFIED,
+        help_text=_(
+            "Pour les numéros hors France métropolitaine, merci de les indiquer sous la forme internationale,"
+            " en les préfixant par '+' et le code du pays."
+        ),
     )
 
     GENDER_FEMALE = "F"
