@@ -17,7 +17,7 @@
         <ul>
           <li>Ordre : <strong>{{ order }}</strong></li>
           <li>Montant : <strong>{{ payment.get_price_display }}</strong></li>
-          <li>Numéro de commande à inscrire au dos du chèque : <strong>{{ payment.id }}</strong></li>
+          <li>Numéro de transaction à inscrire au dos du chèque : <strong>{{ payment.id }}</strong></li>
         </ul>
         <p>
           Merci d'envoyer votre chèque à l'adresse suivante :
@@ -28,8 +28,7 @@
 
 
       <p>
-          Votre participation ne sera confirmée qu'à réception du chèque. Vous recevrez un message de confirmation
-          quand ce sera fait (à moins que vous n'ayez désactivé les notifications d'événement).
+        {{ additional_information }}
       </p>
 
 
@@ -48,7 +47,7 @@
       </div>
 
       <div class="alert alert-info">
-        Vous pouvez tout à fait régler plusieurs achats avec un seul chèque : transmettez votre chèque unique
+        Vous pouvez tout à fait régler plusieurs transactions avec un seul chèque : transmettez votre chèque unique
         en indiquant bien <em>tous</em> les numéros de commande au dos du chèque.
       </div>
 

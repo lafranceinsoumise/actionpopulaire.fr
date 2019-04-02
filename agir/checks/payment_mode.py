@@ -11,9 +11,14 @@ class AbstractCheckPaymentMode(AbstractPaymentMode):
 
     order = None
     address = None
+    additional_information = None
 
     def __init__(self):
-        self.view = CheckView.as_view(order=self.order, address=self.address)
+        self.view = CheckView.as_view(
+            order=self.order,
+            address=self.address,
+            additional_information=self.additional_information,
+        )
 
     @cached_property
     def payment_view(self):

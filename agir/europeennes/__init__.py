@@ -42,3 +42,7 @@ class AFCECheckPaymentMode(AbstractCheckPaymentMode):
 
     order = "AFCE LFI 2019"
     address = ["AFCE LFI 2019", "43 rue de Dunkerque", "75010 Paris"]
+    additional_information = (
+        "Votre prêt ne sera confirmé qu'à réception du chèque. Vous recevrez un email contenant le contrat signé dès"
+        " que votre chèque aura été traité."
+    )
