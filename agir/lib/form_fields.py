@@ -121,19 +121,34 @@ class IBANField(forms.Field):
     default_error_messages = {
         "invalid": "Indiquez un numéro IBAN identifiant un compte existant. Ce numéro, composé de 14 à 34 chiffres et"
         " lettres, commence par deux lettres identifiant le pays du compte.",
-        "forbidden_country": "Seuls des comptes des pays suivants sont autorisés : %(countries)s",
+        "forbidden_country": "Seuls les comptes des pays suivants sont autorisés : %(countries)s",
     }
     widget = IBANWidget
 
     def __init__(self, *args, allowed_countries=None, **kwargs):
-        super().__init__(*args, **kwargs)
         self.allowed_countries = allowed_countries
+        super().__init__(*args, **kwargs)
+
+        if self.allowed_countries is not None:
+            self.widget.attrs["data-allowed-countries"] = ",".join(
+                self.allowed_countries
+            )
+            self.widget.attrs[
+                "data-allowed-countries-error"
+            ] = self.allowed_countries_error_message()
 
     def to_python(self, value):
         if value in self.empty_values:
             return self.empty_value
 
         return IBAN(str(value))
+
+    def allowed_countries_error_message(self):
+        return self.error_messages["forbidden_country"] % {
+            "countries": ", ".join(
+                countries.name(code) or code for code in self.allowed_countries
+            )
+        }
 
     def validate(self, value):
         super().validate(value)
@@ -142,13 +157,7 @@ class IBANField(forms.Field):
 
         if self.allowed_countries and value.country not in self.allowed_countries:
             raise ValidationError(
-                self.error_messages["forbidden_country"]
-                % {
-                    "countries": ", ".join(
-                        countries.name(code) or code for code in self.allowed_countries
-                    )
-                },
-                code="forbidden_country",
+                self.allowed_countries_error_message(), code="forbidden_country"
             )
 
     def widget_attrs(self, widget):

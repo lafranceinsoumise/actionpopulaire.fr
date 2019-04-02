@@ -105,22 +105,13 @@ export function isIbanValid(iban) {
   return remainder === 1;
 }
 
-function HelpBlock(props) {
-  return props.messages.map((text, id) => (
-    <span key={id} className="help-block">
-      {text}
-    </span>
-  ));
+function HelpBlock({ children }) {
+  return children && <span className="help-block">{children}</span>;
 }
 
 export class IBANField extends React.Component {
   constructor(props, context) {
     super(props, context);
-
-    let defaultErrorMessage = {
-      wrongCountry: "La nationalité de cet IBAN n'est pas acceptée.",
-      invalid: "Cet IBAN est invalide."
-    };
 
     const allowedContry = this.props.allowedCountry
       ? this.props.allowedCountry
@@ -128,32 +119,34 @@ export class IBANField extends React.Component {
 
     this.state = {
       allowedCountry: allowedContry,
-      errorMessages: { ...defaultErrorMessage, ...props.errorMessages },
-      IBANErrors: [],
+      error: null,
       value: "",
       cursorPosition: 0
     };
   }
 
+  get errorMessages() {
+    return { ...IBANField.defaultErrorMessages, ...this.props.errorMessages };
+  }
+
   clearError() {
     this.setState({
-      IBANErrors: []
+      error: null
     });
   }
 
   checkError() {
-    let errors = [];
-
-    if (!this.state.allowedCountry.includes(this.state.value.slice(0, 2))) {
-      errors = errors.concat([this.state.errorMessages.wrongCountry]);
+    if (this.state.value === "") {
+      this.clearError();
+    } else if (
+      !this.state.allowedCountry.includes(this.state.value.slice(0, 2))
+    ) {
+      this.setState({ error: this.errorMessages.wrongCountry });
+    } else if (!isIbanValid(this.state.value)) {
+      this.setState({ error: this.errorMessages.invalid });
+    } else {
+      this.clearError();
     }
-    if (!isIbanValid(this.state.value)) {
-      errors = errors.concat([this.state.errorMessages.invalid]);
-    }
-    this.setState({
-      IBANErrors: errors
-    });
-    return errors.length === 0;
   }
 
   handleBlur() {
@@ -178,7 +171,7 @@ export class IBANField extends React.Component {
 
   render() {
     return (
-      <div className={this.state.IBANErrors.length === 0 ? "" : "has-error"}>
+      <div className={this.state.error === null ? "" : "has-error"}>
         <input
           ref={node => {
             if (node) {
@@ -198,11 +191,16 @@ export class IBANField extends React.Component {
           onBlur={this.handleBlur.bind(this)}
           onFocus={this.handleFocus.bind(this)}
         />
-        <HelpBlock messages={this.state.IBANErrors} />
+        <HelpBlock>{this.state.error}</HelpBlock>
       </div>
     );
   }
 }
+
+IBANField.defaultErrorMessages = {
+  wrongCountry: "La nationalité de cet IBAN n'est pas acceptée.",
+  invalid: "Cet IBAN est invalide."
+};
 
 IBANField.propTypes = {
   errorMessages: PropTypes.objectOf(PropTypes.string),
@@ -213,7 +211,7 @@ IBANField.propTypes = {
 };
 
 HelpBlock.propTypes = {
-  messages: PropTypes.arrayOf(PropTypes.string)
+  children: PropTypes.element
 };
 
 // export default IBANField;
