@@ -6,21 +6,22 @@ from django.utils.functional import cached_property
 from ..payments.abstract_payment_mode import AbstractPaymentMode
 
 
-class SystemPayPaymentMode(AbstractPaymentMode):
-    id = "system_pay"
-    url_fragment = "carte"
-    label = _("Paiement par carte bleue")
-
+class AbstractSystemPayPaymentMode(AbstractPaymentMode):
     can_retry = True
     can_cancel = True
 
     webhook_url = "webhook/"
     return_url = "retour/"
+
+    id = None
+    url_fragment = None
+    label = None
+
     sp_config = {
-        "site_id": settings.SYSTEMPAY_SITE_ID,
-        "production": settings.SYSTEMPAY_PRODUCTION,
-        "currency": settings.SYSTEMPAY_CURRENCY,
-        "certificate": settings.SYSTEMPAY_CERTIFICATE,
+        "site_id": None,
+        "production": None,
+        "currency": None,
+        "certificate": None,
     }
 
     @cached_property
@@ -47,3 +48,16 @@ class SystemPayPaymentMode(AbstractPaymentMode):
             ),
             path(cls.return_url, views.return_view, name="return"),
         ]
+
+
+class SystemPayPaymentMode(AbstractSystemPayPaymentMode):
+    id = "system_pay"
+    url_fragment = "carte"
+    label = _("Paiement par carte bleue")
+
+    sp_config = {
+        "site_id": settings.SYSTEMPAY_SITE_ID,
+        "production": settings.SYSTEMPAY_PRODUCTION,
+        "currency": settings.SYSTEMPAY_CURRENCY,
+        "certificate": settings.SYSTEMPAY_CERTIFICATE,
+    }

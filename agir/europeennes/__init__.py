@@ -2,12 +2,12 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from agir.checks import AbstractCheckPaymentMode
-from agir.system_pay import SystemPayPaymentMode
+from agir.system_pay import AbstractSystemPayPaymentMode
 
 default_app_config = "agir.europeennes.apps.EuropeennesConfig"
 
 
-class AFCESystemPayPaymentMode(SystemPayPaymentMode):
+class AFCESystemPayPaymentMode(AbstractSystemPayPaymentMode):
     id = "system_pay_afce"
     url_fragment = "carte-afce"
     label = _(
@@ -22,7 +22,7 @@ class AFCESystemPayPaymentMode(SystemPayPaymentMode):
     }
 
 
-class AFCELoansSystemPayPaymentMode(SystemPayPaymentMode):
+class AFCELoansSystemPayPaymentMode(AbstractSystemPayPaymentMode):
     id = "system_pay_afce_pret"
     url_fragment = "carte-afce-pret"
     label = _("Versement par carte bleue à l'AFCE LFI 2019")

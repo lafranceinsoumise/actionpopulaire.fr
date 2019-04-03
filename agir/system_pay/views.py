@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from django.db import transaction
 from django.http import (
     HttpResponseForbidden,
@@ -9,15 +8,17 @@ from django.http import (
     HttpResponse,
 )
 from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.views.generic import TemplateView
 from rest_framework.views import APIView
 
+from agir.authentication.models import Role
 from agir.payments.actions import notify_status_change
 from agir.payments.models import Payment
 from agir.payments.views import handle_return
+from agir.system_pay import AbstractSystemPayPaymentMode
 from agir.system_pay.actions import update_payment_from_transaction
 from agir.system_pay.models import SystemPayTransaction
-
 from .crypto import check_signature
 from .forms import SystempayRedirectForm
 
@@ -106,10 +107,26 @@ def return_view(request):
         except Payment.DoesNotExist:
             pass
 
-    if payment is None:
-        return TemplateResponse(request, "system_pay/payment_not_identified.html")
+    if (
+        payment is None
+        and request.user.is_authenticated
+        and request.user.type == Role.PERSON_ROLE
+    ):
+        try:
+            system_pay_modes = [
+                klass.id for klass in AbstractSystemPayPaymentMode.__subclasses__()
+            ]
+            two_hours_ago = timezone.now() - timezone.timedelta(hours=2)
+            payment = request.user.person.payments.filter(
+                mode__in=system_pay_modes, created__gt=two_hours_ago
+            ).last("created")
+        except Payment.DoesNotExist:
+            pass
 
     if status != "success":
         return TemplateResponse(request, "system_pay/payment_failed.html")
+
+    if payment is None:
+        return TemplateResponse(request, "system_pay/payment_not_identified.html")
 
     return handle_return(request, payment)
