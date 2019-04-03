@@ -4,12 +4,6 @@ import { IBANField } from "./IBAN-field";
 import onDOMReady from "@agir/lib/onDOMReady";
 
 const renderIBANField = () => {
-  const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-  if (iOS) {
-    return;
-  }
-
   const fields = document.querySelectorAll('input[data-component="IBANField"]');
 
   for (let field of fields) {

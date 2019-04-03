@@ -174,7 +174,7 @@ export class IBANField extends React.Component {
       <div className={this.state.error === null ? "" : "has-error"}>
         <input
           ref={node => {
-            if (node) {
+            if (node && node === document.activeElement) {
               const pos = this.state.cursorPosition;
               if (pos !== undefined) {
                 node.selectionStart = node.selectionEnd = pos;
