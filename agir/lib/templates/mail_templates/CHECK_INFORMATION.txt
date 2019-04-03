@@ -1,0 +1,35 @@
+{{ TITLE }}
+
+Bonjour,
+
+Pour valider votre transaction, il vous faut maintenant envoyer votre chèque.   
+
+
+  * Ordre : {{ ORDER }}
+  * Montant : {{ AMOUNT }}
+  * Numéro de transaction **à inscrire au dos du chèque** : {{ PAYMENT_ID }}
+
+
+
+Merci d'envoyer votre chèque à l'adresse suivante :  
+
+{{ ADDRESS }}
+
+
+{{ ADDITIONAL_INFORMATION }}  
+
+
+{{ WARNINGS }}  
+  
+
+-----------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}.
+
+>> Voir cet email dans votre navigateur
+{{ LINK_BROWSER }}
+
+>> Choisir les emails que vous recevez
+http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+
+>> Arrêter complètement de recevoir des emails
+https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}

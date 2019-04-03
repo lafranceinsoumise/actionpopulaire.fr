@@ -14,3 +14,10 @@ class CheckPaymentMode(AbstractCheckPaymentMode):
         "Votre participation ne sera confirmée qu'à réception du chèque. Vous recevrez un message de confirmation"
         " quand ce sera fait (à moins que vous n'ayez désactivé les notifications d'événement)."
     )
+
+    warnings = [
+        "N'oubliez pas d'indiquer le numéro de commande au dos de votre chèque",
+        "Votre chèque doit être envoyé par la poste : aucune remise du chèque au moment de l'événement n'est"
+        "généralement possible, et votre participation ne sera pas garantie si vous ne tenez pas compte de cette"
+        "consigne.",
+    ]

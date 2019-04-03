@@ -9,15 +9,19 @@ class AbstractCheckPaymentMode(AbstractPaymentMode):
     can_cancel = True
     can_admin = True
 
+    title = "Votre paiement par chèque"
     order = None
     address = None
     additional_information = None
+    warnings = []
 
     def __init__(self):
         self.view = CheckView.as_view(
+            title=self.title,
             order=self.order,
             address=self.address,
             additional_information=self.additional_information,
+            warnings=self.warnings,
         )
 
     @cached_property

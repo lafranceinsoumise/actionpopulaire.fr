@@ -19,6 +19,12 @@ _h = html2text.HTML2Text(bodywidth=0)
 _h.ignore_images = True
 
 
+def conditional_html_to_text(text):
+    if hasattr(text, "__html__"):
+        return mark_safe(generate_plain_text(text))
+    return mark_safe(text)
+
+
 def generate_plain_text(html_message):
     return _h.handle(html_message)
 
@@ -120,12 +126,7 @@ def send_mosaico_email(
             html_message = html_template.render(context=context)
             text_message = (
                 text_template.render(
-                    context={
-                        k: mark_safe(generate_plain_text(v))
-                        if hasattr(v, "__html__")
-                        else mark_safe(v)
-                        for k, v in context.items()
-                    }
+                    context={k: conditional_html_to_text(v) for k, v in context.items()}
                 )
                 if text_template
                 else generate_plain_text(html_message)
