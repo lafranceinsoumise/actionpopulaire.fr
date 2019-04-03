@@ -360,7 +360,7 @@ class EditDocument(IsGroupManagerMixin, UpdateView):
             messages.add_message(
                 self.request,
                 messages.WARNING,
-                SpendingRequest.STATUS_EDITION_MESSAGES[self.object.status],
+                SpendingRequest.STATUS_EDITION_MESSAGES[self.object.request.status],
             )
 
         return super().render_to_response(context, **response_kwargs)
