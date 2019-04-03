@@ -6,6 +6,7 @@ from django.utils.html import escape, format_html
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
 
+from agir.lib.search import PrefixSearchQuery
 from ..api.admin import admin_site
 
 from . import models
@@ -36,8 +37,21 @@ class RoleAdmin(UserAdmin):
     list_filter = ("type", "is_staff", "is_superuser", "groups")
     filter_horizontal = ("groups", "user_permissions")
 
-    search_fields = ("id", "client__name", "person__emails__address__iexact")
+    # non utilisé, mais le champ de recherche n'apparaît pas s'il n'est pas assigné
+    search_fields = ("person__search",)
     ordering = ("id",)
+
+    def get_search_results(self, request, queryset, search_term):
+        if search_term:
+            queryset = queryset.filter(
+                person__search=PrefixSearchQuery(
+                    search_term, config="simple_unaccented"
+                )
+            )
+
+        use_distinct = False
+
+        return queryset, use_distinct
 
     def link(self, obj):
         link_schema = '<a href="{}">{}</a>'
