@@ -46,11 +46,16 @@ class LenderForm(SimpleDonorForm):
     button_label = "Je prête {amount}"
 
     country_of_birth = LazyTypedChoiceField(
-        required=True, label="Pays de naissance", choices=countries, initial="FR"
+        required=True,
+        label="Pays de naissance",
+        choices=[("", "Sélectionnez votre pays de naissance")] + list(countries),
     )
     city_of_birth = forms.CharField(label="Ville de naissance", required=True)
     departement_of_birth = forms.ChoiceField(
-        label="Département de naissance", choices=departements_choices, required=False
+        label="Département de naissance (France uniquement)",
+        choices=(("", "Indiquez votre département de naissance"),)
+        + departements_choices,
+        required=False,
     )
 
     amount = forms.IntegerField(
@@ -133,7 +138,7 @@ class LenderForm(SimpleDonorForm):
             self.add_error(
                 "departement_of_birth",
                 forms.ValidationError(
-                    "Merci d'indiquer votre département de naissance",
+                    "Merci d'indiquer votre département de naissance si vous êtes né⋅e en France",
                     code="departement",
                 ),
             )
