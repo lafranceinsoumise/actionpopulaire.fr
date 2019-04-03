@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from agir.authentication.models import Role
 from agir.people.models import Person, PersonEmail
+from agir.people.tasks import update_person_mailtrain
 
 
 class BasicPersonTestCase(TestCase):
@@ -85,13 +86,14 @@ class BasicPersonTestCase(TestCase):
         self.assertEqual(str(person), "test1@domain.com")
 
     @override_settings(MAILTRAIN_DISABLE=False)
-    @mock.patch("agir.people.tasks.update_person_mailtrain")
-    def test_person_is_updated_in_mailtrain(self, update_mailtrain):
+    @mock.patch("django.db.transaction.on_commit")
+    def test_person_is_updated_in_mailtrain(self, on_commit):
         person = Person.objects.create_person("test1@domain.com")
 
-        update_mailtrain.delay.assert_called_once()
-        args = update_mailtrain.delay.call_args[0]
-        self.assertEqual(args[0], person.pk)
+        on_commit.assert_called_once()
+        partial = on_commit.call_args[0][0]
+        self.assertEqual(partial.func, update_person_mailtrain.delay)
+        self.assertEqual(partial.args, (person.pk,))
 
     @override_settings(MAILTRAIN_DISABLE=False)
     @mock.patch("agir.people.tasks.update_person_mailtrain")

@@ -1,20 +1,21 @@
 from unittest import mock
 
-from django.test import TestCase, override_settings
-from django.utils import timezone
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-
-from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
+from django.test import TestCase, override_settings
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.reverse import reverse
+from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 
 from agir.api.redis import using_redislite
+from agir.events.models import Event, RSVP
+from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person, PersonTag
 from agir.people.viewsets import LegacyPersonViewSet
 
-from agir.events.models import Event, RSVP
-from agir.groups.models import SupportGroup, Membership
+
+from agir.people.tasks import update_person_mailtrain
 
 
 @using_redislite
@@ -212,8 +213,8 @@ class LegacyPersonEndpointTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     @override_settings(MAILTRAIN_DISABLE=False)
-    @mock.patch("agir.people.tasks.update_person_mailtrain")
-    def test_can_update_email_list(self, update_mailtrain):
+    @mock.patch("django.db.transaction.on_commit")
+    def test_can_update_email_list(self, on_commit):
         """
         We test at the same time that we can replace the list,
         and that we can set the primary email with the 'email' field
@@ -232,9 +233,10 @@ class LegacyPersonEndpointTestCase(APITestCase):
         force_authenticate(request, self.changer_person.role)
         response = self.detail_view(request, pk=self.basic_person.pk)
 
-        update_mailtrain.delay.assert_called_once()
-        args = update_mailtrain.delay.call_args[0]
-        self.assertEqual(args[0], self.basic_person.pk)
+        on_commit.assert_called_once()
+        partial = on_commit.call_args[0][0]
+        self.assertEqual(partial.func, update_person_mailtrain.delay)
+        self.assertEqual(partial.args, (self.basic_person.pk,))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.basic_person.email, "testprimary@example.com")
