@@ -10,7 +10,7 @@ Ayant désigné pour mandataire financier, conformément à la loi 90-55 du 15 j
 
 et
 
-{{ name }}, né{{ e }} le {{ date_of_birth }}, à {{ place_of_birth }}  
+**{{ name }}**, né{{ e }} le {{ date_of_birth }}, à {{ place_of_birth }}  
 Domicilié{{ e }} au {{ full_address }}  
 **Ci-après dénommé{{ e }} {{ le }} {{ preteur }}**,
 
