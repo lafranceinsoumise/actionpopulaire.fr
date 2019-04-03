@@ -1,4 +1,6 @@
 from pathlib import Path
+
+from django_countries import countries
 from num2words import num2words
 
 import subprocess
@@ -11,18 +13,31 @@ from agir.lib.display import display_price
 
 
 def display_place_of_birth(contract_information):
+    country_of_birth = countries.name(contract_information["country_of_birth"])
+
     if contract_information["country_of_birth"] == "FR":
         return f'{contract_information["city_of_birth"]} ({contract_information["departement_of_birth"]})'
     else:
-        return f'{contract_information["city_of_birth"]} ({contract_information["country_of_birth"]}'
+        return f'{contract_information["city_of_birth"]} ({country_of_birth})'
 
 
 def display_full_address(contract_information):
-    return (
-        f'{contract_information["location_address1"]} {contract_information["location_address2"]} '
-        f'{contract_information["location_zip"]} {contract_information["location_city"]} '
-        f'{contract_information["location_country"]} '
-    )
+    street_address = contract_information["location_address1"]
+    if contract_information["location_address2"]:
+        street_address += ", " + contract_information["location_address2"]
+
+    if contract_information["location_zip"]:
+        city_address = (
+            contract_information["location_zip"]
+            + " "
+            + contract_information["location_city"]
+        )
+    else:
+        city_address = contract_information["location_city"]
+
+    country_address = countries.name(contract_information["location_country"])
+
+    return f"{street_address}, {city_address}, {country_address}"
 
 
 SUBSTITUTIONS = {
