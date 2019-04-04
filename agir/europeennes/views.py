@@ -162,4 +162,4 @@ class LoanReturnView(TemplateView):
 def loan_notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         find_or_create_person_from_payment(payment)
-        generate_and_send_contract(payment.id).delay()
+        transaction.on_commit(generate_and_send_contract(payment.id).delay)

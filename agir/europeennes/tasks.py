@@ -26,7 +26,7 @@ def generate_contract(self, payment_id, force=False):
         return None
 
     if not force and payment.status != Payment.STATUS_COMPLETED:
-        return None
+        raise ValueError(f"Paiement n°{payment_id} n'a pas été terminé.")
 
     if not force and ("contract_path" in payment.meta):
         return payment.meta.get("contract_path")
