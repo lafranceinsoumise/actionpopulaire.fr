@@ -2,6 +2,9 @@ from crispy_forms import layout
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.conf import settings
+from django.db.models import Sum
+from django.db.models.functions import Coalesce
+from django.forms import HiddenInput
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django_countries import countries
@@ -9,8 +12,10 @@ from django_countries.fields import LazyTypedChoiceField
 
 from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
 from agir.donations.form_fields import AskAmountField
+from agir.europeennes.apps import EuropeennesConfig
 from agir.lib.data import departements_choices
 from agir.lib.form_fields import IBANField
+from agir.payments.models import Payment
 from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
 from agir.people.models import Person
 
@@ -93,6 +98,20 @@ class LenderForm(SimpleDonorForm):
         self.fields["declaration"].help_text = None
 
         del self.fields["fiscal_resident"]
+
+        if (
+            Payment.objects.filter(type=EuropeennesConfig.LOAN_PAYMENT_TYPE).aggregate(
+                amount=Coalesce(Sum("price"), 0)
+            )["amount"]
+            > settings.LOAN_MAXIMUM_TOTAL
+        ):
+            self.fields["payment_mode"].payment_modes = [
+                PAYMENT_MODES["system_pay_afce_pret"]
+            ]
+            self.fields["payment_mode"].initial = PAYMENT_MODES[
+                "system_pay_afce_pret"
+            ].id
+            self.fields["payment_mode"].widget = HiddenInput()
 
         fields = ["amount"]
 

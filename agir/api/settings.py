@@ -567,6 +567,7 @@ DONATION_MAXIMUM = 1000
 
 LOAN_MINIMUM = 400
 LOAN_MAXIMUM = 100000
+LOAN_MAXIMUM_TOTAL = 207575000
 
 # France + most numerous communities in France
 COUNTRIES_FIRST = ["FR", "PT", "DZ", "MA", "TR", "IT", "GB", "ES"]
