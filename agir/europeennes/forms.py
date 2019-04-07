@@ -2,7 +2,7 @@ from crispy_forms import layout
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.conf import settings
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.db.models.functions import Coalesce
 from django.forms import HiddenInput
 from django.utils.text import format_lazy
@@ -100,9 +100,13 @@ class LenderForm(SimpleDonorForm):
         del self.fields["fiscal_resident"]
 
         if (
-            Payment.objects.filter(type=EuropeennesConfig.LOAN_PAYMENT_TYPE).aggregate(
-                amount=Coalesce(Sum("price"), 0)
-            )["amount"]
+            Payment.objects.filter(
+                Q(type=EuropeennesConfig.LOAN_PAYMENT_TYPE)
+                & (
+                    Q(status=Payment.STATUS_COMPLETED)
+                    | Q(status=Payment.STATUS_WAITING, mode="check_afce")
+                )
+            ).aggregate(amount=Coalesce(Sum("price"), 0))["amount"]
             > settings.LOAN_MAXIMUM_TOTAL
         ):
             self.fields["payment_mode"].payment_modes = [
