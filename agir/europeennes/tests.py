@@ -1,7 +1,7 @@
 from unittest import mock
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 
 from agir.api.redis import using_redislite
@@ -154,7 +154,7 @@ class DonationTestCase(TestCase):
             self.assertEqual(getattr(p2, f), self.donation_information_payload[f])
 
 
-class LoansTestCase(TestCase):
+class LoansTestCase(TransactionTestCase):
     def setUp(self):
         self.p1 = Person.objects.create_person("test@test.com")
 
