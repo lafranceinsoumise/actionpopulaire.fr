@@ -2,6 +2,8 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Sum
+from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -46,7 +48,21 @@ class DonationPersonalInformationView(BasePersonalInformationView):
     base_redirect_url = "europeennes_donation_amount"
 
 
-class LoanAskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
+class MaxTotalLoanMixin:
+    def dispatch(self, *args, **kwargs):
+        if (
+            Payment.objects.filter(
+                type=EuropeennesConfig.LOAN_PAYMENT_TYPE,
+                status=Payment.STATUS_COMPLETED,
+            ).aggregate(amount=Coalesce(Sum("price"), 0))["amount"]
+            > settings.LOAN_MAXIMUM_TOTAL
+        ):
+            return HttpResponseRedirect(settings.LOAN_MAXIMUM_THANK_YOU_PAGE)
+
+        return super().dispatch(*args, **kwargs)
+
+
+class LoanAskAmountView(MaxTotalLoanMixin, SimpleOpengraphMixin, BaseAskAmountView):
     meta_title = "Je prête à la campagne France insoumise pour les élections européennes le 26 mai"
     meta_description = (
         "Nos 79 candidats, menés par Manon Aubry, la tête de liste, sillonent déjà le pays. Ils ont"
@@ -62,7 +78,7 @@ class LoanAskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
     session_namespace = LOANS_INFORMATION_SESSION_NAMESPACE
 
 
-class LoanPersonalInformationView(BasePersonalInformationView):
+class LoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformationView):
     template_name = "europeennes/loans/personal_information.html"
     session_namespace = LOANS_INFORMATION_SESSION_NAMESPACE
     form_class = LenderForm
@@ -88,7 +104,7 @@ class LoanPersonalInformationView(BasePersonalInformationView):
         return HttpResponseRedirect(reverse("europeennes_loan_sign_contract"))
 
 
-class LoanContractView(FormView):
+class LoanContractView(MaxTotalLoanMixin, FormView):
     form_class = ContractForm
     template_name = "europeennes/loans/validate_contract.html"
 

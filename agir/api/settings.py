@@ -568,6 +568,9 @@ DONATION_MAXIMUM = 1000
 LOAN_MINIMUM = 400
 LOAN_MAXIMUM = 100000
 LOAN_MAXIMUM_TOTAL = 207575000
+LOAN_MAXIMUM_THANK_YOU_PAGE = (
+    "https://lafranceinsoumise.fr/2019/04/07/lemprunt-populaire-cest-fini/"
+)
 
 # France + most numerous communities in France
 COUNTRIES_FIRST = ["FR", "PT", "DZ", "MA", "TR", "IT", "GB", "ES"]
