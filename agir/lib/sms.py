@@ -2,7 +2,8 @@ import logging
 
 import ovh
 from django.conf import settings
-
+from phonenumber_field.phonenumber import PhoneNumber
+from phonenumbers import number_type, PhoneNumberType
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,19 @@ class SMSSendException(Exception):
     pass
 
 
-def send_sms(message, phone_number):
+def send_sms(message, phone_number, force=False):
+    if isinstance(phone_number, str):
+        phone_number = PhoneNumber.from_string(phone_number, region="FR")
+
+    if not force and not phone_number.is_valid():
+        raise SMSSendException("Le numéro ne semble pas correct")
+
+    if not force and number_type(phone_number) not in [
+        PhoneNumberType.FIXED_LINE_OR_MOBILE,
+        PhoneNumberType.MOBILE,
+    ]:
+        raise SMSSendException("Le numéro ne semble pas être un numéro de mobile")
+
     try:
         result = client.post(
             "/sms/" + settings.OVH_SMS_SERVICE + "/jobs",
