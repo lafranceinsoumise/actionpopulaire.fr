@@ -92,9 +92,3 @@ def send_contract_confirmation_email(self, payment_id):
             )
     except (smtplib.SMTPException, socket.error) as exc:
         self.retry(countdown=60, exc=exc)
-
-
-def generate_and_send_contract(payment_id):
-    return generate_contract.si(payment_id) | send_contract_confirmation_email.si(
-        payment_id
-    )

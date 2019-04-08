@@ -8,15 +8,15 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import FormView, TemplateView
+from functools import partial
 
 from agir.donations.actions import find_or_create_person_from_payment
 from agir.donations.base_views import BaseAskAmountView
 from agir.donations.views import BasePersonalInformationView
-from agir.europeennes import AFCESystemPayPaymentMode
+from agir.europeennes import AFCESystemPayPaymentMode, tasks
 from agir.europeennes.actions import generate_html_contract, SUBSTITUTIONS
 from agir.europeennes.apps import EuropeennesConfig
 from agir.europeennes.forms import LoanForm, ContractForm, LenderForm
-from agir.europeennes.tasks import generate_and_send_contract
 from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.payments.actions import create_payment, redirect_to_payment
 from agir.payments.models import Payment
@@ -175,7 +175,14 @@ class LoanReturnView(TemplateView):
         )
 
 
+def generate_and_send_contract(payment_id):
+    return (
+        tasks.generate_contract.si(payment_id)
+        | tasks.send_contract_confirmation_email.si(payment_id).delay()
+    )
+
+
 def loan_notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         find_or_create_person_from_payment(payment)
-        transaction.on_commit(generate_and_send_contract(payment.id).delay)
+        transaction.on_commit(partial(generate_and_send_contract, payment.id))

@@ -5,7 +5,10 @@ from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 
 from agir.api.redis import using_redislite
-from agir.europeennes.views import loan_notification_listener
+from agir.europeennes.views import (
+    loan_notification_listener,
+    generate_and_send_contract,
+)
 from agir.donations.views import notification_listener as donation_notification_listener
 from agir.payments.actions import complete_payment
 from agir.payments.models import Payment
@@ -180,8 +183,8 @@ class LoansTestCase(TransactionTestCase):
         }
 
     @using_redislite
-    @patch("agir.europeennes.views.generate_and_send_contract")
-    def test_can_make_a_loan_when_logged_in(self, generate_and_send_contract):
+    @patch("django.db.transaction.on_commit")
+    def test_can_make_a_loan_when_logged_in(self, on_commit):
         self.client.force_login(self.p1.role)
         amount_url = reverse("europeennes_loan_amount")
         information_url = reverse("europeennes_loan_information")
@@ -221,7 +224,10 @@ class LoansTestCase(TransactionTestCase):
         # fake systempay webhook
         complete_payment(payment)
 
-        task = generate_and_send_contract()
         loan_notification_listener(payment)
 
-        task.delay.assert_called_once()
+        on_commit.assert_called_once()
+        partial = on_commit.call_args[0][0]
+
+        self.assertEqual(partial.func, generate_and_send_contract)
+        self.assertEqual(partial.args, (payment.id,))
