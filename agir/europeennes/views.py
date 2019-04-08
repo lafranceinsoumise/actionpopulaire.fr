@@ -178,8 +178,8 @@ class LoanReturnView(TemplateView):
 def generate_and_send_contract(payment_id):
     return (
         tasks.generate_contract.si(payment_id)
-        | tasks.send_contract_confirmation_email.si(payment_id).delay()
-    )
+        | tasks.send_contract_confirmation_email.si(payment_id)
+    ).delay()
 
 
 def loan_notification_listener(payment):
