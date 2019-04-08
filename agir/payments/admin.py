@@ -46,6 +46,6 @@ class PaymentAdmin(admin.ModelAdmin):
     )
     fields = readonly_fields + ("status",)
     list_filter = ("status", "type", "mode")
-    search_fields = ("email", "person__emails__address__iexact")
+    search_fields = ("email", "first_name", "last_name", "=id")
 
     actions = (notify_status_action,)
