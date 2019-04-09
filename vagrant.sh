@@ -20,9 +20,9 @@ sudo apt-get -yqq install python3.6 python3.6-dev python3-pip libsystemd-dev > /
 sudo -H pip3 install pipenv
 
 echo "## Install wkhtmltopdf"
-RELEASE=$(. /etc/lsb_release ; echo $DISTRIB_CODENAME)
+RELEASE=$(. /etc/lsb-release ; echo $DISTRIB_CODENAME)
 curl https://builds.wkhtmltopdf.org/0.12.1.3/wkhtmltox_0.12.1.3-1~${RELEASE}_amd64.deb --output wkhtmltox.deb -q
-sudo apt-get -yqq install libpng16-16 xfonts-75dpi xfonts-base > /dev/null
+sudo apt-get -yqq install libpng16-16 xfonts-75dpi xfonts-base fontconfig libjpeg-turbo8 libxrender1 > /dev/null
 sudo dpkg -i wkhtmltox.deb
 
 echo "## Install node..."
