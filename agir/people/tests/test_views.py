@@ -357,7 +357,7 @@ class ProfileFormTestCase(TestCase):
         res = self.client.post(reverse("change_profile"), data=self.sample_data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        testing_values = ["", "hhfedhgyu", '"huihui"', '{"key": "value"}', None]
+        testing_values = ["", "hhfedhgyu", '"huihui"', '{"key": "value"}']
 
         for test_value in testing_values:
             res = self.client.post(

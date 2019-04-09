@@ -34,7 +34,7 @@ sudo add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgd
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 sudo apt-get -qq update > /dev/null
 sudo apt-get -yqq upgrade > /dev/null
-sudo apt-get -yqq install postgresql-9.6 postgis > /dev/null
+sudo apt-get -yqq install postgresql-9.6 postgis postgresql-server-dev-9.6 > /dev/null
 sudo -u postgres psql -c "CREATE ROLE api WITH PASSWORD 'password';"
 sudo -u postgres psql -c "CREATE DATABASE api WITH owner api;"
 sudo -u postgres psql -c "ALTER ROLE api WITH superuser;"

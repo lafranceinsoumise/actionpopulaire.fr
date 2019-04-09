@@ -32,7 +32,7 @@ djangorestframework = "==3.8.*"
 djangorestframework-gis = "==0.13.*"
 ## adapters for third-party systems
 django-redis = "==4.*"
-"psycopg2" = "*"
+psycopg2 = "*"
 django-prometheus = "*"
 django-webpack-loader = "==0.6.*"
 ## development helpers
