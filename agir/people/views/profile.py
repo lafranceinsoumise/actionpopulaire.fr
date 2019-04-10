@@ -273,7 +273,7 @@ class PesonalDataView(SoftLoginRequiredMixin, FormView):
 class VolunteerView(SoftLoginRequiredMixin, InsoumiseOnlyMixin, UpdateView):
     template_name = "people/volunteer.html"
     form_class = VolunteerForm
-    success_url = reverse_lazy("voluteer")
+    success_url = reverse_lazy("volunteer")
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(tab_code="ACT")

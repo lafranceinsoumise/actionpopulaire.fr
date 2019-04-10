@@ -20,7 +20,7 @@ class NavsProfileMixinTestCase(TestCase):
         self.assertContains(response, reverse("personal_information"))
         self.assertContains(response, reverse("contact"))
         self.assertContains(response, reverse("skills"))
-        self.assertContains(response, reverse("voluteer"))
+        self.assertContains(response, reverse("volunteer"))
         self.assertContains(response, reverse(("personal_data")))
 
         self.assertNotContains(response, reverse("become_insoumise"))
@@ -37,4 +37,4 @@ class NavsProfileMixinTestCase(TestCase):
 
         self.assertNotContains(response, reverse("skills"))
         self.assertNotContains(response, reverse("personal_information"))
-        self.assertNotContains(response, reverse("voluteer"))
+        self.assertNotContains(response, reverse("volunteer"))
