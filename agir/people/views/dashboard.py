@@ -8,6 +8,7 @@ from django.views.generic import TemplateView
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.events.models import Event
 from agir.groups.models import SupportGroup
+from agir.events.views.utils import group_events_by_day
 from agir.lib.tasks import geocode_person
 
 
@@ -54,6 +55,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
                     TextField(),
                 )
             )
+            .order_by("start_time")
         )
         if person.coordinates is not None:
             suggested_events = suggested_events.annotate(
@@ -112,14 +114,13 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
         kwargs.update(
             {
                 "person": person,
-                "rsvped_events": rsvped_events,
+                "rsvped_events": group_events_by_day(rsvped_events),
                 "members_groups": members_groups,
-                "suggested_events": suggested_events,
+                "suggested_events": group_events_by_day(suggested_events),
                 "last_events": last_events,
                 "past_reports": past_reports,
                 "organized_events": organized_events,
                 "past_organized_events": past_organized_events,
             }
         )
-
         return super().get_context_data(**kwargs)

@@ -1,11 +1,9 @@
 from datetime import timedelta
 
-from django.contrib.auth.models import Group
+from django.contrib.gis.geos import Point
 from django.db import transaction
 from django.utils import timezone
-from django.contrib.gis.geos import Point
 
-from agir.clients.models import Client
 from agir.events.models import Calendar, Event, OrganizerConfig, RSVP
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.people.models import Person, PersonForm, PersonFormSubmission

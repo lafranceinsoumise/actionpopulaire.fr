@@ -4,7 +4,7 @@
 {% block title %}Mon tableau de bord{% endblock title %}
 
 {% block extra_scripts %}
-{% render_bundle 'people/dashboard' attrs='defer' %}
+    {% render_bundle 'people/dashboard' attrs='defer' %}
 {% endblock %}
 
 {% block main %}
@@ -27,22 +27,28 @@
                 </a>
             </h3>
             <div class="list-group">
-                {% for event in rsvped_events %}
-                    <div class="list-group-item">
-                        <div class="media">
-                            <div class="media-left media-middle"  style="min-width:64px">
-                                {% if event.image %}
-                                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
-                                {% endif %}
-                            </div>
-                            <div class="media-body">
-                                <i class="fa fa-calendar" aria-hidden="true"></i>
-                                <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a><br>
-                                {{ event.get_display_date }} - {{ event.short_location }}
-                                {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+                {% for day, events in rsvped_events %}
+                    <div class="list-group-item disabled">
+                        {{ day|date:"l d F" }}
+                    </div>
+                    {% for event in events %}
+                        <div class="list-group-item">
+                            <div class="media">
+                                <div class="media-left media-middle" style="min-width:64px">
+                                    {% if event.image %}
+                                        <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                                    {% endif %}
+                                </div>
+                                <div class="media-body">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
+                                    <br>
+                                    {{ event.start_time|date:"H:i" }} - {{ event.short_location }}
+                                    {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    {% endfor %}
                 {% empty %}
                     <div class="list-group-item">
                         Vous n'avez aucun événément prévu pour le moment.
@@ -94,24 +100,31 @@
             </div>
             <h3>Événements suggérés</h3>
             <div class="list-group">
-                {% for event in suggested_events %}
-                    <div class="list-group-item">
-                        <div class="media">
-                            <div class="media-left media-middle"  style="min-width:64px">
-                                {% if event.image %}
-                                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
-                                {% endif %}
-                            </div>
-                            <div class="media-body">
-                                <span class="small text-muted pull-right" data-toggle="tooltip"
+                {% for day, events in suggested_events %}
+                    <div class="list-group-item disabled">
+                        {{ day|date:"l d F" }}
+                    </div>
+
+                    {% for event in events %}
+                        <div class="list-group-item">
+                            <div class="media">
+                                <div class="media-left media-middle" style="min-width:64px">
+                                    {% if event.image %}
+                                        <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                                    {% endif %}
+                                </div>
+                                <div class="media-body">
+                                    <span class="small text-muted pull-right" data-toggle="tooltip"
                                       title="{{ event.reason }}">Pourquoi ?</span>
-                                <i class="fa fa-calendar" aria-hidden="true"></i>
-                                <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
-                                {{ event.get_display_date }} - {{ event.short_location }}
-                                {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
+                                    <br>
+                                    {{ event.start_time|date:"H:i" }} - {{ event.short_location }}
+                                    {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    {% endfor %}
                 {% empty %}
                     <div class="list-group-item">
                         Aucun événement suggéré ! Rejoignez un groupe d'action pour voir des événements.
@@ -130,7 +143,7 @@
                 {% for event in last_events %}
                     <div class="list-group-item">
                         <div class="media">
-                            <div class="media-left media-middle"  style="min-width:64px">
+                            <div class="media-left media-middle" style="min-width:64px">
                                 {% if event.image %}
                                     <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
                                 {% endif %}
@@ -138,7 +151,7 @@
                             <div class="media-body">
                                 <i class="fa fa-calendar" aria-hidden="true"></i>
                                 <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
-                                {{ event.get_display_date }} - {{ event.short_location }}
+                                <br> {{ event.get_display_date }} - {{ event.short_location }}
                             </div>
                         </div>
                     </div>
@@ -159,7 +172,7 @@
                 {% for event in past_reports %}
                     <div class="list-group-item">
                         <div class="media">
-                            <div class="media-left media-middle"  style="min-width:64px">
+                            <div class="media-left media-middle" style="min-width:64px">
                                 {% if event.image %}
                                     <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
                                 {% endif %}
@@ -167,7 +180,8 @@
                             <div class="media-body">
                                 <i class="fa fa-calendar" aria-hidden="true"></i>
                                 <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
-                                {%  if event.organizers_groups %}(organisé par {{  event.organizers_groups.all|join:', ' }}){% endif %}
+                                {% if event.organizers_groups %}(organisé par
+                                    {{ event.organizers_groups.all|join:', ' }}){% endif %}
                                 <br>
                                 {{ event.get_display_date }} - {{ event.short_location }}
                             </div>
@@ -197,7 +211,7 @@
                 {% for event in organized_events %}
                     <div class="list-group-item">
                         <div class="media">
-                            <div class="media-left media-middle"  style="min-width:64px">
+                            <div class="media-left media-middle" style="min-width:64px">
                                 {% if event.image %}
                                     <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
                                 {% endif %}
@@ -222,7 +236,7 @@
                 {% for event in past_organized_events %}
                     <div class="list-group-item">
                         <div class="media">
-                            <div class="media-left media-middle"  style="min-width:64px">
+                            <div class="media-left media-middle" style="min-width:64px">
                                 {% if event.image %}
                                     <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
                                 {% endif %}
@@ -235,8 +249,8 @@
                     </div>
                 {% empty %}
                     <div class="list-group-item">
-                        Vous n'avez organisé aucun événement terminé. Voulez-vous <a href="{% url 'create_event' %}">en créer
-                        un</a>&nbsp;?
+                        Vous n'avez organisé aucun événement terminé. Voulez-vous <a href="{% url 'create_event' %}">en
+                        créer un</a>&nbsp;?
                     </div>
                 {% endfor %}
             </div>

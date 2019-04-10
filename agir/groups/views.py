@@ -47,6 +47,7 @@ from agir.groups.actions.pressero import redirect_to_pressero, is_pressero_enabl
 from agir.groups.actions.promo_codes import get_next_promo_code
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.groups.tasks import send_someone_joined_notification
+from agir.events.views.utils import group_events_by_day
 from agir.lib.utils import front_url
 from agir.people.views import ConfirmSubscriptionView
 from .forms import (
@@ -126,6 +127,14 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
+            events_future=group_events_by_day(
+                self.object.organized_events.upcoming()
+                .distinct()
+                .order_by("start_time")
+            ),
+            events_past=group_events_by_day(
+                self.object.organized_events.past().distinct().order_by("-start_time")
+            ),
             is_member=self.request.user.is_authenticated
             and self.object.memberships.filter(
                 person=self.request.user.person
@@ -135,6 +144,7 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
                 Q(person=self.request.user.person)
                 & (Q(is_referent=True) | Q(is_manager=True))
             ).exists(),
+            **kwargs,
         )
 
     @method_decorator(login_required(login_url=reverse_lazy("short_code_login")))
