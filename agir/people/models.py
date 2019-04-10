@@ -200,6 +200,15 @@ class Person(
         ),
     )
 
+    subscribed_sms = models.BooleanField(
+        _("Recevoir les SMS d'information"),
+        default=True,
+        blank=True,
+        help_text=_(
+            "Vous recevrez des SMS de la France insoumise comme des meeting près de chez vous ou des appels à volontaire..."
+        ),
+    )
+
     event_notifications = models.BooleanField(
         _("Recevoir les notifications des événements"),
         default=True,

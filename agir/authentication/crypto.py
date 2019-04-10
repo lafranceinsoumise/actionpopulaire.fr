@@ -118,6 +118,12 @@ class AddEmailConfirmationTokenGenerator(BaseTokenGenerator):
     params_separator = "|"
 
 
+class MergeAccountTokenGenerator(BaseTokenGenerator):
+    key_salt = "agir.people.crypto.MergeAccountTokenGenerator"
+    token_params = ["pk_requester", "pk_merge"]
+    params_separator = "|"
+
+
 class ShortCodeGenerator:
     alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ123456789"
     allowed_patterns = [r"[A-Z1-9]{5}", r"[0-9]{8}"]

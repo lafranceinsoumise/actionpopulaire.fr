@@ -1,5 +1,4 @@
 import smtplib
-
 import socket
 
 import requests
@@ -10,16 +9,16 @@ from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from agir.lib.display import pretty_time_since
-from agir.lib.utils import front_url
-from agir.lib.mailtrain import update_person, delete_email
-from agir.people.actions.mailing import send_mosaico_email
-from agir.people.actions.person_forms import get_formatted_submission
 from agir.authentication.subscription import (
     subscription_confirmation_token_generator,
     add_email_confirmation_token_generator,
+    merge_account_token_generator,
 )
-
+from agir.lib.display import pretty_time_since
+from agir.lib.mailtrain import update_person, delete_email
+from agir.lib.utils import front_url
+from agir.people.actions.mailing import send_mosaico_email
+from agir.people.actions.person_forms import get_formatted_submission
 from .models import Person, PersonFormSubmission, PersonEmail
 
 
@@ -32,7 +31,7 @@ def send_welcome_mail(self, person_pk):
             code="WELCOME_MESSAGE",
             subject=_("Bienvenue sur la plateforme de la France insoumise"),
             from_email=settings.EMAIL_FROM,
-            bindings={"PROFILE_LINK": front_url("change_profile")},
+            bindings={"PROFILE_LINK": front_url("personal_information")},
             recipients=[person],
         )
     except (smtplib.SMTPException, socket.error) as exc:
@@ -80,6 +79,52 @@ def send_confirmation_email(self, email, **kwargs):
 
 
 @shared_task(max_retries=2, bind=True)
+def send_confirmation_merge_account(self, user_pk_requester, user_pk_merge, **kwargs):
+    """Envoie une demande de fusion de conte.
+
+    La premiere clée primaire de person est celle du profil qui va rester, la deuxième est celle du profil qui
+    sera suprimé une fois les données du compte fusionées.
+
+    Si l'un des deux utilisateur n'existe pas ou que l'utilisqteur est le même, l'opération est annulé.
+    """
+    try:
+        requester_email = Person.objects.get(pk=user_pk_requester).email
+        merge_email = Person.objects.get(pk=user_pk_merge).email
+    except Person.DoesNotExist:
+        return
+
+    if user_pk_requester == user_pk_merge:
+        return
+
+    subscription_token = merge_account_token_generator.make_token(
+        pk_requester=str(user_pk_requester), pk_merge=str(user_pk_merge)
+    )
+    query_args = {
+        "pk_requester": user_pk_requester,
+        "pk_merge": user_pk_merge,
+        "token": subscription_token,
+        **kwargs,
+    }
+    confirm_merge_account = front_url(
+        "confirm_merge_account", query=query_args, auto_login=False
+    )
+
+    try:
+        send_mosaico_email(
+            code="MERGE_ACCOUNT_CONFIRMATION",
+            subject="confirmer la fusion de compte",
+            from_email=settings.EMAIL_FROM,
+            recipients=[merge_email],
+            bindings={
+                "CONFIRMATION_URL": confirm_merge_account,
+                "REQUESTER_EMAIL": requester_email,
+            },
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
+
+
+@shared_task(max_retries=2, bind=True)
 def send_confirmation_change_email(self, new_email, user_pk, **kwargs):
     try:
         Person.objects.get(pk=user_pk)
@@ -115,7 +160,7 @@ def send_confirmation_change_email(self, new_email, user_pk, **kwargs):
 def send_unsubscribe_email(self, person_pk):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
 
-    bindings = {"MANAGE_SUBSCRIPTIONS_LINK": front_url("message_preferences")}
+    bindings = {"MANAGE_SUBSCRIPTIONS_LINK": front_url("contact")}
 
     try:
         send_mosaico_email(

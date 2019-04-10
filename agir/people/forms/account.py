@@ -1,15 +1,13 @@
+import logging
 from datetime import timedelta
 
-import logging
 from crispy_forms.bootstrap import FormActions, FieldWithButtons
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Fieldset, Row, Div, Submit, Layout
+from crispy_forms.layout import Fieldset, Row, Div, Submit, Layout, HTML
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import Form, CharField
-from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from agir.lib.form_components import HalfCol
@@ -19,7 +17,6 @@ from agir.lib.phone_numbers import (
     is_french_number,
     is_mobile_number,
 )
-
 from agir.people.actions.validation_codes import (
     send_new_code,
     RateLimitedException,
@@ -42,103 +39,7 @@ class PreferencesFormMixin(forms.ModelForm):
         self.helper.layout = Layout(*self.get_fields())
 
     def get_fields(self, fields=None):
-        emails = self.instance.emails.all()
-        self.several_mails = len(emails) > 1
-
         fields = fields or []
-
-        block_template = """
-                    <label class="control-label">{label}</label>
-                    <div class="controls">
-                      <div>{value}</div>
-                      <p class="help-block">{help_text}</p>
-                    </div>
-                """
-
-        email_management_block = HTML(
-            format_html(
-                block_template,
-                label=_("Gérez vos adresses emails"),
-                value=format_html(
-                    '<a href="{}" class="btn btn-default">{}</a>',
-                    reverse("email_management"),
-                    _("Accéder au formulaire de gestion de vos emails"),
-                ),
-                help_text=_(
-                    "Ce formulaire vous permet d'ajouter de nouvelles adresses ou de supprimer les existantes"
-                ),
-            )
-        )
-
-        validation_link = format_html(
-            '<input type="submit" name="validation" value="{label}" class="btn btn-default">',
-            label=_("Valider mon numéro de téléphone"),
-        )
-
-        unverified = (
-            self.instance.contact_phone_status == Person.CONTACT_PHONE_UNVERIFIED
-        )
-
-        validation_block = HTML(
-            format_html(
-                block_template,
-                label=_("Vérification de votre compte"),
-                value=validation_link
-                if unverified
-                else f"Compte {self.instance.get_contact_phone_status_display().lower()}",
-                help_text=_(
-                    "Validez votre numéro de téléphone afin de certifier votre compte"
-                )
-                if unverified
-                else "",
-            )
-        )
-
-        email_fieldset_name = _("Mes adresses emails")
-        email_label = _("Email de contact")
-        email_help_text = _(
-            "L'adresse que nous utilisons pour vous envoyer les lettres d'informations et les notifications."
-        )
-
-        if self.several_mails:
-            self.fields["primary_email"] = forms.ModelChoiceField(
-                queryset=emails,
-                required=True,
-                label=email_label,
-                initial=emails[0],
-                help_text=email_help_text,
-            )
-            fields.append(
-                Fieldset(
-                    email_fieldset_name,
-                    Row(HalfCol("primary_email"), HalfCol(email_management_block)),
-                )
-            )
-        else:
-            fields.append(
-                Fieldset(
-                    email_fieldset_name,
-                    Row(
-                        HalfCol(
-                            HTML(
-                                block_template.format(
-                                    label=email_label,
-                                    value=emails[0].address,
-                                    help_text=email_help_text,
-                                )
-                            )
-                        ),
-                        HalfCol(email_management_block),
-                    ),
-                )
-            )
-
-        fields.append(
-            Fieldset(
-                _("Mon numéro de téléphone"),
-                Row(HalfCol("contact_phone"), HalfCol(validation_block)),
-            )
-        )
 
         return fields
 
@@ -153,9 +54,9 @@ class PreferencesFormMixin(forms.ModelForm):
         fields = ["contact_phone"]
 
 
-class ExternalPersonPreferencesForm(PreferencesFormMixin):
+class BecomeInsoumiseForm(PreferencesFormMixin):
     is_insoumise = forms.BooleanField(
-        required=False,
+        required=True,
         label=_("Je souhaite rejoindre la France insoumise"),
         help_text=_(
             "Cette action transformera votre compte de manière à vous permettre d'utiliser"
@@ -164,133 +65,30 @@ class ExternalPersonPreferencesForm(PreferencesFormMixin):
         ),
     )
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if cleaned_data["is_insoumise"]:
-            cleaned_data["subscribed"] = True
-            cleaned_data["group_notifications"] = True
-            cleaned_data["event_notifications"] = True
-
     def get_fields(self, fields=None):
         fields = super().get_fields()
-        fields.append(FormActions(Submit("submit", "Sauvegarder mes préférences")))
-        fields.extend(
-            [
-                Fieldset(
-                    _("Rejoindre la France insoumise"),
-                    "is_insoumise",
-                    FormActions(Submit("submit", "Valider")),
+        if not self.instance.is_insoumise:
+            fields.append(
+                HTML(
+                    """<div class="alert alert-info">
+                <p>Vous disposez d'un compte sur la plateforme d'action de la France insoumise, mais n'êtes pas membre
+                de la France insoumise. Vous ne recevez par conséquent pas les lettres d'informations du mouvement, et
+                vous ne pouvez rejoindre que certains types de groupes et d'événements.</p>
+            </div>"""
                 )
-            ]
-        )
-
-        return fields
-
-    class Meta(PreferencesFormMixin.Meta):
-        fields = ["contact_phone", "is_insoumise"]
-
-
-class InsoumisePreferencesForm(TagMixin, PreferencesFormMixin):
-    tags = [
-        (
-            "newsletter_efi",
-            _(
-                "Recevoir les informations liées aux cours de l'École de Formation insoumise"
-            ),
-        ),
-        (
-            "volontaire_procurations",
-            _(
-                "J'accepte d'être solicité⋅e pour prendre des procurations lors d'élections."
-            ),
-        ),
-    ]
-    tag_model_class = PersonTag
-
-    def get_fields(self, fields=None):
-        fields = super().get_fields()
-        fields.extend(
-            [
-                Fieldset(
-                    _("Préférences d'emails"),
-                    "subscribed",
-                    Div("newsletter_efi", style="margin-left: 50px;"),
-                    "group_notifications",
-                    "event_notifications",
-                ),
-                FormActions(
-                    Submit(
-                        "no_mail",
-                        "Ne plus recevoir d'emails du tout",
-                        css_class="btn-danger",
-                    ),
-                    css_class="text-right",
-                ),
-                Fieldset(
-                    _("Ma participation"),
-                    Row(HalfCol("draw_participation"), HalfCol("gender")),
-                    Row(HalfCol("volontaire_procurations")),
-                ),
-            ]
-        )
-
-        fields.append(FormActions(Submit("submit", "Sauvegarder mes préférences")))
-
-        return fields
-
-    def __init__(self, data=None, *args, **kwargs):
-        super().__init__(data=data, *args, **kwargs)
-
-        self.no_mail = data is not None and "no_mail" in data
-
-        self.fields["gender"].help_text = _(
-            "La participation aux tirages au sort étant paritaire, merci d'indiquer"
-            " votre genre si vous souhaitez être tirés au sort."
-        )
-        self.fields["newsletter_efi"].help_text = _(
-            "Je recevrai notamment des infos et des rappels sur les cours " "à venir."
-        )
-
-        self.fields["volontaire_procurations"].help_text = _(
-            "Si des électrices ou des électeurs nous contactent pour trouver une personne à qui donner procuration lors "
-            "d'une élection, nous nous tournerons vers vous."
-        )
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if self.no_mail:
-            # if the user clicked the "unsubscribe from all button", we want to put all fields thare are boolean
-            # to false, and keep all the others to their initial values: it allows posting to this form with
-            # the single "no_mail" content
-            for k, v in cleaned_data.items():
-                if isinstance(v, bool):
-                    cleaned_data[k] = False
-                else:
-                    cleaned_data[k] = self.get_initial_for_field(self.fields[k], k)
-
-        if cleaned_data["draw_participation"] and not cleaned_data["gender"]:
-            self.add_error(
-                "gender",
-                forms.ValidationError(
-                    _(
-                        "Votre genre est obligatoire pour pouvoir organiser un tirage au sort paritaire"
-                    )
-                ),
             )
+        fields.append(
+            Fieldset(
+                _("Rejoindre la France insoumise"),
+                "is_insoumise",
+                FormActions(Submit("submit", "Valider")),
+            )
+        )
 
-        return cleaned_data
+        return fields
 
     class Meta(PreferencesFormMixin.Meta):
-        fields = [
-            "subscribed",
-            "group_notifications",
-            "event_notifications",
-            "draw_participation",
-            "gender",
-            "contact_phone",
-        ]
+        fields = ["is_insoumise"]
 
 
 class AddEmailForm(forms.ModelForm):
@@ -309,7 +107,6 @@ class AddEmailForm(forms.ModelForm):
                 "rate_limit": "Trop d'email de confirmation envoyés. Merci de réessayer dans quelques minutes.",
             }
         )
-
         self.helper = FormHelper()
         self.helper.form_method = "POST"
         self.helper.add_input(Submit("submit", "Ajouter"))

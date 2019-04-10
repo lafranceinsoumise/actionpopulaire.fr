@@ -5,7 +5,6 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.urls import reverse
-from django.utils import formats
 from django.utils.formats import localize
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe

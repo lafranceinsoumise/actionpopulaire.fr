@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
-from agir.lib.token_bucket import TokenBucket
 
+from agir.lib.token_bucket import TokenBucket
 
 SubscribeIPBucket = TokenBucket("SubscribeIP", 4, 600)
 """Bucket used to limit subscription by IP
@@ -22,6 +22,13 @@ ChangeMailBucket = TokenBucket("ConfirmationChangeMail", 5, 180)
 """Bucket used to limit subscription by email
 
 Burst of 10, then 1 every 3 minutes
+"""
+
+
+MergeAccountBucket = TokenBucket("ConfirmationMergeAccount", 3, 600)
+"""Bucket used to limit merge by email
+
+Burst of 3, then 1 every 10 minutes.
 """
 
 subscription_rate_limited_message = _(

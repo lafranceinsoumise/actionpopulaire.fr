@@ -1,14 +1,14 @@
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
-from io import BytesIO
 from urllib.parse import urljoin
 
 import six
 from PIL import Image
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.http import QueryDict
 from django.urls import reverse
 from django.utils.functional import lazy
+from io import BytesIO
 from stdimage.utils import render_variations
 
 from agir.authentication.crypto import connection_token_generator
