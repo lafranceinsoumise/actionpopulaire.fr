@@ -13,11 +13,11 @@ class MailLinkMiddleware:
     def get_just_connected_message(user):
         return format_html(
             _(
-                "Vous avez été connecté automatiquement comme <em>{person}</em> car vous avez suivi un lien qui lui a"
-                " été envoyé par email. S'il ne s'agit pas de vous, <a href=\"{logout_url}?next={login_url}\">cliquez-ici pour vous"
-                " reconnecter </a> avec votre compte."
+                '<p class="padbottom">Vous avez été connecté automatiquement comme <em>{person}</em> car vous avez suivi un lien qui lui a'
+                ' été envoyé par email.</p> <div><a href="{logout_url}?next={login_url}" class="btn btn-warning">'
+                "<strong>Je ne suis pas <em>{person}</em></strong></a></div>"
             ),
-            person=user.person.get_short_name(),
+            person=str(user.person),
             logout_url=reverse("disconnect"),
             login_url=reverse("short_code_login"),
         )
@@ -26,11 +26,11 @@ class MailLinkMiddleware:
     def get_already_connected_message(current_user, link_user, link_url):
         return format_html(
             _(
-                "Vous êtes actuellement connecté comme {current_person}, mais vous avez suivi un lien qui a été envoyé "
+                "Vous êtes actuellement connecté comme <em>{current_person}</em>, mais vous avez suivi un lien qui a été envoyé "
                 'à {link_person}. Souhaitez vous <a href="{link_url}"> vous connecter comme {link_person} ?</a>'
             ),
-            current_person=current_user.person.get_short_name(),
-            link_person=link_user.person.get_short_name(),
+            current_person=str(current_user.person),
+            link_person=str(link_user.person),
             link_url=link_url,
         )
 
@@ -86,7 +86,7 @@ class MailLinkMiddleware:
 
             messages.add_message(
                 request=request,
-                level=messages.WARNING,
+                level=messages.INFO,
                 message=self.get_already_connected_message(
                     request.user, link_user, link_url
                 ),
