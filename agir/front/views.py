@@ -15,7 +15,7 @@ class NBUrlsView(View):
         "/users/event_pages/new?parent_id=73": reverse_lazy("create_group"),
         "/users/event_pages/new?parent_id=38840": reverse_lazy("create_event"),
         "/agir": reverse_lazy("volunteer"),
-        "/inscription_detail": reverse_lazy("change_profile"),
+        "/inscription_detail": reverse_lazy("personal_information"),
         "/projet": "https://avenirencommun.fr/avenir-en-commun/",
         "/le_projet": "https://avenirencommun.fr/avenir-en-commun/",
         "/livrets_thematiques": "https://avenirencommun.fr/livrets-thematiques/",

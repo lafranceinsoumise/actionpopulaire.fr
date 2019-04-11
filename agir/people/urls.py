@@ -3,26 +3,8 @@ from django.views.generic import TemplateView, RedirectView
 
 from . import views
 
-urlpatterns = [
-    # people views
-    path("desinscription/", views.UnsubscribeView.as_view(), name="unsubscribe"),
-    path("desabonnement/", views.UnsubscribeView.as_view(), name="unsubscribe"),
-    path(
-        "desabonnement/succes/",
-        TemplateView.as_view(template_name="people/unsubscribe_success.html"),
-        name="unsubscribe_success",
-    ),
-    path(
-        "supprimer/",
-        views.RedirectView.as_view(url=reverse_lazy("delete_account")),
-        name="delete_account_old",
-    ),
-    path("profil/supprimer/", views.DeleteAccountView.as_view(), name="delete_account"),
-    path(
-        "supprimer/succes",
-        TemplateView.as_view(template_name="people/delete_account_success.html"),
-        name="delete_account_success",
-    ),
+
+subscribe_urls = [
     path("inscription/", views.SimpleSubscriptionView.as_view(), name="subscription"),
     path(
         "inscription/etranger/",
@@ -39,18 +21,17 @@ urlpatterns = [
         views.ConfirmSubscriptionView.as_view(),
         name="subscription_confirm",
     ),
+]
+
+profile_urls = [
+    path("profil/supprimer/", views.DeleteAccountView.as_view(), name="delete_account"),
     path(
         "profil/identite/",
         views.PersonalInformationsView.as_view(),
         name="personal_information",
     ),
     path("profil/competences", views.SkillsView.as_view(), name="skills"),
-    path("profil/engagement/", views.VolunteerView.as_view(), name="voluteer"),
-    path(
-        "message_preferences/",
-        RedirectView.as_view(url=reverse_lazy("contact")),
-        name="preferences",
-    ),
+    path("profil/engagement/", views.VolunteerView.as_view(), name="volunteer"),
     path(
         "profil/rejoindre/",
         views.BecomeInsoumiseView.as_view(),
@@ -90,7 +71,25 @@ urlpatterns = [
     path(
         "profil/confidentialite/", views.PesonalDataView.as_view(), name="personal_data"
     ),
-    path("agir/", views.VolunteerView.as_view(), name="volunteer"),
+]
+
+unsubscribe_urls = [
+    path("desinscription/", views.UnsubscribeView.as_view(), name="unsubscribe"),
+    path("desabonnement/", views.UnsubscribeView.as_view(), name="unsubscribe"),
+    path(
+        "desabonnement/succes/",
+        TemplateView.as_view(template_name="people/unsubscribe_success.html"),
+        name="unsubscribe_success",
+    ),
+    path(
+        "supprimer/succes",
+        TemplateView.as_view(template_name="people/delete_account_success.html"),
+        name="delete_account_success",
+    ),
+]
+
+
+form_urls = [
     path(
         "formulaires/<slug:slug>/",
         views.PeopleFormView.as_view(),
@@ -121,6 +120,34 @@ urlpatterns = [
         views.CodeValidationView.as_view(),
         name="sms_code_validation",
     ),
-    # dashboard
-    path("", views.DashboardView.as_view(), name="dashboard"),
 ]
+
+
+dashboard_urls = [  # dashboard
+    path("", views.DashboardView.as_view(), name="dashboard")
+]
+
+
+legacy_urls = [
+    path(
+        "message_preferences/",
+        RedirectView.as_view(url=reverse_lazy("contact")),
+        name="preferences",
+    ),
+    path("profil/", RedirectView.as_view(pattern_name="personal_information")),
+    path(
+        "supprimer/",
+        views.RedirectView.as_view(url=reverse_lazy("delete_account")),
+        name="delete_account_old",
+    ),
+    path("agir/", views.RedirectView.as_view(pattern_name="volunteer")),
+]
+
+urlpatterns = (
+    subscribe_urls
+    + profile_urls
+    + unsubscribe_urls
+    + form_urls
+    + dashboard_urls
+    + legacy_urls
+)

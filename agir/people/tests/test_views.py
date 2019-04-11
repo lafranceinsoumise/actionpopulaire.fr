@@ -461,7 +461,7 @@ class VolunteerFormTestCases(TestCase):
         self.client.force_login(self.person.role)
 
     def test_form_is_displayed(self):
-        url_form = reverse("voluteer")
+        url_form = reverse("volunteer")
 
         response = self.client.post(
             url_form,
