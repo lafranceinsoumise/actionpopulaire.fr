@@ -121,6 +121,11 @@ class DonationTestCase(TestCase):
         self.assertEqual(res.status_code, 200)
 
         self.donation_information_payload["fiscal_resident"] = "Y"
+        self.donation_information_payload["location_country"] = "ES"
+        res = self.client.post(information_url, self.donation_information_payload)
+        self.assertEqual(res.status_code, 200)
+
+        self.donation_information_payload["location_country"] = "FR"
         res = self.client.post(information_url, self.donation_information_payload)
         payment = Payment.objects.get()
         self.assertRedirects(res, reverse("payment_page", args=[payment.pk]))
