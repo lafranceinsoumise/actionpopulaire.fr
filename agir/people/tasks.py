@@ -112,7 +112,7 @@ def send_confirmation_merge_account(self, user_pk_requester, user_pk_merge, **kw
     try:
         send_mosaico_email(
             code="MERGE_ACCOUNT_CONFIRMATION",
-            subject="confirmer la fusion de compte",
+            subject="Veuillez confirmer la fusion de compte",
             from_email=settings.EMAIL_FROM,
             recipients=[merge_email],
             bindings={
