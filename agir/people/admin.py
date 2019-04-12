@@ -1,4 +1,5 @@
 import csv
+import secrets
 from urllib.parse import urlencode
 
 import django_otp
@@ -7,8 +8,8 @@ from django.urls import path
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Max
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import reverse
-from django.contrib import admin
+from django.shortcuts import reverse, get_object_or_404
+from django.contrib import admin, messages
 from django.template.response import TemplateResponse
 from django.utils.html import mark_safe, format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
@@ -211,7 +212,13 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def connection_params(self, obj):
         if obj.pk:
-            return urlencode(generate_token_params(obj))
+            return format_html(
+                '{params} <a class="button" href="{invalidate_link}">Invalider les liens</a>',
+                params=urlencode(generate_token_params(obj)),
+                invalidate_link=reverse(
+                    "admin:people_person_invalidate_link", args=(obj.pk,)
+                ),
+            )
         else:
             return "-"
 
@@ -228,6 +235,29 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             return "-"
 
     last_login.short_description = Role._meta.get_field("last_login").verbose_name
+
+    def get_urls(self):
+        return [
+            path(
+                "<uuid:pk>/invalidate_links",
+                self.admin_site.admin_view(self.invalidate_link_view),
+                name="people_person_invalidate_link",
+            )
+        ] + super().get_urls()
+
+    def invalidate_link_view(self, request, pk):
+        person = get_object_or_404(Person, pk=pk)
+
+        person.auto_login_salt = secrets.token_urlsafe(30)
+        person.save()
+
+        messages.add_message(
+            request=request,
+            level=messages.SUCCESS,
+            message="Les liens de connexion de cette personne ont été correctement invalidés.",
+        )
+
+        return HttpResponseRedirect(reverse("admin:people_person_change", args=(pk,)))
 
 
 @admin.register(PersonTag, site=admin_site)
