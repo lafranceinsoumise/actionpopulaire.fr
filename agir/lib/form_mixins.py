@@ -70,8 +70,16 @@ class TagMixin:
 
         tags += tags_to_create
 
-        tags_in = set(tag for tag in tags if self.cleaned_data[tag.label])
-        tags_out = set(tag for tag in tags if not self.cleaned_data[tag.label])
+        tags_in = set(
+            tag
+            for tag in tags
+            if tag.label in self.cleaned_data and self.cleaned_data[tag.label]
+        )
+        tags_out = set(
+            tag
+            for tag in tags
+            if tag.label in self.cleaned_data and not self.cleaned_data[tag.label]
+        )
 
         current_tags = set(self.instance.tags.all())
 
