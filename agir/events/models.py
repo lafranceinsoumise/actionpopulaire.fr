@@ -270,6 +270,9 @@ class Event(
     def __str__(self):
         return f"{self.name} ({self.get_display_date()})"
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(id={str(self.pk)!r}, name={self.name!r})"
+
     def to_ics(self):
         event_url = front_url("view_event", args=[self.pk], auto_login=False)
         return ics.Event(

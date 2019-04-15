@@ -59,6 +59,20 @@ class Role(ExportModelOperationsMixin("role"), PermissionsMixin, AbstractBaseUse
         else:
             return "Unknown role %s" % self.pk
 
+    def __repr__(self):
+        if self.type == self.PERSON_ROLE:
+            related = {"attr": "person", "object": self.person}
+        else:
+            related = {"attr": "client", "object": self.client}
+
+        return "{klass}(type={type!r}, {related}, is_staff={is_staff}, is_active={is_active})".format(
+            klass=self.__class__.__name__,
+            type=self.type,
+            related="{attr}={object}".format(**related),
+            is_staff=self.is_staff,
+            is_active=self.is_active,
+        )
+
     def has_perm(self, perm, obj=None):
         """
         Override PermissionsMixin has_perm to deactivate is_superuser if

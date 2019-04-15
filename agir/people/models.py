@@ -313,7 +313,7 @@ class Person(
             return self.email or "<pas d'email>"
 
     def __repr__(self):
-        return f"Person(pk={self.pk!r}, email={self.email})"
+        return f"{self.__class__.__name__}(pk={self.pk!r}, email={self.email})"
 
     @property
     def email(self):

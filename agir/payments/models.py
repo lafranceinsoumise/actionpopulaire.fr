@@ -103,5 +103,15 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     def __str__(self):
         return _("Paiement n°") + str(self.id)
 
+    def __repr__(self):
+        return "{klass}(email={email!r}, status={status!r}, type={type!r}, mode={mode!r}, price={price!r}".format(
+            klass=self.__class__.__name__,
+            email=self.email,
+            status=self.status,
+            type=self.type,
+            mode=self.mode,
+            price=self.price,
+        )
+
     class Meta:
         get_latest_by = "created"
