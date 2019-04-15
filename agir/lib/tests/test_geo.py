@@ -67,7 +67,7 @@ class BanTestCase(TestCase):
             Test le fonctionnement avec une adresse complète
         :return:
         """
-        self.person.location_address = "14 rue du lavoir de la grande pierre"
+        self.person.location_address1 = "14 rue du lavoir de la grande pierre"
         self.person.location_city = "Antony"
         self.person.location_zip = "92160"
         self.person.save()

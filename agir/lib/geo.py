@@ -35,7 +35,7 @@ def geocode_element(item):
         item.coordinates_type = LocationMixin.COORDINATES_NO_POSITION
 
 
-def geocode_ban_process_request(query):
+def get_results_from_ban(query):
     try:
         res = requests.get(BAN_ENDPOINT, params=query)
         res.raise_for_status()
@@ -65,42 +65,54 @@ def geocode_ban_district_exception(item):
     item.coordinates_type = LocationMixin.COORDINATES_DISTRICT
 
 
-def geocode_ban_only_zip(item):
+def geocode_ban_citylevel(item):
     query = {
-        "q": item.location_zip,
-        "postcode": item.location_zip,
+        "q": item.location_city or item.location_zip,
         "type": "municipality",
         "limit": 30,
     }
-    results = geocode_ban_process_request(query)
+    if item.location_zip:
+        query["postcode"] = item.location_zip
+
+    results = get_results_from_ban(query)
     if not results:
+        item.coordinates = None
+        item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
         return
-    # ici on a que des municipalite DONC si on a plusieurs choix c'est pas bon
-    # donc on peut les metre dans le meme pacquet
-    citycodes = {
+
+    citycodes = [
         f["properties"]["citycode"]
         for f in results["features"]
         if f["geometry"]["type"] == "Point"
-    }
-    all_coordinates = [
+    ]
+    coordinates = [
         f["geometry"]["coordinates"]
         for f in results["features"]
         if f["geometry"]["type"] == "Point"
     ]
-    if len(all_coordinates) == 0:
+
+    if len(coordinates) == 0:
         item.coordinates = None
         item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
         return
-    lon = sum(c[0] for c in all_coordinates) / len(all_coordinates)
-    lat = sum(c[1] for c in all_coordinates) / len(all_coordinates)
 
-    item.coordinates = Point(lon, lat)
-    item.coordinates_type = (
-        LocationMixin.COORDINATES_CITY
-        if len(all_coordinates) == 1
-        else LocationMixin.COORDINATES_UNKNOWN_PRECISION
-    )
-    item.location_citycode = citycodes.pop() if len(citycodes) == 1 else ""
+    if item.location_city:
+        # si on a un nom de ville, on prend le premier de la liste, ça devrait être le bon
+        item.coordinates = Point(coordinates[0])
+        item.location_citycode = citycodes[0]
+
+    else:
+        # sinon, on prend le milieu des différentes villes
+        lon = sum(c[0] for c in coordinates) / len(coordinates)
+        lat = sum(c[1] for c in coordinates) / len(coordinates)
+
+        item.coordinates = Point(lon, lat)
+        item.coordinates_type = (
+            LocationMixin.COORDINATES_CITY
+            if len(coordinates) == 1
+            else LocationMixin.COORDINATES_UNKNOWN_PRECISION
+        )
+        item.location_citycode = citycodes[0] if len(set(citycodes)) == 1 else ""
 
 
 def geocode_ban(item):
@@ -109,18 +121,14 @@ def geocode_ban(item):
     :param item:
     """
 
-    only_zip = (
-        not item.location_address1
-        and not item.location_address2
-        and not item.location_city
-    )
+    no_address = not item.location_address1 and not item.location_address2
 
-    if only_zip:
+    if no_address:
         if item.location_zip in ARRONDISSEMENTS:
             geocode_ban_district_exception(item)
             return
 
-        geocode_ban_only_zip(item)
+        geocode_ban_citylevel(item)
         return
 
     q = " ".join(
@@ -135,7 +143,7 @@ def geocode_ban(item):
     )
 
     query = {"q": q, "postcode": item.location_zip, "limit": 5}
-    results = geocode_ban_process_request(query)
+    results = get_results_from_ban(query)
     if results is None:
         # there has been a network error
         return
