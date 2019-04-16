@@ -143,15 +143,14 @@ class CheckCodeView(RedirectToMixin, FormView):
         login(self.request, form.role)
         validated_email = form.role.login_meta.get("email")
 
-        if validated_email:
-            validated_email_instance = PersonEmail.objects.get_by_natural_key(
-                validated_email
-            )
-
-            if (
-                validated_email_instance.person == form.role.person
-                and form.role.person.primary_email.bounced
-            ):
+        if validated_email and form.role.person.primary_email.bounced:
+            try:
+                validated_email_instance = form.role.person.emails.get_by_natural_key(
+                    validated_email
+                )
+            except PersonEmail.DoesNotExist:
+                pass
+            else:
                 if validated_email_instance.bounced:
                     validated_email_instance.bounced = False
                     validated_email_instance.bounced_date = None
