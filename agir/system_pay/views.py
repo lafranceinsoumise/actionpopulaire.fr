@@ -117,9 +117,13 @@ def return_view(request):
                 klass.id for klass in AbstractSystemPayPaymentMode.__subclasses__()
             ]
             two_hours_ago = timezone.now() - timezone.timedelta(hours=2)
-            payment = request.user.person.payments.filter(
-                mode__in=system_pay_modes, created__gt=two_hours_ago
-            ).last("created")
+            payment = (
+                request.user.person.payments.filter(
+                    mode__in=system_pay_modes, created__gt=two_hours_ago
+                )
+                .order_by("-created")
+                .first()
+            )
         except Payment.DoesNotExist:
             pass
 
