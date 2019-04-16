@@ -1,6 +1,7 @@
 from email.mime.base import MIMEBase
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 
+import re
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.http import QueryDict
@@ -17,6 +18,7 @@ __all__ = ["send_mail", "send_mosaico_email"]
 
 _h = html2text.HTML2Text(bodywidth=0)
 _h.ignore_images = True
+_h.ignore_tables = True
 
 
 def conditional_html_to_text(text):
@@ -26,7 +28,22 @@ def conditional_html_to_text(text):
 
 
 def generate_plain_text(html_message):
-    return _h.handle(html_message)
+    return (
+        re.sub("Cet email a été envoyé à .*$", "", _h.handle(html_message))
+        + """
+------------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
+
+>> Voir cet email dans votre navigateur
+{{ LINK_BROWSER }}
+
+>> Choisir les emails que vous recevez
+http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+
+>> Arrêter complètement de recevoir des emails
+https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}
+"""
+    )
 
 
 def add_params_to_urls(url, params):

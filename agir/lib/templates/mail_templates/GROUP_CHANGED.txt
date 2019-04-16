@@ -1,19 +1,4 @@
-  
-  
-| 
-
-|   
----  
-  
-[Voir dans le navigateur]({{ LINK_BROWSER }})  
----  
-  
-|   
----  
-  
-| 
-
-Bonjour,  
+Bonjour,
 
 
 Les animateurs du groupe d'action {{ GROUP_NAME }} ont changé ses informations.  

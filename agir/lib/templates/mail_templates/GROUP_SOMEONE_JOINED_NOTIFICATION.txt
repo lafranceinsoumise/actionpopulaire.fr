@@ -13,6 +13,9 @@ Groupe d'action : **{{ GROUP_NAME }}**
 
 Amitiés insoumises,  
 L'équipe de la plateforme France insoumise  
+  
+  
+Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.  
 
 
 -----------------------------------------------------------------

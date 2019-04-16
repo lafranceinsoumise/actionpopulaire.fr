@@ -216,45 +216,45 @@ EMAIL_USE_SSL = email_config["EMAIL_USE_SSL"]
 # fixed for now ==> maybe more flexible?
 EMAIL_TEMPLATES = {
     # WELCOME_MESSAGE variables: [PROFILE_LINK]
-    "WELCOME_MESSAGE": "https://mosaico.jlm2017.fr/emails/ac205f71-61a3-465b-8161-cec5729ecdbb.html",
+    "WELCOME_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/ac205f71-61a3-465b-8161-cec5729ecdbb.html",
     # CONFIRM_SUBSCRIPTION_MESSAGE variables: [CONFIRMATION_URL]
-    "SUBSCRIPTION_CONFIRMATION_MESSAGE": "https://mosaico.jlm2017.fr/emails/cd878308-6fd7-4088-b525-a020c5bb3fe0.html",
+    "SUBSCRIPTION_CONFIRMATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/cd878308-6fd7-4088-b525-a020c5bb3fe0.html",
     # ALREADY_SUBSCRIBED_MESSAGE: [AGO], [PANEL_LINK]
     "ALREADY_SUBSCRIBED_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/d7040d22-703f-4ac7-883c-d2f04c13be1a.html",
     # DONATION_MESSAGE variables : [PROFILE_LINK]
-    "DONATION_MESSAGE": "https://mosaico.jlm2017.fr/emails/cab3c2ee-9444-4c70-b16e-9f7dce7929b1.html",
+    "DONATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/cab3c2ee-9444-4c70-b16e-9f7dce7929b1.html",
     # UNSUBSCRIBE_CONFIRMATION variables [MANAGE_SUBSCRIPTIONS_LINK]
-    "UNSUBSCRIBE_CONFIRMATION": "https://mosaico.jlm2017.fr/emails/51cbadd7-2226-482d-85d4-6dc758d2eb3a.html",
+    "UNSUBSCRIBE_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/51cbadd7-2226-482d-85d4-6dc758d2eb3a.html",
     # GROUP_CREATION variables: [GROUP_NAME], [CONTACT_{NAME,EMAIL,PHONE,PHONE_VISIBILITY], [LOCATION_{NAME,LOCATION}], [GROUP_LINK], [MANAGE_GROUP_LINK]
-    "GROUP_CREATION": "https://mosaico.jlm2017.fr/emails/bc07d593-ff8f-470e-a8cb-9ba679fc5f59.html",
+    "GROUP_CREATION": "https://mosaico.lafranceinsoumise.fr/emails/bc07d593-ff8f-470e-a8cb-9ba679fc5f59.html",
     # GROUP_CHANGED variables: GROUP_NAME, GROUP_CHANGES, GROUP_LINK
-    "GROUP_CHANGED": "https://mosaico.jlm2017.fr/emails/3724b7ba-2a48-4954-9496-fc4c970a56b8.html",
+    "GROUP_CHANGED": "https://mosaico.lafranceinsoumise.fr/emails/3724b7ba-2a48-4954-9496-fc4c970a56b8.html",
     # GROUP_SOMEONE_JOINED_NOTIFICATION variables: GROUP_NAME, PERSON_INFORMATION, MANAGE_GROUP_LINK
-    "GROUP_SOMEONE_JOINED_NOTIFICATION": "https://mosaico.jlm2017.fr/emails/e25c5123-6a7d-428f-89c6-3ddca4a65096.html",
+    "GROUP_SOMEONE_JOINED_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/e25c5123-6a7d-428f-89c6-3ddca4a65096.html",
     # GROUP_EXTERNAL_JOIN_OPTION variables: [GROUP_NAME], [JOIN_LINK]
     "GROUP_EXTERNAL_JOIN_OPTIN": "https://mosaico.lafranceinsoumise.fr/emails/5c106c1d-a46f-4072-9c4e-2e3bfbfea069.html",
     # EVENT_CREATION variables: [EVENT_NAME], [CONTACT_{NAME,EMAIL,PHONE,PHONE_VISIBILITY], [LOCATION_{NAME,LOCATION}], [EVENT_LINK], [MANAGE_EVENT_LINK]
-    "EVENT_CREATION": "https://mosaico.jlm2017.fr/emails/f44ff2c1-1050-41c4-8973-15573eba2741.html",
+    "EVENT_CREATION": "https://mosaico.lafranceinsoumise.fr/emails/f44ff2c1-1050-41c4-8973-15573eba2741.html",
     # EVENT_CHANGED variables: EVENT_NAME, EVENT_CHANGES, EVENT_LINK, EVENT_QUIT_LINK
-    "EVENT_CHANGED": "https://mosaico.jlm2017.fr/emails/f8dfc882-4e7e-4ff2-bd8c-473fd41e54bf.html",
+    "EVENT_CHANGED": "https://mosaico.lafranceinsoumise.fr/emails/f8dfc882-4e7e-4ff2-bd8c-473fd41e54bf.html",
     # EVENT_RSVP_NOTIFICATION variables EVENT_NAME, PERSON_INFORMATION, MANAGE_EVENT_LINK
-    "EVENT_RSVP_NOTIFICATION": "https://mosaico.jlm2017.fr/emails/6f2eb6f0-cf59-4e2e-ab62-a8d204c6166b.html",
+    "EVENT_RSVP_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/6f2eb6f0-cf59-4e2e-ab62-a8d204c6166b.html",
     # EVENT_RSVP_CONFIRMATION variables EVENT_NAME  EVENT_SCHEDULE CONTACT_NAME CONTACT_EMAIL LOCATION_NAME LOCATION_ADDRESS EVENT_LINK
-    "EVENT_RSVP_CONFIRMATION": "https://mosaico.jlm2017.fr/emails/71fa1bc8-1b94-4d88-98dc-27c5502b83f8.html",
+    "EVENT_RSVP_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/71fa1bc8-1b94-4d88-98dc-27c5502b83f8.html",
     # EVENT_EXTERNAL_RSVP_OPTIN variables EVENT_NAME RSVP_LINK
     "EVENT_EXTERNAL_RSVP_OPTIN": "https://mosaico.lafranceinsoumise.fr/emails/e7c3e2f6-1089-4f49-82a7-608ab038e6d3.html",
     # EVENT_GUEST_CONFIRMATION variables EVENT_NAME  EVENT_SCHEDULE CONTACT_NAME CONTACT_EMAIL LOCATION_NAME LOCATION_ADDRESS EVENT_LINK
-    "EVENT_GUEST_CONFIRMATION": "https://mosaico.jlm2017.fr/emails/eded7af1-8ded-4150-a33c-b4902b34d54c.html",
+    "EVENT_GUEST_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/eded7af1-8ded-4150-a33c-b4902b34d54c.html",
     # EVENT_CANCELLATION variables: EVENT_NAME
-    "EVENT_CANCELLATION": "https://mosaico.jlm2017.fr/emails/94c7cbb3-afdc-4d14-a07a-cf9503db5b5f.html",
+    "EVENT_CANCELLATION": "https://mosaico.lafranceinsoumise.fr/emails/94c7cbb3-afdc-4d14-a07a-cf9503db5b5f.html",
     # EVENT_SECRETARIAT_NOTIFICATION variables : EVENT_NAME EVENT_SCHEDULE CONTACT_NAME CONTACT_EMAIL LOCATION_NAME LOCATION_ADDRESS EVENT_LINK LEGAL_INFORMATIONS
     "EVENT_SECRETARIAT_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/d7ebb6a3-f693-4c33-934f-df4335b23621.html",
     # EVENT_ORGANIZER_VALIDATION_NOTIFICATION variables : EVENT_NAME EVENT_SCHEDULE LOCATION_NAME LOCATION_ADDRESS EVENT_LINK MANAGE_EVENT_LINK
     "EVENT_ORGANIZER_VALIDATION_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/668ac434-423b-43b8-9ae0-6d1f3d29c3d4.html",
     # FORM_CONFIRMATION variables : CONFIRMATION_NOTE
-    "FORM_CONFIRMATION": "https://mosaico.jlm2017.fr/emails/6172a755-0459-4f01-b3e4-fcfa835224b0.html",
+    "FORM_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/6172a755-0459-4f01-b3e4-fcfa835224b0.html",
     # FORM_NOTIFICATION variables : PERSON_EMAIL, INFORMATIONS
-    "FORM_NOTIFICATION": "https://mosaico.jlm2017.fr/emails/45cd8bc1-8fb6-4ab6-bb67-739fd7e2e68e.html",
+    "FORM_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/45cd8bc1-8fb6-4ab6-bb67-739fd7e2e68e.html",
     # LOGIN_MESSAGE variables: CODE, EXPIRY_TIME
     "LOGIN_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/65cb8867-9d14-4448-bae8-8cf40c5fee78.html",
     # EVENT_REPORT variables: EVENT_NAME,EVENT_REPORT_SUMMARY, EVENT_REPORT_LINK, PREFERENCES_LINK, EMAIL

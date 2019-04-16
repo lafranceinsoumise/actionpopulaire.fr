@@ -6,14 +6,20 @@ Bonjour,
 >> Je confirme rejoindre la France insoumise
 {{ CONFIRMATION_URL }}
 
-**Pourquoi cette confirmation ?** Cette étape nous permet de vérifier que vous êtes bien la personne derrière l'adresse email dont l'inscription est demandée.
+
+ **Pourquoi cette confirmation ?** Cette étape nous permet de vérifier que vous êtes bien propriétaire de l'adresse email dont l'inscription est demandée.  
 
 
 Si vous n'êtes pas à l'origine de cette demande d'inscription, ignorez ce message : nous ne conserverons aucune information vous concernant.   
-  
-  
------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}.
+
+------------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
 
 >> Voir cet email dans votre navigateur
 {{ LINK_BROWSER }}
+
+>> Choisir les emails que vous recevez
+http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+
+>> Arrêter complètement de recevoir des emails
+https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}
