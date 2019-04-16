@@ -64,7 +64,7 @@ class PersonalInformationsForm(forms.ModelForm):
         description_birth_date = HTML(
             format_html(
                 """<p class="help-block">{help_text}</p>""",
-                help_text="Utilisé à des fins statistiques.",
+                help_text="Utilisée à des fins statistiques.",
             )
         )
 
