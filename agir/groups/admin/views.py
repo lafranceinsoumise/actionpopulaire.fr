@@ -21,7 +21,7 @@ def add_member(model_admin, request, pk):
         raise Http404(_("Pas de groupe avec cet identifiant."))
 
     if request.method == "POST":
-        form = AddMemberForm(group, request.POST)
+        form = AddMemberForm(group, model_admin, request.POST)
 
         if form.is_valid():
             membership = form.save()
@@ -44,7 +44,7 @@ def add_member(model_admin, request, pk):
                 )
             )
     else:
-        form = AddMemberForm(group)
+        form = AddMemberForm(group, model_admin)
 
     fieldsets = [(None, {"fields": ["person"]})]
     admin_form = admin.helpers.AdminForm(form, fieldsets, {})

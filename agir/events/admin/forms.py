@@ -1,14 +1,14 @@
 from django import forms
+from django.contrib.admin.widgets import AutocompleteSelect
 from django.core.exceptions import ValidationError
 from django.forms import BooleanField
 from django.utils.translation import ugettext_lazy as _
-from ajax_select.fields import AutoCompleteSelectField
 
-from ...lib.forms import CoordinatesFormMixin
-from ...lib.form_fields import AdminRichEditorWidget
-
+from agir.people.models import Person
 from .. import models
 from ..tasks import send_organizer_validation_notification
+from ...lib.form_fields import AdminRichEditorWidget
+from ...lib.forms import CoordinatesFormMixin
 
 
 class CalendarIterator:
@@ -167,13 +167,18 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
 
 
 class AddOrganizerForm(forms.Form):
-    person = AutoCompleteSelectField(
-        "people", required=True, label=_("Personne à ajouter"), help_text=""
+    person = forms.ModelChoiceField(
+        Person.objects.all(), required=True, label=_("Personne à ajouter")
     )
 
-    def __init__(self, event, *args, **kwargs):
+    def __init__(self, event, model_admin, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.event = event
+        self.fields["person"].widget = AutocompleteSelect(
+            rel=Person._meta.get_field("organizer_configs"),
+            admin_site=model_admin.admin_site,
+            choices=self.fields["person"].choices,
+        )
 
     def clean_person(self):
         person = self.cleaned_data["person"]

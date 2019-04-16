@@ -38,8 +38,6 @@ django-webpack-loader = "==0.6.*"
 ## development helpers
 django-silk = "==3.*"
 django-debug-toolbar = "==1.*"
-## deprecated
-django-ajax-selects = "==1.7.*"  # should be removed once replaced with native ajax fields from Django 2
 # celery
 celery = "==4.*"
 celery-prometheus-exporter = "==1.*"

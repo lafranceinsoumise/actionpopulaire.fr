@@ -1,7 +1,6 @@
 from itertools import groupby
 
 from django.contrib import admin, messages
-from django.contrib.admin import helpers
 from django.contrib.admin.widgets import AutocompleteSelectMultiple
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, Http404
@@ -31,7 +30,7 @@ def add_member(model_admin, request, pk):
         raise Http404(_("Pas d'événement avec cet identifiant."))
 
     if request.method == "POST":
-        form = AddOrganizerForm(event, request.POST)
+        form = AddOrganizerForm(event, model_admin, data=request.POST)
 
         if form.is_valid():
             organizer_config = form.save()
@@ -54,7 +53,7 @@ def add_member(model_admin, request, pk):
                 )
             )
     else:
-        form = AddOrganizerForm(event)
+        form = AddOrganizerForm(event, model_admin)
 
     fieldsets = [(None, {"fields": ["person"]})]
     admin_form = admin.helpers.AdminForm(form, fieldsets, {})

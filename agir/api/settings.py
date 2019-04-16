@@ -116,8 +116,6 @@ INSTALLED_APPS = [
     "django_filters",
     # django_countries
     "django_countries",
-    # ajax_select
-    "ajax_select",
     # phone number field
     "phonenumber_field",
     # stdimage
@@ -355,15 +353,6 @@ OAUTH2_PROVIDER_APPLICATION_MODEL = "clients.Client"
 OAUTH2_PROVIDER = {"SCOPES_BACKEND_CLASS": "agir.clients.scopes.ScopesBackend"}
 
 # Admin
-
-DAS_ALLOWED_AJAX_SEARCH_PATHS = [
-    ("agir.people", "person", "location_zip"),
-    ("agir.people", "person", "location_city"),
-    ("agir.groups", "supportgroup", "location_city"),
-    ("agir.groups", "supportgroup", "location_city"),
-    ("agir.events", "event", "location_city"),
-    ("agir.events", "event", "location_city"),
-]
 
 OTP_TOTP_ISSUER = "api.lafranceinsoumise.fr"
 

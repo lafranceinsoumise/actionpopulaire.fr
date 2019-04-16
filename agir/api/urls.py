@@ -13,16 +13,13 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path, include
 from django.conf.urls.static import static
-from ajax_select import urls as ajax_select_urls
+from django.urls import path, include
 from django_prometheus.exports import ExportToDjangoView as metric_view
-from oauth2_provider import urls as oauth2_provider_urls
 
 from agir.lib.http import with_http_basic_auth
-from . import routers, admin, settings
-
 from . import front_urls
+from . import routers, admin, settings
 from ..webhooks import urls as webhooks_urls
 
 urlpatterns = [
@@ -30,7 +27,6 @@ urlpatterns = [
     path("nuntius/", include("nuntius.urls")),
     path("webhooks/", include(webhooks_urls)),
     path("anymail/", include("anymail.urls")),
-    path("ajax_select/", include(ajax_select_urls)),
     path(
         "metrics/",
         with_http_basic_auth({settings.PROMETHEUS_USER: settings.PROMETHEUS_PASSWORD})(
