@@ -72,17 +72,18 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:bb69628f933a8dba22817c85289b3421b23ac643ff3202b13dd2e933c2717109",
-                "sha256:c75c45bae9dbdb2ff3fc3482d421a3901e552574a882dba1cffa064715acfbe7"
+                "sha256:c2816b25fdd792d759ef4d19b6dd551ef93232992d55fbf87307a71ab62ee159",
+                "sha256:f6f58cf19cc99bc90f1c57dcddf6fdf97d63e152263fc32bfa1d45ee4b278009"
             ],
-            "version": "==1.9.130"
+            "markers": "extra == 'amazon_ses'",
+            "version": "==1.9.131"
         },
         "botocore": {
             "hashes": [
-                "sha256:128130b12f8ba4bf07a673b119135264060eb98f6a4a7419cbd1f2c6dc926827",
-                "sha256:59376112fdee707927b644dd44a1771861f8fe354a48d596131ced83d7a3c05b"
+                "sha256:691a6fb8ef0edbe2aebe2c1b2707cac9b3f120a87f1c70af014e02542cf398a0",
+                "sha256:a0275f9b7cab4cab3a701ce53c8711c1a45b77bf1d719b9af9ed232f4abee99a"
             ],
-            "version": "==1.12.130"
+            "version": "==1.12.131"
         },
         "celery": {
             "hashes": [
@@ -455,11 +456,11 @@
         },
         "nuntius": {
             "hashes": [
-                "sha256:0cb603ecfa7729bbcdf9af7f059d9c027f5cc6a49e9939d6d38422fc40f9cb7e",
-                "sha256:f6f5b288f760d3ee2edaf654149e652426368c6991f7d88a2947ced9dfd1da80"
+                "sha256:c13384bfdc3638b80a465697f58e9ca1d7bdec5ed3875e934d36d67ab1dac072",
+                "sha256:c976d18401e12990b41a5a234ca125d06abb33bfe0b5da7703ac11fd2e3e5be7"
             ],
             "index": "pypi",
-            "version": "==0.3.12"
+            "version": "==0.3.13"
         },
         "oauthlib": {
             "hashes": [
@@ -478,11 +479,11 @@
         },
         "phonenumbers": {
             "hashes": [
-                "sha256:d08b237c49b8aa11e884293181b89bc75d3957dbc492a89293b40a43403473c7",
-                "sha256:d9cf2e8e4ad40552487ab47182bc9759fca1edaa7d513e95a9f20c6742416234"
+                "sha256:dabc8cfcff96446b0787ea337739ea286ec3949ec27a4790a9b4587817da5c5f",
+                "sha256:efac24159582581d8ac467b5fc23fea298b1c101e6947f37c2ab666ec18f6cde"
             ],
             "index": "pypi",
-            "version": "==8.10.9"
+            "version": "==8.10.10"
         },
         "pillow": {
             "hashes": [
