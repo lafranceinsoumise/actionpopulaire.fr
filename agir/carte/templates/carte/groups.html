@@ -10,22 +10,11 @@ Carte des groupes d'appui
       var subtypes = {{ subtype_config }};
       var bounds = {{ bounds }};
 
-      function formatGroup(group) {
-        var displayableSubtypes = subtypes.filter(function(subtype) {
-          return (group.subtypes.indexOf(subtype.id) !== -1) && !subtype.hideLabel;
-        }).map(function(subtype) {return subtype.description;});
-        var type = types.find(function(type) { return type.id === group.type });
-        return '<a href="{{ FRONT_DOMAIN }}/groupes/' + group.id + '">' +
-          group.name + '</a><br><strong>' + type.label + '</strong>' +
-          (displayableSubtypes.length ? '<br>' + displayableSubtypes.join(' &bull; ') : '');
-      }
-
       window['carte/map'].listMap('map', {
         endpoint: '{% url "carte:group_list" %}{{ querystring }}',
         listType: 'groups',
         types,
         subtypes,
-        formatPopup: formatGroup,
         bounds
       });
     </script>

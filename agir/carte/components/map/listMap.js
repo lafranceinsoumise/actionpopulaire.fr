@@ -9,6 +9,7 @@ import { fontIsLoaded, ARROW_SIZE } from "./utils";
 import { makeStyle, setUpMap, setUpPopup, fitBounds } from "./common";
 import makeLayerControl from "./layerControl";
 import makeSearchControl from "./searchControl";
+import getFormatPopups from "./itemPopups";
 
 const OFFSET = 0.00005;
 function disambiguate(points) {
@@ -38,9 +39,11 @@ function disambiguate(points) {
 
 export default async function listMap(
   htmlElementId,
-  { endpoint, listType, types, subtypes, formatPopup, bounds }
+  { endpoint, listType, types, subtypes, bounds }
 ) {
   bounds = bounds || [-5.3, 41.2, 9.6, 51.2];
+
+  let formatPopup = getFormatPopups(types, subtypes)[listType];
 
   // Type filters
   const sources = {},
