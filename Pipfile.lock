@@ -456,11 +456,11 @@
         },
         "nuntius": {
             "hashes": [
-                "sha256:c13384bfdc3638b80a465697f58e9ca1d7bdec5ed3875e934d36d67ab1dac072",
-                "sha256:c976d18401e12990b41a5a234ca125d06abb33bfe0b5da7703ac11fd2e3e5be7"
+                "sha256:6d8bba612399fb89c7b899b4522e1a3196a3622ce7877d1869d0477e59291b96",
+                "sha256:9e4800ee52af0674ea284275ce643a897267e5ba13c77009b974478b15e88c20"
             ],
             "index": "pypi",
-            "version": "==0.3.13"
+            "version": "==0.3.14"
         },
         "oauthlib": {
             "hashes": [
