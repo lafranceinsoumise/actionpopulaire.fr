@@ -79,6 +79,14 @@
                             <a href="{% url 'view_group' group.pk %}">{{ group.name }}</a><br>
                             {{ group.short_location }}
                             {% if group.user_is_manager %}
+                                {% if group.has_promo_code %}
+                                  <div>Code promo du mois :
+                                    {% if promo_code_delayed %}
+                                     <em>Les codes promos seront disponibles le {{ promo_code_delay|date }}</em>
+                                    {% else %}
+                                      <strong>{{ group.promo_code }}</strong></div>
+                                    {% endif %}
+                                {% endif %}
                                 <span class="input-group-btn">
                                 <a class='btn btn-default' href="{% url 'manage_group' group.pk %}">Gestion</a>
                                 </span>

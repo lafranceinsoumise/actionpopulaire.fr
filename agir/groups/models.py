@@ -81,7 +81,7 @@ class SupportGroup(
 
     nb_path = models.CharField(_("NationBuilder path"), max_length=255, blank=True)
 
-    tags = models.ManyToManyField("SupportGroupTag", related_name="events", blank=True)
+    tags = models.ManyToManyField("SupportGroupTag", related_name="groups", blank=True)
 
     members = models.ManyToManyField(
         "people.Person", related_name="supportgroups", through="Membership", blank=True

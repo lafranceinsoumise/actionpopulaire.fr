@@ -96,3 +96,17 @@ def get_next_promo_code(group):
         expiration_date = date(today.year, today.month + 1, 1)
 
     return generate_code_for_group(group, expiration_date)
+
+
+def is_promo_code_delayed():
+    today = timezone.now()
+    return (
+        settings.PROMO_CODE_DELAY is not None
+        and settings.PROMO_CODE_DELAY.year == today.year
+        and settings.PROMO_CODE_DELAY.month == today.month
+        and today < (settings.PROMO_CODE_DELAY + timezone.timedelta(days=1))
+    )
+
+
+def next_promo_code_date():
+    return settings.PROMO_CODE_DELAY + timezone.timedelta(days=1)

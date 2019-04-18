@@ -1,12 +1,15 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
-from django.db.models import Value, F, TextField, Q
+from django.db.models import Value, F, TextField, Q, Count, Case, When, BooleanField
 from django.utils import timezone
 from django.views.generic import TemplateView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.events.models import Event
+from agir.groups.actions import get_next_promo_code
+from agir.groups.actions.promo_codes import is_promo_code_delayed, next_promo_code_date
 from agir.groups.models import SupportGroup
 from agir.events.views.utils import group_events_by_day
 from agir.lib.tasks import geocode_person
@@ -35,15 +38,30 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
             rsvped_events = rsvped_events.annotate(
                 distance=Distance("coordinates", person.coordinates)
             )
-        members_groups = (
+        members_groups = list(
             SupportGroup.objects.filter(memberships__person=person, published=True)
             .order_by("name")
             .annotate(
                 user_is_manager=F("memberships__is_manager")._combine(
                     F("memberships__is_referent"), "OR", False
-                )
+                ),
+                has_promo_code=Count(
+                    Case(
+                        When(tags__label=settings.PROMO_CODE_TAG, then=1),
+                        default=0,
+                        output_field=BooleanField(),
+                    )
+                ),
             )
         )
+
+        if is_promo_code_delayed():
+            promo_code_delay = next_promo_code_date()
+        else:
+            for group in members_groups:
+                if group.user_is_manager and group.has_promo_code:
+                    group.promo_code = get_next_promo_code(group)
+            promo_code_delay = None
 
         suggested_events = (
             Event.objects.upcoming()
@@ -116,6 +134,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
                 "person": person,
                 "rsvped_events": group_events_by_day(rsvped_events),
                 "members_groups": members_groups,
+                "promo_code_delay": promo_code_delay,
                 "suggested_events": group_events_by_day(suggested_events),
                 "last_events": last_events,
                 "past_reports": past_reports,

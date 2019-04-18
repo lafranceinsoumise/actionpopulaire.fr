@@ -44,7 +44,11 @@ from agir.front.view_mixins import (
     SearchByZipcodeBaseView,
 )
 from agir.groups.actions.pressero import redirect_to_pressero, is_pressero_enabled
-from agir.groups.actions.promo_codes import get_next_promo_code
+from agir.groups.actions.promo_codes import (
+    get_next_promo_code,
+    is_promo_code_delayed,
+    next_promo_code_date,
+)
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.groups.tasks import send_someone_joined_notification
 from agir.events.views.utils import group_events_by_day
@@ -230,13 +234,8 @@ class SupportGroupManagementView(
         if kwargs["has_promo_code"]:
             kwargs["group_promo_code"] = get_next_promo_code(self.object)
 
-        if (
-            settings.PROMO_CODE_DELAY is not None
-            and settings.PROMO_CODE_DELAY.year == now().year
-            and settings.PROMO_CODE_DELAY.month == now().month
-            and now() < (settings.PROMO_CODE_DELAY + timedelta(days=1))
-        ):
-            kwargs["promo_code_delay"] = settings.PROMO_CODE_DELAY + timedelta(days=1)
+        if is_promo_code_delayed():
+            kwargs["promo_code_delay"] = next_promo_code_date()
 
         kwargs["certifiable"] = (
             self.object.type in settings.CERTIFIABLE_GROUP_TYPES
