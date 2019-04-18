@@ -34,7 +34,7 @@ from agir.people.views.views_mixin import InsoumiseOnlyMixin
 
 
 class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
-    template_name = "people/delete_account.html"
+    template_name = "people/profile/delete_account.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs)
@@ -56,7 +56,7 @@ class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
 
 
 class BecomeInsoumiseView(SoftLoginRequiredMixin, UpdateView):
-    template_name = "people/profile_default.html"
+    template_name = "people/profile/profile_default.html"
     form_class = BecomeInsoumiseForm
     success_url = reverse_lazy("personal_information")
 
@@ -81,7 +81,7 @@ class BecomeInsoumiseView(SoftLoginRequiredMixin, UpdateView):
 
 
 class PersonalInformationsView(SoftLoginRequiredMixin, InsoumiseOnlyMixin, UpdateView):
-    template_name = "people/profile_default.html"
+    template_name = "people/profile/profile_default.html"
     form_class = PersonalInformationsForm
     success_url = reverse_lazy("personal_information")
 
@@ -94,7 +94,7 @@ class PersonalInformationsView(SoftLoginRequiredMixin, InsoumiseOnlyMixin, Updat
 
 
 class ContactView(SoftLoginRequiredMixin, UpdateView):
-    template_name = "people/information_contact.html"
+    template_name = "people/profile/information_contact.html"
     form_class = ContactForm
     success_url = reverse_lazy("contact")
 
@@ -123,7 +123,7 @@ class ContactView(SoftLoginRequiredMixin, UpdateView):
 
 
 class AddEmailMergeAccountView(SoftLoginRequiredMixin, FormView):
-    template_name = "people/account_management.html"
+    template_name = "people/profile/account_management.html"
     form_class = AddEmailMergeAccountForm
     success_url = reverse_lazy("confirm_merge_account_sent")
 
@@ -215,7 +215,7 @@ class ConfirmMergeAccountView(View):
 
 class SendConfirmationMergeAccountView(HardLoginRequiredMixin, TemplateView):
     template_merge = "people/confirmation_change_mail_merge_account_sent.html"
-    template_name = "people/confirmation_change_mail_merge_account_sent.html"
+    template_name = "people/profile/confirmation_change_mail_merge_account_sent.html"
 
     def get(self, request):
         self.email = request.GET.get("email")
@@ -243,7 +243,7 @@ class ChangePrimaryEmailView(SoftLoginRequiredMixin, RedirectView):
 
 
 class SkillsView(SoftLoginRequiredMixin, InsoumiseOnlyMixin, UpdateView):
-    template_name = "people/profile_default.html"
+    template_name = "people/profile/profile_default.html"
     form_class = ActivityAblebilityForm
     success_url = reverse_lazy("skills")
 
@@ -256,7 +256,7 @@ class SkillsView(SoftLoginRequiredMixin, InsoumiseOnlyMixin, UpdateView):
 
 
 class PesonalDataView(SoftLoginRequiredMixin, FormView):
-    template_name = "people/profile_default.html"
+    template_name = "people/profile/profile_default.html"
     form_class = InformationConfidentialityForm
     success_url = reverse_lazy("personal_data")
 
@@ -271,7 +271,7 @@ class PesonalDataView(SoftLoginRequiredMixin, FormView):
 
 
 class VolunteerView(SoftLoginRequiredMixin, InsoumiseOnlyMixin, UpdateView):
-    template_name = "people/volunteer.html"
+    template_name = "people/profile/volunteer.html"
     form_class = VolunteerForm
     success_url = reverse_lazy("volunteer")
 

@@ -83,7 +83,9 @@ unsubscribe_urls = [
     ),
     path(
         "supprimer/succes",
-        TemplateView.as_view(template_name="people/delete_account_success.html"),
+        TemplateView.as_view(
+            template_name="people/profile/delete_account_success.html"
+        ),
         name="delete_account_success",
     ),
 ]

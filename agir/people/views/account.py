@@ -91,7 +91,7 @@ class ConfirmChangeMailView(View):
 
 class DeleteEmailAddressView(HardLoginRequiredMixin, DeleteView):
     success_url = reverse_lazy("contact")
-    template_name = "people/confirm_email_deletion.html"
+    template_name = "people/profile/confirm_email_deletion.html"
     context_object_name = "email"
 
     def get_context_data(self, **kwargs):
@@ -137,7 +137,7 @@ class SendValidationSMSView(
     UpdateView,
 ):
     form_class = SendValidationSMSForm
-    template_name = "people/send_validation_sms.html"
+    template_name = "people/profile/send_validation_sms.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs)
@@ -170,7 +170,7 @@ class CodeValidationView(
     FormView,
 ):
     form_class = CodeValidationForm
-    template_name = "people/send_validation_sms.html"
+    template_name = "people/profile/send_validation_sms.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
