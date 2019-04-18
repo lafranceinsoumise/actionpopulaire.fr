@@ -3,15 +3,15 @@
 {% block title %}Supprimer l'adresse {{ email.address }}{% endblock %}
 
 {% block main %}
-    <h3 class="text-center">Supprimer l'adresse {{ email.address }}</h3>
-    <div class="row text-center">
-        <div class="col-sm-12 form-group">
-            Souhaitez-vous vraiment supprimer l'adresse {{ email.address }} ?
-        </div>
-        <form method="POST">
-            {% csrf_token %}
-            <a href="{{ success_url }}" class="btn btn-info">Retour</a>
-            <button type="submit" class="btn btn-danger">Supprimer l'adresse</button>
-        </form>
+  <h3 class="text-center">Supprimer l'adresse {{ email.address }}</h3>
+  <div class="row text-center">
+    <div class="col-sm-12 form-group">
+      Souhaitez-vous vraiment supprimer l'adresse {{ email.address }} ?
     </div>
+    <form method="POST">
+      {% csrf_token %}
+      <a href="{{ success_url }}" class="btn btn-info">Retour</a>
+      <button type="submit" class="btn btn-danger">Supprimer l'adresse</button>
+    </form>
+  </div>
 {% endblock %}

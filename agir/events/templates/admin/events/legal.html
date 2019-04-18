@@ -1,13 +1,13 @@
 <p>
-    {% for question, answer in questions.items %}
-        <b>{{ question }}</b>&nbsp;: {{ answer|yesno:"Oui,Non,Peut-être" }}{% if not forloop.last %}<br />{% endif %}
-    {% endfor %}
+  {% for question, answer in questions.items %}
+    <b>{{ question }}</b>&nbsp;: {{ answer|yesno:"Oui,Non,Peut-être" }}{% if not forloop.last %}<br/>{% endif %}
+  {% endfor %}
 </p>
 <p>
-    {% for section_title, section in form.items %}
-        <h3>{{ section_title }}</h3>
-        {% for label, value in section.items %}
-            <b>{{ label }}</b>: {{ value }}{% if not forloop.last %}<br />{% endif %}
-        {% endfor %}
+  {% for section_title, section in form.items %}
+    <h3>{{ section_title }}</h3>
+    {% for label, value in section.items %}
+      <b>{{ label }}</b>: {{ value }}{% if not forloop.last %}<br/>{% endif %}
     {% endfor %}
+  {% endfor %}
 </p>

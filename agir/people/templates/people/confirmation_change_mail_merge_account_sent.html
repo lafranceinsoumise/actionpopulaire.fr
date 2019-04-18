@@ -3,25 +3,26 @@
 {% block title %}Confirmation de l'adresse e-mail{% endblock %}
 
 {% block main %}
-    {% if is_merging %}
-        <h1 class="headline">Veuillez confirmer la fusion de compte</h1>
-    {% else %}
-        <h1 class="headline">Veuillez confirmer votre nouvelle adresse</h1>
-    {% endif %}
-    <div id="content">
-        <div class="text-content">
-            <p>
-                {% if is_merging %}
-                    Pour confirmer la fusion du compte associé à l'adresse <b>{{ email_from }}</b>
-                    et du compte associé à l'adresse <b>{{ email_to }}</b>>,
-                {% else %}
-                    Pour confirmer votre nouvelle adresse
-                {% endif %}
-                vérifiez votre boîte email <b>{{ email_to }}</b> et cliquez sur le bouton de validation.
-            </p>
-            <p>
-                Cette procédure est utilisée pour vérifier que vous êtes bien propriétaire de l'adresse email {{ email_to }} inscrite.
-            </p>
-        </div>
+  {% if is_merging %}
+    <h1 class="headline">Veuillez confirmer la fusion de compte</h1>
+  {% else %}
+    <h1 class="headline">Veuillez confirmer votre nouvelle adresse</h1>
+  {% endif %}
+  <div id="content">
+    <div class="text-content">
+      <p>
+        {% if is_merging %}
+          Pour confirmer la fusion du compte associé à l'adresse <b>{{ email_from }}</b>
+          et du compte associé à l'adresse <b>{{ email_to }}</b>>,
+        {% else %}
+          Pour confirmer votre nouvelle adresse
+        {% endif %}
+        vérifiez votre boîte email <b>{{ email_to }}</b> et cliquez sur le bouton de validation.
+      </p>
+      <p>
+        Cette procédure est utilisée pour vérifier que vous êtes bien propriétaire de l'adresse email {{ email_to }}
+        inscrite.
+      </p>
     </div>
+  </div>
 {% endblock %}

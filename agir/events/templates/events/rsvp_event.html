@@ -4,95 +4,98 @@
 {% block title %}S'inscrire pour «&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
 {% block additional_headers %}
-    <style>
-        fieldset legend {
-            font-family: Montserrat, sans-serif;
-            font-weight: 500;
-            line-height: 1.1;
-            color: #0098b6;
-            font-size: 28px;
-        }
+  <style>
+    fieldset legend {
+      font-family: Montserrat, sans-serif;
+      font-weight: 500;
+      line-height: 1.1;
+      color: #0098b6;
+      font-size: 28px;
+    }
 
-        fieldset {
-            margin-top: 2em;
-        }
-    </style>
+    fieldset {
+      margin-top: 2em;
+    }
+  </style>
 {% endblock %}
 
 {% block main %}
-    <div class="row"><div class="col-responsive">
-        <h2><a href="{%  url "view_event" event.pk %}">{{ event.name }}</a></h2>
-        <ol class="breadcrumb">
-          <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
-          <li>Inscription</li>
-        </ol>
-        {% if rsvp %}
-            <h3>{{ rsvp.get_status_display }}</h3>
-            {% if rsvp.payment %}
-                <ul>
-                    <li><strong>Prix</strong> : {{ rsvp.payment.get_price_display }}</li>
-                    <li><strong>Numéro de transaction</strong> : {{ rsvp.payment.pk }}</li>
-                    <li><strong>Mode de paiement</strong> : {{ rsvp.payment.get_mode_display }}
-                        {% if rsvp.payment.can_cancel %}
-                            <a href="{% url "rsvp_change_payment" rsvp.pk %}">Changer de mode de paiement</a>
-                        {% endif %}
-                    </li>
-                    <li>
-                        <strong>Status</strong> : {{ rsvp.payment.get_status_display }}
-                        {% if rsvp.payment.can_retry %}
-                            <a href="{% url "payment_retry" rsvp.payment.pk %}">Retenter le paiement</a>
-                        {% endif %}
-                    </li>
-                </ul>
-            {% endif %}
-            <p>
-                Voici les informations que vous avez donné :
-            </p>
+  <div class="row">
+    <div class="col-responsive">
+      <h2><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h2>
+      <ol class="breadcrumb">
+        <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
+        <li>Inscription</li>
+      </ol>
+      {% if rsvp %}
+        <h3>{{ rsvp.get_status_display }}</h3>
+        {% if rsvp.payment %}
+          <ul>
+            <li><strong>Prix</strong> : {{ rsvp.payment.get_price_display }}</li>
+            <li><strong>Numéro de transaction</strong> : {{ rsvp.payment.pk }}</li>
+            <li><strong>Mode de paiement</strong> : {{ rsvp.payment.get_mode_display }}
+              {% if rsvp.payment.can_cancel %}
+                <a href="{% url "rsvp_change_payment" rsvp.pk %}">Changer de mode de paiement</a>
+              {% endif %}
+            </li>
+            <li>
+              <strong>Status</strong> : {{ rsvp.payment.get_status_display }}
+              {% if rsvp.payment.can_retry %}
+                <a href="{% url "payment_retry" rsvp.payment.pk %}">Retenter le paiement</a>
+              {% endif %}
+            </li>
+          </ul>
+        {% endif %}
+        <p>
+          Voici les informations que vous avez donné :
+        </p>
 
+        {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
+        {% if person_form_instance.editable %}
+          <a class="btn btn-default"
+             href="{% url 'edit_person_form_submission' person_form_instance.slug submission.pk %}">
+            Modifier ces informations</a>
+        {% endif %}
+
+        {% if guests_submission_data %}
+          <p>Vous avez inscrit d'autre personnes :</p>
+          {% for status, submission_data in guests_submission_data %}
+            <h4>Invité {{ forloop.counter }}</h4>
             {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
-            {% if person_form_instance.editable %}
-                <a class="btn btn-default" href="{% url 'edit_person_form_submission' person_form_instance.slug submission.pk %}">
-                   Modifier ces informations</a>
-            {% endif %}
-
-            {% if guests_submission_data %}
-                <p>Vous avez inscrit d'autre personnes :</p>
-                {% for status, submission_data in guests_submission_data %}
-                    <h4>Invité {{ forloop.counter }}</h4>
-                    {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
-                {% endfor %}
-            {% endif %}
-            {% if form %}
-                <h3>Inscrire un⋅e autre participant⋅e</h3>
-                <div class="alert alert-info">
-                <p>
-                    Vous pouvez inscrire un⋅e participant⋅e supplémentaire avec votre compte. Cela est utile si cette
-                    personne ne dispose pas d'adresse email ou de compte sur lafranceinsoumise.fr. Il sera de votre
-                    responsabilité de transmettre les éventuelles informations ou billets d'entrée qui vous seront envoyés
-                    avant l'événement.
-                </p>
-                <p>
-                    Si la personne dispose d'une adresse email, préférez plutôt une inscription via son propre compte.
-                    <a href="{% url 'disconnect' %}">Cliquez ici pour vous connecter avec un autre compte</a>.
-                </p>
-                </div>
-            {% endif %}
+          {% endfor %}
         {% endif %}
         {% if form %}
-                <div class="intro">
-                    {{ person_form_instance.html_description }}
-                </div>
-                {% crispy form %}
-        {% else %}
-            {% if not is_authorized %}
-                <div class="intro">
-                    {{ person_form_instance.html_unauthorized_message }}
-                </div>
-            {% elif not person_form_instance.is_open %}
-                <div class="intro">
-                    {{ person_form_instance.html_closed_message }}
-                </div>
-            {% endif %}
+          <h3>Inscrire un⋅e autre participant⋅e</h3>
+          <div class="alert alert-info">
+            <p>
+              Vous pouvez inscrire un⋅e participant⋅e supplémentaire avec votre compte. Cela est utile si cette
+              personne ne dispose pas d'adresse email ou de compte sur lafranceinsoumise.fr. Il sera de votre
+              responsabilité de transmettre les éventuelles informations ou billets d'entrée qui vous seront envoyés
+              avant l'événement.
+            </p>
+            <p>
+              Si la personne dispose d'une adresse email, préférez plutôt une inscription via son propre compte.
+              <a href="{% url 'disconnect' %}">Cliquez ici pour vous connecter avec un autre compte</a>.
+            </p>
+          </div>
         {% endif %}
-    </div></div>
+      {% endif %}
+      {% if form %}
+        <div class="intro">
+          {{ person_form_instance.html_description }}
+        </div>
+        {% crispy form %}
+      {% else %}
+        {% if not is_authorized %}
+          <div class="intro">
+            {{ person_form_instance.html_unauthorized_message }}
+          </div>
+        {% elif not person_form_instance.is_open %}
+          <div class="intro">
+            {{ person_form_instance.html_closed_message }}
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
 {% endblock %}

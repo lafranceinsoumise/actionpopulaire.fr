@@ -2,16 +2,16 @@
 {% load static %}
 
 {% block title %}
-    Votre paiement a bien été effectué !
+  Votre paiement a bien été effectué !
 {% endblock %}
 
 {% block main %}
-    <div class="col-responsive">
-        <h1>Paiement validé</h1>
+  <div class="col-responsive">
+    <h1>Paiement validé</h1>
 
-        <div>
-            <p>Votre paiement a bien été reçu, merci&nbsp;!</p>
-            <a class="btn btn-primary" href="{% url 'homepage' %}">Retourner à la page d'accueil</a>
-        </div>
+    <div>
+      <p>Votre paiement a bien été reçu, merci&nbsp;!</p>
+      <a class="btn btn-primary" href="{% url 'homepage' %}">Retourner à la page d'accueil</a>
     </div>
+  </div>
 {% endblock %}

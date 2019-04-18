@@ -5,18 +5,18 @@
 {% block title %}Rejoindre la France insoumise{% endblock %}
 
 {% block main %}
-    <div class="row">
-        <div class="col-xs-12 col-md-6 col-md-push-3">
-            <h3 class="text-center">Je rejoins la France insoumise</h3>
-            <p>
-                En remplissant ce formulaire, j'accepte que la France Insoumise utilise ces données pour m'envoyer
-                des informations.
-            </p>
-            <div class="row">
-                    <div class="col-sm-12 form-group">
-                        {% crispy form %}
-                    </div>
-            </div>
+  <div class="row">
+    <div class="col-xs-12 col-md-6 col-md-push-3">
+      <h3 class="text-center">Je rejoins la France insoumise</h3>
+      <p>
+        En remplissant ce formulaire, j'accepte que la France Insoumise utilise ces données pour m'envoyer
+        des informations.
+      </p>
+      <div class="row">
+        <div class="col-sm-12 form-group">
+          {% crispy form %}
         </div>
+      </div>
     </div>
+  </div>
 {% endblock %}

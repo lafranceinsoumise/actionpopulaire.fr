@@ -4,56 +4,56 @@
 {% block title %}S'inscrire pour «&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
 {% block additional_headers %}
-    <style>
-        fieldset legend {
-            font-family: Montserrat, sans-serif;
-            font-weight: 500;
-            line-height: 1.1;
-            color: #0098b6;
-            font-size: 28px;
-        }
+  <style>
+    fieldset legend {
+      font-family: Montserrat, sans-serif;
+      font-weight: 500;
+      line-height: 1.1;
+      color: #0098b6;
+      font-size: 28px;
+    }
 
-        fieldset {
-            margin-top: 2em;
-        }
-    </style>
+    fieldset {
+      margin-top: 2em;
+    }
+  </style>
 {% endblock %}
 
 {% block main %}
-    <div class="col-responsive">
-        <h2><a href="{%  url "view_event" event.pk %}">{{ event.name }}</a></h2>
-        <ol class="breadcrumb">
-          <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
-          <li><a href="{% url "rsvp_event" event.pk %}">Inscription à l'événement</a></li>
-          <li>Paiement</li>
-        </ol>
-        {% if event.subscription_form is not None %}
-            <h2 class="headline">Récapitulatif et paiement</h2>
-            <div>
+  <div class="col-responsive">
+    <h2><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h2>
+    <ol class="breadcrumb">
+      <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
+      <li><a href="{% url "rsvp_event" event.pk %}">Inscription à l'événement</a></li>
+      <li>Paiement</li>
+    </ol>
+    {% if event.subscription_form is not None %}
+      <h2 class="headline">Récapitulatif et paiement</h2>
+      <div>
 
-                <h3>Les informations que vous avez entré&nbsp;:</h3>
-                {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
-                <b>Total&nbsp;:</b> {{ price|floatformat:2 }} €
-                <h3 class="headline">Informations de facturation</h3>
-                <div class="alert alert-warning">
-                <p>
-                    Attention, même si vous inscrivez une autre personne, vous devez entrer les informations de la personne
-                    qui détient le compte lafranceinsoumise.fr associé à l'adresse {{ user.person.email }} et qui
-                    effectue le paiement.
-                </p>
-                </div>
-            </div>
-        {% else %}
-            <h2 class="headline">Informations de facturation</h2>
-            <div class="alert alert-warning">
-            <p>
-                Attention, même si vous inscrivez une autre personne, vous devez entrer les informations de la personne
-                qui détient le compte lafranceinsoumise.fr associé à l'adresse {{ user.person.email }} et qui
-                effectue le paiement.
-            </p>
-            </div>
-        {% endif %}
+        <h3>Les informations que vous avez entré&nbsp;:</h3>
+        {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
+        <b>Total&nbsp;:</b> {{ price|floatformat:2 }} €
+        <h3 class="headline">Informations de facturation</h3>
+        <div class="alert alert-warning">
+          <p>
+            Attention, même si vous inscrivez une autre personne, vous devez entrer les informations de la personne
+            qui détient le compte lafranceinsoumise.fr associé à l'adresse {{ user.person.email }} et qui
+            effectue le paiement.
+          </p>
+        </div>
+      </div>
+    {% else %}
+      <h2 class="headline">Informations de facturation</h2>
+      <div class="alert alert-warning">
+        <p>
+          Attention, même si vous inscrivez une autre personne, vous devez entrer les informations de la personne
+          qui détient le compte lafranceinsoumise.fr associé à l'adresse {{ user.person.email }} et qui
+          effectue le paiement.
+        </p>
+      </div>
+    {% endif %}
 
-        {% crispy form %}
-    </div>
+    {% crispy form %}
+  </div>
 {% endblock %}

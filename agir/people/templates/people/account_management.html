@@ -6,26 +6,26 @@
 {% block title %}{% trans "Mes adresses emails" %}{% endblock %}
 
 {% block main %}
-    <div class="row">
-        {% block navbar %} {% include "people/profile_nav.html" with tab_code="CONTACT"%} {% endblock %}
-        <div class="col-xs-12 col-md-10">
+  <div class="row">
+    {% block navbar %} {% include "people/profile_nav.html" with tab_code="CONTACT" %} {% endblock %}
+    <div class="col-xs-12 col-md-10">
 
-            <p>Ce champ vous permet d'ajouter une adresse e-mail à votre compte.</p>
+      <p>Ce champ vous permet d'ajouter une adresse e-mail à votre compte.</p>
 
-            <ul>
-                <li>
-                    Après confirmation, il sera possible d'utiliser cette adresse pour se connecter à votre compte.
-                </li>
-                <li>
-                    Si l'adresse e-mail correspond à un autre compte sur la plate-forme, une demande de fusion de compte
-                    sera envoyée.
-                </li>
-            </ul>
-            <p>Dans les deux cas un e-mail sera envoyé à cette adresse afin de vérifier que vous en êtes bien le
-                propriétaire.</p>
-            <div>
-                {% crispy form %}
-            </div>
-        </div>
+      <ul>
+        <li>
+          Après confirmation, il sera possible d'utiliser cette adresse pour se connecter à votre compte.
+        </li>
+        <li>
+          Si l'adresse e-mail correspond à un autre compte sur la plate-forme, une demande de fusion de compte
+          sera envoyée.
+        </li>
+      </ul>
+      <p>Dans les deux cas un e-mail sera envoyé à cette adresse afin de vérifier que vous en êtes bien le
+        propriétaire.</p>
+      <div>
+        {% crispy form %}
+      </div>
     </div>
+  </div>
 {% endblock %}

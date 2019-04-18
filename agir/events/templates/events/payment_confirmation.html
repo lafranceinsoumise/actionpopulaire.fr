@@ -3,17 +3,17 @@
 {% block title %}Inscription pour «&nbsp;{{ event.name }}&nbsp;» confirmée{% endblock %}
 
 {% block main %}
-    <div class="col-responsive">
-        <h2><a href="{%  url "view_event" event.pk %}">{{ event.name }}</a></h2>
-        <ol class="breadcrumb">
-          <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
-          <li>Confirmation d'inscription</li>
-        </ol>
-        <p>
-            {{ payment.first_name }} {{ payment.last_name }}, votre paiement de {{ payment.get_price_display }} pour
-            l'événement «&nbsp;{{ event.name }}&nbsp;» a bien été reçu. Votre inscription est confirmée.
-        </p>
-        <a href="{% url 'homepage' %}">Retour à la page d'accueil</a>
-    </div>
+  <div class="col-responsive">
+    <h2><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h2>
+    <ol class="breadcrumb">
+      <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
+      <li>Confirmation d'inscription</li>
+    </ol>
+    <p>
+      {{ payment.first_name }} {{ payment.last_name }}, votre paiement de {{ payment.get_price_display }} pour
+      l'événement «&nbsp;{{ event.name }}&nbsp;» a bien été reçu. Votre inscription est confirmée.
+    </p>
+    <a href="{% url 'homepage' %}">Retour à la page d'accueil</a>
+  </div>
 
 {% endblock %}

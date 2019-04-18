@@ -7,21 +7,21 @@
 
 {% block main %}
 
-    <div class="row">
-        {% block navbar %} {% include "people/profile_nav.html" with tab_code="CONTACT"%} {% endblock %}
-        <div class="col-xs-12 col-md-10">
-            <h2 class="headline">Valider mon numéro de téléphone</h2>
-            <div>
-                <div class="intro">
-                    <p> Nous vous demandons votre numéro de téléphone mobile afin de valider que vous êtes une vraie
-                        personne. Si vous êtes abonné⋅e à la lettre d'information, vous pourrez aussi recevoir des
-                        SMS
-                        vous informant d'événements importants.</p>
-                </div>
-                <div class="form-wrap">
-                    {% crispy form %}
-                </div>
-            </div>
+  <div class="row">
+    {% block navbar %} {% include "people/profile_nav.html" with tab_code="CONTACT" %} {% endblock %}
+    <div class="col-xs-12 col-md-10">
+      <h2 class="headline">Valider mon numéro de téléphone</h2>
+      <div>
+        <div class="intro">
+          <p> Nous vous demandons votre numéro de téléphone mobile afin de valider que vous êtes une vraie
+            personne. Si vous êtes abonné⋅e à la lettre d'information, vous pourrez aussi recevoir des
+            SMS
+            vous informant d'événements importants.</p>
         </div>
+        <div class="form-wrap">
+          {% crispy form %}
+        </div>
+      </div>
     </div>
+  </div>
 {% endblock %}

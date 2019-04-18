@@ -5,15 +5,15 @@
 {% block title %}Modifier «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
 
 {% block main %}
-    <h2><a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a></h2>
-    <ol class="breadcrumb">
-      <li><a href="{% url "view_group" supportgroup.pk %}">Page publique du groupe</a></li>
-      <li><a href="{% url "manage_group" supportgroup.pk %}">Gestion du groupe</a></li>
-      <li>Modification des informations</li>
-    </ol>
-    <div class="row">
-        <div class="col-sm-12 form-group">
-            {% crispy form %}
-        </div>
+  <h2><a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a></h2>
+  <ol class="breadcrumb">
+    <li><a href="{% url "view_group" supportgroup.pk %}">Page publique du groupe</a></li>
+    <li><a href="{% url "manage_group" supportgroup.pk %}">Gestion du groupe</a></li>
+    <li>Modification des informations</li>
+  </ol>
+  <div class="row">
+    <div class="col-sm-12 form-group">
+      {% crispy form %}
     </div>
+  </div>
 {% endblock %}

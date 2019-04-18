@@ -2,16 +2,16 @@
 {% load static %}
 
 {% block title %}
-    Erreur de paiement !
+  Erreur de paiement !
 {% endblock %}
 
 {% block main %}
-    <div class="col-responsive">
-        <h1>Erreur de paiement</h1>
+  <div class="col-responsive">
+    <h1>Erreur de paiement</h1>
 
-        <div>
-            <p>Le paiement a été refusé, annulé ou a rencontré une erreur. Votre compte ne sera pas débité.</p>
-            <a class="btn btn-primary" href="{% url 'homepage' %}">Retourner à la page d'accueil</a>
-        </div>
+    <div>
+      <p>Le paiement a été refusé, annulé ou a rencontré une erreur. Votre compte ne sera pas débité.</p>
+      <a class="btn btn-primary" href="{% url 'homepage' %}">Retourner à la page d'accueil</a>
     </div>
+  </div>
 {% endblock %}

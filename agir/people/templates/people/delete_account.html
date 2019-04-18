@@ -2,28 +2,29 @@
 
 {% block main %}
 
-    <div class="row">
-        {% block navbar %} {% include "people/profile_nav.html" with tab_code="PERSONAL_DATA" %} {% endblock %}
-        <div class="col-xs-12 col-md-10">
-            <form action="" method="post">{% csrf_token %}
-                <div class="alert alert-danger">
-                    <p>Voulez-vous vraiment effacer le compte {{ object.email }} ?</p>
+  <div class="row">
+    {% block navbar %} {% include "people/profile_nav.html" with tab_code="PERSONAL_DATA" %} {% endblock %}
+    <div class="col-xs-12 col-md-10">
+      <form action="" method="post">{% csrf_token %}
+        <div class="alert alert-danger">
+          <p>Voulez-vous vraiment effacer le compte {{ object.email }} ?</p>
 
-                    <p>Toute votre activité sur la plateforme de la France insoumise sera perdue. Vos participations aux événements
-                        et aux groupes d'action seront définitivement effacée.</p>
+          <p>Toute votre activité sur la plateforme de la France insoumise sera perdue. Vos participations aux
+            événements
+            et aux groupes d'action seront définitivement effacée.</p>
 
-                    <p>Les groupes et événements publics dont vous êtes gestionnaire ne seront pas supprimés mais vous perdrez
-                        toutes les autorisations dont vous disposez dessus.</p>
+          <p>Les groupes et événements publics dont vous êtes gestionnaire ne seront pas supprimés mais vous perdrez
+            toutes les autorisations dont vous disposez dessus.</p>
 
-                    <p><strong>Cette action est irréversible.</strong></p>
-                </div>
-                <div class="control-group marginbottom">
-                    <label><input type="checkbox" required> J'ai bien compris que cette action est irréversible et je veux effacer
-                        mon compte {{ object.email }}.</label>
-                </div>
-                <input type="submit" class="btn btn-danger btn-lg" value="Effacer mon compte" />
-{#                <a class="btn btn-default btn-lg" href="{% url 'message_preferences' %}">Retour à mes préférences</a>#}
-            </form>
+          <p><strong>Cette action est irréversible.</strong></p>
         </div>
+        <div class="control-group marginbottom">
+          <label><input type="checkbox" required> J'ai bien compris que cette action est irréversible et je veux effacer
+            mon compte {{ object.email }}.</label>
+        </div>
+        <input type="submit" class="btn btn-danger btn-lg" value="Effacer mon compte"/>
+        {#                <a class="btn btn-default btn-lg" href="{% url 'message_preferences' %}">Retour à mes préférences</a>#}
+      </form>
     </div>
+  </div>
 {% endblock %}

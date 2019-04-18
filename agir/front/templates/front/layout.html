@@ -3,56 +3,60 @@
 <!doctype html>
 <html lang="fr-FR" prefix="og: http://ogp.me/ns#">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Plateforme d'action{% endblock %} - La France insoumise</title>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Plateforme d'action{% endblock %} - La France insoumise</title>
 
-    {% block opengraph %}
-        {% if show_opengraph %}
-            <meta name="title" content="{{ meta_title }}"/>
-            <meta name="description" content="{{ meta_description }}">
-            <link rel="canonical" href="https://agir.lafranceinsoumise.fr{{ request.path }}"/>
-            <meta property="og:locale" content="fr_FR"/>
-            <meta property="og:type" content="{{ meta_type }}"/>
-            <meta property="og:title" content="{{ meta_title }}"/>
-            <meta property="og:description"
-                  content="{{ meta_description }}"/>
-            <meta property="og:url" content="https://agir.lafranceinsoumise.fr{{ request.path }}"/>
-            <meta property="og:site_name" content="La France Insoumise - Agir"/>
-            {% if meta_image %}
-                <meta property="og:image" content="{{ meta_image }}">
-                <meta property="og:image:secure_url" content="{{ meta_image }}">
-                <meta name="twitter:image"
-                  content="{{ meta_image }}"/>
-            {% else %}
-                <meta property="og:image"
-                      content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
-                <meta property="og:image:secure_url"
-                      content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
-                <meta name="twitter:image"
-                      content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
-            {% endif %}
-            <meta name="twitter:card" content="summary_large_image"/>
-            <meta name="twitter:description"
-                  content="{{ meta_description }}"/>
-            <meta name="twitter:title" content="{{ meta_title }}"/>
-            <meta name="twitter:site" content="@FranceInsoumise"/>
-            <meta name="twitter:creator" content="@FranceInsoumise"/>
-        {% endif %}
-    {% endblock %}
-    {% render_bundle 'theme' 'css' attrs='data-turbolinks-track="reload"'%}
-    <style>.help-dialog{display:none;}</style>
-    <link rel="icon" href="{% static "front/images/cropped-cropped-phi-32x32.png" %}" sizes="32x32"/>
-    <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>
-    <link rel="apple-touch-icon-precomposed" href="{% static "front/images/cropped-cropped-phi-180x180.png" %}"/>
-    <meta name="msapplication-TileImage" content="{% static "front/images/cropped-cropped-phi-270x270.png" %}"/>
-    {% block additional_headers %}{% endblock %}
+  {% block opengraph %}
+    {% if show_opengraph %}
+      <meta name="title" content="{{ meta_title }}"/>
+      <meta name="description" content="{{ meta_description }}">
+      <link rel="canonical" href="https://agir.lafranceinsoumise.fr{{ request.path }}"/>
+      <meta property="og:locale" content="fr_FR"/>
+      <meta property="og:type" content="{{ meta_type }}"/>
+      <meta property="og:title" content="{{ meta_title }}"/>
+      <meta property="og:description"
+            content="{{ meta_description }}"/>
+      <meta property="og:url" content="https://agir.lafranceinsoumise.fr{{ request.path }}"/>
+      <meta property="og:site_name" content="La France Insoumise - Agir"/>
+      {% if meta_image %}
+        <meta property="og:image" content="{{ meta_image }}">
+        <meta property="og:image:secure_url" content="{{ meta_image }}">
+        <meta name="twitter:image"
+              content="{{ meta_image }}"/>
+      {% else %}
+        <meta property="og:image"
+              content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
+        <meta property="og:image:secure_url"
+              content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
+        <meta name="twitter:image"
+              content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
+      {% endif %}
+      <meta name="twitter:card" content="summary_large_image"/>
+      <meta name="twitter:description"
+            content="{{ meta_description }}"/>
+      <meta name="twitter:title" content="{{ meta_title }}"/>
+      <meta name="twitter:site" content="@FranceInsoumise"/>
+      <meta name="twitter:creator" content="@FranceInsoumise"/>
+    {% endif %}
+  {% endblock %}
+  {% render_bundle 'theme' 'css' attrs='data-turbolinks-track="reload"' %}
+  <style>.help-dialog {
+    display: none;
+  }</style>
+  <link rel="icon" href="{% static "front/images/cropped-cropped-phi-32x32.png" %}" sizes="32x32"/>
+  <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>
+  <link rel="apple-touch-icon-precomposed" href="{% static "front/images/cropped-cropped-phi-180x180.png" %}"/>
+  <meta name="msapplication-TileImage" content="{% static "front/images/cropped-cropped-phi-270x270.png" %}"/>
+  {% block additional_headers %}{% endblock %}
 
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    {% render_bundle 'front/allPages' attrs='defer data-turbolinks-track="reload"' %}
-    {% block extra_scripts %}{% endblock %}
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+          integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+          crossorigin="anonymous"></script>
+  {% render_bundle 'front/allPages' attrs='defer data-turbolinks-track="reload"' %}
+  {% block extra_scripts %}{% endblock %}
 
 </head>
 <body class="home archive">
@@ -61,126 +65,138 @@
         Vous utilisez une version obsolète de votre navigateur. Veuillez le  <a href="http://browsehappy.com/">mettre à jour</a> pour visionner votre site correctement.      </div>
     <![endif]-->
 <header class="banner">
-    <nav class="nav-primary navbar navbar-default navbar-static-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                        data-target="#main-navbar-collapse" aria-expanded="false">
-                    Menu <span class="caret"></span>
-                </button>
-                <a href="https://lafranceinsoumise.fr" class="custom-logo-link" rel="home" itemprop="url"><img
-                        src="{% static "front/images/170428_logoRectangle_transparent.png" %}"
-                        class="custom-logo" alt="La France insoumise" itemprop="logo"
-                        srcset="{% static "front/images/170428_logoRectangle_transparent.png" %} 1038w, {% static "front/images/170428_logoRectangle_transparent-300x145.png" %} 300w, {% static "170428_logoRectangle_transparent-768x370.png" %} 768w, {% static "front/images/170428_logoRectangle_transparent-1024x493.png" %} 1024w"
-                        sizes="(max-width: 1038px) 100vw, 1038px"/></a></div>
-            <div class="collapse navbar-collapse" id="main-navbar-collapse">
-                <div id="menu-export"></div>
-                <script>
-                    (function () {
-                        /** SETTINGS **/
-                        var themeLocation = 'primary_navigation';
-                        var addBootstrapCSS = true;
-                        var menu_class = 'nav%20navbar-nav%20navbar-right';
-                        var container = '';
+  <nav class="nav-primary navbar navbar-default navbar-static-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                data-target="#main-navbar-collapse" aria-expanded="false">
+          Menu <span class="caret"></span>
+        </button>
+        <a href="https://lafranceinsoumise.fr" class="custom-logo-link" rel="home" itemprop="url"><img
+          src="{% static "front/images/170428_logoRectangle_transparent.png" %}"
+          class="custom-logo" alt="La France insoumise" itemprop="logo"
+          srcset="{% static "front/images/170428_logoRectangle_transparent.png" %} 1038w, {% static "front/images/170428_logoRectangle_transparent-300x145.png" %} 300w, {% static "170428_logoRectangle_transparent-768x370.png" %} 768w, {% static "front/images/170428_logoRectangle_transparent-1024x493.png" %} 1024w"
+          sizes="(max-width: 1038px) 100vw, 1038px"/></a></div>
+      <div class="collapse navbar-collapse" id="main-navbar-collapse">
+        <div id="menu-export"></div>
+        <script>
+          (function () {
+            /** SETTINGS **/
+            var themeLocation = 'primary_navigation';
+            var addBootstrapCSS = true;
+            var menu_class = 'nav%20navbar-nav%20navbar-right';
+            var container = '';
 
-                        var r = new XMLHttpRequest();
-                        r.open('GET', 'https://lafranceinsoumise.fr/?menu_export=1&theme_location=' + themeLocation +
-                            '&menu_class=' + menu_class + '&container=' + container +
-                            (addBootstrapCSS ? '&bootstrap=1' : ''), true);
-                        r.onreadystatechange = function () {
-                            if (r.readyState != 4 || r.status != 200) return;
-                            document.getElementById('menu-export').innerHTML = r.responseText;
-                        };
-                        r.send();
-                    })();
-                </script>
-            </div>
+            var r = new XMLHttpRequest();
+            r.open('GET', 'https://lafranceinsoumise.fr/?menu_export=1&theme_location=' + themeLocation +
+              '&menu_class=' + menu_class + '&container=' + container +
+              (addBootstrapCSS ? '&bootstrap=1' : ''), true);
+            r.onreadystatechange = function () {
+              if (r.readyState != 4 || r.status != 200) return;
+              document.getElementById('menu-export').innerHTML = r.responseText;
+            };
+            r.send();
+          })();
+        </script>
+      </div>
+    </div>
+  </nav>
+  <nav class="navbar navbar-secondary">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                data-target="#supporter-nav-collapse">
+          <span class="sr-only">Activer la navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <div id="supporter-nav-collapse" class="collapse navbar-collapse">
+        <div class="menu-menu-principal-container">
+          {% if user.is_authenticated %}
+            <ul id="menu-menu-principal" class="nav navbar-nav">
+              <li class="menu-item"><a title="Tableau de bord" href="{% url 'dashboard' %}">Tableau de bord</a></li>
+              {% if user.person.is_insoumise %}
+                {% if user.person.contact_phone_status == 'U' %}
+                  <li class="menu-item"><a title="Vérifier mon compte" href="{% url 'send_validation_sms' %}">Vérifier
+                    mon compte</a></li>
+                {% endif %}
+                <li class="menu-item"><a title="Profil" href="{% url "personal_information" %}">Profil</a></li>
+                <li class="menu-item"><a title="Fiches pratiques" href="https://lafranceinsoumise.fr/fiches_pour_agir/">Fiches
+                  pratiques</a></li>
+              {% else %}
+                <li class="menu-item"><a title="profil" href="{% url "become_insoumise" %}">Profil</a></li>
+              {% endif %}
+            </ul>
+          {% endif %}
+          <ul id="menu-menu-connexion" class="nav navbar-nav navbar-right">
+            {% if user.is_authenticated %}
+              <li class="menu-item dropdown">
+                <a href="#" data-toggle="dropdown" class="dropdown-toggle">
+                  {{ user.person.email }}
+                  {% if user.person.contact_phone_status == user.person.CONTACT_PHONE_VERIFIED %}
+                    <i class="fa fa-check" title="Utilisateur vérifié !"></i>
+                  {% endif %}
+                  <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  {% if user.person.contact_phone_status == 'U' %}
+                    <li class="menu-item"><a title="Vérifier mon compte" href="{% url 'send_validation_sms' %}">Vérifier
+                      mon compte</a></li>
+                  {% endif %}
+                  <li class="menu-item"><a title="Préférences" href="{% url "contact" %}">Préférences</a></li>
+                  <li class="menu-item"><a title="Déconnexion"
+                                           href="{% url "disconnect" %}">Déconnexion</a></li>
+                </ul>
+              </li>
+            {% else %}
+              <li class="menu-item"><a title="Connexion"
+                                       href="{% url "short_code_login" %}?next={{ request.get_full_path }}">Connexion</a>
+              </li>
+            {% endif %}
+            <li class="menu-item dropdown">
+              <a href="#" data-toggle="dropdown" class="dropdown-toggle"><i class="fa fa-question-circle-o"></i> Aide
+                <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li class="menu-item"><a title="Questions courantes"
+                                         href="https://lafranceinsoumise.fr/formulaire-de-contact/">Questions
+                  courantes</a></li>
+                <li class="menu-item"><a class="help-button" style="display:none;" href="#">Visite guidée de la page</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
         </div>
-    </nav>
-    <nav class="navbar navbar-secondary">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                        data-target="#supporter-nav-collapse">
-                    <span class="sr-only">Activer la navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-            </div>
-            <div id="supporter-nav-collapse" class="collapse navbar-collapse">
-                <div class="menu-menu-principal-container">
-                    {% if user.is_authenticated %}
-                        <ul id="menu-menu-principal" class="nav navbar-nav">
-                            <li class="menu-item"><a title="Tableau de bord" href="{% url 'dashboard' %}">Tableau de bord</a></li>
-                            {% if user.person.is_insoumise %}
-                                {% if user.person.contact_phone_status == 'U' %}
-                                    <li class="menu-item"><a title="Vérifier mon compte" href="{% url 'send_validation_sms' %}">Vérifier mon compte</a></li>
-                                {% endif %}
-                                <li class="menu-item"><a title="Profil" href="{% url "personal_information" %}">Profil</a></li>
-                                <li class="menu-item"><a title="Fiches pratiques" href="https://lafranceinsoumise.fr/fiches_pour_agir/">Fiches pratiques</a></li>
-                            {% else %}
-                                <li class="menu-item"><a title="profil" href="{% url "become_insoumise" %}">Profil</a></li>
-                            {% endif %}
-                        </ul>
-                    {% endif %}
-                    <ul id="menu-menu-connexion" class="nav navbar-nav navbar-right">
-                        {% if user.is_authenticated %}
-                            <li class="menu-item dropdown">
-                                <a href="#" data-toggle="dropdown" class="dropdown-toggle">
-                                    {{ user.person.email }}
-                                    {% if user.person.contact_phone_status == user.person.CONTACT_PHONE_VERIFIED %}
-                                        <i class="fa fa-check" title="Utilisateur vérifié !"></i>
-                                    {% endif %}
-                                    <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    {% if user.person.contact_phone_status == 'U' %}
-                                        <li class="menu-item"><a title="Vérifier mon compte" href="{% url 'send_validation_sms' %}">Vérifier mon compte</a></li>
-                                    {% endif %}
-                                    <li class="menu-item"><a title="Préférences" href="{% url "contact" %}">Préférences</a></li>
-                                    <li class="menu-item"><a title="Déconnexion"
-                                                     href="{% url "disconnect" %}">Déconnexion</a></li>
-                                </ul>
-                            </li>
-                        {% else %}
-                            <li class="menu-item"><a title="Connexion"
-                                                     href="{% url "short_code_login" %}?next={{ request.get_full_path }}">Connexion</a></li>
-                        {% endif %}
-                        <li class="menu-item dropdown">
-                          <a href="#" data-toggle="dropdown" class="dropdown-toggle"><i class="fa fa-question-circle-o"></i> Aide <span class="caret"></span></a>
-                          <ul class="dropdown-menu">
-                            <li class="menu-item"><a title="Questions courantes" href="https://lafranceinsoumise.fr/formulaire-de-contact/">Questions courantes</a></li>
-                            <li class="menu-item"><a class="help-button" style="display:none;" href="#">Visite guidée de la page</a></li>
-                          </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
+      </div>
+    </div>
+  </nav>
 </header>
 {% block full_width %}
-    <div class="wrap container" role="document">
-        <main class="main">
-            {% if messages %}
-                <div style="margin-top: 1em;">
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            {% block main %}
-            {% endblock %}
-        </main>
-    </div>
+  <div class="wrap container" role="document">
+    <main class="main">
+      {% if messages %}
+        <div style="margin-top: 1em;">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% block main %}
+      {% endblock %}
+    </main>
+  </div>
 {% endblock %}
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-96787636-5"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+
   gtag('js', new Date());
 
   gtag('config', 'UA-96787636-5');
@@ -194,12 +210,16 @@
   _paq.push(["setDomains", ["*.lafranceinsoumise.fr"]]);
   _paq.push(['trackPageView']);
   _paq.push(['enableLinkTracking']);
-  (function() {
-    var u="//matomo.lafranceinsoumise.fr/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
+  (function () {
+    var u = "//matomo.lafranceinsoumise.fr/";
+    _paq.push(['setTrackerUrl', u + 'piwik.php']);
     _paq.push(['setSiteId', '1']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+    var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+    g.type = 'text/javascript';
+    g.async = true;
+    g.defer = true;
+    g.src = u + 'piwik.js';
+    s.parentNode.insertBefore(g, s);
   })();
 </script>
 <!-- End Matomo Code -->

@@ -5,32 +5,32 @@
 {% block title %}Modifier la localisation de mon groupe{% endblock %}
 
 {% block main %}
-    <h2><a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a></h2>
-    <ol class="breadcrumb">
-      <li><a href="{% url "view_group" supportgroup.pk %}">Page publique du groupe</a></li>
-      <li><a href="{% url "manage_group" supportgroup.pk %}">Gestion du groupe</a></li>
-      <li>Modification de la localisation</li>
-    </ol>
+  <h2><a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a></h2>
+  <ol class="breadcrumb">
+    <li><a href="{% url "view_group" supportgroup.pk %}">Page publique du groupe</a></li>
+    <li><a href="{% url "manage_group" supportgroup.pk %}">Gestion du groupe</a></li>
+    <li>Modification de la localisation</li>
+  </ol>
 
-    <p>
-        Si votre groupe n'apparaît au bon endroit sur la carte, vous pouvez utiliser ci-dessous la petite carte pour
-        le localiser correctement. Cliquez-déplacez le point existant, ou cliquez sur le lien « Supprimer toutes les
-        localisations » puis directement sur la carte.
-    </p>
+  <p>
+    Si votre groupe n'apparaît au bon endroit sur la carte, vous pouvez utiliser ci-dessous la petite carte pour
+    le localiser correctement. Cliquez-déplacez le point existant, ou cliquez sur le lien « Supprimer toutes les
+    localisations » puis directement sur la carte.
+  </p>
 
-    <p>
-        Si vous souhaitez revenir à une localisation automatique de votre groupe d'action à partir de son adresse,
-        cochez la case correspondante et sauvegardez le formulaire.
-    </p>
+  <p>
+    Si vous souhaitez revenir à une localisation automatique de votre groupe d'action à partir de son adresse,
+    cochez la case correspondante et sauvegardez le formulaire.
+  </p>
 
-    <p>
-        <strong>Après sauvegarde de ce formulaire, les modifications peuvent mettre jusqu'à 5 minutes pour apparaître
-        sur la carte.</strong>
-    </p>
+  <p>
+    <strong>Après sauvegarde de ce formulaire, les modifications peuvent mettre jusqu'à 5 minutes pour apparaître
+      sur la carte.</strong>
+  </p>
 
-    <div class="row">
-        <div class="col-sm-12 form-group">
-            {% crispy form %}
-        </div>
+  <div class="row">
+    <div class="col-sm-12 form-group">
+      {% crispy form %}
     </div>
+  </div>
 {% endblock %}

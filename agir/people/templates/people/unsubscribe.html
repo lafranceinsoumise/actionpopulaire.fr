@@ -6,27 +6,27 @@
 {% block title %}{% trans "Me désinscrire des emails de la France insoumise" %}{% endblock %}
 
 {% block main %}
-    <div class="row">
-        <div class="col-responsive">
-            <h2 class="headline">Désabonnement</h2>
-            <div>
-                {% if email %}
-                    <div class="intro">
-                        Pour confirmer votre désinscription de nos lettres d'information avec l'adresse
-                        <strong>{{ email }}</strong>, cliquez sur le bouton ci-dessous.
-                    </div>
-                    <form method="post" action="{% url "contact" %}">
-                        {% csrf_token %}
-                        <button name="no_mail" type="submit" class="btn btn-primary">Je me désinscris</button>
-                    </form>
-                {% else %}
-                <div class="intro">
-                    <p>Vous pouvez vous désabonner des emails de la France insoumise en indiquant votre adresse email
-                        ci-dessous.</p>
-                </div>
-                {% crispy form %}
-                {% endif %}
-            </div>
-        </div>
+  <div class="row">
+    <div class="col-responsive">
+      <h2 class="headline">Désabonnement</h2>
+      <div>
+        {% if email %}
+          <div class="intro">
+            Pour confirmer votre désinscription de nos lettres d'information avec l'adresse
+            <strong>{{ email }}</strong>, cliquez sur le bouton ci-dessous.
+          </div>
+          <form method="post" action="{% url "contact" %}">
+            {% csrf_token %}
+            <button name="no_mail" type="submit" class="btn btn-primary">Je me désinscris</button>
+          </form>
+        {% else %}
+          <div class="intro">
+            <p>Vous pouvez vous désabonner des emails de la France insoumise en indiquant votre adresse email
+              ci-dessous.</p>
+          </div>
+          {% crispy form %}
+        {% endif %}
+      </div>
     </div>
+  </div>
 {% endblock %}

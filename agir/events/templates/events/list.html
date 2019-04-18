@@ -3,78 +3,78 @@
 {% block title %}Mes événements{% endblock title %}
 
 {% block main %}
-    <div>
-        <div class="help-dialog">
-            Cette section liste l'ensemble des événements à venir dont vous êtes l'organisateur.
-        </div>
-        <h2>Les événements que j'organise</h2>
-        <div class="list-group">
-            {% for event in events %}
-                <div class="list-group-item">
-                    <strong>
-                        <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
-                    </strong>
-                    <div>{{ event.get_display_date }}</div>
-                    <div>{{ event.location_name }}</div>
-                    <div style="margin-top: 10px;">
-                        <a class="btn btn-default" href="{% url "view_event" event.pk %}">Voir l'événement</a>
-                        {% spaceless %}
-                            <a class="btn btn-default" href="{% url "manage_event" event.pk %}">
-                                {% if forloop.first %}
-                                    <span class="help-dialog">Ce bouton vous permet d'accéder à la page de gestion de votre
+  <div>
+    <div class="help-dialog">
+      Cette section liste l'ensemble des événements à venir dont vous êtes l'organisateur.
+    </div>
+    <h2>Les événements que j'organise</h2>
+    <div class="list-group">
+      {% for event in events %}
+        <div class="list-group-item">
+          <strong>
+            <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
+          </strong>
+          <div>{{ event.get_display_date }}</div>
+          <div>{{ event.location_name }}</div>
+          <div style="margin-top: 10px;">
+            <a class="btn btn-default" href="{% url "view_event" event.pk %}">Voir l'événement</a>
+            {% spaceless %}
+              <a class="btn btn-default" href="{% url "manage_event" event.pk %}">
+                {% if forloop.first %}
+                  <span class="help-dialog">Ce bouton vous permet d'accéder à la page de gestion de votre
                                     événement</span>
-                                {% endif %}Gestion de l'événement
-                            </a>
-                        {% endspaceless %}
-                    </div>
-                </div>
-            {% empty %}
-                <div>
-                    <div class="help-dialog">En l'occurrence, vous n'en organisez aucun.</div>
-                    Vous n'avez organisé aucun événement.
-                </div>
-            {% endfor %}
+                {% endif %}Gestion de l'événement
+              </a>
+            {% endspaceless %}
+          </div>
         </div>
+      {% empty %}
+        <div>
+          <div class="help-dialog">En l'occurrence, vous n'en organisez aucun.</div>
+          Vous n'avez organisé aucun événement.
+        </div>
+      {% endfor %}
     </div>
+  </div>
 
-    <div>
-        <div class="help-dialog">
-            Cette section vous présente les événements à venir auxquels vous participez.
-        </div>
-        <h2>Les événements auxquels je participe</h2>
-        <div class="list-group">
-            {% for rsvp in rsvps %}
-                <div class="list-group-item">
-                    <strong>
-                        <a href="{% url "view_event" rsvp.event.pk %}">{{ rsvp.event.name }}</a>
-                    </strong>
-                    <div>{{ rsvp.event.get_display_date }}</div>
-                    <div>{{ rsvp.event.location_name }}</div>
-                    {% if rsvp.guests == 1 %}
-                        <div>Je viens avec un&middot;e invité&middot;e</div>
-                    {% elif rsvp.guests > 0 %}
-                        <div>Je viens avec {{ rsvp.guests }} invité&middot;e&middot;s</div>
-                    {% endif %}
-                    <div style="margin-top: 10px;">
-                        <a class="btn btn-default" href="{% url "view_event" rsvp.event.pk %}">Voir l'événement</a>
-                        {% spaceless %}
-                            <a class="btn btn-default" href="{% url "quit_event" rsvp.event.pk %}">
-                                {% if forloop.first %}
-                                    <span class="help-dialog">Vous pouvez toujours utiliser ce bouton pour annuler
+  <div>
+    <div class="help-dialog">
+      Cette section vous présente les événements à venir auxquels vous participez.
+    </div>
+    <h2>Les événements auxquels je participe</h2>
+    <div class="list-group">
+      {% for rsvp in rsvps %}
+        <div class="list-group-item">
+          <strong>
+            <a href="{% url "view_event" rsvp.event.pk %}">{{ rsvp.event.name }}</a>
+          </strong>
+          <div>{{ rsvp.event.get_display_date }}</div>
+          <div>{{ rsvp.event.location_name }}</div>
+          {% if rsvp.guests == 1 %}
+            <div>Je viens avec un&middot;e invité&middot;e</div>
+          {% elif rsvp.guests > 0 %}
+            <div>Je viens avec {{ rsvp.guests }} invité&middot;e&middot;s</div>
+          {% endif %}
+          <div style="margin-top: 10px;">
+            <a class="btn btn-default" href="{% url "view_event" rsvp.event.pk %}">Voir l'événement</a>
+            {% spaceless %}
+              <a class="btn btn-default" href="{% url "quit_event" rsvp.event.pk %}">
+                {% if forloop.first %}
+                  <span class="help-dialog">Vous pouvez toujours utiliser ce bouton pour annuler
                                 votre participation !</span>
-                                {% endif %}
-                                Annuler ma participation
-                            </a>
-                        {% endspaceless %}
-                    </div>
-                </div>
-            {% empty %}
-                <div>Aucun événement en attente.</div>
-            {% endfor %}
+                {% endif %}
+                Annuler ma participation
+              </a>
+            {% endspaceless %}
+          </div>
         </div>
+      {% empty %}
+        <div>Aucun événement en attente.</div>
+      {% endfor %}
     </div>
+  </div>
 
-    {% comment %}
+  {% comment %}
     <h2>Les événements auxquels j'ai participé</h2>
     <div class="list-group">
         {% for event in past_events %}
@@ -91,13 +91,13 @@
     </div>
     {% endcomment %}
 
-    <div>
-        <div class="help-dialog">
-            Enfin, vous pouvez aussi organiser le votre.
-        </div>
-        <h2>J'organise un événement</h2>
-        <div>
-            <a href="{% url "create_event" %}">Vous pouvez aussi organiser votre propre événement.</a>
-        </div>
+  <div>
+    <div class="help-dialog">
+      Enfin, vous pouvez aussi organiser le votre.
     </div>
+    <h2>J'organise un événement</h2>
+    <div>
+      <a href="{% url "create_event" %}">Vous pouvez aussi organiser votre propre événement.</a>
+    </div>
+  </div>
 {% endblock %}

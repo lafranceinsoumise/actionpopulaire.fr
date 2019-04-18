@@ -3,40 +3,40 @@
 {% block title %}Mes groupes d'action{% endblock title %}
 
 {% block main %}
-    <h2>Les groupes dont je suis membre</h2>
-    <div class="list-group">
-        {% for membership in memberships %}
-            <div class="list-group-item">
-                <strong>
-                    <a href="{% url "view_group" membership.supportgroup.pk %}">{{ membership.supportgroup.name }}</a>
-                </strong>
-                <div>
-                    {% if membership.is_referent %}
-                        Animateur
-                    {% elif membership.is_manager %}
-                        Gestionnaire
-                    {% else %}
-                        Membre
-                    {% endif %}
-                </div>
-                <div>Lieu : {{ membership.supportgroup.location_name }}</div>
-                <div style="margin-top: 10px;">
-                    <a class="btn btn-default" href="{% url "view_group" membership.supportgroup.pk %}">Afficher le groupe</a>
-                    {% if membership.is_manager or membership.is_referent %}
-                        <a class="btn btn-default" href="{% url "manage_group" membership.supportgroup.pk %}">Gestion du groupe</a>
-                    {% endif %}
-                    {% if not membership.is_referent %}
-                        <a class="btn btn-default" href="{% url "quit_group" membership.supportgroup.pk %}">Quitter</a>
-                    {% endif %}
-                </div>
+  <h2>Les groupes dont je suis membre</h2>
+  <div class="list-group">
+    {% for membership in memberships %}
+      <div class="list-group-item">
+        <strong>
+          <a href="{% url "view_group" membership.supportgroup.pk %}">{{ membership.supportgroup.name }}</a>
+        </strong>
+        <div>
+          {% if membership.is_referent %}
+            Animateur
+          {% elif membership.is_manager %}
+            Gestionnaire
+          {% else %}
+            Membre
+          {% endif %}
+        </div>
+        <div>Lieu : {{ membership.supportgroup.location_name }}</div>
+        <div style="margin-top: 10px;">
+          <a class="btn btn-default" href="{% url "view_group" membership.supportgroup.pk %}">Afficher le groupe</a>
+          {% if membership.is_manager or membership.is_referent %}
+            <a class="btn btn-default" href="{% url "manage_group" membership.supportgroup.pk %}">Gestion du groupe</a>
+          {% endif %}
+          {% if not membership.is_referent %}
+            <a class="btn btn-default" href="{% url "quit_group" membership.supportgroup.pk %}">Quitter</a>
+          {% endif %}
+        </div>
 
-            </div>
-        {% empty %}
-            <div>Vous n'êtes membre d'aucun groupe d'action.</div>
-        {% endfor %}
-    </div>
+      </div>
+    {% empty %}
+      <div>Vous n'êtes membre d'aucun groupe d'action.</div>
+    {% endfor %}
+  </div>
 
-    <h2>Créer un groupe</h2>
-    <p>Si aucun groupe ne milite dans vos environs, vous pouvez <a href="{% url "create_group" %}">créer votre propre
-        groupe d'action</a>.</p>
+  <h2>Créer un groupe</h2>
+  <p>Si aucun groupe ne milite dans vos environs, vous pouvez <a href="{% url "create_group" %}">créer votre propre
+    groupe d'action</a>.</p>
 {% endblock %}

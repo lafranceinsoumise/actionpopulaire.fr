@@ -25,9 +25,9 @@
 
       {% block admin_change_form_document_ready %}
         <script type="text/javascript" id="django-admin-form-add-constants" src="{% static 'admin/js/change_form.js' %}"
-            {% if adminform and add %}
+          {% if adminform and add %}
                 data-model-name="{{ opts.model_name }}"
-            {% endif %}></script>
+          {% endif %}></script>
       {% endblock %}
 
       {# JavaScript for prepopulated fields #} {% prepopulated_fields_js %}
@@ -42,16 +42,17 @@
         {% for date, events in events_by_date %}
           <h3>{{ date }}</h3>
           <ul>
-          {% for event in events %}<li>
-            <h4>{{ event.name }}{% if event.calendars.all %}<br>
-              <small>({% for c in event.calendars.all %}{{ c.name }}{% if not forloop.last %},
-              {% endif %}{% endfor %})
-              </small>
-            {% endif %}</h4>
-            <p>{{ event.get_simple_display_date }}</p>
-            <p>{{ event.html_full_address }}</p>
-            <p>{{ event.html_description }}</p>
-          </li>{% endfor %}
+            {% for event in events %}
+              <li>
+                <h4>{{ event.name }}{% if event.calendars.all %}<br>
+                  <small>({% for c in event.calendars.all %}{{ c.name }}{% if not forloop.last %},
+                  {% endif %}{% endfor %})
+                  </small>
+                {% endif %}</h4>
+                <p>{{ event.get_simple_display_date }}</p>
+                <p>{{ event.html_full_address }}</p>
+                <p>{{ event.html_description }}</p>
+              </li>{% endfor %}
           </ul>
         {% endfor %}
       {% endfor %}

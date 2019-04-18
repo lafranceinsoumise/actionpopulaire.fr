@@ -41,7 +41,7 @@
             {% for document in documents %}
               <tr>
                 <td><a href="{{ document.file.url }}">{{ document.title }} <span
-                    class="fa fa-download"></span></a></td>
+                  class="fa fa-download"></span></a></td>
                 <td>{{ document.get_type_display }}</td>
                 <td>
                   <a href="{% url "edit_document" spendingrequest.pk document.pk %}"
@@ -74,7 +74,7 @@
             <form method="post" style="display: inline;">
               {% csrf_token %} <input type="hidden" name="validate" value="{{ spendingrequest.status }}">
               <input
-                  type="submit" value="{{ action.button }}" class="btn btn-primary">
+                type="submit" value="{{ action.button }}" class="btn btn-primary">
             </form>
           {% endif %}
 
@@ -111,7 +111,7 @@
       <div class="btn-toolbar" role="toolbar">
         <a class="btn btn-default" href="{% url "edit_spending_request" spendingrequest.pk %}">Modifier la
           demande</a> <a
-          class="btn btn-default" href="{% url "create_document" spendingrequest.pk %}">Ajouter une pièce
+        class="btn btn-default" href="{% url "create_document" spendingrequest.pk %}">Ajouter une pièce
         justificative</a>
       </div>
     </div>

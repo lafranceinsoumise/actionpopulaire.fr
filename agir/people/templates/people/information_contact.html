@@ -6,45 +6,45 @@
 {% block title %}{% trans "Contact" %}{% endblock %}
 
 {% block main %}
-    <div class="row">
-        {% block navbar %} {% include "people/profile_nav.html" with tab_code="CONTACT" %} {% endblock %}
-        <div class="col-xs-12 col-md-10">
-            <div class="col-xs-12 col-md-12 ">
-                <fieldset>
-                    <legend>Adresses e-mail</legend>
-                </fieldset>
-                {% if can_delete %}
-                    <table class="table table-responsive">
-                        <tbody>
-                        {% for email in emails %}
-                            <tr {% if forloop.first %} class="active" {% endif %}>
-                                <td class="col-xs-5 text-center"> {{ email.address }}</td>
-                                <td class="col-xs-5" style="text-align: left">
-                                    {% if can_delete and not forloop.first %}
-                                        <a class="btn btn-sm btn-default " href="{% url "change_primary_mail" email.pk %}">
-                                            utiliser cette adresse pour me contacter
-                                        </a>
-                                    {% else %}
-                                        l'adresse utilisée pour me contacter
-                                    {% endif %}</td>
-                                <td class="col-xs-2"> {% if can_delete %}<a class="btn btn-sm btn-default"
-                                                                            href="{% url "delete_email" email.pk %}">Supprimer</a>{% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    <a class="btn btn-sm btn-default alignright" href="{% url "manage_account" %}"
-                       style="font-size: medium;">Ajouter ou changer d'adresse email.</a>
-                    <br>
-                {% else %}
-                        {{ person.email }}
-                        <a class="btn btn-sm btn-default alignright" href="{% url "manage_account" %}"
-                           style="font-size: medium;">Ajouter ou changer d'adresse email.</a>
-                        <br><br>
-                {% endif %}
-                {% crispy form %}
-            </div>
-        </div>
+  <div class="row">
+    {% block navbar %} {% include "people/profile_nav.html" with tab_code="CONTACT" %} {% endblock %}
+    <div class="col-xs-12 col-md-10">
+      <div class="col-xs-12 col-md-12 ">
+        <fieldset>
+          <legend>Adresses e-mail</legend>
+        </fieldset>
+        {% if can_delete %}
+          <table class="table table-responsive">
+            <tbody>
+            {% for email in emails %}
+              <tr {% if forloop.first %} class="active" {% endif %}>
+                <td class="col-xs-5 text-center"> {{ email.address }}</td>
+                <td class="col-xs-5" style="text-align: left">
+                  {% if can_delete and not forloop.first %}
+                    <a class="btn btn-sm btn-default " href="{% url "change_primary_mail" email.pk %}">
+                      utiliser cette adresse pour me contacter
+                    </a>
+                  {% else %}
+                    l'adresse utilisée pour me contacter
+                  {% endif %}</td>
+                <td class="col-xs-2"> {% if can_delete %}<a class="btn btn-sm btn-default"
+                                                            href="{% url "delete_email" email.pk %}">Supprimer</a>{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          <a class="btn btn-sm btn-default alignright" href="{% url "manage_account" %}"
+             style="font-size: medium;">Ajouter ou changer d'adresse email.</a>
+          <br>
+        {% else %}
+          {{ person.email }}
+          <a class="btn btn-sm btn-default alignright" href="{% url "manage_account" %}"
+             style="font-size: medium;">Ajouter ou changer d'adresse email.</a>
+          <br><br>
+        {% endif %}
+        {% crispy form %}
+      </div>
     </div>
+  </div>
 {% endblock %}

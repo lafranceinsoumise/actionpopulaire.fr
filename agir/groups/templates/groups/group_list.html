@@ -6,79 +6,79 @@
 {% block title %}Rechercher des groupes d'action{% endblock %}
 
 {% block main %}
-    <h1>Rechercher des groupes d'action</h1>
+  <h1>Rechercher des groupes d'action</h1>
 
+  <div>
     <div>
-        <div>
-            <p>Sur cette page, vous trouverez l'ensemble des groupes d'action locaux près de chez vous ou d'une
-            adresse de votre choix.</p>
+      <p>Sur cette page, vous trouverez l'ensemble des groupes d'action locaux près de chez vous ou d'une
+        adresse de votre choix.</p>
 
-            <p>Si aucun groupe n'est constitué près de chez vous, vous pouvez en créer un vous-même.</p>
+      <p>Si aucun groupe n'est constitué près de chez vous, vous pouvez en créer un vous-même.</p>
 
-            <p>Vous pouvez aussi rechercher des groupes d'action en utilisant
-                <a href="https://lafranceinsoumise.fr/groupes-appui/carte/">la carte.</a></p>
+      <p>Vous pouvez aussi rechercher des groupes d'action en utilisant
+        <a href="https://lafranceinsoumise.fr/groupes-appui/carte/">la carte.</a></p>
+    </div>
+
+    <p class="text-center">
+      <a class="btn btn-info" href="{% url "create_group" %}"><i class="fa fa-plus"></i> Créer un groupe</a>
+      <a class="btn btn-default" href="https://lafranceinsoumise.fr/groupes-appui/carte/">Accéder à la carte des
+        groupes d'action</a>
+    </p>
+  </div>
+
+  <div>
+    <form>
+      {{ form.lon }}
+      {{ form.lat }}
+      <div class="form-group">
+        <div class="input-group">
+          {{ form.q }}
+          <div class="input-group-btn">
+            <input type="submit" class="btn btn-primary" data-toggle="dropdown" value="Rechercher">
+          </div>
         </div>
+      </div>
+    </form>
 
-        <p class="text-center">
-            <a class="btn btn-info" href="{% url "create_group" %}"><i class="fa fa-plus"></i> Créer un groupe</a>
-            <a class="btn btn-default" href="https://lafranceinsoumise.fr/groupes-appui/carte/">Accéder à la carte des
-                groupes d'action</a>
-        </p>
-    </div>
+    {% render_bundle "lib/locationSearchField" %}
+    <script>
+      locationSearchField(document.querySelector('input[name="q"]'));
+    </script>
+  </div>
 
-    <div>
-        <form>
-            {{ form.lon }}
-            {{ form.lat }}
-            <div class="form-group">
-                <div class="input-group">
-                    {{ form.q }}
-                    <div class="input-group-btn">
-                        <input type="submit" class="btn btn-primary" data-toggle="dropdown" value="Rechercher">
-                    </div>
-                </div>
-            </div>
-        </form>
-
-        {% render_bundle "lib/locationSearchField" %}
-        <script>
-          locationSearchField(document.querySelector('input[name="q"]'));
-        </script>
-    </div>
-
-    <div>
-        {% if groups %}
-            {% if form.q.value %}
-                <h2>Les groupes d'action près de l'adresse &laquo;&nbsp;<small>{{ form.q.value }}</small>&nbsp;&raquo;</h2>
-            {% else %}
-                <h2>Les groupes d'action près de chez vous</h2>
-            {% endif %}
-            <div class="list-group">
-                {% for group in groups %}
-                    <div class="list-group-item ">
-                        <i class="fa fa-calendar" aria-hidden="true"></i>
-                        <a href="{% url "view_group" group.pk %}">{{ group.name }}</a>
-                        <a class="btn btn-default pull-right" href="{% url "view_group" group.pk %}">Voir
-                            le groupe</a>
-                        <ul class="list-inline">
-                            <li>
-                                <i class="fa fa-map-marker"></i> {{ group.location_name }}
-                                ({{ group.location_city }})
-                            </li>
-                            {% if group.distance %}
-                                <li>
-                                    <i class="fa fa-long-arrow-right"></i> à {{ group.distance.km|floatformat:0 }}
-                                    km
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            Vous ne nous avez pas indiqué votre adresse. Pour rechercher un groupe, utilisez soit la boîte de
-            recherche ci-dessus, soit <a href="{% url "personal_information" %}">remplissez le formulaire d'informations</a>
-            pour nous indiquer où vous habitez.
-        {% endif %}
-    </div>
+  <div>
+    {% if groups %}
+      {% if form.q.value %}
+        <h2>Les groupes d'action près de l'adresse &laquo;&nbsp;<small>{{ form.q.value }}</small>&nbsp;&raquo;</h2>
+      {% else %}
+        <h2>Les groupes d'action près de chez vous</h2>
+      {% endif %}
+      <div class="list-group">
+        {% for group in groups %}
+          <div class="list-group-item ">
+            <i class="fa fa-calendar" aria-hidden="true"></i>
+            <a href="{% url "view_group" group.pk %}">{{ group.name }}</a>
+            <a class="btn btn-default pull-right" href="{% url "view_group" group.pk %}">Voir
+              le groupe</a>
+            <ul class="list-inline">
+              <li>
+                <i class="fa fa-map-marker"></i> {{ group.location_name }}
+                ({{ group.location_city }})
+              </li>
+              {% if group.distance %}
+                <li>
+                  <i class="fa fa-long-arrow-right"></i> à {{ group.distance.km|floatformat:0 }}
+                  km
+                </li>
+              {% endif %}
+            </ul>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      Vous ne nous avez pas indiqué votre adresse. Pour rechercher un groupe, utilisez soit la boîte de
+      recherche ci-dessus, soit <a href="{% url "personal_information" %}">remplissez le formulaire d'informations</a>
+      pour nous indiquer où vous habitez.
+    {% endif %}
+  </div>
 {% endblock %}

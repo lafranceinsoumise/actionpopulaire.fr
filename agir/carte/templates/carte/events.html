@@ -1,21 +1,21 @@
 {% extends "carte/layout.html" %}
 
 {% block title %}
-    Carte des événements
+  Carte des événements
 {% endblock %}
 
 {% block map_script %}
-    <script>
-      var types = {{ type_config }};
-      var subtypes = {{ subtype_config }};
-      var bounds = {{ bounds }};
+  <script>
+    var types = {{ type_config }};
+    var subtypes = {{ subtype_config }};
+    var bounds = {{ bounds }};
 
-      window['carte/map'].listMap('map', {
-        endpoint: '{% url "carte:event_list" %}{{ querystring }}',
-        listType: 'events',
-        types,
-        subtypes,
-        bounds
-      });
-    </script>
+    window['carte/map'].listMap('map', {
+      endpoint: '{% url "carte:event_list" %}{{ querystring }}',
+      listType: 'events',
+      types,
+      subtypes,
+      bounds
+    });
+  </script>
 {% endblock %}

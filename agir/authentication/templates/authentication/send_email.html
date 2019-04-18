@@ -5,25 +5,25 @@
 {% block title %}Connexion à la plateforme{% endblock %}
 
 {% block main %}
-<div class="col-responsive">
+  <div class="col-responsive">
     <h2>Formulaire de connexion</h2>
     {% if is_hard_logged %}
-        <p>Vous êtes déjà connecté⋅e, <a href={% url 'disconnect' %}>cliquez ici</a> pour vous déconnecter.</p>
+      <p>Vous êtes déjà connecté⋅e, <a href={% url 'disconnect' %}>cliquez ici</a> pour vous déconnecter.</p>
     {% else %}
-        {% if bookmarked_emails %}
-            <form method="post">
-            {% csrf_token %}
-            <label>Je me connecte avec une adresse précédemment utilisée&nbsp;</label>
-            <div>
+      {% if bookmarked_emails %}
+        <form method="post">
+          {% csrf_token %}
+          <label>Je me connecte avec une adresse précédemment utilisée&nbsp;</label>
+          <div>
             {% for email in bookmarked_emails %}
               <p>
                 <button type="submit" class="btn btn-default" name="email" value="{{ email }}">{{ email }}</button>
               </p>
             {% endfor %}
-            </div>
-            </form>
-        {% endif %}
-        {% crispy form %}
+          </div>
+        </form>
+      {% endif %}
+      {% crispy form %}
     {% endif %}
-</div>
+  </div>
 {% endblock %}

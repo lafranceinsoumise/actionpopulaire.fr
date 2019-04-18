@@ -6,14 +6,15 @@
 {% block title %}{{ poll.title }}{% endblock %}
 
 {% block main %}
-    <h2 class="headline">{{ poll.title }}</h2>
-    <p>{{ poll.html_description }}</p>
-    {% if already_voted %}
-        <div class="alert alert-info">
-            Vous avez bien participé à cette consultation&nbsp;! Votre identifiant unique et anonyme est le <strong>{{ anonymous_id }}</strong>. Lors de la publication des résultats, vous pourrez vous
-          en servir pour vérifier que votre vote a bien été pris en compte.
-        </div>
-    {% else %}
-        {% crispy form %}
-    {% endif %}
+  <h2 class="headline">{{ poll.title }}</h2>
+  <p>{{ poll.html_description }}</p>
+  {% if already_voted %}
+    <div class="alert alert-info">
+      Vous avez bien participé à cette consultation&nbsp;! Votre identifiant unique et anonyme est le
+      <strong>{{ anonymous_id }}</strong>. Lors de la publication des résultats, vous pourrez vous
+      en servir pour vérifier que votre vote a bien été pris en compte.
+    </div>
+  {% else %}
+    {% crispy form %}
+  {% endif %}
 {% endblock %}

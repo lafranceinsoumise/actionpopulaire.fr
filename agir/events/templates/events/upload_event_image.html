@@ -5,18 +5,18 @@
 {% block title %}Ajouter une image pour «&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
 {% block main %}
-    <h2><a href="{%  url "view_event" event.pk %}">{{ event.name }}</a></h2>
-    <ol class="breadcrumb">
-      <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
-      <li>Ajouter un image</li>
-    </ol>
-    <div class="row">
-        <div class="col-sm-12 form-group">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {% crispy author_form %}
-                {% crispy form %}
-            </form>
-        </div>
+  <h2><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h2>
+  <ol class="breadcrumb">
+    <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
+    <li>Ajouter un image</li>
+  </ol>
+  <div class="row">
+    <div class="col-sm-12 form-group">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% crispy author_form %}
+        {% crispy form %}
+      </form>
     </div>
+  </div>
 {% endblock %}

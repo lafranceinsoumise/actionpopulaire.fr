@@ -4,58 +4,58 @@
 {% load render_bundle from webpack_loader %}
 
 {% block title %}
-    J'aide la France insoumise
+  J'aide la France insoumise
 {% endblock %}
 
 {% block extra_scripts %}
-    {% render_bundle 'donations/donationForm' attrs='defer data-turbolinks-track="reload"' %}
-    <meta name="turbolinks-cache-control" content="no-cache">
+  {% render_bundle 'donations/donationForm' attrs='defer data-turbolinks-track="reload"' %}
+  <meta name="turbolinks-cache-control" content="no-cache">
 
-    <style>
-        body {
-            background: url({% block background_url %}{% static "donations/convention_plan_large_comp.jpg" %}{% endblock %}) no-repeat;
-            background-size: cover;
-            background-position: center bottom;
-            min-height: 100vh;
-        }
-    </style>
+  <style>
+    body {
+      background: url({% block background_url %}{% static "donations/convention_plan_large_comp.jpg" %}{% endblock %}) no-repeat;
+      background-size: cover;
+      background-position: center bottom;
+      min-height: 100vh;
+    }
+  </style>
 {% endblock %}
 
 {% block full_width %}
 
-    <div style="background-color: white; margin-top: -22px; padding: 22px;">
-        <div class="container">
-            {% block donation_intro %}
-            <p>Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au fonctionnement
-              de ce site, etc., nous avons besoin du soutien
-                financier de chacun.e d’entre vous. Sur cette page, vous pouvez faire un don à la France insoumise du
-                montant de votre choix par carte de crédit.</p>
-            <p>Un reçu détaché d'une formule numérotée éditée par la Commission nationale des comptes de campagne,
-              vous sera adressé et vous permettra de déduire cette somme de vos impôts
-                sur le revenu, dans les limites fixées par la loi. Votre don donne droit à une réduction d’impôt de 66%
-                des sommes versées dans la limité de 20% du revenu imposable. <strong>Attention : il s'agit d'une
-                    réduction d'impôt, et non d'un crédit d'impôt. Vous ne pouvez en faire usage que si vous payez des
-                    impôts sur le revenu.</strong></p>
-            <p>Vous pouvez également faire un don par chèque libellé à l’ordre de AFLFI (Association de Financement de
-                La France Insoumise) en envoyant votre chèque avec
-                <a href="{% static "donations/formulaire_dons_20190218.pdf" %}">ce formulaire téléchargeable</a>.
-            </p>
-            {% endblock %}
-        </div>
-    </div>
+  <div style="background-color: white; margin-top: -22px; padding: 22px;">
     <div class="container">
-        <div class="col-responsive"
-             style="background-color: rgba(100%, 100%, 100%, 0.8); margin-top: 100px; margin-bottom: 100px; padding: 20px 40px;">
-            <h2>{% block donation_dest %}Je veux aider la France insoumise{% endblock %}</h2>
-            {% crispy form %}
-        </div>
-        <div style="clear: both;"></div>
+      {% block donation_intro %}
+        <p>Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au fonctionnement
+          de ce site, etc., nous avons besoin du soutien
+          financier de chacun.e d’entre vous. Sur cette page, vous pouvez faire un don à la France insoumise du
+          montant de votre choix par carte de crédit.</p>
+        <p>Un reçu détaché d'une formule numérotée éditée par la Commission nationale des comptes de campagne,
+          vous sera adressé et vous permettra de déduire cette somme de vos impôts
+          sur le revenu, dans les limites fixées par la loi. Votre don donne droit à une réduction d’impôt de 66%
+          des sommes versées dans la limité de 20% du revenu imposable. <strong>Attention : il s'agit d'une
+            réduction d'impôt, et non d'un crédit d'impôt. Vous ne pouvez en faire usage que si vous payez des
+            impôts sur le revenu.</strong></p>
+        <p>Vous pouvez également faire un don par chèque libellé à l’ordre de AFLFI (Association de Financement de
+          La France Insoumise) en envoyant votre chèque avec
+          <a href="{% static "donations/formulaire_dons_20190218.pdf" %}">ce formulaire téléchargeable</a>.
+        </p>
+      {% endblock %}
     </div>
-    <div style="background-color: white; padding: 22px; font-size: smaller;">
-        <div class="container">
-            {% block legal %}
-              {% include "donations/legal.html" %}
-            {% endblock legal %}
-        </div>
+  </div>
+  <div class="container">
+    <div class="col-responsive"
+         style="background-color: rgba(100%, 100%, 100%, 0.8); margin-top: 100px; margin-bottom: 100px; padding: 20px 40px;">
+      <h2>{% block donation_dest %}Je veux aider la France insoumise{% endblock %}</h2>
+      {% crispy form %}
     </div>
+    <div style="clear: both;"></div>
+  </div>
+  <div style="background-color: white; padding: 22px; font-size: smaller;">
+    <div class="container">
+      {% block legal %}
+        {% include "donations/legal.html" %}
+      {% endblock legal %}
+    </div>
+  </div>
 {% endblock %}

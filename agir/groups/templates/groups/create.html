@@ -5,21 +5,21 @@
 {% block title %}Créer un groupe d'action{% endblock %}
 
 {% block extra_scripts %}
-    {% render_bundle 'lib/creationForms' attrs='defer data-turbolinks-track="reload"' %}
-    <meta name="turbolinks-cache-control" content="no-cache">
+  {% render_bundle 'lib/creationForms' attrs='defer data-turbolinks-track="reload"' %}
+  <meta name="turbolinks-cache-control" content="no-cache">
 {% endblock %}
 
 {% block main %}
-    {% if form.errors %}
-        <ul>
-            {% for key, error in form.errors.items %}
-                <li>{{ key }} : {{ error }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-    <h3 class="text-center">Créer un groupe d'action</h3>
-    <div id="create-group-react-app" data-turbolinks="false">
-      <div class="text-center"><i class="fa fa-refresh fa-spin fa-3x fa-fw"></i></div>
-    </div>
-    {{ props | json_script:"react-json-script" }}
+  {% if form.errors %}
+    <ul>
+      {% for key, error in form.errors.items %}
+        <li>{{ key }} : {{ error }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  <h3 class="text-center">Créer un groupe d'action</h3>
+  <div id="create-group-react-app" data-turbolinks="false">
+    <div class="text-center"><i class="fa fa-refresh fa-spin fa-3x fa-fw"></i></div>
+  </div>
+  {{ props | json_script:"react-json-script" }}
 {% endblock %}

@@ -4,264 +4,264 @@
 {% block title %}Mon tableau de bord{% endblock title %}
 
 {% block extra_scripts %}
-    {% render_bundle 'people/dashboard' attrs='defer' %}
+  {% render_bundle 'people/dashboard' attrs='defer' %}
 {% endblock %}
 
 {% block main %}
-    <div class="row masonry">
-        <div class="col-md-6">
-            <div class="help-dialog" data-hint="Mon agenda">
-                Vous trouverez ici tous les événements auxquels vous avez indiqué participer.
-                Attention&nbsp;! Le fait que vous organisiez un événement ne veut pas nécessairement
-                dire que vous y participez, même si c'est souvent le cas.
+  <div class="row masonry">
+    <div class="col-md-6">
+      <div class="help-dialog" data-hint="Mon agenda">
+        Vous trouverez ici tous les événements auxquels vous avez indiqué participer.
+        Attention&nbsp;! Le fait que vous organisiez un événement ne veut pas nécessairement
+        dire que vous y participez, même si c'est souvent le cas.
+      </div>
+      <h3 class="clearfix">Mon agenda
+        <a class="pull-right btn btn-default btn-sm" href="{% url 'list_all_events' %}">
+          <i class="fa fa-search"></i> Rechercher un événement
+        </a>
+        <a class="pull-right btn btn-default btn-sm" href="{% url 'create_event' %}">
+          <i class="fa fa-plus"></i> Créer un événement
+          <div class="help-dialog" data-hint="Les informations de votre événement">
+            Vous pouvez créer un nouvel événement et y inviter d'autres personnes en cliquant sur ce bouton.
+          </div>
+        </a>
+      </h3>
+      <div class="list-group">
+        {% for day, events in rsvped_events %}
+          <div class="list-group-item disabled">
+            {{ day|date:"l d F" }}
+          </div>
+          {% for event in events %}
+            <div class="list-group-item">
+              <div class="media">
+                <div class="media-left media-middle" style="min-width:64px">
+                  {% if event.image %}
+                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                  {% endif %}
+                </div>
+                <div class="media-body">
+                  <i class="fa fa-calendar" aria-hidden="true"></i>
+                  <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
+                  <br>
+                  {{ event.start_time|date:"H:i" }} - {{ event.short_location }}
+                  {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+                </div>
+              </div>
             </div>
-            <h3 class="clearfix">Mon agenda
-                <a class="pull-right btn btn-default btn-sm" href="{% url 'list_all_events' %}">
-                    <i class="fa fa-search"></i> Rechercher un événement
-                </a>
-                <a class="pull-right btn btn-default btn-sm" href="{% url 'create_event' %}">
-                    <i class="fa fa-plus"></i> Créer un événement
-                    <div class="help-dialog" data-hint="Les informations de votre événement">
-                        Vous pouvez créer un nouvel événement et y inviter d'autres personnes en cliquant sur ce bouton.
-                    </div>
-                </a>
-            </h3>
-            <div class="list-group">
-                {% for day, events in rsvped_events %}
-                    <div class="list-group-item disabled">
-                        {{ day|date:"l d F" }}
-                    </div>
-                    {% for event in events %}
-                        <div class="list-group-item">
-                            <div class="media">
-                                <div class="media-left media-middle" style="min-width:64px">
-                                    {% if event.image %}
-                                        <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
-                                    {% endif %}
-                                </div>
-                                <div class="media-body">
-                                    <i class="fa fa-calendar" aria-hidden="true"></i>
-                                    <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
-                                    <br>
-                                    {{ event.start_time|date:"H:i" }} - {{ event.short_location }}
-                                    {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% empty %}
-                    <div class="list-group-item">
-                        Vous n'avez aucun événément prévu pour le moment.
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="help-dialog" data-hint="Mes groupes">
-                Vous trouverez ici tous les groupes dont vous êtes membre. Être membre d'un
-                groupe vous permet de suivre son agenda. Pour en savoir plus lisez la
-                <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
-                    Charte des groupes d’action de la France insoumise</a>.
-            </div>
-            <h3 class="clearfix">Mes groupes
-                <a class="pull-right btn btn-default btn-sm" href="{% url 'list_all_groups' %}">
-                    <i class="fa fa-search"></i> Rechercher un groupe
-                </a>
-                <a class="pull-right btn btn-default btn-sm" href="{% url 'create_group' %}">
-                    <i class="fa fa-plus"></i> Créer un groupe
-                </a>
-            </h3>
-            <div class="list-group">
-                {% for group in members_groups %}
-                    <div class="list-group-item">
-                        <div class="input-group">
-                            <i class="fa fa-users" aria-hidden="true"></i>
-                            <a href="{% url 'view_group' group.pk %}">{{ group.name }}</a><br>
-                            {{ group.short_location }}
-                            {% if group.user_is_manager %}
-                                {% if group.has_promo_code %}
-                                  <div>Code promo du mois :
-                                    {% if promo_code_delayed %}
-                                     <em>Les codes promos seront disponibles le {{ promo_code_delay|date }}</em>
-                                    {% else %}
-                                      <strong>{{ group.promo_code }}</strong></div>
-                                    {% endif %}
-                                {% endif %}
-                                <span class="input-group-btn">
+          {% endfor %}
+        {% empty %}
+          <div class="list-group-item">
+            Vous n'avez aucun événément prévu pour le moment.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="help-dialog" data-hint="Mes groupes">
+        Vous trouverez ici tous les groupes dont vous êtes membre. Être membre d'un
+        groupe vous permet de suivre son agenda. Pour en savoir plus lisez la
+        <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
+          Charte des groupes d’action de la France insoumise</a>.
+      </div>
+      <h3 class="clearfix">Mes groupes
+        <a class="pull-right btn btn-default btn-sm" href="{% url 'list_all_groups' %}">
+          <i class="fa fa-search"></i> Rechercher un groupe
+        </a>
+        <a class="pull-right btn btn-default btn-sm" href="{% url 'create_group' %}">
+          <i class="fa fa-plus"></i> Créer un groupe
+        </a>
+      </h3>
+      <div class="list-group">
+        {% for group in members_groups %}
+          <div class="list-group-item">
+            <div class="input-group">
+              <i class="fa fa-users" aria-hidden="true"></i>
+              <a href="{% url 'view_group' group.pk %}">{{ group.name }}</a><br>
+              {{ group.short_location }}
+              {% if group.user_is_manager %}
+                {% if group.has_promo_code %}
+                  <div>Code promo du mois :
+                    {% if promo_code_delayed %}
+                      <em>Les codes promos seront disponibles le {{ promo_code_delay|date }}</em>
+                    {% else %}
+                      <strong>{{ group.promo_code }}</strong></div>
+                    {% endif %}
+                {% endif %}
+                <span class="input-group-btn">
                                 <a class='btn btn-default' href="{% url 'manage_group' group.pk %}">Gestion</a>
                                 </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% empty %}
-                    <div class="list-group-item">
-                        Vous n'êtes membre d'aucun groupe.
-                    </div>
-                {% endfor %}
+              {% endif %}
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="help-dialog" data-hint="Événements suggérés">
-                Ces événements pourraient vous intéresser. Passer votre souris sur <span
-                    class="text-muted">Pourquoi ?</span>
-                pour savoir pourquoi chaque événement vous a été suggéré.
-            </div>
-            <h3>Événements suggérés</h3>
-            <div class="list-group">
-                {% for day, events in suggested_events %}
-                    <div class="list-group-item disabled">
-                        {{ day|date:"l d F" }}
-                    </div>
+          </div>
+        {% empty %}
+          <div class="list-group-item">
+            Vous n'êtes membre d'aucun groupe.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="help-dialog" data-hint="Événements suggérés">
+        Ces événements pourraient vous intéresser. Passer votre souris sur <span
+        class="text-muted">Pourquoi ?</span>
+        pour savoir pourquoi chaque événement vous a été suggéré.
+      </div>
+      <h3>Événements suggérés</h3>
+      <div class="list-group">
+        {% for day, events in suggested_events %}
+          <div class="list-group-item disabled">
+            {{ day|date:"l d F" }}
+          </div>
 
-                    {% for event in events %}
-                        <div class="list-group-item">
-                            <div class="media">
-                                <div class="media-left media-middle" style="min-width:64px">
-                                    {% if event.image %}
-                                        <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
-                                    {% endif %}
-                                </div>
-                                <div class="media-body">
+          {% for event in events %}
+            <div class="list-group-item">
+              <div class="media">
+                <div class="media-left media-middle" style="min-width:64px">
+                  {% if event.image %}
+                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                  {% endif %}
+                </div>
+                <div class="media-body">
                                     <span class="small text-muted pull-right" data-toggle="tooltip"
-                                      title="{{ event.reason }}">Pourquoi ?</span>
-                                    <i class="fa fa-calendar" aria-hidden="true"></i>
-                                    <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
-                                    <br>
-                                    {{ event.start_time|date:"H:i" }} - {{ event.short_location }}
-                                    {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% empty %}
-                    <div class="list-group-item">
-                        Aucun événement suggéré ! Rejoignez un groupe d'action pour voir des événements.
-                    </div>
-                {% endfor %}
+                                          title="{{ event.reason }}">Pourquoi ?</span>
+                  <i class="fa fa-calendar" aria-hidden="true"></i>
+                  <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
+                  <br>
+                  {{ event.start_time|date:"H:i" }} - {{ event.short_location }}
+                  {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+                </div>
+              </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <h3>Événements passés</h3>
-            <div class="help-dialog" data-hint="Événements passés">
-                Ce sont les 10 derniers événements auxquels vous avez participé. En retournant sur ces pages,
-                vous pouvez par exemple poser des photos sur les événements auxquels vous avez participé
-                et des comptes rendus sur ceux que vous avez organisé.
-            </div>
-            <div class="list-group">
-                {% for event in last_events %}
-                    <div class="list-group-item">
-                        <div class="media">
-                            <div class="media-left media-middle" style="min-width:64px">
-                                {% if event.image %}
-                                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
-                                {% endif %}
-                            </div>
-                            <div class="media-body">
-                                <i class="fa fa-calendar" aria-hidden="true"></i>
-                                <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
-                                <br> {{ event.get_display_date }} - {{ event.short_location }}
-                            </div>
-                        </div>
-                    </div>
-                {% empty %}
-                    <div class="list-group-item">
-                        Aucun événement récent ! Participez à des événements pour contribuer à leur compte-rendu.
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="col-md-6">
-            <h3>Derniers comptes-rendus publics</h3>
-            <div class="help-dialog" data-hint="Comptes-rendu publiés">
-                Ce sont les derniers compte-rendus d'événement écrits par les insoumis⋅es sur la plateforme. Écrivez le
-                votre pour apparaître ici !
-            </div>
-            <div class="list-group">
-                {% for event in past_reports %}
-                    <div class="list-group-item">
-                        <div class="media">
-                            <div class="media-left media-middle" style="min-width:64px">
-                                {% if event.image %}
-                                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
-                                {% endif %}
-                            </div>
-                            <div class="media-body">
-                                <i class="fa fa-calendar" aria-hidden="true"></i>
-                                <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
-                                {% if event.organizers_groups %}(organisé par
-                                    {{ event.organizers_groups.all|join:', ' }}){% endif %}
-                                <br>
-                                {{ event.get_display_date }} - {{ event.short_location }}
-                            </div>
-                        </div>
-                    </div>
-                {% empty %}
-                    <div class="list-group-item">
-                        Aucun événement récent ! Participez à des événements pour contribuer à leur compte-rendu.
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
+          {% endfor %}
+        {% empty %}
+          <div class="list-group-item">
+            Aucun événement suggéré ! Rejoignez un groupe d'action pour voir des événements.
+          </div>
+        {% endfor %}
+      </div>
     </div>
-    <hr/>
-    <div class="row">
-        <div class="help-dialog" data-hint="Administration">
-            Ceci est votre espace d'administration. Vous pouvez y gérer les événements que vous organisez, qu'ils soient
-            passés ou à venir.
-        </div>
-        <div class="col-md-6">
-            <h3>Événements que j'organise
-                <a class="pull-right btn btn-default btn-sm" href="{% url 'create_event' %}">
-                    <i class="fa fa-plus"></i> Créer un événement
-                </a>
-            </h3>
-            <div class="list-group">
-                {% for event in organized_events %}
-                    <div class="list-group-item">
-                        <div class="media">
-                            <div class="media-left media-middle" style="min-width:64px">
-                                {% if event.image %}
-                                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
-                                {% endif %}
-                            </div>
-                            <div class="media-body">
-                                <i class="fa fa-calendar" aria-hidden="true"></i>
-                                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
-                            </div>
-                        </div>
-                    </div>
-                {% empty %}
-                    <div class="list-group-item">
-                        Vous n'organisez aucun événement futur. Voulez-vous <a href="{% url 'create_event' %}">en créer
-                        un</a>&nbsp;?
-                    </div>
-                {% endfor %}
+    <div class="col-md-6">
+      <h3>Événements passés</h3>
+      <div class="help-dialog" data-hint="Événements passés">
+        Ce sont les 10 derniers événements auxquels vous avez participé. En retournant sur ces pages,
+        vous pouvez par exemple poser des photos sur les événements auxquels vous avez participé
+        et des comptes rendus sur ceux que vous avez organisé.
+      </div>
+      <div class="list-group">
+        {% for event in last_events %}
+          <div class="list-group-item">
+            <div class="media">
+              <div class="media-left media-middle" style="min-width:64px">
+                {% if event.image %}
+                  <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                {% endif %}
+              </div>
+              <div class="media-body">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+                <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
+                <br> {{ event.get_display_date }} - {{ event.short_location }}
+              </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <h3>Événements que j'ai organisé</h3>
-            <div class="list-group">
-                {% for event in past_organized_events %}
-                    <div class="list-group-item">
-                        <div class="media">
-                            <div class="media-left media-middle" style="min-width:64px">
-                                {% if event.image %}
-                                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
-                                {% endif %}
-                            </div>
-                            <div class="media-body">
-                                <i class="fa fa-calendar" aria-hidden="true"></i>
-                                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
-                            </div>
-                        </div>
-                    </div>
-                {% empty %}
-                    <div class="list-group-item">
-                        Vous n'avez organisé aucun événement terminé. Voulez-vous <a href="{% url 'create_event' %}">en
-                        créer un</a>&nbsp;?
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
+          </div>
+        {% empty %}
+          <div class="list-group-item">
+            Aucun événement récent ! Participez à des événements pour contribuer à leur compte-rendu.
+          </div>
+        {% endfor %}
+      </div>
     </div>
+    <div class="col-md-6">
+      <h3>Derniers comptes-rendus publics</h3>
+      <div class="help-dialog" data-hint="Comptes-rendu publiés">
+        Ce sont les derniers compte-rendus d'événement écrits par les insoumis⋅es sur la plateforme. Écrivez le
+        votre pour apparaître ici !
+      </div>
+      <div class="list-group">
+        {% for event in past_reports %}
+          <div class="list-group-item">
+            <div class="media">
+              <div class="media-left media-middle" style="min-width:64px">
+                {% if event.image %}
+                  <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                {% endif %}
+              </div>
+              <div class="media-body">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+                <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
+                {% if event.organizers_groups %}(organisé par
+                  {{ event.organizers_groups.all|join:', ' }}){% endif %}
+                <br>
+                {{ event.get_display_date }} - {{ event.short_location }}
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="list-group-item">
+            Aucun événement récent ! Participez à des événements pour contribuer à leur compte-rendu.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <hr/>
+  <div class="row">
+    <div class="help-dialog" data-hint="Administration">
+      Ceci est votre espace d'administration. Vous pouvez y gérer les événements que vous organisez, qu'ils soient
+      passés ou à venir.
+    </div>
+    <div class="col-md-6">
+      <h3>Événements que j'organise
+        <a class="pull-right btn btn-default btn-sm" href="{% url 'create_event' %}">
+          <i class="fa fa-plus"></i> Créer un événement
+        </a>
+      </h3>
+      <div class="list-group">
+        {% for event in organized_events %}
+          <div class="list-group-item">
+            <div class="media">
+              <div class="media-left media-middle" style="min-width:64px">
+                {% if event.image %}
+                  <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                {% endif %}
+              </div>
+              <div class="media-body">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="list-group-item">
+            Vous n'organisez aucun événement futur. Voulez-vous <a href="{% url 'create_event' %}">en créer
+            un</a>&nbsp;?
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-md-6">
+      <h3>Événements que j'ai organisé</h3>
+      <div class="list-group">
+        {% for event in past_organized_events %}
+          <div class="list-group-item">
+            <div class="media">
+              <div class="media-left media-middle" style="min-width:64px">
+                {% if event.image %}
+                  <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                {% endif %}
+              </div>
+              <div class="media-body">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="list-group-item">
+            Vous n'avez organisé aucun événement terminé. Voulez-vous <a href="{% url 'create_event' %}">en
+            créer un</a>&nbsp;?
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 {% endblock %}

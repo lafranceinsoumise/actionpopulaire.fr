@@ -36,20 +36,21 @@
         <div class="col-md-6">
           {% if supportgroup.coordinates_type == None %}
             <div class="alert alert-info">Localisation sur la carte en cours... Si cela dure trop longtemps, essayez <a
-                href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.</div>
+              href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
+            </div>
           {% elif supportgroup.coordinates_type == supportgroup.COORDINATES_NO_POSITION %}
             <div class="alert alert-info">Ce groupe n'a pas d'adresse, ni de positionnement manuel sur le carte.</div>
           {% elif supportgroup.coordinates_type == supportgroup.COORDINATES_NOT_FOUND %}
             <div class="alert alert-danger">
               Localisation sur la carte à partir de l'adresse non réussie. Merci de <a
-                href="{% url "edit_group" supportgroup.pk %}">préciser l'adresse</a> ou <a
-                href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
+              href="{% url "edit_group" supportgroup.pk %}">préciser l'adresse</a> ou <a
+              href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
             </div>
           {% elif supportgroup.coordinates == None %}
-              <div class="alert alert-danger">
-                Il semble y avoir un problème avec les coordonnées de votre groupe. Essayez <a
-                href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
-              </div>
+            <div class="alert alert-danger">
+              Il semble y avoir un problème avec les coordonnées de votre groupe. Essayez <a
+              href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
+            </div>
           {% else %}
             <iframe title="Carte" class="col-sm-6"
                     src="{{ MAP_DOMAIN }}{% url "carte:single_group_map" supportgroup.id %}" height="300"
@@ -72,13 +73,13 @@
     <li role="presentation" class="active"><a href="#membership" role="tab" data-toggle="tab">Membres</a></li>
     <li role="presentation"><a href="#animation" role="tab" data-toggle="tab">Animation</a></li>
     {% if has_promo_code or is_pressero_enabled %}
-    <li role="presentation"><a href="#materiel" role="tab" data-toggle="tab">Materiel</a></li>
+      <li role="presentation"><a href="#materiel" role="tab" data-toggle="tab">Materiel</a></li>
     {% endif %}
     {% if supportgroup.is_certified %}
-    <li role="presentation"><a href="#financement" role="tab" data-toggle="tab">Financement</a></li>
+      <li role="presentation"><a href="#financement" role="tab" data-toggle="tab">Financement</a></li>
     {% endif %}
     {% if not supportgroup.is_certified and certifiable %}
-    <li role="presentation"><a href="#certification" role="tab" data-toggle="tab">Certification</a></li>
+      <li role="presentation"><a href="#certification" role="tab" data-toggle="tab">Certification</a></li>
     {% endif %}
   </ul>
 
@@ -93,7 +94,8 @@
     <div role="tabpanel" class="tab-pane active" id="membership">
       <h3>Liste des membres</h3>
 
-      <p>Votre groupe comprend à l'heure actuelle {{ members|length }} membre{% if members|length > 1 %}s{% endif %}.</p>
+      <p>Votre groupe comprend à l'heure actuelle {{ members|length }} membre{% if members|length > 1 %}s{% endif %}
+        .</p>
 
       <p>Cette liste peut etre copiée-collée directement dans votre logiciel de messagerie !</p>
 
@@ -136,14 +138,17 @@
           {% if referents|length == 1 and is_referent %}
             <div>
               <p>
-                Vous etes à l'heure actuelle l'unique animatrice ou animateur enregistré de ce groupe d'action. La charte des
+                Vous etes à l'heure actuelle l'unique animatrice ou animateur enregistré de ce groupe d'action. La
+                charte des
                 groupes d'action de la France insoumise prévoit que les groupes d'action</p>
               <blockquote>
-                sont animés par deux personnes de genres différents, n’appartenant pas, le cas échéant, toutes les deux à une
+                sont animés par deux personnes de genres différents, n’appartenant pas, le cas échéant, toutes les deux
+                à une
                 même formation politique qui soutient la France insoumise.
               </blockquote>
               <p>
-                Si vous souhaitez ne plus être animatrice ou animateur de ce groupe d'action, il vous faut d'abord indiquer une
+                Si vous souhaitez ne plus être animatrice ou animateur de ce groupe d'action, il vous faut d'abord
+                indiquer une
                 autre personne, car un groupe d'action ne peut se trouver sans animation. </p>
               <p>
                 Vous pouvez nous indiquer ici qui est l'autre animatrice ou animateur au sein du groupe. </p>
@@ -154,8 +159,10 @@
         <div class="col-md-6">
           <h4>Les autres gestionnaires du groupe</h4>
 
-          <p>Les autres gestionnaires ont accès à la liste des membres, peuvent modifier les informations du groupe, et créer
-            des événements au nom du groupe. Ils peuvent ainsi assister les animateurs pour la gestion technique au quotidien du
+          <p>Les autres gestionnaires ont accès à la liste des membres, peuvent modifier les informations du groupe, et
+            créer
+            des événements au nom du groupe. Ils peuvent ainsi assister les animateurs pour la gestion technique au
+            quotidien du
             groupe sur la plateforme.</p>
 
           {% if managers %}
@@ -169,7 +176,7 @@
                       {{ person.email }}
                     {% endif %}
                     <a href="{% url 'remove_manager' pk=membership.pk %}" aria-label="Retirer ce gestionnaire"> <i
-                        class="fa fa-remove" aria-hidden="true" title="Retirer ce gestionnaire"></i> </a>
+                      class="fa fa-remove" aria-hidden="true" title="Retirer ce gestionnaire"></i> </a>
                   </li>
                 {% endwith %}
               {% endfor %}
@@ -192,15 +199,17 @@
 
         {% if promo_code_delay %}
           <div class="alert alert-info">Dans l'attente d'un nouveau matériel que nous vous inviterons à commander, le
-            code promo sera disponible à partir du {{ promo_code_delay|date }}.</div>
+            code promo sera disponible à partir du {{ promo_code_delay|date }}.
+          </div>
         {% else %}
           <div style="text-align: center; margin: 2em auto;">
             <span
-                style="padding: 10px; font-weight: bolder; font-size: 2em; border: 2px solid darkgrey;">{{ group_promo_code }}</span>
+              style="padding: 10px; font-weight: bolder; font-size: 2em; border: 2px solid darkgrey;">{{ group_promo_code }}</span>
           </div>
 
           <p>
-            Ce code peut être utilisé sur le <a href="https://materiel.lafranceinsoumise.fr">site d'achat de matériel</a>.
+            Ce code peut être utilisé sur le <a href="https://materiel.lafranceinsoumise.fr">site d'achat de
+            matériel</a>.
           </p>
         {% endif %}
       {% endif %}
@@ -208,9 +217,9 @@
       {% if is_pressero_enabled %}
         <h3>Matériel à imprimer pour les événements avec candidat⋅e⋅s aux élections européennes</h3>
         <p>
-            Si vous organisez des événements impliquant des candidat⋅e⋅s aux élections européennes, nous mettons à votre
-            disposition une application vous permettant de réaliser facilement vos propres affiches à partir de modèles et
-            d'en commander l'impression.
+          Si vous organisez des événements impliquant des candidat⋅e⋅s aux élections européennes, nous mettons à votre
+          disposition une application vous permettant de réaliser facilement vos propres affiches à partir de modèles et
+          d'en commander l'impression.
         </p>
         <a href="{% url "redirect_to_pressero" supportgroup.pk %}" class="btn btn-default">Je crée mon matériel</a>
       {% endif %}
@@ -219,12 +228,14 @@
       {% if supportgroup.is_certified %}
         <h3>Dons alloués aux actions de mon groupe</h3>
         {% if allocation_balance > 0 %}
-          <p>La somme alloués à vos actions est de {{ allocation_balance | display_price }}&nbsp;€. Vous pouvez créer une
+          <p>La somme alloués à vos actions est de {{ allocation_balance | display_price }}&nbsp;€. Vous pouvez créer
+            une
             nouvelle demande de dépense si vous avez des dépenses à effectuer pour le groupe.</p>
 
         {% else %}
           <p>
-            Personne n'a encore alloué de dons à vos actions. Vous pouvez le faire <a href="{% url "donation_amount" %}">sur
+            Personne n'a encore alloué de dons à vos actions. Vous pouvez le faire <a
+            href="{% url "donation_amount" %}">sur
             la page de dons</a>. </p>
           <p>
             Vous pouvez déjà créer une demande de dépense, mais vous ne pourrez la faire valider que lorsque votre
@@ -249,7 +260,8 @@
               <tr>
                 <td>{{ spending_request.title }}</td>
                 <td>{{ spending_request.get_status_display }}</td>
-                <td><a href="{% url "manage_spending_request" spending_request.pk %}" class="btn btn-default"> Gérer </a>
+                <td><a href="{% url "manage_spending_request" spending_request.pk %}" class="btn btn-default">
+                  Gérer </a>
                 </td>
               </tr>
             {% endfor %}
@@ -272,8 +284,9 @@
             Votre groupe n'est pas encore certifié. Vous pouvez en demander la certification en cliquant sur le bouton
             ci-dessous.
           </p>
-          <a href="https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/?group-id={{ supportgroup.pk }}&email={{ user.person.email }}&animateur={{ user.person.get_full_name }}"
-             class="btn btn-primary">Demander la certification</a>
+          <a
+            href="https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/?group-id={{ supportgroup.pk }}&email={{ user.person.email }}&animateur={{ user.person.get_full_name }}"
+            class="btn btn-primary">Demander la certification</a>
         {% else %}
           <p>
             Pour pouvoir demander la certification, vous devez nous indiquer l'identité du deuxième animateur du groupe.

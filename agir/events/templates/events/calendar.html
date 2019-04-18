@@ -4,63 +4,65 @@
 {% block title %}{{ calendar.name }}{% endblock %}
 
 {% block main %}
-    {% if calendar.image %}
-        <img src="{{ calendar.image.url }}" class="img-responsive center-block">
-    {% endif %}
+  {% if calendar.image %}
+    <img src="{{ calendar.image.url }}" class="img-responsive center-block">
+  {% endif %}
 
-    {% url 'ics_calendar' calendar.slug as calendar_url %}
-    <h2>{{ calendar.name }} <small>S'abonner {% include 'events/calendar_subscribe_modal.html' with url=calendar_url %}</small></h2>
+  {% url 'ics_calendar' calendar.slug as calendar_url %}
+  <h2>{{ calendar.name }}
+    <small>S'abonner {% include 'events/calendar_subscribe_modal.html' with url=calendar_url %}</small>
+  </h2>
 
-    {% if calendar.description %}
-        <div class="intro">
-            {{ calendar.description | safe }}
+  {% if calendar.description %}
+    <div class="intro">
+      {{ calendar.description | safe }}
+    </div>
+  {% endif %}
+
+  {% if events %}
+    <div>
+      <hr>
+      {% for event in events %}
+        <div class="row">
+          <div class="col-md-4">
+            {% if event.image %}
+              <img src="{{ event.image.thumbnail.url }}" class="img-responsive">
+            {% elif calendar.image %}
+              <img src="{{ calendar.image.url }}" class="img-responsive">
+            {% else %}
+              <img src="{% static default_event_image %}" class="img-responsive">
+            {% endif %}
+          </div>
+          <div class="col-md-8">
+            <h4><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h4>
+            <div class="date">{{ event.get_display_date }}</div>
+            <div>{{ event.html_full_address }}</div>
+            <h6>Ajouter à mon agenda&ensp;
+              {% include 'events/event_ics.html' with event=event %}
+            </h6>
+          </div>
         </div>
-    {% endif %}
+        <hr/>
+      {% endfor %}
+    </div>
 
-    {% if events %}
-        <div>
-            <hr>
-            {% for event in events %}
-                <div class="row">
-                    <div class="col-md-4">
-                        {% if event.image %}
-                            <img src="{{ event.image.thumbnail.url }}" class="img-responsive">
-                        {% elif calendar.image %}
-                            <img src="{{ calendar.image.url }}" class="img-responsive">
-                        {% else %}
-                            <img src="{% static default_event_image %}" class="img-responsive">
-                        {% endif %}
-                    </div>
-                    <div class="col-md-8">
-                        <h4><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h4>
-                        <div class="date">{{ event.get_display_date }}</div>
-                        <div>{{ event.html_full_address }}</div>
-                        <h6>Ajouter à mon agenda&ensp;
-                          {% include 'events/event_ics.html' with event=event %}
-                        </h6>
-                    </div>
-                </div>
-                <hr/>
-            {% endfor %}
-        </div>
-
-        <nav>
-            <ul class="pager">
-                {% if events.has_previous %}
-                    <li class="previous">
-                        <a href="?page={{ events.previous_page_number }}">&lt;&lt;</a>
-                    </li>
-                {% endif %}
-                {% if events.has_next %}
-                    <li class="next">
-                        <a href="?page={{ events.next_page_number }}">&gt;&gt;</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
-    {% else %}
-        <div class="lead text-center">
-            Pas d'événement prévu pour le moment
-        </div>
-    {% endif %}
+    <nav>
+      <ul class="pager">
+        {% if events.has_previous %}
+          <li class="previous">
+            <a href="?page={{ events.previous_page_number }}">&lt;&lt;</a>
+          </li>
+        {% endif %}
+        {% if events.has_next %}
+          <li class="next">
+            <a href="?page={{ events.next_page_number }}">&gt;&gt;</a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% else %}
+    <div class="lead text-center">
+      Pas d'événement prévu pour le moment
+    </div>
+  {% endif %}
 {% endblock %}

@@ -8,22 +8,23 @@
 {% block legal %}{% include "europeennes/loans/legal.html" %}{% endblock %}
 
 {% block script %}
-<script>
- var countryOfBirth = document.getElementById("id_country_of_birth");
- var departementOfBirth = document.getElementById("id_departement_of_birth");
+  <script>
+    var countryOfBirth = document.getElementById("id_country_of_birth");
+    var departementOfBirth = document.getElementById("id_departement_of_birth");
 
- function updateDepartementOfBirth() {
-   if (countryOfBirth.value === "FR") {
-     departementOfBirth.required = true;
-     departementOfBirth.disabled = false;
-   } else {
-     departementOfBirth.required = false;
-     departementOfBirth.disabled = true;
-   }
+    function updateDepartementOfBirth() {
+      if (countryOfBirth.value === "FR") {
+        departementOfBirth.required = true;
+        departementOfBirth.disabled = false;
+      } else {
+        departementOfBirth.required = false;
+        departementOfBirth.disabled = true;
+      }
 
- }
-  countryOfBirth.addEventListener("change", updateDepartementOfBirth);
-  updateDepartementOfBirth();
+    }
 
-</script>
+    countryOfBirth.addEventListener("change", updateDepartementOfBirth);
+    updateDepartementOfBirth();
+
+  </script>
 {% endblock %}
