@@ -100,6 +100,11 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     def html_full_address(self):
         return display_address(self)
 
+    def description(self):
+        from .actions import description_for_payment
+
+        return description_for_payment(self)
+
     def __str__(self):
         return _("Paiement n°") + str(self.id)
 

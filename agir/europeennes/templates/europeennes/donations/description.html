@@ -1,0 +1,6 @@
+{% load display_lib %}
+<div>
+  <h4>Don à l'AFCE France insoumise</h4>
+  <div>Vous avez donné <strong>{{ payment.price | display_price }}</strong> pour la campagne européenne de la France
+    insoumise le {{ payment.created | date }}</div>
+</div>

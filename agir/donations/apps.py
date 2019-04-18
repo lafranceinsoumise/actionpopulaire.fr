@@ -16,4 +16,5 @@ class DonsConfig(AppConfig):
             "Don",
             ReturnView.as_view(),
             status_listener=notification_listener,
+            description_template="donations/description.html",
         )

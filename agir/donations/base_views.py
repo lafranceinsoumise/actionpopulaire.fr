@@ -30,6 +30,7 @@ class BasePersonalInformationView(UpdateView):
     form_class = agir.donations.base_forms.SimpleDonorForm
     template_name = "donations/personal_information.html"
     payment_mode = None
+    payment_type = None
     session_namespace = "_donation_"
     base_redirect_url = None
 
@@ -94,7 +95,7 @@ class BasePersonalInformationView(UpdateView):
             payment = create_payment(
                 person=self.object,
                 mode=self.payment_mode,
-                type=DonsConfig.PAYMENT_TYPE,
+                type=self.payment_type,
                 price=amount,
                 meta=payment_metas,
                 **kwargs

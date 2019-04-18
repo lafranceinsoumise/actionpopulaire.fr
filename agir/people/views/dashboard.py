@@ -13,6 +13,7 @@ from agir.groups.actions.promo_codes import is_promo_code_delayed, next_promo_co
 from agir.groups.models import SupportGroup
 from agir.events.views.utils import group_events_by_day
 from agir.lib.tasks import geocode_person
+from agir.payments.models import Payment
 
 
 class DashboardView(SoftLoginRequiredMixin, TemplateView):
@@ -129,6 +130,10 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
                 distance=Distance("coordinates", person.coordinates)
             ).order_by("distance")[:5]
 
+        payments = person.payments.filter(status=Payment.STATUS_COMPLETED).order_by(
+            "-created"
+        )
+
         kwargs.update(
             {
                 "person": person,
@@ -140,6 +145,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
                 "past_reports": past_reports,
                 "organized_events": organized_events,
                 "past_organized_events": past_organized_events,
+                "payments": payments,
             }
         )
         return super().get_context_data(**kwargs)

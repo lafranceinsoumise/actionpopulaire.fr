@@ -26,7 +26,12 @@ urlpatterns = [
     ),
     path(
         "europeennes/prets/contrat/",
-        views.LoanContractView.as_view(),
+        views.LoanAcceptContractView.as_view(),
         name="europeennes_loan_sign_contract",
+    ),
+    path(
+        "europennes/prets/contrat/<int:pk>/",
+        views.LoanContractView.as_view(),
+        name="europeennes_view_contract",
     ),
 ]

@@ -1,15 +1,19 @@
 from urllib.parse import urljoin
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
+from django.core.files.storage import default_storage
 from django.db import transaction
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView, DetailView
 from functools import partial
+from wsgiref.util import FileWrapper
 
+from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.donations.actions import find_or_create_person_from_payment
 from agir.donations.base_views import BaseAskAmountView
 from agir.donations.views import BasePersonalInformationView
@@ -44,6 +48,7 @@ class DonationAskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
 class DonationPersonalInformationView(BasePersonalInformationView):
     template_name = "europeennes/donations/personal_information.html"
     payment_mode = AFCESystemPayPaymentMode.id
+    payment_type = EuropeennesConfig.DONATION_PAYMENT_TYPE
     session_namespace = DONATIONS_SESSION_NAMESPACE
     base_redirect_url = "europeennes_donation_amount"
 
@@ -104,7 +109,7 @@ class LoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformationView
         return HttpResponseRedirect(reverse("europeennes_loan_sign_contract"))
 
 
-class LoanContractView(MaxTotalLoanMixin, FormView):
+class LoanAcceptContractView(MaxTotalLoanMixin, FormView):
     form_class = ContractForm
     template_name = "europeennes/loans/validate_contract.html"
 
@@ -173,6 +178,24 @@ class LoanReturnView(TemplateView):
         return super().get_context_data(
             chere_preteur=SUBSTITUTIONS["cher_preteur"][gender], **kwargs
         )
+
+
+class LoanContractView(SoftLoginRequiredMixin, DetailView):
+    queryset = Payment.objects.filter(
+        status=Payment.STATUS_COMPLETED, type=EuropeennesConfig.LOAN_PAYMENT_TYPE
+    )
+
+    def get(self, request, *args, **kwargs):
+        payment = self.get_object()
+
+        if payment.person != request.user.person:
+            raise PermissionDenied("Vous n'avez pas le droit d'accéder à cette page.")
+
+        if "contract_path" not in payment.meta:
+            raise Http404()
+
+        with default_storage.open(payment.meta["contract_path"], "rb") as f:
+            return HttpResponse(FileWrapper(f), content_type="application/pdf")
 
 
 def generate_and_send_contract(payment_id):

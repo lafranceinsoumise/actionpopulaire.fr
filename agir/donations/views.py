@@ -19,6 +19,7 @@ from agir.donations.actions import (
     get_current_action,
     find_or_create_person_from_payment,
 )
+from agir.donations.apps import DonsConfig
 from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
 from agir.donations.forms import (
     DocumentOnCreationFormset,
@@ -72,6 +73,7 @@ class PersonalInformationView(BasePersonalInformationView):
     template_name = "donations/personal_information.html"
     enable_allocations = True
     payment_mode = payment_modes.DEFAULT_MODE
+    payment_type = DonsConfig.PAYMENT_TYPE
     session_namespace = DONATION_SESSION_NAMESPACE
     base_redirect_url = "donation_amount"
 

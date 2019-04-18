@@ -1,8 +1,9 @@
 from django.http.response import HttpResponseRedirect
+from django.template import loader
 
 from .models import Payment
-from .types import PAYMENT_TYPES
 from .payment_modes import DEFAULT_MODE
+from .types import PAYMENT_TYPES
 
 
 class PaymentException(Exception):
@@ -68,3 +69,24 @@ def notify_status_change(payment):
     # call the registered listener for this event type if there is one to notify it of the changes in status
     if payment.type in PAYMENT_TYPES and PAYMENT_TYPES[payment.type].status_listener:
         PAYMENT_TYPES[payment.type].status_listener(payment)
+
+
+def default_description_context_generator(payment):
+    return {"payment": payment}
+
+
+def description_for_payment(payment):
+    if payment.type in PAYMENT_TYPES:
+        payment_type = PAYMENT_TYPES[payment.type]
+        template_name = (
+            payment_type.description_template or "payments/default_description.html"
+        )
+        context_generator = (
+            payment_type.description_context_generator
+            or default_description_context_generator
+        )
+    else:
+        template_name = "payments/default_description.html"
+        context_generator = default_description_context_generator
+
+    return loader.render_to_string(template_name, context_generator(payment))

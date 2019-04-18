@@ -16,6 +16,7 @@ from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
     HardLoginRequiredMixin,
 )
+from agir.payments.models import Payment
 from agir.people.actions.management import merge_persons
 from agir.people.forms import (
     Person,
@@ -31,6 +32,14 @@ from agir.people.forms.profile import (
 )
 from agir.people.models import PersonEmail
 from agir.people.views.views_mixin import InsoumiseOnlyMixin
+
+
+class ProfileViewMixin(SoftLoginRequiredMixin):
+    tab_code = None
+
+    def get_context_data(self, **kwargs):
+        kwargs.setdefault("person", self.request.user.person)
+        return super().get_context_data(tab_code=self.tab_code, **kwargs)
 
 
 class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
@@ -55,13 +64,11 @@ class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
         return response
 
 
-class BecomeInsoumiseView(SoftLoginRequiredMixin, UpdateView):
+class BecomeInsoumiseView(ProfileViewMixin, UpdateView):
     template_name = "people/profile/profile_default.html"
     form_class = BecomeInsoumiseForm
     success_url = reverse_lazy("personal_information")
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(tab_code="BECOME_INSOUMISE", **kwargs)
+    tab_code = "BECOME_INSOUMISE"
 
     def form_valid(self, form):
         self.object.subscribed = True
@@ -80,13 +87,11 @@ class BecomeInsoumiseView(SoftLoginRequiredMixin, UpdateView):
         return self.request.user.person
 
 
-class PersonalInformationsView(SoftLoginRequiredMixin, InsoumiseOnlyMixin, UpdateView):
+class PersonalInformationsView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
     template_name = "people/profile/profile_default.html"
     form_class = PersonalInformationsForm
     success_url = reverse_lazy("personal_information")
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(tab_code="IDENTITY", **kwargs)
+    tab_code = "IDENTITY"
 
     def get_object(self, queryset=None):
         """Get the current user as the view object"""
@@ -242,42 +247,47 @@ class ChangePrimaryEmailView(SoftLoginRequiredMixin, RedirectView):
         return super().get(request, *args, **kwargs)
 
 
-class SkillsView(SoftLoginRequiredMixin, InsoumiseOnlyMixin, UpdateView):
+class SkillsView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
     template_name = "people/profile/profile_default.html"
     form_class = ActivityAblebilityForm
     success_url = reverse_lazy("skills")
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(tab_code="SKILLS", **kwargs)
+    tab_code = "SKILLS"
 
     def get_object(self, queryset=None):
         """Get the current user as the view object"""
         return self.request.user.person
 
 
-class PesonalDataView(SoftLoginRequiredMixin, FormView):
+class PesonalDataView(ProfileViewMixin, FormView):
     template_name = "people/profile/profile_default.html"
     form_class = InformationConfidentialityForm
     success_url = reverse_lazy("personal_data")
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(
-            tab_code="PERSONAL_DATA", person=self.get_object(), **kwargs
-        )
+    tab_code = "PERSONAL_DATA"
 
     def get_object(self, queryset=None):
         """Get the current user as the view object"""
         return self.request.user.person
 
 
-class VolunteerView(SoftLoginRequiredMixin, InsoumiseOnlyMixin, UpdateView):
+class VolunteerView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
     template_name = "people/profile/volunteer.html"
     form_class = VolunteerForm
     success_url = reverse_lazy("volunteer")
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(tab_code="ACT")
+    tab_code = "ACT"
 
     def get_object(self, queryset=None):
         """Get the current user as the view object"""
         return self.request.user.person
+
+
+class PaymentsView(ProfileViewMixin, TemplateView):
+    template_name = "people/profile/payments.html"
+    tab_code = "PAYMENTS"
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            payments=self.request.user.person.payments.filter(
+                status=Payment.STATUS_COMPLETED
+            ),
+            **kwargs,
+        )

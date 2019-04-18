@@ -274,3 +274,22 @@ def set_guest_number(event, person, guests):
         rsvp.save()
 
     send_guest_confirmation.delay(rsvp.pk)
+
+
+def payment_description_context_generator(payment):
+    guest = False
+
+    try:
+        rsvp = payment.rsvp
+    except RSVP.DoesNotExist:
+        try:
+            guest = payment.identified_guest
+        except IdentifiedGuest.DoesNotExist:
+            event = None
+        else:
+            event = guest.rsvp.event
+            guest = True
+    else:
+        event = rsvp.event
+
+    return {"payment": payment, "event": event, "guest": guest}

@@ -71,6 +71,7 @@ profile_urls = [
     path(
         "profil/confidentialite/", views.PesonalDataView.as_view(), name="personal_data"
     ),
+    path("profil/paiements/", views.PaymentsView.as_view(), name="view_payments"),
 ]
 
 unsubscribe_urls = [
