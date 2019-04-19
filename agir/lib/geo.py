@@ -37,7 +37,7 @@ def geocode_element(item):
 
 def get_results_from_ban(query):
     try:
-        res = requests.get(BAN_ENDPOINT, params=query)
+        res = requests.get(BAN_ENDPOINT, params=query, timeout=5)
         res.raise_for_status()
         results = res.json()
     except requests.RequestException:
