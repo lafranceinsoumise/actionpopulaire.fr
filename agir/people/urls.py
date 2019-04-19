@@ -69,7 +69,9 @@ profile_urls = [
         name="confirm_change_mail",
     ),
     path(
-        "profil/confidentialite/", views.PesonalDataView.as_view(), name="personal_data"
+        "profil/confidentialite/",
+        views.PersonalDataView.as_view(),
+        name="personal_data",
     ),
     path("profil/paiements/", views.PaymentsView.as_view(), name="view_payments"),
 ]

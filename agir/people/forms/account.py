@@ -129,7 +129,8 @@ class AddEmailForm(forms.ModelForm):
 
 class SendValidationSMSForm(forms.ModelForm):
     error_messages = {
-        "french_only": "Le numéro doit être un numéro de téléphone français.",
+        "french_only": "Pour des raisons techniques, l'opération ne peut être réalisée qu'avec des numéros français. "
+        "Pas d'inquiétude si vous n'avez pas de numéro français, elle n'est pas obligatoire !",
         "mobile_only": "Vous devez donner un numéro de téléphone mobile.",
         "rate_limited": "Trop de SMS envoyés. Merci de réessayer dans quelques minutes.",
         "sending_error": "Le SMS n'a pu être envoyé suite à un problème technique. Merci de réessayer plus tard.",

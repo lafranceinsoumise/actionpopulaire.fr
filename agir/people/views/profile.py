@@ -28,7 +28,7 @@ from agir.people.forms import (
 from agir.people.forms.profile import (
     PersonalInformationsForm,
     ContactForm,
-    ActivityAblebilityForm,
+    ActivityAndSkillsForm,
 )
 from agir.people.models import PersonEmail
 from agir.people.views.views_mixin import InsoumiseOnlyMixin
@@ -249,7 +249,7 @@ class ChangePrimaryEmailView(SoftLoginRequiredMixin, RedirectView):
 
 class SkillsView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
     template_name = "people/profile/profile_default.html"
-    form_class = ActivityAblebilityForm
+    form_class = ActivityAndSkillsForm
     success_url = reverse_lazy("skills")
     tab_code = "SKILLS"
 
@@ -258,7 +258,7 @@ class SkillsView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
         return self.request.user.person
 
 
-class PesonalDataView(ProfileViewMixin, FormView):
+class PersonalDataView(ProfileViewMixin, FormView):
     template_name = "people/profile/profile_default.html"
     form_class = InformationConfidentialityForm
     success_url = reverse_lazy("personal_data")

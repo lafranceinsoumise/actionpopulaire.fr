@@ -174,7 +174,7 @@ class AddEmailMergeAccountForm(Form):
                 self.fields["email_add_merge"].error_messages["rate_limit"],
             )
             return True
-        False
+        return False
 
     def send_confirmation(self):
         email = self.cleaned_data["email_add_merge"]
@@ -307,7 +307,8 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
                 if unverified
                 else f"Compte {self.instance.get_contact_phone_status_display().lower()}",
                 help_text=_(
-                    "Validez votre numéro de téléphone afin de certifier votre compte."
+                    "Validez votre numéro de téléphone afin de certifier votre compte (cette certification "
+                    "facultative n'est possible que pour les numéros français."
                 )
                 if unverified
                 else "",
@@ -370,7 +371,7 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
         )
 
 
-class ActivityAblebilityForm(MetaFieldsMixin, TagMixin, forms.ModelForm):
+class ActivityAndSkillsForm(MetaFieldsMixin, TagMixin, forms.ModelForm):
     tags = skills_tags
     tag_model_class = PersonTag
     meta_fields = [
