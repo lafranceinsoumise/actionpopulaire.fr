@@ -13,7 +13,7 @@ import LocationStep from "./steps/LocationStep";
 import ScheduleStep from "./steps/ScheduleStep";
 
 import "./style.css";
-import { Spring } from "react-spring";
+import { Spring } from "react-spring/renderprops";
 
 class CreateEventForm extends React.Component {
   constructor(props) {

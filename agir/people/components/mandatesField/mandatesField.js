@@ -7,8 +7,6 @@ import Symbol from "es6-symbol";
 import Modal from "@agir/lib/bootstrap/Modal";
 import Button from "@agir/lib/bootstrap/Button";
 
-import "react-select/dist/react-select.min.css";
-
 import { mandateGroups, mandateDict } from "./divisions";
 
 const mandateOptions = [

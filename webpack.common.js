@@ -61,7 +61,7 @@ module.exports = {
     components
   ),
   plugins: [
-    new CleanWebpackPlugin([DISTPATH]),
+    new CleanWebpackPlugin(),
     new BundleTracker({ path: DISTPATH }),
     new MiniCssExtractPlugin(),
     new webpack.DefinePlugin({ API_ENDPOINT: apiEndpoint }),
