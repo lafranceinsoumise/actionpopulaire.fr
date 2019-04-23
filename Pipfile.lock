@@ -72,18 +72,18 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:9fedb9ca5f5c32672f633db18d82b33bb8792506d6298602d356c16889ce504e",
-                "sha256:e63831daad499191811851e6c6016b1fc710fc2d92ddc221288b26f6bdea8f74"
+                "sha256:883f7143bcb081a834f7c09659524059b66745ea043fffd40420e88ef0143feb",
+                "sha256:9c789a775f0499743b083ffd63e0e87dae9a727511bb37f2529da52ccd25a360"
             ],
             "markers": "extra == 'amazon_ses'",
-            "version": "==1.9.133"
+            "version": "==1.9.134"
         },
         "botocore": {
             "hashes": [
-                "sha256:3b5968fc897b590c2b57fd6105b52ba8bdf5eb2100b7e181d4c17c7c05a2f83a",
-                "sha256:cc270cc2c282b2679f44bd1de011a270c4d8b5364afc2f705152ca187821d4eb"
+                "sha256:5c4d9ea1b0fbb1dc98b6a06ed8780096fca981a1c3599bf8f03f338e6aa389ae",
+                "sha256:c59a74539eb081f4b3a307fc5c3d69d8459e30bfaf4b94aa78e74a9a05583764"
             ],
-            "version": "==1.12.133"
+            "version": "==1.12.134"
         },
         "celery": {
             "hashes": [
@@ -205,11 +205,11 @@
         },
         "django-otp": {
             "hashes": [
-                "sha256:1860e72cfcd95fe73117f3543d2e53f7847cf59e894ae0aa9399a10a50fb081f",
-                "sha256:5756050ec09ecf8e6ce2b0f9f370ebd26249f326a1010a413b61c6a4c554f25f"
+                "sha256:694ba22fa8002356129095b85191b00ad1ad73493f44adc62f681833a6aeb9ec",
+                "sha256:f1dcce031d40ae3ecd79c01f53901a912b5292b348170a7956164245d029c367"
             ],
             "index": "pypi",
-            "version": "==0.5.2"
+            "version": "==0.6.0"
         },
         "django-phonenumber-field": {
             "hashes": [
@@ -456,11 +456,11 @@
         },
         "nuntius": {
             "hashes": [
-                "sha256:457bdfbb05b290af9c76abc0cef8af6855484fb26b54da4e300e923cf9021e20",
-                "sha256:d136f1cce0262455123cfe4eca3d4d0263fec3883e5a0efa5ad18e48dc081535"
+                "sha256:2a28974d6ea61c63931975ac98fc016060940dfe9102bce06431f0f6e9200898",
+                "sha256:93bbe5950a9feab3f87ee520b89d8e9786ca78871802c39319deb7f0f7970d9f"
             ],
             "index": "pypi",
-            "version": "==0.3.15"
+            "version": "==0.3.16"
         },
         "oauthlib": {
             "hashes": [
