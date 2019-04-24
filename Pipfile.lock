@@ -245,11 +245,11 @@
         },
         "django-silk": {
             "hashes": [
-                "sha256:ab6b7151a54eaa14d4fc77a58fd75e7c0c8bd60d29c87e55575845a304b0c0eb",
-                "sha256:bce0e35d2a6ec3688a0c062c6964695beef4a452be48085f2c1e25f685652d9d"
+                "sha256:646f422318e880004424623fbbf854bfa45c86df11beedd9752815b5a68f47fb",
+                "sha256:8dd5b78531360bd8c3d571384f9f4f82ef03e1764e30dd4621c5638f5c973a1d"
             ],
             "index": "pypi",
-            "version": "==3.0.1"
+            "version": "==3.0.2"
         },
         "django-stdimage": {
             "hashes": [
@@ -314,9 +314,9 @@
         },
         "gprof2dot": {
             "hashes": [
-                "sha256:48c1e168c28b8a8eb23bf30fda78fe2ef218269a41505341ec27c27083e47cf4"
+                "sha256:cebc7aa2782fd813ead415ea1fae3409524343485eadc7fb60ef5bd1e810309e"
             ],
-            "version": "==2016.10.13"
+            "version": "==2017.9.19"
         },
         "hiredis": {
             "hashes": [
@@ -456,11 +456,11 @@
         },
         "nuntius": {
             "hashes": [
-                "sha256:2a28974d6ea61c63931975ac98fc016060940dfe9102bce06431f0f6e9200898",
-                "sha256:93bbe5950a9feab3f87ee520b89d8e9786ca78871802c39319deb7f0f7970d9f"
+                "sha256:62648db9094ff91a6fb338727b059b6c3aa167f9e832215fad39818b3c7b3c9c",
+                "sha256:dbdd6fd63e705643256ad04a585a0cf8e887257e20296e7c3e0c3c74c6c6e5c0"
             ],
             "index": "pypi",
-            "version": "==0.3.16"
+            "version": "==0.3.17"
         },
         "oauthlib": {
             "hashes": [
