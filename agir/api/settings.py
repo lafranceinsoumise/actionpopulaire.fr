@@ -24,6 +24,9 @@ ADMIN_RE = re.compile("^([\w -]+) <([^>]+)>$")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "true").lower() == "true"
+ENABLE_DEBUG_TOOLBAR = os.environ.get("ENABLE_DEBUG_TOOLBAR", "false").lower() == "true"
+ENABLE_SILK = os.environ.get("ENABLE_SILK", "false").lower() == "true"
+
 
 ENABLE_API = not os.environ.get("ENABLE_API", "y").lower() in ["n", "no", "false"]
 ENABLE_FRONT = (
@@ -162,10 +165,14 @@ MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
-if DEBUG:
+if ENABLE_DEBUG_TOOLBAR:
     INSTALLED_APPS.append("debug_toolbar")
     MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
     INTERNAL_IPS = ["127.0.0.1"]
+
+if ENABLE_SILK:
+    INSTALLED_APPS += ["silk"]
+    MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
 
 
 ROOT_URLCONF = "agir.api.urls"
@@ -455,10 +462,6 @@ if not DEBUG:
     # removed because it created problems with direct HTTP connections on localhost
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-
-if DEBUG:
-    INSTALLED_APPS += ["silk"]
-    MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
 
 CRISPY_TEMPLATE_PACK = "bootstrap3"
 
