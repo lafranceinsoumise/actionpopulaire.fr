@@ -31,7 +31,7 @@ function createLinkElement(text, handler) {
   return li;
 }
 
-module.exports = function(input) {
+export default function(input) {
   const form = input.form;
   const dropdownDiv = input.parentElement;
   const resultList = document.createElement("ul");
@@ -105,6 +105,6 @@ module.exports = function(input) {
       }
     );
   });
-};
+}
 
-module.exports.getResults = getResults;
+export { getResults };

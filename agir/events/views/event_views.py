@@ -1,8 +1,22 @@
 import ics
+from datetime import timedelta, datetime
+from django.conf import settings
+from django.contrib import messages
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import Distance as DistanceMeasure
+from django.contrib.postgres.search import SearchRank
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import F
+from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponse
+from django.urls import reverse_lazy, reverse
+from django.utils import timezone
+from django.utils.html import format_html
+from django.utils.http import urlencode
+from django.utils.translation import ugettext as _, ngettext
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponse
 from django.template import loader
@@ -21,6 +35,7 @@ from django.views.generic import (
 )
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import ProcessFormView, FormMixin
+from django.views.generic.edit import ProcessFormView, FormMixin, FormView
 
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
@@ -34,6 +49,9 @@ from agir.front.view_mixins import (
     ChangeLocationBaseView,
     SearchByZipcodeBaseView,
 )
+from agir.front.view_mixins import ObjectOpengraphMixin, ChangeLocationBaseView
+from agir.lib.geo import geocode_coordinate_from_simple_address
+from agir.lib.search import PrefixSearchQuery
 from agir.lib.views import ImageSizeWarningMixin
 from ..forms import (
     EventForm,
@@ -68,21 +86,100 @@ __all__ = [
     "SendEventReportView",
     "EditEventLegalView",
     "UploadEventImageView",
-    "EventListView",
+    "EventSearchView",
     "PerformCreateEventView",
 ]
 
 
-class EventListView(SearchByZipcodeBaseView):
-    """List of events, filter by zipcode
+class EventSearchView(SoftLoginRequiredMixin, FormView):
+    """Champ de recherche d'événement
     """
 
-    template_name = "events/event_list.html"
+    template_name = "events/event_search.html"
     context_object_name = "events"
     form_class = SearchEventForm
+    success_url = reverse_lazy("search_event")
+    events_per_page = 10
+    model = Event
 
-    def get_base_queryset(self):
-        return Event.objects.upcoming().order_by("start_time")
+    def get_queryset(self):
+        return self.model.objects.filter(visibility=Event.VISIBILITY_PUBLIC)
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+
+        if not form.is_valid():
+            # on retourne le formulaire avec les erreur
+            return self.render_to_response(context={"form": form})
+
+        self.form = form
+        return super().get(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        form_data = self.request.GET.dict()
+        form_data.update({"min_date": form_data.get("min_date", timezone.now().date())})
+        return {"data": form_data}
+
+    def get_events_full_text_search(
+        self, text_query, min_date, max_date, location, distance_max
+    ):
+        if not text_query:
+            return []
+        qs = self.get_queryset()
+        q = PrefixSearchQuery(text_query, config="fr")
+        qs = (
+            qs.annotate(rank=SearchRank(F("search"), q))
+            .filter(rank__gt=0)
+            .order_by("-rank")
+            .filter(visibility=Event.VISIBILITY_PUBLIC)
+        )
+        if min_date:
+            qs = qs.filter(start_time__gt=min_date)
+        if max_date:
+            qs = qs.filter(start_time__lt=(max_date + timedelta(days=1)))
+        if location and distance_max:
+            qs = qs.annotate(distance=Distance("coordinates", location)).filter(
+                distance__lte=DistanceMeasure(km=int(distance_max))
+            )
+        return qs
+
+    def get_context_data(self, **kwargs):
+        cleaned_data = self.form.cleaned_data
+        location = (
+            geocode_coordinate_from_simple_address(cleaned_data["address"])
+            or self.request.user.person.coordinates
+        )
+
+        events = self.get_events_full_text_search(
+            cleaned_data["text_query"],
+            cleaned_data["min_date"],
+            cleaned_data["max_date"],
+            location,
+            cleaned_data["distance_max"],
+        )
+
+        paginator = Paginator(events, self.events_per_page)
+        try:
+            events = paginator.page(paginator.page(cleaned_data["page"]))
+        except PageNotAnInteger:
+            events = paginator.page(1)
+        except EmptyPage:
+            events = paginator.page(paginator.num_pages)
+
+        search_param = urlencode(
+            {
+                k: v
+                for k, v in self.request.GET.dict().items()
+                if v != "" and k != "page"
+            }
+        )
+
+        return super().get_context_data(
+            paginator=paginator,
+            page_elements=events,
+            search_param=search_param,
+            **kwargs,
+        )
 
 
 class EventDetailMixin:

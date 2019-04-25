@@ -1,5 +1,6 @@
 {% extends "front/layout.html" %}
 {% load render_bundle from webpack_loader %}
+{% load crispy_forms_tags %}
 
 {% block title %}Mon tableau de bord{% endblock title %}
 
@@ -16,9 +17,28 @@
         dire que vous y participez, même si c'est souvent le cas.
       </div>
       <h3 class="clearfix">Mon agenda
-        <a class="pull-right btn btn-default btn-sm" href="{% url 'list_all_events' %}">
-          <i class="fa fa-search"></i> Rechercher un événement
-        </a>
+
+        <div class="dropdown">
+          <li class="menu-item dropdown list-unstyled">
+
+            <a class="pull-right btn btn-default btn-sm dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown"
+               aria-expanded="true">
+              <i class="fa fa-search"></i> Rechercher un événement
+            </a>
+            <ul class="dropdown-menu" style="right: 0; top:30px; left:30%; padding:0">
+              <li class="menu-item">
+                <form method="get" action="{% url "search_event" %}">
+                  <div class="input-group">
+                    <input type="text" class="form-control" name="text_query" placeholder="votre recherche...">
+                    <span class="input-group-btn">
+                          <button class="btn btn-default" type="submit">Chercher</button>
+                    </span>
+                  </div>
+                </form>
+              </li>
+            </ul>
+          </li>
+        </div>
         <a class="pull-right btn btn-default btn-sm" href="{% url 'create_event' %}">
           <i class="fa fa-plus"></i> Créer un événement
           <div class="help-dialog" data-hint="Les informations de votre événement">

@@ -1,6 +1,7 @@
 from unittest import skip, mock
 
 from datetime import timedelta
+from django.contrib.gis.geos import Point
 
 from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
@@ -1439,7 +1440,7 @@ class JitsiViewTestCase(FakeDataMixin, TestCase):
 class DoNotListEventTestCase(TestCase):
     def setUp(self):
         self.event = Event.objects.create(
-            name="Un événement qui qui sera non listé",
+            name="Un événement qui sera non listé",
             start_time=timezone.now(),
             end_time=timezone.now() + timezone.timedelta(hours=4),
             do_not_list=False,
@@ -1453,13 +1454,13 @@ class DoNotListEventTestCase(TestCase):
 
     def test_unlisted_events_are_not_in_dashboard_calendar(self):
         response = self.client.get(reverse("dashboard"))
-        self.assertContains(response, "Un événement qui qui sera non listé")
+        self.assertContains(response, "Un événement qui sera non listé")
 
         self.event.do_not_list = True
         self.event.save()
 
         response = self.client.get(reverse("dashboard"))
-        self.assertNotContains(response, "Un événement qui qui sera non listé")
+        self.assertNotContains(response, "Un événement qui sera non listé")
         pass
 
     def test_unlisted_events_are_not_in_sitemap(self):
@@ -1482,6 +1483,175 @@ class DoNotListEventTestCase(TestCase):
         events = EventMapView.queryset.filter(pk=self.event.pk)
         self.assertTrue(len(events) == 0)
 
-    @skip("TODO:integrer après la PR sur la recherche d'événements")
     def test_unlisted_events_are_not_in_search_event_result(self):
-        pass
+        response = self.client.get(
+            reverse("search_event"), data={"text_query": "sera non listé"}
+        )
+        self.assertContains(response, "Un événement qui sera non listé")
+
+        self.event.do_not_list = True
+        self.event.save()
+
+        response = self.client.get(
+            reverse("search_event"), data={"text_query": "sera non listé"}
+        )
+        self.assertNotContains(response, "Un événement qui sera non listé")
+
+
+def get_search_url(**kwargs):
+    return "{}?{}".format(reverse("search_event"), urlencode(kwargs))
+
+
+class SearchEventTestCase(TestCase):
+    def setUp(self):
+        self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
+        self.day = day = timezone.timedelta(days=1)
+        self.hour = hour = timezone.timedelta(hours=1)
+        self.person = Person.objects.create_person(
+            "test@test.com", coordinates=Point(2.382_486, 48.888_022)  # Paris, 19eme
+        )
+        self.group = SupportGroup.objects.create(name="ChaosComputerClub")
+
+        self.event = Event.objects.create(
+            name="no future",
+            start_time=now + 3 * day,
+            end_time=now + 3 * day + 4 * hour,
+            description="La gargantuesque description garantit une affluence à profusion!! ## CommonWord ##",
+            location_name="Place2be",
+            coordinates=Point(2.343_007, 48.886_646),  # Paris, Sacré-Cœur
+        )
+
+        self.event_past = Event.objects.create(
+            name="Simple Event",
+            start_time=now - 3 * day,
+            end_time=now + 3 * day + 4 * hour,
+            report_content="Il est essentiel d'écrire la légende des événements passé. Les mots s'envolent, les écrits restes. ## CommonWord ##",
+            coordinates=Point(4.804_881, 43.953_847),  # Avignon, le fameux pont
+        )
+
+        self.organizer_config = OrganizerConfig.objects.create(
+            event=self.event, person=self.person, as_group=self.group
+        )
+        OrganizerConfig.objects.create(event=self.event_past, person=self.person)
+        self.client.force_login(self.person.role)
+
+    def test_find_event_by_name(self):
+        response = self.client.get(get_search_url(text_query="futur"), follow=True)
+        self.assertContains(response, "no future")
+
+    def test_find_event_by_description(self):
+        response = self.client.get(get_search_url(text_query="gargantuesque profusion"))
+        self.assertContains(response, "no future")
+
+    def test_find_event_by_repport(self):
+        now = timezone.now()
+        delta = timezone.timedelta(days=3, hours=1)
+        response = self.client.get(
+            get_search_url(text_query="écrire", min_date=(now - delta).date())
+        )
+        self.assertContains(response, "Simple Event")
+
+    def test_find_event_by_location_name(self):
+        response = self.client.get(get_search_url(text_query="Place2be"))
+        self.assertContains(response, "no future")
+
+    def test_find_event_by_supportgroup_organizer(self):
+        response = self.client.get(get_search_url(text_query="ChaosComputerClub"))
+        self.assertContains(response, "no future")
+
+    def test_find_event_in_time_interval(self):
+        tz = timezone.get_default_timezone()
+
+        # avec juste une date minimum
+        response = self.client.get(
+            get_search_url(text_query="no future", min_date=self.now.date())
+        )
+        self.assertContains(response, "Place2be")
+
+        # avec juste une date maximum
+        response = self.client.get(
+            get_search_url(
+                text_query="no future", max_date=(self.now + 5 * self.day).date()
+            )
+        )
+        self.assertContains(response, "Place2be")
+
+        # dans un interval de 2 dates
+        response = self.client.get(
+            get_search_url(
+                text_query="no future",
+                min_date=self.now.strftime("%d/%m/%Y"),
+                date_end=(self.now + 5 * self.day).date(),
+            )
+        )
+        self.assertContains(response, "Place2be")
+
+    def test_event_are_indexed_after_created(self):
+        response = self.client.get(get_search_url(text_query="OpenChaos"))
+        self.assertContains(response, "Aucun événement ne correspond à votre recherche")
+        event = Event.objects.create(
+            name="OpenChaos",
+            start_time=self.now + self.day,
+            end_time=self.now + self.day + 2 * self.hour,
+            coordinates=Point(2.349_722, 48.853_056, srid=4326),  # ND de Paris,
+            visibility="P",
+        )
+        response = self.client.get(get_search_url(text_query="OpenChaos"))
+        self.assertContains(response, "OpenChaos")
+        self.assertNotContains(response, "Aucun événement ne correspond à votre")
+
+    def test_support_group_name_changement_are_indexed(self):
+        response = self.client.get(get_search_url(text_query="ChaosComputerClub"))
+        self.assertContains(response, "no future")
+        self.group.name = "The CCC"
+        self.group.save()
+        response = self.client.get(get_search_url(text_query="ChaosComputerClub"))
+        self.assertNotContains(response, "no future")
+        response = self.client.get(get_search_url(text_query="The CCC"))
+        self.assertContains(response, "no future")
+
+    def test_event_update_content(self):
+        self.event.name = "nouveau nom, nouvelle vie"
+        self.event.description = "Ceci est une description"
+        self.event.save()
+        response = self.client.get(get_search_url(text_query="description"))
+        self.assertContains(response, "nouveau nom, nouvelle vie")
+
+    def test_dont_find_event_too_far(self):
+        response = self.client.get(get_search_url(text_query="no fufure"))
+        self.assertContains(response, "Place2be")
+        response = self.client.get(
+            get_search_url(text_query="no fufure", distance_max="1")
+        )
+        self.assertNotContains(response, "Place2be")
+
+    def test_dont_find_event_after_it_suppression(self):
+        response = self.client.get(get_search_url(text_query="futur"))
+        self.assertContains(response, "no future")
+
+        Event.objects.get(name="no future").delete()
+
+        response = self.client.get(get_search_url(text_query="futur"))
+        self.assertContains(response, "Aucun événement ne correspond à votre recherche")
+
+    def test_dont_find_event_by_groupname_after_group_suppressed(self):
+        response = self.client.get(get_search_url(text_query="ChaosComputerClub"))
+        self.assertContains(response, "no future")
+        self.group.delete()
+        response = self.client.get(get_search_url(text_query="ChaosComputerClub"))
+        self.assertNotContains(response, "Place2be")
+
+    def test_dont_find_event_by_groupname_after_organizerconfig_suppressed(self):
+        response = self.client.get(get_search_url(text_query="ChaosComputerClub"))
+        self.assertContains(response, "no future")
+        self.organizer_config.delete()
+        response = self.client.get(get_search_url(text_query="ChaosComputerClub"))
+        self.assertNotContains(response, "Place2be")
+
+    def test_dont_find_event_after_change_its_visibility(self):
+        response = self.client.get(get_search_url(text_query="futur"))
+        self.assertContains(response, "no future")
+        self.event.visibility = "G"
+        self.event.save()
+        response = self.client.get(get_search_url(text_query="futur"))
+        self.assertNotContains(response, "Place2be")

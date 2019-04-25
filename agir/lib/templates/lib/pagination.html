@@ -1,0 +1,27 @@
+<div class="row">
+  <div class="text-center">
+    <nav aria-label="...">
+      <ul class="pagination">
+
+        {% if page_elements.has_previous %}
+          <li>
+            <a href="?{{ search_param }}&page={{ page_elements.previous_page_number }}" aria-label="Previous"
+               data-turbolinks="false"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>
+          </li>
+        {% endif %}
+
+        {% if paginator.num_pages > 1 %}
+          {% for elem in paginator.page_range %}
+            <li class="{% if page_elements.number == elem %}active{% endif %}"><a
+              href="?{{ search_param }}&page={{ elem }}" data-turbolinks="false">{{ forloop.counter }}<span
+              class="sr-only">(current)</span></a></li>
+          {% endfor %}
+        {% endif %}
+
+        {% if page_elements.has_next %}
+          <li><a href="?{{ search_param }}&page={{ page_elements.next_page_number }}" aria-label="Next"><span
+            class="glyphicon glyphicon-circle-arrow-right" data-turbolinks="false"></span></a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>

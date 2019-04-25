@@ -42,7 +42,7 @@
 
     {% render_bundle "lib/locationSearchField" %}
     <script>
-      locationSearchField(document.querySelector('input[name="q"]'));
+      window["lib/locationSearchField"].default(document.querySelector('input[name="q"]'));
     </script>
   </div>
 

@@ -10,7 +10,7 @@ urlpatterns = [
         views.PerformCreateEventView.as_view(),
         name="perform_create_event",
     ),
-    path("evenements/liste/", views.EventListView.as_view(), name="list_all_events"),
+    path("evenements/liste/", views.EventSearchView.as_view(), name="search_event"),
     path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
     path(
         "evenements/<uuid:pk>/participer/",

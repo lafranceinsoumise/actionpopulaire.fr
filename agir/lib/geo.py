@@ -57,6 +57,27 @@ def get_results_from_ban(query):
     return results
 
 
+def get_results_from_nominatim(query):
+
+    try:
+        res = requests.get(NOMINATIM_ENDPOINT, params=query)
+        res.raise_for_status()
+        results = res.json()
+    except requests.RequestException:
+        logger.warning(
+            f"Error while geocoding address '{query.q}' with Nominatim", exc_info=True
+        )
+        raise
+    except ValueError:
+        logger.warning(
+            f"Invalid JSON while geocoding address '{query.q}' with Nominatim",
+            exc_info=True,
+        )
+        raise
+
+    return results
+
+
 def geocode_ban_district_exception(item):
     arrondissement = ARRONDISSEMENTS[item.location_zip]
     item.location_citycode = arrondissement["citycode"]
@@ -165,6 +186,18 @@ def geocode_ban(item):
 
     item.coordinates = None
     item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
+
+
+def geocode_coordinate_from_simple_address(addresse):
+    if not addresse:
+        return None
+
+    results = get_results_from_nominatim({"format": "json", "q": addresse, "limit": 1})
+
+    if not results:
+        return None
+
+    return Point(float(results[0]["lon"]), float(results[0]["lat"]), srid=4326)
 
 
 def geocode_nominatim(item):
