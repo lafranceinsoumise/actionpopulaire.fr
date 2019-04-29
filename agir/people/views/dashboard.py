@@ -2,16 +2,16 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
-from django.db.models import Value, F, TextField, Q, Count, Case, When, BooleanField
+from django.db.models import Value, F, TextField, Q, Case, When, BooleanField, Sum
 from django.utils import timezone
 from django.views.generic import TemplateView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.events.models import Event
+from agir.events.views.utils import group_events_by_day
 from agir.groups.actions import get_next_promo_code
 from agir.groups.actions.promo_codes import is_promo_code_delayed, next_promo_code_date
 from agir.groups.models import SupportGroup
-from agir.events.views.utils import group_events_by_day
 from agir.lib.tasks import geocode_person
 from agir.payments.models import Payment
 
@@ -46,7 +46,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
                 user_is_manager=F("memberships__is_manager")._combine(
                     F("memberships__is_referent"), "OR", False
                 ),
-                has_promo_code=Count(
+                has_promo_code=Sum(
                     Case(
                         When(tags__label=settings.PROMO_CODE_TAG, then=1),
                         default=0,
