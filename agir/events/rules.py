@@ -46,9 +46,4 @@ def is_own_rsvp(role, rsvp=None):
     )
 
 
-@rules.predicate
-def is_event_rsvp(role, rsvp=None):
-    return rsvp is not None and is_organizer(role, rsvp.event)
-
-
 rules.add_perm("events.change_rsvp", is_own_rsvp)

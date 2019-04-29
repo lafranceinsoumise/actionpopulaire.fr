@@ -1,5 +1,6 @@
 from crispy_forms.layout import Submit, Row, Field
 from django import forms
+from django.core.exceptions import PermissionDenied
 from django.template.defaultfilters import floatformat
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
@@ -121,9 +122,14 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                 ),
             )
             notify_field = [Row(FullCol("notify"))]
-            self.organizer_config = OrganizerConfig.objects.get(
-                person=self.person, event=self.instance
-            )
+            try:
+                self.organizer_config = OrganizerConfig.objects.get(
+                    person=self.person, event=self.instance
+                )
+            except OrganizerConfig.DoesNotExist:
+                raise PermissionDenied(
+                    "Vous ne pouvez pas modifier un événement que vous n'organisez pas sans passer par l'administration."
+                )
             self.fields["as_group"].initial = self.organizer_config.as_group
             del self.fields["subtype"]
 
