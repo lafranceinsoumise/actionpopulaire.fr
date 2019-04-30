@@ -31,14 +31,15 @@ LOANS_CONTRACT_SESSION_NAMESPACE = "_europeennes_loans_contract"
 
 
 class DonationAskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
-    meta_title = "Je donne à la campagne France insoumise pour les élections européennes le 26 mai"
+    meta_title = "Dernier appel aux dons : objectif 300 000 € pour boucler le budget !"
     meta_description = (
-        "Nos 79 candidats, menés par Manon Aubry, la tête de liste, sillonent déjà le pays. Ils ont"
-        " besoin de votre soutien pour pouvoir mener cette campagne. Votre contribution sera décisive !"
+        "La France insoumise est le seul mouvement transparent sur le financement de la campagne européenne."
+        " Pour l’aider à boucler le budget de campagne, il est encore possible de faire un don !"
     )
     meta_type = "website"
     meta_image = urljoin(
-        urljoin(settings.FRONT_DOMAIN, settings.STATIC_URL), "europeennes/dons.jpg"
+        urljoin(settings.FRONT_DOMAIN, settings.STATIC_URL),
+        "europeennes/RELANCE-300-000_FB.jpg",
     )
     template_name = "europeennes/donations/ask_amount.html"
     success_url = reverse_lazy("europeennes_donation_information")
