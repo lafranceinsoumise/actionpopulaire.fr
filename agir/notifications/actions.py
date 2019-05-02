@@ -40,11 +40,11 @@ class NotificationRequestManager:
         self.request = request
 
     @cached_property
-    def _notifications(self):
+    def notifications(self):
         return get_notifications(self.request)
 
     def __iter__(self):
-        return iter(self._notifications)
+        return iter(self.notifications)
 
     def unread(self):
-        return sum(not n.seen for n in self._notifications)
+        return sum(not n.seen for n in self.notifications)

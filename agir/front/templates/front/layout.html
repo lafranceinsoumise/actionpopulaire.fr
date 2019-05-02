@@ -56,6 +56,7 @@
           integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
           crossorigin="anonymous"></script>
   {% render_bundle 'front/allPages' attrs='defer data-turbolinks-track="reload"' %}
+  {% render_bundle 'notifications/notifications' %}
   {% block extra_scripts %}{% endblock %}
 
 </head>
@@ -132,27 +133,7 @@
           {% endif %}
           <ul id="menu-menu-connexion" class="nav navbar-nav navbar-right">
             {% if user.is_authenticated %}
-              <li class="menu-item dropdown">
-                <a href="#" data-toggle="dropdown" class="dropdown-toggle">
-                  <i class="fa fa-comment"></i>
-                  {% if notifications.unread %}<span class="badge">{{ notifications.unread }}</span>{% endif %}
-                </a>
-                <ul class="dropdown-menu">
-                  {% for notification in notifications %}
-                    <li class="menu-item small"
-                        {% if not notification.seen %}style="background-color: #cdf7ff;"{% endif %}>
-                      <a href="{% url "follow_notification" notification.id %}" style="white-space: normal;">
-                        {{ notification.html_content }}
-                      </a>
-                    </li>
-
-                  {% empty %}
-                    <li class="menu-item small">
-                      <a>Pas de notifications pour le moment...</a>
-                    </li>
-                  {% endfor %}
-                </ul>
-              </li>
+              {{ notifications.notifications|json_script:"notifications-data" }}
               <li class="menu-item dropdown">
                 <a href="#" data-toggle="dropdown" class="dropdown-toggle">
                   {{ user.person.email }}
@@ -187,6 +168,14 @@
               </ul>
             </li>
           </ul>
+          {% if user.is_authenticated %}
+            <ul id="notifications-center" class="nav navbar-nav navbar-right"></ul>
+            <script>
+              var notifications = JSON.parse(document.getElementById("notifications-data").textContent);
+              var notificationsElement = document.getElementById("notifications-center");
+              setUpNotificationsCenter(notificationsElement, notifications);
+            </script>
+          {% endif %}
         </div>
       </div>
     </div>
