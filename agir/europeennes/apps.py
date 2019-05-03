@@ -10,10 +10,11 @@ class EuropeennesConfig(AppConfig):
     LOAN_PAYMENT_TYPE = "pret_europeennes"
 
     def ready(self):
-        from .views import LoanReturnView, loan_notification_listener
-        from agir.donations.views import (
-            ReturnView as DonationReturnView,
-            notification_listener as donation_notification_listener,
+        from .views import (
+            LoanReturnView,
+            loan_notification_listener,
+            DonationReturnView,
+            donation_notification_listener,
         )
 
         register_payment_type(

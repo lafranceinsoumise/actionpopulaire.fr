@@ -16,6 +16,7 @@ from wsgiref.util import FileWrapper
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.donations.actions import find_or_create_person_from_payment
 from agir.donations.base_views import BaseAskAmountView
+from agir.donations.tasks import send_donation_email
 from agir.donations.views import BasePersonalInformationView
 from agir.europeennes import AFCESystemPayPaymentMode, tasks
 from agir.europeennes.actions import generate_html_contract, SUBSTITUTIONS
@@ -52,6 +53,18 @@ class DonationPersonalInformationView(BasePersonalInformationView):
     payment_type = EuropeennesConfig.DONATION_PAYMENT_TYPE
     session_namespace = DONATIONS_SESSION_NAMESPACE
     base_redirect_url = "europeennes_donation_amount"
+
+
+class DonationReturnView(TemplateView):
+    template_name = "donations/thanks.html"
+
+
+def donation_notification_listener(payment):
+    if payment.status == Payment.STATUS_COMPLETED:
+        find_or_create_person_from_payment(payment)
+        send_donation_email.delay(
+            payment.person.pk, template_code="DONATION_MESSAGE_EUROPEENNES"
+        )
 
 
 class MaxTotalLoanMixin:

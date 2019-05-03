@@ -10,7 +10,7 @@ from ..people.models import Person
 
 
 @shared_task(max_retries=2, bind=True)
-def send_donation_email(self, person_pk):
+def send_donation_email(self, person_pk, template_code="DONATION_MESSAGE"):
     try:
         person = Person.objects.prefetch_related("emails").get(pk=person_pk)
     except Person.DoesNotExist:
@@ -18,7 +18,7 @@ def send_donation_email(self, person_pk):
 
     try:
         send_mosaico_email(
-            code="DONATION_MESSAGE",
+            code=template_code,
             subject="Merci d'avoir donné !",
             from_email=settings.EMAIL_FROM,
             bindings={"PROFILE_LINK": front_url("personal_information")},

@@ -230,6 +230,8 @@ EMAIL_TEMPLATES = {
     "ALREADY_SUBSCRIBED_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/d7040d22-703f-4ac7-883c-d2f04c13be1a.html",
     # DONATION_MESSAGE variables : [PROFILE_LINK]
     "DONATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/cab3c2ee-9444-4c70-b16e-9f7dce7929b1.html",
+    # DONATION_MESSAGE_EUROPEENNES variables : [PROFILE_LINK]
+    "DONATION_MESSAGE_EUROPEENNES": "https://mosaico.lafranceinsoumise.fr/emails/4b0f0d0d-e0a9-4264-8e69-143e9ba9fd48.html",
     # UNSUBSCRIBE_CONFIRMATION variables [MANAGE_SUBSCRIPTIONS_LINK]
     "UNSUBSCRIBE_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/51cbadd7-2226-482d-85d4-6dc758d2eb3a.html",
     # GROUP_CREATION variables: [GROUP_NAME], [CONTACT_{NAME,EMAIL,PHONE,PHONE_VISIBILITY], [LOCATION_{NAME,LOCATION}], [GROUP_LINK], [MANAGE_GROUP_LINK]
