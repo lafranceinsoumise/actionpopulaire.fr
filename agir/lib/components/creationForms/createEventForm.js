@@ -97,7 +97,12 @@ class CreateEventForm extends React.Component {
       });
     }
 
-    return <MultiStepForm steps={steps} />;
+    return (
+      <MultiStepForm
+        steps={steps}
+        startAtStep={this.props.initial && this.props.initial.subtype ? 1 : 0}
+      />
+    );
   }
 }
 
