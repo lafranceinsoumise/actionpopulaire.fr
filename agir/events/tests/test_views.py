@@ -1,5 +1,6 @@
 from unittest import skip, mock
 
+from datetime import timedelta
 from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.test import TestCase
@@ -12,12 +13,21 @@ from rest_framework import status
 from agir.authentication.subscription import subscription_confirmation_token_generator
 from agir.events.actions import legal
 from agir.groups.models import SupportGroup, Membership
+from agir.lib.tests.mixins import FakeDataMixin
 from agir.payments.actions import complete_payment
 from agir.payments.models import Payment
 from agir.people.models import Person, PersonForm, PersonFormSubmission, PersonTag
 
 from ..forms import EventForm
-from ..models import Event, Calendar, RSVP, OrganizerConfig, CalendarItem, EventSubtype
+from ..models import (
+    Event,
+    Calendar,
+    RSVP,
+    OrganizerConfig,
+    CalendarItem,
+    EventSubtype,
+    JitsiMeeting,
+)
 from ..views import notification_listener as event_notification_listener
 
 
@@ -1375,3 +1385,42 @@ class ExternalRSVPTestCase(TestCase):
             Person.objects.get(email="test1@test.com").rsvps.first().event, self.event
         )
         self.assertEqual(Person.objects.get(email="test1@test.com").is_insoumise, False)
+
+
+class JitsiViewTestCase(FakeDataMixin, TestCase):
+    def reserve_room(self):
+        return self.client.post(
+            reverse("jitsi_reservation"),
+            data={"name": "testroom1", "start_time": timezone.now().isoformat()},
+        )
+
+    def test_reservation_404_when_no_meeting(self):
+        res = self.reserve_room()
+
+        self.assertEqual(res.status_code, 404)
+
+    def test_reservation_403_when_not_started(self):
+        JitsiMeeting.objects.create(
+            domain="lol",
+            room_name="testroom1",
+            event=self.data["events"]["user1_event1"],
+        )
+
+        res = self.reserve_room()
+
+        self.assertEqual(res.status_code, 403)
+
+    def test_reservation_200_when_started(self):
+        event = self.data["events"]["user1_event1"]
+        event.start_time = timezone.now() - timedelta(hours=1)
+        event.save()
+
+        JitsiMeeting.objects.create(
+            domain="lol",
+            room_name="testroom1",
+            event=self.data["events"]["user1_event1"],
+        )
+
+        res = self.reserve_room()
+
+        self.assertEqual(res.status_code, 200)

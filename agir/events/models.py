@@ -342,6 +342,9 @@ class Event(
     def is_past(self):
         return timezone.now() > self.end_time
 
+    def is_current(self):
+        return self.start_time < timezone.now() < self.end_time
+
     def clean(self):
         if self.start_time and self.end_time and self.end_time < self.start_time:
             raise ValidationError(
@@ -735,3 +738,14 @@ class EventImage(ExportModelOperationsMixin("event_image"), TimeStampedModel):
         blank=False,
     )
     legend = models.CharField(_("légende"), max_length=280)
+
+
+class JitsiMeeting(models.Model):
+    domain = models.CharField(max_length=255)
+    room_name = models.CharField(max_length=255, unique=True)
+    event = models.ForeignKey("Event", on_delete=models.CASCADE, null=True, blank=True)
+    start_time = models.DateTimeField("Début effectif", null=True, blank=True)
+    end_time = models.DateTimeField("Fin effective", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Visio-conférence"

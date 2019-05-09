@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views import defaults
 
 from . import views
 
@@ -83,5 +84,9 @@ urlpatterns = [
         "agenda/<slug:slug>/icalendar/",
         views.CalendarIcsView.as_view(),
         name="ics_calendar",
+    ),
+    path("conference", views.jitsi_reservation_view, name="jitsi_reservation"),
+    path(
+        "conference/<int:pk>", views.jitsi_delete_conference_view, name="jitsi_delete"
     ),
 ]

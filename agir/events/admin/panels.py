@@ -484,3 +484,9 @@ class EventSubtypeAdmin(admin.ModelAdmin):
     list_filter = ("type", "visibility")
 
     search_fields = ("label", "description")
+
+
+@admin.register(models.JitsiMeeting, site=admin_site)
+class JitsiMeetingAdmin(admin.ModelAdmin):
+    autocomplete_fields = ("event",)
+    readonly_fields = ("start_time", "end_time")
