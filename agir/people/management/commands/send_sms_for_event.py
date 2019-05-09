@@ -6,7 +6,7 @@ from phonenumbers import number_type, PhoneNumberType
 from tqdm import tqdm
 
 from agir.events.models import Event
-from agir.lib.sms import send_sms, SMSSendException
+from agir.lib.sms import send_sms, SMSSendException, compute_sms_length_information
 from agir.people.models import Person
 
 
@@ -77,7 +77,11 @@ class Command(BaseCommand):
         message = message.strip()
 
         print("Message enregistré")
-        print(f"Longueur : {len(message)} caractères")
+        sms_info = compute_sms_length_information(message)
+        print(
+            f"Encodé en {sms_info.encoding}, {len(message)} caractères, {sms_info.byte_length} octets pour un total de"
+            f" {sms_info.messages} SMS."
+        )
 
         ps = (
             Person.objects.filter(subscribed=True)
