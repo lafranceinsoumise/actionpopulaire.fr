@@ -167,7 +167,9 @@
     <div class="col-md-6">
       <div class="row marginbottom">
         <div class="col-xs-6">
-          <h4><i class="fa fa-clock-o" aria-hidden="true"></i></h4>
+          <h4><i class="fa fa-clock-o" aria-hidden="true"></i>{% if event.is_current %}
+            &ensp;<span class="badge">En cours</span>
+          {% endif %}</h4>
           {{ event.get_display_date }}
         </div>
         <div class="col-xs-6">
