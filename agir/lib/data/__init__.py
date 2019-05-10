@@ -7,11 +7,19 @@ from functools import reduce
 from operator import or_
 from unidecode import unidecode
 
+
+def _normalize_entity_name(name):
+    return unidecode(str(name)).lower().replace("-", " ")
+
+
 with open(os.path.dirname(os.path.realpath(__file__)) + "/departements.csv") as file:
     departements = list(csv.DictReader(file))
 
 with open(os.path.dirname(os.path.realpath(__file__)) + "/regions.csv") as file:
     regions = list(csv.DictReader(file))
+
+for region in regions:
+    region["alias"] = region["alias"].split("/") if region["alias"] else []
 
 with open(
     os.path.dirname(os.path.realpath(__file__)) + "/anciennes_regions.csv"
@@ -21,7 +29,16 @@ with open(
 departements_map = {d["id"]: d for d in departements}
 departements_choices = tuple((d["id"], f'{d["id"]} - {d["nom"]}') for d in departements)
 
-regions_map = {r["id"]: r for r in regions}
+regions_map = {
+    **{r["id"]: r for r in regions},
+    **{_normalize_entity_name(r["nom"]): r for r in regions},
+}
+
+for r in regions:
+    regions_map.update({_normalize_entity_name(alias): r for alias in r["alias"]})
+
+
+# utiliser unidecode permet de classer Île-de-France à I
 regions_choices = tuple(
     (r["id"], r["nom"]) for r in sorted(regions, key=lambda d: unidecode(d["nom"]))
 )
@@ -36,6 +53,8 @@ def filtre_departement(code):
 
 
 def filtre_region(code):
+    code = regions_map[_normalize_entity_name(code)]["id"]
+
     return reduce(
         or_, (filtre_departement(d["id"]) for d in departements if d["region"] == code)
     )
