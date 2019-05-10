@@ -173,7 +173,9 @@
           {{ event.get_display_date }}
         </div>
         <div class="col-xs-6">
-          <h4><i class="fa fa-map-marker"></i></h4>
+          <h4><i class="fa fa-map-marker"></i>{% if event.enable_jitsi %}
+            &ensp;<span class="badge">En visio-conférence</span>
+          {% endif %}</h4>
           <p>{{ event.html_full_address|default:'Pas de lieu.' }}</p>
         </div>
       </div>
