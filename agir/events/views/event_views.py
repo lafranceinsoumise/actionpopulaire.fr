@@ -21,6 +21,7 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext as _, ngettext
 
 from agir.events.actions.legal import QUESTIONS
+from agir.events.actions.rsvps import assign_jitsi_meeting
 from agir.lib.views import ImageSizeWarningMixin
 from ..models import Event, RSVP, Calendar, EventSubtype
 from ..tasks import (
@@ -58,6 +59,7 @@ __all__ = [
     "QuitEventView",
     "CancelEventView",
     "EventDetailView",
+    "EventJitsiView",
     "EventIcsView",
     "CalendarView",
     "CalendarIcsView",
@@ -83,8 +85,7 @@ class EventListView(SearchByZipcodeBaseView):
         return Event.objects.upcoming().order_by("start_time")
 
 
-class EventDetailView(ObjectOpengraphMixin, PermissionsRequiredMixin, DetailView):
-    template_name = "events/detail.html"
+class EventDetailMixin:
     permissions_required = ("events.view_event",)
     model = Event
 
@@ -107,6 +108,25 @@ class EventDetailView(ObjectOpengraphMixin, PermissionsRequiredMixin, DetailView
             organizers_groups=self.object.organizers_groups.distinct(),
             event_images=self.object.images.all(),
         )
+
+
+class EventDetailView(
+    EventDetailMixin, ObjectOpengraphMixin, PermissionsRequiredMixin, DetailView
+):
+    template_name = "events/detail.html"
+
+
+class EventJitsiView(EventDetailMixin, PermissionsRequiredMixin, DetailView):
+    permissions_required = ("events.view_event", "events.view_jitsi_meeting")
+    template_name = "events/jitsi.html"
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data()
+
+        if context_data["rsvp"].jitsi_meeting is None:
+            assign_jitsi_meeting(context_data["rsvp"])
+
+        return context_data
 
 
 class EventIcsView(PermissionsRequiredMixin, DetailView):

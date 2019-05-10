@@ -1,13 +1,14 @@
 import logging
-from django.db.models import F
+
+from django.conf import settings
+from django.db.models import F, Count
 from django.db import transaction, IntegrityError
 from django.utils.translation import ugettext as _
 
 from agir.payments.actions import create_payment, cancel_payment
-from agir.payments.models import Payment
 
 from ..apps import EventsConfig
-from ..models import RSVP, IdentifiedGuest
+from ..models import RSVP, IdentifiedGuest, JitsiMeeting
 from ..tasks import send_rsvp_notification, send_guest_confirmation
 
 logger = logging.getLogger(__name__)
@@ -293,3 +294,20 @@ def payment_description_context_generator(payment):
         event = rsvp.event
 
     return {"payment": payment, "event": event, "guest": guest}
+
+
+def assign_jitsi_meeting(rsvp):
+    if (
+        rsvp.event.jitsi_meetings.annotate(members=Count("rsvps"))
+        .filter(members__lt=settings.JITSI_GROUP_SIZE)
+        .first()
+        is None
+    ):
+        JitsiMeeting.objects.create(event=rsvp.event)
+
+    rsvp.jitsi_meeting = (
+        rsvp.event.jitsi_meetings.annotate(members=Count("rsvps"))
+        .filter(members__lt=settings.JITSI_GROUP_SIZE)
+        .first()
+    )
+    rsvp.save(update_fields=["jitsi_meeting"])

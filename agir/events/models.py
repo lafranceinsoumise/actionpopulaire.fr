@@ -1,6 +1,12 @@
+from secrets import token_urlsafe
+
+import random
+
 import ics
+import re
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Case, Sum, Count, When, CharField, F, Q
 from django.db.models.functions import Coalesce
@@ -239,6 +245,8 @@ class Event(
     scanner_category = models.IntegerField(
         "La catégorie que doivent avoir les tickets sur scanner", blank=True, null=True
     )
+
+    enable_jitsi = models.BooleanField("Activer la visio-conférence", default=False)
 
     legal = JSONField(
         _("Informations juridiques"),
@@ -625,6 +633,14 @@ class RSVP(ExportModelOperationsMixin("rsvp"), TimeStampedModel):
         _("Recevoir les notifications"), default=True
     )
 
+    jitsi_meeting = models.ForeignKey(
+        "JitsiMeeting",
+        related_name="rsvps",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+
     class Meta:
         verbose_name = "RSVP"
         verbose_name_plural = "RSVP"
@@ -741,11 +757,38 @@ class EventImage(ExportModelOperationsMixin("event_image"), TimeStampedModel):
 
 
 class JitsiMeeting(models.Model):
-    domain = models.CharField(max_length=255)
-    room_name = models.CharField(max_length=255, unique=True)
-    event = models.ForeignKey("Event", on_delete=models.CASCADE, null=True, blank=True)
+    def choose_domain():
+        return random.choice(settings.JITSI_SERVERS)
+
+    def generate_room_name():
+        return token_urlsafe(12).lower()
+
+    domain = models.CharField(max_length=255, default=choose_domain)
+    room_name = models.CharField(
+        max_length=255,
+        unique=True,
+        default=generate_room_name,
+        validators=[
+            RegexValidator(
+                re.compile(r"^[a-z0-9-_]+$"),
+                "Seulement des lettres minuscules, des chiffres, des _ et des -.",
+                "invalid",
+            )
+        ],
+    )
+    event = models.ForeignKey(
+        "Event",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="jitsi_meetings",
+    )
     start_time = models.DateTimeField("Début effectif", null=True, blank=True)
     end_time = models.DateTimeField("Fin effective", null=True, blank=True)
+
+    @property
+    def link(self):
+        return "https://" + self.domain + "/" + self.room_name
 
     class Meta:
         verbose_name = "Visio-conférence"

@@ -1424,3 +1424,10 @@ class JitsiViewTestCase(FakeDataMixin, TestCase):
         res = self.reserve_room()
 
         self.assertEqual(res.status_code, 200)
+
+    def test_reservation_200_when_no_event(self):
+        JitsiMeeting.objects.create(domain="lol", room_name="testroom1")
+
+        res = self.reserve_room()
+
+        self.assertEqual(res.status_code, 200)

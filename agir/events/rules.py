@@ -47,3 +47,16 @@ def is_own_rsvp(role, rsvp=None):
 
 
 rules.add_perm("events.change_rsvp", is_own_rsvp)
+
+
+@rules.predicate
+def has_rsvp(role, event=None):
+    return (
+        event is not None
+        and role.is_authenticated
+        and role.type == Role.PERSON_ROLE
+        and role.person.rsvps.filter(event=event).exists()
+    )
+
+
+rules.add_perm("events.view_jitsi_meeting", has_rsvp)

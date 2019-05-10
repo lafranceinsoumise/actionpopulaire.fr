@@ -644,3 +644,8 @@ ANYMAIL = {
 }
 
 BANNER_CONFIG = {"thumbnail": (400, 250), "banner": (1200, 400)}
+
+JITSI_GROUP_SIZE = 5
+JITSI_SERVERS = os.environ.get("JITSI_SERVERS", "jitsi1.lafranceinsoumise.fr").split(
+    ","
+)

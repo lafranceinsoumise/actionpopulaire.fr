@@ -1,0 +1,28 @@
+{% extends "front/layout.html" %}
+{% load static %}
+
+{% block title %}«&nbsp;{{ event.name }}&nbsp;»{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://{{ rsvp.jitsi_meeting.domain }}/external_api.min.js"></script>
+{% endblock %}
+
+{% block main %}
+  <h2><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h2>
+  <ol class="breadcrumb">
+    <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
+    <li>Visio-conférence</li>
+  </ol>
+  <div id="meet"></div>
+  <script>
+    var domain = '{{ rsvp.jitsi_meeting.domain }}'
+    var options = {
+      roomName: '{{ rsvp.jitsi_meeting.room_name }}',
+      width: '100%',
+      height: 700,
+      parentNode: document.querySelector('#meet'),
+    }
+
+    var api = new JitsiMeetExternalAPI(domain, options);
+   </script>
+{% endblock %}

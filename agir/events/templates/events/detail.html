@@ -84,6 +84,9 @@
                               {% endif %}
                             </ul>
                         </span>
+              {% if event.is_current and event.enable_jitsi %}
+                <a class="btn btn-default" href="{% url "view_event_conference" event.pk %}">Lancer la visioconférence</a>
+              {% endif %}
           {% elif user.person.is_insoumise or event.subtype.allow_external %}
             {% if event.max_participants and event.participants >= event.max_participants %}
               <span class="btn btn-primary">Évènement complet</span>

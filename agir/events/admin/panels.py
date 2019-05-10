@@ -209,6 +209,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "subscription_form",
                     "rsvps_buttons",
                     "payment_parameters",
+                    "enable_jitsi",
                 )
             },
         ),
@@ -489,4 +490,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
 @admin.register(models.JitsiMeeting, site=admin_site)
 class JitsiMeetingAdmin(admin.ModelAdmin):
     autocomplete_fields = ("event",)
-    readonly_fields = ("start_time", "end_time")
+    readonly_fields = ("start_time", "end_time", "display_link")
+
+    def display_link(self, object):
+        return format_html('<a target="_blank" href="{0}">{0}</a>', object.link)
