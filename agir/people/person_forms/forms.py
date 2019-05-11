@@ -3,11 +3,13 @@ from uuid import uuid4
 
 from pathlib import PurePath
 
+from copy import copy
 from crispy_forms.layout import Fieldset, Row, Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.storage import default_storage
+from django.http import QueryDict
 from django.utils.translation import ugettext as _
 
 from crispy_forms.helper import FormHelper
@@ -17,12 +19,17 @@ from agir.people.person_forms.field_groups import get_form_part
 
 from agir.lib.form_mixins import MetaFieldsMixin
 from ..models import Person, PersonFormSubmission
-from .fields import is_actual_model_field, get_data_from_submission
+from .fields import is_actual_model_field, get_data_from_submission, get_form_field
 
 
 class PersonTagChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.description
+
+
+class SuperHiddenDisplay(forms.HiddenInput):
+    def render(self, name, value, attrs=None, renderer=None):
+        return ""
 
 
 class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
@@ -32,6 +39,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
     """
 
     person_form_instance = None
+    hidden_fields = {}
     is_edition = False
 
     def get_meta_fields(self):
@@ -42,10 +50,22 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             if field.get("person_field") and not is_actual_model_field(field)
         ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, query_params=None, data=None, **kwargs):
         self.submission = kwargs.pop("submission", None)
 
-        super().__init__(*args, **kwargs)
+        if self.person_form_instance.config.get("hidden_fields"):
+            self.hidden_fields = {
+                desc["id"]: desc
+                for desc in self.person_form_instance.config["hidden_fields"]
+            }
+
+        # s'assurer que les informations des champs hidden fields viennent forcément de GET
+        if data is not None and query_params is not None:
+            data = copy(data)  # to make it mutable
+            for f in self.hidden_fields:
+                data[f] = query_params.get(f)
+
+        super().__init__(*args, data=data, **kwargs)
 
         if self.person_form_instance.editable:
             self.submission = (
@@ -99,6 +119,12 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         self.update_meta_initial()
 
+        for id, field_desc in self.hidden_fields.items():
+            self.fields[id] = get_form_field(
+                {**field_desc, "widget": SuperHiddenDisplay()},
+                is_edition=self.is_edition,
+            )
+
     def clean(self):
         if not self.is_edition:
             return super().clean()
@@ -120,6 +146,10 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         data = {}
         for part in self.parts:
             data.update(part.collect_results(self.cleaned_data))
+
+        for f in self.hidden_fields:
+            data[f] = self.cleaned_data[f]
+
         return data
 
     def save_submission(self, person):

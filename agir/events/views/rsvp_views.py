@@ -16,10 +16,8 @@ from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.payments.actions import redirect_to_payment
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PAYMENT_MODES
-from agir.people.actions.person_forms import (
-    get_people_form_class,
-    get_formatted_submission,
-)
+from agir.people.person_forms.actions import get_people_form_class
+from agir.people.person_forms.display import get_formatted_submission
 from agir.people.models import PersonFormSubmission, Person
 from agir.people.views import ConfirmSubscriptionView
 from ..actions.rsvps import (
@@ -306,7 +304,9 @@ class PayEventView(SoftLoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         if self.submission:
             # this form is instantiated only to get the labels for every field
-            form = get_people_form_class(self.submission.form)(self.request.user.person)
+            form = get_people_form_class(self.submission.form)(
+                instance=self.request.user.person
+            )
         kwargs.update(
             {
                 "event": self.event,

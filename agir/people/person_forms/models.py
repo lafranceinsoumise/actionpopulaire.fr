@@ -1,4 +1,6 @@
 from collections import OrderedDict
+from itertools import chain
+
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.utils import timezone
@@ -129,8 +131,14 @@ class PersonForm(TimeStampedModel):
     def fields_dict(self):
         return OrderedDict(
             (field["id"], field)
-            for fieldset in self.custom_fields
-            for field in fieldset["fields"]
+            for field in chain(
+                (
+                    field
+                    for fieldset in self.custom_fields
+                    for field in fieldset["fields"]
+                ),
+                self.config.get("hidden_fields", []),
+            )
         )
 
     @property

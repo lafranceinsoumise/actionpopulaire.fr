@@ -9,8 +9,8 @@ from django.views.generic.list import ListView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.people import tasks
-from agir.people.actions.person_forms import (
-    get_people_form_class,
+from agir.people.person_forms.actions import get_people_form_class
+from agir.people.person_forms.display import (
     get_formatted_submissions,
     get_public_fields,
 )
@@ -25,6 +25,11 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
         return reverse(
             "person_form_confirmation", args=(self.person_form_instance.slug,)
         )
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["query_params"] = self.request.GET
+        return kwargs
 
     def get_object(self, queryset=None):
         return self.request.user.person

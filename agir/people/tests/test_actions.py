@@ -3,7 +3,10 @@ from django.test import TestCase
 from agir.lib.tests.mixins import FakeDataMixin
 
 from ..models import Person, PersonForm, PersonFormSubmission
-from ..actions.person_forms import get_form_field_labels, get_formatted_submission
+from agir.people.person_forms.display import (
+    get_form_field_labels,
+    get_formatted_submission,
+)
 from ..actions.management import merge_persons
 
 

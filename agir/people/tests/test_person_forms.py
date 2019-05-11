@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from agir.people.actions.person_forms import get_formatted_submission
+from agir.people.person_forms.display import get_formatted_submission
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 
 
