@@ -129,7 +129,7 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
         self.fields["location_address1"].label = "Adresse"
         self.fields["location_address2"].label = False
 
-        fields = ["amount", "group", "allocation"]
+        fields = ["amount"]
 
         if "email" in self.fields:
             fields.append("email")

@@ -12,7 +12,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
 from agir.groups.models import SupportGroup
-from agir.lib.data import FRANCE_COUNTRY_CODES
 from agir.lib.form_components import *
 from .models import SpendingRequest, Document
 
@@ -102,6 +101,8 @@ class AllocationDonorForm(SimpleDonorForm):
 
     def __init__(self, *args, allocation, group_id, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.helper.layout.fields.extend(["allocation", "group"])
 
         self.fields["allocation"].initial = allocation
         self.fields["group"].initial = group_id

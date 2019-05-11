@@ -328,21 +328,29 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
             else Div()
         )
 
-        fields.extend(
-            [
-                "subscribed",
-                Div("newsletter_efi", style="margin-left: 50px;"),
-                "group_notifications",
-                "event_notifications",
+        if self.instance.is_insoumise:
+            fields.extend(
+                [
+                    "subscribed",
+                    Div("newsletter_efi", style="margin-left: 50px;"),
+                    "group_notifications",
+                    "event_notifications",
+                    Fieldset(
+                        "Téléphone",
+                        Row(ThirdCol("contact_phone"), ThirdCol(validation_block)),
+                        "subscribed_sms",
+                    ),
+                ]
+            )
+        else:
+            fields.append(
                 Fieldset(
                     "Téléphone",
                     Row(ThirdCol("contact_phone"), ThirdCol(validation_block)),
-                    "subscribed_sms",
-                ),
-                FormActions(Submit("submit", "Sauvegarder")),
-                btn_no_mails,
-            ]
-        )
+                )
+            )
+
+        fields.extend([FormActions(Submit("submit", "Sauvegarder")), btn_no_mails])
         return fields
 
     def clean(self):
