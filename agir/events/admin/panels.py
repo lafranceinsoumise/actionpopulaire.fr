@@ -210,6 +210,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "rsvps_buttons",
                     "payment_parameters",
                     "enable_jitsi",
+                    "participation_template",
                 )
             },
         ),

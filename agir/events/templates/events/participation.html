@@ -1,0 +1,21 @@
+{% extends "front/layout.html" %}
+{% load static %}
+
+{% block title %}«&nbsp;{{ event.name }}&nbsp;»{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://{{ rsvp.jitsi_meeting.domain }}/external_api.min.js"></script>
+{% endblock %}
+
+{% block main %}
+  <h2><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h2>
+  <ol class="breadcrumb">
+    <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
+    <li>Participation en ligne</li>
+  </ol>
+
+  <div>
+    {{ content }}
+  </div>
+
+{% endblock %}

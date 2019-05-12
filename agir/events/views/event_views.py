@@ -1,8 +1,16 @@
 import ics
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponse
+from django.template import loader
+from django.template.backends.django import DjangoTemplates
+from django.urls import reverse_lazy, reverse
+from django.utils import timezone
+from django.utils.html import format_html
+from django.utils.translation import ugettext as _, ngettext
 from django.views import View
 from django.views.generic import (
     CreateView,
@@ -13,23 +21,20 @@ from django.views.generic import (
 )
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import ProcessFormView, FormMixin
-from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponse
-from django.conf import settings
-from django.utils import timezone
-from django.utils.html import format_html
-from django.utils.translation import ugettext as _, ngettext
 
+from agir.authentication.view_mixins import (
+    HardLoginRequiredMixin,
+    PermissionsRequiredMixin,
+    SoftLoginRequiredMixin,
+)
 from agir.events.actions.legal import QUESTIONS
 from agir.events.actions.rsvps import assign_jitsi_meeting
-from agir.lib.views import ImageSizeWarningMixin
-from ..models import Event, RSVP, Calendar, EventSubtype
-from ..tasks import (
-    send_cancellation_notification,
-    send_event_report,
-    send_secretariat_notification,
+from agir.front.view_mixins import (
+    ObjectOpengraphMixin,
+    ChangeLocationBaseView,
+    SearchByZipcodeBaseView,
 )
-
+from agir.lib.views import ImageSizeWarningMixin
 from ..forms import (
     EventForm,
     AddOrganizerForm,
@@ -40,17 +45,12 @@ from ..forms import (
     SearchEventForm,
     EventLegalForm,
 )
-from agir.front.view_mixins import (
-    ObjectOpengraphMixin,
-    ChangeLocationBaseView,
-    SearchByZipcodeBaseView,
+from ..models import Event, RSVP, Calendar, EventSubtype
+from ..tasks import (
+    send_cancellation_notification,
+    send_event_report,
+    send_secretariat_notification,
 )
-from agir.authentication.view_mixins import (
-    HardLoginRequiredMixin,
-    PermissionsRequiredMixin,
-    SoftLoginRequiredMixin,
-)
-
 
 __all__ = [
     "CreateEventView",
@@ -59,6 +59,7 @@ __all__ = [
     "QuitEventView",
     "CancelEventView",
     "EventDetailView",
+    "EventParticipationView",
     "EventJitsiView",
     "EventIcsView",
     "CalendarView",
@@ -114,6 +115,62 @@ class EventDetailView(
     EventDetailMixin, ObjectOpengraphMixin, PermissionsRequiredMixin, DetailView
 ):
     template_name = "events/detail.html"
+
+
+class EventParticipationView(
+    DetailView, PermissionsRequiredMixin, SoftLoginRequiredMixin
+):
+    template_name = "events/participation.html"
+    permissions_required = ("events.view_event", "events.participate_online")
+    custom_template_engine = DjangoTemplates(
+        {
+            "APP_DIRS": False,
+            "DIRS": [],
+            "NAME": "ParticipationEngine",
+            "OPTIONS": {"builtins": []},
+        }
+    )
+
+    def get_queryset(self):
+        now = timezone.now()
+        return Event.objects.filter(start_time__lte=now, end_time__gte=now)
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(
+            rsvp=self.rsvp, event=self.event, **kwargs
+        )
+
+        if context_data["rsvp"].jitsi_meeting is None:
+            assign_jitsi_meeting(context_data["rsvp"])
+
+        jitsi_fragment = loader.get_template("events/jitsi_fragment.html").render(
+            {"jitsi_meeting": self.rsvp.jitsi_meeting}
+        )
+
+        if self.event.participation_template:
+            template = self.custom_template_engine.from_string(
+                self.event.participation_template
+            )
+            context_data["content"] = template.render({"jitsi_video": jitsi_fragment})
+        else:
+            context_data["content"] = jitsi_fragment
+
+        return context_data
+
+    def get(self, request, *args, **kwargs):
+        self.event = self.object = self.get_object()
+
+        try:
+            self.rsvp = self.event.rsvps.get(person=request.user.person)
+        except RSVP.DoesNotExist:
+            messages.add_message(
+                request=request,
+                level=messages.ERROR,
+                message="Vous devez d'abord indiquer votre participation à l'événement pour accéder à cette page.",
+            )
+            return HttpResponseRedirect(reverse("view_event", args=(self.event.pk,)))
+
+        return self.render_to_response(self.get_context_data())
 
 
 class EventJitsiView(EventDetailMixin, PermissionsRequiredMixin, DetailView):

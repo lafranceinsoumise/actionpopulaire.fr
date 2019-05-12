@@ -248,6 +248,10 @@ class Event(
 
     enable_jitsi = models.BooleanField("Activer la visio-conférence", default=False)
 
+    participation_template = models.TextField(
+        _("Template pour la page de participation"), blank=True, null=True
+    )
+
     legal = JSONField(
         _("Informations juridiques"),
         null=True,

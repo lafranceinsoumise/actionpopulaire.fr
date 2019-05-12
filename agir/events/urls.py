@@ -19,6 +19,11 @@ urlpatterns = [
         name="view_event_conference",
     ),
     path(
+        "evenements/<uuid:pk>/participer/",
+        views.EventParticipationView.as_view(),
+        name="view_event_participation",
+    ),
+    path(
         "evenements/<uuid:pk>/icalendar/",
         views.EventIcsView.as_view(),
         name="ics_event",
