@@ -124,7 +124,6 @@ class LenderForm(SimpleDonorForm):
 
         fields.extend(
             [
-                "amount",
                 "first_name",
                 "last_name",
                 "gender",
