@@ -1,0 +1,24 @@
+{% extends "front/layout.html" %}
+{% load static %}
+
+{% block title %}{{ person_form.title }} &mdash; Réponses page {{ page_obj.number }}{% endblock %}
+
+{% block main %}
+  <h1 class="headline">{{ person_form.title }} &mdash; résultats</h1>
+  <div>
+    <table class="table">
+      <tr>
+        {% for header in headers %}
+          <th>{{ header }}</th>
+        {% endfor %}
+      </tr>
+      {% for submission in submissions %}
+        <tr>
+          {% for value in submission %}
+              <td>{{ value }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+{% endblock %}

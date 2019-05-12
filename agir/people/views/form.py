@@ -1,6 +1,6 @@
 from django.contrib import messages
-from django.http import Http404
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -9,12 +9,12 @@ from django.views.generic.list import ListView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.people import tasks
+from agir.people.models import PersonForm, PersonFormSubmission
 from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import (
     get_formatted_submissions,
     get_public_fields,
 )
-from agir.people.models import PersonForm, PersonFormSubmission
 
 
 class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
@@ -98,8 +98,8 @@ class PeopleFormConfirmationView(DetailView):
         return super().get_context_data(person_form=self.object)
 
 
-class PeopleFormSubmissionsView(ListView):
-    template_name = "people/person_form_results.html"
+class PeopleFormSubmissionsPublicView(ListView):
+    template_name = "people/person_form_public_results.html"
     paginate_by = 20
 
     def get(self, request, *args, **kwargs):
@@ -132,3 +132,23 @@ class PeopleFormSubmissionsView(ListView):
             context["submissions"] = None
 
         return context
+
+
+class PeopleFormSubmissionsPrivateView(DetailView):
+    template_name = "people/person_form_private_results.html"
+    slug_field = "result_url_uuid"
+    slug_url_kwarg = "uuid"
+    queryset = PersonForm.objects.all()
+
+    def get_context_data(self, **kwargs):
+        submission_qs = self.object.submissions.all()
+
+        headers, submissions = get_formatted_submissions(
+            submission_qs, html=True, include_admin_fields=False
+        )
+
+        return {
+            "person_form": self.object,
+            "headers": headers,
+            "submissions": submissions,
+        }

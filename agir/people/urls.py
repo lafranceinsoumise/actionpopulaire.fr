@@ -74,6 +74,16 @@ profile_urls = [
         name="personal_data",
     ),
     path("profil/paiements/", views.PaymentsView.as_view(), name="view_payments"),
+    path(
+        "telephone/sms",
+        views.SendValidationSMSView.as_view(),
+        name="send_validation_sms",
+    ),
+    path(
+        "telephone/validation",
+        views.CodeValidationView.as_view(),
+        name="sms_code_validation",
+    ),
 ]
 
 unsubscribe_urls = [
@@ -107,7 +117,7 @@ form_urls = [
     ),
     path(
         "formulaires/<slug:slug>/reponses/",
-        views.PeopleFormSubmissionsView.as_view(),
+        views.PeopleFormSubmissionsPublicView.as_view(),
         name="person_form_submissions",
     ),
     path(
@@ -116,14 +126,9 @@ form_urls = [
         name="person_form_confirmation",
     ),
     path(
-        "telephone/sms",
-        views.SendValidationSMSView.as_view(),
-        name="send_validation_sms",
-    ),
-    path(
-        "telephone/validation",
-        views.CodeValidationView.as_view(),
-        name="sms_code_validation",
+        "formulaires/resultats/<uuid:uuid>/",
+        views.PeopleFormSubmissionsPrivateView.as_view(),
+        name="person_form_private_submissions",
     ),
 ]
 

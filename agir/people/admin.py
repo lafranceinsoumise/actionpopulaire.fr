@@ -2,6 +2,7 @@ import csv
 import secrets
 import traceback
 from urllib.parse import urlencode
+from uuid import uuid4
 
 import django_otp
 from django import forms
@@ -16,6 +17,7 @@ from django.utils.html import mark_safe, format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.utils import display_for_value, unquote
 from django.contrib.gis.admin import OSMGeoAdmin
+from functools import partial
 
 from agir.api.admin import admin_site
 
@@ -349,12 +351,10 @@ class PersonFormAdminMixin:
         return TemplateResponse(request, "admin/personforms/view_results.html", context)
 
     def download_results(self, request, pk):
-        if not self.has_change_permission(request) or not request.user.has_perm(
-            "people.change_personform"
-        ):
-            raise PermissionDenied
+        if not self.has_change_permission(request):
+            raise PermissionDenied()
 
-        form = PersonForm.objects.get(id=pk)
+        form = get_object_or_404(PersonForm, id=pk)
         table = self.generate_result_table(form, html=False)
 
         response = HttpResponse(content_type="text/csv")
@@ -368,6 +368,18 @@ class PersonFormAdminMixin:
             writer.writerow(submission)
 
         return response
+
+    def create_result_url(self, request, pk, clear=False):
+        if not self.has_change_permission(request):
+            raise PermissionDenied()
+
+        form = get_object_or_404(PersonForm, id=pk)
+        form.result_url_uuid = None if clear else uuid4()
+        form.save()
+
+        return HttpResponseRedirect(
+            reverse("admin:people_personform_change", args=[pk])
+        )
 
 
 @admin.register(PersonForm, site=admin_site)
@@ -400,7 +412,14 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
         ),
         (
             _("Soumissions"),
-            {"fields": ("submissions_number", "simple_link", "action_buttons")},
+            {
+                "fields": (
+                    "submissions_number",
+                    "simple_link",
+                    "action_buttons",
+                    "result_url",
+                )
+            },
         ),
         (_("Champs"), {"fields": ("main_question", "tags", "custom_fields", "config")}),
         (
@@ -423,6 +442,7 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
         "simple_link",
         "action_buttons",
         "last_submission",
+        "result_url",
     )
     autocomplete_fields = ("required_tags", "tags")
 
@@ -461,6 +481,16 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
                 self.admin_site.admin_view(self.download_results),
                 name="people_personform_download_results",
             ),
+            path(
+                "<int:pk>/create_result_url/",
+                self.admin_site.admin_view(self.create_result_url),
+                name="people_personform_create_result_url",
+            ),
+            path(
+                "<int:pk>/clear_result_url/",
+                self.admin_site.admin_view(partial(self.create_result_url, clear=True)),
+                name="people_personform_clear_result_url",
+            ),
         ] + super().get_urls()
 
     def slug_link(self, object):
@@ -480,8 +510,8 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
             return "-"
         else:
             return format_html(
-                '<a href="{view_results_link}" class="button">Voir les résultats</a><br>'
-                '<a href="{download_results_link}" class="button">Télécharger les résultats</a><br>',
+                '<a href="{view_results_link}" class="button">Voir les résultats</a>'
+                ' <a href="{download_results_link}" class="button">Télécharger les résultats</a>',
                 view_results_link=reverse(
                     "admin:people_personform_view_results", args=(object.pk,)
                 ),
@@ -502,6 +532,38 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
             return "-"
 
     simple_link.short_description = "Lien vers le formulaire"
+
+    def result_url(self, object):
+        if object._state.adding:
+            return "-"
+
+        if object.result_url_uuid:
+            return format_html(
+                '<a href="{url}">{url}</a> <a href="{change_url}" class="button">Changer l\'URL</a>'
+                ' <a href="{clear_url}" class="button">Supprimer l\'URL</a>',
+                url=front_url(
+                    "person_form_private_submissions", args=(object.result_url_uuid,)
+                ),
+                change_url=reverse(
+                    "admin:people_personform_create_result_url", args=(object.pk,)
+                ),
+                clear_url=reverse(
+                    "admin:people_personform_clear_result_url", args=(object.pk,)
+                ),
+            )
+
+        return format_html(
+            '<em>Pas d\'URL pour le moment</em> <a href="{change_url}" class="button">Créer une URL</a>',
+            change_url=reverse(
+                "admin:people_personform_create_result_url", args=(object.pk,)
+            ),
+        )
+
+    result_url.short_description = "Lien vers les résultats accessible sans connexion"
+    result_url.help_text = (
+        "Ce lien permet d'accéder à l'ensemble des résultats de ce formulaire sans avoir besoin de se connecter."
+        " Faites bien attention en le transmettant à des personnes tierces."
+    )
 
     def submissions_number(self, object):
         return object.submissions_number
