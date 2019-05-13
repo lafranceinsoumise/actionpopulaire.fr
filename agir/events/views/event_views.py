@@ -60,7 +60,6 @@ __all__ = [
     "CancelEventView",
     "EventDetailView",
     "EventParticipationView",
-    "EventJitsiView",
     "EventIcsView",
     "CalendarView",
     "CalendarIcsView",
@@ -118,10 +117,13 @@ class EventDetailView(
 
 
 class EventParticipationView(
-    DetailView, PermissionsRequiredMixin, SoftLoginRequiredMixin
+    EventDetailMixin, PermissionsRequiredMixin, SoftLoginRequiredMixin, DetailView
 ):
     template_name = "events/participation.html"
     permissions_required = ("events.view_event", "events.participate_online")
+    permission_denied_message = _(
+        "Vous devez être inscrit⋅e à l'événement pour accéder à cette page."
+    )
     custom_template_engine = DjangoTemplates(
         {
             "APP_DIRS": False,
@@ -131,57 +133,26 @@ class EventParticipationView(
         }
     )
 
-    def get_queryset(self):
-        now = timezone.now()
-        return Event.objects.filter(start_time__lte=now, end_time__gte=now)
-
     def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(
-            rsvp=self.rsvp, event=self.event, **kwargs
-        )
+        if not self.object.is_current():
+            raise PermissionDenied("L'événement n'a pas encore commencé !")
+
+        context_data = super().get_context_data(**kwargs)
 
         if context_data["rsvp"].jitsi_meeting is None:
             assign_jitsi_meeting(context_data["rsvp"])
 
         jitsi_fragment = loader.get_template("events/jitsi_fragment.html").render(
-            {"jitsi_meeting": self.rsvp.jitsi_meeting}
+            {"jitsi_meeting": context_data["rsvp"].jitsi_meeting}
         )
 
-        if self.event.participation_template:
+        if self.object.participation_template:
             template = self.custom_template_engine.from_string(
-                self.event.participation_template
+                self.object.participation_template
             )
             context_data["content"] = template.render({"jitsi_video": jitsi_fragment})
         else:
             context_data["content"] = jitsi_fragment
-
-        return context_data
-
-    def get(self, request, *args, **kwargs):
-        self.event = self.object = self.get_object()
-
-        try:
-            self.rsvp = self.event.rsvps.get(person=request.user.person)
-        except RSVP.DoesNotExist:
-            messages.add_message(
-                request=request,
-                level=messages.ERROR,
-                message="Vous devez d'abord indiquer votre participation à l'événement pour accéder à cette page.",
-            )
-            return HttpResponseRedirect(reverse("view_event", args=(self.event.pk,)))
-
-        return self.render_to_response(self.get_context_data())
-
-
-class EventJitsiView(EventDetailMixin, PermissionsRequiredMixin, DetailView):
-    permissions_required = ("events.view_event", "events.view_jitsi_meeting")
-    template_name = "events/jitsi.html"
-
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data()
-
-        if context_data["rsvp"].jitsi_meeting is None:
-            assign_jitsi_meeting(context_data["rsvp"])
 
         return context_data
 

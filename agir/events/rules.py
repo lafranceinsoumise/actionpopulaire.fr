@@ -59,5 +59,4 @@ def has_rsvp(role, event=None):
     )
 
 
-rules.add_perm("events.view_jitsi_meeting", has_rsvp)
 rules.add_perm("events.participate_online", has_rsvp)

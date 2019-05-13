@@ -1,5 +1,4 @@
 from django.urls import path
-from django.views import defaults
 
 from . import views
 
@@ -13,11 +12,6 @@ urlpatterns = [
     ),
     path("evenements/liste/", views.EventListView.as_view(), name="list_all_events"),
     path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
-    path(
-        "evenements/<uuid:pk>/visio/",
-        views.EventJitsiView.as_view(),
-        name="view_event_conference",
-    ),
     path(
         "evenements/<uuid:pk>/participer/",
         views.EventParticipationView.as_view(),
