@@ -33,7 +33,7 @@ def jitsi_reservation_view(request):
                 if meeting.event is not None
                 else timezone.now(),
                 "duration": (
-                    meeting.event.start_time - meeting.event.end_time
+                    meeting.event.end_time - meeting.event.start_time
                 ).total_seconds()
                 if meeting.event is not None
                 else 3600,
