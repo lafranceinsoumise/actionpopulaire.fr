@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -29,7 +30,9 @@ def jitsi_reservation_view(request):
             {
                 "id": meeting.pk,
                 "name": meeting.room_name,
-                "start_time": meeting.event.start_time
+                "start_time": meeting.event.start_time.isoformat(
+                    timespec="milliseconds"
+                )
                 if meeting.event is not None
                 else timezone.now(),
                 "duration": int(
