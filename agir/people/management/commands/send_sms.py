@@ -30,7 +30,7 @@ def event_argument(event_id):
 
 def coordinates_argument(coords):
     lon, lat = map(str.strip, coords.split(","))
-    return Point(lon, lat, srid=4326)
+    return Point(float(lon), float(lat), srid=4326)
 
 
 def drop_duplicate_numbers(it, n=None):
@@ -81,7 +81,9 @@ class Command(BaseCommand):
             PhoneNumberType.FIXED_LINE_OR_MOBILE,
         ]
 
-    def handle(self, event, coordinates, number, distance, departement, region):
+    def handle(
+        self, event, coordinates, number, distance, departement, region, **options
+    ):
         if (
             sum(
                 0 if arg is None else 1
