@@ -189,7 +189,7 @@ def get_formatted_submissions(submissions, include_admin_fields=True, html=True)
         reduce(or_, (set(d) for d in full_data)).difference(declared_fields)
     )
 
-    headers = [labels[id] for id in field_dict] + additional_fields
+    headers = [labels.get("id", id) for id in field_dict] + additional_fields
 
     ordered_values = [
         [
