@@ -85,7 +85,7 @@
                             </ul>
                         </span>
               {% if event.is_current and event.enable_jitsi %}
-                <a class="btn btn-default" href="{% url "view_event_participation" event.pk %}">Lancer l'événement en ligne&nbsp;!</a>
+                <a class="btn btn-default" href="{% url "view_event_participation" event.pk %}" data-turbolinks="false">Lancer l'événement en ligne&nbsp;!</a>
               {% endif %}
           {% elif user.person.is_insoumise or event.subtype.allow_external %}
             {% if event.max_participants and event.participants >= event.max_participants %}
