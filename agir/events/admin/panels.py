@@ -492,6 +492,10 @@ class EventSubtypeAdmin(admin.ModelAdmin):
 class JitsiMeetingAdmin(admin.ModelAdmin):
     autocomplete_fields = ("event",)
     readonly_fields = ("start_time", "end_time", "display_link")
+    list_display = ("room_name", "event", "start_time", "end_time", "members")
+
+    def members(self, object):
+        return object.rsvps.count()
 
     def display_link(self, object):
         return format_html('<a target="_blank" href="{0}">{0}</a>', object.link)

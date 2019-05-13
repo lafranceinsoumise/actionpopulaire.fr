@@ -794,5 +794,8 @@ class JitsiMeeting(models.Model):
     def link(self):
         return "https://" + self.domain + "/" + self.room_name
 
+    def __str__(self):
+        return self.room_name
+
     class Meta:
         verbose_name = "Visio-conférence"
