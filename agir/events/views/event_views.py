@@ -152,7 +152,12 @@ class EventParticipationView(
             template = self.custom_template_engine.from_string(
                 self.object.participation_template
             )
-            context_data["content"] = template.render({"jitsi_video": jitsi_fragment})
+            context_data["content"] = template.render(
+                {
+                    "jitsi_video": jitsi_fragment,
+                    "group_code": context_data["rsvp"].jitsi_meeting.room_name,
+                }
+            )
         else:
             context_data["content"] = jitsi_fragment
 
