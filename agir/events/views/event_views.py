@@ -134,8 +134,10 @@ class EventParticipationView(
     )
 
     def get_context_data(self, **kwargs):
+        if self.object.is_past():
+            raise PermissionDenied("L'événement est terminé !")
         if not self.object.is_current():
-            raise PermissionDenied("L'événement n'a pas encore commencé !")
+            raise PermissionDenied("L'événement n'est pas encore commencé !")
 
         context_data = super().get_context_data(**kwargs)
 
