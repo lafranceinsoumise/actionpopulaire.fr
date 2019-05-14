@@ -84,18 +84,21 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         parts = []
 
-        self.tag_queryset = self.person_form_instance.tags.all()
+        # lors de la création et du test du formulaire, celui-ci n'a pas encore d'ID, et on ne peut pas manipuler
+        # ses tags
+        if not self.person_form_instance._state.adding:
+            self.tag_queryset = self.person_form_instance.tags.all()
 
-        if len(self.tag_queryset) > 1:
-            self.fields["tag"] = PersonTagChoiceField(
-                queryset=self.tag_queryset,
-                to_field_name="label",
-                required=True,
-                label=self.person_form_instance.main_question,
-            )
-            parts.append(Fieldset(_("Ma situation"), Row(FullCol("tag"))))
-        elif len(self.tag_queryset) == 1:
-            self.tag = self.tag_queryset[0]
+            if len(self.tag_queryset) > 1:
+                self.fields["tag"] = PersonTagChoiceField(
+                    queryset=self.tag_queryset,
+                    to_field_name="label",
+                    required=True,
+                    label=self.person_form_instance.main_question,
+                )
+                parts.append(Fieldset(_("Ma situation"), Row(FullCol("tag"))))
+            elif len(self.tag_queryset) == 1:
+                self.tag = self.tag_queryset[0]
 
         opts = self._meta
         if opts.fields:
