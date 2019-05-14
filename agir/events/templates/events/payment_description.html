@@ -3,6 +3,7 @@
   <h4>Participation à un événement payant</h4>
   <div>Vous avez payé <strong>{{ payment.price | display_price }}</strong> le {{ payment.created | date }} pour
     {% if guest %}emmener un invité{% else %}participer{% endif %}
-    à l'événement payant <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
+    à {% if event %}l'événement payant <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>{% else %}
+    un événement{% endif %}.
   </div>
 </div>
