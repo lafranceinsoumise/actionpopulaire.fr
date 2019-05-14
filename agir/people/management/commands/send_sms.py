@@ -141,7 +141,11 @@ class Command(BaseCommand):
 
             self.stdout.write(f"Évènement : {event.name}")
             self.stdout.write(event.short_location())
-            self.stdout.write(event.start_time)
+            self.stdout.write(
+                event.start_time.astimezone(timezone.get_default_timezone()).strftime(
+                    "Le %d/%m/%Y à %H:%M"
+                )
+            )
             self.stdout.write("\n")  # ligne vide
 
         if coordinates:
