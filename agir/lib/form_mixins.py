@@ -311,9 +311,9 @@ class MetaFieldsMixin:
         super()._post_clean()
 
         meta_update = {
-            self.meta_prefix + f: self.cleaned_data.get(f)
+            self.meta_prefix + f: self.cleaned_data.get(f, "")
             for f in self.get_meta_fields()
-            if self.cleaned_data.get(f)
+            if self.cleaned_data.get(f) is not None
         }
         getattr(self.instance, self.meta_attr).update(meta_update)
 
