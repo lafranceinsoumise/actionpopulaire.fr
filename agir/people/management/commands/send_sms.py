@@ -1,14 +1,20 @@
+import secrets
+from argparse import FileType
+from pathlib import Path
+
 import re
 from django.contrib.gis.db.models.functions import Distance as DistanceFunction
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance as DistanceMeasure
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
+from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import number_type, PhoneNumberType
 from tqdm import tqdm
 
 from agir.events.models import Event
 from agir.lib import data
-from agir.lib.sms import send_sms, SMSSendException, compute_sms_length_information
+from agir.lib.sms import compute_sms_length_information, send_bulk_sms, SMSSendException
 from agir.people.models import Person
 
 
@@ -53,6 +59,13 @@ def region_argument(reg):
     return data.filtre_region(reg)
 
 
+def datetime_argument(datetime):
+    tz = timezone.get_default_timezone()
+    return timezone.make_aware(
+        timezone.datetime.strptime(datetime, "%Y/%m/%d %H:%M"), tz
+    )
+
+
 class Command(BaseCommand):
     help = "\n".join(
         map(
@@ -74,6 +87,8 @@ class Command(BaseCommand):
         parser.add_argument("-d", "--distance", type=distance_argument)
         parser.add_argument("-D", "--departement", type=departement_argument)
         parser.add_argument("-R", "--region", type=region_argument)
+        parser.add_argument("-a", "--at", type=datetime_argument)
+        parser.add_argument("-s", "--sentfile", type=FileType(mode="r"))
 
     def can_send(self, phone):
         return phone.is_valid() and number_type(phone) in [
@@ -81,8 +96,24 @@ class Command(BaseCommand):
             PhoneNumberType.FIXED_LINE_OR_MOBILE,
         ]
 
+    def write_numbers(self, path, numbers):
+        with open(path, "w") as f:
+            f.write("\n".join(numbers))
+
+    def read_numbers(self, file):
+        return set(PhoneNumber.from_string(n) for n in file.read().split("\n"))
+
     def handle(
-        self, event, coordinates, number, distance, departement, region, **options
+        self,
+        event,
+        coordinates,
+        number,
+        distance,
+        departement,
+        region,
+        sentfile,
+        at,
+        **options,
     ):
         if (
             sum(
@@ -108,30 +139,10 @@ class Command(BaseCommand):
 
             coordinates = event.coordinates
 
-            print(f"Évènement : {event.name}")
-            print(event.short_location())
-            print(event.start_time)
-            print()
-
-        print("Entrez votre message (deux lignes vides pour terminer)")
-
-        message = ""
-        last_line = None
-        while True:
-            current_line = input("")
-            message += "\n" + current_line
-            if current_line == "" and last_line == "":
-                break
-            last_line = current_line
-
-        message = message.strip()
-
-        print("Message enregistré")
-        sms_info = compute_sms_length_information(message)
-        print(
-            f"Encodé en {sms_info.encoding}, {len(message)} caractères, {sms_info.byte_length} octets pour un total de"
-            f" {sms_info.messages} SMS."
-        )
+            self.stdout.write(f"Évènement : {event.name}")
+            self.stdout.write(event.short_location())
+            self.stdout.write(event.start_time)
+            self.stdout.write("\n")  # ligne vide
 
         if coordinates:
             ps = (
@@ -157,7 +168,7 @@ class Command(BaseCommand):
 
             numbers = [n for n, _ in res]
             max_distance = res[-1][1]
-            print(f"Distance maximale : {max_distance}")
+            self.stdout.write(f"Distance maximale : {max_distance}")
 
         else:
             ps = Person.objects.filter(
@@ -167,10 +178,39 @@ class Command(BaseCommand):
                 p.contact_phone for p in ps.iterator() if self.can_send(p.contact_phone)
             )
 
-        print(f"Nombre de numéros : {len(numbers)}")
+        self.stdout.write(f"Nombre de numéros : {len(numbers)}")
 
-        print("")
-        print("Prêt pour envoi.")
+        if sentfile is not None:
+            sent_numbers = self.read_numbers(sentfile)
+            numbers.difference_update(sent_numbers)
+            self.stdout.write(
+                f"{len(numbers)} après prise en compte des numéros déjà envoyés."
+            )
+
+        self.stdout.write("\n")  # empty line
+
+        self.stdout.write("Entrez votre message (deux lignes vides pour terminer)")
+
+        message = ""
+        last_line = None
+        while True:
+            current_line = input("")
+            message += "\n" + current_line
+            if current_line == "" and last_line == "":
+                break
+            last_line = current_line
+
+        message = message.strip()
+
+        self.stdout.write("Message enregistré")
+        sms_info = compute_sms_length_information(message)
+        self.stdout.write(
+            f"Encodé en {sms_info.encoding}, {len(message)} caractères, {sms_info.byte_length} octets pour un total de"
+            f" {sms_info.messages} SMS."
+        )
+
+        self.stdout.write("")
+        self.stdout.write("Prêt pour envoi.")
 
         answer = ""
         while answer not in ["ENVOYER", "ANNULER"]:
@@ -179,19 +219,33 @@ class Command(BaseCommand):
         if answer == "ANNULER":
             return
 
-        excs = []
+        token = secrets.token_urlsafe(4)
+        sent_filename = Path(f"sent.{token}")
+        invalid_filename = Path(f"invalid.{token}")
 
-        for number in tqdm(numbers):
+        try:
+            sent, invalid = send_bulk_sms(message, tqdm(numbers), at=at)
+        except SMSSendException as e:
+            self.stderr.write("Erreur lors de l'envoi des SMS.")
+            self.stderr.write(
+                f"{len(e.sent)} SMS ont déjà été envoyés ({len(e.invalid)} numéros invalides)."
+            )
+
             try:
-                send_sms(message, number)
-            except SMSSendException as e:
-                excs.append((number, e))
+                self.write_numbers(sent_filename, e.sent)
+                self.write_numbers(invalid_filename, e.invalid)
+            except OSError:
+                self.stderr.write(
+                    "Impossible d'écrire les fichiers avec les numéros testés."
+                )
+                raise
 
-        print(f"{len(numbers) - len(excs)} SMS envoyés")
+            self.stderr.write(f"Fichiers {sent_filename} et {invalid_filename} écrits.")
+            return 1
 
-        if excs:
-            print(f"{len(excs)} erreurs")
+        self.stdout.write(f"{len(sent)} SMS envoyés")
 
-            for number, exc in excs:
-                print(f"Lors de l'envoi à {number.as_e164}")
-                print(repr(exc) + "\n")
+        if invalid:
+            self.stdout.write(f"{len(invalid)} numéros invalides")
+            self.write_numbers(invalid_filename, invalid)
+            self.stdout.write(f"{invalid_filename} écrit.")

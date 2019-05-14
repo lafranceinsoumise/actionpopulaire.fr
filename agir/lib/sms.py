@@ -1,8 +1,10 @@
 import logging
+from itertools import zip_longest
 
 import ovh
 from collections import namedtuple
 from django.conf import settings
+from django.utils import timezone
 from math import ceil
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import number_type, PhoneNumberType
@@ -17,6 +19,7 @@ client = ovh.Client(
 )
 
 
+BULK_GROUP_SIZE = 50
 GSM7_CODEPOINTS = {
     0x0040: 1,  # 	COMMERCIAL AT
     0x00A3: 1,  # 	POUND SIGN
@@ -159,6 +162,37 @@ GSM7_CODEPOINTS = {
 }
 
 
+def _send_sms(message, recipients, at=None):
+    params = dict(
+        charset="UTF-8",
+        coding="7bit",
+        receivers=[r.as_e164 for r in recipients],
+        message=message,
+        noStopClause=True,
+        priority="high",
+        sender="Fi",
+        validityPeriod=2880,
+    )
+
+    if at is not None:
+        now = timezone.now()
+        if at <= now:
+            raise SMSSendException("`at` est dans le passé")
+
+        minutes = ceil((at - now).total_seconds() / 60)
+        params["differedPeriod"] = minutes
+
+    return client.post("/sms/" + settings.OVH_SMS_SERVICE + "/jobs", **params)
+
+
+def to_phone_number(n):
+    return PhoneNumber.from_string(n, region="FR") if isinstance(n, str) else n
+
+
+def grouper(it, n):
+    return ([e for e in g if e is not None] for g in zip_longest(*[iter(it)] * n))
+
+
 MessageLength = namedtuple("MessageLength", ["encoding", "byte_length", "messages"])
 
 
@@ -181,12 +215,24 @@ def compute_sms_length_information(message):
 
 
 class SMSSendException(Exception):
-    pass
+    def __init__(self, *args, sent=None, invalid=None):
+        super().__init__()
+
+        if sent is None:
+            sent = frozenset()
+        else:
+            sent = frozenset(sent)
+        if invalid is None:
+            invalid = frozenset()
+        else:
+            invalid = frozenset(invalid)
+
+        self.sent = sent
+        self.invalid = invalid
 
 
-def send_sms(message, phone_number, force=False):
-    if isinstance(phone_number, str):
-        phone_number = PhoneNumber.from_string(phone_number, region="FR")
+def send_sms(message, phone_number, force=False, at=None):
+    phone_number = to_phone_number(phone_number)
 
     if not force and not phone_number.is_valid():
         raise SMSSendException("Le numéro ne semble pas correct")
@@ -198,17 +244,7 @@ def send_sms(message, phone_number, force=False):
         raise SMSSendException("Le numéro ne semble pas être un numéro de mobile")
 
     try:
-        result = client.post(
-            "/sms/" + settings.OVH_SMS_SERVICE + "/jobs",
-            charset="UTF-8",
-            coding="7bit",
-            receivers=[phone_number.as_e164],
-            message=message,
-            noStopClause=True,
-            priority="high",
-            sender="Fi",
-            validityPeriod=2880,
-        )
+        result = _send_sms(message, [phone_number], at=at)
     except Exception:
         logger.exception("Le message n'a pas été envoyé.")
         raise SMSSendException("Le message n'a pas été envoyé.")
@@ -219,3 +255,20 @@ def send_sms(message, phone_number, force=False):
 
     if len(result["validReceivers"]) < 1:
         raise SMSSendException("Le message n'a pas été envoyé.")
+
+
+def send_bulk_sms(message, phone_numbers, at=None):
+    sent = set()
+    invalid = set()
+
+    for numbers in grouper(phone_numbers, BULK_GROUP_SIZE):
+        try:
+            result = _send_sms(message, [to_phone_number(n) for n in numbers], at=at)
+        except ovh.exceptions.APIError:
+            raise SMSSendException(
+                "L'API OVH a rencontré une erreur", sent=sent, invalid=invalid
+            )
+        sent.update(result["validReceivers"])
+        invalid.update(result["invalidReceivers"])
+
+    return sent, invalid
