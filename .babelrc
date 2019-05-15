@@ -1,6 +1,11 @@
 {
   "presets": [
-    "@babel/preset-env",
+    [
+      "@babel/preset-env",
+      {
+        "targets": "cover 98% in FR, last 2 versions, Firefox ESR, not dead"
+      }
+    ],
     "@babel/preset-react"
   ],
   "plugins": [
