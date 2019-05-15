@@ -119,7 +119,14 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         (_("Dates"), {"fields": ("created", "modified", "last_login")}),
         (
             _("Paramètres mails"),
-            {"fields": ("subscribed", "event_notifications", "group_notifications")},
+            {
+                "fields": (
+                    "subscribed",
+                    "subscribed_sms",
+                    "event_notifications",
+                    "group_notifications",
+                )
+            },
         ),
         (
             _("Paramètres de participation"),
@@ -165,6 +172,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         RegionListFilter,
         ("is_insoumise", admin.BooleanFieldListFilter),
         ("subscribed", admin.BooleanFieldListFilter),
+        ("subscribed_sms", admin.BooleanFieldListFilter),
         ("draw_participation", admin.BooleanFieldListFilter),
         ("gender"),
         ("tags"),
