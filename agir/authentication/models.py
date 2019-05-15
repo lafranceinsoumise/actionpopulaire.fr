@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, _user_has_perm
+from django.utils.crypto import salted_hmac
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from django_prometheus.models import ExportModelOperationsMixin
@@ -97,3 +98,18 @@ class Role(ExportModelOperationsMixin("role"), PermissionsMixin, AbstractBaseUse
             return self.person.get_full_name()
         else:
             return self.client.get_full_name()
+
+    def get_session_auth_hash(self):
+        """
+        Return an HMAC of the password field.
+        """
+
+        # utiliser le même salt pour ne pas invalider les sessions
+        key_salt = "django.contrib.auth.models.AbstractBaseUser.get_session_auth_hash"
+
+        to_hash = self.password
+
+        if self.type == self.PERSON_ROLE and self.person:
+            to_hash += self.person.auto_login_salt
+
+        return salted_hmac(key_salt, to_hash).hexdigest()
