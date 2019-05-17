@@ -128,6 +128,10 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
             self.fields[f].required = True
         self.fields["location_address1"].label = "Adresse"
         self.fields["location_address2"].label = False
+        self.fields["contact_phone"].help_text = (
+            "Nous sommes dans l'obligation de pouvoir vous contacter en cas "
+            "de demande de vérification par la CNCCFP."
+        )
 
         fields = ["amount"]
 
