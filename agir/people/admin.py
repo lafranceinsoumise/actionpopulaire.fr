@@ -413,6 +413,7 @@ class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
                     "start_time",
                     "end_time",
                     "editable",
+                    "allow_anonymous",
                     "send_answers_to",
                     "required_tags",
                 )

@@ -159,8 +159,6 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         """
         Can be used to save a submission without saving the Person
         """
-        if person is None:
-            person = self.instance
 
         data = self.submission_data
 
@@ -169,16 +167,20 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             if isinstance(value, File):
                 data[key] = self._save_file(value)
 
-        if self.person_form_instance.editable:
+        if self.person_form_instance.editable and person.pk is not None:
             if self.submission is None:
                 self.submission, created = PersonFormSubmission.objects.get_or_create(
                     person=person, form=self.person_form_instance
                 )
             self.submission.data = data
             self.submission.save()
-        else:
+        elif person.pk is not None:
             self.submission = PersonFormSubmission.objects.create(
                 person=person, form=self.person_form_instance, data=data
+            )
+        else:
+            self.submission = PersonFormSubmission.objects.create(
+                form=self.person_form_instance, data=data
             )
 
         return self.submission

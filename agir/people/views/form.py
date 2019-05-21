@@ -7,9 +7,8 @@ from django.urls import reverse
 from django.views.generic import UpdateView, DetailView
 from django.views.generic.list import ListView
 
-from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.people import tasks
-from agir.people.models import PersonForm, PersonFormSubmission
+from agir.people.models import PersonForm, PersonFormSubmission, Person
 from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import (
     get_formatted_submissions,
@@ -17,7 +16,7 @@ from agir.people.person_forms.display import (
 )
 
 
-class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
+class PeopleFormView(UpdateView):
     queryset = PersonForm.objects.published()
     template_name = "people/person_form.html"
 
@@ -32,7 +31,10 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
         return kwargs
 
     def get_object(self, queryset=None):
-        return self.request.user.person
+        if self.request.user.is_authenticated:
+            return self.request.user.person
+
+        return Person()
 
     def get_person_form_instance(self):
         try:
@@ -57,7 +59,7 @@ class PeopleFormView(SoftLoginRequiredMixin, UpdateView):
         self.person_form_instance = self.get_person_form_instance()
         if (
             not self.person_form_instance.is_open
-            or not self.person_form_instance.is_authorized(self.request.user.person)
+            or not self.person_form_instance.is_authorized(self.get_object())
         ):
             return self.get(request, *args, **kwargs)
         return super().post(request, *args, **kwargs)

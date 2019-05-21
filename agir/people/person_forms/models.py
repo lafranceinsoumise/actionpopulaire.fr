@@ -60,6 +60,10 @@ class PersonForm(TimeStampedModel):
         _("Les répondant⋅e⋅s peuvent modifier leurs réponses"), default=False
     )
 
+    allow_anonymous = models.BooleanField(
+        _("Les répondant⋅es n'ont pas besoin d'être connecté⋅es"), default=False
+    )
+
     send_answers_to = models.EmailField(
         _("Envoyer les réponses par email à une adresse email (facultatif)"), blank=True
     )
@@ -193,6 +197,8 @@ class PersonFormSubmission(
         on_delete=models.CASCADE,
         related_name="form_submissions",
         editable=False,
+        null=True,
+        blank=True,
     )
 
     data = JSONField(
