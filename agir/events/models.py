@@ -252,6 +252,13 @@ class Event(
         _("Template pour la page de participation"), blank=True, null=True
     )
 
+    do_not_list = models.BooleanField(
+        "Ne pas lister l'événement",
+        default=False,
+        help_text="L'événement n'apparaîtra pas sur la carte, ni sur le calendrier "
+        "et ne sera pas cherchable via la recherche interne ou les moteurs de recherche.",
+    )
+
     legal = JSONField(
         _("Informations juridiques"),
         null=True,
