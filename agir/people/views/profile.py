@@ -10,7 +10,7 @@ from django.views import View
 from django.views.generic import UpdateView, TemplateView, FormView, RedirectView
 from django.views.generic.edit import DeleteView
 
-from agir.authentication.subscription import merge_account_token_generator
+from agir.authentication.signers import merge_account_token_generator
 from agir.authentication.utils import hard_login
 from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,

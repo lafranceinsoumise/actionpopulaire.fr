@@ -10,7 +10,7 @@ from django.utils.http import urlencode
 from rest_framework.reverse import reverse
 from rest_framework import status
 
-from agir.authentication.subscription import subscription_confirmation_token_generator
+from agir.authentication.signers import subscription_confirmation_token_generator
 from agir.events.actions import legal
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.mixins import FakeDataMixin
