@@ -1,3 +1,5 @@
+from urllib.parse import urlsplit, parse_qsl, urlencode, urlunsplit
+
 import base64
 from functools import wraps
 from hashlib import sha1
@@ -70,3 +72,9 @@ def with_http_basic_auth(identities):
         return wrapper
 
     return decorator
+
+
+def add_query_params_to_url(url, query_params):
+    url = list(urlsplit(url))
+    url[3] = urlencode(parse_qsl(url[3]) + list(query_params.items()))
+    return urlunsplit(url)

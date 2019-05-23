@@ -1,28 +1,30 @@
 from unittest import skip, mock
-from django.test import TestCase
-from django.db import IntegrityError
-from django.utils import timezone
+from unittest.mock import patch
+
+import re
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.geos import Point
-from django.shortcuts import reverse as dj_reverse
+from django.contrib.messages import get_messages
 from django.core import mail
+from django.db import IntegrityError
+from django.shortcuts import reverse as dj_reverse
+from django.test import TestCase
+from django.utils import timezone
 from django.utils.http import urlencode
-
-from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
+from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 
-from agir.authentication.subscription import subscription_confirmation_token_generator
-from agir.groups.tasks import send_someone_joined_notification
-from agir.lib.tests.mixins import FakeDataMixin
-from . import tasks
-from .models import SupportGroup, Membership, SupportGroupSubtype
-from agir.people.models import Person
+from agir.authentication.signers import subscription_confirmation_token_generator
 from agir.events.models import Event, OrganizerConfig
-from .viewsets import LegacySupportGroupViewSet, MembershipViewSet
-
+from agir.groups.tasks import send_someone_joined_notification, invite_to_group
+from agir.lib.tests.mixins import FakeDataMixin
+from agir.people.models import Person
+from . import tasks
 from .forms import SupportGroupForm
+from .models import SupportGroup, Membership, SupportGroupSubtype
+from .viewsets import LegacySupportGroupViewSet, MembershipViewSet
 
 
 class BasicSupportGroupTestCase(TestCase):
@@ -936,3 +938,190 @@ class ExternalJoinSupportGroupTestCase(TestCase):
             Person.objects.get(email="test1@test.com").supportgroups.first(), self.group
         )
         self.assertEqual(Person.objects.get(email="test1@test.com").is_insoumise, False)
+
+
+class InvitationTestCase(TestCase):
+    def setUp(self) -> None:
+        self.group = SupportGroup.objects.create(name="Nom du groupe")
+        self.referent = Person.objects.create_person("user@example.com")
+
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.referent,
+            is_referent=True,
+            is_manager=True,
+        )
+
+        self.invitee = Person.objects.create_person("user2@example.com")
+
+    @patch("agir.groups.forms.invite_to_group")
+    def test_can_invite_already_subscribed_person(self, invite_to_group):
+        self.client.force_login(self.referent.role)
+        res = self.client.get(reverse("manage_group", args=(self.group.pk,)))
+
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "invitation_form")
+
+        res = self.client.post(
+            reverse("manage_group", args=(self.group.pk,)),
+            data={"form": "invitation_form", "email": "user2@example.com"},
+        )
+
+        self.assertRedirects(res, reverse("manage_group", args=(self.group.pk,)))
+
+        invite_to_group.delay.assert_called_once()
+        self.assertEqual(
+            invite_to_group.delay.call_args[0],
+            (str(self.group.pk), "user2@example.com", str(self.referent.pk)),
+        )
+
+    @patch("agir.groups.forms.invite_to_group")
+    def test_can_invite_unsubscribed(self, invite_to_group):
+        self.client.force_login(self.referent.role)
+        res = self.client.get(reverse("manage_group", args=(self.group.pk,)))
+
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "invitation_form")
+
+        res = self.client.post(
+            reverse("manage_group", args=(self.group.pk,)),
+            data={"form": "invitation_form", "email": "userunknown@example.com"},
+        )
+
+        self.assertRedirects(res, reverse("manage_group", args=(self.group.pk,)))
+
+        invite_to_group.delay.assert_called_once()
+        self.assertEqual(
+            invite_to_group.delay.call_args[0],
+            (str(self.group.pk), "userunknown@example.com", str(self.referent.pk)),
+        )
+
+    def test_invitation_mail_is_sent_to_existing_user(self):
+        invite_to_group(self.group.pk, "user2@example.com", self.referent.pk)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        email = mail.outbox[0]
+
+        self.assertEqual(
+            email.subject, "Vous avez été invité à rejoindre un groupe de la FI"
+        )
+
+        self.assertIn(
+            "Vous avez été invité à rejoindre le groupe d'action « Nom du groupe » par un de ses animateurs",
+            email.body,
+        )
+
+        self.assertIn("/groupes/invitation/?", email.body)
+
+        join_url = re.search(
+            "/groupes/invitation/\?[A-Za-z0-9&=_-]+", email.body
+        ).group(0)
+
+        res = self.client.get(join_url, follow=True)
+
+        self.assertRedirects(
+            res,
+            reverse("view_group", args=(self.group.pk,)),
+            fetch_redirect_response=False,
+        )
+
+        self.assertTrue(
+            any(
+                "Vous venez de rejoindre le groupe d'action <em>Nom du groupe</em>"
+                in m.message
+                for m in get_messages(res.wsgi_request)
+            )
+        )
+
+        self.assertTrue(
+            Membership.objects.filter(
+                person=self.invitee, supportgroup=self.group
+            ).exists()
+        )
+
+    def test_invitation_mail_is_sent_to_new_user(self):
+        invite_to_group(self.group.pk, "userunknown@example.com", self.referent.pk)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        email = mail.outbox[0]
+
+        self.assertEqual(
+            email.subject, "Vous avez été invité à rejoindre la France insoumise"
+        )
+
+        self.assertIn(
+            "Vous avez été invité à rejoindre la France insoumise et le groupe d'action « Nom du groupe » par un de ses animateurs",
+            email.body,
+        )
+
+        self.assertIn("groupes/inscription/?", email.body)
+
+        join_url = re.search(
+            "/groupes/inscription/\?[%.A-Za-z0-9&=_-]+", email.body
+        ).group(0)
+
+        res = self.client.get(join_url)
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(
+            res, "<h2>Vous avez été invité à rejoindre la France insoumise</h2>"
+        )
+
+        res = self.client.post(
+            join_url,
+            data={
+                "location_zip": "33000",
+                "subscribed": "Y",
+                "join_support_group": "Y",
+            },
+        )
+
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(
+            res,
+            "Vous venez de rejoindre la France insoumise. Nous en sommes très heureux.",
+        )
+
+        self.assertTrue(
+            Person.objects.filter(emails__address="userunknown@example.com").exists()
+        )
+
+        self.assertTrue(
+            Membership.objects.filter(
+                person__emails__address="userunknown@example.com",
+                supportgroup=self.group,
+            )
+        )
+
+    @patch("agir.groups.views.send_abuse_report_message")
+    def test_can_report_abuse_from_both_emails(self, send_abuse_report_message):
+        call_count = 0
+
+        for email_address in ["user2@example.com", "userunknown@example.com"]:
+            invite_to_group(self.group.pk, email_address, self.referent.pk)
+            email = mail.outbox[-1]
+
+            self.assertIn("/groupes/invitation/abus/", email.body)
+
+            report_url = re.search(
+                r"/groupes/invitation/abus/\?[%.A-za-z0-9&=-]+", email.body
+            ).group(0)
+
+            # following to make it work with auto_login
+            res = self.client.get(report_url, follow=True)
+            self.assertContains(res, "<h2>Signaler un email non sollicité</h2>")
+            self.assertContains(res, "<form")
+
+            if res.redirect_chain:
+                res = self.client.post(res.redirect_chain[-1][0])
+            else:
+                res = self.client.post(report_url)
+
+            self.assertContains(res, "<h2>Merci de votre signalement</h2>")
+
+            call_count += 1
+            self.assertEqual(send_abuse_report_message.delay.call_count, call_count)
+            self.assertEqual(
+                send_abuse_report_message.delay.call_args[0], (str(self.referent.id),)
+            )

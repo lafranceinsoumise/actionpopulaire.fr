@@ -9,7 +9,7 @@ from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from agir.authentication.subscription import (
+from agir.authentication.signers import (
     subscription_confirmation_token_generator,
     add_email_confirmation_token_generator,
     merge_account_token_generator,

@@ -1,0 +1,18 @@
+{% extends "front/layout.html" %}
+{% load crispy_forms_tags %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}Connexion à la plateforme{% endblock %}
+
+{% block main %}
+<div class="col-responsive">
+  <h2>Votre lien est incorrect ou expiré</h2>
+  <p>
+    <strong>Avez-vous copié le lien ?</strong> Il est possible que n'en ayez copié qu'une partie.
+  </p>
+  <p>
+      <strong>Avez-vous suivi un lien présent dans un email de plus de 15 jours ?</strong> Il est probable que le lien
+    soit expiré.
+  </p>
+</div>
+{% endblock %}

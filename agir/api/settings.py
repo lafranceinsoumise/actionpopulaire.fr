@@ -228,6 +228,12 @@ EMAIL_TEMPLATES = {
     "SUBSCRIPTION_CONFIRMATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/cd878308-6fd7-4088-b525-a020c5bb3fe0.html",
     # ALREADY_SUBSCRIBED_MESSAGE: [AGO], [PANEL_LINK]
     "ALREADY_SUBSCRIBED_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/d7040d22-703f-4ac7-883c-d2f04c13be1a.html",
+    # INVITATION_SUBSCRIPTION_MESSAGE: [GROUP_NAME], [CONFIRMATION_URL] [SIGNAL_URL]
+    "GROUP_INVITATION_WITH_SUBSCRIPTION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/1db59e8e-0ebd-4dab-8b2d-e7a2d679d6aa.html",
+    # INVITATION_CONFIRMATION_MESSAGE: [GROUP_NAME], [CONFIRMATION_URL] [SIGNAL_URL]
+    "GROUP_INVITATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/4a704705-9b5d-4356-b799-285741e558c6.html",
+    # GROUP_INVITATION_ABUSE_MESSAGE
+    "GROUP_INVITATION_ABUSE_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/b70f5728-c2fb-490e-aa25-1a678b6a5864.html",
     # DONATION_MESSAGE variables : [PROFILE_LINK]
     "DONATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/cab3c2ee-9444-4c70-b16e-9f7dce7929b1.html",
     # DONATION_MESSAGE_EUROPEENNES variables : [PROFILE_LINK]

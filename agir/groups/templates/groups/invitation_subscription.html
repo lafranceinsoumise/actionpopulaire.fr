@@ -1,0 +1,17 @@
+{% extends "front/layout.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Vous avez été invité à rejoindre la France insoumise{% endblock %}
+
+{% block main %}
+  <h2>Vous avez été invité à rejoindre la France insoumise</h2>
+
+  {% if group %}
+    <p>Un des animateurs du groupe d'action <em><a target="_blank"
+                                                   href="{% url "view_group" group.pk %}">{{ group.name }}</a></em> vous
+      a invité à rejoindre la France insoumise et son groupe d'action.</p>
+    <p>Pour valider votre inscription, merci de remplir le formulaire ci-dessous.</p>
+  {% endif %}
+
+  {% crispy form %}
+{% endblock %}

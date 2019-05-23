@@ -1,11 +1,19 @@
+from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Row, Field
+from django import forms
+from django.core.exceptions import ValidationError
+from django.utils.html import format_html
+from django.utils.translation import ugettext_lazy as _
 from functools import reduce
 from operator import or_
 
-from django import forms
-from django.utils.translation import ugettext_lazy as _
-from crispy_forms.helper import FormHelper
-
+from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
+from agir.groups.tasks import (
+    send_support_group_changed_notification,
+    send_support_group_creation_notification,
+    send_external_join_confirmation,
+    invite_to_group,
+)
 from agir.lib.form_components import *
 from agir.lib.form_mixins import (
     LocationFormMixin,
@@ -14,19 +22,14 @@ from agir.lib.form_mixins import (
     SearchByZipCodeFormBase,
     ImageFormMixin,
 )
-
-from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
-from agir.groups.tasks import (
-    send_support_group_changed_notification,
-    send_support_group_creation_notification,
-    send_external_join_confirmation,
-)
 from agir.lib.tasks import geocode_support_group
+from agir.people.models import Person
 
 __all__ = [
     "SupportGroupForm",
     "AddReferentForm",
     "AddManagerForm",
+    "InvitationForm",
     "GroupGeocodingForm",
     "SearchGroupForm",
 ]
@@ -149,7 +152,7 @@ class SupportGroupForm(
                 Row(FullCol("location_country")),
             ),
             *description_field,
-            *notify_field
+            *notify_field,
         )
 
         remove_excluded_field_from_layout(self.helper.layout, excluded_fields)
@@ -221,53 +224,85 @@ class MembershipChoiceField(forms.ModelChoiceField):
 
 class AddReferentForm(forms.Form):
     form = forms.CharField(initial="add_referent_form", widget=forms.HiddenInput())
+    referent = MembershipChoiceField(
+        queryset=Membership.objects.filter(is_referent=False),
+        label=_("Second animateur"),
+    )
 
     def __init__(self, support_group, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["referent"] = MembershipChoiceField(
-            queryset=support_group.memberships.filter(is_referent=False),
-            label=_("Second animateur"),
+        self.fields["referent"].queryset = self.fields["referent"].queryset.filter(
+            supportgroup=support_group
         )
 
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", _("Signaler comme second animateur")))
 
-    def save(self, commit=True):
+    def perform(self):
         membership = self.cleaned_data["referent"]
 
         membership.is_referent = True
         membership.is_manager = True
+        membership.save()
 
-        if commit:
-            membership.save()
-
-        return membership
+        return {"email": membership.person.email}
 
 
 class AddManagerForm(forms.Form):
     form = forms.CharField(initial="add_manager_form", widget=forms.HiddenInput())
+    manager = MembershipChoiceField(
+        queryset=Membership.objects.filter(is_manager=False), label=False
+    )
 
     def __init__(self, support_group, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.support_group = support_group
 
-        self.fields["manager"] = MembershipChoiceField(
-            queryset=support_group.memberships.filter(is_manager=False), label=False
+        self.fields["manager"].queryset = self.fields["manager"].queryset.filter(
+            supportgroup=support_group
         )
 
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", _("Ajouter comme membre gestionnaire")))
 
-    def save(self, commit=True):
+    def perform(self):
         membership = self.cleaned_data["manager"]
 
         membership.is_manager = True
+        membership.save()
 
-        if commit:
-            membership.save()
+        return {"email": membership.person.email}
 
-        return membership
+
+class InvitationForm(forms.Form):
+    form = forms.CharField(initial="invitation_form", widget=forms.HiddenInput())
+    email = forms.EmailField(label="L'adresse email de la personne à inviter")
+
+    def __init__(self, *args, group, inviter, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.group = group
+        self.inviter = inviter
+
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("submit", _("Inviter")))
+
+    def clean_email(self):
+        try:
+            p = Person.objects.get_by_natural_key(self.cleaned_data["email"])
+            Membership.objects.get(supportgroup=self.group, person=p)
+        except (Person.DoesNotExist, Membership.DoesNotExist):
+            pass
+        else:
+            raise ValidationError("Cette personne fait déjà partie de votre groupe !")
+
+        return self.cleaned_data["email"]
+
+    def perform(self):
+        invite_to_group.delay(
+            str(self.group.id), self.cleaned_data["email"], str(self.inviter.id)
+        )
+        return {"email": self.cleaned_data["email"]}
 
 
 class GroupGeocodingForm(GeocodingBaseForm):
@@ -297,3 +332,58 @@ class ExternalJoinForm(forms.Form):
 
     def send_confirmation_email(self, event):
         send_external_join_confirmation.delay(event.pk, **self.cleaned_data)
+
+
+class InvitationWithSubscriptionConfirmationForm(forms.Form):
+    location_zip = forms.CharField(
+        label="Mon code postal",
+        required=True,
+        help_text=_(
+            "Votre code postal nous permet de savoir dans quelle ville vous habitez, pour pouvoir vous proposer"
+            " des informations locales."
+        ),
+    )
+
+    join_support_group = forms.BooleanField(
+        label=_("Je souhaite rejoindre le groupe d'action qui m'a invité"),
+        help_text=_(
+            "Vous pouvez aussi rejoindre la France insoumise sans rejoindre aucun groupe d'action en particulier."
+        ),
+        required=False,
+        initial=True,
+    )
+
+    subscribed = forms.BooleanField(
+        label="Je souhaite être tenu au courant de l'actualité de la France insoumise",
+        required=False,
+        help_text=_(
+            "Si vous le souhaitez, nous pouvons vous envoyer notre lettre d'information hebdomadaire, et des"
+            " informations locales."
+        ),
+    )
+
+    def __init__(self, *args, email, group, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.email = email
+        self.group = group
+
+        if group is None:
+            del self.fields["join_support_group"]
+
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("submit", _("Confirmer")))
+
+    def save(self):
+        cleaned_data = self.cleaned_data
+        p = Person.objects.create_person(
+            email=self.email,
+            subscribed=cleaned_data["subscribed"],
+            subscribed_sms=cleaned_data["subscribed"],
+            location_zip=cleaned_data["location_zip"],
+            location_country="FR",
+        )
+
+        if cleaned_data.get("join_support_group"):
+            Membership.objects.create(person=p, supportgroup=self.group)
+
+        return p

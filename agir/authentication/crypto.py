@@ -18,7 +18,7 @@ def escape_character(string, character):
     return string.replace("\\", "\\\\").replace(character, "\\" + character)
 
 
-class BaseTokenGenerator(PasswordResetTokenGenerator):
+class BaseSignatureGenerator(PasswordResetTokenGenerator):
     salt = None
     token_params = []
     params_separator = ""
@@ -42,7 +42,8 @@ class BaseTokenGenerator(PasswordResetTokenGenerator):
         ordered_params = [params[k] for k in sorted_keys]
 
         return self.params_separator.join(
-            escape_character(param, self.params_separator) for param in ordered_params
+            escape_character(str(param), self.params_separator)
+            for param in ordered_params
         ) + str(timestamp)
 
     def is_expired(self, token):
@@ -87,9 +88,16 @@ class BaseTokenGenerator(PasswordResetTokenGenerator):
 
         return True
 
+    def get_timestamp(self, token):
+        try:
+            ts_b36, hash = token.split("-")
+            return base36_to_int(ts_b36)
+        except ValueError:
+            return None
 
-class ConnectionTokenGenerator(BaseTokenGenerator):
-    """Strategy object used to generate and check tokens used for connection"""
+
+class ConnectionSignatureGenerator(BaseSignatureGenerator):
+    """Strategy object used to generate and check tokens used for connection links"""
 
     # not up to date, but changing it would invalidate all tokens
     key_salt = "front.backend.ConnectionTokenGenerator"
@@ -106,21 +114,48 @@ class ConnectionTokenGenerator(BaseTokenGenerator):
         return str(user.pk) + str(user.auto_login_salt) + str(timestamp)
 
 
-class SubscriptionConfirmationTokenGenerator(BaseTokenGenerator):
+class SubscriptionConfirmationSignatureGenerator(BaseSignatureGenerator):
+    """Token generator for subscription confirmation links, used for double optin
+    """
+
     key_salt = "agir.people.crypto.SubscriptionConfirmationTokenGenerator"
     token_params = ["email"]
     params_separator = "|"
 
 
-class AddEmailConfirmationTokenGenerator(BaseTokenGenerator):
+class AddEmailConfirmationSignatureGenerator(BaseSignatureGenerator):
+    """Token generator to add an email to an existing account
+    """
+
     key_salt = "agir.people.crypto.AddEmailConfirmationTokenGenerator"
     token_params = ["user", "new_email"]
     params_separator = "|"
 
 
-class MergeAccountTokenGenerator(BaseTokenGenerator):
+class MergeAccountSignatureGenerator(BaseSignatureGenerator):
+    """Token generator to merge two accounts
+    """
+
     key_salt = "agir.people.crypto.MergeAccountTokenGenerator"
     token_params = ["pk_requester", "pk_merge"]
+    params_separator = "|"
+
+
+class InvitationConfirmationSignatureGenerator(BaseSignatureGenerator):
+    """Token generator for invitation sent to join a group
+    """
+
+    key_salt = "agir.people.crypto.InvitationConfirmationTokenGenerator"
+    token_params = ["person_id", "group_id"]
+    params_separator = "|"
+
+
+class AbusiveInvitationReportSignatureGenerator(BaseSignatureGenerator):
+    """Token generator to report an abusive invitation
+    """
+
+    key_salt = "agir.people.crypto.AbusiveInvitationReportingSignatureGenerator"
+    token_params = ["group_id", "inviter_id"]
     params_separator = "|"
 
 
@@ -204,7 +239,9 @@ class ShortCodeGenerator:
         return None
 
 
-connection_token_generator = ConnectionTokenGenerator(settings.CONNECTION_LINK_VALIDITY)
+connection_token_generator = ConnectionSignatureGenerator(
+    settings.CONNECTION_LINK_VALIDITY
+)
 short_code_generator = ShortCodeGenerator(
     "LoginCode:", settings.SHORT_CODE_VALIDITY, settings.MAX_CONCURRENT_SHORT_CODES
 )

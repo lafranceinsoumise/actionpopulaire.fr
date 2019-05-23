@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from uuid import UUID
 
 from django.contrib import messages
 from django.db import transaction
@@ -16,9 +16,9 @@ from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.payments.actions import redirect_to_payment
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PAYMENT_MODES
+from agir.people.models import PersonFormSubmission
 from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import get_formatted_submission
-from agir.people.models import PersonFormSubmission, Person
 from agir.people.views import ConfirmSubscriptionView
 from ..actions.rsvps import (
     rsvp_to_free_event,
@@ -325,6 +325,11 @@ class PayEventView(SoftLoginRequiredMixin, UpdateView):
         event_pk = self.request.session.get("rsvp_event")
 
         if not event_pk:
+            return HttpResponseBadRequest("no event")
+
+        try:
+            event_pk = UUID(event_pk)
+        except ValueError:
             return HttpResponseBadRequest("no event")
 
         try:
