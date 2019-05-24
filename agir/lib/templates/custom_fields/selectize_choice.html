@@ -1,0 +1,7 @@
+{% include "django/forms/widgets/select.html" %}
+
+<script>
+  $('#{{ widget.attrs.id }}').selectize({
+    sortField: 'text'
+  });
+</script>
