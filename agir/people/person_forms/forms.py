@@ -122,6 +122,10 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         self.update_meta_initial()
 
+        for field in self.fields:
+            if field in query_params:
+                self.initial[field] = query_params[field]
+
         for id, field_desc in self.hidden_fields.items():
             self.fields[id] = get_form_field(
                 {**field_desc, "widget": SuperHiddenDisplay()},
