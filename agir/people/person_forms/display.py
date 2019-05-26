@@ -1,5 +1,6 @@
 from itertools import chain
 
+from django.utils.text import capfirst
 from functools import reduce
 
 import iso8601
@@ -144,10 +145,12 @@ def get_form_field_labels(form, fieldsets_titles=False):
             if field.get("person_field") and field["id"] in person_fields:
                 label = field.get(
                     "label",
-                    getattr(
-                        person_fields[field["id"]],
-                        "verbose_name",
-                        person_fields[field["id"]].name,
+                    capfirst(
+                        getattr(
+                            person_fields[field["id"]],
+                            "verbose_name",
+                            person_fields[field["id"]].name,
+                        )
                     ),
                 )
             else:
@@ -164,14 +167,24 @@ def get_form_field_labels(form, fieldsets_titles=False):
     return field_information
 
 
-def get_formatted_submissions(submissions, include_admin_fields=True, html=True):
+def get_formatted_submissions(
+    submissions,
+    html=True,
+    include_admin_fields=True,
+    resolve_labels=True,
+    fieldsets_titles=False,
+):
     if not submissions:
         return [], []
 
     form = submissions[0].form
     field_dict = form.fields_dict
 
-    labels = get_form_field_labels(form, fieldsets_titles=True)
+    labels = (
+        get_form_field_labels(form, fieldsets_titles=fieldsets_titles)
+        if resolve_labels
+        else {}
+    )
 
     full_data = [sub.data for sub in submissions]
     full_values = [
@@ -189,7 +202,7 @@ def get_formatted_submissions(submissions, include_admin_fields=True, html=True)
         reduce(or_, (set(d) for d in full_data)).difference(declared_fields)
     )
 
-    headers = [labels.get("id", id) for id in field_dict] + additional_fields
+    headers = [labels.get(id, id) for id in field_dict] + additional_fields
 
     ordered_values = [
         [
