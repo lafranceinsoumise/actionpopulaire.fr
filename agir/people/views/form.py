@@ -144,14 +144,9 @@ class PeopleFormSubmissionsPrivateView(DetailView):
     slug_url_kwarg = "uuid"
     queryset = PersonForm.objects.all()
 
-    def get_submissions(self):
-        return self.object.submissions.all()
-
     def get_context_data(self, **kwargs):
-        submission_qs = self.get_submissions()
-
         headers, submissions = get_formatted_submissions(
-            submission_qs, html=True, include_admin_fields=False
+            self.object, html=True, include_admin_fields=False
         )
 
         return {
@@ -166,11 +161,10 @@ class PeopleFormSubmissionsPrivateView(DetailView):
         return super().get(request, *args, **kwargs)
 
     def get_csv(self, request):
-        self.object = self.get_object()
-        submission_qs = self.get_submissions()
+        form = self.get_object()
 
         headers, submissions = get_formatted_submissions(
-            submission_qs,
+            form,
             html=False,
             include_admin_fields=False,
             resolve_labels=bool(request.GET.get("resolve_labels")),
