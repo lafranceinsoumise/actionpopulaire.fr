@@ -170,7 +170,10 @@ class PeopleFormSubmissionsPrivateView(DetailView):
         submission_qs = self.get_submissions()
 
         headers, submissions = get_formatted_submissions(
-            submission_qs, html=False, include_admin_fields=False
+            submission_qs,
+            html=False,
+            include_admin_fields=False,
+            resolve_labels=bool(request.GET.get("resolve_labels")),
         )
 
         response = HttpResponse(content_type="text/csv")
