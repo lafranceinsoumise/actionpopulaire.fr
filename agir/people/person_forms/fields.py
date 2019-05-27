@@ -150,15 +150,15 @@ def is_actual_model_field(field_descriptor):
     )
 
 
-def get_form_field(field_descriptor: dict, is_edition=False, instance=None):
+def get_form_field(field_descriptor: dict, is_submission_edition=False, instance=None):
     field_descriptor = field_descriptor.copy()
     field_type = field_descriptor.pop("type")
     field_descriptor.pop("id")
     field_descriptor.pop("person_field", None)
     editable = field_descriptor.pop("editable", False)
-    if is_edition:
+    if is_submission_edition:
         field_descriptor["disabled"] = not editable
-    if is_edition and not editable:
+    if is_submission_edition and not editable:
         field_descriptor["help_text"] = (
             field_descriptor.get("help_text", "")
             + " Ce champ ne peut pas être modifié."
@@ -195,7 +195,7 @@ def form_value_to_python(field_descriptor, value):
     elif field_descriptor.get("type") == "file":
         return value
 
-    field_instance = get_form_field(field_descriptor, is_edition=False)
+    field_instance = get_form_field(field_descriptor, is_submission_edition=False)
     try:
         return field_instance.to_python(value)
     except ValidationError:

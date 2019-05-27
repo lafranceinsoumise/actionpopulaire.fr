@@ -40,7 +40,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
     person_form_instance = None
     hidden_fields = {}
-    is_edition = False
+    is_submission_edition = False
 
     def get_meta_fields(self):
         return [
@@ -80,7 +80,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             if self.submission is not None:
                 for id, value in get_data_from_submission(self.submission).items():
                     self.initial[id] = value
-                self.is_edition = True
+                self.is_submission_edition = True
 
         parts = []
 
@@ -118,7 +118,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             self.parts = []
 
         for part in self.parts:
-            part.set_up_fields(self, self.is_edition)
+            part.set_up_fields(self, self.is_submission_edition)
 
         self.update_meta_initial()
 
@@ -130,11 +130,11 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         for id, field_desc in self.hidden_fields.items():
             self.fields[id] = get_form_field(
                 {**field_desc, "widget": SuperHiddenDisplay()},
-                is_edition=self.is_edition,
+                is_submission_edition=self.is_submission_edition,
             )
 
     def clean(self):
-        if not self.is_edition:
+        if not self.is_submission_edition:
             return super().clean()
 
         cleaned_data = super().clean()
@@ -160,7 +160,13 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         return data
 
-    def save_submission(self, person):
+    def save(self, commit=True):
+        # We never want to create a new Person
+        if not self.instance._state.adding:
+            return super().save(commit=commit)
+        return self.save_submission()
+
+    def save_submission(self, person=None):
         """
         Can be used to save a submission without saving the Person
         """
@@ -172,14 +178,14 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             if isinstance(value, File):
                 data[key] = self._save_file(value)
 
-        if self.person_form_instance.editable and person.pk is not None:
+        if self.person_form_instance.editable and person is not None:
             if self.submission is None:
                 self.submission, created = PersonFormSubmission.objects.get_or_create(
                     person=person, form=self.person_form_instance
                 )
             self.submission.data = data
             self.submission.save()
-        elif person.pk is not None:
+        elif person is not None:
             self.submission = PersonFormSubmission.objects.create(
                 person=person, form=self.person_form_instance, data=data
             )

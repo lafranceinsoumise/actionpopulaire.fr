@@ -142,6 +142,19 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         send_confirmation.delay.assert_called_once()
         send_notification.delay.assert_called_once()
 
+    def test_anonymous_form_does_not_create_person(self):
+        self.client.logout()
+
+        res = self.client.get("/formulaires/formulaire-simple/")
+
+        res = self.client.post(
+            "/formulaires/formulaire-simple/", data={"contact_phone": "06 04 03 02 04"}
+        )
+        self.assertRedirects(res, "/formulaires/formulaire-simple/confirmation/")
+
+        with self.assertRaises(Person.DoesNotExist):
+            Person.objects.get(contact_phone="+33604030204")
+
     def test_can_validate_complex_form(self):
         res = self.client.get("/formulaires/formulaire-complexe/")
 

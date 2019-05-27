@@ -36,8 +36,6 @@ class PeopleFormView(UpdateView):
         if self.request.user.is_authenticated:
             return self.request.user.person
 
-        return Person()
-
     def get_person_form_instance(self):
         try:
             return self.get_queryset().get(slug=self.kwargs["slug"])
