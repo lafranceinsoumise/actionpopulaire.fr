@@ -14,7 +14,7 @@ from operator import or_
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import NumberParseException
 
-from agir.people.models import Person
+from agir.people.models import Person, PersonForm
 from agir.people.person_forms.fields import (
     PREDEFINED_CHOICES,
     PREDEFINED_CHOICES_REVERSE,
@@ -168,16 +168,23 @@ def get_form_field_labels(form, fieldsets_titles=False):
 
 
 def get_formatted_submissions(
-    submissions,
+    submissions_or_form,
     html=True,
     include_admin_fields=True,
     resolve_labels=True,
     fieldsets_titles=False,
 ):
-    if not submissions:
-        return [], []
+    if isinstance(submissions_or_form, PersonForm):
+        form = submissions_or_form
+        submissions = form.submissions.all().order_by("created")
 
-    form = submissions[0].form
+    else:
+        if not submissions_or_form:
+            return [], []
+
+        submissions = submissions_or_form
+        form = submissions[0].form
+
     field_dict = form.fields_dict
 
     labels = (
