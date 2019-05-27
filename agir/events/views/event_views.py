@@ -274,11 +274,11 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
 
         types = [
             {
-                "id": id,
-                "label": str(label),
-                "description": str(EventSubtype.TYPE_DESCRIPTION[id]),
+                "id": elem["type"],
+                "label": dict(EventSubtype.TYPE_CHOICES)[elem["type"]],
+                "description": str(EventSubtype.TYPE_DESCRIPTION[elem["type"]]),
             }
-            for id, label in EventSubtype.TYPE_CHOICES
+            for elem in subtype_queryset.values("type").distinct()
         ]
 
         subtypes = [
