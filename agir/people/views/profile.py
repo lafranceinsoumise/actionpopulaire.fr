@@ -77,10 +77,10 @@ class BecomeInsoumiseView(ProfileViewMixin, UpdateView):
         self.object.event_notifications = True
         return super().form_valid(form)
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         if request.user.person.is_insoumise == True:
             return HttpResponseRedirect(reverse("personal_information"))
-        return super().dispatch(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         """Get the current user as the view object"""
