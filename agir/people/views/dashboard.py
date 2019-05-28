@@ -90,7 +90,10 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
         if person.coordinates is not None and len(suggested_events) < 10:
             close_events = (
                 Event.objects.upcoming()
-                .filter(start_time__lt=timezone.now() + timedelta(days=30))
+                .filter(
+                    start_time__lt=timezone.now() + timedelta(days=30),
+                    do_not_list=False,
+                )
                 .exclude(pk__in=suggested_events)
                 .exclude(rsvps__person=person)
                 .annotate(
@@ -122,7 +125,9 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
             Event.objects.past()
             .exclude(rsvps__person=person)
             .exclude(report_content="")
-            .filter(start_time__gt=timezone.now() - timedelta(days=30))
+            .filter(
+                start_time__gt=timezone.now() - timedelta(days=30), do_not_list=False
+            )
             .order_by("-start_time")
         )
         if person.coordinates is not None:

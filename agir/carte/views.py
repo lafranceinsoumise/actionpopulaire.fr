@@ -313,6 +313,7 @@ class GroupMapMixin:
 
 class EventMapView(EventMapMixin, AbstractListMapView):
     template_name = "carte/events.html"
+    queryset = Event.objects.published().filter(do_not_list=False)
 
 
 class GroupMapView(GroupMapMixin, AbstractListMapView):
