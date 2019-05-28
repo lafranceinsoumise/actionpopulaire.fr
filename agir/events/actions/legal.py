@@ -7,22 +7,7 @@ QUESTION_MATERIEL_CAMPAGNE = "materiel_campagne"
 QUESTION_IMPRESSION = "impressions_propres_moyens"
 QUESTION_FRAIS = "frais"
 
-QUESTIONS = [
-    {
-        "id": QUESTION_SALLE,
-        "question": "L'événement aura-t-il lieu en intérieur (autre qu'un domicile personnel) ?",
-        "helpText": "Répondez oui si l'événement sera organisé dans une salle, dans un bar ou dans un autre lieu privé.",
-        "type": [EventSubtype.TYPE_PUBLIC_MEETING, EventSubtype.TYPE_OTHER_EVENTS],
-    },
-    {
-        "id": QUESTION_INSTALLATION_TECHNIQUE,
-        "question": "Cet événement nécessite-t-il une installation technique (sono, barnum, praticable...) ?",
-        "type": [
-            EventSubtype.TYPE_PUBLIC_MEETING,
-            EventSubtype.TYPE_PUBLIC_ACTION,
-            EventSubtype.TYPE_OTHER_EVENTS,
-        ],
-    },
+LEGACY_QUESTIONS = [
     {
         "id": QUESTION_CANDIDAT,
         "question": "Votre événement fait-il intervenir un candidat aux élections européennes ?",
@@ -54,6 +39,24 @@ QUESTIONS = [
         ],
         "when": "materiel_campagne",
     },
+]
+
+ASKED_QUESTIONS = [
+    {
+        "id": QUESTION_SALLE,
+        "question": "L'événement aura-t-il lieu en intérieur (autre qu'un domicile personnel) ?",
+        "helpText": "Répondez oui si l'événement sera organisé dans une salle, dans un bar ou dans un autre lieu privé.",
+        "type": [EventSubtype.TYPE_PUBLIC_MEETING, EventSubtype.TYPE_OTHER_EVENTS],
+    },
+    {
+        "id": QUESTION_INSTALLATION_TECHNIQUE,
+        "question": "Cet événement nécessite-t-il une installation technique (sono, barnum, praticable...) ?",
+        "type": [
+            EventSubtype.TYPE_PUBLIC_MEETING,
+            EventSubtype.TYPE_PUBLIC_ACTION,
+            EventSubtype.TYPE_OTHER_EVENTS,
+        ],
+    },
     {
         "id": QUESTION_FRAIS,
         "question": "Souhaitez-vous engager des frais auprès de commerçants ou entreprises ?",
@@ -62,7 +65,9 @@ QUESTIONS = [
     },
 ]
 
-QUESTIONS_DICT = {question.get("id"): question for question in QUESTIONS}
+QUESTIONS_DICT = {
+    question.get("id"): question for question in LEGACY_QUESTIONS + ASKED_QUESTIONS
+}
 
 
 def needs_approval(legal):

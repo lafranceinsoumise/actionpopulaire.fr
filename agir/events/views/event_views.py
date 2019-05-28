@@ -27,7 +27,7 @@ from agir.authentication.view_mixins import (
     PermissionsRequiredMixin,
     SoftLoginRequiredMixin,
 )
-from agir.events.actions.legal import QUESTIONS
+from agir.events.actions.legal import ASKED_QUESTIONS
 from agir.events.actions.rsvps import assign_jitsi_meeting
 from agir.front.view_mixins import (
     ObjectOpengraphMixin,
@@ -286,7 +286,7 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
             for s in subtype_queryset
         ]
 
-        questions = QUESTIONS
+        questions = ASKED_QUESTIONS
 
         return super().get_context_data(
             props={
