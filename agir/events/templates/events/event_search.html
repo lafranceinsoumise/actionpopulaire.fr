@@ -1,0 +1,60 @@
+{% extends "front/layout.html" %}
+{% load render_bundle from webpack_loader %}
+{% load crispy_forms_tags %}
+{% load l10n %}
+
+{% block title %}Rechercher des événements{% endblock %}
+
+{% block main %}
+  <h1>Rechercher des événements</h1>
+
+  <div>
+    <div>
+      <p>Sur cette page, vous trouverez l'ensemble des événements locaux organisés par les groupes d'action de la
+        France insoumise.</p>
+
+      <p>Si aucun événement n'est organisé près de chez vous, vous pouvez en créer un vous-même.</p>
+
+      <p>Vous pouvez aussi rechercher des événements en utilisant
+        <a href="https://lafranceinsoumise.fr/groupes-appui/carte/">la carte.</a></p>
+    </div>
+
+    <p class="text-center">
+      <a class="btn btn-info" href="{% url "create_event" %}"><i class="fa fa-plus"></i> Créer un événement</a>
+      <a class="btn btn-default" href="https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/">Accéder à la
+        carte des
+        événements</a>
+    </p>
+  </div>
+
+  <div>
+  {% crispy form %}
+
+  {% include "lib/pagination.html" %}
+
+  {% for event in page_elements %}
+    <div class="list-group-item">
+      <div class="media">
+        <div class="media-left media-middle" style="min-width:64px">
+          {% if event.image %}
+            <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+          {% endif %}
+        </div>
+        <div class="media-body">
+          <i class="fa fa-calendar" aria-hidden="true"></i>
+          <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
+          <br>
+          {{ event.start_time|date:"l d F o à H:i" }} - {{ event.short_location }}
+          {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    {% if search_param and paginator.count == 0 %}
+      <p>Aucun événement ne correspond à votre recherche.</p>
+    {% endif %}
+  {% endfor %}
+
+  {% include "lib/pagination.html" %}
+
+{% endblock %}

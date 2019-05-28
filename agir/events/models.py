@@ -5,13 +5,14 @@ import random
 import ics
 import re
 from django.conf import settings
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Case, Sum, Count, When, CharField, F, Q
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
-from django.urls import reverse
 from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.postgres.fields import JSONField
@@ -267,6 +268,10 @@ class Event(
         encoder=CustomJSONEncoder,
     )
 
+    search = SearchVectorField(
+        "Données de recherche sur les événements", editable=False, null=True
+    )
+
     class Meta:
         verbose_name = _("événement")
         verbose_name_plural = _("événements")
@@ -284,6 +289,7 @@ class Event(
             ),
             models.Index(fields=["end_time"], name="events_end_time_index"),
             models.Index(fields=["nb_path"], name="events_nb_path_index"),
+            GinIndex(fields=["search"], name="search_event_index"),
         )
 
     def __str__(self):

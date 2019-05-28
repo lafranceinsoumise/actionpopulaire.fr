@@ -1,5 +1,9 @@
+from datetime import datetime
+
+
 from crispy_forms.layout import Submit, Row, Field
 from django import forms
+from django.core.validators import MinValueValidator
 from django.core.exceptions import PermissionDenied
 from django.template.defaultfilters import floatformat
 from django.utils.translation import ugettext_lazy as _
@@ -16,12 +20,12 @@ from agir.lib.form_mixins import (
     LocationFormMixin,
     ContactFormMixin,
     GeocodingBaseForm,
-    SearchByZipCodeFormBase,
     MetaFieldsMixin,
     ImageFormMixin,
 )
 from agir.people.forms import BasePersonForm
 from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
+from agir.people.person_forms.fields import DateTimeField
 
 from ..people.models import Person, PersonFormSubmission
 from .models import Event, OrganizerConfig, RSVP, EventImage, EventSubtype
@@ -499,8 +503,61 @@ class UploadEventImageForm(forms.ModelForm):
         fields = ("image", "legend")
 
 
-class SearchEventForm(SearchByZipCodeFormBase):
-    pass
+class SearchEventForm(forms.Form):
+    min_date = DateTimeField(label="Depuis le :", required=True)
+    max_date = DateTimeField(label="Jusqu'au :", required=False)
+    text_query = forms.CharField(
+        label="Texte de la recherche",
+        required=False,
+        help_text="Il est possible de retrouver un événement par nom, résumé, description ou nom du lieu.",
+    )
+
+    address = forms.CharField(
+        label="À proximité de :",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "ex: place Pie Avignon 84000"}),
+    )
+
+    distance_max = forms.ChoiceField(
+        label="Distance maximum",
+        choices=[
+            (None, "Pas de limite"),
+            (1, "1 km"),
+            (5, "5 km"),
+            (10, "10 km"),
+            (30, "30 km"),
+            (50, "50 km"),
+            (100, "100 km"),
+            (200, "200 km"),
+            (500, "500 km"),
+            (1000, "1000 km"),
+        ],
+        required=False,
+    )
+
+    page = forms.IntegerField(
+        required=False, widget=forms.HiddenInput(), validators=[MinValueValidator(1)]
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = "GET"
+        self.helper.layout = Layout(*self.get_fields())
+
+    def get_fields(self, fields=None):
+        fields = fields or []
+
+        fields.extend(
+            [
+                Row(FullCol("text_query")),
+                Row(HalfCol("min_date"), HalfCol("address")),
+                Row(HalfCol("max_date"), HalfCol("distance_max")),
+                Row(FullCol(Submit("submit", "Chercher", css_class="pull-right"))),
+                Row(FullCol(HTML("""<br>"""))),
+            ]
+        )
+        return fields
 
 
 class AuthorForm(forms.ModelForm):

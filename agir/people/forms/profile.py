@@ -14,7 +14,7 @@ from agir.lib.forms import MediaInHead
 from agir.lib.models import RE_FRENCH_ZIPCODE
 from agir.lib.tasks import geocode_person
 from agir.people.form_mixins import ContactPhoneNumberMixin
-from agir.people.forms import FormActions, PreferencesFormMixin
+from agir.people.forms import FormActions
 from agir.people.models import PersonTag, Person
 from agir.people.tags import skills_tags
 from agir.people.tasks import (
