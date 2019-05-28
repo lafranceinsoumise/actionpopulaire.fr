@@ -1,5 +1,6 @@
 from itertools import chain
 
+from django.utils.text import capfirst
 from functools import reduce
 
 import iso8601
@@ -13,7 +14,7 @@ from operator import or_
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import NumberParseException
 
-from agir.people.models import Person
+from agir.people.models import Person, PersonForm
 from agir.people.person_forms.fields import (
     PREDEFINED_CHOICES,
     PREDEFINED_CHOICES_REVERSE,
@@ -144,10 +145,12 @@ def get_form_field_labels(form, fieldsets_titles=False):
             if field.get("person_field") and field["id"] in person_fields:
                 label = field.get(
                     "label",
-                    getattr(
-                        person_fields[field["id"]],
-                        "verbose_name",
-                        person_fields[field["id"]].name,
+                    capfirst(
+                        getattr(
+                            person_fields[field["id"]],
+                            "verbose_name",
+                            person_fields[field["id"]].name,
+                        )
                     ),
                 )
             else:
@@ -164,14 +167,31 @@ def get_form_field_labels(form, fieldsets_titles=False):
     return field_information
 
 
-def get_formatted_submissions(submissions, include_admin_fields=True, html=True):
-    if not submissions:
-        return [], []
+def get_formatted_submissions(
+    submissions_or_form,
+    html=True,
+    include_admin_fields=True,
+    resolve_labels=True,
+    fieldsets_titles=False,
+):
+    if isinstance(submissions_or_form, PersonForm):
+        form = submissions_or_form
+        submissions = form.submissions.all().order_by("created")
 
-    form = submissions[0].form
+    else:
+        if not submissions_or_form:
+            return [], []
+
+        submissions = submissions_or_form
+        form = submissions[0].form
+
     field_dict = form.fields_dict
 
-    labels = get_form_field_labels(form, fieldsets_titles=True)
+    labels = (
+        get_form_field_labels(form, fieldsets_titles=fieldsets_titles)
+        if resolve_labels
+        else {}
+    )
 
     full_data = [sub.data for sub in submissions]
     full_values = [
@@ -189,7 +209,7 @@ def get_formatted_submissions(submissions, include_admin_fields=True, html=True)
         reduce(or_, (set(d) for d in full_data)).difference(declared_fields)
     )
 
-    headers = [labels.get("id", id) for id in field_dict] + additional_fields
+    headers = [labels.get(id, id) for id in field_dict] + additional_fields
 
     ordered_values = [
         [

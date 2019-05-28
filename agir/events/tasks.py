@@ -14,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from requests import HTTPError
 from urllib3 import Retry
 
-from agir.authentication.subscription import subscription_confirmation_token_generator
+from agir.authentication.signers import subscription_confirmation_token_generator
 from agir.lib.display import str_summary
 from agir.lib.html import sanitize_html
 from agir.people.models import Person

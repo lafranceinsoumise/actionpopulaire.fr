@@ -1,102 +1,110 @@
-"id","ancienne_region","region","cheflieu","nom","tncc","article","locatif"
-"01","82","84","01053","Ain","5","l'","dans l'"
-"02","22","32","02408","Aisne","5","l'","dans l'"
-"03","83","84","03190","Allier","5","l'","dans l'"
-"04","93","93","04070","Alpes-de-Haute-Provence","4","les","dans les"
-"05","93","93","05061","Hautes-Alpes","4","les","dans les"
-"06","93","93","06088","Alpes-Maritimes","4","les","dans les"
-"07","82","84","07186","Ardèche","5","l'","dans l'"
-"08","21","44","08105","Ardennes","4","les","dans les"
-"09","73","76","09122","Ariège","5","l'","dans l'"
-"10","21","44","10387","Aube","5","l'","dans l'"
-"11","91","76","11069","Aude","5","l'","dans l'"
-"12","73","76","12202","Aveyron","5","l'","dans l'"
-"13","93","93","13055","Bouches-du-Rhône","4","les","dans les"
-"14","25","28","14118","Calvados","2","le","dans le"
-"15","83","84","15014","Cantal","2","le","dans le"
-"16","54","75","16015","Charente","3","la","dans la"
-"17","54","75","17300","Charente-Maritime","3","la","dans la"
-"18","24","24","18033","Cher","2","le","dans le"
-"19","74","75","19272","Corrèze","3","la","dans la"
-"21","94","27","2A004","Côte-d'Or","3","la","dans la"
-"22","94","53","2B033","Côtes-d'Armor","3","les","dans les"
-"23","26","75","21231","Creuse","3","la","dans la"
-"24","53","75","22278","Dordogne","4","la","dans la"
-"25","74","27","23096","Doubs","3","le","dans le"
-"26","72","84","24322","Drôme","3","la","dans la"
-"27","43","28","25056","Eure","2","l'","dans l'"
-"28","82","24","26362","Eure-et-Loir","3","l'","dans l'"
-"29","23","53","27229","Finistère","5","le","dans le"
-"2A","94","94","28085","Corse-du-Sud","1","la","dans la"
-"2B","94","94","29232","Haute-Corse","2","la","dans la"
-"30","91","76","30189","Gard","2","le","dans le"
-"31","73","76","31555","Haute-Garonne","3","la","dans la"
-"32","73","76","32013","Gers","2","le","dans le"
-"33","72","75","33063","Gironde","3","la","dans la"
-"34","91","76","34172","Hérault","5","l'","dans l'"
-"35","53","53","35238","Ille-et-Vilaine","1","l'","dans l'"
-"36","24","24","36044","Indre","5","l'","dans l'"
-"37","24","24","37261","Indre-et-Loire","1","l'","dans l'"
-"38","82","84","38185","Isère","5","l'","dans l'"
-"39","43","27","39300","Jura","2","le","dans le"
-"40","72","75","40192","Landes","4","les","dans les"
-"41","24","24","41018","Loir-et-Cher","0","le","dans le"
-"42","82","84","42218","Loire","3","la","dans la"
-"43","83","84","43157","Haute-Loire","3","la","dans la"
-"44","52","52","44109","Loire-Atlantique","3","la","dans la"
-"45","24","24","45234","Loiret","2","le","dans le"
-"46","73","76","46042","Lot","2","le","dans le"
-"47","72","75","47001","Lot-et-Garonne","2","le","dans le"
-"48","91","76","48095","Lozère","3","la","dans la"
-"49","52","52","49007","Maine-et-Loire","2","la","dans la"
-"50","25","28","50502","Manche","3","la","dans la"
-"51","21","44","51108","Marne","3","la","dans la"
-"52","21","44","52121","Haute-Marne","3","la","dans la"
-"53","52","52","53130","Mayenne","3","la","dans la"
-"54","41","44","54395","Meurthe-et-Moselle","0","la","dans la"
-"55","41","44","55029","Meuse","3","la","dans la"
-"56","53","53","56260","Morbihan","2","le","dans le"
-"57","41","44","57463","Moselle","3","la","dans la"
-"58","26","27","58194","Nièvre","3","la","dans la"
-"59","31","32","59350","Nord","2","le","dans le"
-"60","22","32","60057","Oise","5","l'","dans l'"
-"61","25","28","61001","Orne","5","l'","dans l'"
-"62","31","32","62041","Pas-de-Calais","2","le","dans le"
-"63","83","84","63113","Puy-de-Dôme","2","le","dans le"
-"64","72","75","64445","Pyrénées-Atlantiques","4","les","dans les"
-"65","73","76","65440","Hautes-Pyrénées","4","les","dans les"
-"66","91","76","66136","Pyrénées-Orientales","4","les","dans les"
-"67","42","44","67482","Bas-Rhin","2","le","dans le"
-"68","42","44","68066","Haut-Rhin","2","le","dans le"
-"69","82","84","69123","Rhône","2","le","dans le"
-"70","43","27","70550","Haute-Saône","3","la","dans la"
-"71","26","27","71270","Saône-et-Loire","0","la","dans la"
-"72","52","52","72181","Sarthe","3","la","dans la"
-"73","82","84","73065","Savoie","3","la","dans la"
-"74","82","84","74010","Haute-Savoie","3","la","dans la"
-"75","11","11","75056","Paris","0","à",""
-"76","23","28","76540","Seine-Maritime","3","la","dans la"
-"77","11","11","77288","Seine-et-Marne","0","la","dans la"
-"78","11","11","78646","Yvelines","4","les","dans les"
-"79","54","75","79191","Deux-Sèvres","4","les","dans les"
-"80","22","32","80021","Somme","3","la","dans la"
-"81","73","76","81004","Tarn","2","le","dans le"
-"82","73","76","82121","Tarn-et-Garonne","2","le","dans le"
-"83","93","93","83137","Var","2","le","dans le"
-"84","93","93","84007","Vaucluse","2","le","dans le"
-"85","52","52","85191","Vendée","3","la","dans la"
-"86","54","75","86194","Vienne","3","la","dans la"
-"87","74","75","87085","Haute-Vienne","3","la","dans la"
-"88","41","44","88160","Vosges","4","les","dans les"
-"89","26","27","89024","Yonne","5","l'","dans l'"
-"90","43","27","90010","Territoire de Belfort","2","le","dans le"
-"91","11","11","91228","Essonne","5","l'","dans l'"
-"92","11","11","92050","Hauts-de-Seine","4","les","dans les"
-"93","11","11","93008","Seine-Saint-Denis","3","la","dans la"
-"94","11","11","94028","Val-de-Marne","2","le","dans le"
-"95","11","11","95500","Val-d'Oise","2","le","dans le"
-"971","01","01","97105","Guadeloupe","3","la","en"
-"972","02","02","97209","Martinique","3","la","en"
-"973","03","03","97302","Guyane","3","la","en"
-"974","04","04","97411","La Réunion","0","à",
-"976","06","06","97608","Mayotte","0","à",
+id,region,ancienne_region,cheflieu,nom,tncc
+01,84,82,01053,Ain,5
+02,32,22,02408,Aisne,5
+03,84,83,03190,Allier,5
+04,93,93,04070,Alpes-de-Haute-Provence,4
+05,93,93,05061,Hautes-Alpes,4
+06,93,93,06088,Alpes-Maritimes,4
+07,84,82,07186,Ardèche,5
+08,44,21,08105,Ardennes,4
+09,76,73,09122,Ariège,5
+10,44,21,10387,Aube,5
+11,76,91,11069,Aude,5
+12,76,73,12202,Aveyron,5
+13,93,93,13055,Bouches-du-Rhône,4
+14,28,25,14118,Calvados,2
+15,84,83,15014,Cantal,2
+16,75,54,16015,Charente,3
+17,75,54,17300,Charente-Maritime,3
+18,24,24,18033,Cher,2
+19,75,74,19272,Corrèze,3
+2A,94,94,2A004,Corse-du-Sud,3
+2B,94,94,2B033,Haute-Corse,3
+21,27,94,21231,Côte-d'Or,3
+22,53,94,22278,Côtes-d'Armor,4
+23,75,26,23096,Creuse,3
+24,75,53,24322,Dordogne,3
+25,27,74,25056,Doubs,2
+26,84,72,26362,Drôme,3
+27,28,43,27229,Eure,5
+28,24,82,28085,Eure-et-Loir,1
+29,53,23,29232,Finistère,2
+30,76,91,30189,Gard,2
+31,76,73,31555,Haute-Garonne,3
+32,76,73,32013,Gers,2
+33,75,72,33063,Gironde,3
+34,76,91,34172,Hérault,5
+35,53,53,35238,Ille-et-Vilaine,1
+36,24,24,36044,Indre,5
+37,24,24,37261,Indre-et-Loire,1
+38,84,82,38185,Isère,5
+39,27,43,39300,Jura,2
+40,75,72,40192,Landes,4
+41,24,24,41018,Loir-et-Cher,2
+42,84,82,42218,Loire,3
+43,84,83,43157,Haute-Loire,3
+44,52,52,44109,Loire-Atlantique,3
+45,24,24,45234,Loiret,2
+46,76,73,46042,Lot,2
+47,75,72,47001,Lot-et-Garonne,2
+48,76,91,48095,Lozère,3
+49,52,52,49007,Maine-et-Loire,2
+50,28,25,50502,Manche,3
+51,44,21,51108,Marne,3
+52,44,21,52121,Haute-Marne,3
+53,52,52,53130,Mayenne,3
+54,44,41,54395,Meurthe-et-Moselle,0
+55,44,41,55029,Meuse,3
+56,53,53,56260,Morbihan,2
+57,44,41,57463,Moselle,3
+58,27,26,58194,Nièvre,3
+59,32,31,59350,Nord,2
+60,32,22,60057,Oise,5
+61,28,25,61001,Orne,5
+62,32,31,62041,Pas-de-Calais,2
+63,84,83,63113,Puy-de-Dôme,2
+64,75,72,64445,Pyrénées-Atlantiques,4
+65,76,73,65440,Hautes-Pyrénées,4
+66,76,91,66136,Pyrénées-Orientales,4
+67,44,42,67482,Bas-Rhin,2
+68,44,42,68066,Haut-Rhin,2
+69,84,82,69123,Rhône,2
+70,27,43,70550,Haute-Saône,3
+71,27,26,71270,Saône-et-Loire,0
+72,52,52,72181,Sarthe,3
+73,84,82,73065,Savoie,3
+74,84,82,74010,Haute-Savoie,3
+75,11,11,75056,Paris,0
+76,28,23,76540,Seine-Maritime,3
+77,11,11,77288,Seine-et-Marne,0
+78,11,11,78646,Yvelines,4
+79,75,54,79191,Deux-Sèvres,4
+80,32,22,80021,Somme,3
+81,76,73,81004,Tarn,2
+82,76,73,82121,Tarn-et-Garonne,2
+83,93,93,83137,Var,2
+84,93,93,84007,Vaucluse,2
+85,52,52,85191,Vendée,3
+86,75,54,86194,Vienne,3
+87,75,74,87085,Haute-Vienne,3
+88,44,41,88160,Vosges,4
+89,27,26,89024,Yonne,5
+90,27,43,90010,Territoire de Belfort,2
+91,11,11,91228,Essonne,5
+92,11,11,92050,Hauts-de-Seine,4
+93,11,11,93008,Seine-Saint-Denis,3
+94,11,11,94028,Val-de-Marne,2
+95,11,11,95500,Val-d'Oise,2
+971,01,01,97105,Guadeloupe,3
+972,02,02,97209,Martinique,3
+973,03,03,97302,Guyane,3
+974,04,04,97411,La Réunion,0
+976,06,06,97608,Mayotte,0
+975,,,97502,Saint-Pierre-et-Miquelon,0
+977,,,97701,Saint-Barthélemy,0
+978,,,97801,Saint-Martin,0
+984,,,97416,Terres australes et antarctiques françaises,4
+986,,,98613,Wallis et Futuna,0
+987,,,98735,Polynésie française,3
+988,,,98818,Nouvelle-Calédonie,3
+989,,,,Île de Clipperton,5

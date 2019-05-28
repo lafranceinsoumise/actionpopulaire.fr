@@ -1,6 +1,5 @@
 from urllib.parse import urljoin
 
-import six
 from PIL import Image
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -12,6 +11,7 @@ from io import BytesIO
 from stdimage.utils import render_variations
 
 from agir.authentication.crypto import connection_token_generator
+from agir.lib.http import add_query_params_to_url
 
 
 def _querydict_from_dict(d):
@@ -30,11 +30,11 @@ def front_url(*args, query=None, absolute=True, auto_login=True, **kwargs):
     if absolute:
         url = urljoin(settings.FRONT_DOMAIN, url)
     if query:
-        url = "{}?{}".format(url, _querydict_from_dict(query).urlencode(safe="/"))
+        url = add_query_params_to_url(url, query)
     return AutoLoginUrl(url) if auto_login else url
 
 
-front_url_lazy = lazy(front_url, six.text_type)
+front_url_lazy = lazy(front_url, str)
 
 
 def is_front_url(param):

@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
-from django.forms.widgets import Textarea, DateTimeBaseInput, Input
+from django.forms.widgets import Textarea, DateTimeBaseInput, Input, Select
 from django.utils import formats
 from django.utils.translation import ugettext_lazy as _
 from django_countries import countries
@@ -72,6 +72,20 @@ class AdminJsonWidget(Textarea):
     def media(self):
         return forms.Media(
             js=(webpack_loader_utils.get_files("lib/adminJsonWidget")[0]["url"],)
+        )
+
+
+class Select2Widget(Select):
+    template_name = "custom_fields/selectize_choice.html"
+
+    class Media:
+        css = {
+            "all": (
+                "https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css",
+            )
+        }
+        js = (
+            "https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js",
         )
 
 

@@ -1,0 +1,25 @@
+Bonjour,
+
+
+Nous avons reçu un signalement de la part d'une personne que vous avez invité indiquant que vous aviez envoyé cette invitation sans avoir préalablement recueilli son consentement.
+
+Nous vous rappelons que cette fonctionnalité ne doit être utilisé que pour inviter des personnes dont vous avez recueilli les adresses emails à cette fin, après avoir sollicité leur accord expresse, conformément aux obligations légales qui nous incombent en matière de traitement des données personnelles.
+
+Ce message est envoyé automatiquement en cas de signalement : si vous estimez que vous avez respecté les règles énoncées ci-dessus et que le signalement était malveillant, vous pouvez simplement ignorer ce message. Mais dans le cas où nous recevrions plusieurs signalements, nous pourrions être conduits à vous retirer la possibilité d'inviter des personnes à votre groupe.  
+
+
+Amitiés insoumises,  
+L'équipe outils numériques  
+  
+
+------------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
+
+>> Voir cet email dans votre navigateur
+{{ LINK_BROWSER }}
+
+>> Choisir les emails que vous recevez
+http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+
+>> Arrêter complètement de recevoir des emails
+https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}

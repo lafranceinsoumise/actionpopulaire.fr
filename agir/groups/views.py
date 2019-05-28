@@ -1,14 +1,14 @@
-import json
 import logging
+from uuid import UUID
 
 import ics
-from datetime import timedelta
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.validators import validate_email
 from django.db import IntegrityError
-from django.db.models import Q, Sum
+from django.db.models import Q
 from django.http import (
     Http404,
     HttpResponseRedirect,
@@ -20,9 +20,9 @@ from django.http import (
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
-from django.utils.html import format_html, mark_safe
-from django.utils.timezone import now
+from django.utils.html import format_html
 from django.utils.translation import ugettext as _, ugettext_lazy
+from django.views import View
 from django.views.generic import (
     UpdateView,
     ListView,
@@ -32,12 +32,19 @@ from django.views.generic import (
 )
 from django.views.generic.edit import ProcessFormView, FormMixin, FormView
 
+from agir.authentication.signers import (
+    invitation_confirmation_token_generator,
+    abusive_invitation_report_token_generator,
+)
+from agir.authentication.utils import hard_login
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
     PermissionsRequiredMixin,
+    VerifyLinkSignatureMixin,
 )
 from agir.donations.actions import get_balance
 from agir.donations.models import SpendingRequest
+from agir.events.views.utils import group_events_by_day
 from agir.front.view_mixins import (
     ObjectOpengraphMixin,
     ChangeLocationBaseView,
@@ -50,10 +57,17 @@ from agir.groups.actions.promo_codes import (
     next_promo_code_date,
 )
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
-from agir.groups.tasks import send_someone_joined_notification
-from agir.events.views.utils import group_events_by_day
+from agir.groups.tasks import (
+    send_someone_joined_notification,
+    send_abuse_report_message,
+)
+from agir.lib.http import add_query_params_to_url
 from agir.lib.utils import front_url
-from agir.people.views import ConfirmSubscriptionView
+from agir.people.views import (
+    ConfirmSubscriptionView,
+    subscription_confirmation_token_generator,
+    Person,
+)
 from .forms import (
     SupportGroupForm,
     AddReferentForm,
@@ -61,6 +75,8 @@ from .forms import (
     GroupGeocodingForm,
     SearchGroupForm,
     ExternalJoinForm,
+    InvitationWithSubscriptionConfirmationForm,
+    InvitationForm,
 )
 
 __all__ = [
@@ -202,11 +218,20 @@ class SupportGroupManagementView(
     queryset = SupportGroup.objects.active().all().prefetch_related("memberships")
     messages = {
         "add_referent_form": ugettext_lazy(
-            "{} est maintenant correctement signalé comme second·e animateur·rice"
+            "{email} est maintenant correctement signalé comme second·e animateur·rice."
         ),
         "add_manager_form": ugettext_lazy(
-            "{} a bien été ajouté·e comme gestionnaire pour ce groupe"
+            "{email} a bien été ajouté·e comme gestionnaire pour ce groupe."
         ),
+        "invitation_form": ugettext_lazy(
+            "{email} a bien été invité à rejoindre votre groupe."
+        ),
+    }
+    need_referent_status = {"add_referent_form", "add_manager_form"}
+    active_panel = {
+        "add_referent_form": "animation",
+        "add_manager_form": "animation",
+        "invitation_form": "invitation",
     }
 
     def get_forms(self):
@@ -218,6 +243,9 @@ class SupportGroupManagementView(
         return {
             "add_referent_form": AddReferentForm(self.object, **kwargs),
             "add_manager_form": AddManagerForm(self.object, **kwargs),
+            "invitation_form": InvitationForm(
+                group=self.object, inviter=self.request.user.person, **kwargs
+            ),
         }
 
     def get_context_data(self, **kwargs):
@@ -250,12 +278,17 @@ class SupportGroupManagementView(
         ).exclude(status=SpendingRequest.STATUS_PAID)
         kwargs["is_pressero_enabled"] = is_pressero_enabled()
 
+        kwargs["active"] = self.active_panel.get(self.request.POST.get("form"))
+
+        forms = self.get_forms()
+        for form_name, form in forms.items():
+            kwargs.setdefault(form_name, form)
+
         return super().get_context_data(
             is_referent=self.user_membership is not None
             and self.user_membership.is_referent,
             is_manager=self.user_membership is not None
             and (self.user_membership.is_referent or self.user_membership.is_manager),
-            **self.get_forms(),
             **kwargs,
         )
 
@@ -272,24 +305,27 @@ class SupportGroupManagementView(
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
+        form_name = request.POST.get("form")
+
         # only referents can add referents and managers
-        if not self.user_is_referent():
+        if not self.user_is_referent() and form_name in self.need_referent_status:
             raise PermissionDenied(
                 "Vous n'êtes pas animateur de ce groupe et ne pouvez donc pas modifier les "
                 "animateurs et gestionnaires."
             )
 
         forms = self.get_forms()
-        form_name = request.POST.get("form")
         if form_name in forms:
             form = forms[form_name]
             if form.is_valid():
-                membership = form.save()
+                params = form.perform()
 
                 messages.add_message(
-                    request,
-                    messages.SUCCESS,
-                    self.messages[form_name].format(membership.person.email),
+                    request, messages.SUCCESS, self.messages[form_name].format(**params)
+                )
+            else:
+                return self.render_to_response(
+                    self.get_context_data(**{form_name: form})
                 )
 
         return HttpResponseRedirect(
@@ -595,3 +631,148 @@ class RedirectToPresseroView(HardLoginRequiredMixin, DetailView):
             logger.error("Problème rencontré avec l'API Pressero", exc_info=True)
 
             return TemplateResponse(request, self.template_name)
+
+
+class InvitationConfirmationView(VerifyLinkSignatureMixin, View):
+    signature_generator = invitation_confirmation_token_generator
+
+    def get(self, request, *args, **kwargs):
+        token_params = self.get_signed_values()
+
+        if token_params is None:
+            return self.link_error_page()
+
+        try:
+            person = Person.objects.get(pk=UUID(token_params["person_id"]))
+            group = SupportGroup.objects.get(pk=UUID(token_params["group_id"]))
+        except (ValueError, Person.DoesNotExist):
+            return self.link_error_page()
+        except SupportGroup.DoesNotExist:
+            messages.add_message(
+                request=request,
+                level=messages.ERROR,
+                message="Le groupe qui vous a invité n'existe plus.",
+            )
+            return HttpResponseRedirect(reverse("dashboard"))
+
+        membership, created = Membership.objects.get_or_create(
+            supportgroup=group, person=person
+        )
+
+        if created:
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                format_html(
+                    "Vous venez de rejoindre le groupe d'action <em>{group_name}</em>",
+                    group_name=group.name,
+                ),
+            )
+        else:
+            messages.add_message(
+                request, messages.INFO, "Vous étiez déjà membre de ce groupe."
+            )
+
+        return HttpResponseRedirect(reverse("view_group", args=(group.pk,)))
+
+
+class InvitationWithSubscriptionView(VerifyLinkSignatureMixin, FormView):
+    form_class = InvitationWithSubscriptionConfirmationForm
+    signature_generator = subscription_confirmation_token_generator
+    signed_params = ["email", "group_id"]
+    template_name = "groups/invitation_subscription.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        token_params = self.get_signed_values()
+
+        if not token_params:
+            return self.link_error_page()
+
+        self.email = token_params["email"]
+
+        try:
+            validate_email(self.email)
+        except ValidationError:
+            return self.link_error_page()
+
+        # Cas spécial : la personne s'est déjà créé un compte entretemps
+        # ==> redirection vers l'autre vue
+        try:
+            person = Person.objects.get_by_natural_key(self.email)
+        except Person.DoesNotExist:
+            pass
+        else:
+            params = {"person_id": str(person.id), "group_id": token_params["group_id"]}
+            query_params = {
+                **params,
+                "token": invitation_confirmation_token_generator.make_token(**params),
+            }
+
+            return HttpResponseRedirect(
+                add_query_params_to_url(
+                    reverse("invitation_confirmation"), query_params
+                )
+            )
+
+        try:
+            self.group = SupportGroup.objects.get(pk=UUID(token_params["group_id"]))
+        except ValueError:
+            # pas un UUID
+            return self.link_error_page()
+        except SupportGroup.DoesNotExist:
+            # le groupe a disparu entre temps...
+            self.group = None
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(group=self.group)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["group"] = self.group
+        kwargs["email"] = self.email
+        return kwargs
+
+    def form_valid(self, form):
+        p = form.save()
+        hard_login(self.request, p)
+
+        return TemplateResponse(self.request, "people/confirmation_subscription.html")
+
+
+class InvitationAbuseReportingView(VerifyLinkSignatureMixin, View):
+    signature_generator = abusive_invitation_report_token_generator
+    form_template_name = "groups/invitation_abuse.html"
+    confirmed_template_name = "groups/invitation_abuse_confirmed.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.token_params = self.get_signed_values()
+
+        if not self.token_params:
+            return self.link_error_page()
+
+        self.timestamp = abusive_invitation_report_token_generator.get_timestamp(
+            request.GET.get("token")
+        )
+
+        try:
+            self.group_id = UUID(self.token_params["group_id"])
+            self.inviter_id = UUID(self.token_params["inviter_id"])
+        except ValueError:
+            return self.link_error_page()
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return TemplateResponse(request, template=self.form_template_name)
+
+    def post(self, request, *args, **kwargs):
+        if self.inviter_id:
+            send_abuse_report_message.delay(str(self.inviter_id))
+
+        logger.info(
+            msg=f"Abus d'invitation signalé ({self.group_id}, {self.inviter_id}, {self.timestamp})"
+        )
+
+        return TemplateResponse(request, template=self.confirmed_template_name)

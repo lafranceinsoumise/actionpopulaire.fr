@@ -10,7 +10,7 @@ from django.views import View
 from django.views.generic import UpdateView, TemplateView, FormView, RedirectView
 from django.views.generic.edit import DeleteView
 
-from agir.authentication.subscription import merge_account_token_generator
+from agir.authentication.signers import merge_account_token_generator
 from agir.authentication.utils import hard_login
 from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
@@ -77,10 +77,10 @@ class BecomeInsoumiseView(ProfileViewMixin, UpdateView):
         self.object.event_notifications = True
         return super().form_valid(form)
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         if request.user.person.is_insoumise == True:
             return HttpResponseRedirect(reverse("personal_information"))
-        return super().dispatch(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         """Get the current user as the view object"""

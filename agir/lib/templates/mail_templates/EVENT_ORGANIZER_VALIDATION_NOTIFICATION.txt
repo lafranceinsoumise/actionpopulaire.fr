@@ -19,7 +19,7 @@ Pour rappel, voici les informations de votre événement :
 
 
 -----------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}.
+Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
 
 >> Voir cet email dans votre navigateur
 {{ LINK_BROWSER }}

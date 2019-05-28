@@ -70,8 +70,12 @@
 
 
   <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active"><a href="#membership" role="tab" data-toggle="tab">Membres</a></li>
-    <li role="presentation"><a href="#animation" role="tab" data-toggle="tab">Animation</a></li>
+    <li role="presentation"{% if not active %} class="active"{% endif %}>
+      <a href="#membership" role="tab" data-toggle="tab">Membres</a>
+    </li>
+    <li role="presentation"{% if active == "animation" %} class="active"{% endif %}><a href="#animation" role="tab"
+                                                                                       data-toggle="tab">Animation</a>
+    </li>
     {% if has_promo_code or is_pressero_enabled %}
       <li role="presentation"><a href="#materiel" role="tab" data-toggle="tab">Materiel</a></li>
     {% endif %}
@@ -81,17 +85,20 @@
     {% if not supportgroup.is_certified and certifiable %}
       <li role="presentation"><a href="#certification" role="tab" data-toggle="tab">Certification</a></li>
     {% endif %}
+    <li role="presentation"{% if active == "invitation" %} class="active"{% endif %}><a href="#invitation" role="tab"
+                                                                                        data-toggle="tab">Inviter</a>
+    </li>
   </ul>
 
   <script>
     $('.nav-tabs a').click(function (e) {
-      e.preventDefault()
+      e.preventDefault();
       $(this).tab('show')
     })
   </script>
 
   <div class="tab-content">
-    <div role="tabpanel" class="tab-pane active" id="membership">
+    <div role="tabpanel" class="tab-pane{% if not active %} active{% endif %}" id="membership">
       <h3>Liste des membres</h3>
 
       <p>Votre groupe comprend à l'heure actuelle {{ members|length }} membre{% if members|length > 1 %}s{% endif %}
@@ -115,7 +122,7 @@
       </ul>
     </div>
 
-    <div role="tabpanel" class="tab-pane" id="animation">
+    <div role="tabpanel" class="tab-pane{% if active == "animation" %} active{% endif %}" id="animation">
       <h3>Les animateur⋅rice⋅s et autres gestionnaires du groupe</h3>
       <div class="row">
         <div class="col-md-6">
@@ -173,7 +180,7 @@
                     {% if person.first_name and person.last_name %}
                       {{ person.first_name }} {{ person.last_name }} &lt;{{ person.email }}&gt;
                     {% else %}
-                      {{ person.email }}
+                      {{ person.email }}!
                     {% endif %}
                     <a href="{% url 'remove_manager' pk=membership.pk %}" aria-label="Retirer ce gestionnaire"> <i
                       class="fa fa-remove" aria-hidden="true" title="Retirer ce gestionnaire"></i> </a>
@@ -271,7 +278,7 @@
 
       {% endif %}
     </div>
-    <div role="tabpanel" class="tab-pane" id="certification">
+    <div role="tabpanel" class="tab-pane{% if active == "invitation" %} active{% endif %}" id="certification">
       {% if not supportgroup.is_certified and certifiable %}
         <h3>Certification de votre groupe</h3>
 
@@ -296,5 +303,26 @@
         {% endif %}
       {% endif %}
     </div>
+
+    <div role="tabpanel" class="tab-pane" id="invitation">
+      <h3>Aider des personnes à rejoindre votre groupe</h3>
+
+      <p>
+        Ce formulaire vous permet d'envoyer une invitation à rejoindre votre groupe par email à des personnes pour
+        rejoindre la France insoumise et votre groupe d'action.
+      </p>
+      <p>
+        Compte tenu des obligations en matière de protection des données qui nous incombent, cette fonctionnalité ne
+        doit être utilisée <strong>qu'avec des personnes dont vous avez préalablement obtenu le consentement
+        explicite</strong> (par exemple en les rencontrant à une diffusion de tract, ou lors d'une action).
+      </p>
+      <p>
+        <strong>En cas d'abus, cette possibilité vous sera retirée.</strong>
+      </p>
+
+      {% crispy invitation_form %}
+    </div>
+
+
   </div>
 {% endblock %}

@@ -4,7 +4,10 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from agir.people.person_forms.display import get_formatted_submission
+from agir.people.person_forms.display import (
+    get_formatted_submission,
+    get_form_field_labels,
+)
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 
 
@@ -138,6 +141,19 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
 
         send_confirmation.delay.assert_called_once()
         send_notification.delay.assert_called_once()
+
+    def test_anonymous_form_does_not_create_person(self):
+        self.client.logout()
+
+        res = self.client.get("/formulaires/formulaire-simple/")
+
+        res = self.client.post(
+            "/formulaires/formulaire-simple/", data={"contact_phone": "06 04 03 02 04"}
+        )
+        self.assertRedirects(res, "/formulaires/formulaire-simple/confirmation/")
+
+        with self.assertRaises(Person.DoesNotExist):
+            Person.objects.get(contact_phone="+33604030204")
 
     def test_can_validate_complex_form(self):
         res = self.client.get("/formulaires/formulaire-complexe/")
@@ -382,6 +398,7 @@ class SubmissionFormatTestCase(TestCase):
                 {
                     "title": "Une partie",
                     "fields": [
+                        {"id": "first_name", "person_field": True},
                         {"id": "date", "type": "date", "label": "Date"},
                         {"id": "phone_number", "type": "phone_number", "label": "Tel."},
                         {"id": "file", "type": "file", "label": "Fichier"},
@@ -396,6 +413,7 @@ class SubmissionFormatTestCase(TestCase):
             form=self.form,
             person=self.person,
             data={
+                "first_name": "Arthur",
                 "date": self.some_date,
                 "phone_number": "+33612345678",
                 "file": "/test/truc.pdf",
@@ -413,6 +431,7 @@ class SubmissionFormatTestCase(TestCase):
                 {
                     "title": "Une partie",
                     "data": [
+                        {"label": "Prénom", "value": "Arthur"},
                         {"label": "Date", "value": "2 mai 2050 00:00"},
                         {"label": "Tel.", "value": "+33 6 12 34 56 78"},
                         {
@@ -426,4 +445,17 @@ class SubmissionFormatTestCase(TestCase):
                     "data": [{"label": "missing_field", "value": "Unknown value"}],
                 },
             ],
+        )
+
+    def test_get_form_labels(self):
+        labels = get_form_field_labels(self.form)
+
+        self.assertEqual(
+            labels,
+            {
+                "first_name": "Prénom",
+                "date": "Date",
+                "phone_number": "Tel.",
+                "file": "Fichier",
+            },
         )

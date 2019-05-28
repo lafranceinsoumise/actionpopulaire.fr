@@ -1,7 +1,9 @@
+import csv
+
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import UpdateView, DetailView
@@ -33,8 +35,6 @@ class PeopleFormView(UpdateView):
     def get_object(self, queryset=None):
         if self.request.user.is_authenticated:
             return self.request.user.person
-
-        return Person()
 
     def get_person_form_instance(self):
         try:
@@ -143,10 +143,8 @@ class PeopleFormSubmissionsPrivateView(DetailView):
     queryset = PersonForm.objects.all()
 
     def get_context_data(self, **kwargs):
-        submission_qs = self.object.submissions.all()
-
         headers, submissions = get_formatted_submissions(
-            submission_qs, html=True, include_admin_fields=False
+            self.object, html=True, include_admin_fields=False
         )
 
         return {
@@ -154,3 +152,29 @@ class PeopleFormSubmissionsPrivateView(DetailView):
             "headers": headers,
             "submissions": submissions,
         }
+
+    def get(self, request, *args, **kwargs):
+        if request.GET.get("format") == "csv":
+            return self.get_csv(request)
+        return super().get(request, *args, **kwargs)
+
+    def get_csv(self, request):
+        form = self.get_object()
+
+        headers, submissions = get_formatted_submissions(
+            form,
+            html=False,
+            include_admin_fields=False,
+            resolve_labels=bool(request.GET.get("resolve_labels")),
+        )
+
+        response = HttpResponse(content_type="text/csv")
+        response[
+            "Content-Disposition"
+        ] = f'attachment; filename="{self.object.slug}.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(headers)
+        writer.writerows(submissions)
+
+        return response

@@ -81,4 +81,19 @@ urlpatterns = [
         views.ThematicTeamsViews.as_view(),
         name="thematic_teams_list",
     ),
+    path(
+        "groupes/invitation/",
+        views.InvitationConfirmationView.as_view(),
+        name="invitation_confirmation",
+    ),
+    path(
+        "groupes/inscription/",
+        views.InvitationWithSubscriptionView.as_view(),
+        name="invitation_with_subscription_confirmation",
+    ),
+    path(
+        "groupes/invitation/abus/",
+        views.InvitationAbuseReportingView.as_view(),
+        name="report_invitation_abuse",
+    ),
 ]

@@ -1,7 +1,7 @@
 import smtplib
+import socket
 from collections import OrderedDict
 
-import socket
 from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
@@ -9,9 +9,14 @@ from django.template.loader import render_to_string
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
-from agir.authentication.subscription import subscription_confirmation_token_generator
+from agir.authentication.signers import (
+    subscription_confirmation_token_generator,
+    invitation_confirmation_token_generator,
+    abusive_invitation_report_token_generator,
+)
 from agir.lib.utils import front_url
 from agir.people.actions.mailing import send_mosaico_email
+from agir.people.models import Person
 from .models import SupportGroup, Membership
 
 # encodes the preferred order when showing the messages
@@ -172,6 +177,105 @@ def send_external_join_confirmation(self, group_pk, email, **kwargs):
             from_email=settings.EMAIL_FROM,
             recipients=[email],
             bindings=bindings,
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
+
+
+@shared_task(max_retries=2, bind=True)
+def invite_to_group(self, group_id, invited_email, inviter_id):
+    try:
+        group = SupportGroup.objects.get(pk=group_id)
+    except SupportGroup.DoesNotExist:
+        return
+
+    try:
+        person = Person.objects.get_by_natural_key(invited_email)
+    except Person.DoesNotExist:
+        person = None
+
+    group_name = group.name
+
+    report_params = {"group_id": group_id, "inviter_id": inviter_id}
+    report_params["token"] = abusive_invitation_report_token_generator.make_token(
+        **report_params
+    )
+    report_url = front_url("report_invitation_abuse", query=report_params)
+
+    if person:
+        invitation_token = invitation_confirmation_token_generator.make_token(
+            person_id=person.pk, group_id=group_id
+        )
+
+        join_url = front_url(
+            "invitation_confirmation",
+            query={
+                "person_id": person.id,
+                "group_id": group_id,
+                "token": invitation_token,
+            },
+        )
+
+        try:
+            send_mosaico_email(
+                code="GROUP_INVITATION_MESSAGE",
+                subject="Vous avez été invité à rejoindre un groupe de la FI",
+                from_email=settings.EMAIL_FROM,
+                recipients=[person],
+                bindings={
+                    "GROUP_NAME": group_name,
+                    "CONFIRMATION_URL": join_url,
+                    "REPORT_URL": report_url,
+                },
+            )
+        except (smtplib.SMTPException, socket.error) as exc:
+            self.retry(countdown=60, exc=exc)
+
+    else:
+        invitation_token = subscription_confirmation_token_generator.make_token(
+            email=invited_email, group_id=group_id
+        )
+        join_url = front_url(
+            "invitation_with_subscription_confirmation",
+            query={
+                "email": invited_email,
+                "group_id": group_id,
+                "token": invitation_token,
+            },
+        )
+
+        try:
+            send_mosaico_email(
+                code="GROUP_INVITATION_WITH_SUBSCRIPTION_MESSAGE",
+                subject="Vous avez été invité à rejoindre la France insoumise",
+                from_email=settings.EMAIL_FROM,
+                recipients=[invited_email],
+                bindings={
+                    "GROUP_NAME": group_name,
+                    "CONFIRMATION_URL": join_url,
+                    "REPORT_URL": report_url,
+                },
+            )
+        except (smtplib.SMTPException, socket.error) as exc:
+            self.retry(countdown=60, exc=exc)
+
+
+@shared_task(max_retries=2, bind=True)
+def send_abuse_report_message(self, inviter_id):
+    if not inviter_id:
+        return
+
+    try:
+        inviter = Person.objects.get(pk=inviter_id)
+    except Person.DoesNotExist:
+        return
+
+    try:
+        send_mosaico_email(
+            code="GROUP_INVITATION_ABUSE_MESSAGE",
+            subject="Signalement pour invitation sans consentement",
+            from_email=settings.EMAIL_FROM,
+            recipients=[inviter],
         )
     except (smtplib.SMTPException, socket.error) as exc:
         self.retry(countdown=60, exc=exc)

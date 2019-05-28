@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.forms import BooleanField
 from django.utils.translation import ugettext_lazy as _
 
+from agir.events.models import EventSubtype
 from agir.people.models import Person
 from .. import models
 from ..tasks import send_organizer_validation_notification
@@ -92,6 +93,13 @@ class CalendarField(forms.Field):
 
 class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
     calendars = CalendarField(required=False, label="Agendas")
+
+    subtype = forms.ModelChoiceField(
+        queryset=EventSubtype.objects.filter(
+            visibility__in=[EventSubtype.VISIBILITY_ADMIN, EventSubtype.VISIBILITY_ALL]
+        ),
+        to_field_name="label",
+    )
 
     send_visibility_notification = BooleanField(
         required=False,

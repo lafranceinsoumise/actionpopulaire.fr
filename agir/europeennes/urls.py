@@ -1,37 +1,17 @@
-from django.urls import path
+from django.urls import re_path, reverse_lazy, path
+from django.views.generic import RedirectView
 
-from . import views
-
+from agir.europeennes import views
 
 urlpatterns = [
-    path(
-        "europeennes/dons/",
-        views.DonationAskAmountView.as_view(),
-        name="europeennes_donation_amount",
-    ),
-    path(
-        "europeennes/dons/informations/",
-        views.DonationPersonalInformationView.as_view(),
-        name="europeennes_donation_information",
-    ),
-    path(
-        "europeennes/prets/",
-        views.LoanAskAmountView.as_view(),
-        name="europeennes_loan_amount",
-    ),
-    path(
-        "europeennes/prets/informations/",
-        views.LoanPersonalInformationView.as_view(),
-        name="europeennes_loan_information",
-    ),
-    path(
-        "europeennes/prets/contrat/",
-        views.LoanAcceptContractView.as_view(),
-        name="europeennes_loan_sign_contract",
-    ),
     path(
         "europennes/prets/contrat/<int:pk>/",
         views.LoanContractView.as_view(),
         name="europeennes_view_contract",
+    ),
+    re_path(
+        "^europeennes/.*",
+        RedirectView.as_view(url=reverse_lazy("donation_amount")),
+        name="europeennes_donation_and_loan",
     ),
 ]

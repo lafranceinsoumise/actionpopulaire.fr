@@ -32,9 +32,6 @@
 {% block main %}
   <header>
     {% include "events/includes/visibility.html" %}
-    {% if event.image %}
-      <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
-    {% endif %}
     <h1>{{ event.name }}
       <small>{{ event.subtype.get_type_display }}</small>
       {% if not event.subtype.hide_text_label %}
@@ -128,22 +125,76 @@
       {% endif %}
     </div>
   </header>
-  <div class="row">
+  <div class="row margintop">
+    <div class="col-sm-6">
+      {% if event.image %}
+        <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
+      {% endif %}
+    </div>
+
+    <div class="col-sm-6">
+      <div class="row marginbottom">
+        <div class="col-xs-6">
+          <h4><i class="fa fa-clock-o" aria-hidden="true"></i>{% if event.is_current %}
+            &ensp;<span class="badge">En cours</span>
+          {% endif %}</h4>
+          {{ event.get_display_date }}
+          <h6>Ajouter à mon agenda&ensp;
+            {% include 'events/event_ics.html' with event=event %}
+          </h6>
+        </div>
+        <div class="col-xs-6">
+          <h4><i class="fa fa-map-marker"></i>{% if event.enable_jitsi %}
+            &ensp;<span class="badge">En visio-conférence</span>
+          {% endif %}</h4>
+          <p>{{ event.html_full_address|default:'Pas de lieu.' }}</p>
+          {% if event.coordinates %}
+            <span class="hidden-md hidden-lg"><a href="#map">Voir la carte</a></span>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if not event.is_past %}
+
+        <h4>Contact</h4>
+        <p>{{ event.html_full_contact }}</p>
+      {% endif %}
+
+      {% spaceless %}
+        {% if organizers_groups|length > 0 %}
+          <p>
+            L'événement {% if event.is_past %}était organisé{% else %}est organisé{% endif %}
+            {% if organizers_group|length > 1 %}par les groupes d'action{% else %}par le groupe
+              d'action{% endif %}
+            {% for supportgroup in event.organizers_groups.all.distinct %}
+              <a href="{% url "view_group" supportgroup.pk %}"><i
+                class="fa fa-group"></i> {{ supportgroup.name }}</a>
+              {% if not forloop.last %}{% if forloop.revcounter0 == 1 %} et {% else %}
+                , {% endif %}{% else %}.
+              {% endif %}
+            {% endfor %}
+          </p>
+        {% endif %}
+      {% endspaceless %}
+
+    </div>
+  </div>
+  <div class="row margintopmore marginbottommore">
     <div class="col-md-6">
       {% if event.is_free %}
         {# Do not show number of participants for paid events #}
         <h4>
-          Nombre de participant⋅e⋅s&nbsp;: {{ event.participants }}
+          {{ event.participants }} participant⋅e⋅s
         </h4>
+        <hr/>
       {% endif %}
-      <div class="intro">
+      <p class="intro">
         {% if event.description %}
           {{ event.html_description }}
         {% else %}
           <i>Cet événement n'a pas encore de description.</i>
         {% endif %}
-        <hr/>
-      </div>
+      </p>
 
       {% if event.is_past %}
         <div>
@@ -166,47 +217,7 @@
         </div>
       {% endif %}
     </div>
-
     <div class="col-md-6">
-      <div class="row marginbottom">
-        <div class="col-xs-6">
-          <h4><i class="fa fa-clock-o" aria-hidden="true"></i>{% if event.is_current %}
-            &ensp;<span class="badge">En cours</span>
-          {% endif %}</h4>
-          {{ event.get_display_date }}
-        </div>
-        <div class="col-xs-6">
-          <h4><i class="fa fa-map-marker"></i>{% if event.enable_jitsi %}
-            &ensp;<span class="badge">En visio-conférence</span>
-          {% endif %}</h4>
-          <p>{{ event.html_full_address|default:'Pas de lieu.' }}</p>
-        </div>
-      </div>
-
-      {% spaceless %}
-        {% if organizers_groups|length > 0 %}
-          <p>
-            L'événement {% if event.is_past %}était organisé{% else %}est organisé{% endif %}
-            {% if organizers_group|length > 1 %}par les groupes d'action{% else %}par le groupe
-              d'action{% endif %}
-            {% for supportgroup in event.organizers_groups.all.distinct %}
-              <a href="{% url "view_group" supportgroup.pk %}"><i
-                class="fa fa-group"></i> {{ supportgroup.name }}</a>
-              {% if not forloop.last %}{% if forloop.revcounter0 == 1 %} et {% else %}
-                , {% endif %}{% else %}.
-              {% endif %}
-            {% endfor %}
-          </p>
-        {% endif %}
-      {% endspaceless %}
-
-      {% if event.coordinates %}
-        <iframe title="Carte" class="col-sm-6"
-                src="{{ MAP_DOMAIN }}{% url "carte:single_event_map" event.id %}"
-                height="300" scrolling="no" frameBorder="0"
-                style="width: 100%; margin: 1em 0; padding:0;"></iframe>
-      {% endif %}
-
       {% if event.is_past %}
         <h4>Photos</h4>
         {% if event_images %}
@@ -221,22 +232,23 @@
             {% endfor %}
           </div>
         {% else %}
-          Aucun participant n'a encore ajouté de photo de cet événement !
+          <p>
+            Aucun participant n'a encore ajouté de photo de cet événement&nbsp;!
+          </p>
         {% endif %}
         {% if rsvp %}
-          <div>
+          <div class="marginbottomless">
             <a class="btn btn-default" href="{% url "upload_event_image" event.pk %}">Ajouter une image</a>
           </div>
         {% endif %}
-      {% else %}
-        <h4>Ajouter à mon agenda&ensp;
-          {% include 'events/event_ics.html' with event=event %}
-        </h4>
-        <h4>Contact</h4>
-        <p>{{ event.html_full_contact }}</p>
+      {% endif %}
+
+      {% if event.coordinates %}
+        <iframe title="Carte" class="col-sm-6"
+                src="{{ MAP_DOMAIN }}{% url "carte:single_event_map" event.id %}"
+                height="300" scrolling="no" frameBorder="0"
+                style="width: 100%; padding:0;" id="map"></iframe>
       {% endif %}
     </div>
   </div>
-
-  <hr>
 {% endblock %}
