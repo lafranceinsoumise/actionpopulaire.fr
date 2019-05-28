@@ -28,7 +28,7 @@ django-oauth-toolkit = "*"  # add OAuth server
 rules = "==2.0.*"  # add useful authorization rules
 django-reversion = "==3.*"  # versioning of models
 ## Django Rest Framework
-djangorestframework = "==3.8.*"
+djangorestframework = "==3.*,>=3.8"
 djangorestframework-gis = "==0.13.*"
 ## adapters for third-party systems
 django-redis = "==4.*"
