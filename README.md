@@ -1,6 +1,6 @@
-# api-django
+# agir.lafranceinsoumise.fr
 
-[![Build Status](https://travis-ci.org/lafranceinsoumise/api-django.svg?branch=master)](https://travis-ci.org/lafranceinsoumise/api-django)
+[![Build Status](https://travis-ci.org/lafranceinsoumise/agir.lafranceinsoumise.fr.svg?branch=master)](https://travis-ci.org/lafranceinsoumise/agir.lafranceinsoumise.fr)
 
 1. [Vagrant installation](#vagrant)
 2. [Useful commands](#frontend-pages)
