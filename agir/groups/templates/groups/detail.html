@@ -69,8 +69,8 @@
     <div class="col-sm-6{% if not supportgroup.image %} col-sm-offset-3{% endif %}">
       <div class="row">
         <div class="col-xs-6">
+          <h4><i class="fa fa-map-marker"></i></h4>
           {% if supportgroup.html_full_address|length > 0 %}
-                      <h4><i class="fa fa-map-marker"></i></h4>
             <p>{{ supportgroup.html_full_address }}</p>
           {% else %}
             <p>Ce groupe n'est pas situé géographiquement</p>
@@ -85,14 +85,15 @@
           {% endif %}
         </div>
       </div>
+      {% if supportgroup.description %}
+        <p class="intro">
+          {{ supportgroup.html_description }}
+        </p>
+      {% endif %}
+
       {% if supportgroup.is_certified %}
         <a class="btn btn-primary" href="{% url "donation_amount" %}?group={{ supportgroup.pk }}">Financer les actions
           de ce groupe</a>
-      {% endif %}
-      {% if supportgroup.description %}
-        <div class="intro">
-          {{ supportgroup.html_description }}
-        </div>
       {% endif %}
     </div>
   </div>
