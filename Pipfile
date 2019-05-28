@@ -65,7 +65,8 @@ nuntius = ">=0.3.7"
 ics = "*"  # calendar format
 iso8601 = "*"  # parse ISO8601 dates
 glom = "*"  # data wrangling
-django-anymail = {extras = ["amazon_ses"],version = "*"}
+django-anymail =  "*"
+boto3 = "*"
 num2words = "*"
 
 [dev-packages]
