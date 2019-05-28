@@ -104,3 +104,11 @@ class LocationMixinTestCase(TestCase):
         self.assertEqual(instance.departement, "Guadeloupe")
         self.assertEqual(instance.region, "Guadeloupe")
         self.assertEqual(instance.ancienne_region, "Guadeloupe")
+
+    def test_no_region(self):
+        instance = models.LocationModel.objects.create(
+            location_zip="97500", location_country="FR"
+        )
+        self.assertEqual(instance.departement, "Saint-Pierre-et-Miquelon")
+        self.assertEqual(instance.region, "")
+        self.assertEqual(instance.ancienne_region, "")

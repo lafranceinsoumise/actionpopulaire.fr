@@ -213,27 +213,24 @@ class LocationMixin(models.Model):
 
         return ""
 
-    @property
-    def region(self):
+    def get_region(self, ancienne):
         if self.location_country == "FR" and RE_FRENCH_ZIPCODE.match(self.location_zip):
             departement = departement_from_zipcode(self.location_zip)
+            regions_map = data.anciennes_regions_map if ancienne else data.regions_map
+            region_key = "ancienne_region" if ancienne else "region"
 
-            if departement is not None:
-                return data.regions_map.get(departement["region"])["nom"]
+            if departement is not None and departement[region_key] in regions_map:
+                return regions_map.get(departement[region_key])["nom"]
 
         return ""
+
+    @property
+    def region(self):
+        return self.get_region(ancienne=False)
 
     @property
     def ancienne_region(self):
-        if self.location_country == "FR" and RE_FRENCH_ZIPCODE.match(self.location_zip):
-            departement = departement_from_zipcode(self.location_zip)
-
-            if departement is not None:
-                return data.anciennes_regions_map.get(departement["ancienne_region"])[
-                    "nom"
-                ]
-
-        return ""
+        return self.get_region(ancienne=True)
 
     class Meta:
         abstract = True
