@@ -126,13 +126,13 @@
     </div>
   </header>
   <div class="row margintop">
-    <div class="col-sm-6">
-      {% if event.image %}
+    {% if event.image %}
+      <div class="col-sm-6">
         <img src="{{ event.image.banner.url }}" class="img-responsive center-block">
-      {% endif %}
-    </div>
+      </div>
+    {% endif %}
 
-    <div class="col-sm-6">
+    <div class="col-sm-6{% if not event.image %} col-sm-offset-3{% endif %}">
       <div class="row marginbottom">
         <div class="col-xs-6">
           <h4><i class="fa fa-clock-o" aria-hidden="true"></i>{% if event.is_current %}
