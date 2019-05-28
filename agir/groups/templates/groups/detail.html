@@ -4,9 +4,6 @@
 
 {% block main %}
   <header>
-    {% if supportgroup.image %}
-      <img src="{{ supportgroup.image.banner.url }}" class="img-responsive center-block">
-    {% endif %}
     <h1>
       {{ supportgroup.name }}
       <small>{{ supportgroup.get_type_display }}</small>
@@ -63,40 +60,43 @@
       {% endif %}
     </div>
   </header>
-
-  <hr/>
-  <div class="row">
-    <div class="{% if supportgroup.coordinates %}col-sm-6{% else %}col-responsive{% endif %}">
-      {% if supportgroup.html_full_address|length > 0 %}
-        <h4>Adresse&nbsp;:</h4>
-        <p>{{ supportgroup.html_full_address }}</p>
-      {% endif %}
-      {% if supportgroup.html_full_contact|length > 0 %}
-        <h4>
-          Contact&nbsp;:
-        </h4>
-        <p>{{ supportgroup.html_full_contact }}</p>
-      {% endif %}
-      <hr/>
-      {% if supportgroup.description %}
-        <div class="intro" style="clear: both;">
-          {{ supportgroup.html_description }}
-          <hr/>
+  <div class="row margintop">
+    {% if supportgroup.image %}
+      <div class="col-sm-6">
+        <img src="{{ supportgroup.image.banner.url }}" class="img-responsive center-block">
+      </div>
+    {% endif %}
+    <div class="col-sm-6{% if not supportgroup.image %} col-sm-offset-3{% endif %}">
+      <div class="row">
+        <div class="col-xs-6">
+          {% if supportgroup.html_full_address|length > 0 %}
+                      <h4><i class="fa fa-map-marker"></i></h4>
+            <p>{{ supportgroup.html_full_address }}</p>
+          {% else %}
+            <p>Ce groupe n'est pas situé géographiquement</p>
+          {% endif %}
         </div>
-      {% endif %}
+        <div class="col-xs-6">
+          {% if supportgroup.html_full_contact|length > 0 %}
+            <h4>
+              Contact
+            </h4>
+            <p>{{ supportgroup.html_full_contact }}</p>
+          {% endif %}
+        </div>
+      </div>
       {% if supportgroup.is_certified %}
         <a class="btn btn-primary" href="{% url "donation_amount" %}?group={{ supportgroup.pk }}">Financer les actions
           de ce groupe</a>
       {% endif %}
+      {% if supportgroup.description %}
+        <div class="intro">
+          {{ supportgroup.html_description }}
+        </div>
+      {% endif %}
     </div>
-    {% if supportgroup.coordinates %}
-      <iframe title="Carte" class="col-sm-6"
-              src="{{ MAP_DOMAIN }}{% url "carte:single_group_map" supportgroup.id %}"
-              height="300" scrolling="no" frameBorder="0"></iframe>
-    {% endif %}
   </div>
-
-  <div class="row masonry">
+  <div class="row margintopmore marginbottommore">
     <div class="col-md-6">
       <h3>Agenda du groupe
         {% url 'ics_group' supportgroup.pk as calendar_url %}
@@ -136,6 +136,11 @@
       </div>
     </div>
     <div class="col-md-6">
+      {% if supportgroup.coordinates %}
+        <iframe title="Carte" style="width: 100%; padding:0;"
+                src="{{ MAP_DOMAIN }}{% url "carte:single_group_map" supportgroup.id %}"
+                height="300" scrolling="no" frameBorder="0"></iframe>
+      {% endif %}
       <h3>Événements passés</h3>
       <div class="list-group">
         {% for day, events in events_past %}
