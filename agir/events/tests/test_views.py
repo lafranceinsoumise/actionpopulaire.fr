@@ -1,6 +1,8 @@
 from unittest import skip, mock
 
 from datetime import timedelta
+
+from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.test import TestCase
@@ -11,6 +13,7 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 
 from agir.authentication.signers import subscription_confirmation_token_generator
+from agir.carte.views import EventMapView
 from agir.events.actions import legal
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.mixins import FakeDataMixin
@@ -1431,3 +1434,54 @@ class JitsiViewTestCase(FakeDataMixin, TestCase):
         res = self.reserve_room()
 
         self.assertEqual(res.status_code, 200)
+
+
+class DoNotListEventTestCase(TestCase):
+    def setUp(self):
+        self.event = Event.objects.create(
+            name="Un événement qui qui sera non listé",
+            start_time=timezone.now(),
+            end_time=timezone.now() + timezone.timedelta(hours=4),
+            do_not_list=False,
+            coordinates=Point(2.349_722, 48.853_056),  # ND de Paris
+        )
+
+        self.person = Person.objects.create_person(
+            "test@test.com", coordinates=Point(2.349_722, 48.853_056)  # ND de Paris)
+        )
+        self.client.force_login(self.person.role)
+
+    def test_unlisted_events_are_not_in_dashboard_calendar(self):
+        response = self.client.get(reverse("dashboard"))
+        self.assertContains(response, "Un événement qui qui sera non listé")
+
+        self.event.do_not_list = True
+        self.event.save()
+
+        response = self.client.get(reverse("dashboard"))
+        self.assertNotContains(response, "Un événement qui qui sera non listé")
+        pass
+
+    def test_unlisted_events_are_not_in_sitemap(self):
+        response = self.client.get(reverse("django.contrib.sitemaps.views.sitemap"))
+        self.assertContains(response, self.event.pk)
+
+        self.event.do_not_list = True
+        self.event.save()
+
+        response = self.client.get(reverse("django.contrib.sitemaps.views.sitemap"))
+        self.assertNotContains(response, self.event.pk)
+
+    def test_unlisted_events_are_not_in_event_map(self):
+        events = EventMapView.queryset.filter(pk=self.event.pk)
+        self.assertTrue(len(events) == 1)
+
+        self.event.do_not_list = True
+        self.event.save()
+
+        events = EventMapView.queryset.filter(pk=self.event.pk)
+        self.assertTrue(len(events) == 0)
+
+    @skip("TODO:integrer après la PR sur la recherche d'événements")
+    def test_unlisted_events_are_not_in_search_event_result(self):
+        pass
