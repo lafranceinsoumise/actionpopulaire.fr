@@ -40,7 +40,7 @@
             <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
           {% endif %}
         </div>
-        <div class="media-body">
+        <div class="media-body" data-ranking-score="{{ event.rank }}">
           <i class="fa fa-calendar" aria-hidden="true"></i>
           <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
           <br>
