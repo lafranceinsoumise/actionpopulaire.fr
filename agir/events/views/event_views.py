@@ -160,7 +160,7 @@ class EventSearchView(SoftLoginRequiredMixin, FormView):
 
         paginator = Paginator(events, self.events_per_page)
         try:
-            events = paginator.page(paginator.page(cleaned_data["page"]))
+            events = paginator.page(cleaned_data["page"])
         except PageNotAnInteger:
             events = paginator.page(1)
         except EmptyPage:
