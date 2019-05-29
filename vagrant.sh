@@ -14,52 +14,62 @@ sudo locale-gen
 sudo localectl set-locale LANG=fr_FR.UTF-8
 
 echo "## Install Python..."
-sudo add-apt-repository ppa:deadsnakes/ppa > /dev/null
-sudo apt-get -yqq update > /dev/null
-sudo apt-get -yqq install python3.6 python3.6-dev python3-pip libsystemd-dev > /dev/null
-sudo -H pip3 install pipenv
+if ! (dpkg -s python3.7 && dpkg -s python3.7-dev) &> /dev/null; then
+    sudo add-apt-repository ppa:deadsnakes/ppa > /dev/null
+    sudo apt-get -yqq update > /dev/null
+    sudo apt-get -yqq install python3.7 python3.7-dev python3-pip libsystemd-dev > /dev/null
+    sudo -H pip3 install pipenv
+fi
 
 echo "## Install wkhtmltopdf"
-RELEASE=$(. /etc/lsb-release ; echo $DISTRIB_CODENAME)
-curl https://builds.wkhtmltopdf.org/0.12.1.3/wkhtmltox_0.12.1.3-1~${RELEASE}_amd64.deb --output wkhtmltox.deb -q
-sudo apt-get -yqq install libpng16-16 xfonts-75dpi xfonts-base fontconfig libjpeg-turbo8 libxrender1 > /dev/null
-sudo dpkg -i wkhtmltox.deb
+if ! dpkg -s wkhtmltox &> /dev/null; then
+    RELEASE=$(. /etc/lsb-release ; echo $DISTRIB_CODENAME)
+    curl https://builds.wkhtmltopdf.org/0.12.1.3/wkhtmltox_0.12.1.3-1~${RELEASE}_amd64.deb --output wkhtmltox.deb -q
+    sudo apt-get -yqq install libpng16-16 xfonts-75dpi xfonts-base fontconfig libjpeg-turbo8 libxrender1 > /dev/null
+    sudo dpkg -i wkhtmltox.deb
+fi
 
 echo "## Install node..."
-curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - > /dev/null
-sudo apt-get -yqq install nodejs > /dev/null
+if ! dpkg -s nodejs &> /dev/null; then
+    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - > /dev/null
+    sudo apt-get -yqq install nodejs > /dev/null
+fi
 
 echo "## Install postgresql..."
-sudo add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main"
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-sudo apt-get -qq update > /dev/null
-sudo apt-get -yqq upgrade > /dev/null
-sudo apt-get -yqq install postgresql-9.6 postgis postgresql-server-dev-9.6 > /dev/null
-sudo -u postgres psql -c "CREATE ROLE api WITH PASSWORD 'password';"
-sudo -u postgres psql -c "CREATE DATABASE api WITH owner api;"
+
+if ! dpkg -s postgresql-9.6 &> /dev/null; then
+    sudo add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main"
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    sudo apt-get -qq update > /dev/null
+    sudo apt-get -yqq upgrade > /dev/null
+    sudo apt-get -yqq install postgresql-9.6 postgis postgresql-server-dev-9.6 > /dev/null
+fi
+sudo -u postgres psql -c "CREATE ROLE api WITH PASSWORD 'password';" || echo "PostgreSQL role already exists"
+sudo -u postgres psql -c "CREATE DATABASE api WITH owner api;" || echo "PostgreSQL database already exists"
 sudo -u postgres psql -c "ALTER ROLE api WITH superuser;"
 sudo -u postgres psql -c "ALTER ROLE api WITH login;"
-sudo -u postgres psql -c "\connect api"
-sudo -u postgres psql -c "CREATE EXTENSION postgis;"
+sudo -u postgres psql -c "CREATE EXTENSION postgis;" || echo "Postgis extension already installed"
 
 echo "## Install redis..."
 sudo apt-get install -yqq redis-server > /dev/null
 
 echo "## Install MailHog..."
-wget --quiet -O MailHog https://github.com/mailhog/MailHog/releases/download/v1.0.0/MailHog_linux_amd64
-chmod +x MailHog
+if [ ! -x MailHog ]; then
+    wget --quiet -O MailHog https://github.com/mailhog/MailHog/releases/download/v1.0.0/MailHog_linux_amd64
+    chmod +x MailHog
+fi
 
 echo "## Install python dependencies..."
-(cd /vagrant && /usr/local/bin/pipenv sync) > /dev/null
+(cd /vagrant && /usr/local/bin/pipenv sync) &> /dev/null
 
 echo "## Install npm dependencies..."
-(cd /vagrant && /usr/local/bin/pipenv run npm install) > /dev/null
+(cd /vagrant && /usr/local/bin/pipenv run npm install) &> /dev/null
 
 echo "## Migrate and populate test database..."
-(cd /vagrant && /usr/local/bin/pipenv run ./manage.py migrate && /usr/local/bin/pipenv run ./manage.py load_fake_data) > /dev/null
+(cd /vagrant && /usr/local/bin/pipenv run ./manage.py migrate && (/usr/local/bin/pipenv run ./manage.py load_fake_data || true)) &> /dev/null
 
 echo "## Create super user (address: admin@agir.local, password: password)"
-(cd /vagrant && SUPERPERSON_PASSWORD="password" /usr/local/bin/pipenv run ./manage.py createsuperperson --noinput --email admin@agir.local) > /dev/null
+(cd /vagrant && (SUPERPERSON_PASSWORD="password" /usr/local/bin/pipenv run ./manage.py createsuperperson --noinput --email admin@agir.local || true)) &> /dev/null
 
 
 echo "## Create unit files..."
