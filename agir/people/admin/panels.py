@@ -1,93 +1,44 @@
-import csv
 import secrets
-import traceback
+from functools import partial
 from urllib.parse import urlencode
-from uuid import uuid4
 
 import django_otp
-from django import forms
-from django.urls import path
-from django.core.exceptions import PermissionDenied, ValidationError
-from django.db.models import Count, Max
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import reverse, get_object_or_404
 from django.contrib import admin, messages
-from django.template.response import TemplateResponse
-from django.utils.html import mark_safe, format_html, format_html_join
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.utils import display_for_value, unquote
 from django.contrib.gis.admin import OSMGeoAdmin
-from functools import partial
+from django.core.exceptions import PermissionDenied
+from django.db.models import Count, Max
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
+from django.urls import reverse, path
+from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from agir.api.admin import admin_site
-
-from agir.people.person_forms.actions import (
-    validate_custom_fields,
-    get_people_form_class,
-)
-from agir.people.person_forms.display import (
-    get_formatted_submissions,
-    get_formatted_submission,
-)
-from .models import Person, PersonTag, PersonEmail, PersonForm, PersonFormSubmission
 from agir.authentication.models import Role
-from agir.events.models import RSVP
-from agir.groups.models import Membership
-
-from agir.lib.utils import front_url, generate_token_params
 from agir.lib.admin import (
-    CenterOnFranceMixin,
     DisplayContactPhoneMixin,
+    CenterOnFranceMixin,
     DepartementListFilter,
     RegionListFilter,
 )
-from agir.lib.form_fields import AdminRichEditorWidget, AdminJsonWidget
-from agir.lib.forms import CoordinatesFormMixin
+from agir.lib.utils import generate_token_params, front_url
+from agir.people.admin.forms import PersonAdminForm, PersonFormForm
+from agir.people.admin.inlines import RSVPInline, MembershipInline, EmailInline
+from agir.people.admin.views import FormSubmissionViewsMixin
+from agir.people.models import Person, PersonTag
+from agir.people.person_forms.display import get_formatted_submission
+from agir.people.person_forms.models import PersonForm, PersonFormSubmission
 
 
-class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
-    pass
-
-
-class RSVPInline(admin.TabularInline):
-    model = RSVP
-    can_add = False
-    fields = ("event_link",)
-    readonly_fields = ("event_link",)
-
-    def event_link(self, obj):
-        return format_html(
-            '<a href="{}">{}</a>',
-            reverse("admin:events_event_change", args=(obj.event.id,)),
-            obj.event.name,
-        )
-
-    def has_add_permission(self, request, obj):
-        return False
-
-
-class MembershipInline(admin.TabularInline):
-    model = Membership
-    can_add = False
-    fields = ("supportgroup_link", "is_referent", "is_manager")
-    readonly_fields = ("supportgroup_link",)
-
-    def supportgroup_link(self, obj):
-        return format_html(
-            '<a href="{}">{}</a>',
-            reverse("admin:groups_supportgroup_change", args=(obj.supportgroup.id,)),
-            obj.supportgroup.name,
-        )
-
-    def has_add_permission(self, request, obj):
-        return False
-
-
-class EmailInline(admin.TabularInline):
-    model = PersonEmail
-    readonly_fields = ("address",)
-    extra = 0
-    fields = ("address", "_bounced", "bounced_date")
+__all__ = [
+    "PersonAdmin",
+    "PersonTagAdmin",
+    "PersonFormAdmin",
+    "PersonFormSubmissionAdmin",
+]
 
 
 @admin.register(Person, site=admin_site)
@@ -174,8 +125,8 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         ("subscribed", admin.BooleanFieldListFilter),
         ("subscribed_sms", admin.BooleanFieldListFilter),
         ("draw_participation", admin.BooleanFieldListFilter),
-        ("gender"),
-        ("tags"),
+        "gender",
+        "tags",
     )
 
     inlines = (RSVPInline, MembershipInline, EmailInline)
@@ -292,108 +243,8 @@ class PersonTagAdmin(admin.ModelAdmin):
     set_as_not_exported.short_description = _("Ne plus exporter")
 
 
-class PersonFormForm(forms.ModelForm):
-    class Meta:
-        fields = "__all__"
-        widgets = {
-            "description": AdminRichEditorWidget(),
-            "confirmation_note": AdminRichEditorWidget(),
-            "custom_fields": AdminJsonWidget(),
-            "config": AdminJsonWidget(),
-        }
-
-    def clean_custom_fields(self):
-        value = self.cleaned_data["custom_fields"]
-        validate_custom_fields(value)
-
-        return value
-
-    def _post_clean(self):
-        super()._post_clean()
-
-        try:
-            klass = get_people_form_class(self.instance)
-            klass()
-        except Exception:
-            self.add_error(
-                None,
-                ValidationError(
-                    format_html(
-                        "<p>{message}</p><pre>{stacktrace}</pre>",
-                        message="Problème de création du formulaire. L'exception suivante a été rencontrée :",
-                        stacktrace=traceback.format_exc(),
-                    )
-                ),
-            )
-
-
-class PersonFormAdminMixin:
-    def get_form_submission_qs(self, form):
-        return form.submissions.all()
-
-    def generate_result_table(self, form, html=True, fieldsets_titles=True):
-        submission_qs = self.get_form_submission_qs(form)
-
-        headers, submissions = get_formatted_submissions(
-            submission_qs, html=html, fieldsets_titles=fieldsets_titles
-        )
-
-        return {"form": form, "headers": headers, "submissions": submissions}
-
-    def view_results(self, request, pk):
-        if not self.has_change_permission(request) or not request.user.has_perm(
-            "people.change_personform"
-        ):
-            raise PermissionDenied
-
-        form = PersonForm.objects.get(id=pk)
-        table = self.generate_result_table(form)
-
-        context = {
-            "has_change_permission": True,
-            "title": _("Réponses du formulaire: %s") % form.title,
-            "opts": self.model._meta,
-            "form": table["form"],
-            "headers": table["headers"],
-            "submissions": table["submissions"],
-        }
-
-        return TemplateResponse(request, "admin/personforms/view_results.html", context)
-
-    def download_results(self, request, pk):
-        if not self.has_change_permission(request):
-            raise PermissionDenied()
-
-        form = get_object_or_404(PersonForm, id=pk)
-        table = self.generate_result_table(form, html=False, fieldsets_titles=False)
-
-        response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = 'attachment; filename="{0}.csv"'.format(
-            form.slug
-        )
-
-        writer = csv.writer(response)
-        writer.writerow(table["headers"])
-        for submission in table["submissions"]:
-            writer.writerow(submission)
-
-        return response
-
-    def create_result_url(self, request, pk, clear=False):
-        if not self.has_change_permission(request):
-            raise PermissionDenied()
-
-        form = get_object_or_404(PersonForm, id=pk)
-        form.result_url_uuid = None if clear else uuid4()
-        form.save()
-
-        return HttpResponseRedirect(
-            reverse("admin:people_personform_change", args=[pk])
-        )
-
-
 @admin.register(PersonForm, site=admin_site)
-class PersonFormAdmin(PersonFormAdminMixin, admin.ModelAdmin):
+class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
     form = PersonFormForm
     list_display = (
         "title",
