@@ -71,14 +71,22 @@ class AdminViewMixin:
         }
 
     def get_context_data(self, **kwargs):
-        kwargs.setdefault("opts", self.kwargs["model_admin"].model._meta)
+        model_admin = self.kwargs["model_admin"]
+
+        kwargs.setdefault("opts", model_admin.model._meta)
         kwargs.setdefault("add", False)
         kwargs.setdefault("change", False)
         kwargs.setdefault("is_popup", False)
         kwargs.setdefault("save_as", False)
-        kwargs.setdefault("has_add_permission", False)
-        kwargs.setdefault("has_change_permission", False)
-        kwargs.setdefault("has_view_permission", False)
+        kwargs.setdefault(
+            "has_add_permission", model_admin.has_add_permission(self.request)
+        )
+        kwargs.setdefault(
+            "has_change_permission", model_admin.has_change_permission(self.request)
+        )
+        kwargs.setdefault(
+            "has_view_permission", model_admin.has_view_permission(self.request)
+        )
         kwargs.setdefault("has_editable_inline_admin_formsets", False)
         kwargs.setdefault("has_delete_permission", False)
         kwargs.setdefault("show_close", False)

@@ -27,7 +27,11 @@ from agir.lib.admin import (
 from agir.lib.utils import generate_token_params, front_url
 from agir.people.admin.forms import PersonAdminForm, PersonFormForm
 from agir.people.admin.inlines import RSVPInline, MembershipInline, EmailInline
-from agir.people.admin.views import FormSubmissionViewsMixin
+from agir.people.admin.views import (
+    FormSubmissionViewsMixin,
+    AddPersonEmailView,
+    MergePersonsView,
+)
 from agir.people.models import Person, PersonTag
 from agir.people.person_forms.display import get_formatted_submission
 from agir.people.person_forms.models import PersonForm, PersonFormSubmission
@@ -61,6 +65,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 "fields": (
                     "first_name",
                     "last_name",
+                    "primary_email",
                     "connection_params",
                     "role_link",
                     "role_totp_link",
@@ -107,6 +112,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     )
 
     readonly_fields = (
+        "primary_email",
         "connection_params",
         "created",
         "modified",
@@ -201,13 +207,37 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     last_login.short_description = Role._meta.get_field("last_login").verbose_name
 
+    def primary_email(self, obj):
+        if obj._state.adding:
+            return "-"
+
+        return format_html(
+            '{email} <a class="button" href="{add_email_link}">Ajouter une adresse</a>',
+            email=obj.email,
+            add_email_link=reverse("admin:people_person_addemail", args=[obj.pk]),
+        )
+
     def get_urls(self):
         return [
             path(
-                "<uuid:pk>/invalidate_links",
+                "<uuid:pk>/invalidate_links/",
                 self.admin_site.admin_view(self.invalidate_link_view),
                 name="people_person_invalidate_link",
-            )
+            ),
+            path(
+                "<uuid:pk>/add_email/",
+                self.admin_site.admin_view(
+                    partial(AddPersonEmailView.as_view(), model_admin=self)
+                ),
+                name="people_person_addemail",
+            ),
+            path(
+                "merge_persons/",
+                self.admin_site.admin_view(
+                    partial(MergePersonsView.as_view(), model_admin=self)
+                ),
+                name="people_person_merge",
+            ),
         ] + super().get_urls()
 
     def invalidate_link_view(self, request, pk):

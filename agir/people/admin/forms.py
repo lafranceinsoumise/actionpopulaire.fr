@@ -1,11 +1,14 @@
 import traceback
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 
 from agir.lib.form_fields import AdminRichEditorWidget, AdminJsonWidget
 from agir.lib.forms import CoordinatesFormMixin
+from agir.people.models import Person
 from agir.people.person_forms.actions import (
     validate_custom_fields,
     get_people_form_class,
@@ -49,3 +52,29 @@ class PersonFormForm(forms.ModelForm):
                     )
                 ),
             )
+
+
+class AddPersonEmailForm(forms.Form):
+    email = forms.EmailField(label="Adresse email à ajouter", required=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("ajouter", "Ajouter"))
+
+
+class ChoosePrimaryAccount(forms.Form):
+    primary_account = forms.ModelChoiceField(
+        label="Compte principal", required=True, queryset=Person.objects.all()
+    )
+
+    def __init__(self, *args, persons, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["primary_account"].choices = [
+            ("", "Choisir le compte principal")
+        ] + [(p.id, p.email) for p in persons]
+
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("fusionner", "Fusionner les comptes"))
