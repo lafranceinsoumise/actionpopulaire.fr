@@ -16,6 +16,7 @@ def log_anymail_tracking_events(sender, event, esp_name, **kwargs):
         "mta_response",
         "recipient",
         "reject_reason",
+        "esp_event",
     ]
 
     logger.info(
