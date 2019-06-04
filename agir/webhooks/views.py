@@ -1,4 +1,5 @@
 import json
+import logging
 
 import requests
 from django.utils import timezone
@@ -11,6 +12,9 @@ from rest_framework import exceptions
 
 from agir.people.models import PersonEmail
 from django.conf import settings
+
+
+logger = logging.getLogger(__name__)
 
 
 class SendgridSesWebhookAuthentication(BasicAuthentication):
@@ -68,6 +72,9 @@ class SesBounceView(BounceView):
         message = json.loads(request.data["Message"])
         if message["notificationType"] != "Bounce":
             return response
+
+        logger.info(f"Amazon Bounce: {json.dumps(message)}")
+
         if message["bounce"]["bounceType"] != "Permanent":
             return response
 
