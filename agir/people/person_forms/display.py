@@ -102,25 +102,36 @@ def _get_formatted_value(field, value, html=True, na_placeholder=None):
 
 
 def _get_admin_fields(submission, html=True):
+    date = localize(submission.created.astimezone(get_current_timezone()))
+
+    if html:
+        return [
+            format_html(
+                '<a href="{}" title="Supprimer cette submission">&#x274c;</a>&ensp;'
+                '<a href="{}" title="Voir le détail">&#128269;</a>&ensp;{}',
+                reverse(
+                    "admin:people_personformsubmission_delete", args=(submission.pk,)
+                ),
+                reverse(
+                    "admin:people_personformsubmission_detail", args=(submission.pk,)
+                ),
+                submission.pk,
+            ),
+            format_html(
+                '<a href="{}">{}</a>',
+                settings.API_DOMAIN
+                + reverse("admin:people_person_change", args=(submission.person_id,)),
+                submission.person.email,
+            )
+            if submission.person
+            else "Anonyme",
+            date,
+        ]
+
     return [
-        format_html(
-            '<a href="{}" title="Supprimer cette submission">&#x274c;</a>&ensp;'
-            '<a href="{}" title="Voir le détail">&#128269;</a>&ensp;{}',
-            reverse("admin:people_personformsubmission_delete", args=(submission.pk,)),
-            reverse("admin:people_personformsubmission_detail", args=(submission.pk,)),
-            submission.pk,
-        )
-        if html
-        else submission.pk,
-        format_html(
-            '<a href="{}">{}</a>',
-            settings.API_DOMAIN
-            + reverse("admin:people_person_change", args=(submission.person_id,)),
-            submission.person.email,
-        )
-        if html
-        else submission.person.email,
-        localize(submission.created.astimezone(get_current_timezone())),
+        submission.pk,
+        submission.person.email if submission.person else "Anonyme",
+        date,
     ]
 
 
