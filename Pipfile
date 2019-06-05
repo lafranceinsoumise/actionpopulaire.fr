@@ -11,20 +11,20 @@ python_version = '3.7'
 django = ">=2.1.2,<3.0"
 ## config helpers
 dj-database-url = "==0.5.*"  # for easing up database settings
-dj-email-url = "==0.1.*"  # for easing up SMTP settings
-django-cors-headers = "==2.*"  # configuring CORS Headers
+dj-email-url = "==0.2.*"  # for easing up SMTP settings
+django-cors-headers = "==3.*"  # configuring CORS Headers
 ## model and form fields
 django-countries = "==5.*"  # country fields
-django-phonenumber-field = "==2.*"  # phone number field
+django-phonenumber-field = "==3.*"  # phone number field
 phonenumbers = "*"  # optional requirement of django-phonenumber-field
 django-stdimage = "==4.*"  # better image field with handling of variations
-django-dynamic-filenames = "*"  # better handling of upload path for file fields
-unicode-slugify = "*"  # optional requirement of django-dynamic-filenames
+django-dynamic-filenames = "==1.*"  # better handling of upload path for file fields
+unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
 ## additional features
 django-crispy-forms = "==1.*" # better forms
-django-otp = "*"  # 2FA in admin
+django-otp = "==0.6.*"  # 2FA in admin
 django-filter = "==2.*"  # add useful filters
-django-oauth-toolkit = "*"  # add OAuth server
+django-oauth-toolkit = "==1.*"  # add OAuth server
 rules = "==2.0.*"  # add useful authorization rules
 django-reversion = "==3.*"  # versioning of models
 ## Django Rest Framework
@@ -33,39 +33,33 @@ djangorestframework-gis = "==0.14.*"
 ## adapters for third-party systems
 django-redis = "==4.*"
 psycopg2 = "*"
-django-prometheus = "*"
+django-prometheus = "==1.*"
 django-webpack-loader = "==0.6.*"
-## development helpers
-django-silk = "==3.*"
-django-debug-toolbar = "==1.*"
 # celery
 celery = "==4.*"
 celery-prometheus-exporter = "==1.*"
 # redis
 redis = ">=3.2.0"
-hiredis = "==0.3.*"
-redislite = "==3.2.*"  # used for testing
+hiredis = "==1.*"
 # HTTP
 requests = ">=2.20.0, ==2.*"
-"urllib3" = "~=1.23"
 # HTML
 bleach = "==3.*"  # sanitize HTML
 "html2text" = "==2018.*"  # transforms HTML to text (used for plain text versions of HTML emails)
 markdown = "==3.*"  # convert markdown text to HTML (should be deprecated)
 # image handling
-pillow = "==5.*"
+pillow = "==6.*"
 # command line helpers
 tqdm = "*"
 # third party techs
-prometheus-client = "*"
+prometheus-client = "==0.6.*"
 systemd = "==0.*"
 ovh = "*"
 nuntius = ">=0.3.7"
 # parsing and formats
 ics = "*"  # calendar format
 iso8601 = "*"  # parse ISO8601 dates
-glom = "*"  # data wrangling
-django-anymail =  "*"
+django-anymail =  "==6.*"
 boto3 = "*"
 num2words = "*"
 
@@ -73,3 +67,7 @@ num2words = "*"
 ipython = "*"
 black = "==18.9b0"
 coverage = "*"
+django-silk = "*"
+django-debug-toolbar = "*"
+redislite = "*"  # used for testing
+glom = "*"  # data wrangling
