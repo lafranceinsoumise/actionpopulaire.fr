@@ -355,17 +355,20 @@ class Person(
         "Returns the short name for the user."
         return self.first_name or self.email
 
-    def add_email(self, email_address, **kwargs):
+    def add_email(self, email_address, primary=False, **kwargs):
         try:
             email = self.emails.get_by_natural_key(email_address)
         except PersonEmail.DoesNotExist:
-            PersonEmail.objects.create_email(
+            email = PersonEmail.objects.create_email(
                 address=email_address, person=self, **kwargs
             )
         else:
             email.bounced = kwargs.get("bounced", email.bounced) or False
             email.bounced_date = kwargs.get("bounced_date", email.bounced_date)
             email.save()
+
+        if primary and email.person == self:
+            self.set_primary_email(email)
 
     def set_primary_email(self, email_address):
         if isinstance(email_address, PersonEmail):

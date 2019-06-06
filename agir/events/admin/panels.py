@@ -1,31 +1,28 @@
 from django import forms
 from django.contrib import admin
-from django.template.loader import render_to_string
-from django.urls import reverse
-from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import Q
+from django.template.loader import render_to_string
 from django.urls import path
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.html import format_html, escape
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
-from agir.events.actions import legal
-from agir.events.forms import EventLegalForm
-from agir.events.models import Event
-from agir.people.admin import PersonFormAdminMixin
+from agir.api.admin import admin_site
+from agir.groups.models import SupportGroup
+from agir.lib.admin import CenterOnFranceMixin, DepartementListFilter, RegionListFilter
+from agir.lib.utils import front_url
+from agir.people.admin.views import FormSubmissionViewsMixin
 from agir.people.models import PersonFormSubmission
-from ...api.admin import admin_site
-from ...groups.models import SupportGroup
-from ...lib.admin import CenterOnFranceMixin, DepartementListFilter, RegionListFilter
-from ...lib.utils import front_url
-
-from .. import models
-
 from . import actions
 from . import views
 from .forms import EventAdminForm
+from .. import models
+from ..actions import legal
+from ..forms import EventLegalForm
 
 
 class EventStatusFilter(admin.SimpleListFilter):
@@ -165,7 +162,7 @@ class EventImageInline(admin.TabularInline):
 
 
 @admin.register(models.Event, site=admin_site)
-class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
+class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     form = EventAdminForm
 
     fieldsets = (
@@ -300,7 +297,7 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
     autocomplete_fields = ("tags",)
 
     def get_queryset(self, request):
-        return Event.objects.with_participants()
+        return models.Event.objects.with_participants()
 
     def location_short(self, object):
         return _("{zip} {city}, {country}").format(
@@ -413,11 +410,11 @@ class EventAdmin(PersonFormAdminMixin, CenterOnFranceMixin, OSMGeoAdmin):
         return views.add_member(self, request, pk)
 
     def view_results(self, request, pk):
-        self.instance = Event.objects.get(pk=pk)
+        self.instance = models.Event.objects.get(pk=pk)
         return super().view_results(request, self.instance.subscription_form.id)
 
     def download_results(self, request, pk):
-        self.instance = Event.objects.get(pk=pk)
+        self.instance = models.Event.objects.get(pk=pk)
         return super().download_results(request, self.instance.subscription_form.id)
 
     def export_summary(self, request):
