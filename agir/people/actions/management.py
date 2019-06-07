@@ -5,7 +5,7 @@ __all__ = ["merge_persons"]
 
 
 def merge_attr_or(e1, e2, attr):
-    setattr(e1, attr, getattr(e1, attr) or getattr(e2, attr))
+    setattr(e1, attr, getattr(e1, attr) or getattr(e2, attr, False))
 
 
 def merge_persons(p1, p2):
@@ -45,7 +45,6 @@ def merge_persons(p1, p2):
         for o2 in p2.organizer_configs.select_for_update():
             if o2.event_id in organized_events:
                 o1 = organized_events[o2.event_id]
-                o1.created = min(o1.created, o2.created)
                 merge_attr_or(o1, o2, "is_creator")
                 merge_attr_or(o1, o2, "notifications_enabled")
                 merge_attr_or(o1, o2, "as_group")
