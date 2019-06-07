@@ -12,6 +12,10 @@ class AbstractPaymentMode:
         raise NotImplementedError("Must implement this property.")
 
     @property
+    def category(self):
+        raise NotImplementedError("Must implement this property.")
+
+    @property
     def url_fragment(self):
         return self.id
 

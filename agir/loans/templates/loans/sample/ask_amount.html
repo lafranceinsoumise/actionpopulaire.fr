@@ -5,7 +5,7 @@
   Je prête à la campagne européenne
 {% endblock %}
 
-{% block background_url %}{% static "europeennes/dons_europeennes_bg.jpg" %}{% endblock %}
+{% block background_url %}{% static "loans/sample/bg_loans.jpg" %}{% endblock %}
 
 {% block donation_intro %}
   <p>Pour financer les dépenses liées à l’organisation la campagne pour les élections européennes du 26 mai 2019,
@@ -33,12 +33,11 @@
 
   </div>
 
-  <p style="clear:both;">Si vous souhaitez financer la campagne européenne, il est aussi possible de <a
-    href="{% url "europeennes_donation_amount" %}">faire un don !</a></p>
+  <p style="clear:both;">Si vous souhaitez financer la campagne européenne, il est aussi possible de faire un don.</p>
 
 
 {% endblock %}
 
 {% block donation_dest %}Je fais un prêt à la campagne européenne{% endblock %}
 
-{% block legal %}{% include "europeennes/loans/legal.html" %}{% endblock %}
+{% block legal %}{% include "loans/sample/legal.html" %}{% endblock %}

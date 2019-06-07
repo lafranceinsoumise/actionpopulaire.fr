@@ -10,6 +10,7 @@ class AbstractCheckPaymentMode(AbstractPaymentMode):
     can_admin = True
 
     title = "Votre paiement par chèque"
+    category = "check"
     order = None
     address = None
     additional_information = None

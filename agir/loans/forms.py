@@ -1,5 +1,6 @@
 from crispy_forms import layout
 from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout
 from django import forms
 from django.conf import settings
 from django.db.models import Sum, Q
@@ -12,7 +13,6 @@ from django_countries.fields import LazyTypedChoiceField
 
 from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
 from agir.donations.form_fields import AskAmountField
-from agir.europeennes.apps import EuropeennesConfig
 from agir.lib.data import departements_choices
 from agir.lib.form_fields import IBANField
 from agir.payments.models import Payment
@@ -32,7 +32,7 @@ class LoanForm(SimpleDonationForm):
         error_messages={
             "invalid": _("Indiquez le montant à prêter."),
             "min_value": format_lazy(
-                _("Les prêts de moins de 400 € ne sont pas acceptés."),
+                _("Les prêts de moins de {min} € ne sont pas acceptés."),
                 min=settings.LOAN_MINIMUM,
             ),
             "max_value": format_lazy(
@@ -45,6 +45,14 @@ class LoanForm(SimpleDonationForm):
         amount_choices=[10000, 5000, 2000, 1000, 400],
         show_tax_credit=False,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = "donation-form"
+        self.helper.add_input(layout.Submit("valider", self.button_label))
+
+        self.helper.layout = Layout()
 
 
 class LenderForm(SimpleDonorForm):
@@ -70,13 +78,7 @@ class LenderForm(SimpleDonorForm):
         widget=forms.HiddenInput,
     )
 
-    payment_mode = PaymentModeField(
-        payment_modes=[
-            PAYMENT_MODES["system_pay_afce_pret"],
-            PAYMENT_MODES["check_afce"],
-        ],
-        label="Comment souhaitez-vous prêter l'argent ?",
-    )
+    payment_mode = PaymentModeField(label="Comment souhaitez-vous prêter l'argent ?")
 
     iban = IBANField(
         label="Votre IBAN",
@@ -85,7 +87,7 @@ class LenderForm(SimpleDonorForm):
         help_text="Le numéro IBAN du compte sur lequel le remboursement du prêt sera effectué.",
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, payment_type, payment_modes, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields["gender"].required = True
@@ -101,21 +103,13 @@ class LenderForm(SimpleDonorForm):
 
         if (
             Payment.objects.filter(
-                Q(type=EuropeennesConfig.LOAN_PAYMENT_TYPE)
-                & (
-                    Q(status=Payment.STATUS_COMPLETED)
-                    | Q(status=Payment.STATUS_WAITING, mode="check_afce")
-                )
+                Q(type=payment_type) & (Q(status=Payment.STATUS_COMPLETED))
             ).aggregate(amount=Coalesce(Sum("price"), 0))["amount"]
             > settings.LOAN_MAXIMUM_TOTAL
         ):
             self.fields["payment_mode"].payment_modes = [
-                PAYMENT_MODES["system_pay_afce_pret"]
+                PAYMENT_MODES[mode] for mode in payment_modes
             ]
-            self.fields["payment_mode"].initial = PAYMENT_MODES[
-                "system_pay_afce_pret"
-            ].id
-            self.fields["payment_mode"].widget = HiddenInput()
 
         fields = ["amount"]
 
