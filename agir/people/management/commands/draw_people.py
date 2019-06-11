@@ -1,48 +1,11 @@
+from collections import Counter
+
 from django.core.management.base import BaseCommand, CommandError
-from django.db import connection
 from django.db.models import Count
 from random import sample
 
-from agir.groups.models import SupportGroupSubtype
-from agir.lib.management_utils import date_as_local_datetime_argument
+from agir.lib.management_utils import date_as_local_datetime_argument, event_argument
 from agir.people.models import Person, PersonTag
-
-CERTIFIED_QUERY = """
-SELECT DISTINCT person."id" FROM "people_person" person
-INNER JOIN "groups_membership" membership ON (person.id = membership.person_id)
-INNER JOIN "groups_supportgroup" supportgroup ON (membership.supportgroup_id = supportgroup.id)
-INNER JOIN "groups_supportgroup_subtypes" subtype ON (supportgroup.id = subtype.supportgroup_id)
-WHERE person."draw_participation" = TRUE
-AND person."id" NOT IN %(exclude_ids)s
-AND person."created" < %(date)s
-AND person."gender" = %(gender)s
-AND subtype."supportgroupsubtype_id" = %(subtype)s
-AND membership."created" < %(date)s;
-"""
-
-NOT_CERTIFIED_QUERY = """
-SELECT DISTINCT person."id" FROM "people_person" person
-WHERE person."draw_participation" = TRUE
-AND person."id" NOT IN %(exclude_ids)s
-AND person."created" < %(date)s
-AND person."gender" = %(gender)s
-AND NOT EXISTS (
-  SELECT 1 FROM "groups_membership" membership
-  INNER JOIN "groups_supportgroup" supportgroup ON (membership.supportgroup_id = supportgroup.id)
-  INNER JOIN "groups_supportgroup_subtypes" subtype ON (supportgroup.id = subtype.supportgroup_id)
-  WHERE membership."person_id" = person."id"
-  AND subtype."supportgroupsubtype_id" = %(subtype)s
-  AND membership."created" < %(date)s
-);
-"""
-
-
-def request_executor(request, parameters):
-    with connection.cursor() as cursor:
-        cursor.execute(request, parameters)
-        rows = cursor.fetchall()
-    for row in rows:
-        yield row[0]
 
 
 class Command(BaseCommand):
@@ -53,120 +16,122 @@ class Command(BaseCommand):
     requires_migrations_checks = True
 
     def draw(self, it, draw_count, tag):
-        (tag, created) = PersonTag.objects.get_or_create(label=tag)
+        tag = PersonTag.objects.create(label=tag)
         for id in sample(list(it), k=int(draw_count)):
             person = Person.objects.get(pk=id)
             person.tags.add(tag)
 
     def add_arguments(self, parser):
         parser.add_argument("reference_date", type=date_as_local_datetime_argument)
-        parser.add_argument("draw_count", type=int)
-        parser.add_argument("tag", action="store")
+        parser.add_argument("target", type=int)
+        parser.add_argument("tag_prefix", action="store")
+        parser.add_argument("event", type=event_argument)
 
-        parser.add_argument("-g", "--gender")
-
-        parser.add_argument(
-            "-c", "--certified-on", dest="certified", action="store_true"
-        )
-        parser.add_argument(
-            "-n", "--not-certified-on", dest="not_certified", action="store_true"
-        )
-        parser.add_argument(
-            "-p", "--previous-tags", dest="previous_tags", action="append", default=[]
+    def display_gendered_information(self, d):
+        self.stdout.write(
+            f"Femmes :\t{d[Person.GENDER_FEMALE]}\n"
+            f"Hommes :\t{d[Person.GENDER_MALE]}\n"
+            f"Autres :\t{d[Person.GENDER_OTHER]}\n"
         )
 
-    def handle(
-        self,
-        reference_date,
-        draw_count,
-        tag,
-        gender,
-        certified,
-        not_certified,
-        previous_tags,
-        **kwargs,
-    ):
-        exclude_ids = [
-            p.id for p in Person.objects.filter(tags__label__in=previous_tags)
-        ]
+    def handle(self, reference_date, target, tag_prefix, event, **kwargs):
+        previous_tags = PersonTag.objects.filter(label__startswith=tag_prefix)
 
-        if certified and not_certified:
-            raise CommandError("Set either --certified-only OR --not-certified-only")
-
-        college = (
-            "certified" if certified else "not-certified" if not_certified else "all"
+        new_index = (
+            max((int(t.label.split(" ")[-2]) for t in previous_tags), default=0) + 1
         )
 
-        certified_subtype = SupportGroupSubtype.objects.get(label="certifié")
+        already_drawn_counts = Counter()
+        already_rsvped_counts = Counter()
 
-        if not_certified:
-            pk_iterator = lambda g: request_executor(
-                NOT_CERTIFIED_QUERY,
-                {
-                    "date": reference_date,
-                    "exclude_ids": exclude_ids,
-                    "gender": g,
-                    "subtype": certified_subtype.id,
-                },
+        for tag in previous_tags:
+            already_drawn_counts[tag.label[-1]] += tag.people.count()
+            if event:
+                already_rsvped_counts[tag.label[-1]] += (
+                    tag.people.filter(rsvps__event=event)
+                    .order_by("id")
+                    .distinct("id")
+                    .count()
+                )
+
+        self.stdout.write("Tirés")
+        self.display_gendered_information(already_drawn_counts)
+        self.stdout.write("Inscrits")
+        self.display_gendered_information(already_rsvped_counts)
+
+        base_qs = (
+            Person.objects.filter(
+                draw_participation=True, created__lt=reference_date, subscribed=True
             )
-        elif certified:
-            pk_iterator = lambda g: request_executor(
-                CERTIFIED_QUERY,
-                {
-                    "date": reference_date,
-                    "exclude_ids": exclude_ids,
-                    "gender": g,
-                    "subtype": certified_subtype.id,
-                },
-            )
+            .exclude(tags__in=previous_tags)
+            .exclude(gender="")
+        )
+        pk_iterator = (
+            lambda g: base_qs.filter(gender=g)
+            .order_by("id")
+            .distinct("id")
+            .values_list("id", flat=True)
+        )
 
+        # setting order_by 'gender' so that the created field is not included in the groupby clause
+        total_counts = {
+            d["gender"]: d["c"]
+            for d in base_qs.order_by("gender")
+            .values("gender")
+            .annotate(c=Count("gender"))
+        }
+
+        total_count = sum(total_counts.values())
+        target_other_participants = (
+            round(target * total_counts[Person.GENDER_OTHER] / total_count / 2) * 2
+        )
+        target_gendered_participants = round((target - target_other_participants) / 2)
+
+        targets = {
+            Person.GENDER_MALE: target_gendered_participants,
+            Person.GENDER_FEMALE: target_gendered_participants,
+            Person.GENDER_OTHER: target_other_participants,
+        }
+
+        if event:
+            suggested_draws = self.number_drawns(
+                already_drawn_counts, already_rsvped_counts, targets
+            )
         else:
-            base_qs = Person.objects.filter(
-                draw_participation=True, created__lt=reference_date
-            ).exclude(id__in=exclude_ids)
-            pk_iterator = (
-                lambda g: base_qs.filter(gender=g)
-                .values_list("id", flat=True)
-                .distinct()
+            suggested_draws = targets
+
+        adjustment = 1.0
+        while adjustment:
+            draws = {g: int(n * adjustment) for g, n in suggested_draws.items()}
+
+            self.stdout.write("Tirage")
+            self.display_gendered_information(draws)
+
+            adjustment = float(
+                input("Indiquez le taux d'ajustement (par défaut 1) : ") or 0
             )
 
-        if not gender:
-            # setting order_by 'gender' so that the created field is not included in the groupby clause
-            counts = {
-                d["gender"]: d["c"]
-                for d in base_qs.order_by("gender")
-                .values("gender")
-                .annotate(c=Count("gender"))
-            }
-
-            total_count = sum(
-                counts[g]
-                for g in [Person.GENDER_FEMALE, Person.GENDER_MALE, Person.GENDER_OTHER]
-            )
-            other_draw_count = (
-                round(draw_count * counts[Person.GENDER_OTHER] / total_count / 2) * 2
-            )
-            gendered_draw_count = round((draw_count - other_draw_count) / 2)
-
-            if (
-                counts[Person.GENDER_MALE] < gendered_draw_count
-                or counts[Person.GENDER_FEMALE] < gendered_draw_count
-            ):
-                raise CommandError("Not enough volunteers for drawing with parity")
-
-            draws = {
-                Person.GENDER_FEMALE: gendered_draw_count,
-                Person.GENDER_MALE: gendered_draw_count,
-                Person.GENDER_OTHER: other_draw_count,
-            }
-
-        else:
-            draws = {gender: draw_count}
+        if (
+            total_counts[Person.GENDER_MALE] < draws[Person.GENDER_MALE]
+            or total_counts[Person.GENDER_FEMALE] < draws[Person.GENDER_FEMALE]
+        ):
+            raise CommandError("Pas assez de volontaires pour tirer")
 
         # DRAWING HAPPENS HERE
         for g, n in draws.items():
-            self.draw(pk_iterator(g), n, tag + " " + g)
+            self.draw(pk_iterator(g), n, f"{tag_prefix} {new_index} {g}")
 
-        print(
-            f"Drew {gendered_draw_count} women, {gendered_draw_count} men and {other_draw_count} others."
-        )
+        self.stdout.write("Tiré au sort")
+        self.display_gendered_information(draws)
+
+    def number_drawns(self, already_drawn_counts, already_rsvped_counts, targets):
+        rates = {
+            g: max(already_rsvped_counts[g] / already_drawn_counts[g], 0.05)
+            for g in already_drawn_counts
+        }
+        self.stdout.write("Taux de réponse jusqu'à maintenant")
+        self.display_gendered_information(rates)
+
+        real_targets = {g: targets[g] - already_rsvped_counts[g] for g in targets}
+
+        return {g: real_targets[g] / rates[g] for g in real_targets}
