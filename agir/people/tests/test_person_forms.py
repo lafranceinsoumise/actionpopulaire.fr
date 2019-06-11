@@ -145,6 +145,9 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
     def test_anonymous_form_does_not_create_person(self):
         self.client.logout()
 
+        self.single_tag_form.allow_anonymous = True
+        self.single_tag_form.save()
+
         res = self.client.get("/formulaires/formulaire-simple/")
 
         res = self.client.post(
@@ -312,6 +315,15 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
 
 
 class AccessControlTestCase(SetUpPersonFormsMixin, TestCase):
+    def test_cannot_access_not_anonymous_form(self):
+        self.client.logout()
+
+        res = self.client.get("/formulaires/formulaire-simple/")
+
+        self.assertRedirects(
+            res, reverse("short_code_login") + "?next=/formulaires/formulaire-simple/"
+        )
+
     def test_cannot_view_closed_forms(self):
         self.complex_form.end_time = timezone.now() - timezone.timedelta(days=1)
         self.complex_form.save()

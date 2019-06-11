@@ -1,6 +1,7 @@
 import csv
 
 from django.contrib import messages
+from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.http.response import HttpResponseRedirect, HttpResponse
@@ -51,12 +52,14 @@ class PeopleFormView(UpdateView):
             is_authorized=self.person_form_instance.is_authorized(self.object),
         )
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.person_form_instance = self.get_person_form_instance()
-        return super().get(request, *args, **kwargs)
+        if self.person_form_instance.allow_anonymous or request.user.is_authenticated:
+            return super().dispatch(request, *args, **kwargs)
+
+        return redirect_to_login(request.get_full_path())
 
     def post(self, request, *args, **kwargs):
-        self.person_form_instance = self.get_person_form_instance()
         if (
             not self.person_form_instance.is_open
             or not self.person_form_instance.is_authorized(self.get_object())
