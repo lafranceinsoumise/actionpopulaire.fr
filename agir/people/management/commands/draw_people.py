@@ -1,14 +1,11 @@
-import argparse
+from django.core.management.base import BaseCommand, CommandError
+from django.db import connection
+from django.db.models import Count
 from random import sample
 
-from django.core.management.base import BaseCommand, CommandError
-from django.db.models import Count
-from django.db import connection
-from django.utils import timezone
-
 from agir.groups.models import SupportGroupSubtype
+from agir.lib.management_utils import date_as_local_datetime_argument
 from agir.people.models import Person, PersonTag
-
 
 CERTIFIED_QUERY = """
 SELECT DISTINCT person."id" FROM "people_person" person
@@ -49,21 +46,11 @@ def request_executor(request, parameters):
 
 
 class Command(BaseCommand):
-    date_format = "%d/%m/%Y"
-
     help = (
         "Draw people at random amongst people who volunteered for it, while ensuring parity between women/men"
         " and fair representation of people who selected 'Other/Not defined' as gender"
     )
     requires_migrations_checks = True
-
-    def date(self, d):
-        try:
-            return timezone.get_default_timezone().localize(
-                timezone.datetime.strptime(d, self.date_format)
-            )
-        except ValueError:
-            raise argparse.ArgumentTypeError(f"{d} is not a valid date")
 
     def draw(self, it, draw_count, tag):
         (tag, created) = PersonTag.objects.get_or_create(label=tag)
@@ -72,7 +59,7 @@ class Command(BaseCommand):
             person.tags.add(tag)
 
     def add_arguments(self, parser):
-        parser.add_argument("reference_date", type=self.date)
+        parser.add_argument("reference_date", type=date_as_local_datetime_argument)
         parser.add_argument("draw_count", type=int)
         parser.add_argument("tag", action="store")
 

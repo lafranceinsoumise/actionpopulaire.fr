@@ -5,8 +5,6 @@ from agir.people.models import Person
 
 
 class Command(BaseCommand):
-    date_format = "%d/%m/%Y"
-
     help = "Statistics of numbers of rsvps for a draw to an event"
     requires_migrations_checks = True
 

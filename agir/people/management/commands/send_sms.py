@@ -2,41 +2,23 @@ import secrets
 from argparse import FileType
 from pathlib import Path
 
-import re
 from django.contrib.gis.db.models.functions import Distance as DistanceFunction
-from django.contrib.gis.geos import Point
-from django.contrib.gis.measure import Distance as DistanceMeasure
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import number_type, PhoneNumberType
 from tqdm import tqdm
 
-from agir.events.models import Event
-from agir.lib import data
+from agir.lib.management_utils import (
+    datetime_argument,
+    distance_argument,
+    event_argument,
+    coordinates_argument,
+    departement_argument,
+    region_argument,
+)
 from agir.lib.sms import compute_sms_length_information, send_bulk_sms, SMSSendException
 from agir.people.models import Person
-
-
-def distance_argument(d):
-    m = re.match("^([0-9.]+)([a-zA-Z]+)$", d)
-
-    if not m:
-        raise ValueError(f"{d} n'est pas une mesure de distance correcte")
-
-    return DistanceMeasure(**{m.group(2): float(m.group(1))})
-
-
-def event_argument(event_id):
-    try:
-        return Event.objects.get(pk=event_id)
-    except Event.DoesNotExist:
-        raise ValueError("Cet événement n'existe pas.")
-
-
-def coordinates_argument(coords):
-    lon, lat = map(str.strip, coords.split(","))
-    return Point(float(lon), float(lat), srid=4326)
 
 
 def drop_duplicate_numbers(it, n=None):
@@ -49,21 +31,6 @@ def drop_duplicate_numbers(it, n=None):
 
         if n and len(s) >= n:
             return
-
-
-def departement_argument(dep):
-    return data.filtre_departement(dep)
-
-
-def region_argument(reg):
-    return data.filtre_region(reg)
-
-
-def datetime_argument(datetime):
-    tz = timezone.get_default_timezone()
-    return timezone.make_aware(
-        timezone.datetime.strptime(datetime, "%Y/%m/%d %H:%M"), tz
-    )
 
 
 class Command(BaseCommand):

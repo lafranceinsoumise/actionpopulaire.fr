@@ -1,0 +1,96 @@
+from datetime import date, time
+
+import re
+from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import Distance as DistanceMeasure
+from django.utils import timezone
+
+SEP = r"[/-]"
+
+date_regex_le = re.compile(
+    r"^(?P<day>\d{2})" + SEP + r"(?P<month>\d{2})" + SEP + r"(?P<year>\d{4})$"
+)
+
+date_regex_be = re.compile(
+    r"^(?P<year>\d{4})" + SEP + r"(?P<month>\d{2})" + SEP + r"(?P<day>\d{2})$"
+)
+
+datetime_regex = re.compile(
+    r"^" + r"(?P<year>\d{4})" + SEP + r"(?P<month>\d{2})" + SEP + r"(?P<day>\d{2})"
+    r"\s+"
+    r"(?P<hour>\d{2})"
+    r":"
+    r"(?P<minute>\d{2})"
+    r"(?::(?P<second>\d{2}))?"
+    r"$"
+)
+
+
+def date_argument(d: str) -> date:
+    m = date_regex_le.match(d)
+
+    if m is None:
+        m = date_regex_be.match(d)
+
+    if m is None:
+        raise ValueError(f"'{d}'' doit être de la forme 'AAAA-MM-DD'.")
+
+    return date(int(m.group("year")), int(m.group("month")), int(m.group("day")))
+
+
+def date_as_local_datetime_argument(d: str) -> timezone.datetime:
+    d = date_argument(d)
+    return timezone.make_aware(timezone.datetime.combine(d, time()))
+
+
+def datetime_argument(d):
+    m = datetime_regex.match(d)
+
+    if m is None:
+        raise ValueError(f"'{d}' doit être de la form 'AAAA-MM-DD hh:mm'")
+
+    return timezone.make_aware(
+        timezone.datetime(
+            year=int(m.group("year")),
+            month=int(m.group("month")),
+            day=int(m.group("day")),
+            hour=int(m.group("hour")),
+            minute=int(m.group("minute")),
+            second=int(m.group("second") or 0),
+        )
+    )
+
+
+def distance_argument(d):
+    m = re.match("^([0-9.]+)([a-zA-Z]+)$", d)
+
+    if not m:
+        raise ValueError(f"{d} n'est pas une mesure de distance correcte")
+
+    return DistanceMeasure(**{m.group(2): float(m.group(1))})
+
+
+def event_argument(event_id):
+    from agir.events.models import Event
+
+    try:
+        return Event.objects.get(pk=event_id)
+    except Event.DoesNotExist:
+        raise ValueError("Cet événement n'existe pas.")
+
+
+def coordinates_argument(coords):
+    lon, lat = map(str.strip, coords.split(","))
+    return Point(float(lon), float(lat), srid=4326)
+
+
+def departement_argument(dep):
+    from agir.lib.data import filtre_departement
+
+    return filtre_departement(dep)
+
+
+def region_argument(reg):
+    from agir.lib.data import filtre_region
+
+    return filtre_region(reg)

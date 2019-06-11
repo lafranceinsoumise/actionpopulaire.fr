@@ -1,19 +1,24 @@
 import datetime
-import pytz
-from django.core.management import BaseCommand, CommandError
-from django.utils import timezone
 
+from django.core.management import BaseCommand
+from django.utils import timezone
+from django.utils.formats import date_format
+
+from agir.lib.management_utils import date_as_local_datetime_argument
 from ...stats import *
 
 
 class Command(BaseCommand):
     help = "Display weekly statistics"
 
-    date_format = "%Y/%m/%d"
-
     def add_arguments(self, parser):
         parser.add_argument(
-            "start", nargs="?", default=None, metavar="START", help="the start date"
+            "start",
+            nargs="?",
+            default=None,
+            metavar="START",
+            help="the start date",
+            type=date_as_local_datetime_argument,
         )
         parser.add_argument(
             "end",
@@ -21,24 +26,16 @@ class Command(BaseCommand):
             default=None,
             metavar="END",
             help="then end date (not included)",
-        )
-        parser.add_argument(
-            "--timezone",
-            default=None,
-            metavar="TIMEZONE",
-            help="name of the timezone",
-            dest="tz",
+            type=date_as_local_datetime_argument,
         )
 
-    def handle(self, *args, start, end, tz, **options):
-        tz = pytz.timezone(tz) if tz else timezone.get_current_timezone()
-
+    def handle(self, *args, start, end, **options):
         period = week = timezone.timedelta(days=7)
         period_name = "semaine"
 
         today = (
             timezone.now()
-            .astimezone(tz)
+            .astimezone(timezone.get_current_timezone())
             .replace(hour=0, minute=0, second=0, microsecond=0)
         )
         last_monday = today - datetime.timedelta(days=today.weekday())
@@ -47,13 +44,6 @@ class Command(BaseCommand):
             end = last_monday
             start = last_monday - period
         else:
-            try:
-                start = timezone.datetime.strptime(start, self.date_format).replace(
-                    tzinfo=timezone.get_default_timezone()
-                )
-            except ValueError:
-                raise CommandError("START is not a valid date (YYYY/mm/dd)")
-
             if end is None:
                 end = start + week
 
@@ -62,12 +52,6 @@ class Command(BaseCommand):
                     period = end - start
                     period_name = "période"
             else:
-                try:
-                    end = timezone.datetime.strptime(end, self.date_format).replace(
-                        tzinfo=timezone.get_default_timezone()
-                    )
-                except ValueError:
-                    raise CommandError("END is not a valid date (YYYY/mm/dd)")
                 period = end - start
                 if period != week:
                     period_name = "période"
@@ -76,7 +60,7 @@ class Command(BaseCommand):
         two_period_before = start - 2 * period
 
         self.stdout.write(
-            f"Plateforme - du {start.strftime(self.date_format)} au {(end-timezone.timedelta(days=1)).strftime(self.date_format)}"
+            f"Plateforme - du {date_format(start)} au {date_format(end-timezone.timedelta(days=1))}"
         )
         if period != week:
             self.stdout.write(
