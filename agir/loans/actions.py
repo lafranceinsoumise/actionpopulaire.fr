@@ -10,6 +10,7 @@ from markdown import markdown
 from markdown.extensions.toc import TocExtension
 
 from agir.lib.display import display_price
+from agir.payments.payment_modes import PAYMENT_MODES
 
 
 def display_place_of_birth(contract_information):
@@ -52,27 +53,19 @@ SUBSTITUTIONS = {
     "pronoun": {"M": "il", "F": "elle", "O": "il-elle"},
     "determinant": {"M": "du", "F": "de la", "O": "du/de la"},
     "payment": {
-        "check_afce": "chèque bancaire tiré de son compte personnel",
-        "system_pay_afce_pret": "paiement par carte bancaire depuis son compte personnel",
+        "payment_card": "chèque bancaire tiré de son compte personnel",
+        "check": "paiement par carte bancaire depuis son compte personnel",
     },
 }
 
 
-def generate_html_contract(contract_information, baselevel=1):
+def generate_html_contract(contract_template, contract_information, baselevel=1):
     gender = contract_information["gender"]
     signed = "signature_datetime" in contract_information
+    payment_mode = PAYMENT_MODES[contract_information["payment_mode"]]
 
-    signature_image_path = (
-        Path(__file__)
-        .parent.joinpath("static", "europeennes", "signature_manon_aubry.png")
-        .absolute()
-        .as_uri()
-    )
-
-    contract_markdown = get_template("europeennes/loans/contract.md").render(
+    contract_markdown = get_template(contract_template).render(
         context={
-            "lender_date_of_birth": "22/12/1989",
-            "lender_place_of_birth": "Fréjus (Var)",
             "name": f'{contract_information["first_name"]} {contract_information["last_name"]}',
             "address": "personal address",
             "date_of_birth": contract_information["date_of_birth"],
@@ -90,17 +83,11 @@ def generate_html_contract(contract_information, baselevel=1):
             "Le": SUBSTITUTIONS["article"][gender].capitalize(),
             "du": SUBSTITUTIONS["determinant"][gender],
             "il": SUBSTITUTIONS["pronoun"][gender],
-            "mode_paiement": SUBSTITUTIONS["payment"][
-                contract_information["payment_mode"]
-            ],
+            "mode_paiement": SUBSTITUTIONS["payment"][payment_mode.category],
             "signature": f"Accepté en ligne le {contract_information['acceptance_datetime']}"
             if signed
             else "",
-            "signature_emprunteuse": mark_safe(
-                f'<img title="Signature de Manon Aubry" src="{signature_image_path}">'
-            )
-            if signed
-            else "",
+            "signe": signed,
         }
     )
 
@@ -111,14 +98,19 @@ def generate_html_contract(contract_information, baselevel=1):
     )
 
 
-def save_pdf_contract(contract_information, dest_path):
+def save_pdf_contract(
+    contract_template,
+    contract_information,
+    dest_path,
+    layout_template="loans/default_contract_layout.html",
+):
     dest_dir = Path(dest_path).parent
     dest_dir.mkdir(parents=True, exist_ok=True)
 
-    html_contract = generate_html_contract(contract_information)
-    contract_with_layout = get_template(
-        "europeennes/loans/contract_layout.html"
-    ).render(context={"contract_body": mark_safe(html_contract)})
+    html_contract = generate_html_contract(contract_template, contract_information)
+    contract_with_layout = get_template(layout_template).render(
+        context={"contract_body": mark_safe(html_contract)}
+    )
 
     proc = subprocess.Popen(
         ["wkhtmltopdf", "--encoding", "utf-8", "-", str(dest_path)],

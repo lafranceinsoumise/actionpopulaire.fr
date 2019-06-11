@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
-from ..payments.types import register_payment_type
+from ..payments.types import register_payment_type, PaymentType
 
 
 class EventsConfig(AppConfig):
@@ -12,7 +12,7 @@ class EventsConfig(AppConfig):
         from .views import EventPaidView, notification_listener
         from .actions.rsvps import payment_description_context_generator
 
-        register_payment_type(
+        payment_type = PaymentType(
             self.PAYMENT_TYPE,
             "Événement payant",
             EventPaidView.as_view(),
@@ -20,3 +20,5 @@ class EventsConfig(AppConfig):
             description_template="events/payment_description.html",
             description_context_generator=payment_description_context_generator,
         )
+
+        register_payment_type(payment_type)

@@ -16,6 +16,7 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
     id = None
     url_fragment = None
     label = None
+    category = "payment_card"
 
     sp_config = {
         "site_id": None,

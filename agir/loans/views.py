@@ -1,4 +1,4 @@
-from urllib.parse import urljoin
+from wsgiref.util import FileWrapper
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -7,72 +7,32 @@ from django.db import transaction
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.urls import reverse_lazy, reverse
+from django.shortcuts import resolve_url
+from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import FormView, TemplateView, DetailView
 from functools import partial
-from wsgiref.util import FileWrapper
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.donations.actions import find_or_create_person_from_payment
-from agir.donations.base_views import BaseAskAmountView
-from agir.donations.tasks import send_donation_email
-from agir.donations.views import BasePersonalInformationView
-from agir.europeennes import AFCESystemPayPaymentMode, tasks
-from agir.europeennes.actions import generate_html_contract, SUBSTITUTIONS
-from agir.europeennes.apps import EuropeennesConfig
-from agir.europeennes.forms import LoanForm, ContractForm, LenderForm
+from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
 from agir.front.view_mixins import SimpleOpengraphMixin
+from agir.loans import tasks
+from agir.loans.actions import generate_html_contract, SUBSTITUTIONS
+from agir.loans.forms import LoanForm, LenderForm, ContractForm
 from agir.payments.actions import create_payment, redirect_to_payment
 from agir.payments.models import Payment
+from agir.payments.types import PAYMENT_TYPES
 
-DONATIONS_SESSION_NAMESPACE = "_europeennes_donations"
-LOANS_INFORMATION_SESSION_NAMESPACE = "_europeennes_loans"
-LOANS_CONTRACT_SESSION_NAMESPACE = "_europeennes_loans_contract"
-
-
-class DonationAskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
-    meta_title = "Dernier appel aux dons : objectif 300 000 € pour boucler le budget !"
-    meta_description = (
-        "La France insoumise est le seul mouvement transparent sur le financement de la campagne européenne."
-        " Pour l’aider à boucler le budget de campagne, il est encore possible de faire un don !"
-    )
-    meta_type = "website"
-    meta_image = urljoin(
-        urljoin(settings.FRONT_DOMAIN, settings.STATIC_URL),
-        "europeennes/RELANCE-300-000_FB.jpg",
-    )
-    template_name = "europeennes/donations/ask_amount.html"
-    success_url = reverse_lazy("europeennes_donation_information")
-    session_namespace = DONATIONS_SESSION_NAMESPACE
-
-
-class DonationPersonalInformationView(BasePersonalInformationView):
-    template_name = "europeennes/donations/personal_information.html"
-    payment_mode = AFCESystemPayPaymentMode.id
-    payment_type = EuropeennesConfig.DONATION_PAYMENT_TYPE
-    session_namespace = DONATIONS_SESSION_NAMESPACE
-    base_redirect_url = "europeennes_donation_amount"
-
-
-class DonationReturnView(TemplateView):
-    template_name = "donations/thanks.html"
-
-
-def donation_notification_listener(payment):
-    if payment.status == Payment.STATUS_COMPLETED:
-        find_or_create_person_from_payment(payment)
-        send_donation_email.delay(
-            payment.person.pk, template_code="DONATION_MESSAGE_EUROPEENNES"
-        )
+LOANS_INFORMATION_SESSION_NAMESPACE = "_loans"
+LOANS_CONTRACT_SESSION_NAMESPACE = "_loans_contract"
 
 
 class MaxTotalLoanMixin:
     def dispatch(self, *args, **kwargs):
         if (
             Payment.objects.filter(
-                type=EuropeennesConfig.LOAN_PAYMENT_TYPE,
-                status=Payment.STATUS_COMPLETED,
+                type=self.payment_type, status=Payment.STATUS_COMPLETED
             ).aggregate(amount=Coalesce(Sum("price"), 0))["amount"]
             > settings.LOAN_MAXIMUM_TOTAL
         ):
@@ -81,27 +41,32 @@ class MaxTotalLoanMixin:
         return super().dispatch(*args, **kwargs)
 
 
-class LoanAskAmountView(MaxTotalLoanMixin, SimpleOpengraphMixin, BaseAskAmountView):
-    meta_title = "Je prête à la campagne France insoumise pour les élections européennes le 26 mai"
-    meta_description = (
-        "Nos 79 candidats, menés par Manon Aubry, la tête de liste, sillonent déjà le pays. Ils ont"
-        " besoin de votre soutien pour pouvoir mener cette campagne. Votre contribution sera décisive !"
-    )
+class BaseLoanAskAmountView(MaxTotalLoanMixin, SimpleOpengraphMixin, BaseAskAmountView):
+    meta_title = None
+    meta_description = None
     meta_type = "website"
-    meta_image = urljoin(
-        urljoin(settings.FRONT_DOMAIN, settings.STATIC_URL), "europeennes/dons.jpg"
-    )
-    template_name = "europeennes/loans/ask_amount.html"
-    success_url = reverse_lazy("europeennes_loan_information")
+    meta_image = None
+    template_name = "loans/sample/ask_amount.html"
+    success_url = None
     form_class = LoanForm
     session_namespace = LOANS_INFORMATION_SESSION_NAMESPACE
+    payment_type = None
 
 
-class LoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformationView):
-    template_name = "europeennes/loans/personal_information.html"
+class BaseLoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformationView):
+    template_name = "loans/sample/personal_information.html"
     session_namespace = LOANS_INFORMATION_SESSION_NAMESPACE
     form_class = LenderForm
-    base_redirect_url = "europeennes_loan_amount"
+    base_redirect_url = None
+    success_url = None
+    payment_type = None
+    payment_modes = []
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["payment_type"] = self.payment_type
+        kwargs["payment_modes"] = self.payment_modes
+        return kwargs
 
     def prepare_data_for_serialization(self, data):
         return {
@@ -120,12 +85,13 @@ class LoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformationView
             LOANS_CONTRACT_SESSION_NAMESPACE
         ] = self.prepare_data_for_serialization(form.cleaned_data)
 
-        return HttpResponseRedirect(reverse("europeennes_loan_sign_contract"))
+        return HttpResponseRedirect(resolve_url(self.success_url))
 
 
-class LoanAcceptContractView(MaxTotalLoanMixin, FormView):
+class BaseLoanAcceptContractView(MaxTotalLoanMixin, FormView):
     form_class = ContractForm
-    template_name = "europeennes/loans/validate_contract.html"
+    template_name = "loans/sample/validate_contract.html"
+    payment_type = None
 
     def dispatch(self, request, *args, **kwargs):
         if LOANS_CONTRACT_SESSION_NAMESPACE not in request.session:
@@ -140,7 +106,11 @@ class LoanAcceptContractView(MaxTotalLoanMixin, FormView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            contract=generate_html_contract(self.contract_information, baselevel=3),
+            contract=generate_html_contract(
+                PAYMENT_TYPES[self.payment_type].contract_template_name,
+                self.contract_information,
+                baselevel=3,
+            ),
             **self.contract_information,
             **kwargs
         )
@@ -172,7 +142,7 @@ class LoanAcceptContractView(MaxTotalLoanMixin, FormView):
             payment = create_payment(
                 person=person,
                 mode=self.contract_information["payment_mode"],
-                type=EuropeennesConfig.LOAN_PAYMENT_TYPE,
+                type=self.payment_type,
                 price=self.contract_information["amount"],
                 meta=self.contract_information,
                 **kwargs
@@ -184,8 +154,6 @@ class LoanAcceptContractView(MaxTotalLoanMixin, FormView):
 
 
 class LoanReturnView(TemplateView):
-    template_name = "europeennes/loans/return.html"
-
     def get_context_data(self, **kwargs):
         gender = self.kwargs["payment"].meta["gender"]
 
@@ -195,9 +163,12 @@ class LoanReturnView(TemplateView):
 
 
 class LoanContractView(SoftLoginRequiredMixin, DetailView):
-    queryset = Payment.objects.filter(
-        status=Payment.STATUS_COMPLETED, type=EuropeennesConfig.LOAN_PAYMENT_TYPE
-    )
+    payment_type = None
+
+    queryset = Payment.objects.filter(status=Payment.STATUS_COMPLETED)
+
+    def get_queryset(self):
+        return self.queryset.filter(type=self.payment_type)
 
     def get(self, request, *args, **kwargs):
         payment = self.get_object()

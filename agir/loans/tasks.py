@@ -2,20 +2,16 @@ import smtplib
 import socket
 import subprocess
 from pathlib import Path
-from uuid import uuid4
 
 from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
 from slugify import slugify
 
-from agir.europeennes.actions import save_pdf_contract, SUBSTITUTIONS
+from agir.loans.actions import save_pdf_contract, SUBSTITUTIONS
 from agir.payments.models import Payment
+from agir.payments.types import PAYMENT_TYPES
 from agir.people.actions.mailing import send_mosaico_email
-
-
-def contract_path(payment):
-    return f"europeennes/loans/{payment.id}/{uuid4()}.pdf"
 
 
 @shared_task(bind=True)
@@ -24,6 +20,12 @@ def generate_contract(self, payment_id, force=False):
         payment = Payment.objects.get(id=payment_id)
     except Payment.DoesNotExist:
         return None
+
+    payment_type = PAYMENT_TYPES.get(payment.type)
+    if payment_type is None:
+        return None
+
+    contract_path = payment_type.contract_path
 
     if not force and payment.status != Payment.STATUS_COMPLETED:
         raise ValueError(f"Paiement n°{payment_id} n'a pas été terminé.")
@@ -38,18 +40,22 @@ def generate_contract(self, payment_id, force=False):
         .strftime("%d/%m/%Y à %H:%M")
     )
 
-    pdf_media_path = contract_path(payment)
-    pdf_full_path = Path(settings.MEDIA_ROOT) / pdf_media_path
+    contract_full_path = Path(settings.MEDIA_ROOT) / contract_path
 
     try:
-        save_pdf_contract(contract_information, pdf_full_path)
+        save_pdf_contract(
+            contract_template=payment_type.contract_template,
+            contract_information=contract_information,
+            dest_path=contract_full_path,
+            layout_template=payment_type.pdf_layout_template_name,
+        )
     except subprocess.TimeoutExpired as exc:
         self.retry(countdown=60, exc=exc)
 
-    payment.meta["contract_path"] = pdf_media_path
+    payment.meta["contract_path"] = contract_path
     payment.save()
 
-    return pdf_media_path
+    return contract_path
 
 
 @shared_task(bind=True)

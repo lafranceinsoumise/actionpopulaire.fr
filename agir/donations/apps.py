@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
-from ..payments.types import register_payment_type
+from ..payments.types import register_payment_type, PaymentType
 
 
 class DonsConfig(AppConfig):
@@ -11,10 +11,12 @@ class DonsConfig(AppConfig):
     def ready(self):
         from .views import ReturnView, notification_listener
 
-        register_payment_type(
+        payment_type = PaymentType(
             self.PAYMENT_TYPE,
             "Don",
             ReturnView.as_view(),
             status_listener=notification_listener,
             description_template="donations/description.html",
         )
+
+        register_payment_type(payment_type)

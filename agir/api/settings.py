@@ -140,7 +140,7 @@ INSTALLED_APPS = [
     "agir.donations",
     "agir.system_pay",
     "agir.checks",
-    "agir.europeennes",
+    "agir.loans",
     "agir.mailing",
     # security
     "corsheaders",
@@ -587,13 +587,7 @@ EMAIL_DISABLED_DOMAINS = (
 
 
 # The first one will be the default one
-PAYMENT_MODES = [
-    "agir.system_pay.SystemPayPaymentMode",
-    "agir.checks.CheckPaymentMode",
-    "agir.europeennes.AFCESystemPayPaymentMode",
-    "agir.europeennes.AFCELoansSystemPayPaymentMode",
-    "agir.europeennes.AFCECheckPaymentMode",
-]
+PAYMENT_MODES = ["agir.system_pay.SystemPayPaymentMode", "agir.checks.CheckPaymentMode"]
 
 # OVH Settings
 OVH_SMS_DISABLE = os.environ.get("OVH_SMS_DISABLE", "true").lower() == "true"

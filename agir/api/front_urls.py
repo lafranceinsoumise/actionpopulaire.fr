@@ -8,7 +8,6 @@ from agir.payments import urls as payments_urls
 from agir.people import urls as people_urls
 from agir.polls import urls as polls_urls
 from agir.authentication import urls as authentication_urls
-from agir.europeennes import urls as europeennes_urls
 
 urlpatterns = [
     path("", include(front_urls)),
@@ -19,5 +18,4 @@ urlpatterns = [
     path("", include(donations_urls)),
     path("", include(polls_urls)),
     path("", include(authentication_urls)),
-    path("", include(europeennes_urls)),
 ]
