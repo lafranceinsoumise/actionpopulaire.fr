@@ -1,4 +1,4 @@
-import { introJs } from "intro.js/intro";
+import introJs from "intro.js";
 import "intro.js/introjs.css";
 
 const onLoad = function() {
