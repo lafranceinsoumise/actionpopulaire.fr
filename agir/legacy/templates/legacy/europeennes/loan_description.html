@@ -1,0 +1,6 @@
+{% load display_lib %}
+<div>
+  <h4>Prêt à la campagne européenne 2019</h4>
+  <div>Vous avez prêté <strong>{{ payment.price | display_price }}</strong> pour la campagne européenne 2019 de la
+    France insoumise le {{ payment.created | date }}</div>
+</div>

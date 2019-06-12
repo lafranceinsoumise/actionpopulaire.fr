@@ -1,8 +1,7 @@
 {% load display_lib %}
 <div class="input-group">
-  <h4>Prêt à l'AFCE France insoumise</h4>
-  <div>Vous avez prêté <strong>{{ payment.price | display_price }}</strong> pour la campagne européenne de la France
-    insoumise le {{ payment.meta.signature_datetime }}</div>
+  <h4>Prêt à {{ loan_recipient }}</h4>
+  <div>Vous avez prêté <strong>{{ payment.price | display_price }}</strong> à {{ payment_type.loan_recipient }} le {{ payment.meta.signature_datetime }}</div>
   {% if payment.meta.contract_path %}
     <span class="input-group-btn">
   <a class="btn btn-default" href="{% url "europeennes_view_contract" payment.id %}">

@@ -146,6 +146,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "oauth2_provider",
     "reversion",
+    "agir.legacy",
 ]
 
 MIDDLEWARE = [

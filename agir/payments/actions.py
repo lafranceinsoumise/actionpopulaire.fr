@@ -72,7 +72,8 @@ def notify_status_change(payment):
 
 
 def default_description_context_generator(payment):
-    return {"payment": payment}
+    payment_type = PAYMENT_TYPES[payment.type]
+    return {"payment": payment, "payment_type": payment_type}
 
 
 def description_for_payment(payment):

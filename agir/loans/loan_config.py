@@ -10,12 +10,14 @@ class LoanConfiguration(PaymentType):
     def __init__(
         self,
         *args,
+        loan_recipient: str,
         contract_path: Callable[[Payment], Union[str, Path]],
         contract_template_name: str,
         pdf_layout_template_name: str,
         thank_you_template_name: str = "loans/return.html",
         **kwargs
     ):
+        self.loan_recipient = loan_recipient
         self.contract_path = contract_path
         self.contract_template_name = contract_template_name
         self.pdf_layout_template_name = pdf_layout_template_name
