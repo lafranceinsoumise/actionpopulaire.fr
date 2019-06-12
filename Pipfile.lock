@@ -52,18 +52,18 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:a9a4ea9f81e6f1cd2e3b6c472dab8d1dff96aeb5a1f7c30c2570a1c1482f7084",
-                "sha256:e3247ef6ca868f1fb6759e26e992caf84758660ec9be293b42e3dd91133a2662"
+                "sha256:31849bbfa859d35eef2aa88c65fa497ce697254367822ba84ea6e332c584638c",
+                "sha256:36d695fac1ad08278b14e2d1a60f3a15f46e83226d0e5075479af8fa3b210b9a"
             ],
             "index": "pypi",
-            "version": "==1.9.165"
+            "version": "==1.9.166"
         },
         "botocore": {
             "hashes": [
-                "sha256:d60fde28b199e588fa2e8ccae899b59b271f66c479af2b3a5951df3ea26cb73e",
-                "sha256:f9556deba345a8cb5fa040342101dff2bbf95e53424c5e7002560c8fb29dac2d"
+                "sha256:594ab91e7f06857476cee6139cb97c88df40c6adc7867976cb17669929da70e1",
+                "sha256:603cb288468f6b4212ee31aca39e313106c45df31349b269b15426fed3f8e787"
             ],
-            "version": "==1.12.165"
+            "version": "==1.12.166"
         },
         "celery": {
             "hashes": [
@@ -357,11 +357,11 @@
         },
         "nuntius": {
             "hashes": [
-                "sha256:62648db9094ff91a6fb338727b059b6c3aa167f9e832215fad39818b3c7b3c9c",
-                "sha256:dbdd6fd63e705643256ad04a585a0cf8e887257e20296e7c3e0c3c74c6c6e5c0"
+                "sha256:58b9fb0509c0c8aec5d2d3545942d197f05e4e1cbce8760b1fdf3989bb93e02e",
+                "sha256:be8e2e6e05a6fb5c125ce6d9f9ade2e4208f0db82d783c67fba6ca408da71eb0"
             ],
             "index": "pypi",
-            "version": "==0.3.17"
+            "version": "==0.3.18"
         },
         "oauthlib": {
             "hashes": [
