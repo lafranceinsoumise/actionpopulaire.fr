@@ -95,10 +95,11 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
     calendars = CalendarField(required=False, label="Agendas")
 
     subtype = forms.ModelChoiceField(
+        label="Sous-type",
         queryset=EventSubtype.objects.filter(
             visibility__in=[EventSubtype.VISIBILITY_ADMIN, EventSubtype.VISIBILITY_ALL]
         ),
-        to_field_name="label",
+        initial=models.get_default_subtype,
     )
 
     send_visibility_notification = BooleanField(
