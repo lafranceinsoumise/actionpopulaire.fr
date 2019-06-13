@@ -267,6 +267,8 @@ EMAIL_TEMPLATES = {
     "EVENT_SECRETARIAT_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/d7ebb6a3-f693-4c33-934f-df4335b23621.html",
     # EVENT_ORGANIZER_VALIDATION_NOTIFICATION variables : EVENT_NAME EVENT_SCHEDULE LOCATION_NAME LOCATION_ADDRESS EVENT_LINK MANAGE_EVENT_LINK
     "EVENT_ORGANIZER_VALIDATION_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/668ac434-423b-43b8-9ae0-6d1f3d29c3d4.html",
+    # SPENDING_REQUEST_TO_REVIEW_NOTIFICATION variables : SPENDING_REQUEST_NAME GROUP_NAME SPENDING_REQUEST_ADMIN_LINK
+    "SPENDING_REQUEST_TO_REVIEW_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/12070f61-6aeb-4d2d-abe0-6ec347adf380.html",
     # FORM_CONFIRMATION variables : CONFIRMATION_NOTE
     "FORM_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/6172a755-0459-4f01-b3e4-fcfa835224b0.html",
     # FORM_NOTIFICATION variables : PERSON_EMAIL, INFORMATIONS
@@ -289,6 +291,9 @@ EMAIL_FROM = os.environ.get(
     "EMAIL_FROM", "La France insoumise <noreply@lafranceinsoumise.fr>"
 )
 EMAIL_SECRETARIAT = os.environ.get("EMAIL_SECRETARIAT", "nospam@lafranceinsoumise.fr")
+EMAIL_EQUIPE_FINANCE = os.environ.get(
+    "EMAIL_EQUIPE_FINANCE", "nospam@lafranceinsoumise.fr"
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

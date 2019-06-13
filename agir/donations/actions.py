@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from reversion.models import Version
 
 from agir.donations.models import Operation, SpendingRequest, Document, Spending
+from agir.donations.tasks import send_spending_request_to_review_email
 from agir.lib.display import display_price
 from agir.lib.utils import front_url
 from agir.people.models import Person
@@ -403,6 +404,8 @@ def validate_action(spending_request, user):
     with reversion.create_revision():
         reversion.set_user(user)
         spending_request.status = TRANSFER_STATES_MAP[spending_request.status]
+        if spending_request.status == SpendingRequest.STATUS_AWAITING_REVIEW:
+            send_spending_request_to_review_email.delay(spending_request.pk)
         spending_request.save()
 
     return True
