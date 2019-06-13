@@ -9,7 +9,7 @@ function geoApi(url, fields, optionGetter) {
           headers: { Accept: "application/json" }
         })
         .then(
-          res => ({ options: res.data.map(optionGetter) }),
+          res => res.data.map(optionGetter),
           () => {
             throw new Error("Problème de connexion.");
           }

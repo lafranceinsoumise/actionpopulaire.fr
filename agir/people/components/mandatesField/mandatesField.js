@@ -1,7 +1,7 @@
 import React from "react";
 import { hot } from "react-hot-loader";
 import PropTypes from "prop-types";
-import Select from "react-select";
+import { Async } from "react-select";
 import Symbol from "es6-symbol";
 
 import Modal from "@agir/lib/bootstrap/Modal";
@@ -56,14 +56,14 @@ function SelectField({ value, divisionDescriptor, onChange }) {
     return value.loading ? (
       <div>Chargement...</div>
     ) : (
-      <Select.Async
+      <Async
         value={value}
         loadOptions={divisionDescriptor.getter.query}
+        cacheOptions
         onChange={onChange}
-        noResultsText="Pas de résultat"
+        loadingMessage={() => "Chargement des résultats..."}
+        noOptionsMessage={() => "Pas de résultat"}
         placeholder={divisionDescriptor.name}
-        searchPromptText="Tapez les premiers caractères"
-        loadingPlaceholder="Chargement..."
       />
     );
   }
