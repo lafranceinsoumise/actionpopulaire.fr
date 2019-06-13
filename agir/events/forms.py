@@ -1,10 +1,9 @@
-from datetime import datetime
-
+from datetime import datetime, timedelta
 
 from crispy_forms.layout import Submit, Row, Field
 from django import forms
 from django.core.validators import MinValueValidator
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.template.defaultfilters import floatformat
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
@@ -218,6 +217,11 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
             and needs_approval(cleaned_data["legal"])
         ):
             self.instance.visibility = Event.VISIBILITY_ORGANIZER
+
+        if cleaned_data["end_time"] - cleaned_data["start_time"] > timedelta(days=7):
+            raise ValidationError(
+                {"end_time": _("L'événement ne peut pas durer plus de 7 jours.")}
+            )
 
         return cleaned_data
 

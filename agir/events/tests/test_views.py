@@ -81,7 +81,12 @@ class EventPagesTestCase(TestCase):
         hour = timezone.timedelta(hours=1)
 
         self.subtype = EventSubtype.objects.create(
-            label="subtype", description="subtype"
+            label="sous-type",
+            description="Mon sous-type",
+            default_description="GRANDIOSE",
+            default_image="image.png",
+            visibility=EventSubtype.VISIBILITY_ALL,
+            type=EventSubtype.TYPE_PUBLIC_ACTION,
         )
 
         self.organized_event = Event.objects.create(
@@ -371,19 +376,11 @@ class EventPagesTestCase(TestCase):
         res = self.client.get(reverse("create_event"))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        subtype = EventSubtype.objects.create(
-            label="sous-type",
-            description="Mon sous-type",
-            default_description="GRANDIOSE",
-            default_image="image.png",
-            visibility=EventSubtype.VISIBILITY_ALL,
-        )
-
         res = self.client.post(
             path=reverse("perform_create_event"),
             data={
                 "name": "Mon événement",
-                "subtype": subtype.label,
+                "subtype": self.subtype.label,
                 "start_time": formats.localize_input(
                     self.now + timezone.timedelta(days=1), "%d/%m/%Y %H:%M"
                 ),
@@ -404,6 +401,35 @@ class EventPagesTestCase(TestCase):
         )
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_cannot_create_too_long_event(self):
+        self.client.force_login(self.person.role)
+
+        res = self.client.post(
+            path=reverse("perform_create_event"),
+            data={
+                "name": "Mon événement",
+                "subtype": self.subtype.label,
+                "start_time": formats.localize_input(
+                    self.now + timezone.timedelta(days=1), "%d/%m/%Y %H:%M"
+                ),
+                "end_time": formats.localize_input(
+                    self.now + timezone.timedelta(days=10, hours=1), "%d/%m/%Y %H:%M"
+                ),
+                "contact_name": "Moi",
+                "contact_email": "moi@moi.fr",
+                "contact_phone": "01 23 45 67 89",
+                "contact_hide_phone": True,
+                "location_name": "Chez moi",
+                "location_address1": "123 rue truc",
+                "location_address2": "",
+                "location_city": "Paris",
+                "location_zip": "75014",
+                "location_country": "FR",
+            },
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_can_edit_legal_fields(self):
         self.client.force_login(self.person.role)
