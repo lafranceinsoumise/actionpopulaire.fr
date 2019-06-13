@@ -21,6 +21,7 @@ def get_notifications(request):
             "id": "id",
             "content": "content",
             "link": "link",
+            "icon": "icon",
             "status": Call(statuses.get, args=(T.id, "U")),
         }
     ]

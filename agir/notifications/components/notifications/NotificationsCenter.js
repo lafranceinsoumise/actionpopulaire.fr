@@ -26,19 +26,20 @@ const NotificationsCenter = ({ notifications: initialNotifications }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
+  // ajoute gestionnaire d'événements sur l'intégralité du document pour permettre
+  // de fermer le menu en cliquant n'importe où ailleurs
   useEffect(() => {
     function hideMenu(e) {
       if (ref.current && !ref.current.contains(e.target)) {
         setOpen(false);
       }
     }
-
     document.addEventListener("click", hideMenu);
-
     return function cleanup() {
       document.removeEventListener("click", hideMenu);
     };
   });
+
   const unread = notifications.filter(
     notification => notification.status === "U"
   ).length;

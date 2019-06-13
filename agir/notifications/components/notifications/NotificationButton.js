@@ -1,5 +1,27 @@
 import React from "react";
 import PropTypes from "prop-types";
+import styled from "styled-components";
+
+const UnreadCounter = styled.span`
+  @media (min-width: 992px) {
+    position: absolute;
+    top: 12px;
+    right: 2px;
+  }
+`;
+
+const NotificationTitle = styled.span`
+  @media (min-width: 992px) {
+    display: none;
+  }
+`;
+
+const NotificationIcon = styled.i`
+  display: none;
+  @media (min-width: 992px) {
+    display: inline-block;
+  }
+`;
 
 const NotificationButton = ({ unread, onClick }) => (
   <a
@@ -9,8 +31,9 @@ const NotificationButton = ({ unread, onClick }) => (
     }}
     href="#"
   >
-    <i className="fa fa-comment" />{" "}
-    {unread > 0 && <span className="badge">{unread}</span>}
+    <NotificationIcon className="fa fa-comment" />
+    <NotificationTitle>Notifications</NotificationTitle>{" "}
+    {unread > 0 && <UnreadCounter className="badge">{unread}</UnreadCounter>}
   </a>
 );
 NotificationButton.propTypes = {

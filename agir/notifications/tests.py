@@ -111,6 +111,7 @@ class NotificationsTestCase(TestCase):
                 "id": i,
                 "content": "content",
                 "link": "https://lafranceinsoumise.fr",
+                "icon": "envelope",
                 "status": "U",
             }
             for i in range(4)
