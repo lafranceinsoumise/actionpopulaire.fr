@@ -270,6 +270,8 @@ class PersonTagAdmin(admin.ModelAdmin):
     def set_as_not_exported(self, request, queryset):
         queryset.update(exported=False)
 
+    set_as_not_exported.short_description = _("Ne plus exporter")
+
     def export_now(self, request, queryset):
         persons = Person.objects.filter(tags__in=queryset).distinct()
         count = persons.count()
@@ -290,7 +292,7 @@ class PersonTagAdmin(admin.ModelAdmin):
                 level=messages.SUCCESS,
             )
 
-    set_as_not_exported.short_description = _("Ne plus exporter")
+    export_now.short_description = "Lancer une synchronisaton maintenant"
 
 
 @admin.register(PersonForm, site=admin_site)
