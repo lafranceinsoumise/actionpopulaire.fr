@@ -119,10 +119,6 @@
             <ul id="menu-menu-principal" class="nav navbar-nav">
               <li class="menu-item"><a title="Tableau de bord" href="{% url 'dashboard' %}">Tableau de bord</a></li>
               {% if user.person.is_insoumise %}
-                {% if user.person.contact_phone_status == 'U' %}
-                  <li class="menu-item"><a title="Vérifier mon compte" href="{% url 'send_validation_sms' %}">Vérifier
-                    mon compte</a></li>
-                {% endif %}
                 <li class="menu-item"><a title="Profil" href="{% url "personal_information" %}">Profil</a></li>
                 <li class="menu-item"><a title="Fiches pratiques" href="https://lafranceinsoumise.fr/fiches_pour_agir/">Fiches
                   pratiques</a></li>
@@ -138,13 +134,13 @@
                 <a href="#" data-toggle="dropdown" class="dropdown-toggle">
                   {{ user.person.email }}
                   {% if user.person.contact_phone_status == user.person.CONTACT_PHONE_VERIFIED %}
-                    <i class="fa fa-check" title="Utilisateur vérifié !"></i>
+                    <i class="fa fa-check" title="Utilisateur avec un numéro de téléphone vérifié !"></i>
                   {% endif %}
                   <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   {% if user.person.contact_phone_status == 'U' %}
-                    <li class="menu-item"><a title="Vérifier mon compte" href="{% url 'send_validation_sms' %}">Vérifier
-                      mon compte</a></li>
+                    <li class="menu-item"><a title="Vérifier mon numéro de téléphone" href="{% url 'send_validation_sms' %}">Vérifier
+                      mon numéro de téléphone</a></li>
                   {% endif %}
                   <li class="menu-item"><a title="Préférences" href="{% url "contact" %}">Préférences</a></li>
                   <li class="menu-item"><a title="Déconnexion"

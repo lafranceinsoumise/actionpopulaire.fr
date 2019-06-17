@@ -302,12 +302,12 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
         validation_block = HTML(
             format_html(
                 block_template,
-                label=_("Vérification de votre compte"),
+                label=_("Vérification de votre numéro de téléphone"),
                 value=validation_link
                 if unverified
                 else f"Compte {self.instance.get_contact_phone_status_display().lower()}",
                 help_text=_(
-                    "Validez votre numéro de téléphone afin de certifier votre compte (cette certification "
+                    "Faites vérifiez votre numéro de téléphone (cette certification "
                     "facultative n'est possible que pour les numéros français."
                 )
                 if unverified

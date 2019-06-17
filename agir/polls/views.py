@@ -73,7 +73,7 @@ class PollParticipationView(SoftLoginRequiredMixin, SingleObjectMixin, FormView)
             != Person.CONTACT_PHONE_VERIFIED
         ):
             raise PermissionDenied(
-                "Vous devez avoir vérifié votre compte pour participer."
+                "Vous devez avoir fait vérifier votre numéro de téléphone pour participer."
             )
         if self.request.user.person.created > self.object.start:
             raise PermissionDenied(
