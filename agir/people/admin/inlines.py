@@ -46,3 +46,6 @@ class EmailInline(admin.TabularInline):
     readonly_fields = ("address",)
     extra = 0
     fields = ("address", "_bounced", "bounced_date")
+
+    def has_add_permission(self, request, obj):
+        return False

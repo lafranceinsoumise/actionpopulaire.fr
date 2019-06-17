@@ -211,11 +211,23 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         if obj._state.adding:
             return "-"
 
+        primary_email = obj.primary_email
+        emails = obj.emails.all()
+
+        args = [
+            (email.id, " selected" if email == primary_email else "", email.address)
+            for email in emails
+        ]
+
+        options = format_html_join("", '<option value="{}"{}>{}</option>', args)
+
         return format_html(
-            '{email} <a class="button" href="{add_email_link}">Ajouter une adresse</a>',
-            email=obj.email,
+            '<select name="primary_email">{options}</select> <a class="button" href="{add_email_link}">Ajouter une adresse</a>',
             add_email_link=reverse("admin:people_person_addemail", args=[obj.pk]),
+            options=options,
         )
+
+    primary_email.short_description = "Adresse principale"
 
     def get_urls(self):
         return [

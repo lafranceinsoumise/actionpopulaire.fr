@@ -16,7 +16,24 @@ from agir.people.person_forms.actions import (
 
 
 class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["primary_email"] = forms.ModelChoiceField(
+            self.instance.emails.all(),
+            initial=self.instance.primary_email,
+            required=True,
+            label="Email principal",
+        )
+
+    def _save_m2m(self):
+        super()._save_m2m()
+
+        if self.cleaned_data["primary_email"] != self.instance.primary_email:
+            self.instance.set_primary_email(self.cleaned_data["primary_email"])
+
+    class Meta:
+        fields = "__all__"
 
 
 class PersonFormForm(forms.ModelForm):
