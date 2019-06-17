@@ -272,8 +272,9 @@ class PersonTagAdmin(admin.ModelAdmin):
 
     def export_now(self, request, queryset):
         persons = Person.objects.filter(tags__in=queryset).distinct()
+        count = persons.count()
 
-        if persons.count() > 5000:
+        if count > 5000:
             self.message_user(
                 request,
                 "Vous ne pouvez synchroniser plus de 5000 personnes de cette manière.",
@@ -281,12 +282,11 @@ class PersonTagAdmin(admin.ModelAdmin):
             )
 
             return
-
         else:
             update_person_mailtrain.map(persons)
             self.message_user(
                 request,
-                "Synchronisation en cours. Cela peut prendre un moment.",
+                f"Synchronisation en cours de {count} personnes. Cela peut prendre un moment.",
                 level=messages.SUCCESS,
             )
 
