@@ -70,18 +70,41 @@ def departement_from_zipcode(zipcode):
     return departements_map.get(zipcode[:2], None)
 
 
+def french_zipcode_to_country_code(zipcode):
+    if zipcode == "97133":
+        return "BL"  # Saint-Barthélémy
+    if zipcode == "97150":
+        return "MF"
+
+    return OVERSEAS_ZIP_TO_COUNTRY_CODE.get(zipcode[:3], "FR")
+
+
+OVERSEAS_ZIP_TO_COUNTRY_CODE = {
+    "971": "GP",
+    "972": "MQ",
+    "973": "GF",
+    "974": "RE",
+    "975": "PM",
+    "976": "YT",
+    "984": "TF",
+    "986": "WF",
+    "987": "PF",
+    "988": "NC",
+}
+
+
 FRANCE_COUNTRY_CODES = [
     "FR",  # France
     "GF",  # Guyane française
     "PF",  # Polynésie française
-    "TF",  # Territoires australs
+    "TF",  # Terres-Australes et Antarctiques
     "BL",  # Saint-Barthélémy
     "MF",  # Saint-Martin
     "PM",  # Saint-Pierre-et-Miquelon
     "GP",  # Guadeloupe
     "MQ",  # Martinique
     "YT",  # Mayotte
-    "RE",  # Réunion
+    "RE",  # La Réunion
     "NC",  # Nouvelle Calédonie
     "WF",  # Wallis-et-Futuna
 ]

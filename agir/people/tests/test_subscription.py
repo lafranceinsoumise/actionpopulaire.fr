@@ -39,7 +39,10 @@ class APISubscriptionTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         patched_send_confirmation_mail.delay.assert_called_once()
-        self.assertEqual(patched_send_confirmation_mail.delay.call_args[1], data)
+        self.assertEqual(
+            patched_send_confirmation_mail.delay.call_args[1],
+            {"location_country": "FR", **data},
+        )
 
     def test_cannot_subscribe_without_client_ip(self):
         self.client.force_login(self.wordpress_client.role)
@@ -55,13 +58,18 @@ class APISubscriptionTestCase(TestCase):
 class SimpleSubscriptionFormTestCase(TestCase):
     @mock.patch("agir.people.forms.subscription.send_confirmation_email")
     def test_can_subscribe(self, patched_send_confirmation_email):
-        data = {"email": "example@example.com", "location_zip": "75018"}
-        response = self.client.post("/inscription/", data)
+        for zipcode, country_code in [("75018", "FR"), ("97400", "RE")]:
+            data = {"email": "example@example.com", "location_zip": zipcode}
+            response = self.client.post("/inscription/", data)
 
-        self.assertRedirects(response, reverse("subscription_mail_sent"))
+            self.assertRedirects(response, reverse("subscription_mail_sent"))
 
-        patched_send_confirmation_email.delay.assert_called_once()
-        self.assertEqual(patched_send_confirmation_email.delay.call_args[1], data)
+            patched_send_confirmation_email.delay.assert_called_once()
+            self.assertEqual(
+                patched_send_confirmation_email.delay.call_args[1],
+                {"location_country": country_code, **data},
+            )
+            patched_send_confirmation_email.delay.reset_mock()
 
     def test_cannot_subscribe_without_location_zip(self):
         data = {"email": "example@example.com"}

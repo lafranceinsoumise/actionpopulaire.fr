@@ -46,10 +46,6 @@ class ConfirmationMailSentView(TemplateView):
     template_name = "people/confirmation_mail_sent.html"
 
 
-def subscription_rate_limite_message(args):
-    pass
-
-
 class BaseSubscriptionView(SimpleOpengraphMixin, FormView):
     success_url = reverse_lazy("subscription_mail_sent")
     meta_title = "Rejoignez la France insoumise"
@@ -66,7 +62,10 @@ class BaseSubscriptionView(SimpleOpengraphMixin, FormView):
             ip=self.request.META["REMOTE_ADDR"], email=form.cleaned_data["email"]
         ):
             form.add_error(
-                field=None, error=ValidationError(subscription_rate_limite_message)
+                field=None,
+                error=ValidationError(
+                    "Vous avez fait trop de tentatives en peu de temps. Merci de patienter un peu."
+                ),
             )
             return self.form_invalid(form)
 

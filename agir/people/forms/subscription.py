@@ -4,6 +4,7 @@ from django import forms
 from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 
+from agir.lib.data import french_zipcode_to_country_code
 from agir.lib.form_components import FormGroup, FullCol
 from agir.lib.form_mixins import LocationFormMixin
 from agir.lib.mailtrain import delete_email
@@ -91,6 +92,16 @@ class SimpleSubscriptionForm(BaseSubscriptionForm):
                 ),
             ),
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if "location_zip" in cleaned_data:
+            cleaned_data["location_country"] = french_zipcode_to_country_code(
+                cleaned_data["location_zip"]
+            )
+
+        return cleaned_data
 
 
 class OverseasSubscriptionForm(LocationFormMixin, BaseSubscriptionForm):

@@ -2,6 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+from agir.lib.data import french_zipcode_to_country_code
 from .tasks import send_confirmation_email
 
 from agir.lib.serializers import (
@@ -162,4 +163,10 @@ class SubscriptionSerializer(serializers.Serializer):
 
         Use only after having validated the serializer
         """
-        send_confirmation_email.delay(**self.validated_data)
+        location_country = french_zipcode_to_country_code(
+            self.validated_data["location_zip"]
+        )
+
+        send_confirmation_email.delay(
+            location_country=location_country, **self.validated_data
+        )
