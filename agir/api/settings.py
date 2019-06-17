@@ -142,6 +142,7 @@ INSTALLED_APPS = [
     "agir.checks",
     "agir.loans",
     "agir.mailing",
+    "agir.notifications",
     # security
     "corsheaders",
     "oauth2_provider",
@@ -190,6 +191,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "agir.api.context_processors.domain_names",
+                "agir.notifications.context_processors.notifications",
             ]
         },
     }
