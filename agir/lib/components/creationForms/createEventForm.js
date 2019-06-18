@@ -266,11 +266,11 @@ class LegalQuestionsStep extends FormStep {
       <div className="row padtopmore">
         <div className="col-sm-6 padbottom">
           <div className="alert alert-danger">
-            Attention&nbsp;! Nous sommes désormais officiellement en campagne
-            électorale. Cela signifie que vous ne pouvez engager de frais sans
-            la validation du mandataire financier de la campagne. Pour bien
-            identifier la situation légale dans laquelle vous vous trouvez,
-            merci de bien vouloir répondre à ces quelques questions.
+            Attention&nbsp;! Vous ne pouvez engager de frais sans la validation
+            de l'équipe de suivi des questions financières de La France
+            insoumise. Pour bien identifier la situation légale dans laquelle
+            vous vous trouvez, merci de bien vouloir répondre à ces quelques
+            questions.
           </div>
         </div>
         <div className="col-sm-6 padbottom">
