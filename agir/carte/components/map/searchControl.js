@@ -36,9 +36,7 @@ export default function makeSearchControl(view) {
           .slice(0, 3)
           .map(
             r =>
-              `<li><a href="#" data-cx="${r.x}" data-cy="${r.y}">${
-                r.label
-              }</a></li>`
+              `<li><a href="#" data-cx="${r.x}" data-cy="${r.y}">${r.label}</a></li>`
           )
           .join("");
       } else {

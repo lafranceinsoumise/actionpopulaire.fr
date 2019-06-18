@@ -30,9 +30,7 @@ class DeleteDocumentButton extends React.Component {
         <Modal
           show={this.state.modalShown}
           onHide={() => this.setState({ modalShown: false })}
-          title={`Voulez-vous vraiment supprimer le document ${
-            this.props.documentName
-          } ?`}
+          title={`Voulez-vous vraiment supprimer le document ${this.props.documentName} ?`}
         >
           <Modal.Body>
             <form method="post" action={this.props.deleteUrl}>
