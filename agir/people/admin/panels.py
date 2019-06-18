@@ -499,9 +499,23 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
 
 @admin.register(PersonFormSubmission, site=admin_site)
 class PersonFormSubmissionAdmin(admin.ModelAdmin):
+    autocomplete_fields = ("person",)
+
+    def has_add_permission(self, request):
+        return False
+
+    def return_to_form_results(self):
+        return HttpResponseRedirect(
+            reverse("admin:people_personform_view_results", args=[self.personform.pk])
+        )
+
     def delete_view(self, request, object_id, extra_context=None):
         self.personform = self.get_object(request, unquote(object_id)).form
         return super().delete_view(request, object_id, extra_context)
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        self.personform = self.get_object(request, unquote(object_id)).form
+        return super().change_view(request, object_id, form_url, extra_context)
 
     def detail_view(self, request, object_id):
         self.object = self.get_object(request, unquote(object_id))
@@ -527,20 +541,16 @@ class PersonFormSubmissionAdmin(admin.ModelAdmin):
         )
 
     def response_delete(self, request, obj_display, obj_id):
-        return HttpResponseRedirect(
-            reverse("admin:people_personform_view_results", args=[self.personform.pk])
-        )
+        return self.return_to_form_results()
+
+    def response_post_save_change(self, request, obj):
+        return self.return_to_form_results()
 
     def get_urls(self):
         return [
             path(
-                "<object_id>/delete/",
-                self.admin_site.admin_view(self.delete_view),
-                name="people_personformsubmission_delete",
-            ),
-            path(
                 "<object_id>/detail/",
                 self.admin_site.admin_view(self.detail_view),
                 name="people_personformsubmission_detail",
-            ),
-        ]
+            )
+        ] + super().get_urls()

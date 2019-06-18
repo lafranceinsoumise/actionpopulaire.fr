@@ -196,14 +196,11 @@ class PersonFormSubmission(
         "Person",
         on_delete=models.CASCADE,
         related_name="form_submissions",
-        editable=False,
         null=True,
         blank=True,
     )
 
-    data = JSONField(
-        _("Données"), default=dict, editable=False, encoder=CustomJSONEncoder
-    )
+    data = JSONField(_("Données"), default=dict, encoder=CustomJSONEncoder)
 
     def __str__(self):
         return f"{self.form.title} : réponse de {str(self.person)}"

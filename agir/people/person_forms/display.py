@@ -107,13 +107,17 @@ def _get_admin_fields(submission, html=True):
     if html:
         return [
             format_html(
-                '<a href="{}" title="Supprimer cette submission">&#x274c;</a>&ensp;'
-                '<a href="{}" title="Voir le détail">&#128269;</a>&ensp;{}',
-                reverse(
-                    "admin:people_personformsubmission_delete", args=(submission.pk,)
-                ),
+                '<a href="{}" title="Voir le détail">&#128269;</a>&ensp;'
+                '<a href="{}" title="Modifier">&#x1F58A;&#xFE0F;️</a>&ensp;{}'
+                '<a href="{}" title="Supprimer cette submission">&#x274c;</a>&ensp;',
                 reverse(
                     "admin:people_personformsubmission_detail", args=(submission.pk,)
+                ),
+                reverse(
+                    "admin:people_personformsubmission_change", args=(submission.pk,)
+                ),
+                reverse(
+                    "admin:people_personformsubmission_delete", args=(submission.pk,)
                 ),
                 submission.pk,
             ),
