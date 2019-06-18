@@ -25,12 +25,20 @@ class Command(BaseCommand):
         if max_letter > min_letter:
             qs = qs.filter(id__lt=UUID(max_letter + PADDING))
 
-        for person in qs.iterator():
-            update_person(person)
-            if kwargs["verbosity"] > 1:
-                print("Updated %s " % person.email)
+        try:
+            for person in qs.iterator():
+                update_person(person)
+                if kwargs["verbosity"] > 1:
+                    print("Updated %s " % person.email)
 
-            i += 1
+                i += 1
+        except Exception as e:
+            duration = datetime.now() - start
+            print(
+                f"Updated {i} people over {qs.count()} in {str(duration.seconds)} seconds."
+            )
+
+            raise e
 
         duration = datetime.now() - start
 
