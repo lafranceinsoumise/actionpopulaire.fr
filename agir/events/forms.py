@@ -213,12 +213,17 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
 
         if (
             self.is_creation
-            and isinstance(cleaned_data["legal"], dict)
+            and isinstance(cleaned_data.get("legal"), dict)
             and needs_approval(cleaned_data["legal"])
         ):
             self.instance.visibility = Event.VISIBILITY_ORGANIZER
 
-        if cleaned_data["end_time"] - cleaned_data["start_time"] > timedelta(days=7):
+        if (
+            cleaned_data.get("end_time")
+            and cleaned_data.get("start_time")
+            and cleaned_data["end_time"] - cleaned_data["start_time"]
+            > timedelta(days=7)
+        ):
             raise ValidationError(
                 {"end_time": _("L'événement ne peut pas durer plus de 7 jours.")}
             )
