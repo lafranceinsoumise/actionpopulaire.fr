@@ -20,7 +20,7 @@ from agir.system_pay import AbstractSystemPayPaymentMode
 from agir.system_pay.actions import update_payment_from_transaction
 from agir.system_pay.models import SystemPayTransaction
 from .crypto import check_signature
-from .forms import SystempayRedirectForm
+from .forms import SystempayPaymentForm
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class SystempayRedirectView(TemplateView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            form=SystempayRedirectForm.get_form_for_transaction(
+            form=SystempayPaymentForm.get_form_for_transaction(
                 self.transaction, self.sp_config
             ),
             **kwargs

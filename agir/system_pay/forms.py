@@ -1,31 +1,18 @@
 from django import forms
-from django.conf import settings
 from django.forms import fields
-from django.utils import timezone
 from phonenumbers import phonenumberutil, PhoneNumberType
 
 from agir.lib.utils import front_url_lazy
 from .crypto import get_signature
 
 
-class SystempayRedirectForm(forms.Form):
-    form_action = "https://paiement.systempay.fr/vads-payment/"
-
+class SystempayBaseForm(forms.Form):
     vads_site_id = fields.IntegerField(widget=forms.HiddenInput())
     vads_ctx_mode = fields.CharField(widget=forms.HiddenInput())
-    vads_order_id = fields.CharField(widget=forms.HiddenInput())
-    vads_trans_id = fields.CharField(widget=forms.HiddenInput())
-    vads_trans_date = fields.CharField(widget=forms.HiddenInput())
-    vads_amount = fields.IntegerField(widget=forms.HiddenInput())
-    vads_currency = fields.IntegerField(widget=forms.HiddenInput())
+
     vads_action_mode = fields.CharField(
         initial="INTERACTIVE", widget=forms.HiddenInput()
     )
-    vads_page_action = fields.CharField(initial="PAYMENT", widget=forms.HiddenInput())
-    vads_version = fields.CharField(initial="V2", widget=forms.HiddenInput())
-    vads_payment_config = fields.CharField(initial="SINGLE", widget=forms.HiddenInput())
-    vads_capture_delay = fields.IntegerField(initial=0, widget=forms.HiddenInput())
-    vads_validation_mode = fields.IntegerField(initial=0, widget=forms.HiddenInput())
     vads_cust_email = fields.EmailField(widget=forms.HiddenInput())
     vads_cust_id = fields.UUIDField(widget=forms.HiddenInput())
     vads_cust_status = fields.CharField(initial="PRIVATE", widget=forms.HiddenInput())
@@ -35,7 +22,37 @@ class SystempayRedirectForm(forms.Form):
     vads_cust_zip = fields.CharField(widget=forms.HiddenInput())
     vads_cust_city = fields.CharField(widget=forms.HiddenInput())
     vads_cust_country = fields.CharField(widget=forms.HiddenInput())
+    vads_version = fields.CharField(initial="V2", widget=forms.HiddenInput())
+    vads_trans_date = fields.CharField(widget=forms.HiddenInput())
+
+    signature = fields.CharField(widget=forms.HiddenInput())
+
+    def add_field(self, name, value):
+        if value is None:
+            return
+        self.fields[name] = forms.CharField(initial=value, widget=forms.HiddenInput())
+
+    def update_signature(self, certificate):
+        data = {
+            field: str(self.get_initial_for_field(self.fields[field], field))
+            for field in self.fields.keys()
+        }
+        self.fields["signature"].initial = get_signature(data, certificate)
+
+
+class SystempayPaymentForm(SystempayBaseForm):
+    form_action = "https://paiement.systempay.fr/vads-payment/"
+
+    vads_order_id = fields.CharField(widget=forms.HiddenInput())
+    vads_trans_id = fields.CharField(widget=forms.HiddenInput())
+    vads_amount = fields.IntegerField(widget=forms.HiddenInput())
+    vads_currency = fields.IntegerField(widget=forms.HiddenInput())
     vads_ext_info_type = fields.CharField(widget=forms.HiddenInput())
+
+    vads_page_action = fields.CharField(initial="PAYMENT", widget=forms.HiddenInput())
+    vads_payment_config = fields.CharField(initial="SINGLE", widget=forms.HiddenInput())
+    vads_capture_delay = fields.IntegerField(initial=0, widget=forms.HiddenInput())
+    vads_validation_mode = fields.IntegerField(initial=0, widget=forms.HiddenInput())
     vads_url_cancel = fields.CharField(
         initial=front_url_lazy("system_pay:return", query={"status": "cancel"}),
         widget=forms.HiddenInput(),
@@ -58,19 +75,6 @@ class SystempayRedirectForm(forms.Form):
     vads_redirect_error_timeout = fields.CharField(
         initial=8, widget=forms.HiddenInput()
     )
-    signature = fields.CharField(widget=forms.HiddenInput())
-
-    def add_field(self, name, value):
-        if value is None:
-            return
-        self.fields[name] = forms.CharField(initial=value, widget=forms.HiddenInput())
-
-    def update_signature(self, certificate):
-        data = {
-            field: str(self.get_initial_for_field(self.fields[field], field))
-            for field in self.fields.keys()
-        }
-        self.fields["signature"].initial = get_signature(data, certificate)
 
     @classmethod
     def get_form_for_transaction(cls, transaction, sp_config):
