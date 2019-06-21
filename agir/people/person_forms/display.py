@@ -108,8 +108,8 @@ def _get_admin_fields(submission, html=True):
         return [
             format_html(
                 '<a href="{}" title="Voir le détail">&#128269;</a>&ensp;'
-                '<a href="{}" title="Modifier">&#x1F58A;&#xFE0F;️</a>&ensp;{}'
-                '<a href="{}" title="Supprimer cette submission">&#x274c;</a>&ensp;',
+                '<a href="{}" title="Modifier">&#x1F58A;&#xFE0F;️</a>&ensp;'
+                '<a href="{}" title="Supprimer cette submission">&#x274c;</a>&ensp;{}',
                 reverse(
                     "admin:people_personformsubmission_detail", args=(submission.pk,)
                 ),
