@@ -1,5 +1,5 @@
 from django.urls import reverse, reverse_lazy
-from django.http import HttpResponsePermanentRedirect, HttpResponse
+from django.http import HttpResponsePermanentRedirect, HttpResponse, Http404
 from django.views.generic import View
 
 from ..events.models import Event
@@ -68,4 +68,4 @@ class NBUrlsView(View):
         except KeyError:
             pass
 
-        return HttpResponse(status=404)
+        raise Http404()
