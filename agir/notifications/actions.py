@@ -30,7 +30,7 @@ def get_notifications(request):
         n
         for n in Notification.objects.active().select_related("segment")
         if not n.segment
-        or n.segment.get_subscribers_queryset.filter(pk=person.pk).exists()
+        or n.segment.get_subscribers_queryset().filter(pk=person.pk).exists()
     ]
 
     return glom(instances, spec)
