@@ -42,7 +42,7 @@ from ..lib.form_fields import DateTimePickerWidget
 
 class EventQuerySet(models.QuerySet):
     def published(self):
-        return self.filter(visibility=Event.VISIBILITY_PUBLIC)
+        return self.filter(visibility=Event.VISIBILITY_PUBLIC, do_not_list=False)
 
     def upcoming(self, as_of=None, published_only=True):
         if as_of is None:
@@ -50,7 +50,7 @@ class EventQuerySet(models.QuerySet):
 
         condition = models.Q(end_time__gte=as_of)
         if published_only:
-            condition &= models.Q(visibility=Event.VISIBILITY_PUBLIC)
+            condition &= models.Q(visibility=Event.VISIBILITY_PUBLIC, do_not_list=False)
 
         return self.filter(condition)
 
@@ -60,7 +60,7 @@ class EventQuerySet(models.QuerySet):
 
         condition = models.Q(end_time__lt=as_of)
         if published_only:
-            condition &= models.Q(visibility=Event.VISIBILITY_PUBLIC)
+            condition &= models.Q(visibility=Event.VISIBILITY_PUBLIC, do_not_list=False)
         return self.filter(condition)
 
     def with_participants(self):
