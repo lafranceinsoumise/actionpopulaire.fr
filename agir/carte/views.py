@@ -1,25 +1,25 @@
 import json
 from datetime import timedelta
 
+import django_filters
 from django.contrib.gis.geos import Polygon
-from django.db.models import Case, When, Value, BooleanField, Q, Count
+from django.core.exceptions import PermissionDenied
+from django.db.models import Q, Count
+from django.http import QueryDict, Http404
+from django.utils.html import mark_safe
 from django.utils.timezone import now
 from django.utils.translation import ugettext as _
-from django.utils.html import mark_safe
-from django.views.generic import TemplateView, DetailView
 from django.views.decorators import cache
 from django.views.decorators.clickjacking import xframe_options_exempt
-from rest_framework.authentication import SessionAuthentication
-from rest_framework.generics import ListAPIView
-from rest_framework.exceptions import ValidationError
-import django_filters
+from django.views.generic import TemplateView, DetailView
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from django.http import QueryDict, Http404
-
-from ..events.models import Event, EventSubtype
-from ..groups.models import SupportGroup, SupportGroupSubtype
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import ListAPIView
 
 from . import serializers
+from ..events.models import Event, EventSubtype
+from ..groups.models import SupportGroup, SupportGroupSubtype
 
 
 def parse_bounds(bounds):
@@ -106,7 +106,7 @@ class EventFilterSet(django_filters.rest_framework.FilterSet):
 
     def filter_include_hidden(self, qs, name, value):
         if not value:
-            return qs.published()
+            return qs.listed()
         else:
             return qs
 
@@ -126,7 +126,7 @@ class EventsView(ListAPIView):
         if self.request.user is None or not self.request.user.has_perms(
             "view_hidden_event"
         ):
-            qs = qs.published()
+            qs = qs.listed()
         return qs.filter(coordinates__isnull=False).select_related("subtype")
 
     @cache.cache_control(max_age=300, public=True)
@@ -282,7 +282,7 @@ class AbstractSingleItemMapView(MapViewMixin, DetailView):
 
 class EventMapMixin:
     subtype_model = EventSubtype
-    queryset = Event.objects.published()
+    queryset = Event.objects.listed()
 
     TYPES_INFO = {
         "G": ["#4a64ac", "comments"],
@@ -313,7 +313,6 @@ class GroupMapMixin:
 
 class EventMapView(EventMapMixin, AbstractListMapView):
     template_name = "carte/events.html"
-    queryset = Event.objects.published().filter(do_not_list=False)
 
 
 class GroupMapView(GroupMapMixin, AbstractListMapView):
@@ -322,6 +321,12 @@ class GroupMapView(GroupMapMixin, AbstractListMapView):
 
 class SingleEventMapView(EventMapMixin, AbstractSingleItemMapView):
     template_name = "carte/single_event.html"
+    queryset = Event.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.has_perm("events.view_event", self.get_object()):
+            raise Http404("Cette page n'existe pas.")
+        return super().get(request, *args, **kwargs)
 
 
 class SingleGroupMapView(GroupMapMixin, AbstractSingleItemMapView):
