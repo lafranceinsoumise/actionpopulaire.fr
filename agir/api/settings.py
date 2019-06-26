@@ -444,6 +444,7 @@ if not DEBUG:
             },
             "django": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
             "celery": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
+            "nuntius": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
             "agir": {
                 "handlers": ["journald", "admins_mail"],
                 "level": "DEBUG",
@@ -486,7 +487,7 @@ CELERY_BROKER_URL = os.environ.get("BROKER_URL", "redis://")
 # make sure there is a max_retries option
 CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 2}
 # make sure celery does not mess with the root logger
-CELERY_WORKER_HIJACK_ROOT_LOGGER = DEBUG
+CELERY_WORKER_HIJACK_ROOT_LOGGER = NUNTIUS_CELERY_WORKER_HIJACK_ROOT_LOGGER = DEBUG
 # enable worker events to allow monitoring
 CELERY_WORKER_SEND_TASK_EVENTS = True
 # enable task events to allow monitoring
