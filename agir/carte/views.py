@@ -261,7 +261,7 @@ class GroupMapMixin:
     context_object_name = "group"
 
     def get_subtype(self):
-        return self.object.subtypes.first()
+        return self.object.subtypes.order_by("-icon", "-icon_name", "created").first()
 
 
 class EventMapView(EventMapMixin, AbstractListMapView):

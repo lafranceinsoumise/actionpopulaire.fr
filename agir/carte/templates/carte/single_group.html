@@ -5,9 +5,13 @@
 {% endblock %}
 
 {% block map_script %}
+  {{ subtype_config|json_script:"subtypeConfig" }}
+  {{ coordinates|json_script:"coordinates" }}
+
+
   <script>
-    var subtype = {{ subtype_config }};
-    var coordinates = {{ coordinates }};
+    var subtype = JSON.parse(document.getElementById("subtypeConfig").textContent);
+    var coordinates = JSON.parse(document.getElementById("coordinates").textContent);
     var popupContent = '<a href="{{ FRONT_DOMAIN }}{% url "view_group" group.id %}" style="color:' + subtype.color +
       ';">{{ group.name }}</a>';
 
