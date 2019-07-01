@@ -371,6 +371,35 @@ class BaseSubtype(TimeStampedModel, AbstractLabel):
         _("Phrase d'explication pour rejoindre le groupe ou l'événement"), blank=True
     )
 
+    def get_subtype_information(self):
+        params = {
+            "id": self.id,
+            "label": self.label,
+            "description": self.description,
+            "type": self.type,
+            "hide_label": self.hide_text_label,
+        }
+
+        if self.icon:
+            params.update(
+                {
+                    "icon_url": self.icon.url,
+                    "icon_anchor": [self.icon_anchor_x or 0, self.icon_anchor_y or 0],
+                    "popup_anchor": self.popup_anchor_y,
+                }
+            )
+
+        else:
+            params.update(
+                {
+                    "icon_name": self.icon_name
+                    or self.TYPES_PARAMETERS[self.type]["icon_name"],
+                    "color": self.color or self.TYPES_PARAMETERS[self.type]["color"],
+                }
+            )
+
+        return params
+
     class Meta:
         abstract = True
 

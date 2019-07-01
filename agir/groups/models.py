@@ -54,6 +54,13 @@ class SupportGroup(
         (TYPE_PROFESSIONAL, _("Groupe professionel")),
     )
 
+    TYPES_PARAMETERS = {
+        TYPE_LOCAL_GROUP: {"color": "#4a64ac", "icon_name": "users"},
+        TYPE_THEMATIC: {"color": "#49b37d", "icon_name": "book"},
+        TYPE_FUNCTIONAL: {"color": "#e14b35", "icon_name": "cog"},
+        TYPE_PROFESSIONAL: {"color": "#f4981e", "icon_name": "industry"},
+    }
+
     objects = SupportGroupQuerySet.as_manager()
 
     name = models.CharField(
@@ -124,6 +131,7 @@ class SupportGroupTag(AbstractLabel):
 
 
 class SupportGroupSubtype(BaseSubtype):
+    TYPES_PARAMETERS = SupportGroup.TYPES_PARAMETERS
     type = models.CharField(
         _("type de groupe"),
         max_length=1,

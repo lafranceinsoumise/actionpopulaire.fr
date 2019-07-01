@@ -3,7 +3,6 @@ from datetime import timedelta
 
 import django_filters
 from django.contrib.gis.geos import Polygon
-from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Count
 from django.http import QueryDict, Http404
 from django.utils.html import mark_safe
@@ -17,6 +16,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 
+from agir.lib.export import dict_to_camelcase
 from . import serializers
 from ..events.models import Event, EventSubtype
 from ..groups.models import SupportGroup, SupportGroupSubtype
@@ -188,39 +188,7 @@ class MapViewMixin:
 
     @classmethod
     def get_type_information(cls, id, label):
-        return {
-            "id": id,
-            "label": label,
-            "color": cls.TYPES_INFO[id][0],
-            "iconName": cls.TYPES_INFO[id][1],
-        }
-
-    @staticmethod
-    def get_subtype_information(subtype):
-        res = {
-            "id": subtype.id,
-            "label": subtype.label,
-            "description": subtype.description,
-            "type": subtype.type,
-            "hideLabel": subtype.hide_text_label,
-        }
-
-        if subtype.icon:
-            res["iconUrl"] = subtype.icon.url
-            if subtype.icon_anchor_x is not None and subtype.icon_anchor_y is not None:
-                res["iconAnchor"] = [subtype.icon_anchor_x, subtype.icon_anchor_y]
-            else:
-                res["iconAnchor"] = [subtype.icon.width // 2, subtype.icon.height // 2]
-
-            if subtype.popup_anchor_y is not None:
-                res["popupAnchor"] = -subtype.popup_anchor_y
-            else:
-                res["popupAnchor"] = -res["iconAnchor"][1]
-        elif subtype.icon_name:
-            res["iconName"] = subtype.icon_name
-            res["color"] = subtype.color
-
-        return res
+        return {"id": id, "label": label}
 
 
 class AbstractListMapView(MapViewMixin, TemplateView):
@@ -242,18 +210,23 @@ class AbstractListMapView(MapViewMixin, TemplateView):
         if self.request.GET.get("include_hidden"):
             params["include_hidden"] = "1"
 
-        subtype_info = [self.get_subtype_information(st) for st in subtypes]
+        subtype_info = [
+            dict_to_camelcase(st.get_subtype_information()) for st in subtypes
+        ]
         types = self.subtype_model._meta.get_field("type").choices
-        type_info = [self.get_type_information(id, str(label)) for id, label in types]
+        type_info = [
+            dict_to_camelcase(self.get_type_information(id, str(label)))
+            for id, label in types
+        ]
 
         bounds = parse_bounds(self.request.GET.get("bounds"))
 
         querystring = ("?" + params.urlencode()) if params else ""
 
         return super().get_context_data(
-            type_config=mark_safe(json.dumps(type_info)),
-            subtype_config=mark_safe(json.dumps(subtype_info)),
-            bounds=json.dumps(bounds),
+            type_config=type_info,
+            subtype_config=subtype_info,
+            bounds=bounds,
             querystring=mark_safe(querystring),
             **kwargs
         )
@@ -265,17 +238,11 @@ class AbstractSingleItemMapView(MapViewMixin, DetailView):
             raise Http404()
 
         subtype = self.get_subtype()
-        type_info = self.get_type_information(subtype.type, subtype.get_type_display())
-        subtype_info = self.get_subtype_information(subtype)
-
-        if "iconUrl" in subtype_info or "iconName" in subtype_info:
-            icon_config = subtype_info
-        else:
-            icon_config = type_info
+        icon_config = dict_to_camelcase(subtype.get_subtype_information())
 
         return super().get_context_data(
-            subtype_config=mark_safe(json.dumps(icon_config)),
-            coordinates=mark_safe(json.dumps(self.object.coordinates.coords)),
+            subtype_config=icon_config,
+            coordinates=self.object.coordinates.coords,
             **kwargs
         )
 
@@ -283,13 +250,6 @@ class AbstractSingleItemMapView(MapViewMixin, DetailView):
 class EventMapMixin:
     subtype_model = EventSubtype
     queryset = Event.objects.listed()
-
-    TYPES_INFO = {
-        "G": ["#4a64ac", "comments"],
-        "M": ["#e14b35", "bullhorn"],
-        "A": ["#c2306c", "exclamation"],
-        "O": ["#49b37d", "calendar"],
-    }
 
     def get_subtype(self):
         return self.object.subtype
@@ -299,13 +259,6 @@ class GroupMapMixin:
     subtype_model = SupportGroupSubtype
     queryset = SupportGroup.objects.active()
     context_object_name = "group"
-
-    TYPES_INFO = {
-        "L": ["#4a64ac", "users"],
-        "B": ["#49b37d", "book"],
-        "F": ["#e14b35", "cog"],
-        "P": ["#f4981e", "industry"],
-    }
 
     def get_subtype(self):
         return self.object.subtypes.first()

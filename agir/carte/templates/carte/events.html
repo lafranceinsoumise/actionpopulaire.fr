@@ -5,10 +5,15 @@
 {% endblock %}
 
 {% block map_script %}
+  {{ type_config|json_script:"typeConfig" }}
+  {{ subtype_config|json_script:"subtypeConfig" }}
+  {{ bounds|json_script:"boundsConfig" }}
   <script>
-    var types = {{ type_config }};
-    var subtypes = {{ subtype_config }};
-    var bounds = {{ bounds }};
+    var types = JSON.parse(document.getElementById("typeConfig").textContent);
+    var subtypes = JSON.parse(document.getElementById("subtypeConfig").textContent);
+    var bounds = JSON.parse(document.getElementById("boundsConfig").textContent);
+
+    console.log(types.length);
 
     window['carte/map'].listMap('map', {
       endpoint: '{% url "carte:event_list" %}{{ querystring }}',

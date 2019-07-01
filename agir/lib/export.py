@@ -17,3 +17,12 @@ def dicts_to_csv_lines(iterator, fieldnames):
             yield content
 
         buffer.seek(0)
+
+
+def snakecase_to_camelcase(identifier):
+    components = identifier.split("_")
+    return components[0] + "".join(word.title() for word in components[1:])
+
+
+def dict_to_camelcase(d):
+    return {snakecase_to_camelcase(k): v for k, v in d.items()}

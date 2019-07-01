@@ -454,6 +454,13 @@ class EventSubtype(BaseSubtype):
         (TYPE_OTHER_EVENTS, _("Autres type d'événements")),
     )
 
+    TYPES_PARAMETERS = {
+        TYPE_GROUP_MEETING: {"color": "#4a64ac", "icon_name": "comments"},
+        TYPE_PUBLIC_MEETING: {"color": "#e14b35", "icon_name": "bullhorn"},
+        TYPE_PUBLIC_ACTION: {"color": "#c2306c", "icon_name": "exclamation"},
+        TYPE_OTHER_EVENTS: {"color": "#49b37d", "icon_name": "calendar"},
+    }
+
     TYPE_DESCRIPTION = {
         TYPE_GROUP_MEETING: _(
             "Une réunion qui concerne principalement les membres du groupes, et non le public de"
