@@ -15,6 +15,8 @@ import ScheduleStep from "./steps/ScheduleStep";
 import "./style.css";
 import { Spring } from "react-spring/renderprops";
 
+import styled from "styled-components";
+
 class CreateEventForm extends React.Component {
   constructor(props) {
     super(props);
@@ -122,20 +124,38 @@ CheckBoxList.propTypes = {
   children: PropTypes.node
 };
 
-function CheckBox({ label, active, onClick }) {
+const GreyedNavPill = styled.a`
+  background-color: #f7f7f7;
+`;
+
+const Icon = styled.i`
+  width: 25px;
+  font-size: 16px;
+  line-height: 25px;
+  border-radius: 25px;
+  background-color: #fff;
+  text-align: center;
+  margin-right: 0.4em;
+`;
+
+function CheckBox({ label, active, onClick, icon, iconName, color }) {
   return (
     <li className={active ? "active" : ""}>
-      <a
+      <GreyedNavPill
         href="#"
         onClick={e => {
           e.preventDefault();
           onClick();
         }}
       >
-        <i className={"fa " + (active ? "fa-check-circle" : "fa-circle-o")} />
+        {icon ? (
+          <img src={icon} />
+        ) : (
+          <Icon style={{ color }} className={"fa fa-" + iconName} />
+        )}
         &nbsp;
         {label}
-      </a>
+      </GreyedNavPill>
     </li>
   );
 }
@@ -143,7 +163,10 @@ function CheckBox({ label, active, onClick }) {
 CheckBox.propTypes = {
   label: PropTypes.string,
   active: PropTypes.bool,
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
+  icon: PropTypes.string,
+  iconName: PropTypes.string,
+  color: PropTypes.string
 };
 
 class EventTypeStep extends FormStep {
@@ -206,6 +229,9 @@ class EventTypeStep extends FormStep {
                     active={this.isCurrentSubtype(subtype)}
                     label={subtype.description}
                     onClick={() => this.setSubtype(subtype)}
+                    icon={subtype.icon}
+                    iconName={subtype.iconName}
+                    color={subtype.color}
                   />
                 ))}
               </CheckBoxList>

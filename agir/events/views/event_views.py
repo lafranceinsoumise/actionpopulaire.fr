@@ -1,7 +1,6 @@
+from datetime import timedelta
+
 import ics
-from datetime import timedelta, datetime
-from django.conf import settings
-from django.contrib import messages
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
@@ -12,18 +11,12 @@ from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import F
 from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponse
-from django.urls import reverse_lazy, reverse
-from django.utils import timezone
-from django.utils.html import format_html
-from django.utils.http import urlencode
-from django.utils.translation import ugettext as _, ngettext
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponse
 from django.template import loader
 from django.template.backends.django import DjangoTemplates
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.http import urlencode
 from django.utils.translation import ugettext as _, ngettext
 from django.views import View
 from django.views.generic import (
@@ -34,7 +27,6 @@ from django.views.generic import (
     DetailView,
 )
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import ProcessFormView, FormMixin
 from django.views.generic.edit import ProcessFormView, FormMixin, FormView
 
 from agir.authentication.view_mixins import (
@@ -44,12 +36,8 @@ from agir.authentication.view_mixins import (
 )
 from agir.events.actions.legal import ASKED_QUESTIONS
 from agir.events.actions.rsvps import assign_jitsi_meeting
-from agir.front.view_mixins import (
-    ObjectOpengraphMixin,
-    ChangeLocationBaseView,
-    SearchByZipcodeBaseView,
-)
 from agir.front.view_mixins import ObjectOpengraphMixin, ChangeLocationBaseView
+from agir.lib.export import dict_to_camelcase
 from agir.lib.geo import geocode_coordinate_from_simple_address
 from agir.lib.search import PrefixSearchQuery
 from agir.lib.views import ImageSizeWarningMixin
@@ -379,8 +367,7 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
         ]
 
         subtypes = [
-            {"id": s.id, "label": s.label, "description": s.description, "type": s.type}
-            for s in subtype_queryset
+            dict_to_camelcase(s.get_subtype_information()) for s in subtype_queryset
         ]
 
         questions = ASKED_QUESTIONS
