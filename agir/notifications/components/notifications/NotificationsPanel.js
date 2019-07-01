@@ -8,6 +8,11 @@ const Panel = styled.ul`
   width: 430px;
   padding: 0;
   background-color: #fff !important;
+
+  @media (min-width: 992px) {
+    overflow-y: auto;
+    max-height: 60vh;
+  }
 `;
 
 const Header = styled.li`
