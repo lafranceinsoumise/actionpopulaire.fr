@@ -116,17 +116,13 @@ CreateEventForm.propTypes = {
   questions: PropTypes.array
 };
 
-function CheckBoxList({ children }) {
+function SubtypeSelector({ children }) {
   return <ul className="nav nav-pills">{children}</ul>;
 }
 
-CheckBoxList.propTypes = {
+SubtypeSelector.propTypes = {
   children: PropTypes.node
 };
-
-const GreyedNavPill = styled.a`
-  background-color: #f7f7f7;
-`;
 
 const Icon = styled.i`
   width: 25px;
@@ -136,26 +132,35 @@ const Icon = styled.i`
   background-color: #fff;
   text-align: center;
   margin-right: 0.4em;
+  box-sizing: content-box;
+  ${props =>
+    props.active
+      ? "border: 1px solid transparent;"
+      : "border: 1px solid rgba(10, 10, 10, 0.3);"}
 `;
 
 function CheckBox({ label, active, onClick, icon, iconName, color }) {
   return (
     <li className={active ? "active" : ""}>
-      <GreyedNavPill
+      <a
         href="#"
         onClick={e => {
           e.preventDefault();
           onClick();
         }}
+        style={{ whiteSpace: "nowrap" }}
       >
         {icon ? (
           <img src={icon} />
         ) : (
-          <Icon style={{ color }} className={"fa fa-" + iconName} />
+          <Icon
+            active={active}
+            style={{ color }}
+            className={"fa fa-" + iconName}
+          />
         )}
-        &nbsp;
         {label}
-      </GreyedNavPill>
+      </a>
     </li>
   );
 }
@@ -222,7 +227,7 @@ class EventTypeStep extends FormStep {
           {this.props.types.map(type => (
             <div key={type.id}>
               <h4>{type.label}</h4>
-              <CheckBoxList>
+              <SubtypeSelector>
                 {rankedSubtypes[type.id].map(subtype => (
                   <CheckBox
                     key={subtype.description}
@@ -234,7 +239,7 @@ class EventTypeStep extends FormStep {
                     color={subtype.color}
                   />
                 ))}
-              </CheckBoxList>
+              </SubtypeSelector>
             </div>
           ))}
         </div>
@@ -349,17 +354,17 @@ class OrganizerStep extends FormStep {
           <h3>L'événement est organisé...</h3>
           <div>
             <h4>...à titre individuel</h4>
-            <CheckBoxList>
+            <SubtypeSelector>
               <CheckBox
                 active={!organizerGroup}
                 label="J'en suis l'organisateur"
                 onClick={this.setIndividual}
               />
-            </CheckBoxList>
+            </SubtypeSelector>
           </div>
           <div>
             <h4>...par un groupe d'action</h4>
-            <CheckBoxList>
+            <SubtypeSelector>
               {this.props.groups.map(group => (
                 <CheckBox
                   key={group.id}
@@ -368,7 +373,7 @@ class OrganizerStep extends FormStep {
                   onClick={() => this.setGroup(group)}
                 />
               ))}
-            </CheckBoxList>
+            </SubtypeSelector>
           </div>
         </div>
       </div>
