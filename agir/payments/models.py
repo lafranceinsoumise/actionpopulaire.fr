@@ -109,7 +109,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
         return _("Paiement n°") + str(self.id)
 
     def __repr__(self):
-        return "{klass}(email={email!r}, status={status!r}, type={type!r}, mode={mode!r}, price={price!r}".format(
+        return "{klass}(email={email!r}, status={status!r}, type={type!r}, mode={mode!r}, price={price!r})".format(
             klass=self.__class__.__name__,
             email=self.email,
             status=self.status,

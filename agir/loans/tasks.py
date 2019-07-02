@@ -25,7 +25,7 @@ def generate_contract(self, payment_id, force=False):
     if payment_type is None:
         return None
 
-    contract_path = payment_type.contract_path
+    contract_path = payment_type.contract_path(payment)
 
     if not force and payment.status != Payment.STATUS_COMPLETED:
         raise ValueError(f"Paiement n°{payment_id} n'a pas été terminé.")
@@ -44,7 +44,7 @@ def generate_contract(self, payment_id, force=False):
 
     try:
         save_pdf_contract(
-            contract_template=payment_type.contract_template,
+            contract_template=payment_type.contract_template_name,
             contract_information=contract_information,
             dest_path=contract_full_path,
             layout_template=payment_type.pdf_layout_template_name,
