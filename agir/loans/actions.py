@@ -53,8 +53,8 @@ SUBSTITUTIONS = {
     "pronoun": {"M": "il", "F": "elle", "O": "il-elle"},
     "determinant": {"M": "du", "F": "de la", "O": "du/de la"},
     "payment": {
-        "payment_card": "chèque bancaire tiré de son compte personnel",
-        "check": "paiement par carte bancaire depuis son compte personnel",
+        "payment_card": "paiement par carte bancaire depuis son compte personnel",
+        "check": "chèque bancaire tiré de son compte personnel",
     },
 }
 
