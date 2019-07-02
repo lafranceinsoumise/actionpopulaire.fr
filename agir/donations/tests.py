@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from agir.api.redis import using_redislite
-from agir.donations.actions import history
+from agir.donations.spending_requests import history
 from agir.donations.apps import DonsConfig
 from agir.donations.models import Operation, Spending, SpendingRequest, Document
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype

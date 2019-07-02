@@ -50,7 +50,7 @@ class Operation(models.Model):
         else:
             errors = {}
 
-        from agir.donations.actions import get_balance
+        from agir.donations.allocations import get_balance
 
         if self.group and isinstance(self.amount, int) and self.amount < 0:
             balance = get_balance(self.group)

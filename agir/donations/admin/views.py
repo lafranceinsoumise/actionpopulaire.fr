@@ -6,7 +6,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views.generic import DetailView
 
-from agir.donations.actions import admin_summary, history
+from agir.donations.spending_requests import admin_summary, history
 from agir.donations.admin import HandleRequestForm
 from agir.donations.models import SpendingRequest, Spending
 from agir.lib.admin import AdminViewMixin

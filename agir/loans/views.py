@@ -14,13 +14,16 @@ from django.views.generic import FormView, TemplateView, DetailView
 from functools import partial
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
-from agir.donations.actions import find_or_create_person_from_payment
 from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
 from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.loans import tasks
 from agir.loans.actions import generate_html_contract, SUBSTITUTIONS
 from agir.loans.forms import LoanForm, LenderForm, ContractForm
-from agir.payments.actions import create_payment, redirect_to_payment
+from agir.payments.actions import (
+    create_payment,
+    redirect_to_payment,
+    find_or_create_person_from_payment,
+)
 from agir.payments.models import Payment
 from agir.payments.types import PAYMENT_TYPES
 

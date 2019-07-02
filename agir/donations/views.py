@@ -9,16 +9,10 @@ from django.views.generic import UpdateView, TemplateView, DetailView, CreateVie
 from django.views.generic.detail import SingleObjectMixin
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
-from agir.donations.actions import (
-    summary,
-    history,
-    validate_action,
-    group_can_handle_allocation,
-    can_edit,
-    EDITABLE_STATUSES,
-    get_current_action,
-    find_or_create_person_from_payment,
-)
+from agir.payments.actions import find_or_create_person_from_payment
+from agir.donations.allocations import group_can_handle_allocation
+from agir.donations.spending_requests import summary, history, EDITABLE_STATUSES, can_edit, get_current_action, \
+    validate_action
 from agir.donations.apps import DonsConfig
 from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
 from agir.donations.forms import (

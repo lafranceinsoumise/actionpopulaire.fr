@@ -1,43 +1,15 @@
-from datetime import datetime
-
 import reversion
-from django.conf import settings
 from django.db import IntegrityError
-from django.db.models import Sum
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from reversion.models import Version
 
-from agir.donations.models import Operation, SpendingRequest, Document, Spending
+from agir.donations.allocations import get_balance
+from agir.donations.models import SpendingRequest, Spending, Document
 from agir.donations.tasks import send_spending_request_to_review_email
 from agir.lib.display import display_price
 from agir.lib.utils import front_url
-from agir.people.models import Person
-
-
-def get_balance(group):
-    return (
-        Operation.objects.filter(group=group).aggregate(sum=Sum("amount"))["sum"] or 0
-    )
-
-
-def group_can_handle_allocation(group):
-    return group.subtypes.filter(label__in=settings.CERTIFIED_GROUP_SUBTYPES).exists()
-
-
-def get_spending_request_field_label(f):
-    return str(SpendingRequest._meta.get_field(f).verbose_name)
-
-
-def can_be_sent(spending_request):
-    return any(
-        d.type == Document.TYPE_INVOICE for d in spending_request.documents.all()
-    )
-
-
-def are_funds_sufficient(spending_request):
-    return spending_request.amount <= get_balance(spending_request.group)
 
 
 def admin_summary(spending_request):
@@ -176,6 +148,7 @@ HISTORY_MESSAGES = {
         SpendingRequest.STATUS_AWAITING_REVIEW,
     ): "Validé par un⋅e second⋅e animateur⋅rice",
 }
+
 for status, label in SpendingRequest.STATUS_CHOICES:
     HISTORY_MESSAGES[(status, status)] = "Modification de la demande"
 
@@ -411,25 +384,15 @@ def validate_action(spending_request, user):
     return True
 
 
-def find_or_create_person_from_payment(payment):
-    if payment.person is None:
-        try:
-            payment.person = Person.objects.get_by_natural_key(payment.email)
-            if payment.meta.get("subscribed"):
-                payment.person.subscribed = True
-                payment.person.save()
-        except Person.DoesNotExist:
-            person_fields = [f.name for f in Person._meta.get_fields()]
-            person_kwargs = {
-                k: v for k, v in payment.meta.items() if k in person_fields
-            }
+def get_spending_request_field_label(f):
+    return str(SpendingRequest._meta.get_field(f).verbose_name)
 
-            if "date_of_birth" in person_kwargs:
-                person_kwargs["date_of_birth"] = datetime.strptime(
-                    person_kwargs["date_of_birth"], "%d/%m/%Y"
-                ).date()
 
-            payment.person = Person.objects.create_person(
-                email=payment.email, is_insoumise=False, **person_kwargs
-            )
-        payment.save()
+def can_be_sent(spending_request):
+    return any(
+        d.type == Document.TYPE_INVOICE for d in spending_request.documents.all()
+    )
+
+
+def are_funds_sufficient(spending_request):
+    return spending_request.amount <= get_balance(spending_request.group)
