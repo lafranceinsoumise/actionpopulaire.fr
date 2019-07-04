@@ -4,7 +4,8 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext as _
 
 from agir.api.admin import admin_site
-from agir.lib.form_fields import AdminJsonWidget
+from agir.lib.form_fields import AdminJsonWidget, RichEditorWidget
+from agir.lib.models import DescriptionField
 
 from .models import Poll, PollOption
 from agir.lib.utils import front_url
@@ -27,7 +28,16 @@ class PollAdmin(admin.ModelAdmin):
 
     list_display = ("title", "start", "end")
 
-    fields = ["title", "link", "description", "start", "end", "rules", "tags"]
+    fields = [
+        "title",
+        "link",
+        "description",
+        "confirmation_note",
+        "start",
+        "end",
+        "rules",
+        "tags",
+    ]
     readonly_fields = ["link"]
 
     def link(self, object):

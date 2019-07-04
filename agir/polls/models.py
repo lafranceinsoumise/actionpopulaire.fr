@@ -1,6 +1,7 @@
 import uuid
 
 import markdown
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models, transaction
@@ -8,13 +9,14 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
-from agir.lib.models import BaseAPIResource
+from agir.lib.models import BaseAPIResource, DescriptionField
 
 
 class Poll(BaseAPIResource):
     title = models.CharField(_("Titre de la consultation"), max_length=255)
-    description = models.TextField(
+    description = DescriptionField(
         _("Description de la consultation"),
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
         help_text=_("Le texte de description affiché pour tous les insoumis"),
     )
     start = models.DateTimeField(
@@ -36,6 +38,15 @@ class Poll(BaseAPIResource):
     )
     tags = models.ManyToManyField(
         "people.PersonTag", related_name="polls", related_query_name="poll", blank=True
+    )
+
+    confirmation_note = DescriptionField(
+        "Note après participation",
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text=_(
+            "Note montrée à l'utilisateur une fois la participation enregistrée."
+        ),
+        blank=True,
     )
 
     def make_choice(self, person, options):

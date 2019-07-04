@@ -15,7 +15,7 @@ from agir.people.models import Person
 from .forms import PollParticipationForm
 from .models import Poll, PollChoice
 
-__all__ = ["PollParticipationView", "PollConfirmationView", "PollFinishedView"]
+__all__ = ["PollParticipationView", "PollFinishedView"]
 
 
 class PollParticipationView(SoftLoginRequiredMixin, SingleObjectMixin, FormView):
@@ -100,10 +100,6 @@ class PollParticipationView(SoftLoginRequiredMixin, SingleObjectMixin, FormView)
             ),
         )
         return super().form_valid(form)
-
-
-class PollConfirmationView(TemplateView):
-    template_name = "polls/confirmation.html"
 
 
 class PollFinishedView(TemplateView):
