@@ -1,6 +1,7 @@
 import uuid
 
 import re
+from django.contrib.admin.widgets import AdminTextareaWidget
 from django.contrib.gis.db import models
 from django.core.validators import RegexValidator
 from django.utils import timezone
@@ -15,7 +16,7 @@ from stdimage.models import StdImageField
 
 from agir.lib import data
 from agir.lib.data import departement_from_zipcode
-from .form_fields import RichEditorWidget
+from .form_fields import RichEditorWidget, AdminRichEditorWidget
 from .html import sanitize_html
 from .display import display_address
 
@@ -432,6 +433,8 @@ class DescriptionField(models.TextField):
         self._allowed_tags = allowed_tags
 
     def formfield(self, **kwargs):
+        if kwargs.get("widget") == AdminTextareaWidget:
+            kwargs["widget"] = AdminRichEditorWidget(attrs=kwargs.get("attrs", {}))
         defaults = {"widget": RichEditorWidget(attrs=kwargs.get("attrs", {}))}
         defaults.update(kwargs)
         return super().formfield(**defaults)
