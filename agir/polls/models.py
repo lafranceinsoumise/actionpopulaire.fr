@@ -52,6 +52,9 @@ class Poll(BaseAPIResource):
     def __str__(self):
         return self.title
 
+    class Meta:
+        ordering = ("-start",)
+
 
 class PollOption(BaseAPIResource):
     description = models.TextField(

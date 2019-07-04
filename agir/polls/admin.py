@@ -25,6 +25,8 @@ class PollAdmin(admin.ModelAdmin):
     form = PollAdminForm
     inlines = [PollOptionInline]
 
+    list_display = ("title", "start", "end")
+
     fields = ["title", "link", "description", "start", "end", "rules", "tags"]
     readonly_fields = ["link"]
 
