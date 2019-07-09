@@ -42,7 +42,7 @@ class PersonForm(TimeStampedModel):
     objects = PersonFormQueryset.as_manager()
 
     title = models.CharField(_("Titre"), max_length=250)
-    slug = models.SlugField(_("Slug"), max_length=50)
+    slug = models.SlugField(_("Slug"), max_length=50, unique=True)
     published = models.BooleanField(_("Publié"), default=True)
 
     result_url_uuid = models.UUIDField(
