@@ -37,18 +37,14 @@ class FieldSet:
                     field_descriptor, is_edition, form.instance
                 )
 
-            if self.intro_html is not None:
-                self.fields = ({"id": HTML(self.intro_html)}, *self.fields)
-
-        form.helper.layout.append(
-            Fieldset(
-                self.title,
-                *(
-                    Row(FullCol(field_descriptor["id"]))
-                    for field_descriptor in self.fields
-                ),
-            )
+        fields = (
+            Row(FullCol(field_descriptor["id"])) for field_descriptor in self.fields
         )
+
+        if self.intro_html is not None:
+            fields = (HTML(self.intro_html), *fields)
+
+        form.helper.layout.append(Fieldset(self.title, *fields))
 
     def collect_results(self, cleaned_data):
         return {
