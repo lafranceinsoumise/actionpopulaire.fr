@@ -9,9 +9,12 @@ from agir.people.person_forms.fields import is_actual_model_field, get_form_fiel
 
 
 class FieldSet:
-    def __init__(self, title: str, fields: List[Dict], **kwargs):
+    def __init__(
+        self, title: str, fields: List[Dict], intro_html: str = None, **kwargs
+    ):
         self.title = title
         self.fields = fields
+        self.intro_html = intro_html
 
     def set_up_fields(self, form, is_edition):
         for field_descriptor in self.fields:
@@ -33,6 +36,9 @@ class FieldSet:
                 form.fields[field_descriptor["id"]] = get_form_field(
                     field_descriptor, is_edition, form.instance
                 )
+
+            if self.intro_html is not None:
+                self.fields = ({"id": HTML(self.intro_html)}, *self.fields)
 
         form.helper.layout.append(
             Fieldset(
