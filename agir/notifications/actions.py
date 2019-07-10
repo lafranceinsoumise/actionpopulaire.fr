@@ -1,3 +1,5 @@
+import datetime
+
 from django.db.models import Exists, OuterRef
 from django.utils.functional import cached_property
 from glom import glom, T, Call, Coalesce
@@ -39,10 +41,11 @@ def get_notifications(request):
     spec = [
         {
             "id": "id",
+            "status": "status",
             "content": Coalesce("content", "announcement.content", skip="", default=""),
             "icon": Coalesce("icon", "announcement.icon", skip="", default=""),
             "link": Coalesce("link", "announcement.link", skip="", default=""),
-            "status": "status",
+            "created": (Coalesce("announcement.start_date", "created"), T.isoformat()),
         }
     ]
 

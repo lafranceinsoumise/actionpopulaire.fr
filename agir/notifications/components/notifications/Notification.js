@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
+import moment from "moment";
 
 const NotificationBox = styled.li`
   border-top: 1px solid #bbb;
@@ -53,7 +54,13 @@ const Icon = styled.i`
   }
 `;
 
-const Notification = ({ id, content, icon, status, link }) => (
+const Date = styled.div`
+  font-size: 0.8em;
+  margin-top: 0;
+  color: #888;
+`;
+
+const Notification = ({ id, created, content, icon, status, link }) => (
   <NotificationBox>
     <NotificationLink
       status={status}
@@ -63,7 +70,10 @@ const Notification = ({ id, content, icon, status, link }) => (
       }}
     >
       <Icon className={"fa fa-" + icon} />
-      <div dangerouslySetInnerHTML={{ __html: content }} />
+      <div>
+        <div dangerouslySetInnerHTML={{ __html: content }} />
+        <Date>{moment(created).fromNow()}</Date>
+      </div>
     </NotificationLink>
   </NotificationBox>
 );
@@ -71,6 +81,7 @@ const Notification = ({ id, content, icon, status, link }) => (
 Notification.propTypes = {
   id: PropTypes.number.isRequired,
   content: PropTypes.string.isRequired,
+  created: PropTypes.string.isRequired,
   icon: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
   status: PropTypes.string.isRequired

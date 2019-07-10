@@ -8,6 +8,7 @@ const Panel = styled.ul`
   width: 430px;
   padding: 0;
   background-color: #fff !important;
+  border: 1px solid rgba(0, 0, 0, 0.15);
 
   @media (min-width: 992px) {
     overflow-y: auto;
