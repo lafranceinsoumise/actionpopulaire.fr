@@ -27,7 +27,9 @@ def add_announcements(person):
             not gn.segment
             or gn.segment.get_subscribers_queryset().filter(person=person).exists()
         ):
-            Notification.objects.create(person=person, announcement=gn)
+            Notification.objects.create(
+                person=person, announcement=gn, created=gn.start_date
+            )
 
 
 def get_notifications(request):
@@ -37,6 +39,12 @@ def get_notifications(request):
     person = request.user.person
     add_announcements(person)
 
+    notifications = person.notifications.all().select_related("announcement")[:5]
+
+    return serialize_notifications(notifications)
+
+
+def serialize_notifications(notifications):
     # All fields are either
     spec = [
         {
@@ -48,8 +56,6 @@ def get_notifications(request):
             "created": (Coalesce("announcement.start_date", "created"), T.isoformat()),
         }
     ]
-
-    notifications = person.notifications.all().select_related("announcement")[:5]
 
     return glom(notifications, spec)
 

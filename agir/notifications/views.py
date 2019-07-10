@@ -1,11 +1,15 @@
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView
-from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
+from agir.notifications.actions import serialize_notifications
 from agir.notifications.models import Notification
+from agir.notifications.serializers import (
+    NotificationIdsSerializer,
+    ParametersSerializer,
+)
 
 
 class FollowNotificationView(DetailView):
@@ -22,16 +26,10 @@ class FollowNotificationView(DetailView):
         return HttpResponseRedirect(notification.link or notification.announcement.link)
 
 
-class NotificationsSerializer(serializers.Serializer):
-    notifications = serializers.PrimaryKeyRelatedField(
-        queryset=Notification.objects.all(), many=True
-    )
-
-
 class NotificationsSeenView(GenericAPIView):
     permission_classes = ()
 
-    serializer_class = NotificationsSerializer
+    serializer_class = NotificationIdsSerializer
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated or not request.user.person:
@@ -45,3 +43,32 @@ class NotificationsSeenView(GenericAPIView):
         ).update(status=Notification.STATUS_SEEN)
 
         return Response(data={"code": "ok"}, status=200)
+
+
+class NotificationsView(GenericAPIView):
+    queryset = Notification.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        if not request.user or not request.user.person:
+            raise PermissionDenied(detail="Pas une personne", code="unauthenticated")
+
+        parameters = ParametersSerializer(
+            data=request.query_params, context=self.get_serializer_context()
+        )
+
+        if parameters.is_valid():
+            print(parameters.validated_data)
+
+            length = parameters.validated_data["length"]
+            offset = parameters.validated_data["offset"]
+
+            notifications = (
+                self.get_queryset()
+                .filter(person=request.user.person)
+                .select_related("announcement")[offset : (offset + length)]
+            )
+
+            return Response(data=serialize_notifications(notifications))
+
+        else:
+            return Response(data=[], status=400)

@@ -26,7 +26,13 @@ const Header = styled.li`
   }
 `;
 
-const NotificationsPanel = ({ notifications }) => {
+const Action = styled.li`
+  text-align: center;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  color: #888;
+`;
+
+const NotificationsPanel = ({ notifications, loadingMore, loadMore }) => {
   return (
     <Panel className="dropdown-menu">
       <Header className="menu-item">Notifications</Header>
@@ -39,12 +45,28 @@ const NotificationsPanel = ({ notifications }) => {
           <a>Pas de notifications pour le moment</a>
         </li>
       )}
+
+      <Action>
+        {loadingMore === "loading" ? (
+          <span>Chargement...</span>
+        ) : loadingMore === "ready" ? (
+          <a href="#" onClick={loadMore}>
+            Charger plus
+          </a>
+        ) : loadingMore === "error" ? (
+          <a href="#" onClick={loadMore}>
+            Erreur au chargement...
+          </a>
+        ) : null}
+      </Action>
     </Panel>
   );
 };
 
 NotificationsPanel.propTypes = {
-  notifications: PropTypes.array.isRequired
+  notifications: PropTypes.array.isRequired,
+  loadingMore: PropTypes.string,
+  loadMore: PropTypes.func
 };
 
 export default NotificationsPanel;
