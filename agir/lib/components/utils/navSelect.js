@@ -14,7 +14,7 @@ class NavSelect extends React.Component {
       let newChoices;
 
       if (!previousChoices.includes(choice)) {
-        newChoices = Array.concat(previousChoices, choice);
+        newChoices = previousChoices.concat(choice);
       } else {
         previousChoices.splice(previousChoices.indexOf(choice), 1);
         newChoices = previousChoices;
