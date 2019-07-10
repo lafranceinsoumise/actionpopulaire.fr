@@ -6,7 +6,7 @@ const common = require("./webpack.common.js");
 
 module.exports = merge(common, {
   mode: "development",
-  devtool: "eval",
+  devtool: "cheap-eval-source-map",
   output: {
     publicPath: "http://agir.local:3000/static/components/",
     devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
