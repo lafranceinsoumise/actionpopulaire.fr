@@ -153,6 +153,11 @@ export const mandateGroups = [
     mandates: [
       { id: "maire", name: "Maire", division: communeDescriptor },
       {
+        id: "maire-delegue",
+        name: "Maire délégué",
+        division: communeDescriptor
+      },
+      {
         id: "maire-adjoint",
         name: "Maire adjoint",
         division: communeDescriptor
@@ -200,7 +205,7 @@ export const mandateGroups = [
       },
       {
         id: "conseiller-arrondissement",
-        name: "Conseiller  d'arrondissement",
+        name: "Conseiller  d'arrondissement ou de secteur",
         division: arrondissementDescriptor
       }
     ]
