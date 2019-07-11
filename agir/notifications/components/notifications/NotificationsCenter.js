@@ -74,6 +74,7 @@ const NotificationsCenter = ({ notifications: initialNotifications }) => {
       });
       setNotifications(mergeNotifications(notifications, res.data));
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log("Impossible de mettre à jours les notifications", e);
     }
   }, 120 * 1000);
