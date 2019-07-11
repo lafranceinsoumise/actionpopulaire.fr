@@ -33,6 +33,7 @@
     "jsoneditor": "^5.34.0",
     "leaflet-geosearch": "^2.7.0",
     "localized-countries": "^1.0.2",
+    "lodash": ">=4.17.13",
     "masonry-layout": "^4.2.2",
     "moment": "^2.24.0",
     "ol": "^5.3.3",
