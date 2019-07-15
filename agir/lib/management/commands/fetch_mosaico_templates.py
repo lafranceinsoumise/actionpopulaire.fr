@@ -5,8 +5,7 @@ import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from agir.people.actions.mailing import generate_plain_text
-
+from agir.lib.mailing import generate_plain_text, fetch_mosaico_template
 
 LIB_APP_DIR = Path(__file__).parent.parent.parent
 
@@ -19,7 +18,6 @@ class Command(BaseCommand):
         target_dir = LIB_APP_DIR / "templates" / "mail_templates"
         target_dir.mkdir(0o755, parents=True, exist_ok=True)
 
-        var_regex = re.compile(r"\[([-A-Z_]+)\]")
         var_files = re.compile(r"^([-A-Za-z_]+)\.(?:html|txt)$")
 
         for file in target_dir.iterdir():
@@ -30,12 +28,9 @@ class Command(BaseCommand):
 
         for name, url in settings.EMAIL_TEMPLATES.items():
             try:
-                res = requests.get(url)
-                res.raise_for_status()
+                content = fetch_mosaico_template(url)
             except requests.RequestException:
                 raise CommandError('Could not fetch url "{}"'.format(url))
-
-            content = var_regex.sub(r"{{ \1 }}", res.text)
 
             html_file = target_dir.joinpath(f"{name}.html")
             txt_file = target_dir.joinpath(f"{name}.txt")

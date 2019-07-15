@@ -5,7 +5,7 @@ from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
 
-from agir.people.actions.mailing import send_mosaico_email
+from agir.lib.mailing import send_mosaico_email
 
 
 def interleave_spaces(s, n=3):

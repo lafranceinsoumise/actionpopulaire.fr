@@ -19,7 +19,7 @@ from agir.lib.display import str_summary
 from agir.lib.html import sanitize_html
 from agir.people.models import Person
 from ..lib.utils import front_url
-from ..people.actions.mailing import send_mosaico_email
+from agir.lib.mailing import send_mosaico_email
 from .models import Event, RSVP, OrganizerConfig
 
 a = requests.adapters.HTTPAdapter(max_retries=Retry(total=5, backoff_factor=1))

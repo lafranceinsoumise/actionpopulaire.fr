@@ -15,7 +15,7 @@ from agir.authentication.signers import (
     abusive_invitation_report_token_generator,
 )
 from agir.lib.utils import front_url
-from agir.people.actions.mailing import send_mosaico_email
+from agir.lib.mailing import send_mosaico_email
 from agir.people.models import Person
 from .models import SupportGroup, Membership
 

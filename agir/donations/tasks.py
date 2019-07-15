@@ -9,7 +9,7 @@ from django.urls import reverse
 
 from agir.donations.models import SpendingRequest
 from ..lib.utils import front_url
-from ..people.actions.mailing import send_mosaico_email
+from agir.lib.mailing import send_mosaico_email
 from ..people.models import Person
 
 

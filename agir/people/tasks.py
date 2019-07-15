@@ -17,7 +17,7 @@ from agir.authentication.signers import (
 from agir.lib.display import pretty_time_since
 from agir.lib.mailtrain import update_person, delete_email
 from agir.lib.utils import front_url
-from agir.people.actions.mailing import send_mosaico_email
+from agir.lib.mailing import send_mosaico_email
 from agir.people.person_forms.display import get_formatted_submission
 from .models import Person, PersonFormSubmission, PersonEmail
 

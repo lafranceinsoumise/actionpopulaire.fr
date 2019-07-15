@@ -5,7 +5,7 @@ from django.utils.safestring import mark_safe
 
 from agir.checks.models import CheckPayment
 from agir.payments.payment_modes import PAYMENT_MODES
-from agir.people.actions.mailing import send_mosaico_email, conditional_html_to_text
+from agir.lib.mailing import send_mosaico_email
 
 
 @shared_task

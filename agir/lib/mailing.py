@@ -1,20 +1,22 @@
 from email.mime.base import MIMEBase
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 
+import html2text
 import re
+import requests
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.http import QueryDict
 from django.core.mail import EmailMultiAlternatives, get_connection
+from django.http import QueryDict
 from django.template import loader, TemplateDoesNotExist
-
-import html2text
 from django.utils.safestring import mark_safe
 
-from agir.people.models import Person
 from agir.lib.utils import generate_token_params, front_url, is_front_url, AutoLoginUrl
+from agir.people.models import Person
 
 __all__ = ["send_mail", "send_mosaico_email"]
+
+MOSAICO_VAR_REGEX = re.compile(r"\[([-A-Z_]+)\]")
 
 _h = html2text.HTML2Text(bodywidth=0)
 _h.ignore_images = True
@@ -187,3 +189,10 @@ def send_mail(
     )
     msg.attach_alternative(html_message, "text/html")
     msg.send(fail_silently=fail_silently)
+
+
+def fetch_mosaico_template(url):
+    res = requests.get(url)
+    res.raise_for_status()
+
+    return MOSAICO_VAR_REGEX.sub(r"{{ \1 }}", res.text)

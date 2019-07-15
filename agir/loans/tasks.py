@@ -11,7 +11,7 @@ from slugify import slugify
 from agir.loans.actions import save_pdf_contract, SUBSTITUTIONS
 from agir.payments.models import Payment
 from agir.payments.types import PAYMENT_TYPES
-from agir.people.actions.mailing import send_mosaico_email
+from agir.lib.mailing import send_mosaico_email
 
 
 @shared_task(bind=True)
