@@ -136,6 +136,10 @@ class PersonForm(TimeStampedModel):
     config = JSONField(_("Configuration"), blank=True, default=dict)
 
     @property
+    def submit_label(self):
+        return self.config.get("submit_label", "Envoyer")
+
+    @property
     def fields_dict(self):
         return OrderedDict(
             (field["id"], field)

@@ -107,7 +107,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.form_method = "POST"
-        self.helper.add_input(Submit("submit", "Envoyer"))
+        self.helper.add_input(Submit("submit", self.person_form_instance.submit_label))
         self.helper.layout = Layout()
 
         if self.person_form_instance.custom_fields:
