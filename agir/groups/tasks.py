@@ -14,7 +14,9 @@ from agir.authentication.signers import (
     invitation_confirmation_token_generator,
     abusive_invitation_report_token_generator,
 )
+from agir.events.models import Event, OrganizerConfig
 from agir.lib.utils import front_url
+from agir.notifications.actions import add_notification
 from agir.people.actions.mailing import send_mosaico_email
 from agir.people.models import Person
 from .models import SupportGroup, Membership
@@ -99,6 +101,15 @@ def send_support_group_changed_notification(self, support_group_pk, changes):
             notifications_enabled
         ).prefetch_related("person__emails")
     ]
+
+    for r in recipients:
+        add_notification(
+            person=r,
+            content=f"Votre groupe « {group.name} » a été modifié par ses organisateurs. Vérifiez les changements !",
+            link=front_url("view_group", kwargs={"pk": group.pk}),
+            icon="users",
+        )
+
     try:
         send_mosaico_email(
             code="GROUP_CHANGED",
@@ -279,3 +290,25 @@ def send_abuse_report_message(self, inviter_id):
         )
     except (smtplib.SMTPException, socket.error) as exc:
         self.retry(countdown=60, exc=exc)
+
+
+@shared_task
+def notify_new_group_event(group_pk, event_pk):
+    try:
+        group = SupportGroup.objects.get(pk=group_pk)
+        event = Event.objects.get(pk=event_pk)
+    except (SupportGroup.DoesNotExist, Event.DoesNotExist):
+        return
+
+    if not OrganizerConfig.objects.filter(event=event, as_group=group):
+        return
+
+    recipients = group.members.all()
+
+    for r in recipients:
+        add_notification(
+            content=f"Votre groupe « {group.name} » organise un nouvel événement : « {event.name} »",
+            link=front_url("view_event", kwargs={"pk": event_pk}),
+            icon="users",
+            person=r,
+        )

@@ -73,3 +73,7 @@ class NotificationRequestManager:
 
     def unread(self):
         return sum(not n.seen for n in self.notifications)
+
+
+def add_notification(**kwargs):
+    Notification.objects.create(**kwargs)
