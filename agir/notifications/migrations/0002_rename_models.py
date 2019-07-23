@@ -19,6 +19,11 @@ def initialize_created(apps, schema):
     ).update(created=models.F("start_date"))
 
 
+def delete_personal_notifications(apps, schema):
+    Notification = apps.get_model("notifications", "Notification")
+    Notification.objects.filter(announcement_id=None).delete()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -136,6 +141,6 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunPython(
-            code=initialize_created, reverse_code=migrations.RunPython.noop
+            code=initialize_created, reverse_code=delete_personal_notifications
         ),
     ]
