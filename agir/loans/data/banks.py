@@ -9,7 +9,7 @@ with open(Path(__file__).parent / "cib_bic.csv") as file:
 
 def iban_to_bic(iban):
     iban = to_iban(iban)
-    if not iban.is_valid() or not iban.country != "FR":
+    if not iban.is_valid() or iban.country != "FR":
         return None
 
     cib = iban.as_stored_value[4:9]

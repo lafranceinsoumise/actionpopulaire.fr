@@ -62,6 +62,7 @@ iso8601 = "*"  # parse ISO8601 dates
 django-anymail =  "==6.*"
 boto3 = "*"
 num2words = "*"
+sepaxml = "==2.*"
 
 [dev-packages]
 ipython = "*"
