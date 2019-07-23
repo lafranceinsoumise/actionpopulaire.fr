@@ -1,9 +1,23 @@
 from pathlib import Path
 from typing import Callable, Union
 
+from agir.lib.iban import to_iban
+from agir.loans.data.banks import iban_to_bic
 from agir.payments.models import Payment
-from agir.payments.types import PaymentType
+from agir.payments.types import PaymentType, PAYMENT_TYPES
 from agir.loans import views
+
+
+def default_description_context_generator(payment: Payment):
+    payment_type = PAYMENT_TYPES[payment.type]
+    iban = to_iban(payment.meta.get("iban"))
+
+    return {
+        "payment": payment,
+        "iban": str(to_iban(payment.meta.get("iban"))),
+        "bic": payment.meta.get("bic") or iban_to_bic(iban),
+        "loan_recipient": payment_type.loan_recipient,
+    }
 
 
 class LoanConfiguration(PaymentType):
@@ -28,5 +42,8 @@ class LoanConfiguration(PaymentType):
         )
         kwargs.setdefault("status_listener", views.loan_notification_listener)
         kwargs.setdefault("description_template", "loans/description.html")
+        kwargs.setdefault(
+            "description_context_generator", default_description_context_generator
+        )
 
         super().__init__(*args, **kwargs)

@@ -27,8 +27,7 @@ register_payment_type(
     LoanConfiguration(
         id="pret_europeennes",
         label="Prêt à la campagne européenne 2019",
-        loan_recipient="l'AFCE LFI 2019",
-        description_template="legacy/europeennes/loan_description.html",
+        loan_recipient="la campagne européenne 2019",
         contract_path=contract_path,
         contract_template_name="legacy/europeennes/contract.md",
         pdf_layout_template_name="legacy/europeennes/contract_layout.html",

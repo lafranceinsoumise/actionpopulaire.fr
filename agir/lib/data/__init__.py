@@ -1,6 +1,6 @@
 import csv
+from pathlib import Path
 
-import os
 import re
 from django.db.models import Q
 from functools import reduce
@@ -12,18 +12,16 @@ def _normalize_entity_name(name):
     return unidecode(str(name)).lower().replace("-", " ")
 
 
-with open(os.path.dirname(os.path.realpath(__file__)) + "/departements.csv") as file:
+with open(Path(__file__).parent / "departements.csv") as file:
     departements = list(csv.DictReader(file))
 
-with open(os.path.dirname(os.path.realpath(__file__)) + "/regions.csv") as file:
+with open(Path(__file__).parent / "regions.csv") as file:
     regions = list(csv.DictReader(file))
 
 for region in regions:
     region["alias"] = region["alias"].split("/") if region["alias"] else []
 
-with open(
-    os.path.dirname(os.path.realpath(__file__)) + "/anciennes_regions.csv"
-) as file:
+with open(Path(__file__).parent / "anciennes_regions.csv") as file:
     anciennes_regions = list(csv.DictReader(file))
 
 departements_map = {d["id"]: d for d in departements}

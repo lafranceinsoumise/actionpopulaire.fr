@@ -1,10 +1,21 @@
 {% load display_lib %}
 <div class="input-group">
   <h4>Prêt à {{ loan_recipient }}</h4>
-  <div>Vous avez prêté <strong>{{ payment.price | display_price }}</strong> à {{ payment_type.loan_recipient }} le {{ payment.meta.signature_datetime }}</div>
+  <div>Vous avez prêté <strong>{{ payment.price | display_price }}</strong> à {{ payment_type.loan_recipient }}
+    le {{ payment.meta.signature_datetime }}</div>
+  <div>Vous serez remboursés aux coordonnées bancaires suivantes :</div>
+  <ul>
+    <li>IBAN : <strong>{{ iban }}</strong></li>
+    {% if bic %}
+      <li>BIC : <strong>{{ bic }}</strong></li>
+    {% else %}
+      BIC inconnu
+    {% endif %}
+
+  </ul>
   {% if payment.meta.contract_path %}
     <span class="input-group-btn">
-  <a class="btn btn-default" href="{% url "europeennes_view_contract" payment.id %}">
+  <a class="btn btn-default" href="{% url "loans_view_contract" payment.id %}">
     Voir le contrat
   </a>
 </span>
