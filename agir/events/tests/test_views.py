@@ -1,7 +1,6 @@
-from unittest import skip, mock
+from unittest import mock
 
 from datetime import timedelta
-from django.contrib.gis.geos import Point
 
 from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
@@ -18,7 +17,7 @@ from agir.carte.views import EventMapView
 from agir.events.actions import legal
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.mixins import FakeDataMixin
-from agir.payments.actions import complete_payment
+from agir.payments.actions.payments import complete_payment
 from agir.payments.models import Payment
 from agir.people.models import Person, PersonForm, PersonFormSubmission, PersonTag
 

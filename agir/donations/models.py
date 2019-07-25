@@ -287,3 +287,26 @@ class Document(models.Model):
     )
 
     deleted = models.BooleanField(_("Supprimé"), null=False, default=False)
+
+
+class MonthlyAllocation(models.Model):
+    subscription = models.ForeignKey(
+        "payments.Subscription", related_name="allocations", on_delete=models.PROTECT
+    )
+
+    group = models.ForeignKey(
+        to="groups.SupportGroup",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="subscriptions",
+    )
+
+    amount = models.SmallIntegerField("montant", null=False, blank=False)
+
+    def __str__(self):
+        return "Allocation n°" + str(self.pk)
+
+    class Meta:
+        verbose_name = "Allocation mensuelle"
+        verbose_name_plural = "Allocations mensuelles"

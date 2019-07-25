@@ -5,12 +5,15 @@ from crispy_forms import layout
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Row, Submit
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.html import format_html
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
+from agir.donations.form_fields import AskAmountField
 from agir.groups.models import SupportGroup
 from agir.lib.form_components import *
 from .models import SpendingRequest, Document
@@ -90,6 +93,31 @@ class AllocationDonationForm(SimpleDonationForm):
         return self.cleaned_data
 
 
+class AllocationSubscriptionForm(AllocationDonationForm):
+    button_label = "Mettre en place le don mensuel"
+
+    amount = AskAmountField(
+        label="Montant du don mensuel",
+        max_value=settings.MONTHLY_DONATION_MAXIMUM,
+        min_value=settings.MONTHLY_DONATION_MINIMUM,
+        decimal_places=2,
+        required=True,
+        error_messages={
+            "invalid": _("Indiquez le montant de votre don mensuel."),
+            "min_value": format_lazy(
+                _("Les dons mensuels de moins de {min} € ne sont pas acceptés."),
+                min=settings.MONTHLY_DONATION_MINIMUM,
+            ),
+            "max_value": format_lazy(
+                _("Les dons mensuels de plus de {max} € ne sont pas acceptés."),
+                max=settings.MONTHLY_DONATION_MAXIMUM,
+            ),
+        },
+        by_month=True,
+        show_tax_credit=True,
+    )
+
+
 class AllocationDonorForm(SimpleDonorForm):
     allocation = forms.IntegerField(
         min_value=0, required=True, widget=forms.HiddenInput
@@ -123,6 +151,10 @@ class AllocationDonorForm(SimpleDonorForm):
             )
 
         return cleaned_data
+
+
+class AllocationMonthlyDonorForm(AllocationDonorForm):
+    button_label = "Je donne {amount} par mois."
 
 
 class SpendingRequestFormMixin:

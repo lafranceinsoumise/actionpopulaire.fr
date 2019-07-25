@@ -41,7 +41,8 @@ class DonationForm extends React.Component {
       maxAmountError,
       amountChoices,
       showTaxCredit,
-      buttonLabel
+      buttonLabel,
+      byMonth
     } = this.props;
     const { group, amount, nationalRatio } = this.state;
 
@@ -61,6 +62,7 @@ class DonationForm extends React.Component {
           amount={amount}
           amountChoices={amountChoices}
           showTaxCredit={showTaxCredit}
+          byMonth={byMonth}
           error={customError}
           onAmountChange={amount => this.setState({ amount })}
         />
@@ -69,6 +71,7 @@ class DonationForm extends React.Component {
             choices={groupChoices}
             value={group}
             onGroupChange={group => this.setState({ group })}
+            showOtherGroupHelp={!byMonth}
           />
         )}
         {(group || groupChoices) && (
@@ -99,6 +102,7 @@ DonationForm.propTypes = {
   maxAmountError: PropTypes.string,
   amountChoices: PropTypes.array,
   showTaxCredit: PropTypes.bool,
+  byMonth: PropTypes.bool,
   initialGroup: PropTypes.string,
   groupName: PropTypes.string,
   groupChoices: PropTypes.arrayOf(

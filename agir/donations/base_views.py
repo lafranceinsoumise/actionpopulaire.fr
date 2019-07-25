@@ -1,12 +1,12 @@
 from django.db import transaction
 from django.shortcuts import redirect
+from django.utils.functional import cached_property
 from django.views.generic import FormView, UpdateView
 
 import agir.donations.base_forms
-from agir.donations.apps import DonsConfig
-from agir.payments.actions import create_payment, redirect_to_payment
+from agir.groups.models import SupportGroup
+from agir.payments.actions.payments import create_payment, redirect_to_payment
 from agir.payments.models import Payment
-from agir.people.models import Person
 
 
 class BaseAskAmountView(FormView):
@@ -35,6 +35,8 @@ class BasePersonalInformationView(UpdateView):
     base_redirect_url = None
 
     def dispatch(self, request, *args, **kwargs):
+        self.persistent_data = request.session[self.session_namespace]
+
         if "amount" in request.GET:
             try:
                 amount = int(request.GET["amount"])
@@ -50,8 +52,6 @@ class BasePersonalInformationView(UpdateView):
             or "amount" not in request.session[self.session_namespace]
         ):
             return redirect(self.base_redirect_url)
-
-        self.persistent_data = request.session[self.session_namespace]
         return super().dispatch(request, *args, **kwargs)
 
     def clear_session(self):
@@ -69,7 +69,7 @@ class BasePersonalInformationView(UpdateView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(amount=self.persistent_data["amount"], **kwargs)
 
-    def get_payment_meta(self, form):
+    def get_metas(self, form):
         return {
             "nationality": form.cleaned_data["nationality"],
             **{
@@ -78,29 +78,25 @@ class BasePersonalInformationView(UpdateView):
             "contact_phone": form.cleaned_data["contact_phone"].as_e164,
         }
 
-    def form_valid(self, form):
-        if not form.adding:
-            self.object = form.save()
 
+class AllocationPersonalInformationMixin:
+    enable_allocations = True
+
+    def get_context_date(self, **kwargs):
         amount = self.persistent_data["amount"]
-        payment_metas = self.get_payment_meta(form)
+        allocation = self.persistent_data.get("allocation", 0)
 
-        payment_fields = [f.name for f in Payment._meta.get_fields()]
+        kwargs["allocation"] = 0
+        kwargs["national"] = amount - allocation
+        kwargs["group_name"] = (
+            self.allocation_group.name if self.allocation_group is not None else None
+        )
 
-        kwargs = {f: v for f, v in form.cleaned_data.items() if f in payment_fields}
-        if "email" in form.cleaned_data:
-            kwargs["email"] = form.cleaned_data["email"]
+        return super().get_context_date(kwargs)
 
-        with transaction.atomic():
-            payment = create_payment(
-                person=self.object,
-                mode=self.payment_mode,
-                type=self.payment_type,
-                price=amount,
-                meta=payment_metas,
-                **kwargs
-            )
+    @cached_property
+    def allocation_group(self):
+        group_id = self.persistent_data.get("group_id", None)
 
-        self.clear_session()
-
-        return redirect_to_payment(payment)
+        if group_id is not None:
+            return SupportGroup.objects.get(pk=group_id)

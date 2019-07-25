@@ -1,7 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const GroupSelector = ({ choices, value, onGroupChange }) => (
+const GroupSelector = ({
+  choices,
+  value,
+  onGroupChange,
+  showOtherGroupHelp
+}) => (
   <div className="form-group">
     <label htmlFor="group-selector">
       Souhaitez-vous allouer votre don aux activités d'un groupe d'action
@@ -20,11 +25,13 @@ const GroupSelector = ({ choices, value, onGroupChange }) => (
         </option>
       ))}
     </select>
-    <div className="small help-text padtop">
-      Si vous voulez choisir un groupe dont vous n'être pas membre, rendez-vous
-      sur la page de ce groupe et cliquez sur &laquo;&nbsp;Financer les actions
-      de ce groupe&nbsp;&raquo;.
-    </div>
+    {showOtherGroupHelp && (
+      <div className="small help-text padtop">
+        Si vous voulez choisir un groupe dont vous n'être pas membre,
+        rendez-vous sur la page de ce groupe et cliquez sur
+        &laquo;&nbsp;Financer les actions de ce groupe&nbsp;&raquo;.
+      </div>
+    )}
   </div>
 );
 
@@ -36,7 +43,8 @@ GroupSelector.propTypes = {
     })
   ),
   value: PropTypes.string,
-  onGroupChange: PropTypes.func
+  onGroupChange: PropTypes.func,
+  showOtherGroupHelp: PropTypes.bool
 };
 
 export default GroupSelector;

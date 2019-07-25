@@ -17,7 +17,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
 from agir.api.admin import admin_site
-from agir.payments.actions import notify_status_change
+from agir.payments.actions.payments import notify_status_change
 
 from .models import CheckPayment
 

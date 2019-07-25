@@ -8,7 +8,12 @@ from django.utils.translation import ugettext_lazy as _
 from agir.api.admin import admin_site
 from agir.donations.admin.forms import HandleRequestForm
 from agir.donations.admin.views import HandleRequestView
-from agir.donations.models import SpendingRequest, Document, Operation
+from agir.donations.models import (
+    SpendingRequest,
+    Document,
+    Operation,
+    MonthlyAllocation,
+)
 
 
 def mark_as_paid(model_admin, request, queryset):
@@ -133,3 +138,10 @@ class OperationAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return request.user.is_superuser
+
+
+@admin.register(MonthlyAllocation, site=admin_site)
+class MonthlyAllocationAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "group", "amount", "subscription")
+
+    readonly_fields = ("group", "subscription", "amount")

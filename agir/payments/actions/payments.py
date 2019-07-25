@@ -4,9 +4,9 @@ from django.http.response import HttpResponseRedirect
 from django.template import loader
 
 from agir.people.models import Person
-from .models import Payment
-from .payment_modes import DEFAULT_MODE
-from .types import PAYMENT_TYPES
+from agir.payments.models import Payment
+from agir.payments.payment_modes import DEFAULT_MODE
+from agir.payments.types import PAYMENT_TYPES
 
 
 class PaymentException(Exception):
@@ -53,7 +53,15 @@ def complete_payment(payment):
         raise PaymentException("Le paiement a déjà été annulé.")
 
     payment.status = Payment.STATUS_COMPLETED
-    payment.save()
+    payment.save(update_fields=["status"])
+
+
+def refuse_payment(payment):
+    if payment.status == Payment.STATUS_CANCELED:
+        raise PaymentException("Le paiement a déjà été annulé.")
+
+    payment.status = Payment.STATUS_REFUSED
+    payment.save(update_fields=["status"])
 
 
 def cancel_payment(payment):

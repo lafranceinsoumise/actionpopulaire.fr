@@ -11,6 +11,11 @@ urlpatterns = [
         name="donation_information",
     ),
     path(
+        "dons-mensuels/informations/",
+        views.MonthlyDonationPersonalInformationView.as_view(),
+        name="monthly_donation_information",
+    ),
+    path(
         "groupes/<uuid:group_id>/depenses/",
         views.CreateSpendingRequestView.as_view(),
         name="create_spending_request",

@@ -19,7 +19,7 @@ from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.loans import tasks
 from agir.loans.actions import generate_html_contract, SUBSTITUTIONS
 from agir.loans.forms import LoanForm, LenderForm, ContractForm
-from agir.payments.actions import (
+from agir.payments.actions.payments import (
     create_payment,
     redirect_to_payment,
     find_or_create_person_from_payment,

@@ -2,6 +2,9 @@ from typing import Iterable
 
 from django.contrib import admin
 from django.contrib.admin import helpers
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from agir.lib import data
@@ -92,3 +95,16 @@ class AdminViewMixin:
         kwargs.setdefault("show_close", False)
 
         return super().get_context_data(**kwargs)
+
+
+class PersonLinkMixin:
+    def person_link(self, obj):
+        return mark_safe(
+            '<a href="%s">%s</a>'
+            % (
+                reverse("admin:people_person_change", args=(obj.person.id,)),
+                escape(obj.person),
+            )
+        )
+
+    person_link.short_description = "Personne"

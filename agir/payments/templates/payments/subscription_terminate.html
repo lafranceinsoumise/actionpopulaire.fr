@@ -1,0 +1,25 @@
+{% extends "front/layout.html" %}
+{% load static %}
+
+{% block title %}
+  Annuler votre paiement automatique
+{% endblock %}
+
+{% block main %}
+  <div class="col-responsive">
+    <h1>Mettre fin au paiement automatique</h1>
+
+    <div>
+      <p>Voulez-vous vraiment mettre fin à ce paiement automatique&nbsp;?</p>
+      <div class="panel panel-default"><div class="panel-body">
+      {{ subscription.description }}
+      </div></div>
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Mettre fin au paiement</button>
+        <a class="btn btn-default" href="{% url 'view_payments' %}">Retour à la liste de mes paiements</a>
+      </form>
+
+    </div>
+  </div>
+{% endblock %}
