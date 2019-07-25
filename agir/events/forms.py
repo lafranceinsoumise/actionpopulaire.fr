@@ -291,7 +291,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                 send_event_changed_notification.delay(self.instance.pk, changes)
 
         # also notify members if it is organized by a group
-        if self.cleaned_data["as_group"] and self.has_changed("as_group"):
+        if self.cleaned_data["as_group"] and "as_group" in self.changed_data:
             transaction.on_commit(
                 partial(
                     notify_new_group_event,
