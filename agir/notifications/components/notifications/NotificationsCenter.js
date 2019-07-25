@@ -69,7 +69,7 @@ const NotificationsCenter = ({ notifications: initialNotifications }) => {
 
   useInterval(async () => {
     try {
-      const res = await axios.get("/notification/", {
+      const res = await axios.get("/notification/liste", {
         length: notifications.length
       });
       setNotifications(mergeNotifications(notifications, res.data));
@@ -87,7 +87,7 @@ const NotificationsCenter = ({ notifications: initialNotifications }) => {
     e.preventDefault();
     setLoadingMore("loading");
     try {
-      const res = await axios.get("/notification/", {
+      const res = await axios.get("/notification/liste", {
         params: {
           offset: notifications.length,
           length: 5
