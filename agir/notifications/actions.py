@@ -25,7 +25,7 @@ def add_announcements(person):
     for gn in announcements:
         if (
             not gn.segment
-            or gn.segment.get_subscribers_queryset().filter(person=person).exists()
+            or gn.segment.get_subscribers_queryset().filter(id=person.pk).exists()
         ):
             Notification.objects.create(
                 person=person, announcement=gn, created=gn.start_date
