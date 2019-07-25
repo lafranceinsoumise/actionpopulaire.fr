@@ -16,8 +16,11 @@ from rest_framework import status
 from agir.authentication.signers import subscription_confirmation_token_generator
 from agir.carte.views import EventMapView
 from agir.events.actions import legal
+from agir.events.tasks import notify_on_event_report
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.mixins import FakeDataMixin
+from agir.lib.utils import front_url
+from agir.notifications.models import Notification
 from agir.payments.actions import complete_payment
 from agir.payments.models import Payment
 from agir.people.models import Person, PersonForm, PersonFormSubmission, PersonTag
@@ -131,7 +134,7 @@ class EventPagesTestCase(TestCase):
             subtype=self.subtype,
             start_time=now - 2 * day,
             end_time=now - 2 * day + 2 * hour,
-            report_content="Ceci est un compt rendu de l'evenement",
+            report_content="Ceci est un compte rendu de l'evenement",
             report_summary_sent=False,
         )
 
@@ -140,7 +143,7 @@ class EventPagesTestCase(TestCase):
             subtype=self.subtype,
             start_time=now + 2 * day,
             end_time=now + 2 * day + 2 * hour,
-            report_content="Ceci est un compt rendu de l'evenement",
+            report_content="Ceci est un compte rendu de l'evenement",
             report_summary_sent=False,
         )
 
@@ -153,7 +156,7 @@ class EventPagesTestCase(TestCase):
             report_summary_sent=False,
         )
 
-        self.all_ready_sent_event = Event.objects.create(
+        self.already_sent_event = Event.objects.create(
             name="all ready sent event",
             subtype=self.subtype,
             start_time=now + 2 * day,
@@ -172,7 +175,7 @@ class EventPagesTestCase(TestCase):
             event=self.no_report_event, person=self.person, is_creator=True
         )
         OrganizerConfig.objects.create(
-            event=self.all_ready_sent_event, person=self.person, is_creator=True
+            event=self.already_sent_event, person=self.person, is_creator=True
         )
 
         self.the_rsvp = RSVP.objects.create(person=self.person, event=self.past_event)
@@ -547,7 +550,7 @@ class EventPagesTestCase(TestCase):
 
     @mock.patch("agir.events.views.event_views.send_event_report")
     def test_can_not_send_event_report_when_nocondition(self, send_event_report):
-        """ Si les conditions une des condition manque, l'envoi du mail ne se fait pas.
+        """ Si une des conditions manque, l'envoi du mail ne se fait pas.
 
         Les conditions sont : le mail n'a jamais été envoyé, l'événement est passé,
         le compte-rendu n'est pas vide."""
@@ -561,9 +564,34 @@ class EventPagesTestCase(TestCase):
         )
         send_event_report.delay.assert_not_called()
         response = self.client.post(
-            reverse("send_event_report", kwargs={"pk": self.all_ready_sent_event.pk})
+            reverse("send_event_report", kwargs={"pk": self.already_sent_event.pk})
         )
         send_event_report.delay.assert_not_called()
+
+    @mock.patch("django.db.transaction.on_commit")
+    def test_attendees_notified_when_report_is_posted(self, on_commit):
+        now = timezone.now()
+        past_event = Event.objects.create(
+            name="Evenement terminé",
+            start_time=now - timedelta(days=1, hours=2),
+            end_time=now - timedelta(days=1),
+            subtype=self.subtype,
+        )
+        OrganizerConfig.objects.create(event=past_event, person=self.person)
+        RSVP.objects.create(event=past_event, person=self.other_person)
+
+        self.client.force_login(self.person.role)
+        res = self.client.post(
+            reverse("edit_event_report", args=[past_event.pk]),
+            data={"report_content": "Un super compte-rendu de malade."},
+        )
+        self.assertRedirects(res, reverse("manage_event", args=[past_event.pk]))
+
+        on_commit.assert_called_once()
+        partial = on_commit.call_args[0][0]
+
+        self.assertEqual(partial.func, notify_on_event_report)
+        self.assertEqual(partial.args, (past_event.pk,))
 
 
 class RSVPTestCase(TestCase):

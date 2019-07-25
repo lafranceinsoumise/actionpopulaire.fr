@@ -389,10 +389,12 @@ class EventReportForm(ImageFormMixin, forms.ModelForm):
         )
 
     def save(self, commit=True):
-        super().save(commit)
+        instance = super().save(commit)
 
         if not self.already_published:
             transaction.on_commit(partial(notify_on_event_report, self.instance.pk))
+
+        return instance
 
     class Meta:
         model = Event
