@@ -1,19 +1,22 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
+from crispy_forms import layout
+from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Row, Field
 from django import forms
-from django.core.validators import MinValueValidator
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.validators import MinValueValidator
+from django.db import transaction
 from django.template.defaultfilters import floatformat
-from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
-from crispy_forms.helper import FormHelper
-from crispy_forms import layout
+from django.utils.translation import ugettext_lazy as _
+from functools import partial
 from phonenumber_field.formfields import PhoneNumberField
 
 from agir.events.actions import legal
 from agir.events.actions.legal import needs_approval
 from agir.groups.models import SupportGroup
+from agir.groups.tasks import notify_new_group_event
 from agir.lib.form_components import *
 from agir.lib.form_mixins import (
     LocationFormMixin,
@@ -22,20 +25,20 @@ from agir.lib.form_mixins import (
     MetaFieldsMixin,
     ImageFormMixin,
 )
-from agir.people.forms import BasePersonForm
 from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
+from agir.people.forms import BasePersonForm
 from agir.people.person_forms.fields import DateTimeField
-
-from ..people.models import Person, PersonFormSubmission
 from .models import Event, OrganizerConfig, RSVP, EventImage, EventSubtype
 from .tasks import (
     send_event_creation_notification,
     send_event_changed_notification,
     send_external_rsvp_confirmation,
     send_secretariat_notification,
+    notify_on_event_report,
 )
-from ..lib.tasks import geocode_event
 from ..lib.form_fields import AcceptCreativeCommonsLicenceField
+from ..lib.tasks import geocode_event
+from ..people.models import Person, PersonFormSubmission
 
 __all__ = [
     "EventForm",
@@ -253,6 +256,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                 event=self.instance,
                 as_group=self.cleaned_data["as_group"],
             )
+
             RSVP.objects.create(person=self.person, event=self.instance)
         elif self.organizer_config.as_group != self.cleaned_data["as_group"]:
             self.organizer_config.as_group = self.cleaned_data["as_group"]
@@ -270,7 +274,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
             }
         )
 
-        # if it's a new group creation, send the confirmation notification and geolocate it
+        # if it's a new event creation, send the confirmation notification and geolocate it
         if self.is_creation:
             # membership attribute created by _save_m2m
             send_event_creation_notification.delay(self.organizer_config.pk)
@@ -280,10 +284,21 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                     self.organizer_config.person.pk,
                     complete=False,
                 )
+
         else:
             # send changes notification if the notify checkbox was checked
             if changes and self.cleaned_data.get("notify"):
                 send_event_changed_notification.delay(self.instance.pk, changes)
+
+        # also notify members if it is organized by a group
+        if self.cleaned_data["as_group"] and self.has_changed("as_group"):
+            transaction.on_commit(
+                partial(
+                    notify_new_group_event,
+                    self.cleaned_data["as_group"].pk,
+                    self.instance.pk,
+                )
+            )
 
     class Meta:
         model = Event
@@ -363,6 +378,8 @@ class EventReportForm(ImageFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.already_published = bool(self.instance.report_content)
+
         self.fields["report_image"].label = "Image de couverture (optionnelle)"
 
         self.helper = FormHelper()
@@ -370,6 +387,14 @@ class EventReportForm(ImageFormMixin, forms.ModelForm):
         self.helper.layout = Layout(
             "report_content", "report_image", "image_accept_license"
         )
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+
+        if not self.already_published:
+            transaction.on_commit(partial(notify_on_event_report, self.instance.pk))
+
+        return instance
 
     class Meta:
         model = Event

@@ -13,4 +13,5 @@ urlpatterns = [
         views.NotificationsSeenView.as_view(),
         name="notifications_seen",
     ),
+    path("notification/liste", views.NotificationsView.as_view(), name="notifications"),
 ]

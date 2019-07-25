@@ -1,8 +1,35 @@
+import datetime
+
+from django.db.models import Exists, OuterRef
 from django.utils.functional import cached_property
-from glom import glom, T, Call
+from glom import glom, T, Call, Coalesce
 
 from agir.authentication.models import Role
-from agir.notifications.models import Notification
+from agir.notifications.models import Announcement, Notification
+
+
+def add_announcements(person):
+    announcements = (
+        Announcement.objects.active()
+        .annotate(
+            already_added=Exists(
+                Notification.objects.filter(
+                    person=person, announcement_id=OuterRef("id")
+                )
+            )
+        )
+        .exclude(already_added=True)
+        .select_related("segment")
+    )
+
+    for gn in announcements:
+        if (
+            not gn.segment
+            or gn.segment.get_subscribers_queryset().filter(person=person).exists()
+        ):
+            Notification.objects.create(
+                person=person, announcement=gn, created=gn.start_date
+            )
 
 
 def get_notifications(request):
@@ -10,30 +37,27 @@ def get_notifications(request):
         return []
 
     person = request.user.person
+    add_announcements(person)
 
-    statuses = {
-        ns["notification_id"]: ns["status"]
-        for ns in person.notification_statuses.all().values("notification_id", "status")
-    }
+    notifications = person.notifications.all().select_related("announcement")[:5]
 
+    return serialize_notifications(notifications)
+
+
+def serialize_notifications(notifications):
+    # All fields are either
     spec = [
         {
             "id": "id",
-            "content": "content",
-            "link": "link",
-            "icon": "icon",
-            "status": Call(statuses.get, args=(T.id, "U")),
+            "status": "status",
+            "content": Coalesce("content", "announcement.content", skip="", default=""),
+            "icon": Coalesce("icon", "announcement.icon", skip="", default=""),
+            "link": Coalesce("link", "announcement.link", skip="", default=""),
+            "created": (Coalesce("announcement.start_date", "created"), T.isoformat()),
         }
     ]
 
-    instances = [
-        n
-        for n in Notification.objects.active().select_related("segment")
-        if not n.segment
-        or n.segment.get_subscribers_queryset().filter(pk=person.pk).exists()
-    ]
-
-    return glom(instances, spec)
+    return glom(notifications, spec)
 
 
 class NotificationRequestManager:
@@ -49,3 +73,7 @@ class NotificationRequestManager:
 
     def unread(self):
         return sum(not n.seen for n in self.notifications)
+
+
+def add_notification(**kwargs):
+    Notification.objects.create(**kwargs)

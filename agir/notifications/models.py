@@ -5,10 +5,10 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from agir.lib.html import sanitize_html
-from agir.lib.models import DescriptionField
+from agir.lib.models import DescriptionField, TimeStampedModel
 
 
-class NotificationQuerySet(models.QuerySet):
+class AnnouncementQuerySet(models.QuerySet):
     def active(self):
         now = timezone.now()
 
@@ -18,14 +18,13 @@ class NotificationQuerySet(models.QuerySet):
         )
 
 
-class Notification(models.Model):
-
-    objects = NotificationQuerySet.as_manager()
+class Announcement(models.Model):
+    objects = AnnouncementQuerySet.as_manager()
 
     icon = models.CharField(
         verbose_name="icône",
         max_length=200,
-        default="envelope",
+        default="exclamation",
         help_text=format_html(
             'Indiquez le nom d\'une icône dans <a href="{icon_link}">cette liste</a>',
             icon_link="https://fontawesome.com/v4.7.0/icons/",
@@ -37,6 +36,7 @@ class Notification(models.Model):
         allowed_tags=["p", "div", "strong", "em", "a", "br"],
     )
     link = models.URLField(verbose_name=_("Lien"), blank=True)
+
     start_date = models.DateTimeField(
         verbose_name=_("Date de début"), default=timezone.now
     )
@@ -63,39 +63,75 @@ class Notification(models.Model):
         return f"« {no_tag_content} »"
 
     class Meta:
-        verbose_name = _("Notification")
-        verbose_name_plural = _("Notifications")
+        verbose_name = _("Annonce")
         indexes = (
             models.Index(
                 fields=("start_date", "end_date"), name="notification_query_index"
             ),
         )
-        ordering = ("-start_date", "-end_date")
-
-    def get_absolute_url(self):
-        return reverse("follow_notification", kwargs={"pk": self.id})
+        ordering = ("start_date", "end_date")
 
 
-class NotificationStatus(models.Model):
+class Notification(TimeStampedModel):
+    STATUS_UNSEEN = "U"
     STATUS_SEEN = "S"
     STATUS_CLICKED = "C"
-    STATUS_CHOICES = ((STATUS_SEEN, "Vu"), (STATUS_CLICKED, "C"))
-
-    notification = models.ForeignKey(
-        Notification,
-        on_delete=models.CASCADE,
-        related_name="statuses",
-        related_query_name="status",
+    STATUS_CHOICES = (
+        (STATUS_UNSEEN, "Non vue"),
+        (STATUS_SEEN, "Vue"),
+        (STATUS_CLICKED, "Cliquée"),
     )
 
     person = models.ForeignKey(
         "people.Person",
         on_delete=models.CASCADE,
-        related_name="notification_statuses",
-        related_query_name="notification_status",
+        related_name="notifications",
+        related_query_name="notification",
     )
 
-    status = models.CharField("Status", max_length=1, choices=STATUS_CHOICES)
+    announcement = models.ForeignKey(
+        Announcement,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+        related_query_name="notification",
+        null=True,
+    )
+
+    status = models.CharField(
+        "Status", max_length=1, choices=STATUS_CHOICES, default=STATUS_UNSEEN
+    )
+
+    icon = models.CharField(
+        verbose_name="icône",
+        max_length=200,
+        default="exclamation",
+        help_text=format_html(
+            'Indiquez le nom d\'une icône dans <a href="{icon_link}">cette liste</a>',
+            icon_link="https://fontawesome.com/v4.7.0/icons/",
+        ),
+        blank=True,
+    )
+
+    content = DescriptionField(
+        verbose_name=_("Contenu de la notification"),
+        allowed_tags=["p", "div", "strong", "em", "a", "br"],
+        blank=True,
+    )
+    link = models.URLField(verbose_name=_("Lien"), blank=True)
+
+    def get_absolute_url(self):
+        return reverse("follow_notification", kwargs={"pk": self.id})
 
     class Meta:
-        unique_together = ("notification", "person")
+        unique_together = ("announcement", "person")
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    models.Q(content__isnull=False)
+                    | models.Q(announcement__isnull=False)
+                )
+                & (models.Q(icon__isnull=False) | models.Q(announcement__isnull=False)),
+                name="has_content",
+            )
+        ]
+        ordering = ("-created",)

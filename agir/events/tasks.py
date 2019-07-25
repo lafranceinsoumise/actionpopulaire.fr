@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from requests import HTTPError
@@ -17,6 +18,7 @@ from urllib3 import Retry
 from agir.authentication.signers import subscription_confirmation_token_generator
 from agir.lib.display import str_summary
 from agir.lib.html import sanitize_html
+from agir.notifications.actions import add_notification
 from agir.people.models import Person
 from ..lib.utils import front_url
 from agir.lib.mailing import send_mosaico_email
@@ -110,6 +112,14 @@ def send_event_changed_notification(self, event_pk, changes):
         )
     ]
 
+    for r in recipients:
+        add_notification(
+            person=r,
+            content=f"L'événement « {event.name} » a été modifié par ses organisateurs. Vérifiez que vous pouvez toujours y participer ! ",
+            link=front_url("view_event", kwargs={"pk": event_pk}),
+            icon="calendar",
+        )
+
     bindings = {
         "EVENT_NAME": event.name,
         "EVENT_CHANGES": change_fragment,
@@ -120,7 +130,7 @@ def send_event_changed_notification(self, event_pk, changes):
         send_mosaico_email(
             code="EVENT_CHANGED",
             subject=_(
-                "Les informations d'un événement auquel vous assistez ont été changées"
+                "Les informations d'un événement auquel vous participez ont été changées"
             ),
             from_email=settings.EMAIL_FROM,
             recipients=recipients,
@@ -447,3 +457,19 @@ def send_organizer_validation_notification(self, event_pk):
         )
     except (smtplib.SMTPException, socket.error) as exc:
         self.retry(countdown=60, exc=exc)
+
+
+@shared_task
+def notify_on_event_report(event_pk):
+    try:
+        event = Event.objects.get(pk=event_pk)
+    except (Event.DoesNotExist):
+        return
+
+    for r in event.attendees.all():
+        add_notification(
+            content=f"Un compte-rendu a été posté pour l'événement « {event.name} »",
+            link=front_url("view_event", args=(event_pk,)),
+            icon="calendar",
+            person=r,
+        )
