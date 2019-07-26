@@ -82,7 +82,7 @@ class BasePersonalInformationView(UpdateView):
 class AllocationPersonalInformationMixin:
     enable_allocations = True
 
-    def get_context_date(self, **kwargs):
+    def get_context_data(self, **kwargs):
         amount = self.persistent_data["amount"]
         allocation = self.persistent_data.get("allocation", 0)
 
@@ -92,7 +92,7 @@ class AllocationPersonalInformationMixin:
             self.allocation_group.name if self.allocation_group is not None else None
         )
 
-        return super().get_context_date(kwargs)
+        return super().get_context_data(**kwargs)
 
     @cached_property
     def allocation_group(self):
