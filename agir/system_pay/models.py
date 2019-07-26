@@ -29,6 +29,11 @@ class SystemPayTransaction(
     payment = models.ForeignKey(
         "payments.Payment", on_delete=models.PROTECT, null=True, editable=False
     )
+
+    # Ce champ est utilisé pour la transaction SystemPay qui initie la souscription
+    # En effet, cette transaction n'est PAS associée à un paiement.
+    # Par la suite, les transactions liées aux paiement de la souscription ne
+    # renseignent PAS ce champ
     subscription = models.ForeignKey(
         "payments.Subscription", on_delete=models.PROTECT, null=True, editable=False
     )

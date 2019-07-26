@@ -17,8 +17,6 @@ query_request_type = client.get_type(prefix_namespace + "queryRequest")
 
 
 class SystemPaySoapClient:
-    sp_config = None
-
     def __init__(self, sp_config):
         self.sp_config = sp_config
 

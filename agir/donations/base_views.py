@@ -1,12 +1,9 @@
-from django.db import transaction
 from django.shortcuts import redirect
 from django.utils.functional import cached_property
 from django.views.generic import FormView, UpdateView
 
 import agir.donations.base_forms
 from agir.groups.models import SupportGroup
-from agir.payments.actions.payments import create_payment, redirect_to_payment
-from agir.payments.models import Payment
 
 
 class BaseAskAmountView(FormView):
@@ -35,7 +32,6 @@ class BasePersonalInformationView(UpdateView):
     base_redirect_url = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.persistent_data = request.session[self.session_namespace]
 
         if "amount" in request.GET:
             try:
@@ -52,6 +48,9 @@ class BasePersonalInformationView(UpdateView):
             or "amount" not in request.session[self.session_namespace]
         ):
             return redirect(self.base_redirect_url)
+
+        self.persistent_data = request.session[self.session_namespace]
+
         return super().dispatch(request, *args, **kwargs)
 
     def clear_session(self):

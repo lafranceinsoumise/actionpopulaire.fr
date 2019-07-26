@@ -31,6 +31,8 @@ def get_payment_choices():
     return [(p.id, p.label) for p in PAYMENT_TYPES.values()]
 
 
+# TODO ==> le type de paiement correspondant à la transaction devrait être un attribut du type de souscription
+# plutôt que d'être défini à part
 @dataclass
 class SubscriptionType:
     id: str

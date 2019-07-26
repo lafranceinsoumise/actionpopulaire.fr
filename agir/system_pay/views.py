@@ -113,6 +113,8 @@ class SystemPayWebhookView(APIView):
 
         with transaction.atomic():
             try:
+                # En cas paiement automatique, c'est l'id de la transaction de souscription d'origine qui est indiquée
+                # dans vads_order_id
                 sp_transaction = SystemPayTransaction.objects.get(
                     pk=request.data["vads_order_id"]
                 )
@@ -124,7 +126,9 @@ class SystemPayWebhookView(APIView):
                 and str(int(request.data["vads_order_id"]) % 900000).zfill(6)
                 != request.data["vads_trans_id"]
             ):
-                # the transaction is an automatic subscription payment
+                # Dans ce cas, l'appel du webhook est en lien à un paiement automatique
+                # sp_transaction pointe pour l'instant vers la transaction de souscription, donc on crée une nouvelle
+                # transaction
                 assert sp_transaction.subscription.person.id == UUID(
                     request.data["vads_cust_id"]
                 )
@@ -132,6 +136,8 @@ class SystemPayWebhookView(APIView):
                     request.data["vads_amount"]
                 )
                 try:
+                    # On s'assure de l'idempotence du webhook en vérifiant toutefois si la nouvelle transaction
+                    # n'a pas été créée
                     sp_transaction = SystemPayTransaction.objects.get(
                         uuid=request.data["vads_trans_uuid"]
                     )
@@ -149,6 +155,7 @@ class SystemPayWebhookView(APIView):
                     )
 
             if "vads_identifier" in request.data:
+                # en cas d'alias, il s'agit soit d'une transaction de souscription, soit d'un paiement automatique
                 expiry_year = int(request.data["vads_expiry_year"])
                 expiry_month = int(request.data["vads_expiry_month"])
                 alias, is_new = SystemPayAlias.objects.get_or_create(
