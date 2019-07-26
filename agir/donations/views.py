@@ -1,5 +1,6 @@
 import reversion
 from django.contrib import messages
+from django.db import transaction
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
@@ -9,18 +10,29 @@ from django.views.generic import UpdateView, TemplateView, DetailView, CreateVie
 from django.views.generic.detail import SingleObjectMixin
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
-from agir.donations.actions import (
+from agir.payments.actions.payments import (
+    find_or_create_person_from_payment,
+    redirect_to_payment,
+    create_payment,
+)
+from agir.donations.allocations import (
+    group_can_handle_allocation,
+    create_monthly_allocation,
+)
+from agir.donations.spending_requests import (
     summary,
     history,
-    validate_action,
-    group_can_handle_allocation,
-    can_edit,
     EDITABLE_STATUSES,
+    can_edit,
     get_current_action,
-    find_or_create_person_from_payment,
+    validate_action,
 )
 from agir.donations.apps import DonsConfig
-from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
+from agir.donations.base_views import (
+    BaseAskAmountView,
+    BasePersonalInformationView,
+    AllocationPersonalInformationMixin,
+)
 from agir.donations.forms import (
     DocumentOnCreationFormset,
     DocumentHelper,
@@ -29,8 +41,8 @@ from agir.donations.forms import (
 )
 from agir.groups.models import SupportGroup, Membership
 from agir.payments import payment_modes
-from agir.payments.models import Payment
-from agir.people.models import Person
+from agir.payments.actions.subscriptions import redirect_to_subscribe
+from agir.payments.models import Payment, Subscription
 from . import forms
 from .models import SpendingRequest, Operation, Document
 from .tasks import send_donation_email
@@ -39,6 +51,7 @@ __all__ = ("AskAmountView", "PersonalInformationView")
 
 
 DONATION_SESSION_NAMESPACE = "_donation_"
+MONTHLY_DONATION_SESSION_NAMESPACE = "_monthly_donation_"
 
 
 class AskAmountView(BaseAskAmountView):
@@ -68,36 +81,18 @@ class AskAmountView(BaseAskAmountView):
         return super().form_valid(form)
 
 
-class PersonalInformationView(BasePersonalInformationView):
+class PersonalInformationView(
+    AllocationPersonalInformationMixin, BasePersonalInformationView
+):
     form_class = forms.AllocationDonorForm
     template_name = "donations/personal_information.html"
-    enable_allocations = True
     payment_mode = payment_modes.DEFAULT_MODE
     payment_type = DonsConfig.PAYMENT_TYPE
     session_namespace = DONATION_SESSION_NAMESPACE
     base_redirect_url = "donation_amount"
 
-    def get_context_data(self, **kwargs):
-        amount = self.persistent_data["amount"]
-        allocation = self.persistent_data.get("allocation", 0)
-        group_id = self.persistent_data.get("group_id", None)
-        group_name = None
-
-        if group_id:
-            try:
-                group_name = SupportGroup.objects.get(pk=group_id).name
-            except SupportGroup.DoesNotExist:
-                pass
-
-        return super().get_context_data(
-            allocation=allocation,
-            national=amount - allocation,
-            group_name=group_name,
-            **kwargs
-        )
-
-    def get_payment_meta(self, form):
-        meta = super().get_payment_meta(form)
+    def get_metas(self, form):
+        meta = super().get_metas(form)
 
         allocation = form.cleaned_data["allocation"]
         group = form.cleaned_data["group"]
@@ -108,15 +103,81 @@ class PersonalInformationView(BasePersonalInformationView):
 
         return meta
 
+    def form_valid(self, form):
+        if not form.adding:
+            self.object = form.save()
+        amount = self.persistent_data["amount"]
+        payment_metas = self.get_metas(form)
+
+        payment_fields = [f.name for f in Payment._meta.get_fields()]
+
+        kwargs = {f: v for f, v in form.cleaned_data.items() if f in payment_fields}
+        if "email" in form.cleaned_data:
+            kwargs["email"] = form.cleaned_data["email"]
+
+        with transaction.atomic():
+            payment = create_payment(
+                person=self.object,
+                mode=self.payment_mode,
+                type=self.payment_type,
+                price=amount,
+                meta=payment_metas,
+                **kwargs
+            )
+
+        self.clear_session()
+
+        return redirect_to_payment(payment)
+
+
+class MonthlyDonationPersonalInformationView(
+    HardLoginRequiredMixin,
+    AllocationPersonalInformationMixin,
+    BasePersonalInformationView,
+):
+    form_class = forms.AllocationMonthlyDonorForm
+    template_name = "donations/personal_information.html"
+    payment_mode = payment_modes.DEFAULT_MODE
+    payment_type = DonsConfig.PAYMENT_TYPE
+    session_namespace = MONTHLY_DONATION_SESSION_NAMESPACE
+    base_redirect_url = "view_payments"
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(monthly=True, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save()
+        amount = self.persistent_data["amount"]
+        allocation = self.persistent_data.get("allocation", 0)
+
+        with transaction.atomic():
+            subscription, allocation = create_monthly_allocation(
+                person=self.object,
+                mode=self.payment_mode,
+                subscription_total=amount,
+                amount=allocation,
+                group=self.allocation_group,
+                meta=self.get_metas(form),
+            )
+
+        self.clear_session()
+
+        return redirect_to_subscribe(subscription)
+
 
 class ReturnView(TemplateView):
     template_name = "donations/thanks.html"
 
 
+def subscription_notification_listener(subscription):
+    send_donation_email.delay(subscription.person.pk)
+
+
 def notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         find_or_create_person_from_payment(payment)
-        send_donation_email.delay(payment.person.pk)
+        if payment.subscription is None:
+            send_donation_email.delay(payment.person.pk)
 
         if (
             payment.meta.get("allocation") is not None
@@ -127,6 +188,15 @@ def notification_listener(payment):
                 group_id=payment.meta.get("group_id"),
                 amount=payment.meta.get("allocation"),
             )
+
+        with transaction.atomic():
+            if payment.subscription is not None:
+                for allocation in payment.subscription.allocations.all():
+                    Operation.objects.get_or_create(
+                        payment=payment,
+                        group=allocation.group,
+                        amount=allocation.amount,
+                    )
 
 
 class CreateSpendingRequestView(HardLoginRequiredMixin, TemplateView):

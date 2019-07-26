@@ -1,20 +1,56 @@
 {% extends "front/layout.html" %}
 {% load static %}
-{% load i18n %}
 {% load crispy_forms_tags %}
+{% load render_bundle from webpack_loader %}
 
-{% block title %}{% trans "Paiements" %}{% endblock %}
+{% block title %}Dons et paiements{% endblock %}
+
+{% block extra_scripts %}
+  {% render_bundle 'donations/donationForm' attrs='defer data-turbolinks-track="reload"' %}
+{% endblock %}
+
 
 {% block main %}
   <div class="row">
     {% block navbar %} {% include "people/profile/profile_nav.html" %} {% endblock %}
     <div class="col-xs-12 col-md-10">
-      <div>
-        <div class="intro">
-          <p>Cette page vous permet de lister l'ensemble des dons, prêts ou participations payantes à des
-            événements.</p>
+      <div class="intro">
+        <p>Cette page vous permet de lister l'ensemble des dons, prêts ou participations payantes à des
+          événements.</p>
+      </div>
+      {% if subscriptions %}
+      <h3>Paiements automatiques actifs</h3>
+      <div class="list-group">
+        {% for subscription in subscriptions %}
+          <div class="list-group-item">
+          {{ subscription.description }}
+          <a href="{% url "subscription_terminate" subscription.pk %}" class="btn btn-default">Mettre fin à ce paiement</a>
+          </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <h3>Dons mensuels</h3>
+      <p>Vous pouvez aider régulièrement la France insoumise en faisant un don mensuel automatique.</p>
+      <div class="row">
+        <div class="col-md-6">
+          {% crispy form %}
         </div>
-        <div class="panel-group" id="payments-accordion" role="tablist">
+        <div class="col-md-6"><div class="panel panel-default"><div class="panel-body">
+          <h6>Comment ça marche&nbsp;?</h6>
+          <ol>
+            <li>Vous choisissez votre montant mensuel.</li>
+            <li>Vous renseignez votre numéro carte bleue (aucun risque, c'est la banque et pas la
+              France insoumise qui conserve ce numéro).</li>
+            <li>Vous êtes débité⋅e chaque 8 du mois du montant choisi. Vous avez une trace de chaque paiement.</li>
+            <li>Chaque année, nous vous envoyons un reçu fiscal de l'ensemble des sommes données.</li>
+          </ol>
+          <p>À tout moment, vous pouvez interrompre votre don d'un simple clic.</p>
+        </div></div></div>
+      </div>
+      {% endif %}
+
+      <h3>Paiements passés</h3>
+      <div class="panel-group" id="payments-accordion" role="tablist">
           {% regroup payments by created.year as payments_years %}
           {% for year, year_payments in payments_years %}
             <div class="panel panel-default">
@@ -31,16 +67,15 @@
                     <div class="list-group-item">
                       {{ payment.description }}
                     </div>
-                  {% empty %}
-                    <div class="list-group-item">
-                      Vous n'avez effectué aucun don ou prêt et n'avez pas participé à un événement payant.
-                    </div>
                   {% endfor %}
                 </div>
               </div>
             </div>
+          {% empty %}
+            <p>
+              Vous n'avez effectué aucun don ou prêt et n'avez pas participé à un événement payant.
+            </p>
           {% endfor %}
-        </div>
       </div>
     </div>
   </div>

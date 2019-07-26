@@ -41,6 +41,7 @@ const replaceForm = selector => {
     ? amountInput.dataset.amountChoices.split(",").map(n => +n)
     : null;
   props.showTaxCredit = !amountInput.dataset.hideTaxCredit;
+  props.byMonth = typeof amountInput.dataset.byMonth !== "undefined";
 
   const submitInput = form.querySelector('input[type="submit"]');
   props.buttonLabel = submitInput.value;

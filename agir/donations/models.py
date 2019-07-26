@@ -50,7 +50,7 @@ class Operation(models.Model):
         else:
             errors = {}
 
-        from agir.donations.actions import get_balance
+        from agir.donations.allocations import get_balance
 
         if self.group and isinstance(self.amount, int) and self.amount < 0:
             balance = get_balance(self.group)
@@ -287,3 +287,26 @@ class Document(models.Model):
     )
 
     deleted = models.BooleanField(_("Supprimé"), null=False, default=False)
+
+
+class MonthlyAllocation(models.Model):
+    subscription = models.ForeignKey(
+        "payments.Subscription", related_name="allocations", on_delete=models.PROTECT
+    )
+
+    group = models.ForeignKey(
+        to="groups.SupportGroup",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="subscriptions",
+    )
+
+    amount = models.SmallIntegerField("montant", null=False, blank=False)
+
+    def __str__(self):
+        return "Allocation n°" + str(self.pk)
+
+    class Meta:
+        verbose_name = "Allocation mensuelle"
+        verbose_name_plural = "Allocations mensuelles"

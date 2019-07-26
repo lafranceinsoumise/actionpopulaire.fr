@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView, DetailView, RedirectView, FormView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
-from agir.payments.actions import redirect_to_payment
+from agir.payments.actions.payments import redirect_to_payment
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PAYMENT_MODES
 from agir.people.models import PersonFormSubmission

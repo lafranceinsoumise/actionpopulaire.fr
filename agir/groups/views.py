@@ -42,7 +42,7 @@ from agir.authentication.view_mixins import (
     PermissionsRequiredMixin,
     VerifyLinkSignatureMixin,
 )
-from agir.donations.actions import get_balance
+from agir.donations.allocations import get_balance
 from agir.donations.models import SpendingRequest
 from agir.events.views.utils import group_events_by_day
 from agir.front.view_mixins import (

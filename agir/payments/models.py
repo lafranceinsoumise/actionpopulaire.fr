@@ -71,6 +71,13 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     )
     meta = JSONField(blank=True, default=dict)
     events = JSONField(_("Événements de paiement"), blank=True, default=list)
+    subscription = models.ForeignKey(
+        "Subscription",
+        on_delete=models.PROTECT,
+        related_name="payments",
+        null=True,
+        blank=True,
+    )
 
     def get_price_display(self):
         return "{} €".format(floatformat(self.price / 100, 2))
@@ -101,7 +108,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
         return display_address(self)
 
     def description(self):
-        from .actions import description_for_payment
+        from agir.payments.actions.payments import description_for_payment
 
         return description_for_payment(self)
 
@@ -121,3 +128,64 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
 
     class Meta:
         get_latest_by = "created"
+
+
+class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel):
+    STATUS_WAITING = 0
+    STATUS_COMPLETED = 1
+    STATUS_ABANDONED = 2
+    STATUS_CANCELED = 3
+    STATUS_REFUSED = 4
+    STATUS_TERMINATED = 5
+
+    STATUS_CHOICES = (
+        (STATUS_WAITING, "Souscription en attente"),
+        (STATUS_COMPLETED, "Souscription active"),
+        (STATUS_ABANDONED, "Souscription abandonnée"),
+        (STATUS_CANCELED, "Souscription annulée"),
+        (STATUS_REFUSED, "Souscription refusée"),
+        (STATUS_TERMINATED, "Souscription désactivée"),
+    )
+
+    person = models.ForeignKey(
+        "people.Person",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="subscriptions",
+    )
+
+    day_of_month = models.PositiveSmallIntegerField(
+        "Jour du mois", blank=True, null=True, editable=False
+    )
+
+    price = models.IntegerField("prix en centimes d'euros", editable=False)
+    type = models.CharField("Type", max_length=255)
+    mode = models.CharField(
+        _("Mode de paiement"), max_length=70, null=False, blank=False
+    )
+    status = models.IntegerField(
+        "status", choices=STATUS_CHOICES, default=STATUS_WAITING
+    )
+    meta = JSONField(blank=True, default=dict)
+
+    end_date = models.DateField("Fin de l'abonnement", blank=True, null=True)
+
+    def get_price_display(self):
+        return "{} €".format(floatformat(self.price / 100, 2))
+
+    def get_mode_display(self):
+        return (
+            PAYMENT_MODES[self.mode].label if self.mode in PAYMENT_MODES else self.mode
+        )
+
+    def description(self):
+        from agir.payments.actions.subscriptions import description_for_subscription
+
+        return description_for_subscription(self)
+
+    def __str__(self):
+        return "Abonnement n°" + str(self.id)
+
+    class Meta:
+        verbose_name = "Paiement récurrent"
+        verbose_name_plural = "Paiements récurrents"

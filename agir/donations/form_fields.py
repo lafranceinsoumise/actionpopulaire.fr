@@ -22,9 +22,12 @@ class MoneyField(forms.DecimalField):
 
 
 class AskAmountField(forms.DecimalField):
-    def __init__(self, *, amount_choices=None, show_tax_credit=True, **kwargs):
+    def __init__(
+        self, *, amount_choices=None, show_tax_credit=True, by_month=False, **kwargs
+    ):
         self.amount_choices = amount_choices
         self.show_tax_credit = show_tax_credit
+        self.by_month = by_month
         super().__init__(**kwargs)
 
         if self.min_value is not None:
@@ -35,6 +38,8 @@ class AskAmountField(forms.DecimalField):
             self.widget.attrs.setdefault(
                 "data-max-amount-error", self.error_messages["max_value"]
             )
+
+        self.widget.attrs.setdefault("data-by-month", self.by_month)
 
     def widget_attrs(self, widget):
         attrs = super().widget_attrs(widget)

@@ -16,7 +16,9 @@ from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
     HardLoginRequiredMixin,
 )
-from agir.payments.models import Payment
+from agir.donations.forms import AllocationSubscriptionForm
+from agir.donations.views import MONTHLY_DONATION_SESSION_NAMESPACE, AskAmountView
+from agir.payments.models import Payment, Subscription
 from agir.people.actions.management import merge_persons
 from agir.people.forms import (
     Person,
@@ -280,14 +282,27 @@ class VolunteerView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
         return self.request.user.person
 
 
-class PaymentsView(ProfileViewMixin, TemplateView):
+class PaymentsView(
+    AskAmountView, HardLoginRequiredMixin, ProfileViewMixin, TemplateView
+):
     template_name = "people/profile/payments.html"
     tab_code = "PAYMENTS"
+    form_class = AllocationSubscriptionForm
+    session_namespace = MONTHLY_DONATION_SESSION_NAMESPACE
+    success_url = reverse_lazy("monthly_donation_information")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
             payments=self.request.user.person.payments.filter(
                 status=Payment.STATUS_COMPLETED
+            ),
+            subscriptions=self.request.user.person.subscriptions.filter(
+                status=Subscription.STATUS_COMPLETED
             ),
             **kwargs,
         )

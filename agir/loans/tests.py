@@ -7,7 +7,7 @@ from agir.api.redis import using_redislite
 from agir.loans import views
 from agir.loans.loan_config import LoanConfiguration
 from agir.loans.views import generate_and_send_contract, loan_notification_listener
-from agir.payments.actions import complete_payment
+from agir.payments.actions.payments import complete_payment
 from agir.payments.models import Payment
 from agir.people.models import Person
 

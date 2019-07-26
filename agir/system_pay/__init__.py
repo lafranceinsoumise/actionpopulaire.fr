@@ -26,6 +26,12 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
     }
 
     @cached_property
+    def soap_client(self):
+        from agir.system_pay.soap_client import SystemPaySoapClient
+
+        return SystemPaySoapClient(self.sp_config)
+
+    @cached_property
     def payment_view(self):
         from . import views
 
@@ -37,6 +43,15 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
 
         return views.SystempayRedirectView.as_view(sp_config=self.sp_config)
 
+    @cached_property
+    def subscription_view(self):
+        from . import views
+
+        return views.SystemPaySubscriptionRedirectView.as_view(sp_config=self.sp_config)
+
+    def subscription_terminate_action(self, subscription):
+        return self.soap_client.cancel_subscription(subscription)
+
     @classmethod
     def get_urls(cls):
         from . import views
@@ -44,7 +59,9 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
         return [
             path(
                 cls.webhook_url,
-                views.SystemPayWebhookView.as_view(sp_config=cls.sp_config),
+                views.SystemPayWebhookView.as_view(
+                    sp_config=cls.sp_config, mode_id=cls.id
+                ),
                 name="webhook",
             ),
             path(cls.return_url, views.return_view, name="return"),
@@ -62,3 +79,7 @@ class SystemPayPaymentMode(AbstractSystemPayPaymentMode):
         "currency": settings.SYSTEMPAY_CURRENCY,
         "certificate": settings.SYSTEMPAY_CERTIFICATE,
     }
+
+
+class SystemPayError(BaseException):
+    pass

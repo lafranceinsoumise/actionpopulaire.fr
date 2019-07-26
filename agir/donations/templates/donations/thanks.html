@@ -9,22 +9,25 @@
   <div class="col-responsive">
     <h1>Merci !</h1>
 
-    <div>
-      <p>Chère donatrice, cher donateur,</p>
-      <p><strong>Vous venez d’apporter votre appui financier</strong> à la France Insoumise.</p>
+    <p>Chère donatrice, cher donateur,</p>
+    <p><strong>Vous venez d’apporter votre appui financier</strong> à la France Insoumise.</p>
 
-      <p>Je vous remercie très chaleureusement. Cet appui est crucial pour nous. En effet, nous ne pouvons pas
-        compter comme nos adversaires sur le soutien des oligarques ni de la finance. Notre force, c’est notre
-        nombre. Ils ont les millions, mais nous sommes des millions !</p>
+    <p>Je vous remercie très chaleureusement. Cet appui est crucial pour nous. En effet, nous ne pouvons pas
+      compter comme nos adversaires sur le soutien des oligarques ni de la finance. Notre force, c’est notre
+      nombre. Ils ont les millions, mais nous sommes des millions !</p>
 
-      <p>Je mesure combien donner quelques euros est souvent un effort financier important tant les temps sont
-        durs pour beaucoup de Français. Votre argent ne sera pas gaspillé. Il sera utilisé avec rigueur et un
-        souci constant de le rendre utile à notre action commune. Je m’y engage.</p>
+    <p>Je mesure combien donner quelques euros est souvent un effort financier important tant les temps sont
+      durs pour beaucoup de Français. Votre argent ne sera pas gaspillé. Il sera utilisé avec rigueur et un
+      souci constant de le rendre utile à notre action commune. Je m’y engage.</p>
 
-      <p>Courage, les mauvais jours finiront.</p>
+    <p>Courage, les mauvais jours finiront.</p>
 
-      <p style="text-align: right;">Fidèlement,</p>
-      <img style="width: 100%; max-width: 200px; float: right;" src="{% static "donations/signature_jlm.png" %}">
-    </div>
+    <p style="text-align: right;">Fidèlement,</p>
+    <img style="width: 100%; max-width: 200px; float: right;" src="{% static "donations/signature_jlm.png" %}">
+  </div>
+  <div class="col-responsive">
+    <p>
+      <a class="btn btn-primary" href="{% url "view_payments" %}">Voir l'ensemble de mes paiements</a>
+    </p>
   </div>
 {% endblock %}

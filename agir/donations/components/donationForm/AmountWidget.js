@@ -61,7 +61,7 @@ class AmountWidget extends React.Component {
 
   render() {
     const { custom, customText } = this.state;
-    const { amount, error, showTaxCredit } = this.props;
+    const { amount, error, showTaxCredit, byMonth } = this.props;
 
     const amountChoices = this.props.amountChoices || DEFAULT_AMOUNTS;
 
@@ -111,6 +111,7 @@ class AmountWidget extends React.Component {
                 <strong className="text-danger">
                   {displayPrice(amount * 0.34)}
                 </strong>
+                {byMonth && " par mois"}
                 &nbsp;!
               </em>
             ) : (
@@ -130,7 +131,8 @@ AmountWidget.propTypes = {
   onAmountChange: PropTypes.func,
   error: PropTypes.string,
   amountChoices: PropTypes.array,
-  showTaxCredit: PropTypes.bool
+  showTaxCredit: PropTypes.bool,
+  byMonth: PropTypes.bool
 };
 
 export default hot(module)(AmountWidget);

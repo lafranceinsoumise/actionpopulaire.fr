@@ -2,5 +2,5 @@
 <div>
   <h4>Don à l'AFLFI</h4>
   <div>Vous avez donné <strong>{{ payment.price | display_price }}</strong> à l'association de financement de la France
-    insoumise le {{ payment.created | date }}</div>
+    insoumise le {{ payment.created | date }}{% if payment.type == "don_mensuel" %} par paiement automatique.{% endif %}</div>
 </div>

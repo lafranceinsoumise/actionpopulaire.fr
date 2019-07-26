@@ -5,7 +5,7 @@ from django.db.models import F, Count
 from django.db import transaction, IntegrityError
 from django.utils.translation import ugettext as _
 
-from agir.payments.actions import create_payment, cancel_payment
+from agir.payments.actions.payments import create_payment, cancel_payment
 
 from ..apps import EventsConfig
 from ..models import RSVP, IdentifiedGuest, JitsiMeeting

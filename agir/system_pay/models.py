@@ -26,5 +26,20 @@ class SystemPayTransaction(
     status = models.IntegerField(
         "status", choices=STATUS_CHOICES, default=STATUS_WAITING
     )
-    payment = models.ForeignKey("payments.Payment", on_delete=models.PROTECT)
+    payment = models.ForeignKey(
+        "payments.Payment", on_delete=models.PROTECT, null=True, editable=False
+    )
+    subscription = models.ForeignKey(
+        "payments.Subscription", on_delete=models.PROTECT, null=True, editable=False
+    )
     webhook_calls = JSONField(_("Événements de paiement"), blank=True, default=list)
+    alias = models.ForeignKey("SystemPayAlias", on_delete=models.SET_NULL, null=True)
+    uuid = models.UUIDField(
+        "UUID fourni par SystemPay", unique=True, blank=True, null=True
+    )
+
+
+class SystemPayAlias(ExportModelOperationsMixin("system_pay_alias"), TimeStampedModel):
+    identifier = models.UUIDField("Alias de la carte bancaire", unique=True)
+    active = models.BooleanField("L'alias est actif côté systempay", default=True)
+    expiry_date = models.DateField("Date d'expiration de la carte bancaire")

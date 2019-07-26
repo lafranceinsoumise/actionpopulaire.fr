@@ -1,4 +1,8 @@
 import logging
+from datetime import date
+
+import calendar
+from uuid import UUID
 
 from django.db import transaction
 from django.http import (
@@ -13,14 +17,20 @@ from django.views.generic import TemplateView
 from rest_framework.views import APIView
 
 from agir.authentication.models import Role
-from agir.payments.actions import notify_status_change
-from agir.payments.models import Payment
-from agir.payments.views import handle_return
+from agir.payments.actions.payments import notify_status_change, create_payment
+from agir.payments.actions.subscriptions import (
+    notify_status_change as notify_subscription_status_change,
+)
+from agir.payments.models import Payment, Subscription
+from agir.payments.views import handle_return, handle_subscription_return
 from agir.system_pay import AbstractSystemPayPaymentMode
-from agir.system_pay.actions import update_payment_from_transaction
-from agir.system_pay.models import SystemPayTransaction
+from agir.system_pay.actions import (
+    update_payment_from_transaction,
+    update_subscription_from_transaction,
+)
+from agir.system_pay.models import SystemPayTransaction, SystemPayAlias
 from .crypto import check_signature
-from .forms import SystempayRedirectForm
+from .forms import SystempayPaymentForm, SystempayNewSubscriptionForm
 
 logger = logging.getLogger(__name__)
 
@@ -30,17 +40,22 @@ SYSTEMPAY_STATUS_CHOICE = {
     "REFUSED": SystemPayTransaction.STATUS_REFUSED,
     "AUTHORISED": SystemPayTransaction.STATUS_COMPLETED,
     "AUTHORISED_TO_VALIDATE": SystemPayTransaction.STATUS_COMPLETED,
+    "ACCEPTED": SystemPayTransaction.STATUS_COMPLETED,
+    "CAPTURED": SystemPayTransaction.STATUS_COMPLETED,
 }
 PAYMENT_ID_SESSION_KEY = "_payment_id"
+SUBSCRIPTION_ID_SESSION_KEY = "_payment_id"
 
 
-class SystempayRedirectView(TemplateView):
+class BaseSystemPayRedirectView(TemplateView):
     template_name = "system_pay/redirect.html"
     sp_config = None
 
+
+class SystempayRedirectView(BaseSystemPayRedirectView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            form=SystempayRedirectForm.get_form_for_transaction(
+            form=SystempayPaymentForm.get_form_for_transaction(
                 self.transaction, self.sp_config
             ),
             **kwargs
@@ -57,9 +72,32 @@ class SystempayRedirectView(TemplateView):
         return res
 
 
+class SystemPaySubscriptionRedirectView(BaseSystemPayRedirectView):
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            form=SystempayNewSubscriptionForm.get_form_for_transaction(
+                self.transaction, self.sp_config
+            ),
+            **kwargs
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.subscription = kwargs["subscription"]
+        self.transaction = SystemPayTransaction.objects.create(
+            subscription=self.subscription
+        )
+        res = super().get(request, *args, **kwargs)
+
+        # save payment in session
+        request.session[SUBSCRIPTION_ID_SESSION_KEY] = self.subscription.pk
+
+        return res
+
+
 class SystemPayWebhookView(APIView):
     permission_classes = []
     sp_config = None
+    mode_id = None
 
     def post(self, request):
         if (
@@ -73,24 +111,82 @@ class SystemPayWebhookView(APIView):
         if not check_signature(request.data, self.sp_config["certificate"]):
             return HttpResponseForbidden()
 
-        try:
-            sp_transaction = SystemPayTransaction.objects.get(
-                pk=request.data["vads_order_id"]
-            )
-        except SystemPayTransaction.DoesNotExist:
-            return HttpResponseNotFound()
-
         with transaction.atomic():
+            try:
+                sp_transaction = SystemPayTransaction.objects.get(
+                    pk=request.data["vads_order_id"]
+                )
+            except SystemPayTransaction.DoesNotExist:
+                return HttpResponseNotFound()
+
+            if (
+                "vads_trans_id" in request.data
+                and str(int(request.data["vads_order_id"]) % 900000).zfill(6)
+                != request.data["vads_trans_id"]
+            ):
+                # the transaction is an automatic subscription payment
+                assert sp_transaction.subscription.person.id == UUID(
+                    request.data["vads_cust_id"]
+                )
+                assert sp_transaction.subscription.price == int(
+                    request.data["vads_amount"]
+                )
+                try:
+                    sp_transaction = SystemPayTransaction.objects.get(
+                        uuid=request.data["vads_trans_uuid"]
+                    )
+                except SystemPayTransaction.DoesNotExist:
+                    payment = create_payment(
+                        person=sp_transaction.subscription.person,
+                        type=sp_transaction.subscription.type,
+                        price=request.data["vads_amount"],
+                        mode=self.mode_id,
+                        subscription=sp_transaction.subscription,
+                    )
+                    # la transaction a été crée par systempay et non par formulaire, elle n'existe pas côté plateforme
+                    sp_transaction = SystemPayTransaction.objects.create(
+                        payment=payment
+                    )
+
+            if "vads_identifier" in request.data:
+                expiry_year = int(request.data["vads_expiry_year"])
+                expiry_month = int(request.data["vads_expiry_month"])
+                alias, is_new = SystemPayAlias.objects.get_or_create(
+                    identifier=request.data["vads_identifier"],
+                    defaults={
+                        "expiry_date": date(
+                            year=expiry_year,
+                            month=expiry_month,
+                            day=calendar.monthrange(expiry_year, expiry_month)[1],
+                        )
+                    },
+                )
+                sp_transaction.alias = alias
+
             sp_transaction.webhook_calls.append(request.data)
             sp_transaction.status = SYSTEMPAY_STATUS_CHOICE.get(
                 request.data["vads_trans_status"]
             )
+            sp_transaction.uuid = request.data["vads_trans_uuid"]
             sp_transaction.save()
 
-            update_payment_from_transaction(sp_transaction.payment, sp_transaction)
+            if sp_transaction.payment is not None:
+                update_payment_from_transaction(sp_transaction.payment, sp_transaction)
+            elif sp_transaction.subscription is not None:
+                update_subscription_from_transaction(
+                    sp_transaction.subscription, sp_transaction
+                )
+            else:
+                logger.exception("Transaction Systempay sans paiement ni abonnement.")
+                return HttpResponseNotFound()
 
-        with transaction.atomic():
-            notify_status_change(sp_transaction.payment)
+        if sp_transaction.payment is not None:
+            with transaction.atomic():
+                notify_status_change(sp_transaction.payment)
+
+        if sp_transaction.subscription is not None:
+            with transaction.atomic():
+                notify_subscription_status_change(sp_transaction.subscription)
 
         return HttpResponse({"status": "Accepted"}, 200)
 
@@ -98,17 +194,26 @@ class SystemPayWebhookView(APIView):
 def return_view(request):
     payment_id = request.session.get(PAYMENT_ID_SESSION_KEY)
     payment = None
+    subscription_id = request.session.get(SUBSCRIPTION_ID_SESSION_KEY)
+    subscription = None
 
     status = request.GET.get("status")
 
-    if payment_id:
+    if payment_id or subscription:
         try:
             payment = Payment.objects.get(pk=payment_id)
         except Payment.DoesNotExist:
             pass
 
+    if subscription_id:
+        try:
+            subscription = Subscription.objects.get(pk=subscription_id)
+        except Subscription.DoesNotExist:
+            pass
+
     if (
         payment is None
+        and subscription is None
         and request.user.is_authenticated
         and request.user.type == Role.PERSON_ROLE
     ):
@@ -130,7 +235,11 @@ def return_view(request):
     if status != "success":
         return TemplateResponse(request, "system_pay/payment_failed.html")
 
-    if payment is None:
+    if payment is None and subscription is None:
         return TemplateResponse(request, "system_pay/payment_not_identified.html")
 
-    return handle_return(request, payment)
+    if payment is not None:
+        return handle_return(request, payment)
+
+    if subscription is not None:
+        return handle_subscription_return(request, subscription)

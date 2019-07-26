@@ -1,9 +1,12 @@
+from datetime import datetime
+
 from django.http.response import HttpResponseRedirect
 from django.template import loader
 
-from .models import Payment
-from .payment_modes import DEFAULT_MODE
-from .types import PAYMENT_TYPES
+from agir.people.models import Person
+from agir.payments.models import Payment
+from agir.payments.payment_modes import DEFAULT_MODE
+from agir.payments.types import PAYMENT_TYPES
 
 
 class PaymentException(Exception):
@@ -50,7 +53,15 @@ def complete_payment(payment):
         raise PaymentException("Le paiement a déjà été annulé.")
 
     payment.status = Payment.STATUS_COMPLETED
-    payment.save()
+    payment.save(update_fields=["status"])
+
+
+def refuse_payment(payment):
+    if payment.status == Payment.STATUS_CANCELED:
+        raise PaymentException("Le paiement a déjà été annulé.")
+
+    payment.status = Payment.STATUS_REFUSED
+    payment.save(update_fields=["status"])
 
 
 def cancel_payment(payment):
@@ -91,3 +102,27 @@ def description_for_payment(payment):
         context_generator = default_description_context_generator
 
     return loader.render_to_string(template_name, context_generator(payment))
+
+
+def find_or_create_person_from_payment(payment):
+    if payment.person is None:
+        try:
+            payment.person = Person.objects.get_by_natural_key(payment.email)
+            if payment.meta.get("subscribed"):
+                payment.person.subscribed = True
+                payment.person.save()
+        except Person.DoesNotExist:
+            person_fields = [f.name for f in Person._meta.get_fields()]
+            person_kwargs = {
+                k: v for k, v in payment.meta.items() if k in person_fields
+            }
+
+            if "date_of_birth" in person_kwargs:
+                person_kwargs["date_of_birth"] = datetime.strptime(
+                    person_kwargs["date_of_birth"], "%d/%m/%Y"
+                ).date()
+
+            payment.person = Person.objects.create_person(
+                email=payment.email, is_insoumise=False, **person_kwargs
+            )
+        payment.save()
