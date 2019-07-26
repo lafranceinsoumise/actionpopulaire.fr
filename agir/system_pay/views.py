@@ -174,7 +174,7 @@ class SystemPayWebhookView(APIView):
             sp_transaction.status = SYSTEMPAY_STATUS_CHOICE.get(
                 request.data["vads_trans_status"]
             )
-            sp_transaction.uuid = request.data["vads_trans_uuid"]
+            sp_transaction.uuid = request.data.get("vads_trans_uuid")
             sp_transaction.save()
 
             if sp_transaction.payment is not None:
