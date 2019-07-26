@@ -116,7 +116,7 @@ class AmountWidget extends React.Component {
               </em>
             ) : (
               <em>
-                Si je paye des impôts, je profite d&apos;une réduction
+                Si je paye des impôts, je bénéficie d&apos;une réduction
                 d&apos;impôt de <strong>66&nbsp;%</strong> de la somme donnée !
               </em>
             ))}
