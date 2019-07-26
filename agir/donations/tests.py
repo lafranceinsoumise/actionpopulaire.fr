@@ -858,8 +858,17 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
 
         res = self.client.get(information_url)
         self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "200,00")
+        self.assertContains(res, "100,00")
 
-        res = self.client.post(information_url, self.donation_information_payload)
+        res = self.client.post(
+            information_url,
+            {
+                **self.donation_information_payload,
+                "allocation": 10000,
+                "group": str(self.group.pk),
+            },
+        )
         # no other payment
         subscription = Subscription.objects.last()
         allocation = MonthlyAllocation.objects.last()

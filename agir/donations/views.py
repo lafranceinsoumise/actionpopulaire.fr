@@ -106,7 +106,7 @@ class PersonalInformationView(
     def form_valid(self, form):
         if not form.adding:
             self.object = form.save()
-        amount = self.persistent_data["amount"]
+        amount = form.cleaned_data["amount"]
         payment_metas = self.get_metas(form)
 
         payment_fields = [f.name for f in Payment._meta.get_fields()]
@@ -147,8 +147,9 @@ class MonthlyDonationPersonalInformationView(
 
     def form_valid(self, form):
         self.object = form.save()
-        amount = self.persistent_data["amount"]
-        allocation = self.persistent_data.get("allocation", 0)
+        amount = form.cleaned_data["amount"]
+        allocation = form.cleaned_data.get("allocation", 0)
+        allocation_group = form.cleaned_data.get("group", None)
 
         with transaction.atomic():
             subscription, allocation = create_monthly_allocation(
@@ -156,7 +157,7 @@ class MonthlyDonationPersonalInformationView(
                 mode=self.payment_mode,
                 subscription_total=amount,
                 amount=allocation,
-                group=self.allocation_group,
+                group=allocation_group,
                 meta=self.get_metas(form),
             )
 
