@@ -5,6 +5,8 @@ from django.http import Http404
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext as _
 
+from agir.authentication.utils import is_hard_logged
+
 
 class SoftLoginRequiredMixin(object):
     def dispatch(self, request, *args, **kwargs):
@@ -15,15 +17,8 @@ class SoftLoginRequiredMixin(object):
 
 
 class HardLoginRequiredMixin(object):
-    def is_authorized(self, request):
-        return (
-            request.user.is_authenticated
-            and request.session[BACKEND_SESSION_KEY]
-            != "agir.authentication.backend.MailLinkBackend"
-        )
-
     def dispatch(self, request, *args, **kwargs):
-        if self.is_authorized(request):
+        if is_hard_logged(request):
             return super().dispatch(request, *args, **kwargs)
 
         return redirect_to_login(request.get_full_path())

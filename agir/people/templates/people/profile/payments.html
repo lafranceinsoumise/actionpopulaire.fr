@@ -49,6 +49,7 @@
       {% endif %}
 
       <h3>Paiements passés</h3>
+      {% if is_hard_logged %}
       <div class="panel-group" id="payments-accordion" role="tablist">
           {% regroup payments by created.year as payments_years %}
           {% for year, year_payments in payments_years %}
@@ -76,6 +77,9 @@
             </p>
           {% endfor %}
       </div>
+      {% else %}
+        <p>Pour voir vos anciens paiements, vous devez <a href="{% url "short_code_login" %}?next={% url "view_payments" %}">vous authentifier.</a></p>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

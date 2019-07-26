@@ -11,7 +11,7 @@ from django.views.generic import UpdateView, TemplateView, FormView, RedirectVie
 from django.views.generic.edit import DeleteView
 
 from agir.authentication.signers import merge_account_token_generator
-from agir.authentication.utils import hard_login
+from agir.authentication.utils import hard_login, is_hard_logged
 from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
     HardLoginRequiredMixin,
@@ -282,9 +282,7 @@ class VolunteerView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
         return self.request.user.person
 
 
-class PaymentsView(
-    AskAmountView, HardLoginRequiredMixin, ProfileViewMixin, TemplateView
-):
+class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
     template_name = "people/profile/payments.html"
     tab_code = "PAYMENTS"
     form_class = AllocationSubscriptionForm
@@ -298,6 +296,7 @@ class PaymentsView(
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
+            is_hard_logged=is_hard_logged(self.request),
             payments=self.request.user.person.payments.filter(
                 status=Payment.STATUS_COMPLETED
             ),
