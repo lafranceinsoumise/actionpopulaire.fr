@@ -63,6 +63,7 @@ django-anymail =  "==6.*"
 boto3 = "*"
 num2words = "*"
 sepaxml = "==2.*"
+zeep = "*"
 
 [dev-packages]
 ipython = "*"
