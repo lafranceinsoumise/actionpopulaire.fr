@@ -86,7 +86,7 @@ class AllocationPersonalInformationMixin:
         amount = self.persistent_data["amount"]
         allocation = self.persistent_data.get("allocation", 0)
 
-        kwargs["allocation"] = 0
+        kwargs["allocation"] = allocation
         kwargs["national"] = amount - allocation
         kwargs["group_name"] = (
             self.allocation_group.name if self.allocation_group is not None else None
