@@ -131,4 +131,9 @@ class HasSpecificPermissions(BasePermission):
     permissions = []
 
     def has_permission(self, request, view):
-        return request.user and request.user.has_perms(self.permissions)
+        return request.user.has_perms(self.permissions)
+
+
+class IsPersonPermission(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.person is not None

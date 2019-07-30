@@ -4,6 +4,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
+from agir.lib.permissions import IsPersonPermission
 from agir.notifications.actions import serialize_notifications
 from agir.notifications.models import Notification
 from agir.notifications.serializers import (
@@ -48,10 +49,9 @@ class NotificationsSeenView(GenericAPIView):
 class NotificationsView(GenericAPIView):
     queryset = Notification.objects.all()
 
-    def get(self, request, *args, **kwargs):
-        if not request.user or not request.user.person:
-            raise PermissionDenied(detail="Pas une personne", code="unauthenticated")
+    permission_classes = (IsPersonPermission,)
 
+    def get(self, request, *args, **kwargs):
         parameters = ParametersSerializer(
             data=request.query_params, context=self.get_serializer_context()
         )
