@@ -54,6 +54,7 @@ class SystempayBaseForm(forms.Form):
     vads_cust_zip = fields.CharField(widget=forms.HiddenInput())
     vads_cust_city = fields.CharField(widget=forms.HiddenInput())
     vads_cust_country = fields.CharField(widget=forms.HiddenInput())
+    vads_cust_state = fields.CharField(widget=forms.HiddenInput())
 
     signature = fields.CharField(widget=forms.HiddenInput())
 
@@ -68,6 +69,24 @@ class SystempayBaseForm(forms.Form):
             for field in self.fields.keys()
         }
         self.fields["signature"].initial = get_signature(data, certificate)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # SystemPay a des maximums de longueur pour chacun des ces champs
+        trans_table = str.maketrans("", "", "<>")
+        for f, l in {
+            "vads_cust_first_name": 63,
+            "vads_cust_last_name": 63,
+            "vads_cust_address": 255,
+            "vads_cust_zip": 64,
+            "vads_cust_city": 128,
+            "vads_cust_state": 127,
+        }.items():
+            if self.get_initial_for_field(self.fields[f], f):
+                self.initial[f] = self.get_initial_for_field(
+                    self.fields[f], f
+                ).translate(trans_table)[:l]
 
 
 class SystempayNewSubscriptionForm(SystempayBaseForm):
