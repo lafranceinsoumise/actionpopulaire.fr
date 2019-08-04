@@ -13,10 +13,7 @@ from django.views.generic.list import ListView
 from agir.people import tasks
 from agir.people.models import PersonForm, PersonFormSubmission, Person
 from agir.people.person_forms.actions import get_people_form_class
-from agir.people.person_forms.display import (
-    get_formatted_submissions,
-    get_public_fields,
-)
+from agir.people.person_forms.display import default_person_form_display
 
 
 class PeopleFormView(UpdateView):
@@ -132,7 +129,9 @@ class PeopleFormSubmissionsPublicView(ListView):
         context = super().get_context_data(person_form=self.person_form, **kwargs)
 
         if context["page_obj"]:
-            context["submissions"] = get_public_fields(context["page_obj"])
+            context["submissions"] = default_person_form_display.get_public_fields(
+                context["page_obj"]
+            )
         else:
             context["submissions"] = None
 
@@ -146,7 +145,7 @@ class PeopleFormSubmissionsPrivateView(DetailView):
     queryset = PersonForm.objects.all()
 
     def get_context_data(self, **kwargs):
-        headers, submissions = get_formatted_submissions(
+        headers, submissions = default_person_form_display.get_formatted_submissions(
             self.object, html=True, include_admin_fields=False
         )
 
@@ -164,7 +163,7 @@ class PeopleFormSubmissionsPrivateView(DetailView):
     def get_csv(self, request):
         form = self.get_object()
 
-        headers, submissions = get_formatted_submissions(
+        headers, submissions = default_person_form_display.get_formatted_submissions(
             form,
             html=False,
             include_admin_fields=False,

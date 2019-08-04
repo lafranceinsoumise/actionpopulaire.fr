@@ -33,7 +33,7 @@ from agir.people.admin.views import (
     MergePersonsView,
 )
 from agir.people.models import Person, PersonTag
-from agir.people.person_forms.display import get_formatted_submission
+from agir.people.person_forms.display import default_person_form_display
 from agir.people.person_forms.models import PersonForm, PersonFormSubmission
 from agir.people.tasks import update_person_mailtrain
 
@@ -525,7 +525,9 @@ class PersonFormSubmissionAdmin(admin.ModelAdmin):
             request=request,
             template="admin/personforms/detail.html",
             context={
-                "submission_data": get_formatted_submission(self.object),
+                "submission_data": default_person_form_display.get_formatted_submission(
+                    self.object
+                ),
                 "submission": self.object,
                 "title": "Détails",
                 "opts": PersonForm._meta,

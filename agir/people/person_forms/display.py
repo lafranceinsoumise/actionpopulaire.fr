@@ -21,316 +21,331 @@ from agir.people.person_forms.fields import (
 )
 from agir.people.person_forms.models import PersonFormSubmission
 
-NA_HTML_PLACEHOLDER = mark_safe('<em style="color: #999;">N/A</em>')
-NA_TEXT_PLACEHOLDER = "N/A"
-ADMIN_FIELDS_LABELS = ["ID", "Personne", "Date de la réponse"]
-PUBLIC_FORMATS = {
-    "bold": "<strong>{}</strong>",
-    "italic": "<em>{}</em>",
-    "normal": "{}",
-}
 
+class PersonFormDisplay:
+    NA_HTML_PLACEHOLDER = mark_safe('<em style="color: #999;">N/A</em>')
+    NA_TEXT_PLACEHOLDER = "N/A"
+    ADMIN_FIELDS_LABELS = ["ID", "Personne", "Date de la réponse"]
+    PUBLIC_FORMATS = {
+        "bold": "<strong>{}</strong>",
+        "italic": "<em>{}</em>",
+        "normal": "{}",
+    }
 
-def _get_choice_label(field_descriptor, value, html=False):
-    """Renvoie le libellé correct pour un champ de choix
+    def _get_choice_label(self, field_descriptor, value, html=False):
+        """Renvoie le libellé correct pour un champ de choix
 
-    :param field_descriptor: le descripteur du champ
-    :param value: la valeur prise par le champ
-    :param html: s'il faut inclure du HTML ou non
-    :return:
-    """
-    if isinstance(field_descriptor["choices"], str):
-        if callable(PREDEFINED_CHOICES.get(field_descriptor["choices"])):
-            value = PREDEFINED_CHOICES_REVERSE.get(field_descriptor["choices"])(value)
-            if hasattr(value, "get_absolute_url") and html:
-                return format_html(
-                    '<a href="{0}">{1}</a>', value.get_absolute_url(), str(value)
+        :param field_descriptor: le descripteur du champ
+        :param value: la valeur prise par le champ
+        :param html: s'il faut inclure du HTML ou non
+        :return:
+        """
+        if isinstance(field_descriptor["choices"], str):
+            if callable(PREDEFINED_CHOICES.get(field_descriptor["choices"])):
+                value = PREDEFINED_CHOICES_REVERSE.get(field_descriptor["choices"])(
+                    value
                 )
-            return str(value)
-        choices = PREDEFINED_CHOICES.get(field_descriptor["choices"])
-    else:
-        choices = field_descriptor["choices"]
-    try:
-        return next(label for id, label in choices if id == value)
-    except StopIteration:
+                if hasattr(value, "get_absolute_url") and html:
+                    return format_html(
+                        '<a href="{0}">{1}</a>', value.get_absolute_url(), str(value)
+                    )
+                return str(value)
+            choices = PREDEFINED_CHOICES.get(field_descriptor["choices"])
+        else:
+            choices = field_descriptor["choices"]
+        try:
+            return next(label for id, label in choices if id == value)
+        except StopIteration:
+            return value
+
+    def _get_formatted_value(self, field, value, html=True, na_placeholder=None):
+        """Récupère la valeur du champ pour les humains
+
+        :param field:
+        :param value:
+        :param html:
+        :param na_placeholder: la valeur à présenter pour les champs vides
+        :return:
+        """
+
+        if value is None:
+            if na_placeholder is not None:
+                return na_placeholder
+            elif html:
+                return self.NA_HTML_PLACEHOLDER
+            return self.NA_TEXT_PLACEHOLDER
+
+        field_type = field.get("type")
+
+        if field_type == "choice" and "choices" in field:
+            return self._get_choice_label(field, value, html)
+        elif field_type == "multiple_choice" and "choices" in field:
+            if isinstance(value, list):
+                return [self._get_choice_label(field, v, html) for v in value]
+            else:
+                return value
+        elif field_type == "date":
+            date = iso8601.parse_date(value)
+            return localize(date.astimezone(get_current_timezone()))
+        elif field_type == "phone_number":
+            try:
+                phone_number = PhoneNumber.from_string(value)
+                return phone_number.as_international
+            except NumberParseException:
+                return value
+        elif field_type == "file":
+            url = settings.FRONT_DOMAIN + settings.MEDIA_URL + value
+            if html:
+                return format_html('<a href="{}">Accéder au fichier</a>', url)
+            else:
+                return url
+
         return value
 
+    def _get_admin_fields(self, submission, html=True):
+        date = localize(submission.created.astimezone(get_current_timezone()))
 
-def _get_formatted_value(field, value, html=True, na_placeholder=None):
-    """Récupère la valeur du champ pour les humains
-
-    :param field:
-    :param value:
-    :param html:
-    :param na_placeholder: la valeur à présenter pour les champs vides
-    :return:
-    """
-
-    if value is None:
-        if na_placeholder is not None:
-            return na_placeholder
-        elif html:
-            return NA_HTML_PLACEHOLDER
-        return NA_TEXT_PLACEHOLDER
-
-    field_type = field.get("type")
-
-    if field_type == "choice" and "choices" in field:
-        return _get_choice_label(field, value, html)
-    elif field_type == "multiple_choice" and "choices" in field:
-        if isinstance(value, list):
-            return [_get_choice_label(field, v, html) for v in value]
-        else:
-            return value
-    elif field_type == "date":
-        date = iso8601.parse_date(value)
-        return localize(date.astimezone(get_current_timezone()))
-    elif field_type == "phone_number":
-        try:
-            phone_number = PhoneNumber.from_string(value)
-            return phone_number.as_international
-        except NumberParseException:
-            return value
-    elif field_type == "file":
-        url = settings.FRONT_DOMAIN + settings.MEDIA_URL + value
         if html:
-            return format_html('<a href="{}">Accéder au fichier</a>', url)
-        else:
-            return url
+            return [
+                format_html(
+                    '<a href="{}" title="Voir le détail">&#128269;</a>&ensp;'
+                    '<a href="{}" title="Modifier">&#x1F58A;&#xFE0F;️</a>&ensp;'
+                    '<a href="{}" title="Supprimer cette submission">&#x274c;</a>&ensp;{}',
+                    reverse(
+                        "admin:people_personformsubmission_detail",
+                        args=(submission.pk,),
+                    ),
+                    reverse(
+                        "admin:people_personformsubmission_change",
+                        args=(submission.pk,),
+                    ),
+                    reverse(
+                        "admin:people_personformsubmission_delete",
+                        args=(submission.pk,),
+                    ),
+                    submission.pk,
+                ),
+                format_html(
+                    '<a href="{}">{}</a>',
+                    settings.API_DOMAIN
+                    + reverse(
+                        "admin:people_person_change", args=(submission.person_id,)
+                    ),
+                    submission.person,
+                )
+                if submission.person
+                else "Anonyme",
+                date,
+            ]
 
-    return value
-
-
-def _get_admin_fields(submission, html=True):
-    date = localize(submission.created.astimezone(get_current_timezone()))
-
-    if html:
         return [
-            format_html(
-                '<a href="{}" title="Voir le détail">&#128269;</a>&ensp;'
-                '<a href="{}" title="Modifier">&#x1F58A;&#xFE0F;️</a>&ensp;'
-                '<a href="{}" title="Supprimer cette submission">&#x274c;</a>&ensp;{}',
-                reverse(
-                    "admin:people_personformsubmission_detail", args=(submission.pk,)
-                ),
-                reverse(
-                    "admin:people_personformsubmission_change", args=(submission.pk,)
-                ),
-                reverse(
-                    "admin:people_personformsubmission_delete", args=(submission.pk,)
-                ),
-                submission.pk,
-            ),
-            format_html(
-                '<a href="{}">{}</a>',
-                settings.API_DOMAIN
-                + reverse("admin:people_person_change", args=(submission.person_id,)),
-                submission.person,
-            )
-            if submission.person
-            else "Anonyme",
+            submission.pk,
+            submission.person if submission.person else "Anonyme",
             date,
         ]
 
-    return [submission.pk, submission.person if submission.person else "Anonyme", date]
+    def get_form_field_labels(self, form, fieldsets_titles=False):
+        """Renvoie un dictionnaire associant id de champs et libellés à présenter
 
+        Prend en compte tous les cas de figure :
+        - champs dans le libellé est défini explicitement
+        - champs de personnes dont le libellé n'est pas reprécisé...
+        - etc.
 
-def get_form_field_labels(form, fieldsets_titles=False):
-    """Renvoie un dictionnaire associant id de champs et libellés à présenter
+        :param form:
+        :param fieldsets_titles:
+        :return:
+        """
+        field_information = {}
 
-    Prend en compte tous les cas de figure :
-    - champs dans le libellé est défini explicitement
-    - champs de personnes dont le libellé n'est pas reprécisé...
-    - etc.
+        person_fields = {f.name: f for f in Person._meta.get_fields()}
 
-    :param form:
-    :param fieldsets_titles:
-    :return:
-    """
-    field_information = {}
+        for fieldset in form.custom_fields:
+            for field in fieldset["fields"]:
+                if field.get("person_field") and field["id"] in person_fields:
+                    label = field.get(
+                        "label",
+                        capfirst(
+                            getattr(
+                                person_fields[field["id"]],
+                                "verbose_name",
+                                person_fields[field["id"]].name,
+                            )
+                        ),
+                    )
+                else:
+                    label = field["label"]
 
-    person_fields = {f.name: f for f in Person._meta.get_fields()}
-
-    for fieldset in form.custom_fields:
-        for field in fieldset["fields"]:
-            if field.get("person_field") and field["id"] in person_fields:
-                label = field.get(
-                    "label",
-                    capfirst(
-                        getattr(
-                            person_fields[field["id"]],
-                            "verbose_name",
-                            person_fields[field["id"]].name,
-                        )
-                    ),
+                field_information[field["id"]] = (
+                    format_html(
+                        "{title}&nbsp;:<br>{label}",
+                        title=fieldset["title"],
+                        label=label,
+                    )
+                    if fieldsets_titles
+                    else label
                 )
-            else:
-                label = field["label"]
 
-            field_information[field["id"]] = (
-                format_html(
-                    "{title}&nbsp;:<br>{label}", title=fieldset["title"], label=label
-                )
-                if fieldsets_titles
-                else label
+        return field_information
+
+    def get_formatted_submissions(
+        self,
+        submissions_or_form,
+        html=True,
+        include_admin_fields=True,
+        resolve_labels=True,
+        fieldsets_titles=False,
+    ):
+        if isinstance(submissions_or_form, PersonForm):
+            form = submissions_or_form
+            submissions = form.submissions.all().order_by("created")
+
+        else:
+            if not submissions_or_form:
+                return [], []
+
+            submissions = submissions_or_form
+            form = submissions[0].form
+
+        field_dict = form.fields_dict
+
+        labels = (
+            self.get_form_field_labels(form, fieldsets_titles=fieldsets_titles)
+            if resolve_labels
+            else {}
+        )
+
+        full_data = [sub.data for sub in submissions]
+        full_values = [
+            {
+                id: self._get_formatted_value(field_dict[id], value, html)
+                if id in field_dict
+                else value
+                for id, value in d.items()
+            }
+            for d in full_data
+        ]
+
+        declared_fields = set(field_dict)
+        additional_fields = sorted(
+            reduce(or_, (set(d) for d in full_data)).difference(declared_fields)
+        )
+
+        headers = [labels.get(id, id) for id in field_dict] + additional_fields
+
+        ordered_values = [
+            [
+                v.get(i, self.NA_HTML_PLACEHOLDER if html else self.NA_TEXT_PLACEHOLDER)
+                for i in chain(field_dict, additional_fields)
+            ]
+            for v in full_values
+        ]
+
+        if include_admin_fields:
+            admin_values = [self._get_admin_fields(s, html) for s in submissions]
+            return (
+                self.ADMIN_FIELDS_LABELS + headers,
+                [
+                    admin_values + values
+                    for admin_values, values in zip(admin_values, ordered_values)
+                ],
             )
 
-    return field_information
+        return headers, ordered_values
 
+    def get_formatted_submission(self, submission, include_admin_fields=False):
+        data = submission.data
+        field_dicts = submission.form.fields_dict
+        labels = self.get_form_field_labels(submission.form)
 
-def get_formatted_submissions(
-    submissions_or_form,
-    html=True,
-    include_admin_fields=True,
-    resolve_labels=True,
-    fieldsets_titles=False,
-):
-    if isinstance(submissions_or_form, PersonForm):
-        form = submissions_or_form
-        submissions = form.submissions.all().order_by("created")
+        if include_admin_fields:
+            res = [
+                {
+                    "title": "Administration",
+                    "data": [
+                        {"label": l, "value": v}
+                        for l, v in zip(
+                            self.ADMIN_FIELDS_LABELS, self._get_admin_fields(submission)
+                        )
+                    ],
+                }
+            ]
+        else:
+            res = []
 
-    else:
-        if not submissions_or_form:
-            return [], []
+        for fieldset in submission.form.custom_fields:
+            fieldset_data = []
+            for field in fieldset["fields"]:
+                id = field["id"]
+                if id in data:
+                    label = labels[id]
+                    value = self._get_formatted_value(field, data.get(id))
+                    fieldset_data.append({"label": label, "value": value})
+            res.append({"title": fieldset["title"], "data": fieldset_data})
 
-        submissions = submissions_or_form
-        form = submissions[0].form
+        missing_fields = set(data).difference(set(field_dicts))
 
-    field_dict = form.fields_dict
+        missing_fields_data = []
+        for id in sorted(missing_fields):
+            missing_fields_data.append({"label": id, "value": data[id]})
+        if len(missing_fields_data) > 0:
+            res.append({"title": "Champs inconnus", "data": missing_fields_data})
 
-    labels = (
-        get_form_field_labels(form, fieldsets_titles=fieldsets_titles)
-        if resolve_labels
-        else {}
-    )
+        return res
 
-    full_data = [sub.data for sub in submissions]
-    full_values = [
-        {
-            id: _get_formatted_value(field_dict[id], value, html)
-            if id in field_dict
-            else value
-            for id, value in d.items()
-        }
-        for d in full_data
-    ]
+    def _get_full_public_fields_definition(self, form):
+        public_config = form.config.get("public", [])
+        field_names = self.get_form_field_labels(form)
 
-    declared_fields = set(field_dict)
-    additional_fields = sorted(
-        reduce(or_, (set(d) for d in full_data)).difference(declared_fields)
-    )
-
-    headers = [labels.get(id, id) for id in field_dict] + additional_fields
-
-    ordered_values = [
-        [
-            v.get(i, NA_HTML_PLACEHOLDER if html else NA_TEXT_PLACEHOLDER)
-            for i in chain(field_dict, additional_fields)
+        return [
+            {
+                "id": f["id"],
+                "label": f.get("label", field_names[f["id"]]),
+                "format": f.get("format", "normal"),
+            }
+            for f in public_config
         ]
-        for v in full_values
-    ]
 
-    if include_admin_fields:
-        admin_values = [_get_admin_fields(s, html) for s in submissions]
-        return (
-            ADMIN_FIELDS_LABELS + headers,
-            [
-                admin_values + values
-                for admin_values, values in zip(admin_values, ordered_values)
-            ],
+    def get_public_fields(self, submissions):
+        if not submissions:
+            return []
+
+        only_one = False
+
+        if isinstance(submissions, PersonFormSubmission):
+            only_one = True
+            submissions = [submissions]
+
+        field_dict = submissions[0].form.fields_dict
+        public_fields_definition = self._get_full_public_fields_definition(
+            submissions[0].form
         )
 
-    return headers, ordered_values
+        public_submissions = []
 
-
-def get_formatted_submission(submission, include_admin_fields=False):
-    data = submission.data
-    field_dicts = submission.form.fields_dict
-    labels = get_form_field_labels(submission.form)
-
-    if include_admin_fields:
-        res = [
-            {
-                "title": "Administration",
-                "data": [
-                    {"label": l, "value": v}
-                    for l, v in zip(ADMIN_FIELDS_LABELS, _get_admin_fields(submission))
-                ],
-            }
-        ]
-    else:
-        res = []
-
-    for fieldset in submission.form.custom_fields:
-        fieldset_data = []
-        for field in fieldset["fields"]:
-            id = field["id"]
-            if id in data:
-                label = labels[id]
-                value = _get_formatted_value(field, data.get(id))
-                fieldset_data.append({"label": label, "value": value})
-        res.append({"title": fieldset["title"], "data": fieldset_data})
-
-    missing_fields = set(data).difference(set(field_dicts))
-
-    missing_fields_data = []
-    for id in sorted(missing_fields):
-        missing_fields_data.append({"label": id, "value": data[id]})
-    if len(missing_fields_data) > 0:
-        res.append({"title": "Champs inconnus", "data": missing_fields_data})
-
-    return res
-
-
-def _get_full_public_fields_definition(form):
-    public_config = form.config.get("public", [])
-    field_names = get_form_field_labels(form)
-
-    return [
-        {
-            "id": f["id"],
-            "label": f.get("label", field_names[f["id"]]),
-            "format": f.get("format", "normal"),
-        }
-        for f in public_config
-    ]
-
-
-def get_public_fields(submissions):
-    if not submissions:
-        return []
-
-    only_one = False
-
-    if isinstance(submissions, PersonFormSubmission):
-        only_one = True
-        submissions = [submissions]
-
-    field_dict = submissions[0].form.fields_dict
-    public_fields_definition = _get_full_public_fields_definition(submissions[0].form)
-
-    public_submissions = []
-
-    for submission in submissions:
-        public_submissions.append(
-            {
-                "date": submission.created,
-                "values": [
-                    {
-                        "label": pf["label"],
-                        "value": format_html(
-                            PUBLIC_FORMATS[pf["format"]],
-                            _get_formatted_value(
-                                field_dict[pf["id"]], submission.data.get(pf["id"])
+        for submission in submissions:
+            public_submissions.append(
+                {
+                    "date": submission.created,
+                    "values": [
+                        {
+                            "label": pf["label"],
+                            "value": format_html(
+                                self.PUBLIC_FORMATS[pf["format"]],
+                                self._get_formatted_value(
+                                    field_dict[pf["id"]], submission.data.get(pf["id"])
+                                ),
                             ),
-                        ),
-                    }
-                    for pf in public_fields_definition
-                ],
-            }
-        )
+                        }
+                        for pf in public_fields_definition
+                    ],
+                }
+            )
 
-    if only_one:
-        return public_submissions[0]
+        if only_one:
+            return public_submissions[0]
 
-    return public_submissions
+        return public_submissions
+
+
+default_person_form_display = PersonFormDisplay()

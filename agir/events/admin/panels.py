@@ -17,6 +17,7 @@ from agir.lib.admin import CenterOnFranceMixin, DepartementListFilter, RegionLis
 from agir.lib.utils import front_url
 from agir.people.admin.views import FormSubmissionViewsMixin
 from agir.people.models import PersonFormSubmission
+from agir.people.person_forms.display import default_person_form_display
 from . import actions
 from . import views
 from .forms import EventAdminForm

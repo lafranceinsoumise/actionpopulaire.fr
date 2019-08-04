@@ -18,7 +18,7 @@ from agir.payments.models import Payment
 from agir.payments.payment_modes import PAYMENT_MODES
 from agir.people.models import PersonFormSubmission
 from agir.people.person_forms.actions import get_people_form_class
-from agir.people.person_forms.display import get_formatted_submission
+from agir.people.person_forms.display import default_person_form_display
 from agir.people.views import ConfirmSubscriptionView
 from ..actions.rsvps import (
     rsvp_to_free_event,
@@ -94,7 +94,9 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
         kwargs = {
             "person_form_instance": self.event.subscription_form,
             "event": self.event,
-            "submission_data": get_formatted_submission(kwargs["rsvp"].form_submission)
+            "submission_data": default_person_form_display.get_formatted_submission(
+                kwargs["rsvp"].form_submission
+            )
             if "rsvp" in kwargs and kwargs["rsvp"].form_submission
             else None,
             "submission": kwargs["rsvp"].form_submission
@@ -103,7 +105,9 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             "guests_submission_data": [
                 (
                     guest.get_status_display(),
-                    get_formatted_submission(guest.submission)
+                    default_person_form_display.get_formatted_submission(
+                        guest.submission
+                    )
                     if guest.submission
                     else [],
                 )
@@ -313,7 +317,9 @@ class PayEventView(SoftLoginRequiredMixin, UpdateView):
                 "submission": self.submission,
                 "price": self.event.get_price(self.submission and self.submission.data)
                 / 100,
-                "submission_data": get_formatted_submission(self.submission)
+                "submission_data": default_person_form_display.get_formatted_submission(
+                    self.submission
+                )
                 if self.submission
                 else None,
             }
