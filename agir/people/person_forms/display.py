@@ -25,12 +25,15 @@ from agir.people.person_forms.models import PersonFormSubmission
 class PersonFormDisplay:
     NA_HTML_PLACEHOLDER = mark_safe('<em style="color: #999;">N/A</em>')
     NA_TEXT_PLACEHOLDER = "N/A"
-    ADMIN_FIELDS_LABELS = ["ID", "Personne", "Date de la réponse"]
     PUBLIC_FORMATS = {
         "bold": "<strong>{}</strong>",
         "italic": "<em>{}</em>",
         "normal": "{}",
     }
+    admin_fields_label = ["ID", "Personne", "Date de la réponse"]
+
+    def get_admin_fields_label(self, form):
+        return self.admin_fields_label
 
     def _get_choice_label(self, field_descriptor, value, html=False):
         """Renvoie le libellé correct pour un champ de choix
@@ -244,7 +247,7 @@ class PersonFormDisplay:
         if include_admin_fields:
             admin_values = [self._get_admin_fields(s, html) for s in submissions]
             return (
-                self.ADMIN_FIELDS_LABELS + headers,
+                self.get_admin_fields_label(form) + headers,
                 [
                     admin_values + values
                     for admin_values, values in zip(admin_values, ordered_values)
@@ -265,7 +268,8 @@ class PersonFormDisplay:
                     "data": [
                         {"label": l, "value": v}
                         for l, v in zip(
-                            self.ADMIN_FIELDS_LABELS, self._get_admin_fields(submission)
+                            self.get_admin_fields_label(submission.form),
+                            self._get_admin_fields(submission),
                         )
                     ],
                 }

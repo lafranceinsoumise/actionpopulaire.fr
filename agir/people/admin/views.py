@@ -20,13 +20,15 @@ from agir.people.person_forms.models import PersonForm
 
 
 class FormSubmissionViewsMixin:
+    person_form_display = default_person_form_display
+
     def get_form_submission_qs(self, form):
         return form.submissions.all()
 
     def generate_result_table(self, form, html=True, fieldsets_titles=True):
         submission_qs = self.get_form_submission_qs(form)
 
-        headers, submissions = default_person_form_display.get_formatted_submissions(
+        headers, submissions = self.person_form_display.get_formatted_submissions(
             submission_qs, html=html, fieldsets_titles=fieldsets_titles
         )
 

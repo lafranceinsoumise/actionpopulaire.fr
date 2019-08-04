@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import Q
@@ -17,7 +18,7 @@ from agir.lib.admin import CenterOnFranceMixin, DepartementListFilter, RegionLis
 from agir.lib.utils import front_url
 from agir.people.admin.views import FormSubmissionViewsMixin
 from agir.people.models import PersonFormSubmission
-from agir.people.person_forms.display import default_person_form_display
+from agir.people.person_forms.display import PersonFormDisplay
 from . import actions
 from . import views
 from .forms import EventAdminForm
@@ -162,9 +163,68 @@ class EventImageInline(admin.TabularInline):
     author_link.short_description = _("Auteur")
 
 
+class EventRsvpPersonFormDisplay(PersonFormDisplay):
+    def get_submission_rsvp_or_guest(self, submission):
+        try:
+            return submission.rsvp
+        except PersonFormSubmission.rsvp.RelatedObjectDoesNotExist:
+            return submission.rsvp_guest
+
+    def get_admin_fields_label(self, form):
+        additional_fields = []
+        if not form.event.is_free:
+            additional_fields.append("Paiement")
+
+        if form.event.allow_guests:
+            additional_fields.append("Invité⋅e par")
+
+        return super().get_admin_fields_label(form) + additional_fields
+
+    def _get_admin_fields(self, submission, html=True):
+        results = super()._get_admin_fields(submission, html)
+
+        if not submission.form.event.is_free:
+            results.append(
+                format_html(
+                    '{} <a href="{}" target="_blank"title="Voir le détail">&#128269;</a>',
+                    self.get_submission_rsvp_or_guest(submission).get_status_display(),
+                    settings.API_DOMAIN
+                    + reverse(
+                        "admin:payments_payment_change",
+                        args=(
+                            self.get_submission_rsvp_or_guest(submission).payment.pk,
+                        ),
+                    ),
+                )
+                if html
+                else self.get_submission_rsvp_or_guest(submission).get_status_display()
+            )
+
+        if submission.form.event.allow_guests:
+            try:
+                results.append(
+                    format_html(
+                        '<a href="{}" target="_blank">{}</a>',
+                        settings.API_DOMAIN
+                        + reverse(
+                            "admin:people_person_change",
+                            args=(submission.rsvp_guest.rsvp.person.pk,),
+                        ),
+                        submission.rsvp_guest.rsvp.person,
+                    )
+                    if html
+                    else submission.rsvp_guest.rsvp.person
+                )
+            except PersonFormSubmission.rsvp_guest.RelatedObjectDoesNotExist:
+                results.append("")
+
+        return results
+
+
 @admin.register(models.Event, site=admin_site)
 class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     form = EventAdminForm
+    person_form_display = EventRsvpPersonFormDisplay()
 
     fieldsets = (
         (
@@ -402,13 +462,13 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     rsvps_buttons.short_description = _("Inscriptions")
 
+    def add_organizer(self, request, pk):
+        return views.add_member(self, request, pk)
+
     def get_form_submission_qs(self, form):
         return PersonFormSubmission.objects.filter(
             Q(rsvp__event=self.instance) | Q(guest_rsvp__event=self.instance)
         )
-
-    def add_organizer(self, request, pk):
-        return views.add_member(self, request, pk)
 
     def view_results(self, request, pk):
         self.instance = models.Event.objects.get(pk=pk)
