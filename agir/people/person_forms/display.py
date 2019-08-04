@@ -125,18 +125,14 @@ def _get_admin_fields(submission, html=True):
                 '<a href="{}">{}</a>',
                 settings.API_DOMAIN
                 + reverse("admin:people_person_change", args=(submission.person_id,)),
-                submission.person.email,
+                submission.person,
             )
             if submission.person
             else "Anonyme",
             date,
         ]
 
-    return [
-        submission.pk,
-        submission.person.email if submission.person else "Anonyme",
-        date,
-    ]
+    return [submission.pk, submission.person if submission.person else "Anonyme", date]
 
 
 def get_form_field_labels(form, fieldsets_titles=False):
