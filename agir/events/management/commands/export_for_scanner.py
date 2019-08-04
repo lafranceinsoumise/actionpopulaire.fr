@@ -24,6 +24,7 @@ class Command(BaseCommand):
                 "full_name",
                 "uuid",
                 "contact_email",
+                "gender",
                 "category",
                 "price",
                 "status",
@@ -37,6 +38,7 @@ class Command(BaseCommand):
                     f"{rsvp.form_submission.data.get('first_name')} {rsvp.form_submission.data.get('last_name')}",
                     str(rsvp.person.id),
                     rsvp.person.email,
+                    rsvp.person.gender or "",
                     rsvp.form_submission.data[category_field],
                     display_price(event.get_price(rsvp.form_submission.data)),
                     "completed" if rsvp.status == RSVP.STATUS_CONFIRMED else "on-hold",
@@ -49,6 +51,7 @@ class Command(BaseCommand):
                         f"{guest.submission.data['first_name']} {guest.submission.data['last_name']}",
                         str(rsvp.person.id),
                         rsvp.person.email,
+                        guest.submission.data.get("gender", ""),
                         guest.submission.data[category_field],
                         display_price(event.get_price(guest.submission.data)),
                         "completed"
