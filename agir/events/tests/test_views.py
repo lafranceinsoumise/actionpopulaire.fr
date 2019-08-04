@@ -607,13 +607,13 @@ class RSVPTestCase(TestCase):
             end_time=now + 3 * day + 4 * hour,
         )
 
-        self.subscription_form = PersonForm.objects.create(
-            title="Formulaire événement",
-            slug="formulaire-evenement",
-            description="Ma description complexe",
-            confirmation_note="Ma note de fin",
-            main_question="QUESTION PRINCIPALE",
-            custom_fields=[
+        person_form_kwargs = {
+            "title": "Formulaire événement",
+            "slug": "formulaire-evenement",
+            "description": "Ma description complexe",
+            "confirmation_note": "Ma note de fin",
+            "main_question": "QUESTION PRINCIPALE",
+            "custom_fields": [
                 {
                     "title": "Détails",
                     "fields": [
@@ -632,8 +632,11 @@ class RSVPTestCase(TestCase):
                     ],
                 }
             ],
+        }
+        self.subscription_form = PersonForm.objects.create(**person_form_kwargs)
+        self.subscription_form2 = PersonForm.objects.create(
+            **{**person_form_kwargs, "slug": "formulaire-evenement2"}
         )
-
         self.form_event = Event.objects.create(
             name="Other event",
             start_time=now + 3 * day,
@@ -653,7 +656,7 @@ class RSVPTestCase(TestCase):
             start_time=now + 3 * day,
             end_time=now + 3 * day + 4 * hour,
             payment_parameters={"price": 1000},
-            subscription_form=self.subscription_form,
+            subscription_form=self.subscription_form2,
         )
 
         RSVP.objects.create(person=self.already_rsvped, event=self.simple_event)
@@ -994,7 +997,7 @@ class RSVPTestCase(TestCase):
         self.assertRedirects(response, reverse("pay_event"))
 
         submission = PersonFormSubmission.objects.get(
-            person=self.person, form=self.subscription_form
+            person=self.person, form=self.subscription_form2
         )
 
         response = self.client.get(reverse("pay_event"))
