@@ -67,6 +67,10 @@ class Operation(models.Model):
         if errors:
             raise ValidationError(errors)
 
+    class Meta:
+        verbose_name = "Opération"
+        verbose_name_plural = "Opérations"
+
 
 class Spending(Operation):
     """
@@ -227,6 +231,8 @@ class SpendingRequest(TimeStampedModel):
         permissions = (
             ("review_spendingrequest", _("Peut traiter les demandes de dépenses")),
         )
+        verbose_name = "Demande de dépense"
+        verbose_name_plural = "Demandes de dépense"
 
 
 document_path = FilePattern(
