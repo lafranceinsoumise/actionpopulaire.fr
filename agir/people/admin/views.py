@@ -34,7 +34,7 @@ class FormSubmissionViewsMixin:
 
         return {"form": form, "headers": headers, "submissions": submissions}
 
-    def view_results(self, request, pk):
+    def view_results(self, request, pk, title=None):
         if not self.has_change_permission(request) or not request.user.has_perm(
             "people.change_personform"
         ):
@@ -45,7 +45,7 @@ class FormSubmissionViewsMixin:
 
         context = {
             "has_change_permission": True,
-            "title": _("Réponses du formulaire: %s") % form.title,
+            "title": title or ("Réponses du formulaire: %s" % form.title),
             "opts": self.model._meta,
             "form": table["form"],
             "headers": table["headers"],

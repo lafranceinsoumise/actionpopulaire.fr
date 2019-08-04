@@ -411,7 +411,11 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def view_results(self, request, pk):
         self.instance = models.Event.objects.get(pk=pk)
-        return super().view_results(request, self.instance.subscription_form.id)
+        return super().view_results(
+            request,
+            self.instance.subscription_form.id,
+            title="Inscriptions à l'événement %s" % self.instance.name,
+        )
 
     def download_results(self, request, pk):
         self.instance = models.Event.objects.get(pk=pk)
