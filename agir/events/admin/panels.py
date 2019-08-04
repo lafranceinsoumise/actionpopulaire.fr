@@ -197,6 +197,7 @@ class EventRsvpPersonFormDisplay(PersonFormDisplay):
                     ),
                 )
                 if html
+                and self.get_submission_rsvp_or_guest(submission).payment is not None
                 else self.get_submission_rsvp_or_guest(submission).get_status_display()
             )
 
