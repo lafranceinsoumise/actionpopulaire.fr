@@ -192,12 +192,12 @@ class EventRsvpPersonFormDisplay(PersonFormDisplay):
                     + reverse(
                         "admin:payments_payment_change",
                         args=(
-                            self.get_submission_rsvp_or_guest(submission).payment.pk,
+                            self.get_submission_rsvp_or_guest(submission).payment_id,
                         ),
                     ),
                 )
                 if html
-                and self.get_submission_rsvp_or_guest(submission).payment is not None
+                and self.get_submission_rsvp_or_guest(submission).payment_id is not None
                 else self.get_submission_rsvp_or_guest(submission).get_status_display()
             )
 
@@ -466,10 +466,10 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     def add_organizer(self, request, pk):
         return views.add_member(self, request, pk)
 
-    def get_form_submission_qs(self, form):
+    def get_submission_queryset(self, form):
         return PersonFormSubmission.objects.filter(
             Q(rsvp__event=self.instance) | Q(guest_rsvp__event=self.instance)
-        )
+        ).select_related("rsvp", "rsvp_guest")
 
     def view_results(self, request, pk):
         self.instance = models.Event.objects.get(pk=pk)
