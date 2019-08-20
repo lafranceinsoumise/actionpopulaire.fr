@@ -3,10 +3,7 @@ from django.test import TestCase
 from agir.lib.tests.mixins import FakeDataMixin
 
 from ..models import Person, PersonForm, PersonFormSubmission
-from agir.people.person_forms.display import (
-    get_form_field_labels,
-    get_formatted_submission,
-)
+from agir.people.person_forms.display import default_person_form_display
 from ..actions.management import merge_persons
 
 
@@ -67,7 +64,7 @@ class PeopleFormActionsTestCase(TestCase):
 
     def test_get_form_field_labels(self):
         self.assertEqual(
-            get_form_field_labels(self.complex_form),
+            default_person_form_display.get_form_field_labels(self.complex_form),
             {
                 "custom-field": "Mon label",
                 "custom-person-field": "Prout",
@@ -80,7 +77,9 @@ class PeopleFormActionsTestCase(TestCase):
     def test_get_formatted_submission(self):
         self.assertEqual(
             # disregard first three default fields
-            get_formatted_submission(self.submission1, include_admin_fields=False),
+            default_person_form_display.get_formatted_submission(
+                self.submission1, include_admin_fields=False
+            ),
             [
                 {
                     "title": "Détails",

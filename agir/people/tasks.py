@@ -18,7 +18,7 @@ from agir.lib.display import pretty_time_since
 from agir.lib.mailtrain import update_person, delete_email
 from agir.lib.utils import front_url
 from agir.lib.mailing import send_mosaico_email
-from agir.people.person_forms.display import get_formatted_submission
+from agir.people.person_forms.display import default_person_form_display
 from .models import Person, PersonFormSubmission, PersonEmail
 
 
@@ -233,7 +233,7 @@ def send_person_form_notification(self, submission_pk):
 
     person = submission.person
 
-    pretty_submission = get_formatted_submission(submission)
+    pretty_submission = default_person_form_display.get_formatted_submission(submission)
 
     bindings = {
         "ANSWER_EMAIL": person.email,

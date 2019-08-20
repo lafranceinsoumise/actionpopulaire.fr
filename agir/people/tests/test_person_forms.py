@@ -4,10 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from agir.people.person_forms.display import (
-    get_formatted_submission,
-    get_form_field_labels,
-)
+from agir.people.person_forms.display import default_person_form_display
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 
 
@@ -435,7 +432,9 @@ class SubmissionFormatTestCase(TestCase):
         self.submission.refresh_from_db()
 
     def test_display_single_formatting(self):
-        formatted_submission = get_formatted_submission(self.submission)
+        formatted_submission = default_person_form_display.get_formatted_submission(
+            self.submission
+        )
 
         self.assertEqual(
             formatted_submission,
@@ -460,7 +459,7 @@ class SubmissionFormatTestCase(TestCase):
         )
 
     def test_get_form_labels(self):
-        labels = get_form_field_labels(self.form)
+        labels = default_person_form_display.get_form_field_labels(self.form)
 
         self.assertEqual(
             labels,

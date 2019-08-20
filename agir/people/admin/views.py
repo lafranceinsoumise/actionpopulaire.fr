@@ -8,33 +8,33 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.views import View
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView
 from django.views.generic.detail import SingleObjectMixin
 
 from agir.lib.admin import AdminViewMixin
 from agir.people.actions.management import merge_persons
 from agir.people.admin.forms import AddPersonEmailForm, ChoosePrimaryAccount
 from agir.people.models import Person
-from agir.people.person_forms.display import get_formatted_submissions
+from agir.people.person_forms.display import default_person_form_display
 from agir.people.person_forms.models import PersonForm
 
 
 class FormSubmissionViewsMixin:
+    person_form_display = default_person_form_display
+
     def get_form_submission_qs(self, form):
         return form.submissions.all()
 
     def generate_result_table(self, form, html=True, fieldsets_titles=True):
         submission_qs = self.get_form_submission_qs(form)
 
-        headers, submissions = get_formatted_submissions(
+        headers, submissions = self.person_form_display.get_formatted_submissions(
             submission_qs, html=html, fieldsets_titles=fieldsets_titles
         )
 
         return {"form": form, "headers": headers, "submissions": submissions}
 
-    def view_results(self, request, pk):
+    def view_results(self, request, pk, title=None):
         if not self.has_change_permission(request) or not request.user.has_perm(
             "people.change_personform"
         ):
@@ -45,7 +45,7 @@ class FormSubmissionViewsMixin:
 
         context = {
             "has_change_permission": True,
-            "title": _("Réponses du formulaire: %s") % form.title,
+            "title": title or ("Réponses du formulaire: %s" % form.title),
             "opts": self.model._meta,
             "form": table["form"],
             "headers": table["headers"],

@@ -236,7 +236,7 @@ class Event(
         "Le mail de compte-rendu a été envoyé", default=False
     )
 
-    subscription_form = models.ForeignKey(
+    subscription_form = models.OneToOneField(
         "people.PersonForm", null=True, blank=True, on_delete=models.PROTECT
     )
     payment_parameters = JSONField(
@@ -689,13 +689,14 @@ class RSVP(ExportModelOperationsMixin("rsvp"), TimeStampedModel):
 
 class IdentifiedGuest(ExportModelOperationsMixin("identified_guest"), models.Model):
     rsvp = models.ForeignKey(
-        "RSVP", on_delete=models.CASCADE, null=False, related_name="identified_guests"
+        "RSVP", on_delete=models.PROTECT, null=False, related_name="identified_guests"
     )
-    submission = models.ForeignKey(
+    submission = models.OneToOneField(
         "people.PersonFormSubmission",
         on_delete=models.SET_NULL,
         null=True,
         db_column="personformsubmission_id",
+        related_name="rsvp_guest",
     )
     status = models.CharField(
         _("Statut"),

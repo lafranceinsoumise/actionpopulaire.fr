@@ -1,5 +1,4 @@
 from django import forms
-from django.core.exceptions import ImproperlyConfigured
 from django.forms import fields
 from phonenumbers import phonenumberutil, PhoneNumberType
 
