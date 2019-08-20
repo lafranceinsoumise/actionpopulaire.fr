@@ -180,44 +180,45 @@ class EventRsvpPersonFormDisplay(PersonFormDisplay):
 
         return super().get_admin_fields_label(form) + additional_fields
 
-    def _get_admin_fields(self, submission, html=True):
-        results = super()._get_admin_fields(submission, html)
+    def _get_admin_fields(self, submissions, html=True):
+        results = super()._get_admin_fields(submissions, html)
+        event = submissions[0].form.event
 
-        if not submission.form.event.is_free:
-            results.append(
-                format_html(
-                    '{} <a href="{}" target="_blank"title="Voir le détail">&#128269;</a>',
-                    self.get_submission_rsvp_or_guest(submission).get_status_display(),
-                    settings.API_DOMAIN
-                    + reverse(
-                        "admin:payments_payment_change",
-                        args=(
-                            self.get_submission_rsvp_or_guest(submission).payment_id,
-                        ),
-                    ),
-                )
-                if html
-                and self.get_submission_rsvp_or_guest(submission).payment_id is not None
-                else self.get_submission_rsvp_or_guest(submission).get_status_display()
-            )
-
-        if submission.form.event.allow_guests:
-            try:
-                results.append(
+        if not event.is_free:
+            for s, r in zip(submissions, results):
+                r.append(
                     format_html(
-                        '<a href="{}" target="_blank">{}</a>',
+                        '{} <a href="{}" target="_blank"title="Voir le détail">&#128269;</a>',
+                        self.get_submission_rsvp_or_guest(s).get_status_display(),
                         settings.API_DOMAIN
                         + reverse(
-                            "admin:people_person_change",
-                            args=(submission.rsvp_guest.rsvp.person.pk,),
+                            "admin:payments_payment_change",
+                            args=(self.get_submission_rsvp_or_guest(s).payment_id,),
                         ),
-                        submission.rsvp_guest.rsvp.person,
                     )
                     if html
-                    else submission.rsvp_guest.rsvp.person
+                    and self.get_submission_rsvp_or_guest(s).payment_id is not None
+                    else self.get_submission_rsvp_or_guest(s).get_status_display()
                 )
-            except PersonFormSubmission.rsvp_guest.RelatedObjectDoesNotExist:
-                results.append("")
+
+        if event.allow_guests:
+            for s, r in zip(submissions, results):
+                try:
+                    r.append(
+                        format_html(
+                            '<a href="{}" target="_blank">{}</a>',
+                            settings.API_DOMAIN
+                            + reverse(
+                                "admin:people_person_change",
+                                args=(s.rsvp_guest.rsvp.person.pk,),
+                            ),
+                            s.rsvp_guest.rsvp.person,
+                        )
+                        if html
+                        else s.rsvp_guest.rsvp.person
+                    )
+                except PersonFormSubmission.rsvp_guest.RelatedObjectDoesNotExist:
+                    r.append("")
 
         return results
 
@@ -467,9 +468,13 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         return views.add_member(self, request, pk)
 
     def get_submission_queryset(self, form):
-        return PersonFormSubmission.objects.filter(
-            Q(rsvp__event=self.instance) | Q(guest_rsvp__event=self.instance)
-        ).select_related("rsvp", "rsvp_guest")
+        return (
+            PersonFormSubmission.objects.filter(
+                Q(rsvp__event=self.instance) | Q(guest_rsvp__event=self.instance)
+            )
+            .select_related("rsvp", "rsvp_guest", "person", "form")
+            .prefetch_related("person__emails")
+        )
 
     def view_results(self, request, pk):
         self.instance = models.Event.objects.get(pk=pk)

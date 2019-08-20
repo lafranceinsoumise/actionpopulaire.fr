@@ -105,47 +105,57 @@ class PersonFormDisplay:
 
         return value
 
-    def _get_admin_fields(self, submission, html=True):
-        date = localize(submission.created.astimezone(get_current_timezone()))
+    def _get_admin_fields(self, submissions, html=True):
+        dates = [
+            localize(submission.created.astimezone(get_current_timezone()))
+            for submission in submissions
+        ]
 
         if html:
-            return [
+            id_field_template = (
+                '<a href="{details}" title="Voir le détail">&#128269;</a>&ensp;'
+                '<a href="{edit}" title="Modifier">&#x1F58A;&#xFE0F;️</a>&ensp;'
+                '<a href="{delete}" title="Supprimer cette submission">&#x274c;</a>&ensp;{id}'
+            )
+            person_field_template = '<a href="{link}">{person}</a>'
+
+            id_fields = [
                 format_html(
-                    '<a href="{}" title="Voir le détail">&#128269;</a>&ensp;'
-                    '<a href="{}" title="Modifier">&#x1F58A;&#xFE0F;️</a>&ensp;'
-                    '<a href="{}" title="Supprimer cette submission">&#x274c;</a>&ensp;{}',
-                    reverse(
+                    id_field_template,
+                    details=reverse(
                         "admin:people_personformsubmission_detail",
                         args=(submission.pk,),
                     ),
-                    reverse(
+                    edit=reverse(
                         "admin:people_personformsubmission_change",
                         args=(submission.pk,),
                     ),
-                    reverse(
+                    delete=reverse(
                         "admin:people_personformsubmission_delete",
                         args=(submission.pk,),
                     ),
-                    submission.pk,
-                ),
+                    id=submission.pk,
+                )
+                for submission in submissions
+            ]
+            person_fields = [
                 format_html(
-                    '<a href="{}">{}</a>',
-                    settings.API_DOMAIN
+                    person_field_template,
+                    link=settings.API_DOMAIN
                     + reverse(
                         "admin:people_person_change", args=(submission.person_id,)
                     ),
-                    submission.person,
+                    person=submission.person,
                 )
                 if submission.person
-                else "Anonyme",
-                date,
+                else "Anonyme"
+                for submission in submissions
             ]
+        else:
+            id_fields = [s.pk for s in submissions]
+            person_fields = [s.person if s.person else "Anonyme" for s in submissions]
 
-        return [
-            submission.pk,
-            submission.person if submission.person else "Anonyme",
-            date,
-        ]
+        return [list(a) for a in zip(id_fields, person_fields, dates)]
 
     def get_form_field_labels(self, form, fieldsets_titles=False):
         """Renvoie un dictionnaire associant id de champs et libellés à présenter
@@ -245,7 +255,7 @@ class PersonFormDisplay:
         ]
 
         if include_admin_fields:
-            admin_values = [self._get_admin_fields(s, html) for s in submissions]
+            admin_values = self._get_admin_fields(submissions, html)
             return (
                 self.get_admin_fields_label(form) + headers,
                 [
@@ -269,7 +279,7 @@ class PersonFormDisplay:
                         {"label": l, "value": v}
                         for l, v in zip(
                             self.get_admin_fields_label(submission.form),
-                            self._get_admin_fields(submission),
+                            self._get_admin_fields([submission])[0],
                         )
                     ],
                 }
