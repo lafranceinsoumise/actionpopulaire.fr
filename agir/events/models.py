@@ -689,7 +689,7 @@ class RSVP(ExportModelOperationsMixin("rsvp"), TimeStampedModel):
 
 class IdentifiedGuest(ExportModelOperationsMixin("identified_guest"), models.Model):
     rsvp = models.ForeignKey(
-        "RSVP", on_delete=models.CASCADE, null=False, related_name="identified_guests"
+        "RSVP", on_delete=models.PROTECT, null=False, related_name="identified_guests"
     )
     submission = models.OneToOneField(
         "people.PersonFormSubmission",
