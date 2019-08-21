@@ -58,6 +58,8 @@ def change_payment_status(payment, status):
     if status == Payment.STATUS_CANCELED:
         return cancel_payment(payment)
 
+    raise ValueError("Ce statut n'existe pas ou n'est pas disponible.")
+
 
 def complete_payment(payment):
     if payment.status == Payment.STATUS_CANCELED:

@@ -1,7 +1,9 @@
+from django import forms
 from django.contrib import admin, messages
+from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
-from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse, path
 from django.utils import timezone
@@ -9,6 +11,7 @@ from django.utils.html import escape, format_html, format_html_join
 
 from agir.api.admin import admin_site
 from agir.checks.models import CheckPayment
+from agir.donations.form_fields import MoneyField
 from agir.lib.admin import PersonLinkMixin
 from agir.payments.actions.payments import (
     notify_status_change,
@@ -64,39 +67,6 @@ def change_payments_status_action(status, description):
 
 
 class PaymentManagementAdminMixin:
-    def change_status(self, request, pk, status):
-        if status not in [
-            Payment.STATUS_COMPLETED,
-            Payment.STATUS_REFUSED,
-            Payment.STATUS_CANCELED,
-        ]:
-            raise Http404()
-
-        if request.method != "GET":
-            return HttpResponseNotAllowed(permitted_methods="POST")
-
-        payment = get_object_or_404(Payment, pk=pk)
-        now = timezone.now().astimezone(timezone.utc).isoformat()
-
-        with transaction.atomic():
-            change_payment_status(payment, status)
-            payment.events.append(
-                {
-                    "change_status": status,
-                    "date": now,
-                    "origin": self.opts.app_label + "_admin_change_button",
-                }
-            )
-            payment.save(update_fields=["events"])
-            notify_status_change(payment)
-
-        return HttpResponseRedirect(
-            reverse(
-                "admin:{}_{}_change".format(self.opts.app_label, self.opts.model_name),
-                args=[payment.pk],
-            )
-        )
-
     def status_buttons(self, payment):
         if payment.status != Payment.STATUS_WAITING:
             return "-"
@@ -115,49 +85,11 @@ class PaymentManagementAdminMixin:
 
         return format_html_join(
             " ",
-            '<a href="{}" class="button">{}</a>',
-            (
-                (
-                    reverse(
-                        "admin:{}_{}_change_status".format(
-                            self.opts.app_label, self.opts.model_name
-                        ),
-                        kwargs={"pk": payment.pk, "status": status},
-                    ),
-                    label,
-                )
-                for status, label in statuses
-            ),
+            '<button type="submit" class="button" name="_changestatus" value="{}">{}</button>',
+            ((status, label) for status, label in statuses),
         )
 
-    def change_mode(self, request, pk, mode):
-        if mode not in PAYMENT_MODES:
-            raise Http404()
-
-        if request.method != "GET":
-            return HttpResponseNotAllowed(permitted_methods="POST")
-
-        payment = get_object_or_404(Payment, pk=pk)
-        now = timezone.now().astimezone(timezone.utc).isoformat()
-
-        with transaction.atomic():
-            payment.mode = mode
-            payment.events.append(
-                {
-                    "change_mode": mode,
-                    "date": now,
-                    "origin": self.opts.app_label + "_admin_change_mode",
-                }
-            )
-            payment.save(update_fields=["mode", "events"])
-
-        if not PAYMENT_MODES[mode].can_admin:
-            return redirect("payment_page", payment.pk)
-
-        return redirect(
-            "admin:{}_{}_change".format(self.opts.app_label, self.opts.model_name),
-            payment.pk,
-        )
+    status_buttons.short_description = "Actions"
 
     def change_mode_buttons(self, payment):
         if (
@@ -168,47 +100,87 @@ class PaymentManagementAdminMixin:
 
         return format_html_join(
             " ",
-            '<a href="{}" class="button" {}>{}</a>',
+            '<button type="submit" class="button" name="_changemode" {} value="{}">{}</button>',
             (
-                (
-                    reverse(
-                        "admin:{}_{}_change_mode".format(
-                            self.opts.app_label, self.opts.model_name
-                        ),
-                        kwargs={"pk": payment.pk, "mode": id},
-                    ),
-                    "disabled" if payment.mode == id else "",
-                    mode.label,
-                )
+                ("disabled" if payment.mode == id else "", id, mode.label)
                 for id, mode in PAYMENT_MODES.items()
             ),
         )
 
     change_mode_buttons.short_description = "Mode de paiement"
 
-    def get_urls(self):
-        return [
-            path(
-                "<int:pk>/change/<int:status>/",
-                admin_site.admin_view(self.change_status),
-                name="{}_{}_change_status".format(
-                    self.opts.app_label, self.opts.model_name
-                ),
-            ),
-            path(
-                "<int:pk>/change_mode/<str:mode>/",
-                admin_site.admin_view(self.change_mode),
-                name="{}_{}_change_mode".format(
-                    self.opts.app_label, self.opts.model_name
-                ),
-            ),
-        ] + super().get_urls()
+    def save_form(self, request, form, change):
+        with transaction.atomic():
+            if "_changemode" in request.POST:
+                if request.POST["_changemode"] not in PAYMENT_MODES:
+                    raise SuspiciousOperation()
 
-    status_buttons.short_description = "Actions"
+                mode = request.POST["_changemode"]
+                payment = form.instance
+                now = timezone.now().astimezone(timezone.utc).isoformat()
+
+                payment.mode = mode
+                payment.events.append(
+                    {
+                        "change_mode": mode,
+                        "date": now,
+                        "origin": self.opts.app_label + "_admin_change_mode",
+                    }
+                )
+
+            if "_changestatus" in request.POST:
+                if int(request.POST["_changestatus"]) not in [
+                    Payment.STATUS_COMPLETED,
+                    Payment.STATUS_REFUSED,
+                    Payment.STATUS_CANCELED,
+                ]:
+                    raise SuspiciousOperation()
+
+                status = request.POST["_changestatus"]
+                payment = form.instance
+                now = timezone.now().astimezone(timezone.utc).isoformat()
+
+                change_payment_status(payment, int(status))
+                payment.events.append(
+                    {
+                        "change_status": status,
+                        "date": now,
+                        "origin": self.opts.app_label + "_admin_change_button",
+                    }
+                )
+                notify_status_change(payment)
+
+            return super().save_form(request, form, change)
+
+    def response_change(self, request, payment):
+        if "_changemode" in request.POST:
+            if not PAYMENT_MODES[payment.mode].can_admin:
+                return redirect("payment_page", payment.pk)
+
+            self.message_user(
+                request, "Le mode de paiement a bien été modifié.", messages.SUCCESS
+            )
+            return HttpResponseRedirect(request.path)
+
+        if "_changestatus" in request.POST:
+            self.message_user(
+                request, "Le statut du paiement a bien été modifié.", messages.SUCCESS
+            )
+            return HttpResponseRedirect(request.path)
+
+        return super().response_change(request, payment)
+
+
+class PaymentAdminForm(forms.ModelForm):
+    price = MoneyField(
+        label="Modifier le prix avant le paiement",
+        help_text="La modification arbitraire du montant sera enregistrée si vous validez le paiement.",
+    )
 
 
 @admin.register(models.Payment, site=admin_site)
 class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
+    form = PaymentAdminForm
     list_display = (
         "id",
         "get_type_display",
@@ -227,7 +199,6 @@ class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
         "email",
         "first_name",
         "last_name",
-        "get_price_display",
         "phone_number",
         "location_address1",
         "location_address2",
@@ -238,9 +209,23 @@ class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
         "events",
         "status",
         "change_mode_buttons",
-        "status_buttons",
+        "get_price_display",
     )
     fields = readonly_fields
+
+    def get_fields(self, request, payment=None):
+        if payment is not None and payment.status == Payment.STATUS_WAITING:
+            fields = list(super().get_fields(request, payment))
+            fields.insert(-2, "price")
+            fields[-1] = "status_buttons"
+            return fields
+        return super().get_fields(request, payment)
+
+    def get_readonly_fields(self, request, payment=None):
+        if payment is not None and payment.status == Payment.STATUS_WAITING:
+            return super().get_readonly_fields(request, payment) + ("status_buttons",)
+        return super().get_readonly_fields(request, payment)
+
     list_filter = ("status", "type", "mode")
     search_fields = ("email", "first_name", "last_name", "=id")
 
@@ -249,6 +234,32 @@ class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
         change_payments_status_action(Payment.STATUS_COMPLETED, "Marquer comme reçu"),
         change_payments_status_action(Payment.STATUS_CANCELED, "Marqué comme annulé"),
     ]
+
+    def save_form(self, request, form, change):
+        with transaction.atomic():
+            payment = form.instance
+            if (
+                change
+                and "price" in form.changed_data
+                and payment.price != form["price"].initial
+            ):
+                now = timezone.now().astimezone(timezone.utc).isoformat()
+                payment.events.append(
+                    {
+                        "new_price": payment.price,
+                        "old_price": form["price"].initial,
+                        "date": now,
+                        "origin": self.opts.app_label + "_admin_change_price",
+                    }
+                )
+                self.message_user(
+                    request, "Le montant a bien été modifié.", messages.SUCCESS
+                )
+
+            return super().save_form(request, form, change)
+
+    def has_add_permission(self, request):
+        return False
 
 
 @admin.register(models.Subscription, site=admin_site)
