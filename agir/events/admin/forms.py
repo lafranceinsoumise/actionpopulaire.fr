@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib.admin.widgets import AutocompleteSelect
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -11,7 +12,6 @@ from django.utils.translation import ugettext_lazy as _
 from agir.events.actions.rsvps import rsvp_to_paid_event_and_create_payment
 from agir.events.forms import BILLING_FIELDS
 from agir.events.models import EventSubtype, RSVP
-from agir.payments.actions.payments import redirect_to_payment
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
 from agir.people.models import Person
@@ -352,7 +352,7 @@ class NewParticipantForm(BasePersonForm):
                 reverse("admin:payments_payment_change", args=(payment.id,))
             )
 
-        return redirect_to_payment(payment)
+        return HttpResponseRedirect(settings.FRONT_URL + payment.get_payment_url())
 
     class Meta:
         model = Person
