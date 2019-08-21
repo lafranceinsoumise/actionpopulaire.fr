@@ -599,7 +599,11 @@ EMAIL_DISABLED_DOMAINS = (
 
 
 # The first one will be the default one
-PAYMENT_MODES = ["agir.system_pay.SystemPayPaymentMode", "agir.checks.CheckPaymentMode"]
+PAYMENT_MODES = [
+    "agir.system_pay.SystemPayPaymentMode",
+    "agir.checks.CheckPaymentMode",
+    "agir.money.MoneyPaymentMode",
+]
 
 # OVH Settings
 OVH_SMS_DISABLE = os.environ.get("OVH_SMS_DISABLE", "true").lower() == "true"
