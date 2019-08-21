@@ -1,15 +1,9 @@
 from django import forms
 from django.contrib import admin, messages
 from django.db import transaction
-from django.http import (
-    HttpResponseRedirect,
-    Http404,
-    HttpResponseNotAllowed,
-    HttpResponseForbidden,
-)
+from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils import timezone
-from django.utils.html import format_html_join
 from django.utils.translation import ugettext_lazy as _, ugettext, ngettext
 from django.template.response import TemplateResponse
 
@@ -18,6 +12,7 @@ from crispy_forms.layout import Submit
 
 from agir.api.admin import admin_site
 from agir.payments.actions.payments import notify_status_change
+from agir.payments.admin import PaymentManagementAdminMixin
 
 from .models import CheckPayment
 
@@ -71,35 +66,11 @@ class CheckPaymentSearchForm(forms.Form):
         return numbers
 
 
-def change_payment_status(status, description):
-    def action(modeladmin, request, queryset):
-        with transaction.atomic():
-            now = timezone.now().astimezone(timezone.utc).isoformat()
-
-            for payment in queryset.filter(status=CheckPayment.STATUS_WAITING):
-                payment.status = status
-                payment.events.append(
-                    {
-                        "change_status": status,
-                        "date": now,
-                        "origin": "check_payment_admin_action",
-                    }
-                )
-                payment.save()
-                notify_status_change(payment)
-
-    # have to change the function name so that django admin see that they are different functions
-    action.__name__ = f"change_to_{status}"
-    action.short_description = description
-
-    return action
-
-
 @admin.register(CheckPayment, site=admin_site)
-class CheckPaymentAdmin(admin.ModelAdmin):
+class CheckPaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
-        "type",
+        "get_type_display",
         "status",
         "price",
         "person",
@@ -108,13 +79,12 @@ class CheckPaymentAdmin(admin.ModelAdmin):
         "last_name",
     )
     fields = readonly_fields = (
-        "type",
-        "mode",
+        "get_type_display",
         "person",
         "email",
         "first_name",
         "last_name",
-        "price",
+        "get_price_display",
         "status",
         "phone_number",
         "location_address1",
@@ -124,45 +94,11 @@ class CheckPaymentAdmin(admin.ModelAdmin):
         "location_country",
         "meta",
         "events",
-        "actions_buttons",
+        "status_buttons",
     )
 
     list_filter = ("price", "status")
     search_fields = ("id", "email", "first_name", "last_name")
-
-    actions = [
-        change_payment_status(CheckPayment.STATUS_COMPLETED, _("Marquer comme reçu")),
-        change_payment_status(
-            CheckPayment.STATUS_CANCELED, _("Marqué comme abandonné par l'acheteur")
-        ),
-        change_payment_status(CheckPayment.STATUS_REFUSED, _("Marqué comme refusé")),
-    ]
-
-    def actions_buttons(self, object):
-        if object.status == CheckPayment.STATUS_WAITING:
-            statuses = [
-                (CheckPayment.STATUS_COMPLETED, "Valider"),
-                (CheckPayment.STATUS_CANCELED, "Annuler"),
-                (CheckPayment.STATUS_REFUSED, "Refuser"),
-            ]
-
-            return format_html_join(
-                " ",
-                '<a href="{}" class="button">{}</a>',
-                (
-                    (
-                        reverse(
-                            "admin:checks_checkpayment_change_status",
-                            kwargs={"pk": object.pk, "status": status},
-                        ),
-                        label,
-                    )
-                    for status, label in statuses
-                ),
-            )
-        return "Aucune"
-
-    actions_buttons.short_description = _("Actions")
 
     def has_add_permission(self, request):
         """Forbidden to add checkpayment through this model admin"""
@@ -179,11 +115,6 @@ class CheckPaymentAdmin(admin.ModelAdmin):
                 "validate/",
                 admin_site.admin_view(self.validate_check_view),
                 name="checks_checkpayment_validate",
-            ),
-            path(
-                "<int:pk>/change/<int:status>/",
-                admin_site.admin_view(self.change_status),
-                name="checks_checkpayment_change_status",
             ),
         ] + super().get_urls()
 
@@ -277,41 +208,4 @@ class CheckPaymentAdmin(admin.ModelAdmin):
                 "check_amount": check_amount,
                 "opts": CheckPayment._meta,
             },
-        )
-
-    def change_status(self, request, pk, status):
-
-        if status not in [
-            CheckPayment.STATUS_COMPLETED,
-            CheckPayment.STATUS_REFUSED,
-            CheckPayment.STATUS_CANCELED,
-        ]:
-            raise Http404()
-
-        if request.method != "GET":
-            return HttpResponseNotAllowed(permitted_methods="POST")
-
-        try:
-            payment = CheckPayment.objects.get(pk=pk)
-        except CheckPayment.DoesNotExist:
-            raise Http404()
-
-        if payment.status != CheckPayment.STATUS_WAITING:
-            return HttpResponseForbidden()
-
-        now = timezone.now().astimezone(timezone.utc).isoformat()
-        with transaction.atomic():
-            payment.status = status
-            payment.events.append(
-                {
-                    "change_status": status,
-                    "date": now,
-                    "origin": "check_payment_admin_change_button",
-                }
-            )
-            payment.save()
-            notify_status_change(payment)
-
-        return HttpResponseRedirect(
-            reverse("admin:checks_checkpayment_change", args=[payment.pk])
         )
