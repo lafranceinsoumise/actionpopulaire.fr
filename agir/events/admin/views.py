@@ -9,16 +9,22 @@ from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import FormView
+from django.views.generic.detail import SingleObjectMixin
 from django_filters.views import FilterView
 from unidecode import unidecode
 
 from agir.events.admin.filters import EventFilterSet
+from agir.events.admin.forms import NewParticipantForm
+from agir.events.forms import BILLING_FIELDS
 from agir.events.models import Event, EventSubtype, Calendar
 from agir.lib.admin import AdminViewMixin
+from agir.people.person_forms.actions import get_people_form_class
+from agir.people.person_forms.fields import is_actual_model_field
 from .forms import AddOrganizerForm
 
 
-def add_member(model_admin, request, pk):
+def add_organizer(model_admin, request, pk):
     if not model_admin.has_change_permission(request) or not request.user.has_perm(
         "people.view_person"
     ):
@@ -59,7 +65,7 @@ def add_member(model_admin, request, pk):
     admin_form = admin.helpers.AdminForm(form, fieldsets, {})
 
     context = {
-        "title": _("Ajouter un participant à l'événement: %s") % escape(event.name),
+        "title": _("Ajouter un organisateur à l'événement: %s") % escape(event.name),
         "adminform": admin_form,
         "form": form,
         "is_popup": True,
@@ -173,3 +179,91 @@ class EventSummaryView(AdminViewMixin, FilterView):
 
         context = self.get_context_data(filter=self.filterset)
         return self.render_to_response(context)
+
+
+class AddParticipantView(SingleObjectMixin, FormView):
+    model_admin = None
+    queryset = Event.objects.filter(subscription_form__isnull=False)
+    template_name = "admin/events/add_participant.html"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.event = self.get_object()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.event = self.get_object()
+        return super().post(request, *args, **kwargs)
+
+    def get_form_class(self):
+        person_form = self.event.subscription_form
+        additional_billing_forms = set(BILLING_FIELDS) - {
+            f
+            for f, descriptor in person_form.fields_dict.items()
+            if is_actual_model_field(descriptor)
+        }
+
+        return get_people_form_class(
+            person_form,
+            additional_model_fields=additional_billing_forms,
+            base_form=NewParticipantForm,
+        )
+
+    def get_form_kwargs(self):
+        return {
+            "model_admin": self.model_admin,
+            "event": self.event,
+            **super().get_form_kwargs(),
+        }
+
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data()
+        form = kwargs["form"]
+
+        form_person_fields = {
+            f
+            for f, descriptor in self.event.subscription_form.fields_dict.items()
+            if is_actual_model_field(descriptor)
+        }
+
+        additional_billing_forms = [
+            f for f in BILLING_FIELDS if f not in form_person_fields
+        ] + ["payment_mode"]
+
+        fieldsets = form.fieldsets + [
+            ("Facturation", {"fields": additional_billing_forms})
+        ]
+        admin_form = admin.helpers.AdminForm(form, fieldsets, {})
+
+        kwargs.update(
+            {
+                "title": _("Ajouter un participant à l'événement: %s")
+                % escape(self.event.name),
+                "adminform": admin_form,
+                "form": form,
+                "is_popup": True,
+                "opts": self.model_admin.model._meta,
+                "original": self.event,
+                "change": True,
+                "add": False,
+                "save_as": False,
+                "show_save": True,
+                "has_delete_permission": self.model_admin.has_delete_permission(
+                    self.request, self.event
+                ),
+                "has_add_permission": self.model_admin.has_add_permission(self.request),
+                "has_change_permission": self.model_admin.has_change_permission(
+                    self.request, self.event
+                ),
+                "has_view_permission": self.model_admin.has_view_permission(
+                    self.request, self.event
+                ),
+                "has_editable_inline_admin_formsets": False,
+                "media": self.model_admin.media + admin_form.media,
+            }
+        )
+
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        return form.redirect_to_payment()

@@ -614,6 +614,18 @@ class AuthorForm(forms.ModelForm):
         fields = ("first_name", "last_name")
 
 
+BILLING_FIELDS = (
+    "first_name",
+    "last_name",
+    "location_address1",
+    "location_address2",
+    "location_zip",
+    "location_city",
+    "location_country",
+    "contact_phone",
+)
+
+
 class BillingForm(forms.ModelForm):
     # these fields are used to make sure there's no problem if user starts paying several events at the same time
     event = forms.ModelChoiceField(
@@ -681,16 +693,7 @@ class BillingForm(forms.ModelForm):
 
     class Meta:
         model = Person
-        fields = (
-            "first_name",
-            "last_name",
-            "location_address1",
-            "location_address2",
-            "location_zip",
-            "location_city",
-            "location_country",
-            "contact_phone",
-        )
+        fields = BILLING_FIELDS
 
 
 class GuestsForm(forms.Form):

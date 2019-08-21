@@ -220,7 +220,7 @@ class PersonFormDisplay:
             submissions = submissions_or_form
             form = submissions[0].form
 
-        field_dict = form.fields_dict
+        fields_dict = form.fields_dict
 
         labels = (
             self.get_form_field_labels(form, fieldsets_titles=fieldsets_titles)
@@ -231,25 +231,25 @@ class PersonFormDisplay:
         full_data = [sub.data for sub in submissions]
         full_values = [
             {
-                id: self._get_formatted_value(field_dict[id], value, html)
-                if id in field_dict
+                id: self._get_formatted_value(fields_dict[id], value, html)
+                if id in fields_dict
                 else value
                 for id, value in d.items()
             }
             for d in full_data
         ]
 
-        declared_fields = set(field_dict)
+        declared_fields = set(fields_dict)
         additional_fields = sorted(
             reduce(or_, (set(d) for d in full_data)).difference(declared_fields)
         )
 
-        headers = [labels.get(id, id) for id in field_dict] + additional_fields
+        headers = [labels.get(id, id) for id in fields_dict] + additional_fields
 
         ordered_values = [
             [
                 v.get(i, self.NA_HTML_PLACEHOLDER if html else self.NA_TEXT_PLACEHOLDER)
-                for i in chain(field_dict, additional_fields)
+                for i in chain(fields_dict, additional_fields)
             ]
             for v in full_values
         ]
@@ -268,7 +268,7 @@ class PersonFormDisplay:
 
     def get_formatted_submission(self, submission, include_admin_fields=False):
         data = submission.data
-        field_dicts = submission.form.fields_dict
+        fields_dict = submission.form.fields_dict
         labels = self.get_form_field_labels(submission.form)
 
         if include_admin_fields:
@@ -297,7 +297,7 @@ class PersonFormDisplay:
                     fieldset_data.append({"label": label, "value": value})
             res.append({"title": fieldset["title"], "data": fieldset_data})
 
-        missing_fields = set(data).difference(set(field_dicts))
+        missing_fields = set(data).difference(set(fields_dict))
 
         missing_fields_data = []
         for id in sorted(missing_fields):
@@ -330,7 +330,7 @@ class PersonFormDisplay:
             only_one = True
             submissions = [submissions]
 
-        field_dict = submissions[0].form.fields_dict
+        fields_dict = submissions[0].form.fields_dict
         public_fields_definition = self._get_full_public_fields_definition(
             submissions[0].form
         )
@@ -347,7 +347,7 @@ class PersonFormDisplay:
                             "value": format_html(
                                 self.PUBLIC_FORMATS[pf["format"]],
                                 self._get_formatted_value(
-                                    field_dict[pf["id"]], submission.data.get(pf["id"])
+                                    fields_dict[pf["id"]], submission.data.get(pf["id"])
                                 ),
                             ),
                         }

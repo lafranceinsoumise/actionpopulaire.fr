@@ -1,11 +1,19 @@
 from django import forms
 from django.contrib.admin.widgets import AutocompleteSelect
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.forms import BooleanField
+from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
-from agir.events.models import EventSubtype
+from agir.events.actions.rsvps import rsvp_to_paid_event_and_create_payment
+from agir.events.models import EventSubtype, RSVP
+from agir.payments.actions.payments import redirect_to_payment
+from agir.payments.models import Payment
+from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
 from agir.people.models import Person
+from agir.people.person_forms.forms import BasePersonForm
 from .. import models
 from ..tasks import send_organizer_validation_notification
 from ...lib.form_fields import AdminRichEditorWidget
@@ -204,3 +212,132 @@ class AddOrganizerForm(forms.Form):
         return models.OrganizerConfig.objects.create(
             person=self.cleaned_data["person"], event=self.event
         )
+
+
+class NewParticipantForm(BasePersonForm):
+    existing_person = forms.ModelChoiceField(
+        label="Compte existant",
+        queryset=Person.objects.all(),
+        empty_label=_("None"),
+        required=False,
+    )
+
+    new_person_email = forms.EmailField(
+        label="Email de la nouvelle personne", required=False
+    )
+
+    insoumise = forms.BooleanField(
+        required=False,
+        label="La personne souhaite recevoir les emails de la France insoumise",
+        help_text="Ce champ ne s'applique que s'il s'agit de la création d'une nouvelle personne.",
+    )
+
+    payment_mode = PaymentModeField(
+        required=True,
+        payment_modes=[PAYMENT_MODES["system_pay"], PAYMENT_MODES["check"]],
+    )
+
+    def __init__(self, *args, model_admin, event, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.event = event
+
+        self.fields["existing_person"].widget = AutocompleteSelect(
+            rel=Person._meta.get_field("rsvps"),
+            admin_site=model_admin.admin_site,
+            choices=self.fields["existing_person"].choices,
+        )
+
+        if "location_address2" in self.fields:
+            self.fields["location_address2"].required = False
+
+        self.fieldsets = [
+            (
+                "Compte",
+                {"fields": ("existing_person", "new_person_email", "insoumise")},
+            ),
+            (
+                "Informations d'inscription",
+                {"fields": list(self.person_form_instance.fields_dict)},
+            ),
+        ]
+
+    def clean_existing_person(self):
+        existing_person = self.cleaned_data["existing_person"]
+
+        if (
+            existing_person is not None
+            and RSVP.objects.filter(event=self.event, person=existing_person).exists()
+        ):
+            rsvp = (
+                RSVP.objects.filter(event=self.event, person=existing_person)
+                .select_related("payment")
+                .get()
+            )
+            try:
+                payment = rsvp.payment
+                message = format_html(
+                    '{error_text} (<a href="{payment_link_url}">{payment_link_text}</a>)',
+                    error_text="Cette personne participe déjà à l'événement",
+                    payment_link_url=reverse(
+                        "admin:payments_payment_change", args=[payment.pk]
+                    ),
+                    payment_link_text="voir son paiement",
+                )
+            except Payment.DoesNotExist:
+                message = "Cette personne participe déjà à l'événement."
+
+            raise ValidationError(message, code="already_rsvp")
+
+        return existing_person
+
+    def clean(self):
+        if (
+            "existing_data" in self.cleaned_data
+            and self.cleaned_data["existing_person"] is not None
+        ):
+            self.data = self.data.dict()
+            for f in self._meta.fields:
+                if f not in self.cleaned_data:
+                    self.data[f] = getattr(self.cleaned_data["existing_person"], f)
+
+        return self.cleaned_data
+
+    def save(self, commit=True):
+        cleaned_data = self.cleaned_data
+
+        # si l'existing person existe, c'est elle qui doit être modifiée par le formulaire
+        if cleaned_data["existing_person"] is not None:
+            self.instance = cleaned_data["existing_person"]
+        elif cleaned_data["new_person_email"]:
+            try:
+                self.instance = Person.objects.get_by_natural_key(
+                    cleaned_data["new_person_email"]
+                )
+            except Person.DoesNotExist:
+                pass
+
+        if self.instance._state.adding:
+            self.instance.is_insoumise = self.instance.subscribed = self.cleaned_data[
+                "insoumise"
+            ]
+
+        # pour sauver l'instance, même si c'est une création, il faut appeler la méthode ModelForm plutôt que celle
+        # de BasePersonForm
+        with transaction.atomic():
+            self.instance = forms.ModelForm.save(self, commit)
+            self.submission = self.save_submission(self.instance)
+
+            if cleaned_data["new_person_email"]:
+                self.instance.add_email(cleaned_data["new_person_email"])
+
+        return self.instance
+
+    def redirect_to_payment(self):
+        payment = rsvp_to_paid_event_and_create_payment(
+            self.event,
+            self.instance,
+            self.cleaned_data["payment_mode"],
+            self.submission,
+        )
+        return redirect_to_payment(payment)

@@ -453,19 +453,23 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         else:
             return format_html(
                 '<a href="{view_results_link}" class="button">Voir les inscriptions</a><br>'
-                '<a href="{download_results_link}" class="button">Télécharger les inscriptions</a><br>',
+                '<a href="{download_results_link}" class="button">Télécharger les inscriptions</a><br>'
+                '<a href="{add_participant_link}" class="button">Inscrire quelq\'un</a>',
                 view_results_link=reverse(
                     "admin:events_event_rsvps_view_results", args=(object.pk,)
                 ),
                 download_results_link=reverse(
                     "admin:events_event_rsvps_download_results", args=(object.pk,)
                 ),
+                add_participant_link=reverse(
+                    "admin:events_event_add_participant", args=(object.pk,)
+                ),
             )
 
     rsvps_buttons.short_description = _("Inscriptions")
 
     def add_organizer(self, request, pk):
-        return views.add_member(self, request, pk)
+        return views.add_organizer(self, request, pk)
 
     def get_submission_queryset(self, form):
         return (
@@ -497,6 +501,13 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 "<uuid:pk>/add_organizer/",
                 self.admin_site.admin_view(self.add_organizer),
                 name="events_event_add_organizer",
+            ),
+            path(
+                "<uuid:pk>/add_participant/",
+                self.admin_site.admin_view(
+                    views.AddParticipantView.as_view(model_admin=self)
+                ),
+                name="events_event_add_participant",
             ),
             path(
                 "<uuid:pk>/view_rsvps/",

@@ -306,11 +306,6 @@ class PayEventView(SoftLoginRequiredMixin, UpdateView):
         return self.request.user.person
 
     def get_context_data(self, **kwargs):
-        if self.submission:
-            # this form is instantiated only to get the labels for every field
-            form = get_people_form_class(self.submission.form)(
-                instance=self.request.user.person
-            )
         kwargs.update(
             {
                 "event": self.event,
