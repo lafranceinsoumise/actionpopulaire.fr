@@ -48,6 +48,17 @@ def create_payment(*, person=None, type, price, mode=DEFAULT_MODE, meta=None, **
     )
 
 
+def change_payment_status(payment, status):
+    if status == Payment.STATUS_COMPLETED:
+        return complete_payment(payment)
+
+    if status == Payment.STATUS_REFUSED:
+        return refuse_payment(payment)
+
+    if status == Payment.STATUS_CANCELED:
+        return cancel_payment(payment)
+
+
 def complete_payment(payment):
     if payment.status == Payment.STATUS_CANCELED:
         raise PaymentException("Le paiement a déjà été annulé.")

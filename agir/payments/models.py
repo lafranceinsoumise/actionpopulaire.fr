@@ -8,7 +8,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.lib.models import LocationMixin, TimeStampedModel
 from agir.lib.display import display_address
-from .types import get_payment_choices
+from .types import get_payment_choices, PAYMENT_TYPES
 from .payment_modes import PAYMENT_MODES
 
 
@@ -82,10 +82,21 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     def get_price_display(self):
         return "{} €".format(floatformat(self.price / 100, 2))
 
+    get_price_display.short_description = "Prix"
+
     def get_mode_display(self):
         return (
             PAYMENT_MODES[self.mode].label if self.mode in PAYMENT_MODES else self.mode
         )
+
+    get_mode_display.short_description = "Mode de paiement"
+
+    def get_type_display(self):
+        return (
+            PAYMENT_TYPES[self.type].label if self.type in PAYMENT_TYPES else self.type
+        )
+
+    get_type_display.short_description = "Type d'abonnement"
 
     def get_payment_url(self):
         return reverse("payment_page", args=[self.pk])
@@ -129,6 +140,8 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     class Meta:
         get_latest_by = "created"
         ordering = ("-created",)
+        verbose_name = "Paiement"
+        verbose_name_plural = "Paiements"
 
 
 class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel):
@@ -174,10 +187,21 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
     def get_price_display(self):
         return "{} €".format(floatformat(self.price / 100, 2))
 
+    get_price_display.short_description = "Prix"
+
     def get_mode_display(self):
         return (
             PAYMENT_MODES[self.mode].label if self.mode in PAYMENT_MODES else self.mode
         )
+
+    get_mode_display.short_description = "Mode de paiement"
+
+    def get_type_display(self):
+        return (
+            PAYMENT_TYPES[self.type].label if self.type in PAYMENT_TYPES else self.type
+        )
+
+    get_type_display.short_description = "Type d'abonnement"
 
     def description(self):
         from agir.payments.actions.subscriptions import description_for_subscription
