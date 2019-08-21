@@ -16,7 +16,6 @@ from unidecode import unidecode
 
 from agir.events.admin.filters import EventFilterSet
 from agir.events.admin.forms import NewParticipantForm
-from agir.events.forms import BILLING_FIELDS
 from agir.events.models import Event, EventSubtype, Calendar
 from agir.lib.admin import AdminViewMixin
 from agir.people.person_forms.actions import get_people_form_class
@@ -188,6 +187,9 @@ class AddParticipantView(SingleObjectMixin, FormView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.event = self.get_object()
+        if not self.event.subscription_form or self.event.is_free:
+            raise Http404()
+
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -196,16 +198,11 @@ class AddParticipantView(SingleObjectMixin, FormView):
 
     def get_form_class(self):
         person_form = self.event.subscription_form
-        additional_billing_forms = set(BILLING_FIELDS) - {
-            f
-            for f, descriptor in person_form.fields_dict.items()
-            if is_actual_model_field(descriptor)
-        }
 
         return get_people_form_class(
             person_form,
-            additional_model_fields=additional_billing_forms,
             base_form=NewParticipantForm,
+            include_inherited_model_fields=True,
         )
 
     def get_form_kwargs(self):
@@ -226,7 +223,7 @@ class AddParticipantView(SingleObjectMixin, FormView):
         }
 
         additional_billing_forms = [
-            f for f in BILLING_FIELDS if f not in form_person_fields
+            f for f in NewParticipantForm._meta.fields if f not in form_person_fields
         ] + ["payment_mode"]
 
         fieldsets = form.fieldsets + [

@@ -7,7 +7,7 @@ from agir.people.person_forms.forms import BasePersonForm
 
 
 def get_people_form_class(
-    person_form_instance, additional_model_fields=None, base_form=BasePersonForm
+    person_form_instance, base_form=BasePersonForm, include_inherited_model_fields=False
 ):
     """Returns the form class for the specific person_form_instance
 
@@ -23,8 +23,8 @@ def get_people_form_class(
         if is_actual_model_field(field)
     ]
 
-    if additional_model_fields is not None:
-        form_person_fields.extend(additional_model_fields)
+    if include_inherited_model_fields is not None:
+        form_person_fields.extend(base_form._meta.fields)
 
     form_class = forms.modelform_factory(
         Person, fields=form_person_fields, form=base_form

@@ -8,6 +8,7 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from agir.events.actions.rsvps import rsvp_to_paid_event_and_create_payment
+from agir.events.forms import BILLING_FIELDS
 from agir.events.models import EventSubtype, RSVP
 from agir.payments.actions.payments import redirect_to_payment
 from agir.payments.models import Payment
@@ -341,3 +342,7 @@ class NewParticipantForm(BasePersonForm):
             self.submission,
         )
         return redirect_to_payment(payment)
+
+    class Meta:
+        model = Person
+        fields = BILLING_FIELDS
