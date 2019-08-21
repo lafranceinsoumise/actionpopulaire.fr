@@ -8,7 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 from dynamic_filenames import FilePattern
 from reversion.models import Revision, Version
 
-from agir.donations.model_fields import AmountField, BalanceField
+from agir.donations.model_fields import BalanceField
+from agir.payments.model_fields import AmountField
 from agir.lib.display import display_price
 from agir.lib.model_fields import IBANField
 from agir.lib.models import TimeStampedModel

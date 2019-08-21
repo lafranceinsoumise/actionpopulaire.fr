@@ -6,6 +6,8 @@ from django.db import migrations, models
 import django.db.models.deletion
 import dynamic_filenames
 
+import agir.payments.model_fields
+
 
 class Migration(migrations.Migration):
 
@@ -52,7 +54,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="spendingrequest",
             name="amount",
-            field=agir.donations.model_fields.AmountField(
+            field=agir.payments.model_fields.AmountField(
                 help_text="Pour que cette demande soit payée, la somme allouée à votre groupe doit être suffisante.",
                 verbose_name="Montant de la dépense",
             ),

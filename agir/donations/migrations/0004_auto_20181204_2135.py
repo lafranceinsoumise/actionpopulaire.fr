@@ -7,6 +7,8 @@ import django.utils.timezone
 import dynamic_filenames
 import uuid
 
+import agir.payments.model_fields
+
 
 class Migration(migrations.Migration):
 
@@ -153,7 +155,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "amount",
-                    agir.donations.model_fields.AmountField(
+                    agir.payments.model_fields.AmountField(
                         verbose_name="Montant de la dépense"
                     ),
                 ),

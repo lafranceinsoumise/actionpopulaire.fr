@@ -8,6 +8,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.lib.models import LocationMixin, TimeStampedModel
 from agir.lib.display import display_address
+from agir.payments.model_fields import AmountField
 from .types import get_payment_choices, PAYMENT_TYPES
 from .payment_modes import PAYMENT_MODES
 
@@ -65,7 +66,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
         _("Mode de paiement"), max_length=70, null=False, blank=False
     )
 
-    price = models.IntegerField(_("prix en centimes d'euros"))
+    price = AmountField(_("Prix"))
     status = models.IntegerField(
         "status", choices=STATUS_CHOICES, default=STATUS_WAITING
     )
