@@ -13,6 +13,7 @@ from agir.api.admin import admin_site
 from agir.checks.models import CheckPayment
 from agir.donations.form_fields import MoneyField
 from agir.lib.admin import PersonLinkMixin
+from agir.lib.utils import front_url
 from agir.payments.actions.payments import (
     notify_status_change,
     change_payment_status,
@@ -74,7 +75,7 @@ class PaymentManagementAdminMixin:
         if not PAYMENT_MODES[payment.mode].can_admin:
             return format_html(
                 '<a href="{}" target="_blank" class="button">Effectuer le paiement en ligne</a>',
-                reverse("payment_page", args=[payment.pk]),
+                front_url("payment_page", args=[payment.pk]),
             )
 
         statuses = [
@@ -155,7 +156,9 @@ class PaymentManagementAdminMixin:
     def response_change(self, request, payment):
         if "_changemode" in request.POST:
             if not PAYMENT_MODES[payment.mode].can_admin:
-                return redirect("payment_page", payment.pk)
+                return HttpResponseRedirect(
+                    front_url("payment_page", args=[payment.pk])
+                )
 
             self.message_user(
                 request, "Le mode de paiement a bien été modifié.", messages.SUCCESS
