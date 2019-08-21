@@ -3,6 +3,7 @@ from django.contrib.admin.widgets import AutocompleteSelect
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms import BooleanField
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
@@ -235,7 +236,11 @@ class NewParticipantForm(BasePersonForm):
 
     payment_mode = PaymentModeField(
         required=True,
-        payment_modes=[PAYMENT_MODES["system_pay"], PAYMENT_MODES["check"]],
+        payment_modes=[
+            PAYMENT_MODES["system_pay"],
+            PAYMENT_MODES["check"],
+            PAYMENT_MODES["money"],
+        ],
     )
 
     def __init__(self, *args, model_admin, event, **kwargs):
@@ -341,6 +346,12 @@ class NewParticipantForm(BasePersonForm):
             self.cleaned_data["payment_mode"],
             self.submission,
         )
+
+        if self.cleaned_data["payment_mode"].can_admin:
+            return HttpResponseRedirect(
+                reverse("admin:payments_payment_change", args=(payment.id,))
+            )
+
         return redirect_to_payment(payment)
 
     class Meta:
