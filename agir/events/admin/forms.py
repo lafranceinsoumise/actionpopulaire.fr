@@ -299,7 +299,7 @@ class NewParticipantForm(BasePersonForm):
 
     def clean(self):
         if (
-            "existing_data" in self.cleaned_data
+            "existing_person" in self.cleaned_data
             and self.cleaned_data["existing_person"] is not None
         ):
             self.data = self.data.dict()
