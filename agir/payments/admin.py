@@ -221,7 +221,11 @@ class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
     fields = readonly_fields
 
     def get_fields(self, request, payment=None):
-        if payment is not None and payment.status == Payment.STATUS_WAITING:
+        if payment is not None and payment.status in [
+            Payment.STATUS_WAITING,
+            Payment.STATUS_ABANDONED,
+            Payment.STATUS_REFUSED,
+        ]:
             fields = list(super().get_fields(request, payment))
             fields.insert(-2, "price")
             fields[-1] = "status_buttons"
@@ -229,7 +233,11 @@ class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
         return super().get_fields(request, payment)
 
     def get_readonly_fields(self, request, payment=None):
-        if payment is not None and payment.status == Payment.STATUS_WAITING:
+        if payment is not None and payment.status in [
+            Payment.STATUS_WAITING,
+            Payment.STATUS_ABANDONED,
+            Payment.STATUS_REFUSED,
+        ]:
             return super().get_readonly_fields(request, payment) + ("status_buttons",)
         return super().get_readonly_fields(request, payment)
 
