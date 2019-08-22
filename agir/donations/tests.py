@@ -18,6 +18,7 @@ from agir.donations.models import (
     MonthlyAllocation,
 )
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
+from agir.lib.utils import front_url
 from agir.payments.actions.payments import (
     complete_payment,
     create_payment,
@@ -90,7 +91,7 @@ class DonationTestCase(DonationTestMixin, TestCase):
         res = self.client.post(information_url, self.donation_information_payload)
         # no other payment
         payment = Payment.objects.get()
-        self.assertRedirects(res, reverse("payment_page", args=(payment.pk,)))
+        self.assertRedirects(res, front_url("payment_page", args=(payment.pk,)))
 
         res = self.client.get(reverse("payment_return", args=(payment.pk,)))
         self.assertEqual(res.status_code, 200)
@@ -163,7 +164,7 @@ class DonationTestCase(DonationTestMixin, TestCase):
         self.donation_information_payload["location_country"] = "FR"
         res = self.client.post(information_url, self.donation_information_payload)
         payment = Payment.objects.get()
-        self.assertRedirects(res, reverse("payment_page", args=[payment.pk]))
+        self.assertRedirects(res, front_url("payment_page", args=[payment.pk]))
 
     @using_redislite
     def test_create_person_when_using_new_address(self):
@@ -175,7 +176,7 @@ class DonationTestCase(DonationTestMixin, TestCase):
         self.donation_information_payload["email"] = "test2@test.com"
         res = self.client.post(information_url, self.donation_information_payload)
         payment = Payment.objects.get()
-        self.assertRedirects(res, reverse("payment_page", args=[payment.pk]))
+        self.assertRedirects(res, front_url("payment_page", args=[payment.pk]))
 
         # simulate correct payment
         complete_payment(payment)
@@ -246,7 +247,7 @@ class DonationTestCase(DonationTestMixin, TestCase):
         )
         # no other payment
         payment = Payment.objects.get()
-        self.assertRedirects(res, reverse("payment_page", args=(payment.pk,)))
+        self.assertRedirects(res, front_url("payment_page", args=(payment.pk,)))
 
         self.assertIn("allocation", payment.meta)
         self.assertIn("group_id", payment.meta)

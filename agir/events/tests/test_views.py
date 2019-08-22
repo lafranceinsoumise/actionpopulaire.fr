@@ -18,6 +18,7 @@ from agir.events.actions import legal
 from agir.events.tasks import notify_on_event_report
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.mixins import FakeDataMixin
+from agir.lib.utils import front_url
 from agir.payments.actions.payments import complete_payment
 from agir.payments.models import Payment
 from agir.people.models import Person, PersonForm, PersonFormSubmission, PersonTag
@@ -923,7 +924,7 @@ class RSVPTestCase(TestCase):
         )
 
         payment = Payment.objects.get()
-        self.assertRedirects(response, reverse("payment_page", args=(payment.pk,)))
+        self.assertRedirects(response, front_url("payment_page", args=(payment.pk,)))
 
         # fake payment confirmation
         complete_payment(payment)
@@ -969,7 +970,7 @@ class RSVPTestCase(TestCase):
         )
 
         payment = Payment.objects.get()
-        self.assertRedirects(response, reverse("payment_page", args=(payment.pk,)))
+        self.assertRedirects(response, front_url("payment_page", args=(payment.pk,)))
 
         complete_payment(payment)
         event_notification_listener(payment)
@@ -1019,7 +1020,7 @@ class RSVPTestCase(TestCase):
         )
 
         payment = Payment.objects.get()
-        self.assertRedirects(response, reverse("payment_page", args=(payment.pk,)))
+        self.assertRedirects(response, front_url("payment_page", args=(payment.pk,)))
 
         # fake payment confirmation
         complete_payment(payment)
@@ -1079,7 +1080,7 @@ class RSVPTestCase(TestCase):
         )
 
         payment = Payment.objects.get()
-        self.assertRedirects(response, reverse("payment_page", args=(payment.pk,)))
+        self.assertRedirects(response, front_url("payment_page", args=(payment.pk,)))
 
         complete_payment(payment)
         event_notification_listener(payment)
@@ -1113,7 +1114,7 @@ class RSVPTestCase(TestCase):
         )
 
         payment = Payment.objects.get()
-        self.assertRedirects(response, reverse("payment_page", args=[payment.pk]))
+        self.assertRedirects(response, front_url("payment_page", args=[payment.pk]))
 
         response = self.client.get(reverse("payment_retry", args=[payment.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -4,6 +4,7 @@ from django.test import TransactionTestCase, RequestFactory
 from django.urls import reverse
 
 from agir.api.redis import using_redislite
+from agir.lib.utils import front_url
 from agir.loans import views
 from agir.loans.loan_config import LoanConfiguration
 from agir.loans.views import generate_and_send_contract, loan_notification_listener
@@ -117,7 +118,7 @@ class LoansTestCase(TransactionTestCase):
         payment = Payment.objects.get()
         self.assertRedirects(
             res,
-            reverse("payment_page", args=(payment.pk,)),
+            front_url("payment_page", args=(payment.pk,)),
             fetch_redirect_response=False,
         )
 
