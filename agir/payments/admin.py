@@ -160,9 +160,7 @@ class PaymentManagementAdminMixin:
     def response_change(self, request, payment):
         if "_changemode" in request.POST:
             if not PAYMENT_MODES[payment.mode].can_admin:
-                return HttpResponseRedirect(
-                    front_url("payment_page", args=[payment.pk])
-                )
+                return HttpResponseRedirect(payment.get_payment_url())
 
             self.message_user(
                 request, "Le mode de paiement a bien été modifié.", messages.SUCCESS

@@ -8,6 +8,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.lib.models import LocationMixin, TimeStampedModel
 from agir.lib.display import display_address
+from agir.lib.utils import front_url
 from agir.payments.model_fields import AmountField
 from .types import get_payment_choices, PAYMENT_TYPES
 from .payment_modes import PAYMENT_MODES
@@ -100,7 +101,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     get_type_display.short_description = "Type d'abonnement"
 
     def get_payment_url(self):
-        return reverse("payment_page", args=[self.pk])
+        return front_url("payment_page", args=[self.pk])
 
     def can_retry(self):
         return (
