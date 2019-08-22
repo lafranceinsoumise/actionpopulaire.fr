@@ -69,7 +69,11 @@ def change_payments_status_action(status, description):
 
 class PaymentManagementAdminMixin:
     def status_buttons(self, payment):
-        if payment.status != Payment.STATUS_WAITING:
+        if payment.status not in [
+            Payment.STATUS_WAITING,
+            Payment.STATUS_REFUSED,
+            Payment.STATUS_ABANDONED,
+        ]:
             return "-"
 
         if not PAYMENT_MODES[payment.mode].can_admin:
