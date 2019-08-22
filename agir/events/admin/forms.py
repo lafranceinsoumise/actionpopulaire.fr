@@ -352,7 +352,7 @@ class NewParticipantForm(BasePersonForm):
                 reverse("admin:payments_payment_change", args=(payment.id,))
             )
 
-        return HttpResponseRedirect(settings.FRONT_URL + payment.get_payment_url())
+        return HttpResponseRedirect(settings.FRONT_DOMAIN + payment.get_payment_url())
 
     class Meta:
         model = Person
