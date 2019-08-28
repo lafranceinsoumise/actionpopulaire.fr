@@ -1,3 +1,4 @@
+from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
 from ..events.models import Event
@@ -10,7 +11,7 @@ class MapEventSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "coordinates", "start_time", "end_time", "subtype")
 
 
-class MapGroupSerializer(serializers.ModelSerializer):
+class MapGroupSerializer(CountryFieldMixin, serializers.ModelSerializer):
     subtype = serializers.SerializerMethodField("get_first_subtype")
     current_events_count = serializers.IntegerField(read_only=True)
 
