@@ -191,7 +191,7 @@ class LocationMixin(models.Model):
         )
 
     def has_location(self):
-        return self.coordinates is not None
+        return self.coordinates is not None and self.coordinates_type is not None
 
     def has_manual_location(self):
         return self.coordinates_type == self.COORDINATES_MANUAL

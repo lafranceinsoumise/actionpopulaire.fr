@@ -9,7 +9,10 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
-from agir.events.actions.rsvps import rsvp_to_paid_event_and_create_payment
+from agir.events.actions.rsvps import (
+    rsvp_to_paid_event_and_create_payment,
+    rsvp_to_free_event,
+)
 from agir.events.forms import BILLING_FIELDS
 from agir.events.models import EventSubtype, RSVP
 from agir.payments.models import Payment
@@ -282,6 +285,8 @@ class NewParticipantForm(BasePersonForm):
             )
             try:
                 payment = rsvp.payment
+                if payment is None:
+                    raise Payment.DoesNotExist()
                 message = format_html(
                     '{error_text} (<a href="{payment_link_url}">{payment_link_text}</a>)',
                     error_text="Cette personne participe déjà à l'événement",
@@ -338,6 +343,9 @@ class NewParticipantForm(BasePersonForm):
                 self.instance.add_email(cleaned_data["new_person_email"])
 
         return self.instance
+
+    def free_rsvp(self):
+        rsvp_to_free_event(self.event, self.instance, self.submission)
 
     def redirect_to_payment(self):
         payment = rsvp_to_paid_event_and_create_payment(

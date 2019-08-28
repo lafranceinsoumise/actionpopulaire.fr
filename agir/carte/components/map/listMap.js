@@ -100,7 +100,11 @@ export default async function listMap(
           feature.setStyle(subtypePastStyles[item.subtype]);
         }
 
-        if (hideInactive && item.current_events_count === 0) {
+        if (
+          hideInactive &&
+          item.location_country === "FR" &&
+          item.current_events_count === 0
+        ) {
           if (sourceForSubtype[item.subtype].hasFeature(feature)) {
             sourceForSubtype[item.subtype].removeFeature(
               sourceForSubtype[item.subtype].getFeatureById(item.id)
@@ -111,7 +115,11 @@ export default async function listMap(
         }
       } else {
         feature.setStyle(typeStyles[item.type]);
-        if (hideInactive && item.current_events_count === 0) {
+        if (
+          hideInactive &&
+          item.location_country === "FR" &&
+          item.current_events_count === 0
+        ) {
           if (sources[item.type].hasFeature(feature)) {
             sources[item.type].removeFeature(
               sources[item.type].getFeatureById(item.id)

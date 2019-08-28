@@ -57,8 +57,6 @@ class NotificationsView(GenericAPIView):
         )
 
         if parameters.is_valid():
-            print(parameters.validated_data)
-
             length = parameters.validated_data["length"]
             offset = parameters.validated_data["offset"]
 

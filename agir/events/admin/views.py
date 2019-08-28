@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import reverse
 from django.template.response import TemplateResponse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView
@@ -187,7 +188,7 @@ class AddParticipantView(SingleObjectMixin, FormView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.event = self.get_object()
-        if not self.event.subscription_form or self.event.is_free:
+        if not self.event.subscription_form:
             raise Http404()
 
         return super().get(request, *args, **kwargs)
@@ -205,6 +206,26 @@ class AddParticipantView(SingleObjectMixin, FormView):
             include_inherited_model_fields=True,
         )
 
+    @cached_property
+    def additional_billing_fields(self):
+        form_person_fields = {
+            f
+            for f, descriptor in self.event.subscription_form.fields_dict.items()
+            if is_actual_model_field(descriptor)
+        }
+
+        return [
+            f for f in NewParticipantForm._meta.fields if f not in form_person_fields
+        ] + ["payment_mode"]
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if self.event.is_free:
+            for field in self.additional_billing_fields:
+                form.fields.pop(field)
+
+        return form
+
     def get_form_kwargs(self):
         return {
             "model_admin": self.model_admin,
@@ -216,19 +237,13 @@ class AddParticipantView(SingleObjectMixin, FormView):
         kwargs = super().get_context_data()
         form = kwargs["form"]
 
-        form_person_fields = {
-            f
-            for f, descriptor in self.event.subscription_form.fields_dict.items()
-            if is_actual_model_field(descriptor)
-        }
+        fieldsets = form.fieldsets
 
-        additional_billing_forms = [
-            f for f in NewParticipantForm._meta.fields if f not in form_person_fields
-        ] + ["payment_mode"]
+        if not self.event.is_free:
+            fieldsets = fieldsets + [
+                ("Facturation", {"fields": self.additional_billing_fields})
+            ]
 
-        fieldsets = form.fieldsets + [
-            ("Facturation", {"fields": additional_billing_forms})
-        ]
         admin_form = admin.helpers.AdminForm(form, fieldsets, {})
 
         kwargs.update(
@@ -263,4 +278,13 @@ class AddParticipantView(SingleObjectMixin, FormView):
 
     def form_valid(self, form):
         form.save()
+        if self.event.is_free:
+            form.free_rsvp()
+            self.model_admin.message_user(
+                self.request,
+                "La personne a bien été inscrite à l'événement.",
+                messages.SUCCESS,
+            )
+            return HttpResponseRedirect(self.request.path)
+
         return form.redirect_to_payment()
