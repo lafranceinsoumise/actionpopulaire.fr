@@ -29,11 +29,15 @@
     </ol>
     {% if event.subscription_form is not None %}
       <h2 class="headline">Récapitulatif et paiement</h2>
+      <div class="alert alert-info">
+        Les paiements relatifs aux événements de la France insoumise ne constituent <strong>pas</strong> des dons,
+        et n'ouvrent donc <strong>pas</strong> droit à la réduction d'impôt de 66 %.
+      </div>
       <div>
 
         <h3>Les informations que vous avez entrées&nbsp;:</h3>
         {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
-        <b>Total&nbsp;:</b> {{ price|floatformat:2 }} €
+        <p><b>Total&nbsp;:</b> {{ price|floatformat:2 }} €</p>
         <h3 class="headline">Informations de facturation</h3>
         <div class="alert alert-warning">
           <p>
@@ -45,6 +49,11 @@
       </div>
     {% else %}
       <h2 class="headline">Informations de facturation</h2>
+      <div class="alert alert-info">
+        Les paiements relatifs aux événements de la France insoumise ne constituent <strong>pas</strong> des dons,
+        et n'ouvrent donc <strong>pas</strong> droit à la réduction d'impôt de 66 %.
+      </div>
+
       <div class="alert alert-warning">
         <p>
           Attention, même si vous inscrivez une autre personne, vous devez entrer les informations de la personne
