@@ -24,6 +24,7 @@ class MapGroupSerializer(serializers.ModelSerializer):
             "subtype",
             "subtypes",
             "current_events_count",
+            "location_country",
         )
 
     def get_first_subtype(self, obj):
