@@ -256,7 +256,7 @@ class LegalQuestionsStep extends FormStep {
 
   getAnswer(id) {
     const legal = this.props.fields.legal || {};
-    if (legal.hasOwnProperty(id)) {
+    if (Object.prototype.hasOwnProperty.call(legal, id)) {
       return legal[id];
     }
     return null;
