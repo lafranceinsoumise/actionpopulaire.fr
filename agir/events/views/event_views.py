@@ -40,7 +40,7 @@ from agir.front.view_mixins import ObjectOpengraphMixin, ChangeLocationBaseView
 from agir.lib.export import dict_to_camelcase
 from agir.lib.geo import geocode_coordinate_from_simple_address
 from agir.lib.search import PrefixSearchQuery
-from agir.lib.views import ImageSizeWarningMixin
+from agir.lib.views import ImageSizeWarningMixin, IframableMixin
 from ..forms import (
     EventForm,
     AddOrganizerForm,
@@ -527,16 +527,10 @@ class QuitEventView(SoftLoginRequiredMixin, PermissionsRequiredMixin, DeleteView
         return res
 
 
-class CalendarView(ObjectOpengraphMixin, DetailView):
+class CalendarView(IframableMixin, ObjectOpengraphMixin, DetailView):
     model = Calendar
     paginator_class = Paginator
     per_page = 10
-
-    def get(self, request, *args, **kwargs):
-        res = super().get(request, *args, **kwargs)
-        if request.GET.get("iframe"):
-            res.xframe_options_exempt = True
-        return res
 
     def get_template_names(self):
         if self.request.GET.get("iframe"):
