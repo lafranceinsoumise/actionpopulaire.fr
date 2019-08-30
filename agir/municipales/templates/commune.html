@@ -18,12 +18,16 @@
           frameBorder="0"></iframe>
     </div>
     <div class="col-md-6">
-      <a class="twitter-timeline"
-        href="https://twitter.com/{{ commune.twitter }}"
-        data-height="500">
-        Tweets de {{ commune.twitter }}
-      </a>
-      <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      {% if commune.twitter %}
+        <a class="twitter-timeline"
+          href="https://twitter.com/{{ commune.twitter }}"
+          data-height="500">
+          Tweets de {{ commune.twitter }}
+        </a>
+        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      {% else %}
+        Les insoumis⋅es de cette commune n'ont pas transmis de compte de réseaux sociaux.
+      {% endif %}
     </div>
   </div>
 
