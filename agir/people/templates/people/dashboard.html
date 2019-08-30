@@ -46,35 +46,7 @@
           </div>
         </a>
       </h3>
-      <div class="list-group">
-        {% for day, events in rsvped_events %}
-          <div class="list-group-item disabled">
-            {{ day|date:"l d F" }}
-          </div>
-          {% for event in events %}
-            <div class="list-group-item">
-              <div class="media">
-                <div class="media-left media-middle" style="min-width:64px">
-                  {% if event.image %}
-                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
-                  {% endif %}
-                </div>
-                <div class="media-body">
-                  <i class="fa fa-calendar" aria-hidden="true"></i>
-                  <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
-                  <br>
-                  {{ event.start_time|date:"H:i" }} - {{ event.short_location }}
-                  {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
-                </div>
-              </div>
-            </div>
-          {% endfor %}
-        {% empty %}
-          <div class="list-group-item">
-            Vous n'avez aucun événément prévu pour le moment.
-          </div>
-        {% endfor %}
-      </div>
+      {% include "events/includes/next_events.html" with events=rsvped_events empty_message="Vous n'avez aucun événément prévu pour le moment." %}
     </div>
     <div class="col-md-6">
       <div class="help-dialog" data-hint="Mes groupes">
@@ -127,38 +99,7 @@
         pour savoir pourquoi chaque événement vous a été suggéré.
       </div>
       <h3>Événements suggérés</h3>
-      <div class="list-group">
-        {% for day, events in suggested_events %}
-          <div class="list-group-item disabled">
-            {{ day|date:"l d F" }}
-          </div>
-
-          {% for event in events %}
-            <div class="list-group-item">
-              <div class="media">
-                <div class="media-left media-middle" style="min-width:64px">
-                  {% if event.image %}
-                    <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
-                  {% endif %}
-                </div>
-                <div class="media-body">
-                                    <span class="small text-muted pull-right" data-toggle="tooltip"
-                                          title="{{ event.reason }}">Pourquoi ?</span>
-                  <i class="fa fa-calendar" aria-hidden="true"></i>
-                  <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
-                  <br>
-                  {{ event.start_time|date:"H:i" }} - {{ event.short_location }}
-                  {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
-                </div>
-              </div>
-            </div>
-          {% endfor %}
-        {% empty %}
-          <div class="list-group-item">
-            Aucun événement suggéré ! Rejoignez un groupe d'action pour voir des événements.
-          </div>
-        {% endfor %}
-      </div>
+      {% include "events/includes/next_events.html" with events=suggested_events empty_message="Aucun événement suggéré ! Rejoignez un groupe d'action pour voir des événements." %}
     </div>
     <div class="col-md-6">
       <h3>Événements passés</h3>

@@ -8,7 +8,6 @@ from django.views.generic import TemplateView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.events.models import Event
-from agir.events.views.utils import group_events_by_day
 from agir.groups.actions import get_next_promo_code
 from agir.groups.actions.promo_codes import is_promo_code_delayed, next_promo_code_date
 from agir.groups.models import SupportGroup
@@ -142,10 +141,10 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
         kwargs.update(
             {
                 "person": person,
-                "rsvped_events": group_events_by_day(rsvped_events),
+                "rsvped_events": rsvped_events,
                 "members_groups": members_groups,
                 "promo_code_delay": promo_code_delay,
-                "suggested_events": group_events_by_day(suggested_events),
+                "suggested_events": suggested_events,
                 "last_events": last_events,
                 "past_reports": past_reports,
                 "organized_events": organized_events,

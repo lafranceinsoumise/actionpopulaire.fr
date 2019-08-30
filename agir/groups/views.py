@@ -44,7 +44,6 @@ from agir.authentication.view_mixins import (
 )
 from agir.donations.allocations import get_balance
 from agir.donations.models import SpendingRequest
-from agir.events.views.utils import group_events_by_day
 from agir.front.view_mixins import (
     ObjectOpengraphMixin,
     ChangeLocationBaseView,
@@ -147,14 +146,12 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            events_future=group_events_by_day(
-                self.object.organized_events.upcoming()
-                .distinct()
-                .order_by("start_time")
-            ),
-            events_past=group_events_by_day(
-                self.object.organized_events.past().distinct().order_by("-start_time")
-            ),
+            events_future=self.object.organized_events.upcoming()
+            .distinct()
+            .order_by("start_time"),
+            events_past=self.object.organized_events.past()
+            .distinct()
+            .order_by("-start_time"),
             is_member=self.request.user.is_authenticated
             and self.object.memberships.filter(
                 person=self.request.user.person
