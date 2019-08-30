@@ -8,14 +8,22 @@
   <h3>{{ commune.name }}</h3>
   <div class="row">
     <div class="col-md-6">
+      <h6>Agenda</h6>
       {% include "events/includes/next_events.html" with events=events empty_message="Aucun événement à venir dans cette commune." %}
-    </div>
-    <div class="col-md-6">
-      <iframe title="Cart"
+      <h6>Rejoignez un groupe d'action&nbsp;!</h6>
+      <iframe title="Carte"
           src="{{ MAP_DOMAIN }}{% url "carte:groups_map" %}?bounds=[{{ commune.coordinates.envelope.coords.0.0|add:commune.coordinates.envelope.coords.0.2|join:"," }}]"
           height="300"
           style="width: 100%;" scrolling="no"
           frameBorder="0"></iframe>
+    </div>
+    <div class="col-md-6">
+      <a class="twitter-timeline"
+        href="https://twitter.com/{{ commune.twitter }}"
+        data-height="500">
+        Tweets de {{ commune.twitter }}
+      </a>
+      <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     </div>
   </div>
 
