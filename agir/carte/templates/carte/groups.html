@@ -8,17 +8,28 @@
   {{ type_config|json_script:"typesConfig" }}
   {{ subtype_config|json_script:"subtypesConfig" }}
   {{ bounds|json_script:"boundsConfig" }}
+  {% if commune %}
+    {{ commune|json_script:"communeScript" }}
+  {% endif %}
+
   <script>
     var types = JSON.parse(document.getElementById("typesConfig").textContent);
     var subtypes = JSON.parse(document.getElementById("subtypesConfig").textContent);
     var bounds = JSON.parse(document.getElementById("boundsConfig").textContent);
+
+    var commune = null;
+    var communeScriptElement = document.getElementById("communeScript");
+    if (communeScriptElement) {
+      commune = JSON.parse(communeScriptElement.textContent);
+    }
 
     window['carte/map'].listMap('map', {
       endpoint: '{% url "carte:group_list" %}{{ querystring }}',
       listType: 'groups',
       types,
       subtypes,
-      bounds
+      bounds,
+      focusGeometry: commune
     });
   </script>
 {% endblock %}

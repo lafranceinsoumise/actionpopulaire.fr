@@ -17,6 +17,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 
 from agir.lib.export import dict_to_camelcase
+from agir.municipales.models import CommunePage
 from . import serializers
 from ..events.models import Event, EventSubtype
 from ..groups.models import SupportGroup, SupportGroupSubtype
@@ -191,6 +192,21 @@ class MapViewMixin:
         return {"id": id, "label": label}
 
 
+class CommuneMixin:
+    def get(self, request, *args, **kwargs):
+        try:
+            self.commune = CommunePage.objects.get(
+                code_departement=kwargs["departement"], slug=kwargs["nom"]
+            )
+        except CommunePage.DoesNotExist:
+            raise Http404()
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(commune=self.commune.coordinates.json, **kwargs)
+
+
 class AbstractListMapView(MapViewMixin, TemplateView):
     subtype_model = None
 
@@ -270,6 +286,14 @@ class EventMapView(EventMapMixin, AbstractListMapView):
 
 class GroupMapView(GroupMapMixin, AbstractListMapView):
     template_name = "carte/groups.html"
+
+
+class CommuneEventMapView(CommuneMixin, EventMapView):
+    pass
+
+
+class CommuneGroupMapView(CommuneMixin, GroupMapView):
+    pass
 
 
 class SingleEventMapView(EventMapMixin, AbstractSingleItemMapView):
