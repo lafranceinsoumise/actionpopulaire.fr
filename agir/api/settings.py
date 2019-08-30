@@ -143,6 +143,7 @@ INSTALLED_APPS = [
     "agir.loans",
     "agir.mailing",
     "agir.notifications",
+    "agir.municipales",
     # security
     "corsheaders",
     "oauth2_provider",

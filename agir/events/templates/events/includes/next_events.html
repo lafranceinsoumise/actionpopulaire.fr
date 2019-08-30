@@ -1,0 +1,33 @@
+<div class="list-group">
+  {% regroup events by start_time.date as events_days %}
+  {% for day, day_events in events_days %}
+    <div class="list-group-item disabled">
+      {{ day|date:"l d F" }}
+    </div>
+    {% for event in day_events %}
+      <div class="list-group-item">
+        <div class="media">
+          <div class="media-left media-middle" style="min-width:64px">
+            {% if event.image %}
+              <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+            {% endif %}
+          </div>
+          <div class="media-body">
+            <strong>
+              <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
+              <small>
+                &bull; <a href="{% url "manage_event" event.pk %}">Gestion</a>
+              </small>
+            </strong>
+            <div>{{ event.start_time|date:"H:i" }} {% if event.location_name %}-
+              {{ event.location_name }} {% endif %}</div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% empty %}
+    <div class="list-group-item">
+      {{ empty_message|default:"Aucun événement à venir." }}
+    </div>
+  {% endfor %}
+</div>

@@ -1,0 +1,22 @@
+{% extends "front/layout.html" %}
+
+{% block title %}{{ commune.name }}{% endblock title %}
+
+
+{% block main %}
+
+  <h3>{{ commune.name }}</h3>
+  <div class="row">
+    <div class="col-md-6">
+      {% include "events/includes/next_events.html" with events=events empty_message="Aucun événement à venir dans cette commune." %}
+    </div>
+    <div class="col-md-6">
+      <iframe title="Cart"
+          src="{{ MAP_DOMAIN }}{% url "carte:groups_map" %}?bounds=[{{ commune.coordinates.envelope.coords.0.0|add:commune.coordinates.envelope.coords.0.2|join:"," }}]"
+          height="300"
+          style="width: 100%;" scrolling="no"
+          frameBorder="0"></iframe>
+    </div>
+  </div>
+
+{% endblock %}

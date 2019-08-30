@@ -10,6 +10,7 @@ from agir.polls import urls as polls_urls
 from agir.authentication import urls as authentication_urls
 from agir.notifications import urls as notifications_urls
 from agir.loans import urls as loans_urls
+from agir.municipales import urls as municipales_urls
 
 
 urlpatterns = [
@@ -23,4 +24,5 @@ urlpatterns = [
     path("", include(authentication_urls)),
     path("", include(notifications_urls)),
     path("", include(loans_urls)),
+    path("", include(municipales_urls)),
 ]
