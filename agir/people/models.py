@@ -295,6 +295,12 @@ class Person(
         ordering = ("-created",)
         # add permission 'view'
         default_permissions = ("add", "change", "delete", "view")
+        permissions = [
+            (
+                "select_person",
+                "Peut lister pour sélectionner (dans un Select 2 par exemple)",
+            )
+        ]
         indexes = (
             GinIndex(fields=["search"], name="search_index"),
             models.Index(fields=["contact_phone"], name="contact_phone_index"),
