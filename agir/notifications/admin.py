@@ -43,7 +43,8 @@ class AnnouncementAdmin(admin.ModelAdmin):
                 ),
             ),
             clicked=Count(
-                "notification", filter=Q(status__status=Notification.STATUS_CLICKED)
+                "notification",
+                filter=Q(notification__status=Notification.STATUS_CLICKED),
             ),
         )
 
