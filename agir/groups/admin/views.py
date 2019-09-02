@@ -11,7 +11,7 @@ from .forms import AddMemberForm
 
 def add_member(model_admin, request, pk):
     if not model_admin.has_change_permission(request) or not request.user.has_perm(
-        "people.view_person"
+        "people.select_person"
     ):
         raise PermissionDenied
 

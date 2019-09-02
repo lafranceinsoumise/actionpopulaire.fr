@@ -15,6 +15,7 @@ from functools import partial, update_wrapper
 
 from agir.api.admin import admin_site
 from agir.events.models import Event
+from agir.groups import proxys
 from agir.lib.admin import CenterOnFranceMixin, DepartementListFilter, RegionListFilter
 from agir.lib.display import display_price
 from agir.lib.utils import front_url
@@ -294,6 +295,12 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     partial(self.allocation, show_add_button=True), self.allocation
                 )
         return cl
+
+
+@admin.register(proxys.ThematicGroup, site=admin_site)
+class ThematicGroupAdmin(SupportGroupAdmin):
+    def get_readonly_fields(self, request, obj=None):
+        return super().get_readonly_fields(request, obj) + ("type",)
 
 
 @admin.register(models.SupportGroupTag, site=admin_site)

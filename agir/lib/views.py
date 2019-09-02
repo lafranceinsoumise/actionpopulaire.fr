@@ -73,3 +73,11 @@ class ImageSizeWarningMixin(object):
                     f"La dimension optimale est 2:1. (deux fois plus large que haut)",
                 )
         return super().form_valid(form)
+
+
+class IframableMixin:
+    def get(self, request, *args, **kwargs):
+        res = super().get(request, *args, **kwargs)
+        if request.GET.get("iframe"):
+            res.xframe_options_exempt = True
+        return res

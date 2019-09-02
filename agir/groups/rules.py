@@ -6,14 +6,6 @@ from .models import Membership
 
 
 @rules.predicate
-def is_person(role, supportgroup=None):
-    return role.is_authenticated and role.type == Role.PERSON_ROLE
-
-
-rules.add_perm("groups.add_supportgroup", is_person)
-
-
-@rules.predicate
 def is_referent_or_manager(role, supportgroup=None):
     return (
         supportgroup is not None
