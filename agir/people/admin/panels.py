@@ -81,6 +81,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "subscribed_sms",
                     "event_notifications",
                     "group_notifications",
+                    "campaigns_link",
                 )
             },
         ),
@@ -119,6 +120,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "last_login",
         "role_link",
         "role_totp_link",
+        "campaigns_link",
         "supportgroups",
         "events",
         "coordinates_type",
@@ -180,6 +182,16 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     role_totp_link.short_description = _(
         "Lien vers les téléphones Authenticator enregistrés"
     )
+
+    def campaigns_link(self, obj):
+        return format_html(
+            '<a href="{}" class="button">Voir l\'historique</a>',
+            reverse("admin:nuntius_campaignsentevent_changelist")
+            + "?subscriber_id__exact="
+            + str(obj.pk),
+        )
+
+    campaigns_link.short_description = "Campagnes envoyées"
 
     def connection_params(self, obj):
         if obj.pk:
