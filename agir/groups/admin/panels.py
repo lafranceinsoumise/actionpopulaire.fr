@@ -276,7 +276,9 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             path(
                 "<uuid:pk>/add_member/",
                 admin_site.admin_view(self.add_member),
-                name="groups_supportgroup_add_member",
+                name="{}_{}_add_member".format(
+                    self.opts.app_label, self.opts.model_name
+                ),
             )
         ] + super().get_urls()
 
