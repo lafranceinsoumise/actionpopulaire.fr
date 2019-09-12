@@ -22,6 +22,7 @@ from .display import display_address
 
 
 RE_FRENCH_ZIPCODE = re.compile("^[0-9]{5}$")
+FRENCH_COUNTRY_CODES = ["FR", "RE", "GP", "MQ", "GY", "YT"]
 
 
 class TimeStampedModel(models.Model):
@@ -183,7 +184,7 @@ class LocationMixin(models.Model):
             "location_city",
         ]
 
-        if self.location_country != "FR":
+        if self.location_country not in FRENCH_COUNTRY_CODES:
             attrs.extend(["location_state", "location_country"])
 
         return ", ".join(
@@ -209,13 +210,17 @@ class LocationMixin(models.Model):
 
     @property
     def departement(self):
-        if self.location_country == "FR" and RE_FRENCH_ZIPCODE.match(self.location_zip):
+        if self.location_country in FRENCH_COUNTRY_CODES and RE_FRENCH_ZIPCODE.match(
+            self.location_zip
+        ):
             return departement_from_zipcode(self.location_zip)["nom"] or ""
 
         return ""
 
     def get_region(self, ancienne):
-        if self.location_country == "FR" and RE_FRENCH_ZIPCODE.match(self.location_zip):
+        if self.location_country in FRENCH_COUNTRY_CODES and RE_FRENCH_ZIPCODE.match(
+            self.location_zip
+        ):
             departement = departement_from_zipcode(self.location_zip)
             regions_map = data.anciennes_regions_map if ancienne else data.regions_map
             region_key = "ancienne_region" if ancienne else "region"
