@@ -15,14 +15,13 @@ from dynamic_filenames import FilePattern
 from stdimage.models import StdImageField
 
 from agir.lib import data
-from agir.lib.data import departement_from_zipcode
+from agir.lib.data import departement_from_zipcode, FRANCE_COUNTRY_CODES
 from .form_fields import RichEditorWidget, AdminRichEditorWidget
 from .html import sanitize_html
 from .display import display_address
 
 
 RE_FRENCH_ZIPCODE = re.compile("^[0-9]{5}$")
-FRENCH_COUNTRY_CODES = ["FR", "RE", "GP", "MQ", "GY", "YT"]
 
 
 class TimeStampedModel(models.Model):
@@ -184,7 +183,7 @@ class LocationMixin(models.Model):
             "location_city",
         ]
 
-        if self.location_country not in FRENCH_COUNTRY_CODES:
+        if self.location_country not in FRANCE_COUNTRY_CODES:
             attrs.extend(["location_state", "location_country"])
 
         return ", ".join(
@@ -210,7 +209,7 @@ class LocationMixin(models.Model):
 
     @property
     def departement(self):
-        if self.location_country in FRENCH_COUNTRY_CODES and RE_FRENCH_ZIPCODE.match(
+        if self.location_country in FRANCE_COUNTRY_CODES and RE_FRENCH_ZIPCODE.match(
             self.location_zip
         ):
             return departement_from_zipcode(self.location_zip)["nom"] or ""
@@ -218,7 +217,7 @@ class LocationMixin(models.Model):
         return ""
 
     def get_region(self, ancienne):
-        if self.location_country in FRENCH_COUNTRY_CODES and RE_FRENCH_ZIPCODE.match(
+        if self.location_country in FRANCE_COUNTRY_CODES and RE_FRENCH_ZIPCODE.match(
             self.location_zip
         ):
             departement = departement_from_zipcode(self.location_zip)
