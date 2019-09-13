@@ -30,4 +30,26 @@
       {{ empty_message|default:"Aucun événement à venir." }}
     </div>
   {% endfor %}
+  {% if events.paginator %}
+    <nav aria-label="Navigation">
+      <ul class="pager">
+        {% if events.has_previous %}
+          <li class="previous">
+            <a href="?events_page={{ events.previous_page_number }}">
+              <span aria-hidden="true">&larr;</span>
+              Précédent
+            </a>
+          </li>
+        {% endif %}
+        {% if events.has_next %}
+          <li class="next">
+            <a href="?events_page={{ events.next_page_number }}">
+              <span aria-hidden="true">&rarr;</span>
+              Suivant
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
 </div>

@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import DetailView
 
@@ -23,10 +24,12 @@ class CommuneView(IframableMixin, DetailView):
         return ["municipales/commune_details.html"]
 
     def get_context_data(self, **kwargs):
-        kwargs["events"] = (
+        events = (
             Event.objects.upcoming()
             .filter(coordinates__coveredby=self.object.coordinates)
             .order_by("start_time")
         )
+        paginator = Paginator(events, 5)
+        kwargs["events"] = paginator.get_page(self.request.GET.get("events_page"))
 
         return super().get_context_data(**kwargs)
