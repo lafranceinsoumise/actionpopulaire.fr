@@ -94,3 +94,12 @@ def region_argument(reg):
     from agir.lib.data import filtre_region
 
     return filtre_region(reg)
+
+
+def segment_argument(segment_id):
+    from agir.mailing.models import Segment
+
+    try:
+        return Segment.objects.get(pk=segment_id)
+    except Segment.DoesNotExist:
+        raise ValueError("Ce segment n'existe pas.")

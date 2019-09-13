@@ -16,6 +16,7 @@ from agir.lib.management_utils import (
     coordinates_argument,
     departement_argument,
     region_argument,
+    segment_argument,
 )
 from agir.lib.sms import compute_sms_length_information, send_bulk_sms, SMSSendException
 from agir.people.models import Person
@@ -54,6 +55,7 @@ class Command(BaseCommand):
         parser.add_argument("-d", "--distance", type=distance_argument)
         parser.add_argument("-D", "--departement", type=departement_argument)
         parser.add_argument("-R", "--region", type=region_argument)
+        parser.add_argument("-S", "--segment", type=segment_argument)
         parser.add_argument("-a", "--at", type=datetime_argument)
         parser.add_argument("-s", "--sentfile", type=FileType(mode="r"))
 
@@ -78,6 +80,7 @@ class Command(BaseCommand):
         distance,
         departement,
         region,
+        segment,
         sentfile,
         at,
         **options,
@@ -85,12 +88,12 @@ class Command(BaseCommand):
         if (
             sum(
                 0 if arg is None else 1
-                for arg in [event, coordinates, departement, region]
+                for arg in [event, coordinates, departement, region, segment]
             )
             != 1
         ):
             raise CommandError(
-                "Vous devez indiquer soit un événemnet, soit des coordonnées, soit un département ou une région."
+                "Vous devez indiquer soit un événemnet, soit des coordonnées, soit un département, une région ou un segment."
             )
 
         if (event or coordinates) and number is None and distance is None:
@@ -140,7 +143,11 @@ class Command(BaseCommand):
             numbers = [n for n, _ in res]
             max_distance = res[-1][1]
             self.stdout.write(f"Distance maximale : {max_distance}")
-
+        elif segment:
+            ps = segment.get_subscribers_queryset().exclude(contact_phone="").distinct()
+            numbers = set(
+                p.contact_phone for p in ps.iterator() if self.can_send(p.contact_phone)
+            )
         else:
             ps = Person.objects.filter(
                 region or departement, subscribed_sms=True
