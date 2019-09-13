@@ -23,8 +23,10 @@ class CommuneView(IframableMixin, DetailView):
         return ["municipales/commune_details.html"]
 
     def get_context_data(self, **kwargs):
-        kwargs["events"] = Event.objects.upcoming().filter(
-            coordinates__coveredby=self.object.coordinates
+        kwargs["events"] = (
+            Event.objects.upcoming()
+            .filter(coordinates__coveredby=self.object.coordinates)
+            .order_by("start_time")
         )
 
         return super().get_context_data(**kwargs)
