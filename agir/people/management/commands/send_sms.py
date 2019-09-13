@@ -148,6 +148,7 @@ class Command(BaseCommand):
             numbers = set(
                 p.contact_phone for p in ps.iterator() if self.can_send(p.contact_phone)
             )
+            self.stdout.write(f"Segment : {segment.name}")
         else:
             ps = Person.objects.filter(
                 region or departement, subscribed_sms=True
