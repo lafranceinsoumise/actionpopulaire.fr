@@ -2,10 +2,11 @@ from django.contrib.gis.db.models import MultiPolygonField
 from django.db import models
 from django.db.models import UniqueConstraint
 
+from agir.lib.models import TimeStampedModel
 from agir.lib.utils import front_url
 
 
-class CommunePage(models.Model):
+class CommunePage(TimeStampedModel, models.Model):
     code = models.CharField("Code INSEE", max_length=5, editable=False)
     code_departement = models.CharField(
         "Code département", max_length=3, editable=False

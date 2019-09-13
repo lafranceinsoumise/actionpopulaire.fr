@@ -1,6 +1,7 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
+from agir.municipales.models import CommunePage
 from ..events.models import Event
 from ..groups.models import SupportGroup
 
@@ -31,4 +32,24 @@ class SupportGroupSitemap(Sitemap):
         return obj.modified
 
 
-sitemaps = {"events": EventSitemap, "groups": SupportGroupSitemap}
+class CommunesSitemap(Sitemap):
+    changefreq = "always"
+
+    def items(self):
+        return CommunePage.objects.all()
+
+    def location(self, c):
+        return reverse(
+            "view_commune",
+            kwargs={"code_departement": c.code_departement, "slug": c.slug},
+        )
+
+    def lastmod(self, c):
+        return c.modified
+
+
+sitemaps = {
+    "events": EventSitemap,
+    "groups": SupportGroupSitemap,
+    "communes": CommunesSitemap,
+}
