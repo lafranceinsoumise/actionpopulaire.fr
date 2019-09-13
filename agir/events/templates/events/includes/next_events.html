@@ -19,8 +19,9 @@
                 &bull; <a href="{% url "manage_event" event.pk %}">Gestion</a>
               </small>
             </strong>
-            <div>{{ event.start_time|date:"H:i" }} {% if event.location_name %}-
-              {{ event.location_name }} {% endif %}</div>
+          {% if event.organizers_groups|length > 0 %}(organisé par
+                  {{ event.organizers_groups.all|join:', ' }}){% endif %}
+            <div>{{ event.start_time|date:"H:i" }} - {{ event.short_location }}</div>
           </div>
         </div>
       </div>
