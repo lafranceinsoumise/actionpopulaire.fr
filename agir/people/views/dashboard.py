@@ -116,11 +116,12 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
             .exclude(visibility=Event.VISIBILITY_ADMIN)
             .order_by("start_time")
         )
-        past_organized_events = (
+        past_organized_events = Paginator(
             Event.objects.past()
             .filter(organizers=person)
-            .order_by("-start_time", "-end_time")[:10]
-        )
+            .order_by("-start_time", "-end_time"),
+            5,
+        ).get_page(self.request.GET.get("past_organized_events_page"))
 
         past_reports = (
             Event.objects.past()

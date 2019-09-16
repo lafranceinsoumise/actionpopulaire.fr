@@ -183,26 +183,7 @@
     <div class="col-md-6">
       <h3>Événements que j'ai organisé</h3>
       <div class="list-group">
-        {% for event in past_organized_events %}
-          <div class="list-group-item">
-            <div class="media">
-              <div class="media-left media-middle" style="min-width:64px">
-                {% if event.image %}
-                  <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
-                {% endif %}
-              </div>
-              <div class="media-body">
-                <i class="fa fa-calendar" aria-hidden="true"></i>
-                <a href="{% url 'manage_event' event.pk %}">{{ event.name }}</a>
-              </div>
-            </div>
-          </div>
-        {% empty %}
-          <div class="list-group-item">
-            Vous n'avez organisé aucun événement terminé. Voulez-vous <a href="{% url 'create_event' %}">en
-            créer un</a>&nbsp;?
-          </div>
-        {% endfor %}
+        {% include "events/includes/events_list.html" with events=past_organized_events page_param="past_organized_events_page" empty_message="Vous n'avez organisé aucun événement terminé." %}
       </div>
     </div>
   </div>
