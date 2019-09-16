@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.paginator import Paginator
 from django.core.validators import validate_email
 from django.db import IntegrityError
 from django.db.models import Q
@@ -145,13 +146,16 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
         return ["groups/detail.html"]
 
     def get_context_data(self, **kwargs):
+        events_future = Paginator(
+            self.object.organized_events.upcoming().distinct().order_by("start_time"), 5
+        ).get_page(self.request.GET.get("future_page"))
+        events_past = Paginator(
+            self.object.organized_events.past().distinct().order_by("-start_time"), 5
+        ).get_page(self.request.GET.get("past_page"))
+
         return super().get_context_data(
-            events_future=self.object.organized_events.upcoming()
-            .distinct()
-            .order_by("start_time"),
-            events_past=self.object.organized_events.past()
-            .distinct()
-            .order_by("-start_time"),
+            events_future=events_future,
+            events_past=events_past,
             is_member=self.request.user.is_authenticated
             and self.object.memberships.filter(
                 person=self.request.user.person

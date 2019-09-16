@@ -1,0 +1,50 @@
+<div class="list-group">
+  {% for event in events %}
+    <div class="list-group-item">
+      <div class="media">
+        <div class="media-left media-middle" style="min-width:64px">
+          {% if event.image %}
+            <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+          {% endif %}
+        </div>
+        <div class="media-body">
+          <strong>
+            <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>
+            <small>
+              &bull; <a href="{% url "manage_event" event.pk %}">Gestion</a>
+            </small>
+          </strong>
+        {% if event.organizers_groups|length > 0 %}(organisé par
+                {{ event.organizers_groups.all|join:', ' }}){% endif %}
+          <div>{{ event.get_display_date }} - {{ event.short_location }}</div>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="list-group-item">
+      {{ empty_message|default:"Aucun événement à venir." }}
+    </div>
+  {% endfor %}
+  {% if events.paginator %}
+    <nav aria-label="Navigation">
+      <ul class="pager">
+        {% if events.has_previous %}
+          <li class="previous">
+            <a href="?events_page={{ events.previous_page_number }}">
+              <span aria-hidden="true">&larr;</span>
+              Précédent
+            </a>
+          </li>
+        {% endif %}
+        {% if events.has_next %}
+          <li class="next">
+            <a href="?events_page={{ events.next_page_number }}">
+              <span aria-hidden="true">&rarr;</span>
+              Suivant
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
