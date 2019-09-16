@@ -46,7 +46,7 @@
           </div>
         </a>
       </h3>
-      {% include "events/includes/next_events.html" with events=rsvped_events empty_message="Vous n'avez aucun événément prévu pour le moment." %}
+      {% include "events/includes/events_by_day.html" with events=rsvped_events empty_message="Vous n'avez aucun événément prévu pour le moment." %}
     </div>
     <div class="col-md-6">
       <div class="help-dialog" data-hint="Mes groupes">
@@ -99,7 +99,7 @@
         pour savoir pourquoi chaque événement vous a été suggéré.
       </div>
       <h3>Événements suggérés</h3>
-      {% include "events/includes/next_events.html" with events=suggested_events empty_message="Aucun événement suggéré ! Rejoignez un groupe d'action pour voir des événements." %}
+      {% include "events/includes/events_by_day.html" with events=suggested_events empty_message="Aucun événement suggéré ! Rejoignez un groupe d'action pour voir des événements." %}
     </div>
     <div class="col-md-6">
       <h3>Événements passés</h3>
@@ -158,7 +158,7 @@
           </div>
         {% empty %}
           <div class="list-group-item">
-            Aucun événement récent ! Participez à des événements pour contribuer à leur compte-rendu.
+            Aucun événement récent dans la région.
           </div>
         {% endfor %}
       </div>

@@ -9,7 +9,7 @@
   <div class="row">
     <div class="col-md-6">
       <h6>Agenda</h6>
-      {% include "events/includes/next_events.html" with events=events empty_message="Aucun événement à venir dans cette commune." %}
+      {% include "events/includes/events_by_day.html" with events=events empty_message="Aucun événement à venir dans cette commune." %}
       <h6>Rejoignez un groupe d'action&nbsp;!</h6>
       <iframe title="Carte"
           src="{{ MAP_DOMAIN }}{% url "carte:groups_map" %}?bounds=[{{ commune.coordinates.envelope.coords.0.0|add:commune.coordinates.envelope.coords.0.2|join:"," }}]"

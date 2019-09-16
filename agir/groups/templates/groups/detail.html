@@ -103,7 +103,7 @@
         {% url 'ics_group' supportgroup.pk as calendar_url %}
         <small>S'abonner {% include 'events/calendar_subscribe_modal.html' with url=calendar_url %}</small>
       </h3>
-      {% include "events/includes/next_events.html" with events=events_future empty_message="Ce groupe n'a aucun événement à venir." %}
+      {% include "events/includes/events_by_day.html" with events=events_future empty_message="Ce groupe n'a aucun événement à venir." %}
     </div>
     <div class="col-md-6">
       {% if supportgroup.coordinates %}
@@ -112,7 +112,7 @@
                 height="300" scrolling="no" frameBorder="0"></iframe>
       {% endif %}
       <h3>Événements passés</h3>
-      {% include "events/includes/next_events.html" with events=events_past empty_message="Ce groupe n'a organisé aucun événement." %}
+      {% include "events/includes/events_by_day.html" with events=events_past empty_message="Ce groupe n'a organisé aucun événement." %}
     </div>
   </div>
 
