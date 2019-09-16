@@ -148,10 +148,10 @@ class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
     def get_context_data(self, **kwargs):
         events_future = Paginator(
             self.object.organized_events.upcoming().distinct().order_by("start_time"), 5
-        ).get_page(self.request.GET.get("future_page"))
+        ).get_page(self.request.GET.get("events_future_page"))
         events_past = Paginator(
             self.object.organized_events.past().distinct().order_by("-start_time"), 5
-        ).get_page(self.request.GET.get("past_page"))
+        ).get_page(self.request.GET.get("events_past_page"))
 
         return super().get_context_data(
             events_future=events_future,

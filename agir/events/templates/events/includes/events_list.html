@@ -30,7 +30,7 @@
       <ul class="pager">
         {% if events.has_previous %}
           <li class="previous">
-            <a href="?events_page={{ events.previous_page_number }}">
+            <a href="?{{ page_param|default:"events_page" }}={{ events.previous_page_number }}">
               <span aria-hidden="true">&larr;</span>
               Précédent
             </a>
@@ -38,7 +38,7 @@
         {% endif %}
         {% if events.has_next %}
           <li class="next">
-            <a href="?events_page={{ events.next_page_number }}">
+            <a href="?{{ page_param|default:"events_page" }}={{ events.next_page_number }}">
               <span aria-hidden="true">&rarr;</span>
               Suivant
             </a>
