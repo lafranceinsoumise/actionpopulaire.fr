@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
+from django.core.paginator import Paginator
 from django.db.models import Value, F, TextField, Q, Case, When, BooleanField, Sum
 from django.utils import timezone
 from django.views.generic import TemplateView
@@ -80,11 +81,12 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
                 distance=Distance("coordinates", person.coordinates)
             )
 
-        last_events = (
+        last_events = Paginator(
             Event.objects.past()
             .filter(Q(attendees=person) | Q())
-            .order_by("-start_time", "-end_time")[:10]
-        )
+            .order_by("-start_time", "-end_time"),
+            5,
+        ).get_page(self.request.GET.get("last_events_page"))
 
         if person.coordinates is not None and len(suggested_events) < 10:
             close_events = (

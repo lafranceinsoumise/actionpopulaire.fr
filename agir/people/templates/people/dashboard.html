@@ -46,7 +46,7 @@
           </div>
         </a>
       </h3>
-      {% include "events/includes/events_by_day.html" with events=rsvped_events empty_message="Vous n'avez aucun événément prévu pour le moment." %}
+      {% include "events/includes/events_list.html" with events=rsvped_events empty_message="Vous n'avez aucun événément prévu pour le moment." %}
     </div>
     <div class="col-md-6">
       <div class="help-dialog" data-hint="Mes groupes">
@@ -104,31 +104,12 @@
     <div class="col-md-6">
       <h3>Événements passés</h3>
       <div class="help-dialog" data-hint="Événements passés">
-        Ce sont les 10 derniers événements auxquels vous avez participé. En retournant sur ces pages,
+        Ce sont les derniers événements auxquels vous avez participé. En retournant sur ces pages,
         vous pouvez par exemple poser des photos sur les événements auxquels vous avez participé
         et des comptes rendus sur ceux que vous avez organisé.
       </div>
       <div class="list-group">
-        {% for event in last_events %}
-          <div class="list-group-item">
-            <div class="media">
-              <div class="media-left media-middle" style="min-width:64px">
-                {% if event.image %}
-                  <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
-                {% endif %}
-              </div>
-              <div class="media-body">
-                <i class="fa fa-calendar" aria-hidden="true"></i>
-                <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
-                <br> {{ event.get_display_date }} - {{ event.short_location }}
-              </div>
-            </div>
-          </div>
-        {% empty %}
-          <div class="list-group-item">
-            Aucun événement récent ! Participez à des événements pour contribuer à leur compte-rendu.
-          </div>
-        {% endfor %}
+        {% include "events/includes/events_list.html" with events=last_events page_param="last_events_page" empty_message="Aucun événement récent&nbsp;! Participez à des événements pour contribuer à leur compte-rendu." %}
       </div>
     </div>
     <div class="col-md-6">
