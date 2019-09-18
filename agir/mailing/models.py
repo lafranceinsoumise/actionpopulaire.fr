@@ -21,18 +21,31 @@ class Segment(BaseSegment, models.Model):
 
     tags = models.ManyToManyField("people.PersonTag", blank=True)
     supportgroup_status = models.CharField(
-        "Statut GA", max_length=1, choices=GA_STATUS_CHOICES, blank=True
+        "Limiter aux membres de groupes ayant ce statut",
+        max_length=1,
+        choices=GA_STATUS_CHOICES,
+        blank=True,
     )
     supportgroup_subtypes = models.ManyToManyField(
-        "groups.SupportGroupSubtype", verbose_name="Sous-types de groupes", blank=True
+        "groups.SupportGroupSubtype",
+        verbose_name="Limiter aux membres de groupes d'un de ces sous-types",
+        blank=True,
     )
+    events = models.ManyToManyField(
+        "events.Event",
+        verbose_name="Limiter aux participant⋅e⋅s à un des événements",
+        blank=True,
+    )
+
     area = PolygonField("Territoire", blank=True, null=True)
 
     registration_date = models.DateTimeField(
-        "Date d'inscription à la plateforme", blank=True, null=True
+        "Limiter aux membres inscrit⋅e⋅s après cette date", blank=True, null=True
     )
     last_login = models.DateTimeField(
-        "Date de dernière connexion à la plateforme", blank=True, null=True
+        "Limiter aux membres s'étant connecté⋅e pour la dernière fois après cette date",
+        blank=True,
+        null=True,
     )
 
     def get_subscribers_queryset(self):
