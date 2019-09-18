@@ -11,6 +11,8 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     autocomplete_fields = ("tags", "supportgroup_subtypes")
     readonly_fields = ("get_subscribers_count",)
     ordering = ("name",)
+    search_fields = ("name",)
+    list_filter = ("supportgroup_status", "supportgroup_subtypes", "tags")
     list_display = (
         "name",
         "supportgroup_status",
