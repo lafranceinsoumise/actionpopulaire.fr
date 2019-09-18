@@ -56,6 +56,9 @@ class Segment(BaseSegment, models.Model):
         if self.tags.all().count() > 0:
             qs = qs.filter(tags__in=self.tags.all())
 
+        if self.events.all().count() > 0:
+            qs = qs.filter(rsvps__event__in=self.events.all())
+
         if self.supportgroup_status:
             if self.supportgroup_status == self.GA_STATUS_MEMBER:
                 query = Q(memberships__supportgroup__published=True)
