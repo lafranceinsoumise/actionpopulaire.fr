@@ -433,10 +433,11 @@
         },
         "nuntius": {
             "hashes": [
-                "sha256:da3a6e219e6ec3c5b3872cc5ef8bfe109ea2002143fe4d579ea6c497bc74f820"
+                "sha256:ba8bc35c60a035211f63431e0ac56c118fce57a7fda3d8b2c5de85d03df2659f",
+                "sha256:fdd28b3148f44962aebc99ed38cde8d59fc2a2509f34036f4dd3677fef729649"
             ],
             "index": "pypi",
-            "version": "==0.3.19"
+            "version": "==0.4.1"
         },
         "oauthlib": {
             "hashes": [
