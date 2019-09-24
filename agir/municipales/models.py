@@ -14,7 +14,20 @@ class CommunePage(TimeStampedModel, models.Model):
     coordinates = MultiPolygonField("Périmètre de la commune", geography=True)
     name = models.CharField("Nom de la commune", max_length=255)
     slug = models.SlugField("Slug")
+    municipale_list_name = models.CharField(
+        "Nom de la liste", max_length=255, blank=True
+    )
+    first_name_1 = models.CharField(
+        "Prénom chef⋅fe de file 1", max_length=255, blank=True
+    )
+    last_name_1 = models.CharField("Nom chef⋅fe de file 1", max_length=255, blank=True)
+    first_name_2 = models.CharField(
+        "Prénom chef⋅fe de file 2", max_length=255, blank=True
+    )
+    last_name_2 = models.CharField("Nom chef⋅fe de file 2", max_length=255, blank=True)
     twitter = models.CharField("Identifiant Twitter", max_length=255, blank=True)
+    facebook = models.CharField("Identifiant Facebook", max_length=255, blank=True)
+    website = models.URLField("Site web", max_length=255, blank=True)
 
     def __str__(self):
         return "{} ({})".format(self.name, self.code_departement)

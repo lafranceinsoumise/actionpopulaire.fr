@@ -7,24 +7,42 @@
 
   <h3>{{ commune.name }}</h3>
   <div class="row">
-    <div class="col-md-6">
-      <h6>Agenda</h6>
-      {% include "events/includes/events_by_day.html" with events=events empty_message="Aucun événement à venir dans cette commune." %}
-      <h6>Rejoignez un groupe d'action&nbsp;!</h6>
-      <iframe title="Carte"
-          src="{{ MAP_DOMAIN }}{% url "carte:groups_map" %}?bounds=[{{ commune.coordinates.envelope.coords.0.0|add:commune.coordinates.envelope.coords.0.2|join:"," }}]"
-          height="300"
-          style="width: 100%;" scrolling="no"
-          frameBorder="0"></iframe>
+    <div class="col-sm-9">
+      <div class="row">
+        <div class="col-md-6">
+          <h6>Agenda</h6>
+          {% include "events/includes/events_by_day.html" with events=events empty_message="Aucun événement à venir dans cette commune." %}
+        </div>
+        <div class="col-md-5">
+          <h6>Rejoignez un groupe d'action&nbsp;!</h6>
+          <iframe title="Carte"
+              src="{{ MAP_DOMAIN }}{% url "carte:groups_map" %}?bounds=[{{ commune.coordinates.envelope.coords.0.0|add:commune.coordinates.envelope.coords.0.2|join:"," }}]"
+              height="300"
+              style="width: 100%;" scrolling="no"
+              frameBorder="0"></iframe>
+        </div>
+      </div>
     </div>
-    <div class="col-md-6">
-      {% if commune.twitter %}
-        <a class="twitter-timeline"
-          href="https://twitter.com/{{ commune.twitter }}"
-          data-height="500">
-          Tweets de {{ commune.twitter }}
-        </a>
-        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    <div class="col-sm-3">
+      {% if commune.twitter or commune.facebook %}
+        {% if commune.facebook %}
+          <div class="fb-page" data-href="https://www.facebook.com/{{ commune.facebook }}/" data-tabs="timeline"
+               data-width="" data-height="" data-small-header="false" data-adapt-container-width="true"
+               data-hide-cover="false" data-show-facepile="true">
+            <blockquote cite="https://www.facebook.com/{{ commune.facebook }}/" class="fb-xfbml-parse-ignore">
+              <a href="https://www.facebook.com/{{ commune.facebook }}/">Page Facebook en chargement...</a>
+            </blockquote>
+          </div>
+          <script async defer crossorigin="anonymous" src="https://connect.facebook.net/fr_FR/sdk.js#xfbml=1&version=v4.0&appId=399717914004198"></script>
+        {% endif %}
+        {% if commune.twitter %}
+          <a class="twitter-timeline"
+            href="https://twitter.com/{{ commune.twitter }}"
+            data-height="500">
+            Tweets de {{ commune.twitter }}
+          </a>
+          <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        {% endif %}
       {% else %}
         Les insoumis⋅es de cette commune n'ont pas transmis de compte de réseaux sociaux.
       {% endif %}
