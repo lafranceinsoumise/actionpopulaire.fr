@@ -440,11 +440,11 @@
         },
         "nuntius": {
             "hashes": [
-                "sha256:ba8bc35c60a035211f63431e0ac56c118fce57a7fda3d8b2c5de85d03df2659f",
-                "sha256:fdd28b3148f44962aebc99ed38cde8d59fc2a2509f34036f4dd3677fef729649"
+                "sha256:a3ef61d60d9e75327eef7857bd3986d067d28ad49c30a8d5f514399a59e54e7f",
+                "sha256:fb53cec64f6b38cbba6aae0e4aa9edc0cef16446f9d968d6d1791d0c4fd51364"
             ],
             "index": "pypi",
-            "version": "==0.4.1"
+            "version": "==0.4.2"
         },
         "oauthlib": {
             "hashes": [
@@ -651,11 +651,11 @@
         },
         "urllib3": {
             "hashes": [
-                "sha256:2f3eadfea5d92bc7899e75b5968410b749a054b492d5a6379c1344a1481bc2cb",
-                "sha256:9c6c593cb28f52075016307fc26b0a0f8e82bc7d1ff19aaaa959b91710a56c47"
+                "sha256:3de946ffbed6e6746608990594d08faac602528ac7015ac28d33cee6a45b7398",
+                "sha256:9a107b99a5393caf59c7aa3c1249c16e6879447533d0887f4336dde834c7be86"
             ],
             "markers": "python_version >= '3.4'",
-            "version": "==1.25.5"
+            "version": "==1.25.6"
         },
         "vine": {
             "hashes": [
@@ -1056,11 +1056,11 @@
         },
         "urllib3": {
             "hashes": [
-                "sha256:2f3eadfea5d92bc7899e75b5968410b749a054b492d5a6379c1344a1481bc2cb",
-                "sha256:9c6c593cb28f52075016307fc26b0a0f8e82bc7d1ff19aaaa959b91710a56c47"
+                "sha256:3de946ffbed6e6746608990594d08faac602528ac7015ac28d33cee6a45b7398",
+                "sha256:9a107b99a5393caf59c7aa3c1249c16e6879447533d0887f4336dde834c7be86"
             ],
             "markers": "python_version >= '3.4'",
-            "version": "==1.25.5"
+            "version": "==1.25.6"
         },
         "wcwidth": {
             "hashes": [
