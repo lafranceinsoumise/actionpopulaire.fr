@@ -445,6 +445,11 @@ if not DEBUG:
             },
             "django": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
             "celery": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
+            "nuntius.signals": {
+                "handlers": ["jourdand"],
+                "lebel": "INFO",
+                "propagate": False,
+            },
             "nuntius": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
             "agir": {
                 "handlers": ["journald", "admins_mail"],
