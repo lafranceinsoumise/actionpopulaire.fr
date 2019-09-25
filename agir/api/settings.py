@@ -446,7 +446,7 @@ if not DEBUG:
             "django": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
             "celery": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
             "nuntius.signals": {
-                "handlers": ["jourdand"],
+                "handlers": ["journald"],
                 "lebel": "INFO",
                 "propagate": False,
             },
