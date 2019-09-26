@@ -351,6 +351,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
                     "allow_anonymous",
                     "send_answers_to",
                     "required_tags",
+                    "segment",
                 )
             },
         ),
@@ -388,7 +389,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
         "last_submission",
         "result_url",
     )
-    autocomplete_fields = ("required_tags", "tags")
+    autocomplete_fields = ("required_tags", "segment", "tags")
 
     def last_submission(self, obj):
         last_submission = obj.submissions.last()

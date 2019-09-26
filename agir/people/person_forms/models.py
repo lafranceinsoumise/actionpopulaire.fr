@@ -112,6 +112,15 @@ class PersonForm(TimeStampedModel):
         blank=True,
     )
 
+    segment = models.ForeignKey(
+        "mailing.Segment",
+        on_delete=models.SET_NULL,
+        related_name="person_forms",
+        related_query_name="person_form",
+        blank=True,
+        null=True,
+    )
+
     unauthorized_message = DescriptionField(
         _("Note pour les personnes non autorisées"),
         allowed_tags=settings.ADMIN_ALLOWED_TAGS,
@@ -161,9 +170,12 @@ class PersonForm(TimeStampedModel):
         )
 
     def is_authorized(self, person):
-        return bool(
+        return (
             not self.required_tags.all()
-            or (person.tags.all() & self.required_tags.all())
+            or (person.tags.all() & self.required_tags.all()).exists()
+        ) and (
+            self.segment is None
+            or self.segment.get_subscribers_queryset().filter(id=person.id).exists()
         )
 
     @property
