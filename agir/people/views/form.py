@@ -5,11 +5,12 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.http.response import HttpResponseRedirect, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import UpdateView, DetailView
 from django.views.generic.list import ListView
 
+from agir.events.models import Event
 from agir.people import tasks
 from agir.people.models import PersonForm, PersonFormSubmission, Person
 from agir.people.person_forms.actions import get_people_form_class
@@ -51,6 +52,14 @@ class PeopleFormView(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.person_form_instance = self.get_person_form_instance()
+
+        event = Event.objects.filter(
+            subscription_form=self.person_form_instance
+        ).first()
+
+        if event is not None:
+            return redirect("rsvp_event", event.pk)
+
         if self.person_form_instance.allow_anonymous or request.user.is_authenticated:
             return super().dispatch(request, *args, **kwargs)
 
