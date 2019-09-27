@@ -357,7 +357,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         actions.unpublish,
     )
 
-    autocomplete_fields = ("tags",)
+    autocomplete_fields = ("tags", "subscription_form")
 
     def get_queryset(self, request):
         return models.Event.objects.with_participants()
