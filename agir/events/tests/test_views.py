@@ -588,7 +588,7 @@ class EventPagesTestCase(TestCase):
         on_commit.assert_called_once()
         partial = on_commit.call_args[0][0]
 
-        self.assertEqual(partial.func, notify_on_event_report)
+        self.assertEqual(partial.func, notify_on_event_report.delay)
         self.assertEqual(partial.args, (past_event.pk,))
 
 

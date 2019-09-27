@@ -294,7 +294,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         if self.cleaned_data["as_group"] and "as_group" in self.changed_data:
             transaction.on_commit(
                 partial(
-                    notify_new_group_event,
+                    notify_new_group_event.delay,
                     self.cleaned_data["as_group"].pk,
                     self.instance.pk,
                 )
@@ -392,7 +392,9 @@ class EventReportForm(ImageFormMixin, forms.ModelForm):
         instance = super().save(commit)
 
         if not self.already_published:
-            transaction.on_commit(partial(notify_on_event_report, self.instance.pk))
+            transaction.on_commit(
+                partial(notify_on_event_report.delay, self.instance.pk)
+            )
 
         return instance
 
