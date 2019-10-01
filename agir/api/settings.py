@@ -87,8 +87,25 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,agir.local").split(",
 # Application definition
 
 INSTALLED_APPS = [
-    # before to override templates
     "agir.lib",
+    "agir.authentication",
+    "agir.people",
+    "agir.events",
+    "agir.groups",
+    "agir.polls",
+    "agir.clients",
+    "agir.front",
+    "agir.carte",
+    "agir.webhooks",
+    "agir.payments",
+    "agir.donations",
+    "agir.system_pay",
+    "agir.checks",
+    "agir.loans",
+    "agir.mailing",
+    "agir.notifications",
+    "agir.municipales",
+    "agir.legacy",
     # default contrib apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -127,28 +144,10 @@ INSTALLED_APPS = [
     "webpack_loader",
     # fi apps
     "nuntius",
-    "agir.authentication",
-    "agir.people",
-    "agir.events",
-    "agir.groups",
-    "agir.polls",
-    "agir.clients",
-    "agir.front",
-    "agir.carte",
-    "agir.webhooks",
-    "agir.payments",
-    "agir.donations",
-    "agir.system_pay",
-    "agir.checks",
-    "agir.loans",
-    "agir.mailing",
-    "agir.notifications",
-    "agir.municipales",
     # security
     "corsheaders",
     "oauth2_provider",
     "reversion",
-    "agir.legacy",
 ]
 
 MIDDLEWARE = [

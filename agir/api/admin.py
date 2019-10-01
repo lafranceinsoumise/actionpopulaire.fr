@@ -1,15 +1,19 @@
-import nuntius
-from django.contrib.auth import authenticate, admin as auth_admin, BACKEND_SESSION_KEY
+import django_otp
+import nuntius.admin
+import nuntius.models
 from django import forms
+from django.contrib.auth import authenticate, admin as auth_admin, BACKEND_SESSION_KEY
 from django.contrib.redirects.admin import RedirectAdmin
 from django.contrib.redirects.models import Redirect
 from django.contrib.sites.admin import SiteAdmin
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
-import django_otp
+from django_otp.admin import OTPAdminAuthenticationForm, OTPAdminSite
+from django_otp.plugins.otp_totp.admin import TOTPDeviceAdmin
+from django_otp.plugins.otp_totp.models import TOTPDevice
 
 
-class PersonAuthenticationForm(django_otp.admin.OTPAdminAuthenticationForm):
+class PersonAuthenticationForm(OTPAdminAuthenticationForm):
     username = forms.EmailField(
         label=_("Adresse email"), widget=forms.EmailInput(attrs={"autofocus": True})
     )
@@ -44,7 +48,7 @@ class PersonAuthenticationForm(django_otp.admin.OTPAdminAuthenticationForm):
         return self.cleaned_data
 
 
-class APIAdminSite(django_otp.admin.OTPAdminSite):
+class APIAdminSite(OTPAdminSite):
     login_form = PersonAuthenticationForm
     site_header = "France insoumise"
     site_title = "France insoumise"
@@ -52,7 +56,7 @@ class APIAdminSite(django_otp.admin.OTPAdminSite):
 
     def has_permission(self, request):
         return (
-            super(django_otp.admin.OTPAdminSite, self).has_permission(request)
+            super(OTPAdminSite, self).has_permission(request)
             and request.session[BACKEND_SESSION_KEY]
             == "agir.people.backend.PersonBackend"
             and (
@@ -62,11 +66,11 @@ class APIAdminSite(django_otp.admin.OTPAdminSite):
         )
 
 
-admin_site = APIAdminSite(django_otp.admin.OTPAdminSite.name)
+admin_site = APIAdminSite(OTPAdminSite.name)
 
 
 # register auth
-class DeviceAdmin(django_otp.plugins.otp_totp.admin.TOTPDeviceAdmin):
+class DeviceAdmin(TOTPDeviceAdmin):
     list_display = ["email", "name", "confirmed", "qrcode_link"]
 
     def email(self, obj):
@@ -76,7 +80,7 @@ class DeviceAdmin(django_otp.plugins.otp_totp.admin.TOTPDeviceAdmin):
 admin_site.register(auth_admin.Group, auth_admin.GroupAdmin)
 admin_site.register(Redirect, RedirectAdmin)
 admin_site.register(Site, SiteAdmin)
-admin_site.register(django_otp.plugins.otp_totp.models.TOTPDevice, DeviceAdmin)
+admin_site.register(TOTPDevice, DeviceAdmin)
 admin_site.register(nuntius.models.Campaign, nuntius.admin.CampaignAdmin)
 admin_site.register(
     nuntius.models.CampaignSentEvent, nuntius.admin.CampaignSentEventAdmin

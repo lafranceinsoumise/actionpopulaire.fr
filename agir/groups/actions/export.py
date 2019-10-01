@@ -6,7 +6,6 @@ from django.conf import settings
 from django.urls import reverse
 
 from agir.lib.export import dicts_to_csv_lines
-from agir.api import front_urls
 
 
 __all__ = ["groups_to_csv", "groups_to_csv_lines"]
@@ -88,6 +87,8 @@ def groups_to_dicts(queryset):
 
 
 def memberships_to_dict(queryset):
+    from agir.api import front_urls
+
     for m in queryset:
         d = {k: v for k, v in zip(ANIMATOR_SIMPLE_FIELDS, animator_extractor(m.person))}
         d["group_name"] = m.supportgroup.name

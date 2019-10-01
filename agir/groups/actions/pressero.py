@@ -103,8 +103,6 @@ def create_user_for_person(
         ],
     }
 
-    print(json.dumps(payload))
-
     res = s.post(
         f"{settings.PRESSERO_API_URL}/site/{settings.PRESSERO_SITE}/users/?sendAccountCreationNotification=false",
         auth=PresseroAuthentication(token),

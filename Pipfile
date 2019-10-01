@@ -17,15 +17,15 @@ django-cors-headers = "==3.*"  # configuring CORS Headers
 django-countries = "==5.*"  # country fields
 django-phonenumber-field = "==3.*"  # phone number field
 phonenumbers = "*"  # optional requirement of django-phonenumber-field
-django-stdimage = "==4.*"  # better image field with handling of variations
+django-stdimage = "==5.*"  # better image field with handling of variations
 django-dynamic-filenames = "==1.*"  # better handling of upload path for file fields
 unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
 ## additional features
 django-crispy-forms = "==1.*" # better forms
-django-otp = "==0.6.*"  # 2FA in admin
+django-otp = "==0.7.*"  # 2FA in admin
 django-filter = "==2.*"  # add useful filters
 django-oauth-toolkit = "==1.*"  # add OAuth server
-rules = "==2.0.*"  # add useful authorization rules
+rules = "==2.*"  # add useful authorization rules
 django-reversion = "==3.*"  # versioning of models
 ## Django Rest Framework
 djangorestframework = "==3.*,>=3.9.1"
@@ -45,14 +45,14 @@ hiredis = "==1.*"
 requests = ">=2.20.0, ==2.*"
 # HTML
 bleach = "==3.*"  # sanitize HTML
-"html2text" = "==2018.*"  # transforms HTML to text (used for plain text versions of HTML emails)
+"html2text" = "==2019.*"  # transforms HTML to text (used for plain text versions of HTML emails)
 markdown = "==3.*"  # convert markdown text to HTML (should be deprecated)
 # image handling
 pillow = "==6.*"
 # command line helpers
 tqdm = "*"
 # third party techs
-prometheus-client = "==0.6.*"
+prometheus-client = "==0.7.*"
 systemd = "==0.*"
 ovh = "*"
 nuntius = ">=0.4.1"

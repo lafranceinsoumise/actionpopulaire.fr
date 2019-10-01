@@ -7,7 +7,6 @@ from django.conf import settings
 from django.urls import reverse
 
 from agir.lib.export import dicts_to_csv_lines
-from agir.api import front_urls
 
 
 __all__ = ["events_to_csv", "events_to_csv_lines"]
@@ -47,6 +46,8 @@ def events_to_csv_lines(queryset, timezone=None):
 
 
 def events_to_dicts(queryset, timezone=None):
+    from agir.api import front_urls
+
     if timezone is None:
         timezone = get_default_timezone()
 
