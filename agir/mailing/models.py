@@ -1,4 +1,4 @@
-from django.contrib.gis.db.models import PolygonField
+from django.contrib.gis.db.models import MultiPolygonField
 from django.db import models
 
 from django.db.models import Q
@@ -37,7 +37,7 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
 
-    area = PolygonField("Territoire", blank=True, null=True)
+    area = MultiPolygonField("Territoire", blank=True, null=True)
 
     registration_date = models.DateTimeField(
         "Limiter aux membres inscrit⋅e⋅s après cette date", blank=True, null=True

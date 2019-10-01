@@ -1,0 +1,55 @@
+{% load static %}
+{% include "gis/admin/osm.html" %}
+
+<div style="margin-left: 50px; float: left">
+  <label style="width: auto;"><p>Sélectionner une zone pré-enregistrée&nbsp;:</p>
+    <select id="french-area-widget">
+      <option></option>
+    </select>
+    <button id="french-area-widget-button" class="button">Ajouter</button>
+  </label>
+</div>
+
+<script>
+(function($) {
+    var geojson_format = new OpenLayers.Format.GeoJSON({
+      internalProjection: new OpenLayers.Projection("EPSG:900913"),
+      externalProjection: new OpenLayers.Projection("EPSG:4326")
+    });
+
+    function updateField(feature) {
+      {{ module }}.write_wkt(feature);
+
+      // If geometry collection, add each component individually so they may be
+      // edited individually.
+      for (var i = 0; i < feature.geometry.components.length; i++){
+          {{ module }}.layers.vector.addFeatures([new OpenLayers.Feature.Vector(feature.geometry.components[i].clone())]);
+      }
+
+      // Zooming to the bounds.
+      {{ module }}.map.zoomToExtent({{ module }}.layers.vector.getDataExtent());
+    }
+
+
+    var $select = $("#french-area-widget");
+    var $button = $("#french-area-widget-button");
+
+    $.when(
+      $.getJSON("{% static "lib/regions-100m.geojson" %}"),
+      $.getJSON("{% static "lib/departements-100m.geojson" %}")
+    ).then(function(dataRegions, dataDepartements) {
+      var features = dataRegions[0].features.concat(dataDepartements[0].features);
+      $.each(features, function(key, feature) {
+        $select.append($("<option></option>").attr("value", key).text(feature.properties.nom));
+      });
+
+      $select.select2();
+      $button.click(function (e) {
+        e.preventDefault();
+        var feature = geojson_format.read(features[$select.val()], "Feature");
+        updateField(feature);
+      });
+    });
+})(django.jQuery);
+
+</script>
