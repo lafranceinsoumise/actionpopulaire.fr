@@ -36,6 +36,21 @@ class Segment(BaseSegment, models.Model):
         verbose_name="Limiter aux participant⋅e⋅s à un des événements",
         blank=True,
     )
+    events_subtypes = models.ManyToManyField(
+        "events.EventSubtype",
+        verbose_name="Limiter aux participant⋅e⋅s à un événements de ce type",
+        blank=True,
+    )
+    events_start_date = models.DateTimeField(
+        "Limiter aux participant⋅e⋅s à des événements commençant après cette date",
+        blank=True,
+        null=True,
+    )
+    events_end_date = models.DateTimeField(
+        "Limiter aux participant⋅e⋅s à des événements terminant avant cette date",
+        blank=True,
+        null=True,
+    )
 
     area = MultiPolygonField("Territoire", blank=True, null=True)
 
@@ -88,6 +103,19 @@ class Segment(BaseSegment, models.Model):
 
         if self.last_login is not None:
             qs = qs.filter(role__last_login__gt=self.last_login)
+
+        events_filter = {}
+        if self.events_subtypes.all().count() > 0:
+            events_filter["events__subtype__in"] = self.events_subtypes.all()
+
+        if self.events_start_date is not None:
+            events_filter["events__start_date__gt"] = self.events_start_date
+
+        if self.events_end_date is not None:
+            events_filter["events__end_date__lt"] = self.events_end_date
+
+        if events_filter:
+            qs = qs.filter(**events_filter)
 
         return qs.order_by("id").distinct("id")
 

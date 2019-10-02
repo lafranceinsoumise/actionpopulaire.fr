@@ -9,7 +9,7 @@ from agir.mailing.models import Segment
 @admin.register(Segment, site=admin_site)
 class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     map_template = "custom_fields/french_area_widget.html"
-    autocomplete_fields = ("tags", "supportgroup_subtypes", "events")
+    autocomplete_fields = ("tags", "supportgroup_subtypes", "events", "events_subtypes")
     readonly_fields = ("get_subscribers_count",)
     ordering = ("name",)
     search_fields = ("name",)
