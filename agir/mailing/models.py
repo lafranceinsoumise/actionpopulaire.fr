@@ -109,10 +109,10 @@ class Segment(BaseSegment, models.Model):
             events_filter["events__subtype__in"] = self.events_subtypes.all()
 
         if self.events_start_date is not None:
-            events_filter["events__start_date__gt"] = self.events_start_date
+            events_filter["events__start_time__gt"] = self.events_start_date
 
         if self.events_end_date is not None:
-            events_filter["events__end_date__lt"] = self.events_end_date
+            events_filter["events__end_time__lt"] = self.events_end_date
 
         if events_filter:
             qs = qs.filter(**events_filter)
