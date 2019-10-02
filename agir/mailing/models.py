@@ -51,6 +51,11 @@ class Segment(BaseSegment, models.Model):
         blank=True,
         null=True,
     )
+    events_organizer = models.BooleanField(
+        "Limiter aux organisateurices (sans effet si pas d'autres filtres événements)",
+        blank=True,
+        default=False,
+    )
 
     area = MultiPolygonField("Territoire", blank=True, null=True)
 
@@ -70,9 +75,6 @@ class Segment(BaseSegment, models.Model):
 
         if self.tags.all().count() > 0:
             qs = qs.filter(tags__in=self.tags.all())
-
-        if self.events.all().count() > 0:
-            qs = qs.filter(rsvps__event__in=self.events.all())
 
         if self.supportgroup_status:
             if self.supportgroup_status == self.GA_STATUS_MEMBER:
@@ -95,14 +97,8 @@ class Segment(BaseSegment, models.Model):
 
             qs = qs.filter(query)
 
-        if self.area is not None:
-            qs = qs.filter(coordinates__intersects=self.area)
-
-        if self.registration_date is not None:
-            qs = qs.filter(created__gt=self.registration_date)
-
-        if self.last_login is not None:
-            qs = qs.filter(role__last_login__gt=self.last_login)
+        if self.events.all().count() > 0:
+            qs = qs.filter(events__in=self.events.all())
 
         events_filter = {}
         if self.events_subtypes.all().count() > 0:
@@ -114,8 +110,20 @@ class Segment(BaseSegment, models.Model):
         if self.events_end_date is not None:
             events_filter["events__end_time__lt"] = self.events_end_date
 
+        if self.events_organizer:
+            events_filter = {"organized_" + key: value for key, value in events_filter}
+
         if events_filter:
             qs = qs.filter(**events_filter)
+
+        if self.area is not None:
+            qs = qs.filter(coordinates__intersects=self.area)
+
+        if self.registration_date is not None:
+            qs = qs.filter(created__gt=self.registration_date)
+
+        if self.last_login is not None:
+            qs = qs.filter(role__last_login__gt=self.last_login)
 
         return qs.order_by("id").distinct("id")
 
