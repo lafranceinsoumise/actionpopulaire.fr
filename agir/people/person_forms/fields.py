@@ -32,6 +32,14 @@ class NotRequiredByDefaultMixin:
         super().__init__(*args, required=required, **kwargs)
 
 
+class ShortTextField(forms.CharField):
+    def __init__(self, *args, choices=None, **kwargs):
+        if choices is not None:
+            self.widget = Select2Widget(create=True, choices=choices)
+
+        super().__init__(*args, **kwargs)
+
+
 class LongTextField(forms.CharField):
     widget = forms.Textarea
 
@@ -101,7 +109,7 @@ class FileField(forms.FileField):
 
 
 FIELDS = {
-    "short_text": forms.CharField,
+    "short_text": ShortTextField,
     "long_text": LongTextField,
     "choice": ChoiceField,
     "autocomplete_choice": AutocompleteChoiceField,

@@ -2,6 +2,13 @@
 
 <script>
   $('#{{ widget.attrs.id }}').selectize({
-    sortField: 'text'
+    sortField: 'text',
+    create: {{ widget.create|yesno:"true,false" }},
+    placeholder: "{% if widget.create %}Choisissez parmi les choix proposés ou tapez votre propre réponse.{% else %}Tapez pour rechercher.{% endif %}",
+    render: {
+      option_create: function(data, escape) {
+        return '<div class="option">Choisir ' + escape(data.input) + '</div>';
+      }
+    }
   });
 </script>
