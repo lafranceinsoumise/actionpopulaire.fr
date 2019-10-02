@@ -75,7 +75,7 @@ class AdminJsonWidget(Textarea):
         )
 
 
-class Select2Widget(Select):
+class SelectizeWidget(Select):
     template_name = "custom_fields/selectize_choice.html"
     create = False
 

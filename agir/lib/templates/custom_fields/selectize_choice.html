@@ -7,7 +7,7 @@
     placeholder: "{% if widget.create %}Choisissez parmi les choix proposés ou tapez votre propre réponse.{% else %}Tapez pour rechercher.{% endif %}",
     render: {
       option_create: function(data, escape) {
-        return '<div class="option">Choisir ' + escape(data.input) + '</div>';
+        return '<div class="option create" data-selectable="">Choisir <b>' + escape(data.input) + '</b></div>';
       }
     }
   });

@@ -16,7 +16,7 @@ from phonenumber_field.formfields import PhoneNumberField
 
 from agir.events.models import Event
 from agir.lib.data import departements_choices, regions_choices
-from agir.lib.form_fields import DateTimePickerWidget, Select2Widget
+from agir.lib.form_fields import DateTimePickerWidget, SelectizeWidget
 
 from ..models import Person
 
@@ -35,7 +35,7 @@ class NotRequiredByDefaultMixin:
 class ShortTextField(forms.CharField):
     def __init__(self, *args, choices=None, **kwargs):
         if choices is not None:
-            self.widget = Select2Widget(create=True, choices=choices)
+            self.widget = SelectizeWidget(create=True, choices=choices)
 
         super().__init__(*args, **kwargs)
 
@@ -61,7 +61,7 @@ class ChoiceField(forms.ChoiceField):
 
 
 class AutocompleteChoiceField(ChoiceField):
-    widget = Select2Widget
+    widget = SelectizeWidget
 
 
 class MultipleChoiceField(NotRequiredByDefaultMixin, forms.MultipleChoiceField):
