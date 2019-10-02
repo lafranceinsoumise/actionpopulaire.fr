@@ -209,16 +209,18 @@ class PersonFormDisplay:
         resolve_labels=True,
         fieldsets_titles=False,
     ):
+        if not submissions_or_form:
+            return [], []
+
         if isinstance(submissions_or_form, PersonForm):
             form = submissions_or_form
             submissions = form.submissions.all().order_by("created")
-
         else:
-            if not submissions_or_form:
-                return [], []
-
             submissions = submissions_or_form
             form = submissions[0].form
+
+        if len(submissions) == 0:
+            return [], []
 
         fields_dict = form.fields_dict
 
