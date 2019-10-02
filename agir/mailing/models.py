@@ -81,7 +81,7 @@ class Segment(BaseSegment, models.Model):
             qs = qs.filter(query)
 
         if self.area is not None:
-            qs = qs.filter(coordinates__coveredby=self.area)
+            qs = qs.filter(coordinates__intersects=self.area)
 
         if self.registration_date is not None:
             qs = qs.filter(created__gt=self.registration_date)
