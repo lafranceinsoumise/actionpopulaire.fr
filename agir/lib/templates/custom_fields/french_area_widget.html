@@ -18,13 +18,13 @@
     });
 
     function updateField(feature) {
-      {{ module }}.write_wkt(feature);
-
       // If geometry collection, add each component individually so they may be
       // edited individually.
-      for (var i = 0; i < feature.geometry.components.length; i++){
+      for (var i = 0; i < feature.geometry.components.length; i++) {
           {{ module }}.layers.vector.addFeatures([new OpenLayers.Feature.Vector(feature.geometry.components[i].clone())]);
       }
+
+      {{ module }}.add_wkt(null);
 
       // Zooming to the bounds.
       {{ module }}.map.zoomToExtent({{ module }}.layers.vector.getDataExtent());
@@ -47,6 +47,9 @@
       $button.click(function (e) {
         e.preventDefault();
         var feature = geojson_format.read(features[$select.val()], "Feature");
+        if (feature.geometry instanceof OpenLayers.Geometry.Polygon) {
+          feature.geometry = new OpenLayers.Geometry.MultiPolygon([feature.geometry]);
+        }
         updateField(feature);
       });
     });
