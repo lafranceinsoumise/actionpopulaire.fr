@@ -327,10 +327,7 @@ class Person(
 
     @cached_property
     def primary_email(self):
-        try:
-            return self.emails.first()
-        except PersonEmail.DoesNotExist:
-            return None
+        return self.emails.filter(_bounced=False).first() or self.emails.first()
 
     @property
     def bounced(self):
