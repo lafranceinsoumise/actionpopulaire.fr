@@ -35,7 +35,16 @@ class NotRequiredByDefaultMixin:
 class ShortTextField(forms.CharField):
     def __init__(self, *args, choices=None, **kwargs):
         if choices is not None:
-            self.widget = SelectizeWidget(create=True, choices=choices)
+            self.widget = SelectizeWidget(
+                create=True,
+                choices=[
+                    (
+                        "",
+                        "Choisissez parmi les choix proposés ou tapez votre propre réponse.",
+                    ),
+                    *choices,
+                ],
+            )
 
         super().__init__(*args, **kwargs)
 

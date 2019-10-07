@@ -6,6 +6,11 @@
 {% block main %}
 
   <h3>{{ commune.name }}</h3>
+  {% if commune.chiefs %}<p>Chef⋅fe⋅s de file&nbsp;: {{ commune.chiefs }}</p>{% endif %}
+  {% if commune.municipale_list_name %}<p>Nom de la liste&nbsp;: {{ commune.municipale_list_name }}</p>{% endif %}
+  <div class="row">
+
+  </div>
   <div class="row">
     <div class="col-sm-9">
       <div class="row">
