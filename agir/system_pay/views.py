@@ -13,6 +13,7 @@ from django.http import (
 )
 from django.template.response import TemplateResponse
 from django.utils import timezone
+from django.utils.cache import add_never_cache_headers
 from django.views.generic import TemplateView
 from rest_framework.views import APIView
 
@@ -65,6 +66,7 @@ class SystempayRedirectView(BaseSystemPayRedirectView):
         self.payment = kwargs["payment"]
         self.transaction = SystemPayTransaction.objects.create(payment=self.payment)
         res = super().get(request, *args, **kwargs)
+        add_never_cache_headers(res)
 
         # save payment in session
         request.session[PAYMENT_ID_SESSION_KEY] = self.payment.pk
