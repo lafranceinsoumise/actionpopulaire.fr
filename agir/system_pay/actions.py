@@ -12,7 +12,7 @@ from agir.system_pay.models import SystemPayTransaction, SystemPayAlias
 logger = logging.getLogger(__name__)
 
 
-def update_payment_from_transaction(payment, transaction, is_refund=False):
+def update_payment_from_transaction(payment, transaction):
     if transaction.status == SystemPayTransaction.STATUS_COMPLETED:
         if payment.status == Payment.STATUS_CANCELED:
             logger.error(
@@ -20,7 +20,7 @@ def update_payment_from_transaction(payment, transaction, is_refund=False):
             )
             return
 
-        if is_refund:
+        if transaction.is_refund:
             refund_payment(payment)
         else:
             complete_payment(payment)
