@@ -44,6 +44,7 @@ SYSTEMPAY_STATUS_CHOICE = {
     "ACCEPTED": SystemPayTransaction.STATUS_COMPLETED,
     "CAPTURED": SystemPayTransaction.STATUS_COMPLETED,
 }
+SYSTEMPAY_OPERATION_TYPE_CHOICE = ["DEBIT", "CREDIT", "VERIFICATION"]
 PAYMENT_ID_SESSION_KEY = "_payment_id"
 SUBSCRIPTION_ID_SESSION_KEY = "_payment_id"
 
@@ -104,19 +105,20 @@ class SystemPayWebhookView(APIView):
     def post(self, request):
         if (
             request.data.get("vads_trans_status") not in SYSTEMPAY_STATUS_CHOICE
+            or request.data.get("vads_operation_type")
+            not in SYSTEMPAY_OPERATION_TYPE_CHOICE
             or "vads_order_id" not in request.data
             or "signature" not in request.data
         ):
             logger.exception("Requête malformée de Systempay")
             return HttpResponseBadRequest()
-
         if not check_signature(request.data, self.sp_config["certificate"]):
             return HttpResponseForbidden()
 
         with transaction.atomic():
             try:
                 # En cas paiement automatique, c'est l'id de la transaction de souscription d'origine qui est indiquée
-                # dans vads_order_id
+                # dans vads_order_id, en cas de remboursement, c'est la transaction de paiement d'origine
                 sp_transaction = SystemPayTransaction.objects.get(
                     pk=request.data["vads_order_id"]
                 )
@@ -128,15 +130,28 @@ class SystemPayWebhookView(APIView):
                 and str(int(request.data["vads_order_id"]) % 900000).zfill(6)
                 != request.data["vads_trans_id"]
             ):
-                # Dans ce cas, l'appel du webhook est en lien à un paiement automatique
-                # sp_transaction pointe pour l'instant vers la transaction de souscription, donc on crée une nouvelle
-                # transaction
-                assert sp_transaction.subscription.person.id == UUID(
-                    request.data["vads_cust_id"]
-                )
-                assert sp_transaction.subscription.price == int(
-                    request.data["vads_amount"]
-                )
+                # Il s'agit d'une transaction déclenchée côté Systempay : soit un remboursement, soit un paiement d'un
+                # abonnement
+                if (
+                    request.data["vads_operation_type"] == "CREDIT"
+                ):  # c'est un remboursement
+                    assert sp_transaction.payment.person.id == UUID(
+                        request.data["vads_cust_id"]
+                    )
+                    assert sp_transaction.payment.price == int(
+                        request.data["vads_amount"]
+                    )
+                else:  # c'est une subscription
+                    # Dans ce cas, l'appel du webhook est en lien à un paiement automatique
+                    # sp_transaction pointe pour l'instant vers la transaction de souscription, donc on crée une nouvelle
+                    # transaction
+                    assert sp_transaction.subscription.person.id == UUID(
+                        request.data["vads_cust_id"]
+                    )
+                    assert sp_transaction.subscription.price == int(
+                        request.data["vads_amount"]
+                    )
+
                 try:
                     # On s'assure de l'idempotence du webhook en vérifiant toutefois si la nouvelle transaction
                     # n'a pas été créée
@@ -144,13 +159,19 @@ class SystemPayWebhookView(APIView):
                         uuid=request.data["vads_trans_uuid"]
                     )
                 except SystemPayTransaction.DoesNotExist:
-                    payment = create_payment(
-                        person=sp_transaction.subscription.person,
-                        type=sp_transaction.subscription.type,
-                        price=request.data["vads_amount"],
-                        mode=self.mode_id,
-                        subscription=sp_transaction.subscription,
-                    )
+
+                    if (
+                        request.data["vads_operation_type"] == "CREDIT"
+                    ):  # c'est un remboursement
+                        payment = refund_payment(sp_transaction.payment)
+                    else:  # c'est une souscription
+                        payment = create_payment(
+                            person=sp_transaction.subscription.person,
+                            type=sp_transaction.subscription.type,
+                            price=request.data["vads_amount"],
+                            mode=self.mode_id,
+                            subscription=sp_transaction.subscription,
+                        )
                     # la transaction a été crée par systempay et non par formulaire, elle n'existe pas côté plateforme
                     sp_transaction = SystemPayTransaction.objects.create(
                         payment=payment
