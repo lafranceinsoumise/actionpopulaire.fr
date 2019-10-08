@@ -134,11 +134,10 @@ class SystemPayWebhookView(APIView):
                 and str(int(request.data["vads_order_id"]) % 900000).zfill(6)
                 != request.data["vads_trans_id"]
             ):
+                is_refund = request.data["vads_operation_type"] == "CREDIT"
                 # Il s'agit d'une transaction déclenchée côté Systempay : soit un remboursement, soit un paiement d'un
                 # abonnement
-                if (
-                    request.data["vads_operation_type"] == "CREDIT"
-                ):  # c'est un remboursement
+                if is_refund:  # c'est un remboursement
                     assert sp_transaction.payment.person.id == UUID(
                         request.data["vads_cust_id"]
                     )
@@ -163,11 +162,8 @@ class SystemPayWebhookView(APIView):
                         uuid=request.data["vads_trans_uuid"]
                     )
                 except SystemPayTransaction.DoesNotExist:
-
-                    if (
-                        request.data["vads_operation_type"] == "CREDIT"
-                    ):  # c'est un remboursement
-                        payment = refund_payment(sp_transaction.payment)
+                    if is_refund:  # c'est un remboursement
+                        payment = sp_transaction.payment
                     else:  # c'est une souscription
                         payment = create_payment(
                             person=sp_transaction.subscription.person,
@@ -178,7 +174,7 @@ class SystemPayWebhookView(APIView):
                         )
                     # la transaction a été crée par systempay et non par formulaire, elle n'existe pas côté plateforme
                     sp_transaction = SystemPayTransaction.objects.create(
-                        payment=payment
+                        payment=payment, is_refund=is_refund
                     )
 
             if "vads_identifier" in request.data:

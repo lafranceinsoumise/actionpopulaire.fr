@@ -67,6 +67,9 @@ def complete_payment(payment):
     if payment.status == Payment.STATUS_CANCELED:
         raise PaymentException("Le paiement a déjà été annulé.")
 
+    if payment.status == Payment.STATUS_REFUND:
+        raise PaymentException("Le paiement a déjà été remboursé.")
+
     payment.status = Payment.STATUS_COMPLETED
     payment.save(update_fields=["status"])
 
@@ -88,8 +91,8 @@ def cancel_payment(payment):
 
 
 def refund_payment(payment):
-    if payment.status != Payment.STATUS_COMPLETED:
-        raise PaymentException("Impossible de remboursé un paiement non confirmé.")
+    if payment.status not in (Payment.STATUS_COMPLETED, Payment.STATUS_REFUND):
+        raise PaymentException("Impossible de rembourser un paiement non confirmé.")
 
     payment.status = Payment.STATUS_REFUND
     payment.save()

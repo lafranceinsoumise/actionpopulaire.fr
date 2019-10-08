@@ -1,6 +1,10 @@
 import logging
 
-from agir.payments.actions.payments import complete_payment, refuse_payment
+from agir.payments.actions.payments import (
+    complete_payment,
+    refuse_payment,
+    refund_payment,
+)
 from agir.payments.actions.subscriptions import complete_subscription
 from agir.payments.models import Payment, Subscription
 from agir.system_pay.models import SystemPayTransaction, SystemPayAlias
@@ -8,7 +12,7 @@ from agir.system_pay.models import SystemPayTransaction, SystemPayAlias
 logger = logging.getLogger(__name__)
 
 
-def update_payment_from_transaction(payment, transaction):
+def update_payment_from_transaction(payment, transaction, is_refund=False):
     if transaction.status == SystemPayTransaction.STATUS_COMPLETED:
         if payment.status == Payment.STATUS_CANCELED:
             logger.error(
@@ -16,7 +20,10 @@ def update_payment_from_transaction(payment, transaction):
             )
             return
 
-        complete_payment(payment)
+        if is_refund:
+            refund_payment(payment)
+        else:
+            complete_payment(payment)
 
     if (
         transaction.status == SystemPayTransaction.STATUS_REFUSED
