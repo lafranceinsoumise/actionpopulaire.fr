@@ -18,7 +18,11 @@ from django.views.generic import TemplateView
 from rest_framework.views import APIView
 
 from agir.authentication.models import Role
-from agir.payments.actions.payments import notify_status_change, create_payment
+from agir.payments.actions.payments import (
+    notify_status_change,
+    create_payment,
+    refund_payment,
+)
 from agir.payments.actions.subscriptions import (
     notify_status_change as notify_subscription_status_change,
 )
