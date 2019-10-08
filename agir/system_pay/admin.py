@@ -20,6 +20,7 @@ class SystemPayTransactionAdmin(admin.ModelAdmin):
     readonly_fields = (
         "id",
         "payment",
+        "is_refund",
         "subscription",
         "destination",
         "person",
