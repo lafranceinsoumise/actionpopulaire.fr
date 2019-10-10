@@ -34,7 +34,7 @@ def delete_mailtrain(sender, instance, **kwargs):
     delete_person(instance)
 
 
-@receiver(pre_delete, sender=Person, dispatch_uuid="person_terminate_subscriptions")
+@receiver(pre_delete, sender=Person, dispatch_uid="person_terminate_subscriptions")
 def terminate_subscriptions(sender, person, **kwargs):
     for subscription in person.subscriptions.all():
         subscriptions.terminate_subscription(subscription)
