@@ -18,6 +18,7 @@ from django.views.generic import TemplateView
 from rest_framework.views import APIView
 
 from agir.authentication.models import Role
+from agir.payments.actions import subscriptions
 from agir.payments.actions.payments import (
     notify_status_change,
     create_payment,
@@ -133,10 +134,9 @@ class SystemPayWebhookView(APIView):
                 "vads_trans_id" in request.data
                 and str(int(request.data["vads_order_id"]) % 900000).zfill(6)
                 != request.data["vads_trans_id"]
-            ):
+            ):  # Il s'agit d'une transaction déclenchée côté Systempay : remboursement ou abonnement
                 is_refund = request.data["vads_operation_type"] == "CREDIT"
-                # Il s'agit d'une transaction déclenchée côté Systempay : soit un remboursement, soit un paiement d'un
-                # abonnement
+
                 if is_refund:  # c'est un remboursement
                     assert sp_transaction.payment.person.id == UUID(
                         request.data["vads_cust_id"]
@@ -145,12 +145,19 @@ class SystemPayWebhookView(APIView):
                         request.data["vads_amount"]
                     )
                 else:  # c'est une subscription
-                    # Dans ce cas, l'appel du webhook est en lien à un paiement automatique
-                    # sp_transaction pointe pour l'instant vers la transaction de souscription, donc on crée une nouvelle
-                    # transaction
-                    assert sp_transaction.subscription.person.id == UUID(
-                        request.data["vads_cust_id"]
-                    )
+                    if sp_transaction.subscription.person is None:
+                        # si la personne n'existe plus, il y a un problème, on met fin à la souscription
+                        subscriptions.terminate_subscription(
+                            sp_transaction.subscription
+                        )
+                        logger.exception(
+                            "Paiement automatique déclenché par SystemPay sur une transaction sans personne "
+                            "associée. Par sécurité, la subscription a été terminée."
+                        )
+                    else:
+                        assert sp_transaction.subscription.person.id == UUID(
+                            request.data["vads_cust_id"]
+                        )
                     assert sp_transaction.subscription.price == int(
                         request.data["vads_amount"]
                     )
