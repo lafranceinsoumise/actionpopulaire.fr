@@ -5,6 +5,7 @@ from django.conf import settings
 from functools import partial
 
 from agir.lib.mailtrain import delete_person
+from agir.payments.actions import subscriptions
 from . import tasks
 from .models import Person, PersonEmail
 from agir.authentication.models import Role
@@ -31,6 +32,12 @@ def update_mailtrain(sender, instance, raw, **kwargs):
 @receiver(pre_delete, sender=Person, dispatch_uid="person_delete_mailtrain")
 def delete_mailtrain(sender, instance, **kwargs):
     delete_person(instance)
+
+
+@receiver(pre_delete, sender=Person, dispatch_uuid="person_terminate_subscriptions")
+def terminate_subscriptions(sender, person, **kwargs):
+    for subscription in person.subscriptions.all():
+        subscriptions.terminate_subscription(subscription)
 
 
 @receiver(post_delete, sender=Person, dispatch_uid="person_delete_role")
