@@ -161,6 +161,10 @@ class SystemPayWebhookView(APIView):
                     assert sp_transaction.subscription.price == int(
                         request.data["vads_amount"]
                     )
+                    assert (
+                        sp_transaction.subscription.status
+                        == Subscription.STATUS_COMPLETED
+                    )
 
                 try:
                     # On s'assure de l'idempotence du webhook en vérifiant toutefois si la nouvelle transaction
