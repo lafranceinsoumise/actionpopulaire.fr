@@ -148,6 +148,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "oauth2_provider",
     "reversion",
+    "social_django",
 ]
 
 MIDDLEWARE = [
@@ -164,6 +165,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.contrib.redirects.middleware.RedirectFallbackMiddleware",
     "agir.authentication.middleware.MailLinkMiddleware",
+    "social_django.middleware.SocialAuthExceptionMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
@@ -366,14 +368,50 @@ if ENABLE_FRONT:
             "agir.authentication.backend.ShortCodeBackend",
             # This backend is used for connection through links found in emails
             "agir.authentication.backend.MailLinkBackend",
-            # legacy backend only used to preserve currently connected sessions
-            "agir.authentication.backend.OAuth2Backend",
+            # connection through Facebook
+            "social_core.backends.facebook.FacebookOAuth2",
         ]
     )
     LOGIN_URL = "short_code_login"
 
 OAUTH2_PROVIDER_APPLICATION_MODEL = "clients.Client"
 OAUTH2_PROVIDER = {"SCOPES_BACKEND_CLASS": "agir.clients.scopes.ScopesBackend"}
+
+# SOCIAL AUTH
+
+SOCIAL_AUTH_STORAGE = "agir.authentication.social.storage.AgirDjangoStorage"
+SOCIAL_AUTH_POSTGRES_JSONFIELD = True
+
+SOCIAL_AUTH_PIPELINE = (
+    # Éléments par défaut pour récupérer les détails depuis les services tiers,
+    # vérifier que le compte est actif, et vérifier si un utilisateur est déjà
+    # associé
+    "social_core.pipeline.social_auth.social_details",
+    "social_core.pipeline.social_auth.social_uid",
+    "social_core.pipeline.social_auth.auth_allowed",
+    "social_core.pipeline.social_auth.social_user",
+    # Identifie s'il existe un compte sur agir avec l'adresse email.
+    "social_core.pipeline.social_auth.associate_by_email",
+    # Réalise l'association elle-même
+    "social_core.pipeline.social_auth.associate_user",
+    # Enregistre toutes les données associées comme un objet JSON sur l'association
+    "social_core.pipeline.social_auth.load_extra_data",
+    # Ajoute un message dans les cas où c'est pertinent
+    "agir.authentication.social.pipeline.add_message",
+)
+
+SOCIAL_AUTH_FACEBOOK_KEY = os.environ.get("SOCIAL_AUTH_FACEBOOK_KEY")
+SOCIAL_AUTH_FACEBOOK_SECRET = os.environ.get("SOCIAL_AUTH_FACEBOOK_SECRET")
+SOCIAL_AUTH_FACEBOOK_SCOPE = ["email"]
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {"locale": "fr_FR", "fields": "id, email"}
+SOCIAL_AUTH_FACEBOOK_API_VERSION = "3.3"
+
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+
+# URLS
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = "dashboard"
+SOCIAL_AUTH_LOGIN_URL = "short_code_login"
+SOCIAL_AUTH_LOGIN_ERROR_URL = "social_login_error"
 
 # Admin
 
@@ -450,6 +488,11 @@ if not DEBUG:
                 "propagate": False,
             },
             "nuntius": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
+            "social": {
+                "handlers": ["journald", "admins_mail"],
+                "level": "DEBUG",
+                "propagate": True,
+            },
             "agir": {
                 "handlers": ["journald", "admins_mail"],
                 "level": "DEBUG",

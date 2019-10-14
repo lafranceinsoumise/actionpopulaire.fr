@@ -1,7 +1,13 @@
 from django.urls import path
 from oauth2_provider import views as oauth2_views
 
-from .views import SendEmailView, CheckCodeView, DisconnectView, Oauth2AuthorizationView
+from .views import (
+    SendEmailView,
+    CheckCodeView,
+    DisconnectView,
+    Oauth2AuthorizationView,
+    SocialLoginError,
+)
 
 
 urlpatterns = [
@@ -20,4 +26,5 @@ urlpatterns = [
     path(
         "o/introspect/", oauth2_views.IntrospectTokenView.as_view(), name="introspect"
     ),
+    path("social/erreur/", SocialLoginError.as_view(), name="social_login_error"),
 ]

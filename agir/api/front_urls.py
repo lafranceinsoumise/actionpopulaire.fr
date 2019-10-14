@@ -25,4 +25,5 @@ urlpatterns = [
     path("", include(notifications_urls)),
     path("", include(loans_urls)),
     path("", include(municipales_urls)),
+    path("", include("social_django.urls", namespace="social")),
 ]

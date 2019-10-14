@@ -4,7 +4,7 @@ from django.contrib.auth import login, logout, REDIRECT_FIELD_NAME
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.http import is_safe_url, urlquote
 from django.views.generic import FormView, RedirectView
@@ -181,3 +181,18 @@ class DisconnectView(RedirectToMixin, RedirectView):
 
 class Oauth2AuthorizationView(HardLoginRequiredMixin, AuthorizationView):
     pass
+
+
+class SocialLoginError(RedirectView):
+    url = reverse_lazy("short_code_login")
+
+    def get(self, request, *args, **kwargs):
+        if self.GET.get("message"):
+            messages.add_message(
+                request=request,
+                level=messages.ERROR,
+                message="Une erreur inconnue est survenue lors de votre tentative de connexion."
+                " Veuillez vous connecter autrement ou réessayer plus tard.",
+            )
+
+        return super().get(request, *args, **kwargs)

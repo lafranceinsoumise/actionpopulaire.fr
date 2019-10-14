@@ -64,6 +64,7 @@ boto3 = "*"
 num2words = "*"
 sepaxml = "==2.*"
 zeep = "*"
+social-auth-app-django = "==3.*"
 
 [dev-packages]
 ipython = "*"
