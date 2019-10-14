@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         res = requests.get(
-            "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2019/geojson/communes-100m.geojson"
+            "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2019/geojson/communes-5m.geojson"
         )
         data = res.json()
         for feature in tqdm(data["features"]):

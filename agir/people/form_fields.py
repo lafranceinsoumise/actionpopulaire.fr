@@ -1,5 +1,4 @@
 import json
-import uuid
 from django import forms
 from django.contrib.postgres.forms import JSONField
 from django.contrib.postgres.forms.jsonb import InvalidJSONInput

@@ -32,6 +32,35 @@ class CommunePage(TimeStampedModel, models.Model):
     def __str__(self):
         return "{} ({})".format(self.name, self.code_departement)
 
+    def chief(self, number):
+        first_name = getattr(self, "first_name_" + number)
+        last_name = getattr(self, "last_name_" + number)
+        if not any([first_name, last_name]):
+            return ""
+
+        if all([first_name, last_name]):
+            return first_name + " " + last_name
+
+        return first_name or last_name
+
+    @property
+    def chief_1(self):
+        return self.chief("1")
+
+    @property
+    def chief_2(self):
+        return self.chief("2")
+
+    @property
+    def chiefs(self):
+        if not any([self.chief_1, self.chief_2]):
+            return ""
+
+        if all([self.chief_1, self.chief_2]):
+            return self.chief_1 + " et " + self.chief_2
+
+        return self.chief_1 or self.chief_2
+
     def get_absolute_url(self):
         return front_url(
             "view_commune",

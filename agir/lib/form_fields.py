@@ -75,8 +75,19 @@ class AdminJsonWidget(Textarea):
         )
 
 
-class Select2Widget(Select):
+class SelectizeWidget(Select):
     template_name = "custom_fields/selectize_choice.html"
+    create = False
+
+    def __init__(self, *args, create=False, **kwargs):
+        self.create = create
+        super().__init__(*args, **kwargs)
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        if self.create:
+            context["widget"]["create"] = True
+        return context
 
     class Media:
         css = {

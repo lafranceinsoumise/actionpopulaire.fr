@@ -46,6 +46,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
             .last()
             .pk,
             "vads_trans_uuid": trans_uuid,
+            "vads_operation_type": "DEBIT",
         }
         systempay_data["signature"] = get_signature(
             systempay_data, settings.SYSTEMPAY_CERTIFICATE
@@ -65,6 +66,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
             .first()
             .pk,
             "vads_trans_uuid": trans_uuid,
+            "vads_operation_type": "DEBIT",
         }
         systempay_data["signature"] = get_signature(
             systempay_data, settings.SYSTEMPAY_CERTIFICATE
@@ -105,6 +107,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
             .last()
             .pk,
             "vads_trans_uuid": trans_uuid,
+            "vads_operation_type": "DEBIT",
         }
         systempay_data["signature"] = get_signature(
             systempay_data, settings.SYSTEMPAY_CERTIFICATE
@@ -142,6 +145,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
             "vads_order_id": trans_id,
             "vads_trans_id": vads_trans_id(trans_id),
             "vads_trans_uuid": trans_uuid,
+            "vads_operation_type": "DEBIT",
         }
         systempay_data["signature"] = get_signature(
             systempay_data, settings.SYSTEMPAY_CERTIFICATE
@@ -163,6 +167,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
             "vads_cust_id": str(subscription.person_id).replace("-", ""),
             "vads_amount": "1000",
             "vads_trans_uuid": trans_uuid,
+            "vads_operation_type": "DEBIT",
         }
         systempay_data["signature"] = get_signature(
             systempay_data, settings.SYSTEMPAY_CERTIFICATE

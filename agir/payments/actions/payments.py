@@ -49,6 +49,8 @@ def create_payment(*, person=None, type, price, mode=DEFAULT_MODE, meta=None, **
 
 
 def change_payment_status(payment, status):
+    if status == Payment.STATUS_REFUND:
+        return refund_payment(payment)
     if status == Payment.STATUS_COMPLETED:
         return complete_payment(payment)
 
@@ -64,6 +66,9 @@ def change_payment_status(payment, status):
 def complete_payment(payment):
     if payment.status == Payment.STATUS_CANCELED:
         raise PaymentException("Le paiement a déjà été annulé.")
+
+    if payment.status == Payment.STATUS_REFUND:
+        raise PaymentException("Le paiement a déjà été remboursé.")
 
     payment.status = Payment.STATUS_COMPLETED
     payment.save(update_fields=["status"])
@@ -82,6 +87,14 @@ def cancel_payment(payment):
         raise PaymentException("Le paiement a déjà été confirmé.")
 
     payment.status = Payment.STATUS_CANCELED
+    payment.save()
+
+
+def refund_payment(payment):
+    if payment.status not in (Payment.STATUS_COMPLETED, Payment.STATUS_REFUND):
+        raise PaymentException("Impossible de rembourser un paiement non confirmé.")
+
+    payment.status = Payment.STATUS_REFUND
     payment.save()
 
 

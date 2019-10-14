@@ -44,6 +44,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     STATUS_ABANDONED = 2
     STATUS_CANCELED = 3
     STATUS_REFUSED = 4
+    STATUS_REFUND = -1
 
     STATUS_CHOICES = (
         (STATUS_WAITING, "En attente"),
@@ -51,6 +52,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
         (STATUS_ABANDONED, "Abandonné"),
         (STATUS_CANCELED, "Annulé"),
         (STATUS_REFUSED, "Refusé"),
+        (STATUS_REFUND, "Remboursé"),
     )
 
     person = models.ForeignKey(

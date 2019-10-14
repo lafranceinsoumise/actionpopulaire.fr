@@ -1,4 +1,4 @@
-from django.contrib.gis.db.models import PolygonField
+from django.contrib.gis.db.models import MultiPolygonField
 from django.db import models
 
 from django.db.models import Q
@@ -36,8 +36,28 @@ class Segment(BaseSegment, models.Model):
         verbose_name="Limiter aux participant⋅e⋅s à un des événements",
         blank=True,
     )
+    events_subtypes = models.ManyToManyField(
+        "events.EventSubtype",
+        verbose_name="Limiter aux participant⋅e⋅s à un événements de ce type",
+        blank=True,
+    )
+    events_start_date = models.DateTimeField(
+        "Limiter aux participant⋅e⋅s à des événements commençant après cette date",
+        blank=True,
+        null=True,
+    )
+    events_end_date = models.DateTimeField(
+        "Limiter aux participant⋅e⋅s à des événements terminant avant cette date",
+        blank=True,
+        null=True,
+    )
+    events_organizer = models.BooleanField(
+        "Limiter aux organisateurices (sans effet si pas d'autres filtres événements)",
+        blank=True,
+        default=False,
+    )
 
-    area = PolygonField("Territoire", blank=True, null=True)
+    area = MultiPolygonField("Territoire", blank=True, null=True)
 
     registration_date = models.DateTimeField(
         "Limiter aux membres inscrit⋅e⋅s après cette date", blank=True, null=True
@@ -55,9 +75,6 @@ class Segment(BaseSegment, models.Model):
 
         if self.tags.all().count() > 0:
             qs = qs.filter(tags__in=self.tags.all())
-
-        if self.events.all().count() > 0:
-            qs = qs.filter(rsvps__event__in=self.events.all())
 
         if self.supportgroup_status:
             if self.supportgroup_status == self.GA_STATUS_MEMBER:
@@ -80,8 +97,27 @@ class Segment(BaseSegment, models.Model):
 
             qs = qs.filter(query)
 
+        if self.events.all().count() > 0:
+            qs = qs.filter(events__in=self.events.all())
+
+        events_filter = {}
+        if self.events_subtypes.all().count() > 0:
+            events_filter["events__subtype__in"] = self.events_subtypes.all()
+
+        if self.events_start_date is not None:
+            events_filter["events__start_time__gt"] = self.events_start_date
+
+        if self.events_end_date is not None:
+            events_filter["events__end_time__lt"] = self.events_end_date
+
+        if self.events_organizer:
+            events_filter = {"organized_" + key: value for key, value in events_filter}
+
+        if events_filter:
+            qs = qs.filter(**events_filter)
+
         if self.area is not None:
-            qs = qs.filter(coordinates__coveredby=self.area)
+            qs = qs.filter(coordinates__intersects=self.area)
 
         if self.registration_date is not None:
             qs = qs.filter(created__gt=self.registration_date)
