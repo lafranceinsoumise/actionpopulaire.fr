@@ -35,7 +35,11 @@ class WebhookTestCase(APITestCase):
             + (base64.b64encode(b"fi:prout").decode("utf-8")),
         )
         self.assertEqual(response.status_code, 202)
-        self.assertEqual(True, Person.objects.get(email="old@bounce.com").bounced)
+        self.assertEqual(
+            "other_old@bounce.com",
+            Person.objects.get_by_natural_key("old@bounce.com").email,
+        )
+        self.assertTrue(PersonEmail.objects.get(address="old@bounce.com").bounced)
         with self.assertRaises(Person.DoesNotExist):
             Person.objects.get(email="new@bounce.com")
 
@@ -62,7 +66,11 @@ class WebhookTestCase(APITestCase):
             + (base64.b64encode(b"fi:prout").decode("utf-8")),
         )
         self.assertEqual(response.status_code, 202)
-        self.assertEqual(True, Person.objects.get(email="old@bounce.com").bounced)
+        self.assertEqual(
+            "other_old@bounce.com",
+            Person.objects.get_by_natural_key("old@bounce.com").email,
+        )
+        self.assertTrue(PersonEmail.objects.get(address="old@bounce.com").bounced)
 
     def test_amazon_auth(self):
         response = self.client.post(
