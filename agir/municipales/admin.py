@@ -18,7 +18,14 @@ class CommunePageAdmin(admin.ModelAdmin):
         "facebook",
         "website",
     )
-    list_display = ("__str__",)
+    list_display = (
+        "__str__",
+        "municipale_list_name",
+        "chiefs",
+        "twitter",
+        "facebook",
+        "website",
+    )
     search_fields = ("name",)
 
     def get_absolute_url(self):
