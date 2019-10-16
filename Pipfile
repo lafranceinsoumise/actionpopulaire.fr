@@ -7,12 +7,15 @@ name = "pypi"
 python_version = '3.7'
 
 [packages]
+
 # Django et extensions
 django = ">=2.2.4,<3.0"
+
 ## config helpers
 dj-database-url = "==0.5.*"  # for easing up database settings
 dj-email-url = "==0.2.*"  # for easing up SMTP settings
 django-cors-headers = "==3.*"  # configuring CORS Headers
+
 ## model and form fields
 django-countries = "==5.*"  # country fields
 django-phonenumber-field = "==3.*"  # phone number field
@@ -20,6 +23,7 @@ phonenumbers = "*"  # optional requirement of django-phonenumber-field
 django-stdimage = "==5.*"  # better image field with handling of variations
 django-dynamic-filenames = "==1.*"  # better handling of upload path for file fields
 unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
+
 ## additional features
 django-crispy-forms = "==1.*" # better forms
 django-otp = "==0.7.*"  # 2FA in admin
@@ -27,35 +31,45 @@ django-filter = "==2.*"  # add useful filters
 django-oauth-toolkit = "==1.*"  # add OAuth server
 rules = "==2.*"  # add useful authorization rules
 django-reversion = "==3.*"  # versioning of models
+
 ## Django Rest Framework
 djangorestframework = "==3.*,>=3.9.1"
 djangorestframework-gis = "==0.14.*"
+
 ## adapters for third-party systems
 django-redis = "==4.*"
 psycopg2 = "*"
 django-prometheus = "==1.*"
 django-webpack-loader = "==0.6.*"
+
 # celery
 celery = "==4.*"
 celery-prometheus-exporter = "==1.*"
+
 # redis
 redis = ">=3.2.0"
 hiredis = "==1.*"
+
 # HTTP
 requests = ">=2.20.0, ==2.*"
+
 # HTML
 bleach = "==3.*"  # sanitize HTML
 "html2text" = "==2019.*"  # transforms HTML to text (used for plain text versions of HTML emails)
 markdown = "==3.*"  # convert markdown text to HTML (should be deprecated)
+
 # image handling
 pillow = "==6.*"
+
 # command line helpers
 tqdm = "*"
+
 # third party techs
 prometheus-client = "==0.7.*"
 systemd = "==0.*"
 ovh = "*"
 nuntius = ">=0.4.1"
+
 # parsing and formats
 ics = "*"  # calendar format
 iso8601 = "*"  # parse ISO8601 dates
@@ -66,6 +80,10 @@ sepaxml = "==2.*"
 zeep = "*"
 social-auth-app-django = "==3.*"
 
+# data wrangling
+glom = "*"
+tablib = "*"
+
 [dev-packages]
 ipython = "*"
 black = "==18.9b0"
@@ -73,4 +91,4 @@ coverage = "*"
 django-silk = "*"
 django-debug-toolbar = "*"
 redislite = "*"  # used for testing
-glom = "*"  # data wrangling
+pandas = "*"

@@ -26,6 +26,10 @@ datetime_regex = re.compile(
 )
 
 
+month_regexp_be = re.compile(r"^(?P<year>[0-9]{4})[/-](?P<month>[0-9]{2})$")
+month_regexp_le = re.compile(r"^(?P<month>[0-9]{2})[-/](?P<year>[0-9]{4})$")
+
+
 def date_argument(d: str) -> date:
     m = date_regex_le.match(d)
 
@@ -59,6 +63,23 @@ def datetime_argument(d):
             second=int(m.group("second") or 0),
         )
     )
+
+
+def month_range(year, month, tz=None):
+    first_day = timezone.make_aware(timezone.datetime(year, month, 1), tz)
+
+    if month == 12:
+        return (first_day, first_day.replace(day=31))
+    return (first_day, first_day.replace(month=month + 1) - timezone.timedelta(days=1))
+
+
+def month_argument(arg: str):
+    match = month_regexp_be.match(arg) or month_regexp_le.match(arg)
+
+    if match is None:
+        raise ValueError(f"'{arg}'' doit être de la forme 'AAAA-MM'.")
+
+    return month_range(int(match.group("year")), int(match.group("month")))
 
 
 def distance_argument(d):

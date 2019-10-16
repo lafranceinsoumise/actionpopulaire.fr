@@ -32,9 +32,9 @@ class SystemPayTransaction(
     is_refund = models.BooleanField("Remboursement", default=False)
 
     # Ce champ est utilisé pour la transaction SystemPay qui initie la souscription
-    # En effet, cette transaction n'est PAS associée à un paiement.
+    # En effet, cette transaction n'est PAS associée à un Payment (mais à la souscription)
     # Par la suite, les transactions liées aux paiement de la souscription ne
-    # renseignent PAS ce champ
+    # renseignent PAS ce champ (mais le Payment correspondant le fait !)
     subscription = models.ForeignKey(
         "payments.Subscription", on_delete=models.PROTECT, null=True, editable=False
     )
