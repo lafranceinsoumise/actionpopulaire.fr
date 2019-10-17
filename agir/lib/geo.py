@@ -65,12 +65,13 @@ def get_results_from_nominatim(query):
         results = res.json()
     except requests.RequestException:
         logger.warning(
-            f"Error while geocoding address '{query.q}' with Nominatim", exc_info=True
+            f"Error while geocoding address '{query['q']}' with Nominatim",
+            exc_info=True,
         )
         raise
     except ValueError:
         logger.warning(
-            f"Invalid JSON while geocoding address '{query.q}' with Nominatim",
+            f"Invalid JSON while geocoding address '{query['q']}' with Nominatim",
             exc_info=True,
         )
         raise
