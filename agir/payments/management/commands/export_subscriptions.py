@@ -41,6 +41,12 @@ FILE_DESC = {
         skip=("",),
         default="",
     ),
+    "Pays": Coalesce(
+        "person.location_country",
+        "subscription.meta.location_country",
+        skip=("",),
+        default="",
+    ),
     "Nationalité": "subscription.meta.nationality",
     "Téléphone": Coalesce(
         ("person.contact_phone", T.as_e164), "subscription.meta.contact_phone"
