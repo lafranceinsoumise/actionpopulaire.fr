@@ -115,7 +115,7 @@ class SystemPayWebhookView(APIView):
             or "vads_order_id" not in request.data
             or "signature" not in request.data
         ):
-            logger.exception("Requête malformée de Systempay")
+            logger.exception("Requête malformée de Systempay", request=request)
             return HttpResponseBadRequest()
         if not check_signature(request.data, self.sp_config["certificate"]):
             return HttpResponseForbidden()
