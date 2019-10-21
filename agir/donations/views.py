@@ -4,20 +4,29 @@ from django.db import transaction
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from django.views import View
 from django.views.generic import UpdateView, TemplateView, DetailView, CreateView
 from django.views.generic.detail import SingleObjectMixin
 
-from agir.authentication.view_mixins import HardLoginRequiredMixin
-from agir.payments.actions.payments import (
-    find_or_create_person_from_payment,
-    redirect_to_payment,
-    create_payment,
+from agir.authentication.tokens import monthly_donation_confirmation_token_generator
+from agir.authentication.utils import soft_login
+from agir.authentication.view_mixins import (
+    HardLoginRequiredMixin,
+    VerifyLinkSignatureMixin,
 )
 from agir.donations.allocations import (
     group_can_handle_allocation,
     create_monthly_allocation,
+)
+from agir.donations.apps import DonsConfig
+from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
+from agir.donations.forms import (
+    DocumentOnCreationFormset,
+    DocumentHelper,
+    SpendingRequestCreationForm,
+    DocumentForm,
 )
 from agir.donations.spending_requests import (
     summary,
@@ -27,31 +36,23 @@ from agir.donations.spending_requests import (
     get_current_action,
     validate_action,
 )
-from agir.donations.apps import DonsConfig
-from agir.donations.base_views import (
-    BaseAskAmountView,
-    BasePersonalInformationView,
-    AllocationPersonalInformationMixin,
-)
-from agir.donations.forms import (
-    DocumentOnCreationFormset,
-    DocumentHelper,
-    SpendingRequestCreationForm,
-    DocumentForm,
-)
 from agir.groups.models import SupportGroup, Membership
 from agir.payments import payment_modes
+from agir.payments.actions.payments import (
+    find_or_create_person_from_payment,
+    redirect_to_payment,
+    create_payment,
+)
 from agir.payments.actions.subscriptions import redirect_to_subscribe
 from agir.payments.models import Payment, Subscription
+from agir.people.models import Person
 from . import forms
 from .models import SpendingRequest, Operation, Document
-from .tasks import send_donation_email
+from .tasks import send_donation_email, send_monthly_donation_confirmation_email
 
-__all__ = ("AskAmountView", "PersonalInformationView")
-
+__all__ = ("AskAmountView", "DonationPersonalInformationView")
 
 DONATION_SESSION_NAMESPACE = "_donation_"
-MONTHLY_DONATION_SESSION_NAMESPACE = "_monthly_donation_"
 
 
 class AskAmountView(BaseAskAmountView):
@@ -78,10 +79,38 @@ class AskAmountView(BaseAskAmountView):
         allocation = int(form.cleaned_data.get("allocation", 0) * 100)
         self.data_to_persist["allocation"] = allocation
         self.data_to_persist["group_id"] = form.group and str(form.group.pk)
+
+        if (
+            "type" in form.cleaned_data
+            and form.cleaned_data["type"] == form.TYPE_MONTHLY
+        ):
+            self.success_url = reverse("monthly_donation_information")
+
         return super().form_valid(form)
 
 
-class PersonalInformationView(
+class AllocationPersonalInformationMixin:
+    def get_context_data(self, **kwargs):
+        amount = self.persistent_data["amount"]
+        allocation = self.persistent_data.get("allocation", 0)
+
+        kwargs["allocation"] = allocation
+        kwargs["national"] = amount - allocation
+        kwargs["group_name"] = (
+            self.allocation_group.name if self.allocation_group is not None else None
+        )
+
+        return super().get_context_data(**kwargs)
+
+    @cached_property
+    def allocation_group(self):
+        group_id = self.persistent_data.get("group_id", None)
+
+        if group_id is not None:
+            return SupportGroup.objects.get(pk=group_id)
+
+
+class DonationPersonalInformationView(
     AllocationPersonalInformationMixin, BasePersonalInformationView
 ):
     form_class = forms.AllocationDonorForm
@@ -104,7 +133,7 @@ class PersonalInformationView(
         return meta
 
     def form_valid(self, form):
-        if not form.adding:
+        if form.connected:
             self.object = form.save()
         amount = form.cleaned_data["amount"]
         payment_metas = self.get_metas(form)
@@ -122,7 +151,7 @@ class PersonalInformationView(
                 type=self.payment_type,
                 price=amount,
                 meta=payment_metas,
-                **kwargs
+                **kwargs,
             )
 
         self.clear_session()
@@ -131,37 +160,124 @@ class PersonalInformationView(
 
 
 class MonthlyDonationPersonalInformationView(
-    HardLoginRequiredMixin,
-    AllocationPersonalInformationMixin,
-    BasePersonalInformationView,
+    AllocationPersonalInformationMixin, BasePersonalInformationView
 ):
     form_class = forms.AllocationMonthlyDonorForm
     template_name = "donations/personal_information.html"
     payment_mode = payment_modes.DEFAULT_MODE
     payment_type = DonsConfig.PAYMENT_TYPE
-    session_namespace = MONTHLY_DONATION_SESSION_NAMESPACE
+    session_namespace = DONATION_SESSION_NAMESPACE
     base_redirect_url = "view_payments"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(monthly=True, **kwargs)
 
     def form_valid(self, form):
-        self.object = form.save()
         amount = form.cleaned_data["amount"]
         allocation = form.cleaned_data.get("allocation", 0)
         allocation_group = form.cleaned_data.get("group", None)
 
-        with transaction.atomic():
-            subscription, allocation = create_monthly_allocation(
-                person=self.object,
+        if form.connected:
+            self.object = form.save()
+
+            if Subscription.objects.filter(
+                person=self.object, status=Subscription.STATUS_COMPLETED
+            ):
+                return HttpResponseRedirect(reverse("already_has_subscription"))
+
+            with transaction.atomic():
+                subscription, allocation = create_monthly_allocation(
+                    person=self.object,
+                    mode=self.payment_mode,
+                    subscription_total=amount,
+                    allocation_amount=allocation,
+                    group=allocation_group,
+                    meta=self.get_metas(form),
+                )
+
+            self.clear_session()
+
+            return redirect_to_subscribe(subscription)
+        else:
+            send_monthly_donation_confirmation_email.delay(
+                email=form.cleaned_data["email"],
                 mode=self.payment_mode,
                 subscription_total=amount,
-                amount=allocation,
-                group=allocation_group,
-                meta=self.get_metas(form),
+                allocation_amount=allocation,
+                group_pk=allocation_group and allocation_group.pk,
+                **self.get_metas(form),
+            )
+            return HttpResponseRedirect(
+                reverse("monthly_donation_confirmation_email_sent")
             )
 
-        self.clear_session()
+
+class MonthlyDonationEmailSentView(TemplateView):
+    template_name = "donations/monthly_donation_confirmation_email_sent.html"
+
+
+class AlreadyHasSubscriptionView(TemplateView):
+    template_name = "donations/already_has_subscription.html"
+
+
+class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
+    def get(self, request, *args, **kwargs):
+        params = request.GET.dict()
+
+        if "token" not in params:
+            return self.link_error_page()
+
+        token = params.pop("token")
+        if not monthly_donation_confirmation_token_generator.check_token(
+            token, **params
+        ):
+            return self.link_error_page()
+
+        try:
+            email = params.pop("email")
+            mode = params.pop("mode")
+            subscription_total = int(params.pop("subscription_total"))
+            group_pk = params.pop("group_pk", None)
+            allocation_amount = int(params.pop("allocation_amount"))
+        except KeyError:
+            return self.link_error_page()
+
+        if group_pk:
+            try:
+                group = SupportGroup.objects.get(pk=group_pk)
+            except SupportGroup.DoesNotExist:
+                group = None
+                allocation_amount = 0
+        else:
+            group = None
+
+        try:
+            person = Person.objects.get_by_natural_key(email)
+        except Person.DoesNotExist:
+            person = Person.objects.create(
+                email=email,
+                **{
+                    f.name: params[f.name]
+                    for f in Person._meta.get_fields()
+                    if f.name in params
+                },
+            )
+
+        soft_login(request, person)
+
+        if Subscription.objects.filter(
+            person=person, status=Subscription.STATUS_COMPLETED
+        ).exists():
+            return HttpResponseRedirect(reverse("already_has_subscription"))
+
+        subscription, allocation = create_monthly_allocation(
+            person=person,
+            mode=mode,
+            subscription_total=subscription_total,
+            allocation_amount=allocation_amount,
+            group=group,
+            meta=params,
+        )
 
         return redirect_to_subscribe(subscription)
 
@@ -171,7 +287,8 @@ class ReturnView(TemplateView):
 
 
 def subscription_notification_listener(subscription):
-    send_donation_email.delay(subscription.person.pk)
+    if subscription.status == Subscription.STATUS_COMPLETED:
+        send_donation_email.delay(subscription.person.pk)
 
 
 def notification_listener(payment):
@@ -261,7 +378,7 @@ class CreateSpendingRequestView(HardLoginRequiredMixin, TemplateView):
                 SupportGroup.objects.active(), id=self.kwargs["group_id"]
             ),
             user=self.request.user,
-            **kwargs
+            **kwargs,
         )
         document_formset = DocumentOnCreationFormset(
             instance=spending_request_form.instance, **kwargs
@@ -314,7 +431,7 @@ class ManageSpendingRequestView(IsGroupManagerMixin, DetailView):
             action=get_current_action(self.object, self.request.user),
             summary=summary(self.object),
             history=history(self.object),
-            **kwargs
+            **kwargs,
         )
 
     def post(self, request, *args, **kwargs):

@@ -81,7 +81,7 @@ class BaseLoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformation
         }
 
     def form_valid(self, form):
-        if not form.adding:
+        if form.connected:
             form.save()
 
         self.request.session[

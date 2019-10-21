@@ -17,7 +17,7 @@ from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
 )
 from agir.donations.forms import AllocationSubscriptionForm
-from agir.donations.views import MONTHLY_DONATION_SESSION_NAMESPACE, AskAmountView
+from agir.donations.views import DONATION_SESSION_NAMESPACE, AskAmountView
 from agir.payments.models import Payment, Subscription
 from agir.people.actions.management import merge_persons
 from agir.people.forms import (
@@ -286,7 +286,7 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
     template_name = "people/profile/payments.html"
     tab_code = "PAYMENTS"
     form_class = AllocationSubscriptionForm
-    session_namespace = MONTHLY_DONATION_SESSION_NAMESPACE
+    session_namespace = DONATION_SESSION_NAMESPACE
     success_url = reverse_lazy("monthly_donation_information")
 
     def get_form_kwargs(self):

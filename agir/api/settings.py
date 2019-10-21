@@ -289,6 +289,8 @@ EMAIL_TEMPLATES = {
     "CONTRACT_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/c63e76d7-d8a1-434c-bdd6-75337312ca28.html",
     # CHECK INFORMATION
     "CHECK_INFORMATION": "https://mosaico.lafranceinsoumise.fr/emails/fbf5b074-5ffd-479c-bb2a-76cf6cbcee10.html",
+    # CONFIRM SUBSCRIPTION
+    "CONFIRM_SUBSCRIPTION": "https://mosaico.lafranceinsoumise.fr/emails/5c677075-755c-43b1-8de2-ee93bdc001f0.html",
 }
 
 EMAIL_FROM = os.environ.get(

@@ -12,7 +12,7 @@ from agir.authentication.crypto import ConnectionSignatureGenerator
 from .crypto import SignatureGenerator
 
 subscription_confirmation_token_generator = SignatureGenerator(
-    7,
+    2,
     key_salt="agir.people.crypto.SubscriptionConfirmationTokenGenerator",
     token_params=["email"],
     params_separator="|",
@@ -45,6 +45,13 @@ abusive_invitation_report_token_generator = SignatureGenerator(
     token_params=["group_id", "inviter_id"],
     params_separator="|",
 )  # Token generator to report an abusive invitation
+
+monthly_donation_confirmation_token_generator = SignatureGenerator(
+    validity=2,
+    key_salt="monthly_donation_confirmation_token_generator",
+    token_params=["email", "mode", "subscription_total", "allocation_amount"],
+    params_separator="|",
+)  # Token generator to confirm monthly donation when user not logged in
 
 connection_token_generator = ConnectionSignatureGenerator(
     settings.CONNECTION_LINK_VALIDITY

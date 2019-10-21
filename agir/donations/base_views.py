@@ -1,9 +1,7 @@
 from django.shortcuts import redirect
-from django.utils.functional import cached_property
 from django.views.generic import FormView, UpdateView
 
 import agir.donations.base_forms
-from agir.groups.models import SupportGroup
 
 
 class BaseAskAmountView(FormView):
@@ -76,26 +74,3 @@ class BasePersonalInformationView(UpdateView):
             },  # person fields
             "contact_phone": form.cleaned_data["contact_phone"].as_e164,
         }
-
-
-class AllocationPersonalInformationMixin:
-    enable_allocations = True
-
-    def get_context_data(self, **kwargs):
-        amount = self.persistent_data["amount"]
-        allocation = self.persistent_data.get("allocation", 0)
-
-        kwargs["allocation"] = allocation
-        kwargs["national"] = amount - allocation
-        kwargs["group_name"] = (
-            self.allocation_group.name if self.allocation_group is not None else None
-        )
-
-        return super().get_context_data(**kwargs)
-
-    @cached_property
-    def allocation_group(self):
-        group_id = self.persistent_data.get("group_id", None)
-
-        if group_id is not None:
-            return SupportGroup.objects.get(pk=group_id)

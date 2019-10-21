@@ -44,7 +44,7 @@ class SimpleDonationForm(forms.Form):
         self.helper.form_class = "donation-form"
         self.helper.add_input(layout.Submit("valider", self.button_label))
 
-        self.helper.layout = Layout()
+        self.helper.layout = Layout("amount")
 
 
 class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
@@ -107,13 +107,13 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
 
         self.fields["amount"].initial = amount
 
-        self.adding = self.instance._state.adding
+        self.connected = not self.instance._state.adding
 
-        if not self.adding:
+        if self.connected:
             del self.fields["email"]
 
         # we remove the subscribed field for people who are already subscribed
-        if not self.adding and self.instance.subscribed:
+        if self.connected and self.instance.subscribed:
             del self.fields["subscribed"]
 
         for f in [
