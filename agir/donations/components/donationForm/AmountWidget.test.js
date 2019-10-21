@@ -3,20 +3,30 @@ import renderer from "react-test-renderer";
 
 import AmountWidget from "./AmountWidget";
 
-test("AmountWidget looks the right way", () => {
-  let currentValue = null,
-    component;
+test("AmountWidget dans son état initial", () => {
+  const component = renderer.create(
+    <AmountWidget amount={null} error={null} />
+  );
 
-  component = renderer.create(
+  expect(component.toJSON()).toMatchSnapshot();
+});
+
+test("AmountWidget avec un montant sélectionné", () => {
+  const component = renderer.create(<AmountWidget amount={50} error={null} />);
+
+  expect(component.toJSON()).toMatchSnapshot();
+});
+
+test("Sélectionner des valeurs dans le AmountWidget", () => {
+  let currentValue = null;
+
+  const component = renderer.create(
     <AmountWidget
       amount={null}
       onAmountChange={amount => (currentValue = amount)}
       error={null}
     />
   );
-
-  expect(component.toJSON()).toMatchSnapshot();
-
   // let's click on the 20 € button
   const button50 = component.root.find(
     c => c.props.children && c.props.children[0] === 50
@@ -25,14 +35,4 @@ test("AmountWidget looks the right way", () => {
   button50.props.onClick();
 
   expect(currentValue).toEqual(50);
-
-  component = renderer.create(
-    <AmountWidget
-      amount={50}
-      onAmountChange={amount => (currentValue = amount)}
-      error={null}
-    />
-  );
-
-  expect(component.toJSON()).toMatchSnapshot();
 });

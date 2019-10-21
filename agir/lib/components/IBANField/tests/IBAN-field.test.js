@@ -1,16 +1,14 @@
 import React from "react";
-import { render, fireEvent, cleanup } from "react-testing-library";
-import renderer from "react-test-renderer";
+import { render, fireEvent, cleanup } from "@testing-library/react";
+import { create } from "react-test-renderer";
 
 import { IBANField, isIbanValid } from "../IBAN-field";
 
 afterEach(cleanup);
 
 test("Render IBANField", () => {
-  const tree = renderer
-    .create(<IBANField placeholder={"Entrez votre IBAN."} />)
-    .toJSON();
-  expect(tree).toMatchSnapshot();
+  const tree = create(<IBANField placeholder={"Entrez votre IBAN."} />);
+  expect(tree.toJSON()).toMatchSnapshot();
 });
 
 test("Entrer une donnée mal formatée", () => {
@@ -30,6 +28,9 @@ test("Un IBAN d'une nationalité non accepté", () => {
     <IBANField allowedCountry={["FR"]} placeholder={placeHolder} />
   );
   const input = iban.getByPlaceholderText(placeHolder);
+  fireEvent.change(input, {
+    target: { value: "EN1234567890" }
+  });
   fireEvent.blur(input);
   const wrongCountry = iban.getByText(
     "La nationalité de cet IBAN n'est pas acceptée."
@@ -43,27 +44,17 @@ test("Un IBAN invalide", () => {
     <IBANField allowedCountry={["FR"]} placeholder={placeHolder} />
   );
   const input = iban.getByPlaceholderText(placeHolder);
-  fireEvent.blur(input);
-  const invalid = iban.getByText("Cet IBAN est invalide.");
-  expect(invalid).toBeInstanceOf(HTMLSpanElement);
-});
+  fireEvent.change(input, {
+    target: { value: "FR8439084093843098490309843908" }
+  });
 
-test("Supressions des erreurs quand on focus sur le champ", () => {
-  const placeHolder = "Entrez votre IBAN.";
-  const iban = render(
-    <IBANField
-      allowedCountry={["FR"]}
-      placeholder={placeHolder}
-      errorMessages={{ wrongCountry: "toMatchQuery", invalid: "toMatchQuery" }}
-    />
-  );
-  const input = iban.getByPlaceholderText(placeHolder);
   fireEvent.blur(input);
-  let spans = iban.queryAllByText("toMatchQuery");
-  expect(spans).toHaveLength(2);
+  let invalid = iban.queryByText("Cet IBAN est invalide.");
+  expect(invalid).toBeDefined();
+
   fireEvent.focus(input);
-  spans = iban.queryAllByText("toMachQuery");
-  expect(spans).toHaveLength(0);
+  invalid = iban.queryByText("Cet IBAN est invalide.");
+  expect(invalid).toBeNull();
 });
 
 test("Le refus d'IBANs invalides", () => {

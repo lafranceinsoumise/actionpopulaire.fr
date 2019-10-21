@@ -3,7 +3,8 @@ import React from "react";
 import PropTypes from "prop-types";
 
 /**
- * Converti un les lettres d'un IBAN en une chaine de caractère de 2 chiffre selon la convention de calcul des IBAN:
+ * Convertit les lettres d'un IBAN en une chaîne de caractères de 2 chiffres
+ * selon la convention de calcul de la somme de contrôle des IBAN:
  *  A:"10", B:"11", C:"12" ... (Les chiffres ne sont pas affectés).
  * @param {string} iban - L'IBAN à traiter
  * @returns {string} - L'IBAN avec les lettres remplacées.
@@ -21,7 +22,7 @@ function convertIBANLetters(iban) {
 }
 
 /**
- * Insert des espace tout les 4 charactère
+ * Insère des espace tous les 4 caractères
  * @param {string} rawValue
  * @param {number} rawCursor
  * @returns {{outValue: string, outCursor: number}}
@@ -149,14 +150,6 @@ export class IBANField extends React.Component {
     }
   }
 
-  handleBlur() {
-    this.checkError();
-  }
-
-  handleFocus() {
-    this.clearError();
-  }
-
   handleChange(event) {
     const inValue = event.target.value;
     const inCursor = event.target.selectionStart;
@@ -188,8 +181,8 @@ export class IBANField extends React.Component {
           placeholder={this.props.placeholder}
           value={this.state.value}
           onChange={this.handleChange.bind(this)}
-          onBlur={this.handleBlur.bind(this)}
-          onFocus={this.handleFocus.bind(this)}
+          onBlur={this.checkError.bind(this)}
+          onFocus={this.clearError.bind(this)}
         />
         <HelpBlock>{this.state.error}</HelpBlock>
       </div>
@@ -211,7 +204,7 @@ IBANField.propTypes = {
 };
 
 HelpBlock.propTypes = {
-  children: PropTypes.element
+  children: PropTypes.oneOfType([PropTypes.element, PropTypes.string])
 };
 
 // export default IBANField;
