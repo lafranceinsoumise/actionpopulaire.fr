@@ -35,6 +35,7 @@ from agir.system_pay.actions import (
     update_subscription_from_transaction,
 )
 from agir.system_pay.models import SystemPayTransaction, SystemPayAlias
+from agir.system_pay.utils import get_trans_id_from_order_id
 from .crypto import check_signature
 from .forms import SystempayPaymentForm, SystempayNewSubscriptionForm
 
@@ -108,6 +109,42 @@ class SystemPayWebhookView(APIView):
     mode_id = None
 
     def post(self, request):
+        # La requête transmise par SystemPay comprend deux identifiants :
+        # - vads_order_id : Identifie la "commande". Plusieurs transactions
+        #   SystemPay vont partager le numéro de "commande" lorsqu'elles sont
+        #   logiquement liées entre elles : c'est le cas par exemple d'une
+        #   transaction de paiement et d'une transaction de remboursement
+        #   subséquente, ou de toutes les transactions liées à une souscription.
+        # - vads_trans_id : Identifie la transaction elle-même. Il s'agit
+        #   d'un identifiant assez court, et il n'est pas unique : SystemPay
+        #   ne demande d'unicité que sur la journée.
+        # - vads_trans_uuid: Identifiant universellement unique qui identifie
+        #   la transaction. Créé par SystemPay, qui nous le communique.
+        #
+        # Les numéros de commande sont toujours choisis par nous :
+        # - pour les paiements, le numéro de commande est l'id interne de la
+        #   transaction SystemPay (il s'agit d'un identifiant automatique dans
+        #   psql). Les éventuels remboursements reprennent ce numéro de commande.
+        # - pour une souscription, il s'agit de l'identifiant de la transaction
+        #   qui la confirme. Les transactions mensuelles subséquentes reprennent
+        #   ce numéro de commande.
+        #
+        # Pour les numéros de transaction, deux cas se présentent :
+        # - pour les transactions que nous créons nous-mêmes, le numéro de
+        #   transaction correspond à un tronquage de l'identifiant interne
+        #   de la transaction.
+        # - pour les transactions de remboursement et celles de souscriptions,
+        #   le numéro n'est pas choisi par nous mais par SystemPay.
+        #
+        # PERSPECTIVES: changer la gestion des numéros de transaction pour :
+        # - les stocker ?
+        # - s'assurer de leur unicité, notamment pour garantir qu'il n'y a
+        #   pas de collision entre ceux qu'on attribue nous-mêmes, et ceux
+        #   attribués par SystemPay ?
+        # - trouver une autre façon de s'assurer que la transaction a été
+        #   créée par SystemPay plutôt que par nous, pour éviter la minuscule
+        #   chance d'erreur ?
+
         if (
             request.data.get("vads_trans_status") not in SYSTEMPAY_STATUS_CHOICE
             or request.data.get("vads_operation_type")
@@ -124,45 +161,51 @@ class SystemPayWebhookView(APIView):
             try:
                 # En cas paiement automatique, c'est l'id de la transaction de souscription d'origine qui est indiquée
                 # dans vads_order_id, en cas de remboursement, c'est la transaction de paiement d'origine
-                sp_transaction = SystemPayTransaction.objects.get(
+                original_sp_transaction = SystemPayTransaction.objects.get(
                     pk=request.data["vads_order_id"]
                 )
             except SystemPayTransaction.DoesNotExist:
                 return HttpResponseNotFound()
 
+            # Pour identifier une transaction créée par SystemPay, on vérifie si l'identifiant de
+            # transaction correspond à celui qu'on aurait attribué à partir de l'identifiant de
+            # commande.
+            #
+            # Probabilité de désigner par erreur une transaction SystemPay comme créée par nous :
+            # ~ 1.11 * 10^-6 (un peu plus d'une chance sur 1 millions)
             if (
                 "vads_trans_id" in request.data
-                and str(int(request.data["vads_order_id"]) % 900000).zfill(6)
+                and get_trans_id_from_order_id(request.data["vads_order_id"])
                 != request.data["vads_trans_id"]
             ):  # Il s'agit d'une transaction déclenchée côté Systempay : remboursement ou abonnement
                 is_refund = request.data["vads_operation_type"] == "CREDIT"
 
                 if is_refund:  # c'est un remboursement
-                    assert sp_transaction.payment.person.id == UUID(
+                    assert original_sp_transaction.payment.person.id == UUID(
                         request.data["vads_cust_id"]
                     )
-                    assert sp_transaction.payment.price == int(
+                    assert original_sp_transaction.payment.price == int(
                         request.data["vads_amount"]
                     )
-                else:  # c'est une subscription
-                    if sp_transaction.subscription.person is None:
+                else:  # c'est une paiement mensuel dans le cadre d'une souscription
+                    if original_sp_transaction.subscription.person is None:
                         # si la personne n'existe plus, il y a un problème, on met fin à la souscription
                         subscriptions.terminate_subscription(
-                            sp_transaction.subscription
+                            original_sp_transaction.subscription
                         )
-                        logger.exception(
+                        logger.error(
                             "Paiement automatique déclenché par SystemPay sur une transaction sans personne "
                             "associée. Par sécurité, la subscription a été terminée."
                         )
                     else:
-                        assert sp_transaction.subscription.person.id == UUID(
+                        assert original_sp_transaction.subscription.person.id == UUID(
                             request.data["vads_cust_id"]
                         )
-                    assert sp_transaction.subscription.price == int(
+                    assert original_sp_transaction.subscription.price == int(
                         request.data["vads_amount"]
                     )
                     assert (
-                        sp_transaction.subscription.status
+                        original_sp_transaction.subscription.status
                         == Subscription.STATUS_COMPLETED
                     )
 
@@ -174,19 +217,22 @@ class SystemPayWebhookView(APIView):
                     )
                 except SystemPayTransaction.DoesNotExist:
                     if is_refund:  # c'est un remboursement
-                        payment = sp_transaction.payment
-                    else:  # c'est une souscription
+                        payment = original_sp_transaction.payment
+                    else:  # c'est un paiement dans le cadre d'une subscription
                         payment = create_payment(
-                            person=sp_transaction.subscription.person,
-                            type=sp_transaction.subscription.type,
+                            person=original_sp_transaction.subscription.person,
+                            type=original_sp_transaction.subscription.type,
                             price=request.data["vads_amount"],
                             mode=self.mode_id,
-                            subscription=sp_transaction.subscription,
+                            subscription=original_sp_transaction.subscription,
                         )
+
                     # la transaction a été crée par systempay et non par formulaire, elle n'existe pas côté plateforme
                     sp_transaction = SystemPayTransaction.objects.create(
                         payment=payment, is_refund=is_refund
                     )
+            else:
+                sp_transaction = original_sp_transaction
 
             if "vads_identifier" in request.data:
                 # en cas d'alias, il s'agit soit d'une transaction de souscription, soit d'un paiement automatique
@@ -221,10 +267,14 @@ class SystemPayWebhookView(APIView):
                 logger.exception("Transaction Systempay sans paiement ni abonnement.")
                 return HttpResponseNotFound()
 
+        # s'il s'agit d'une transaction liée à un paiement (majorité des cas)
         if sp_transaction.payment is not None:
             with transaction.atomic():
                 notify_status_change(sp_transaction.payment)
 
+        # s'il s'agit d'une transaction de démarrage d'une souscription
+        # (les autres transactions, même celles qui correspondent à un
+        # paiement mensuel, n'ont pas d'object subscription associé)
         if sp_transaction.subscription is not None:
             with transaction.atomic():
                 notify_subscription_status_change(sp_transaction.subscription)

@@ -7,7 +7,7 @@ from agir.payments.actions.payments import (
 )
 from agir.payments.actions.subscriptions import complete_subscription
 from agir.payments.models import Payment, Subscription
-from agir.system_pay.models import SystemPayTransaction, SystemPayAlias
+from agir.system_pay.models import SystemPayTransaction
 
 logger = logging.getLogger(__name__)
 

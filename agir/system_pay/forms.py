@@ -3,7 +3,7 @@ from django.forms import fields
 from phonenumbers import phonenumberutil, PhoneNumberType
 
 from agir.lib.utils import front_url_lazy
-from agir.system_pay.utils import vads_trans_id
+from agir.system_pay.utils import get_trans_id_from_order_id
 from .crypto import get_signature
 
 
@@ -109,7 +109,7 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
                 "vads_ctx_mode": "PRODUCTION" if sp_config["production"] else "TEST",
                 "vads_sub_currency": sp_config["currency"],
                 "vads_order_id": transaction.pk,
-                "vads_trans_id": vads_trans_id(transaction.pk),
+                "vads_trans_id": get_trans_id_from_order_id(transaction.pk),
                 "vads_trans_date": transaction.created.strftime("%Y%m%d%H%M%S"),
                 "vads_sub_effect_date": transaction.created.strftime("%Y%m%d"),
                 "vads_sub_amount": transaction.subscription.price,
@@ -162,7 +162,7 @@ class SystempayPaymentForm(SystempayBaseForm):
                 "vads_ctx_mode": "PRODUCTION" if sp_config["production"] else "TEST",
                 "vads_currency": sp_config["currency"],
                 "vads_order_id": transaction.pk,
-                "vads_trans_id": vads_trans_id(transaction.pk),
+                "vads_trans_id": get_trans_id_from_order_id(transaction.pk),
                 "vads_trans_date": transaction.created.strftime("%Y%m%d%H%M%S"),
                 "vads_amount": transaction.payment.price,
                 "vads_cust_email": transaction.payment.email,

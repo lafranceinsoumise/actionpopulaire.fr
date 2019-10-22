@@ -11,7 +11,7 @@ from agir.payments.models import Payment, Subscription
 from agir.system_pay import SystemPayPaymentMode
 from agir.system_pay.crypto import get_signature
 from agir.system_pay.models import SystemPayTransaction
-from agir.system_pay.utils import vads_trans_id
+from agir.system_pay.utils import get_trans_id_from_order_id
 
 
 class WebhookTestCase(FakeDataMixin, TestCase):
@@ -143,7 +143,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
         systempay_data = {
             "vads_trans_status": "ACCEPTED",
             "vads_order_id": trans_id,
-            "vads_trans_id": vads_trans_id(trans_id),
+            "vads_trans_id": get_trans_id_from_order_id(trans_id),
             "vads_trans_uuid": trans_uuid,
             "vads_operation_type": "DEBIT",
         }
@@ -161,7 +161,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
         systempay_data = {
             "vads_trans_status": "CAPTURED",
             "vads_order_id": trans_id,
-            "vads_trans_id": vads_trans_id(
+            "vads_trans_id": get_trans_id_from_order_id(
                 trans_id + 10
             ),  # new transaction, created by systempay
             "vads_cust_id": str(subscription.person_id).replace("-", ""),
