@@ -68,7 +68,7 @@ tqdm = "*"
 prometheus-client = "==0.7.*"
 systemd = "==0.*"
 ovh = "*"
-nuntius = ">=0.4.1"
+nuntius = "==1.*"
 
 # parsing and formats
 ics = "*"  # calendar format
