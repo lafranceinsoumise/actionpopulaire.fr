@@ -13,6 +13,7 @@ FILE_DESC = {
         T.get(status=SystemPayTransaction.STATUS_COMPLETED),
         "uuid",
         str,
+        T.replace("-", ""),
     ),
     "No_abonnement": "subscription.id",
     "Email": "person.email",
