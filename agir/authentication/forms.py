@@ -3,7 +3,7 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.contrib.auth import authenticate
 
-from agir.authentication.crypto import short_code_generator
+from agir.authentication.tokens import short_code_generator
 from agir.lib.token_bucket import TokenBucket
 from agir.people.models import Person
 from .tasks import send_login_email

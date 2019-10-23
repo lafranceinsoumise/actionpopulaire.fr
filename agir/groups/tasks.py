@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
-from agir.authentication.signers import (
+from agir.authentication.tokens import (
     subscription_confirmation_token_generator,
     invitation_confirmation_token_generator,
     abusive_invitation_report_token_generator,

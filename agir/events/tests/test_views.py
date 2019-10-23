@@ -12,7 +12,7 @@ from django.utils.http import urlencode
 from rest_framework.reverse import reverse
 from rest_framework import status
 
-from agir.authentication.signers import subscription_confirmation_token_generator
+from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.carte.views import EventMapView
 from agir.events.actions import legal
 from agir.events.tasks import notify_on_event_report

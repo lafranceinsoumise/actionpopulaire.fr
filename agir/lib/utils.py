@@ -10,7 +10,7 @@ from django.utils.functional import lazy
 from io import BytesIO
 from stdimage.utils import render_variations
 
-from agir.authentication.crypto import connection_token_generator
+from agir.authentication.tokens import connection_token_generator
 from agir.lib.http import add_query_params_to_url
 
 

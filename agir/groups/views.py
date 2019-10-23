@@ -33,7 +33,7 @@ from django.views.generic import (
 )
 from django.views.generic.edit import ProcessFormView, FormMixin, FormView
 
-from agir.authentication.signers import (
+from agir.authentication.tokens import (
     invitation_confirmation_token_generator,
     abusive_invitation_report_token_generator,
 )

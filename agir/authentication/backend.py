@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 
 from agir.authentication.backend_mixins import GetRoleMixin
-from agir.authentication.crypto import connection_token_generator, short_code_generator
+from agir.authentication.tokens import connection_token_generator, short_code_generator
 from agir.people.models import Person
 from .models import Role
 
