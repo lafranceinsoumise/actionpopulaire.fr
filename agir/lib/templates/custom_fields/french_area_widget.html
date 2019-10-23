@@ -70,7 +70,7 @@
         data: function(params) {
           return {
             nom: params.term,
-            fields: "contour",
+            fields: "contour,departement",
             limit: 10
           }
         },
@@ -79,7 +79,7 @@
           var results = $.map(data, function(item, key) {
             return {
               id: key + 1,
-              text: item.nom + " (" + item.code + ")",
+              text: item.nom + " (" + item.departement.code + ")",
               geometry: item.contour
             };
           });
