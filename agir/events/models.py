@@ -524,6 +524,7 @@ class Calendar(NationBuilderResource, ImageMixin):
 
     name = models.CharField(_("titre"), max_length=255)
     slug = models.SlugField(_("slug"))
+    archived = models.BooleanField("Calendrier archivé", default=False)
 
     parent = models.ForeignKey(
         "Calendar",

@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from agir.api.admin import admin_site
+from agir.events.models import Calendar
 from agir.groups.models import SupportGroup
 from agir.lib.admin import CenterOnFranceMixin, DepartementListFilter, RegionListFilter
 from agir.lib.utils import front_url
@@ -96,6 +97,17 @@ class LegalFileFilter(admin.SimpleListFilter):
             return queryset.exclude(legal__documents_salle_file__isnull=False).exclude(
                 legal__documents_bill_file__isnull=False
             )
+
+
+class EventCalendarFilter(admin.SimpleListFilter):
+    title = "Calendrier"
+    parameter_name = "calendar"
+
+    def lookups(self, request, model_admin):
+        return ((c.pk, c.name) for c in Calendar.objects.filter(archived=False))
+
+    def queryset(self, request, queryset):
+        return queryset.filter(calendars__pk=self.value())
 
 
 class OrganizerConfigInlineAdminForm(forms.ModelForm):
@@ -344,7 +356,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "coordinates_type",
         "subtype__type",
         "subtype",
-        "calendars",
+        EventCalendarFilter,
         "tags",
     )
 
@@ -537,8 +549,9 @@ class CalendarAdmin(admin.ModelAdmin):
         "user_contributed",
         "description",
         "image",
+        "archived",
     )
-    list_display = ("name", "slug", "user_contributed", "parent")
+    list_display = ("name", "slug", "user_contributed", "parent", "archived")
     readonly_fields = ("link",)
     search_fields = ("name", "parent__name")
 
