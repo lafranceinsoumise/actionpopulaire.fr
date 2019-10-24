@@ -20,3 +20,6 @@ db.sqlite3
 .vagrant
 *cloudimg-console.log
 .env
+*.csv
+*.xls
+*.xlsx
