@@ -16,6 +16,10 @@ class ThirdCol(Div):
     css_class = "col-xs-12 col-md-4"
 
 
+class TwoThirdCol(Div):
+    css_class = "col-xs-12 col-md-8"
+
+
 class FormGroup(Div):
     css_class = "form-group"
 

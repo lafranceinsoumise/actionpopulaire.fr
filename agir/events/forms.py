@@ -154,46 +154,53 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         self.helper.add_input(Submit("submit", "Sauvegarder et publier"))
 
         self.helper.layout = Layout(
-            Row(FullCol("name")),
-            Row(FullCol("image")),
-            Row(FullCol("image_accept_license")),
-            Row(HalfCol("start_time"), HalfCol("end_time")),
-            Row(HalfCol("as_group")),
-            Section("Inscriptions", Row(FullCol("allow_guests"))),
-            Section(
-                _("Informations de contact"),
-                Row(FullCol("contact_name")),
-                Row(
-                    HalfCol("contact_email"),
-                    HalfCol("contact_phone", "contact_hide_phone"),
+            Row(
+                HalfCol(
+                    Row(FullCol("name")),
+                    Row(HalfCol("start_time"), HalfCol("end_time")),
+                    Row(FullCol("allow_guests")),
                 ),
-            ),
-            Section(
-                _("Lieu"),
-                Row(
-                    FullCol(
-                        HTML(
-                            "<p><b>Merci d'indiquer une adresse précise avec numéro de rue, sans quoi l'événement n'apparaîtra"
-                            " pas sur la carte.</b>"
-                            " Si les réunions se déroulent chez vous et que vous ne souhaitez pas rendre cette adresse"
-                            " publique, vous pouvez indiquer un endroit à proximité, comme un café, ou votre mairie."
-                        )
-                    )
-                ),
-                Row(FullCol("location_name", css_class="col-md-12")),
-                Row(
-                    FullCol(
-                        Field("location_address1", placeholder=_("1ère ligne")),
-                        Field("location_address2", placeholder=_("2ème ligne")),
-                    )
-                ),
-                Row(
-                    Div("location_zip", css_class="col-md-4"),
-                    Div("location_city", css_class="col-md-8"),
-                ),
-                Row(Div("location_country", css_class="col-md-12")),
+                HalfCol(Row(FullCol("image"), FullCol("image_accept_license"))),
             ),
             Row(FullCol("description")),
+            Row(
+                HalfCol(
+                    Section(
+                        _("Informations de contact"),
+                        Row(TwoThirdCol("contact_name")),
+                        Row(TwoThirdCol("contact_email")),
+                        Row(TwoThirdCol("contact_phone", "contact_hide_phone")),
+                        Row(TwoThirdCol("as_group")),
+                    )
+                ),
+                HalfCol(
+                    Section(
+                        _("Lieu"),
+                        Row(
+                            FullCol(
+                                HTML(
+                                    "<p><b>Merci d'indiquer une adresse précise avec numéro de rue, sans quoi l'événement n'apparaîtra"
+                                    " pas sur la carte.</b>"
+                                    " Si les réunions se déroulent chez vous et que vous ne souhaitez pas rendre cette adresse"
+                                    " publique, vous pouvez indiquer un endroit à proximité, comme un café, ou votre mairie."
+                                )
+                            )
+                        ),
+                        Row(TwoThirdCol("location_name")),
+                        Row(
+                            TwoThirdCol(
+                                Field("location_address1", placeholder=_("1ère ligne")),
+                                Field("location_address2", placeholder=_("2ème ligne")),
+                            )
+                        ),
+                        Row(
+                            Div("location_zip", css_class="col-md-4"),
+                            Div("location_city", css_class="col-md-8"),
+                        ),
+                        Row(Div("location_country", css_class="col-md-12")),
+                    )
+                ),
+            ),
             *notify_field,
         )
 

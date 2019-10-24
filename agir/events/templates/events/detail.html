@@ -193,6 +193,9 @@
           {{ event.html_description }}
         {% else %}
           <i>Cet événement n'a pas encore de description.</i>
+          {% if is_organizer %}
+            &nbsp;<a href="{% url "edit_event" event.pk %}#div_id_description"><span class="fa fa-edit"></span> Ajouter</a>
+          {% endif %}
         {% endif %}
       </p>
 
