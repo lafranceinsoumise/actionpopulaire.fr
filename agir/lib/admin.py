@@ -99,12 +99,15 @@ class AdminViewMixin:
 
 class PersonLinkMixin:
     def person_link(self, obj):
-        return mark_safe(
-            '<a href="%s">%s</a>'
-            % (
-                reverse("admin:people_person_change", args=(obj.person.id,)),
-                escape(obj.person),
+        if obj.person is not None:
+            return mark_safe(
+                '<a href="%s">%s</a>'
+                % (
+                    reverse("admin:people_person_change", args=(obj.person.id,)),
+                    escape(obj.person),
+                )
             )
-        )
+
+        return "Aucune"
 
     person_link.short_description = "Personne"
