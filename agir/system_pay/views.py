@@ -66,7 +66,7 @@ class SystempayRedirectView(BaseSystemPayRedirectView):
             form=SystempayPaymentForm.get_form_for_transaction(
                 self.transaction, self.sp_config
             ),
-            **kwargs
+            **kwargs,
         )
 
     def get(self, request, *args, **kwargs):
@@ -87,7 +87,7 @@ class SystemPaySubscriptionRedirectView(BaseSystemPayRedirectView):
             form=SystempayNewSubscriptionForm.get_form_for_transaction(
                 self.transaction, self.sp_config
             ),
-            **kwargs
+            **kwargs,
         )
 
     def get(self, request, *args, **kwargs):
@@ -145,18 +145,41 @@ class SystemPayWebhookView(APIView):
         #   créée par SystemPay plutôt que par nous, pour éviter la minuscule
         #   chance d'erreur ?
 
-        if (
-            request.data.get("vads_trans_status") not in SYSTEMPAY_STATUS_CHOICE
-            or request.data.get("vads_operation_type")
-            not in SYSTEMPAY_OPERATION_TYPE_CHOICE
-            or "vads_order_id" not in request.data
-            or "signature" not in request.data
-        ):
-            logger.exception(
-                "Requête malformée de Systempay", extra={"request": request}
+        if request.data.get("vads_trans_status") not in SYSTEMPAY_STATUS_CHOICE:
+            logger.error(
+                f"Statut inconnu pour une transaction SystemPay : {request.data.get('vads_trans_status')}",
+                extra={"request": request},
             )
             return HttpResponseBadRequest()
-        if not check_signature(request.data, self.sp_config["certificate"]):
+
+        # on vérifie connaître l'opération uniquement pour les confirmations de transaction, car il est possible de
+        # ne pas avoir de champ vads_operation_type dans les autres cas.
+        if (
+            SYSTEMPAY_STATUS_CHOICE[request.data["vads_trans_status"]]
+            == SystemPayTransaction.STATUS_COMPLETED
+            and request.data.get("vads_operation_type")
+            not in SYSTEMPAY_OPERATION_TYPE_CHOICE
+        ):
+            logger.error(
+                f"Opération inconnue pour une transaction SystemPay: '{request.data.get('vads_operation_type')}'",
+                extra={"request": request},
+            )
+            return HttpResponseBadRequest()
+
+        if "vads_order_id" not in request.data:
+            logger.error(
+                "Identifiant de commande manquant pour requête SystemPay",
+                extra={"request": request},
+            )
+            return HttpResponseBadRequest()
+
+        if "signature" not in request.data or not check_signature(
+            request.data, self.sp_config["certificate"]
+        ):
+            logger.error(
+                "Signature incorrecte pour requête SystemPay",
+                extra={"request": request},
+            )
             return HttpResponseForbidden()
 
         with transaction.atomic():
@@ -266,7 +289,7 @@ class SystemPayWebhookView(APIView):
                     sp_transaction.subscription, sp_transaction
                 )
             else:
-                logger.exception("Transaction Systempay sans paiement ni abonnement.")
+                logger.error("Transaction Systempay sans paiement ni abonnement.")
                 return HttpResponseNotFound()
 
         # s'il s'agit d'une transaction liée à un paiement (majorité des cas)
