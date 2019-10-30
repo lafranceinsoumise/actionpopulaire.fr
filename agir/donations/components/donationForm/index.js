@@ -7,6 +7,33 @@ const render = (widget, element) => {
   ReactDOM.render(widget, element);
 };
 
+function getChoices(select) {
+  const options = select.options;
+  const choices = [];
+  let choiceAttrs = null;
+
+  try {
+    if (select.dataset.choiceAttrs) {
+      choiceAttrs = JSON.parse(select.dataset.choiceAttrs);
+    }
+    // eslint-disable-next-line no-empty
+  } catch (e) {}
+
+  for (let i = 0; i < options.length; i++) {
+    choices.push(
+      Object.assign(
+        {
+          value: options[i].value,
+          label: options[i].label
+        },
+        choiceAttrs ? choiceAttrs[i] || {} : {}
+      )
+    );
+  }
+
+  return choices;
+}
+
 const replaceForm = selector => {
   const form = document.querySelector(selector);
   const props = {};
@@ -15,18 +42,16 @@ const replaceForm = selector => {
     'input[name="csrfmiddlewaretoken"]'
   ).value;
 
+  const typeSelect = form.querySelector('select[name="type"]');
+  if (typeSelect) {
+    props.typeChoices = getChoices(typeSelect);
+  }
+
   const groupSelect = form.querySelector('select[name="group"]');
 
   if (groupSelect) {
-    const groupOptions = groupSelect ? groupSelect.options : [];
-    props.groupChoices = [];
-    for (let i = 0; i < groupOptions.length; i++) {
-      props.groupChoices.push({
-        value: groupOptions[i].value,
-        label: groupOptions[i].label
-      });
-    }
-    props.initialGroup = groupSelect && groupSelect.value;
+    props.groupChoices = getChoices(groupSelect);
+    props.initialGroup = groupSelect.value;
   } else {
     props.initialGroup = form.dataset.groupId || null;
     props.groupName = form.dataset.groupName || null;
@@ -38,7 +63,7 @@ const replaceForm = selector => {
   props.minAmountError = amountInput.dataset.minAmountError;
   props.maxAmountError = amountInput.dataset.maxAmountError;
   props.amountChoices = amountInput.dataset.amountChoices
-    ? amountInput.dataset.amountChoices.split(",").map(n => +n)
+    ? JSON.parse(amountInput.dataset.amountChoices)
     : null;
   props.showTaxCredit = !amountInput.dataset.hideTaxCredit;
   props.byMonth = typeof amountInput.dataset.byMonth !== "undefined";

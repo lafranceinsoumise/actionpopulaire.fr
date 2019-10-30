@@ -103,6 +103,19 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
 
     @classmethod
     def get_form_for_transaction(cls, transaction, sp_config):
+        person = transaction.subscription.person
+
+        person_data = {}
+        if person is not None:
+            person_data.update(
+                {
+                    f.name: getattr(person, f.name)
+                    for f in person._meta.get_fields()
+                    if not f.is_relation
+                }
+            )
+        person_data.update(transaction.subscription.meta)
+
         form = cls(
             initial={
                 "vads_site_id": sp_config["site_id"],
@@ -113,20 +126,20 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
                 "vads_trans_date": transaction.created.strftime("%Y%m%d%H%M%S"),
                 "vads_sub_effect_date": transaction.created.strftime("%Y%m%d"),
                 "vads_sub_amount": transaction.subscription.price,
-                "vads_cust_email": transaction.subscription.person.email,
+                "vads_cust_email": person.email,
                 "vads_cust_id": transaction.subscription.person_id,
-                "vads_cust_first_name": transaction.subscription.person.first_name,
-                "vads_cust_last_name": transaction.subscription.person.last_name,
+                "vads_cust_first_name": person_data.get("first_name"),
+                "vads_cust_last_name": person_data.get("last_name"),
                 "vads_cust_address": ", ".join(
                     [
-                        transaction.subscription.person.location_address1,
-                        transaction.subscription.person.location_address2,
+                        person_data.get("location_address1", ""),
+                        person_data.get("location_address2", ""),
                     ]
-                ),
-                "vads_cust_zip": transaction.subscription.person.location_zip,
-                "vads_cust_city": transaction.subscription.person.location_city,
-                "vads_cust_state": transaction.subscription.person.location_state,
-                "vads_cust_country": transaction.subscription.person.location_country,
+                ).strip(),
+                "vads_cust_zip": person_data.get("location_zip"),
+                "vads_cust_city": person_data.get("location_city"),
+                "vads_cust_state": person_data.get("location_state"),
+                "vads_cust_country": person_data.get("location_country"),
                 "vads_sub_desc": SystempayNewSubscriptionForm.get_recurrence_rule(
                     transaction.subscription
                 ),

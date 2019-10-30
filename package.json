@@ -46,7 +46,7 @@
     "react-spring": "^8.0.27",
     "react-stepzilla": "^6.0.0",
     "react-transition-group": "^4.2.2",
-    "styled-components": "^4.3.2",
+    "styled-components": "^4.4.0",
     "tinymce": "^4.9.5",
     "tinymce-i18n": "^17.12.31",
     "turbolinks": "^5.2.0"

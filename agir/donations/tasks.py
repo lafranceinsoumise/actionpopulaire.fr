@@ -7,7 +7,9 @@ from celery import shared_task
 from django.conf import settings
 from django.urls import reverse
 
+from agir.authentication.tokens import monthly_donation_confirmation_token_generator
 from agir.donations.models import SpendingRequest
+from agir.payments.models import Subscription
 from ..lib.utils import front_url
 from agir.lib.mailing import send_mosaico_email
 from ..people.models import Person
@@ -58,6 +60,30 @@ def send_spending_request_to_review_email(self, spending_request_pk):
                 ),
             },
             recipients=[settings.EMAIL_EQUIPE_FINANCE],
+        )
+    except (smtplib.SMTPException, socket.error) as exc:
+        self.retry(countdown=60, exc=exc)
+
+
+@shared_task(max_retries=2, bind=True)
+def send_monthly_donation_confirmation_email(self, email, **kwargs):
+    query_params = {
+        "email": email,
+        **{k: v for k, v in kwargs.items() if v is not None},
+    }
+    query_params["token"] = monthly_donation_confirmation_token_generator.make_token(
+        **query_params
+    )
+
+    confirmation_link = front_url("monthly_donation_confirm", query=query_params)
+
+    try:
+        send_mosaico_email(
+            code="CONFIRM_SUBSCRIPTION",
+            subject="Finalisez votre don mensuel",
+            from_email=settings.EMAIL_FROM,
+            bindings={"CONFIRM_SUBSCRIPTION_LINK": confirmation_link},
+            recipients=[email],
         )
     except (smtplib.SMTPException, socket.error) as exc:
         self.retry(countdown=60, exc=exc)

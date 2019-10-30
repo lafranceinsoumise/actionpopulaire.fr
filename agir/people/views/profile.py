@@ -10,14 +10,14 @@ from django.views import View
 from django.views.generic import UpdateView, TemplateView, FormView, RedirectView
 from django.views.generic.edit import DeleteView
 
-from agir.authentication.signers import merge_account_token_generator
+from agir.authentication.tokens import merge_account_token_generator
 from agir.authentication.utils import hard_login, is_hard_logged
 from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
     HardLoginRequiredMixin,
 )
 from agir.donations.forms import AllocationSubscriptionForm
-from agir.donations.views import MONTHLY_DONATION_SESSION_NAMESPACE, AskAmountView
+from agir.donations.views import DONATION_SESSION_NAMESPACE, AskAmountView
 from agir.payments.models import Payment, Subscription
 from agir.people.actions.management import merge_persons
 from agir.people.forms import (
@@ -286,7 +286,7 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
     template_name = "people/profile/payments.html"
     tab_code = "PAYMENTS"
     form_class = AllocationSubscriptionForm
-    session_namespace = MONTHLY_DONATION_SESSION_NAMESPACE
+    session_namespace = DONATION_SESSION_NAMESPACE
     success_url = reverse_lazy("monthly_donation_information")
 
     def get_form_kwargs(self):

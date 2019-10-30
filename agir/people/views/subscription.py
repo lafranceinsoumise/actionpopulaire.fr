@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views import View
 from django.views.generic import FormView, TemplateView
 
-from agir.authentication.signers import subscription_confirmation_token_generator
+from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.authentication.utils import hard_login
 from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.people.forms import (

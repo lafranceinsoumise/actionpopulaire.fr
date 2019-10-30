@@ -1,3 +1,4 @@
+import json
 from decimal import Decimal
 
 from django import forms
@@ -25,9 +26,9 @@ class AskAmountField(forms.DecimalField):
     def __init__(
         self, *, amount_choices=None, show_tax_credit=True, by_month=False, **kwargs
     ):
-        self.amount_choices = amount_choices
         self.show_tax_credit = show_tax_credit
         self.by_month = by_month
+        self._amount_choices = amount_choices
         super().__init__(**kwargs)
 
         if self.min_value is not None:
@@ -41,15 +42,23 @@ class AskAmountField(forms.DecimalField):
 
         self.widget.attrs.setdefault("data-by-month", self.by_month)
 
+    @property
+    def amount_choices(self):
+        return self._amount_choices
+
+    @amount_choices.setter
+    def amount_choices(self, amount_choices):
+        self._amount_choices = amount_choices
+        if self.widget:
+            self.widget.attrs["data-amount-choices"] = json.dumps(self._amount_choices)
+
     def widget_attrs(self, widget):
         attrs = super().widget_attrs(widget)
 
-        if self.amount_choices is not None:
-            attrs.setdefault(
-                "data-amount-choices", ",".join(str(i) for i in self.amount_choices)
-            )
-
         if not self.show_tax_credit:
             attrs.setdefault("data-hide-tax-credit", "Y")
+
+        if self.amount_choices is not None:
+            attrs.setdefault("data-amount-choices", json.dumps(self.amount_choices))
 
         return attrs

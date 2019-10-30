@@ -6,8 +6,9 @@ import { displayNumber, displayPrice } from "@agir/lib/utils/display";
 import styled from "styled-components";
 
 import "./style.css";
+import { FlexContainer } from "./elements";
 
-const DEFAULT_AMOUNTS = [100, 50, 25, 15, 10];
+const DEFAULT_AMOUNTS = [200, 100, 50, 20, 10];
 
 const AmountButton = styled.button`
   display: block;
@@ -67,8 +68,9 @@ class AmountWidget extends React.Component {
 
     return (
       <div className="amount-component">
-        <div className={`form-group${error ? " has-error" : ""}`}>
-          <input type="hidden" value={amount ? amount : ""} name="amount" />
+        <input type="hidden" value={amount ? amount : ""} name="amount" />
+
+        <FlexContainer className={error ? " has-error" : ""}>
           {amountChoices.map(value => (
             <AmountButton
               key={value}
@@ -101,7 +103,7 @@ class AmountWidget extends React.Component {
           </InputGroup>
 
           {error && <span className="help-block">{error}</span>}
-        </div>
+        </FlexContainer>
         <p>
           {showTaxCredit &&
             (amount ? (
@@ -130,7 +132,7 @@ AmountWidget.propTypes = {
   amount: PropTypes.number,
   onAmountChange: PropTypes.func,
   error: PropTypes.string,
-  amountChoices: PropTypes.array,
+  amountChoices: PropTypes.arrayOf(PropTypes.number),
   showTaxCredit: PropTypes.bool,
   byMonth: PropTypes.bool
 };

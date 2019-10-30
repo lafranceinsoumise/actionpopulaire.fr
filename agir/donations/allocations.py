@@ -17,7 +17,7 @@ def group_can_handle_allocation(group):
 
 
 def create_monthly_allocation(
-    person, mode, subscription_total, group=None, amount=0, **kwargs
+    person, mode, subscription_total, group=None, allocation_amount=0, **kwargs
 ):
     subscription = create_subscription(
         person=person,
@@ -31,7 +31,7 @@ def create_monthly_allocation(
     allocation = None
     if group is not None:
         allocation = MonthlyAllocation.objects.create(
-            subscription=subscription, group=group, amount=amount
+            subscription=subscription, group=group, amount=allocation_amount
         )
 
     return subscription, allocation

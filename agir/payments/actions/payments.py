@@ -131,7 +131,7 @@ def description_for_payment(payment):
 
 
 def find_or_create_person_from_payment(payment):
-    if payment.person is None:
+    if payment.person is None and payment.email is not None:
         try:
             payment.person = Person.objects.get_by_natural_key(payment.email)
             if payment.meta.get("subscribed"):
@@ -139,16 +139,14 @@ def find_or_create_person_from_payment(payment):
                 payment.person.save()
         except Person.DoesNotExist:
             person_fields = [f.name for f in Person._meta.get_fields()]
-            person_kwargs = {
-                k: v for k, v in payment.meta.items() if k in person_fields
-            }
+            person_meta = {k: v for k, v in payment.meta.items() if k in person_fields}
 
-            if "date_of_birth" in person_kwargs:
-                person_kwargs["date_of_birth"] = datetime.strptime(
-                    person_kwargs["date_of_birth"], "%d/%m/%Y"
+            if "date_of_birth" in person_meta:
+                person_meta["date_of_birth"] = datetime.strptime(
+                    person_meta["date_of_birth"], "%d/%m/%Y"
                 ).date()
 
             payment.person = Person.objects.create_person(
-                email=payment.email, is_insoumise=False, **person_kwargs
+                email=payment.email, is_insoumise=False, **person_meta
             )
         payment.save()

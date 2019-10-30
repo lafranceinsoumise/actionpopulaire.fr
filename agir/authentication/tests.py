@@ -11,7 +11,7 @@ from django.utils import timezone
 from rest_framework import status
 
 from agir.api.redis import using_redislite
-from agir.authentication.crypto import connection_token_generator, short_code_generator
+from agir.authentication.tokens import connection_token_generator, short_code_generator
 from agir.events.models import Event
 from agir.groups.models import SupportGroup
 from agir.people.models import Person

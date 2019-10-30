@@ -7,6 +7,7 @@ import GroupSelector from "./GroupSelector";
 import PropTypes from "prop-types";
 
 import Button from "@agir/lib/bootstrap/Button";
+import TypeWidget from "@agir/donations/donationForm/TypeWidget";
 
 class DonationForm extends React.Component {
   constructor(props) {
@@ -33,18 +34,19 @@ class DonationForm extends React.Component {
 
   render() {
     const {
+      typeChoices,
+      amountChoices,
       groupChoices,
       csrfToken,
       minAmount,
       maxAmount,
       minAmountError,
       maxAmountError,
-      amountChoices,
       showTaxCredit,
       buttonLabel,
       byMonth
     } = this.props;
-    const { group, amount, nationalRatio } = this.state;
+    const { type, group, amount, nationalRatio } = this.state;
 
     const customError =
       amount === null
@@ -58,9 +60,19 @@ class DonationForm extends React.Component {
     return (
       <div>
         <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
+        {typeChoices && (
+          <TypeWidget
+            type={type}
+            typeChoices={typeChoices}
+            onTypeChange={type => this.setState({ type, amount: null })}
+          />
+        )}
         <AmountWidget
+          disabled={type === null}
           amount={amount}
-          amountChoices={amountChoices}
+          amountChoices={
+            Array.isArray(amountChoices) ? amountChoices : amountChoices[type]
+          }
           showTaxCredit={showTaxCredit}
           byMonth={byMonth}
           error={customError}
@@ -100,7 +112,16 @@ DonationForm.propTypes = {
   maxAmount: PropTypes.number,
   minAmountError: PropTypes.string,
   maxAmountError: PropTypes.string,
-  amountChoices: PropTypes.array,
+  typeChoices: PropTypes.arrayOf(
+    PropTypes.shape({
+      value: PropTypes.string,
+      label: PropTypes.string
+    })
+  ),
+  amountChoices: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.number),
+    PropTypes.objectOf(PropTypes.arrayOf(PropTypes.number))
+  ]),
   showTaxCredit: PropTypes.bool,
   byMonth: PropTypes.bool,
   initialGroup: PropTypes.string,

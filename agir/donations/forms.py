@@ -1,3 +1,4 @@
+import json
 import logging
 
 import reversion
@@ -24,7 +25,7 @@ __all__ = ("AllocationDonationForm", "AllocationDonorForm")
 logger = logging.getLogger(__name__)
 
 
-class AllocationDonationForm(SimpleDonationForm):
+class AllocationMixin(forms.Form):
     group = forms.ModelChoiceField(
         label="Groupe à financer",
         queryset=SupportGroup.objects.active().certified().order_by("name").distinct(),
@@ -72,6 +73,10 @@ class AllocationDonationForm(SimpleDonationForm):
             del self.fields["group"]
             del self.fields["allocation"]
 
+        self.helper.layout.fields = [
+            f for f in ["type", "amount", "group", "allocation"] if f in self.fields
+        ]
+
     def clean_allocation(self):
         return self.cleaned_data.get("allocation") or 0
 
@@ -93,7 +98,31 @@ class AllocationDonationForm(SimpleDonationForm):
         return self.cleaned_data
 
 
-class AllocationSubscriptionForm(AllocationDonationForm):
+class AllocationDonationForm(AllocationMixin, SimpleDonationForm):
+    TYPE_SINGLE_TIME = "S"
+    TYPE_MONTHLY = "M"
+
+    type = forms.ChoiceField(
+        label="Je souhaite donner…",
+        choices=((TYPE_SINGLE_TIME, "une seule fois"), (TYPE_MONTHLY, "tous les mois")),
+        help_text="En cas de don mensuel, votre carte sera débitée tous les 8 de chaque mois jusqu'à ce que vous"
+        " interrompiez le don mensuel, ce que vous pouvez faire à n'importe quel moment.",
+        required=True,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["amount"].amount_choices = {
+            self.TYPE_SINGLE_TIME: [200, 100, 50, 20, 10],
+            self.TYPE_MONTHLY: [100, 50, 20, 10, 5],
+        }
+
+        self.fields["type"].widget.attrs["data-choice-attrs"] = json.dumps(
+            [{"icon": "arrow-right"}, {"icon": "repeat"}]
+        )
+
+
+class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
     button_label = "Mettre en place le don mensuel"
 
     amount = AskAmountField(
@@ -116,6 +145,10 @@ class AllocationSubscriptionForm(AllocationDonationForm):
         by_month=True,
         show_tax_credit=True,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["amount"].amount_choices = [100, 50, 20, 10, 5]
 
 
 class AllocationDonorForm(SimpleDonorForm):

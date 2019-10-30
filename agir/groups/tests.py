@@ -16,7 +16,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 
-from agir.authentication.signers import subscription_confirmation_token_generator
+from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.events.models import Event, OrganizerConfig
 from agir.groups.tasks import send_someone_joined_notification, invite_to_group
 from agir.lib.tests.mixins import FakeDataMixin
