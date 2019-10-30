@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
@@ -123,6 +125,13 @@ class Notification(TimeStampedModel):
         return reverse("follow_notification", kwargs={"pk": self.id})
 
     class Meta:
+        indexes = [
+            models.Index(
+                fields=["link"],
+                name="internal_links",
+                condition=Q(link__startswith=settings.FRONT_DOMAIN),
+            )
+        ]
         unique_together = ("announcement", "person")
         constraints = [
             models.CheckConstraint(

@@ -11,6 +11,7 @@ class EventsConfig(AppConfig):
     def ready(self):
         from .views import EventPaidView, notification_listener
         from .actions.rsvps import payment_description_context_generator
+        from . import signals
 
         payment_type = PaymentType(
             self.PAYMENT_TYPE,
