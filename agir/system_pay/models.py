@@ -49,3 +49,22 @@ class SystemPayAlias(ExportModelOperationsMixin("system_pay_alias"), TimeStamped
     identifier = models.UUIDField("Alias de la carte bancaire", unique=True)
     active = models.BooleanField("L'alias est actif côté systempay", default=True)
     expiry_date = models.DateField("Date d'expiration de la carte bancaire")
+
+
+class SystemPaySubscription(
+    ExportModelOperationsMixin("system_pay_subscription"), TimeStampedModel
+):
+    identifier = models.CharField(
+        "Identifiant de la souscription", unique=True, max_length=30, blank=False
+    )
+    alias = models.ForeignKey("SystemPayAlias", null=False, on_delete=models.PROTECT)
+    subscription = models.OneToOneField(
+        "payments.Subscription",
+        null=False,
+        on_delete=models.PROTECT,
+        related_name="system_pay_subscription",
+    )
+
+    active = models.BooleanField(
+        "La souscription est active côté SystemPay", default=True
+    )

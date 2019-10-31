@@ -29,3 +29,11 @@ def get_trans_id_from_order_id(order_id):
 
 def clean_system_pay_data(data: Mapping[str, str]):
     return {k: v for k, v in data.items() if k not in SENSITIVE_FIELDS}
+
+
+def get_recurrence_rule(subscription):
+    return "RRULE:FREQ=MONTHLY;BYMONTHDAY=" + str(subscription.day_of_month)
+
+
+def clean_system_pay_data(data: Mapping[str, str]):
+    return {k: v for k, v in data.items() if k not in SENSITIVE_FIELDS}

@@ -3,7 +3,7 @@ from django.forms import fields
 from phonenumbers import phonenumberutil, PhoneNumberType
 
 from agir.lib.utils import front_url_lazy
-from agir.system_pay.utils import get_trans_id_from_order_id
+from agir.system_pay.utils import get_trans_id_from_order_id, get_recurrence_rule
 from .crypto import get_signature
 
 
@@ -98,10 +98,6 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
     vads_sub_desc = fields.CharField(widget=forms.HiddenInput())
 
     @classmethod
-    def get_recurrence_rule(cls, subscription):
-        return "RRULE:FREQ=MONTHLY;BYMONTHDAY=" + str(subscription.day_of_month)
-
-    @classmethod
     def get_form_for_transaction(cls, transaction, sp_config):
         person = transaction.subscription.person
 
@@ -140,9 +136,7 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
                 "vads_cust_city": person_data.get("location_city"),
                 "vads_cust_state": person_data.get("location_state"),
                 "vads_cust_country": person_data.get("location_country"),
-                "vads_sub_desc": SystempayNewSubscriptionForm.get_recurrence_rule(
-                    transaction.subscription
-                ),
+                "vads_sub_desc": get_recurrence_rule(transaction.subscription),
             }
         )
 

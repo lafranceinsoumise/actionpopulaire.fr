@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.urls import path
-from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 
 from ..payments.abstract_payment_mode import AbstractPaymentMode
 
@@ -50,7 +50,13 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
         return views.SystemPaySubscriptionRedirectView.as_view(sp_config=self.sp_config)
 
     def subscription_terminate_action(self, subscription):
-        return self.soap_client.cancel_subscription(subscription)
+        sp_subscription = subscription.system_pay_subscription
+        alias = sp_subscription.alias
+        self.soap_client.cancel_subscription(subscription.system_pay_subscription.alias)
+        alias.active = False
+        alias.save(update_fields=["active"])
+        sp_subscription.active = False
+        sp_subscription.save(update_fields=["active"])
 
     @classmethod
     def get_urls(cls):
@@ -81,5 +87,14 @@ class SystemPayPaymentMode(AbstractSystemPayPaymentMode):
     }
 
 
-class SystemPayError(BaseException):
-    pass
+class SystemPayError(Exception):
+    def __init__(self, message, system_pay_code=None):
+        super().__init__(message, system_pay_code)
+        self.message = message
+        self.system_pay_code = system_pay_code
+
+    def __str__(self):
+        return self.message
+
+    def __repr__(self):
+        return f"SystemPayError({self.message!r}, system_pay_code={self.system_pay_code!r})"
