@@ -310,6 +310,50 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         submissions = PersonFormSubmission.objects.all()
         self.assertEqual(len(submissions), 2)
 
+    def test_person_choice_field(self):
+        self.complex_form = PersonForm.objects.create(
+            title="Formulaire person choice",
+            slug="formulaire-person-choice",
+            description="Ma description onsef",
+            confirmation_note="Ma note de fin",
+            custom_fields=[
+                {
+                    "title": "Détails",
+                    "fields": [
+                        {
+                            "id": "person_choice",
+                            "type": "person",
+                            "label": "Un autre inscrit",
+                        }
+                    ],
+                }
+            ],
+        )
+
+        res = self.client.post(
+            reverse("view_person_form", args=["formulaire-person-choice"]),
+            data={"person_choice": "person@corp.com"},
+        )
+        self.assertRedirects(res, "/formulaires/formulaire-person-choice/confirmation/")
+        submission = PersonFormSubmission.objects.last()
+        self.assertEqual(submission.data["person_choice"], str(self.person.pk))
+
+        for i in range(0, 20):
+            self.client.post(
+                reverse("view_person_form", args=["formulaire-person-choice"]),
+                data={"person_choice": "notexistperson@corp.com"},
+            )
+        res = self.client.post(
+            reverse("view_person_form", args=["formulaire-person-choice"]),
+            data={"person_choice": "person@corp.com"},
+        )
+        self.assertFormError(
+            res,
+            "form",
+            "person_choice",
+            "Vous avez fait trop d'erreurs. Par sécurité, vous devez attendre avant d'essayer d'autres adresses emails.",
+        )
+
 
 class AccessControlTestCase(SetUpPersonFormsMixin, TestCase):
     def test_cannot_access_not_anonymous_form(self):

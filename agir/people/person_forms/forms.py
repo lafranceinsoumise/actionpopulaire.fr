@@ -9,17 +9,19 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.storage import default_storage
-from django.http import QueryDict
 from django.utils.translation import ugettext as _
 
 from crispy_forms.helper import FormHelper
 
 from agir.lib.form_components import *
+from agir.lib.token_bucket import TokenBucket
 from agir.people.person_forms.field_groups import get_form_part
 
 from agir.lib.form_mixins import MetaFieldsMixin
 from ..models import Person, PersonFormSubmission
 from .fields import is_actual_model_field, get_data_from_submission, get_form_field
+
+check_person_email_bucket = TokenBucket("PersonFormPersonChoice", 10, 600)
 
 
 class PersonTagChoiceField(forms.ModelChoiceField):
@@ -134,15 +136,23 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             )
 
     def clean(self):
-        if not self.is_submission_edition:
-            return super().clean()
-
         cleaned_data = super().clean()
 
         for id, field_descriptor in self.person_form_instance.fields_dict.items():
-            if not field_descriptor.get("editable", False) and cleaned_data.get(
-                id
-            ) != self.initial.get(id):
+            if field_descriptor.get("type") == "person":
+                if not check_person_email_bucket.has_tokens(self.instance.pk):
+                    self.add_error(
+                        id,
+                        ValidationError(
+                            "Vous avez fait trop d'erreurs. Par sécurité, vous devez attendre avant d'essayer d'autres adresses emails."
+                        ),
+                    )
+
+            if (
+                self.is_submission_edition
+                and not field_descriptor.get("editable", False)
+                and cleaned_data.get(id) != self.initial.get(id)
+            ):
                 self.add_error(
                     id, ValidationError("Ce champ ne peut pas être modifié.")
                 )

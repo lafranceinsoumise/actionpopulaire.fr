@@ -17,6 +17,7 @@ from phonenumber_field.formfields import PhoneNumberField
 from agir.events.models import Event
 from agir.lib.data import departements_choices, regions_choices
 from agir.lib.form_fields import DateTimePickerWidget, SelectizeWidget
+from agir.lib.token_bucket import TokenBucket
 
 from ..models import Person
 
@@ -117,6 +118,26 @@ class FileField(forms.FileField):
         super().__init__(validators=validators, **kwargs)
 
 
+# In person form there is a token bucket for preventing searching
+class PersonChoiceField(forms.ModelChoiceField):
+    widget = forms.TextInput
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            Person.objects.filter(role__is_active=True),
+            help_text="Entrez l'adresse email d'une personne inscrite sur la plateforme.",
+            to_field_name="emails__address",
+            error_messages={
+                "invalid_choice": "Cette adresse email ne correspond pas à une personne inscrite."
+            },
+            *args,
+            **kwargs,
+        )
+
+    def to_python(self, value):
+        return super().to_python(value).pk
+
+
 FIELDS = {
     "short_text": ShortTextField,
     "long_text": LongTextField,
@@ -131,6 +152,7 @@ FIELDS = {
     "integer": forms.IntegerField,
     "decimal": forms.DecimalField,
     "datetime": DateTimeField,
+    "person": PersonChoiceField,
 }
 
 PREDEFINED_CHOICES = {
