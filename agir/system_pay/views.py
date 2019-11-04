@@ -1,7 +1,6 @@
+import calendar
 import logging
 from datetime import date
-
-import calendar
 from uuid import UUID
 
 from django.db import transaction
@@ -19,11 +18,7 @@ from rest_framework.views import APIView
 
 from agir.authentication.models import Role
 from agir.payments.actions import subscriptions
-from agir.payments.actions.payments import (
-    notify_status_change,
-    create_payment,
-    refund_payment,
-)
+from agir.payments.actions.payments import notify_status_change, create_payment
 from agir.payments.actions.subscriptions import (
     notify_status_change as notify_subscription_status_change,
 )
@@ -35,7 +30,7 @@ from agir.system_pay.actions import (
     update_subscription_from_transaction,
 )
 from agir.system_pay.models import SystemPayTransaction, SystemPayAlias
-from agir.system_pay.utils import get_trans_id_from_order_id
+from agir.system_pay.utils import get_trans_id_from_order_id, clean_system_pay_data
 from .crypto import check_signature
 from .forms import SystempayPaymentForm, SystempayNewSubscriptionForm
 
@@ -275,7 +270,7 @@ class SystemPayWebhookView(APIView):
                 )
                 sp_transaction.alias = alias
 
-            sp_transaction.webhook_calls.append(request.data)
+            sp_transaction.webhook_calls.append(clean_system_pay_data(request.data))
             sp_transaction.status = SYSTEMPAY_STATUS_CHOICE.get(
                 request.data["vads_trans_status"]
             )
