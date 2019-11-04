@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from agir.api.redis import using_redislite
 from agir.people.person_forms.display import default_person_form_display
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 
@@ -310,6 +311,7 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         submissions = PersonFormSubmission.objects.all()
         self.assertEqual(len(submissions), 2)
 
+    @using_redislite
     def test_person_choice_field(self):
         self.complex_form = PersonForm.objects.create(
             title="Formulaire person choice",
