@@ -72,3 +72,18 @@ def description_for_subscription(subscription):
     )
 
     return loader.render_to_string(template_name, context_generator(subscription))
+
+
+def replace_subscription(previous_subscription, new_subscription):
+    assert previous_subscription.mode == new_subscription.mode
+    assert previous_subscription.status == Subscription.STATUS_COMPLETED
+    assert new_subscription.status == Subscription.STATUS_WAITING
+
+    PAYMENT_MODES[previous_subscription.mode].subscription_replace_action(
+        previous_subscription, new_subscription
+    )
+
+    previous_subscription.status = Subscription.STATUS_TERMINATED
+    new_subscription.status = Subscription.STATUS_COMPLETED
+    previous_subscription.save(update_fields=["status"])
+    new_subscription.save(update_fields=["status"])

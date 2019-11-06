@@ -17,6 +17,7 @@ from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
 from agir.donations.form_fields import AskAmountField
 from agir.groups.models import SupportGroup
 from agir.lib.form_components import *
+from agir.payments.models import Subscription
 from .models import SpendingRequest, Document
 
 __all__ = ("AllocationDonationForm", "AllocationDonorForm")
@@ -123,8 +124,6 @@ class AllocationDonationForm(AllocationMixin, SimpleDonationForm):
 
 
 class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
-    button_label = "Mettre en place le don mensuel"
-
     amount = AskAmountField(
         label="Montant du don mensuel",
         max_value=settings.MONTHLY_DONATION_MAXIMUM,
@@ -146,27 +145,50 @@ class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
         show_tax_credit=True,
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    previous_subscription = forms.ModelChoiceField(
+        queryset=Subscription.objects.filter(status=Subscription.STATUS_COMPLETED),
+        required=False,
+        widget=forms.HiddenInput,
+    )
+
+    def __init__(self, *args, user, **kwargs):
+        super().__init__(*args, user=user, **kwargs)
         self.fields["amount"].amount_choices = [100, 50, 20, 10, 5]
+
+        if user:
+            self.fields["previous_subscription"].queryset = self.fields[
+                "previous_subscription"
+            ].queryset.filter(person=user.person)
+
+        self.helper.layout.fields.append("previous_subscription")
+
+    def get_button_label(self):
+        if self.get_initial_for_field(
+            self.fields["previous_subscription"], "previous_subscription"
+        ):
+            return "Modifier ce don mensuel"
+        return "Mettre en place le don mensuel"
 
 
 class AllocationDonorForm(SimpleDonorForm):
     allocation = forms.IntegerField(
-        min_value=0, required=True, widget=forms.HiddenInput
+        min_value=0,
+        max_value=settings.DONATION_MAXIMUM * 100,
+        required=True,
+        initial=0,
+        widget=forms.HiddenInput,
     )
 
     group = forms.ModelChoiceField(
-        queryset=SupportGroup.objects.active(), required=False, widget=forms.HiddenInput
+        queryset=SupportGroup.objects.active().certified(),
+        required=False,
+        widget=forms.HiddenInput,
     )
 
-    def __init__(self, *args, allocation, group_id, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.helper.layout.fields.extend(["allocation", "group"])
-
-        self.fields["allocation"].initial = allocation
-        self.fields["group"].initial = group_id
 
     def clean(self):
         cleaned_data = super().clean()
@@ -177,7 +199,7 @@ class AllocationDonorForm(SimpleDonorForm):
         if amount and allocation > amount:
             self.add_error(
                 None,
-                ValueError(
+                ValidationError(
                     "Il y a une erreur inattendue sur le formulaire. Réessayez la procédure depuis le tout début",
                     "allocation",
                 ),
@@ -188,6 +210,22 @@ class AllocationDonorForm(SimpleDonorForm):
 
 class AllocationMonthlyDonorForm(AllocationDonorForm):
     button_label = "Je donne {amount} par mois."
+
+    previous_subscription = forms.ModelChoiceField(
+        queryset=Subscription.objects.filter(status=Subscription.STATUS_COMPLETED),
+        required=False,
+        widget=forms.HiddenInput,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if not self.instance._state.adding:
+            self.fields["previous_subscription"].queryset = self.fields[
+                "previous_subscription"
+            ].queryset.filter(person=self.instance)
+
+        self.helper.layout.fields.extend(["previous_subscription"])
 
 
 class SpendingRequestFormMixin:

@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.shortcuts import redirect
 from django.views.generic import FormView, UpdateView
 
@@ -28,26 +29,29 @@ class BasePersonalInformationView(UpdateView):
     payment_type = None
     session_namespace = "_donation_"
     base_redirect_url = None
+    persisted_data = ["amount"]
+
+    def return_to_previous_step(self):
+        return redirect(self.base_redirect_url)
 
     def dispatch(self, request, *args, **kwargs):
+        self.persistent_data = {}
+        for k in self.persisted_data:
+            field = self.form_class.base_fields[k]
 
-        if "amount" in request.GET:
-            try:
-                amount = int(request.GET["amount"])
-            except ValueError:
-                pass
+            if k in request.GET:
+                value = request.GET[k]
+            elif k in request.session.get(self.session_namespace, {}):
+                value = request.session[self.session_namespace][k]
             else:
-                amount_field = self.form_class.base_fields["amount"]
-                if amount_field.min_value <= amount <= amount_field.max_value:
-                    request.session[self.session_namespace] = {"amount": amount}
+                value = field.initial
 
-        if (
-            not isinstance(request.session.get(self.session_namespace, None), dict)
-            or "amount" not in request.session[self.session_namespace]
-        ):
-            return redirect(self.base_redirect_url)
+            try:
+                value = field.clean(value)
+            except ValidationError:
+                return self.return_to_previous_step()
 
-        self.persistent_data = request.session[self.session_namespace]
+            self.persistent_data[k] = value
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -61,10 +65,13 @@ class BasePersonalInformationView(UpdateView):
             return None
 
     def get_form_kwargs(self):
-        return {**super().get_form_kwargs(), **self.persistent_data}
+        kwargs = super().get_form_kwargs()
+        initial = kwargs.pop("initial", {})
+
+        return {**kwargs, "initial": {**initial, **self.persistent_data}}
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(amount=self.persistent_data["amount"], **kwargs)
+        return super().get_context_data(**self.persistent_data, **kwargs)
 
     def get_metas(self, form):
         return {

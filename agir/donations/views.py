@@ -4,7 +4,6 @@ from django.db import transaction
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
-from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from django.views import View
 from django.views.generic import UpdateView, TemplateView, DetailView, CreateView
@@ -43,7 +42,10 @@ from agir.payments.actions.payments import (
     redirect_to_payment,
     create_payment,
 )
-from agir.payments.actions.subscriptions import redirect_to_subscribe
+from agir.payments.actions.subscriptions import (
+    redirect_to_subscribe,
+    replace_subscription,
+)
 from agir.payments.models import Payment, Subscription
 from agir.people.models import Person
 from . import forms
@@ -78,7 +80,7 @@ class AskAmountView(BaseAskAmountView):
         # use int to floor down the value as well as converting to an int
         allocation = int(form.cleaned_data.get("allocation", 0) * 100)
         self.data_to_persist["allocation"] = allocation
-        self.data_to_persist["group_id"] = form.group and str(form.group.pk)
+        self.data_to_persist["group"] = form.group and str(form.group.pk)
 
         if (
             "type" in form.cleaned_data
@@ -90,24 +92,16 @@ class AskAmountView(BaseAskAmountView):
 
 
 class AllocationPersonalInformationMixin:
-    def get_context_data(self, **kwargs):
-        amount = self.persistent_data["amount"]
-        allocation = self.persistent_data.get("allocation", 0)
+    persisted_data = ["amount", "allocation", "group"]
 
-        kwargs["allocation"] = allocation
-        kwargs["national"] = amount - allocation
-        kwargs["group_name"] = (
-            self.allocation_group.name if self.allocation_group is not None else None
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data["national"] = context_data["amount"] - context_data["allocation"]
+        context_data["group_name"] = (
+            context_data["group"] and context_data["group"].name
         )
 
-        return super().get_context_data(**kwargs)
-
-    @cached_property
-    def allocation_group(self):
-        group_id = self.persistent_data.get("group_id", None)
-
-        if group_id is not None:
-            return SupportGroup.objects.get(pk=group_id)
+        return context_data
 
 
 class DonationPersonalInformationView(
@@ -168,20 +162,35 @@ class MonthlyDonationPersonalInformationView(
     payment_type = DonsConfig.PAYMENT_TYPE
     session_namespace = DONATION_SESSION_NAMESPACE
     base_redirect_url = "view_payments"
+    persisted_data = ["amount", "allocation", "group", "previous_subscription"]
 
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(monthly=True, **kwargs)
+    def get_context_data(self, **context_data):
+        return super().get_context_data(monthly=True, **context_data)
+
+    def get_metas(self, form):
+        meta = super().get_metas(form)
+
+        if form.cleaned_data["previous_subscription"]:
+            meta["previous_subscription"] = form.cleaned_data[
+                "previous_subscription"
+            ].pk
+
+        return meta
 
     def form_valid(self, form):
         amount = form.cleaned_data["amount"]
-        allocation = form.cleaned_data.get("allocation", 0)
-        allocation_group = form.cleaned_data.get("group", None)
+        allocation = form.cleaned_data["allocation"]
+        allocation_group = form.cleaned_data["group"]
+        previous_subscription = form.cleaned_data["previous_subscription"]
 
         if form.connected:
             self.object = form.save()
 
-            if Subscription.objects.filter(
-                person=self.object, status=Subscription.STATUS_COMPLETED
+            if (
+                Subscription.objects.filter(
+                    person=self.object, status=Subscription.STATUS_COMPLETED
+                )
+                and not previous_subscription
             ):
                 return HttpResponseRedirect(reverse("already_has_subscription"))
 
@@ -197,11 +206,18 @@ class MonthlyDonationPersonalInformationView(
 
             self.clear_session()
 
-            return redirect_to_subscribe(subscription)
+            if previous_subscription:
+                replace_subscription(
+                    previous_subscription=previous_subscription,
+                    new_subscription=subscription,
+                )
+
+                return HttpResponseRedirect(reverse("view_payments"))
+            else:
+                return redirect_to_subscribe(subscription)
         else:
             send_monthly_donation_confirmation_email.delay(
                 email=form.cleaned_data["email"],
-                mode=self.payment_mode,
                 subscription_total=amount,
                 allocation_amount=allocation,
                 group_pk=allocation_group and allocation_group.pk,
@@ -221,6 +237,8 @@ class AlreadyHasSubscriptionView(TemplateView):
 
 
 class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
+    payment_mode = payment_modes.DEFAULT_MODE
+
     def get(self, request, *args, **kwargs):
         params = request.GET.dict()
 
@@ -235,7 +253,6 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
 
         try:
             email = params.pop("email")
-            mode = params.pop("mode")
             subscription_total = int(params.pop("subscription_total"))
             group_pk = params.pop("group_pk", None)
             allocation_amount = int(params.pop("allocation_amount"))
@@ -265,21 +282,48 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
 
         soft_login(request, person)
 
-        if Subscription.objects.filter(
-            person=person, status=Subscription.STATUS_COMPLETED
-        ).exists():
+        previous_subscription = params.get(
+            "previous_subscription"
+        )  # get et non pas pop, on le garde dans le META
+        if previous_subscription:
+            try:
+                previous_subscription = Subscription.objects.get(
+                    pk=previous_subscription
+                )
+            except Subscription.DoesNotExist:
+                previous_subscription = None
+            else:
+                if previous_subscription.mode != self.payment_mode:
+                    previous_subscription = None
+                elif previous_subscription.person != person:
+                    previous_subscription = None
+
+        if (
+            Subscription.objects.filter(
+                person=person, status=Subscription.STATUS_COMPLETED
+            ).exists()
+            and not previous_subscription
+        ):
             return HttpResponseRedirect(reverse("already_has_subscription"))
 
         subscription, allocation = create_monthly_allocation(
             person=person,
-            mode=mode,
+            mode=self.payment_mode,
             subscription_total=subscription_total,
             allocation_amount=allocation_amount,
             group=group,
             meta=params,
         )
 
-        return redirect_to_subscribe(subscription)
+        if previous_subscription:
+            replace_subscription(
+                previous_subscription=previous_subscription,
+                new_subscription=subscription,
+            )
+
+            return HttpResponseRedirect(reverse("view_payments"))
+        else:
+            return redirect_to_subscribe(subscription)
 
 
 class ReturnView(TemplateView):

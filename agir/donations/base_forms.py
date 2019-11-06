@@ -38,11 +38,14 @@ class SimpleDonationForm(forms.Form):
         },
     )
 
+    def get_button_label(self):
+        return self.button_label
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "donation-form"
-        self.helper.add_input(layout.Submit("valider", self.button_label))
+        self.helper.add_input(layout.Submit("valider", self.get_button_label()))
 
         self.helper.layout = Layout("amount")
 
@@ -102,10 +105,8 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
         label=_("Je certifie être domicilié⋅e fiscalement en France"),
     )
 
-    def __init__(self, *args, amount, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.fields["amount"].initial = amount
 
         self.connected = not self.instance._state.adding
 
@@ -167,7 +168,14 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
         self.helper.add_input(
             layout.Submit(
                 "valider",
-                self.button_label.format(amount=number_format(amount / 100, 2) + " €"),
+                self.button_label.format(
+                    amount=number_format(
+                        self.get_initial_for_field(self.fields["amount"], "amount")
+                        / 100,
+                        2,
+                    )
+                    + " €"
+                ),
             )
         )
         self.helper.layout = layout.Layout(*fields)

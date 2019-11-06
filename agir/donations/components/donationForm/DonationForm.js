@@ -14,9 +14,10 @@ class DonationForm extends React.Component {
     super(props);
 
     this.state = {
-      group: props.initialGroup,
+      group: null,
       amount: null,
-      nationalRatio: 50
+      nationalRatio: 50,
+      ...props.initial
     };
   }
 
@@ -37,7 +38,7 @@ class DonationForm extends React.Component {
       typeChoices,
       amountChoices,
       groupChoices,
-      csrfToken,
+      hiddenFields,
       minAmount,
       maxAmount,
       minAmountError,
@@ -59,7 +60,9 @@ class DonationForm extends React.Component {
 
     return (
       <div>
-        <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
+        {Object.keys(hiddenFields).map(k => (
+          <input key={k} type="hidden" name={k} value={hiddenFields[k]} />
+        ))}
         {typeChoices && (
           <TypeWidget
             type={type}
@@ -124,7 +127,7 @@ DonationForm.propTypes = {
   ]),
   showTaxCredit: PropTypes.bool,
   byMonth: PropTypes.bool,
-  initialGroup: PropTypes.string,
+  initial: PropTypes.object,
   groupName: PropTypes.string,
   groupChoices: PropTypes.arrayOf(
     PropTypes.shape({
@@ -133,7 +136,7 @@ DonationForm.propTypes = {
     })
   ),
   buttonLabel: PropTypes.string,
-  csrfToken: PropTypes.string
+  hiddenFields: PropTypes.objectOf(PropTypes.string)
 };
 
 export default hot(module)(DonationForm);

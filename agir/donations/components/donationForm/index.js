@@ -36,11 +36,14 @@ function getChoices(select) {
 
 const replaceForm = selector => {
   const form = document.querySelector(selector);
-  const props = {};
+  const props = { initial: {} };
 
-  props.csrfToken = form.querySelector(
-    'input[name="csrfmiddlewaretoken"]'
-  ).value;
+  props.hiddenFields = Array.from(
+    form.querySelectorAll('input[type="hidden"]')
+  ).reduce((s, f) => {
+    s[f.name] = f.value;
+    return s;
+  }, {});
 
   const typeSelect = form.querySelector('select[name="type"]');
   if (typeSelect) {
@@ -51,9 +54,9 @@ const replaceForm = selector => {
 
   if (groupSelect) {
     props.groupChoices = getChoices(groupSelect);
-    props.initialGroup = groupSelect.value;
+    props.initial.group = groupSelect.value;
   } else {
-    props.initialGroup = form.dataset.groupId || null;
+    props.initial.group = form.dataset.groupId || null;
     props.groupName = form.dataset.groupName || null;
   }
 
@@ -67,6 +70,7 @@ const replaceForm = selector => {
     : null;
   props.showTaxCredit = !amountInput.dataset.hideTaxCredit;
   props.byMonth = typeof amountInput.dataset.byMonth !== "undefined";
+  props.initial.amount = +amountInput.value || null;
 
   const submitInput = form.querySelector('input[type="submit"]');
   props.buttonLabel = submitInput.value;
