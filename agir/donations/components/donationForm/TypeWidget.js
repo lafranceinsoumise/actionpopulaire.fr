@@ -1,5 +1,4 @@
 import React from "react";
-import { hot } from "react-hot-loader";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
@@ -58,4 +57,4 @@ TypeWidget.propTypes = {
   onTypeChange: PropTypes.func
 };
 
-export default hot(module)(TypeWidget);
+export default TypeWidget;

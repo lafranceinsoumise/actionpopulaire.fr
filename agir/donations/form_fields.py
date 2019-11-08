@@ -2,6 +2,7 @@ import json
 from decimal import Decimal
 
 from django import forms
+from django.core.exceptions import ValidationError
 
 
 class MoneyField(forms.DecimalField):
@@ -22,7 +23,7 @@ class MoneyField(forms.DecimalField):
         return value and int(value * 100)
 
 
-class AskAmountField(forms.DecimalField):
+class AskAmountField(forms.IntegerField):
     def __init__(
         self, *, amount_choices=None, show_tax_credit=True, by_month=False, **kwargs
     ):

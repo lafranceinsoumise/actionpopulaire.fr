@@ -16,6 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
 from agir.donations.form_fields import AskAmountField
 from agir.groups.models import SupportGroup
+from agir.lib.display import display_price
 from agir.lib.form_components import *
 from agir.payments.models import Subscription
 from .models import SpendingRequest, Document
@@ -37,9 +38,8 @@ class AllocationMixin(forms.Form):
         "cliquez sur &laquo;&nbsp;Financer les actions de ce groupe&nbsp;&raquo;",
     )
 
-    allocation = forms.DecimalField(
+    allocation = forms.IntegerField(
         label="Montant alloué au groupe choisi",
-        decimal_places=2,
         min_value=0,
         required=False,
         help_text="Indiquez le montant que vous souhaitez allouer à votre groupe. Le reste du don permettra de financer "
@@ -114,8 +114,8 @@ class AllocationDonationForm(AllocationMixin, SimpleDonationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["amount"].amount_choices = {
-            self.TYPE_SINGLE_TIME: [200, 100, 50, 20, 10],
-            self.TYPE_MONTHLY: [100, 50, 20, 10, 5],
+            self.TYPE_SINGLE_TIME: [200 * 100, 100 * 100, 50 * 100, 20 * 100, 10 * 100],
+            self.TYPE_MONTHLY: [100 * 100, 50 * 100, 20 * 100, 10 * 100, 5 * 100],
         }
 
         self.fields["type"].widget.attrs["data-choice-attrs"] = json.dumps(
@@ -128,17 +128,16 @@ class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
         label="Montant du don mensuel",
         max_value=settings.MONTHLY_DONATION_MAXIMUM,
         min_value=settings.MONTHLY_DONATION_MINIMUM,
-        decimal_places=2,
         required=True,
         error_messages={
             "invalid": _("Indiquez le montant de votre don mensuel."),
             "min_value": format_lazy(
-                _("Les dons mensuels de moins de {min} € ne sont pas acceptés."),
-                min=settings.MONTHLY_DONATION_MINIMUM,
+                _("Les dons mensuels de moins de {min} ne sont pas acceptés."),
+                min=display_price(settings.MONTHLY_DONATION_MINIMUM),
             ),
             "max_value": format_lazy(
-                _("Les dons mensuels de plus de {max} € ne sont pas acceptés."),
-                max=settings.MONTHLY_DONATION_MAXIMUM,
+                _("Les dons mensuels de plus de {max} ne sont pas acceptés."),
+                max=display_price(settings.MONTHLY_DONATION_MAXIMUM),
             ),
         },
         by_month=True,
@@ -153,7 +152,13 @@ class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
 
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, user=user, **kwargs)
-        self.fields["amount"].amount_choices = [100, 50, 20, 10, 5]
+        self.fields["amount"].amount_choices = [
+            100 * 100,
+            50 * 100,
+            20 * 100,
+            10 * 100,
+            5 * 100,
+        ]
 
         if user:
             self.fields["previous_subscription"].queryset = self.fields[
@@ -173,7 +178,7 @@ class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
 class AllocationDonorForm(SimpleDonorForm):
     allocation = forms.IntegerField(
         min_value=0,
-        max_value=settings.DONATION_MAXIMUM * 100,
+        max_value=settings.DONATION_MAXIMUM,
         required=True,
         initial=0,
         widget=forms.HiddenInput,

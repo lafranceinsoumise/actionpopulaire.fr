@@ -326,9 +326,9 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
             amount_url,
             {
                 "type": AllocationDonationForm.TYPE_MONTHLY,
-                "amount": "200",
+                "amount": "20000",
                 "group": str(self.group.pk),
-                "allocation": "100",
+                "allocation": "10000",
             },
         )
         self.assertRedirects(res, information_url)

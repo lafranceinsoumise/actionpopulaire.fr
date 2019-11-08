@@ -77,8 +77,7 @@ class AskAmountView(BaseAskAmountView):
         return kwargs
 
     def form_valid(self, form):
-        # use int to floor down the value as well as converting to an int
-        allocation = int(form.cleaned_data.get("allocation", 0) * 100)
+        allocation = form.cleaned_data.get("allocation", 0)
         self.data_to_persist["allocation"] = allocation
         self.data_to_persist["group"] = form.group and str(form.group.pk)
 

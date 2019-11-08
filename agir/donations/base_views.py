@@ -16,8 +16,7 @@ class BaseAskAmountView(FormView):
     def form_valid(self, form):
         """Enregistre le montant dans la session avant de rediriger vers le formulaire suivant.
         """
-        amount = int(form.cleaned_data["amount"] * 100)
-        self.data_to_persist["amount"] = amount
+        self.data_to_persist["amount"] = form.cleaned_data["amount"]
 
         return super().form_valid(form)
 

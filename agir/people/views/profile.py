@@ -309,7 +309,7 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
 
     def get_initial_for_subscription(self, subscription):
         initial = {
-            "amount": subscription.price / 100,
+            "amount": subscription.price,
             "previous_subscription": subscription.pk,
         }
         allocation = subscription.allocations.first()

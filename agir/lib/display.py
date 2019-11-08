@@ -39,7 +39,7 @@ def display_address(object):
 
 
 def display_price(price):
-    return "{} €".format(floatformat(price / 100, 2))
+    return "{}\u00A0€".format(floatformat(price / 100, 2))
 
 
 def pretty_time_since(d, relative_to=None):

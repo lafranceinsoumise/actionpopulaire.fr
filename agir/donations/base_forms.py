@@ -12,6 +12,7 @@ from django_countries.fields import CountryField
 
 from agir.donations.form_fields import AskAmountField
 from agir.lib.data import FRANCE_COUNTRY_CODES
+from agir.lib.display import display_price
 from agir.lib.form_mixins import MetaFieldsMixin
 from agir.people.models import Person
 
@@ -23,17 +24,16 @@ class SimpleDonationForm(forms.Form):
         label="Montant du don",
         max_value=settings.DONATION_MAXIMUM,
         min_value=settings.DONATION_MINIMUM,
-        decimal_places=2,
         required=True,
         error_messages={
             "invalid": _("Indiquez le montant à donner."),
             "min_value": format_lazy(
-                _("Il n'est pas possible de donner moins que {min} €."),
-                min=settings.DONATION_MINIMUM,
+                _("Il n'est pas possible de donner moins que {min}."),
+                min=display_price(settings.DONATION_MINIMUM),
             ),
             "max_value": format_lazy(
-                _("Les dons de plus de {max} € ne peuvent être faits par carte bleue."),
-                max=settings.DONATION_MAXIMUM,
+                _("Les dons de plus de {max} ne peuvent être faits par carte bleue."),
+                max=display_price(settings.DONATION_MAXIMUM),
             ),
         },
     )
@@ -70,8 +70,8 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
     )
 
     amount = forms.IntegerField(
-        max_value=settings.DONATION_MAXIMUM * 100,
-        min_value=settings.DONATION_MINIMUM * 100,
+        max_value=settings.DONATION_MAXIMUM,
+        min_value=settings.DONATION_MINIMUM,
         required=True,
         widget=forms.HiddenInput,
     )

@@ -99,7 +99,7 @@ class LoansTestCase(TransactionTestCase):
         res = self.ask_amount_view(self.get("/amount"))
         self.assertEqual(res.status_code, 200)
 
-        res = self.ask_amount_view(self.post("/amount", {"amount": "400"}))
+        res = self.ask_amount_view(self.post("/amount", {"amount": "40000"}))
         self.assertRedirects(res, "/success/", fetch_redirect_response=False)
 
         res = self.personal_information_view(self.get("/info"))
