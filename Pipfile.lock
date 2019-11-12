@@ -487,11 +487,11 @@
         },
         "nuntius": {
             "hashes": [
-                "sha256:1108dfd008d664c29b67d35858e57ed63a7174ec9945601424d7da4bf6ce8a26",
-                "sha256:e532a885cea1b152ca7bceab3e6dbec09456d1de0d40109b1d1649fcd3c9d7ef"
+                "sha256:5aaffbdc693e8b87fc6bd88e365b5bce77d769243f17783ea8f5dbd530589269",
+                "sha256:c7ce54ad920b9b2c2b00cacb7b2aecd121201c3d4bdb9906a1529a40335d1f2c"
             ],
             "index": "pypi",
-            "version": "==1.1.0"
+            "version": "==1.2.0"
         },
         "oauthlib": {
             "hashes": [
