@@ -1,8 +1,7 @@
-import datetime
-
+from django.db import IntegrityError
 from django.db.models import Exists, OuterRef
 from django.utils.functional import cached_property
-from glom import glom, T, Call, Coalesce
+from glom import glom, T, Coalesce
 
 from agir.authentication.models import Role
 from agir.notifications.models import Announcement, Notification
@@ -27,9 +26,12 @@ def add_announcements(person):
             not gn.segment
             or gn.segment.get_subscribers_queryset().filter(id=person.pk).exists()
         ):
-            Notification.objects.create(
-                person=person, announcement=gn, created=gn.start_date
-            )
+            try:
+                Notification.objects.create(
+                    person=person, announcement=gn, created=gn.start_date
+                )
+            except IntegrityError:
+                pass
 
 
 def get_notifications(request):

@@ -17,16 +17,31 @@ class CommunePageAdmin(admin.ModelAdmin):
         "twitter",
         "facebook",
         "website",
+        "municipales2020_admins",
     )
     list_display = (
         "__str__",
         "municipale_list_name",
-        "chiefs",
+        "first_name_1",
+        "last_name_1",
+        "first_name_2",
+        "last_name_2",
+        "twitter",
+        "facebook",
+        "website",
+    )
+    list_editable = (
+        "municipale_list_name",
+        "first_name_1",
+        "last_name_1",
+        "first_name_2",
+        "last_name_2",
         "twitter",
         "facebook",
         "website",
     )
     search_fields = ("name",)
+    autocomplete_fields = ("municipales2020_admins",)
 
     def get_absolute_url(self):
         return reverse(

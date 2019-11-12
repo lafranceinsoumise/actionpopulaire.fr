@@ -29,6 +29,13 @@ class CommunePage(TimeStampedModel, models.Model):
     facebook = models.CharField("Identifiant Facebook", max_length=255, blank=True)
     website = models.URLField("Site web", max_length=255, blank=True)
 
+    municipales2020_admins = models.ManyToManyField(
+        "people.Person",
+        verbose_name="Têtes de file pour les élections municipales de 2020",
+        related_name="municipales2020_commune",
+        blank=True,
+    )
+
     def __str__(self):
         return "{} ({})".format(self.name, self.code_departement)
 

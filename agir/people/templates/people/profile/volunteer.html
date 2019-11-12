@@ -9,8 +9,8 @@
   <div class="row">
     {% block navbar %} {% include "people/profile/profile_nav.html" %} {% endblock %}
     <div class="col-xs-12 col-md-10">
-      <div>
-        <div class="intro">
+      <div class="row">
+        <div class="intro col-sm-8">
           <p> N’attendez pas les consignes pour agir. Faites ce que vous trouverez de plus utile et
             convaincant pour
             élargir le nombre de ceux qui peuvent nous rejoindre et nous aider. Sur
@@ -22,9 +22,20 @@
             selon vos
             centres d'intérêts.</p>
         </div>
-        <div class="form-wrap">
-          {% crispy form %}
+        <div class="col-sm-4">
+          <div class="alert alert-info">
+            <p>
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+              La France insoumise compte <a href="https://lafranceinsoumise.fr/comment-ca-marche/">plusieurs espaces</a>
+              ouverts, aux activités diverses, dans lesquels il est possible de s'investir. Vous pouvez par exemple
+              <a href="https://agir.lafranceinsoumise.fr/equipes-thematiques/">rejoindre une équipe thématique</a>
+              de l'espace programme.
+            </p>
+          </div>
         </div>
+      </div>
+      <div class="form-wrap">
+        {% crispy form %}
       </div>
     </div>
   </div>
