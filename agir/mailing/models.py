@@ -2,7 +2,7 @@ from django.contrib.gis.db.models import MultiPolygonField
 from django.db import models
 
 from django.db.models import Q
-from nuntius.models import BaseSegment
+from nuntius.models import BaseSegment, CampaignSentStatusType
 
 from agir.people.models import Person
 
@@ -58,6 +58,13 @@ class Segment(BaseSegment, models.Model):
     )
 
     area = MultiPolygonField("Territoire", blank=True, null=True)
+
+    campaigns = models.ManyToManyField(
+        "nuntius.Campaign",
+        related_name="sent_to_segments",
+        verbose_name="Limiter aux participants ayant reçu une des campagnes",
+        blank=True,
+    )
 
     registration_date = models.DateTimeField(
         "Limiter aux membres inscrit⋅e⋅s après cette date", blank=True, null=True
@@ -115,6 +122,15 @@ class Segment(BaseSegment, models.Model):
 
         if events_filter:
             qs = qs.filter(**events_filter)
+
+        if self.campaigns.all().count() > 0:
+            qs = qs.filter(
+                campaignsentevent__in=[
+                    CampaignSentStatusType.UNKNOWN,
+                    CampaignSentStatusType.OK,
+                ],
+                campaignsentevent__campaign__in=self.campaigns.all(),
+            )
 
         if self.area is not None:
             qs = qs.filter(coordinates__intersects=self.area)
