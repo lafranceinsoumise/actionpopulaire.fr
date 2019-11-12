@@ -92,3 +92,4 @@ django-silk = "*"
 django-debug-toolbar = "*"
 redislite = "*"  # used for testing
 pandas = "*"
+click = "*"
