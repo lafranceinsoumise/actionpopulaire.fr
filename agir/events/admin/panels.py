@@ -7,7 +7,6 @@ from django.template.loader import render_to_string
 from django.urls import path
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import force_text
 from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -35,21 +34,10 @@ class EventStatusFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return (
-            ("all", _("All")),
             ("finished", _("Terminé")),
             ("current", _("En cours")),
             ("upcoming", _("À venir")),
         )
-
-    def choices(self, changelist):
-        for lookup, title in self.lookup_choices:
-            yield {
-                "selected": self.value() == force_text(lookup),
-                "query_string": changelist.get_query_string(
-                    {self.parameter_name: lookup}, []
-                ),
-                "display": title,
-            }
 
     def queryset(self, request, queryset):
         now = timezone.now()
@@ -57,10 +45,10 @@ class EventStatusFilter(admin.SimpleListFilter):
             return queryset.filter(end_time__lt=now)
         elif self.value() == "current":
             return queryset.filter(start_time__lte=now, end_time__gte=now)
-        elif self.value() == "all":
-            return queryset
-        else:
+        elif self.value() == "upcoming":
             return queryset.filter(start_time__gt=now)
+        else:
+            return queryset
 
 
 class EventHasReportFilter(admin.SimpleListFilter):
@@ -76,6 +64,7 @@ class EventHasReportFilter(admin.SimpleListFilter):
             return queryset.exclude(report_content="")
         if self.value() == "no":
             return queryset.filter(report_content="")
+        return queryset
 
 
 class LegalFileFilter(admin.SimpleListFilter):
@@ -93,10 +82,11 @@ class LegalFileFilter(admin.SimpleListFilter):
                 legal__documents_salle_file__isnull=True,
                 legal__documents_bill_file__isnull=True,
             )
-        if self.value() == "no":
+        elif self.value() == "no":
             return queryset.exclude(legal__documents_salle_file__isnull=False).exclude(
                 legal__documents_bill_file__isnull=False
             )
+        return queryset
 
 
 class EventCalendarFilter(admin.SimpleListFilter):
@@ -107,7 +97,9 @@ class EventCalendarFilter(admin.SimpleListFilter):
         return ((c.pk, c.name) for c in Calendar.objects.filter(archived=False))
 
     def queryset(self, request, queryset):
-        return queryset.filter(calendars__pk=self.value())
+        if self.value():
+            return queryset.filter(calendars__pk=self.value())
+        return queryset
 
 
 class OrganizerConfigInlineAdminForm(forms.ModelForm):
