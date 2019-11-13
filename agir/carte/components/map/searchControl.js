@@ -1,6 +1,15 @@
 import Control from "ol/control/Control";
 import * as proj from "ol/proj";
 import { OpenStreetMapProvider } from "leaflet-geosearch";
+import { from, fromEvent, merge } from "rxjs";
+import {
+  debounceTime,
+  map,
+  filter,
+  switchMap,
+  startWith,
+  tap
+} from "rxjs/operators";
 
 import { element } from "./utils";
 
@@ -16,46 +25,98 @@ export default function makeSearchControl(view) {
 
   const control = element("div", [form, list], { className: "search_box" });
 
-  list.addEventListener("click", function(e) {
-    e.preventDefault();
-    if (e.target.tagName === "A") {
-      view.animate({
-        center: proj.fromLonLat([+e.target.dataset.cx, +e.target.dataset.cy]),
-        zoom: 14
-      });
-      list.classList.remove("show");
-    }
-  });
-
-  form.addEventListener("submit", async function(e) {
-    e.preventDefault();
+  async function search(value) {
+    let results;
     try {
-      const results = await provider.search({ query: input.value });
-      if (results.length) {
-        list.innerHTML = results
-          .slice(0, 3)
-          .map(
-            r =>
-              `<li><a href="#" data-cx="${r.x}" data-cy="${r.y}">${r.label}</a></li>`
-          )
-          .join("");
-      } else {
-        list.innerHTML = "<li><em>Pas de résultats</em></li>";
-      }
-      list.classList.add("show");
+      results = await provider.search({ query: value });
     } catch (e) {
-      list.innerHTML =
-        "<li><em>Impossible de contacter le service de recherche d'adresses</em></li>";
-      list.classList.add("show");
+      return {
+        error: "Impossible de contacter le service de recherche d'adresses."
+      };
     }
-  });
+    if (results.length === 0) {
+      return { error: "Lieu inconnu" };
+    }
+    return { results: results };
+  }
+
+  function goToCoordinates(coords) {
+    view.animate({
+      center: proj.fromLonLat(coords),
+      zoom: 14
+    });
+  }
+
+  function updateResults(results) {
+    list.innerHTML = results
+      .map(
+        r =>
+          `<li><a href="#" data-cx="${r.x}" data-cy="${r.y}">${r.label}</a></li>`
+      )
+      .join("");
+    list.classList.add("show");
+  }
+
+  function displayError(error) {
+    list.innerHTML = `<li><em>${error}</em></li>`;
+    list.classList.add("show");
+  }
+
+  function hideList() {
+    list.classList.remove("show");
+  }
 
   control.addEventListener("click", function(ev) {
     ev.stopPropagation();
   });
-  document.addEventListener("click", function() {
-    list.classList.remove("show");
+
+  const documentClicked$ = fromEvent(document, "click");
+  const debouncedInputChange$ = fromEvent(input, "input").pipe(
+    debounceTime(700),
+    filter(e => e.target.value.length > 3)
+  );
+  const formSubmitted$ = fromEvent(form, "submit").pipe(
+    tap(e => e.preventDefault())
+  );
+  const listLinkClicked$ = fromEvent(list, "click").pipe(
+    filter(e => e.target.tagName === "A"),
+    tap(e => e.preventDefault()),
+    map(e => [+e.target.dataset.cx, +e.target.dataset.cy])
+  );
+
+  // l'observable des requêtes réalisées à partir du champ de recherche
+  // Une requête est lancée soit après un input debouncé, soit après
+  // validation du formulaire.
+  const results$ = merge(
+    formSubmitted$,
+    formSubmitted$.pipe(
+      startWith(null),
+      switchMap(() => debouncedInputChange$) // permet "d'annuler" le debounce si on valide le formulaire
+    )
+  ).pipe(
+    map(() => input.value), // la valeur du champ
+    switchMap(v => from(search(v))) // le switchMap permet d'éviter d'afficher une requête précédente en cours
+  );
+
+  // faire un switchMap depuis documentClicked$ permet d'annuler la recherche
+  // en cas de clic en dehors de la boîte en cours de debounce ou de requête
+  documentClicked$
+    .pipe(
+      startWith(null),
+      switchMap(() => results$)
+    )
+    .subscribe(({ error, results }) =>
+      error ? displayError(error) : updateResults(results)
+    );
+
+  listLinkClicked$.subscribe({
+    next: coords => {
+      goToCoordinates(coords);
+      hideList();
+    }
   });
+
+  documentClicked$.subscribe({ next: hideList });
 
   return new Control({
     element: control
