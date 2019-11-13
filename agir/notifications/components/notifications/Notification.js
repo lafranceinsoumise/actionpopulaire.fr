@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
-import moment from "moment";
+import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 
 const NotificationBox = styled.li`
   border-top: 1px solid #bbb;
@@ -72,7 +72,13 @@ const Notification = ({ id, created, content, icon, status, link }) => (
       <Icon className={"fa fa-" + icon} />
       <div>
         <div dangerouslySetInnerHTML={{ __html: content }} />
-        <Date>{moment(created).fromNow()}</Date>
+        <Date>
+          <span
+            dangerouslySetInnerHTML={{
+              __html: displayHumanDate(dateFromISOString(created))
+            }}
+          />
+        </Date>
       </div>
     </NotificationLink>
   </NotificationBox>

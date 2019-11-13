@@ -1,5 +1,4 @@
-import moment from "moment";
-import "moment/locale/fr";
+import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 
 export default function getFormatPopups(types, subtypes) {
   function formatEvent(event) {
@@ -19,7 +18,7 @@ export default function getFormatPopups(types, subtypes) {
       "</a><br /><strong>" +
       (subtype.hideLabel ? type.label : subtype.description) +
       "</strong><br />" +
-      moment(event.start_time).calendar()
+      displayHumanDate(dateFromISOString(event.start_time))
     );
   }
 

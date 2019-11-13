@@ -6,7 +6,6 @@ import useInterval from "./intervalHook";
 import NotificationButton from "./NotificationButton";
 import NotificationsPanel from "./NotificationsPanel";
 import axios from "@agir/lib/utils/axios";
-import moment from "moment";
 
 function markAsSeen(notifications) {
   const unreadNotifications = notifications.filter(n => n.status === "U");
@@ -35,7 +34,7 @@ function mergeNotifications(former, updated) {
 
   const notifications = Array.from(map.values());
 
-  notifications.sort((a, b) => moment(b.created) - moment(a.created));
+  notifications.sort((a, b) => Date.parse(b.created) - Date.parse(a.created));
 
   return notifications;
 }
