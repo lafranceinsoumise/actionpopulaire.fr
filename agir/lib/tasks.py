@@ -19,12 +19,15 @@ def create_geocoder(model):
         try:
             geocode_element(item)
             item.save()
-        except (ValueError, requests.RequestException) as exc:
+        except ValueError as exc:
             self.retry(countdown=60, exc=exc)
+        except requests.RequestException as exc:
+            # Réessaye dans 30 minutes en cas d'erreur HTTP
+            self.retry(countdown=60 * 30, exc=exc)
 
     geocode_model.__name__ = "geocode_{}".format(model.__name__.lower())
 
-    return shared_task(geocode_model, bind=True)
+    return shared_task(geocode_model, bind=True, max_retries=3)
 
 
 geocode_event = create_geocoder(Event)
