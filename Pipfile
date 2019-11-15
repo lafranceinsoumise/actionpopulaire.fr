@@ -68,6 +68,7 @@ social-auth-app-django = "==3.*"
 # data wrangling
 glom = "*"
 tablib = "*"
+pyrogram = "*"
 
 [dev-packages]
 ipython = "*"

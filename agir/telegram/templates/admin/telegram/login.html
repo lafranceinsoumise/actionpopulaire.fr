@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}{% load crispy_forms_tags i18n admin_urls static admin_modify %}
+
+{% block content %}
+
+  <div id="content-main">
+    <form method="post">
+    {% csrf_token %}
+      {% for field in form %}
+        {{ field }}
+      {% endfor %}
+    <button type="submit" class="button">Connexion</button>
+    </form>
+
+  </div>
+{% endblock %}
