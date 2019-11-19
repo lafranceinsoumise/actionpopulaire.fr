@@ -62,7 +62,7 @@ class Segment(BaseSegment, models.Model):
     campaigns = models.ManyToManyField(
         "nuntius.Campaign",
         related_name="sent_to_segments",
-        verbose_name="Limiter aux participants ayant reçu une des campagnes",
+        verbose_name="Limiter aux personnes ayant reçu une des campagnes",
         blank=True,
     )
 
@@ -125,7 +125,7 @@ class Segment(BaseSegment, models.Model):
 
         if self.campaigns.all().count() > 0:
             qs = qs.filter(
-                campaignsentevent__in=[
+                campaignsentevent__result__in=[
                     CampaignSentStatusType.UNKNOWN,
                     CampaignSentStatusType.OK,
                 ],
