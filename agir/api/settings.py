@@ -689,7 +689,8 @@ NUNTIUS_DISABLE_DEFAULT_ADMIN = True
 NUNTIUS_SUBSCRIBER_MODEL = "people.Person"
 NUNTIUS_SEGMENT_MODEL = "mailing.segment"
 NUNTIUS_CELERY_BROKER_URL = "redis://"
-NUNTIUS_EMAIL_BACKEND = "anymail.backends.amazon_ses.EmailBackend"
+if not DEBUG:
+    NUNTIUS_EMAIL_BACKEND = "anymail.backends.amazon_ses.EmailBackend"
 NUNTIUS_MOSAICO_TEMPLATES = [
     (
         "/static/mosaico_templates/versafix-blank/template.html",

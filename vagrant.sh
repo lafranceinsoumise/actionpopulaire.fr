@@ -96,7 +96,24 @@ Description=fi-api celery worker
 
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/usr/local/bin/pipenv run celery worker --app agir.api --concurrency 2 --logfile=/dev/null
+ExecStart=/usr/local/bin/pipenv run celery worker --app agir.api --concurrency 2 --logfile=/dev/null -Q celery
+User=vagrant
+Group=vagrant
+Restart=on-failure
+KillSignal=SIGTERM
+Type=simple
+
+[Install]
+WantedBy=vagrant.mount
+EOT
+
+sudo bash -c "cat > /etc/systemd/system/celery-nuntius.service" <<EOT
+[Unit]
+Description=fi-api celery worker
+
+[Service]
+WorkingDirectory=/vagrant
+ExecStart=/usr/local/bin/pipenv run celery worker --app nuntius.celery --concurrency 2 --logfile=/dev/null -Q nuntius -n nuntius@%%h
 User=vagrant
 Group=vagrant
 Restart=on-failure
@@ -146,12 +163,14 @@ sudo systemctl daemon-reload
 echo "## Enable all services..."
 sudo systemctl enable django
 sudo systemctl enable celery
+sudo systemctl enable celery-nuntius
 sudo systemctl enable mailhog
 sudo systemctl enable webpack
 
 echo "## Start all services..."
 sudo systemctl start django
 sudo systemctl start celery
+sudo systemctl start celery-nuntius
 sudo systemctl start mailhog
 sudo systemctl start webpack
 
