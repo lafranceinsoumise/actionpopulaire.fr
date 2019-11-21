@@ -149,6 +149,12 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
 
         return self._create_person(email, password, **extra_fields)
 
+    def get_subscriber(self, email):
+        try:
+            return self.get(email=email)
+        except Person.DoesNotExist:
+            pass
+
     def set_subscriber_status(self, email, status):
         try:
             p = self.get(email=email)
