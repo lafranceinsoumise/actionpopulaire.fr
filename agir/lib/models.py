@@ -221,7 +221,9 @@ class LocationMixin(models.Model):
             self.location_zip
         ):
             departement = departement_from_zipcode(self.location_zip)
-            regions_map = data.anciennes_regions_map if ancienne else data.regions_map
+            regions_map = (
+                data.anciennes_regions_par_code if ancienne else data.regions_par_code
+            )
             region_key = "ancienne_region" if ancienne else "region"
 
             if departement is not None and departement[region_key] in regions_map:

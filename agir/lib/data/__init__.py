@@ -24,16 +24,16 @@ for region in regions:
 with open(Path(__file__).parent / "anciennes_regions.csv") as file:
     anciennes_regions = list(csv.DictReader(file))
 
-departements_map = {d["id"]: d for d in departements}
+departements_par_code = {d["id"]: d for d in departements}
 departements_choices = tuple((d["id"], f'{d["id"]} - {d["nom"]}') for d in departements)
+departements_par_nom = {_normalize_entity_name(d["nom"]): d for d in departements}
 
-regions_map = {
-    **{r["id"]: r for r in regions},
-    **{_normalize_entity_name(r["nom"]): r for r in regions},
-}
+regions_par_code = {r["id"]: r for r in regions}
+
+regions_par_nom = {_normalize_entity_name(r["nom"]): r for r in regions}
 
 for r in regions:
-    regions_map.update({_normalize_entity_name(alias): r for alias in r["alias"]})
+    regions_par_nom.update({_normalize_entity_name(alias): r for alias in r["alias"]})
 
 
 # utiliser unidecode permet de classer Île-de-France à I
@@ -41,17 +41,31 @@ regions_choices = tuple(
     (r["id"], r["nom"]) for r in sorted(regions, key=lambda d: unidecode(d["nom"]))
 )
 
-anciennes_regions_map = {r["id"]: r for r in anciennes_regions}
+anciennes_regions_par_code = {r["id"]: r for r in anciennes_regions}
 
-_CORSE_RE = re.compile("^[A|B]")
+_CORSE_RE = re.compile("[ABab]")
 
 
 def filtre_departement(code):
-    return Q(location_zip__startswith=_CORSE_RE.sub("0", code))
+    if code in departements_par_code:
+        return Q(location_zip__startswith=_CORSE_RE.sub("0", code))
+
+    elif _normalize_entity_name(code) in departements_par_nom:
+        return Q(
+            location_zip__startswith=_CORSE_RE.sub(
+                "0", departements_par_nom[_normalize_entity_name(code)]["id"]
+            )
+        )
+
+    else:
+        raise ValueError("Département inconnu")
 
 
 def filtre_region(code):
-    code = regions_map[_normalize_entity_name(code)]["id"]
+    if code not in regions_par_code:
+        if _normalize_entity_name(code) not in regions_par_nom:
+            raise ValueError(f"Région '{code}' inconnue")
+        code = regions_par_nom[_normalize_entity_name(code)]["id"]
 
     return reduce(
         or_, (filtre_departement(d["id"]) for d in departements if d["region"] == code)
@@ -60,12 +74,12 @@ def filtre_region(code):
 
 def departement_from_zipcode(zipcode):
     if zipcode.startswith("97"):
-        return departements_map.get(zipcode[:3], None)
+        return departements_par_code.get(zipcode[:3], None)
 
     # on retourne toujours par défaut le premier département Corse
     if zipcode[:2] == "20":
         zipcode = "2A"
-    return departements_map.get(zipcode[:2], None)
+    return departements_par_code.get(zipcode[:2], None)
 
 
 def french_zipcode_to_country_code(zipcode):
