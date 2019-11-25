@@ -1,5 +1,6 @@
+import { hot } from "react-hot-loader/root"; // doit être importé avant React
+
 import React from "react";
-import { hot } from "react-hot-loader";
 import PropTypes from "prop-types";
 import { Async } from "react-select";
 import Symbol from "es6-symbol";
@@ -288,4 +289,4 @@ MandatesField.propTypes = {
   hiddenField: PropTypes.object
 };
 
-export default hot(module)(MandatesField);
+export default hot(MandatesField);

@@ -1,6 +1,7 @@
+import { hot } from "react-hot-loader/root"; // doit être importé avant React
+
 import React, { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
-import { hot } from "react-hot-loader";
 
 import useInterval from "./intervalHook";
 import NotificationButton from "./NotificationButton";
@@ -122,4 +123,4 @@ NotificationsCenter.propTypes = {
   notifications: PropTypes.array
 };
 
-export default hot(module)(NotificationsCenter);
+export default hot(NotificationsCenter);

@@ -1,9 +1,10 @@
+import { hot } from "react-hot-loader/root"; // doit être importé avant React
+
 import axios from "@agir/lib/utils/axios";
 import React from "react";
 import PropTypes from "prop-types";
 import "react-stepzilla/src/css/main.css";
 import qs from "querystring";
-import { hot } from "react-hot-loader";
 
 import MultiStepForm from "./MultiStepForm";
 import Question from "./Question";
@@ -507,4 +508,4 @@ class ValidateStep extends FormStep {
   }
 }
 
-export default hot(module)(CreateEventForm);
+export default hot(CreateEventForm);
