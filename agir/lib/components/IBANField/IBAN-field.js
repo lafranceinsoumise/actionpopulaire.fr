@@ -114,12 +114,7 @@ export class IBANField extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    const allowedContry = this.props.allowedCountry
-      ? this.props.allowedCountry
-      : [];
-
     this.state = {
-      allowedCountry: allowedContry,
       error: null,
       value: "",
       cursorPosition: 0
@@ -140,7 +135,8 @@ export class IBANField extends React.Component {
     if (this.state.value === "") {
       this.clearError();
     } else if (
-      !this.state.allowedCountry.includes(this.state.value.slice(0, 2))
+      this.props.allowedCountry !== null &&
+      !this.props.allowedCountry.includes(this.state.value.slice(0, 2))
     ) {
       this.setState({ error: this.errorMessages.wrongCountry });
     } else if (!isIbanValid(this.state.value)) {

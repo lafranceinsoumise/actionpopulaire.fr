@@ -123,6 +123,8 @@ class CustomJSONEncoder(DjangoJSONEncoder):
     def default(self, o):
         if isinstance(o, PhoneNumber):
             return o.as_e164
+        if isinstance(o, IBAN):
+            return o.as_stored_value
         return super().default(o)
 
 

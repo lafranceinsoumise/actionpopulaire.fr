@@ -16,7 +16,7 @@ from phonenumber_field.formfields import PhoneNumberField
 
 from agir.events.models import Event
 from agir.lib.data import departements_choices, regions_choices
-from agir.lib.form_fields import DateTimePickerWidget, SelectizeWidget
+from agir.lib.form_fields import DateTimePickerWidget, SelectizeWidget, IBANField
 from agir.lib.token_bucket import TokenBucket
 
 from ..models import Person
@@ -153,6 +153,7 @@ FIELDS = {
     "decimal": forms.DecimalField,
     "datetime": DateTimeField,
     "person": PersonChoiceField,
+    "iban": IBANField,
 }
 
 PREDEFINED_CHOICES = {
