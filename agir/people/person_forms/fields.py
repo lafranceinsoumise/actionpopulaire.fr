@@ -123,9 +123,13 @@ class PersonChoiceField(forms.ModelChoiceField):
     widget = forms.TextInput
 
     def __init__(self, *args, **kwargs):
+        kwargs.setdefault(
+            "help_text",
+            "Entrez l'adresse email d'une personne inscrite sur la plateforme.",
+        )
+
         super().__init__(
             Person.objects.filter(role__is_active=True),
-            help_text="Entrez l'adresse email d'une personne inscrite sur la plateforme.",
             to_field_name="emails__address",
             error_messages={
                 "invalid_choice": "Cette adresse email ne correspond pas à une personne inscrite."
