@@ -1,9 +1,12 @@
+from argparse import FileType
+
 import tablib as tablib
+from django.core.mail import EmailMultiAlternatives, EmailMessage, get_connection
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from glom import Coalesce, T, glom
 
-from agir.lib.management_utils import month_argument, month_range
+from agir.lib.management_utils import month_argument, month_range, email_argument
 from agir.payments.models import Payment
 from agir.system_pay.models import SystemPayTransaction
 
@@ -57,13 +60,29 @@ FILE_DESC = {
 }
 
 
+MESSAGE_BODY = """
+Bonjour,
+
+Vous trouverez ci-joint l'export des abonnements pour le mois concerné.
+
+Amitiés insoumises,
+La gentille plateforme de la France insoumise
+"""
+
+
 class Command(BaseCommand):
     help = "Exporte les informations supplémentaires nécessaires pour l'audit des dons réguliers"
 
     def add_arguments(self, parser):
         parser.add_argument("month", type=month_argument)
+        parser.add_argument(
+            "-s", "--send-to", dest="emails", action="append", type=email_argument
+        )
+        parser.add_argument(
+            "-o", "--output-to", dest="output", type=FileType(mode="wb")
+        )
 
-    def handle(self, *args, month, **options):
+    def handle(self, *args, month, emails, output, **options):
         if month is None:
             now = timezone.now()
             month = month_range(now.year, now.month)
@@ -81,4 +100,30 @@ class Command(BaseCommand):
         results = glom(payments, [FILE_DESC])
 
         s = tablib.Dataset(*(r.values() for r in results), headers=FILE_DESC.keys())
-        self.stdout.buffer.write(s.export("xls"))
+        xls_file = s.export("xls")
+
+        if not output and not emails:
+            self.stdout.buffer.write(xls_file)
+
+        if output:
+            output.write(xls_file)
+
+        if emails:
+            connection = get_connection()
+
+            with connection:
+                for e in emails:
+
+                    message = EmailMessage(
+                        subject=f"Export des abonnements — {month[0].strftime('%m/%Y')}",
+                        body=MESSAGE_BODY,
+                        from_email="nepasrepondre@lafranceinsoumise.fr",
+                        to=[e],
+                        connection=connection,
+                    )
+                    message.attach(
+                        f"export-{month[0].strftime('%m-%Y')}.xls",
+                        xls_file,
+                        "application/vnd.ms-excel",
+                    )
+                    message.send()

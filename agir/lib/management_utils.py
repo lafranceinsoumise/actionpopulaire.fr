@@ -1,8 +1,11 @@
+from argparse import ArgumentTypeError
 from datetime import date, time
 
 import re
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance as DistanceMeasure
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.utils import timezone
 
 SEP = r"[/-]"
@@ -65,6 +68,14 @@ def datetime_argument(d):
     )
 
 
+def email_argument(email):
+    try:
+        validate_email(email)
+    except ValidationError:
+        raise ArgumentTypeError(f"'{email}' n'est pas une adresse email valide.")
+    return email
+
+
 def month_range(year, month, tz=None):
     first_day = timezone.make_aware(timezone.datetime(year, month, 1), tz)
 
@@ -77,7 +88,7 @@ def month_argument(arg: str):
     match = month_regexp_be.match(arg) or month_regexp_le.match(arg)
 
     if match is None:
-        raise ValueError(f"'{arg}'' doit être de la forme 'AAAA-MM'.")
+        raise ArgumentTypeError(f"'{arg}'' doit être de la forme 'AAAA-MM'.")
 
     return month_range(int(match.group("year")), int(match.group("month")))
 
@@ -86,7 +97,7 @@ def distance_argument(d):
     m = re.match("^([0-9.]+)([a-zA-Z]+)$", d)
 
     if not m:
-        raise ValueError(f"{d} n'est pas une mesure de distance correcte")
+        raise ArgumentTypeError(f"{d} n'est pas une mesure de distance correcte")
 
     return DistanceMeasure(**{m.group(2): float(m.group(1))})
 
@@ -97,7 +108,7 @@ def event_argument(event_id):
     try:
         return Event.objects.get(pk=event_id)
     except Event.DoesNotExist:
-        raise ValueError("Cet événement n'existe pas.")
+        raise ArgumentTypeError("Cet événement n'existe pas.")
 
 
 def coordinates_argument(coords):
