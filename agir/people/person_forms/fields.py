@@ -135,6 +135,9 @@ class PersonChoiceField(forms.ModelChoiceField):
         )
 
     def to_python(self, value):
+        if value in self.empty_values:
+            return None
+
         return super().to_python(value).pk
 
 
