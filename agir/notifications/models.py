@@ -106,7 +106,6 @@ class Notification(TimeStampedModel):
     icon = models.CharField(
         verbose_name="icône",
         max_length=200,
-        default="exclamation",
         help_text=format_html(
             'Indiquez le nom d\'une icône dans <a href="{icon_link}">cette liste</a>',
             icon_link="https://fontawesome.com/v4.7.0/icons/",
