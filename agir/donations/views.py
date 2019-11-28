@@ -301,19 +301,19 @@ def notification_listener(payment):
             payment.meta.get("allocation") is not None
             and payment.meta.get("group_id") is not None
         ):
-            Operation.objects.create(
+            Operation.objects.update_or_create(
                 payment=payment,
                 group_id=payment.meta.get("group_id"),
-                amount=payment.meta.get("allocation"),
+                defaults={"amount": payment.meta.get("allocation")},
             )
 
         with transaction.atomic():
             if payment.subscription is not None:
                 for allocation in payment.subscription.allocations.all():
-                    Operation.objects.get_or_create(
+                    Operation.objects.update_or_create(
                         payment=payment,
                         group=allocation.group,
-                        amount=allocation.amount,
+                        defaults={"amount": allocation.amount},
                     )
 
 
