@@ -24,7 +24,9 @@ SYSTEMPAY_STATUS_CHOICE = {
 
 class SystemPayWebhookSerializer(serializers.Serializer):
     vads_order_id = serializers.CharField(required=True, source="order_id")
-    vads_trans_uuid = serializers.UUIDField(required=True, source="trans_uuid")
+    vads_trans_uuid = serializers.UUIDField(
+        required=False, source="trans_uuid"
+    )  # absent pour les abandons
     vads_operation_type = serializers.ChoiceField(
         choices=SYSTEMPAY_OPERATION_TYPE_CHOICE, required=False, source="operation_type"
     )
@@ -150,6 +152,11 @@ class SystemPayWebhookSerializer(serializers.Serializer):
                 alias.save()
 
     def get_transaction_by_uuid(self):
+        if "trans_uuid" not in self.validated_data:
+            raise serializers.ValidationError(
+                detail={"uuid": "Aucune transaction avec cet UUID"}, code="unknown_uuid"
+            )
+
         try:
             return SystemPayTransaction.objects.get(
                 uuid=self.validated_data["trans_uuid"]

@@ -204,7 +204,7 @@ class SystemPayWebhookView(APIView):
         # sauve les données nettoyées (i.e. les champs sensibles et superflus sont retirés)
         sp_transaction.webhook_calls.append(serializer.cleaned_data)
         sp_transaction.status = serializer.validated_data["trans_status"]
-        sp_transaction.uuid = serializer.validated_data["trans_uuid"]
+        sp_transaction.uuid = serializer.validated_data.get("trans_uuid")
         sp_transaction.save()
 
     def handle_refund(self, serializer):
