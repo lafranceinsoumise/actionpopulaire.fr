@@ -1,6 +1,8 @@
 from datetime import date
 
 import calendar
+from uuid import UUID
+
 from rest_framework import serializers
 
 from agir.payments.models import Subscription
@@ -30,7 +32,7 @@ class SystemPayWebhookSerializer(serializers.Serializer):
         choices=list(SYSTEMPAY_STATUS_CHOICE), required=True, source="trans_status"
     )
     vads_amount = serializers.IntegerField(required=True, source="amount")
-    vads_cust_id = serializers.UUIDField(required=True, source="cust_id")
+    vads_cust_id = serializers.CharField(required=True, source="cust_id")
 
     # information de l'alias
     vads_identifier = serializers.UUIDField(required=False, source="identifier")
@@ -44,8 +46,17 @@ class SystemPayWebhookSerializer(serializers.Serializer):
         super().__init__(instance=None, data=data)
         self.sp_config = sp_config
 
-    def validate_trans_status(self, value):
+    def validate_vads_trans_status(self, value):
         return value and SYSTEMPAY_STATUS_CHOICE[value]
+
+    def validate_vads_cust_id(self, value):
+        if value == "anonymous":
+            return None
+
+        try:
+            return UUID(value)
+        except ValueError:
+            raise serializers.ValidationError("bad vads_cust_id")
 
     def validate(self, validated_data):
         # On vérifie que la requête est correctement signée
@@ -59,10 +70,6 @@ class SystemPayWebhookSerializer(serializers.Serializer):
                 detail={"signature": "Signature manquante ou incorrecte"},
                 code="bad_signature",
             )
-
-        validated_data["trans_status"] = SYSTEMPAY_STATUS_CHOICE[
-            validated_data["trans_status"]
-        ]
 
         if validated_data.get("expiry_year") and validated_data.get("expiry_month"):
             validated_data["expiry_date"] = date(
