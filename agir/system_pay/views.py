@@ -137,7 +137,15 @@ class SystemPayWebhookView(APIView):
 
         # le serializer permet de valider à la fois la signature et la structure générale
         # de la requête.
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except serializers.ValidationError:
+            logger.exception(
+                "Contenu de la transaction invalide", extra={"request": request}
+            )
+
+            # on reraise pour s'assurer que SystemPay reçoit une réponse en 4xx
+            raise
 
         # on vérifie, pour garantir l'idempotence, que la transaction n'a pas déjà été
         # traitée, en cherchant une transaction de même UUID. Même dans le cas des paiements,
