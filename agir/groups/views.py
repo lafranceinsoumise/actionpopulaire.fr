@@ -596,7 +596,7 @@ class ThematicTeamsViews(ListView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            **kwargs, default_image="front/images/AEC-mini.jpg"
+            **kwargs, default_image="front/images/AEC-mini.png"
         )
 
 
