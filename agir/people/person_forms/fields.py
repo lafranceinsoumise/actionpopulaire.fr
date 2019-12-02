@@ -119,8 +119,14 @@ class FileField(forms.FileField):
 
 
 # In person form there is a token bucket for preventing searching
-class PersonChoiceField(forms.ModelChoiceField):
+class PersonChoiceField(forms.CharField):
     widget = forms.TextInput
+
+    default_error_messages = {
+        "invalid_choice": _(
+            "Cette adresse email ne correspond pas à une personne inscrite."
+        )
+    }
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault(
@@ -128,21 +134,25 @@ class PersonChoiceField(forms.ModelChoiceField):
             "Entrez l'adresse email d'une personne inscrite sur la plateforme.",
         )
 
-        super().__init__(
-            Person.objects.filter(role__is_active=True),
-            to_field_name="emails__address",
-            error_messages={
-                "invalid_choice": "Cette adresse email ne correspond pas à une personne inscrite."
-            },
-            *args,
-            **kwargs,
-        )
+        super().__init__(*args, **kwargs)
 
     def to_python(self, value):
         if value in self.empty_values:
             return None
 
-        return super().to_python(value).pk
+        try:
+            value = Person.objects.get_by_natural_key(value.strip())
+        except Person.DoesNotExist:
+            raise ValidationError(
+                self.error_messages["invalid_choice"], code="invalid_choice"
+            )
+
+        if not value.role.is_active:
+            raise ValidationError(
+                self.error_messages["invalid_choice"], code="invalid_choice"
+            )
+
+        return value.pk
 
 
 FIELDS = {
