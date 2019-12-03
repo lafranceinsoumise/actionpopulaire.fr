@@ -14,6 +14,7 @@ from agir.donations.models import (
     Operation,
     MonthlyAllocation,
 )
+from agir.lib.display import display_price
 
 
 def mark_as_paid(model_admin, request, queryset):
@@ -60,16 +61,15 @@ class RequestStatusFilter(admin.SimpleListFilter):
 @admin.register(SpendingRequest, site=admin_site)
 class SpendingRequestAdmin(admin.ModelAdmin):
     list_display = [
-        "id",
         "title",
         "status",
         "spending_date",
         "group",
-        "amount",
+        "show_amount",
         "category",
         "spending_request_actions",
     ]
-    sortable_by = ("id", "title", "spending_date", "amount")
+    sortable_by = ("title", "spending_date", "show_amount")
     search_fields = ("id", "title", "group__name")
     list_filter = (RequestStatusFilter,)
     actions = (mark_as_paid,)
@@ -104,9 +104,15 @@ class SpendingRequestAdmin(admin.ModelAdmin):
         ),
     )
 
-    readonly_fields = ("created", "modified")
+    readonly_fields = ("created", "modified", "show_amount")
     autocomplete_fields = ("group", "event")
     inlines = (DocumentInline,)
+
+    def show_amount(self, obj):
+        return display_price(obj.amount)
+
+    show_amount.short_description = "Montant"
+    show_amount.admin_order_field = "amount"
 
     def spending_request_actions(self, obj):
         return format_html(
