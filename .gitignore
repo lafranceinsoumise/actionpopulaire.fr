@@ -18,7 +18,8 @@ db.sqlite3
 
 /assets/
 .vagrant
-*cloudimg-console.log
+/*.log
+
 .env
 *.csv
 *.xls

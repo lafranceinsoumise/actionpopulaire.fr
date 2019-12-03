@@ -12,22 +12,18 @@ const TypeButton = styled.button`
   min-width: 200px;
   padding: 1em;
   border-radius: 10px;
-  ${({ selected }) =>
-    selected &&
-    `
-  &, &:focus {
-  color: white;
-  background-color: #01b1d4;
+
+  &:disabled,
+  &:disabled:focus {
+    color: white;
+    background-color: #01b1d4;
+    opacity: 1;
+    cursor: pointer;
   }
-  &:hover {
+  &:disabled:hover {
     background-color: #0098b6;
     color: white;
   }
-  &:active, &:active:focus {
-    background-color: #1d7384;
-    color: white;
-  }
-    `}
 `;
 
 const TypeWidget = ({ typeChoices, type, onTypeChange }) => (
@@ -40,7 +36,7 @@ const TypeWidget = ({ typeChoices, type, onTypeChange }) => (
         type="button"
         onClick={() => onTypeChange(value)}
         className="btn btn-default"
-        selected={type === value}
+        disabled={type === value}
       >
         <div>
           <i className={`fa fa-${icon || "arrow-right"}`} />

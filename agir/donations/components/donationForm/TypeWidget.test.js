@@ -20,12 +20,8 @@ test("TypeWidget a bien les boutons", () => {
 
 test("TypeWidget style le bouton quand c'est sélectionné", () => {
   const component = render(<TypeWidget typeChoices={typeChoices} type={"S"} />);
-  expect(component.getByText("une seule fois").classList).toContain(
-    "btn-primary"
-  );
-  expect(component.getByText("tous les mois").classList).toContain(
-    "btn-default"
-  );
+  expect(component.getByText("une seule fois")).toBeDisabled();
+  expect(component.getByText("tous les mois")).not.toBeDisabled();
 });
 
 test("TypeWidget réagit quand on clique", () => {

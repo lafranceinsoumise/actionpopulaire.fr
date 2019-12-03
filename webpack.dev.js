@@ -4,11 +4,15 @@ const webpack = require("webpack");
 
 const common = require("./webpack.common.js");
 
+const serverName = process.env.JS_SERVER || "agir.local";
+const port = process.env.JS_SERVER
+  ? +process.env.JS_SERVER.split(":")[1] || 3000
+  : 3000;
 module.exports = merge(common, {
   mode: "development",
   devtool: "cheap-eval-source-map",
   output: {
-    publicPath: "http://agir.local:3000/static/components/",
+    publicPath: `http://${serverName}:${port}/static/components/`,
     devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
     filename: "[name]-[hash].js"
   },
@@ -16,18 +20,18 @@ module.exports = merge(common, {
     poll: 1000
   },
   devServer: {
-    publicPath: "http://agir.local:3000/static/components/",
-    public: "agir.local:3000",
+    publicPath: `http://${serverName}:${port}/static/components/`,
+    public: `${serverName}:${port}`,
     contentBase: path.join(__dirname, "/assets/components/"),
     compress: true,
     hot: true,
     hotOnly: true,
     host: "0.0.0.0",
-    port: 3000,
+    port: port,
     headers: {
       "Access-Control-Allow-Origin": "*"
     },
-    allowedHosts: ["agir.local"]
+    allowedHosts: [serverName]
   },
   optimization: {
     namedModules: true,
