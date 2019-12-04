@@ -26,12 +26,12 @@ module.exports = merge(common, {
     compress: true,
     hot: true,
     hotOnly: true,
-    host: "0.0.0.0",
+    host: serverName === "localhost" ? "localhost" : "0.0.0.0",
     port: port,
     headers: {
       "Access-Control-Allow-Origin": "*"
     },
-    allowedHosts: [serverName]
+    allowedHosts: ["agir.local"] // l'appli Django est toujours sur agir.local
   },
   optimization: {
     namedModules: true,

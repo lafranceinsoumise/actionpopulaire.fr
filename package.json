@@ -79,11 +79,11 @@
     "react-hot-loader": "^4.12.18",
     "react-test-renderer": "^16.10.2",
     "style-loader": "^0.23.1",
-    "webpack": "^4.39.3",
-    "webpack-bundle-analyzer": "^3.4.1",
-    "webpack-bundle-tracker": "^0.4.2-beta",
-    "webpack-cli": "^3.3.7",
-    "webpack-dev-server": "^3.8.0",
+    "webpack": "^4.41.2",
+    "webpack-bundle-analyzer": "^3.6.0",
+    "webpack-bundle-tracker": "^0.4.3",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0",
     "webpack-merge": "^4.2.2"
   },
   "jest": {
@@ -92,6 +92,8 @@
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__jsmocks__/fileMock.js",
       "\\.(css|less)$": "<rootDir>/__jsmocks__/styleMock.js"
     },
-    "setupFilesAfterEnv": ["./jest.setup.js"]
+    "setupFilesAfterEnv": [
+      "./jest.setup.js"
+    ]
   }
 }
