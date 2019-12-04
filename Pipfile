@@ -69,6 +69,7 @@ social-auth-app-django = "==3.*"
 glom = "*"
 tablib = "*"
 pyrogram = "*"
+tgcrypto = "*"
 
 [dev-packages]
 ipython = "*"
