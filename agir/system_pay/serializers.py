@@ -83,11 +83,13 @@ class SystemPayWebhookSerializer(serializers.Serializer):
                 )[1],
             )
 
-        if validated_data.get("operation_type") == "VERIFICATION":
+        if validated_data.get(
+            "operation_type"
+        ) == "VERIFICATION" and self.is_successful(validated_data):
             if not validated_data.get("subscription"):
                 raise serializers.ValidationError(
                     detail={
-                        "subscription": "Identifiant de la subscription manquant pour une vérification"
+                        "subscription": "Identifiant de la subscription manquant pour une vérification réussie"
                     },
                     code="missing_subscription_id",
                 )
@@ -103,6 +105,11 @@ class SystemPayWebhookSerializer(serializers.Serializer):
                 )
 
         return validated_data
+
+    def is_successful(self, validated_data=None):
+        if validated_data is None:
+            validated_data = self.validated_data
+        return validated_data["trans_status"] == SystemPayTransaction.STATUS_COMPLETED
 
     def check_payment_match_transaction(self, payment):
         if payment is None:

@@ -280,24 +280,25 @@ class SystemPayWebhookView(APIView):
 
         if sp_transaction.subscription is None:
             raise serializers.ValidationError(
-                "Souscription manquante", code="missing_subscription"
+                "Souscription manquante sur la transaction", code="missing_subscription"
             )
 
-        # Création ou récupération de l'alias (normalement il s'agit d'un nouveau)
-        alias, created = SystemPayAlias.objects.get_or_create(
-            identifier=serializer.validated_data["identifier"],
-            defaults={"expiry_date": serializer.validated_data["expiry_date"]},
-        )
-        if not created:
-            serializer.check_and_update_alias(alias)
+        if serializer.is_successful():
+            # Création ou récupération de l'alias (normalement il s'agit d'un nouveau)
+            alias, created = SystemPayAlias.objects.get_or_create(
+                identifier=serializer.validated_data["identifier"],
+                defaults={"expiry_date": serializer.validated_data["expiry_date"]},
+            )
+            if not created:
+                serializer.check_and_update_alias(alias)
 
-        # création de la souscription SystemPay correspondante
-        # (pour relier, alias, souscription et identifiant de souscription)
-        SystemPaySubscription.objects.get_or_create(
-            identifier=serializer.validated_data["subscription"],
-            subscription=sp_transaction.subscription,
-            alias=alias,
-        )
+            # création de la souscription SystemPay correspondante
+            # (pour relier, alias, souscription et identifiant de souscription)
+            SystemPaySubscription.objects.get_or_create(
+                identifier=serializer.validated_data["subscription"],
+                subscription=sp_transaction.subscription,
+                alias=alias,
+            )
 
         self.save_transaction(sp_transaction, serializer)
 
