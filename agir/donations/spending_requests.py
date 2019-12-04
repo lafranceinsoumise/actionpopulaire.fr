@@ -3,6 +3,7 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
+from glom import glom, T
 from reversion.models import Version
 
 from agir.donations.allocations import get_balance
@@ -12,38 +13,38 @@ from agir.lib.display import display_price
 from agir.lib.utils import front_url
 
 
-def admin_summary(spending_request):
-    shown_fields = [
-        "id",
-        "title",
-        "status",
-        "group",
-        "event",
-        "category",
-        "category_precisions",
-        "explanation",
-        "amount",
-        "spending_date",
-        "provider",
-        "iban",
-    ]
-
-    values = {f: getattr(spending_request, f) for f in shown_fields}
-
-    values["group"] = format_html(
+def group_formatter(group):
+    return format_html(
         '<a href="{group_link}">{group_name}</a> ({group_balance})<br><a href="mailto:{group_email}">{group_email}</a><br>{group_phone}',
-        group_name=spending_request.group.name,
-        group_email=spending_request.group.contact_email,
-        group_phone=spending_request.group.contact_phone,
-        group_link=front_url("view_group", args=(spending_request.group_id,)),
-        group_balance=display_price(get_balance(spending_request.group)),
+        group_name=group.name,
+        group_email=group.contact_email,
+        group_phone=group.contact_phone,
+        group_link=front_url("view_group", args=(group.id,)),
+        group_balance=display_price(get_balance(group)),
     )
 
-    values["amount"] = display_price(spending_request.amount)
+
+def admin_summary(spending_request):
+    spec = {
+        "id": "id",
+        "title": "title",
+        "status": T.get_status_display(),
+        "group": ("group", group_formatter),
+        "event": "event",
+        "category": T.get_category_display(),
+        "category_precisions": "category_precisions",
+        "explanation": "explanation",
+        "amount": ("amount", display_price),
+        "spending_date": "spending_date",
+        "provider": "provider",
+        "iban": "iban",
+    }
+
+    values = glom(spending_request, spec)
 
     return [
         {"label": SpendingRequest._meta.get_field(f).verbose_name, "value": values[f]}
-        for f in shown_fields
+        for f in spec
     ]
 
 
