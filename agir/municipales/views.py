@@ -1,10 +1,12 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import DetailView
+from rest_framework.generics import ListAPIView
 
 from agir.events.models import Event
 from agir.lib.views import IframableMixin
 from agir.municipales.models import CommunePage
+from agir.municipales.serializers import CommunePageSerializer
 
 
 class CommuneView(IframableMixin, DetailView):
@@ -33,3 +35,15 @@ class CommuneView(IframableMixin, DetailView):
         kwargs["events"] = paginator.get_page(self.request.GET.get("events_page"))
 
         return super().get_context_data(**kwargs)
+
+
+class SearchView(ListAPIView):
+    serializer_class = CommunePageSerializer
+
+    def get_queryset(self):
+        q = self.request.query_params.get("q")
+
+        if not q:
+            return CommunePage.objects.none()
+
+        return CommunePage.objects.search(q)

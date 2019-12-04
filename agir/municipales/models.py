@@ -1,12 +1,33 @@
 from django.contrib.gis.db.models import MultiPolygonField
+from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
 from django.db.models import UniqueConstraint
 
 from agir.lib.models import TimeStampedModel
+from agir.lib.search import PrefixSearchQuery
 from agir.lib.utils import front_url
 
 
+class CommunePageQueryset(models.QuerySet):
+    def search(self, search_terms):
+        vector = SearchVector(
+            models.F("name"), config="simple_unaccented", weight="A"
+        ) + SearchVector(
+            models.F("code_departement"), config="simple_unaccented", weight="B"
+        )
+        query = PrefixSearchQuery(search_terms, config="simple_unaccented")
+
+        return (
+            self.annotate(search=vector)
+            .filter(search=query)
+            .annotate(rank=SearchRank(vector, query))
+            .order_by("-rank")
+        )
+
+
 class CommunePage(TimeStampedModel, models.Model):
+    objects = CommunePageQueryset.as_manager()
+
     code = models.CharField("Code INSEE", max_length=5, editable=False)
     code_departement = models.CharField(
         "Code département", max_length=3, editable=False
