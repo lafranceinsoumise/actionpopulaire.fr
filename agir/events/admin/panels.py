@@ -231,6 +231,7 @@ class EventRsvpPersonFormDisplay(PersonFormDisplay):
 class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     form = EventAdminForm
     person_form_display = EventRsvpPersonFormDisplay()
+    show_full_result_count = False
 
     fieldsets = (
         (
