@@ -81,6 +81,19 @@ class Segment(BaseSegment, models.Model):
         "Genre", max_length=1, blank=True, choices=Person.GENDER_CHOICES
     )
 
+    born_after = models.DateField(
+        "Personnes nées après le",
+        blank=True,
+        null=True,
+        help_text="Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite.",
+    )
+    born_before = models.DateField(
+        "Personnes nées avant le",
+        blank=True,
+        null=True,
+        help_text="Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite.",
+    )
+
     exclude_segments = models.ManyToManyField(
         "self",
         symmetrical=False,
@@ -160,6 +173,12 @@ class Segment(BaseSegment, models.Model):
 
         if self.gender:
             qs = qs.filter(gender=self.gender)
+
+        if self.born_after is not None:
+            qs = qs.filter(date_of_birth__gt=self.born_after)
+
+        if self.born_before is not None:
+            qs = qs.filter(date_of_birth__lt=self.born_before)
 
         if self.exclude_segments.all().count() > 0:
             qs = qs.difference(
