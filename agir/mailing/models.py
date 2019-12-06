@@ -63,7 +63,7 @@ class Segment(BaseSegment, models.Model):
 
     campaigns = models.ManyToManyField(
         "nuntius.Campaign",
-        related_name="sent_to_segments",
+        related_name="+",
         verbose_name="Limiter aux personnes ayant reçu une des campagnes",
         blank=True,
     )
