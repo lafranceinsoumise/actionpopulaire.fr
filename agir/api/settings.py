@@ -106,6 +106,7 @@ INSTALLED_APPS = [
     "agir.notifications",
     "agir.municipales",
     "agir.legacy",
+    "agir.telegram",
     # default contrib apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -717,3 +718,7 @@ JITSI_GROUP_SIZE = 5
 JITSI_SERVERS = os.environ.get("JITSI_SERVERS", "jitsi1.lafranceinsoumise.fr").split(
     ","
 )
+
+# telegram
+TELEGRAM_API_ID = os.environ.get("TELEGRAM_API_ID")
+TELEGRAM_API_HASH = os.environ.get("TELEGRAM_API_HASH")

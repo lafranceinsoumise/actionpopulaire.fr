@@ -1,12 +1,14 @@
 from argparse import ArgumentTypeError
 from datetime import date, time
 
+import phonenumbers
 import re
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance as DistanceMeasure
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.utils import timezone
+from phonenumbers import NumberParseException
 
 SEP = r"[/-]"
 
@@ -135,3 +137,15 @@ def segment_argument(segment_id):
         return Segment.objects.get(pk=segment_id)
     except Segment.DoesNotExist:
         raise ValueError("Ce segment n'existe pas.")
+
+
+def phone_argument(phone_number):
+    try:
+        number = phonenumbers.parse(phone_number, None)
+    except NumberParseException:
+        raise ValueError("Numéro invalide.")
+
+    if not phonenumbers.is_valid_number(number):
+        raise ValueError("Numéro invalide.")
+
+    return number
