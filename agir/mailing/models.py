@@ -77,6 +77,10 @@ class Segment(BaseSegment, models.Model):
         null=True,
     )
 
+    gender = models.CharField(
+        "Genre", max_length=1, blank=True, choices=Person.GENDER_CHOICES
+    )
+
     def get_subscribers_queryset(self):
         qs = Person.objects.filter(
             subscribed=True, emails___bounced=False, emails___order=0
@@ -146,6 +150,9 @@ class Segment(BaseSegment, models.Model):
 
         if self.last_login is not None:
             qs = qs.filter(role__last_login__gt=self.last_login)
+
+        if self.gender:
+            qs = qs.filter(gender=self.gender)
 
         return qs.order_by("id").distinct("id")
 
