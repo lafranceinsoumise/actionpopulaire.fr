@@ -118,7 +118,9 @@ class Segment(BaseSegment, models.Model):
             events_filter["events__end_time__lt"] = self.events_end_date
 
         if self.events_organizer:
-            events_filter = {"organized_" + key: value for key, value in events_filter}
+            events_filter = {
+                "organized_" + key: value for key, value in events_filter.items()
+            }
 
         if events_filter:
             qs = qs.filter(**events_filter)
