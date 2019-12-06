@@ -8,10 +8,12 @@ from agir.people.models import Person
 
 
 class Segment(BaseSegment, models.Model):
+    GA_STATUS_NOT_MEMBER = "N"
     GA_STATUS_MEMBER = "m"
     GA_STATUS_MANAGER = "M"
     GA_STATUS_REFERENT = "R"
     GA_STATUS_CHOICES = (
+        (GA_STATUS_NOT_MEMBER, "Non membres de GA"),
         (GA_STATUS_MEMBER, "Membres de GA"),
         (GA_STATUS_MANAGER, "Animateurices et gestionnaires de GA"),
         (GA_STATUS_REFERENT, "Animateurices de GA"),
@@ -84,7 +86,9 @@ class Segment(BaseSegment, models.Model):
             qs = qs.filter(tags__in=self.tags.all())
 
         if self.supportgroup_status:
-            if self.supportgroup_status == self.GA_STATUS_MEMBER:
+            if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
+                query = ~Q(memberships__supportgroup__published=True)
+            elif self.supportgroup_status == self.GA_STATUS_MEMBER:
                 query = Q(memberships__supportgroup__published=True)
 
             elif self.supportgroup_status == self.GA_STATUS_REFERENT:
