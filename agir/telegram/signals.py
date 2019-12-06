@@ -10,8 +10,8 @@ from agir.telegram.models import TelegramGroup
 def create_group(sender, instance, **kwargs):
     with instance.admin_session.create_client() as client:
         if instance.telegram_id is None:
-            instance.telegram_id = client.create_supergroup(title=instance.name).id
             if instance.type == TelegramGroup.CHAT_TYPE_SUPERGROUP:
+                instance.telegram_id = client.create_supergroup(title=instance.name).id
                 client.set_chat_permissions(
                     instance.telegram_id,
                     ChatPermissions(
@@ -21,6 +21,8 @@ def create_group(sender, instance, **kwargs):
                         can_pin_messages=False,
                     ),
                 )
+            if instance.type == TelegramGroup.CHAT_TYPE_CHANNEL:
+                instance.telegram_id = client.create_channel(title=instance.name).id
 
 
 @receiver(post_save, sender=TelegramGroup, dispatch_uid="update_members")
