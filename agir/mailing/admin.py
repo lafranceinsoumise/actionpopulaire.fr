@@ -15,6 +15,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "events",
         "events_subtypes",
         "campaigns",
+        "exclude_segments",
     )
     readonly_fields = ("get_subscribers_count",)
     ordering = ("name",)

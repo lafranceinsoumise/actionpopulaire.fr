@@ -81,6 +81,13 @@ class Segment(BaseSegment, models.Model):
         "Genre", max_length=1, blank=True, choices=Person.GENDER_CHOICES
     )
 
+    exclude_segments = models.ManyToManyField(
+        "self",
+        symmetrical=False,
+        related_name="+",
+        verbose_name="Exclure les personnes membres des segments suivants",
+    )
+
     def get_subscribers_queryset(self):
         qs = Person.objects.filter(
             subscribed=True, emails___bounced=False, emails___order=0
@@ -153,6 +160,11 @@ class Segment(BaseSegment, models.Model):
 
         if self.gender:
             qs = qs.filter(gender=self.gender)
+
+        if self.exclude_segments.all().count() > 0:
+            qs = qs.difference(
+                *(s.get_subscribers_queryset() for s in self.exclude_segments.all())
+            )
 
         return qs.order_by("id").distinct("id")
 
