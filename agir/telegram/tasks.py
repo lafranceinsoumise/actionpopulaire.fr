@@ -10,7 +10,7 @@ from agir.telegram.models import TelegramGroup
 @shared_task(max_retries=2, bind=True)
 def update_telegram_groups(self, pk):
     try:
-        instance = TelegramGroup.objects.get(pk=pk)
+        instance = TelegramGroup.objects.select_for_update().get(pk=pk)
     except TelegramGroup.DoesNotExist:
         return
 
