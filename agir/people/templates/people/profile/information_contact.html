@@ -13,20 +13,28 @@
         <fieldset>
           <legend>Adresses e-mail</legend>
         </fieldset>
-        {% if can_delete %}
+        {% if emails|length > 1 %}
           <table class="table table-responsive">
             <tbody>
             {% for email in emails %}
-              <tr {% if forloop.first %} class="active" {% endif %}>
+              <tr {% if email.address == person.email %} class="active" {% endif %}>
                 <td class="col-xs-5 text-center"> {{ email.address }}</td>
                 <td class="col-xs-5" style="text-align: left">
-                  {% if can_delete and not forloop.first %}
+                  {% if email.address == person.email %}
+                    L'adresse utilisée pour me contacter
+                  {% elif not email.bounced %}
                     <a class="btn btn-sm btn-default " href="{% url "change_primary_mail" email.pk %}">
-                      utiliser cette adresse pour me contacter
+                      Utiliser cette adresse pour me contacter
                     </a>
-                  {% else %}
-                    l'adresse utilisée pour me contacter
-                  {% endif %}</td>
+                  {% elif email.bounced %}
+                    <p class="text-danger small">
+                      Cette adresse n'est plus utilisée car elle a mal fonctionné plusieurs fois. Cela peut être
+                      du à une boîte pleine ou à une erreur de votre fournisseur.
+                    </p><p class="small">
+                      <a href="{% url "change_primary_mail" email.pk %}">J'ai réglé le problème, utiliser cette adresse à nouveau</a>
+                    </p>
+                  {% endif %}
+                </td>
                 <td class="col-xs-2"> {% if can_delete %}<a class="btn btn-sm btn-default"
                                                             href="{% url "delete_email" email.pk %}">Supprimer</a>{% endif %}
                 </td>

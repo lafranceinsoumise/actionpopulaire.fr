@@ -109,7 +109,10 @@ class ContactView(SoftLoginRequiredMixin, UpdateView):
         emails = self.object.emails.all()
 
         return super().get_context_data(
-            person=self.object, emails=emails, can_delete=len(emails) > 1, **kwargs
+            person=self.object,
+            emails=emails,
+            can_delete=self.object.emails.filter(_bounced=False).count() > 1,
+            **kwargs,
         )
 
     def get_object(self, queryset=None):
@@ -244,6 +247,8 @@ class ChangePrimaryEmailView(SoftLoginRequiredMixin, RedirectView):
     def get(self, request, *args, **kwargs):
         self.person = request.user.person
         email = PersonEmail.objects.get(pk=self.kwargs["pk"])
+        email.bounced = False
+        email.save()
         self.person.set_primary_email(email)
 
         return super().get(request, *args, **kwargs)
