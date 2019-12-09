@@ -147,7 +147,7 @@ def send_confirmation_change_email(self, new_email, user_pk, **kwargs):
     try:
         send_mosaico_email(
             code="CHANGE_MAIL_CONFIRMATION",
-            subject="confirmer votre changement d'adresse",
+            subject="Confirmez votre changement d'adresse",
             from_email=settings.EMAIL_FROM,
             recipients=[new_email],
             bindings={"CONFIRMATION_URL": confirm_change_mail_url},
