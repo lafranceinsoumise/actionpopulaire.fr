@@ -1519,13 +1519,21 @@ class DoNotListEventTestCase(TestCase):
         pass
 
     def test_unlisted_events_are_not_in_sitemap(self):
-        response = self.client.get(reverse("django.contrib.sitemaps.views.sitemap"))
+        response = self.client.get(
+            reverse(
+                "django.contrib.sitemaps.views.sitemap", kwargs={"section": "events"}
+            )
+        )
         self.assertContains(response, self.event.pk)
 
         self.event.do_not_list = True
         self.event.save()
 
-        response = self.client.get(reverse("django.contrib.sitemaps.views.sitemap"))
+        response = self.client.get(
+            reverse(
+                "django.contrib.sitemaps.views.sitemap", kwargs={"section": "events"}
+            )
+        )
         self.assertNotContains(response, self.event.pk)
 
     def test_unlisted_events_are_not_in_event_map(self):

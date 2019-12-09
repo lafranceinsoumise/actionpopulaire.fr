@@ -10,12 +10,7 @@ urlpatterns = [
     # https://lafranceinsoumise.fr/
     path("homepage/", RedirectView.as_view(url=settings.MAIN_DOMAIN), name="homepage"),
     # sitemap
-    path(
-        "sitemap.xml",
-        sitemap_index,
-        {"sitemaps": sitemaps},
-        name="django.contrib.sitemaps.views.sitemap",
-    ),
+    path("sitemap.xml", sitemap_index, {"sitemaps": sitemaps}),
     path(
         "sitemap-<section>.xml",
         sitemap,
