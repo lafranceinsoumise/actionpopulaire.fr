@@ -1,8 +1,28 @@
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django.urls import reverse
 
 from agir.api.admin import admin_site
 from agir.municipales.models import CommunePage
+
+
+class CheffeDeFileFilter(SimpleListFilter):
+    title = "Chef⋅fes de fil"
+    parameter_name = "cheffes_file"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("O", "Uniquement les communes avec"),
+            ("N", "Uniquement les communes sans"),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "O":
+            return queryset.exclude(municipales2020_admins=None)
+        elif value == "N":
+            return queryset.filter(municipales2020_admins=None)
+        return queryset
 
 
 @admin.register(CommunePage, site=admin_site)
@@ -54,6 +74,7 @@ class CommunePageAdmin(admin.ModelAdmin):
     # doit être True-ish pour déclencher l'utilisation
     search_fields = ("name", "code_departement")
     autocomplete_fields = ("municipales2020_admins",)
+    list_filter = (CheffeDeFileFilter, "published")
 
     def get_absolute_url(self):
         return reverse(
