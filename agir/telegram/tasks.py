@@ -3,6 +3,7 @@ from time import sleep
 from celery import shared_task
 from django.db import transaction
 from pyrogram import ChatPermissions, InputPhoneContact
+from pyrogram.errors import PeerIdInvalid
 
 from agir.lib.phone_numbers import is_mobile_number
 from agir.telegram.models import TelegramGroup
@@ -74,15 +75,18 @@ def update_telegram_groups(self, pk):
             for chat_id in instance.telegram_ids:
                 chat_new_members = list()
 
-                for i in range(0, chat_empty_slots[chat_id] + 1):
+                while len(chat_new_members) <= chat_empty_slots[chat_id]:
                     try:
-                        chat_new_members.append(
-                            str(next(new_members_iterator).contact_phone)
-                        )
+                        phone_number = str(next(new_members_iterator).contact_phone)
+                        client.resolve_peer(phone_number)
+                    except PeerIdInvalid:
+                        continue
                     except StopIteration:
                         break
+                    else:
+                        chat_new_members.append(phone_number)
 
                 client.add_chat_members(chat_id, chat_new_members)
                 sleep(5)
 
-        instance.save()
+        TelegramGroup.objects.filter(pk=pk).update(telegram_ids=instance.telegram_ids)
