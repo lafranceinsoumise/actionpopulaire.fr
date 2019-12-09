@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.sitemaps.views import sitemap
+from django.contrib.sitemaps.views import sitemap, index as sitemap_index
 from django.urls import reverse_lazy, path, re_path
 from django.views.generic import RedirectView
 
@@ -12,6 +12,12 @@ urlpatterns = [
     # sitemap
     path(
         "sitemap.xml",
+        sitemap_index,
+        {"sitemaps": sitemaps},
+        name="django.contrib.sitemaps.views.sitemap",
+    ),
+    path(
+        "sitemap-<section>.xml",
         sitemap,
         {"sitemaps": sitemaps},
         name="django.contrib.sitemaps.views.sitemap",
