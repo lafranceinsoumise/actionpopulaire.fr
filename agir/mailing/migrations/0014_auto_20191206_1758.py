@@ -5,19 +5,27 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('mailing', '0013_auto_20191206_1738'),
-    ]
+    dependencies = [("mailing", "0013_auto_20191206_1738")]
 
     operations = [
         migrations.AddField(
-            model_name='segment',
-            name='born_after',
-            field=models.DateField(blank=True, help_text="Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite.", null=True, verbose_name='Personnes nées après le'),
+            model_name="segment",
+            name="born_after",
+            field=models.DateField(
+                blank=True,
+                help_text="Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite.",
+                null=True,
+                verbose_name="Personnes nées après le",
+            ),
         ),
         migrations.AddField(
-            model_name='segment',
-            name='born_before',
-            field=models.DateField(blank=True, help_text="Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite.", null=True, verbose_name='Personnes nées avant le'),
+            model_name="segment",
+            name="born_before",
+            field=models.DateField(
+                blank=True,
+                help_text="Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite.",
+                null=True,
+                verbose_name="Personnes nées avant le",
+            ),
         ),
     ]
