@@ -61,9 +61,9 @@ class DonsConfig(AppConfig):
             if isinstance(
                 PAYMENT_MODES[subscription.mode], AbstractSystemPayPaymentMode
             ):
-                context["expiry_date"] = subscription.systempaytransaction_set.get(
-                    status=SystemPayTransaction.STATUS_COMPLETED
-                ).alias.expiry_date
+                context[
+                    "expiry_date"
+                ] = subscription.system_pay_subscription.alias.expiry_date
 
             return context
 
