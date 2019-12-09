@@ -36,7 +36,7 @@ class CommunesSitemap(Sitemap):
     changefreq = "always"
 
     def items(self):
-        return CommunePage.objects.all()
+        return CommunePage.objects.filter(published=True)
 
     def location(self, c):
         return reverse(

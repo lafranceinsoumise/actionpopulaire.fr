@@ -10,12 +10,12 @@ from agir.municipales.serializers import CommunePageSerializer
 
 
 class CommuneView(IframableMixin, DetailView):
-    model = CommunePage
+    queryset = CommunePage.objects.filter(published=True)
     context_object_name = "commune"
 
     def get_object(self, queryset=None):
         return get_object_or_404(
-            self.model,
+            self.get_queryset(),
             code_departement=self.kwargs["code_departement"],
             slug=self.kwargs["slug"],
         )
@@ -46,4 +46,4 @@ class SearchView(ListAPIView):
         if not q:
             return CommunePage.objects.none()
 
-        return CommunePage.objects.search(q)
+        return CommunePage.objects.filter(published=True).search(q)
