@@ -14,4 +14,5 @@ class TelegramSessionAdmin(admin.ModelAdmin):
 
 @admin.register(TelegramGroup, site=admin_site)
 class TelegramGroupAdmin(admin.ModelAdmin):
+    autocomplete_fields = ("segment",)
     readonly_fields = ("telegram_ids",)
