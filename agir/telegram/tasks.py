@@ -81,3 +81,5 @@ def update_telegram_groups(self, pk):
                     break
 
             client.add_chat_members(chat_id, chat_new_members)
+
+    instance.save()
