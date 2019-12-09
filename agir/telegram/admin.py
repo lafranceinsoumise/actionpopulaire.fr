@@ -14,4 +14,4 @@ class TelegramSessionAdmin(admin.ModelAdmin):
 
 @admin.register(TelegramGroup, site=admin_site)
 class TelegramGroupAdmin(admin.ModelAdmin):
-    readonly_fields = ("telegram_id",)
+    readonly_fields = ("telegram_ids",)

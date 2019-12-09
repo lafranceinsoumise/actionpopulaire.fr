@@ -1,4 +1,4 @@
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from pyrogram import ChatPermissions, InputPhoneContact
 
@@ -6,14 +6,35 @@ from agir.lib.phone_numbers import is_mobile_number
 from agir.telegram.models import TelegramGroup
 
 
-@receiver(pre_save, sender=TelegramGroup, dispatch_uid="create_group_if_not_exists")
-def create_group(sender, instance, **kwargs):
+@receiver(pre_save, sender=TelegramGroup, dispatch_uid="update_members")
+def update_members(sender, instance, **kwargs):
     with instance.admin_session.create_client() as client:
-        if instance.telegram_id is None:
+        current_members = set(
+            member.user.phone_number
+            for chat_id in instance.telegram_ids
+            for member in client.iter_chat_members(chat_id)
+        )
+        chat_empty_slots = {
+            chat_id: 200 - client.get_chat_members_count(chat_id)
+            for chat_id in instance.telegram_ids
+        }
+
+        new_members = [
+            person
+            for person in instance.segment.get_subscribers_queryset()
+            if person.contact_phone
+            and is_mobile_number(person.contact_phone)
+            and str(person.contact_phone) not in current_members
+        ]
+
+        missing_slots = len(new_members) - sum(chat_empty_slots.values())
+
+        while missing_slots > 0:
+            title = f"{instance.name} {len(instance.telegram_ids) + 1}"
             if instance.type == TelegramGroup.CHAT_TYPE_SUPERGROUP:
-                instance.telegram_id = client.create_supergroup(title=instance.name).id
+                chat_id = client.create_supergroup(title=title).id
                 client.set_chat_permissions(
-                    instance.telegram_id,
+                    chat_id,
                     ChatPermissions(
                         can_send_messages=False,
                         can_change_info=False,
@@ -21,13 +42,12 @@ def create_group(sender, instance, **kwargs):
                         can_pin_messages=False,
                     ),
                 )
-            if instance.type == TelegramGroup.CHAT_TYPE_CHANNEL:
-                instance.telegram_id = client.create_channel(title=instance.name).id
+            elif instance.type == TelegramGroup.CHAT_TYPE_CHANNEL:
+                chat_id = client.create_channel(title=title).id
+            instance.telegram_ids.append(chat_id)
+            chat_empty_slots[chat_id] = 200
+            missing_slots = missing_slots - 200
 
-
-@receiver(post_save, sender=TelegramGroup, dispatch_uid="update_members")
-def update_members(sender, instance, **kwargs):
-    with instance.admin_session.create_client() as client:
         client.add_contacts(
             [
                 InputPhoneContact(
@@ -35,15 +55,21 @@ def update_members(sender, instance, **kwargs):
                     first_name=person.first_name,
                     last_name=person.last_name,
                 )
-                for person in instance.segment.get_subscribers_queryset()
-                if person.contact_phone and is_mobile_number(person.contact_phone)
+                for person in new_members
             ]
         )
-        client.add_chat_members(
-            instance.telegram_id,
-            [
-                str(person.contact_phone)
-                for person in instance.segment.get_subscribers_queryset()
-                if person.contact_phone and is_mobile_number(person.contact_phone)
-            ],
-        )
+
+        new_members_iterator = iter(new_members)
+
+        for chat_id in instance.telegram_ids:
+            chat_new_members = list()
+
+            for i in range(0, chat_empty_slots[chat_id] + 1):
+                try:
+                    chat_new_members.append(
+                        str(next(new_members_iterator).contact_phone)
+                    )
+                except StopIteration:
+                    break
+
+            client.add_chat_members(chat_id, chat_new_members)

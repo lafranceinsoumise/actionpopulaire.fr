@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from pyrogram import Client
@@ -33,8 +34,10 @@ class TelegramGroup(TimeStampedModel, models.Model):
     )
 
     name = models.CharField("Nom du groupe / channel", max_length=100)
-    telegram_id = models.BigIntegerField(
-        "Identifiant du groupe sur Telegram", editable=False, null=True
+    telegram_ids = ArrayField(
+        models.BigIntegerField(editable=False, null=True),
+        verbose_name="Identifiants des groupes sur Telegram",
+        default=list,
     )
     type = models.CharField(max_length=10, choices=CHAT_TYPE_CHOICES)
     admin_session = models.ForeignKey(
