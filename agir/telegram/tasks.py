@@ -91,24 +91,18 @@ def update_telegram_groups(self, pk):
                 if missing_slots > 0:
                     sleep(5)
 
-            new_members_iterator = iter(new_chat_members)
+            def new_chat_members_iterator():
+                remaining = new_chat_members
+                for chat_id in instance.telegram_ids:
+                    while len(remaining) > 0 and chat_empty_slots[chat_id] > 0:
+                        to_yield = remaining[: chat_empty_slots[chat_id]]
+                        remaining = remaining[chat_empty_slots[chat_id] :]
+                        yield chat_id, [str(p.contact_phone) for p in to_yield]
 
-            for chat_id in instance.telegram_ids:
-                chat_new_members = list()
-
-                while len(chat_new_members) <= chat_empty_slots[chat_id]:
-                    try:
-                        phone_number = str(next(new_members_iterator).contact_phone)
-                        client.resolve_peer(phone_number)
-                    except PeerIdInvalid:
-                        continue
-                    except StopIteration:
-                        break
-                    else:
-                        chat_new_members.append(phone_number)
-
-                client.add_chat_members(chat_id, chat_new_members)
+            for chat_id, phones_to_add in new_chat_members_iterator():
+                client.add_chat_members(chat_id, phones_to_add)
                 sleep(5)
+                chat_empty_slots[chat_id] = 200 - client.get_chat_members_count(chat_id)
 
         TelegramGroup.objects.filter(pk=pk).update(
             telegram_ids=instance.telegram_ids,
