@@ -9,6 +9,16 @@ from agir.lib.phone_numbers import is_mobile_number
 from agir.telegram.models import TelegramGroup
 
 
+DEFAULT_GROUP_PERMISSIONS = (
+    ChatPermissions(
+        can_send_messages=False,
+        can_change_info=False,
+        can_invite_users=False,
+        can_pin_messages=False,
+    ),
+)
+
+
 def is_telegram_user(client, contact_phone):
     try:
         client.resolve_peer(contact_phone)
@@ -68,38 +78,33 @@ def update_telegram_groups(self, pk):
                 if is_telegram_user(client, str(person.contact_phone))
             ]
 
-            missing_slots = len(new_chat_members) - sum(chat_empty_slots.values())
-
-            while missing_slots > 0:
-                title = f"{instance.name} {len(instance.telegram_ids) + 1}"
-                if instance.type == TelegramGroup.CHAT_TYPE_SUPERGROUP:
-                    chat_id = client.create_supergroup(title=title).id
-                    client.set_chat_permissions(
-                        chat_id,
-                        ChatPermissions(
-                            can_send_messages=False,
-                            can_change_info=False,
-                            can_invite_users=False,
-                            can_pin_messages=False,
-                        ),
-                    )
-                elif instance.type == TelegramGroup.CHAT_TYPE_CHANNEL:
-                    chat_id = client.create_channel(title=title).id
-                instance.telegram_ids = instance.telegram_ids + [chat_id]
-                chat_empty_slots[chat_id] = 200
-                missing_slots = missing_slots - 200
-                if missing_slots > 0:
-                    sleep(5)
-
-            def new_chat_members_iterator():
-                remaining = new_chat_members
+            def chat_generator():
                 for chat_id in instance.telegram_ids:
+                    yield chat_id
+
+                while True:
+                    title = f"{instance.name} {len(instance.telegram_ids) + 1}"
+                    if instance.type == TelegramGroup.CHAT_TYPE_SUPERGROUP:
+                        chat_id = client.create_supergroup(title=title).id
+                        client.set_chat_permissions(chat_id, DEFAULT_GROUP_PERMISSIONS)
+                    elif instance.type == TelegramGroup.CHAT_TYPE_CHANNEL:
+                        chat_id = client.create_channel(title=title).id
+                    instance.telegram_ids = instance.telegram_ids + [chat_id]
+                    chat_empty_slots[chat_id] = 200
+                    sleep(5)
+                    yield chat_id
+
+            def new_chat_members_generator():
+                remaining = new_chat_members
+                chat_iterator = chat_generator()
+                while len(remaining) > 0:
+                    chat_id = next(chat_iterator)
                     while len(remaining) > 0 and chat_empty_slots[chat_id] > 0:
                         to_yield = remaining[: chat_empty_slots[chat_id]]
                         remaining = remaining[chat_empty_slots[chat_id] :]
                         yield chat_id, [str(p.contact_phone) for p in to_yield]
 
-            for chat_id, phones_to_add in new_chat_members_iterator():
+            for chat_id, phones_to_add in new_chat_members_generator():
                 client.add_chat_members(chat_id, phones_to_add)
                 sleep(5)
                 chat_empty_slots[chat_id] = 200 - client.get_chat_members_count(chat_id)
