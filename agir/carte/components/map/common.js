@@ -59,16 +59,18 @@ export function setUpPopup(map) {
     popup.setPosition();
     map.forEachFeatureAtPixel(evt.pixel, function(feature) {
       const coords = feature.getGeometry().getCoordinates();
-      popup.getElement().innerHTML = feature.get("popupContent");
-      popup.setOffset([0, feature.get("popupAnchor")]);
-      popup.setPosition(coords);
-      return true;
+      if (feature.get("popupContent")) {
+        popup.getElement().innerHTML = feature.get("popupContent");
+        popup.setOffset([0, feature.get("popupAnchor")]);
+        popup.setPosition(coords);
+        return true;
+      }
     });
   });
 
   map.on("pointermove", function(evt) {
-    const hit = this.forEachFeatureAtPixel(evt.pixel, function() {
-      return true;
+    const hit = this.forEachFeatureAtPixel(evt.pixel, function(feature) {
+      return !!feature.get("popupContent");
     });
     if (hit) {
       this.getTargetElement().style.cursor = "pointer";

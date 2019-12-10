@@ -14,6 +14,7 @@ import makeSearchControl from "./searchControl";
 import getFormatPopups from "./itemPopups";
 
 const OFFSET = 0.00005;
+
 function disambiguate(points) {
   const itemMap = Object.create(null);
   let key, n, i, p, angle;
@@ -137,7 +138,15 @@ class Display {
 
 export default async function listMap(
   htmlElementId,
-  { endpoint, listType, types, subtypes, bounds, focusGeometry }
+  {
+    endpoint,
+    listType,
+    types,
+    subtypes,
+    bounds,
+    focusGeometry,
+    showSearch = true
+  }
 ) {
   const display = new Display(types, subtypes, listType);
 
@@ -157,7 +166,7 @@ export default async function listMap(
           width: 1
         }),
         fill: new Fill({
-          color: "rgba(255, 255, 255, 0.4)"
+          color: "rgba(255,234,28,0.1)"
         })
       })
     );
@@ -207,6 +216,8 @@ export default async function listMap(
     map.addControl(hideInactiveButton);
   }
 
-  const geosearchControl = makeSearchControl(map.getView());
-  map.addControl(geosearchControl);
+  if (showSearch) {
+    const geosearchControl = makeSearchControl(map.getView());
+    map.addControl(geosearchControl);
+  }
 }

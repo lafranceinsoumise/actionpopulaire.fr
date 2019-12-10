@@ -204,7 +204,9 @@ class CommuneMixin:
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(commune=self.commune.coordinates.json, **kwargs)
+        return super().get_context_data(
+            commune=self.commune.coordinates.json, hide_search=True, **kwargs
+        )
 
 
 class AbstractListMapView(MapViewMixin, TemplateView):

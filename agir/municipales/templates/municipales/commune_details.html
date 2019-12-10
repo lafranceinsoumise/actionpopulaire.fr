@@ -18,10 +18,11 @@
           <h6>Agenda</h6>
           {% include "events/includes/events_by_day.html" with events=events empty_message="Aucun événement à venir dans cette commune." %}
         </div>
-        <div class="col-md-5">
+        <div class="col-md-6">
           <h6>Rejoignez un groupe d'action&nbsp;!</h6>
-          <iframe title="Carte"
-              src="{{ MAP_DOMAIN }}{% url "carte:groups_map" %}?bounds=[{{ commune.coordinates.envelope.coords.0.0|add:commune.coordinates.envelope.coords.0.2|join:"," }}]"
+          <iframe
+              title="Carte"
+              src="{{ MAP_DOMAIN }}{% url "carte:commune_groups_map" commune.code_departement commune.slug %}"
               height="300"
               style="width: 100%;" scrolling="no"
               frameBorder="0"></iframe>
@@ -33,7 +34,7 @@
         {% if commune.facebook %}
           <div class="fb-page" data-href="https://www.facebook.com/{{ commune.facebook }}/" data-tabs="timeline"
                data-width="" data-height="" data-small-header="false" data-adapt-container-width="true"
-               data-hide-cover="false" data-show-facepile="true">
+               data-hide-cover="false" data-show-facepile="true" style="margin-bottom: 2em;">
             <blockquote cite="https://www.facebook.com/{{ commune.facebook }}/" class="fb-xfbml-parse-ignore">
               <a href="https://www.facebook.com/{{ commune.facebook }}/">Page Facebook en chargement...</a>
             </blockquote>
