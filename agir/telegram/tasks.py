@@ -9,6 +9,15 @@ from agir.lib.phone_numbers import is_mobile_number
 from agir.telegram.models import TelegramGroup
 
 
+def is_telegram_user(client, contact_phone):
+    try:
+        client.resolve_peer(contact_phone)
+    except PeerIdInvalid:
+        return False
+    else:
+        return True
+
+
 @shared_task(max_retries=2, bind=True)
 def update_telegram_groups(self, pk):
     with transaction.atomic():
@@ -18,25 +27,48 @@ def update_telegram_groups(self, pk):
             return
 
         with instance.admin_session.create_client() as client:
-            current_members = set(
+            in_chat_numbers = set(
                 member.user.phone_number
                 for chat_id in instance.telegram_ids
                 for member in client.iter_chat_members(chat_id)
             )
+
             chat_empty_slots = {
                 chat_id: 200 - client.get_chat_members_count(chat_id)
                 for chat_id in instance.telegram_ids
             }
 
-            new_members = [
+            in_segment_and_chat_people = [
+                person
+                for person in instance.segment.get_subscribers_queryset()
+                if str(person.contact_phone) in in_chat_numbers
+            ]
+            in_segment_not_chat_people = [
                 person
                 for person in instance.segment.get_subscribers_queryset()
                 if person.contact_phone
                 and is_mobile_number(person.contact_phone)
-                and str(person.contact_phone) not in current_members
+                and str(person.contact_phone) not in in_chat_numbers
             ]
 
-            missing_slots = len(new_members) - sum(chat_empty_slots.values())
+            client.add_contacts(
+                [
+                    InputPhoneContact(
+                        phone=str(person.contact_phone),
+                        first_name=person.first_name,
+                        last_name=person.last_name,
+                    )
+                    for person in in_segment_not_chat_people
+                ]
+            )
+
+            new_chat_members = [
+                person
+                for person in in_segment_not_chat_people
+                if is_telegram_user(client, str(person.contact_phone))
+            ]
+
+            missing_slots = len(new_chat_members) - sum(chat_empty_slots.values())
 
             while missing_slots > 0:
                 title = f"{instance.name} {len(instance.telegram_ids) + 1}"
@@ -59,18 +91,7 @@ def update_telegram_groups(self, pk):
                 if missing_slots > 0:
                     sleep(5)
 
-            client.add_contacts(
-                [
-                    InputPhoneContact(
-                        phone=str(person.contact_phone),
-                        first_name=person.first_name,
-                        last_name=person.last_name,
-                    )
-                    for person in new_members
-                ]
-            )
-
-            new_members_iterator = iter(new_members)
+            new_members_iterator = iter(new_chat_members)
 
             for chat_id in instance.telegram_ids:
                 chat_new_members = list()
@@ -89,4 +110,7 @@ def update_telegram_groups(self, pk):
                 client.add_chat_members(chat_id, chat_new_members)
                 sleep(5)
 
-        TelegramGroup.objects.filter(pk=pk).update(telegram_ids=instance.telegram_ids)
+        TelegramGroup.objects.filter(pk=pk).update(
+            telegram_ids=instance.telegram_ids,
+            telegram_users=len(new_chat_members) + len(in_segment_and_chat_people),
+        )

@@ -47,6 +47,9 @@ class TelegramGroup(TimeStampedModel, models.Model):
         on_delete=models.SET_NULL,
         verbose_name="La session Telegram admin de ce groupe.",
     )
+    telegram_users = models.PositiveSmallIntegerField(
+        "Nombre d'utilisateurices de Telegram dans le segment", blank=True, default=0
+    )
     segment = models.ForeignKey(
         "mailing.Segment",
         related_name="telegram_groups",
