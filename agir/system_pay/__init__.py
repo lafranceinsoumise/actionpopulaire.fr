@@ -52,7 +52,7 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
     def subscription_terminate_action(self, subscription):
         sp_subscription = subscription.system_pay_subscription
         alias = sp_subscription.alias
-        self.soap_client.cancel_subscription(subscription.system_pay_subscription.alias)
+        self.soap_client.cancel_alias(alias)
         alias.active = False
         alias.save(update_fields=["active"])
         sp_subscription.active = False
