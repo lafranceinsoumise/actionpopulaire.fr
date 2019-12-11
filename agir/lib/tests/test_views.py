@@ -90,7 +90,7 @@ class ImageSizeWarningTestCase(TestCase):
             "contact_phone": "06 06 06 06 06",
             "location_name": "somewhere",
             "location_address1": "over",
-            "location_zip": "the",
+            "location_zip": "58535",
             "location_city": "rainbow",
             "location_country": "FR",
             "image_accept_license": True,
