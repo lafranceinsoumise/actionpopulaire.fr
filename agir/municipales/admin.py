@@ -35,7 +35,7 @@ class CommunePageAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "published",
-                    "municipale_list_name",
+                    "strategy",
                     "first_name_1",
                     "last_name_1",
                     "first_name_2",
@@ -53,7 +53,7 @@ class CommunePageAdmin(admin.ModelAdmin):
     list_display = (
         "__str__",
         "published",
-        "municipale_list_name",
+        "strategy",
         "first_name_1",
         "last_name_1",
         "first_name_2",
@@ -64,7 +64,7 @@ class CommunePageAdmin(admin.ModelAdmin):
     )
     list_editable = (
         "published",
-        "municipale_list_name",
+        "strategy",
         "first_name_1",
         "last_name_1",
         "first_name_2",
