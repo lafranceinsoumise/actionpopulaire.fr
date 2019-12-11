@@ -6,8 +6,10 @@ import os
 from crispy_forms.layout import Submit, Row
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.storage import default_storage
+from django.core.validators import RegexValidator
 from django.db import IntegrityError
 from django.forms import fields_for_model
 from django.utils.formats import localize
@@ -28,6 +30,10 @@ from django.utils.translation import ugettext as _
 from django_countries import countries
 
 __all__ = ["TagMixin", "LocationFormMixin", "ContactFormMixin", "MetaFieldsMixin"]
+
+french_zipcode_validator = RegexValidator(
+    r"[0-9]{5}", message="Un code postal valide est obligatoire."
+)
 
 
 class TagMixin:
@@ -118,15 +124,11 @@ class LocationFormMixin:
         """Makes zip code compulsory for French address"""
         cleaned_data = super().clean()
 
-        if (
-            "location_country" in cleaned_data
-            and cleaned_data["location_country"] == "FR"
-            and not cleaned_data["location_zip"]
-        ):
-            self.add_error(
-                "location_zip",
-                _("Le code postal est obligatoire pour les adresses françaises."),
-            )
+        if cleaned_data.get("location_country") == "FR":
+            try:
+                french_zipcode_validator(cleaned_data.get("location_zip"))
+            except ValidationError as e:
+                self.add_error("location_zip", e)
 
         return cleaned_data
 
