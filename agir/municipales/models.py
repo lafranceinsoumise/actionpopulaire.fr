@@ -52,7 +52,7 @@ class CommunePage(TimeStampedModel, models.Model):
     coordinates = MultiPolygonField("Périmètre de la commune", geography=True)
     name = models.CharField("Nom de la commune", max_length=255)
     slug = models.SlugField("Slug")
-    strategy = models.CharField("Nom de la liste", max_length=255, blank=True)
+    strategy = models.CharField("Stratégie", max_length=255, blank=True)
     first_name_1 = models.CharField(
         "Prénom chef⋅fe de file 1", max_length=255, blank=True
     )
