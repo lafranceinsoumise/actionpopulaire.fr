@@ -145,7 +145,8 @@ export default async function listMap(
     subtypes,
     bounds,
     focusGeometry,
-    showSearch = true
+    showSearch = true,
+    showActiveControl = true
   }
 ) {
   const display = new Display(types, subtypes, listType);
@@ -198,7 +199,7 @@ export default async function listMap(
   }
 
   disambiguate(res.data);
-  display.updateFeatures(res.data, listType === "groups");
+  display.updateFeatures(res.data, showActiveControl && listType === "groups");
 
   // Controls
   const [
@@ -212,7 +213,7 @@ export default async function listMap(
     layerControl.setMap(map);
   }
 
-  if (listType === "groups") {
+  if (showActiveControl && listType === "groups") {
     map.addControl(hideInactiveButton);
   }
 

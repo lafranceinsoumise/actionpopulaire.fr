@@ -17,7 +17,8 @@
     var subtypes = JSON.parse(document.getElementById("subtypesConfig").textContent);
     var bounds = JSON.parse(document.getElementById("boundsConfig").textContent);
 
-    var hideSearch = {% if hide_search %}true{% else %}false{% endif %};
+    var showSearch = {% if hide_search %}false{% else %}true{% endif %};
+    var showActiveControl = {% if hide_active_control %}false{% else %}true{% endif %};
 
     var commune = null;
     var communeScriptElement = document.getElementById("communeScript");
@@ -32,7 +33,8 @@
       subtypes,
       bounds,
       focusGeometry: commune,
-      showSearch: !hideSearch
+      showSearch,
+      showActiveControl
     });
   </script>
 {% endblock %}

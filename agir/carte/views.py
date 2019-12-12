@@ -23,6 +23,16 @@ from ..events.models import Event, EventSubtype
 from ..groups.models import SupportGroup, SupportGroupSubtype
 
 
+def is_active_group():
+    return Q(
+        organized_events__start_time__range=(
+            now() - timedelta(days=62),
+            now() + timedelta(days=31),
+        ),
+        organized_events__visibility=Event.VISIBILITY_PUBLIC,
+    )
+
+
 def parse_bounds(bounds):
     if not bounds:
         return None
@@ -168,16 +178,7 @@ class GroupsView(ListAPIView):
             .filter(coordinates__isnull=False)
             .prefetch_related("subtypes")
             .annotate(
-                current_events_count=Count(
-                    "organized_events",
-                    filter=Q(
-                        organized_events__start_time__range=(
-                            now() - timedelta(days=62),
-                            now() + timedelta(days=31),
-                        ),
-                        organized_events__visibility=Event.VISIBILITY_PUBLIC,
-                    ),
-                )
+                current_events_count=Count("organized_events", filter=is_active_group())
             )
         )
 
@@ -203,9 +204,17 @@ class CommuneMixin:
 
         return super().get(request, *args, **kwargs)
 
+    def active_group_in_commune_exists(self):
+        return SupportGroup.objects.filter(
+            is_active_group(), coordinates__intersects=self.commune.coordinates
+        ).exists()
+
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            commune=self.commune.coordinates.json, hide_search=True, **kwargs
+            commune=self.commune.coordinates.json,
+            hide_search=True,
+            hide_active_control=not self.active_group_in_commune_exists(),
+            **kwargs
         )
 
 
