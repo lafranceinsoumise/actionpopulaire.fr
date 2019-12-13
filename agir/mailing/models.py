@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import Q
 from nuntius.models import BaseSegment, CampaignSentStatusType
 
+from agir.payments.models import Subscription
 from agir.people.models import Person
 
 
@@ -94,6 +95,10 @@ class Segment(BaseSegment, models.Model):
         help_text="Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite.",
     )
 
+    subscription = models.BooleanField(
+        "A une souscription mensuelle active", blank=True, null=True
+    )
+
     exclude_segments = models.ManyToManyField(
         "self",
         symmetrical=False,
@@ -180,6 +185,11 @@ class Segment(BaseSegment, models.Model):
 
         if self.born_before is not None:
             qs = qs.filter(date_of_birth__lt=self.born_before)
+
+        if self.subscription is not None:
+            qs = getattr(qs, "filter" if self.subscription else "exclude")(
+                subscriptions__status=Subscription.STATUS_COMPLETED
+            )
 
         if self.exclude_segments.all().count() > 0:
             qs = qs.difference(
