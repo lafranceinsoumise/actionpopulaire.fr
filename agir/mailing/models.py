@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import Q
 from nuntius.models import BaseSegment, CampaignSentStatusType
 
-from agir.payments.models import Subscription
+from agir.payments.models import Subscription, Payment
 from agir.people.models import Person
 
 
@@ -90,6 +90,13 @@ class Segment(BaseSegment, models.Model):
     )
     born_before = models.DateField(
         "Personnes nées avant le",
+        blank=True,
+        null=True,
+        help_text="Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite.",
+    )
+
+    donation_after = models.DateField(
+        "A fait au moins un don (hors don mensuel) depuis le",
         blank=True,
         null=True,
         help_text="Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite.",
@@ -185,6 +192,13 @@ class Segment(BaseSegment, models.Model):
 
         if self.born_before is not None:
             qs = qs.filter(date_of_birth__lt=self.born_before)
+
+        if self.donation_after is not None:
+            qs = qs.filter(
+                payments__type__in=["don", "don_europeennes"],
+                payments__status=Payment.STATUS_COMPLETED,
+                payments__created__gt=self.donation_after,
+            )
 
         if self.subscription is not None:
             qs = getattr(qs, "filter" if self.subscription else "exclude")(
