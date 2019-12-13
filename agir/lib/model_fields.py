@@ -1,3 +1,5 @@
+from django import forms
+from django.contrib.postgres.fields import ArrayField
 from django.core import checks
 from django.db import models
 from django.utils.itercompat import is_iterable
@@ -92,3 +94,15 @@ class IBANField(models.Field):
 
     def check(self, **kwargs):
         return [*super().check(), *self._check_allowed_countries()]
+
+
+# https://gist.github.com/danni/f55c4ce19598b2b345ef
+class ChoiceArrayField(ArrayField):
+    def formfield(self, **kwargs):
+        defaults = {
+            "form_class": forms.MultipleChoiceField,
+            "choices": self.base_field.choices,
+        }
+        defaults.update(kwargs)
+
+        return super(ArrayField, self).formfield(**defaults)

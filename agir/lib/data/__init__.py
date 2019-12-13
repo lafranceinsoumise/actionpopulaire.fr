@@ -46,6 +46,10 @@ anciennes_regions_par_code = {r["id"]: r for r in anciennes_regions}
 _CORSE_RE = re.compile("[ABab]")
 
 
+def filtre_departements(*codes):
+    return reduce(lambda a, b: a | b, (filtre_departement(code) for code in codes))
+
+
 def filtre_departement(code):
     if code in departements_par_code:
         return Q(location_zip__startswith=_CORSE_RE.sub("0", code))

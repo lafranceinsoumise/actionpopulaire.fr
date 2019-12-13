@@ -1,13 +1,27 @@
 from django.contrib import admin
+from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.gis.admin import OSMGeoAdmin
+from django.forms import ModelForm
 
 from agir.api.admin import admin_site
 from agir.lib.admin import CenterOnFranceMixin
 from agir.mailing.models import Segment
 
 
+class SegmentAdminForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["countries"].widget = FilteredSelectMultiple(
+            "pays", False, choices=self.fields["countries"].choices
+        )
+        self.fields["departements"].widget = FilteredSelectMultiple(
+            "départements", False, choices=self.fields["departements"].choices
+        )
+
+
 @admin.register(Segment, site=admin_site)
 class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
+    form = SegmentAdminForm
     fieldsets = (
         (None, {"fields": ("name", "tags", "exclude_segments")}),
         (
@@ -23,7 +37,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 )
             },
         ),
-        ("Géographie", {"fields": ("area",)}),
+        ("Géographie", {"fields": ("countries", "departements", "area")}),
         (
             "Historique d'utilisation",
             {"fields": ("campaigns", "registration_date", "last_login")},
@@ -33,6 +47,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             {"fields": ("gender", "born_after", "born_before")},
         ),
         ("Historique des dons", {"fields": ("donation_after", "subscription")}),
+        ("Abonnés", {"fields": ("get_subscribers_count",)}),
     )
     map_template = "custom_fields/french_area_widget.html"
     autocomplete_fields = (

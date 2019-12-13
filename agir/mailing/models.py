@@ -1,9 +1,11 @@
 from django.contrib.gis.db.models import MultiPolygonField
 from django.db import models
-
 from django.db.models import Q
+from django_countries.fields import CountryField
 from nuntius.models import BaseSegment, CampaignSentStatusType
 
+from agir.lib import data
+from agir.lib.model_fields import ChoiceArrayField
 from agir.payments.models import Subscription, Payment
 from agir.people.models import Person
 
@@ -60,7 +62,16 @@ class Segment(BaseSegment, models.Model):
         default=False,
     )
 
-    area = MultiPolygonField("Territoire", blank=True, null=True)
+    countries = CountryField("Limiter aux pays", multiple=True, blank=True)
+    departements = ChoiceArrayField(
+        models.CharField(choices=data.departements_choices, max_length=3),
+        verbose_name="Limiter aux départements (calcul à partir du code postal)",
+        default=list,
+        blank=True,
+    )
+    area = MultiPolygonField(
+        "Limiter à un territoire définit manuellement", blank=True, null=True
+    )
 
     campaigns = models.ManyToManyField(
         "nuntius.Campaign",
@@ -174,6 +185,12 @@ class Segment(BaseSegment, models.Model):
                 ],
                 campaignsentevent__campaign__in=self.campaigns.all(),
             )
+
+        if len(self.countries) > 0:
+            qs = qs.filter(location_country__in=self.countries)
+
+        if len(self.departements) > 0:
+            qs = qs.filter(data.filtre_departements(*self.departements))
 
         if self.area is not None:
             qs = qs.filter(coordinates__intersects=self.area)
