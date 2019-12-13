@@ -8,6 +8,32 @@ from agir.mailing.models import Segment
 
 @admin.register(Segment, site=admin_site)
 class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
+    fieldsets = (
+        (None, {"fields": ("name", "tags", "exclude_segments")}),
+        (
+            "GA et événements",
+            {
+                "fields": (
+                    "supportgroup_status",
+                    "supportgroup_subtypes",
+                    "events",
+                    "events_start_date",
+                    "events_end_date",
+                    "events_organizer",
+                )
+            },
+        ),
+        ("Géographie", {"fields": ("area",)}),
+        (
+            "Historique d'utilisation",
+            {"fields": ("campaigns", "registration_date", "last_login")},
+        ),
+        (
+            "Informations personelles",
+            {"fields": ("gender", "born_after", "born_before")},
+        ),
+        ("Historique des dons", {"fields": ("donation_after", "subscription")}),
+    )
     map_template = "custom_fields/french_area_widget.html"
     autocomplete_fields = (
         "tags",
