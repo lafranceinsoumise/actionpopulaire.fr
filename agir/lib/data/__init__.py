@@ -52,13 +52,16 @@ def filtre_departements(*codes):
 
 def filtre_departement(code):
     if code in departements_par_code:
-        return Q(location_zip__startswith=_CORSE_RE.sub("0", code))
+        return Q(
+            location_country="FR", location_zip__startswith=_CORSE_RE.sub("0", code)
+        )
 
     elif _normalize_entity_name(code) in departements_par_nom:
         return Q(
+            location_country="FR",
             location_zip__startswith=_CORSE_RE.sub(
                 "0", departements_par_nom[_normalize_entity_name(code)]["id"]
-            )
+            ),
         )
 
     else:
