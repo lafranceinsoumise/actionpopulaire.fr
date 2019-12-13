@@ -44,7 +44,7 @@ class AmountWidget extends React.Component {
 
   render() {
     const { custom } = this.state;
-    const { amount, error, showTaxCredit, byMonth } = this.props;
+    const { disabled, amount, error, showTaxCredit, byMonth } = this.props;
 
     const amountChoices = this.props.amountChoices || DEFAULT_AMOUNTS;
 
@@ -53,6 +53,7 @@ class AmountWidget extends React.Component {
         <FlexContainer className={error ? " has-error" : ""}>
           {amountChoices.map(value => (
             <AmountButton
+              disabled={disabled}
               key={value}
               type="button"
               onClick={() => this.updateWithButton(value)}
@@ -65,6 +66,7 @@ class AmountWidget extends React.Component {
             </AmountButton>
           ))}
           <AmountInput
+            disabled={disabled}
             placeholder="autre montant"
             onChange={this.updateWithCustomValue.bind(this)}
             value={custom ? amount : null}
@@ -97,6 +99,7 @@ class AmountWidget extends React.Component {
 }
 
 AmountWidget.propTypes = {
+  disabled: PropTypes.bool,
   amount: PropTypes.number,
   onAmountChange: PropTypes.func,
   error: PropTypes.string,

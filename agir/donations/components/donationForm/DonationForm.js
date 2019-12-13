@@ -36,8 +36,11 @@ const DonationForm = ({
       ? maxAmountError
       : null;
 
+  const valid =
+    (!typeChoices || type !== null) && amount !== null && amount > 0;
+
   return (
-    <div>
+    <form method="post" onSubmit={e => valid || e.preventDefault()}>
       {Object.keys(hiddenFields).map(k => (
         <input key={k} type="hidden" name={k} value={hiddenFields[k]} />
       ))}
@@ -54,19 +57,12 @@ const DonationForm = ({
           typeChoices={typeChoices}
           onTypeChange={type => {
             setType(type);
-            setAmount(null);
-            setAllocations(
-              allocations.map(({ group }) => ({ group, amount: 0 }))
-            );
           }}
         />
       )}
       <AmountWidget
-        disabled={type === null}
         amount={amount}
-        amountChoices={
-          Array.isArray(amountChoices) ? amountChoices : amountChoices[type]
-        }
+        amountChoices={amountChoices}
         showTaxCredit={showTaxCredit}
         byMonth={byMonth}
         error={customError}
@@ -88,7 +84,7 @@ const DonationForm = ({
           {buttonLabel}
         </Button>
       </div>
-    </div>
+    </form>
   );
 };
 DonationForm.propTypes = {
@@ -102,10 +98,7 @@ DonationForm.propTypes = {
       label: PropTypes.string
     })
   ),
-  amountChoices: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.number),
-    PropTypes.objectOf(PropTypes.arrayOf(PropTypes.number))
-  ]),
+  amountChoices: PropTypes.arrayOf(PropTypes.number),
   showTaxCredit: PropTypes.bool,
   byMonth: PropTypes.bool,
   initial: PropTypes.object,

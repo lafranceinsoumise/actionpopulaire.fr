@@ -38,16 +38,10 @@ const replaceForm = selector => {
   const form = document.querySelector(selector);
   const props = { initial: {} };
 
-  props.hiddenFields = Array.from(
-    form.querySelectorAll('input[type="hidden"]')
-  ).reduce((s, f) => {
-    s[f.name] = f.value;
-    return s;
-  }, {});
-
   const typeSelect = form.querySelector('select[name="type"]');
   if (typeSelect) {
     props.typeChoices = getChoices(typeSelect);
+    typeSelect.remove();
   }
 
   const allocationsInput = form.querySelector('input[name="allocations"]');
@@ -58,6 +52,8 @@ const replaceForm = selector => {
     props.initial.allocations = allocationsInput.value
       ? JSON.parse(allocationsInput.value)
       : [];
+
+    allocationsInput.remove();
   }
 
   const amountInput = form.querySelector('input[name="amount"]');
@@ -71,16 +67,24 @@ const replaceForm = selector => {
   props.showTaxCredit = !amountInput.dataset.hideTaxCredit;
   props.byMonth = typeof amountInput.dataset.byMonth !== "undefined";
   props.initial.amount = +amountInput.value || null;
+  amountInput.remove();
 
   const submitInput = form.querySelector('input[type="submit"]');
   props.buttonLabel = submitInput.value;
+  submitInput.remove();
 
+  // pour tous les champs hidden restant, on les transmet tels quels
+  props.hiddenFields = {};
+  Array.from(form.querySelectorAll('input[type="hidden"]')).forEach(input => {
+    props.hiddenFields[input.name] = input.value;
+  });
+
+  const reactDiv = document.createElement("div");
+  form.parentNode.insertBefore(reactDiv, form);
+  form.remove();
   // remove all children of the form
-  while (form.firstChild) {
-    form.removeChild(form.firstChild);
-  }
 
-  render(<DonationForm {...props} />, form);
+  render(<DonationForm {...props} />, reactDiv);
 };
 
 const onLoad = function() {

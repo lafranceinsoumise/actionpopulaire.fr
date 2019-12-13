@@ -93,10 +93,13 @@ class AllocationDonationForm(AllocationMixin, SimpleDonationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["amount"].amount_choices = {
-            self.TYPE_SINGLE_TIME: [200 * 100, 100 * 100, 50 * 100, 20 * 100, 10 * 100],
-            self.TYPE_MONTHLY: [100 * 100, 50 * 100, 20 * 100, 10 * 100, 5 * 100],
-        }
+        self.fields["amount"].amount_choices = [
+            200 * 100,
+            100 * 100,
+            50 * 100,
+            10 * 100,
+            5 * 100,
+        ]
 
         self.fields["type"].widget.attrs["data-choice-attrs"] = json.dumps(
             [{"icon": "arrow-right"}, {"icon": "repeat"}]
