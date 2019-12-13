@@ -1,3 +1,4 @@
+import json
 from unittest import mock
 
 import re
@@ -65,23 +66,27 @@ class DonationTestMixin:
             "contact_phone": "06 45 78 98 45",
         }
 
+        certified_subtype = SupportGroupSubtype.objects.create(
+            type=SupportGroup.TYPE_LOCAL_GROUP,
+            label=settings.CERTIFIED_GROUP_SUBTYPES[0],
+        )
+
         self.group = SupportGroup.objects.create(
             name="Groupe", type=SupportGroup.TYPE_LOCAL_GROUP
         )
-        self.group.subtypes.set(
-            [
-                SupportGroupSubtype.objects.create(
-                    type=SupportGroup.TYPE_LOCAL_GROUP,
-                    label=settings.CERTIFIED_GROUP_SUBTYPES[0],
-                )
-            ]
-        )
+        self.group.subtypes.set([certified_subtype])
         Membership.objects.create(supportgroup=self.group, person=self.p1)
+
+        self.other_group = SupportGroup.objects.create(
+            name="Autre groupe", type=SupportGroup.TYPE_LOCAL_GROUP
+        )
+        self.other_group.subtypes.set([certified_subtype])
+        Membership.objects.create(supportgroup=self.other_group, person=self.p1)
 
 
 class DonationTestCase(DonationTestMixin, TestCase):
-    @mock.patch("agir.donations.views.send_donation_email")
-    def test_can_donate_while_logged_in(self, send_donation_email):
+    @mock.patch("django.db.transaction.on_commit")
+    def test_can_donate_while_logged_in(self, on_commit):
         self.client.force_login(self.p1.role)
         amount_url = reverse("donation_amount")
         information_url = reverse("donation_information")
@@ -123,7 +128,7 @@ class DonationTestCase(DonationTestMixin, TestCase):
         # fake systempay webhook
         complete_payment(payment)
         donation_notification_listener(payment)
-        send_donation_email.delay.assert_called_once()
+        on_commit.assert_called_once()
 
     def test_cannot_donate_without_required_fields(self):
         information_url = reverse("donation_information")
@@ -221,7 +226,6 @@ class DonationTestCase(DonationTestMixin, TestCase):
         session = self.client.session
 
         amount_url = reverse("donation_amount")
-        information_url = reverse("donation_information")
 
         res = self.client.get(amount_url)
         self.assertEqual(res.status_code, 200)
@@ -231,14 +235,13 @@ class DonationTestCase(DonationTestMixin, TestCase):
             {
                 "type": AllocationDonationForm.TYPE_SINGLE_TIME,
                 "amount": "200",
-                "group": str(self.group.pk),
-                "allocation": "100",
+                "allocations": f'{{"group": "{str(self.group.pk)}", "amount": 10000}}',
             },
         )
-        self.assertRedirects(res, information_url)
+        self.assertEqual(res.status_code, 200)
+        self.assertNotIn("_donation_", session)
 
-        self.assertEqual(session["_donation_"]["group"], None)
-
+    @using_redislite
     def test_can_donate_with_allocation(self):
         self.client.force_login(self.p1.role)
         session = self.client.session
@@ -253,14 +256,26 @@ class DonationTestCase(DonationTestMixin, TestCase):
             amount_url,
             {
                 "type": AllocationDonationForm.TYPE_SINGLE_TIME,
-                "amount": "200",
-                "group": str(self.group.pk),
-                "allocation": "100",
+                "amount": "20000",
+                "allocations": json.dumps(
+                    [
+                        {"group": str(self.group.pk), "amount": 10000},
+                        {"group": str(self.other_group.pk), "amount": 5000},
+                    ]
+                ),
             },
         )
         self.assertRedirects(res, information_url)
 
-        self.assertEqual(session["_donation_"]["group"], str(self.group.pk))
+        self.assertEqual(
+            session["_donation_"]["allocations"],
+            json.dumps(
+                [
+                    {"group": str(self.group.pk), "amount": 10000},
+                    {"group": str(self.other_group.pk), "amount": 5000},
+                ]
+            ),
+        )
 
         res = self.client.get(information_url)
         self.assertEqual(res.status_code, 200)
@@ -270,28 +285,44 @@ class DonationTestCase(DonationTestMixin, TestCase):
             information_url,
             {
                 **self.donation_information_payload,
-                "group": self.group.pk,
-                "allocation": "10000",
+                "allocations": json.dumps(
+                    [
+                        {"group": str(self.group.pk), "amount": 10000},
+                        {"group": str(self.other_group.pk), "amount": 5000},
+                    ]
+                ),
             },
         )
         # no other payment
         payment = Payment.objects.get()
         self.assertRedirects(res, front_url("payment_page", args=(payment.pk,)))
 
-        self.assertIn("allocation", payment.meta)
-        self.assertIn("group_id", payment.meta)
+        self.assertIn("allocations", payment.meta)
+        self.assertEqual(
+            payment.meta["allocations"],
+            json.dumps({str(self.group.pk): 10000, str(self.other_group.pk): 5000}),
+        )
 
-        self.assertEqual(payment.meta["allocation"], 10000)
-        self.assertEqual(payment.meta["group_id"], str(self.group.pk))
+        complete_payment(payment)
+        donation_notification_listener(payment)
+
+        self.assertTrue(
+            Operation.objects.filter(group=self.group, amount=10000, payment=payment)
+        )
+        self.assertTrue(
+            Operation.objects.filter(
+                group=self.other_group, amount=5000, payment=payment
+            )
+        )
 
     @using_redislite
-    def test_allocation_created_on_payment(self):
+    def test_allocation_createdmeta_on_payment(self):
         payment = create_payment(
             person=self.p1,
             type=DonsConfig.PAYMENT_TYPE,
             price=10000,
             mode=SystemPayPaymentMode.id,
-            meta={"allocation": 10000, "group_id": str(self.group.pk)},
+            meta={"allocations": json.dumps({str(self.group.pk): 10000})},
         )
 
         complete_payment(payment)
@@ -327,8 +358,9 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
             {
                 "type": AllocationDonationForm.TYPE_MONTHLY,
                 "amount": "20000",
-                "group": str(self.group.pk),
-                "allocation": "10000",
+                "allocations": json.dumps(
+                    [{"group": str(self.group.pk), "amount": 10000}]
+                ),
             },
         )
         self.assertRedirects(res, information_url)
@@ -342,8 +374,9 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
             information_url,
             {
                 **self.donation_information_payload,
-                "allocation": 10000,
-                "group": str(self.group.pk),
+                "allocations": json.dumps(
+                    [{"group": str(self.group.pk), "amount": 10000}]
+                ),
             },
         )
         # no other payment

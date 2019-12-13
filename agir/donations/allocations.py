@@ -16,9 +16,11 @@ def group_can_handle_allocation(group):
     return group.subtypes.filter(label__in=settings.CERTIFIED_GROUP_SUBTYPES).exists()
 
 
-def create_monthly_allocation(
-    person, mode, subscription_total, group=None, allocation_amount=0, **kwargs
+def create_monthly_donation(
+    person, mode, subscription_total, allocations=None, **kwargs
 ):
+    if allocations is None:
+        allocations = {}
     subscription = create_subscription(
         person=person,
         price=subscription_total,
@@ -28,10 +30,9 @@ def create_monthly_allocation(
         **kwargs
     )
 
-    allocation = None
-    if group is not None:
-        allocation = MonthlyAllocation.objects.create(
-            subscription=subscription, group=group, amount=allocation_amount
+    for group, amount in allocations.items():
+        MonthlyAllocation.objects.create(
+            subscription=subscription, group=group, amount=amount
         )
 
-    return subscription, allocation
+    return subscription

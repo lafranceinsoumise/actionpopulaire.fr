@@ -1,5 +1,4 @@
 import React from "react";
-import { hot } from "react-hot-loader";
 import PropTypes from "prop-types";
 
 import AmountInput from "@agir/donations/donationForm/AmountInput";
@@ -51,8 +50,6 @@ class AmountWidget extends React.Component {
 
     return (
       <div className="amount-component">
-        <input type="hidden" value={amount ? amount : ""} name="amount" />
-
         <FlexContainer className={error ? " has-error" : ""}>
           {amountChoices.map(value => (
             <AmountButton

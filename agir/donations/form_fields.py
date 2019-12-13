@@ -63,3 +63,51 @@ class AskAmountField(forms.IntegerField):
             attrs.setdefault("data-amount-choices", json.dumps(self.amount_choices))
 
         return attrs
+
+
+class AllocationsField(forms.Field):
+    widget = forms.HiddenInput
+    hidden_widget = forms.HiddenInput
+    default_error_messages = {"invalid": "Format incorrect"}
+
+    def __init__(self, *, queryset, choices=None, **kwargs):
+        super().__init__(**kwargs)
+        self.queryset = queryset
+        self.choices = choices
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return {}
+
+        try:
+            value = json.loads(value)
+            value = {
+                self.queryset.get(pk=allocation["group"]): int(allocation["amount"])
+                for allocation in value
+            }
+        except (ValueError, TypeError, KeyError, self.queryset.model.DoesNotExist):
+            raise ValidationError(self.error_messages["invalid"], code="invalid")
+
+        if not all((v, int) for v in value.values()):
+            raise ValidationError(self.error_messages["invalid"], code="invalid")
+
+        return value
+
+    def prepare_value(self, value):
+        if isinstance(value, dict):
+            value = json.dumps(
+                [{"group": str(k.pk), "amount": v} for k, v in value.items()]
+            )
+        return super().prepare_value(value)
+
+    # définition d'une propriété pour être sûr que le queryset est copié (appel de .all())
+    @property
+    def choices(self):
+        return self._choices
+
+    @choices.setter
+    def choices(self, value):
+        self._choices = None if value is None else value.all()
+        self.widget.attrs["data-choices"] = json.dumps(
+            [{"id": str(g.id), "name": g.name} for g in self.queryset]
+        )

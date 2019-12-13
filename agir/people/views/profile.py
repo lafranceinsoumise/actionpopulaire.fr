@@ -308,9 +308,14 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
         )
 
     def get_initial_for_subscription(self, subscription):
+        allocations = subscription.allocations.all()
+
         initial = {
             "amount": subscription.price,
             "previous_subscription": subscription.pk,
+            "allocations": {
+                allocation.group: allocation.amount for allocation in allocations
+            },
         }
         allocation = subscription.allocations.first()
         if allocation:
@@ -339,11 +344,3 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
             subscriptions=self.subscriptions,
             **kwargs,
         )
-
-    def form_valid(self, form):
-        if form.cleaned_data["previous_subscription"]:
-            self.data_to_persist["previous_subscription"] = form.cleaned_data[
-                "previous_subscription"
-            ].pk
-
-        return super().form_valid(form)

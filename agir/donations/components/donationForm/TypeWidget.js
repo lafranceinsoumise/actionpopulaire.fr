@@ -27,8 +27,6 @@ const TypeButton = styled.button`
 
 const TypeWidget = ({ typeChoices, type, onTypeChange }) => (
   <FlexContainer justifyContent="center">
-    <input type="hidden" value={type || ""} name="type" />
-
     {typeChoices.map(({ label, value, icon }) => (
       <TypeButton
         key={value}

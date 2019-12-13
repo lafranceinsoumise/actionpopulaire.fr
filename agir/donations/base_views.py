@@ -5,20 +5,24 @@ from django.views.generic import FormView, UpdateView
 import agir.donations.base_forms
 
 
-class BaseAskAmountView(FormView):
-    form_class = agir.donations.base_forms.SimpleDonationForm
-    session_namespace = "_donation_"
+def serialize_form(form):
+    data = form.cleaned_data
+    return {k: form[k].data for k in data}
 
-    def dispatch(self, request, *args, **kwargs):
-        self.data_to_persist = request.session[self.session_namespace] = {}
-        return super().dispatch(request, *args, **kwargs)
+
+class FormToSessionMixin:
+    session_namespace = None
 
     def form_valid(self, form):
-        """Enregistre le montant dans la session avant de rediriger vers le formulaire suivant.
+        """Enregistre le contenu du formulaire dans la session avant de rediriger vers le formulaire suivant.
         """
-        self.data_to_persist["amount"] = form.cleaned_data["amount"]
-
+        self.request.session[self.session_namespace] = serialize_form(form)
         return super().form_valid(form)
+
+
+class BaseAskAmountView(FormToSessionMixin, FormView):
+    form_class = agir.donations.base_forms.SimpleDonationForm
+    session_namespace = "_donation_"
 
 
 class BasePersonalInformationView(UpdateView):

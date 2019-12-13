@@ -50,14 +50,14 @@ const replaceForm = selector => {
     props.typeChoices = getChoices(typeSelect);
   }
 
-  const groupSelect = form.querySelector('select[name="group"]');
-
-  if (groupSelect) {
-    props.groupChoices = getChoices(groupSelect);
-    props.initial.group = groupSelect.value;
-  } else {
-    props.initial.group = form.dataset.groupId || null;
-    props.groupName = form.dataset.groupName || null;
+  const allocationsInput = form.querySelector('input[name="allocations"]');
+  if (allocationsInput) {
+    props.groupChoices = allocationsInput.dataset.choices
+      ? JSON.parse(allocationsInput.dataset.choices)
+      : [];
+    props.initial.allocations = allocationsInput.value
+      ? JSON.parse(allocationsInput.value)
+      : [];
   }
 
   const amountInput = form.querySelector('input[name="amount"]');

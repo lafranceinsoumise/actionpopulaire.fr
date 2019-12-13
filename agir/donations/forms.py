@@ -14,7 +14,7 @@ from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
-from agir.donations.form_fields import AskAmountField
+from agir.donations.form_fields import AskAmountField, AllocationsField
 from agir.groups.models import SupportGroup
 from agir.lib.display import display_price
 from agir.lib.form_components import *
@@ -28,64 +28,44 @@ logger = logging.getLogger(__name__)
 
 
 class AllocationMixin(forms.Form):
-    group = forms.ModelChoiceField(
-        label="Groupe à financer",
+    allocations = AllocationsField(
+        required=False,
         queryset=SupportGroup.objects.active().certified().order_by("name").distinct(),
-        empty_label="Aucun groupe",
-        required=False,
-        help_text="Vous pouvez désigner un groupe auquel votre don sera en partie ou en totalité alloué. Si vous "
-        "voulez choisir un groupe dont vous n'être pas membre, rendez-vous sur la page de ce groupe et "
-        "cliquez sur &laquo;&nbsp;Financer les actions de ce groupe&nbsp;&raquo;",
-    )
-
-    allocation = forms.IntegerField(
-        label="Montant alloué au groupe choisi",
-        min_value=0,
-        required=False,
-        help_text="Indiquez le montant que vous souhaitez allouer à votre groupe. Le reste du don permettra de financer "
-        "les actions nationales de la France insoumise.",
     )
 
     def __init__(self, *args, group_id=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.group = None
 
+        condition = Q()
+
         if group_id:
             try:
-                self.group = self.fields["group"].queryset.get(pk=group_id)
-                self.fields["allocation"].label = format_html(
-                    "{} &laquo;&nbsp;{}&nbsp;&raquo;",
-                    "Montant alloué au groupe",
-                    self.group.name,
-                )
-                self.helper.attrs["data-group-id"] = group_id
-                self.helper.attrs["data-group-name"] = self.group.name
+                self.group = self.fields["allocations"].queryset.get(pk=group_id)
+                condition |= Q(pk=group_id)
             except (SupportGroup.DoesNotExist, ValidationError):
                 pass
 
-        if self.group is None and user.is_authenticated:
-            self.fields["group"].queryset = self.fields["group"].queryset.filter(
-                memberships__person=user.person
-            )
+        if self.group:
+            self.fields["allocations"].initial = {self.group: 0}
 
-        if self.group is not None:
-            del self.fields["group"]
-        elif user.is_anonymous or not self.fields["group"].queryset:
-            del self.fields["group"]
-            del self.fields["allocation"]
+        if user.is_authenticated:
+            condition |= Q(memberships__person=user.person)
+
+        if condition:
+            self.fields["allocations"].choices = self.fields[
+                "allocations"
+            ].queryset.filter(condition)
 
         self.helper.layout.fields = [
-            f for f in ["type", "amount", "group", "allocation"] if f in self.fields
+            f for f in ["type", "amount", "allocations"] if f in self.fields
         ]
-
-    def clean_allocation(self):
-        return self.cleaned_data.get("allocation") or 0
 
     def clean(self):
         amount = self.cleaned_data.get("amount")
-        allocation = self.cleaned_data.get("allocation", 0)
+        allocations = self.cleaned_data.get("allocations") or {}
 
-        if amount and allocation > amount:
+        if amount and sum(allocations.values()) > amount:
             self.add_error(
                 "allocation",
                 ValueError(
@@ -176,32 +156,23 @@ class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
 
 
 class AllocationDonorForm(SimpleDonorForm):
-    allocation = forms.IntegerField(
-        min_value=0,
-        max_value=settings.DONATION_MAXIMUM,
-        required=True,
-        initial=0,
-        widget=forms.HiddenInput,
-    )
-
-    group = forms.ModelChoiceField(
-        queryset=SupportGroup.objects.active().certified(),
+    allocations = AllocationsField(
         required=False,
-        widget=forms.HiddenInput,
+        queryset=SupportGroup.objects.active().certified().order_by("name").distinct(),
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.helper.layout.fields.extend(["allocation", "group"])
+        self.helper.layout.fields.extend(["allocations"])
 
     def clean(self):
         cleaned_data = super().clean()
 
         amount = self.cleaned_data.get("amount")
-        allocation = self.cleaned_data.get("allocation", 0)
+        allocations = self.cleaned_data.get("allocations", {})
 
-        if amount and allocation > amount:
+        if amount and sum(allocations.values()) > amount:
             self.add_error(
                 None,
                 ValidationError(

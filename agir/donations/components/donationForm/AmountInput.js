@@ -13,7 +13,7 @@ function valueToText(v) {
   }
 }
 
-const AmountInput = ({ placeholder, onChange, value }) => {
+const AmountInput = ({ placeholder, onChange, value, disabled }) => {
   const [text, setText] = useState("");
 
   if (value !== parsePrice(text)) {
@@ -27,6 +27,7 @@ const AmountInput = ({ placeholder, onChange, value }) => {
         className="form-control"
         placeholder={placeholder}
         step={1}
+        disabled={disabled}
         onChange={e => {
           if (e.target.value === "") {
             setText("");
@@ -52,7 +53,14 @@ const AmountInput = ({ placeholder, onChange, value }) => {
 AmountInput.propTypes = {
   placeholder: PropTypes.string,
   onChange: PropTypes.func,
+  disabled: PropTypes.bool,
   value: PropTypes.number // price in cents
+};
+AmountInput.defaultProps = {
+  placeholder: "",
+  onChange: () => null,
+  disabled: false,
+  value: null
 };
 
 export default AmountInput;
