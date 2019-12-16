@@ -1,6 +1,8 @@
+import re
+
 from django import forms
 from django.contrib.postgres.fields import ArrayField
-from django.core import checks
+from django.core import checks, exceptions
 from django.db import models
 from django.utils.itercompat import is_iterable
 from django.utils.translation import ugettext_lazy as _
@@ -106,3 +108,76 @@ class ChoiceArrayField(ArrayField):
         defaults.update(kwargs)
 
         return super(ArrayField, self).formfield(**defaults)
+
+
+class FacebookPageField(models.CharField):
+    FACEBOOK_ID_RE = re.compile(
+        r"^(?:(?:https://)?www.facebook.com/)?([a-zA-Z.]{5,})(?:/.*)?$"
+    )
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return value
+
+        value = self.FACEBOOK_ID_RE.match(value)
+        if value:
+            return value.group(1)
+        else:
+            raise exceptions.ValidationError(
+                "Vous devez indiquez soit l'identifiant de la page Facebook, soit son URL",
+                params={"value": value},
+            )
+
+
+class FacebookEventField(models.CharField):
+    FACEBOOK_EVENT_ID_RE = re.compile(
+        r"^(?:(?:https://)?www.facebook.com/events/)?([0-9]{15,20})(?:/.*)?$"
+    )
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("max_length", 20)
+        super().__init__(*args, **kwargs)
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return value
+
+        value = self.FACEBOOK_EVENT_ID_RE.match(value)
+        if value:
+            return value.group(1)
+        else:
+            raise exceptions.ValidationError(
+                "Vous devez indiquez soit l'identifiant de l'événement Facebook, soit son URL",
+                params={"value": value},
+            )
+
+    def formfield(self, **kwargs):
+        defaults = {"max_length": 255}
+        kwargs.update(defaults)
+        return super().formfield(**defaults)
+
+
+class TwitterProfileField(models.CharField):
+    TWITTER_ID_RE = re.compile(r"^(?:@|https://twitter.com/)?([a-zA-Z0-9_]{1,15})$")
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("max_length", 15)
+        super().__init__(*args, **kwargs)
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return value
+
+        value = self.TWITTER_ID_RE.match(value)
+        if value:
+            return value.group(1)
+        else:
+            raise exceptions.ValidationError(
+                "Identifiant twitter incorrect (il ne peut comporter que des caractères alphanumériques et des tirets soulignants (_)",
+                params={"value": value},
+            )
+
+    def formfield(self, **kwargs):
+        defaults = {"max_length": 255}
+        kwargs.update(defaults)
+        return super().formfield(**defaults)

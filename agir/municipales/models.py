@@ -6,6 +6,7 @@ from django.core.validators import EMPTY_VALUES
 from django.db import models
 from django.db.models import UniqueConstraint
 
+from agir.lib.model_fields import FacebookPageField, TwitterProfileField
 from agir.lib.models import TimeStampedModel
 from agir.lib.search import PrefixSearchQuery
 from agir.lib.utils import front_url
@@ -61,13 +62,12 @@ class CommunePage(TimeStampedModel, models.Model):
         "Prénom chef⋅fe de file 2", max_length=255, blank=True
     )
     last_name_2 = models.CharField("Nom chef⋅fe de file 2", max_length=255, blank=True)
-    twitter = models.CharField(
+    twitter = TwitterProfileField(
         "Identifiant Twitter",
-        max_length=255,
         blank=True,
         help_text="Indiquez l'identifiant ou l'URL du compte Twitter de la campagne.",
     )
-    facebook = models.CharField(
+    facebook = FacebookPageField(
         "Identifiant Facebook",
         max_length=255,
         blank=True,
@@ -89,30 +89,6 @@ class CommunePage(TimeStampedModel, models.Model):
         related_name="municipales2020_commune",
         blank=True,
     )
-
-    def clean(self):
-        errors = {}
-
-        if self.twitter not in EMPTY_VALUES:
-            twitter = TWITTER_ID_RE.match(self.twitter)
-            if twitter:
-                self.twitter = twitter.group(1)
-            else:
-                errors[
-                    "twitter"
-                ] = "Identifiant twitter incorrect (il ne peut comporter que des caractères alphanumériques et des tirets soulignants (_)"
-
-        if self.facebook not in EMPTY_VALUES:
-            facebook = FACEBOOK_ID_RE.match(self.facebook)
-            if facebook:
-                self.facebook = facebook.group(1)
-            else:
-                errors[
-                    "facebook"
-                ] = "Vous devez indiquez soit l'identifiant de la page Facebook, soit son URL"
-
-        if errors:
-            raise ValidationError(errors)
 
     def __str__(self):
         return "{} ({})".format(self.name, self.code_departement)
