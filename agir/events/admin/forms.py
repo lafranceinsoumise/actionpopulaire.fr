@@ -1,9 +1,8 @@
 from django import forms
-from django.conf import settings
 from django.contrib.admin.widgets import AutocompleteSelect
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.forms import BooleanField
+from django.forms import BooleanField, CharField
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html

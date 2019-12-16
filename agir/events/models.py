@@ -24,6 +24,7 @@ from slugify import slugify
 
 from agir.lib.utils import front_url, resize_and_autorotate
 from agir.lib.form_fields import CustomJSONEncoder
+from ..lib.model_fields import FacebookEventField
 from ..lib.models import (
     BaseAPIResource,
     AbstractLabel,
@@ -198,6 +199,7 @@ class Event(
     allow_guests = models.BooleanField(
         "Autoriser les participant⋅e⋅s à inscrire des invité⋅e⋅s", default=False
     )
+    facebook = FacebookEventField("Événement correspondant sur Facebook", blank=True)
 
     attendees = models.ManyToManyField(
         "people.Person", related_name="events", through="RSVP"
