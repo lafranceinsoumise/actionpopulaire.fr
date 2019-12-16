@@ -33,7 +33,7 @@ class SystemPayWebhookSerializer(serializers.Serializer):
     vads_trans_status = serializers.ChoiceField(
         choices=list(SYSTEMPAY_STATUS_CHOICE), required=True, source="trans_status"
     )
-    vads_amount = serializers.IntegerField(required=True, source="amount")
+    vads_amount = serializers.IntegerField(required=False, source="amount")
     vads_cust_id = serializers.CharField(required=True, source="cust_id")
 
     # information de l'alias
@@ -103,6 +103,12 @@ class SystemPayWebhookSerializer(serializers.Serializer):
                     detail={"identifier": "Information manquante sur l'alias"},
                     code="missing_alias",
                 )
+
+        if self.is_successful(validated_data) and "amount" not in validated_data:
+            raise serializers.ValidationError(
+                detail={"amount": "Montant d'une transaction réussie manquant"},
+                code="missing_amount",
+            )
 
         return validated_data
 
