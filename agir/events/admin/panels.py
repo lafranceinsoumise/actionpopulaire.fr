@@ -263,6 +263,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "do_not_list",
                     "send_visibility_notification",
                     "legal_informations",
+                    "facebook",
                 )
             },
         ),

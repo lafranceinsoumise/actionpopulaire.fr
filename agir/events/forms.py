@@ -171,6 +171,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                         Row(TwoThirdCol("contact_email")),
                         Row(TwoThirdCol("contact_phone", "contact_hide_phone")),
                         Row(TwoThirdCol("as_group")),
+                        Row(TwoThirdCol("facebook")),
                     )
                 ),
                 HalfCol(
@@ -319,6 +320,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
             "contact_email",
             "contact_phone",
             "contact_hide_phone",
+            "facebook",
             "location_name",
             "location_address1",
             "location_address2",

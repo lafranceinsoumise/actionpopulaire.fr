@@ -158,6 +158,11 @@
 
         <h4>Contact</h4>
         <p>{{ event.html_full_contact }}</p>
+        {% if event.facebook %}
+        <a href="https://www.facebook.com/events/{{ event.facebook }}/" target="_blank">
+          <i class="fa fa-facebook-official"></i> sur Facebook
+        </a>
+      {% endif %}
       {% endif %}
 
       {% spaceless %}
