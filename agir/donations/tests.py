@@ -530,7 +530,12 @@ class FinancialTriggersTestCase(TestCase):
     def test_cannot_allocate_more_than_payment(self):
         p = self.create_payment(1000)
         with self.assertRaises(IntegrityError):
-            Operation.objects.create(payment=p, group=self.group1, amount=1500)
+            with transaction.atomic():
+                Operation.objects.create(payment=p, group=self.group1, amount=1500)
+
+        Operation.objects.create(payment=p, group=self.group1, amount=800)
+        with self.assertRaises(IntegrityError):
+            Operation.objects.create(payment=p, group=self.group2, amount=500)
 
     def test_cannot_reduce_payment_if_allocated(self):
         p = self.create_payment(1000, group=self.group1, allocation=900)

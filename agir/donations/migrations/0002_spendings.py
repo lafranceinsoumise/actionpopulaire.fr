@@ -13,9 +13,12 @@ $check_spendings$
             former_amount := OLD.amount;
         END IF;
 
+
+        -- Vérifions que la balance du NOUVEAU groupe est supérieure à zéro
         IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
             SELECT COALESCE(SUM(amount), 0) INTO former_total FROM donations_operation WHERE donations_operation.group_id = NEW.group_id;
 
+            -- Le total doit rester supérieur à zéro
             IF former_total - former_amount + NEW.amount < 0 THEN
                 RAISE integrity_constraint_violation;
             END IF;
