@@ -1,8 +1,11 @@
 import json
 from decimal import Decimal
+from typing import Dict
 
 from django import forms
 from django.core.exceptions import ValidationError
+
+from agir.groups.models import SupportGroup
 
 
 class MoneyField(forms.DecimalField):
@@ -65,6 +68,40 @@ class AskAmountField(forms.IntegerField):
         return attrs
 
 
+AllocationsMapping = Dict[SupportGroup, int]
+
+
+def serialize_allocations(allocations: AllocationsMapping) -> str:
+    return json.dumps({str(group.pk): amount for group, amount in allocations.items()})
+
+
+def deserialize_allocations(
+    serialized_allocations: str, raise_if_missing=False
+) -> AllocationsMapping:
+    mapping = json.loads(serialized_allocations)
+
+    allocations = {}
+    for id, amount in mapping.items():
+        try:
+            allocations[SupportGroup.objects.get(pk=id)] = amount
+        except SupportGroup.DoesNotExist:
+            if raise_if_missing:
+                raise
+            pass
+
+    return allocations
+
+
+def sum_allocations(
+    allocations1: AllocationsMapping, allocations2: AllocationsMapping
+) -> AllocationsMapping:
+    allocations = {
+        group: allocations1.get(group, 0) + allocations2.get(group, 0)
+        for group in set(allocations1) | set(allocations2)
+    }
+    return allocations
+
+
 class AllocationsField(forms.Field):
     widget = forms.HiddenInput
     hidden_widget = forms.HiddenInput
@@ -75,7 +112,7 @@ class AllocationsField(forms.Field):
         self.queryset = queryset
         self.choices = choices
 
-    def to_python(self, value):
+    def to_python(self, value) -> AllocationsMapping:
         if value in self.empty_values:
             return {}
 

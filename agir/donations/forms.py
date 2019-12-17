@@ -351,3 +351,12 @@ class DocumentForm(forms.ModelForm):
     class Meta:
         model = Document
         fields = ("title", "type", "file")
+
+
+class AlreadyHasSubscriptionForm(forms.Form):
+    choice = forms.ChoiceField(
+        choices=(
+            ("R", "Remplacer le paiement mensuel existant"),
+            ("A", "Ajouter au paiement mensuel existant"),
+        )
+    )
