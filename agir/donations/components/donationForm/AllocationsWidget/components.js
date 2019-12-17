@@ -15,10 +15,10 @@ export const RemoveButton = ({ onClick }) => (
   <AlignedButton
     type="button"
     className="fa"
-    onClick={onClick}
+    onClick={onClick || (() => null)}
     title={"Ne plus flécher vers ce groupe"}
   >
-    {"\uf00d"}
+    {onClick ? "\uf00d" : ""}
   </AlignedButton>
 );
 RemoveButton.propTypes = {
@@ -110,6 +110,6 @@ GroupAllocation.defaultProps = {
   amount: 0,
   maxAmount: 0,
   onChange: () => null,
-  onRemove: () => null,
+  onRemove: null,
   disabled: false
 };

@@ -27,9 +27,9 @@ export const ButtonHolder = styled(MarginBox)`
 `;
 
 export const AlignedButton = styled.button`
+  width: 3rem;
   font-size: 2rem;
   color: #9f3723;
-  display: table-cell;
   border: none;
   background: none;
 `;

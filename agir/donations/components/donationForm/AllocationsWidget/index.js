@@ -55,6 +55,9 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
               setExtra(false);
               onChange(value.concat({ group: id, amount: 0 }));
             }}
+            onRemove={() => {
+              setExtra(false);
+            }}
           />
         )}
       </AllocationsArray>
