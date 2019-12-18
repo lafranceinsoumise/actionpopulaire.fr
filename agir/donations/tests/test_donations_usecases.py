@@ -2,10 +2,12 @@ import json
 from unittest import mock
 
 import re
+import uuid
 from django.conf import settings
 from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from agir.api.redis import using_redislite
 from agir.donations.apps import DonsConfig
@@ -27,6 +29,7 @@ from ..views import (
     notification_listener as donation_notification_listener,
     subscription_notification_listener as monthly_donation_subscription_listener,
 )
+from ...system_pay.models import SystemPayAlias, SystemPaySubscription
 
 
 class DonationTestMixin:
@@ -35,8 +38,7 @@ class DonationTestMixin:
 
         self.donation_information_payload = {
             "amount": "20000",
-            "group": "",
-            "allocation": "0",
+            "allocations": "{}",
             "declaration": "Y",
             "nationality": "FR",
             "first_name": "Marc",
@@ -143,6 +145,7 @@ class DonationTestCase(DonationTestMixin, TestCase):
                 200,
                 msg="Should not redirect when field '%s' missing" % f,
             )
+            self.assertFormError(res, "form", f, "Ce champ est obligatoire.")
 
     def test_cannot_donate_without_asserting_fiscal_residency_when_foreigner(self):
         self.client.force_login(self.p1.role)
@@ -319,8 +322,36 @@ class DonationTestCase(DonationTestMixin, TestCase):
 
 
 class MonthlyDonationTestCase(DonationTestMixin, TestCase):
+    def create_subscription(self, person, amount, allocations=None):
+        s = Subscription.objects.create(
+            person=person,
+            price=amount,
+            status=Subscription.STATUS_COMPLETED,
+            type="don_mensuel",
+            mode="system_pay",
+        )
+
+        # création d'un faux alias et d'une fausse SystemPaySubscription
+        alias = SystemPayAlias.objects.create(
+            identifier=uuid.uuid4(),
+            active=True,
+            expiry_date=timezone.now() + timezone.timedelta(days=365),
+        )
+
+        SystemPaySubscription.objects.create(
+            identifier="fake_sub", subscription=s, alias=alias
+        )
+
+        if allocations:
+            for group, amount in allocations.items():
+                MonthlyAllocation.objects.create(
+                    subscription=s, group=group, amount=amount
+                )
+
+        return s
+
     @mock.patch("agir.donations.views.send_donation_email")
-    def test_can_subscribe_while_logged_in(self, send_donation_email):
+    def test_can_make_monthly_donation_while_logged_in(self, send_donation_email):
         self.client.force_login(self.p1.role)
         amount_url = reverse("donation_amount")
         information_url = reverse("monthly_donation_information")
@@ -404,7 +435,7 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
         self.assertEqual(operation.group, self.group)
         self.assertEqual(operation.amount, 10000)
 
-    def test_can_also_subscribe_from_profile(self):
+    def test_can_also_create_monthly_donation_from_profile(self):
         self.client.force_login(self.p1.role)
         profile_payments_page = reverse("view_payments")
         information_url = reverse("monthly_donation_information")
@@ -422,6 +453,34 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
             },
         )
         self.assertRedirects(res, information_url)
+
+    def test_can_see_monthly_payment_from_profile(self):
+        s = self.create_subscription(
+            person=self.p1, amount=1000, allocations={self.group: 600}
+        )
+        self.client.force_login(self.p1.role)
+
+        profile_payments_page = reverse("view_payments")
+        res = self.client.get(profile_payments_page)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "<h4>Don mensuel à l'AFLFI</h4>", html=True)
+        self.assertContains(res, "Vous donnez <strong>10,00\u00A0€</strong>")
+        self.assertContains(
+            res,
+            "<li>4,00\u00A0€ sont alloués aux actions, aux campagnes nationales, et aux outils mis à la disposition des insoumis⋅es (comme cette plateforme internet).</li>",
+            html=True,
+        )
+        self.assertContains(
+            res,
+            "<li>6,00\u00A0€ sont alloués aux actions du groupe &laquo;&nbsp;Groupe&nbsp;&raquo;</li>",
+            html=True,
+        )
+        self.assertContains(
+            res,
+            f'<input type="hidden" name="previous_subscription" value="{s.id}" id="id_previous_subscription">',
+            html=True,
+        )
 
     @mock.patch("agir.donations.views.send_monthly_donation_confirmation_email")
     def test_create_person_when_using_new_address(
@@ -474,3 +533,110 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
             "email",
         ]:
             self.assertEqual(getattr(p2, f), self.donation_information_payload[f])
+
+    @mock.patch("agir.donations.views.replace_subscription")
+    def test_can_modify_subscription(self, replace_subscription):
+        s = self.create_subscription(
+            person=self.p1, amount=1000, allocations={self.group: 600}
+        )
+
+        self.client.force_login(self.p1.role)
+        information_url = reverse("monthly_donation_information")
+        session = self.client.session
+
+        res = self.client.post(
+            reverse("view_payments"),
+            data={
+                "amount": "1200",
+                "allocations": json.dumps(
+                    [{"group": str(self.group.pk), "amount": 700}]
+                ),
+                "previous_subscription": s.id,
+            },
+        )
+
+        self.assertRedirects(res, information_url)
+        self.assertEqual(session["_donation_"]["previous_subscription"], str(s.id))
+
+        res = self.client.post(
+            information_url,
+            data={
+                **self.donation_information_payload,
+                "amount": 700,
+                "allocations": json.dumps(
+                    [{"group": str(self.group.pk), "amount": 700}]
+                ),
+                "previous_subscription": s.id,
+            },
+        )
+
+        new_sub = Subscription.objects.exclude(pk=s.id).get()
+
+        self.assertRedirects(res, reverse("view_payments"))
+        replace_subscription.assert_called_once()
+        self.assertEqual(
+            tuple(replace_subscription.call_args),
+            ((), {"previous_subscription": s, "new_subscription": new_sub}),
+        )
+
+    @mock.patch("agir.donations.views.replace_subscription")
+    def test_can_add_to_subscription(self, replace_subscription):
+        s = self.create_subscription(
+            person=self.p1, amount=1000, allocations={self.group: 600}
+        )
+
+        self.client.force_login(self.p1.role)
+        information_url = reverse("monthly_donation_information")
+        session = self.client.session
+
+        res = self.client.post(
+            reverse("donation_amount"),
+            data={
+                "type": "M",
+                "amount": "500",
+                "allocations": json.dumps(
+                    [
+                        {"group": str(self.group.pk), "amount": 100},
+                        {"group": str(self.other_group.pk), "amount": 300},
+                    ]
+                ),
+            },
+        )
+
+        self.assertRedirects(res, information_url)
+
+        res = self.client.post(
+            information_url,
+            data={
+                **self.donation_information_payload,
+                "type": "M",
+                "amount": "500",
+                "allocations": json.dumps(
+                    [
+                        {"group": str(self.group.pk), "amount": 100},
+                        {"group": str(self.other_group.pk), "amount": 300},
+                    ]
+                ),
+            },
+        )
+
+        self.assertRedirects(res, reverse("already_has_subscription"))
+
+        res = self.client.post(
+            reverse("already_has_subscription"), data={"choice": "A"}
+        )
+
+        new_sub = Subscription.objects.exclude(pk=s.id).get()
+
+        self.assertEqual(new_sub.price, 1500)
+        self.assertDictEqual(
+            {a.group: a.amount for a in new_sub.allocations.all()},
+            {self.group: 700, self.other_group: 300},
+        )
+
+        self.assertRedirects(res, reverse("view_payments"))
+        replace_subscription.assert_called_once()
+        self.assertEqual(
+            tuple(replace_subscription.call_args),
+            ((), {"previous_subscription": s, "new_subscription": new_sub}),
+        )
