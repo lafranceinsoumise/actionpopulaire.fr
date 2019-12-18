@@ -45,7 +45,7 @@ CREATE FUNCTION check_operation_for_payment() RETURNS TRIGGER AS $process_operat
         allocated INTEGER;
     BEGIN
         IF NEW.payment_id IS NULL THEN
-            -- on ne contrôle que les opérations associés à des paiement dans cette contrainte
+            -- on ne contrôle que les opérations associés à des paiements dans cette contrainte
             RETURN NEW;
         END IF;
 

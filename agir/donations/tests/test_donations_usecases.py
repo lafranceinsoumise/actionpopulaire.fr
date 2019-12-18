@@ -4,7 +4,6 @@ from unittest import mock
 import re
 from django.conf import settings
 from django.core import mail
-from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
@@ -320,14 +319,6 @@ class DonationTestCase(DonationTestMixin, TestCase):
 
 
 class MonthlyDonationTestCase(DonationTestMixin, TestCase):
-    def test_cannot_create_allocations_bigger_than_subscription(self):
-        self.subscription = Subscription.objects.create(person=self.p1, price=1000)
-        MonthlyAllocation.objects.create(amount=500, subscription=self.subscription)
-        with self.assertRaises(IntegrityError):
-            MonthlyAllocation.objects.create(
-                amount=1000, subscription=self.subscription
-            )
-
     @mock.patch("agir.donations.views.send_donation_email")
     def test_can_subscribe_while_logged_in(self, send_donation_email):
         self.client.force_login(self.p1.role)
