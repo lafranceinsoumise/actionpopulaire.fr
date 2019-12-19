@@ -49,7 +49,7 @@ abusive_invitation_report_token_generator = SignatureGenerator(
 monthly_donation_confirmation_token_generator = SignatureGenerator(
     validity=2,
     key_salt="monthly_donation_confirmation_token_generator",
-    token_params=["email", "mode", "subscription_total", "allocation_amount"],
+    token_params=["email", "subscription_total", "allocations"],
     params_separator="|",
 )  # Token generator to confirm monthly donation when user not logged in
 

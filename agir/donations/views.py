@@ -1,14 +1,22 @@
+import json
+
 import reversion
 from django.contrib import messages
 from django.db import transaction
 from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from django.views import View
-from django.views.generic import UpdateView, TemplateView, DetailView, CreateView
+from django.views.generic import (
+    UpdateView,
+    TemplateView,
+    DetailView,
+    CreateView,
+    FormView,
+)
 from django.views.generic.detail import SingleObjectMixin
+from functools import partial
 
 from agir.authentication.tokens import monthly_donation_confirmation_token_generator
 from agir.authentication.utils import soft_login
@@ -18,7 +26,7 @@ from agir.authentication.view_mixins import (
 )
 from agir.donations.allocations import (
     group_can_handle_allocation,
-    create_monthly_allocation,
+    create_monthly_donation,
 )
 from agir.donations.apps import DonsConfig
 from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
@@ -27,6 +35,7 @@ from agir.donations.forms import (
     DocumentHelper,
     SpendingRequestCreationForm,
     DocumentForm,
+    AlreadyHasSubscriptionForm,
 )
 from agir.donations.spending_requests import (
     summary,
@@ -43,10 +52,14 @@ from agir.payments.actions.payments import (
     redirect_to_payment,
     create_payment,
 )
-from agir.payments.actions.subscriptions import redirect_to_subscribe
+from agir.payments.actions.subscriptions import (
+    redirect_to_subscribe,
+    replace_subscription,
+)
 from agir.payments.models import Payment, Subscription
 from agir.people.models import Person
 from . import forms
+from .form_fields import serialize_allocations, deserialize_allocations, sum_allocations
 from .models import SpendingRequest, Operation, Document
 from .tasks import send_donation_email, send_monthly_donation_confirmation_email
 
@@ -75,11 +88,6 @@ class AskAmountView(BaseAskAmountView):
         return kwargs
 
     def form_valid(self, form):
-        # use int to floor down the value as well as converting to an int
-        allocation = int(form.cleaned_data.get("allocation", 0) * 100)
-        self.data_to_persist["allocation"] = allocation
-        self.data_to_persist["group_id"] = form.group and str(form.group.pk)
-
         if (
             "type" in form.cleaned_data
             and form.cleaned_data["type"] == form.TYPE_MONTHLY
@@ -90,24 +98,20 @@ class AskAmountView(BaseAskAmountView):
 
 
 class AllocationPersonalInformationMixin:
-    def get_context_data(self, **kwargs):
-        amount = self.persistent_data["amount"]
-        allocation = self.persistent_data.get("allocation", 0)
+    persisted_data = ["amount", "allocations"]
 
-        kwargs["allocation"] = allocation
-        kwargs["national"] = amount - allocation
-        kwargs["group_name"] = (
-            self.allocation_group.name if self.allocation_group is not None else None
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["initial"]["allocations"] = self.persistent_data["allocations"]
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data["national"] = context_data["amount"] - sum(
+            context_data["allocations"].values()
         )
 
-        return super().get_context_data(**kwargs)
-
-    @cached_property
-    def allocation_group(self):
-        group_id = self.persistent_data.get("group_id", None)
-
-        if group_id is not None:
-            return SupportGroup.objects.get(pk=group_id)
+        return context_data
 
 
 class DonationPersonalInformationView(
@@ -123,12 +127,12 @@ class DonationPersonalInformationView(
     def get_metas(self, form):
         meta = super().get_metas(form)
 
-        allocation = form.cleaned_data["allocation"]
-        group = form.cleaned_data["group"]
+        allocations = form.cleaned_data["allocations"]
 
-        if allocation and group:
-            meta["allocation"] = allocation
-            meta["group_id"] = str(group.pk)
+        if allocations:
+            meta["allocations"] = json.dumps(
+                {str(k.pk): v for k, v in allocations.items()}
+            )
 
         return meta
 
@@ -168,43 +172,75 @@ class MonthlyDonationPersonalInformationView(
     payment_type = DonsConfig.PAYMENT_TYPE
     session_namespace = DONATION_SESSION_NAMESPACE
     base_redirect_url = "view_payments"
+    persisted_data = ["amount", "allocations", "previous_subscription"]
 
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(monthly=True, **kwargs)
+    def get_context_data(self, **context_data):
+        return super().get_context_data(monthly=True, **context_data)
+
+    def get_metas(self, form):
+        meta = super().get_metas(form)
+
+        meta["allocations"] = serialize_allocations(form.cleaned_data["allocations"])
+
+        if form.cleaned_data["previous_subscription"]:
+            meta["previous_subscription"] = form.cleaned_data[
+                "previous_subscription"
+            ].pk
+
+        return meta
 
     def form_valid(self, form):
         amount = form.cleaned_data["amount"]
-        allocation = form.cleaned_data.get("allocation", 0)
-        allocation_group = form.cleaned_data.get("group", None)
+        allocations = form.cleaned_data["allocations"]
+        previous_subscription = form.cleaned_data["previous_subscription"]
 
         if form.connected:
             self.object = form.save()
 
-            if Subscription.objects.filter(
-                person=self.object, status=Subscription.STATUS_COMPLETED
+            if (
+                Subscription.objects.filter(
+                    person=self.object, status=Subscription.STATUS_COMPLETED
+                )
+                and not previous_subscription
             ):
+                # stocker toutes les infos en session
+                # attention à ne pas juste modifier le dictionnaire existant,
+                # parce que la session ne se "rendrait pas compte" qu'elle a changé
+                # et cela ne serait donc pas persisté
+                self.request.session[self.session_namespace] = {
+                    "new_subscription": {
+                        "mode": self.payment_mode,
+                        "subscription_total": amount,
+                        "meta": self.get_metas(form),
+                    },
+                    **self.request.session[self.session_namespace],
+                }
                 return HttpResponseRedirect(reverse("already_has_subscription"))
 
             with transaction.atomic():
-                subscription, allocation = create_monthly_allocation(
+                subscription = create_monthly_donation(
                     person=self.object,
                     mode=self.payment_mode,
                     subscription_total=amount,
-                    allocation_amount=allocation,
-                    group=allocation_group,
+                    allocations=allocations,
                     meta=self.get_metas(form),
                 )
 
             self.clear_session()
 
-            return redirect_to_subscribe(subscription)
+            if previous_subscription:
+                replace_subscription(
+                    previous_subscription=previous_subscription,
+                    new_subscription=subscription,
+                )
+
+                return HttpResponseRedirect(reverse("view_payments"))
+            else:
+                return redirect_to_subscribe(subscription)
         else:
             send_monthly_donation_confirmation_email.delay(
                 email=form.cleaned_data["email"],
-                mode=self.payment_mode,
                 subscription_total=amount,
-                allocation_amount=allocation,
-                group_pk=allocation_group and allocation_group.pk,
                 **self.get_metas(form),
             )
             return HttpResponseRedirect(
@@ -216,11 +252,91 @@ class MonthlyDonationEmailSentView(TemplateView):
     template_name = "donations/monthly_donation_confirmation_email_sent.html"
 
 
-class AlreadyHasSubscriptionView(TemplateView):
+class AlreadyHasSubscriptionView(FormView):
     template_name = "donations/already_has_subscription.html"
+    form_class = AlreadyHasSubscriptionForm
+    session_namespace = DONATION_SESSION_NAMESPACE
+    base_redirect_url = "view_payments"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            # compliqué d'utiliser SoftLoginRequiredMixin parce qu'on doit redéfinir dispatch
+            # par ailleurs on veut plutôt rediriger vers le profil que revenir sur cette page
+            return redirect(self.base_redirect_url)
+
+        if (
+            self.session_namespace not in request.session
+            or "new_subscription" not in request.session[self.session_namespace]
+        ):
+            return redirect(self.base_redirect_url)
+
+        self.new_subscription_info = self.request.session[self.session_namespace][
+            "new_subscription"
+        ]
+        self.new_subscription_info["allocations"] = self.new_subscription_info[
+            "allocations"
+        ] = deserialize_allocations(self.new_subscription_info["meta"]["allocations"])
+
+        self.old_subscription = Subscription.objects.filter(
+            person=request.user.person
+        ).first()
+        if self.old_subscription is None:
+            return redirect(self.base_redirect_url)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        replace_amount = self.new_subscription_info["subscription_total"]
+        replace_allocations = self.new_subscription_info["allocations"]
+
+        add_amount = replace_amount + self.old_subscription.price
+        add_allocations = sum_allocations(
+            self.new_subscription_info["allocations"],
+            {a.group: a.amount for a in self.old_subscription.allocations.all()},
+        )
+
+        return super().get_context_data(
+            replace_amount=replace_amount,
+            replace_national=replace_amount - sum(replace_allocations.values()),
+            replace_allocations=[
+                (g.name, a)
+                for g, a in self.new_subscription_info["allocations"].items()
+            ],
+            add_amount=add_amount,
+            add_national=add_amount - sum(add_allocations.values()),
+            add_allocations=[(g.name, a) for g, a in add_allocations.items()],
+        )
+
+    def form_valid(self, form):
+        choice = form.cleaned_data["choice"]
+
+        if choice == "A":
+            self.new_subscription_info[
+                "subscription_total"
+            ] += self.old_subscription.price
+            self.new_subscription_info["allocations"] = sum_allocations(
+                self.new_subscription_info["allocations"],
+                {a.group: a.amount for a in self.old_subscription.allocations.all()},
+            )
+
+        with transaction.atomic():
+            new_subscription = create_monthly_donation(
+                person=self.request.user.person, **self.new_subscription_info
+            )
+
+            replace_subscription(
+                previous_subscription=self.old_subscription,
+                new_subscription=new_subscription,
+            )
+
+        del self.request.session[self.session_namespace]
+        return HttpResponseRedirect(reverse("view_payments"))
 
 
 class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
+    session_namespace = DONATION_SESSION_NAMESPACE
+    payment_mode = payment_modes.DEFAULT_MODE
+
     def get(self, request, *args, **kwargs):
         params = request.GET.dict()
 
@@ -235,21 +351,26 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
 
         try:
             email = params.pop("email")
-            mode = params.pop("mode")
             subscription_total = int(params.pop("subscription_total"))
-            group_pk = params.pop("group_pk", None)
-            allocation_amount = int(params.pop("allocation_amount"))
+            raw_allocations = params.pop("allocations")
         except KeyError:
             return self.link_error_page()
 
-        if group_pk:
+        allocations = {}
+
+        if raw_allocations:
             try:
-                group = SupportGroup.objects.get(pk=group_pk)
-            except SupportGroup.DoesNotExist:
-                group = None
-                allocation_amount = 0
-        else:
-            group = None
+                raw_allocations = json.loads(raw_allocations)
+            except ValueError:
+                pass
+            else:
+                for group_pk, allocation_amount in raw_allocations.items():
+                    try:
+                        allocations[
+                            SupportGroup.objects.get(pk=group_pk)
+                        ] = allocation_amount
+                    except SupportGroup.DoesNotExist:
+                        continue
 
         try:
             person = Person.objects.get_by_natural_key(email)
@@ -265,21 +386,55 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
 
         soft_login(request, person)
 
-        if Subscription.objects.filter(
-            person=person, status=Subscription.STATUS_COMPLETED
-        ).exists():
-            return HttpResponseRedirect(reverse("already_has_subscription"))
+        previous_subscription = params.get(
+            "previous_subscription"
+        )  # get et non pas pop, on le garde dans le META
+        if previous_subscription:
+            try:
+                previous_subscription = Subscription.objects.get(
+                    pk=previous_subscription
+                )
+            except Subscription.DoesNotExist:
+                previous_subscription = None
+            else:
+                if previous_subscription.mode != self.payment_mode:
+                    previous_subscription = None
+                elif previous_subscription.person != person:
+                    previous_subscription = None
 
-        subscription, allocation = create_monthly_allocation(
+        if (
+            Subscription.objects.filter(
+                person=person, status=Subscription.STATUS_COMPLETED
+            ).exists()
+            and not previous_subscription
+        ):
+            self.request.session[self.session_namespace] = {
+                "new_subscription": {
+                    "mode": self.payment_mode,
+                    "subscription_total": subscription_total,
+                    "meta": params,
+                },
+                **self.request.session[self.session_namespace],
+            }
+            return redirect("already_has_subscription")
+
+        subscription = create_monthly_donation(
             person=person,
-            mode=mode,
+            mode=self.payment_mode,
             subscription_total=subscription_total,
-            allocation_amount=allocation_amount,
-            group=group,
+            allocations=allocations,
             meta=params,
         )
 
-        return redirect_to_subscribe(subscription)
+        if previous_subscription:
+            replace_subscription(
+                previous_subscription=previous_subscription,
+                new_subscription=subscription,
+            )
+
+            return HttpResponseRedirect(reverse("view_payments"))
+        else:
+            return redirect_to_subscribe(subscription)
 
 
 class ReturnView(TemplateView):
@@ -293,22 +448,30 @@ def subscription_notification_listener(subscription):
 
 def notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
-        find_or_create_person_from_payment(payment)
-        if payment.subscription is None:
-            send_donation_email.delay(payment.person.pk)
-
-        if (
-            payment.meta.get("allocation") is not None
-            and payment.meta.get("group_id") is not None
-        ):
-            Operation.objects.update_or_create(
-                payment=payment,
-                group_id=payment.meta.get("group_id"),
-                defaults={"amount": payment.meta.get("allocation")},
-            )
-
         with transaction.atomic():
-            if payment.subscription is not None:
+            find_or_create_person_from_payment(payment)
+            if payment.subscription is None:
+                transaction.on_commit(
+                    partial(send_donation_email.delay, payment.person.pk)
+                )
+
+                allocations = {}
+                if "allocations" in payment.meta:
+                    try:
+                        allocations = json.loads(payment.meta["allocations"])
+                    except ValueError:
+                        pass
+
+                for group_id, amount in allocations.items():
+                    try:
+                        group = SupportGroup.objects.get(pk=group_id)
+                    except SupportGroup.DoesNotExist:
+                        continue
+
+                    Operation.objects.update_or_create(
+                        payment=payment, group=group, defaults={"amount": amount}
+                    )
+            else:
                 for allocation in payment.subscription.allocations.all():
                     Operation.objects.update_or_create(
                         payment=payment,

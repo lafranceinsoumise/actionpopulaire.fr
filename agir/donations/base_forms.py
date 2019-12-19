@@ -12,6 +12,7 @@ from django_countries.fields import CountryField
 
 from agir.donations.form_fields import AskAmountField
 from agir.lib.data import FRANCE_COUNTRY_CODES
+from agir.lib.display import display_price
 from agir.lib.form_mixins import MetaFieldsMixin
 from agir.people.models import Person
 
@@ -23,26 +24,28 @@ class SimpleDonationForm(forms.Form):
         label="Montant du don",
         max_value=settings.DONATION_MAXIMUM,
         min_value=settings.DONATION_MINIMUM,
-        decimal_places=2,
         required=True,
         error_messages={
             "invalid": _("Indiquez le montant à donner."),
             "min_value": format_lazy(
-                _("Il n'est pas possible de donner moins que {min} €."),
-                min=settings.DONATION_MINIMUM,
+                _("Il n'est pas possible de donner moins que {min}."),
+                min=display_price(settings.DONATION_MINIMUM),
             ),
             "max_value": format_lazy(
-                _("Les dons de plus de {max} € ne peuvent être faits par carte bleue."),
-                max=settings.DONATION_MAXIMUM,
+                _("Les dons de plus de {max} ne peuvent être faits par carte bleue."),
+                max=display_price(settings.DONATION_MAXIMUM),
             ),
         },
     )
+
+    def get_button_label(self):
+        return self.button_label
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "donation-form"
-        self.helper.add_input(layout.Submit("valider", self.button_label))
+        self.helper.add_input(layout.Submit("valider", self.get_button_label()))
 
         self.helper.layout = Layout("amount")
 
@@ -67,8 +70,8 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
     )
 
     amount = forms.IntegerField(
-        max_value=settings.DONATION_MAXIMUM * 100,
-        min_value=settings.DONATION_MINIMUM * 100,
+        max_value=settings.DONATION_MAXIMUM,
+        min_value=settings.DONATION_MINIMUM,
         required=True,
         widget=forms.HiddenInput,
     )
@@ -102,10 +105,8 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
         label=_("Je certifie être domicilié⋅e fiscalement en France"),
     )
 
-    def __init__(self, *args, amount, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.fields["amount"].initial = amount
 
         self.connected = not self.instance._state.adding
 
@@ -167,7 +168,14 @@ class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
         self.helper.add_input(
             layout.Submit(
                 "valider",
-                self.button_label.format(amount=number_format(amount / 100, 2) + " €"),
+                self.button_label.format(
+                    amount=number_format(
+                        self.get_initial_for_field(self.fields["amount"], "amount")
+                        / 100,
+                        2,
+                    )
+                    + " €"
+                ),
             )
         )
         self.helper.layout = layout.Layout(*fields)

@@ -1,14 +1,49 @@
-{% extends 'front/layout.html' %}
+{% extends 'front/layout.html' %}{% load display_lib %}
 
 {% block main %}
-<div>
-  <h4>Vous faites déjà un don mensuel !</h4>
-  <p>Si vous souhaitez modifier votre don mensuel, commencez d'abord par annuler l'ancien en vous rendant dans
-    <a href="{% url "view_payments" %}">la section <em>paiements</em> de votre profil</a>.</p>
-  <p>
-    <strong>Pourquoi est-ce nécessaire ?</strong><br>
-    Parce que nous n'avons pas encore eu le temps de mettre en place la fonctionnalité de modification d'un don
-    mensuel ! Mais cela devrait venir rapidement.
-  </p>
-</div>
+  <div>
+    <h2>Vous faites déjà un don mensuel ! Souhaitez-vous :</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div style="display: flex; justify-content: space-around; align-items: stretch;">
+        <div style="border: 1px solid black; border-radius: 5px; background-color: #f6f6f6; flex: 1 0;
+         margin: 2rem; padding: 3rem;">
+          <h4>Remplacer mon don mensuel par celui-ci</h4>
+          <div>
+            Je donnerais {{ replace_amount|display_price }} répartis ainsi :
+            <ul>
+              <li><strong>{{ replace_national | display_price }}</strong> seront alloués aux activités et campagnes
+                nationales
+              </li>
+              {% for group, amount in replace_allocations %}
+                <li><strong>{{ amount | display_price }}</strong> seront alloués au financement des activités du groupe
+                  d'action « <em>{{ group }}</em> »
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+          <button class="btn btn-primary" type="submit" name="choice" value="R">Je remplace le don précédent</button>
+        </div>
+        <div style="border: 1px solid black; border-radius: 5px; background-color: #f6f6f6; flex: 1 0;
+         margin: 2rem; padding: 3rem;">
+          <h4>Je souhaite ajouter augmenter mon don existant du montant correspondant.</h4>
+          <div>
+            Je donnerais {{ add_amount|display_price }} répartis ainsi :
+            <ul>
+              <li><strong>{{ add_national | display_price }}</strong> seront alloués aux activités et campagnes
+                nationales
+              </li>
+              {% for group, amount in add_allocations %}
+                <li><strong>{{ amount | display_price }}</strong> seront alloués au financement des activités du groupe
+                  d'action « <em>{{ group }}</em> »
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+          <button class="btn btn-primary" type="submit" name="choice" value="A">J'ajoute au don précédent</button>
+
+        </div>
+      </div>
+    </form>
+  </div>
 {% endblock %}

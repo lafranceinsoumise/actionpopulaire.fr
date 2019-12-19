@@ -35,7 +35,7 @@ class Operation(models.Model):
             "La valeur doit être positive pour une augmentation d'allocation et négative pour une diminution."
         ),
     )
-    payment = models.OneToOneField(
+    payment = models.ForeignKey(
         to="payments.Payment",
         null=True,
         editable=False,
@@ -71,6 +71,7 @@ class Operation(models.Model):
     class Meta:
         verbose_name = "Opération"
         verbose_name_plural = "Opérations"
+        unique_together = ("payment", "group")
 
 
 class Spending(Operation):

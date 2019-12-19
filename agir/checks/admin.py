@@ -11,6 +11,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
 from agir.api.admin import admin_site
+from agir.donations.form_fields import MoneyField
 from agir.payments.actions.payments import notify_status_change
 from agir.payments.admin import PaymentManagementAdminMixin
 
@@ -25,9 +26,7 @@ class CheckPaymentSearchForm(forms.Form):
             "Saisissez les numéros de transaction du chèque, séparés par des espaces"
         ),
     )
-    amount = forms.DecimalField(
-        label="Montant du chèque", decimal_places=2, min_value=0, required=True
-    )
+    amount = MoneyField(label="Montant du chèque", min_value=0, required=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -161,9 +160,8 @@ class CheckPaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
             )
 
         total_price = sum(p.price for p in payments)
-        check_amount = int(amount * 100)
 
-        can_validate = (total_price == check_amount) and all(
+        can_validate = (total_price == amount) and all(
             c.status == CheckPayment.STATUS_WAITING for c in payments
         )
 
