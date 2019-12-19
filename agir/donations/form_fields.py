@@ -110,7 +110,6 @@ class AllocationsField(forms.Field):
     def __init__(self, *, queryset, choices=None, **kwargs):
         super().__init__(**kwargs)
         self.queryset = queryset
-        self.choices = choices
 
     def to_python(self, value) -> AllocationsMapping:
         if value in self.empty_values:
@@ -144,7 +143,7 @@ class AllocationsField(forms.Field):
 
     @choices.setter
     def choices(self, value):
-        self._choices = None if value is None else value.all()
+        self._choices = [] if value is None else value
         self.widget.attrs["data-choices"] = json.dumps(
-            [{"id": str(g.id), "name": g.name} for g in self.queryset]
+            [{"id": str(g.id), "name": g.name} for g in value]
         )
