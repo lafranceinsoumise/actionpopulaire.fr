@@ -42,10 +42,14 @@ new_operations_trigger_function = """
 CREATE OR REPLACE FUNCTION check_spendings_when_operation_modified() RETURNS TRIGGER AS
 $check_spendings$
     DECLARE
-        group_has_changed BOOLEAN;
+        same_group BOOLEAN;
         balance INTEGER;
     BEGIN
-        group_has_changed := NEW.group_id <> OLD.group_id;
+        IF TG_OP = 'UPDATE' THEN
+            same_group := NEW.group_id = OLD.group_id;
+        ELSE
+            same_group := FALSE;
+        END IF;
     
         -- Vérifions que la balance du NOUVEAU groupe est supérieure à zéro
         IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
@@ -54,7 +58,7 @@ $check_spendings$
             -- On ajoute à ce total la valeur de la nouvelle opération
             balance := balance + NEW.amount;
             
-            IF TG_OP = 'UPDATE' AND NOT group_has_changed THEN
+            IF same_group THEN
                 -- Si on a mis à jour une opération (sans changer le groupe), il ne faut pas faire de double
                 -- comptage. Le SELECT ci-dessus inclut dans la somme le montant de l'opération avant mise à jour,
                 -- qu'il faut donc soustraire à la balance.
@@ -68,7 +72,7 @@ $check_spendings$
         END IF;
 
         -- Vérifions que la balance de l'ANCIEN groupe est supérieure à zéro
-        IF TG_OP = 'DELETE' OR (TG_OP = 'UPDATE' AND group_has_changed) THEN
+        IF TG_OP = 'DELETE' OR (TG_OP = 'UPDATE' AND NOT same_group) THEN
             SELECT COALESCE(SUM(amount), 0) INTO balance FROM donations_operation WHERE donations_operation.group_id = OLD.group_id;
 
             -- On retire à ce total le montant de l'opération qui est supprimée
