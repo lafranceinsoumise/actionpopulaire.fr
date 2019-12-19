@@ -278,7 +278,7 @@ class AlreadyHasSubscriptionView(FormView):
         ] = deserialize_allocations(self.new_subscription_info["meta"]["allocations"])
 
         self.old_subscription = Subscription.objects.filter(
-            person=request.user.person
+            person=request.user.person, status=Subscription.STATUS_COMPLETED
         ).first()
         if self.old_subscription is None:
             return redirect(self.base_redirect_url)
