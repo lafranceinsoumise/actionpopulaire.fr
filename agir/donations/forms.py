@@ -39,6 +39,12 @@ class AllocationMixin(forms.Form):
 
         condition = Q()
 
+        initial_allocations = self.get_initial_for_field(
+            self.fields["allocations"], "allocations"
+        )
+        if initial_allocations:
+            condition |= Q(id__in=[g.id for g in initial_allocations])
+
         if group_id:
             try:
                 self.group = self.fields["allocations"].queryset.get(pk=group_id)
