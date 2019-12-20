@@ -53,12 +53,13 @@ def filtre_departements(*codes):
 def filtre_departement(code):
     if code in departements_par_code:
         return Q(
-            location_country="FR", location_zip__startswith=_CORSE_RE.sub("0", code)
+            location_country__in=FRANCE_COUNTRY_CODES,
+            location_zip__startswith=_CORSE_RE.sub("0", code),
         )
 
     elif _normalize_entity_name(code) in departements_par_nom:
         return Q(
-            location_country="FR",
+            location_country__in=FRANCE_COUNTRY_CODES,
             location_zip__startswith=_CORSE_RE.sub(
                 "0", departements_par_nom[_normalize_entity_name(code)]["id"]
             ),
@@ -126,4 +127,5 @@ FRANCE_COUNTRY_CODES = [
     "RE",  # La Réunion
     "NC",  # Nouvelle Calédonie
     "WF",  # Wallis-et-Futuna
+    "",  # des fois on a pas le pays
 ]
