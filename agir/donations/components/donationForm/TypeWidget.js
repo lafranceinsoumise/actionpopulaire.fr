@@ -1,5 +1,4 @@
 import React from "react";
-import { hot } from "react-hot-loader";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
@@ -28,8 +27,6 @@ const TypeButton = styled.button`
 
 const TypeWidget = ({ typeChoices, type, onTypeChange }) => (
   <FlexContainer justifyContent="center">
-    <input type="hidden" value={type || ""} name="type" />
-
     {typeChoices.map(({ label, value, icon }) => (
       <TypeButton
         key={value}
@@ -58,4 +55,4 @@ TypeWidget.propTypes = {
   onTypeChange: PropTypes.func
 };
 
-export default hot(module)(TypeWidget);
+export default TypeWidget;

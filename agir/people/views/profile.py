@@ -294,19 +294,53 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
     session_namespace = DONATION_SESSION_NAMESPACE
     success_url = reverse_lazy("monthly_donation_information")
 
+    def get(self, request, *args, **kwargs):
+        self.subscriptions = self.get_subscriptions()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.subscriptions = self.get_subscriptions()
+        return super().post(request, *args, **kwargs)
+
+    def get_subscriptions(self):
+        return self.request.user.person.subscriptions.filter(
+            status=Subscription.STATUS_COMPLETED
+        )
+
+    def get_initial_for_subscription(self, subscription):
+        allocations = subscription.allocations.all()
+
+        initial = {
+            "amount": subscription.price,
+            "previous_subscription": subscription.pk,
+            "allocations": {
+                allocation.group: allocation.amount for allocation in allocations
+            },
+        }
+        allocation = subscription.allocations.first()
+        if allocation:
+            initial["group"] = allocation.group
+            initial["allocation"] = allocation.amount
+
+        return initial
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
 
     def get_context_data(self, **kwargs):
+        for subscription in self.subscriptions:
+            subscription.modify_form = self.form_class(
+                user=self.request.user,
+                initial=self.get_initial_for_subscription(subscription),
+            )
+
         return super().get_context_data(
             is_hard_logged=is_hard_logged(self.request),
             payments=self.request.user.person.payments.filter(
                 status=Payment.STATUS_COMPLETED
             ),
-            subscriptions=self.request.user.person.subscriptions.filter(
-                status=Subscription.STATUS_COMPLETED
-            ),
+            subscriptions=self.subscriptions,
             **kwargs,
         )

@@ -36,25 +36,24 @@ function getChoices(select) {
 
 const replaceForm = selector => {
   const form = document.querySelector(selector);
-  const props = {};
-
-  props.csrfToken = form.querySelector(
-    'input[name="csrfmiddlewaretoken"]'
-  ).value;
+  const props = { initial: {} };
 
   const typeSelect = form.querySelector('select[name="type"]');
   if (typeSelect) {
     props.typeChoices = getChoices(typeSelect);
+    typeSelect.remove();
   }
 
-  const groupSelect = form.querySelector('select[name="group"]');
+  const allocationsInput = form.querySelector('input[name="allocations"]');
+  if (allocationsInput) {
+    props.groupChoices = allocationsInput.dataset.choices
+      ? JSON.parse(allocationsInput.dataset.choices)
+      : [];
+    props.initial.allocations = allocationsInput.value
+      ? JSON.parse(allocationsInput.value)
+      : [];
 
-  if (groupSelect) {
-    props.groupChoices = getChoices(groupSelect);
-    props.initialGroup = groupSelect.value;
-  } else {
-    props.initialGroup = form.dataset.groupId || null;
-    props.groupName = form.dataset.groupName || null;
+    allocationsInput.remove();
   }
 
   const amountInput = form.querySelector('input[name="amount"]');
@@ -67,16 +66,25 @@ const replaceForm = selector => {
     : null;
   props.showTaxCredit = !amountInput.dataset.hideTaxCredit;
   props.byMonth = typeof amountInput.dataset.byMonth !== "undefined";
+  props.initial.amount = +amountInput.value || null;
+  amountInput.remove();
 
   const submitInput = form.querySelector('input[type="submit"]');
   props.buttonLabel = submitInput.value;
+  submitInput.remove();
 
+  // pour tous les champs hidden restant, on les transmet tels quels
+  props.hiddenFields = {};
+  Array.from(form.querySelectorAll('input[type="hidden"]')).forEach(input => {
+    props.hiddenFields[input.name] = input.value;
+  });
+
+  const reactDiv = document.createElement("div");
+  form.parentNode.insertBefore(reactDiv, form);
+  form.remove();
   // remove all children of the form
-  while (form.firstChild) {
-    form.removeChild(form.firstChild);
-  }
 
-  render(<DonationForm {...props} />, form);
+  render(<DonationForm {...props} />, reactDiv);
 };
 
 const onLoad = function() {

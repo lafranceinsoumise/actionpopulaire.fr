@@ -8,6 +8,13 @@ const serverName = process.env.JS_SERVER || "agir.local";
 const port = process.env.JS_SERVER
   ? +process.env.JS_SERVER.split(":")[1] || 3000
   : 3000;
+
+common.module.rules.find(
+  r => r.use && r.use.loader && r.use.loader.startsWith("babel-loader")
+).use.options = {
+  plugins: [["styled-components", { displayName: true }]]
+};
+
 module.exports = merge(common, {
   mode: "development",
   devtool: "cheap-eval-source-map",

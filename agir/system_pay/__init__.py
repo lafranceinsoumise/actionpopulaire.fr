@@ -1,9 +1,14 @@
+import logging
+
 from django.conf import settings
 from django.urls import path
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from ..payments.abstract_payment_mode import AbstractPaymentMode
+
+
+logger = logging.getLogger(__name__)
 
 
 class AbstractSystemPayPaymentMode(AbstractPaymentMode):
@@ -57,6 +62,34 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
         alias.save(update_fields=["active"])
         sp_subscription.active = False
         sp_subscription.save(update_fields=["active"])
+
+    def subscription_replace_action(self, previous_subscription, new_subscription):
+        from agir.system_pay.models import SystemPaySubscription
+
+        previous_sp_subscription = previous_subscription.system_pay_subscription
+        alias = previous_subscription.system_pay_subscription.alias
+
+        self.soap_client.cancel_subscription(previous_subscription)
+        previous_sp_subscription.active = False
+        previous_sp_subscription.save(update_fields=["active"])
+
+        try:
+            subscription_id = self.soap_client.create_subscription(
+                subscription=new_subscription, alias=alias
+            )
+        except SystemPayError:
+            logger.error(
+                f"Attention: lors du remplace de souscription, souscription {previous_subscription.pk} annulée"
+                f" mais erreur lors de la création de la souscription {new_subscription.pk}."
+            )
+            raise
+
+        SystemPaySubscription.objects.create(
+            identifier=subscription_id,
+            subscription=new_subscription,
+            alias=alias,
+            active=True,
+        )
 
     @classmethod
     def get_urls(cls):

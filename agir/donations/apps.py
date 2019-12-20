@@ -47,8 +47,6 @@ class DonsConfig(AppConfig):
         register_payment_type(payment_type)
 
         def monthly_donation_description_context_generator(subscription):
-            from agir.system_pay.models import SystemPayTransaction
-
             subscription_type = SUBSCRIPTION_TYPES[subscription.type]
             context = {
                 "subscription": subscription,

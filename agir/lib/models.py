@@ -438,6 +438,25 @@ class DescriptionField(models.TextField):
         super().__init__(*args, **kwargs)
         self._allowed_tags = allowed_tags
 
+    def clean(self, value, model_instance):
+        value = super().clean(value, model_instance)
+
+        if self._allowed_tags:
+            if isinstance(self._allowed_tags, str):
+                tags = getattr(model_instance, self._allowed_tags)
+            else:
+                tags = self._allowed_tags
+
+            if callable(tags):
+                tags = tags()
+
+            if not isinstance(tags, list):
+                tags = list(tags)
+
+            return sanitize_html(value, tags)
+
+        return value
+
     def formfield(self, **kwargs):
         if kwargs.get("widget") == AdminTextareaWidget:
             kwargs["widget"] = AdminRichEditorWidget(attrs=kwargs.get("attrs", {}))
@@ -459,9 +478,8 @@ class DescriptionField(models.TextField):
 
             if tags is None:
                 raise TypeError(
-                    "Cannot call html_{0} without a tags argument if no default was set on field {0} creation".format(
-                        name
-                    )
+                    "Impossible d'appeler html_{0} sans son argument tags si aucune valeur par défaut n'a été indiqué"
+                    " à la création du champ {0}".format(name)
                 )
 
             if callable(tags):

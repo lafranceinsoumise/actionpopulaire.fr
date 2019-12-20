@@ -117,6 +117,14 @@ class SystemPayWebhookSerializer(serializers.Serializer):
             validated_data = self.validated_data
         return validated_data["trans_status"] == SystemPayTransaction.STATUS_COMPLETED
 
+    def is_identical(self, log_data):
+        retry_varying_data = ["vads_hash", "vads_url_check_src"]
+        current_cleaned_data = {
+            k: v for k, v in self.cleaned_data.items() if k not in retry_varying_data
+        }
+        log_data = {k: v for k, v in log_data.items() if k not in retry_varying_data}
+        return current_cleaned_data == log_data
+
     def check_payment_match_transaction(self, payment):
         if payment is None:
             raise serializers.ValidationError(

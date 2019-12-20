@@ -14,9 +14,11 @@ from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
-from agir.donations.form_fields import AskAmountField
+from agir.donations.form_fields import AskAmountField, AllocationsField
 from agir.groups.models import SupportGroup
+from agir.lib.display import display_price
 from agir.lib.form_components import *
+from agir.payments.models import Subscription
 from .models import SpendingRequest, Document
 
 __all__ = ("AllocationDonationForm", "AllocationDonorForm")
@@ -26,65 +28,50 @@ logger = logging.getLogger(__name__)
 
 
 class AllocationMixin(forms.Form):
-    group = forms.ModelChoiceField(
-        label="Groupe à financer",
+    allocations = AllocationsField(
+        required=False,
         queryset=SupportGroup.objects.active().certified().order_by("name").distinct(),
-        empty_label="Aucun groupe",
-        required=False,
-        help_text="Vous pouvez désigner un groupe auquel votre don sera en partie ou en totalité alloué. Si vous "
-        "voulez choisir un groupe dont vous n'être pas membre, rendez-vous sur la page de ce groupe et "
-        "cliquez sur &laquo;&nbsp;Financer les actions de ce groupe&nbsp;&raquo;",
-    )
-
-    allocation = forms.DecimalField(
-        label="Montant alloué au groupe choisi",
-        decimal_places=2,
-        min_value=0,
-        required=False,
-        help_text="Indiquez le montant que vous souhaitez allouer à votre groupe. Le reste du don permettra de financer "
-        "les actions nationales de la France insoumise.",
     )
 
     def __init__(self, *args, group_id=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.group = None
 
+        condition = Q()
+
+        initial_allocations = self.get_initial_for_field(
+            self.fields["allocations"], "allocations"
+        )
+        if initial_allocations:
+            condition |= Q(id__in=[g.id for g in initial_allocations])
+
         if group_id:
             try:
-                self.group = self.fields["group"].queryset.get(pk=group_id)
-                self.fields["allocation"].label = format_html(
-                    "{} &laquo;&nbsp;{}&nbsp;&raquo;",
-                    "Montant alloué au groupe",
-                    self.group.name,
-                )
-                self.helper.attrs["data-group-id"] = group_id
-                self.helper.attrs["data-group-name"] = self.group.name
+                self.group = self.fields["allocations"].queryset.get(pk=group_id)
+                condition |= Q(pk=group_id)
             except (SupportGroup.DoesNotExist, ValidationError):
                 pass
 
-        if self.group is None and user.is_authenticated:
-            self.fields["group"].queryset = self.fields["group"].queryset.filter(
-                memberships__person=user.person
-            )
+        if self.group:
+            self.fields["allocations"].initial = {self.group: 0}
 
-        if self.group is not None:
-            del self.fields["group"]
-        elif user.is_anonymous or not self.fields["group"].queryset:
-            del self.fields["group"]
-            del self.fields["allocation"]
+        if user.is_authenticated:
+            condition |= Q(memberships__person=user.person)
+
+        if condition:
+            self.fields["allocations"].choices = self.fields[
+                "allocations"
+            ].queryset.filter(condition)
 
         self.helper.layout.fields = [
-            f for f in ["type", "amount", "group", "allocation"] if f in self.fields
+            f for f in ["type", "amount", "allocations"] if f in self.fields
         ]
-
-    def clean_allocation(self):
-        return self.cleaned_data.get("allocation") or 0
 
     def clean(self):
         amount = self.cleaned_data.get("amount")
-        allocation = self.cleaned_data.get("allocation", 0)
+        allocations = self.cleaned_data.get("allocations") or {}
 
-        if amount and allocation > amount:
+        if amount and sum(allocations.values()) > amount:
             self.add_error(
                 "allocation",
                 ValueError(
@@ -112,10 +99,13 @@ class AllocationDonationForm(AllocationMixin, SimpleDonationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["amount"].amount_choices = {
-            self.TYPE_SINGLE_TIME: [200, 100, 50, 20, 10],
-            self.TYPE_MONTHLY: [100, 50, 20, 10, 5],
-        }
+        self.fields["amount"].amount_choices = [
+            200 * 100,
+            100 * 100,
+            50 * 100,
+            10 * 100,
+            5 * 100,
+        ]
 
         self.fields["type"].widget.attrs["data-choice-attrs"] = json.dumps(
             [{"icon": "arrow-right"}, {"icon": "repeat"}]
@@ -123,61 +113,78 @@ class AllocationDonationForm(AllocationMixin, SimpleDonationForm):
 
 
 class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
-    button_label = "Mettre en place le don mensuel"
-
     amount = AskAmountField(
         label="Montant du don mensuel",
         max_value=settings.MONTHLY_DONATION_MAXIMUM,
         min_value=settings.MONTHLY_DONATION_MINIMUM,
-        decimal_places=2,
         required=True,
         error_messages={
             "invalid": _("Indiquez le montant de votre don mensuel."),
             "min_value": format_lazy(
-                _("Les dons mensuels de moins de {min} € ne sont pas acceptés."),
-                min=settings.MONTHLY_DONATION_MINIMUM,
+                _("Les dons mensuels de moins de {min} ne sont pas acceptés."),
+                min=display_price(settings.MONTHLY_DONATION_MINIMUM),
             ),
             "max_value": format_lazy(
-                _("Les dons mensuels de plus de {max} € ne sont pas acceptés."),
-                max=settings.MONTHLY_DONATION_MAXIMUM,
+                _("Les dons mensuels de plus de {max} ne sont pas acceptés."),
+                max=display_price(settings.MONTHLY_DONATION_MAXIMUM),
             ),
         },
         by_month=True,
         show_tax_credit=True,
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["amount"].amount_choices = [100, 50, 20, 10, 5]
+    previous_subscription = forms.ModelChoiceField(
+        queryset=Subscription.objects.filter(status=Subscription.STATUS_COMPLETED),
+        required=False,
+        widget=forms.HiddenInput,
+    )
+
+    def __init__(self, *args, user, **kwargs):
+        super().__init__(*args, user=user, **kwargs)
+        self.fields["amount"].amount_choices = [
+            100 * 100,
+            50 * 100,
+            20 * 100,
+            10 * 100,
+            5 * 100,
+        ]
+
+        if user:
+            self.fields["previous_subscription"].queryset = self.fields[
+                "previous_subscription"
+            ].queryset.filter(person=user.person)
+
+        self.helper.layout.fields.append("previous_subscription")
+
+    def get_button_label(self):
+        if self.get_initial_for_field(
+            self.fields["previous_subscription"], "previous_subscription"
+        ):
+            return "Modifier ce don mensuel"
+        return "Mettre en place le don mensuel"
 
 
 class AllocationDonorForm(SimpleDonorForm):
-    allocation = forms.IntegerField(
-        min_value=0, required=True, widget=forms.HiddenInput
+    allocations = AllocationsField(
+        required=False,
+        queryset=SupportGroup.objects.active().certified().order_by("name").distinct(),
     )
 
-    group = forms.ModelChoiceField(
-        queryset=SupportGroup.objects.active(), required=False, widget=forms.HiddenInput
-    )
-
-    def __init__(self, *args, allocation, group_id, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.helper.layout.fields.extend(["allocation", "group"])
-
-        self.fields["allocation"].initial = allocation
-        self.fields["group"].initial = group_id
+        self.helper.layout.fields.extend(["allocations"])
 
     def clean(self):
         cleaned_data = super().clean()
 
         amount = self.cleaned_data.get("amount")
-        allocation = self.cleaned_data.get("allocation", 0)
+        allocations = self.cleaned_data.get("allocations", {})
 
-        if amount and allocation > amount:
+        if amount and sum(allocations.values()) > amount:
             self.add_error(
                 None,
-                ValueError(
+                ValidationError(
                     "Il y a une erreur inattendue sur le formulaire. Réessayez la procédure depuis le tout début",
                     "allocation",
                 ),
@@ -188,6 +195,22 @@ class AllocationDonorForm(SimpleDonorForm):
 
 class AllocationMonthlyDonorForm(AllocationDonorForm):
     button_label = "Je donne {amount} par mois."
+
+    previous_subscription = forms.ModelChoiceField(
+        queryset=Subscription.objects.filter(status=Subscription.STATUS_COMPLETED),
+        required=False,
+        widget=forms.HiddenInput,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if not self.instance._state.adding:
+            self.fields["previous_subscription"].queryset = self.fields[
+                "previous_subscription"
+            ].queryset.filter(person=self.instance)
+
+        self.helper.layout.fields.extend(["previous_subscription"])
 
 
 class SpendingRequestFormMixin:
@@ -334,3 +357,12 @@ class DocumentForm(forms.ModelForm):
     class Meta:
         model = Document
         fields = ("title", "type", "file")
+
+
+class AlreadyHasSubscriptionForm(forms.Form):
+    choice = forms.ChoiceField(
+        choices=(
+            ("R", "Remplacer le paiement mensuel existant"),
+            ("A", "Ajouter au paiement mensuel existant"),
+        )
+    )

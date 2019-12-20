@@ -121,15 +121,15 @@ class SystemPaySoapClient:
         res = client.service.createSubscription(
             _soapheaders=self._get_header(),
             commonRequest=common_request_type(),
-            orderRequest=order_request_type(order_id=f"S{subscription.id}"),
+            orderRequest=order_request_type(orderId=f"S{subscription.id}"),
             subscriptionRequest=subscription_request_type(
                 effectDate=(timezone.now() + timezone.timedelta(hours=2)).strftime(
                     "%Y-%m-%dT%H:%M:%SZ"
                 ),
                 amount=subscription.price,
-                currency=settings.SYSTEMPAY_CURRENCY,
-                initialAmount=None,
+                initialAmount=0,
                 initialAmountNumber=0,
+                currency=settings.SYSTEMPAY_CURRENCY,
                 rrule=get_recurrence_rule(subscription),
             ),
             cardRequest=card_request_type(paymentToken=alias.identifier.hex),

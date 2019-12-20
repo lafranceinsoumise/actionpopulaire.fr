@@ -1,14 +1,14 @@
 import React from "react";
-import { hot } from "react-hot-loader";
 import PropTypes from "prop-types";
-import InputGroup from "@agir/lib/bootstrap/InputGroup";
-import { displayNumber, displayPrice } from "@agir/lib/utils/display";
+
+import AmountInput from "@agir/donations/donationForm/AmountInput";
+import { displayPrice } from "@agir/lib/utils/display";
 import styled from "styled-components";
 
 import "./style.css";
 import { FlexContainer } from "./elements";
 
-const DEFAULT_AMOUNTS = [200, 100, 50, 20, 10];
+const DEFAULT_AMOUNTS = [200 * 100, 100 * 100, 50 * 100, 20 * 100, 10 * 100];
 
 const AmountButton = styled.button`
   display: block;
@@ -19,10 +19,6 @@ const AmountButton = styled.button`
   min-width: 200px;
 `;
 
-function numberValue(s) {
-  return parseFloat(s.replace(/,/, "."));
-}
-
 class AmountWidget extends React.Component {
   constructor(props) {
     super();
@@ -30,49 +26,34 @@ class AmountWidget extends React.Component {
     const amountChoices = props.amountChoices || DEFAULT_AMOUNTS;
 
     const custom = props.amount && !amountChoices.includes(props.amount);
-    const customText = custom ? displayNumber(props.amount, 2) : "";
 
     this.state = {
-      custom,
-      customText
+      custom
     };
   }
 
   updateWithButton(value) {
-    this.setState({ custom: false, customText: "" });
+    this.setState({ custom: false });
     this.props.onAmountChange(value);
   }
 
-  updateWithCustomValue(s) {
-    if (s === "") {
-      this.setState({ custom: false });
-      this.props.onAmountChange(null);
-      return;
-    }
-
-    const m = s.match(/^([0-9]+)(?:(,[0-9]*))?$/);
-
-    if (m !== null) {
-      const newText = m[1] + (m[2] || "").slice(0, 3);
-      const value = numberValue(newText);
-      this.setState({ custom: true, customText: newText });
-      this.props.onAmountChange(value);
-    }
+  updateWithCustomValue(value) {
+    this.setState({ custom: true });
+    this.props.onAmountChange(value);
   }
 
   render() {
-    const { custom, customText } = this.state;
-    const { amount, error, showTaxCredit, byMonth } = this.props;
+    const { custom } = this.state;
+    const { disabled, amount, error, showTaxCredit, byMonth } = this.props;
 
     const amountChoices = this.props.amountChoices || DEFAULT_AMOUNTS;
 
     return (
       <div className="amount-component">
-        <input type="hidden" value={amount ? amount : ""} name="amount" />
-
         <FlexContainer className={error ? " has-error" : ""}>
           {amountChoices.map(value => (
             <AmountButton
+              disabled={disabled}
               key={value}
               type="button"
               onClick={() => this.updateWithButton(value)}
@@ -81,26 +62,15 @@ class AmountWidget extends React.Component {
                 custom || amount !== value ? "btn-default" : "btn-primary"
               ].join(" ")}
             >
-              {value}&nbsp;€
+              {displayPrice(value)}
             </AmountButton>
           ))}
-          <InputGroup>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="autre montant"
-              step={1}
-              onChange={e => this.updateWithCustomValue(e.target.value)}
-              value={
-                numberValue(customText) === amount
-                  ? customText
-                  : custom
-                  ? displayNumber(amount, 2)
-                  : ""
-              }
-            />
-            <InputGroup.Addon>€</InputGroup.Addon>
-          </InputGroup>
+          <AmountInput
+            disabled={disabled}
+            placeholder="autre montant"
+            onChange={this.updateWithCustomValue.bind(this)}
+            value={custom ? amount : null}
+          />
 
           {error && <span className="help-block">{error}</span>}
         </FlexContainer>
@@ -129,6 +99,7 @@ class AmountWidget extends React.Component {
 }
 
 AmountWidget.propTypes = {
+  disabled: PropTypes.bool,
   amount: PropTypes.number,
   onAmountChange: PropTypes.func,
   error: PropTypes.string,
@@ -137,4 +108,4 @@ AmountWidget.propTypes = {
   byMonth: PropTypes.bool
 };
 
-export default hot(module)(AmountWidget);
+export default AmountWidget;

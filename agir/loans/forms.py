@@ -14,6 +14,7 @@ from django_countries.fields import LazyTypedChoiceField
 from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
 from agir.donations.form_fields import AskAmountField
 from agir.lib.data import departements_choices
+from agir.lib.display import display_price
 from agir.lib.form_fields import IBANField
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
@@ -27,22 +28,19 @@ class LoanForm(SimpleDonationForm):
         label="Montant du prêt",
         max_value=settings.LOAN_MAXIMUM,
         min_value=settings.LOAN_MINIMUM,
-        decimal_places=2,
         required=True,
         error_messages={
             "invalid": _("Indiquez le montant à prêter."),
             "min_value": format_lazy(
-                _("Les prêts de moins de {min} € ne sont pas acceptés."),
-                min=settings.LOAN_MINIMUM,
+                _("Les prêts de moins de {min} ne sont pas acceptés."),
+                min=display_price(settings.LOAN_MINIMUM),
             ),
             "max_value": format_lazy(
-                _(
-                    "Les prêts de plus de {max} € ne peuvent être faits par carte bleue."
-                ),
-                max=settings.LOAN_MAXIMUM,
+                _("Les prêts de plus de {max} ne peuvent être faits par carte bleue."),
+                max=display_price(settings.LOAN_MAXIMUM),
             ),
         },
-        amount_choices=[10000, 5000, 2000, 1000, 400],
+        amount_choices=[10000 * 100, 5000 * 100, 2000 * 100, 1000 * 100, 400 * 100],
         show_tax_credit=False,
     )
 
@@ -72,8 +70,8 @@ class LenderForm(SimpleDonorForm):
     )
 
     amount = forms.IntegerField(
-        max_value=settings.LOAN_MAXIMUM * 100,
-        min_value=settings.LOAN_MINIMUM * 100,
+        max_value=settings.LOAN_MAXIMUM,
+        min_value=settings.LOAN_MINIMUM,
         required=True,
         widget=forms.HiddenInput,
     )

@@ -52,7 +52,9 @@ def serialize_notifications(notifications):
         {
             "id": "id",
             "status": "status",
-            "content": Coalesce("content", "announcement.content", skip="", default=""),
+            "content": Coalesce(
+                T.html_content(), T.announcement.html_content(), skip="", default=""
+            ),
             "icon": Coalesce("icon", "announcement.icon", skip="", default=""),
             "link": Coalesce("link", "announcement.link", skip="", default=""),
             "created": (Coalesce("announcement.start_date", "created"), T.isoformat()),
