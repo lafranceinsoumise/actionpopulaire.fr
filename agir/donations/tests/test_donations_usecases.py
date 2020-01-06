@@ -1,4 +1,5 @@
 import json
+from functools import partial
 from unittest import mock
 
 import re
@@ -13,7 +14,10 @@ from agir.api.redis import using_redislite
 from agir.donations.apps import DonsConfig
 from agir.donations.forms import AllocationDonationForm
 from agir.donations.models import Operation, MonthlyAllocation
-from agir.donations.tasks import send_monthly_donation_confirmation_email
+from agir.donations.tasks import (
+    send_monthly_donation_confirmation_email,
+    send_donation_email,
+)
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.lib.utils import front_url
 from agir.payments.actions.payments import (
@@ -350,8 +354,8 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
 
         return s
 
-    @mock.patch("agir.donations.views.send_donation_email")
-    def test_can_make_monthly_donation_while_logged_in(self, send_donation_email):
+    @mock.patch("django.db.transaction.on_commit")
+    def test_can_make_monthly_donation_while_logged_in(self, on_commit):
         self.client.force_login(self.p1.role)
         amount_url = reverse("donation_amount")
         information_url = reverse("monthly_donation_information")
@@ -410,7 +414,9 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
         complete_subscription(subscription)
         monthly_donation_subscription_listener(subscription)
         # fake systempay webhook
-        send_donation_email.delay.assert_called_once()
+        on_commit.assert_called_once()
+        self.assertIsInstance(on_commit.call_args[0][0], partial)
+        self.assertEqual(on_commit.call_args[0][0].func, send_donation_email.delay)
 
         auto_payment = create_payment(
             person=self.p1,
@@ -421,9 +427,6 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
         )
 
         donation_notification_listener(payment=auto_payment)
-
-        # send_donation_email ne devrait pas être rappelé une nouvelle fois
-        send_donation_email.delay.assert_called_once()
 
         operation = Operation.objects.get()
         self.assertEqual(operation.group, self.group)

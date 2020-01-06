@@ -443,7 +443,9 @@ class ReturnView(TemplateView):
 
 def subscription_notification_listener(subscription):
     if subscription.status == Subscription.STATUS_COMPLETED:
-        send_donation_email.delay(subscription.person.pk)
+        transaction.on_commit(
+            partial(send_donation_email.delay, subscription.person.pk)
+        )
 
 
 def notification_listener(payment):

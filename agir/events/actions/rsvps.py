@@ -1,4 +1,5 @@
 import logging
+from functools import partial
 
 from django.conf import settings
 from django.db.models import F, Count
@@ -144,7 +145,9 @@ def validate_payment_for_rsvp(payment):
 
     rsvp.status = RSVP.STATUS_CONFIRMED
     rsvp.save()
-    send_rsvp_notification.delay(rsvp.pk)
+
+    # à faire au commit uniquement
+    transaction.on_commit(partial(send_rsvp_notification.delay, rsvp.pk))
     return rsvp
 
 
@@ -229,7 +232,9 @@ def validate_payment_for_guest(payment):
 
     guest.status = RSVP.STATUS_CONFIRMED
     guest.save()
-    send_guest_confirmation.delay(guest.rsvp_id)
+
+    # à faire au commit uniquement
+    transaction.on_commit(partial(send_guest_confirmation.delay, guest.rsvp_id))
 
     return guest
 

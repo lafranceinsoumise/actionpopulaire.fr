@@ -159,12 +159,18 @@ class SystemPayWebhookView(APIView):
         else:
             # Transaction déjà traitée ! On vérifie que l'appel précédent avait exactement les mêmes
             # arguments, parce que sinon c'est bizarre
-            if not sp_transaction.webhook_calls or not serializer.is_identical(
+            if sp_transaction.webhook_calls and serializer.is_identical(
                 sp_transaction.webhook_calls[-1]
             ):
-                logger.warning(
+                return self.successful_response()
+            else:
+                logger.error(
                     f"Webhook appelé deux fois différemment pour la même transaction",
                     extra={"request": request},
+                )
+                raise serializers.ValidationError(
+                    detail="Webhook appelé deux fois différemment pour la même transaction",
+                    code="duplicate_webhook",
                 )
 
         operation_type = serializer.data.get("vads_operation_type")
@@ -183,7 +189,7 @@ class SystemPayWebhookView(APIView):
                 extra={"request": request},
             )
 
-            # on reraise pour s'assurer que SystemPay reçoit une réponse en 4xx
+            # on lance l'exception de nouveau pour s'assurer que SystemPay reçoit une réponse en 4xx
             raise
 
     def successful_response(self):
@@ -218,7 +224,7 @@ class SystemPayWebhookView(APIView):
         self.save_transaction(sp_transaction, serializer)
 
         update_payment_from_transaction(payment, sp_transaction)
-        transaction.on_commit(partial(notify_status_change, payment))
+        notify_status_change(payment)
 
         return self.successful_response()
 
@@ -301,9 +307,7 @@ class SystemPayWebhookView(APIView):
             sp_transaction.subscription, sp_transaction
         )
 
-        transaction.on_commit(
-            partial(notify_subscription_status_change, sp_transaction.subscription)
-        )
+        notify_subscription_status_change(sp_transaction.subscription)
 
         return self.successful_response()
 
