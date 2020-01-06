@@ -9,13 +9,11 @@ from agir.lib.phone_numbers import is_mobile_number
 from agir.telegram.models import TelegramGroup
 
 
-DEFAULT_GROUP_PERMISSIONS = (
-    ChatPermissions(
-        can_send_messages=False,
-        can_change_info=False,
-        can_invite_users=False,
-        can_pin_messages=False,
-    ),
+DEFAULT_GROUP_PERMISSIONS = ChatPermissions(
+    can_send_messages=False,
+    can_change_info=False,
+    can_invite_users=False,
+    can_pin_messages=False,
 )
 
 
