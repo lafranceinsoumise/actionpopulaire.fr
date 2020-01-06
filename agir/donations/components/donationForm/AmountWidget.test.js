@@ -18,7 +18,7 @@ test("AmountWidget dans son état initial", () => {
 });
 
 test("AmountWidget avec un montant sélectionné", () => {
-  const component = render(<AmountWidget amount={50} />);
+  const component = render(<AmountWidget amount={50 * 100} />);
 
   const buttons = component.getAllByRole("button");
   for (let button of buttons) {
@@ -44,11 +44,11 @@ test("Sélectionner des valeurs dans le AmountWidget", () => {
   // let's click on the 20 € button
   const button50 = component.getByText(/50\s*€/);
   fireEvent.click(button50);
-  expect(currentValue).toEqual(50);
+  expect(currentValue).toEqual(50 * 100);
 
   const input = component.getByPlaceholderText("autre montant");
   fireEvent.change(input, { target: { value: "23" } });
-  expect(currentValue).toEqual(23);
+  expect(currentValue).toEqual(23 * 100);
 });
 
 test("utiliser des montants autres que ceux par défaut", () => {
