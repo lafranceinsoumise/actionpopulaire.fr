@@ -35,7 +35,6 @@ from ..actions.rsvps import (
 )
 from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
 from ..models import Event, RSVP
-from ..tasks import send_rsvp_notification
 
 
 class RSVPEventView(SoftLoginRequiredMixin, DetailView):
@@ -415,10 +414,6 @@ class EventPaidView(RedirectView):
 
 
 def notification_listener(payment):
-    submission_pk = payment.meta.get("submission_id")
-    event_pk = payment.meta.get("event_id")
-    event = Event.objects.get(pk=event_pk)
-
     if payment.meta.get("VERSION") == "2":
         # VERSION 2
         is_guest = payment.meta["is_guest"]
@@ -434,8 +429,8 @@ def notification_listener(payment):
                 cancel_payment_for_rsvp(payment)
 
         if payment.status == Payment.STATUS_COMPLETED:
-            # we don't check for cancellation of the event because we want all actually paid rsvps to be registered in case
-            # we need to manage refunding
+            # we don't check for cancellation of the event because we want all actually paid rsvps to be registered in
+            # case we need to manage refunding
 
             # RSVP or IdentifiedGuest model has already been created, only need to confirm it
             if is_guest:
@@ -444,40 +439,8 @@ def notification_listener(payment):
                 validate_payment_for_rsvp(payment)
 
     else:
-        # VERSION 1
-        if payment.status == Payment.STATUS_COMPLETED:
-            if event.subscription_form:
-                if not submission_pk:
-                    return HttpResponseBadRequest("no submission")
-                try:
-                    submission = PersonFormSubmission.objects.get(pk=submission_pk)
-                except PersonFormSubmission.DoesNotExist:
-                    return HttpResponseBadRequest("no submission")
-            else:
-                submission = None
-
-            with transaction.atomic():
-                try:
-                    rsvp = RSVP.objects.select_for_update().get(
-                        person=payment.person, event=event
-                    )
-                    created = False
-                except RSVP.DoesNotExist:
-                    rsvp = RSVP.objects.create(person=payment.person, event=event)
-                    created = True
-
-                if created:
-                    rsvp.form_submission = submission
-                    rsvp.payment = payment
-                else:
-                    rsvp.guests += 1
-                    # faking creating a "free" guest
-                    guest = add_free_identified_guest(event, payment.person, submission)
-                    guest.payment = payment
-                    guest.save()
-
-                rsvp.save()
-            send_rsvp_notification.delay(rsvp.pk)
+        # should not happen anymore
+        pass
 
 
 class ExternalRSVPView(ConfirmSubscriptionView, FormView, DetailView):
