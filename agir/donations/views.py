@@ -386,27 +386,27 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
 
         soft_login(request, person)
 
-        previous_subscription = params.get(
+        known_previous_subscription = params.get(
             "previous_subscription"
         )  # get et non pas pop, on le garde dans le META
-        if previous_subscription:
+        if known_previous_subscription:
             try:
-                previous_subscription = Subscription.objects.get(
-                    pk=previous_subscription
+                known_previous_subscription = Subscription.objects.get(
+                    pk=known_previous_subscription
                 )
             except Subscription.DoesNotExist:
-                previous_subscription = None
+                known_previous_subscription = None
             else:
-                if previous_subscription.mode != self.payment_mode:
-                    previous_subscription = None
-                elif previous_subscription.person != person:
-                    previous_subscription = None
+                if known_previous_subscription.mode != self.payment_mode:
+                    known_previous_subscription = None
+                elif known_previous_subscription.person != person:
+                    known_previous_subscription = None
 
         if (
             Subscription.objects.filter(
                 person=person, status=Subscription.STATUS_COMPLETED
             ).exists()
-            and not previous_subscription
+            and not known_previous_subscription
         ):
             self.request.session[self.session_namespace] = {
                 "new_subscription": {
@@ -414,7 +414,7 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
                     "subscription_total": subscription_total,
                     "meta": params,
                 },
-                **self.request.session[self.session_namespace],
+                **self.request.session.get(self.session_namespace, {}),
             }
             return redirect("already_has_subscription")
 
@@ -426,9 +426,9 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
             meta=params,
         )
 
-        if previous_subscription:
+        if known_previous_subscription:
             replace_subscription(
-                previous_subscription=previous_subscription,
+                previous_subscription=known_previous_subscription,
                 new_subscription=subscription,
             )
 
