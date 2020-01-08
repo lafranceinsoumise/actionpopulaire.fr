@@ -13,8 +13,8 @@ rules.add_perm("events.add_event", is_person)
 
 
 @rules.predicate
-def is_not_hidden(role, event=None):
-    return event is not None and event.visibility != Event.VISIBILITY_ADMIN
+def is_hidden(role, event=None):
+    return event is not None and event.visibility == Event.VISIBILITY_ADMIN
 
 
 @rules.predicate
@@ -32,8 +32,8 @@ def is_organizer(role, event=None):
     )
 
 
-rules.add_perm("events.view_event", is_not_hidden & (is_public | is_organizer))
-rules.add_perm("events.change_event", is_not_hidden & is_organizer)
+rules.add_perm("events.view_event", (~is_hidden) & (is_public | is_organizer))
+rules.add_perm("events.change_event", (~is_hidden) & is_organizer)
 
 
 @rules.predicate

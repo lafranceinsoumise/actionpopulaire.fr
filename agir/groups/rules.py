@@ -6,6 +6,11 @@ from .models import Membership
 
 
 @rules.predicate
+def is_published(role, supportgroup=None):
+    return supportgroup is not None and supportgroup.published
+
+
+@rules.predicate
 def is_referent_or_manager(role, supportgroup=None):
     return (
         supportgroup is not None
@@ -42,3 +47,5 @@ def is_group_referent_or_manager(role, membership=None):
 rules.add_perm(
     "groups.change_membership", is_own_membership | is_group_referent_or_manager
 )
+
+rules.add_perm("groups.view_supportgroup", is_published)

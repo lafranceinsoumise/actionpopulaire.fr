@@ -17,6 +17,7 @@ from django.http import (
     JsonResponse,
     HttpResponse,
     HttpResponseForbidden,
+    HttpResponseGone,
 )
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy, reverse
@@ -135,12 +136,18 @@ class SupportGroupListView(SearchByZipcodeBaseView):
         return SupportGroup.objects.active().order_by("name")
 
 
-class SupportGroupDetailView(ObjectOpengraphMixin, DetailView):
+class SupportGroupDetailView(
+    ObjectOpengraphMixin, PermissionsRequiredMixin, DetailView
+):
+    permissions_required = ("groups.view_supportgroup",)
     template_name = "groups/detail.html"
-    queryset = SupportGroup.objects.active().all()
+    model = SupportGroup
 
     title_prefix = "Groupe d'action"
     meta_description = "Rejoignez les groupes d'action de la France insoumise."
+
+    def get_permission_denied_response(self, object):
+        return HttpResponseGone()
 
     def get_template_names(self):
         return ["groups/detail.html"]

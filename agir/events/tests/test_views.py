@@ -219,7 +219,9 @@ class EventPagesTestCase(TestCase):
         res = self.client.get(
             reverse("view_event", kwargs={"pk": self.organized_event.pk})
         )
-        self.assertNotContains(res, self.organized_event.name, status_code=404)
+        self.assertNotContains(
+            res, self.organized_event.name, status_code=status.HTTP_410_GONE
+        )
 
     @mock.patch.object(EventForm, "geocoding_task")
     @mock.patch("agir.events.forms.send_event_changed_notification")
