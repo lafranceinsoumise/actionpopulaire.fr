@@ -10,7 +10,13 @@ from django.contrib.postgres.search import SearchRank
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import F
-from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponse
+from django.http import (
+    Http404,
+    HttpResponseRedirect,
+    JsonResponse,
+    HttpResponse,
+    HttpResponseGone,
+)
 from django.template import loader
 from django.template.backends.django import DjangoTemplates
 from django.urls import reverse_lazy, reverse
@@ -181,7 +187,7 @@ class EventDetailMixin:
 
     def get_permission_denied_response(self, event):
         if event.visibility == Event.VISIBILITY_ADMIN:
-            raise Http404()
+            return HttpResponseGone()
         return redirect_to_login(self.request.get_full_path())
 
     def get_context_data(self, **kwargs):

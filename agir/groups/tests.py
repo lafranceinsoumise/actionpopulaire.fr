@@ -830,10 +830,9 @@ class GroupPageTestCase(TestCase):
         geocode_person.delay.assert_called_once()
 
         res = self.client.get("/groupes/{}/".format(self.referent_group.pk))
-        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(res.status_code, status.HTTP_410_GONE)
 
         group_pages = [
-            "view_group",
             "manage_group",
             "edit_group",
             "change_group_location",

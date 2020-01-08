@@ -13,6 +13,11 @@
         {% endif %}
       {% endfor %}
     </h1>
+    {% if not supportgroup.published %}
+      <div class="alert alert-warning">
+        Ce groupe a été dépublié.
+      </div>
+    {% endif %}
     <div class="text-right">
       {% if user.is_authenticated %}
         {% if user.is_staff %}
@@ -23,7 +28,7 @@
           {% if is_referent_or_manager %}
             <a class="btn btn-default" href="{% url "manage_group" supportgroup.pk %}">Gérer mon groupe</a>
             <a class="btn btn-default" href="{% url "create_event" %}?as_group={{ supportgroup.pk }}"><i
-              class="fa fa-plus"></i> Créer un événement organisé par ce groupe</a>
+                    class="fa fa-plus"></i> Créer un événement organisé par ce groupe</a>
           {% endif %}
           <a class="btn btn-primary" href="{% url "quit_group" supportgroup.pk %}">Quitter le groupe</a>
         {% elif user.person.is_insoumise or supportgroup.allow_external %}
@@ -46,7 +51,7 @@
             <input type="email" name="email" class="form-control" placeholder="email@exemple.fr">
             <span class="input-group-btn">
                         <button class="btn btn-primary" type="submit">Rejoindre ce groupe <i
-                          class="fa fa-check"></i></button>
+                                class="fa fa-check"></i></button>
                       </span>
           </div>
         </form>
@@ -93,24 +98,30 @@
 
       {% if supportgroup.is_certified %}
         <div class="btn-group" role="group">
-          <a class="btn btn-primary" href="{% url "donation_amount" %}?group={{ supportgroup.pk }}">Financer les actions du groupe</a>
-          <a class="btn btn-primary" href="#" data-toggle="modal" data-target="#share-modal"><i class="fa fa-share-alt"></i></a>
+          <a class="btn btn-primary" href="{% url "donation_amount" %}?group={{ supportgroup.pk }}">Financer les actions
+            du groupe</a>
+          <a class="btn btn-primary" href="#" data-toggle="modal" data-target="#share-modal"><i
+                  class="fa fa-share-alt"></i></a>
           <div class="modal fade" id="share-modal" tabindex="-1" role="dialog" aria-labelledby="share-modal-label">
-            <div class="modal-dialog" role="document"><div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span
-                  aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="calendar-modal-label">Faire une campagne de financement</h4>
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span
+                          aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="calendar-modal-label">Faire une campagne de financement</h4>
+                </div>
+                <div class="modal-body">
+                  <p>Pour faire campagne pour financer les actions de ce groupe, vous pouvez partager le lien suivant.
+                    La
+                    sélection de l'allocation du don sera ainsi pré-remplie dans le formulaire&nbsp;:</p>
+                  <input class="form-control" type="text"
+                         value="{{ FRONT_DOMAIN }}{% url "donation_amount" %}?group={{ supportgroup.pk }}" readonly>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+                </div>
               </div>
-              <div class="modal-body">
-                <p>Pour faire campagne pour financer les actions de ce groupe, vous pouvez partager le lien suivant. La
-                  sélection de l'allocation du don sera ainsi pré-remplie dans le formulaire&nbsp;:</p>
-                <input class="form-control" type="text" value="{{ FRONT_DOMAIN }}{% url "donation_amount" %}?group={{ supportgroup.pk }}" readonly>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
-              </div>
-            </div></div>
+            </div>
           </div>
         </div>
       {% endif %}
