@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
@@ -14,6 +15,7 @@ from agir.lib.models import (
     BaseSubtype,
     TimeStampedModel,
 )
+from agir.lib.search import PrefixSearchQuery
 
 
 class SupportGroupQuerySet(models.QuerySet):
@@ -22,6 +24,28 @@ class SupportGroupQuerySet(models.QuerySet):
 
     def certified(self):
         return self.filter(subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES)
+
+    def search(self, query):
+        vector = (
+            SearchVector(models.F("name"), config="french_unaccented", weight="A")
+            + SearchVector(
+                models.F("location_city"), config="french_unaccented", weight="B"
+            )
+            + SearchVector(
+                models.F("location_zip"), config="french_unaccented", weight="B"
+            )
+            + SearchVector(
+                models.F("description"), config="french_unaccented", weight="C"
+            )
+        )
+        query = PrefixSearchQuery(query, config="french_unaccented")
+
+        return (
+            self.annotate(search=vector)
+            .filter(search=query)
+            .annotate(rank=SearchRank(vector, query))
+            .order_by("-rank")
+        )
 
 
 class MembershipQuerySet(models.QuerySet):
