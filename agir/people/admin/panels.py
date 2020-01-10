@@ -148,7 +148,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def get_search_results(self, request, queryset, search_term):
         if search_term:
-            queryset = queryset.full_text_search(search_term)
+            queryset = queryset.search(search_term)
 
         use_distinct = False
 

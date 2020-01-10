@@ -44,7 +44,7 @@ class PersonQueryset(models.QuerySet):
     def verified(self):
         return self.filter(contact_phone_status=Person.CONTACT_PHONE_VERIFIED)
 
-    def full_text_search(self, query):
+    def search(self, query):
         q = Q(search=PrefixSearchQuery(query, config="simple_unaccented"))
         try:
             phonenumbers.parse(query, "FR")
