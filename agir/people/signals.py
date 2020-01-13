@@ -9,6 +9,7 @@ from agir.payments.actions import subscriptions
 from . import tasks
 from .models import Person, PersonEmail
 from agir.authentication.models import Role
+from ..payments.models import Subscription
 
 
 @receiver(pre_save, sender=Person, dispatch_uid="person_ensure_has_role")
@@ -36,7 +37,10 @@ def delete_mailtrain(sender, instance, **kwargs):
 
 @receiver(pre_delete, sender=Person, dispatch_uid="person_terminate_subscriptions")
 def terminate_subscriptions(sender, instance, **kwargs):
-    for subscription in instance.subscriptions.all():
+    for subscription in instance.subscriptions.exclude(
+        status=Subscription.STATUS_TERMINATED
+    ):
+        # we get a 500 if some remove their account with a waiting subscription, but that should not happen
         subscriptions.terminate_subscription(subscription)
 
 
