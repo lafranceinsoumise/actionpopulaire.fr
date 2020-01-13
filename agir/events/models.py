@@ -1,12 +1,11 @@
 from secrets import token_urlsafe
 
-import random
-
 import ics
+import random
 import re
 from django.conf import settings
-from django.contrib.postgres.indexes import GinIndex
-from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -15,17 +14,15 @@ from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.postgres.fields import JSONField
 from django_prometheus.models import ExportModelOperationsMixin
 from dynamic_filenames import FilePattern
-
-from stdimage.models import StdImageField
 from slugify import slugify
+from stdimage.models import StdImageField
 
-from agir.lib.utils import front_url, resize_and_autorotate
 from agir.lib.form_fields import CustomJSONEncoder
-from ..lib.model_fields import FacebookEventField
-from ..lib.models import (
+from agir.lib.form_fields import DateTimePickerWidget
+from agir.lib.model_fields import FacebookEventField
+from agir.lib.models import (
     BaseAPIResource,
     AbstractLabel,
     NationBuilderResource,
@@ -38,7 +35,8 @@ from ..lib.models import (
     TimeStampedModel,
     banner_path,
 )
-from ..lib.form_fields import DateTimePickerWidget
+from agir.lib.search import PrefixSearchQuery
+from agir.lib.utils import front_url, resize_and_autorotate
 
 
 class EventQuerySet(models.QuerySet):
@@ -98,6 +96,34 @@ class EventQuerySet(models.QuerySet):
                 ),
                 output_field=CharField(),
             )
+        )
+
+    def search(self, query):
+        vector = (
+            SearchVector(models.F("name"), config="french_unaccented", weight="A")
+            + SearchVector(
+                models.F("location_name"), config="french_unaccented", weight="B"
+            )
+            + SearchVector(
+                models.F("location_city"), config="french_unaccented", weight="B"
+            )
+            + SearchVector(
+                models.F("location_zip"), config="french_unaccented", weight="B"
+            )
+            + SearchVector(
+                models.F("description"), config="french_unaccented", weight="C"
+            )
+            + SearchVector(
+                models.F("report_content"), config="french_unaccented", weight="C"
+            )
+        )
+        query = PrefixSearchQuery(query, config="french_unaccented")
+
+        return (
+            self.annotate(search=vector)
+            .filter(search=query)
+            .annotate(rank=SearchRank(vector, query))
+            .order_by("-rank")
         )
 
 
@@ -273,10 +299,6 @@ class Event(
         encoder=CustomJSONEncoder,
     )
 
-    search = SearchVectorField(
-        "Données de recherche sur les événements", editable=False, null=True
-    )
-
     class Meta:
         verbose_name = _("événement")
         verbose_name_plural = _("événements")
@@ -294,7 +316,6 @@ class Event(
             ),
             models.Index(fields=["end_time"], name="events_end_time_index"),
             models.Index(fields=["nb_path"], name="events_nb_path_index"),
-            GinIndex(fields=["search"], name="search_event_index"),
         )
 
     def __str__(self):

@@ -35,7 +35,10 @@ DROP INDEX groups_supportgroup_search;
 
 class Migration(migrations.Migration):
 
-    dependencies = [("groups", "0035_thematicgroup")]
+    dependencies = [
+        ("groups", "0035_thematicgroup"),
+        ("people", "0060_personform_segment"),
+    ]
 
     operations = [
         migrations.RunSQL(
