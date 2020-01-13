@@ -741,7 +741,7 @@ class GroupPageTestCase(TestCase):
             self.member_group.memberships.filter(person=self.person).exists()
         )
 
-    @mock.patch("agir.groups.views.send_someone_joined_notification")
+    @mock.patch("agir.groups.views.public_views.send_someone_joined_notification")
     def test_can_join(self, someone_joined):
         url = reverse("view_group", kwargs={"pk": self.manager_group.pk})
         self.client.force_login(self.other_person.role)
@@ -1094,7 +1094,7 @@ class InvitationTestCase(TestCase):
             )
         )
 
-    @patch("agir.groups.views.send_abuse_report_message")
+    @patch("agir.groups.views.management_views.send_abuse_report_message")
     def test_can_report_abuse_from_both_emails(self, send_abuse_report_message):
         call_count = 0
 
