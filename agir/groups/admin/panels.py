@@ -170,7 +170,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "tags",
     )
 
-    search_fields = ("name", "description", "location_city", "location_country")
+    search_fields = ("name", "description", "location_city")
     actions = (actions.export_groups, actions.make_published, actions.unpublish)
 
     def promo_code(self, object):
@@ -270,6 +270,14 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 (),
             ),
         )
+
+    def get_search_results(self, request, queryset, search_term):
+        if search_term:
+            queryset = queryset.search(search_term)
+
+        use_distinct = False
+
+        return queryset, use_distinct
 
     def get_urls(self):
         return [

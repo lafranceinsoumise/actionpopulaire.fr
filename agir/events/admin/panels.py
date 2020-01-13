@@ -354,7 +354,13 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "tags",
     )
 
-    search_fields = ("name", "description", "location_city", "location_country")
+    search_fields = (
+        "name",
+        "location_city",
+        "location_zip",
+        "description",
+        "report_content",
+    )
 
     actions = (
         actions.export_events,
@@ -367,6 +373,14 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def get_queryset(self, request):
         return models.Event.objects.with_participants()
+
+    def get_search_results(self, request, queryset, search_term):
+        if search_term:
+            queryset = queryset.search(search_term)
+
+        use_distinct = False
+
+        return queryset, use_distinct
 
     def location_short(self, object):
         return _("{zip} {city}, {country}").format(
