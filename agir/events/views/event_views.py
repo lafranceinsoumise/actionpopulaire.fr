@@ -6,10 +6,8 @@ from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import Distance as DistanceMeasure
-from django.contrib.postgres.search import SearchRank
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import F
 from django.http import (
     Http404,
     HttpResponseRedirect,
@@ -121,12 +119,7 @@ class EventSearchView(SoftLoginRequiredMixin, FormView):
             return []
         qs = self.get_queryset()
         q = PrefixSearchQuery(text_query, config="fr")
-        qs = (
-            qs.annotate(rank=SearchRank(F("search"), q))
-            .filter(rank__gt=0)
-            .order_by("-rank")
-            .filter(visibility=Event.VISIBILITY_PUBLIC)
-        )
+        qs = qs.search(text_query)
         if min_date:
             qs = qs.filter(start_time__gt=min_date)
         if max_date:
