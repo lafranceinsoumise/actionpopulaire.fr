@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+import django_filters
 import ics
 from django.conf import settings
 from django.contrib import messages
@@ -103,7 +104,7 @@ class EventSearchView(SoftLoginRequiredMixin, FormView):
         form = self.get_form()
 
         if not form.is_valid():
-            # on retourne le formulaire avec les erreur
+            # on retourne le formulaire avec les erreurs
             return self.render_to_response(context={"form": form})
 
         self.form = form

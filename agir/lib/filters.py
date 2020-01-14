@@ -102,3 +102,8 @@ class OrderByDistanceToBackend(object):
         return queryset.annotate(
             distance=DistanceFunction("coordinates", Point(coordinates, srid=4326))
         ).order_by("distance")
+
+
+class FixedModelMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
+    def get_filter_predicate(self, v):
+        return {self.field_name: v}

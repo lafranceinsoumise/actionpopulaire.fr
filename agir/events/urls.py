@@ -11,6 +11,11 @@ urlpatterns = [
         name="perform_create_event",
     ),
     path("evenements/liste/", views.EventSearchView.as_view(), name="search_event"),
+    path(
+        "evenements/liste/api/",
+        views.EventSearchAPIView.as_view(),
+        name="search_event_api",
+    ),
     path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
     path(
         "evenements/<uuid:pk>/participer/",

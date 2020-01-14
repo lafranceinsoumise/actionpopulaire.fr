@@ -19,8 +19,10 @@ from rest_framework.generics import ListAPIView
 from agir.lib.export import dict_to_camelcase
 from agir.municipales.models import CommunePage
 from . import serializers
+from ..events.filters import EventFilterSet
 from ..events.models import Event, EventSubtype
 from ..groups.models import SupportGroup, SupportGroupSubtype
+from ..lib.filters import FixedModelMultipleChoiceFilter
 
 
 def is_active_group():
@@ -75,55 +77,6 @@ class BBoxFilterBackend(object):
         bbox = Polygon.from_bbox(bbox)
 
         return queryset.filter(coordinates__intersects=bbox)
-
-
-class FixedModelMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
-    def get_filter_predicate(self, v):
-        return {self.field_name: v}
-
-
-class EventFilterSet(django_filters.rest_framework.FilterSet):
-    subtype = FixedModelMultipleChoiceFilter(
-        field_name="subtype", to_field_name="label", queryset=EventSubtype.objects.all()
-    )
-    include_past = django_filters.BooleanFilter(
-        "start_time",
-        label="Inclure les événements passés",
-        method="filter_include_past",
-    )
-    include_hidden = django_filters.BooleanFilter(
-        label="Include les événements non publiés", method="filter_include_hidden"
-    )
-
-    def __init__(self, data=None, *args, **kwargs):
-        if data is not None:
-            data = data.copy()
-            if data.get("include_past") is None:
-                data["include_past"] = False
-            if data.get("include_hidden") is None:
-                data["include_hidden"] = False
-
-        super().__init__(data, *args, **kwargs)
-
-    @property
-    def qs(self):
-        return super().qs[:5000]
-
-    def filter_include_past(self, queryset, name, value):
-        if not value:
-            return queryset.upcoming(published_only=False)
-        else:
-            return queryset
-
-    def filter_include_hidden(self, qs, name, value):
-        if not value:
-            return qs.listed()
-        else:
-            return qs
-
-    class Meta:
-        model = Event
-        fields = ("subtype", "include_past")
 
 
 class EventsView(ListAPIView):

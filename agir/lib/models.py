@@ -70,9 +70,9 @@ class NationBuilderResource(models.Model):
 
 class BaseAPIResource(UUIDIdentified, TimeStampedModel):
     """
-    Abstract base class for APIResource that also exist on NationBuilder
+    Abstract base class for APIResource
     
-    Automatically add an UUID identifier, a NationBuilder id fields, and automatic
+    Automatically add an UUID identifier, and automatic
     timestamps on modification and creation
     """
 
