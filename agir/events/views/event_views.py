@@ -95,7 +95,9 @@ class EventSearchView(SoftLoginRequiredMixin, FormView):
     model = Event
 
     def get_queryset(self):
-        return self.model.objects.filter(visibility=Event.VISIBILITY_PUBLIC)
+        return self.model.objects.filter(
+            visibility=Event.VISIBILITY_PUBLIC, do_not_list=False
+        )
 
     def get(self, request, *args, **kwargs):
         form = self.get_form()
