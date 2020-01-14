@@ -155,8 +155,6 @@ class LegacyPersonEndpointTestCase(APITestCase):
                 "first_name",
                 "last_name",
                 "email_opt_in",
-                "events",
-                "groups",
                 "location",
             ),
             response.data.keys(),
@@ -304,46 +302,6 @@ class LegacyPersonEndpointTestCase(APITestCase):
                 "viewer@viewer.fr",
             ],
         )
-
-    def test_can_see_events(self):
-        request = self.factory.get("")
-        self.as_viewer(request)
-        response = self.detail_view(request, pk=self.basic_person.pk)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertIn("events", response.data)
-
-        self.assertCountEqual(response.data["events"], [self.event.pk])
-
-    def test_can_see_rsvps(self):
-        request = self.factory.get("")
-        self.as_viewer(request)
-        response = self.detail_view(request, pk=self.basic_person.pk)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertIn("rsvps", response.data)
-
-        self.assertCountEqual(
-            response.data["rsvps"],
-            [
-                reverse(
-                    "legacy:rsvp-detail", kwargs={"pk": self.rsvp.pk}, request=request
-                )
-            ],
-        )
-
-    def test_can_see_groups(self):
-        request = self.factory.get("")
-        self.as_viewer(request)
-        response = self.detail_view(request, pk=self.basic_person.pk)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertIn("groups", response.data)
-
-        self.assertCountEqual(response.data["groups"], [self.supportgroup.pk])
 
     def test_can_post_users_with_empty_null_and_blank_fields(self):
         request = self.factory.post(

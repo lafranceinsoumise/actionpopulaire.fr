@@ -53,18 +53,6 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
 
     bounced = serializers.BooleanField(required=False)
 
-    rsvps = serializers.HyperlinkedRelatedField(
-        view_name="legacy:rsvp-detail", read_only=True, many=True
-    )
-
-    groups = serializers.PrimaryKeyRelatedField(
-        read_only=True, many=True, source="supportgroups"
-    )
-
-    memberships = serializers.HyperlinkedRelatedField(
-        view_name="legacy:membership-detail", read_only=True, many=True
-    )
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not isinstance(self, LegacyUnprivilegedPersonSerializer):
@@ -119,10 +107,6 @@ class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
             "_created",
             "_updated",
             "email_opt_in",
-            "events",
-            "rsvps",
-            "groups",
-            "memberships",
             "tags",
             "location",
         )
@@ -140,8 +124,6 @@ class LegacyUnprivilegedPersonSerializer(LegacyPersonSerializer):
             "first_name",
             "last_name",
             "email_opt_in",
-            "events",
-            "groups",
             "location",
         )
         read_only_fields = ("url", "_id")
