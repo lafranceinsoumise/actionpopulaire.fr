@@ -60,7 +60,7 @@ if [ ! -x MailHog ]; then
 fi
 
 echo "## Install python dependencies..."
-(cd /vagrant && /usr/local/bin/pipenv sync) &> /dev/null
+(cd /vagrant && /usr/local/bin/pipenv sync --dev) &> /dev/null
 
 echo "## Install npm dependencies..."
 (cd /vagrant && /usr/local/bin/pipenv run npm install) &> /dev/null
