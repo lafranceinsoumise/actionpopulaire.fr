@@ -25,7 +25,7 @@ _h.ignore_tables = True
 
 def conditional_html_to_text(text):
     if hasattr(text, "__html__"):
-        return mark_safe(generate_plain_text(text))
+        return mark_safe(_h.handle(text))
     return mark_safe(text)
 
 
@@ -40,10 +40,10 @@ Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pa
 {{ LINK_BROWSER }}
 
 >> Choisir les emails que vous recevez
-http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+{{ PREFERENCES_LINK }}
 
 >> Arrêter complètement de recevoir des emails
-https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}
+{{ UNSUBSCRIBE_LINK }}
 """
     )
 
@@ -117,6 +117,7 @@ def send_mosaico_email(
 
     if preferences_link:
         bindings["PREFERENCES_LINK"] = front_url("contact")
+        bindings["UNSUBSCRIBE_LINK"] = front_url("unsubscribe")
 
     link_bindings = {
         key: value for key, value in bindings.items() if is_front_url(value)
@@ -131,11 +132,12 @@ def send_mosaico_email(
     with connection:
         for recipient in recipients:
             # recipient can be either a Person or an email address
-            if link_bindings and isinstance(recipient, Person):
+            if isinstance(recipient, Person):
                 connection_params = generate_token_params(recipient)
                 for key, value in link_bindings.items():
                     if isinstance(value, AutoLoginUrl):
                         bindings[key] = add_params_to_urls(value, connection_params)
+                bindings["MERGE_LOGIN"] = urlencode(connection_params)
 
             if isinstance(recipient, Person):
                 context = get_context_from_bindings(code, recipient, bindings)
@@ -159,7 +161,6 @@ def send_mosaico_email(
                 to=[recipient.email if isinstance(recipient, Person) else recipient],
                 connection=connection,
             )
-            email.attach_alternative(html_message, "text/html")
             email.attach_alternative(html_message, "text/html")
             if attachments is not None:
                 for attachment in attachments:

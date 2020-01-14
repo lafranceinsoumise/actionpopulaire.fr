@@ -24,9 +24,9 @@ Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer ce messag
 Cet email a été envoyé à {{ EMAIL }}.
 
 Pour choisir les emails que vous recevez
-http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }})
+{{ PREFERENCES_LINK }})
 
 Pour arrêter complètement de recevoir des emails
-https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}).
+{{ UNSUBSCRIBE_LINK }}).
   
 ---

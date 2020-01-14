@@ -19,7 +19,7 @@ Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pa
 {{ LINK_BROWSER }}
 
 >> Choisir les emails que vous recevez
-http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+{{ PREFERENCES_LINK }}
 
 >> Arrêter complètement de recevoir des emails
-https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}
+{{ UNSUBSCRIBE_LINK }}

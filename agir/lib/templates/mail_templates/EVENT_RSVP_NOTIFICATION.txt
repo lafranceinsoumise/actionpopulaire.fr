@@ -21,7 +21,7 @@ Cet email a été envoyé à {{ EMAIL }}.
 {{ LINK_BROWSER }}
 
 >> Choisir les emails que vous recevez
-http://agir.lafranceinsoumise.fr/message_preferences/?{{ MERGE_LOGIN_QUERY }}
+{{ PREFERENCES_LINK }}
 
 >> Arrêter complètement de recevoir des emails
-https://agir.lafranceinsoumise.fr/desinscription?{{ MERGE_LOGIN_QUERY }}
+{{ UNSUBSCRIBE_LINK }}
