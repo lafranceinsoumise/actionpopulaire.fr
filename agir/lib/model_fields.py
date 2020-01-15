@@ -112,7 +112,7 @@ class ChoiceArrayField(ArrayField):
 
 class FacebookPageField(models.CharField):
     FACEBOOK_ID_RE = re.compile(
-        r"^(?:(?:https://)?www.facebook.com/)?([a-zA-Z.]{5,})(?:/.*)?$"
+        r"^(?:(?:https://)?www.facebook.com/)?([a-zA-Z0-9.]{5,})(?:/.*)?$"
     )
 
     def to_python(self, value):

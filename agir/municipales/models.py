@@ -1,8 +1,5 @@
-import re
 from django.contrib.gis.db.models import MultiPolygonField
 from django.contrib.postgres.search import SearchVector, SearchRank
-from django.core.exceptions import ValidationError
-from django.core.validators import EMPTY_VALUES
 from django.db import models
 from django.db.models import UniqueConstraint
 
@@ -10,14 +7,6 @@ from agir.lib.model_fields import FacebookPageField, TwitterProfileField
 from agir.lib.models import TimeStampedModel
 from agir.lib.search import PrefixSearchQuery
 from agir.lib.utils import front_url
-
-
-TWITTER_ID_RE = re.compile(r"^(?:@|https://twitter.com/)?([a-zA-Z0-9_]{1,15})$")
-FACEBOOK_ID_RE = re.compile(
-    r"^(?:(?:https://)?www.facebook.com/)?([a-zA-Z.]{5,})(?:/.*)?$"
-)
-INSTAGRAM_ID_RE = re.compile(r"^([a-zA-Z0-9._]{1,30})$")
-YOUTUBE_ID_RE = re.compile("")
 
 
 class RegexExtractorValidator:
