@@ -33,6 +33,7 @@ from ..views import (
     notification_listener as donation_notification_listener,
     subscription_notification_listener as monthly_donation_subscription_listener,
 )
+from ...authentication.tokens import monthly_donation_confirmation_token_generator
 from ...system_pay.models import SystemPayAlias, SystemPaySubscription
 
 
@@ -52,7 +53,7 @@ class DonationTestMixin:
             "location_zip": "33000",
             "location_city": "Bordeaux",
             "location_country": "FR",
-            "contact_phone": "06 45 78 98 45",
+            "contact_phone": "+33645789845",
         }
 
         certified_subtype = SupportGroupSubtype.objects.create(
@@ -623,6 +624,149 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
             },
         )
 
+        self.assertRedirects(res, reverse("already_has_subscription"))
+
+        res = self.client.post(
+            reverse("already_has_subscription"), data={"choice": "A"}
+        )
+
+        new_sub = Subscription.objects.exclude(pk=s.id).get()
+
+        self.assertEqual(new_sub.price, 1500)
+        self.assertDictEqual(
+            {a.group: a.amount for a in new_sub.allocations.all()},
+            {self.group: 700, self.other_group: 300},
+        )
+
+        self.assertRedirects(res, reverse("view_payments"))
+        replace_subscription.assert_called_once()
+        self.assertEqual(
+            tuple(replace_subscription.call_args),
+            ((), {"previous_subscription": s, "new_subscription": new_sub}),
+        )
+
+    @mock.patch("agir.donations.views.send_monthly_donation_confirmation_email")
+    def test_mail_sent_when_person_not_loggedin(self, send_email):
+        information_url = reverse("monthly_donation_information")
+
+        res = self.client.post(
+            reverse("donation_amount"),
+            data={
+                "type": "M",
+                "amount": "500",
+                "allocations": json.dumps(
+                    [
+                        {"group": str(self.group.pk), "amount": 100},
+                        {"group": str(self.other_group.pk), "amount": 300},
+                    ]
+                ),
+            },
+        )
+
+        self.assertRedirects(res, information_url)
+
+        res = self.client.post(
+            information_url,
+            data={
+                "email": "test@test.com",  # existing user email
+                "subscribed": "Y",
+                **self.donation_information_payload,
+                "type": "M",
+                "amount": "500",
+                "allocations": json.dumps(
+                    [
+                        {"group": str(self.group.pk), "amount": 100},
+                        {"group": str(self.other_group.pk), "amount": 300},
+                    ]
+                ),
+            },
+        )
+
+        self.assertRedirects(res, reverse("monthly_donation_confirmation_email_sent"))
+
+        send_email.delay.assert_called_once()
+
+        self.assertDictEqual(
+            send_email.delay.call_args[1],
+            {
+                "email": "test@test.com",
+                "subscribed": True,
+                "subscription_total": 500,
+                "allocations": json.dumps(
+                    {str(self.group.pk): 100, str(self.other_group.pk): 300}
+                ),
+                "nationality": "FR",
+                "first_name": "Marc",
+                "last_name": "Frank",
+                "location_address1": "4 rue de Chaume",
+                "location_address2": "",
+                "location_zip": "33000",
+                "location_city": "Bordeaux",
+                "location_country": "FR",
+                "contact_phone": "+33645789845",
+            },
+        )
+
+    def test_correct_email_content_when_not_logged_in(self):
+        params = {
+            "email": "text@test.com",
+            "subscription_total": 500,
+            "allocations": json.dumps(
+                {str(self.group.pk): 100, str(self.other_group.pk): 300}
+            ),
+            "nationality": "FR",
+            "first_name": "Marc",
+            "last_name": "Frank",
+            "location_address1": "4 rue de Chaume",
+            "location_address2": "",
+            "location_zip": "33000",
+            "location_city": "Bordeaux",
+            "location_country": "FR",
+            "contact_phone": "+33645789845",
+        }
+
+        send_monthly_donation_confirmation_email(**params)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        params["token"] = monthly_donation_confirmation_token_generator.make_token(
+            **params
+        )
+        expected_link = front_url("monthly_donation_confirm", query=params)
+        email_text = mail.outbox[0].body
+
+        self.assertIn(expected_link, email_text)
+
+    @mock.patch("agir.donations.views.replace_subscription")
+    def test_create_subscription_when_following_confirmation_link(
+        self, replace_subscription
+    ):
+        s = self.create_subscription(
+            person=self.p1, amount=1000, allocations={self.group: 600}
+        )
+
+        link_params = {
+            "email": "test@test.com",
+            "subscription_total": 500,
+            "allocations": json.dumps(
+                {str(self.group.pk): 100, str(self.other_group.pk): 300}
+            ),
+            "nationality": "FR",
+            "first_name": "Marc",
+            "last_name": "Frank",
+            "location_address1": "4 rue de Chaume",
+            "location_address2": "",
+            "location_zip": "33000",
+            "location_city": "Bordeaux",
+            "location_country": "FR",
+            "contact_phone": "+33645789845",
+        }
+
+        link_params["token"] = monthly_donation_confirmation_token_generator.make_token(
+            **link_params
+        )
+
+        res = self.client.get(reverse("monthly_donation_confirm"), data=link_params)
         self.assertRedirects(res, reverse("already_has_subscription"))
 
         res = self.client.post(

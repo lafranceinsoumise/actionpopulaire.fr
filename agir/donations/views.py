@@ -195,6 +195,7 @@ class MonthlyDonationPersonalInformationView(
         previous_subscription = form.cleaned_data["previous_subscription"]
 
         if form.connected:
+            # une personne connectée a rempli le formulaire
             self.object = form.save()
 
             if (
@@ -352,7 +353,7 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
         try:
             email = params.pop("email")
             subscription_total = int(params.pop("subscription_total"))
-            raw_allocations = params.pop("allocations")
+            raw_allocations = params.get("allocations")
         except KeyError:
             return self.link_error_page()
 
