@@ -312,51 +312,6 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         submissions = PersonFormSubmission.objects.all()
         self.assertEqual(len(submissions), 2)
 
-    @using_redislite
-    def test_person_choice_field(self):
-        self.complex_form = PersonForm.objects.create(
-            title="Formulaire person choice",
-            slug="formulaire-person-choice",
-            description="Ma description onsef",
-            confirmation_note="Ma note de fin",
-            custom_fields=[
-                {
-                    "title": "Détails",
-                    "fields": [
-                        {
-                            "id": "person_choice",
-                            "type": "person",
-                            "label": "Un autre inscrit",
-                        }
-                    ],
-                }
-            ],
-        )
-
-        res = self.client.post(
-            reverse("view_person_form", args=["formulaire-person-choice"]),
-            data={"person_choice": "person@corp.com"},
-        )
-        self.assertRedirects(res, "/formulaires/formulaire-person-choice/confirmation/")
-        submission = PersonFormSubmission.objects.last()
-        self.assertEqual(submission.data["person_choice"], str(self.person.pk))
-
-        for i in range(0, 20):
-            self.client.post(
-                reverse("view_person_form", args=["formulaire-person-choice"]),
-                data={"person_choice": "notexistperson@corp.com"},
-            )
-        res = self.client.post(
-            reverse("view_person_form", args=["formulaire-person-choice"]),
-            data={"person_choice": "person@corp.com"},
-        )
-        self.assertFormError(
-            res,
-            "form",
-            "person_choice",
-            "Vous avez fait trop d'erreurs. Par sécurité, vous devez attendre avant d'essayer d'autres adresses emails.",
-        )
-
 
 class AccessControlTestCase(SetUpPersonFormsMixin, TestCase):
     def test_cannot_access_not_anonymous_form(self):
@@ -520,8 +475,11 @@ class SubmissionFormatTestCase(TestCase):
 
 
 class FieldsTestCase(TestCase):
+    def setUp(self) -> None:
+        self.person = Person.objects.create_person("test@example.com")
+        self.other_person = Person.objects.create_person("test2@example.com")
+
     def test_person_choice_field_allow_self(self):
-        person = Person.objects.create_person("test@example.com")
 
         person_form = PersonForm.objects.create(
             title="Formulaire",
@@ -545,12 +503,59 @@ class FieldsTestCase(TestCase):
         )
 
         form_class = get_people_form_class(person_form)
-        form = form_class(data={"person": "test@example.com"}, instance=person)
+        form = form_class(data={"person": "test@example.com"}, instance=self.person)
         self.assertFalse(form.is_valid())
         form.has_error("person", code="selected_self")
 
         person_form.custom_fields[0]["fields"][0]["allow_self"] = True
 
         form_class = get_people_form_class(person_form)
-        form = form_class(data={"person": "test@example.com"}, instance=person)
+        form = form_class(data={"person": "test@example.com"}, instance=self.person)
         self.assertTrue(form.is_valid())
+
+    @using_redislite
+    def test_person_choice_field(self):
+        self.client.force_login(self.person.role)
+
+        self.complex_form = PersonForm.objects.create(
+            title="Formulaire person choice",
+            slug="formulaire-person-choice",
+            description="Ma description onsef",
+            confirmation_note="Ma note de fin",
+            custom_fields=[
+                {
+                    "title": "Détails",
+                    "fields": [
+                        {
+                            "id": "person_choice",
+                            "type": "person",
+                            "label": "Un autre inscrit",
+                        }
+                    ],
+                }
+            ],
+        )
+
+        res = self.client.post(
+            reverse("view_person_form", args=["formulaire-person-choice"]),
+            data={"person_choice": "test2@example.com"},
+        )
+        self.assertRedirects(res, "/formulaires/formulaire-person-choice/confirmation/")
+        submission = PersonFormSubmission.objects.last()
+        self.assertEqual(submission.data["person_choice"], str(self.other_person.pk))
+
+        for i in range(0, 20):
+            self.client.post(
+                reverse("view_person_form", args=["formulaire-person-choice"]),
+                data={"person_choice": "notexistperson@corp.com"},
+            )
+        res = self.client.post(
+            reverse("view_person_form", args=["formulaire-person-choice"]),
+            data={"person_choice": "test2@example.com"},
+        )
+        self.assertFormError(
+            res,
+            "form",
+            "person_choice",
+            "Vous avez fait trop d'erreurs. Par sécurité, vous devez attendre avant d'essayer d'autres adresses emails.",
+        )
