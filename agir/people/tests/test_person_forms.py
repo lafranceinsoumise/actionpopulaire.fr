@@ -479,8 +479,8 @@ class FieldsTestCase(TestCase):
         self.person = Person.objects.create_person("test@example.com")
         self.other_person = Person.objects.create_person("test2@example.com")
 
+    @using_redislite
     def test_person_choice_field_allow_self(self):
-
         person_form = PersonForm.objects.create(
             title="Formulaire",
             slug="formulaire",
