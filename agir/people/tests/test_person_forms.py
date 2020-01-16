@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from agir.api.redis import using_redislite
+from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 
@@ -516,3 +517,40 @@ class SubmissionFormatTestCase(TestCase):
                 "file": "Fichier",
             },
         )
+
+
+class FieldsTestCase(TestCase):
+    def test_person_choice_field_allow_self(self):
+        person = Person.objects.create_person("test@example.com")
+
+        person_form = PersonForm.objects.create(
+            title="Formulaire",
+            slug="formulaire",
+            description="description",
+            confirmation_note="note de fin",
+            custom_fields=[
+                {
+                    "title": "titre",
+                    "fields": [
+                        {
+                            "id": "person",
+                            "type": "person",
+                            "label": "Personne",
+                            "allow_self": False,
+                            "required": True,
+                        }
+                    ],
+                }
+            ],
+        )
+
+        form_class = get_people_form_class(person_form)
+        form = form_class(data={"person": "test@example.com"}, instance=person)
+        self.assertFalse(form.is_valid())
+        form.has_error("person", code="selected_self")
+
+        person_form.custom_fields[0]["fields"][0]["allow_self"] = True
+
+        form_class = get_people_form_class(person_form)
+        form = form_class(data={"person": "test@example.com"}, instance=person)
+        self.assertTrue(form.is_valid())

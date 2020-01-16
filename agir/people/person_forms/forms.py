@@ -149,11 +149,14 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                     )
                 elif (
                     not field_descriptor.get("allow_self")
-                    and cleaned_data.get(id) == self.instance
+                    and cleaned_data.get(id) == self.instance.pk
                 ):
                     self.add_error(
                         id,
-                        ValidationError("Vous ne pouvez pas vous indiquer vous-mêmes."),
+                        ValidationError(
+                            "Vous ne pouvez pas vous indiquer vous-mêmes.",
+                            code="selected_self",
+                        ),
                     )
 
             if (
