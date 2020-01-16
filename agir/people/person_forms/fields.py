@@ -128,13 +128,15 @@ class PersonChoiceField(forms.CharField):
         )
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, allow_self=False, allow_inactive=False, **kwargs):
         kwargs.setdefault(
             "help_text",
             "Entrez l'adresse email d'une personne inscrite sur la plateforme.",
         )
 
         super().__init__(*args, **kwargs)
+        self.allow_self = allow_self
+        self.allow_inactive = allow_inactive
 
     def to_python(self, value):
         if value in self.empty_values:
@@ -147,7 +149,7 @@ class PersonChoiceField(forms.CharField):
                 self.error_messages["invalid_choice"], code="invalid_choice"
             )
 
-        if not value.role.is_active:
+        if not self.allow_inactive and not value.role.is_active:
             raise ValidationError(
                 self.error_messages["invalid_choice"], code="invalid_choice"
             )

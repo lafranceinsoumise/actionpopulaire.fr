@@ -147,6 +147,14 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                             "Vous avez fait trop d'erreurs. Par sécurité, vous devez attendre avant d'essayer d'autres adresses emails."
                         ),
                     )
+                elif (
+                    not field_descriptor.get("allow_self")
+                    and cleaned_data.get(id) == self.instance
+                ):
+                    self.add_error(
+                        id,
+                        ValidationError("Vous ne pouvez pas vous indiquer vous-mêmes."),
+                    )
 
             if (
                 self.is_submission_edition
