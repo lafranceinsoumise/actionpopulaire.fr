@@ -69,10 +69,6 @@ const replaceForm = selector => {
   props.initial.amount = +amountInput.value || null;
   amountInput.remove();
 
-  const submitInput = form.querySelector('input[type="submit"]');
-  props.buttonLabel = submitInput.value;
-  submitInput.remove();
-
   // pour tous les champs hidden restant, on les transmet tels quels
   props.hiddenFields = {};
   Array.from(form.querySelectorAll('input[type="hidden"]')).forEach(input => {

@@ -20,7 +20,6 @@ const DonationForm = ({
   minAmountError,
   maxAmountError,
   showTaxCredit,
-  buttonLabel,
   byMonth
 }) => {
   const [type, setType] = useState(initial.type || null);
@@ -80,9 +79,21 @@ const DonationForm = ({
         />
       )}
       <div className="form-group">
-        <Button type="submit" bsStyle="primary">
-          {buttonLabel}
-        </Button>
+        <div>
+          <Button type="submit" bsStyle="primary">
+            Je donne par carte bancaire !
+          </Button>
+        </div>
+        <div>
+          <small>
+            Si vous souhaitez donner par chèque, merci de remplir et de joindre
+            à votre chèque{" "}
+            <a href="/static/donations/formulaire_dons_20190218.pdf">
+              ce formulaire
+            </a>
+            .
+          </small>
+        </div>
       </div>
     </form>
   );
@@ -108,7 +119,6 @@ DonationForm.propTypes = {
       id: PropTypes.string
     })
   ),
-  buttonLabel: PropTypes.string,
   hiddenFields: PropTypes.objectOf(PropTypes.string)
 };
 
