@@ -3,6 +3,7 @@ from datetime import datetime
 from urllib.parse import urlencode
 
 import requests
+import requests.adapters
 from django.conf import settings
 from django.db.models import Q
 from requests import HTTPError
@@ -14,10 +15,12 @@ params = {"access_token": settings.MAILTRAIN_API_KEY}
 
 
 s = requests.Session()
-a = requests.adapters.HTTPAdapter(max_retries=Retry(total=5, backoff_factor=1))
-b = requests.adapters.HTTPAdapter(max_retries=Retry(total=5, backoff_factor=1))
-s.mount("https://", a)
-s.mount("http://", b)
+s.mount(
+    "https://",
+    requests.adapters.HTTPAdapter(
+        max_retries=Retry(total=5, backoff_factor=1, status_forcelist=[403, 504, 502])
+    ),
+)
 
 
 def data_from_person(person, tmp_tags=None):
