@@ -71,7 +71,7 @@ const DonationForm = ({
           setAllocations(changeTotalAmount(allocations, amount, newAmount));
         }}
       />
-      {groupChoices && (
+      {groupChoices && groupChoices.length > 0 && (
         <AllocationWidget
           groupChoices={groupChoices}
           value={allocations}
