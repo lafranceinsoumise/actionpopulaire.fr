@@ -73,6 +73,29 @@ class SystemPayWebhookSerializer(serializers.Serializer):
                 code="bad_signature",
             )
 
+        if validated_data.get("operation_type") is None:
+            # on est probablement dans le cas d'une annulation
+            if (
+                validated_data.get("trans_status")
+                != SystemPayTransaction.STATUS_ABANDONED
+            ):
+                raise serializers.ValidationError(
+                    detail="Type d'opération manquant", code="missing_operation_type"
+                )
+
+            sp_transaction = self.get_transaction_by_order_id(
+                validated_data.get("order_id")
+            )
+
+            if sp_transaction.subscription is not None:
+                validated_data["operation_type"] = "VERIFICATION"
+            elif sp_transaction.payment is not None:
+                validated_data["operation_type"] = "DEBIT"
+            else:
+                raise serializers.ValidationError(
+                    detail="Transaction dans un état incorrect", code="bad_transaction"
+                )
+
         if validated_data.get("expiry_year") and validated_data.get("expiry_month"):
             validated_data["expiry_date"] = date(
                 year=validated_data.get("expiry_year"),
@@ -187,9 +210,11 @@ class SystemPayWebhookSerializer(serializers.Serializer):
                 detail={"uuid": "Aucune transaction avec cet UUID"}, code="unknown_uuid"
             )
 
-    def get_transaction_by_order_id(self):
+    def get_transaction_by_order_id(self, order_id=None):
+        if order_id is None:
+            order_id = self.validated_data["order_id"]
         try:
-            return SystemPayTransaction.objects.get(pk=self.validated_data["order_id"])
+            return SystemPayTransaction.objects.get(pk=order_id)
         except SystemPayTransaction.DoesNotExist:
             raise serializers.ValidationError(
                 detail={"order_id": "Aucune transaction avec cet order_id"},
