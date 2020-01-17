@@ -24,7 +24,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     form = SegmentAdminForm
     save_as = True
     fieldsets = (
-        (None, {"fields": ("name", "tags", "exclude_segments")}),
+        (None, {"fields": ("name", "tags", "exclude_segments", "force_non_insoumis")}),
         (
             "GA et événements",
             {

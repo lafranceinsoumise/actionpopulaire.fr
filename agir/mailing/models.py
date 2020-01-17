@@ -39,7 +39,7 @@ class Segment(BaseSegment, models.Model):
     force_non_insoumis = models.BooleanField(
         "Envoyer y compris aux non insoumis",
         default=False,
-        help_text="Inclut par exemple les ancien⋅es donateurices non inscrits sur la plateforme",
+        help_text="Inclut par exemple les ancien⋅es donateurices non inscrits sur la plateforme. À utiliser uniquement si vous savez très bien ce que vous faites.",
     )
     supportgroup_status = models.CharField(
         "Limiter aux membres de groupes ayant ce statut",
