@@ -266,7 +266,10 @@ class Segment(BaseSegment, models.Model):
                     donation_total__lte=self.donation_total_max
                 )
 
-            qs = qs.filter(id__in=annotated_qs.values_list("id"))
+            if annotated_qs.count() == 0:
+                qs = qs.none()
+            else:
+                qs = qs.filter(id__in=annotated_qs.values_list("id"))
 
         if self.subscription is not None:
             qs = getattr(qs, "filter" if self.subscription else "exclude")(
