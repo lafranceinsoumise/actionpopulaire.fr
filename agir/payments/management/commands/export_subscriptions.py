@@ -1,7 +1,7 @@
 from argparse import FileType
 
 import tablib as tablib
-from django.core.mail import EmailMultiAlternatives, EmailMessage, get_connection
+from django.core.mail import EmailMessage, get_connection
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from glom import Coalesce, T, glom
