@@ -55,6 +55,7 @@ class LoanForm(SimpleDonationForm):
 
 class LenderForm(SimpleDonorForm):
     button_label = "Je prête {amount}"
+    payment_modes = []
 
     country_of_birth = LazyTypedChoiceField(
         required=True,
@@ -76,7 +77,9 @@ class LenderForm(SimpleDonorForm):
         widget=forms.HiddenInput,
     )
 
-    payment_mode = PaymentModeField(label="Comment souhaitez-vous prêter l'argent ?")
+    payment_mode = PaymentModeField(
+        label="Comment souhaitez-vous prêter l'argent ?", payment_modes=[]
+    )
 
     iban = IBANField(
         label="Votre IBAN",
@@ -87,6 +90,8 @@ class LenderForm(SimpleDonorForm):
 
     def __init__(self, *args, payment_type, payment_modes, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["payment_mode"].payment_modes = self.payment_modes
 
         self.fields["gender"].required = True
         self.fields["date_of_birth"].required = True

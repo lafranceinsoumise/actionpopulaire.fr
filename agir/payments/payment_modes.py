@@ -1,12 +1,12 @@
 from collections import OrderedDict
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.forms import ChoiceField, Field, RadioSelect
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
-from django.forms import ChoiceField, Field, RadioSelect
 
 __all__ = ["PAYMENT_MODES", "DEFAULT_MODE", "PaymentModeField"]
-
 
 _payment_classes = [import_string(name) for name in settings.PAYMENT_MODES]
 PAYMENT_MODES = OrderedDict((klass.id, klass()) for klass in _payment_classes)
@@ -19,7 +19,7 @@ class PaymentModeField(ChoiceField):
     def __init__(
         self,
         *,
-        payment_modes=None,
+        payment_modes,
         empty_label=_("Choisissez votre moyen de paiement"),
         required=True,
         initial=None,
@@ -29,10 +29,10 @@ class PaymentModeField(ChoiceField):
 
         if payment_modes == "ALL":
             self._payment_modes = settings.PAYMENT_MODES
-        elif payment_modes is None:
-            self._payment_modes = [PAYMENT_MODES["system_pay"], PAYMENT_MODES["check"]]
         else:
-            self._payment_modes = payment_modes
+            self._payment_modes = [
+                PAYMENT_MODES[p] if isinstance(p, str) else p for p in payment_modes
+            ]
 
         if required:
             self.empty_label = None
