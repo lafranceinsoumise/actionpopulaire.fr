@@ -158,7 +158,7 @@ class Segment(BaseSegment, models.Model):
             subscribed=True, emails___bounced=False, emails___order=0
         )
 
-        if not self.force_non_insoumise:
+        if not self.force_non_insoumis:
             qs = qs.filter(is_insoumise=True)
 
         if self.tags.all().count() > 0:
