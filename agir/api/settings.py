@@ -654,6 +654,7 @@ PAYMENT_MODES = [
     "agir.system_pay.SystemPayPaymentMode",
     "agir.checks.CheckPaymentMode",
     "agir.money.MoneyPaymentMode",
+    "agir.payments.imported.ImportedPaymentMode",
 ]
 
 # OVH Settings
