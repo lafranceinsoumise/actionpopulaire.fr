@@ -1,13 +1,24 @@
 from django.contrib.gis.db.models import MultiPolygonField
+from django.contrib.postgres.fields import DateRangeField
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django_countries.fields import CountryField
 from nuntius.models import BaseSegment, CampaignSentStatusType
 
 from agir.lib import data
 from agir.lib.model_fields import ChoiceArrayField
+from agir.payments.model_fields import AmountField
 from agir.payments.models import Subscription, Payment
 from agir.people.models import Person
+
+DATE_HELP_TEXT = (
+    "Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite."
+)
+
+DONATION_FILTER = {
+    "payments__type__startswith": "don",
+    "payments__status": Payment.STATUS_COMPLETED,
+}
 
 
 class Segment(BaseSegment, models.Model):
@@ -94,23 +105,35 @@ class Segment(BaseSegment, models.Model):
     )
 
     born_after = models.DateField(
-        "Personnes nées après le",
-        blank=True,
-        null=True,
-        help_text="Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite.",
+        "Personnes nées après le", blank=True, null=True, help_text=DATE_HELP_TEXT
     )
     born_before = models.DateField(
-        "Personnes nées avant le",
-        blank=True,
-        null=True,
-        help_text="Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite.",
+        "Personnes nées avant le", blank=True, null=True, help_text=DATE_HELP_TEXT
     )
 
     donation_after = models.DateField(
-        "A fait au moins un don (hors don mensuel) depuis le",
+        "A fait au moins un don (don mensuel inclus) après le",
         blank=True,
         null=True,
-        help_text="Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite.",
+        help_text=DATE_HELP_TEXT,
+    )
+    donation_not_after = models.DateField(
+        "N'a pas fait de don (don mensuel inclus) depuis le",
+        blank=True,
+        null=True,
+        help_text=DATE_HELP_TEXT,
+    )
+    donation_total_min = AmountField(
+        "Montant total des dons supérieur ou égal à", blank=True, null=True
+    )
+    donation_total_max = AmountField(
+        "Montant total des dons inférieur ou égal à", blank=True, null=True
+    )
+    donation_total_range = DateRangeField(
+        "Pour le filtre de montant total, prendre uniquement en compte les dons entre ces deux dates",
+        blank=True,
+        null=True,
+        help_text="Écrire sous la forme JJ/MM/AAAA. La date de début est incluse, pas la date de fin.",
     )
 
     subscription = models.BooleanField(
@@ -211,11 +234,39 @@ class Segment(BaseSegment, models.Model):
             qs = qs.filter(date_of_birth__lt=self.born_before)
 
         if self.donation_after is not None:
-            qs = qs.filter(
-                payments__type__in=["don", "don_europeennes"],
-                payments__status=Payment.STATUS_COMPLETED,
-                payments__created__gt=self.donation_after,
+            qs = qs.filter(payments__created__gt=self.donation_after, **DONATION_FILTER)
+
+        if self.donation_not_after is not None:
+            qs = qs.exclude(
+                payments__created__gt=self.donation_not_after, **DONATION_FILTER
             )
+
+        if self.donation_total_min or self.donation_total_max:
+            donation_range = (
+                {
+                    "payments__created__gt": self.donation_total_range.lower,
+                    "payments__created__lt": self.donation_total_range.upper,
+                }
+                if self.donation_total_range
+                else {}
+            )
+            annotated_qs = Person.objects.annotate(
+                donation_total=Sum(
+                    "payments__price", filter=Q(**DONATION_FILTER, **donation_range)
+                )
+            )
+
+            if self.donation_total_min:
+                annotated_qs = annotated_qs.filter(
+                    donation_total__gte=self.donation_total_min
+                )
+
+            if self.donation_total_max:
+                annotated_qs = annotated_qs.filter(
+                    donation_total__lte=self.donation_total_max
+                )
+
+            qs = qs.filter(id__in=annotated_qs.values_list("id"))
 
         if self.subscription is not None:
             qs = getattr(qs, "filter" if self.subscription else "exclude")(

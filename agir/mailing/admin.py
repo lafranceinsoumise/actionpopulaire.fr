@@ -46,7 +46,19 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             "Informations personelles",
             {"fields": ("gender", "born_after", "born_before")},
         ),
-        ("Historique des dons", {"fields": ("donation_after", "subscription")}),
+        (
+            "Historique des dons",
+            {
+                "fields": (
+                    "donation_after",
+                    "donation_not_after",
+                    "donation_total_min",
+                    "donation_total_max",
+                    "donation_total_range",
+                    "subscription",
+                )
+            },
+        ),
         ("Abonnés", {"fields": ("get_subscribers_count",)}),
     )
     map_template = "custom_fields/french_area_widget.html"
