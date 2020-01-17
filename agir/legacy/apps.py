@@ -6,3 +6,4 @@ class LegacyConfig(AppConfig):
 
     def ready(self):
         from . import europeennes
+        from . import presidentielle2017
