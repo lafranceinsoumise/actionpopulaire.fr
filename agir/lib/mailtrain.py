@@ -177,7 +177,7 @@ def update_person(person, tmp_tags=None):
         other_emails = emails
 
     if primary_email is not None:
-        if person.subscribed:
+        if person.subscribed and person.is_insoumise:
             subscribe_email(primary_email.address, data)
         else:
             unsubscribe_email(primary_email.address)
