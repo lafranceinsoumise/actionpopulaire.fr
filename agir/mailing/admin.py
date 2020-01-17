@@ -22,6 +22,7 @@ class SegmentAdminForm(ModelForm):
 @admin.register(Segment, site=admin_site)
 class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     form = SegmentAdminForm
+    save_as = True
     fieldsets = (
         (None, {"fields": ("name", "tags", "exclude_segments")}),
         (
