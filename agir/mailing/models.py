@@ -36,6 +36,11 @@ class Segment(BaseSegment, models.Model):
     name = models.CharField("Nom", max_length=255)
 
     tags = models.ManyToManyField("people.PersonTag", blank=True)
+    force_non_insoumis = models.BooleanField(
+        "Envoyer y compris aux non insoumis",
+        default=False,
+        help_text="Inclut par exemple les ancien⋅es donateurices non inscrits sur la plateforme",
+    )
     supportgroup_status = models.CharField(
         "Limiter aux membres de groupes ayant ce statut",
         max_length=1,
@@ -152,6 +157,9 @@ class Segment(BaseSegment, models.Model):
         qs = Person.objects.filter(
             subscribed=True, emails___bounced=False, emails___order=0
         )
+
+        if not self.force_non_insoumise:
+            qs = qs.filter(is_insoumise=True)
 
         if self.tags.all().count() > 0:
             qs = qs.filter(tags__in=self.tags.all())
