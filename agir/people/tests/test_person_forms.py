@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from agir.api.redis import using_redislite
+from agir.api.redis import using_separate_redis_server
 from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
@@ -479,7 +479,8 @@ class FieldsTestCase(TestCase):
         self.person = Person.objects.create_person("test@example.com")
         self.other_person = Person.objects.create_person("test2@example.com")
 
-    @using_redislite
+    # utilise un token bucket
+    @using_separate_redis_server
     def test_person_choice_field_allow_self(self):
         person_form = PersonForm.objects.create(
             title="Formulaire",
@@ -513,7 +514,8 @@ class FieldsTestCase(TestCase):
         form = form_class(data={"person": "test@example.com"}, instance=self.person)
         self.assertTrue(form.is_valid())
 
-    @using_redislite
+    # utilise un token bucket
+    @using_separate_redis_server
     def test_person_choice_field(self):
         self.client.force_login(self.person.role)
 

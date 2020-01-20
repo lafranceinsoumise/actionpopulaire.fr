@@ -5,20 +5,16 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.reverse import reverse
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 
-from agir.api.redis import using_redislite
+from agir.api.redis import using_separate_redis_server
 from agir.events.models import Event, RSVP
 from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person, PersonTag
+from agir.people.tasks import update_person_mailtrain
 from agir.people.viewsets import LegacyPersonViewSet
 
 
-from agir.people.tasks import update_person_mailtrain
-
-
-@using_redislite
 class LegacyPersonEndpointTestCase(APITestCase):
     def as_viewer(self, request):
         force_authenticate(request, self.viewer_person.role)

@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.test import TransactionTestCase, RequestFactory
 from django.urls import reverse
 
-from agir.api.redis import using_redislite
+from agir.api.redis import using_separate_redis_server
 from agir.lib.utils import front_url
 from agir.loans import views
 from agir.loans.loan_config import LoanConfiguration
@@ -90,7 +90,7 @@ class LoansTestCase(TransactionTestCase):
         req.session = self.factory.session
         return req
 
-    @using_redislite
+    @using_separate_redis_server
     @patch("django.db.transaction.on_commit")
     def test_can_make_a_loan_when_logged_in(self, on_commit):
         self.factory.user = self.p1.role

@@ -10,7 +10,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from agir.api.redis import using_redislite
+from agir.api.redis import using_separate_redis_server
 from agir.donations.apps import DonsConfig
 from agir.donations.forms import AllocationDonationForm
 from agir.donations.models import Operation, MonthlyAllocation
@@ -178,7 +178,6 @@ class DonationTestCase(DonationTestMixin, TestCase):
         payment = Payment.objects.get()
         self.assertRedirects(res, front_url("payment_page", args=[payment.pk]))
 
-    @using_redislite
     def test_create_person_when_using_new_address(self):
         information_url = reverse("donation_information")
 
@@ -232,7 +231,7 @@ class DonationTestCase(DonationTestMixin, TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertNotIn("_donation_", session)
 
-    @using_redislite
+    @using_separate_redis_server
     def test_can_donate_with_allocation(self):
         self.client.force_login(self.p1.role)
         session = self.client.session
@@ -306,7 +305,6 @@ class DonationTestCase(DonationTestMixin, TestCase):
             )
         )
 
-    @using_redislite
     def test_allocation_createdmeta_on_payment(self):
         payment = create_payment(
             person=self.p1,

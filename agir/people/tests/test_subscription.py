@@ -8,7 +8,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
 
-from agir.api.redis import using_redislite
+from agir.api.redis import using_separate_redis_server
 from agir.clients.models import Client
 from agir.people.models import Person
 from agir.people.tasks import send_confirmation_email
@@ -24,7 +24,6 @@ class APISubscriptionTestCase(TestCase):
         )
         self.wordpress_client.role.user_permissions.add(add_permission)
 
-    @using_redislite
     @mock.patch("agir.people.serializers.send_confirmation_email")
     def test_can_subscribe_with_api(self, patched_send_confirmation_mail):
         self.client.force_login(self.wordpress_client.role)
@@ -54,7 +53,6 @@ class APISubscriptionTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
 
-@using_redislite
 class SimpleSubscriptionFormTestCase(TestCase):
     @mock.patch("agir.people.forms.subscription.send_confirmation_email")
     def test_can_subscribe(self, patched_send_confirmation_email):
@@ -101,7 +99,6 @@ class SimpleSubscriptionFormTestCase(TestCase):
         self.assertEqual("France", person.location_country.name)
 
 
-@using_redislite
 class OverseasSubscriptionTestCase(TestCase):
     @mock.patch("agir.people.forms.subscription.send_confirmation_email")
     def test_can_subscribe(self, patched_send_confirmation_email):

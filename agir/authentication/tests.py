@@ -10,14 +10,14 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 
-from agir.api.redis import using_redislite
+from agir.api.redis import using_separate_redis_server
 from agir.authentication.tokens import connection_token_generator, short_code_generator
 from agir.events.models import Event
 from agir.groups.models import SupportGroup
 from agir.people.models import Person
 
 
-@using_redislite
+@using_separate_redis_server
 class MailLinkTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person("test@test.com")
@@ -98,7 +98,7 @@ class MailLinkTestCase(TestCase):
         self.assertContains(response, 'action="{}"'.format(message_preferences_path))
 
 
-@using_redislite
+@using_separate_redis_server
 class ShortCodeTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person("test@test.com")

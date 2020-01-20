@@ -4,14 +4,22 @@ from django.test import override_settings
 from django.test.runner import DiscoverRunner
 
 from .celery import app
+from .redis import using_separate_redis_server
 
 
-class TempMediaMixin(object):
+class TestRunner(DiscoverRunner):
     "Mixin to create MEDIA_ROOT in temp and tear down when complete."
 
     def setup_test_environment(self):
-        "Create temp directory and update MEDIA_ROOT and default storage."
-        super(TempMediaMixin, self).setup_test_environment()
+        """Met en place un environnement de test adapté.
+
+        Réalise les actions suivantes :
+        - Crée un dossier temporaire pour les fichiers média et modifie le paramètre MEDIA_ROOT
+        - Met en place un serveur Redis standalone pour les tests
+        - Essaye de mettre
+        :return:
+        """
+        super(TestRunner, self).setup_test_environment()
 
         self._temp_media = tempfile.mkdtemp()
         self.media_settings_overrider = override_settings(
@@ -20,14 +28,14 @@ class TempMediaMixin(object):
         )
         self.media_settings_overrider.enable()
 
+        self._redislite = using_separate_redis_server()
+        self._redislite.__enter__()
+
+        app.conf.task_always_eager = True
+
     def teardown_test_environment(self):
         "Delete temp storage."
-        super(TempMediaMixin, self).teardown_test_environment()
-        shutil.rmtree(self._temp_media, ignore_errors=True)
+        self._redislite.__exit__(None, None, None)
         self.media_settings_overrider.disable()
-
-
-class TestRunner(TempMediaMixin, DiscoverRunner):
-    def setup_test_environment(self, **kwargs):
-        super().setup_test_environment(**kwargs)
-        app.conf.task_always_eager = True
+        shutil.rmtree(self._temp_media, ignore_errors=True)
+        super(TestRunner, self).teardown_test_environment()

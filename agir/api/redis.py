@@ -1,8 +1,9 @@
-from functools import wraps
+from contextlib import ContextDecorator, contextmanager
+from unittest.mock import patch
 
 import redis
 from django.conf import settings
-from unittest.mock import patch
+from functools import wraps
 
 
 class RedisPool:
@@ -24,47 +25,48 @@ class RedisPool:
 auth_pool = RedisPool(settings.AUTH_REDIS_URL, settings.AUTH_REDIS_MAX_CONNECTIONS)
 
 
-def _get_auth_redis_client():
-    return redis.StrictRedis(connection_pool=auth_pool.pool)
+# utilisé pour patcher facilement Redis en mode test
+_test_redis_client = None
 
 
 def get_auth_redis_client():
-    return _get_auth_redis_client()
+    if _test_redis_client is not None:
+        return _test_redis_client
+    return redis.StrictRedis(connection_pool=auth_pool.pool)
 
 
-class _UsingRedisLite:
-    def __call__(self, decorated=None):
-        if decorated is None:
-            return self.get_patcher()
-        if isinstance(decorated, type):
-            return self.decorate_class(decorated)
-        return self.decorate_callable(decorated)
+@contextmanager
+def _patch_up_redislite():
+    import redislite
 
-    def decorate_class(self, klass):
-        for attr in dir(klass):
+    global _test_redis_client
+    previous_redis_instance = _test_redis_client
+    _test_redis_client = redislite.StrictRedis()
+
+    try:
+        yield _test_redis_client
+    finally:
+        _test_redis_client = previous_redis_instance
+
+
+def using_separate_redis_server(decorated=None):
+    if decorated is None:
+        return _patch_up_redislite()
+    if isinstance(decorated, type):
+        for attr in dir(decorated):
             if not attr.startswith(patch.TEST_PREFIX):
                 continue
 
-            attr_value = getattr(klass, attr)
+            attr_value = getattr(decorated, attr)
             if not hasattr(attr_value, "__call__"):
                 continue
 
-            setattr(klass, attr, self(attr_value))
-        return klass
+            setattr(decorated, attr, using_separate_redis_server(attr_value))
+            return decorated
 
-    def decorate_callable(self, func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            with self.get_patcher():
-                func(*args, **kwargs)
+    @wraps(decorated)
+    def inner(*args, **kwargs):
+        with _patch_up_redislite():
+            return decorated(*args, **kwargs)
 
-        return wrapper
-
-    def get_patcher(self):
-        import redislite
-
-        connection = redislite.StrictRedis()
-        return patch("agir.api.redis._get_auth_redis_client", lambda: connection)
-
-
-using_redislite = _UsingRedisLite()
+    return inner

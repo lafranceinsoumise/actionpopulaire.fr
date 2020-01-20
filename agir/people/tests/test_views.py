@@ -11,7 +11,7 @@ from phonenumber_field.phonenumber import to_python as to_phone_number
 from rest_framework import status
 from rest_framework.reverse import reverse
 
-from agir.api.redis import using_redislite
+from agir.api.redis import using_separate_redis_server
 from agir.events.models import Event, OrganizerConfig
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.mixins import FakeDataMixin
@@ -127,7 +127,6 @@ class ProfileTestCase(TestCase):
         self.assertRedirects(res, reverse("contact"))
         self.assertEqual(len(self.person.emails.all()), 1)
 
-    @using_redislite
     @mock.patch("agir.people.forms.profile.send_confirmation_change_email")
     def test_can_add_address(self, patched_send_confirmation_change_email):
         old_mails = [e.address for e in self.person.emails.all()]
@@ -159,7 +158,6 @@ class ProfileTestCase(TestCase):
             [e.address for e in self.person.emails.all()], old_mails + new_mails
         )
 
-    @using_redislite
     @mock.patch("agir.people.forms.profile.send_confirmation_merge_account")
     def test_merge_account_send_mail(self, patched_send_confirmation_merge_account):
         """On test que l'envoie de mail fonction lors d'une demande de fusion de compte
@@ -554,7 +552,6 @@ class InformationContactFormTestCases(TestCase):
         self.assertEqual(person.contact_phone, "0658985632")
 
 
-@using_redislite
 class SMSValidationTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person(
@@ -726,7 +723,7 @@ class SMSValidationTestCase(TestCase):
         self.assertRedirects(res, reverse("dashboard"))
 
 
-@using_redislite
+@using_separate_redis_server
 class SMSRateLimitingTestCase(TestCase):
     def setUp(self):
         self.phone = "+33612345678"
