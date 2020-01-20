@@ -19,6 +19,16 @@ urlpatterns = [
         "groupes/liste/", views.SupportGroupListView.as_view(), name="list_all_groups"
     ),
     path(
+        "api/groupes/chercher/",
+        views.GroupSearchAPIView.as_view(),
+        name="api_group_search",
+    ),
+    path(
+        "api/groupes/sous-types/",
+        views.GroupSubtypesView.as_view(),
+        name="api_group_subtypes",
+    ),
+    path(
         "groupes/<uuid:pk>/", views.SupportGroupDetailView.as_view(), name="view_group"
     ),
     path(
