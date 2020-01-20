@@ -16,58 +16,6 @@ import LocationStep from "./steps/LocationStep";
 import "./style.css";
 import PropTypes from "prop-types";
 
-// defined by webpack
-const apiEndpoint = API_ENDPOINT; // eslint-disable-line no-undef
-
-const groupTypes = [
-  {
-    code: "L",
-    label: "Un groupe d'action local",
-    description: (
-      <p>
-        Les groupes d’action géographiques sont constitués sur la base d’un
-        territoire réduit (quartier, villages ou petites villes, cantons) et non
-        à l’échelle d’une région, d’un département, d’une circonscription
-        électorale ou d’une grande ville. Chaque insoumis⋅e ne peut assurer
-        l’animation que d’un seul groupe d’action géographique.
-      </p>
-    )
-  },
-  {
-    code: "P",
-    label: "Un groupe d'action professionnel",
-    description: (
-      <p>
-        Les groupes d’action professionnels rassemblent des insoumis⋅es qui
-        souhaitent agir au sein de leur entreprise ou de leur lieu d’étude.
-      </p>
-    )
-  },
-  {
-    code: "F",
-    label: "Un groupe d'action fonctionnel",
-    description: (
-      <p>
-        Les groupes d’action fonctionnels sont des groupes d’action transversaux
-        autour de fonctions précises (mise en place de formation, organisation
-        des apparitions publiques, rédaction de tracts, chorale insoumise,
-        journaux locaux, auto-organisation, etc…).
-      </p>
-    )
-  },
-  {
-    code: "B",
-    label: "Un groupe d'action thématique",
-    description: (
-      <p>
-        Les groupes d’action thématiques réunissent des insoumis⋅es qui
-        souhaitent agir de concert sur un thème donné en lien avec les livrets
-        thématiques correspondant.
-      </p>
-    )
-  }
-];
-
 class CreateGroupForm extends React.Component {
   constructor(props) {
     super(props);
@@ -75,20 +23,11 @@ class CreateGroupForm extends React.Component {
     this.setFields = this.setFields.bind(this);
   }
 
-  async componentDidMount() {
-    let subtypes = (await axios.get(apiEndpoint + "/groups_subtypes/")).data;
-    this.setState({ subtypes });
-  }
-
   setFields(fields) {
     this.setState({ fields: Object.assign({}, this.state.fields, fields) });
   }
 
   render() {
-    if (!this.state.subtypes) {
-      return null;
-    }
-
     let steps = [
       {
         name: "Un groupe pour quoi ?",
@@ -96,7 +35,8 @@ class CreateGroupForm extends React.Component {
           <GroupTypeStep
             setFields={this.setFields}
             fields={this.state.fields}
-            subtypes={this.state.subtypes}
+            subtypes={this.props.subtypes}
+            types={this.props.types}
           />
         )
       },
@@ -114,7 +54,9 @@ class CreateGroupForm extends React.Component {
       },
       {
         name: "Validation et nom",
-        component: <ValidateStep fields={this.state.fields} />
+        component: (
+          <ValidateStep fields={this.state.fields} types={this.props.types} />
+        )
       }
     ];
 
@@ -122,13 +64,15 @@ class CreateGroupForm extends React.Component {
   }
 }
 CreateGroupForm.propTypes = {
-  initial: PropTypes.object
+  initial: PropTypes.object,
+  subtypes: PropTypes.array,
+  types: PropTypes.array
 };
 
 class GroupTypeStep extends FormStep {
   constructor(props) {
     super(props);
-    this.groupRefs = groupTypes.map(() => React.createRef());
+    this.groupRefs = props.types.map(() => React.createRef());
   }
 
   isValidated() {
@@ -188,20 +132,20 @@ class GroupTypeStep extends FormStep {
           </p>
         </div>
         <div className="col-sm-6 padbottom">
-          {groupTypes.map((type, i) => (
-            <div key={type.code} className="type-selector">
+          {this.props.types.map((type, i) => (
+            <div key={type.id} className="type-selector">
               <button
-                className={fields.type === type.code ? "active" : ""}
+                className={fields.type === type.id ? "active" : ""}
                 style={{ whiteSpace: "normal" }}
-                onClick={this.setType(type.code)}
+                onClick={this.setType(type.id)}
               >
                 <h5>{type.label}</h5>
                 {type.description}
               </button>
               <Transition
                 in={
-                  fields.type === type.code &&
-                  this.subtypesFor(type.code).length > 1
+                  fields.type === type.id &&
+                  this.subtypesFor(type.id).length > 1
                 }
                 timeout={1000}
                 mountOnEnter
@@ -226,7 +170,7 @@ class GroupTypeStep extends FormStep {
                           Choisissez maintenant les thèmes qui vous intéressent.
                         </em>
                         <NavSelect
-                          choices={this.subtypesFor(type.code).map(s => ({
+                          choices={this.subtypesFor(type.id).map(s => ({
                             value: s.label,
                             label: s.description
                           }))}
@@ -294,7 +238,7 @@ class ValidateStep extends FormStep {
           <ul>
             <li>
               <strong>Type de groupe&nbsp;:</strong>{" "}
-              {groupTypes.find(t => t.code === fields.type).label}
+              {this.props.types.find(t => t.code === fields.type).label}
             </li>
             <li>
               <strong>Numéro de téléphone&nbsp;:</strong> {fields.phone} (

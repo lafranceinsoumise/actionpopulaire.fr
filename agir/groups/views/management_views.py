@@ -39,8 +39,9 @@ from agir.groups.forms import (
     GroupGeocodingForm,
     InvitationWithSubscriptionConfirmationForm,
 )
-from agir.groups.models import SupportGroup, Membership
+from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.groups.tasks import send_abuse_report_message
+from agir.lib.export import dict_to_camelcase
 from agir.lib.http import add_query_params_to_url
 from agir.people.models import Person
 
@@ -225,7 +226,24 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
         if person.first_name and person.last_name:
             initial["name"] = "{} {}".format(person.first_name, person.last_name)
 
-        return super().get_context_data(props={"initial": initial}, **kwargs)
+        subtypes_qs = SupportGroupSubtype.objects.filter(
+            visibility=SupportGroupSubtype.VISIBILITY_ALL
+        )
+
+        types = [
+            {
+                "id": elem["type"],
+                "label": dict(SupportGroup.TYPE_CHOICES)[elem["type"]],
+                "description": str(SupportGroup.TYPE_DESCRIPTION[elem["type"]]),
+            }
+            for elem in subtypes_qs.values("type").distinct()
+        ]
+
+        subtypes = [dict_to_camelcase(s.get_subtype_information()) for s in subtypes_qs]
+
+        return super().get_context_data(
+            props={"initial": initial, "subtypes": subtypes, "types": types}, **kwargs
+        )
 
 
 class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFormView):

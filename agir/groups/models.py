@@ -78,11 +78,28 @@ class SupportGroup(
         (TYPE_PROFESSIONAL, _("Groupe professionel")),
     )
 
-    TYPES_PARAMETERS = {
+    TYPE_PARAMETERS = {
         TYPE_LOCAL_GROUP: {"color": "#4a64ac", "icon_name": "users"},
         TYPE_THEMATIC: {"color": "#49b37d", "icon_name": "book"},
         TYPE_FUNCTIONAL: {"color": "#e14b35", "icon_name": "cog"},
         TYPE_PROFESSIONAL: {"color": "#f4981e", "icon_name": "industry"},
+    }
+
+    TYPE_DESCRIPTION = {
+        TYPE_LOCAL_GROUP: "Les groupes d’action géographiques sont constitués sur la base d’un"
+        " territoire réduit (quartier, villages ou petites villes, cantons) et non"
+        " à l’échelle d’une région, d’un département, d’une circonscription"
+        " électorale ou d’une grande ville. Chaque insoumis⋅e ne peut assurer"
+        " l’animation que d’un seul groupe d’action géographique.",
+        TYPE_PROFESSIONAL: "Les groupes d’action professionnels rassemblent des insoumis⋅es qui"
+        " souhaitent agir au sein de leur entreprise ou de leur lieu d’étude.",
+        TYPE_FUNCTIONAL: "Les groupes d’action fonctionnels sont des groupes d’action transversaux"
+        " autour de fonctions précises (mise en place de formation, organisation"
+        " des apparitions publiques, rédaction de tracts, chorale insoumise,"
+        " journaux locaux, auto-organisation, etc…).",
+        TYPE_THEMATIC: "Les groupes d’action thématiques réunissent des insoumis⋅es qui"
+        " souhaitent agir de concert sur un thème donné en lien avec les livrets"
+        " thématiques correspondant.",
     }
 
     objects = SupportGroupQuerySet.as_manager()
@@ -155,7 +172,7 @@ class SupportGroupTag(AbstractLabel):
 
 
 class SupportGroupSubtype(BaseSubtype):
-    TYPES_PARAMETERS = SupportGroup.TYPES_PARAMETERS
+    TYPES_PARAMETERS = SupportGroup.TYPE_PARAMETERS
     type = models.CharField(
         _("type de groupe"),
         max_length=1,
