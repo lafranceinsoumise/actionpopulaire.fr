@@ -9,16 +9,17 @@ from django.template.loader import render_to_string
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
-from agir.authentication.tokens import (
-    subscription_confirmation_token_generator,
-    invitation_confirmation_token_generator,
-    abusive_invitation_report_token_generator,
-)
+from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.events.models import Event, OrganizerConfig
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from agir.notifications.actions import add_notification
+from agir.people.actions.subscription import make_subscription_token
 from agir.people.models import Person
+from .actions.invitation import (
+    make_abusive_invitation_report_link,
+    make_invitation_link,
+)
 from .models import SupportGroup, Membership
 
 # encodes the preferred order when showing the messages
@@ -207,25 +208,10 @@ def invite_to_group(self, group_id, invited_email, inviter_id):
 
     group_name = group.name
 
-    report_params = {"group_id": group_id, "inviter_id": inviter_id}
-    report_params["token"] = abusive_invitation_report_token_generator.make_token(
-        **report_params
-    )
-    report_url = front_url("report_invitation_abuse", query=report_params)
+    report_url = make_abusive_invitation_report_link(group_id, inviter_id)
 
     if person:
-        invitation_token = invitation_confirmation_token_generator.make_token(
-            person_id=person.pk, group_id=group_id
-        )
-
-        join_url = front_url(
-            "invitation_confirmation",
-            query={
-                "person_id": person.id,
-                "group_id": group_id,
-                "token": invitation_token,
-            },
-        )
+        join_url = make_invitation_link(person.id, group_id)
 
         try:
             send_mosaico_email(
@@ -243,7 +229,7 @@ def invite_to_group(self, group_id, invited_email, inviter_id):
             self.retry(countdown=60, exc=exc)
 
     else:
-        invitation_token = subscription_confirmation_token_generator.make_token(
+        invitation_token = make_subscription_token(
             email=invited_email, group_id=group_id
         )
         join_url = front_url(

@@ -12,7 +12,7 @@ from agir.authentication.crypto import ConnectionSignatureGenerator
 from .crypto import SignatureGenerator
 
 subscription_confirmation_token_generator = SignatureGenerator(
-    2,
+    7,
     key_salt="agir.people.crypto.SubscriptionConfirmationTokenGenerator",
     token_params=["email"],
     params_separator="|",
