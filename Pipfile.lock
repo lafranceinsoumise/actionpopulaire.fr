@@ -75,18 +75,18 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:589675488d3d42783098321619ddf7a8ec06dd11e9b73db19deb063cfb05eec6",
-                "sha256:c8cc6d8d5474e46f0826ba1156356c583961c2df8c4324f4373df7a83bbce627"
+                "sha256:7aaccacc199cd633b5ac14f0d544c9d592c53275a79cf4d230a9f66215331665",
+                "sha256:ca36aabfa5e7fa9ee8f84f82c3faffb4ffe078923f935f572f70dc49154ef6a0"
             ],
             "index": "pypi",
-            "version": "==1.11.4"
+            "version": "==1.11.5"
         },
         "botocore": {
             "hashes": [
-                "sha256:91a39d0ede1676c22cf6158bbbc4f85cc3385ab9201b5190c25e3770967f94c0",
-                "sha256:cf29118fb62513712888f2f3dd337c0933a3e253b952f0bbe6d8d4c4fd4be5be"
+                "sha256:96a16e64c96d34fa2e535c1d5a0024bf55eee853b939be0331318cd060b3d395",
+                "sha256:f0feffde6e1312c6361a96e24385a58889683a3d6a007be4d4804bc209384b3f"
             ],
-            "version": "==1.14.4"
+            "version": "==1.14.5"
         },
         "cached-property": {
             "hashes": [
@@ -481,11 +481,11 @@
         },
         "nuntius": {
             "hashes": [
-                "sha256:0d9dcd10c01a7da817f7004594ea899c70ca737bd2f14415eaa7c79735251be4",
-                "sha256:9ad308e321de435c6ed6e53cd608c136b49ed525e5f75417354f4b14ffb7dfb8"
+                "sha256:14d0c5b35e5bffd55d2de84f6333ed69c943910311424fdba71b2880e957fe34",
+                "sha256:45ca752190ace1b87783e9ca1d52caeab63009d5c1d460c2baff3f29faf2358c"
             ],
             "index": "pypi",
-            "version": "==1.3.2"
+            "version": "==1.3.3"
         },
         "oauthlib": {
             "hashes": [
@@ -843,10 +843,10 @@
         },
         "zipp": {
             "hashes": [
-                "sha256:8dda78f06bd1674bd8720df8a50bb47b6e1233c503a4eed8e7810686bde37656",
-                "sha256:d38fbe01bbf7a3593a32bc35a9c4453c32bc42b98c377f9bff7e9f8da157786c"
+                "sha256:57147f6b0403b59f33fd357f169f860e031303415aeb7d04ede4839d23905ab8",
+                "sha256:7ae5ccaca427bafa9760ac3cd8f8c244bfc259794b5b6bb9db4dda2241575d09"
             ],
-            "version": "==1.0.0"
+            "version": "==2.0.0"
         }
     },
     "develop": {
