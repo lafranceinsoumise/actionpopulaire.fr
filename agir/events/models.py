@@ -808,18 +808,20 @@ class EventImage(ExportModelOperationsMixin("event_image"), TimeStampedModel):
     legend = models.CharField(_("légende"), max_length=280)
 
 
+def jitsi_default_domain():
+    return random.choice(settings.JITSI_SERVERS)
+
+
+def jitsi_default_room_name():
+    return token_urlsafe(12).lower()
+
+
 class JitsiMeeting(models.Model):
-    def choose_domain():
-        return random.choice(settings.JITSI_SERVERS)
-
-    def generate_room_name():
-        return token_urlsafe(12).lower()
-
-    domain = models.CharField(max_length=255, default=choose_domain)
+    domain = models.CharField(max_length=255, default=jitsi_default_domain)
     room_name = models.CharField(
         max_length=255,
         unique=True,
-        default=generate_room_name,
+        default=jitsi_default_room_name,
         validators=[
             RegexValidator(
                 re.compile(r"^[a-z0-9-_]+$"),

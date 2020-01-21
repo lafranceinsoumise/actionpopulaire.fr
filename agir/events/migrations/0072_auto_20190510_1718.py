@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
             model_name="jitsimeeting",
             name="domain",
             field=models.CharField(
-                default=agir.events.models.JitsiMeeting.choose_domain, max_length=255
+                default=agir.events.models.jitsi_default_domain, max_length=255
             ),
         ),
         migrations.AlterField(
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
             model_name="jitsimeeting",
             name="room_name",
             field=models.CharField(
-                default=agir.events.models.JitsiMeeting.generate_room_name,
+                default=agir.events.models.jitsi_default_room_name,
                 max_length=255,
                 unique=True,
                 validators=[
