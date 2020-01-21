@@ -28,7 +28,7 @@ class CommuneView(IframableMixin, DetailView):
     def get_context_data(self, **kwargs):
         events = (
             Event.objects.upcoming()
-            .filter(coordinates__coveredby=self.object.coordinates)
+            .filter(coordinates__intersects=self.object.coordinates)
             .order_by("start_time")
         )
         paginator = Paginator(events, 5)
