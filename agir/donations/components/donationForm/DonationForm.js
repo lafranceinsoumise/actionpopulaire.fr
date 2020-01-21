@@ -1,6 +1,7 @@
 import { hot } from "react-hot-loader/root"; // doit être importé avant React
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import styled from "styled-components";
 
 import Button from "@agir/lib/bootstrap/Button";
 
@@ -8,6 +9,14 @@ import { changeTotalAmount } from "./allocationsReducer";
 import AllocationWidget from "./AllocationsWidget";
 import AmountWidget from "./AmountWidget";
 import TypeWidget from "./TypeWidget";
+
+const Title = styled.h4`
+  counter-increment: sectionformulaire;
+
+  :before {
+    content: counter(sectionformulaire) ".\\0000a0\\0000a0";
+  }
+`;
 
 const DonationForm = ({
   initial,
@@ -50,15 +59,7 @@ const DonationForm = ({
         name="allocations"
         value={JSON.stringify(allocations.filter(a => a.amount !== 0))}
       />
-      {typeChoices && (
-        <TypeWidget
-          type={type}
-          typeChoices={typeChoices}
-          onTypeChange={type => {
-            setType(type);
-          }}
-        />
-      )}
+      <Title>Je choisis le montant de mon don</Title>
       <AmountWidget
         amount={amount}
         amountChoices={amountChoices}
@@ -70,13 +71,28 @@ const DonationForm = ({
           setAllocations(changeTotalAmount(allocations, amount, newAmount));
         }}
       />
+      {typeChoices && (
+        <>
+          <Title>Je choisis de donner une fois ou chaque mois</Title>
+          <TypeWidget
+            type={type}
+            typeChoices={typeChoices}
+            onTypeChange={type => {
+              setType(type);
+            }}
+          />
+        </>
+      )}
       {groupChoices && groupChoices.length > 0 && (
-        <AllocationWidget
-          groupChoices={groupChoices}
-          value={allocations}
-          onChange={setAllocations}
-          maxAmount={amount}
-        />
+        <>
+          <Title>Je choisis à qui je donne</Title>
+          <AllocationWidget
+            groupChoices={groupChoices}
+            value={allocations}
+            onChange={setAllocations}
+            maxAmount={amount}
+          />
+        </>
       )}
       <div className="form-group">
         <div>

@@ -4,42 +4,70 @@ import styled from "styled-components";
 
 import { FlexContainer } from "./elements";
 
-const TypeButton = styled.button`
-  display: block;
+const TypeButtonContainer = styled.label`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  opacity: 1;
   margin: 10px;
   font-weight: bold;
   min-width: 200px;
   padding: 1em;
-  border-radius: 10px;
+  border: 1px solid;
+  padding: 1em;
 
-  &:disabled,
-  &:disabled:focus {
-    color: white;
-    background-color: #01b1d4;
-    opacity: 1;
-    cursor: pointer;
+  cursor: pointer;
+
+  color: ${({ checked }) => (checked ? "#fff" : "#333")};
+  background-color: ${({ checked }) => (checked ? "#c9462c" : "#fff")};
+  border-color: ${({ checked }) => (checked ? "#b43f27" : "#adadad")};
+
+  :hover {
+    background-color: ${({ checked }) => (checked ? "#9f3723" : "#e6e6e6")};
+    border-color: ${({ checked }) => (checked ? "#822d1c" : "#adadad")};
   }
-  &:disabled:hover {
-    background-color: #0098b6;
-    color: white;
+
+  & > * {
+    text-align: center;
+    padding: 0 20px;
+  }
+
+  & > div + div {
+    border-left: 1px solid #aaa;
   }
 `;
+
+const TypeButton = ({ label, onChange, icon, checked }) => (
+  <TypeButtonContainer checked={checked}>
+    <div>
+      <input type="radio" onChange={onChange} checked={checked} />
+    </div>
+    <div>
+      <div>
+        <i className={`fa fa-${icon || "arrow-right"}`} />
+      </div>
+      <div>{label}</div>
+    </div>
+  </TypeButtonContainer>
+);
+TypeButton.propTypes = {
+  label: PropTypes.string,
+  onChange: PropTypes.func,
+  icon: PropTypes.string,
+  checked: PropTypes.bool
+};
 
 const TypeWidget = ({ typeChoices, type, onTypeChange }) => (
   <FlexContainer justifyContent="center">
     {typeChoices.map(({ label, value, icon }) => (
       <TypeButton
         key={value}
-        type="button"
-        onClick={() => onTypeChange(value)}
-        className="btn btn-default"
-        disabled={type === value}
-      >
-        <div>
-          <i className={`fa fa-${icon || "arrow-right"}`} />
-        </div>
-        <div>{label}</div>
-      </TypeButton>
+        onChange={() => onTypeChange(value)}
+        checked={type === value}
+        label={label}
+        icon={icon}
+      />
     ))}
   </FlexContainer>
 );
