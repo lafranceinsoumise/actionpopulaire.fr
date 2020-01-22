@@ -230,7 +230,7 @@ class ValidateStep extends FormStep {
   }
 
   render() {
-    const { fields } = this.props;
+    const { fields, types } = this.props;
     return (
       <div className="row padtopmore">
         <div className="col-md-6">
@@ -238,7 +238,7 @@ class ValidateStep extends FormStep {
           <ul>
             <li>
               <strong>Type de groupe&nbsp;:</strong>{" "}
-              {this.props.types.find(t => t.code === fields.type).label}
+              {types.find(t => t.id === fields.type).label}
             </li>
             <li>
               <strong>Numéro de téléphone&nbsp;:</strong> {fields.phone} (
