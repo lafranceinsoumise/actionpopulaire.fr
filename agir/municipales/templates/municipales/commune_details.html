@@ -24,28 +24,33 @@
   <div class="row masonry">
     <div class="col-md-6 gblock">
       <h3>La campagne à {{ commune.name }}</h3>
-      {% if commune.strategy %}<div><em><strong>{{ commune.strategy }}</strong></div></em>{% endif %}
-      {% if commune.tete_liste %}<div><strong>Tête de liste</strong> : {{ commune.tete_liste }}</div>{% endif %}
-      {% if commune.chiefs %}<div><strong>Chef⋅fe⋅s de file France insoumise</strong> : {{ commune.chiefs }}</div>{% endif %}
-      {% if commune.website %}<div><a href="{{ commune.website }}">Voir le site web de la liste</a></div>{% endif %}
+      {% if commune.strategy %}
+        <div><em><strong>{{ commune.strategy }}</strong></em></div>{% endif %}
+      {% if commune.tete_liste %}
+        <div><strong>Tête de liste</strong> : {{ commune.tete_liste }}</div>{% endif %}
+      {% if commune.chiefs %}
+        <div><strong>Chef⋅fe⋅s de file France insoumise</strong> : {{ commune.chiefs }}</div>{% endif %}
+      {% if commune.website %}
+        <div><a href="{{ commune.website }}">Voir le site web de la liste</a></div>{% endif %}
       {% if commune.contact_email %}
-        <div>Pour écrire à cette liste : <a href="mailto:{{ commune.contact_email }}">{{ commune.contact_email }}</a></div>{% endif %}
+        <div>Pour écrire à cette liste : <a href="mailto:{{ commune.contact_email }}">{{ commune.contact_email }}</a>
+        </div>{% endif %}
+    </div>
 
-      {% if commune.ordre_don and commune.adresse_don %}
+    {% if commune.ordre_don and commune.adresse_don %}
+      <div class="col-md-6 gblock">
+        <h3>Donnez à cette campagne !</h3>
+        <p>Vous pouvez envoyer vos chèques de dons à l'ordre et à l'adresse suivantes.</p>
+        <div>
+          <h5>Ordre du chèque</h5>
+          <div style="border: 1px solid #555; padding: 0.2em 1em; background: #F0F0F0;">{{ commune.ordre_don }}</div>
         </div>
-        <div class="col-md-6 gblock">
-          <h3>Donnez à cette campagne !</h3>
-          <p>Vous pouvez envoyer vos chèques de dons à l'ordre et à l'adresse suivantes.</p>
-          <div>
-            <h5>Ordre du chèque</h5>
-            <div style="border: 1px solid #555; padding: 0.2em 1em; background: #F0F0F0;">{{ commune.ordre_don }}</div>
-          </div>
-          <div>
-            <h5>Adresse d'envoi</h5>
-            <div style="border: 1px solid #555; padding: 0.2em 1em; background: #F0F0F0;">{{ commune.adresse_don|linebreaks }}</div>
-          </div>
+        <div>
+          <h5>Adresse d'envoi</h5>
+          <div style="border: 1px solid #555; padding: 0.2em 1em; background: #F0F0F0;">{{ commune.adresse_don|linebreaks }}</div>
         </div>
-      {% endif %}
+      </div>
+    {% endif %}
 
     <div class="col-md-6 gblock">
       <h3>Agenda</h3>
