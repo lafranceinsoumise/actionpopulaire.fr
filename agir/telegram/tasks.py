@@ -17,13 +17,22 @@ DEFAULT_GROUP_PERMISSIONS = ChatPermissions(
 )
 
 
-def is_telegram_user(client, contact_phone):
+def is_telegram_user(client, person):
     try:
-        client.resolve_peer(contact_phone)
-    except PeerIdInvalid:
-        return False
-    else:
+        client.resolve_peer(person.contact_phone)
+
+        if "no_telegram" in person.meta:
+            person.meta.pop("no_telegram")
+            person.save(update_fields=("meta",))
+
         return True
+
+    except PeerIdInvalid:
+        if "no_telegram" not in person.meta:
+            person.meta["no_telegram"] = True
+            person.save(update_fields=("meta",))
+
+        return False
 
 
 @shared_task(max_retries=2, bind=True)
