@@ -19,7 +19,7 @@ DEFAULT_GROUP_PERMISSIONS = ChatPermissions(
 
 def is_telegram_user(client, person):
     try:
-        client.resolve_peer(person.contact_phone)
+        client.resolve_peer(str(person.contact_phone))
 
         if not person.meta.get("has_telegram", False):
             person.meta["has_telegram"] = True
