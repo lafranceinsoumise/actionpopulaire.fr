@@ -5,12 +5,12 @@
 {% block title %}Mon tableau de bord{% endblock title %}
 
 {% block extra_scripts %}
-  {% render_bundle 'people/dashboard' attrs='defer' %}
+  {% render_bundle 'lib/masonry' attrs='defer' %}
 {% endblock %}
 
 {% block main %}
   <div class="row masonry">
-    <div class="col-md-6">
+    <div class="col-md-6 gblock">
       <div class="help-dialog" data-hint="Mon agenda">
         Vous trouverez ici tous les événements auxquels vous avez indiqué participer.
         Attention&nbsp;! Le fait que vous organisiez un événement ne veut pas nécessairement
@@ -60,7 +60,7 @@
       </div>
       {% include "events/includes/events_list.html" with events=rsvped_events empty_message="Vous n'avez aucun événément prévu pour le moment." %}
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 gblock">
       <div class="help-dialog" data-hint="Mes groupes">
         Vous trouverez ici tous les groupes dont vous êtes membre. Être membre d'un
         groupe vous permet de suivre son agenda. Pour en savoir plus lisez la
@@ -105,7 +105,7 @@
         {% endfor %}
       </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 gblock">
       <div class="help-dialog" data-hint="Événements suggérés">
         Ces événements pourraient vous intéresser. Passer votre souris sur <span
               class="text-muted">Pourquoi ?</span>
@@ -114,7 +114,7 @@
       <h3>Événements suggérés</h3>
       {% include "events/includes/events_by_day.html" with events=suggested_events empty_message="Aucun événement suggéré ! Rejoignez un groupe d'action pour voir des événements." %}
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 gblock">
       <h3>Événements passés</h3>
       <div class="help-dialog" data-hint="Événements passés">
         Ce sont les derniers événements auxquels vous avez participé. En retournant sur ces pages,
@@ -125,7 +125,7 @@
         {% include "events/includes/events_list.html" with events=last_events page_param="last_events_page" empty_message="Aucun événement récent&nbsp;! Participez à des événements pour contribuer à leur compte-rendu." %}
       </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 gblock">
       <h3>Derniers comptes-rendus publics</h3>
       <div class="help-dialog" data-hint="Comptes-rendu publiés">
         Ce sont les derniers compte-rendus d'événement écrits par les insoumis⋅es sur la plateforme. Écrivez le
@@ -164,7 +164,7 @@
       Ceci est votre espace d'administration. Vous pouvez y gérer les événements que vous organisez, qu'ils soient
       passés ou à venir.
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 gblock">
       <h3>Événements que j'organise</h3>
       <div class="button-group">
         <a class="btn btn-default btn-sm" href="{% url 'create_event' %}">
@@ -194,7 +194,7 @@
         {% endfor %}
       </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 gblock">
       <h3>Événements que j'ai organisé</h3>
       <div class="list-group">
         {% include "events/includes/events_list.html" with events=past_organized_events page_param="past_organized_events_page" empty_message="Vous n'avez organisé aucun événement terminé." %}

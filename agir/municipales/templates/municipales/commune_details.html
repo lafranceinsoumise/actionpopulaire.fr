@@ -1,10 +1,12 @@
 {% extends "front/layout.html" %}
+{% load render_bundle from webpack_loader %}
 
 {% block extra_scripts %}
-{{ block.super }}
-<style>
+  {{ block.super }}
+  {% render_bundle 'lib/masonry' attrs='defer' %}
+  <style>
 
-</style>
+  </style>
 {% endblock %}
 
 {% block title %}{{ commune.name }}{% endblock title %}
@@ -13,78 +15,71 @@
 {% block main %}
 
   <h1>{{ commune.name }}
-  {% if change_commune %}
-    <a class="btn btn-default" href="{% url "change_commune" commune.code_departement commune.slug %}">
-      Modifier ces informations
-    </a>
-  {% endif %}
+    {% if change_commune %}
+      <a class="btn btn-default" href="{% url "change_commune" commune.code_departement commune.slug %}">
+        Modifier ces informations
+      </a>
+    {% endif %}
   </h1>
-  <div>
-  <h3>La campagne à {{ commune.name }}</h3>
-  {% if commune.tete_liste %}<p>Tête de liste</p>{% endif %}
-  {% if commune.chiefs %}<p>Chef⋅fe⋅s de file&nbsp;: {{ commune.chiefs }}</p>{% endif %}
-  {% if commune.strategy %}<p><em>{{ commune.strategy }}</em></p>{% endif %}
-  {% if commune.website %}<p><a href="{{ commune.website }}">Voir le site web de la liste</a></p>{% endif %}
-  {% if commune.contact_email %}<p><a href="mailto:{{ commune.contact_email }}">Écrire à cette liste</a></p>{% endif %}
+  <div class="row masonry">
+    <div class="col-md-6 gblock">
+      <h3>La campagne à {{ commune.name }}</h3>
+      {% if commune.strategy %}<div><em><strong>{{ commune.strategy }}</strong></div></em>{% endif %}
+      {% if commune.tete_liste %}<div><strong>Tête de liste</strong> : {{ commune.tete_liste }}</div>{% endif %}
+      {% if commune.chiefs %}<div><strong>Chef⋅fe⋅s de file France insoumise</strong> : {{ commune.chiefs }}</div>{% endif %}
+      {% if commune.website %}<div><a href="{{ commune.website }}">Voir le site web de la liste</a></div>{% endif %}
+      {% if commune.contact_email %}
+        <div>Pour écrire à cette liste : <a href="mailto:{{ commune.contact_email }}">{{ commune.contact_email }}</a></div>{% endif %}
 
-  </div>
-  {% if commune.ordre_don and commune.adresse_don %}
-    <h3>Donnez à cette campagne !</h3>
-    <p>Vous pouvez envoyer vos chèques de dons à l'ordre et à l'adresse suivantes.</p>
-    <div>
-      <h5>Ordre du chèque</h5>
-      <div>{{ commune.ordre_don }}</div>
-    </div>
-    <div>
-      <h5>Adresse d'envoi</h5>
-      <div>{{ commune.adresse_don|linebreaks }}</div>
-    </div>
-  {% endif %}
-  <div class="row">
-
-  </div>
-  <div class="row">
-    <div class="col-sm-9">
-      <div class="row">
-        <div class="col-md-6">
-          <h6>Agenda</h6>
-          {% include "events/includes/events_by_day.html" with events=events empty_message="Aucun événement à venir dans cette commune." %}
+      {% if commune.ordre_don and commune.adresse_don %}
         </div>
-        <div class="col-md-6">
-          <h6>Rejoignez un groupe d'action&nbsp;!</h6>
-          <iframe
+        <div class="col-md-6 gblock">
+          <h3>Donnez à cette campagne !</h3>
+          <p>Vous pouvez envoyer vos chèques de dons à l'ordre et à l'adresse suivantes.</p>
+          <div>
+            <h5>Ordre du chèque</h5>
+            <div style="border: 1px solid #555; padding: 0.2em 1em; background: #F0F0F0;">{{ commune.ordre_don }}</div>
+          </div>
+          <div>
+            <h5>Adresse d'envoi</h5>
+            <div style="border: 1px solid #555; padding: 0.2em 1em; background: #F0F0F0;">{{ commune.adresse_don|linebreaks }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+    <div class="col-md-6 gblock">
+      <h3>Agenda</h3>
+      {% include "events/includes/events_by_day.html" with events=events empty_message="Aucun événement à venir dans cette commune." %}
+    </div>
+    <div class="col-md-6 gblock">
+      <h3>Rejoignez un groupe d'action&nbsp;!</h3>
+      <iframe
               title="Carte"
               src="{{ MAP_DOMAIN }}{% url "carte:commune_groups_map" commune.code_departement commune.slug %}"
               height="300"
               style="width: 100%;" scrolling="no"
               frameBorder="0"></iframe>
+    </div>
+    {% if commune.facebook %}
+      <div class="col-md-3 gblock">
+        <div class="fb-page" data-href="https://www.facebook.com/{{ commune.facebook }}/" data-tabs="timeline"
+             data-width="" data-height="" data-small-header="false" data-adapt-container-width="true"
+             data-hide-cover="false" data-show-facepile="true" style="margin-bottom: 2em;">
+          <blockquote cite="https://www.facebook.com/{{ commune.facebook }}/" class="fb-xfbml-parse-ignore">
+            <a href="https://www.facebook.com/{{ commune.facebook }}/">Page Facebook en chargement...</a>
+          </blockquote>
         </div>
       </div>
-    </div>
-    <div class="col-sm-3">
-      {% if commune.twitter or commune.facebook %}
-        {% if commune.facebook %}
-          <div class="fb-page" data-href="https://www.facebook.com/{{ commune.facebook }}/" data-tabs="timeline"
-               data-width="" data-height="" data-small-header="false" data-adapt-container-width="true"
-               data-hide-cover="false" data-show-facepile="true" style="margin-bottom: 2em;">
-            <blockquote cite="https://www.facebook.com/{{ commune.facebook }}/" class="fb-xfbml-parse-ignore">
-              <a href="https://www.facebook.com/{{ commune.facebook }}/">Page Facebook en chargement...</a>
-            </blockquote>
-          </div>
-          <script async defer crossorigin="anonymous" src="https://connect.facebook.net/fr_FR/sdk.js#xfbml=1&version=v4.0&appId=399717914004198"></script>
-        {% endif %}
-        {% if commune.twitter %}
-          <a class="twitter-timeline"
-            href="https://twitter.com/{{ commune.twitter }}"
-            data-height="500">
-            Tweets de {{ commune.twitter }}
-          </a>
-          <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        {% endif %}
-      {% else %}
-        Les insoumis⋅es de cette commune n'ont pas transmis de compte de réseaux sociaux.
-      {% endif %}
-    </div>
+    {% endif %}
+    {% if commune.twitter %}
+      <div class="col-md-3 gblock">
+        <a class="twitter-timeline"
+           href="https://twitter.com/{{ commune.twitter }}"
+           data-height="500">
+          Tweets de {{ commune.twitter }}
+        </a>
+        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      </div>
+    {% endif %}
   </div>
-
 {% endblock %}
