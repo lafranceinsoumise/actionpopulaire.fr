@@ -1,0 +1,19 @@
+{% autoescape off %}
+Commune concernée : {{ commune }}
+A fait la notification : {{ author }}
+
+Changements réalisés
+====================
+
+{% for field, values in changed_data.items %}
+Champ : {{ field }}
+-----------
+{% if values.0 %}AVANT
+{{ values.0 }}
+-----------
+APRÈS{% else %}AJOUTÉ{% endif %}
+{{ values.1 }}
+
+
+{% endfor %}
+{% endautoescape %}
