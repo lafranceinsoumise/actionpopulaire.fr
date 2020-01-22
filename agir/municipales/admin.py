@@ -36,6 +36,7 @@ class CommunePageAdmin(admin.ModelAdmin):
                 "fields": (
                     "published",
                     "strategy",
+                    "tete_liste",
                     "first_name_1",
                     "last_name_1",
                     "first_name_2",
@@ -46,6 +47,10 @@ class CommunePageAdmin(admin.ModelAdmin):
         (
             "Présence de la campagne sur internet",
             {"fields": ("twitter", "facebook", "website")},
+        ),
+        (
+            "Informations pour les dons par chèque",
+            {"fields": ("ordre_don", "adresse_don")},
         ),
         ("Permission", {"fields": ("municipales2020_admins",)}),
     )

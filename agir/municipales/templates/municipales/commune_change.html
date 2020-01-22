@@ -1,0 +1,25 @@
+{% extends "front/layout.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ commune.name }}{% endblock title %}
+
+
+{% block main %}
+
+  <h3>{{ commune.name }} <small>Modifier les détails</small></h3>
+
+  <div class="alert alert-danger">
+  <p>
+    Vous avez accès à cette page car vous êtes identifié⋅e comme chef⋅fe de file pour cette commune.
+  </p>
+  <p><strong>
+    Ces informations apparaîtront publiquement sur le site dès la validation de ce formulaire. Vérifiez donc tout ce que
+    vous saisissez, et prenez notamment garde à la capitalisation des noms.
+  </strong></p>
+  </div>
+
+  <div>
+    {% crispy form %}
+  </div>
+
+{% endblock %}

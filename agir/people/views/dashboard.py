@@ -13,6 +13,7 @@ from agir.groups.actions import get_next_promo_code
 from agir.groups.actions.promo_codes import is_promo_code_delayed, next_promo_code_date
 from agir.groups.models import SupportGroup
 from agir.lib.tasks import geocode_person
+from agir.municipales.models import CommunePage
 from agir.payments.models import Payment
 
 
@@ -141,6 +142,8 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
             "-created"
         )
 
+        communes = CommunePage.objects.filter(municipales2020_admins=person)
+
         kwargs.update(
             {
                 "person": person,
@@ -153,6 +156,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
                 "organized_events": organized_events,
                 "past_organized_events": past_organized_events,
                 "payments": payments,
+                "communes": communes,
             }
         )
         return super().get_context_data(**kwargs)

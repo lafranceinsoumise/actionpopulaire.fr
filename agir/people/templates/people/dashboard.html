@@ -16,36 +16,48 @@
         Attention&nbsp;! Le fait que vous organisiez un événement ne veut pas nécessairement
         dire que vous y participez, même si c'est souvent le cas.
       </div>
-      <h3 class="clearfix">Mon agenda
-
-        <div class="dropdown">
-          <li class="menu-item dropdown list-unstyled">
-
-            <a class="pull-right btn btn-default btn-sm dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown"
-               aria-expanded="true">
-              <i class="fa fa-search"></i> Rechercher un événement
-            </a>
-            <ul class="dropdown-menu" style="right: 0; top:30px; left:30%; padding:0">
-              <li class="menu-item">
-                <form method="get" action="{% url "search_event" %}">
-                  <div class="input-group">
-                    <input type="text" class="form-control" name="text_query" placeholder="votre recherche...">
-                    <span class="input-group-btn">
+      {% if communes %}
+        <h3 class="clearfix">Ma campagne municipale</h3>
+        <div class="list-group">
+          {% for commune in communes %}
+            <div class="list-group-item">
+              <div class="input-group">
+                <i class="fa fa-envelope-open"></i>
+                <a href="{% url "view_commune" commune.code_departement commune.slug %}">{{ commune.name }}</a>
+                <div>Je suis chef{% if person.gender == "F" %}fe{% elif person.gender != "M" %}⋅fe{% endif %} de file</div>
+                <span class="input-group-btn">
+                <a class='btn btn-default' href="{% url 'change_commune' commune.code_departement commune.slug %}">Modifier les informations</a>
+              </span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <h3 class="clearfix">Mon agenda</h3>
+      <div class="btn-group">
+        <button class="btn btn-default btn-sm dropdown-toggle" id="rechercher-evenement" data-toggle="dropdown"
+                aria-expanded="true">
+          <i class="fa fa-search"></i> Rechercher un événement
+        </button>
+        <ul class="dropdown-menu">
+          <li class="menu-item">
+            <form method="get" action="{% url "search_event" %}">
+              <div class="input-group">
+                <input type="text" class="form-control" name="text_query" placeholder="Votre recherche...">
+                <span class="input-group-btn">
                           <button class="btn btn-default" type="submit">Chercher</button>
                     </span>
-                  </div>
-                </form>
-              </li>
-            </ul>
+              </div>
+            </form>
           </li>
-        </div>
-        <a class="pull-right btn btn-default btn-sm" href="{% url 'create_event' %}">
+        </ul>
+        <a class="btn btn-default btn-sm" href="{% url 'create_event' %}">
           <i class="fa fa-plus"></i> Créer un événement
           <div class="help-dialog" data-hint="Les informations de votre événement">
             Vous pouvez créer un nouvel événement et y inviter d'autres personnes en cliquant sur ce bouton.
           </div>
         </a>
-      </h3>
+      </div>
       {% include "events/includes/events_list.html" with events=rsvped_events empty_message="Vous n'avez aucun événément prévu pour le moment." %}
     </div>
     <div class="col-md-6">
@@ -55,14 +67,15 @@
         <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
           Charte des groupes d’action de la France insoumise</a>.
       </div>
-      <h3 class="clearfix">Mes groupes
-        <a class="pull-right btn btn-default btn-sm" href="{% url 'list_all_groups' %}">
+      <h3 class="clearfix">Mes groupes</h3>
+      <div class="btn-group">
+        <a class="btn btn-default btn-sm" href="{% url 'list_all_groups' %}">
           <i class="fa fa-search"></i> Rechercher un groupe
         </a>
-        <a class="pull-right btn btn-default btn-sm" href="{% url 'create_group' %}">
+        <a class="btn btn-default btn-sm" href="{% url 'create_group' %}">
           <i class="fa fa-plus"></i> Créer un groupe
         </a>
-      </h3>
+      </div>
       <div class="list-group">
         {% for group in members_groups %}
           <div class="list-group-item">
@@ -95,7 +108,7 @@
     <div class="col-md-6">
       <div class="help-dialog" data-hint="Événements suggérés">
         Ces événements pourraient vous intéresser. Passer votre souris sur <span
-        class="text-muted">Pourquoi ?</span>
+              class="text-muted">Pourquoi ?</span>
         pour savoir pourquoi chaque événement vous a été suggéré.
       </div>
       <h3>Événements suggérés</h3>
@@ -152,11 +165,12 @@
       passés ou à venir.
     </div>
     <div class="col-md-6">
-      <h3>Événements que j'organise
-        <a class="pull-right btn btn-default btn-sm" href="{% url 'create_event' %}">
+      <h3>Événements que j'organise</h3>
+      <div class="button-group">
+        <a class="btn btn-default btn-sm" href="{% url 'create_event' %}">
           <i class="fa fa-plus"></i> Créer un événement
         </a>
-      </h3>
+      </div>
       <div class="list-group">
         {% for event in organized_events %}
           <div class="list-group-item">

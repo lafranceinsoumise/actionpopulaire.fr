@@ -43,6 +43,14 @@ class CommunePage(TimeStampedModel, models.Model):
     name = models.CharField("Nom de la commune", max_length=255)
     slug = models.SlugField("Slug")
     strategy = models.CharField("Stratégie", max_length=255, blank=True)
+
+    tete_liste = models.CharField(
+        "Nom de la tête de liste",
+        max_length=255,
+        blank=True,
+        help_text="Le nom de la tête de liste, tel qu'il s'affichera publiquement",
+    )
+
     first_name_1 = models.CharField(
         "Prénom chef⋅fe de file 1", max_length=255, blank=True
     )
@@ -63,13 +71,31 @@ class CommunePage(TimeStampedModel, models.Model):
         help_text="Indiquez l'identifiant ou l'URL de la page Facebook de la campagne",
     )
 
-    website = models.URLField("Site web", max_length=255, blank=True)
-
-    nom_mandataire = models.CharField(
-        "Nom du manadataire financier", max_length=255, blank=True
+    website = models.URLField(
+        "Site web",
+        max_length=255,
+        blank=True,
+        help_text="Indiquez l'URL du site web de la liste en entier (avec le http:// ou le https://)",
     )
-    adresse_mandataire = models.TextField(
-        "Adresse complète du mandataire financier", blank=True
+
+    ordre_don = models.CharField(
+        "Ordre des chèques",
+        max_length=255,
+        blank=True,
+        help_text="Indiquez l'ordre auquel les chèques de dons doivent être adressés.",
+    )
+
+    adresse_don = models.TextField(
+        "Adresse complète pour les dons",
+        blank=True,
+        help_text="Cette adresse sera affichée sur la page pour inciter les visiteurs à envoyer leurs dons par chèque.",
+    )
+
+    contact_email = models.EmailField(
+        "Adresse email de contact",
+        max_length=255,
+        blank=True,
+        help_text="Une adresse email publique qui peut être utilisée pour contacter votre campagne",
     )
 
     municipales2020_admins = models.ManyToManyField(

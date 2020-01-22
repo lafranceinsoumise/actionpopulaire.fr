@@ -1,14 +1,45 @@
 {% extends "front/layout.html" %}
 
+{% block extra_scripts %}
+{{ block.super }}
+<style>
+
+</style>
+{% endblock %}
+
 {% block title %}{{ commune.name }}{% endblock title %}
 
 
 {% block main %}
 
-  <h3>{{ commune.name }}</h3>
+  <h1>{{ commune.name }}
+  {% if change_commune %}
+    <a class="btn btn-default" href="{% url "change_commune" commune.code_departement commune.slug %}">
+      Modifier ces informations
+    </a>
+  {% endif %}
+  </h1>
+  <div>
+  <h3>La campagne à {{ commune.name }}</h3>
+  {% if commune.tete_liste %}<p>Tête de liste</p>{% endif %}
   {% if commune.chiefs %}<p>Chef⋅fe⋅s de file&nbsp;: {{ commune.chiefs }}</p>{% endif %}
   {% if commune.strategy %}<p><em>{{ commune.strategy }}</em></p>{% endif %}
   {% if commune.website %}<p><a href="{{ commune.website }}">Voir le site web de la liste</a></p>{% endif %}
+  {% if commune.contact_email %}<p><a href="mailto:{{ commune.contact_email }}">Écrire à cette liste</a></p>{% endif %}
+
+  </div>
+  {% if commune.ordre_don and commune.adresse_don %}
+    <h3>Donnez à cette campagne !</h3>
+    <p>Vous pouvez envoyer vos chèques de dons à l'ordre et à l'adresse suivantes.</p>
+    <div>
+      <h5>Ordre du chèque</h5>
+      <div>{{ commune.ordre_don }}</div>
+    </div>
+    <div>
+      <h5>Adresse d'envoi</h5>
+      <div>{{ commune.adresse_don|linebreaks }}</div>
+    </div>
+  {% endif %}
   <div class="row">
 
   </div>
