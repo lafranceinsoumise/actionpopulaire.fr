@@ -82,7 +82,7 @@ def update_telegram_groups(self, pk):
             new_chat_members = [
                 person
                 for person in in_segment_not_chat_people
-                if is_telegram_user(client, str(person.contact_phone))
+                if is_telegram_user(client, person)
             ]
 
             def chat_generator():
