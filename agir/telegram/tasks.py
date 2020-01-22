@@ -21,15 +21,15 @@ def is_telegram_user(client, person):
     try:
         client.resolve_peer(person.contact_phone)
 
-        if "no_telegram" in person.meta:
-            person.meta.pop("no_telegram")
+        if not person.meta.get("has_telegram", False):
+            person.meta["has_telegram"] = True
             person.save(update_fields=("meta",))
 
         return True
 
     except PeerIdInvalid:
-        if "no_telegram" not in person.meta:
-            person.meta["no_telegram"] = True
+        if person.meta.get("has_telegram", True):
+            person.meta["has_telegram"] = False
             person.save(update_fields=("meta",))
 
         return False
