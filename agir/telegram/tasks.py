@@ -6,8 +6,7 @@ from pyrogram import ChatPermissions, InputPhoneContact
 from pyrogram.errors import PeerIdInvalid
 
 from agir.lib.phone_numbers import is_mobile_number
-from agir.telegram.models import TelegramGroup
-
+from agir.telegram.models import TelegramGroup, TELEGRAM_META_KEY
 
 DEFAULT_GROUP_PERMISSIONS = ChatPermissions(
     can_send_messages=False,
@@ -21,15 +20,15 @@ def is_telegram_user(client, person):
     try:
         client.resolve_peer(str(person.contact_phone))
 
-        if not person.meta.get("has_telegram", False):
-            person.meta["has_telegram"] = True
+        if not person.meta.get(TELEGRAM_META_KEY, False):
+            person.meta[TELEGRAM_META_KEY] = True
             person.save(update_fields=("meta",))
 
         return True
 
     except PeerIdInvalid:
-        if person.meta.get("has_telegram", True):
-            person.meta["has_telegram"] = False
+        if person.meta.get(TELEGRAM_META_KEY, True):
+            person.meta[TELEGRAM_META_KEY] = False
             person.save(update_fields=("meta",))
 
         return False

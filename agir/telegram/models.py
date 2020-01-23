@@ -12,6 +12,8 @@ api_params = {
     "no_updates": True,
 }
 
+TELEGRAM_META_KEY = "has_telegram"
+
 
 class TelegramSession(TimeStampedModel, models.Model):
     phone_number = PhoneNumberField("Numéro de téléphone", unique=True)

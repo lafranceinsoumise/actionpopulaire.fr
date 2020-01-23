@@ -57,6 +57,7 @@ class Command(BaseCommand):
         parser.add_argument("-R", "--region", type=region_argument)
         parser.add_argument("-S", "--segment", type=segment_argument)
         parser.add_argument("-a", "--at", type=datetime_argument)
+        parser.add_argument("-T", "--exclude-telegram", type=bool)
         parser.add_argument("-s", "--sentfile", type=FileType(mode="r"))
 
     def can_send(self, phone):
@@ -83,6 +84,7 @@ class Command(BaseCommand):
         segment,
         sentfile,
         at,
+        exclude_telegram,
         **options,
     ):
         if (
@@ -101,7 +103,7 @@ class Command(BaseCommand):
                 "Vous devez indiquer soit un nombre de personnes, soit une distance max."
             )
 
-        if event:
+        if event:  # we generate coordinates from event
             if event.coordinates is None:
                 raise CommandError(
                     "Cet événement n'a pas de coordonnées géographiques."
@@ -118,7 +120,7 @@ class Command(BaseCommand):
             )
             self.stdout.write("\n")  # ligne vide
 
-        if coordinates:
+        if coordinates:  # two case : central point coordinates or any other
             ps = (
                 Person.objects.filter(subscribed_sms=True)
                 .exclude(contact_phone="")
@@ -128,6 +130,9 @@ class Command(BaseCommand):
 
             if distance is not None:
                 ps = ps.filter(distance__lte=distance)
+
+            if exclude_telegram:
+                ps = ps.exclude(meta__has_telegram=True)
 
             res = list(
                 drop_duplicate_numbers(
@@ -143,16 +148,22 @@ class Command(BaseCommand):
             numbers = [n for n, _ in res]
             max_distance = res[-1][1]
             self.stdout.write(f"Distance maximale : {max_distance}")
-        elif segment:
-            ps = segment.get_subscribers_queryset().exclude(contact_phone="").distinct()
-            numbers = set(
-                p.contact_phone for p in ps.iterator() if self.can_send(p.contact_phone)
-            )
-            self.stdout.write(f"Segment : {segment.name}")
         else:
-            ps = Person.objects.filter(
-                region or departement, subscribed_sms=True
-            ).exclude(contact_phone="")
+            if segment:
+                ps = (
+                    segment.get_subscribers_queryset()
+                    .exclude(contact_phone="")
+                    .distinct()
+                )
+                self.stdout.write(f"Segment : {segment.name}")
+            else:
+                ps = Person.objects.filter(
+                    region or departement, subscribed_sms=True
+                ).exclude(contact_phone="")
+
+            if exclude_telegram:
+                ps = ps.exclude(meta__has_telegram=True)
+
             numbers = set(
                 p.contact_phone for p in ps.iterator() if self.can_send(p.contact_phone)
             )
