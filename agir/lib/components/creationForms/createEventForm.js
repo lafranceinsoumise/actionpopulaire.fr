@@ -357,6 +357,8 @@ class OrganizerStep extends FormStep {
             <h4>...à titre individuel</h4>
             <SubtypeSelector>
               <CheckBox
+                iconName="user"
+                color="#0098b6"
                 active={!organizerGroup}
                 label="J'en suis l'organisateur"
                 onClick={this.setIndividual}
@@ -368,6 +370,8 @@ class OrganizerStep extends FormStep {
             <SubtypeSelector>
               {this.props.groups.map(group => (
                 <CheckBox
+                  iconName="users"
+                  color="#0098b6"
                   key={group.id}
                   active={group.id === organizerGroup}
                   label={group.name}
