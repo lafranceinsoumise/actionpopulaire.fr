@@ -57,7 +57,7 @@ class Command(BaseCommand):
         parser.add_argument("-R", "--region", type=region_argument)
         parser.add_argument("-S", "--segment", type=segment_argument)
         parser.add_argument("-a", "--at", type=datetime_argument)
-        parser.add_argument("-T", "--exclude-telegram", type=bool)
+        parser.add_argument("-T", "--exclude-telegram", action="store_true")
         parser.add_argument("-s", "--sentfile", type=FileType(mode="r"))
 
     def can_send(self, phone):
