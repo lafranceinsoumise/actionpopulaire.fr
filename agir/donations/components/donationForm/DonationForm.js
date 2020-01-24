@@ -97,19 +97,16 @@ const DonationForm = ({
       <div className="form-group">
         <div>
           <Button type="submit" bsStyle="primary">
-            Je donne par carte bancaire !
+            Je donne !
           </Button>
         </div>
-        <div>
-          <small>
-            Si vous souhaitez donner par chèque, merci de remplir et de joindre
-            à votre chèque{" "}
-            <a href="/static/donations/formulaire_dons_20190218.pdf">
-              ce formulaire
-            </a>
-            .
-          </small>
-        </div>
+        {type === "M" && (
+          <div>
+            <small>
+              Seul le don par carte bleue est possible pour un don mensuel.
+            </small>
+          </div>
+        )}
       </div>
     </form>
   );
