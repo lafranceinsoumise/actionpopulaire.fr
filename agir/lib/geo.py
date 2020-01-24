@@ -189,11 +189,11 @@ def geocode_ban(item):
     item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
 
 
-def geocode_coordinate_from_simple_address(addresse):
-    if not addresse:
+def geocode_coordinate_from_simple_address(address):
+    if not address:
         return None
 
-    results = get_results_from_nominatim({"format": "json", "q": addresse, "limit": 1})
+    results = get_results_from_nominatim({"format": "json", "q": address, "limit": 1})
 
     if not results:
         return None

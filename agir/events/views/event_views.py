@@ -1,14 +1,11 @@
-from datetime import timedelta
+from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
 
-import django_filters
 import ics
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
-from django.contrib.gis.db.models.functions import Distance
-from django.contrib.gis.measure import Distance as DistanceMeasure
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.paginator import Paginator
 from django.http import (
     Http404,
     HttpResponseRedirect,
@@ -21,7 +18,6 @@ from django.template.backends.django import DjangoTemplates
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.html import format_html
-from django.utils.http import urlencode
 from django.utils.translation import ugettext as _, ngettext
 from django.views import View
 from django.views.generic import (
@@ -32,7 +28,7 @@ from django.views.generic import (
     DetailView,
 )
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import ProcessFormView, FormMixin, FormView
+from django.views.generic.edit import ProcessFormView, FormMixin
 
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
@@ -41,11 +37,14 @@ from agir.authentication.view_mixins import (
 )
 from agir.events.actions.legal import ASKED_QUESTIONS
 from agir.events.actions.rsvps import assign_jitsi_meeting
-from agir.front.view_mixins import ObjectOpengraphMixin, ChangeLocationBaseView
+from agir.front.view_mixins import (
+    ObjectOpengraphMixin,
+    ChangeLocationBaseView,
+    FilterView,
+)
 from agir.lib.export import dict_to_camelcase
-from agir.lib.geo import geocode_coordinate_from_simple_address
-from agir.lib.search import PrefixSearchQuery
 from agir.lib.views import ImageSizeWarningMixin, IframableMixin
+from ..filters import EventFilter
 from ..forms import (
     EventForm,
     AddOrganizerForm,
@@ -53,7 +52,6 @@ from ..forms import (
     EventReportForm,
     UploadEventImageForm,
     AuthorForm,
-    SearchEventForm,
     EventLegalForm,
 )
 from ..models import Event, RSVP, Calendar, EventSubtype
@@ -74,6 +72,8 @@ __all__ = [
     "EventIcsView",
     "CalendarView",
     "CalendarIcsView",
+    "CalendarView",
+    "CalendarIcsView",
     "ChangeEventLocationView",
     "EditEventReportView",
     "SendEventReportView",
@@ -84,92 +84,18 @@ __all__ = [
 ]
 
 
-class EventSearchView(SoftLoginRequiredMixin, FormView):
-    """Champ de recherche d'événement
+class EventSearchView(FilterView):
+    """Vue pour lister les événements et les rechercher
     """
 
     template_name = "events/event_search.html"
     context_object_name = "events"
-    form_class = SearchEventForm
     success_url = reverse_lazy("search_event")
-    events_per_page = 10
-    model = Event
-
-    def get_queryset(self):
-        return self.model.objects.filter(
-            visibility=Event.VISIBILITY_PUBLIC, do_not_list=False
-        )
-
-    def get(self, request, *args, **kwargs):
-        form = self.get_form()
-
-        if not form.is_valid():
-            # on retourne le formulaire avec les erreurs
-            return self.render_to_response(context={"form": form})
-
-        self.form = form
-        return super().get(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        form_data = self.request.GET.dict()
-        form_data.update({"min_date": form_data.get("min_date", timezone.now().date())})
-        return {"data": form_data}
-
-    def get_events_full_text_search(
-        self, text_query, min_date, max_date, location, distance_max
-    ):
-        if not text_query:
-            return []
-        qs = self.get_queryset()
-        q = PrefixSearchQuery(text_query, config="fr")
-        qs = qs.search(text_query)
-        if min_date:
-            qs = qs.filter(start_time__gt=min_date)
-        if max_date:
-            qs = qs.filter(start_time__lt=(max_date + timedelta(days=1)))
-        if location and distance_max:
-            qs = qs.annotate(distance=Distance("coordinates", location)).filter(
-                distance__lte=DistanceMeasure(km=int(distance_max))
-            )
-        return qs
-
-    def get_context_data(self, **kwargs):
-        cleaned_data = self.form.cleaned_data
-        location = (
-            geocode_coordinate_from_simple_address(cleaned_data["address"])
-            or self.request.user.person.coordinates
-        )
-
-        events = self.get_events_full_text_search(
-            cleaned_data["text_query"],
-            cleaned_data["min_date"],
-            cleaned_data["max_date"],
-            location,
-            cleaned_data["distance_max"],
-        )
-
-        paginator = Paginator(events, self.events_per_page)
-        try:
-            events = paginator.page(cleaned_data["page"])
-        except PageNotAnInteger:
-            events = paginator.page(1)
-        except EmptyPage:
-            events = paginator.page(paginator.num_pages)
-
-        search_param = urlencode(
-            {
-                k: v
-                for k, v in self.request.GET.dict().items()
-                if v != "" and k != "page"
-            }
-        )
-
-        return super().get_context_data(
-            paginator=paginator,
-            page_elements=events,
-            search_param=search_param,
-            **kwargs,
-        )
+    paginate_by = 20
+    queryset = Event.objects.filter(
+        visibility=Event.VISIBILITY_PUBLIC, do_not_list=False
+    )
+    filter_class = EventFilter
 
 
 class EventDetailMixin:
@@ -550,14 +476,7 @@ class CalendarView(IframableMixin, ObjectOpengraphMixin, DetailView):
             .distinct("start_time", "id")
         )
         paginator = self.paginator_class(all_events, self.per_page)
-
-        page = self.request.GET.get("page")
-        try:
-            events = paginator.page(page)
-        except PageNotAnInteger:
-            events = paginator.page(1)
-        except EmptyPage:
-            events = paginator.page(paginator.num_pages)
+        events = paginator.page(self.request.GET.get("page"))
 
         return super().get_context_data(
             events=events, default_event_image=settings.DEFAULT_EVENT_IMAGE

@@ -1,16 +1,19 @@
 from urllib.parse import urljoin
 
-from django.contrib import messages
-from django.shortcuts import reverse
-from django.views.generic import UpdateView, ListView
 from django.conf import settings
-from django.contrib.gis.geos import Point
-from django.contrib.gis.measure import Distance as DistanceMeasure
+from django.contrib import messages
 from django.contrib.gis.db.models.functions import (
     Distance as DistanceFunction,
     DistanceResultMixin,
 )
+from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import Distance as DistanceMeasure
 from django.db.models import Value, FloatField
+from django.shortcuts import reverse
+from django.views.generic import UpdateView, ListView
+from django.views.generic.edit import FormMixin
+
+from agir.lib.pagination import HTMLPaginator
 
 
 class SimpleOpengraphMixin:
@@ -144,3 +147,26 @@ class SearchByZipcodeBaseView(ListView):
             if lat and lon:
                 return Point(lon, lat, srid=4326)
         return None
+
+
+class FilterView(FormMixin, ListView):
+    filter_class = None
+    queryset = None
+    paginator_class = HTMLPaginator
+
+    def get_filter(self):
+        return self.filter_class(data=self.request.GET, queryset=self.queryset)
+
+    def get_queryset(self):
+        return self.get_filter().qs
+
+    def get_form(self, form_class=None):
+        return self.get_filter().form
+
+    def get_paginator(
+        self, queryset, per_page, orphans=0, allow_empty_first_page=True, **kwargs
+    ):
+        kwargs.setdefault("request", self.request)
+        return super().get_paginator(
+            queryset, per_page, orphans, allow_empty_first_page, **kwargs
+        )
