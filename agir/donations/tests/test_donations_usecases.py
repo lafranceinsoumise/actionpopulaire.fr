@@ -54,6 +54,7 @@ class DonationTestMixin:
             "location_city": "Bordeaux",
             "location_country": "FR",
             "contact_phone": "+33645789845",
+            "mode": "check",
         }
 
         certified_subtype = SupportGroupSubtype.objects.create(

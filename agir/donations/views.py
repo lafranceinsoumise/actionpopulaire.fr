@@ -119,7 +119,6 @@ class DonationPersonalInformationView(
 ):
     form_class = forms.AllocationDonorForm
     template_name = "donations/personal_information.html"
-    payment_mode = payment_modes.DEFAULT_MODE
     payment_type = DonsConfig.PAYMENT_TYPE
     session_namespace = DONATION_SESSION_NAMESPACE
     base_redirect_url = "donation_amount"
@@ -148,10 +147,11 @@ class DonationPersonalInformationView(
         if "email" in form.cleaned_data:
             kwargs["email"] = form.cleaned_data["email"]
 
+        kwargs["mode"] = kwargs["mode"].id
+
         with transaction.atomic():
             payment = create_payment(
                 person=self.object,
-                mode=self.payment_mode,
                 type=self.payment_type,
                 price=amount,
                 meta=payment_metas,

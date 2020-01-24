@@ -110,7 +110,7 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
 class SystemPayPaymentMode(AbstractSystemPayPaymentMode):
     id = "system_pay"
     url_fragment = "carte"
-    label = _("Paiement par carte bleue")
+    label = _("Par carte bleue")
 
     sp_config = {
         "site_id": settings.SYSTEMPAY_SITE_ID,

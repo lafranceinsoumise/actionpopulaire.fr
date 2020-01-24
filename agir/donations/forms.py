@@ -23,6 +23,7 @@ from .models import SpendingRequest, Document
 
 __all__ = ("AllocationDonationForm", "AllocationDonorForm")
 
+from ..payments.payment_modes import PaymentModeField
 
 logger = logging.getLogger(__name__)
 
@@ -170,8 +171,16 @@ class AllocationDonorForm(SimpleDonorForm):
         queryset=SupportGroup.objects.active().certified().order_by("name").distinct(),
     )
 
+    mode = PaymentModeField(
+        payment_modes=["system_pay", "check"], label="Mode de versement"
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.helper.layout.fields.insert(
+            self.helper.layout.fields.index("declaration"), "mode"
+        )
 
         self.helper.layout.fields.extend(["allocations"])
 
