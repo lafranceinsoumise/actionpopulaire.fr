@@ -40,6 +40,15 @@
     {% if commune.ordre_don and commune.adresse_don %}
       <div class="col-md-6 gblock">
         <h3>Donnez à cette campagne !</h3>
+        <h5>Mentions légales</h5>
+        <p>
+          En donnant à cette campagne, je certifie sur l'honneur être une personne physique et que conformément à la loi
+          N°95-65 du 19 janvier 1995
+          relative au financement de la vie politique, le règlement de mon don ne provient pas d'une personne morale
+          (société, association, société civile...) mais de mon compte bancaire personnel.
+        </p>
+        <p>Les dons consentis par une personne physique dûment identifiée pour le financement de la campagne d'un ou
+          plusieurs candidats lors des mêmes élections ne peuvent excéder 4 600 euros.</p>
         <p>Vous pouvez envoyer vos chèques de dons à l'ordre et à l'adresse suivantes.</p>
         <div>
           <h5>Ordre du chèque</h5>
@@ -49,6 +58,11 @@
           <h5>Adresse d'envoi</h5>
           <div style="border: 1px solid #555; padding: 0.2em 1em; background: #F0F0F0;">{{ commune.adresse_don|linebreaks }}</div>
         </div>
+
+        <h5>Réduction d'impôt</h5>
+        <p>Votre don ouvre droit à une réduction d’impôt égale à 66% des sommes versées. Un reçu détaché d'une formule
+          numérotée éditée par la Commission nationale des comptes de campagne vous sera directement adressé en avril de
+          l’année suivant l’année de versement de votre don.</p>
       </div>
     {% endif %}
 
