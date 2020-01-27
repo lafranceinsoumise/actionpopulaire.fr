@@ -341,7 +341,10 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
     def get(self, request, *args, **kwargs):
         params = request.GET.dict()
 
-        if "token" not in params:
+        if not all(
+            param in params
+            for param in monthly_donation_confirmation_token_generator.token_params
+        ):
             return self.link_error_page()
 
         token = params.pop("token")
