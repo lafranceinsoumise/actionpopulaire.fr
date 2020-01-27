@@ -41,7 +41,14 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         ("Géographie", {"fields": ("countries", "departements", "area")}),
         (
             "Historique d'utilisation",
-            {"fields": ("campaigns", "registration_date", "last_login")},
+            {
+                "fields": (
+                    "campaigns",
+                    "campaigns_feedback",
+                    "registration_date",
+                    "last_login",
+                )
+            },
         ),
         (
             "Informations personelles",

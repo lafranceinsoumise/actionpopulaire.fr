@@ -96,6 +96,27 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
 
+    FEEDBACK_OPEN = 1
+    FEEDBACK_CLICKED = 2
+    FEEDBACK_NOT_OPEN = 3
+    FEEDBACK_NOT_CLICKED = 4
+    FEEDBACK_OPEN_NOT_CLICKED = 5
+    FEEDBACK_CHOICES = (
+        (FEEDBACK_OPEN, "Personnes ayant ouvert"),
+        (FEEDBACK_CLICKED, "Personnes ayant cliqué"),
+        (FEEDBACK_NOT_OPEN, "Personnes n'ayant pas ouvert"),
+        (FEEDBACK_NOT_CLICKED, "Personnes n'ayant pas cliqué"),
+        (FEEDBACK_OPEN_NOT_CLICKED, "Personnes ayant ouvert mais pas cliqué"),
+    )
+
+    campaigns_feedback = models.PositiveSmallIntegerField(
+        "Limiter en fonction de la réaction à ces campagnes",
+        blank=True,
+        null=True,
+        choices=FEEDBACK_CHOICES,
+        help_text="Aucun effet si aucune campagne n'est sélectionnée dans le champ précédent",
+    )
+
     registration_date = models.DateTimeField(
         "Limiter aux membres inscrit⋅e⋅s après cette date", blank=True, null=True
     )
@@ -209,12 +230,29 @@ class Segment(BaseSegment, models.Model):
             qs = qs.filter(**events_filter)
 
         if self.campaigns.all().count() > 0:
+            if self.campaigns_feedback == self.FEEDBACK_OPEN:
+                campaign__kwargs = {"campaignsentevent__open_count__gt": 0}
+            elif self.campaigns_feedback == self.FEEDBACK_CLICKED:
+                campaign__kwargs = {"campaignsentevent__click_count__gt": 0}
+            elif self.campaigns_feedback == self.FEEDBACK_NOT_OPEN:
+                campaign__kwargs = {"campaignsentevent__open_count": 0}
+            elif self.campaigns_feedback == self.FEEDBACK_NOT_CLICKED:
+                campaign__kwargs = {"campaignsentevent__click_count": 0}
+            elif self.campaigns_feedback == self.FEEDBACK_OPEN_NOT_CLICKED:
+                campaign__kwargs = {
+                    "campaignsentevent__open_count__gt": 1,
+                    "campaignsentevent__click_count": 0,
+                }
+            else:
+                campaign__kwargs = {}
+
             qs = qs.filter(
                 campaignsentevent__result__in=[
                     CampaignSentStatusType.UNKNOWN,
                     CampaignSentStatusType.OK,
                 ],
                 campaignsentevent__campaign__in=self.campaigns.all(),
+                **campaign__kwargs
             )
 
         if len(self.countries) > 0:
