@@ -233,6 +233,10 @@ def send_person_form_notification(self, submission_pk):
 
     person = submission.person
 
+    if person is None:
+        # réponse anonyme au formulaire, pas d'email à qui envoyer
+        return
+
     pretty_submission = default_person_form_display.get_formatted_submission(submission)
 
     bindings = {
