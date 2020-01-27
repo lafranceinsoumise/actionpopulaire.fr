@@ -170,9 +170,6 @@ class LoanContractView(SoftLoginRequiredMixin, DetailView):
 
     queryset = Payment.objects.filter(status=Payment.STATUS_COMPLETED)
 
-    def get_queryset(self):
-        return self.queryset.filter(type=self.payment_type)
-
     def get(self, request, *args, **kwargs):
         payment = self.get_object()
 
