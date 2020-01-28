@@ -364,6 +364,25 @@ class Person(
         "Returns the short name for the user."
         return self.first_name or self.email
 
+    def get_greeting(self):
+        if self.gender == self.GENDER_FEMALE:
+            cher = "Chère"
+        elif self.gender == self.GENDER_MALE:
+            cher = "Cher"
+        else:
+            cher = "Chèr⋅e"
+
+        if self.first_name and self.last_name:
+            machin = self.get_full_name()
+        elif self.gender == self.GENDER_FEMALE:
+            machin = "insoumise"
+        elif self.gender == self.GENDER_MALE:
+            machin = "insoumis"
+        else:
+            machin = "insoumis⋅e"
+
+        return f"{cher} {machin}"
+
     def add_email(self, email_address, primary=False, **kwargs):
         try:
             email = self.emails.get_by_natural_key(email_address)
@@ -403,7 +422,11 @@ class Person(
     def get_subscriber_data(self):
         data = super().get_subscriber_data()
 
-        return {**data, "login_query": urlencode(generate_token_params(self))}
+        return {
+            **data,
+            "login_query": urlencode(generate_token_params(self)),
+            "greeting": self.get_greeting(),
+        }
 
 
 class PersonTag(AbstractLabel):
