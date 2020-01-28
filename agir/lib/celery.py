@@ -1,0 +1,83 @@
+import smtplib
+import socket
+
+import requests
+from celery import shared_task
+from functools import wraps
+
+
+def retry_strategy(
+    start=None,
+    increment=0,
+    retry_on=(Exception,),
+    max=3600 * 12,
+    min=0,
+    exp_base=2,
+    forward_self=False,
+):
+    def outer(decorated):
+        @wraps(decorated)
+        def inner(self, *args, **kwargs):
+            if forward_self:
+                args.insert(0, self)
+            try:
+                decorated(*args, **kwargs)
+            except retry_on as e:
+                import builtins
+
+                if increment:
+                    countdown = start + increment * self.retries
+                else:
+                    countdown = (
+                        start * exp_base ** self.retries
+                    )  # self.retries starts at 0
+
+                countdown = builtins.max(builtins.min(countdown, max), min)
+                self.retry(countdown=countdown, exc=e)
+
+        return inner
+
+    return outer
+
+
+def retriable_task(
+    *args,
+    bind=False,
+    start=None,
+    increment=0,
+    retry_on=(Exception,),
+    max=3600 * 12,
+    min=0,
+    exp_base=2,
+    strategy=None,
+    **kwargs
+):
+    if strategy is None:
+        strategy = retry_strategy(
+            forward_self=bind,
+            start=start,
+            increment=increment,
+            retry_on=retry_on,
+            max=max,
+            min=min,
+            exp_base=exp_base,
+        )
+
+    taskifier = shared_task(bind=True, **kwargs)
+
+    def decorate(f):
+        return taskifier(strategy(f))
+
+    if len(args) == 1:
+        return decorate(args[0])
+    return decorate
+
+
+retry_on_http_strategy = retry_strategy(start=10, retry_on=(requests.RequestException,))
+retry_on_smtp_strategy = retry_strategy(
+    start=10, retry_on=(smtplib.SMTPException, socket.error)
+)
+
+
+http_task = retriable_task(strategy=retry_on_http_strategy)
+emailing_task = retriable_task(strategy=retry_on_smtp_strategy)

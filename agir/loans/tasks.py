@@ -1,20 +1,18 @@
-import smtplib
-import socket
 import subprocess
 from pathlib import Path
 
-from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
 from slugify import slugify
 
+from agir.lib.celery import emailing_task, retriable_task
+from agir.lib.mailing import send_mosaico_email
 from agir.loans.actions import save_pdf_contract, SUBSTITUTIONS
 from agir.payments.models import Payment
 from agir.payments.types import PAYMENT_TYPES
-from agir.lib.mailing import send_mosaico_email
 
 
-@shared_task(bind=True)
+@retriable_task(start=1, retry_on=(subprocess.TimeoutExpired,))
 def generate_contract(self, payment_id, force=False):
     try:
         payment = Payment.objects.get(id=payment_id)
@@ -42,15 +40,12 @@ def generate_contract(self, payment_id, force=False):
 
     contract_full_path = Path(settings.MEDIA_ROOT) / contract_path
 
-    try:
-        save_pdf_contract(
-            contract_template=payment_type.contract_template_name,
-            contract_information=contract_information,
-            dest_path=contract_full_path,
-            layout_template=payment_type.pdf_layout_template_name,
-        )
-    except subprocess.TimeoutExpired as exc:
-        self.retry(countdown=60, exc=exc)
+    save_pdf_contract(
+        contract_template=payment_type.contract_template_name,
+        contract_information=contract_information,
+        dest_path=contract_full_path,
+        layout_template=payment_type.pdf_layout_template_name,
+    )
 
     payment.meta["contract_path"] = contract_path
     payment.save()
@@ -58,8 +53,8 @@ def generate_contract(self, payment_id, force=False):
     return contract_path
 
 
-@shared_task(bind=True)
-def send_contract_confirmation_email(self, payment_id):
+@emailing_task
+def send_contract_confirmation_email(payment_id):
     try:
         payment = Payment.objects.get(id=payment_id)
     except Payment.DoesNotExist:
@@ -74,27 +69,22 @@ def send_contract_confirmation_email(self, payment_id):
 
     full_name = f'{payment.meta["first_name"]} {payment.meta["last_name"]}'
 
-    try:
-        with open(
-            Path(settings.MEDIA_ROOT) / payment.meta["contract_path"], mode="rb"
-        ) as contract:
-            send_mosaico_email(
-                code="CONTRACT_CONFIRMATION",
-                subject="Votre contrat de prêt",
-                from_email=settings.EMAIL_FROM,
-                bindings={
-                    "CHER_PRETEUR": SUBSTITUTIONS["cher_preteur"][
-                        payment.meta["gender"]
-                    ]
-                },
-                recipients=[person],
-                attachments=[
-                    {
-                        "filename": f"contrat_pret_{slugify(full_name, only_ascii=True)}.pdf",
-                        "content": contract.read(),
-                        "mimetype": "application/pdf",
-                    }
-                ],
-            )
-    except (smtplib.SMTPException, socket.error) as exc:
-        self.retry(countdown=60, exc=exc)
+    with open(
+        Path(settings.MEDIA_ROOT) / payment.meta["contract_path"], mode="rb"
+    ) as contract:
+        send_mosaico_email(
+            code="CONTRACT_CONFIRMATION",
+            subject="Votre contrat de prêt",
+            from_email=settings.EMAIL_FROM,
+            bindings={
+                "CHER_PRETEUR": SUBSTITUTIONS["cher_preteur"][payment.meta["gender"]]
+            },
+            recipients=[person],
+            attachments=[
+                {
+                    "filename": f"contrat_pret_{slugify(full_name, only_ascii=True)}.pdf",
+                    "content": contract.read(),
+                    "mimetype": "application/pdf",
+                }
+            ],
+        )

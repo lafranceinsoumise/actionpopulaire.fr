@@ -536,7 +536,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap3"
 # CELERY
 CELERY_BROKER_URL = os.environ.get("BROKER_URL", "redis://")
 # make sure there is a max_retries option
-CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 2}
+CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 4}
 # make sure celery does not mess with the root logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = NUNTIUS_CELERY_WORKER_HIJACK_ROOT_LOGGER = DEBUG
 # enable worker events to allow monitoring

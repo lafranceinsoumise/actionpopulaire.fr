@@ -14,15 +14,6 @@ from agir.lib.utils import generate_token_params
 params = {"access_token": settings.MAILTRAIN_API_KEY}
 
 
-s = requests.Session()
-s.mount(
-    "https://",
-    requests.adapters.HTTPAdapter(
-        max_retries=Retry(total=5, backoff_factor=1, status_forcelist=[403, 504, 502])
-    ),
-)
-
-
 def data_from_person(person, tmp_tags=None):
     data = {}
 
@@ -102,11 +93,10 @@ def subscribe_email(email, fields=None):
         return True
 
     try:
-        response = s.post(
+        response = requests.post(
             settings.MAILTRAIN_HOST + "/api/subscribe/" + settings.MAILTRAIN_LIST_ID,
             data=data,
             params=params,
-            json=True,
         )
         response.raise_for_status()
     except HTTPError as err:
@@ -125,11 +115,10 @@ def unsubscribe_email(email):
         return True
 
     try:
-        s.post(
+        requests.post(
             settings.MAILTRAIN_HOST + "/api/unsubscribe/" + settings.MAILTRAIN_LIST_ID,
             data=data,
             params=params,
-            json=True,
         ).raise_for_status()
     except requests.HTTPError as e:
         # if subscription did not exist, the status code will be 404: we don't want to fail in this situation
@@ -146,11 +135,10 @@ def delete_email(email):
         return True
 
     try:
-        response = s.post(
+        response = requests.post(
             settings.MAILTRAIN_HOST + "/api/delete/" + settings.MAILTRAIN_LIST_ID,
             data=data,
             params=params,
-            json=True,
         )
         response.raise_for_status()
     except HTTPError as err:

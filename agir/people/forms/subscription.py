@@ -6,9 +6,12 @@ from django.utils.translation import ugettext_lazy as _
 from agir.lib.data import french_zipcode_to_country_code
 from agir.lib.form_components import FormGroup, FullCol
 from agir.lib.form_mixins import LocationFormMixin, french_zipcode_validator
-from agir.lib.mailtrain import delete_email
 from agir.people.models import Person
-from agir.people.tasks import send_unsubscribe_email, send_confirmation_email
+from agir.people.tasks import (
+    send_unsubscribe_email,
+    send_confirmation_email,
+    delete_email_mailtrain,
+)
 
 
 class AnonymousUnsubscribeForm(forms.Form):
@@ -32,8 +35,8 @@ class AnonymousUnsubscribeForm(forms.Form):
             person.event_notifications = False
             person.subscribed = False
             person.save()
-        except (Person.DoesNotExist):
-            delete_email(email)
+        except Person.DoesNotExist:
+            delete_email_mailtrain.delay(email)
 
 
 class BaseSubscriptionForm(forms.Form):

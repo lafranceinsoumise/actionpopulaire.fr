@@ -8,14 +8,14 @@ from agir.people.models import Person
 
 @override_settings(MAILTRAIN_DISABLE=False)
 class MailTrainTestCase(TestCase):
-    @mock.patch("agir.lib.mailtrain.s.post")
+    @mock.patch("agir.lib.mailtrain.requests.post")
     def test_subscribe(self, request_post):
         mailtrain.subscribe_email("test@example.com")
 
         request_post.assert_called_once()
         self.assertEqual(request_post.call_args[1]["data"]["EMAIL"], "test@example.com")
 
-    @mock.patch("agir.lib.mailtrain.s.post")
+    @mock.patch("agir.lib.mailtrain.requests.post")
     def test_unsubscribe(self, request_post):
         mailtrain.unsubscribe_email("test@example.com")
 

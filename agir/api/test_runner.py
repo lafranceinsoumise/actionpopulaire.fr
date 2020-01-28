@@ -16,7 +16,8 @@ class TestRunner(DiscoverRunner):
         Réalise les actions suivantes :
         - Crée un dossier temporaire pour les fichiers média et modifie le paramètre MEDIA_ROOT
         - Met en place un serveur Redis standalone pour les tests
-        - Essaye de mettre
+        - Met Celery en mode "eager", c'est-à-dire que les tâches sont exécutées immédiatement
+          plutôt que d'être schedulées
         :return:
         """
         super(TestRunner, self).setup_test_environment()
@@ -34,8 +35,12 @@ class TestRunner(DiscoverRunner):
         app.conf.task_always_eager = True
 
     def teardown_test_environment(self):
-        "Delete temp storage."
+        "On défait tout ce qui a été fait au setup dans l'ordre inverse"
+        app.conf.task_always_eager = False
+
         self._redislite.__exit__(None, None, None)
+
         self.media_settings_overrider.disable()
         shutil.rmtree(self._temp_media, ignore_errors=True)
+
         super(TestRunner, self).teardown_test_environment()

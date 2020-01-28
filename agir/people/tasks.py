@@ -1,8 +1,3 @@
-import smtplib
-import socket
-
-import requests
-from celery import shared_task
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.http import urlencode
@@ -15,47 +10,42 @@ from agir.authentication.tokens import (
     merge_account_token_generator,
 )
 from agir.lib.display import pretty_time_since
+from agir.lib.mailing import send_mosaico_email
 from agir.lib.mailtrain import update_person, delete_email
 from agir.lib.utils import front_url
-from agir.lib.mailing import send_mosaico_email
 from agir.people.person_forms.display import default_person_form_display
 from .models import Person, PersonFormSubmission, PersonEmail
+from ..lib.celery import emailing_task, http_task
 
 
-@shared_task(max_retries=2, bind=True)
-def send_welcome_mail(self, person_pk):
+@emailing_task
+def send_welcome_mail(person_pk):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
 
-    try:
-        send_mosaico_email(
-            code="WELCOME_MESSAGE",
-            subject=_("Bienvenue sur la plateforme de la France insoumise"),
-            from_email=settings.EMAIL_FROM,
-            bindings={"PROFILE_LINK": front_url("personal_information")},
-            recipients=[person],
-        )
-    except (smtplib.SMTPException, socket.error) as exc:
-        self.retry(countdown=60, exc=exc)
+    send_mosaico_email(
+        code="WELCOME_MESSAGE",
+        subject=_("Bienvenue sur la plateforme de la France insoumise"),
+        from_email=settings.EMAIL_FROM,
+        bindings={"PROFILE_LINK": front_url("personal_information")},
+        recipients=[person],
+    )
 
 
-@shared_task(max_retries=2, bind=True)
-def send_confirmation_email(self, email, **kwargs):
+@emailing_task
+def send_confirmation_email(email, **kwargs):
     if PersonEmail.objects.filter(address__iexact=email).exists():
         p = Person.objects.get_by_natural_key(email)
 
-        try:
-            send_mosaico_email(
-                code="ALREADY_SUBSCRIBED_MESSAGE",
-                subject=_("Vous êtes déjà inscrit !"),
-                from_email=settings.EMAIL_FROM,
-                bindings={
-                    "PANEL_LINK": front_url("dashboard", auto_login=True),
-                    "AGO": pretty_time_since(p.created),
-                },
-                recipients=[p],
-            )
-        except (smtplib.SMTPException, socket.error) as exc:
-            self.retry(countdown=60, exc=exc)
+        send_mosaico_email(
+            code="ALREADY_SUBSCRIBED_MESSAGE",
+            subject=_("Vous êtes déjà inscrit !"),
+            from_email=settings.EMAIL_FROM,
+            bindings={
+                "PANEL_LINK": front_url("dashboard", auto_login=True),
+                "AGO": pretty_time_since(p.created),
+            },
+            recipients=[p],
+        )
 
         return
 
@@ -66,26 +56,23 @@ def send_confirmation_email(self, email, **kwargs):
     query_args = {"email": email, **kwargs, "token": subscription_token}
     confirm_subscription_url += "?" + urlencode(query_args)
 
-    try:
-        send_mosaico_email(
-            code="SUBSCRIPTION_CONFIRMATION_MESSAGE",
-            subject=_("Plus qu'un clic pour vous inscrire"),
-            from_email=settings.EMAIL_FROM,
-            recipients=[email],
-            bindings={"CONFIRMATION_URL": confirm_subscription_url},
-        )
-    except (smtplib.SMTPException, socket.error) as exc:
-        self.retry(countdown=60, exc=exc)
+    send_mosaico_email(
+        code="SUBSCRIPTION_CONFIRMATION_MESSAGE",
+        subject=_("Plus qu'un clic pour vous inscrire"),
+        from_email=settings.EMAIL_FROM,
+        recipients=[email],
+        bindings={"CONFIRMATION_URL": confirm_subscription_url},
+    )
 
 
-@shared_task(max_retries=2, bind=True)
-def send_confirmation_merge_account(self, user_pk_requester, user_pk_merge, **kwargs):
-    """Envoie une demande de fusion de conte.
+@emailing_task
+def send_confirmation_merge_account(user_pk_requester, user_pk_merge, **kwargs):
+    """Envoie une demande de fusion de compte.
 
-    La premiere clée primaire de person est celle du profil qui va rester, la deuxième est celle du profil qui
-    sera suprimé une fois les données du compte fusionées.
+    La premiere clé primaire de person est celle du profil qui va rester, la deuxième est celle du profil qui
+    sera supprimé une fois les données du compte fusionnées.
 
-    Si l'un des deux utilisateur n'existe pas ou que l'utilisqteur est le même, l'opération est annulé.
+    Si l'un des deux utilisateurs n'existe pas ou que l'utilisateur est le même, l'opération est annulée.
     """
     try:
         requester_email = Person.objects.get(pk=user_pk_requester).email
@@ -109,23 +96,20 @@ def send_confirmation_merge_account(self, user_pk_requester, user_pk_merge, **kw
         "confirm_merge_account", query=query_args, auto_login=False
     )
 
-    try:
-        send_mosaico_email(
-            code="MERGE_ACCOUNT_CONFIRMATION",
-            subject="Veuillez confirmer la fusion de compte",
-            from_email=settings.EMAIL_FROM,
-            recipients=[merge_email],
-            bindings={
-                "CONFIRMATION_URL": confirm_merge_account,
-                "REQUESTER_EMAIL": requester_email,
-            },
-        )
-    except (smtplib.SMTPException, socket.error) as exc:
-        self.retry(countdown=60, exc=exc)
+    send_mosaico_email(
+        code="MERGE_ACCOUNT_CONFIRMATION",
+        subject="Veuillez confirmer la fusion de compte",
+        from_email=settings.EMAIL_FROM,
+        recipients=[merge_email],
+        bindings={
+            "CONFIRMATION_URL": confirm_merge_account,
+            "REQUESTER_EMAIL": requester_email,
+        },
+    )
 
 
-@shared_task(max_retries=2, bind=True)
-def send_confirmation_change_email(self, new_email, user_pk, **kwargs):
+@emailing_task
+def send_confirmation_change_email(new_email, user_pk, **kwargs):
     try:
         Person.objects.get(pk=user_pk)
     except Person.DoesNotExist:
@@ -144,59 +128,47 @@ def send_confirmation_change_email(self, new_email, user_pk, **kwargs):
         "confirm_change_mail", query=query_args, auto_login=False
     )
 
-    try:
-        send_mosaico_email(
-            code="CHANGE_MAIL_CONFIRMATION",
-            subject="Confirmez votre changement d'adresse",
-            from_email=settings.EMAIL_FROM,
-            recipients=[new_email],
-            bindings={"CONFIRMATION_URL": confirm_change_mail_url},
-        )
-    except (smtplib.SMTPException, socket.error) as exc:
-        self.retry(countdown=60, exc=exc)
+    send_mosaico_email(
+        code="CHANGE_MAIL_CONFIRMATION",
+        subject="Confirmez votre changement d'adresse",
+        from_email=settings.EMAIL_FROM,
+        recipients=[new_email],
+        bindings={"CONFIRMATION_URL": confirm_change_mail_url},
+    )
 
 
-@shared_task(max_retries=2, bind=True)
-def send_unsubscribe_email(self, person_pk):
+@emailing_task
+def send_unsubscribe_email(person_pk):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
 
     bindings = {"MANAGE_SUBSCRIPTIONS_LINK": front_url("contact")}
 
-    try:
-        send_mosaico_email(
-            code="UNSUBSCRIBE_CONFIRMATION",
-            subject=_("Vous avez été désabonné⋅e des emails de la France insoumise"),
-            from_email=settings.EMAIL_FROM,
-            recipients=[person],
-            bindings=bindings,
-        )
-    except (smtplib.SMTPException, socket.error) as exc:
-        self.retry(countdown=60, exc=exc)
+    send_mosaico_email(
+        code="UNSUBSCRIBE_CONFIRMATION",
+        subject=_("Vous avez été désabonné⋅e des emails de la France insoumise"),
+        from_email=settings.EMAIL_FROM,
+        recipients=[person],
+        bindings=bindings,
+    )
 
 
-@shared_task(max_retries=2, bind=True)
-def update_person_mailtrain(self, person_pk):
+@http_task
+def update_person_mailtrain(person_pk):
     try:
         person = Person.objects.prefetch_related("emails").get(pk=person_pk)
     except Person.DoesNotExist:
         return
 
-    try:
-        update_person(person)
-    except requests.RequestException as exc:
-        self.retry(countdown=60, exc=exc)
+    update_person(person)
 
 
-@shared_task(max_retries=2, bind=True)
-def delete_email_mailtrain(self, email):
-    try:
-        delete_email(email)
-    except requests.RequestException as exc:
-        self.retry(countdown=60, exc=exc)
+@http_task
+def delete_email_mailtrain(email):
+    delete_email(email)
 
 
-@shared_task(max_retries=2, bind=True)
-def send_person_form_confirmation(self, submission_pk):
+@emailing_task
+def send_person_form_confirmation(submission_pk):
     try:
         submission = PersonFormSubmission.objects.get(pk=submission_pk)
     except:
@@ -207,20 +179,17 @@ def send_person_form_confirmation(self, submission_pk):
 
     bindings = {"CONFIRMATION_NOTE": mark_safe(form.confirmation_note)}
 
-    try:
-        send_mosaico_email(
-            code="FORM_CONFIRMATION",
-            subject=_("Confirmation"),
-            from_email=settings.EMAIL_FROM,
-            recipients=[person],
-            bindings=bindings,
-        )
-    except (smtplib.SMTPException, socket.error) as exc:
-        self.retry(countdown=60, exc=exc)
+    send_mosaico_email(
+        code="FORM_CONFIRMATION",
+        subject=_("Confirmation"),
+        from_email=settings.EMAIL_FROM,
+        recipients=[person],
+        bindings=bindings,
+    )
 
 
-@shared_task(max_retries=2, bind=True)
-def send_person_form_notification(self, submission_pk):
+@emailing_task
+def send_person_form_notification(submission_pk):
     try:
         submission = PersonFormSubmission.objects.get(pk=submission_pk)
     except:
@@ -250,14 +219,11 @@ def send_person_form_notification(self, submission_pk):
         ),
     }
 
-    try:
-        send_mosaico_email(
-            code="FORM_NOTIFICATION",
-            subject=_("Formulaire : " + form.title),
-            from_email=settings.EMAIL_FROM,
-            reply_to=[person.email],
-            recipients=[form.send_answers_to],
-            bindings=bindings,
-        )
-    except (smtplib.SMTPException, socket.error) as exc:
-        self.retry(countdown=60, exc=exc)
+    send_mosaico_email(
+        code="FORM_NOTIFICATION",
+        subject=_("Formulaire : " + form.title),
+        from_email=settings.EMAIL_FROM,
+        reply_to=[person.email],
+        recipients=[form.send_answers_to],
+        bindings=bindings,
+    )

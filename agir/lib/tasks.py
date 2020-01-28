@@ -1,33 +1,25 @@
-import requests
-from celery import shared_task
-
-from .geo import geocode_element
 from agir.events.models import Event
 from agir.groups.models import SupportGroup
 from agir.people.models import Person
+from .celery import http_task
+from .geo import geocode_element
 
 __all__ = ["geocode_event", "geocode_support_group", "geocode_person"]
 
 
 def create_geocoder(model):
-    def geocode_model(self, pk):
+    def geocode_model(pk):
         try:
             item = model.objects.get(pk=pk)
         except model.DoesNotExist:
             return
 
-        try:
-            geocode_element(item)
-            item.save()
-        except ValueError as exc:
-            self.retry(countdown=60, exc=exc)
-        except requests.RequestException as exc:
-            # Réessaye dans 30 minutes en cas d'erreur HTTP
-            self.retry(countdown=60 * 30, exc=exc)
+        geocode_element(item)
+        item.save()
 
     geocode_model.__name__ = "geocode_{}".format(model.__name__.lower())
 
-    return shared_task(geocode_model, bind=True, max_retries=3)
+    return http_task(geocode_model)
 
 
 geocode_event = create_geocoder(Event)
