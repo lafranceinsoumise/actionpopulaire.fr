@@ -3,12 +3,11 @@ import AmountInput from "@agir/donations/donationForm/AmountInput";
 import PropTypes from "prop-types";
 import React from "react";
 import {
-  AmountBoxContainer,
-  RecipientLabel,
-  Row,
   AlignedButton,
-  SliderContainer,
-  AlignedSelect
+  AmountBoxContainer,
+  RecipientContainer,
+  Row,
+  SliderContainer
 } from "@agir/donations/donationForm/AllocationsWidget/Styles";
 
 export const RemoveButton = ({ onClick }) => (
@@ -25,52 +24,16 @@ RemoveButton.propTypes = {
   onClick: PropTypes.func
 };
 
-export const GroupPicker = ({ onChange, onRemove, groupChoices }) => (
-  <Row>
-    <AlignedSelect value="" onChange={e => onChange(e.target.value)}>
-      <option value="">Sélectionnez un groupe</option>
-      {groupChoices.map(({ name, id }) => (
-        <option key={id} value={id}>
-          {name}
-        </option>
-      ))}
-    </AlignedSelect>
-    <SliderContainer>
-      <InputRange disabled={true} />
-    </SliderContainer>
-    <AmountBoxContainer>
-      <AmountInput disabled={true} />
-    </AmountBoxContainer>
-    <RemoveButton onClick={onRemove} />
-  </Row>
-);
-GroupPicker.propTypes = {
-  onChange: PropTypes.func,
-  onRemove: PropTypes.func,
-  groupChoices: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      name: PropTypes.string
-    })
-  )
-};
-GroupPicker.defaultProps = {
-  onChange: () => null,
-  onRemove: () => null,
-  groupChoices: []
-};
-
 export const GroupAllocation = ({
-  label,
   amount,
   maxAmount,
   onChange,
   onRemove,
-  disabled
+  disabled,
+  children
 }) => (
   <Row>
-    <RecipientLabel>{label}</RecipientLabel>
-
+    <RecipientContainer>{children}</RecipientContainer>
     <SliderContainer>
       <InputRange
         maxValue={maxAmount}
@@ -98,7 +61,7 @@ export const GroupAllocation = ({
   </Row>
 );
 GroupAllocation.propTypes = {
-  label: PropTypes.string,
+  children: PropTypes.node,
   amount: PropTypes.number,
   maxAmount: PropTypes.number,
   onChange: PropTypes.func,
@@ -106,10 +69,34 @@ GroupAllocation.propTypes = {
   disabled: PropTypes.bool
 };
 GroupAllocation.defaultProps = {
-  label: "",
   amount: 0,
   maxAmount: 0,
   onChange: () => null,
   onRemove: null,
   disabled: false
+};
+
+export const GroupSelector = ({ groupChoices, onChange, value }) => (
+  <select value={value} onChange={e => onChange(e.target.value)}>
+    {groupChoices.map(({ name, id }) => (
+      <option key={id} value={id}>
+        {name}
+      </option>
+    ))}
+  </select>
+);
+GroupSelector.propTypes = {
+  onChange: PropTypes.func,
+  groupChoices: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string
+    })
+  ),
+  value: PropTypes.string
+};
+GroupSelector.defaultProps = {
+  onChange: () => null,
+  groupChoices: [],
+  value: ""
 };

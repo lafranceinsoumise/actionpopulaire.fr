@@ -7,7 +7,7 @@ import {
   changeUnallocatedAmount,
   totalAllocatedFromState
 } from "../allocationsReducer";
-import { GroupAllocation, GroupPicker } from "./components";
+import { GroupAllocation, GroupSelector } from "./components";
 import { AllocationsArray, ButtonHolder } from "./Styles";
 
 const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
@@ -22,7 +22,6 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
       <AllocationsArray>
         {(value.length > 0 || extra) && (
           <GroupAllocation
-            label="Activités nationales"
             amount={maxAmount - totalAllocatedFromState(value)}
             maxAmount={maxAmount}
             onChange={amount =>
@@ -30,12 +29,13 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
             }
             disabled={value.length === 0}
             step={1}
-          />
+          >
+            Activités nationales
+          </GroupAllocation>
         )}
         {value.map(({ group, amount }, i) => (
           <GroupAllocation
             key={group}
-            label={groupChoices.find(choice => choice.id === group).name}
             amount={amount}
             maxAmount={maxAmount}
             onChange={newAmount =>
@@ -46,19 +46,23 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
             onRemove={() => {
               onChange([...value.slice(0, i), ...value.slice(i + 1)]);
             }}
-          />
+          >
+            {groupChoices.find(choice => choice.id === group).name}
+          </GroupAllocation>
         ))}
         {extra && (
-          <GroupPicker
-            groupChoices={extraGroups}
-            onChange={id => {
-              setExtra(false);
-              onChange(value.concat({ group: id, amount: 0 }));
-            }}
+          <GroupAllocation
             onRemove={() => {
               setExtra(false);
             }}
-          />
+          >
+            <GroupSelector
+              onChange={id => {
+                setExtra(false);
+                onChange(value.concat({ group: id, amount: 0 }));
+              }}
+            />
+          </GroupAllocation>
         )}
       </AllocationsArray>
       <ButtonHolder>

@@ -18,7 +18,9 @@ export const RecipientLabel = styled.span`
   width: 25rem;
 `;
 
-export const AlignedSelect = styled.select`
+export const RecipientContainer = styled.div`
+  text-align: right;
+  font-weight: bold;
   width: 25rem;
 `;
 
