@@ -8,14 +8,17 @@ import {
   totalAllocatedFromState
 } from "../allocationsReducer";
 import { GroupAllocation, GroupSelector } from "./components";
-import { AllocationsArray, ButtonHolder } from "./Styles";
+import { AllocationsArray, ButtonHolder, RecipientLabel } from "./Styles";
+
+const filterChoices = currentList => {
+  const currentSet = new Set(currentList.map(({ id }) => id));
+  return choice => !currentSet.has(choice.id);
+};
 
 const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
   const [extra, setExtra] = useState(false);
 
-  const extraGroups = groupChoices.filter(choice =>
-    value.every(allocation => allocation.group !== choice.id)
-  );
+  const currentFilter = filterChoices(value);
 
   return (
     <>
@@ -30,12 +33,12 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
             disabled={value.length === 0}
             step={1}
           >
-            Activités nationales
+            <RecipientLabel>Activités nationales</RecipientLabel>
           </GroupAllocation>
         )}
-        {value.map(({ group, amount }, i) => (
+        {value.map(({ id, name, amount }, i) => (
           <GroupAllocation
-            key={group}
+            key={id}
             amount={amount}
             maxAmount={maxAmount}
             onChange={newAmount =>
@@ -47,7 +50,18 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
               onChange([...value.slice(0, i), ...value.slice(i + 1)]);
             }}
           >
-            {groupChoices.find(choice => choice.id === group).name}
+            <GroupSelector
+              value={{ id, name, amount }}
+              groupChoices={groupChoices}
+              filter={currentFilter}
+              onChange={newVal =>
+                onChange([
+                  ...value.slice(0, i),
+                  { amount, ...newVal },
+                  ...value.slice(i + 1)
+                ])
+              }
+            />
           </GroupAllocation>
         ))}
         {extra && (
@@ -57,26 +71,19 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
             }}
           >
             <GroupSelector
-              onChange={id => {
+              groupChoices={groupChoices}
+              filter={currentFilter}
+              onChange={newGroup => {
                 setExtra(false);
-                onChange(value.concat({ group: id, amount: 0 }));
+                onChange(value.concat({ amount: 0, ...newGroup }));
               }}
+              value={null}
             />
           </GroupAllocation>
         )}
       </AllocationsArray>
       <ButtonHolder>
-        <Button
-          type="button"
-          disabled={extra || extraGroups.length === 0}
-          onClick={() =>
-            extraGroups.length > 1
-              ? setExtra(true)
-              : onChange(
-                  value.concat([{ group: extraGroups[0].id, amount: 0 }])
-                )
-          }
-        >
+        <Button type="button" disabled={extra} onClick={() => setExtra(true)}>
           {value.length === 0 || extra
             ? "Je souhaite allouer mon don à un ou plusieurs groupes"
             : "Allouer à un groupe supplémentaire"}
@@ -91,7 +98,11 @@ AllocationsWidget.propTypes = {
     PropTypes.shape({ id: PropTypes.string, name: PropTypes.string })
   ),
   value: PropTypes.arrayOf(
-    PropTypes.shape({ group: PropTypes.string, amount: PropTypes.number })
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      amount: PropTypes.number
+    })
   ),
   onChange: PropTypes.func,
   maxAmount: PropTypes.number

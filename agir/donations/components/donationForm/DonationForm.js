@@ -18,6 +18,30 @@ const Title = styled.h4`
   }
 `;
 
+const addLabelToAllocations = (allocations, groupChoices) => {
+  if (!allocations) {
+    return [];
+  }
+
+  return allocations.map(({ group, amount }) => ({
+    id: group,
+    name: groupChoices.find(({ id }) => id === group).name,
+    amount
+  }));
+};
+
+const serializeAllocations = allocations => {
+  if (!allocations) {
+    return [];
+  }
+
+  return JSON.stringify(
+    allocations
+      .filter(({ amount }) => amount != 0)
+      .map(({ id, amount }) => ({ group: id, amount }))
+  );
+};
+
 const DonationForm = ({
   initial,
   typeChoices,
@@ -32,7 +56,9 @@ const DonationForm = ({
   byMonth
 }) => {
   const [type, setType] = useState(initial.type || null);
-  const [allocations, setAllocations] = useState(initial.allocations || {});
+  const [allocations, setAllocations] = useState(
+    addLabelToAllocations(initial.allocations, groupChoices)
+  );
   const [amount, setAmount] = useState(initial.amount || null);
 
   const customError =
@@ -57,7 +83,7 @@ const DonationForm = ({
       <input
         type="hidden"
         name="allocations"
-        value={JSON.stringify(allocations.filter(a => a.amount !== 0))}
+        value={serializeAllocations(allocations)}
       />
       <Title>Je choisis le montant de mon don</Title>
       <AmountWidget

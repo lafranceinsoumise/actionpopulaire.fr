@@ -2,6 +2,8 @@ import InputRange from "@agir/lib/bootstrap/InputRange";
 import AmountInput from "@agir/donations/donationForm/AmountInput";
 import PropTypes from "prop-types";
 import React from "react";
+import Async from "react-select/async";
+
 import {
   AlignedButton,
   AmountBoxContainer,
@@ -9,6 +11,7 @@ import {
   Row,
   SliderContainer
 } from "@agir/donations/donationForm/AllocationsWidget/Styles";
+import search from "@agir/donations/donationForm/AllocationsWidget/search";
 
 export const RemoveButton = ({ onClick }) => (
   <AlignedButton
@@ -76,15 +79,32 @@ GroupAllocation.defaultProps = {
   disabled: false
 };
 
-export const GroupSelector = ({ groupChoices, onChange, value }) => (
-  <select value={value} onChange={e => onChange(e.target.value)}>
-    {groupChoices.map(({ name, id }) => (
-      <option key={id} value={id}>
-        {name}
-      </option>
-    ))}
-  </select>
-);
+export const GroupSelector = ({ groupChoices, onChange, value, filter }) => {
+  return (
+    <Async
+      value={value}
+      loadOptions={search}
+      defaultOptions={groupChoices.filter(filter)}
+      filterOption={({ data }) => filter(data)}
+      getOptionLabel={({ name }) => name}
+      getOptionValue={({ id }) => id}
+      onChange={onChange}
+      loadingMessage={() => "Chargement..."}
+      noOptionsMessage={({ inputValue }) =>
+        inputValue.length <= 3
+          ? "Entrez au moins 3 lettres pour chercher un groupe"
+          : "Pas de résultats"
+      }
+      placeholder="Cherchez un groupe..."
+    >
+      {groupChoices.map(({ name, id }) => (
+        <option key={id} value={id}>
+          {name}
+        </option>
+      ))}
+    </Async>
+  );
+};
 GroupSelector.propTypes = {
   onChange: PropTypes.func,
   groupChoices: PropTypes.arrayOf(
@@ -93,10 +113,12 @@ GroupSelector.propTypes = {
       name: PropTypes.string
     })
   ),
-  value: PropTypes.string
+  value: PropTypes.shape({ id: PropTypes.string, name: PropTypes.string }),
+  filter: PropTypes.func
 };
 GroupSelector.defaultProps = {
   onChange: () => null,
+  filter: () => true,
   groupChoices: [],
-  value: ""
+  value: null
 };
