@@ -12,6 +12,6 @@ register_payment_type(
         "don_presidentielle2017",
         "Don à la campagne présidentielle 2017",
         not_found,
-        description_template="legacy/europeennes/donation_description.html",
+        description_template="legacy/presidentielle2017/donation_description.html",
     )
 )
