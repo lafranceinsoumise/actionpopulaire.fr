@@ -26,10 +26,10 @@ def retry_strategy(
                 import builtins
 
                 if increment:
-                    countdown = start + increment * self.retries
+                    countdown = start + increment * self.request.retries
                 else:
                     countdown = (
-                        start * exp_base ** self.retries
+                        start * exp_base ** self.request.retries
                     )  # self.retries starts at 0
 
                 countdown = builtins.max(builtins.min(countdown, max), min)
@@ -50,7 +50,7 @@ def retriable_task(
     min=0,
     exp_base=2,
     strategy=None,
-    **kwargs
+    **kwargs,
 ):
     if strategy is None:
         strategy = retry_strategy(
