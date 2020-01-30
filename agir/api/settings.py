@@ -9,11 +9,11 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-
-import os
-import re
 import dj_database_url
 import dj_email_url
+import os
+import re
+import warnings
 from django.contrib import messages
 from django.contrib.messages import ERROR
 from django.core.exceptions import ImproperlyConfigured

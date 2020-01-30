@@ -96,7 +96,7 @@ Description=fi-api celery worker
 
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/usr/local/bin/pipenv run celery worker --app agir.api --concurrency 2 --logfile=/dev/null -Q celery
+ExecStart=/usr/local/bin/pipenv run celery worker --app agir.api --concurrency 2 -Q celery
 User=vagrant
 Group=vagrant
 Restart=on-failure
@@ -113,7 +113,7 @@ Description=fi-api celery worker
 
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/usr/local/bin/pipenv run celery worker --app nuntius.celery --concurrency 2 --logfile=/dev/null -Q nuntius -n nuntius@%%h
+ExecStart=/usr/local/bin/pipenv run celery worker --app nuntius.celery --concurrency 2 -Q nuntius -n nuntius@%%h
 User=vagrant
 Group=vagrant
 Restart=on-failure
