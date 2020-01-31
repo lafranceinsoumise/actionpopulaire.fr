@@ -83,14 +83,34 @@ GroupAllocation.defaultProps = {
 };
 
 export const GroupSelector = ({ groupChoices, onChange, value, filter }) => {
+  const defaultOptions = {
+    label: "Mes groupes",
+    options: groupChoices.filter(filter)
+  };
   return (
     <Async
       value={value}
-      loadOptions={debouncedSearch}
-      defaultOptions={groupChoices.filter(filter)}
+      loadOptions={terms =>
+        debouncedSearch(terms).then(options =>
+          options.length
+            ? [
+                {
+                  label: "Ma recherche",
+                  options: options
+                },
+                defaultOptions
+              ]
+            : []
+        )
+      }
+      defaultOptions={[defaultOptions]}
       filterOption={({ data }) => filter(data)}
       getOptionLabel={({ name }) => name}
       getOptionValue={({ id }) => id}
+      formatGroupLabel={g => {
+        console.log(g);
+        return g.label;
+      }}
       onChange={onChange}
       loadingMessage={() => "Recherche..."}
       noOptionsMessage={({ inputValue }) =>
