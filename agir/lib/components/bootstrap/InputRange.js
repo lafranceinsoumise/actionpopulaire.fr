@@ -1,8 +1,9 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { animated, useSpring } from "react-spring";
 import { useDrag } from "react-use-gesture";
+import { useThrottle } from "@agir/lib/utils/hooks";
 
 const Container = styled.div`
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
@@ -13,8 +14,8 @@ const Container = styled.div`
 
 const DraggableContainer = React.forwardRef(
   ({ disabled, children, onDrag }, ref) => {
-    const bind = useDrag(({ xy }) => {
-      onDrag(xy[0]);
+    const bind = useDrag(({ xy, last }) => {
+      onDrag(xy[0], last);
     });
 
     return (
@@ -114,11 +115,15 @@ const InputRange = ({
   onChange,
   disabled
 }) => {
-  const valuePerc = (value - minValue) / (maxValue - minValue);
-  const ref = useRef();
+  const [dragValue, setDragValue] = useState(null);
+  const displayValue = dragValue === null ? value : dragValue;
+  const valueInPercent = (displayValue - minValue) / (maxValue - minValue);
+
+  const containerRef = useRef();
+  const throttledOnChange = useThrottle(onChange, 100);
 
   const clamp = x => {
-    const bounds = ref.current.getBoundingClientRect();
+    const bounds = containerRef.current.getBoundingClientRect();
     const val =
       Math.floor(
         (((x - bounds.left) / bounds.width) * (maxValue - minValue)) / step
@@ -128,13 +133,29 @@ const InputRange = ({
   };
 
   const { x } = useSpring({
-    x: `${(Number.isNaN(valuePerc) ? 0 : valuePerc) * 100}%`
+    x: `${(Number.isNaN(valueInPercent) ? 0 : valueInPercent) * 100}%`
   });
 
-  const handleChange = x => !disabled && onChange(clamp(x));
+  const handleChange = (x, stoppedDragging) => {
+    if (!disabled) {
+      const newValue = clamp(x);
+
+      if (stoppedDragging) {
+        onChange(newValue);
+        setDragValue(null);
+      } else {
+        throttledOnChange(newValue);
+        setDragValue(newValue);
+      }
+    }
+  };
 
   return (
-    <DraggableContainer ref={ref} onDrag={handleChange} disabled={disabled}>
+    <DraggableContainer
+      ref={containerRef}
+      onDrag={handleChange}
+      disabled={disabled}
+    >
       <Track position={x} disabled={disabled} />
       <Slider position={x} disabled={disabled} />
     </DraggableContainer>

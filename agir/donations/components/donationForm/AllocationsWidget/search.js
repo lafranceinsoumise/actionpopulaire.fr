@@ -1,7 +1,7 @@
 import axios from "@agir/lib/utils/axios";
 
 const search = async terms => {
-  if (terms.trim().length <= 3) {
+  if (terms.trim().length < 3) {
     return [];
   }
 

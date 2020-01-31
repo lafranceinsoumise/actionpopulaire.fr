@@ -12,6 +12,9 @@ import {
   SliderContainer
 } from "@agir/donations/donationForm/AllocationsWidget/Styles";
 import search from "@agir/donations/donationForm/AllocationsWidget/search";
+import { debounce } from "@agir/lib/utils/promises";
+
+const debouncedSearch = debounce(search, 200);
 
 export const RemoveButton = ({ onClick }) => (
   <AlignedButton
@@ -83,15 +86,15 @@ export const GroupSelector = ({ groupChoices, onChange, value, filter }) => {
   return (
     <Async
       value={value}
-      loadOptions={search}
+      loadOptions={debouncedSearch}
       defaultOptions={groupChoices.filter(filter)}
       filterOption={({ data }) => filter(data)}
       getOptionLabel={({ name }) => name}
       getOptionValue={({ id }) => id}
       onChange={onChange}
-      loadingMessage={() => "Chargement..."}
+      loadingMessage={() => "Recherche..."}
       noOptionsMessage={({ inputValue }) =>
-        inputValue.length <= 3
+        inputValue.length < 3
           ? "Entrez au moins 3 lettres pour chercher un groupe"
           : "Pas de résultats"
       }
