@@ -65,7 +65,6 @@ const replaceForm = selector => {
     ? JSON.parse(amountInput.dataset.amountChoices)
     : null;
   props.showTaxCredit = !amountInput.dataset.hideTaxCredit;
-  props.byMonth = typeof amountInput.dataset.byMonth !== "undefined";
   props.initial.amount = +amountInput.value || null;
   amountInput.remove();
 

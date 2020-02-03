@@ -52,8 +52,7 @@ const DonationForm = ({
   maxAmount,
   minAmountError,
   maxAmountError,
-  showTaxCredit,
-  byMonth
+  showTaxCredit
 }) => {
   const [type, setType] = useState(initial.type || null);
   const [allocations, setAllocations] = useState(
@@ -90,7 +89,7 @@ const DonationForm = ({
         amount={amount}
         amountChoices={amountChoices}
         showTaxCredit={showTaxCredit}
-        byMonth={byMonth}
+        byMonth={type === "M"}
         error={customError}
         onAmountChange={newAmount => {
           setAmount(newAmount);
@@ -109,17 +108,14 @@ const DonationForm = ({
           />
         </>
       )}
-      {groupChoices && groupChoices.length > 0 && (
-        <>
-          <Title>Je choisis à qui je donne</Title>
-          <AllocationWidget
-            groupChoices={groupChoices}
-            value={allocations}
-            onChange={setAllocations}
-            maxAmount={amount}
-          />
-        </>
-      )}
+
+      <Title>Je choisis à qui je donne</Title>
+      <AllocationWidget
+        groupChoices={groupChoices}
+        value={allocations}
+        onChange={setAllocations}
+        maxAmount={amount}
+      />
       <div className="form-group">
         <div>
           <Button type="submit" bsStyle="primary">
@@ -159,6 +155,12 @@ DonationForm.propTypes = {
     })
   ),
   hiddenFields: PropTypes.objectOf(PropTypes.string)
+};
+
+DonationForm.defaultProps = {
+  minAmount: 0,
+  maxAMount: 100000,
+  groupChoices: []
 };
 
 export default hot(DonationForm);
