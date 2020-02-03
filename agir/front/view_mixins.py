@@ -162,3 +162,11 @@ class FilterView(FormMixin, ListView):
 
     def get_form(self, form_class=None):
         return self.get_filter().form
+
+    def get_paginator(
+        self, queryset, per_page, orphans=0, allow_empty_first_page=True, **kwargs
+    ):
+        kwargs.setdefault("request", self.request)
+        return super().get_paginator(
+            queryset, per_page, orphans, allow_empty_first_page, **kwargs
+        )
