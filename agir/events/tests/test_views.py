@@ -1582,8 +1582,8 @@ class DoNotListEventTestCase(TestCase):
         self.assertNotContains(response, "Un événement qui sera non listé")
 
 
-def get_search_url(**kwargs):
-    return "{}?{}".format(reverse("search_event"), urlencode(kwargs))
+def get_search_url(search):
+    return "{}?{}".format(reverse("search_event"), urlencode({"q": search}))
 
 
 class SearchEventTestCase(TestCase):
@@ -1620,59 +1620,51 @@ class SearchEventTestCase(TestCase):
         self.client.force_login(self.person.role)
 
     def test_find_event_by_name(self):
-        response = self.client.get(
-            get_search_url(text_query="vieil homme"), follow=True
-        )
+        response = self.client.get(get_search_url("vieil homme"), follow=True)
         self.assertContains(response, "Pas de pays pour le vieil homme")
 
     def test_find_event_by_description(self):
-        response = self.client.get(get_search_url(text_query="gargantuesque profusion"))
+        response = self.client.get(get_search_url("gargantuesque profusion"))
         self.assertContains(response, "Pas de pays pour le vieil homme")
 
-    def test_find_event_by_repport(self):
-        now = timezone.now()
-        delta = timezone.timedelta(days=3, hours=1)
-        response = self.client.get(
-            get_search_url(text_query="écrire", min_date=(now - delta).date())
-        )
+    def test_find_event_by_report(self):
+        response = self.client.get(get_search_url("écrire"))
         self.assertContains(response, "Événement simple")
 
     def test_find_event_by_location_name(self):
-        response = self.client.get(get_search_url(text_query="meilleur endroit"))
+        response = self.client.get(get_search_url("meilleur endroit"))
         self.assertContains(response, "Pas de pays pour le vieil homme")
 
-    def test_find_event_in_time_interval(self):
-        tz = timezone.get_default_timezone()
-
-        # avec juste une date minimum
-        response = self.client.get(
-            get_search_url(
-                text_query="Pas de pays pour le vieil homme", min_date=self.now.date()
-            )
-        )
-        self.assertContains(response, "Le meilleur endroit du monde")
-
-        # avec juste une date maximum
-        response = self.client.get(
-            get_search_url(
-                text_query="Pas de pays pour le vieil homme",
-                max_date=(self.now + 5 * self.day).date(),
-            )
-        )
-        self.assertContains(response, "Le meilleur endroit du monde")
-
-        # dans un interval de 2 dates
-        response = self.client.get(
-            get_search_url(
-                text_query="pays homme",
-                min_date=self.now.strftime("%d/%m/%Y"),
-                date_end=(self.now + 5 * self.day).date(),
-            )
-        )
-        self.assertContains(response, "Le meilleur endroit du monde")
+    # def test_find_event_in_time_interval(self):
+    #     tz = timezone.get_default_timezone()
+    #
+    #     # avec juste une date minimum
+    #     response = self.client.get(
+    #         get_search_url("Pas de pays pour le vieil homme", min_date=self.now.date())
+    #     )
+    #     self.assertContains(response, "Le meilleur endroit du monde")
+    #
+    #     # avec juste une date maximum
+    #     response = self.client.get(
+    #         get_search_url(
+    #             "Pas de pays pour le vieil homme",
+    #             max_date=(self.now + 5 * self.day).date(),
+    #         )
+    #     )
+    #     self.assertContains(response, "Le meilleur endroit du monde")
+    #
+    #     # dans un interval de 2 dates
+    #     response = self.client.get(
+    #         get_search_url(
+    #             "pays homme",
+    #             min_date=self.now.strftime("%d/%m/%Y"),
+    #             date_end=(self.now + 5 * self.day).date(),
+    #         )
+    #     )
+    #     self.assertContains(response, "Le meilleur endroit du monde")
 
     def test_event_are_indexed_after_created(self):
-        response = self.client.get(get_search_url(text_query="incroyables"))
+        response = self.client.get(get_search_url("incroyables"))
         self.assertContains(response, "Aucun événement ne correspond à votre recherche")
         event = Event.objects.create(
             name="Incroyable happening",
@@ -1681,7 +1673,7 @@ class SearchEventTestCase(TestCase):
             coordinates=Point(2.349_722, 48.853_056, srid=4326),  # ND de Paris,
             visibility="P",
         )
-        response = self.client.get(get_search_url(text_query="incroyables"))
+        response = self.client.get(get_search_url("incroyables"))
         self.assertContains(response, "Incroyable happening")
         self.assertNotContains(response, "Aucun événement ne correspond à votre")
 
@@ -1689,23 +1681,19 @@ class SearchEventTestCase(TestCase):
         self.event.name = "nouveau nom, nouvelle vie"
         self.event.description = "Ceci est une description"
         self.event.save()
-        response = self.client.get(get_search_url(text_query="description"))
+        response = self.client.get(get_search_url("description"))
         self.assertContains(response, "nouveau nom, nouvelle vie")
 
-    def test_dont_find_event_too_far(self):
-        response = self.client.get(get_search_url(text_query="pays vieil homme"))
-        self.assertContains(response, "Le meilleur endroit")
-        response = self.client.get(
-            get_search_url(text_query="pays vieil homme", distance_max="1")
-        )
-        self.assertNotContains(response, "Le meilleur endroit")
+    # def test_dont_find_event_too_far(self):
+    #     response = self.client.get(get_search_url("pays vieil homme"))
+    #     self.assertContains(response, "Le meilleur endroit")
+    #     response = self.client.get(get_search_url("pays vieil homme", distance_max="1"))
+    #     self.assertNotContains(response, "Le meilleur endroit")
 
     def test_dont_find_event_after_change_its_visibility(self):
-        response = self.client.get(get_search_url(text_query="pays vieil homme"))
+        response = self.client.get(get_search_url("pays vieil homme"))
         self.assertContains(response, "Le meilleur endroit")
         self.event.visibility = "G"
         self.event.save()
-        response = self.client.get(
-            get_search_url(text_query="pays vieil homme", distance_max="1")
-        )
+        response = self.client.get(get_search_url("pays vieil homme"))
         self.assertNotContains(response, "Le meilleur endroit")

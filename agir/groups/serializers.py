@@ -7,6 +7,7 @@ class SupportGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.SupportGroup
         fields = (
+            "id",
             "name",
             "type",
             "subtypes",

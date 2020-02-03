@@ -22,13 +22,13 @@ from agir.authentication.view_mixins import (
     PermissionsRequiredMixin,
     HardLoginRequiredMixin,
 )
-from agir.front.view_mixins import SearchByZipcodeBaseView, ObjectOpengraphMixin
-from agir.groups.forms import SearchGroupForm, ExternalJoinForm
+from agir.front.view_mixins import ObjectOpengraphMixin, FilterView
+from agir.groups.filters import GroupFilterSet
+from agir.groups.forms import ExternalJoinForm
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.groups.tasks import send_someone_joined_notification
 from agir.lib.utils import front_url
 from agir.people.views import ConfirmSubscriptionView
-
 
 __all__ = [
     "SupportGroupListView",
@@ -40,17 +40,16 @@ __all__ = [
 ]
 
 
-class SupportGroupListView(SearchByZipcodeBaseView):
+class SupportGroupListView(FilterView):
     """List of groups, filter by zipcode
     """
 
     min_items = 20
     template_name = "groups/group_list.html"
     context_object_name = "groups"
-    form_class = SearchGroupForm
-
-    def get_base_queryset(self):
-        return SupportGroup.objects.active().order_by("name")
+    paginate_by = 20
+    queryset = SupportGroup.objects.filter(published=True)
+    filter_class = GroupFilterSet
 
 
 class SupportGroupDetailView(

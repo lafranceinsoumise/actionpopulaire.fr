@@ -1,30 +1,39 @@
 import django_filters
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Row, Submit, Div
+from django import forms
 
-from agir.lib.filters import FixedModelMultipleChoiceFilter, DistanceFilter
-from agir.events.models import EventSubtype, Event, Calendar
+from agir.events.models import EventSubtype, Event
 
 
-class EventFilterSet(django_filters.FilterSet):
-    search = django_filters.CharFilter(method="filter_search", label="Chercher")
+class EventFilterForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    subtype = FixedModelMultipleChoiceFilter(
-        field_name="subtype", to_field_name="label", queryset=EventSubtype.objects.all()
+        self.helper = FormHelper()
+        self.helper.form_method = "GET"
+        self.helper.layout = Layout(
+            Row(Div("q", css_class="col-md-8"), Div("type", css_class="col-md-4")),
+            "past",
+        )
+        self.helper.add_input(Submit("chercher", "Chercher"))
+
+
+class EventFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(method="filter_search", label="Chercher")
+
+    type = django_filters.ChoiceFilter(
+        field_name="subtype__type",
+        lookup_expr="exact",
+        label="Type d'événement",
+        choices=EventSubtype.TYPE_CHOICES,
     )
-    include_past = django_filters.BooleanFilter(
-        label="Inclure les événements passés", method="filter_include_past"
-    )
-    before = django_filters.DateFilter(
-        field_name="end_time", lookup_expr="date__gte", label="Avant la date"
-    )
-    after = django_filters.DateFilter(
-        field_name="start_time", lookup_expr="date__lte", label="Après la date"
-    )
 
-    calendar = django_filters.ModelChoiceFilter(
-        field_name="calendars", to_field_name="slug", queryset=Calendar.objects.all()
+    past = django_filters.BooleanFilter(
+        label="Inclure les événements passés",
+        method="filter_include_past",
+        widget=forms.CheckboxInput(),
     )
-
-    distance = DistanceFilter(field_name="coordinates", label="Près de")
 
     def __init__(self, data=None, *args, **kwargs):
         if data is not None:
@@ -36,31 +45,22 @@ class EventFilterSet(django_filters.FilterSet):
 
         super().__init__(data, *args, **kwargs)
 
-    @property
-    def qs(self):
-        return super().qs[:5000]
-
-    def filter_include_past(self, queryset, name, value):
+    def filter_include_past(self, qs, name, value):
         if not value:
-            return queryset.upcoming(published_only=False)
-        else:
-            return queryset
-
-    def filter_include_hidden(self, qs, name, value):
-        if not value:
-            return qs.listed()
+            return qs.upcoming(published_only=False)
         else:
             return qs
 
-    def filter_search(self, qs, terms):
+    def filter_search(self, qs, name, terms):
         if terms:
             return qs.search(terms)
         return qs
 
     class Meta:
         model = Event
-        fields = ("subtype", "include_past")
+        fields = []
+        form = EventFilterForm
 
 
-class EventAPIFilterSet(EventFilterSet, django_filters.rest_framework.FilterSet):
+class EventAPIFilter(EventFilter, django_filters.rest_framework.FilterSet):
     pass

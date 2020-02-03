@@ -2,14 +2,19 @@ import InputRange from "@agir/lib/bootstrap/InputRange";
 import AmountInput from "@agir/donations/donationForm/AmountInput";
 import PropTypes from "prop-types";
 import React from "react";
+import Async from "react-select/async";
+
 import {
-  AmountBoxContainer,
-  RecipientLabel,
-  Row,
   AlignedButton,
-  SliderContainer,
-  AlignedSelect
+  AmountBoxContainer,
+  RecipientContainer,
+  Row,
+  SliderContainer
 } from "@agir/donations/donationForm/AllocationsWidget/Styles";
+import search from "@agir/donations/donationForm/AllocationsWidget/search";
+import { debounce } from "@agir/lib/utils/promises";
+
+const debouncedSearch = debounce(search, 200);
 
 export const RemoveButton = ({ onClick }) => (
   <AlignedButton
@@ -25,52 +30,16 @@ RemoveButton.propTypes = {
   onClick: PropTypes.func
 };
 
-export const GroupPicker = ({ onChange, onRemove, groupChoices }) => (
-  <Row>
-    <AlignedSelect value="" onChange={e => onChange(e.target.value)}>
-      <option value="">Sélectionnez un groupe</option>
-      {groupChoices.map(({ name, id }) => (
-        <option key={id} value={id}>
-          {name}
-        </option>
-      ))}
-    </AlignedSelect>
-    <SliderContainer>
-      <InputRange disabled={true} />
-    </SliderContainer>
-    <AmountBoxContainer>
-      <AmountInput disabled={true} />
-    </AmountBoxContainer>
-    <RemoveButton onClick={onRemove} />
-  </Row>
-);
-GroupPicker.propTypes = {
-  onChange: PropTypes.func,
-  onRemove: PropTypes.func,
-  groupChoices: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      name: PropTypes.string
-    })
-  )
-};
-GroupPicker.defaultProps = {
-  onChange: () => null,
-  onRemove: () => null,
-  groupChoices: []
-};
-
 export const GroupAllocation = ({
-  label,
   amount,
   maxAmount,
   onChange,
   onRemove,
-  disabled
+  disabled,
+  children
 }) => (
   <Row>
-    <RecipientLabel>{label}</RecipientLabel>
-
+    <RecipientContainer>{children}</RecipientContainer>
     <SliderContainer>
       <InputRange
         maxValue={maxAmount}
@@ -98,7 +67,7 @@ export const GroupAllocation = ({
   </Row>
 );
 GroupAllocation.propTypes = {
-  label: PropTypes.string,
+  children: PropTypes.node,
   amount: PropTypes.number,
   maxAmount: PropTypes.number,
   onChange: PropTypes.func,
@@ -106,10 +75,73 @@ GroupAllocation.propTypes = {
   disabled: PropTypes.bool
 };
 GroupAllocation.defaultProps = {
-  label: "",
   amount: 0,
   maxAmount: 0,
   onChange: () => null,
   onRemove: null,
   disabled: false
+};
+
+export const GroupSelector = ({ groupChoices, onChange, value, filter }) => {
+  const defaultOptions = {
+    label: "Mes groupes",
+    options: groupChoices.filter(filter)
+  };
+  return (
+    <Async
+      value={value}
+      loadOptions={terms =>
+        debouncedSearch(terms).then(options =>
+          options.length
+            ? [
+                {
+                  label: "Ma recherche",
+                  options: options
+                },
+                defaultOptions
+              ]
+            : []
+        )
+      }
+      defaultOptions={[defaultOptions]}
+      filterOption={({ data }) => filter(data)}
+      getOptionLabel={({ name }) => name}
+      getOptionValue={({ id }) => id}
+      formatGroupLabel={g => {
+        console.log(g);
+        return g.label;
+      }}
+      onChange={onChange}
+      loadingMessage={() => "Recherche..."}
+      noOptionsMessage={({ inputValue }) =>
+        inputValue.length < 3
+          ? "Entrez au moins 3 lettres pour chercher un groupe"
+          : "Pas de résultats"
+      }
+      placeholder="Cherchez un groupe..."
+    >
+      {groupChoices.map(({ name, id }) => (
+        <option key={id} value={id}>
+          {name}
+        </option>
+      ))}
+    </Async>
+  );
+};
+GroupSelector.propTypes = {
+  onChange: PropTypes.func,
+  groupChoices: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string
+    })
+  ),
+  value: PropTypes.shape({ id: PropTypes.string, name: PropTypes.string }),
+  filter: PropTypes.func
+};
+GroupSelector.defaultProps = {
+  onChange: () => null,
+  filter: () => true,
+  groupChoices: [],
+  value: null
 };

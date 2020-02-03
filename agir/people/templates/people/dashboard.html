@@ -24,7 +24,8 @@
               <div class="input-group">
                 <i class="fa fa-envelope-open"></i>
                 <a href="{% url "view_commune" commune.code_departement commune.slug %}">{{ commune.name }}</a>
-                <div>Je suis chef{% if person.gender == "F" %}fe{% elif person.gender != "M" %}⋅fe{% endif %} de file</div>
+                <div>Je suis chef{% if person.gender == "F" %}fe{% elif person.gender != "M" %}⋅fe{% endif %} de file
+                </div>
                 <span class="input-group-btn">
                 <a class='btn btn-default' href="{% url 'change_commune' commune.code_departement commune.slug %}">Modifier les informations</a>
               </span>
@@ -43,7 +44,7 @@
           <li class="menu-item">
             <form method="get" action="{% url "search_event" %}">
               <div class="input-group">
-                <input type="text" class="form-control" name="text_query" placeholder="Votre recherche...">
+                <input type="text" class="form-control" name="q" placeholder="Votre recherche...">
                 <span class="input-group-btn">
                           <button class="btn btn-default" type="submit">Chercher</button>
                     </span>
@@ -69,9 +70,22 @@
       </div>
       <h3 class="clearfix">Mes groupes</h3>
       <div class="btn-group">
-        <a class="btn btn-default btn-sm" href="{% url 'list_all_groups' %}">
+        <button class="btn btn-default btn-sm dropdown-toggle" id="rechercher-evenement" data-toggle="dropdown"
+                aria-expanded="true">
           <i class="fa fa-search"></i> Rechercher un groupe
-        </a>
+        </button>
+        <ul class="dropdown-menu">
+          <li class="menu-item">
+            <form method="get" action="{% url "search_group" %}">
+              <div class="input-group">
+                <input type="text" class="form-control" name="q" placeholder="Votre recherche...">
+                <span class="input-group-btn">
+                          <button class="btn btn-default" type="submit">Chercher</button>
+                    </span>
+              </div>
+            </form>
+          </li>
+        </ul>
         <a class="btn btn-default btn-sm" href="{% url 'create_group' %}">
           <i class="fa fa-plus"></i> Créer un groupe
         </a>

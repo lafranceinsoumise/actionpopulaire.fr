@@ -548,63 +548,6 @@ class UploadEventImageForm(forms.ModelForm):
         fields = ("image", "legend")
 
 
-class SearchEventForm(forms.Form):
-    min_date = DateTimeField(label="Depuis le :", required=True)
-    max_date = DateTimeField(label="Jusqu'au :", required=False)
-    text_query = forms.CharField(
-        label="Texte de la recherche",
-        required=False,
-        help_text="Il est possible de retrouver un événement par nom, résumé, description ou nom du lieu.",
-    )
-
-    address = forms.CharField(
-        label="À proximité de :",
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": "ex: place Pie Avignon 84000"}),
-    )
-
-    distance_max = forms.ChoiceField(
-        label="Distance maximum",
-        choices=[
-            (None, "Pas de limite"),
-            (1, "1 km"),
-            (5, "5 km"),
-            (10, "10 km"),
-            (30, "30 km"),
-            (50, "50 km"),
-            (100, "100 km"),
-            (200, "200 km"),
-            (500, "500 km"),
-            (1000, "1000 km"),
-        ],
-        required=False,
-    )
-
-    page = forms.IntegerField(
-        required=False, widget=forms.HiddenInput(), validators=[MinValueValidator(1)]
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_method = "GET"
-        self.helper.layout = Layout(*self.get_fields())
-
-    def get_fields(self, fields=None):
-        fields = fields or []
-
-        fields.extend(
-            [
-                Row(FullCol("text_query")),
-                Row(HalfCol("min_date"), HalfCol("address")),
-                Row(HalfCol("max_date"), HalfCol("distance_max")),
-                Row(FullCol(Submit("submit", "Chercher", css_class="pull-right"))),
-                Row(FullCol(HTML("""<br>"""))),
-            ]
-        )
-        return fields
-
-
 class AuthorForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -1,27 +1,48 @@
+{% if page_obj.paginator.num_pages > 1 %}
 <div class="row">
   <div class="text-center">
-    <nav aria-label="...">
+    <nav aria-label="Pagination">
       <ul class="pagination">
-
-        {% if page_elements.has_previous %}
+        {% if page_obj.has_previous %}
           <li>
-            <a href="?{{ search_param }}&page={{ page_elements.previous_page_number }}" aria-label="Previous"
-               data-turbolinks="false"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>
+            <a href="{{ base_url }}page={{ page_obj.previous_page_number }}" aria-label="Previous">&laquo;</a>
           </li>
         {% endif %}
 
-        {% if paginator.num_pages > 1 %}
-          {% for elem in paginator.page_range %}
-            <li class="{% if page_elements.number == elem %}active{% endif %}"><a
-              href="?{{ search_param }}&page={{ elem }}" data-turbolinks="false">{{ forloop.counter }}<span
-              class="sr-only">(current)</span></a></li>
-          {% endfor %}
+        {% if show_first_page %}
+          <li>
+            <a href="{{ base_url }}page=1" aria-label="Première page">1</a>
+          </li>
+          <li>
+            <span>&hellip;</span>
+          </li>
         {% endif %}
 
-        {% if page_elements.has_next %}
-          <li><a href="?{{ search_param }}&page={{ page_elements.next_page_number }}" aria-label="Next"><span
-            class="glyphicon glyphicon-circle-arrow-right" data-turbolinks="false"></span></a></li>
+
+        {% for page_number in page_range %}
+          <li class="{% if page_obj.number == page_number %}active{% endif %}"><a
+            href="{{ base_url }}page={{ page_number }}" data-turbolinks="false"><span
+            class="sr-only">Page numéro </span>{{ page_number }}</a></li>
+        {% endfor %}
+
+        {% if show_last_page %}
+          <li>
+            <span>&hellip;</span>
+          </li>
+          {% comment %}
+          <li>
+            <a href="{{ base_url }}page={{ page_obj.paginator.num_pages }}" aria-label="Dernière page">{{ page_obj.paginator.num_pages }}</a>
+          </li>
+          {% endcomment %}
         {% endif %}
+
+        {% if page_obj.has_next %}
+          <li><a href="{{ base_url }}page={{ page_obj.next_page_number }}" aria-label="Suivant">&raquo;</a></li>
+        {% endif %}
+
+
       </ul>
     </nav>
   </div>
+</div>
+{% endif %}

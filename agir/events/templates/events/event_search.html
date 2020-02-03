@@ -30,9 +30,9 @@
   <div>
   {% crispy form %}
 
-  {% include "lib/pagination.html" %}
+  {{ page_obj.pagination_nav }}
 
-  {% for event in page_elements %}
+  {% for event in object_list %}
     <div class="list-group-item">
       <div class="media">
         <div class="media-left media-middle" style="min-width:64px">
@@ -50,11 +50,11 @@
       </div>
     </div>
   {% empty %}
-    {% if search_param and paginator.count == 0 %}
-      <p>Aucun événement ne correspond à votre recherche.</p>
-    {% endif %}
+    <p>Aucun événement ne correspond à votre recherche.</p>
   {% endfor %}
 
-  {% include "lib/pagination.html" %}
+  {{ page_obj.pagination_nav }}
+
+  </div>
 
 {% endblock %}

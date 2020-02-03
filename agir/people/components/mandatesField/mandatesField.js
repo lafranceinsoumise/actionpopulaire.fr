@@ -2,7 +2,7 @@ import { hot } from "react-hot-loader/root"; // doit être importé avant React
 
 import React from "react";
 import PropTypes from "prop-types";
-import { Async } from "react-select";
+import Async from "react-select/async";
 import Symbol from "es6-symbol";
 
 import Modal from "@agir/lib/bootstrap/Modal";

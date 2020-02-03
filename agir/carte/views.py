@@ -19,7 +19,7 @@ from rest_framework.generics import ListAPIView
 from agir.lib.export import dict_to_camelcase
 from agir.municipales.models import CommunePage
 from . import serializers
-from ..events.filters import EventFilterSet
+from ..events.filters import EventFilter
 from ..events.models import Event, EventSubtype
 from ..groups.models import SupportGroup, SupportGroupSubtype
 from ..lib.filters import FixedModelMultipleChoiceFilter
@@ -82,7 +82,7 @@ class BBoxFilterBackend(object):
 class EventsView(ListAPIView):
     serializer_class = serializers.MapEventSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend)
-    filterset_class = EventFilterSet
+    filterset_class = EventFilter
     authentication_classes = [SessionAuthentication]
 
     def get_queryset(self):

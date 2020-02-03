@@ -15,13 +15,9 @@ urlpatterns = [
         views.PerformCreateSupportGroupView.as_view(),
         name="perform_create_group",
     ),
+    path("groupes/liste/", views.SupportGroupListView.as_view(), name="search_group"),
     path(
-        "groupes/liste/", views.SupportGroupListView.as_view(), name="list_all_groups"
-    ),
-    path(
-        "api/groupes/chercher/",
-        views.GroupSearchAPIView.as_view(),
-        name="api_group_search",
+        "groupes/chercher/", views.GroupSearchAPIView.as_view(), name="api_search_group"
     ),
     path(
         "api/groupes/sous-types/",

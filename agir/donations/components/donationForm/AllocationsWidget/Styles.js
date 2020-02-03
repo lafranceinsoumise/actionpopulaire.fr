@@ -12,13 +12,12 @@ export const AllocationsArray = styled(MarginBox)`
 
 export const Row = props => <FlexContainer alignItems="center" {...props} s />;
 
-export const RecipientLabel = styled.span`
+export const RecipientLabel = styled.div`
   text-align: right;
-  font-weight: bold;
-  width: 25rem;
 `;
 
-export const AlignedSelect = styled.select`
+export const RecipientContainer = styled.div`
+  font-weight: bold;
   width: 25rem;
 `;
 
