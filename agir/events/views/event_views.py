@@ -464,18 +464,6 @@ class CalendarView(IframableMixin, ObjectOpengraphMixin, ListView):
     paginate_by = 10
     context_object_name = "events"
 
-    def get_paginator(
-        self, queryset, per_page, orphans=0, allow_empty_first_page=True, **kwargs
-    ):
-        return super().get_paginator(
-            queryset,
-            per_page,
-            orphans=0,
-            allow_empty_first_page=True,
-            request=self.request,
-            **kwargs,
-        )
-
     def get_template_names(self):
         if self.request.GET.get("iframe"):
             return ["events/calendar_iframe.html"]

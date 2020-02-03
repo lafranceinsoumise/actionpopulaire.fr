@@ -1,3 +1,5 @@
+{% load url_utils %}
+
 {% if page_obj.paginator.num_pages > 1 %}
 <div class="row">
   <div class="text-center">
@@ -5,13 +7,13 @@
       <ul class="pagination">
         {% if page_obj.has_previous %}
           <li>
-            <a href="{{ base_url }}page={{ page_obj.previous_page_number }}" aria-label="Previous">&laquo;</a>
+            <a href="{{ request.path }}{% query_string request.GET page=page_obj.previous_page_number %}" aria-label="Previous">&laquo;</a>
           </li>
         {% endif %}
 
         {% if show_first_page %}
           <li>
-            <a href="{{ base_url }}page=1" aria-label="Première page">1</a>
+            <a href="{{ request.path }}{% query_string request.GET page="1" %}" aria-label="Première page">1</a>
           </li>
           <li>
             <span>&hellip;</span>
@@ -23,7 +25,7 @@
             <li class="active"><span><span class="sr-only">Page numéro </span>{{ page_number }}</span></li>
           {% else %}
             <li class="{% if page_obj.number == page_number %}active{% endif %}"><a
-              href="{{ base_url }}page={{ page_number }}" data-turbolinks="false"><span
+              href="{{ request.path }}{% query_string request.GET page=page_number %}" data-turbolinks="false"><span
               class="sr-only">Page numéro </span>{{ page_number }}</a></li>
           {% endif %}
         {% endfor %}
@@ -32,17 +34,11 @@
           <li>
             <span>&hellip;</span>
           </li>
-          {% comment %}
-          <li>
-            <a href="{{ base_url }}page={{ page_obj.paginator.num_pages }}" aria-label="Dernière page">{{ page_obj.paginator.num_pages }}</a>
-          </li>
-          {% endcomment %}
         {% endif %}
 
         {% if page_obj.has_next %}
-          <li><a href="{{ base_url }}page={{ page_obj.next_page_number }}" aria-label="Suivant">&raquo;</a></li>
+          <li><a href="{{ request.path }}{% query_string request.GET page=page_obj.next_page_number %}" aria-label="Suivant">&raquo;</a></li>
         {% endif %}
-
 
       </ul>
     </nav>

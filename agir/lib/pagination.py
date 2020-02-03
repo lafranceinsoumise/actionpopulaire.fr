@@ -9,10 +9,6 @@ from rest_framework.response import Response
 
 
 class HTMLPage(Page):
-    def __init__(self, *args, base_url, **kwargs):
-        self.base_url = base_url
-        super().__init__(*args, **kwargs)
-
     def pagination_nav(self):
         start, end = (
             max(2, self.number - 4),
@@ -36,7 +32,6 @@ class HTMLPage(Page):
             {
                 "page_obj": self,
                 "page_range": range(start, end + 1),
-                "base_url": self.base_url,
                 "show_first_page": show_first_page,
                 "show_last_page": show_last_page,
             }
@@ -44,21 +39,8 @@ class HTMLPage(Page):
 
 
 class HTMLPaginator(Paginator):
-    def __init__(self, *args, request, **kwargs):
-        url = urlparse(request.get_full_path())
-        query = parse_qs(url.query)
-        query.pop("page", None)
-        base_url = urlunparse(url._replace(query=urlencode(query, True)))
-        if query:
-            base_url += "&"
-        else:
-            base_url += "?"
-
-        self.base_url = base_url
-        super().__init__(*args, **kwargs)
-
     def _get_page(self, *args, **kwargs):
-        return HTMLPage(*args, base_url=self.base_url, **kwargs)
+        return HTMLPage(*args, **kwargs)
 
 
 class APIPaginator(PageNumberPagination):
