@@ -1,9 +1,10 @@
+from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
 from . import models
 
 
-class SupportGroupSerializer(serializers.ModelSerializer):
+class SupportGroupSerializer(CountryFieldMixin, serializers.ModelSerializer):
     class Meta:
         model = models.SupportGroup
         fields = (

@@ -1,10 +1,11 @@
+from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
 from . import models
 from ..lib.serializers import ExistingRelatedLabelField
 
 
-class EventSerializer(serializers.ModelSerializer):
+class EventSerializer(CountryFieldMixin, serializers.ModelSerializer):
     subtype = ExistingRelatedLabelField(
         queryset=models.EventSubtype.objects.all(), required=False
     )
