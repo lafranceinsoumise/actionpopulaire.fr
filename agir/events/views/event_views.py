@@ -26,6 +26,7 @@ from django.views.generic import (
     TemplateView,
     DeleteView,
     DetailView,
+    ListView,
 )
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import ProcessFormView, FormMixin
@@ -82,6 +83,8 @@ __all__ = [
     "EventSearchView",
     "PerformCreateEventView",
 ]
+
+from ...lib.pagination import HTMLPaginator
 
 
 class EventSearchView(FilterView):
@@ -455,31 +458,53 @@ class QuitEventView(SoftLoginRequiredMixin, PermissionsRequiredMixin, DeleteView
         return res
 
 
-class CalendarView(IframableMixin, ObjectOpengraphMixin, DetailView):
+class CalendarView(IframableMixin, ObjectOpengraphMixin, ListView):
     model = Calendar
-    paginator_class = Paginator
-    per_page = 10
+    paginator_class = HTMLPaginator
+    paginate_by = 10
+    context_object_name = "events"
+
+    def get_paginator(
+        self, queryset, per_page, orphans=0, allow_empty_first_page=True, **kwargs
+    ):
+        return super().get_paginator(
+            queryset,
+            per_page,
+            orphans=0,
+            allow_empty_first_page=True,
+            request=self.request,
+            **kwargs,
+        )
 
     def get_template_names(self):
         if self.request.GET.get("iframe"):
             return ["events/calendar_iframe.html"]
         return ["events/calendar.html"]
 
-    def get_context_data(self, **kwargs):
-        # get all ids of calendar that are either the one selected, or children of it
-        calendar_ids = self.get_calendar_ids(self.object.id)
+    def get(self, request, *args, **kwargs):
+        try:
+            self.calendar = self.object = self.model.objects.get(
+                slug=self.kwargs.get("slug")
+            )
+        except self.model.DoesNotExist:
+            raise Http404("Ce calendrier n'existe pas.")
 
-        all_events = (
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        calendar_ids = self.get_calendar_ids(self.calendar.id)
+
+        return (
             Event.objects.upcoming(as_of=timezone.now())
             .filter(calendar_items__calendar_id__in=calendar_ids)
             .order_by("start_time", "id")
             .distinct("start_time", "id")
         )
-        paginator = self.paginator_class(all_events, self.per_page)
-        events = paginator.page(self.request.GET.get("page"))
 
+    def get_context_data(self, **kwargs):
+        # get all ids of calendar that are either the one selected, or children of it
         return super().get_context_data(
-            events=events, default_event_image=settings.DEFAULT_EVENT_IMAGE
+            default_event_image=settings.DEFAULT_EVENT_IMAGE, calendar=self.calendar
         )
 
     @staticmethod

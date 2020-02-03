@@ -1357,34 +1357,23 @@ class CalendarPageTestCase(TestCase):
         for i in range(20):
             e = Event.objects.create(
                 name="Event {}".format(i),
-                calendar=self.calendar,
                 start_time=now + i * day,
                 end_time=now + i * day + hour,
             )
             CalendarItem.objects.create(event=e, calendar=self.calendar)
 
-    def can_view_page(self):
+    def test_can_view_page(self):
         # can show first page
         res = self.client.get("/agenda/my_calendar/")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        # there's a next button
-        self.assertContains(res, '<li class="next">')
-        self.assertContains(res, 'href="?page=2"')
-
-        # there's no previous button
-        self.assertNotContains(res, '<li class="previous">')
+        self.assertContains(res, 'href="/agenda/my_calendar/?page=2')
+        self.assertNotContains(res, 'href="/agenda/my_calendar/?page=1')
 
         # can display second page
         res = self.client.get("/agenda/my_calendar/?page=2")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        # there's a next button
-        self.assertNotContains(res, '<li class="next">')
-
-        # there's no previous button
-        self.assertContains(res, '<li class="previous">')
-        self.assertContains(res, 'href="?page=1"')
+        self.assertNotContains(res, 'href="/agenda/my_calendar/?page=2')
+        self.assertContains(res, 'href="/agenda/my_calendar/?page=1')
 
 
 class ExternalRSVPTestCase(TestCase):
