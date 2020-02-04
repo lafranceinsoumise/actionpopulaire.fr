@@ -58,6 +58,8 @@ def groups_to_csv_lines(queryset):
 
 
 def groups_to_dicts(queryset):
+    from agir.api import front_urls
+
     for g in queryset.iterator():
         d = {k: v for k, v in zip(COMMON_FIELDS, common_extractor(g))}
         d["address"] = "\n".join(
