@@ -143,6 +143,12 @@ class CommunePage(TimeStampedModel, models.Model):
             kwargs={"code_departement": self.code_departement, "slug": self.slug},
         )
 
+    def title_case(self):
+        return "".join(c.title() for c in self.slug.split("-"))
+
+    def snake_case(self):
+        return "_".join(self.slug.split("-"))
+
     class Meta:
         constraints = (
             UniqueConstraint(fields=["code_departement", "slug"], name="dep_slug"),

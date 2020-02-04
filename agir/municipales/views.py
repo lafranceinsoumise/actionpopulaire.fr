@@ -1,5 +1,7 @@
 from django.core.paginator import Paginator
-from django.shortcuts import render, get_object_or_404
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.views.generic import DetailView, UpdateView
 from rest_framework.generics import ListAPIView
 
@@ -9,11 +11,18 @@ from agir.authentication.view_mixins import (
 )
 from agir.events.models import Event
 from agir.lib.views import IframableMixin
-from agir.municipales.forms import CommunePageForm
+from agir.loans.views import (
+    BaseLoanAskAmountView,
+    BaseLoanPersonalInformationView,
+    BaseLoanAcceptContractView,
+)
+from agir.municipales.campagnes import CAMPAGNES
+from agir.municipales.forms import CommunePageForm, MunicipalesLenderForm
 from agir.municipales.models import CommunePage
 from agir.municipales.serializers import CommunePageSerializer
 
 
+# noinspection PyUnresolvedReferences
 class CommunePageMixin:
     context_object_name = "commune"
 
@@ -75,3 +84,79 @@ class CommuneChangeView(
         kwargs = super().get_form_kwargs()
         kwargs["person"] = self.request.user.person
         return kwargs
+
+
+# noinspection PyUnresolvedReferences
+class CampagneMixin:
+    def dispatch(self, *args, **kwargs):
+        self.campagne = self.get_campagne()
+        self.commune = self.campagne["commune"]
+        return super().dispatch(*args, **kwargs)
+
+    def get_campagne(self):
+        key = (self.kwargs["code_departement"], self.kwargs["slug"])
+        if key not in CAMPAGNES:
+            raise Http404("Cette page n'existe pas.")
+        return {
+            **CAMPAGNES[key],
+            "commune": CommunePage.objects.get(code=CAMPAGNES[key]["insee"]),
+        }
+
+    def get_meta_title(self):
+        return f"Je prête à {self.campagne['nom_liste']}"
+
+    def get_meta_description(self):
+        return self.campagne["description"]
+
+    def get_payment_modes(self):
+        return [self.campagne["payment_mode"]]
+
+    def get_success_url(self):
+        return reverse(
+            self.success_view_name,
+            kwargs={
+                "code_departement": self.commune.code_departement,
+                "slug": self.commune.slug,
+            },
+        )
+
+    def return_to_previous_step(self):
+        return redirect(
+            "municipales_loans_ask_amount",
+            kwargs={
+                "code_departement": self.commune.code_departement,
+                "slug": self.commune.slug,
+            },
+        )
+
+
+class CommuneLoanView(CampagneMixin, BaseLoanAskAmountView):
+    template_name = "municipales/loans/ask_amount.html"
+    success_view_name = "municipales_loans_personal_information"
+
+
+class CommuneLoanPersonalInformationView(
+    CampagneMixin, BaseLoanPersonalInformationView
+):
+    template_name = "municipales/loans/personal_information.html"
+    success_view_name = "municipales_loans_contract"
+    base_redirect_view = "municipales_loans_ask_amount"
+    payment_type = "pret_municipales"
+    form_class = MunicipalesLenderForm
+
+
+class CommuneLoanAcceptContractView(CampagneMixin, BaseLoanAcceptContractView):
+    template_name = "municipales/loans/validate_contract.html"
+    payment_type = "pret_municipales"
+
+    def get_ask_amount_url(self):
+        return reverse(
+            "municipales_loans_ask_amount",
+            args=[self.commune.code_departement, self.commune.slug],
+        )
+
+    def get_personal_information_url(self):
+        return reverse(
+            "municipales_loans_personal_information",
+            args=[self.commune.code_departement, self.commune.slug],
+        )

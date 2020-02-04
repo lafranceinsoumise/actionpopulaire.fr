@@ -3,14 +3,37 @@ from collections import OrderedDict
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms import ChoiceField, Field, RadioSelect
+from django.urls import path, include
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
 __all__ = ["PAYMENT_MODES", "DEFAULT_MODE", "PaymentModeField"]
 
 _payment_classes = [import_string(name) for name in settings.PAYMENT_MODES]
-PAYMENT_MODES = OrderedDict((klass.id, klass()) for klass in _payment_classes)
+PAYMENT_MODES = {klass.id: klass() for klass in _payment_classes}
+
 DEFAULT_MODE = _payment_classes[0].id
+
+_urls_configured = False
+
+
+def add_payment_mode(klass):
+    payment_mode = klass()
+    PAYMENT_MODES[klass.id] = klass()
+
+    _setup_urls([payment_mode])
+
+
+def _setup_urls(payment_modes):
+    global _urls_configured
+    from .urls import urlpatterns
+
+    for p in payment_modes:
+        urlpatterns.append(
+            path(f"paiement/{p.url_fragment}/", include((p.get_urls(), p.id)))
+        )
+
+    _urls_configured = True
 
 
 class PaymentModeField(ChoiceField):
@@ -24,15 +47,12 @@ class PaymentModeField(ChoiceField):
         required=True,
         initial=None,
         label=_("Mode de paiement"),
-        **kwargs
+        **kwargs,
     ):
 
-        if payment_modes == "ALL":
-            self._payment_modes = settings.PAYMENT_MODES
-        else:
-            self._payment_modes = [
-                PAYMENT_MODES[p] if isinstance(p, str) else p for p in payment_modes
-            ]
+        self._payment_modes = [
+            PAYMENT_MODES[p] if isinstance(p, str) else p for p in payment_modes
+        ]
 
         if required:
             self.empty_label = None
@@ -49,7 +69,9 @@ class PaymentModeField(ChoiceField):
 
     @payment_modes.setter
     def payment_modes(self, value):
-        self._payment_modes = value
+        self._payment_modes = [
+            PAYMENT_MODES[p] if isinstance(p, str) else p for p in value
+        ]
         self.widget.choices = self.choices
 
     @property

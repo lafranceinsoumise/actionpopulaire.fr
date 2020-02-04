@@ -1,7 +1,8 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Row, Submit, Layout, Fieldset, Div
+from crispy_forms.layout import Submit, Layout, Fieldset
 from django import forms
 
+from agir.loans.forms import LenderForm
 from agir.municipales.models import CommunePage
 from agir.municipales.tasks import notify_commune_changed
 
@@ -42,4 +43,21 @@ class CommunePageForm(forms.ModelForm):
             "website",
             "ordre_don",
             "adresse_don",
+        )
+
+
+class MunicipalesLenderForm(LenderForm):
+    class Meta(LenderForm.Meta):
+        # retire "subscribed"
+        fields = (
+            "first_name",
+            "last_name",
+            "gender",
+            "location_address1",
+            "location_address2",
+            "location_zip",
+            "location_city",
+            "location_country",
+            "contact_phone",
+            "date_of_birth",
         )

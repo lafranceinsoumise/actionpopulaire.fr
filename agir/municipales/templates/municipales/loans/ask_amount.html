@@ -2,16 +2,15 @@
 {% load static %}
 
 {% block title %}
-  Je prête à la campagne européenne
+  Je prête à {{ campagne.nom_liste }}
 {% endblock %}
 
-{% block background_url %}{% static "loans/sample/bg_loans.jpg" %}{% endblock %}
+{% block background_url %}{% static campagne.image_fond %}{% endblock %}
 
 {% block donation_intro %}
-  <p>Pour financer les dépenses liées à l’organisation la campagne pour les élections européennes du 26 mai 2019,
+  <p>Pour financer les dépenses liées à l’organisation de la campagne municipale à {{ campagne.ville }},
     nous avons besoin du soutien financier de chacun⋅e d’entre vous. Sur cette page, vous pouvez
-    faire un prêt à l'Association de Financement de la Campagne Européenne de la liste soutenue par la France insoumise
-    du montant de votre choix par carte de crédit.</p>
+    faire un prêt à {{ campagne.mandataire }} du montant de votre choix par carte de crédit.</p>
   <div class="row">
     <div class="col-sm-4">
       <div style="text-align: center"><span class="fa fa-5x fa-credit-card"></span></div>
@@ -38,6 +37,6 @@
 
 {% endblock %}
 
-{% block donation_dest %}Je fais un prêt à la campagne européenne{% endblock %}
+{% block donation_dest %}Je fais un prêt à la campagne municipale à {{ campagne.ville }}{% endblock %}
 
 {% block legal %}{% include "loans/legal.html" %}{% endblock %}
