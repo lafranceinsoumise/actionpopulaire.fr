@@ -47,7 +47,7 @@ class MembershipInline(admin.TabularInline):
 
     person_link.short_description = _("Personne")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
 
@@ -266,6 +266,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     def get_queryset(self, request):
         qs: QuerySet = super().get_queryset(request)
 
+        # noinspection SqlResolve
         return qs.annotate(
             membership_count=RawSQL(
                 'SELECT COUNT(*) FROM "groups_membership" WHERE "supportgroup_id" = "groups_supportgroup"."id"',

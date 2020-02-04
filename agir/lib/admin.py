@@ -7,6 +7,8 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django.views import View
+from django.views.generic.base import ContextMixin
 
 from agir.lib import data
 from agir.lib.data import FRANCE_COUNTRY_CODES
@@ -79,7 +81,7 @@ class RegionListFilter(admin.SimpleListFilter):
         return queryset.filter(data.filtre_region(self.value()))
 
 
-class AdminViewMixin:
+class AdminViewMixin(ContextMixin, View):
     def get_admin_helpers(self, form, fields: Iterable[str] = None, fieldsets=None):
         if fieldsets is None:
             fieldsets = [(None, {"fields": list(fields)})]

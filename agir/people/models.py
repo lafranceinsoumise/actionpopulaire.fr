@@ -2,24 +2,23 @@ import secrets
 
 import phonenumbers
 import warnings
-
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
-from django.db import models, transaction, IntegrityError
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
+from django.core.exceptions import ValidationError
+from django.db import models, transaction
 from django.db.models import Q
+from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import ValidationError
-from django.utils.functional import cached_property
-from django.contrib.postgres.search import SearchVectorField
-from django.contrib.postgres.indexes import GinIndex
 from django_prometheus.models import ExportModelOperationsMixin
-from django.utils import timezone
 from functools import partial
 from nuntius.models import AbstractSubscriber
-
 from phonenumber_field.modelfields import PhoneNumberField
 
+from agir.authentication.models import Role
 from agir.lib.models import (
     BaseAPIResource,
     LocationMixin,
@@ -27,13 +26,10 @@ from agir.lib.models import (
     NationBuilderResource,
     TimeStampedModel,
 )
-from agir.authentication.models import Role
 from agir.lib.search import PrefixSearchQuery
 from agir.lib.utils import generate_token_params
 from . import metrics
-
 from .model_fields import MandatesField, ValidatedPhoneNumberField
-
 from .person_forms.models import *
 
 
@@ -407,7 +403,7 @@ class Person(
         order.remove(email_instance.id)
         order.insert(0, email_instance.id)
         self.set_personemail_order(order)
-        self.primary_email = email_instance
+        self.__dict__["primary_email"] = email_instance
 
     def get_subscriber_status(self):
         if self.bounced:

@@ -19,7 +19,7 @@ def retry_strategy(
         @wraps(decorated)
         def inner(self, *args, **kwargs):
             if forward_self:
-                args.insert(0, self)
+                args = [self, *args]
             try:
                 decorated(*args, **kwargs)
             except retry_on as e:

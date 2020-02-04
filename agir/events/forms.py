@@ -5,7 +5,6 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Row, Field
 from django import forms
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.core.validators import MinValueValidator
 from django.db import transaction
 from django.template.defaultfilters import floatformat
 from django.utils import timezone
@@ -25,9 +24,8 @@ from agir.lib.form_mixins import (
     MetaFieldsMixin,
     ImageFormMixin,
 )
-from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
+from agir.payments.payment_modes import PaymentModeField
 from agir.people.forms import BasePersonForm
-from agir.people.person_forms.fields import DateTimeField
 from .models import Event, OrganizerConfig, RSVP, EventImage, EventSubtype
 from .tasks import (
     send_event_creation_notification,
@@ -45,8 +43,13 @@ __all__ = [
     "AddOrganizerForm",
     "EventGeocodingForm",
     "EventReportForm",
+    "EventLegalForm",
     "UploadEventImageForm",
-    "SearchEventForm",
+    "AuthorForm",
+    "BillingForm",
+    "GuestsForm",
+    "BaseRSVPForm",
+    "ExternalRSVPForm",
 ]
 
 

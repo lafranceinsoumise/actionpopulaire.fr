@@ -157,9 +157,11 @@ class IBANField(forms.Field):
         super().__init__(*args, **kwargs)
 
         if self.allowed_countries is not None:
+            # noinspection PyUnresolvedReferences
             self.widget.attrs["data-allowed-countries"] = ",".join(
                 self.allowed_countries
             )
+            # noinspection PyUnresolvedReferences
             self.widget.attrs[
                 "data-allowed-countries-error"
             ] = self.allowed_countries_error_message()

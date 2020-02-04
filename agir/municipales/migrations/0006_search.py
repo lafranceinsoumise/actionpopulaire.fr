@@ -4,7 +4,10 @@ from django.db import migrations
 
 SEARCH_COLUMN = """setweight(to_tsvector('simple_unaccented', COALESCE("name", '')), 'A') || setweight(to_tsvector('simple_unaccented', COALESCE("code_departement", '')), 'B')"""
 
-create_index = f"CREATE INDEX municipales_communepage_search ON municipales_communepage USING GIN (({SEARCH_COLUMN}));"
+create_index = f"""
+-- noinspection SqlResolve"
+CREATE INDEX municipales_communepage_search ON municipales_communepage USING GIN (({SEARCH_COLUMN}));
+"""
 
 remove_index = """
 DROP INDEX municipales_communepage_search;

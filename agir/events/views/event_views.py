@@ -683,11 +683,13 @@ class UploadEventImageView(
         else:
             return self.form_invalid(form, author_form)
 
+    # noinspection PyMethodOverriding
     def form_invalid(self, form, author_form):
         return self.render_to_response(
             self.get_context_data(form=form, author_form=author_form)
         )
 
+    # noinspection PyMethodOverriding
     def form_valid(self, form, author_form):
         author_form.save()
         form.save()

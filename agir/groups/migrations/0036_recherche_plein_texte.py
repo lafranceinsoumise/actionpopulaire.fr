@@ -25,6 +25,7 @@ setweight(to_tsvector('french_unaccented', COALESCE("name", '')), 'A')
 
 
 ADD_GROUP_TEXT_SEARCH_INDEX = f"""
+-- noinspection SqlResolve
 CREATE INDEX groups_supportgroup_search ON groups_supportgroup USING GIN (({SEARCH_COLUMN}));
 """
 

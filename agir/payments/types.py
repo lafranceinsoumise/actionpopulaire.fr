@@ -1,24 +1,26 @@
-from __future__ import annotations
-
-from typing import Callable, Mapping, Any, TypeVar
-
 from dataclasses import dataclass
+from typing import Callable, Mapping, Any, TYPE_CHECKING
+
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest, HttpResponse
 
 PAYMENT_TYPES = {}
 SUBSCRIPTION_TYPES = {}
 
+# https://mypy.readthedocs.io/en/latest/common_issues.html#import-cycles
+if TYPE_CHECKING:
+    from .models import Payment, Subscription
+
 
 @dataclass
 class PaymentType:
     id: str
     label: str
-    success_view: Callable[[HttpRequest, Payment], HttpResponse]
-    failure_view: Callable[[HttpRequest, Payment], HttpResponse] = None
-    status_listener: Callable[[Payment], None] = None
+    success_view: Callable[[HttpRequest, "Payment"], HttpResponse]
+    failure_view: Callable[[HttpRequest, "Payment"], HttpResponse] = None
+    status_listener: Callable[["Payment"], None] = None
     description_template: str = None
-    description_context_generator: Callable[[Payment], Mapping[str, Any]] = None
+    description_context_generator: Callable[["Payment"], Mapping[str, Any]] = None
 
 
 def register_payment_type(payment_type: PaymentType):
@@ -37,11 +39,11 @@ def get_payment_choices():
 class SubscriptionType:
     id: str
     label: str
-    success_view: Callable[[HttpRequest, Subscription], HttpResponse]
-    failure_view: Callable[[HttpRequest, Subscription], HttpResponse] = None
-    status_listener: Callable[[Subscription], None] = None
+    success_view: Callable[[HttpRequest, "Subscription"], HttpResponse]
+    failure_view: Callable[[HttpRequest, "Subscription"], HttpResponse] = None
+    status_listener: Callable[["Subscription"], None] = None
     description_template: str = None
-    description_context_generator: Callable[[Payment], Mapping[str, Any]] = None
+    description_context_generator: Callable[["Payment"], Mapping[str, Any]] = None
 
 
 def register_subscription_type(subscription_type: SubscriptionType):

@@ -50,6 +50,7 @@ class GroupFilterSet(django_filters.FilterSet):
 
     @property
     def qs(self):
+        # noinspection PyStatementEffect
         self.errors
         if self.form.cleaned_data.get("q"):
             return super().qs

@@ -34,6 +34,7 @@ class Command(BaseCommand):
             f"Autres :\t{d[Person.GENDER_OTHER]}\n"
         )
 
+    # noinspection PyUnboundLocalVariable
     def handle(self, reference_date, target, tag_prefix, event, **kwargs):
         previous_tags = PersonTag.objects.filter(label__startswith=tag_prefix)
 

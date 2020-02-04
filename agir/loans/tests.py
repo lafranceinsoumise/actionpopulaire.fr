@@ -80,14 +80,14 @@ class LoansTestCase(TransactionTestCase):
 
     def get(self, url):
         req = self.factory.get(url)
-        req.user = self.factory.user
-        req.session = self.factory.session
+        req.user = getattr(self.factory, "user", None)
+        req.session = getattr(self.factory, "session", None)
         return req
 
     def post(self, url, data=None):
         req = self.factory.post(url, data=data)
-        req.user = self.factory.user
-        req.session = self.factory.session
+        req.user = getattr(self.factory, "user", None)
+        req.session = getattr(self.factory, "session", None)
         return req
 
     @using_separate_redis_server

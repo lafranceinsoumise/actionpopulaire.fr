@@ -227,7 +227,7 @@ class SendConfirmationMergeAccountView(HardLoginRequiredMixin, TemplateView):
     template_merge = "people/confirmation_change_mail_merge_account_sent.html"
     template_name = "people/profile/confirmation_change_mail_merge_account_sent.html"
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         self.email = request.GET.get("email")
         self.is_merging = True if request.GET.get("is_merging") == "True" else False
         return super().get(request)

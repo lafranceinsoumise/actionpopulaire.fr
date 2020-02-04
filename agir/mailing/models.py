@@ -196,7 +196,8 @@ class Segment(BaseSegment, models.Model):
                     memberships__supportgroup__published=True,
                     memberships__is_referent=True,
                 )
-            elif self.supportgroup_status == self.GA_STATUS_MANAGER:
+            else:
+                # ==> self.supportgroup_status == self.GA_STATUS_MANAGER
                 query = Q(memberships__supportgroup__published=True) & (
                     Q(memberships__is_manager=True) | Q(memberships__is_referent=True)
                 )

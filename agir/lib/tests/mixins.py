@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.contrib.gis.geos import Point
 from django.db import transaction
+from django.test import TestCase
 from django.utils import timezone
 
 from agir.events.models import Calendar, Event, OrganizerConfig, RSVP
@@ -181,7 +182,7 @@ def load_fake_data():
     }
 
 
-class FakeDataMixin:
+class FakeDataMixin(TestCase):
     def setUp(self):
         self.data = load_fake_data()
 

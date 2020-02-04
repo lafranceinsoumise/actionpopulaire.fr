@@ -79,6 +79,7 @@ class Command(BaseCommand):
                     continue
 
             if tmp is False:
+                # noinspection PyUnboundLocalVariable
                 tag_object.people.add(person)
             if mailtrain is True:
                 update_person(person, tmp_tags=[tag])

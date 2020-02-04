@@ -115,7 +115,9 @@ CREATE TRIGGER check_operation_for_payment BEFORE INSERT OR UPDATE ON donations_
 CREATE TRIGGER check_payment_operations BEFORE UPDATE ON payments_payment
     FOR EACH ROW EXECUTE PROCEDURE check_payment_operations();
 
+-- noinspection SqlResolve
 DROP FUNCTION check_allocation_lt_payment() CASCADE ;
+-- noinspection SqlResolve
 DROP FUNCTION check_payment_gt_allocation() CASCADE ;
 """
 

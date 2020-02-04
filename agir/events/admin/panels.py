@@ -136,7 +136,7 @@ class OrganizerConfigInline(admin.TabularInline):
 
     person_link.short_description = _("Personne")
 
-    def has_add_permission(self, request, obj):
+    def has_add_permission(self, request, obj=None):
         return False
 
 
@@ -146,7 +146,7 @@ class EventImageInline(admin.TabularInline):
     readonly_fields = ("image_link", "author_link")
     extra = 0
 
-    def has_add_permission(self, request, obj):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def image_link(self, obj):
@@ -506,6 +506,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             .prefetch_related("person__emails")
         )
 
+    # noinspection PyMethodOverriding
     def view_results(self, request, pk):
         self.instance = models.Event.objects.get(pk=pk)
         return super().view_results(

@@ -11,12 +11,14 @@ from django.contrib.gis.measure import Distance as DistanceMeasure
 from django.db.models import Value, FloatField
 from django.shortcuts import reverse
 from django.views.generic import UpdateView, ListView
+from django.views.generic.base import ContextMixin
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
 
 from agir.lib.pagination import HTMLPaginator
 
 
-class SimpleOpengraphMixin:
+class SimpleOpengraphMixin(ContextMixin):
     meta_title = None
     meta_description = None
     meta_type = "article"
@@ -45,9 +47,11 @@ class SimpleOpengraphMixin:
 class ObjectOpengraphMixin(SimpleOpengraphMixin):
     title_prefix = "La France insoumise"
 
+    # noinspection PyUnresolvedReferences
     def get_meta_title(self):
         return "{} - {}".format(self.title_prefix, self.object.name)
 
+    # noinspection PyUnresolvedReferences
     def get_meta_image(self):
         if hasattr(self.object, "image") and self.object.image:
             return urljoin(settings.FRONT_DOMAIN, self.object.image.url)
@@ -84,6 +88,7 @@ class FixedDistance(DistanceResultMixin, Value):
         distance = DistanceMeasure(**kwargs)
         super().__init__(distance.standard)
 
+    # noinspection PyMethodOverriding
     def convert_value(self, value, expression, connection, context):
         if value is None:
             return None

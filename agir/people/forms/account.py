@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from crispy_forms.bootstrap import FormActions, FieldWithButtons
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Row, Div, Submit, Layout, HTML
+from crispy_forms.layout import Fieldset, Row, Submit, Layout, HTML
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import Form, CharField
@@ -11,7 +11,6 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from agir.lib.form_components import HalfCol
-from agir.lib.form_mixins import TagMixin
 from agir.lib.phone_numbers import (
     normalize_overseas_numbers,
     is_french_number,
@@ -23,7 +22,7 @@ from agir.people.actions.validation_codes import (
     ValidationCodeSendingException,
     is_valid_code,
 )
-from agir.people.models import PersonTag, Person, PersonEmail, PersonValidationSMS
+from agir.people.models import Person, PersonEmail, PersonValidationSMS
 from agir.people.tasks import send_confirmation_change_email
 from agir.people.token_buckets import ChangeMailBucket
 

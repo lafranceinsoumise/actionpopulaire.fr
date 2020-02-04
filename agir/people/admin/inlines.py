@@ -20,7 +20,7 @@ class RSVPInline(admin.TabularInline):
             obj.event.name,
         )
 
-    def has_add_permission(self, request, obj):
+    def has_add_permission(self, request, obj=None):
         return False
 
 
@@ -37,7 +37,7 @@ class MembershipInline(admin.TabularInline):
             obj.supportgroup.name,
         )
 
-    def has_add_permission(self, request, obj):
+    def has_add_permission(self, request, obj=None):
         return False
 
 
@@ -47,5 +47,5 @@ class EmailInline(admin.TabularInline):
     extra = 0
     fields = ("address", "_bounced", "bounced_date")
 
-    def has_add_permission(self, request, obj):
+    def has_add_permission(self, request, obj=None):
         return False

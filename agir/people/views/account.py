@@ -111,7 +111,7 @@ class DeleteEmailAddressView(HardLoginRequiredMixin, DeleteView):
         return super().post(request, *args, **kwargs)
 
 
-class RedirectAlreadyValidatedPeopleMixin:
+class RedirectAlreadyValidatedPeopleMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if request.user.person.contact_phone_status == Person.CONTACT_PHONE_VERIFIED:
             messages.add_message(

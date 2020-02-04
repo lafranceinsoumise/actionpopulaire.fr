@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL(
             """
+            -- noinspection SqlResolve
             INSERT INTO people_personemail (address, bounced, bounced_date, person_id)
             SELECT email, bounced, bounced_date, id FROM people_person
             """

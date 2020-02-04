@@ -12,10 +12,12 @@ setweight(to_tsvector('french_unaccented', COALESCE("name", '')), 'A')
 """
 
 ADD_GROUP_TEXT_SEARCH_INDEX = f"""
+-- noinspection SqlResolve
 CREATE INDEX events_event_search ON events_event USING GIN (({SEARCH_COLUMN}));
 """
 
 DROP_GROUP_TEXT_SEARCH_INDEX = """
+-- noinspection SqlResolve
 DROP INDEX events_event_search;
 """
 

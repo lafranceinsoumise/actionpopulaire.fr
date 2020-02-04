@@ -48,7 +48,7 @@
           <tbody>
           {% for check in checks %}
             <tr class="row{% cycle "1" "2" %}">
-              <th><a href="{% url "admin:checks_checkpayment_change" check.pk %}">{{ check.pk }}</th>
+              <th><a href="{% url "admin:checks_checkpayment_change" check.pk %}">{{ check.pk }}</a></th>
               <td>
                 {% if check.status == check.STATUS_WAITING %}
                   {{ check.get_status_display }}

@@ -33,7 +33,3 @@ def clean_system_pay_data(data: Mapping[str, str]):
 
 def get_recurrence_rule(subscription):
     return "RRULE:FREQ=MONTHLY;BYMONTHDAY=" + str(subscription.day_of_month)
-
-
-def clean_system_pay_data(data: Mapping[str, str]):
-    return {k: v for k, v in data.items() if k not in SENSITIVE_FIELDS}
