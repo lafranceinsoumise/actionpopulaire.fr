@@ -1,5 +1,6 @@
 from typing import Iterable
 
+import django_countries
 from django.contrib import admin
 from django.contrib.admin import helpers
 from django.urls import reverse
@@ -8,6 +9,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from agir.lib import data
+from agir.lib.data import FRANCE_COUNTRY_CODES
 
 
 class CenterOnFranceMixin:
@@ -27,8 +29,26 @@ class DisplayContactPhoneMixin:
     display_contact_phone.admin_order_field = "contact_phone"
 
 
-class DropdownChoicesFieldListFilter(admin.ChoicesFieldListFilter):
+class CountryListFilter(admin.SimpleListFilter):
+    title = "Pays"
+    parameter_name = "location_country"
     template = "admin/dropdown_filter.html"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("FR_all", "France (outremer compris)"),
+            ("not_FR_all", "Hors France (outremer compris)"),
+        ] + list(django_countries.countries)
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+        if self.value() == "FR_all":
+            return queryset.filter(location_country__in=FRANCE_COUNTRY_CODES)
+        if self.value() == "not_FR_all":
+            return queryset.exclude(location_country__in=FRANCE_COUNTRY_CODES)
+        else:
+            return queryset.filter(location_country=self.value())
 
 
 class DepartementListFilter(admin.SimpleListFilter):

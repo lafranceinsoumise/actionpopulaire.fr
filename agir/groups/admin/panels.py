@@ -20,7 +20,7 @@ from agir.lib.admin import (
     CenterOnFranceMixin,
     DepartementListFilter,
     RegionListFilter,
-    DropdownChoicesFieldListFilter,
+    CountryListFilter,
 )
 from agir.lib.display import display_price
 from agir.lib.utils import front_url
@@ -167,7 +167,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     list_filter = (
         "published",
         GroupHasEventsFilter,
-        ("location_country", DropdownChoicesFieldListFilter),
+        CountryListFilter,
         DepartementListFilter,
         RegionListFilter,
         "coordinates_type",

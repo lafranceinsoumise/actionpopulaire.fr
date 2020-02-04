@@ -18,7 +18,7 @@ from agir.lib.admin import (
     CenterOnFranceMixin,
     DepartementListFilter,
     RegionListFilter,
-    DropdownChoicesFieldListFilter,
+    CountryListFilter,
 )
 from agir.lib.utils import front_url
 from agir.people.admin.views import FormSubmissionViewsMixin
@@ -350,7 +350,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "visibility",
         EventHasReportFilter,
         LegalFileFilter,
-        ("location_country", DropdownChoicesFieldListFilter),
+        CountryListFilter,
         DepartementListFilter,
         RegionListFilter,
         "coordinates_type",
