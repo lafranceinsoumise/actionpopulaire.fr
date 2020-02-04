@@ -203,7 +203,7 @@ class CheckPaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
                 "checks": payments,
                 "can_validate": can_validate,
                 "total_price": total_price,
-                "check_amount": check_amount,
+                "check_amount": amount,
                 "opts": CheckPayment._meta,
             },
         )
