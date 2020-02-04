@@ -1,7 +1,6 @@
 {% extends "front/layout.html" %}
 {% load render_bundle from webpack_loader %}
-{% load crispy_forms_tags %}
-{% load l10n %}
+{% load crispy_forms_tags l10n pagination %}
 
 {% block title %}Rechercher des événements{% endblock %}
 
@@ -30,7 +29,7 @@
   <div>
   {% crispy form %}
 
-  {{ page_obj.pagination_nav }}
+  {% pagination page_obj %}
 
   {% for event in object_list %}
     <div class="list-group-item">
@@ -53,7 +52,7 @@
     <p>Aucun événement ne correspond à votre recherche.</p>
   {% endfor %}
 
-  {{ page_obj.pagination_nav }}
+  {% pagination page_obj %}
 
   </div>
 
