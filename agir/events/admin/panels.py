@@ -14,7 +14,12 @@ from django.utils.translation import ugettext_lazy as _
 from agir.api.admin import admin_site
 from agir.events.models import Calendar
 from agir.groups.models import SupportGroup
-from agir.lib.admin import CenterOnFranceMixin, DepartementListFilter, RegionListFilter
+from agir.lib.admin import (
+    CenterOnFranceMixin,
+    DepartementListFilter,
+    RegionListFilter,
+    DropdownChoicesFieldListFilter,
+)
 from agir.lib.utils import front_url
 from agir.people.admin.views import FormSubmissionViewsMixin
 from agir.people.models import PersonFormSubmission
@@ -345,6 +350,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "visibility",
         EventHasReportFilter,
         LegalFileFilter,
+        ("location_country", DropdownChoicesFieldListFilter),
         DepartementListFilter,
         RegionListFilter,
         "coordinates_type",

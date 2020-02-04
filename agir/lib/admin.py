@@ -27,6 +27,10 @@ class DisplayContactPhoneMixin:
     display_contact_phone.admin_order_field = "contact_phone"
 
 
+class DropdownChoicesFieldListFilter(admin.ChoicesFieldListFilter):
+    template = "admin/dropdown_filter.html"
+
+
 class DepartementListFilter(admin.SimpleListFilter):
     title = "Département"
     parameter_name = "departement"
