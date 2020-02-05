@@ -165,23 +165,14 @@ class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
         return "Mettre en place le don mensuel"
 
 
-class AllocationDonorForm(SimpleDonorForm):
+class BaseAllocationForm(SimpleDonorForm):
     allocations = AllocationsField(
         required=False,
         queryset=SupportGroup.objects.active().certified().order_by("name").distinct(),
     )
 
-    mode = PaymentModeField(
-        payment_modes=["system_pay", "check"], label="Mode de versement"
-    )
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.helper.layout.fields.insert(
-            self.helper.layout.fields.index("declaration"), "mode"
-        )
-
         self.helper.layout.fields.extend(["allocations"])
 
     def clean(self):
@@ -202,7 +193,20 @@ class AllocationDonorForm(SimpleDonorForm):
         return cleaned_data
 
 
-class AllocationMonthlyDonorForm(AllocationDonorForm):
+class AllocationDonorForm(BaseAllocationForm):
+    mode = PaymentModeField(
+        payment_modes=["system_pay", "check"], label="Mode de versement"
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper.layout.fields.insert(
+            self.helper.layout.fields.index("declaration"), "mode"
+        )
+
+
+class AllocationMonthlyDonorForm(BaseAllocationForm):
     button_label = "Je donne {amount} par mois."
 
     previous_subscription = forms.ModelChoiceField(
