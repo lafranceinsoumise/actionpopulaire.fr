@@ -292,7 +292,10 @@ class Event(
     )
 
     legal = JSONField(
-        _("Informations juridiques"), default=dict, encoder=CustomJSONEncoder
+        _("Informations juridiques"),
+        default=dict,
+        blank=True,
+        encoder=CustomJSONEncoder,
     )
 
     class Meta:
