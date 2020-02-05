@@ -6,7 +6,6 @@ from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.cache import add_never_cache_headers
 from django.views.generic import TemplateView
-from functools import partial
 from rest_framework import serializers
 from rest_framework.views import APIView
 
@@ -354,7 +353,15 @@ def return_view(request):
             pass
 
     if status != "success":
-        return TemplateResponse(request, "system_pay/payment_failed.html")
+        return TemplateResponse(
+            request,
+            "system_pay/payment_failed.html",
+            context={
+                "payment": payment,
+                "subscription": subscription,
+                "status": status,
+            },
+        )
 
     if payment is None and subscription is None:
         return TemplateResponse(request, "system_pay/payment_not_identified.html")

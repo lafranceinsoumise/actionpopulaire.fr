@@ -7,10 +7,32 @@
 
 {% block main %}
   <div class="col-responsive">
-    <h1>Votre paiement n'a pas été réalisé</h1>
+    {% if status == "error" %}
+      <h1>Paiement échoué</h1>
 
-    <div>
-      Votre paiement a échoué ou a été annulé. Vous pouvez choisir de retenter le paiement.
-    </div>
+      <div>
+        Notre prestataire de paiement a rencontré une erreur inconnue en traitant votre paiement. Vous pouvez
+        tenter de retenter votre paiement, ou <a
+              href="https://lafranceinsoumise.fr/formulaire-de-contact/formulaire-de-signalement-derreurs/">nous
+        contacter directement</a> si cela se reproduit.
+      </div>
+      <a class="btn btn-primary" href="{% url "payment_retry" pk=payment.id %}">Retenter le paiement</a>
+
+    {% elif status == "refused" %}
+      <h1>Paiement refusé</h1>
+      <div>
+        Votre paiement a été refusé par votre carte ou par votre banque. Vous pouvez retenter le paiement, mais si cela
+        se reproduit, il faudra contacter votre banque ou utiliser un autre moyen de paiement.
+      </div>
+      <a class="btn btn-primary" href="{% url "payment_retry" pk=payment.id %}">Retenter le paiement</a>
+
+    {% else %}
+      <h1>Paiement annulé</h1>
+      <div>
+        Vous avez annulé votre paiement. Votre carte ne sera pas débitée. Vous pouvez, si vous le souhaitez, relancer
+      le paiement.
+      </div>
+      <a class="btn btn-primary" href="{% url "payment_retry" pk=payment.id %}">Relancer le paiement</a>
+    {% endif %}
   </div>
 {% endblock %}

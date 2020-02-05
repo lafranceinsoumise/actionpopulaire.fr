@@ -2,7 +2,7 @@ from django import forms
 from django.forms import fields
 from phonenumbers import phonenumberutil, PhoneNumberType
 
-from agir.lib.utils import front_url_lazy
+from agir.lib.utils import front_url_lazy, front_url
 from agir.system_pay.utils import get_trans_id_from_order_id, get_recurrence_rule
 from .crypto import get_signature
 
@@ -101,6 +101,8 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
     def get_form_for_transaction(cls, transaction, sp_config):
         person = transaction.subscription.person
 
+        return_url = front_url(f"{transaction.subscription.mode}:return")
+
         person_data = {}
         if person is not None:
             person_data.update(
@@ -137,6 +139,10 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
                 "vads_cust_state": person_data.get("location_state"),
                 "vads_cust_country": person_data.get("location_country"),
                 "vads_sub_desc": get_recurrence_rule(transaction.subscription),
+                **{
+                    f"vads_url_{status}": f"{return_url}?status={status}"
+                    for status in ["cancel", "error", "refused", "success"]
+                },
             }
         )
 
@@ -163,6 +169,8 @@ class SystempayPaymentForm(SystempayBaseForm):
             else "anonymous"
         )
 
+        return_url = front_url(f"{transaction.payment.mode}:return")
+
         form = cls(
             initial={
                 "vads_site_id": sp_config["site_id"],
@@ -187,6 +195,10 @@ class SystempayPaymentForm(SystempayBaseForm):
                 "vads_cust_state": transaction.payment.location_state,
                 "vads_cust_country": transaction.payment.location_country,
                 "vads_ext_info_type": transaction.payment.type,
+                **{
+                    f"vads_url_{status}": f"{return_url}?status={status}"
+                    for status in ["cancel", "error", "refused", "success"]
+                },
             }
         )
 
