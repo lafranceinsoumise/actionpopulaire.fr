@@ -108,7 +108,6 @@ export const GroupSelector = ({ groupChoices, onChange, value, filter }) => {
       getOptionLabel={({ name }) => name}
       getOptionValue={({ id }) => id}
       formatGroupLabel={g => {
-        console.log(g);
         return g.label;
       }}
       onChange={onChange}
