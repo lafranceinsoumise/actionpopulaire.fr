@@ -22,6 +22,14 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
 
   return (
     <>
+      <Button
+        type="button"
+        active={extra || value.length > 0}
+        onClick={() => setExtra(!(extra || value.length > 0)) + onChange([])}
+      >
+        Je souhaite allouer mon don à un ou plusieurs groupes
+      </Button>
+
       <AllocationsArray>
         {(value.length > 0 || extra) && (
           <GroupAllocation
@@ -82,13 +90,13 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
           </GroupAllocation>
         )}
       </AllocationsArray>
-      <ButtonHolder>
-        <Button type="button" disabled={extra} onClick={() => setExtra(true)}>
-          {value.length === 0 || extra
-            ? "Je souhaite allouer mon don à un ou plusieurs groupes"
-            : "Allouer à un groupe supplémentaire"}
-        </Button>
-      </ButtonHolder>
+      {(value.length > 0 || extra) && (
+        <ButtonHolder>
+          <Button type="button" disabled={extra} onClick={() => setExtra(true)}>
+            Allouer à un groupe supplémentaire
+          </Button>
+        </ButtonHolder>
+      )}
     </>
   );
 };
