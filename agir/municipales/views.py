@@ -129,6 +129,9 @@ class CampagneMixin:
             },
         )
 
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs, campagne=self.campagne)
+
 
 class CommuneLoanView(CampagneMixin, BaseLoanAskAmountView):
     template_name = "municipales/loans/ask_amount.html"

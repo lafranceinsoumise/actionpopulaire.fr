@@ -52,7 +52,9 @@ const DonationForm = ({
   maxAmount,
   minAmountError,
   maxAmountError,
-  showTaxCredit
+  showTaxCredit,
+  enableAllocations,
+  typeActe
 }) => {
   const [type, setType] = useState(initial.type || null);
   const [allocations, setAllocations] = useState(
@@ -84,7 +86,11 @@ const DonationForm = ({
         name="allocations"
         value={serializeAllocations(allocations)}
       />
-      <Title>Je choisis le montant de mon don</Title>
+      {enableAllocations || typeChoices ? (
+        <Title>Je choisis le montant de {typeActe}</Title>
+      ) : (
+        <h4>Je choisis le montant de {typeActe}</h4>
+      )}
       <AmountWidget
         amount={amount}
         amountChoices={amountChoices}
@@ -109,13 +115,18 @@ const DonationForm = ({
         </>
       )}
 
-      <Title>Je choisis à qui je donne</Title>
-      <AllocationWidget
-        groupChoices={groupChoices}
-        value={allocations}
-        onChange={setAllocations}
-        maxAmount={amount}
-      />
+      {enableAllocations && (
+        <>
+          <Title>Je choisis à qui va {typeActe}</Title>
+          <AllocationWidget
+            groupChoices={groupChoices}
+            value={allocations}
+            onChange={setAllocations}
+            maxAmount={amount}
+          />
+        </>
+      )}
+
       <div className="form-group">
         <div>
           <Button type="submit" bsStyle="primary">
@@ -154,13 +165,17 @@ DonationForm.propTypes = {
       id: PropTypes.string
     })
   ),
-  hiddenFields: PropTypes.objectOf(PropTypes.string)
+  hiddenFields: PropTypes.objectOf(PropTypes.string),
+  typeActe: PropTypes.string,
+  enableAllocations: PropTypes.bool
 };
 
 DonationForm.defaultProps = {
   minAmount: 0,
   maxAMount: 100000,
-  groupChoices: []
+  groupChoices: [],
+  typeActe: "mon don",
+  enableAllocations: true
 };
 
 export default hot(DonationForm);
