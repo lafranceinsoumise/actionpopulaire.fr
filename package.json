@@ -50,7 +50,7 @@
     "react-use-gesture": "^6.0.14",
     "rxjs": "^6.5.3",
     "styled-components": "^4.4.1",
-    "tinymce": "^4.9.6",
+    "tinymce": "^4.9.8",
     "tinymce-i18n": "^17.12.31",
     "turbolinks": "^5.2.0"
   },
