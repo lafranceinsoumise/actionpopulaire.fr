@@ -13,7 +13,7 @@ from agir.donations.form_fields import AskAmountField
 from agir.lib.data import departements_choices
 from agir.lib.display import display_price
 from agir.lib.form_fields import IBANField
-from agir.payments.payment_modes import PaymentModeField
+from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
 from agir.people.models import Person
 
 
@@ -156,7 +156,7 @@ class LenderForm(BaseDonorForm):
             )
 
         if not "payment_mode" in self.fields:
-            cleaned_data["payment_mode"] = self.payment_modes[0]
+            cleaned_data["payment_mode"] = PAYMENT_MODES[self.payment_modes[0]]
 
         return cleaned_data
 
