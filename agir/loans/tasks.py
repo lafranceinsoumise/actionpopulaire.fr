@@ -14,7 +14,7 @@ from agir.payments.types import PAYMENT_TYPES
 
 
 @retriable_task(start=1, retry_on=(subprocess.TimeoutExpired,))
-def generate_contract(self, payment_id, force=False):
+def generate_contract(payment_id, force=False):
     try:
         payment = Payment.objects.get(id=payment_id)
     except Payment.DoesNotExist:

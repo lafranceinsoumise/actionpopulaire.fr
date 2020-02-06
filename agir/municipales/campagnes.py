@@ -1,11 +1,11 @@
 from uuid import uuid4
 
-import re
 from django.conf import settings
 
 from agir.loans.display import SUBSTITUTIONS
 from agir.loans.loan_config import LoanConfiguration, default_contract_context_generator
 from agir.municipales.models import CommunePage
+from agir.municipales.views import CommuneLoanReturnView
 from agir.payments.payment_modes import PAYMENT_MODES, add_payment_mode
 from agir.payments.types import register_payment_type
 from agir.system_pay import AbstractSystemPayPaymentMode
@@ -75,5 +75,6 @@ register_payment_type(
         contract_template_name="municipales/loans/contract.md",
         pdf_layout_template_name="municipales/loans/contract_layout.html",
         contract_context_generator=contract_context_generator,
+        success_view=CommuneLoanReturnView.as_view(),
     )
 )

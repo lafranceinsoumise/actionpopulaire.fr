@@ -3,7 +3,7 @@
 ## LES SOUSSIGNES :
 
 **{{ nom_emprunteur }}**, candidat{{ e_emprunteur }} tête de liste aux élections municipales 2020 à {{ nom_ville }}, domicilié{{ e_emprunteur }}
-{{ adresse_emprunteur }}
+{{ adresse_emprunteur }}  
 **Ci-après dénommée l’{{ emprunteur }}**,  
 Ayant désigné pour mandataire financier, conformément à la loi 90-55 du 15 janvier 1990 modifiée notamment par la loi du
 19 janvier 1995 : {{ mandataire }} {{ adresse_mandataire }}

@@ -71,7 +71,6 @@ class BaseLoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformation
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["payment_type"] = self.payment_type
         kwargs["payment_modes"] = self.get_payment_modes()
         return kwargs
 

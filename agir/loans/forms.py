@@ -90,8 +90,6 @@ class LenderForm(SimpleDonorForm):
         if payment_modes is not None:
             self.fields["payment_mode"].payment_modes = payment_modes
 
-        # TODO: Gestion des limites de prêts
-
         self.fields["gender"].required = True
         self.fields["date_of_birth"].required = True
         self.fields["declaration"].label = _(
@@ -134,6 +132,10 @@ class LenderForm(SimpleDonorForm):
 
         if "subscribed" in self.fields:
             fields.append("subscribed")
+
+        if len(self.fields["payment_mode"].payment_modes) <= 1:
+            del self.fields["payment_mode"]
+            fields.remove("payment_mode")
 
         self.helper.layout = layout.Layout(*fields)
 

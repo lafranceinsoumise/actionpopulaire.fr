@@ -2,7 +2,8 @@ from django.core.paginator import Paginator
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic import DetailView, UpdateView
+from django.views import View
+from django.views.generic import DetailView, UpdateView, RedirectView
 from rest_framework.generics import ListAPIView
 
 from agir.authentication.view_mixins import (
@@ -16,14 +17,13 @@ from agir.loans.views import (
     BaseLoanPersonalInformationView,
     BaseLoanAcceptContractView,
 )
-from agir.municipales.campagnes import CAMPAGNES
 from agir.municipales.forms import CommunePageForm, MunicipalesLenderForm
 from agir.municipales.models import CommunePage
 from agir.municipales.serializers import CommunePageSerializer
+from agir.payments.payment_modes import PAYMENT_MODES
 
 
-# noinspection PyUnresolvedReferences
-class CommunePageMixin:
+class CommunePageMixin(View):
     context_object_name = "commune"
 
     def get_object(self, queryset=None):
@@ -94,6 +94,8 @@ class CampagneMixin:
         return super().dispatch(*args, **kwargs)
 
     def get_campagne(self):
+        from .campagnes import CAMPAGNES
+
         key = (self.kwargs["code_departement"], self.kwargs["slug"])
         if key not in CAMPAGNES:
             raise Http404("Cette page n'existe pas.")
@@ -163,3 +165,9 @@ class CommuneLoanAcceptContractView(CampagneMixin, BaseLoanAcceptContractView):
             "municipales_loans_personal_information",
             args=[self.commune.code_departement, self.commune.slug],
         )
+
+
+class CommuneLoanReturnView(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        mode = PAYMENT_MODES[self.kwargs["payment"].mode]
+        return mode.campagne["url_retour"]

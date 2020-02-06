@@ -106,7 +106,7 @@ INSTALLED_APPS = [
     "agir.loans",
     "agir.mailing",
     "agir.notifications",
-    "agir.municipales",
+    "agir.municipales.apps.MunicipalesConfig",
     "agir.legacy",
     "agir.telegram",
     # default contrib apps
