@@ -32,6 +32,7 @@
                     >
                       Modifier ce paiement
                     </button>
+                    <a href="{% url "subscription_page" subscription.pk %}" class="btn btn-default">Changer de carte de paiement</a>
                     <a href="{% url "subscription_terminate" subscription.pk %}" class="btn btn-default">Mettre fin à ce
                       paiement</a>
                   </div>
