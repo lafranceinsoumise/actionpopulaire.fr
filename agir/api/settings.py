@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 import json
+from pathlib import Path
 
 import dj_database_url
 import dj_email_url
@@ -728,4 +729,12 @@ TELEGRAM_API_HASH = os.environ.get("TELEGRAM_API_HASH")
 
 
 # Municipales
-MUNICIPALES_CAMPAGNES = json.loads(os.environ.get("MUNICIPALES_CAMPAGNES", "[]"))
+municipales_campagnes_filename = os.environ.get("MUNICIPALES_CAMPAGNES")
+if municipales_campagnes_filename:
+    municipales_campagnes_filename = Path(municipales_campagnes_filename)
+    if not municipales_campagnes_filename.is_absolute():
+        municipales_campagnes_filename = (
+            Path(BASE_DIR).parent / municipales_campagnes_filename
+        )
+    with municipales_campagnes_filename.open("r") as f:
+        MUNICIPALES_CAMPAGNES = json.load(f)
