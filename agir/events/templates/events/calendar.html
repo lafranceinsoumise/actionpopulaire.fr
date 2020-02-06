@@ -1,5 +1,5 @@
 {% extends "front/layout.html" %}
-{% load static %}
+{% load static pagination %}
 
 {% block title %}{{ calendar.name }}{% endblock %}
 
@@ -46,7 +46,7 @@
       {% endfor %}
     </div>
 
-    {{ page_obj.pagination_nav }}
+    {% pagination page_obj %}
 
   {% else %}
     <div class="lead text-center">

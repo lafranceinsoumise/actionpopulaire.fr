@@ -17,7 +17,8 @@ from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
 from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.loans import tasks
-from agir.loans.actions import generate_html_contract, SUBSTITUTIONS
+from agir.loans.actions import generate_html_contract
+from agir.loans.display import SUBSTITUTIONS
 from agir.loans.forms import LoanForm, LenderForm, ContractForm
 from agir.payments.actions.payments import (
     create_payment,
@@ -65,10 +66,12 @@ class BaseLoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformation
     payment_type = None
     payment_modes = []
 
+    def get_payment_modes(self):
+        return self.payment_modes
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["payment_type"] = self.payment_type
-        kwargs["payment_modes"] = self.payment_modes
+        kwargs["payment_modes"] = self.get_payment_modes()
         return kwargs
 
     def prepare_data_for_serialization(self, data):
@@ -84,43 +87,54 @@ class BaseLoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformation
         if form.connected:
             form.save()
 
-        self.request.session[
-            LOANS_CONTRACT_SESSION_NAMESPACE
-        ] = self.prepare_data_for_serialization(form.cleaned_data)
+        # attention à changer d'objet pour que la session se rende compte
+        # que quelque chose a changé
+        self.request.session[self.session_namespace] = {
+            **self.request.session.get(self.session_namespace, {}),
+            "__contract": self.prepare_data_for_serialization(form.cleaned_data),
+        }
 
-        return HttpResponseRedirect(resolve_url(self.success_url))
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class BaseLoanAcceptContractView(MaxTotalLoanMixin, FormView):
     form_class = ContractForm
     template_name = "loans/sample/validate_contract.html"
     payment_type = None
+    session_namespace = LOANS_INFORMATION_SESSION_NAMESPACE
+    ask_amount_url = None
+    personal_information_url = None
+
+    def get_ask_amount_url(self):
+        return resolve_url(self.ask_amount_url)
+
+    def get_personal_information_url(self):
+        return resolve_url(self.personal_information_url)
 
     def dispatch(self, request, *args, **kwargs):
-        if LOANS_CONTRACT_SESSION_NAMESPACE not in request.session:
-            if LOANS_INFORMATION_SESSION_NAMESPACE in request.session:
-                return HttpResponseRedirect(reverse("europeennes_loan_information"))
-            else:
-                return HttpResponseRedirect(reverse("europeennes_loan_amount"))
+        if self.session_namespace not in request.session:
+            return HttpResponseRedirect(self.get_ask_amount_url())
 
-        self.contract_information = request.session[LOANS_CONTRACT_SESSION_NAMESPACE]
+        if "__contract" not in request.session[self.session_namespace]:
+            return HttpResponseRedirect(self.get_personal_information_url())
+
+        self.contract_information = request.session[self.session_namespace][
+            "__contract"
+        ]
 
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
             contract=generate_html_contract(
-                PAYMENT_TYPES[self.payment_type].contract_template_name,
-                self.contract_information,
-                baselevel=3,
+                PAYMENT_TYPES[self.payment_type], self.contract_information, baselevel=3
             ),
             **self.contract_information,
             **kwargs
         )
 
     def clear_session(self):
-        del self.request.session[LOANS_INFORMATION_SESSION_NAMESPACE]
-        del self.request.session[LOANS_CONTRACT_SESSION_NAMESPACE]
+        del self.request.session[self.session_namespace]
 
     def form_valid(self, form):
         self.contract_information["acceptance_datetime"] = (

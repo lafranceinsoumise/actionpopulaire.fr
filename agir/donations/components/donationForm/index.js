@@ -44,8 +44,10 @@ const replaceForm = selector => {
     typeSelect.remove();
   }
 
+  props.enableAllocations = false;
   const allocationsInput = form.querySelector('input[name="allocations"]');
   if (allocationsInput) {
+    props.enableAllocations = true;
     props.groupChoices = allocationsInput.dataset.choices
       ? JSON.parse(allocationsInput.dataset.choices)
       : [];
@@ -54,6 +56,11 @@ const replaceForm = selector => {
       : [];
 
     allocationsInput.remove();
+  }
+
+  const amountLabel = form.querySelector('label[for="id_amount"]');
+  if (amountLabel && amountLabel.textContent.includes("prêt")) {
+    props.typeActe = "mon prêt";
   }
 
   const amountInput = form.querySelector('input[name="amount"]');

@@ -232,7 +232,7 @@ class AllocationMonthlyDonorForm(AllocationDonorFormMixin, BaseDonorForm):
         self.helper.layout.fields.extend(["previous_subscription"])
 
 
-class SpendingRequestFormMixin:
+class SpendingRequestFormMixin(forms.Form):
     def __init__(self, *args, user, group, **kwargs):
         super().__init__(*args, **kwargs)
 

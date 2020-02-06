@@ -1,3 +1,5 @@
+Merci pour votre don
+  
 Chère donatrice, Cher donateur,
 
  **Vous venez d’apporter votre appui financier** à la France Insoumise.
@@ -9,20 +11,19 @@ Chère donatrice, Cher donateur,
 Courage, les mauvais jours finiront.
 
 Fidèlement,  
-
-
------------------------------------------------------------------
-Pour aller plus loin
-
->> Je rejoins un groupe d'action
-https://lafranceinsoumise.fr/groupes-appui/carte/
-
->> J'en dis plus sur moi
+  
+   
+  
+Pour aller plus loin  
+  
+>> Rejoindre un groupe d'action
+https://lafranceinsoumise.fr/groupes-action/carte-groupes/
+  
+>> Remplir mon profil
 {{ PROFILE_LINK }}
 
-
------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}.
+------------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
 
 >> Voir cet email dans votre navigateur
 {{ LINK_BROWSER }}

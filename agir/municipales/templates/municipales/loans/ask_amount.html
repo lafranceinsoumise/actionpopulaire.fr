@@ -2,16 +2,15 @@
 {% load static %}
 
 {% block title %}
-  Je prête à la campagne européenne
+  Je prête à {{ campagne.nom_liste }}
 {% endblock %}
 
-{% block background_url %}{% static "loans/sample/bg_loans.jpg" %}{% endblock %}
+{% block background_url %}{% static campagne.image_fond %}{% endblock %}
 
 {% block donation_intro %}
-  <p>Pour financer les dépenses liées à l’organisation la campagne pour les élections européennes du 26 mai 2019,
+  <p>Pour financer les dépenses liées à l’organisation de la campagne municipale à {{ campagne.nom_ville }},
     nous avons besoin du soutien financier de chacun⋅e d’entre vous. Sur cette page, vous pouvez
-    faire un prêt à l'Association de Financement de la Campagne Européenne de la liste soutenue par la France insoumise
-    du montant de votre choix par carte de crédit.</p>
+    faire un prêt à {{ campagne.mandataire }} du montant de votre choix par carte de crédit.</p>
   <div class="row">
     <div class="col-sm-4">
       <div style="text-align: center"><span class="fa fa-5x fa-credit-card"></span></div>
@@ -22,22 +21,20 @@
     <div class="col-sm-4">
       <div class="img-responsive" style="text-align: center"><span class="fa fa-5x fa-comments"></span></div>
       <h4>Mon argent est utile dès maintenant</h4>
-      <p>Il servira à financer la campagne européenne de la France insoumise</p>
+      <p>Il servira à financer la campagne municipale de {{ campagne.nom_liste }} </p>
     </div>
     <div class="col-sm-4 ">
       <div class="img-responsive" style="text-align: center"><span class="fa fa-5x fa-undo"></span></div>
       <h4>Je suis remboursé après la campagne</h4>
       <p>Nous vous rembourserons dès que nous aurons reçu le remboursement de la campagne, au plus tard le
-        31/03/2020.</p>
+        31/04/2021.</p>
     </div>
 
   </div>
 
-  <p style="clear:both;">Si vous souhaitez financer la campagne européenne, il est aussi possible de faire un don.</p>
-
 
 {% endblock %}
 
-{% block donation_dest %}Je fais un prêt à la campagne européenne{% endblock %}
+{% block donation_dest %}Je fais un prêt à {{ campagne.nom_liste }}{% endblock %}
 
 {% block legal %}{% include "loans/legal.html" %}{% endblock %}

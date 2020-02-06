@@ -71,6 +71,7 @@ class LoansTestCase(TransactionTestCase):
             base_redirect_url="/base_redirect/",
             success_url="/success/",
             payment_type="sample_loan",
+            payment_modes=["system_pay", "check"],
         )
         self.contract_view = views.BaseLoanAcceptContractView.as_view(
             payment_type="sample_loan"

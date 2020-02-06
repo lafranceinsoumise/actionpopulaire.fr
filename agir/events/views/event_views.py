@@ -1,11 +1,8 @@
-from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
-
 import ics
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator
 from django.http import (
     Http404,
     HttpResponseRedirect,
@@ -83,8 +80,6 @@ __all__ = [
     "EventSearchView",
     "PerformCreateEventView",
 ]
-
-from ...lib.pagination import HTMLPaginator
 
 
 class EventSearchView(FilterView):
@@ -460,21 +455,8 @@ class QuitEventView(SoftLoginRequiredMixin, PermissionsRequiredMixin, DeleteView
 
 class CalendarView(IframableMixin, ObjectOpengraphMixin, ListView):
     model = Calendar
-    paginator_class = HTMLPaginator
     paginate_by = 10
     context_object_name = "events"
-
-    def get_paginator(
-        self, queryset, per_page, orphans=0, allow_empty_first_page=True, **kwargs
-    ):
-        return super().get_paginator(
-            queryset,
-            per_page,
-            orphans=0,
-            allow_empty_first_page=True,
-            request=self.request,
-            **kwargs,
-        )
 
     def get_template_names(self):
         if self.request.GET.get("iframe"):

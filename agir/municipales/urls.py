@@ -1,6 +1,13 @@
 from django.urls import path
 
-from agir.municipales.views import CommuneView, SearchView, CommuneChangeView
+from agir.municipales.views import (
+    CommuneView,
+    SearchView,
+    CommuneChangeView,
+    CommuneLoanView,
+    CommuneLoanPersonalInformationView,
+    CommuneLoanAcceptContractView,
+)
 
 urlpatterns = (
     path("communes/chercher/", SearchView.as_view(), name="search_commune"),
@@ -13,5 +20,20 @@ urlpatterns = (
         "communes/<str:code_departement>/<str:slug>/modifier/",
         CommuneChangeView.as_view(),
         name="change_commune",
+    ),
+    path(
+        "communes/<str:code_departement>/<str:slug>/prets/",
+        CommuneLoanView.as_view(),
+        name="municipales_loans_ask_amount",
+    ),
+    path(
+        "communes/<str:code_departement>/<str:slug>/prets/informations/",
+        CommuneLoanPersonalInformationView.as_view(),
+        name="municipales_loans_personal_information",
+    ),
+    path(
+        "communes/<str:code_departement>/<str:slug>/prets/contrat/",
+        CommuneLoanAcceptContractView.as_view(),
+        name="municipales_loans_contract",
     ),
 )

@@ -22,11 +22,3 @@ urlpatterns = [
         name="subscription_terminate",
     ),
 ]
-
-for payment_mode in PAYMENT_MODES.values():
-    urlpatterns.append(
-        path(
-            f"paiement/{payment_mode.url_fragment}/",
-            include((payment_mode.get_urls(), payment_mode.id)),
-        )
-    )

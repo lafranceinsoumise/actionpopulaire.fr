@@ -3,9 +3,6 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
 from django import forms
 from django.conf import settings
-from django.db.models import Sum, Q
-from django.db.models.functions import Coalesce
-from django.forms import HiddenInput
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django_countries import countries
@@ -16,8 +13,7 @@ from agir.donations.form_fields import AskAmountField
 from agir.lib.data import departements_choices
 from agir.lib.display import display_price
 from agir.lib.form_fields import IBANField
-from agir.payments.models import Payment
-from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
+from agir.payments.payment_modes import PaymentModeField
 from agir.people.models import Person
 
 
@@ -88,10 +84,11 @@ class LenderForm(BaseDonorForm):
         help_text="Le numéro IBAN du compte sur lequel le remboursement du prêt sera effectué.",
     )
 
-    def __init__(self, *args, payment_type, payment_modes, **kwargs):
+    def __init__(self, *args, payment_modes=None, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["payment_mode"].payment_modes = self.payment_modes
+        if payment_modes is not None:
+            self.fields["payment_mode"].payment_modes = payment_modes
 
         self.fields["gender"].required = True
         self.fields["date_of_birth"].required = True
@@ -103,16 +100,6 @@ class LenderForm(BaseDonorForm):
         self.fields["declaration"].help_text = None
 
         del self.fields["fiscal_resident"]
-
-        if (
-            Payment.objects.filter(
-                Q(type=payment_type) & (Q(status=Payment.STATUS_COMPLETED))
-            ).aggregate(amount=Coalesce(Sum("price"), 0))["amount"]
-            > settings.LOAN_MAXIMUM_TOTAL
-        ):
-            self.fields["payment_mode"].payment_modes = [
-                PAYMENT_MODES[mode] for mode in payment_modes
-            ]
 
         fields = ["amount"]
 
@@ -145,6 +132,10 @@ class LenderForm(BaseDonorForm):
 
         if "subscribed" in self.fields:
             fields.append("subscribed")
+
+        if len(self.fields["payment_mode"].payment_modes) <= 1:
+            del self.fields["payment_mode"]
+            fields.remove("payment_mode")
 
         self.helper.layout = layout.Layout(*fields)
 

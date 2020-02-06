@@ -15,8 +15,6 @@ from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
 
-from agir.lib.pagination import HTMLPaginator
-
 
 class SimpleOpengraphMixin(ContextMixin):
     meta_title = None
@@ -157,7 +155,6 @@ class SearchByZipcodeBaseView(ListView):
 class FilterView(FormMixin, ListView):
     filter_class = None
     queryset = None
-    paginator_class = HTMLPaginator
 
     def get_filter(self):
         return self.filter_class(data=self.request.GET, queryset=self.queryset)
@@ -167,11 +164,3 @@ class FilterView(FormMixin, ListView):
 
     def get_form(self, form_class=None):
         return self.get_filter().form
-
-    def get_paginator(
-        self, queryset, per_page, orphans=0, allow_empty_first_page=True, **kwargs
-    ):
-        kwargs.setdefault("request", self.request)
-        return super().get_paginator(
-            queryset, per_page, orphans, allow_empty_first_page, **kwargs
-        )

@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
+import json
+
 import dj_database_url
 import dj_email_url
 import os
@@ -104,7 +106,7 @@ INSTALLED_APPS = [
     "agir.loans",
     "agir.mailing",
     "agir.notifications",
-    "agir.municipales",
+    "agir.municipales.apps.MunicipalesConfig",
     "agir.legacy",
     "agir.telegram",
     # default contrib apps
@@ -723,3 +725,7 @@ JITSI_SERVERS = os.environ.get("JITSI_SERVERS", "jitsi1.lafranceinsoumise.fr").s
 # telegram
 TELEGRAM_API_ID = os.environ.get("TELEGRAM_API_ID")
 TELEGRAM_API_HASH = os.environ.get("TELEGRAM_API_HASH")
+
+
+# Municipales
+MUNICIPALES_CAMPAGNES = json.loads(os.environ.get("MUNICIPALES_CAMPAGNES", "[]"))
