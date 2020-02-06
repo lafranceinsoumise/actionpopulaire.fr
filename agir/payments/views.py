@@ -7,9 +7,8 @@ from django.views.generic import DetailView
 from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.payments.actions.subscriptions import terminate_subscription
 from .models import Payment, Subscription
-from .types import PAYMENT_TYPES, SUBSCRIPTION_TYPES
 from .payment_modes import PAYMENT_MODES
-
+from .types import PAYMENT_TYPES, SUBSCRIPTION_TYPES
 
 PAYMENT_ID_SESSION_KEY = "_payment_id"
 
@@ -50,7 +49,9 @@ class RetryPaymentView(DetailView):
 
 
 class SubscriptionView(DetailView):
-    queryset = Subscription.objects.filter(status=Subscription.STATUS_WAITING)
+    queryset = Subscription.objects.filter(
+        status__in=(Subscription.STATUS_WAITING, Subscription.STATUS_COMPLETED)
+    )
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()

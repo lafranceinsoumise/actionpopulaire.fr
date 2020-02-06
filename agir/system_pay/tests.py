@@ -1,11 +1,10 @@
 import string
 import uuid
+from unittest import mock
 
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
-from unittest import mock
-
 from django.utils import timezone
 from random import choices
 
@@ -15,6 +14,7 @@ from agir.payments.models import Payment, Subscription
 from agir.system_pay import SystemPayPaymentMode
 from agir.system_pay.crypto import get_signature
 from agir.system_pay.models import SystemPayTransaction
+from agir.system_pay.soap_client import SystemPaySoapClient
 from agir.system_pay.utils import get_trans_id_from_order_id
 
 
@@ -163,8 +163,9 @@ class WebhookTestCase(FakeDataMixin, TestCase):
         payment.refresh_from_db()
         self.assertEqual(payment.status, Payment.STATUS_CANCELED)
 
+    @mock.patch.object(SystemPaySoapClient, "cancel_alias")
     @mock.patch("agir.donations.views.send_donation_email")
-    def test_subscription(self, send_donation_email):
+    def test_subscription(self, send_donation_email, cancel_alias):
         subscription = Subscription.objects.create(
             person=self.data["people"]["user1"],
             price=1000,
@@ -204,7 +205,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
         self.assertEqual(subscription.status, Subscription.STATUS_COMPLETED)
         self.assertEqual(subscription.payments.all().count(), 0)
 
-        sp_sub = subscription.system_pay_subscription
+        sp_sub = subscription.system_pay_subscriptions.get(active=True)
         alias = sp_sub.alias
 
         systempay_data = webhookcall_data(
@@ -252,3 +253,40 @@ class WebhookTestCase(FakeDataMixin, TestCase):
         self.assertEqual(Payment.objects.first().status, Payment.STATUS_REFUSED)
         self.assertEqual(Payment.objects.first().subscription, subscription)
         self.assertEqual(Payment.objects.first().price, 1000)
+
+        # test payment card change
+        res = self.client.get(reverse("subscription_page", args=[subscription.pk]))
+        self.assertContains(res, "vads")
+        self.assertEqual(
+            2, SystemPayTransaction.objects.filter(subscription=subscription).count()
+        )
+
+        order_id = (
+            SystemPayTransaction.objects.filter(subscription=subscription).last().pk
+        )
+
+        systempay_data = webhookcall_data(
+            order_id=order_id,
+            trans_id=get_trans_id_from_order_id(order_id),
+            operation_type="VERIFICATION",
+            trans_status="ACCEPTED",
+            amount=0,
+            cust_id=subscription.person.pk,
+            generate_alias=True,
+            generate_subscription=True,
+        )
+
+        res = self.client.post(reverse("system_pay:webhook"), systempay_data)
+
+        self.assertEqual(res.status_code, 200)
+        subscription.refresh_from_db()
+        self.assertEqual(subscription.status, Subscription.STATUS_COMPLETED)
+
+        self.assertEqual(2, subscription.system_pay_subscriptions.count())
+        self.assertEqual(
+            1, subscription.system_pay_subscriptions.filter(active=True).count()
+        )
+
+        cancel_alias.assert_called_with(
+            subscription.system_pay_subscriptions.get(active=False).alias
+        )

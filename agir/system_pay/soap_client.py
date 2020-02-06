@@ -63,7 +63,7 @@ class SystemPaySoapClient:
             raise SystemPayError(res["commonResponse"]["responseCodeDetail"])
 
     def cancel_subscription(self, subscription):
-        system_pay_subscription = subscription.system_pay_subscription
+        system_pay_subscription = subscription.system_pay_subscriptions.get(active=True)
         alias = system_pay_subscription.alias
 
         res = client.service.cancelSubscription(
@@ -82,7 +82,7 @@ class SystemPaySoapClient:
             )
 
     def get_subscription_details(self, subscription):
-        system_pay_subscription = subscription.system_pay_subscription
+        system_pay_subscription = subscription.system_pay_subscriptions.get(active=True)
         alias = system_pay_subscription.alias
 
         res = client.service.getSubscriptionDetails(
