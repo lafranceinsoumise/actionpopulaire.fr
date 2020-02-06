@@ -88,7 +88,9 @@ class LenderForm(BaseDonorForm):
         super().__init__(*args, **kwargs)
 
         if payment_modes is not None:
-            self.fields["payment_mode"].payment_modes = payment_modes
+            self.payment_modes = payment_modes
+
+        self.fields["payment_mode"].payment_modes = self.payment_modes
 
         self.fields["gender"].required = True
         self.fields["date_of_birth"].required = True
@@ -152,6 +154,9 @@ class LenderForm(BaseDonorForm):
                     code="departement",
                 ),
             )
+
+        if not "payment_mode" in self.fields:
+            cleaned_data["payment_mode"] = self.payment_modes[0]
 
         return cleaned_data
 
