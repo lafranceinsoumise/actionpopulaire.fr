@@ -6,7 +6,6 @@ from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.cache import add_never_cache_headers
 from django.views.generic import TemplateView
-from functools import partial
 from rest_framework import serializers
 from rest_framework.views import APIView
 
@@ -295,7 +294,7 @@ class SystemPayWebhookView(APIView):
 
             # création de la souscription SystemPay correspondante
             # (pour relier, alias, souscription et identifiant de souscription)
-            SystemPaySubscription.objects.get_or_create(
+            sp_subscription, created = SystemPaySubscription.objects.get_or_create(
                 identifier=serializer.validated_data["subscription"],
                 subscription=sp_transaction.subscription,
                 alias=alias,
@@ -304,7 +303,7 @@ class SystemPayWebhookView(APIView):
         self.save_transaction(sp_transaction, serializer)
 
         update_subscription_from_transaction(
-            sp_transaction.subscription, sp_transaction
+            sp_transaction.subscription, sp_subscription, sp_transaction
         )
 
         notify_subscription_status_change(sp_transaction.subscription)

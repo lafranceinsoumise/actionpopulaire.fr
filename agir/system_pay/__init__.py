@@ -55,7 +55,7 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
         return views.SystemPaySubscriptionRedirectView.as_view(sp_config=self.sp_config)
 
     def subscription_terminate_action(self, subscription):
-        sp_subscription = subscription.system_pay_subscription
+        sp_subscription = subscription.system_pay_subscriptions.get(active=True)
         alias = sp_subscription.alias
         self.soap_client.cancel_alias(alias)
         alias.active = False
@@ -66,8 +66,10 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
     def subscription_replace_action(self, previous_subscription, new_subscription):
         from agir.system_pay.models import SystemPaySubscription
 
-        previous_sp_subscription = previous_subscription.system_pay_subscription
-        alias = previous_subscription.system_pay_subscription.alias
+        previous_sp_subscription = previous_subscription.system_pay_subscriptions.get(
+            active=True
+        )
+        alias = previous_sp_subscription.alias
 
         self.soap_client.cancel_subscription(previous_subscription)
         previous_sp_subscription.active = False

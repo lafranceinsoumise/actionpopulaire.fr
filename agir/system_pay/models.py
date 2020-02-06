@@ -58,11 +58,11 @@ class SystemPaySubscription(
         "Identifiant de la souscription", unique=True, max_length=30, blank=False
     )
     alias = models.ForeignKey("SystemPayAlias", null=False, on_delete=models.PROTECT)
-    subscription = models.OneToOneField(
+    subscription = models.ForeignKey(
         "payments.Subscription",
         null=False,
         on_delete=models.PROTECT,
-        related_name="system_pay_subscription",
+        related_name="system_pay_subscriptions",
     )
 
     active = models.BooleanField(
