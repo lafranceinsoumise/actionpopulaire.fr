@@ -50,7 +50,7 @@ class SimpleDonationForm(forms.Form):
         self.helper.layout = Layout("amount")
 
 
-class SimpleDonorForm(MetaFieldsMixin, forms.ModelForm):
+class BaseDonorForm(MetaFieldsMixin, forms.ModelForm):
     meta_fields = ["nationality"]
     button_label = "Je donne {amount}"
 

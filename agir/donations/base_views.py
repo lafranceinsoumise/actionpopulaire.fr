@@ -26,7 +26,7 @@ class BaseAskAmountView(FormToSessionMixin, FormView):
 
 
 class BasePersonalInformationView(UpdateView):
-    form_class = agir.donations.base_forms.SimpleDonorForm
+    form_class = None
     template_name = "donations/personal_information.html"
     payment_mode = None
     payment_type = None

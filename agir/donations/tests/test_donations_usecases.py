@@ -379,6 +379,7 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertContains(res, "200,00")
         self.assertContains(res, "100,00")
+        self.assertNotContains(res, " chèque")
 
         res = self.client.post(
             information_url,

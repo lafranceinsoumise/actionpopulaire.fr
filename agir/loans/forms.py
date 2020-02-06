@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_countries import countries
 from django_countries.fields import LazyTypedChoiceField
 
-from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
+from agir.donations.base_forms import SimpleDonationForm, BaseDonorForm
 from agir.donations.form_fields import AskAmountField
 from agir.lib.data import departements_choices
 from agir.lib.display import display_price
@@ -53,7 +53,7 @@ class LoanForm(SimpleDonationForm):
         self.helper.layout = Layout()
 
 
-class LenderForm(SimpleDonorForm):
+class LenderForm(BaseDonorForm):
     button_label = "Je prête {amount}"
     payment_modes = []
 

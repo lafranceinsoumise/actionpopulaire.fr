@@ -9,11 +9,10 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from django.utils.html import format_html
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
-from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
+from agir.donations.base_forms import SimpleDonationForm, BaseDonorForm
 from agir.donations.form_fields import AskAmountField, AllocationsField
 from agir.groups.models import SupportGroup
 from agir.lib.display import display_price
@@ -165,12 +164,7 @@ class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
         return "Mettre en place le don mensuel"
 
 
-class AllocationDonorForm(SimpleDonorForm):
-    allocations = AllocationsField(
-        required=False,
-        queryset=SupportGroup.objects.active().certified().order_by("name").distinct(),
-    )
-
+class PaymentModeFormMixin(forms.ModelForm):
     mode = PaymentModeField(
         payment_modes=["system_pay", "check"], label="Mode de versement"
     )
@@ -181,6 +175,16 @@ class AllocationDonorForm(SimpleDonorForm):
         self.helper.layout.fields.insert(
             self.helper.layout.fields.index("declaration"), "mode"
         )
+
+
+class AllocationDonorFormMixin(forms.Form):
+    allocations = AllocationsField(
+        required=False,
+        queryset=SupportGroup.objects.active().certified().order_by("name").distinct(),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.helper.layout.fields.extend(["allocations"])
 
@@ -202,7 +206,13 @@ class AllocationDonorForm(SimpleDonorForm):
         return cleaned_data
 
 
-class AllocationMonthlyDonorForm(AllocationDonorForm):
+class AllocationDonorForm(
+    PaymentModeFormMixin, AllocationDonorFormMixin, BaseDonorForm
+):
+    pass
+
+
+class AllocationMonthlyDonorForm(AllocationDonorFormMixin, BaseDonorForm):
     button_label = "Je donne {amount} par mois."
 
     previous_subscription = forms.ModelChoiceField(
