@@ -738,3 +738,5 @@ if municipales_campagnes_filename:
         )
     with municipales_campagnes_filename.open("r") as f:
         MUNICIPALES_CAMPAGNES = json.load(f)
+else:
+    MUNICIPALES_CAMPAGNES = []
