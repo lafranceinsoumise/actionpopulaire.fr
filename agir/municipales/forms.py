@@ -47,17 +47,6 @@ class CommunePageForm(forms.ModelForm):
 
 
 class MunicipalesLenderForm(LenderForm):
-    class Meta(LenderForm.Meta):
-        # retire "subscribed"
-        fields = (
-            "first_name",
-            "last_name",
-            "gender",
-            "location_address1",
-            "location_address2",
-            "location_zip",
-            "location_city",
-            "location_country",
-            "contact_phone",
-            "date_of_birth",
-        )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.fields["subscribed"]

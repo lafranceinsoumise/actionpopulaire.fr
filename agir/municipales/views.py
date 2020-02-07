@@ -143,6 +143,8 @@ class CommuneLoanView(CampagneMixin, BaseLoanAskAmountView):
         if "url_montant" in self.campagne:
             return redirect(self.campagne["url_montant"])
 
+        return super().get(request, *args, **kwargs)
+
 
 class CommuneLoanPersonalInformationView(
     CampagneMixin, BaseLoanPersonalInformationView
@@ -152,6 +154,12 @@ class CommuneLoanPersonalInformationView(
     base_redirect_view = "municipales_loans_ask_amount"
     payment_type = "pret_municipales"
     form_class = MunicipalesLenderForm
+
+    def prepare_data_for_serialization(self, data):
+        # pour s'assurer que la personne créée est forcément en mode non insoumis
+        data = super().prepare_data_for_serialization(data)
+        data["subscribed"] = False
+        return data
 
 
 class CommuneLoanAcceptContractView(CampagneMixin, BaseLoanAcceptContractView):
