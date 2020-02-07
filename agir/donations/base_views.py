@@ -34,7 +34,7 @@ class BasePersonalInformationView(UpdateView):
     first_step_url = None
     persisted_data = ["amount"]
 
-    def return_to_first_step(self):
+    def redirect_to_first_step(self):
         return redirect(self.first_step_url)
 
     def dispatch(self, request, *args, **kwargs):
@@ -52,7 +52,7 @@ class BasePersonalInformationView(UpdateView):
             try:
                 value = field.clean(value)
             except ValidationError:
-                return self.return_to_first_step()
+                return self.redirect_to_first_step()
 
             self.persistent_data[k] = value
 
