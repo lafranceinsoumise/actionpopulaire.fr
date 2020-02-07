@@ -93,19 +93,18 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
             active=True,
         )
 
-    @classmethod
-    def get_urls(cls):
+    def get_urls(self):
         from . import views
 
         return [
             path(
-                cls.webhook_url,
+                self.webhook_url,
                 views.SystemPayWebhookView.as_view(
-                    sp_config=cls.sp_config, mode_id=cls.id
+                    sp_config=self.sp_config, mode_id=self.id
                 ),
                 name="webhook",
             ),
-            path(cls.return_url, views.return_view, name="return"),
+            path(self.return_url, views.return_view, name="return"),
         ]
 
 

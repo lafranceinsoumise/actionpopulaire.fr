@@ -212,6 +212,18 @@ class SystemPayWebhookView(APIView):
         original_sp_transaction = serializer.get_transaction_by_order_id()
         payment = original_sp_transaction.payment
 
+        if payment is None:
+            raise serializers.ValidationError(
+                "pas de paiement associé à la transaction d'origine",
+                code="missing_payment",
+            )
+
+        if payment.mode != self.mode_id:
+            raise serializers.ValidationError(
+                "le mode du paiement ne correspond pas à celui pour lequel le webhook est défini",
+                code="wrong_mode",
+            )
+
         # N.B.: on accepte que les remboursements complets
         serializer.check_payment_match_transaction(payment)
 
@@ -236,6 +248,13 @@ class SystemPayWebhookView(APIView):
             # base de données
             sp_subscription = serializer.get_sp_subscription()
             subscription = sp_subscription.subscription
+
+            if subscription.mode != self.mode_id:
+                raise serializers.ValidationError(
+                    "le mode du paiement ne correspond pas à celui pour lequel le webhook est défini",
+                    code="wrong_mode",
+                )
+
             serializer.check_and_update_alias(sp_subscription.alias)
             serializer.check_subscription_match_transaction(subscription)
 
@@ -269,6 +288,12 @@ class SystemPayWebhookView(APIView):
                     "pas de paiement associé à la transaction", code="missing_payment"
                 )
 
+            if payment.mode != self.mode_id:
+                raise serializers.ValidationError(
+                    "le mode du paiement ne correspond pas à celui pour lequel le webhook est défini",
+                    code="wrong_mode",
+                )
+
         self.save_transaction(sp_transaction, serializer)
         update_payment_from_transaction(payment, sp_transaction)
         notify_status_change(payment)
@@ -281,6 +306,12 @@ class SystemPayWebhookView(APIView):
         if sp_transaction.subscription is None:
             raise serializers.ValidationError(
                 "Souscription manquante sur la transaction", code="missing_subscription"
+            )
+
+        if sp_transaction.subscription.mode != self.mode_id:
+            raise serializers.ValidationError(
+                "le mode de la souscription ne correspond pas à celui pour lequel le webhook est défini",
+                code="wrong_mode",
             )
 
         if serializer.is_successful():
