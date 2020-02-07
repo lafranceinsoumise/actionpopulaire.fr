@@ -102,7 +102,7 @@ class AllocationPersonalInformationMixin:
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["initial"]["allocations"] = self.persistent_data["allocations"]
+        kwargs["initial"]["allocations"] = self.persistent_data.get("allocations", {})
         return kwargs
 
     def get_context_data(self, **kwargs):

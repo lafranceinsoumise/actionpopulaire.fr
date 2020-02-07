@@ -39,8 +39,9 @@ class BasePersonalInformationView(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.persistent_data = {}
+        form = self.get_form()
         for k in self.persisted_data:
-            field = self.form_class.base_fields[k]
+            field = form.fields[k]
 
             if k in request.GET:
                 value = request.GET[k]

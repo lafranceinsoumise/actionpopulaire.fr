@@ -1,8 +1,10 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Fieldset
 from django import forms
+from django.conf import settings
 
-from agir.loans.forms import LenderForm
+from agir.donations.form_fields import AskAmountField
+from agir.loans.forms import LenderForm, LoanForm
 from agir.municipales.models import CommunePage
 from agir.municipales.tasks import notify_commune_changed
 
@@ -46,7 +48,36 @@ class CommunePageForm(forms.ModelForm):
         )
 
 
-class MunicipalesLenderForm(LenderForm):
-    def __init__(self, *args, **kwargs):
+class MunicipalesAskAmountForm(LoanForm):
+    def __init__(self, *args, campagne=None, **kwargs):
         super().__init__(*args, **kwargs)
-        del self.fields["subscribed"]
+
+        fields = [
+            "label",
+            "error_messages",
+            "required",
+            "amount_choices",
+            "show_tax_credit",
+        ]
+
+        self.fields["amount"] = AskAmountField(
+            min_value=campagne.get("min_value", settings.LOAN_MINIMUM),
+            max_value=campagne.get("max_value", settings.LOAN_MAXIMUM),
+            **{f: getattr(self.fields["amount"], f) for f in fields}
+        )
+
+
+class MunicipalesLenderForm(LenderForm):
+    show_subscribed = False
+
+    def __init__(self, *args, campagne=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if campagne is None:
+            campagne = {}
+        self.fields["amount"] = forms.IntegerField(
+            min_value=campagne.get("min_value", settings.LOAN_MINIMUM),
+            max_value=campagne.get("max_value", settings.LOAN_MAXIMUM),
+            required=True,
+            widget=forms.HiddenInput,
+        )

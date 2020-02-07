@@ -53,6 +53,7 @@ class SimpleDonationForm(forms.Form):
 class BaseDonorForm(MetaFieldsMixin, forms.ModelForm):
     meta_fields = ["nationality"]
     button_label = "Je donne {amount}"
+    show_subscribed = True
 
     email = forms.EmailField(
         label=_("Votre adresse email"),
@@ -114,7 +115,7 @@ class BaseDonorForm(MetaFieldsMixin, forms.ModelForm):
             del self.fields["email"]
 
         # we remove the subscribed field for people who are already subscribed
-        if self.connected and self.instance.subscribed:
+        if not self.show_subscribed or (self.connected and self.instance.subscribed):
             del self.fields["subscribed"]
 
         for f in [
@@ -170,7 +171,10 @@ class BaseDonorForm(MetaFieldsMixin, forms.ModelForm):
                 "valider",
                 self.button_label.format(
                     amount=number_format(
-                        self.get_initial_for_field(self.fields["amount"], "amount")
+                        (
+                            self.get_initial_for_field(self.fields["amount"], "amount")
+                            or 0
+                        )
                         / 100,
                         2,
                     )

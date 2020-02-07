@@ -17,7 +17,11 @@ from agir.loans.views import (
     BaseLoanPersonalInformationView,
     BaseLoanAcceptContractView,
 )
-from agir.municipales.forms import CommunePageForm, MunicipalesLenderForm
+from agir.municipales.forms import (
+    CommunePageForm,
+    MunicipalesLenderForm,
+    MunicipalesAskAmountForm,
+)
 from agir.municipales.models import CommunePage
 from agir.municipales.serializers import CommunePageSerializer
 from agir.payments.payment_modes import PAYMENT_MODES
@@ -93,6 +97,11 @@ class CampagneMixin:
         self.commune = self.campagne["commune"]
         return super().dispatch(*args, **kwargs)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["campagne"] = self.campagne
+        return kwargs
+
     def get_campagne(self):
         from .campagnes import CAMPAGNES
 
@@ -138,6 +147,7 @@ class CampagneMixin:
 class CommuneLoanView(CampagneMixin, BaseLoanAskAmountView):
     template_name = "municipales/loans/ask_amount.html"
     success_view_name = "municipales_loans_personal_information"
+    form_class = MunicipalesAskAmountForm
 
     def get(self, request, *args, **kwargs):
         if "url_montant" in self.campagne:
@@ -165,6 +175,10 @@ class CommuneLoanPersonalInformationView(
 class CommuneLoanAcceptContractView(CampagneMixin, BaseLoanAcceptContractView):
     template_name = "municipales/loans/validate_contract.html"
     payment_type = "pret_municipales"
+
+    def get_form_kwargs(self):
+        # ne pas inclure campagne pour ce formulaire
+        return BaseLoanAcceptContractView.get_form_kwargs(self)
 
 
 class CommuneLoanReturnView(RedirectView):
