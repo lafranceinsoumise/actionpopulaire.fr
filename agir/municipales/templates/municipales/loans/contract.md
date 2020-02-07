@@ -52,7 +52,7 @@ Candidat{{ e_emprunteur }} tête de liste
 <div class="signature preteur">
 <p>
 {{ le }} {{ preteur }},<br>  
-<strong>{{ name }}</strong><br>
+<strong>{{ nom_preteur }}</strong><br>
 {{ signature }}
 </p>
 </div>

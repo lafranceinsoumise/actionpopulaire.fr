@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from django.conf import settings
+from django.utils.html import format_html
 
 from agir.loans.display import SUBSTITUTIONS
 from agir.loans.loan_config import LoanConfiguration, default_contract_context_generator
@@ -50,11 +51,21 @@ def contract_context_generator(contract_information):
     payment_mode = PAYMENT_MODES[contract_information["payment_mode"]]
     campagne = payment_mode.campagne
 
+    signed = "signature_datetime" in contract_information
+    if signed:
+        signature_emprunteur = format_html(
+            '<img src="{src}" alt="{alt}">',
+            src=campagne["signature_image"],
+            alt=f'Signature de la tête de liste {campagne["nom_emprunteur"]}',
+        )
+    else:
+        signature_emprunteur = ""
+
     context.update(
         {
             "nom_emprunteur": campagne["nom_emprunteur"],
             "adresse_emprunteur": campagne["adresse_emprunteur"],
-            "signature_emprunteur": "IMAGE SIGNATURE ICI",
+            "signature_emprunteur": signature_emprunteur,
             "emprunteur": SUBSTITUTIONS["emprunteur"][campagne["genre_emprunteur"]],
             "e_emprunteur": SUBSTITUTIONS["final_e"][campagne["genre_emprunteur"]],
             "mandataire": campagne["mandataire"],

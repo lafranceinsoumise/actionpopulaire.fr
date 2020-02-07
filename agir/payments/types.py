@@ -43,7 +43,7 @@ class SubscriptionType:
     failure_view: Callable[[HttpRequest, "Subscription"], HttpResponse] = None
     status_listener: Callable[["Subscription"], None] = None
     description_template: str = None
-    description_context_generator: Callable[["Payment"], Mapping[str, Any]] = None
+    description_context_generator: Callable[["Subscription"], Mapping[str, Any]] = None
 
 
 def register_subscription_type(subscription_type: SubscriptionType):
