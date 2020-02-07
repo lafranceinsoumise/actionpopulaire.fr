@@ -122,7 +122,9 @@ class CampagneMixin:
             },
         )
 
-    def return_to_previous_step(self):
+    def redirect_to_first_step(self):
+        if "first_step_url" in self.campagne:
+            return redirect(self.campagne["url_montant"])
         return redirect(
             "municipales_loans_ask_amount",
             code_departement=self.commune.code_departement,
@@ -136,6 +138,10 @@ class CampagneMixin:
 class CommuneLoanView(CampagneMixin, BaseLoanAskAmountView):
     template_name = "municipales/loans/ask_amount.html"
     success_view_name = "municipales_loans_personal_information"
+
+    def get(self, request, *args, **kwargs):
+        if "url_montant" in self.campagne:
+            return redirect(self.campagne["url_montant"])
 
 
 class CommuneLoanPersonalInformationView(
@@ -151,24 +157,6 @@ class CommuneLoanPersonalInformationView(
 class CommuneLoanAcceptContractView(CampagneMixin, BaseLoanAcceptContractView):
     template_name = "municipales/loans/validate_contract.html"
     payment_type = "pret_municipales"
-
-    def get_ask_amount_url(self):
-        return reverse(
-            "municipales_loans_ask_amount",
-            kwargs={
-                "code_departement": self.commune.code_departement,
-                "slug": self.commune.slug,
-            },
-        )
-
-    def get_personal_information_url(self):
-        return reverse(
-            "municipales_loans_personal_information",
-            args={
-                "code_departement": self.commune.code_departement,
-                "slug": self.commune.slug,
-            },
-        )
 
 
 class CommuneLoanReturnView(RedirectView):

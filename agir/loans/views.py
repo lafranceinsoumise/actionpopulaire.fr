@@ -7,8 +7,7 @@ from django.db import transaction
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.shortcuts import resolve_url
-from django.urls import reverse
+from django.shortcuts import resolve_url, redirect
 from django.utils import timezone
 from django.views.generic import FormView, TemplateView, DetailView
 from functools import partial
@@ -61,7 +60,7 @@ class BaseLoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformation
     template_name = "loans/sample/personal_information.html"
     session_namespace = LOANS_INFORMATION_SESSION_NAMESPACE
     form_class = LenderForm
-    base_redirect_url = None
+    first_step_url = None
     success_url = None
     payment_type = None
     payment_modes = []
@@ -102,21 +101,17 @@ class BaseLoanAcceptContractView(MaxTotalLoanMixin, FormView):
     template_name = "loans/sample/validate_contract.html"
     payment_type = None
     session_namespace = LOANS_INFORMATION_SESSION_NAMESPACE
-    ask_amount_url = None
-    personal_information_url = None
+    first_step_url = None
 
-    def get_ask_amount_url(self):
-        return resolve_url(self.ask_amount_url)
-
-    def get_personal_information_url(self):
-        return resolve_url(self.personal_information_url)
+    def redirect_to_first_step(self):
+        return redirect(self.first_step_url)
 
     def dispatch(self, request, *args, **kwargs):
-        if self.session_namespace not in request.session:
-            return HttpResponseRedirect(self.get_ask_amount_url())
-
-        if "__contract" not in request.session[self.session_namespace]:
-            return HttpResponseRedirect(self.get_personal_information_url())
+        if (
+            self.session_namespace not in request.session
+            or "__contract" not in request.session[self.session_namespace]
+        ):
+            return self.redirect_to_first_step()
 
         self.contract_information = request.session[self.session_namespace][
             "__contract"

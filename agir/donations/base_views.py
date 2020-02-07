@@ -31,11 +31,11 @@ class BasePersonalInformationView(UpdateView):
     payment_mode = None
     payment_type = None
     session_namespace = "_donation_"
-    base_redirect_url = None
+    first_step_url = None
     persisted_data = ["amount"]
 
-    def return_to_previous_step(self):
-        return redirect(self.base_redirect_url)
+    def return_to_first_step(self):
+        return redirect(self.first_step_url)
 
     def dispatch(self, request, *args, **kwargs):
         self.persistent_data = {}
@@ -52,7 +52,7 @@ class BasePersonalInformationView(UpdateView):
             try:
                 value = field.clean(value)
             except ValidationError:
-                return self.return_to_previous_step()
+                return self.return_to_first_step()
 
             self.persistent_data[k] = value
 

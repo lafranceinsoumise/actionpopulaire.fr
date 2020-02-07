@@ -68,7 +68,7 @@ class LoansTestCase(TransactionTestCase):
             success_url="/success/", payment_type="sample_loan"
         )
         self.personal_information_view = views.BaseLoanPersonalInformationView.as_view(
-            base_redirect_url="/base_redirect/",
+            first_step_url="/base_redirect/",
             success_url="/success/",
             payment_type="sample_loan",
             payment_modes=["system_pay", "check"],

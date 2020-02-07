@@ -121,7 +121,7 @@ class DonationPersonalInformationView(
     template_name = "donations/personal_information.html"
     payment_type = DonsConfig.PAYMENT_TYPE
     session_namespace = DONATION_SESSION_NAMESPACE
-    base_redirect_url = "donation_amount"
+    first_step_url = "donation_amount"
 
     def get_metas(self, form):
         meta = super().get_metas(form)
@@ -171,7 +171,7 @@ class MonthlyDonationPersonalInformationView(
     payment_mode = payment_modes.DEFAULT_MODE
     payment_type = DonsConfig.PAYMENT_TYPE
     session_namespace = DONATION_SESSION_NAMESPACE
-    base_redirect_url = "view_payments"
+    first_step_url = "view_payments"
     persisted_data = ["amount", "allocations", "previous_subscription"]
 
     def get_context_data(self, **context_data):
@@ -257,19 +257,19 @@ class AlreadyHasSubscriptionView(FormView):
     template_name = "donations/already_has_subscription.html"
     form_class = AlreadyHasSubscriptionForm
     session_namespace = DONATION_SESSION_NAMESPACE
-    base_redirect_url = "view_payments"
+    first_step_url = "view_payments"
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             # compliqué d'utiliser SoftLoginRequiredMixin parce qu'on doit redéfinir dispatch
             # par ailleurs on veut plutôt rediriger vers le profil que revenir sur cette page
-            return redirect(self.base_redirect_url)
+            return redirect(self.first_step_url)
 
         if (
             self.session_namespace not in request.session
             or "new_subscription" not in request.session[self.session_namespace]
         ):
-            return redirect(self.base_redirect_url)
+            return redirect(self.first_step_url)
 
         self.new_subscription_info = self.request.session[self.session_namespace][
             "new_subscription"
@@ -282,7 +282,7 @@ class AlreadyHasSubscriptionView(FormView):
             person=request.user.person, status=Subscription.STATUS_COMPLETED
         ).first()
         if self.old_subscription is None:
-            return redirect(self.base_redirect_url)
+            return redirect(self.first_step_url)
 
         return super().dispatch(request, *args, **kwargs)
 
