@@ -125,10 +125,8 @@ class CampagneMixin:
     def return_to_previous_step(self):
         return redirect(
             "municipales_loans_ask_amount",
-            kwargs={
-                "code_departement": self.commune.code_departement,
-                "slug": self.commune.slug,
-            },
+            code_departement=self.commune.code_departement,
+            slug=self.commune.slug,
         )
 
     def get_context_data(self, **kwargs):
@@ -157,13 +155,19 @@ class CommuneLoanAcceptContractView(CampagneMixin, BaseLoanAcceptContractView):
     def get_ask_amount_url(self):
         return reverse(
             "municipales_loans_ask_amount",
-            args=[self.commune.code_departement, self.commune.slug],
+            kwargs={
+                "code_departement": self.commune.code_departement,
+                "slug": self.commune.slug,
+            },
         )
 
     def get_personal_information_url(self):
         return reverse(
             "municipales_loans_personal_information",
-            args=[self.commune.code_departement, self.commune.slug],
+            args={
+                "code_departement": self.commune.code_departement,
+                "slug": self.commune.slug,
+            },
         )
 
 
