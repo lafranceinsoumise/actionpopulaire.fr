@@ -486,7 +486,9 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
             html=True,
         )
 
-    @mock.patch("agir.donations.views.send_monthly_donation_confirmation_email")
+    @mock.patch(
+        "agir.donations.views.donations_views.send_monthly_donation_confirmation_email"
+    )
     def test_create_person_when_using_new_address(
         self, mock_send_monthly_donation_confirmation_email
     ):
@@ -538,7 +540,7 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
         ]:
             self.assertEqual(getattr(p2, f), self.donation_information_payload[f])
 
-    @mock.patch("agir.donations.views.replace_subscription")
+    @mock.patch("agir.donations.views.donations_views.replace_subscription")
     def test_can_modify_subscription(self, replace_subscription):
         s = self.create_subscription(
             person=self.p1, amount=1000, allocations={self.group: 600}
@@ -583,7 +585,7 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
             ((), {"previous_subscription": s, "new_subscription": new_sub}),
         )
 
-    @mock.patch("agir.donations.views.replace_subscription")
+    @mock.patch("agir.donations.views.donations_views.replace_subscription")
     def test_can_add_to_subscription(self, replace_subscription):
         s = self.create_subscription(
             person=self.p1, amount=1000, allocations={self.group: 600}
@@ -645,7 +647,9 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
             ((), {"previous_subscription": s, "new_subscription": new_sub}),
         )
 
-    @mock.patch("agir.donations.views.send_monthly_donation_confirmation_email")
+    @mock.patch(
+        "agir.donations.views.donations_views.send_monthly_donation_confirmation_email"
+    )
     def test_mail_sent_when_person_not_loggedin(self, send_email):
         information_url = reverse("monthly_donation_information")
 
@@ -737,7 +741,7 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
 
         self.assertIn(expected_link, email_text)
 
-    @mock.patch("agir.donations.views.replace_subscription")
+    @mock.patch("agir.donations.views.donations_views.replace_subscription")
     def test_create_subscription_when_following_confirmation_link(
         self, replace_subscription
     ):

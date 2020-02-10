@@ -66,7 +66,7 @@ def webhookcall_data(
 
 
 class WebhookTestCase(FakeDataMixin, TestCase):
-    @mock.patch("agir.donations.views.send_donation_email")
+    @mock.patch("agir.donations.views.donations_views.send_donation_email")
     def test_transaction_ok(self, send_donation_email):
         payment = Payment.objects.create(
             person=self.data["people"]["user1"],
@@ -126,8 +126,8 @@ class WebhookTestCase(FakeDataMixin, TestCase):
             2, SystemPayTransaction.objects.filter(payment=payment).count()
         )
 
-    @mock.patch("agir.donations.views.send_donation_email")
-    def test_test_transaction_on_canceled_payment(self, send_donation_email):
+    @mock.patch("agir.donations.views.donations_views.send_donation_email")
+    def test_transaction_on_canceled_payment(self, send_donation_email):
         payment = Payment.objects.create(
             person=self.data["people"]["user1"],
             price=1000,
@@ -164,7 +164,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
         self.assertEqual(payment.status, Payment.STATUS_CANCELED)
 
     @mock.patch.object(SystemPaySoapClient, "cancel_alias")
-    @mock.patch("agir.donations.views.send_donation_email")
+    @mock.patch("agir.donations.views.donations_views.send_donation_email")
     def test_subscription(self, send_donation_email, cancel_alias):
         subscription = Subscription.objects.create(
             person=self.data["people"]["user1"],

@@ -47,17 +47,17 @@ urlpatterns = [
     ),
     path(
         "financement/requete/<uuid:spending_request_id>/document/creer/",
-        views.CreateDocument.as_view(),
+        views.CreateDocumentView.as_view(),
         name="create_document",
     ),
     path(
         "financement/requete/<uuid:spending_request_id>/document/<int:pk>/",
-        views.EditDocument.as_view(),
+        views.EditDocumentView.as_view(),
         name="edit_document",
     ),
     path(
         "financement/requete/<uuid:spending_request_id>/document/<int:pk>/supprimer/",
-        views.DeleteDocument.as_view(),
+        views.DeleteDocumentView.as_view(),
         name="delete_document",
     ),
 ]
