@@ -33,9 +33,7 @@ def update_payment_from_transaction(payment, transaction):
         refuse_payment(payment)
 
 
-def update_subscription_from_transaction(subscription, sp_subscription, sp_transaction):
-    # annulation des subscription côté systempay qui pourrait déjà exister pour cette souscription (notamment dans le
-    # cas d'une souscription déjà existante avec simple changement d'alias et donc de souscription systempay)
+def replace_sp_subscription_for_subscription(subscription, sp_subscription):
     for old_sp_subscription in SystemPaySubscription.objects.filter(
         subscription=subscription, active=True
     ).exclude(pk=sp_subscription.pk):
@@ -46,6 +44,8 @@ def update_subscription_from_transaction(subscription, sp_subscription, sp_trans
         old_sp_subscription.active = False
         old_sp_subscription.save(update_fields=["active"])
 
+
+def update_subscription_from_transaction(subscription, sp_transaction):
     if sp_transaction.status == SystemPayTransaction.STATUS_COMPLETED:
         if subscription.status in (
             Subscription.STATUS_CANCELED,

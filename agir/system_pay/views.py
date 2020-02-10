@@ -21,6 +21,7 @@ from agir.system_pay import AbstractSystemPayPaymentMode
 from agir.system_pay.actions import (
     update_payment_from_transaction,
     update_subscription_from_transaction,
+    replace_sp_subscription_for_subscription,
 )
 from agir.system_pay.models import (
     SystemPayTransaction,
@@ -331,10 +332,14 @@ class SystemPayWebhookView(APIView):
                 alias=alias,
             )
 
+            replace_sp_subscription_for_subscription(
+                sp_transaction.subscription, sp_subscription
+            )
+
         self.save_transaction(sp_transaction, serializer)
 
         update_subscription_from_transaction(
-            sp_transaction.subscription, sp_subscription, sp_transaction
+            sp_transaction.subscription, sp_transaction
         )
 
         notify_subscription_status_change(sp_transaction.subscription)
