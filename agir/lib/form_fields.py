@@ -10,7 +10,7 @@ from webpack_loader import utils as webpack_loader_utils
 from webpack_loader.utils import get_files
 
 from agir.donations.validators import validate_iban
-from agir.lib.iban import IBAN
+from agir.lib.iban import IBAN, to_iban
 
 
 class DateTimePickerWidget(DateTimeBaseInput):
@@ -129,6 +129,8 @@ class CustomJSONEncoder(DjangoJSONEncoder):
 
 
 class IBANWidget(Input):
+    input_type = "text"
+
     def __init__(self, attrs=None):
         if attrs is None:
             attrs = {}
@@ -170,7 +172,7 @@ class IBANField(forms.Field):
         if value in self.empty_values:
             return self.empty_value
 
-        return IBAN(str(value))
+        return to_iban(value)
 
     def allowed_countries_error_message(self):
         return self.error_messages["forbidden_country"] % {

@@ -1,14 +1,21 @@
 import React from "react";
 import { render, fireEvent, cleanup } from "@testing-library/react";
-import { create } from "react-test-renderer";
 
-import { IBANField, isIbanValid } from "../IBAN-field";
+import IBANField from "../IBAN-field";
+import { isIBANValid } from "@agir/lib/IBANField/validation";
 
 afterEach(cleanup);
 
 test("Render IBANField", () => {
-  const tree = create(<IBANField placeholder={"Entrez votre IBAN."} />);
-  expect(tree.toJSON()).toMatchSnapshot();
+  const component = render(
+    <IBANField id="id_iban" name="iban" placeholder={"mon placeholder"} />
+  );
+
+  const input = component.getByRole("textbox");
+
+  expect(input.id).toBe("id_iban");
+  expect(input.name).toBe("iban");
+  expect(input.placeholder).toBe("mon placeholder");
 });
 
 test("Entrer une donnée mal formatée", () => {
@@ -25,9 +32,9 @@ test("Entrer une donnée mal formatée", () => {
 test("Un IBAN d'une nationalité non accepté", () => {
   const placeHolder = "Entrez votre IBAN.";
   const iban = render(
-    <IBANField allowedCountry={["FR"]} placeholder={placeHolder} />
+    <IBANField allowedCountries={["FR"]} placeholder={placeHolder} />
   );
-  const input = iban.getByPlaceholderText(placeHolder);
+  const input = iban.getByRole("textbox");
   fireEvent.change(input, {
     target: { value: "EN1234567890" }
   });
@@ -59,11 +66,11 @@ test("Un IBAN invalide", () => {
 
 test("Le refus d'IBANs invalides", () => {
   // on Prend un IBAN valid en reference
-  expect(isIbanValid("FR7630001007941234567890185")).toBe(true);
+  expect(isIBANValid("FR7630001007941234567890185")).toBe(true);
   for (let i = 1; i < 97; i++) {
     const nbr = (76 + i) % 100;
     const validationKey = (nbr < 10 ? "0" : "") + String(nbr);
     const iban = "FR" + validationKey + "30001007941234567890185";
-    expect(isIbanValid(iban)).toBe(false);
+    expect(isIBANValid(iban)).toBe(false);
   }
 });

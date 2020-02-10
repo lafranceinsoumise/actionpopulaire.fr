@@ -1,4 +1,7 @@
-import { arrayNumberModulo, strToArrayNumber } from "../IBAN-field";
+import {
+  arrayNumberModulo,
+  strToArrayNumber
+} from "@agir/lib/IBANField/validation";
 
 test("strToArrayNumber", () => {
   expect(strToArrayNumber("0", 1)).toEqual([0]);
