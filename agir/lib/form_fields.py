@@ -195,3 +195,6 @@ class IBANField(forms.Field):
             attrs["minlength"] = 14
             attrs["maxlength"] = 34
         return attrs
+
+    def prepare_value(self, value):
+        return str(value)
