@@ -1,5 +1,6 @@
 from urllib.parse import urljoin
 
+import requests
 from PIL import Image
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -80,3 +81,10 @@ def resize_and_autorotate(
     render_variations(file_name, variations, replace=replace, storage=storage)
 
     return False
+
+
+def shorten_url(url):
+    return requests.get(
+        settings.POLR_URL + "/api/v2/action/shorten",
+        params={"key": settings.POLR_API_KEY, "url": url, "is_secret": True},
+    ).text()
