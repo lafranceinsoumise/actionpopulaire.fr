@@ -20,7 +20,15 @@ from agir.lib.form_components import *
 from agir.payments.models import Subscription
 from .models import SpendingRequest, Document
 
-__all__ = ("AllocationDonationForm", "AllocationDonorForm")
+__all__ = (
+    "AllocationDonationForm",
+    "AllocationDonorForm",
+    "AlreadyHasSubscriptionForm",
+    "SpendingRequestCreationForm",
+    "SpendingRequestEditForm",
+    "DocumentForm",
+    "DocumentOnCreationFormset",
+)
 
 from ..payments.payment_modes import PaymentModeField
 
@@ -243,27 +251,7 @@ class SpendingRequestFormMixin(forms.Form):
             self.fields["event"].queryset.filter(condition).distinct().order_by("name")
         )
 
-
-class DocumentHelper(FormHelper):
-    template = "bootstrap/table_inline_formset.html"
-    form_tag = False
-    disable_csrf = True
-
-
-DocumentOnCreationFormset = forms.inlineformset_factory(
-    SpendingRequest, Document, fields=["title", "type", "file"], can_delete=False
-)
-
-
-class SpendingRequestCreationForm(SpendingRequestFormMixin, forms.ModelForm):
-    def __init__(self, *args, group, **kwargs):
-        super().__init__(*args, group=group, **kwargs)
-
-        self.instance.group = group
         self.helper = FormHelper()
-        self.helper.form_tag = False
-        self.helper.disable_csrf = True
-
         self.helper.layout = Layout(
             "title",
             "event",
@@ -279,6 +267,32 @@ class SpendingRequestCreationForm(SpendingRequestFormMixin, forms.ModelForm):
             "provider",
             "iban",
         )
+
+
+class DocumentHelper(FormHelper):
+    template = "bootstrap/table_inline_formset.html"
+    # Pas de tag de formulaire ni de CSRF car doit être posté
+    # en même temps qu'un autre formulaire
+    # le tag et le CSRF sont ajouté manuellement dans le template
+    form_tag = False
+    disable_csrf = True
+
+
+DocumentOnCreationFormset = forms.inlineformset_factory(
+    SpendingRequest, Document, fields=["title", "type", "file"], can_delete=False
+)
+
+
+class SpendingRequestCreationForm(SpendingRequestFormMixin, forms.ModelForm):
+    def __init__(self, *args, group, **kwargs):
+        super().__init__(*args, group=group, **kwargs)
+
+        self.instance.group = group
+        # Pas de tag de formulaire ni de CSRF car doit être posté
+        # en même temps qu'un autre formulaire
+        # le tag et le CSRF sont ajouté manuellement dans le template
+        self.helper.form_tag = False
+        self.helper.disable_csrf = True
 
     class Meta:
         model = SpendingRequest
@@ -312,8 +326,8 @@ class SpendingRequestEditForm(SpendingRequestFormMixin, forms.ModelForm):
             *args, user=user, group=instance.group, instance=instance, **kwargs
         )
 
-        self.helper = FormHelper()
         self.helper.add_input(Submit("submit", _("Modifier")))
+        self.helper.layout.fields.append("comment")
 
     # noinspection PyMethodOverriding
     def save(self):
