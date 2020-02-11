@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.cache import add_never_cache_headers
+from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from rest_framework import serializers
 from rest_framework.views import APIView
@@ -61,6 +62,7 @@ class SystempayRedirectView(BaseSystemPayRedirectView):
             **kwargs,
         )
 
+    @never_cache
     def get(self, request, *args, **kwargs):
         self.payment = kwargs["payment"]
         self.transaction = SystemPayTransaction.objects.create(payment=self.payment)

@@ -78,6 +78,9 @@ class WebhookTestCase(FakeDataMixin, TestCase):
         self.client.force_login(self.data["people"]["user1"].role)
 
         res = self.client.get(reverse("payment_page", args=[payment.pk]))
+        self.assertEqual(
+            res.get("Cache-control"), "max-age=0, no-cache, no-store, must-revalidate"
+        )
         self.assertContains(res, "vads")
         self.assertEqual(
             1, SystemPayTransaction.objects.filter(payment=payment).count()
