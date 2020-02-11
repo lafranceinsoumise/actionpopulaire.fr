@@ -1,4 +1,4 @@
-from contextlib import ContextDecorator, contextmanager
+from contextlib import contextmanager
 from unittest.mock import patch
 
 import redis

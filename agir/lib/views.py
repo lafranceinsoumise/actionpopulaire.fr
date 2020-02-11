@@ -1,8 +1,8 @@
 from django.contrib import messages
-from rest_framework.generics import GenericAPIView, get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-
-from agir.lib.form_fields import AcceptCreativeCommonsLicenceField
+from django.views import View
+from django.views.generic.edit import FormMixin
+from rest_framework.generics import GenericAPIView, get_object_or_404
 
 PICT_RATIO_MIN = 1.8
 PICT_RATIO_MAX = 2.1
@@ -40,14 +40,7 @@ class NationBuilderViewMixin(GenericAPIView):
         return obj
 
 
-class CreationSerializerMixin(object):
-    def get_serializer_class(self):
-        if self.request.method == "POST":
-            return self.creation_serializer_class
-        return self.serializer_class
-
-
-class ImageSizeWarningMixin(object):
+class ImageSizeWarningMixin(FormMixin, View):
     """Affiche un message d'avertissement lors d'un upload d'image mal dimensionné.
 
     Cette mixin fonctionne avec sur un champ de model de type StdImageField dont on renseigne
@@ -75,7 +68,7 @@ class ImageSizeWarningMixin(object):
         return super().form_valid(form)
 
 
-class IframableMixin:
+class IframableMixin(View):
     def get(self, request, *args, **kwargs):
         res = super().get(request, *args, **kwargs)
         if request.GET.get("iframe"):

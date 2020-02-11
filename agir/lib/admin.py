@@ -102,6 +102,7 @@ class AdminViewMixin(ContextMixin, View):
     def get_context_data(self, **kwargs):
         model_admin = self.kwargs["model_admin"]
 
+        # noinspection PyProtectedMember
         kwargs.setdefault("opts", model_admin.model._meta)
         kwargs.setdefault("add", False)
         kwargs.setdefault("change", False)

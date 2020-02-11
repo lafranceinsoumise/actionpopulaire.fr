@@ -14,7 +14,12 @@ from django.utils.safestring import mark_safe
 from agir.lib.utils import generate_token_params, front_url, is_front_url, AutoLoginUrl
 from agir.people.models import Person
 
-__all__ = ["send_mail", "send_mosaico_email"]
+__all__ = [
+    "send_mail",
+    "send_mosaico_email",
+    "generate_plain_text",
+    "fetch_mosaico_template",
+]
 
 MOSAICO_VAR_REGEX = re.compile(r"\[([-A-Z_]+)\]")
 

@@ -218,6 +218,6 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="authorization", unique_together=set([("person", "client")])
+            name="authorization", unique_together={("person", "client")}
         ),
     ]
