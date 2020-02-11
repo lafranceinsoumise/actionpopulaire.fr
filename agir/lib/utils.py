@@ -83,8 +83,8 @@ def resize_and_autorotate(
     return False
 
 
-def shorten_url(url):
+def shorten_url(url, secret=False):
     return requests.get(
         settings.POLR_URL + "/api/v2/action/shorten",
-        params={"key": settings.POLR_API_KEY, "url": url, "is_secret": True},
-    ).text()
+        params={"key": settings.POLR_API_KEY, "url": url, "is_secret": secret},
+    ).text
