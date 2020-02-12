@@ -1,0 +1,26 @@
+{% autoescape off %}
+Bonjour,
+
+{% if personnel %}Vous recevez cet email sur votre adresse personnelle (ainsi que l'autre personne cheffe de file) car
+vous n'avez pas indiqué d'adresse de contact pour votre liste.
+{% endif %}
+Une personne nous a signalé rechercher quelqu'un pour prendre sa procuration dans votre commune.
+
+Elle nous a transmis les informations suivantes :
+
+Nom : {{ nom_complet }}
+Email : {{ email }}
+Téléphone : {{ phone }}
+
+Numéro de bureau de vote : {{ bureau }}
+
+{% if autres %}Autres remarques :
+--------------------------------------
+{{ autres }}
+--------------------------------------
+{% endif %}
+Nous vous conseillons de rentrer rapidement en contact avec cette personne.
+
+Bien cordialement,
+Le pôle outils numériques de la France insoumise
+{% endautoescape %}

@@ -35,6 +35,10 @@
       {% if commune.contact_email %}
         <div>Pour écrire à cette liste : <a href="mailto:{{ commune.contact_email }}">{{ commune.contact_email }}</a>
         </div>{% endif %}
+
+        <a class="btn btn-default" href="{% url "procuration_commune" commune.code_departement commune.slug %}">
+          Je cherche quelqu'un pour prendre ma procuration à {{ commune.name }}
+        </a>
     </div>
 
     {% if commune.ordre_don and commune.adresse_don %}
@@ -79,6 +83,7 @@
               style="width: 100%;" scrolling="no"
               frameBorder="0"></iframe>
     </div>
+
     {% if commune.facebook %}
       <div class="col-md-3 gblock">
         <div class="fb-page" data-href="https://www.facebook.com/{{ commune.facebook }}/" data-tabs="timeline"

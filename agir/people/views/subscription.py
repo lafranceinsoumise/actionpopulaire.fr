@@ -101,6 +101,9 @@ class ConfirmSubscriptionView(View):
         "location_address2",
         "location_city",
         "location_country",
+        "contact_phone",
+        "first_name",
+        "last_name",
     ]
     show_already_created_message = True
     create_insoumise = True

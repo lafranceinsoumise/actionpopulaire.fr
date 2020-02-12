@@ -7,6 +7,7 @@ from agir.municipales.views import (
     CommuneLoanView,
     CommuneLoanPersonalInformationView,
     CommuneLoanAcceptContractView,
+    CommuneProcurationView,
 )
 
 urlpatterns = (
@@ -20,6 +21,11 @@ urlpatterns = (
         "communes/<str:code_departement>/<str:slug>/modifier/",
         CommuneChangeView.as_view(),
         name="change_commune",
+    ),
+    path(
+        "communes/<str:code_departement>/<str:slug>/procuration/",
+        CommuneProcurationView.as_view(),
+        name="procuration_commune",
     ),
     path(
         "communes/<str:code_departement>/<str:slug>/prets/",

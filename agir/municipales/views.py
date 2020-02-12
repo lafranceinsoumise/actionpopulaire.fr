@@ -3,7 +3,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
-from django.views.generic import DetailView, UpdateView, RedirectView
+from django.views.generic import DetailView, UpdateView, RedirectView, FormView
 from rest_framework.generics import ListAPIView
 
 from agir.authentication.view_mixins import (
@@ -21,6 +21,7 @@ from agir.municipales.forms import (
     CommunePageForm,
     MunicipalesLenderForm,
     MunicipalesAskAmountForm,
+    ProcurationForm,
 )
 from agir.municipales.models import CommunePage
 from agir.municipales.serializers import CommunePageSerializer
@@ -88,6 +89,23 @@ class CommuneChangeView(
         kwargs = super().get_form_kwargs()
         kwargs["person"] = self.request.user.person
         return kwargs
+
+
+class CommuneProcurationView(CommunePageMixin, UpdateView):
+    queryset = CommunePage.objects.filter(published=True)
+    form_class = ProcurationForm
+    template_name = "municipales/procuration.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.request.user.is_authenticated:
+            kwargs["person"] = self.request.user.person
+        else:
+            kwargs["person"] = None
+        return kwargs
+
+    def get_success_url(self):
+        return reverse("view_commune", kwargs=self.kwargs)
 
 
 # noinspection PyUnresolvedReferences

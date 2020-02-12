@@ -32,3 +32,40 @@ def notify_commune_changed(commune_id, person_id, changed_data):
         to=["groupes-action@lafranceinsoumise.fr"],
     )
     message.send()
+
+
+@emailing_task
+def send_procuration_email(commune_id, nom_complet, email, phone, bureau, autres):
+    try:
+        commune = CommunePage.objects.get(id=commune_id)
+    except CommunePage.DoesNotExist:
+        return
+
+    if commune.contact_email:
+        personnel = False
+        recipients = [commune.contact_email]
+    else:
+        recipients = [p.email for p in commune.municipales2020_admins.all()]
+        personnel = True
+
+    if not recipients:
+        recipients = ["groupes-action@lafranceinsoumise.fr"]
+
+    template = get_template("municipales/procuration_notification.txt")
+    context = {
+        "nom_complet": nom_complet,
+        "email": email,
+        "phone": phone,
+        "bureau": bureau,
+        "autres": autres,
+        "personnel": personnel,
+    }
+    body = template.render(context)
+
+    message = EmailMessage(
+        subject=f"Demande de procuration - {nom_complet}",
+        body=body,
+        from_email=settings.EMAIL_FROM,
+        to=recipients,
+    )
+    message.send()

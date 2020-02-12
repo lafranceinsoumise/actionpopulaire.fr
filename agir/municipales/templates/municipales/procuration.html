@@ -1,0 +1,24 @@
+{% extends "front/layout.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Je cherche quelqu'un pour une procuration — {{ commune.name }}{% endblock title %}
+
+
+{% block main %}
+  <div class="col-responsive">
+    <h3>Je suis à la recherche d'une personne pour prendre ma procuration</h3>
+
+    <p>
+      Vous êtes absent⋅e le jour du vote ? Vous pouvez toujours voter par procuration en désignant une personne qui
+      votera
+      à votre place.
+    </p>
+    <p>
+      Si vous votez à {{ commune.name }} et ne connaissez personne pour prendre votre procuration, vous pouvez utilisez
+      le formulaire ci-dessous pour demander l'assistance de l'équipe de la liste soutenue par la France insoumise.
+    </p>
+
+    {% crispy form %}
+  </div>
+
+{% endblock %}
