@@ -1,3 +1,5 @@
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 import axios from "axios";
 
 const nominatim_url = "https://nominatim.openstreetmap.org/search";
