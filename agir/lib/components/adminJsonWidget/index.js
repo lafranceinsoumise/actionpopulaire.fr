@@ -1,3 +1,5 @@
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 import JsonEditor from "jsoneditor";
 
 import "jsoneditor/dist/jsoneditor.css";

@@ -1,5 +1,6 @@
 /* eslint-env browser, jquery */
-
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 import Masonry from "masonry-layout";
 
 const elem = document.querySelector(".masonry");

@@ -1,3 +1,5 @@
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 import React from "react";
 import ReactDOM from "react-dom";
 
@@ -41,7 +43,7 @@ const replaceForm = selector => {
   const typeSelect = form.querySelector('select[name="type"]');
   if (typeSelect) {
     props.typeChoices = getChoices(typeSelect);
-    typeSelect.remove();
+    typeSelect.parentNode.removeChild(typeSelect);
   }
 
   props.enableAllocations = false;
@@ -55,7 +57,7 @@ const replaceForm = selector => {
       ? JSON.parse(allocationsInput.value)
       : [];
 
-    allocationsInput.remove();
+    allocationsInput.parentNode.removeChild(allocationsInput);
   }
 
   const amountLabel = form.querySelector('label[for="id_amount"]');
@@ -73,7 +75,7 @@ const replaceForm = selector => {
     : null;
   props.showTaxCredit = !amountInput.dataset.hideTaxCredit;
   props.initial.amount = +amountInput.value || null;
-  amountInput.remove();
+  amountInput.parentNode.removeChild(amountInput);
 
   // pour tous les champs hidden restant, on les transmet tels quels
   props.hiddenFields = {};
@@ -83,7 +85,7 @@ const replaceForm = selector => {
 
   const reactDiv = document.createElement("div");
   form.parentNode.insertBefore(reactDiv, form);
-  form.remove();
+  form.parentNode.removeChild(form);
   // remove all children of the form
 
   render(<DonationForm {...props} />, reactDiv);
