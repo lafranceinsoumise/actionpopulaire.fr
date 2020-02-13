@@ -3,6 +3,7 @@ from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
 
+from agir.api.redis import using_separate_redis_server
 from agir.municipales.models import CommunePage
 from agir.people.models import Person
 
@@ -24,6 +25,7 @@ BLAGNY_WKT = (
 )
 
 
+@using_separate_redis_server
 class ProcurationTestCase(TestCase):
     def setUp(self):
         self.commune = CommunePage.objects.create(
