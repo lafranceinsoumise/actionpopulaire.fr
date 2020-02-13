@@ -62,7 +62,7 @@ def using_separate_redis_server(decorated=None):
                 continue
 
             setattr(decorated, attr, using_separate_redis_server(attr_value))
-            return decorated
+        return decorated
 
     @wraps(decorated)
     def inner(*args, **kwargs):
