@@ -334,7 +334,8 @@ class ProfileFormTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, "has-error")
 
-    def test_can_validate_without_zip_code_when_abroad(self):
+    @mock.patch("agir.people.forms.profile.geocode_person")
+    def test_can_validate_without_zip_code_when_abroad(self, geocode_person):
         self.sample_data["location_city"] = "Berlin"
         self.sample_data["location_zip"] = ""
         self.sample_data["location_country"] = "DE"
@@ -372,7 +373,7 @@ class ProfileFormTestCase(TestCase):
             )
 
 
-class ActivityAblebilityFormTestCases(TestCase):
+class ActivityAbilityFormTestCases(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person("test@test.com")
         self.client.force_login(self.person.role)
