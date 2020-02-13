@@ -3,7 +3,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
-from django.views.generic import DetailView, UpdateView, RedirectView, FormView
+from django.views.generic import DetailView, UpdateView, RedirectView
 from rest_framework.generics import ListAPIView
 
 from agir.authentication.view_mixins import (
@@ -11,6 +11,7 @@ from agir.authentication.view_mixins import (
     PermissionsRequiredMixin,
 )
 from agir.events.models import Event
+from agir.lib.token_bucket import TokenBucket
 from agir.lib.views import IframableMixin
 from agir.loans.views import (
     BaseLoanAskAmountView,
@@ -26,6 +27,11 @@ from agir.municipales.forms import (
 from agir.municipales.models import CommunePage
 from agir.municipales.serializers import CommunePageSerializer
 from agir.payments.payment_modes import PAYMENT_MODES
+
+send_procurations_bucket_by_ip = TokenBucket("send_procurations_by_ip", 1, 60)
+send_procurations_bucket_by_commune = TokenBucket(
+    "send_procurations_by_commune", 10, 30
+)
 
 
 class CommunePageMixin(View):
@@ -103,6 +109,19 @@ class CommuneProcurationView(CommunePageMixin, UpdateView):
         else:
             kwargs["person"] = None
         return kwargs
+
+    def form_valid(self, form):
+        if send_procurations_bucket_by_ip.has_tokens(
+            self.request.META["REMOTE_ADDR"]
+        ) and send_procurations_bucket_by_commune.has_tokens(self.object.id):
+            return super().form_valid(form)
+        else:
+            form.add_error(
+                None,
+                "Vous venez déjà de faire parvenir votre procurations. Patientez une minute si ce n'est pas le cas.",
+            )
+
+            return super().form_invalid(form)
 
     def get_success_url(self):
         return reverse("view_commune", kwargs=self.kwargs)
