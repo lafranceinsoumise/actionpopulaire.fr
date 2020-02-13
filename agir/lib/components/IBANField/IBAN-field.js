@@ -39,7 +39,7 @@ const IBANField = ({ id, name, initial, placeholder, allowedCountries }) => {
     if (ref.current) {
       ref.current.setSelectionRange(inputState.cursor, inputState.cursor);
     }
-  }, inputState);
+  }, [inputState]);
 
   return (
     <div className={error && "has-error"}>
