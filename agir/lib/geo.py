@@ -57,28 +57,6 @@ def get_results_from_ban(query):
     return results
 
 
-def get_results_from_nominatim(query):
-
-    try:
-        res = requests.get(NOMINATIM_ENDPOINT, params=query)
-        res.raise_for_status()
-        results = res.json()
-    except requests.RequestException:
-        logger.warning(
-            f"Error while geocoding address '{query['q']}' with Nominatim",
-            exc_info=True,
-        )
-        raise
-    except ValueError:
-        logger.warning(
-            f"Invalid JSON while geocoding address '{query['q']}' with Nominatim",
-            exc_info=True,
-        )
-        raise
-
-    return results
-
-
 def geocode_ban_district_exception(item):
     arrondissement = ARRONDISSEMENTS[item.location_zip]
     item.location_citycode = arrondissement["citycode"]
@@ -189,18 +167,6 @@ def geocode_ban(item):
     item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
 
 
-def geocode_coordinate_from_simple_address(address):
-    if not address:
-        return None
-
-    results = get_results_from_nominatim({"format": "json", "q": address, "limit": 1})
-
-    if not results:
-        return None
-
-    return Point(float(results[0]["lon"]), float(results[0]["lat"]), srid=4326)
-
-
 def geocode_nominatim(item):
     """Find location of an item with its address
 
@@ -226,7 +192,14 @@ def geocode_nominatim(item):
     display_address = f"{q} ({item.location_country})"
 
     try:
-        res = requests.get(NOMINATIM_ENDPOINT, params=query)
+        res = requests.get(
+            NOMINATIM_ENDPOINT,
+            params=query,
+            headers={
+                "User-Agent": "La France insoumise events platform (if there is any problem with "
+                "our usage please contact us at site@lafranceinsoumise.fr)"
+            },
+        )
         res.raise_for_status()
         results = res.json()
     except requests.RequestException:
