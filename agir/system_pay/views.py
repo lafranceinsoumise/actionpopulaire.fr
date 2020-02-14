@@ -1,24 +1,19 @@
 import logging
 
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.template.response import TemplateResponse
-from django.utils import timezone
-from django.utils.cache import add_never_cache_headers
+from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from rest_framework import serializers
 from rest_framework.views import APIView
 
-from agir.authentication.models import Role
 from agir.payments.actions import subscriptions
 from agir.payments.actions.payments import notify_status_change, create_payment
 from agir.payments.actions.subscriptions import (
     notify_status_change as notify_subscription_status_change,
 )
-from agir.payments.models import Payment, Subscription
-from agir.payments.views import handle_return, handle_subscription_return
-from agir.system_pay import AbstractSystemPayPaymentMode
 from agir.system_pay.actions import (
     update_payment_from_transaction,
     update_subscription_from_transaction,
@@ -67,10 +62,6 @@ class SystempayRedirectView(BaseSystemPayRedirectView):
         self.payment = kwargs["payment"]
         self.transaction = SystemPayTransaction.objects.create(payment=self.payment)
         res = super().get(request, *args, **kwargs)
-        add_never_cache_headers(res)
-
-        # save payment in session
-        request.session[PAYMENT_ID_SESSION_KEY] = self.payment.pk
 
         return res
 
@@ -349,63 +340,34 @@ class SystemPayWebhookView(APIView):
         return self.successful_response()
 
 
-def return_view(request):
-    payment_id = request.session.get(PAYMENT_ID_SESSION_KEY)
-    payment = None
-    subscription_id = request.session.get(SUBSCRIPTION_ID_SESSION_KEY)
-    subscription = None
+def failure_view(request, pk):
+    try:
+        sp_transaction = SystemPayTransaction.objects.get(pk=pk)
+    except SystemPayTransaction.DoesNotExist:
+        raise Http404("Cette page n'existe pas.")
 
-    status = request.GET.get("status")
+    status = request.GET.get("status", "unknown")
 
-    if payment_id or subscription:
-        try:
-            payment = Payment.objects.get(pk=payment_id)
-        except Payment.DoesNotExist:
-            pass
+    if sp_transaction.payment is None and sp_transaction.subscription is None:
+        logger.error(
+            "Retour de SystemPay sans paiement ni souscription",
+            extra={"request": request, "sp_transaction": sp_transaction},
+        )
+        raise ValueError("SystemPayTransaction sans paiement ni souscription")
 
-    if subscription_id:
-        try:
-            subscription = Subscription.objects.get(pk=subscription_id)
-        except Subscription.DoesNotExist:
-            pass
-
-    if (
-        payment is None
-        and subscription is None
-        and request.user.is_authenticated
-        and request.user.type == Role.PERSON_ROLE
-    ):
-        try:
-            system_pay_modes = [
-                klass.id for klass in AbstractSystemPayPaymentMode.__subclasses__()
-            ]
-            two_hours_ago = timezone.now() - timezone.timedelta(hours=2)
-            payment = (
-                request.user.person.payments.filter(
-                    mode__in=system_pay_modes, created__gt=two_hours_ago
-                )
-                .order_by("-created")
-                .first()
-            )
-        except Payment.DoesNotExist:
-            pass
-
-    if status != "success":
+    if sp_transaction.payment:
+        retry_url = reverse("payment_retry", kwargs={"pk": sp_transaction.payment_id})
         return TemplateResponse(
             request,
             "system_pay/payment_failed.html",
-            context={
-                "payment": payment,
-                "subscription": subscription,
-                "status": status,
-            },
+            context={"retry_url": retry_url, "status": status},
         )
-
-    if payment is None and subscription is None:
-        return TemplateResponse(request, "system_pay/payment_not_identified.html")
-
-    if payment is not None:
-        return handle_return(request, payment)
-
-    if subscription is not None:
-        return handle_subscription_return(request, subscription)
+    else:
+        retry_url = reverse(
+            "subscription_page", kwargs={"pk": sp_transaction.subscription_id}
+        )
+        return TemplateResponse(
+            request,
+            "system_pay/subscription_failed.html",
+            context={"retry_url": retry_url, "status": status},
+        )

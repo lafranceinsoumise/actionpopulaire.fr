@@ -101,7 +101,12 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
     def get_form_for_transaction(cls, transaction, sp_config):
         person = transaction.subscription.person
 
-        return_url = front_url(f"{transaction.subscription.mode}:return")
+        success_url = front_url(
+            "subscription_return", kwargs={"pk": transaction.subscription_id}
+        )
+        failure_url = front_url(
+            f"{transaction.subscription.mode}:failure", kwargs={"pk": transaction.pk}
+        )
 
         person_data = {}
         if person is not None:
@@ -139,9 +144,10 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
                 "vads_cust_state": person_data.get("location_state"),
                 "vads_cust_country": person_data.get("location_country"),
                 "vads_sub_desc": get_recurrence_rule(transaction.subscription),
+                "vads_url_success": success_url,
                 **{
-                    f"vads_url_{status}": f"{return_url}?status={status}"
-                    for status in ["cancel", "error", "refused", "success"]
+                    f"vads_url_{status}": f"{failure_url}?status={status}"
+                    for status in ["cancel", "error", "refused"]
                 },
             }
         )
@@ -169,7 +175,10 @@ class SystempayPaymentForm(SystempayBaseForm):
             else "anonymous"
         )
 
-        return_url = front_url(f"{transaction.payment.mode}:return")
+        success_url = front_url("payment_return", kwargs={"pk": transaction.payment_id})
+        failure_url = front_url(
+            f"{transaction.payment.mode}:failure", kwargs={"pk": transaction.pk}
+        )
 
         form = cls(
             initial={
@@ -195,9 +204,10 @@ class SystempayPaymentForm(SystempayBaseForm):
                 "vads_cust_state": transaction.payment.location_state,
                 "vads_cust_country": transaction.payment.location_country,
                 "vads_ext_info_type": transaction.payment.type,
+                "vads_url_success": success_url,
                 **{
-                    f"vads_url_{status}": f"{return_url}?status={status}"
-                    for status in ["cancel", "error", "refused", "success"]
+                    f"vads_url_{status}": f"{failure_url}?status={status}"
+                    for status in ["cancel", "error", "refused"]
                 },
             }
         )

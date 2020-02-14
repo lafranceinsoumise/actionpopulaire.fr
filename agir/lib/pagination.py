@@ -1,8 +1,5 @@
 from collections import OrderedDict
-from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
 
-from django.core.paginator import Paginator, Page
-from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response

@@ -16,7 +16,7 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
     can_cancel = True
 
     webhook_url = "webhook/"
-    return_url = "retour/"
+    failure_url = "retour/<int:pk>/"
 
     id = None
     url_fragment = None
@@ -104,7 +104,7 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
                 ),
                 name="webhook",
             ),
-            path(self.return_url, views.return_view, name="return"),
+            path(self.failure_url, views.failure_view, name="failure"),
         ]
 
 

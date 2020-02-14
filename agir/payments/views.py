@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.http import Http404, HttpResponseServerError
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django.views.generic import DetailView
 
@@ -86,28 +86,18 @@ class TerminateSubscriptionView(DetailView, HardLoginRequiredMixin):
         return redirect("view_payments")
 
 
-def return_view(request, pk):
-    try:
-        payment = Payment.objects.get(pk=pk)
-    except Payment.DoesNotExist:
-        raise Http404("Ce paiement n'existe pas")
+def payment_return_view(request, pk):
+    payment = get_object_or_404(Payment, pk=pk)
 
-    return handle_return(request, payment)
-
-
-def handle_return(request, payment):
     if payment.type in PAYMENT_TYPES and PAYMENT_TYPES[payment.type].success_view:
         return PAYMENT_TYPES[payment.type].success_view(request, payment=payment)
     else:
-        return TemplateResponse(
-            request,
-            "payments/success.html"
-            if payment.status == payment.STATUS_COMPLETED
-            else "payments/failure.html",
-        )
+        return TemplateResponse(request, "payments/default_success_page.html")
 
 
-def handle_subscription_return(request, subscription):
+def subscription_return_view(request, pk):
+    subscription = get_object_or_404(Subscription, pk=pk)
+
     if subscription.type in SUBSCRIPTION_TYPES:
         return SUBSCRIPTION_TYPES[subscription.type].success_view(
             request, subscription=subscription
