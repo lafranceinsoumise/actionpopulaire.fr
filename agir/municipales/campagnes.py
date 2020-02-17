@@ -11,35 +11,43 @@ from agir.payments.payment_modes import PAYMENT_MODES, add_payment_mode
 from agir.payments.types import register_payment_type
 from agir.system_pay import AbstractSystemPayPaymentMode
 
-CAMPAGNES = {}
+_CAMPAGNES = {}
 
-for config in settings.MUNICIPALES_CAMPAGNES:
-    insee = config["insee"]
 
-    c = CommunePage.objects.get(code=insee)
+def init_campagnes():
+    for config in settings.MUNICIPALES_CAMPAGNES:
+        insee = config["insee"]
 
-    payment_id = f"{c.snake_case()}_system_pay"
+        c = CommunePage.objects.get(code=insee)
 
-    sp_config = config["sp_config"]
-    payment_mode = type(
-        f"{c.title_case()}PaymentMode",
-        (AbstractSystemPayPaymentMode,),
-        {
-            "id": payment_id,
-            "url_fragment": f"carte-{c.code_departement}-{c.slug}",
-            "label": f"Prêt par carte à la campagne municipale de {c.name}",
-            "sp_config": sp_config,
-        },
-    )
+        payment_id = f"{c.snake_case()}_system_pay"
 
-    add_payment_mode(payment_mode)
+        sp_config = config["sp_config"]
+        payment_mode = type(
+            f"{c.title_case()}PaymentMode",
+            (AbstractSystemPayPaymentMode,),
+            {
+                "id": payment_id,
+                "url_fragment": f"carte-{c.code_departement}-{c.slug}",
+                "label": f"Prêt par carte à la campagne municipale de {c.name}",
+                "sp_config": sp_config,
+            },
+        )
 
-    CAMPAGNES[c.code_departement, c.slug] = {
-        **config,
-        "payment_mode": payment_id,
-        "nom_ville": c.name,
-    }
-    payment_mode.campagne = CAMPAGNES[c.code_departement, c.slug]
+        add_payment_mode(payment_mode)
+
+        _CAMPAGNES[c.code_departement, c.slug] = {
+            **config,
+            "payment_mode": payment_id,
+            "nom_ville": c.name,
+        }
+        payment_mode.campagne = _CAMPAGNES[c.code_departement, c.slug]
+
+
+def get_campagne(code_departement, slug):
+    if not _CAMPAGNES:
+        init_campagnes()
+    return _CAMPAGNES.get(code_departement, slug)
 
 
 def contract_path(payment):

@@ -140,15 +140,13 @@ class CampagneMixin:
         return kwargs
 
     def get_campagne(self):
-        from .campagnes import CAMPAGNES
+        from agir.municipales.campagnes import get_campagne
 
-        key = (self.kwargs["code_departement"], self.kwargs["slug"])
-        if key not in CAMPAGNES:
+        campagne = get_campagne(self.kwargs["code_departement"], self.kwargs["slug"])
+
+        if campagne is None:
             raise Http404("Cette page n'existe pas.")
-        return {
-            **CAMPAGNES[key],
-            "commune": CommunePage.objects.get(code=CAMPAGNES[key]["insee"]),
-        }
+        return {**campagne, "commune": CommunePage.objects.get(code=campagne["insee"])}
 
     def get_meta_title(self):
         return f"Je prête à {self.campagne['nom_liste']}"
