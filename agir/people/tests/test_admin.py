@@ -144,7 +144,7 @@ class PersonFormAdminTestCase(TestCase):
             self.assertEqual(res.status_code, 200)
 
     def test_get_404_with_wrong_submission_id(self):
-        for view_name in ["change", "delete", "details"]:
+        for view_name in ["change", "delete", "detail"]:
             res = self.client.get(
                 reverse(f"admin:people_personformsubmission_{view_name}", args=[9536])
             )
