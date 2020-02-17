@@ -92,7 +92,7 @@ def send_expiration_email_reminder(sp_subscription_pk):
         subject="Mettez à jour votre carte bancaire !",
         from_email=settings.EMAIL_FROM,
         bindings={
-            "SUBSCRIPTION_DESCRIPTION": sp_subscription.subscription,
+            "SUBSCRIPTION_DESCRIPTION": sp_subscription.subscription.description,
             "RENEW_SUBSCRIPTION_LINK": front_url("view_payments"),
             "EXPIRY_DATE": sp_subscription.alias.expiry_date,
             "GREETINGS": sp_subscription.subscription.person.get_greeting(),
@@ -117,7 +117,9 @@ def send_expiration_sms_reminder(sp_subscription_pk):
 
     connection_params = generate_token_params(recipient)
 
-    url = shorten_url(add_params_to_urls(front_url("view_payments"), connection_params))
+    url = shorten_url(
+        add_params_to_urls(front_url("view_payments"), connection_params), secret=True
+    )
 
     send_sms(
         f"Votre carte bleue arrive à expiration. Pour continuer votre don régulier à la France insoumise, "
