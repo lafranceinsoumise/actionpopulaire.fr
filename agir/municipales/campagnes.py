@@ -47,7 +47,7 @@ def init_campagnes():
 def get_campagne(code_departement, slug):
     if not _CAMPAGNES:
         init_campagnes()
-    return _CAMPAGNES.get(code_departement, slug)
+    return _CAMPAGNES.get((code_departement, slug))
 
 
 def contract_path(payment):
