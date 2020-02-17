@@ -145,6 +145,7 @@ class Command(BaseCommand):
                         "last_name_1",
                         "first_name_2",
                         "last_name_2",
+                        "tete_liste",
                         "published",
                     ]
                 )
