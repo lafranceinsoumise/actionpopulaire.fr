@@ -4,6 +4,7 @@ import re
 import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+from tqdm import tqdm
 
 from agir.lib.mailing import generate_plain_text, fetch_mosaico_template
 
@@ -26,7 +27,7 @@ class Command(BaseCommand):
                 # delete all
                 file.unlink()
 
-        for name, url in settings.EMAIL_TEMPLATES.items():
+        for name, url in tqdm(settings.EMAIL_TEMPLATES.items()):
             try:
                 content = fetch_mosaico_template(url)
             except requests.RequestException:
