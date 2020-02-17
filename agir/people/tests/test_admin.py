@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from agir.people.models import Person, PersonTag, PersonForm
+from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 
 
 class AddEmailTestCase(TestCase):
@@ -100,3 +100,52 @@ class PeopleAdminTestCase(TestCase):
             self.assertEqual(
                 res.status_code, 200, msg=f"La vue '{view}' devrait renvoyer 200."
             )
+
+
+class PersonFormAdminTestCase(TestCase):
+    def setUp(self) -> None:
+        self.admin = Person.objects.create_superperson(
+            "admin@agir.local", password="truc"
+        )
+        self.user1 = Person.objects.create_person("user1@agir.local")
+
+        self.person_form = PersonForm.objects.create(
+            title="Formulaire simple",
+            slug="formulaire-simple",
+            description="Ma description simple",
+            confirmation_note="Ma note de fin",
+            send_confirmation=True,
+            custom_fields=[
+                {
+                    "title": "Profil",
+                    "fields": [{"id": "contact_phone", "person_field": True}],
+                }
+            ],
+        )
+
+        self.submission = PersonFormSubmission.objects.create(
+            person=self.user1,
+            form=self.person_form,
+            data={"contact_phone": "+3362345678"},
+        )
+
+        self.client.force_login(
+            self.admin.role, backend="agir.people.backend.PersonBackend"
+        )
+
+    def test_can_see_submission_admin_page(self):
+        for view_name in ["change", "delete", "detail"]:
+            res = self.client.get(
+                reverse(
+                    f"admin:people_personformsubmission_{view_name}",
+                    args=[self.submission.pk],
+                )
+            )
+            self.assertEqual(res.status_code, 200)
+
+    def test_get_404_with_wrong_submission_id(self):
+        for view_name in ["change", "delete", "details"]:
+            res = self.client.get(
+                reverse(f"admin:people_personformsubmission_{view_name}", args=[9536])
+            )
+            self.assertEqual(res.status_code, 404)
