@@ -122,6 +122,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     def html_full_address(self):
         return display_address(self)
 
+    @property
     def description(self):
         from agir.payments.actions.payments import description_for_payment
 
@@ -207,6 +208,7 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
 
     get_type_display.short_description = "Type d'abonnement"
 
+    @property
     def description(self):
         from agir.payments.actions.subscriptions import description_for_subscription
 
