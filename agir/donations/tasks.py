@@ -5,10 +5,13 @@ from django.urls import reverse
 
 from agir.authentication.tokens import monthly_donation_confirmation_token_generator
 from agir.donations.models import SpendingRequest
-from agir.lib.celery import emailing_task
-from agir.lib.mailing import send_mosaico_email
-from agir.lib.utils import front_url
+from agir.lib.celery import emailing_task, http_task
+from agir.lib.mailing import send_mosaico_email, add_params_to_urls
+from agir.lib.phone_numbers import is_french_number
+from agir.lib.sms import send_sms
+from agir.lib.utils import front_url, generate_token_params, shorten_url
 from agir.people.models import Person
+from agir.system_pay.models import SystemPaySubscription
 
 
 @emailing_task
@@ -72,4 +75,53 @@ def send_monthly_donation_confirmation_email(email, **kwargs):
         from_email=settings.EMAIL_FROM,
         bindings={"CONFIRM_SUBSCRIPTION_LINK": confirmation_link},
         recipients=[email],
+    )
+
+
+@emailing_task
+def send_expiration_email_reminder(sp_subscription_pk):
+    try:
+        sp_subscription = SystemPaySubscription.objects.select_related(
+            "subscription__person", "alias"
+        ).get(pk=sp_subscription_pk)
+    except SystemPaySubscription.DoesNotExist:
+        return
+
+    send_mosaico_email(
+        code="CARD_EXPIRATION",
+        subject="Mettez à jour votre carte bancaire !",
+        from_email=settings.EMAIL_FROM,
+        bindings={
+            "SUBSCRIPTION_DESCRIPTION": sp_subscription.subscription,
+            "RENEW_SUBSCRIPTION_LINK": front_url("view_payments"),
+            "EXPIRY_DATE": sp_subscription.alias.expiry_date,
+            "GREETINGS": sp_subscription.subscription.person.get_greeting(),
+        },
+        recipients=[sp_subscription.subscription.person],
+    )
+
+
+@http_task
+def send_expiration_sms_reminder(sp_subscription_pk):
+    try:
+        sp_subscription = SystemPaySubscription.objects.select_related(
+            "subscription__person", "alias"
+        ).get(pk=sp_subscription_pk)
+    except SystemPaySubscription.DoesNotExist:
+        return
+
+    recipient = sp_subscription.subscription.person
+
+    if not recipient.contact_phone or not is_french_number(recipient.contact_phone):
+        return
+
+    connection_params = generate_token_params(recipient)
+
+    url = shorten_url(add_params_to_urls(front_url("view_payments"), connection_params))
+
+    send_sms(
+        f"Votre carte bleue arrive à expiration. Pour continuer votre don régulier à la France insoumise, "
+        f"mettez là à jour : {url}\n"
+        f"Merci encore de votre soutien !",
+        recipient.contact_phone,
     )
