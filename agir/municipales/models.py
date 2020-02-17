@@ -98,6 +98,15 @@ class CommunePage(TimeStampedModel, models.Model):
         help_text="Une adresse email publique qui peut être utilisée pour contacter votre campagne",
     )
 
+    mandataire_email = models.EmailField(
+        "Adresse email du mandataire financier",
+        max_length=255,
+        blank=True,
+        help_text="Nous aurons sans doute besoin pendant et après la campagne de transmettre des documents"
+        " légaux au mandataire financier. Indiquez-nous une adresse qui nous permettra de le⋅a contacter à"
+        " ce moment.",
+    )
+
     municipales2020_admins = models.ManyToManyField(
         "people.Person",
         verbose_name="Têtes de file pour les élections municipales de 2020",

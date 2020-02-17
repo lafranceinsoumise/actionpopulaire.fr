@@ -38,6 +38,7 @@ class CommunePageAdmin(admin.ModelAdmin):
                     "strategy",
                     "tete_liste",
                     "contact_email",
+                    "mandataire_email",
                     "first_name_1",
                     "last_name_1",
                     "first_name_2",

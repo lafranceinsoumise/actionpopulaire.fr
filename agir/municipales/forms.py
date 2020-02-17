@@ -24,7 +24,7 @@ class CommunePageForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", "Modifier"))
         self.helper.layout = Layout(
-            Fieldset("Informations sur la liste", "tete_liste", "contact_email"),
+            Fieldset("Informations sur la liste", "contact_email", "mandataire_email"),
             Fieldset("La liste sur internet", "twitter", "facebook", "website"),
             Fieldset(
                 "Les informations pour les dons par chèque", "ordre_don", "adresse_don"
@@ -44,7 +44,7 @@ class CommunePageForm(forms.ModelForm):
     class Meta:
         model = CommunePage
         fields = (
-            "tete_liste",
+            "mandataire_email",
             "contact_email",
             "twitter",
             "facebook",

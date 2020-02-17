@@ -124,6 +124,7 @@ class Command(BaseCommand):
             .fillna("")
         )
 
+        strategies["tete_liste"] = df["Tête de liste"]
         strategies["published"] = df["Stratégie validée"] | df["Binôme validé"]
 
         for infos in strategies.itertuples():
@@ -134,6 +135,7 @@ class Command(BaseCommand):
                 commune.last_name_1 = infos.last_name_1
                 commune.first_name_2 = infos.first_name_2
                 commune.last_name_2 = infos.last_name_2
+                commune.tete_liste = infos.tete_liste
                 commune.published = infos.published
 
                 commune.save(
