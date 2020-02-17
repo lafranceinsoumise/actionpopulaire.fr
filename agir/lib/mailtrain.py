@@ -7,7 +7,6 @@ import requests.adapters
 from django.conf import settings
 from django.db.models import Q
 from requests import HTTPError
-from urllib3 import Retry
 
 from agir.lib.utils import generate_token_params
 
