@@ -39,7 +39,7 @@ front_url_lazy = lazy(front_url, str)
 
 
 def is_front_url(param):
-    return param.startswith(settings.FRONT_DOMAIN)
+    return isinstance(param, str) and param.startswith(settings.FRONT_DOMAIN)
 
 
 def generate_token_params(person):
