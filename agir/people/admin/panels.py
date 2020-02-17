@@ -8,7 +8,7 @@ from django.contrib.admin.utils import display_for_value, unquote
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Max
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse, path
@@ -530,15 +530,23 @@ class PersonFormSubmissionAdmin(admin.ModelAdmin):
         )
 
     def delete_view(self, request, object_id, extra_context=None):
-        self.personform = self.get_object(request, unquote(object_id)).form
+        submission = self.get_object(request, unquote(object_id))
+        if submission is None:
+            raise Http404()
+        self.personform = submission.form
         return super().delete_view(request, object_id, extra_context)
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
-        self.personform = self.get_object(request, unquote(object_id)).form
+        submission = self.get_object(request, unquote(object_id))
+        if submission is None:
+            raise Http404()
+        self.personform = submission.form
         return super().change_view(request, object_id, form_url, extra_context)
 
     def detail_view(self, request, object_id):
         self.object = self.get_object(request, unquote(object_id))
+        if self.object is None:
+            raise Http404()
         if not self.has_view_permission(request, self.object):
             raise PermissionDenied
         return TemplateResponse(
