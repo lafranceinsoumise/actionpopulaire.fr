@@ -124,7 +124,7 @@ class Command(BaseCommand):
             .fillna("")
         )
 
-        strategies["tete_liste"] = df["Tête de liste"]
+        strategies["tete_liste"] = df["Tête de liste"].fillna("")
         strategies["published"] = df["Stratégie validée"] | df["Binôme validé"]
 
         for infos in strategies.itertuples():
