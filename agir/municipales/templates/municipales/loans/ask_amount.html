@@ -8,7 +8,7 @@
 {% block background_url %}{% static campagne.image_fond %}{% endblock %}
 
 {% block donation_intro %}
-  <p>Pour financer les dépenses liées à l’organisation de la campagne municipale à {{ campagne.nom_ville }},
+  <p>Pour financer les dépenses liées à l’organisation de la campagne municipale à {{ campagne.commune.name }},
     nous avons besoin du soutien financier de chacun⋅e d’entre vous. Sur cette page, vous pouvez
     faire un prêt à {{ campagne.mandataire }} du montant de votre choix par carte de crédit.</p>
   <div class="row">

@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms import ChoiceField, Field, RadioSelect
@@ -14,26 +12,14 @@ PAYMENT_MODES = {klass.id: klass() for klass in _payment_classes}
 
 DEFAULT_MODE = _payment_classes[0].id
 
-_urls_configured = False
 
-
-def add_payment_mode(klass):
-    payment_mode = klass()
-    PAYMENT_MODES[klass.id] = klass()
-
-    _setup_urls([payment_mode])
-
-
-def _setup_urls(payment_modes):
-    global _urls_configured
+def setup_urls():
     from .urls import urlpatterns
 
-    for p in payment_modes:
+    for p in PAYMENT_MODES.values():
         urlpatterns.append(
             path(f"paiement/{p.url_fragment}/", include((p.get_urls(), p.id)))
         )
-
-    _urls_configured = True
 
 
 class PaymentModeField(ChoiceField):

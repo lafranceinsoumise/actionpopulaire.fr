@@ -146,7 +146,12 @@ class CampagneMixin:
 
         if campagne is None:
             raise Http404("Cette page n'existe pas.")
-        return {**campagne, "commune": CommunePage.objects.get(code=campagne["insee"])}
+        return {
+            **campagne,
+            "commune": CommunePage.objects.get(
+                code_departement=campagne["code_departement"], slug=campagne["slug"]
+            ),
+        }
 
     def get_meta_title(self):
         return f"Je prête à {self.campagne['nom_liste']}"

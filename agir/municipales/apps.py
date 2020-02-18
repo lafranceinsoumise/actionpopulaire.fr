@@ -5,4 +5,6 @@ class MunicipalesConfig(AppConfig):
     name = "agir.municipales"
 
     def ready(self):
-        from . import campagnes
+        from . import payment_type
+
+        payment_type.register_municipales_loan_payment_type()

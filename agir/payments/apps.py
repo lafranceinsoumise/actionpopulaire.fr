@@ -5,6 +5,6 @@ class PaymentsConfig(AppConfig):
     name = "agir.payments"
 
     def ready(self):
-        from .payment_modes import PAYMENT_MODES, _setup_urls
+        from .payment_modes import setup_urls
 
-        _setup_urls(PAYMENT_MODES.values())
+        setup_urls()
