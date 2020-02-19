@@ -9,22 +9,6 @@ const port = process.env.JS_SERVER
   ? +process.env.JS_SERVER.split(":")[1] || 3000
   : 3000;
 
-const babelModule = common.module.rules.find(
-  r => r.use && r.use.loader && r.use.loader.startsWith("babel-loader")
-);
-
-if (!babelModule.use.options) {
-  babelModule.use.options = {};
-}
-if (!babelModule.use.options.plugins) {
-  babelModule.use.options.plugins = [];
-}
-
-babelModule.use.options.plugins.push([
-  "styled-components",
-  { displayName: true }
-]);
-
 module.exports = merge(common, {
   mode: "development",
   output: {
