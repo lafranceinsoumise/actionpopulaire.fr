@@ -1,11 +1,11 @@
 from collections import OrderedDict
 from itertools import chain
 
-from django.db import models
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
+from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
 from django_prometheus.models import ExportModelOperationsMixin
 
 from agir.lib.form_fields import CustomJSONEncoder
@@ -143,6 +143,14 @@ class PersonForm(TimeStampedModel):
     custom_fields = JSONField(_("Champs"), blank=False, default=default_custom_forms)
 
     config = JSONField(_("Configuration"), blank=True, default=dict)
+
+    campaign_template = models.ForeignKey(
+        "nuntius.Campaign",
+        verbose_name="Créer une campagne à partir de ce modèle",
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+    )
 
     @property
     def submit_label(self):

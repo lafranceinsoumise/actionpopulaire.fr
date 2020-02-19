@@ -364,6 +364,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
                     "simple_link",
                     "action_buttons",
                     "result_url",
+                    "campaign_template",
                 )
             },
         ),

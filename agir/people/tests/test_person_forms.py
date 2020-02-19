@@ -3,6 +3,7 @@ from unittest import mock
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
+from nuntius.models import Campaign
 
 from agir.api.redis import using_separate_redis_server
 from agir.people.person_forms.actions import get_people_form_class
@@ -560,4 +561,32 @@ class FieldsTestCase(TestCase):
             "form",
             "person_choice",
             "Vous avez fait trop d'erreurs. Par sécurité, vous devez attendre avant d'essayer d'autres adresses emails.",
+        )
+
+
+class CampaignTemplateTestCase(SetUpPersonFormsMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.template_campaign = Campaign.objects.create(
+            message_content_html="<title>[custom-field]</title>",
+            message_mosaico_data="{}",
+        )
+        self.complex_form.campaign_template = self.template_campaign
+        self.complex_form.save()
+
+    def test_create_campaign_when_fill_form(self):
+        res = self.client.post(
+            "/formulaires/formulaire-complexe/",
+            data={
+                "tag": "tag2",
+                "contact_phone": "06 34 56 78 90",
+                "custom-field": "Super titre<script>alert('xss');{% endverbatim %}{{ malicious_template }}",
+                "custom-person-field": 'valeur du champ libre avec "person_field": "true"',
+            },
+        )
+        self.assertRedirects(res, "/formulaires/formulaire-complexe/confirmation/")
+        self.assertEqual(Campaign.objects.all().count(), 2)
+        self.assertEqual(
+            Campaign.objects.last().message_content_html,
+            "<title>{% verbatim %}Super titre&lt;script&gt;alert(&#39;xss&#39;);{{ malicious_template }}{% endverbatim %}</title>",
         )

@@ -7,12 +7,14 @@ from django.http import Http404
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.html import escape
 from django.views.generic import UpdateView, DetailView
 from django.views.generic.list import ListView
 
 from agir.events.models import Event
+from agir.mailing.actions import create_campaign_from_submission
 from agir.people import tasks
-from agir.people.models import PersonForm, PersonFormSubmission, Person
+from agir.people.models import PersonForm, PersonFormSubmission
 from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
 
@@ -48,6 +50,7 @@ class PeopleFormView(UpdateView):
         return super().get_context_data(
             person_form=self.person_form_instance,
             is_authorized=self.person_form_instance.is_authorized(self.object),
+            **kwargs,
         )
 
     def dispatch(self, request, *args, **kwargs):
@@ -74,11 +77,28 @@ class PeopleFormView(UpdateView):
         return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
+        if (
+            self.person_form_instance.campaign_template is not None
+            and "preview" in self.request.POST
+        ):
+            preview = self.person_form_instance.campaign_template.message_content_html
+            for field in form.cleaned_data:
+                preview = preview.replace(
+                    f"[{field}]", escape(form.cleaned_data[field])
+                )
+
+            return HttpResponse(preview)
+
         r = super().form_valid(form)
         if self.person_form_instance.send_confirmation:
             tasks.send_person_form_confirmation.delay(form.submission.pk)
         if self.person_form_instance.send_answers_to:
             tasks.send_person_form_notification.delay(form.submission.pk)
+
+        if self.person_form_instance.campaign_template:
+            create_campaign_from_submission(
+                form.submission, self.person_form_instance.campaign_template
+            )
 
         return r
 

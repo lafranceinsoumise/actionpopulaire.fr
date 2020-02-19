@@ -39,6 +39,13 @@
           {{ person_form.html_description }}
         </div>
         {% crispy form %}
+        {% if person_form.campaign_template %}
+          <script>
+          document.getElementById("submit-id-preview").onclick = function() {
+            document.getElementById("submit-id-submit").disabled = false;
+          };
+          </script>
+        {% endif %}
       {% else %}
         <div class="intro">
           {{ person_form.html_closed_message }}

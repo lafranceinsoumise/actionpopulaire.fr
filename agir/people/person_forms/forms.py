@@ -1,9 +1,9 @@
-import os
+from pathlib import PurePath
 from uuid import uuid4
 
-from pathlib import PurePath
-
+import os
 from copy import copy
+from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Row, Submit
 from django import forms
 from django.core.exceptions import ValidationError
@@ -11,15 +11,12 @@ from django.core.files import File
 from django.core.files.storage import default_storage
 from django.utils.translation import ugettext as _
 
-from crispy_forms.helper import FormHelper
-
 from agir.lib.form_components import *
+from agir.lib.form_mixins import MetaFieldsMixin
 from agir.lib.token_bucket import TokenBucket
 from agir.people.person_forms.field_groups import get_form_part
-
-from agir.lib.form_mixins import MetaFieldsMixin
-from ..models import Person, PersonFormSubmission
 from .fields import is_actual_model_field, get_data_from_submission, get_form_field
+from ..models import Person, PersonFormSubmission
 
 check_person_email_bucket = TokenBucket("PersonFormPersonChoice", 10, 600)
 
@@ -109,7 +106,18 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.form_method = "POST"
-        self.helper.add_input(Submit("submit", self.person_form_instance.submit_label))
+        if self.person_form_instance.campaign_template is not None:
+            self.helper.add_input(
+                Submit("preview", "Prévisualiser l'email", formtarget="_blank")
+            )
+
+        self.helper.add_input(
+            Submit(
+                "submit",
+                self.person_form_instance.submit_label,
+                disabled=self.person_form_instance.campaign_template is not None,
+            )
+        )
         self.helper.layout = Layout()
 
         if self.person_form_instance.custom_fields:
