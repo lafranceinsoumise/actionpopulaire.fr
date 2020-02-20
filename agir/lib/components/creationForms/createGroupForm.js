@@ -294,8 +294,19 @@ class ValidateStep extends FormStep {
             </button>
           </form>
           {this.state.error && (
-            <div className="alert alert-warning">
-              Une erreur s'est produite. Merci de réessayer plus tard.
+            <div className="alert alert-warning margintopless">
+              {this.state.error.response.status === 400 &&
+              this.state.error.response.data.errors ? (
+                <ul>
+                  {Object.entries(this.state.error.response.data.errors).map(
+                    ([field, msg]) => (
+                      <li key={field}>{msg}</li>
+                    )
+                  )}
+                </ul>
+              ) : (
+                "Une erreur s'est produite. Merci de réessayer plus tard."
+              )}
             </div>
           )}
         </div>
