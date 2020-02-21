@@ -30,7 +30,7 @@
         <p>Vous avez annulé la mise en place de votre paiement mensuel. Votre carte ne sera pas débitée.</p>
         <p>Si vous ne souhaitiez pas annuler, vous pouvez relancer la procédure.</p>
       </div>
-      <a class="btn btn-primary" href="{% url "payment_retry" pk=payment.id %}">Relancer le paiement</a>
+      <a class="btn btn-primary" href="{{ retry_url }}">Relancer le paiement</a>
     {% endif %}
   </div>
 {% endblock %}
