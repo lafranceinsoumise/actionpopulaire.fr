@@ -38,11 +38,14 @@ def get_people_form_class(
 def validate_custom_fields(custom_fields):
     if not isinstance(custom_fields, list):
         raise ValidationError("La valeur doit être une liste")
-    for fieldset in custom_fields:
-        if not (fieldset.get("title") and isinstance(fieldset["fields"], list)):
-            raise ValidationError(
-                'Les sections doivent avoir un "title" et une liste "fields"'
-            )
+    for k, fieldset in enumerate(custom_fields):
+        if not (fieldset.get("title")):
+            raise ValidationError(f"La section n°{k+1} n'a pas de titre !")
+
+        title = fieldset["title"]
+
+        if not isinstance(fieldset["fields"], list):
+            raise ValidationError(f"La section '{title}' n'a pas de champs !")
 
         for i, field in enumerate(fieldset["fields"]):
             if field["id"] == "location":
@@ -68,5 +71,15 @@ def validate_custom_fields(custom_fields):
                 continue
             if is_actual_model_field(field):
                 continue
-            elif not field.get("label") or not field.get("type"):
-                raise ValidationError("Les champs doivent avoir un label et un type")
+            elif not field.get("label") and not field.get("type"):
+                raise ValidationError(
+                    f"Section {title}: le champ n°{i+1} n'a ni label ni type"
+                )
+            elif not field.get("label"):
+                raise ValidationError(
+                    f"Section {title}: le champ n°{i+1} (de type {field['type']}) n'a pas de label"
+                )
+            elif not field.get("type"):
+                raise ValidationError(
+                    f"Section {title}: le champ {field['label']} n'a pas de type"
+                )

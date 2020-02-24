@@ -36,6 +36,14 @@ class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
         fields = "__all__"
 
 
+def strip_all_keys(value):
+    if isinstance(value, list):
+        return [strip_all_keys(v) for v in value]
+    if isinstance(value, dict):
+        return {k.strip(): strip_all_keys(v) for k, v in value.items()}
+    return value
+
+
 class PersonFormForm(forms.ModelForm):
     class Meta:
         fields = "__all__"
@@ -48,6 +56,10 @@ class PersonFormForm(forms.ModelForm):
 
     def clean_custom_fields(self):
         value = self.cleaned_data["custom_fields"]
+
+        # Strip toutes les clés de tous les dictionnaires !
+        value = strip_all_keys(value)
+
         validate_custom_fields(value)
 
         return value
