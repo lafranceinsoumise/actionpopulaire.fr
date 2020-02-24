@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Dépenses réglées par la FI</title>
+  <style>
+    * {
+      margin: 0;
+    }
+
+    body {
+      padding: 2rem;
+    }
+
+    body > div {
+      margin-top: 1rem;
+    }
+
+    .date {
+      margin-top: 4rem;
+      text-align: right;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-top: 2rem;
+    }
+
+    h1 small {
+      display: block;
+      font-size: 1.5rem;
+      color: #595959;
+    }
+
+    .pour > div, .objet > div {
+      overflow: hidden;
+    }
+
+    .pour, .objet {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid black;
+    }
+
+    .nom {
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .intitule {
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .montant {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    .gauche {
+      float: left;
+      width: 4rem;
+      font-style: italic;
+    }
+
+    .droite {
+      float: right;
+    }
+  </style>
+</head>
+<body>
+<div class="adresse">
+  LA FRANCE INSOUMISE<br>
+  BP 45<br>
+  91305 MASSY CEDEX
+</div>
+
+<p class="date">
+  Paris, le {{ date }},
+</p>
+
+<h1>
+  Dépenses réglées par la France insoumise
+  <small>Élections municipales mars 2020</small>
+</h1>
+
+<div class="pour">
+  <div class="gauche">Pour :</div>
+  <div>
+    <p class="nom">{{ mandataire_nom }}</p>
+    <p class="adresse">
+      {{ mandataire_adresse|linebreaks }}
+    </p>
+    <p class="campagne">
+      Campagne municipale de la liste {{ nom_liste }} à {{ nom_ville }}
+    </p>
+  </div>
+</div>
+
+<div class="objet">
+  <div class="gauche">Objet :</div>
+  <div>
+    <p class="intitule">Refacturation impression du flyer «&nbsp;Le peuple aux commandes&nbsp;»</p>
+    <p class="produit">Facture imprimerie Grenier n°&nbsp;202002.004</p>
+    <div class="tirage">
+      <span>Tirage total 200&nbsp;000 exemplaires</span>
+      <div class="droite">2&nbsp;070,97&nbsp;€</div>
+    </div>
+
+    <div class="montant">
+      <span>Quote-part : {{ nombre }} ex. distribués, soit {{ pourcentage }} :</span>
+      <div class="droite">{{ montant }}</div>
+    </div>
+  </div>
+</div>
+
+<div>
+  Certifié sincère et conforme la présente note de débit arrêtée à la somme de {{ montant }} à inscrire au compte 7032
+  du compte de campagne.
+</div>
+
+</body>
+</html>

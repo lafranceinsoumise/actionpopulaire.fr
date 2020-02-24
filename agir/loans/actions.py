@@ -1,5 +1,4 @@
 import datetime
-import subprocess
 from pathlib import Path
 from typing import Mapping, Iterable
 from uuid import uuid4
@@ -10,6 +9,7 @@ from markdown import markdown
 from markdown.extensions.toc import TocExtension
 from sepaxml import SepaTransfer
 
+from agir.lib.documents import html_to_pdf
 from agir.lib.iban import to_iban
 from agir.loans.data.banks import iban_to_bic
 from agir.payments.models import Payment
@@ -36,23 +36,7 @@ def save_pdf_contract(payment_type, contract_information, dest_path):
         context={"contract_body": mark_safe(html_contract)}
     )
 
-    proc = subprocess.Popen(
-        ["wkhtmltopdf", "--encoding", "utf-8", "-", str(dest_path)],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-
-    try:
-        out, errs = proc.communicate(input=contract_with_layout.encode(), timeout=10)
-        return_code = proc.wait(timeout=10)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        proc.communicate()
-        raise
-
-    if return_code != 0:
-        raise RuntimeError(f"PDF conversion failed\nOUT: {out}\nERR: {errs}")
+    html_to_pdf(contract_with_layout, dest_path)
 
 
 def generate_reimbursement_file(config: Mapping[str, str], payments: Iterable[Payment]):
