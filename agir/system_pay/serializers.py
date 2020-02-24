@@ -36,6 +36,8 @@ class SystemPayWebhookSerializer(serializers.Serializer):
     vads_amount = serializers.IntegerField(required=False, source="amount")
     vads_cust_id = serializers.CharField(required=True, source="cust_id")
 
+    vads_url_check_src = serializers.CharField(required=False, source="url_check_src")
+
     # information de l'alias
     vads_identifier = serializers.UUIDField(required=False, source="identifier")
     vads_expiry_year = serializers.IntegerField(required=False, source="expiry_year")

@@ -157,14 +157,16 @@ class SystemPayWebhookView(APIView):
             ):
                 return self.successful_response()
             else:
-                logger.error(
-                    f"Webhook appelé deux fois différemment pour la même transaction",
-                    extra={"request": request},
-                )
-                raise serializers.ValidationError(
-                    detail="Webhook appelé deux fois différemment pour la même transaction",
-                    code="duplicate_webhook",
-                )
+                # Dans le cas où c'est un contenu différent, on vérifie que c'est bien un retry
+                if serializer.data.get("url_check_src") != "RETRY":
+                    logger.error(
+                        f"Webhook appelé deux fois différemment pour la même transaction",
+                        extra={"request": request},
+                    )
+                    raise serializers.ValidationError(
+                        detail="Webhook appelé deux fois différemment pour la même transaction",
+                        code="duplicate_webhook",
+                    )
 
         operation_type = serializer.data.get("vads_operation_type")
 
