@@ -26,7 +26,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     fieldsets = (
         (None, {"fields": ("name", "tags", "exclude_segments", "force_non_insoumis")}),
         (
-            "GA et événements",
+            "GA, événements et formulaires",
             {
                 "fields": (
                     "supportgroup_status",
@@ -35,6 +35,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "events_start_date",
                     "events_end_date",
                     "events_organizer",
+                    "forms",
                 )
             },
         ),
@@ -77,6 +78,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "events_subtypes",
         "campaigns",
         "exclude_segments",
+        "forms",
     )
     readonly_fields = ("get_subscribers_count",)
     ordering = ("name",)
