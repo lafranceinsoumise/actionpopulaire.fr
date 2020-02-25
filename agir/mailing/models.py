@@ -78,6 +78,13 @@ class Segment(BaseSegment, models.Model):
         default=False,
     )
 
+    forms = models.ManyToManyField(
+        "people.PersonForm",
+        verbose_name="A répondu à au moins un de ces formulaires",
+        blank=True,
+        related_name="+",
+    )
+
     countries = CountryField("Limiter aux pays", multiple=True, blank=True)
     departements = ChoiceArrayField(
         models.CharField(choices=data.departements_choices, max_length=3),
@@ -229,6 +236,9 @@ class Segment(BaseSegment, models.Model):
 
         if events_filter:
             qs = qs.filter(**events_filter)
+
+        if self.forms.all().count() > 0:
+            qs = qs.filter(form_submissions__form__in=self.forms.all())
 
         if self.campaigns.all().count() > 0:
             if self.campaigns_feedback == self.FEEDBACK_OPEN:
