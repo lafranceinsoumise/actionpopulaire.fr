@@ -36,9 +36,9 @@
         <div>Pour écrire à cette liste : <a href="mailto:{{ commune.contact_email }}">{{ commune.contact_email }}</a>
         </div>{% endif %}
 
-        <a class="btn btn-default" href="{% url "procuration_commune" commune.code_departement commune.slug %}">
-          Je cherche quelqu'un pour prendre ma procuration à {{ commune.name }}
-        </a>
+      <a class="btn btn-default" href="{% url "procuration_commune" commune.code_departement commune.slug %}">
+        Je cherche quelqu'un pour prendre ma procuration à {{ commune.name }}
+      </a>
     </div>
 
     {% if commune.ordre_don and commune.adresse_don %}
@@ -62,11 +62,12 @@
           <h5>Adresse d'envoi</h5>
           <div style="border: 1px solid #555; padding: 0.2em 1em; background: #F0F0F0;">{{ commune.adresse_don|linebreaks }}</div>
         </div>
-
+        {% comment %}
         <h5>Réduction d'impôt</h5>
         <p>Votre don ouvre droit à une réduction d’impôt égale à 66% des sommes versées. Un reçu détaché d'une formule
           numérotée éditée par la Commission nationale des comptes de campagne vous sera directement adressé en avril de
           l’année suivant l’année de versement de votre don.</p>
+        {% endcomment %}
       </div>
     {% endif %}
 
