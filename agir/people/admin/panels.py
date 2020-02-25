@@ -392,7 +392,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
         "last_submission",
         "result_url",
     )
-    autocomplete_fields = ("required_tags", "segment", "tags")
+    autocomplete_fields = ("required_tags", "segment", "tags", "campaign_template")
 
     def last_submission(self, obj):
         last_submission = obj.submissions.last()
