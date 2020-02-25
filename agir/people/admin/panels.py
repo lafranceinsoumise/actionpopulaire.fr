@@ -328,6 +328,7 @@ class PersonTagAdmin(admin.ModelAdmin):
 @admin.register(PersonForm, site=admin_site)
 class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
     form = PersonFormForm
+    save_as = True
     search_fields = ("title",)
     list_display = (
         "title",
