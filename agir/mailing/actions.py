@@ -27,7 +27,7 @@ def _deep_replace(dictionary: dict, search, replace):
 def create_campaign_from_submission(submission, campaign: Campaign):
     with transaction.atomic():
         campaign.pk = None
-        campaign.name = campaign.name + f"(copie par {str(submission.person)})"
+        campaign.name = campaign.name + f" (copie par {str(submission.person)})"
         campaign.message_from_email = submission.data.get(
             "campaign_from_email", campaign.message_from_email
         )
