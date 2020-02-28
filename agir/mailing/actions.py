@@ -46,9 +46,7 @@ def create_campaign_from_submission(submission, campaign: Campaign):
 
             campaign.message_mosaico_data = json.dumps(
                 _deep_replace(
-                    json.loads(campaign.message_mosaico_data),
-                    f"[{field}]",
-                    escapejs(substitute),
+                    json.loads(campaign.message_mosaico_data), f"[{field}]", substitute
                 )
             )
             campaign.message_content_html = campaign.message_content_html.replace(
