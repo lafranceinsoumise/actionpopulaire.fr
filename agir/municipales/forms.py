@@ -187,7 +187,7 @@ class ProcurationForm(forms.Form):
 class CostCertificateForm(forms.Form):
     nom_liste = forms.CharField(label="Nom de la liste")
     mandataire_nom = forms.CharField(label="Nom et prénom du ou de la mandataire")
-    mandataire_addresse = forms.CharField(
+    mandataire_adresse = forms.CharField(
         label="Adresse complète du ou de la mandataire",
         widget=forms.Textarea(attrs={"rows": 4}),
     )
