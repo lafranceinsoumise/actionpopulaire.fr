@@ -505,9 +505,10 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
         self.assertRedirects(res, reverse("monthly_donation_confirmation_email_sent"))
         mock_send_monthly_donation_confirmation_email.delay.assert_called_once()
 
-        task_args, task_kwargs = (
-            mock_send_monthly_donation_confirmation_email.delay.call_args
-        )
+        (
+            task_args,
+            task_kwargs,
+        ) = mock_send_monthly_donation_confirmation_email.delay.call_args
 
         send_monthly_donation_confirmation_email(*task_args, **task_kwargs)
 

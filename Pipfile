@@ -74,7 +74,7 @@ tenacity = "*"
 
 [dev-packages]
 ipython = "*"
-black = "==18.9b0"
+black = "==19.10b0"
 coverage = "*"
 django-silk = "*"
 django-debug-toolbar = "*"

@@ -161,12 +161,12 @@ class CommuneCostCertificateFormView(CommunePageMixin, SingleObjectMixin, FormVi
         )
 
     def form_valid(self, form):
-        part = form.cleaned_data["nombre"] / 200000
+        part = form.cleaned_data["nombre"] / 200_000
         generate_cost_certificate(
             {
                 "date": now(),
                 "pourcentage": "{:.2%}".format(part),
-                "montant": int(207097 * part),
+                "montant": int(207_097 * part),
                 "nom_ville": self.object.name,
                 **form.cleaned_data,
             },

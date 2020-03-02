@@ -20,8 +20,8 @@ class ShortCodeBackend(GetRoleMixin):
 
                 if self.user_can_authenticate(role):
                     role.login_meta = (
-                        login_meta
-                    )  # on annote le role avec les metas de connexion
+                        login_meta  # on annote le role avec les metas de connexion
+                    )
                     return role
 
         return None
