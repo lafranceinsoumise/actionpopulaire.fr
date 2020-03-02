@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from django.conf import settings
 from django.template import loader
 from tempfile import TemporaryDirectory
 
@@ -7,7 +8,10 @@ from agir.lib.documents import html_to_pdf, join_pdf_documents
 
 
 def generate_cost_certificate(data, dest_path):
-    html_content = loader.render_to_string("municipales/cost_certificate.html", data)
+    html_content = loader.render_to_string(
+        "municipales/cost_certificate.html",
+        {"signature_dir": settings.SIGNATURES_DIR, **data},
+    )
 
     with TemporaryDirectory() as dir:
         pdf_certificate_path = Path(dir) / "certificate.pdf"

@@ -1,0 +1,15 @@
+{% extends "front/layout.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Télécharger le certificat — {{ commune.name }}{% endblock title %}
+
+
+{% block main %}
+  <div class="col-responsive">
+    <h3>Télécharger le certificat de coût pour mes tracts</h3>
+
+    <p>Cette attestation est à joindre obligatoirement à vos comptes de campagne.</p>
+    {% crispy form %}
+  </div>
+
+{% endblock %}

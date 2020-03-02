@@ -1,3 +1,4 @@
+{% load display_lib %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -66,6 +67,10 @@
     .droite {
       float: right;
     }
+
+    .signature {
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -92,7 +97,8 @@
       {{ mandataire_adresse|linebreaks }}
     </p>
     <p class="campagne">
-      Campagne municipale de la liste {{ nom_liste }} à {{ nom_ville }}
+      Campagne municipale de la liste {{ nom_liste }}<br>
+      Commune : {{ nom_ville }}
     </p>
   </div>
 </div>
@@ -109,14 +115,20 @@
 
     <div class="montant">
       <span>Quote-part : {{ nombre }} ex. distribués, soit {{ pourcentage }} :</span>
-      <div class="droite">{{ montant }}</div>
+      <div class="droite">{{ montant|display_price }}</div>
     </div>
   </div>
 </div>
 
 <div>
-  Certifié sincère et conforme la présente note de débit arrêtée à la somme de {{ montant }} à inscrire au compte 7032
-  du compte de campagne.
+  Certifié sincère et conforme la présente note de débit arrêtée à la somme de {{ montant|display_price }} à inscrire
+  au compte 7032 du compte de campagne.
+</div>
+
+<div class="signature">
+  <strong>Marie-Pierre Oprandi</strong><br>
+
+  <img src="file://{{ signature_dir }}/mpo.png" alt="" />
 </div>
 
 </body>

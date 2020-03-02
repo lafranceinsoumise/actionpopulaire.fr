@@ -735,6 +735,7 @@ TELEGRAM_API_HASH = os.environ.get("TELEGRAM_API_HASH")
 
 
 # Municipales
+SIGNATURES_DIR = os.environ.get("SIGNATURES_DIR")
 municipales_campagnes_filename = os.environ.get("MUNICIPALES_CAMPAGNES")
 if municipales_campagnes_filename:
     municipales_campagnes_filename = Path(municipales_campagnes_filename)

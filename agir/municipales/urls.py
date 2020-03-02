@@ -8,6 +8,8 @@ from agir.municipales.views import (
     CommuneLoanPersonalInformationView,
     CommuneLoanAcceptContractView,
     CommuneProcurationView,
+    CommuneCostCertificateFormView,
+    CommuneCostCertificateDownloadView,
 )
 
 urlpatterns = (
@@ -41,5 +43,15 @@ urlpatterns = (
         "communes/<str:code_departement>/<str:slug>/prets/contrat/",
         CommuneLoanAcceptContractView.as_view(),
         name="municipales_loans_contract",
+    ),
+    path(
+        "communes/<str:code_departement>/<str:slug>/certificat/",
+        CommuneCostCertificateFormView.as_view(),
+        name="municipales_certificate_form",
+    ),
+    path(
+        "communes/<str:code_departement>/<str:slug>/certificat/download",
+        CommuneCostCertificateDownloadView.as_view(),
+        name="municipales_certificate_download",
     ),
 )

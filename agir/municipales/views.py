@@ -1,9 +1,13 @@
+from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
-from django.http import Http404
+from django.http import Http404, FileResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.timezone import now
 from django.views import View
 from django.views.generic import DetailView, UpdateView, RedirectView
+from django.views.generic.detail import BaseDetailView, SingleObjectMixin
+from django.views.generic.edit import FormView
 from rest_framework.generics import ListAPIView
 
 from agir.authentication.view_mixins import (
@@ -18,11 +22,13 @@ from agir.loans.views import (
     BaseLoanPersonalInformationView,
     BaseLoanAcceptContractView,
 )
+from agir.municipales.actions import generate_cost_certificate
 from agir.municipales.forms import (
     CommunePageForm,
     MunicipalesLenderForm,
     MunicipalesAskAmountForm,
     ProcurationForm,
+    CostCertificateForm,
 )
 from agir.municipales.models import CommunePage
 from agir.municipales.serializers import CommunePageSerializer
@@ -32,6 +38,10 @@ send_procurations_bucket_by_ip = TokenBucket("send_procurations_by_ip", 1, 60)
 send_procurations_bucket_by_commune = TokenBucket(
     "send_procurations_by_commune", 10, 30
 )
+
+
+def certificate_path(commune):
+    return f"communes/certificates/{commune.code_departement}-{commune.slug}.pdf"
 
 
 class CommunePageMixin(View):
@@ -125,6 +135,60 @@ class CommuneProcurationView(CommunePageMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("view_commune", kwargs=self.kwargs)
+
+
+class CommuneCostCertificateFormView(CommunePageMixin, SingleObjectMixin, FormView):
+    queryset = CommunePage.objects.filter(published=True)
+    template_name = "municipales/cost_certificate_form.html"
+    permissions_required = ("municipales.change_communepage",)
+    form_class = CostCertificateForm
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse(
+            "municipales_certificate_download",
+            kwargs={
+                "code_departement": self.object.code_departement,
+                "slug": self.object.slug,
+            },
+        )
+
+    def form_valid(self, form):
+        part = form.cleaned_data["nombre"] / 200000
+        generate_cost_certificate(
+            {
+                "date": now(),
+                "pourcentage": "{:.2%}".format(part),
+                "montant": int(207097 * part),
+                "nom_ville": self.object.name,
+                **form.cleaned_data,
+            },
+            default_storage.path(certificate_path(self.object)),
+        )
+        return super().form_valid(form)
+
+
+class CommuneCostCertificateDownloadView(CommunePageMixin, BaseDetailView):
+    queryset = CommunePage.objects.filter(published=True)
+    permissions_required = ("municipales.change_communepage",)
+
+    def render_to_response(self, context):
+        path = certificate_path(context["object"])
+        if default_storage.exists(path):
+            return FileResponse(default_storage.open(path, "rb"))
+        else:
+            return redirect(
+                "municipales_certificate_form",
+                code_departement=self.object.code_departement,
+                slug=self.object.slug,
+            )
 
 
 # noinspection PyUnresolvedReferences

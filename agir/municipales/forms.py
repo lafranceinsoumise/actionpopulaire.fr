@@ -182,3 +182,18 @@ class ProcurationForm(forms.Form):
             if not person.contact_phone:
                 person.contact_phone = self.cleaned_data["phone"]
             person.save()
+
+
+class CostCertificateForm(forms.Form):
+    nom_liste = forms.CharField(label="Nom de la liste")
+    mandataire_nom = forms.CharField(label="Nom et prénom du ou de la mandataire")
+    mandataire_addresse = forms.CharField(
+        label="Adresse complète du ou de la mandataire",
+        widget=forms.Textarea(attrs={"rows": 4}),
+    )
+    nombre = forms.IntegerField(label="Nombre de tracts distribués")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("envoyer", "Télécharger le certificat"))

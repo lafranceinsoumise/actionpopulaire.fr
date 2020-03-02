@@ -19,6 +19,9 @@
       <a class="btn btn-default" href="{% url "change_commune" commune.code_departement commune.slug %}">
         Modifier ces informations
       </a>
+      <a class="btn btn-default" href="{% url "municipales_certificate_form" commune.code_departement commune.slug %}">
+        Télécharger mon attestation de coût
+      </a>
     {% endif %}
   </h1>
   <div class="row masonry">
