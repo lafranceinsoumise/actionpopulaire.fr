@@ -1,9 +1,14 @@
+from django.utils.html import format_html
+from functools import reduce
+
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
+from django.db.models import Q
 from django.urls import reverse
+from operator import or_
 
 from agir.api.admin import admin_site
-from agir.municipales.models import CommunePage
+from agir.municipales.models import CommunePage, Liste
 
 
 class CheffeDeFileFilter(SimpleListFilter):
@@ -98,3 +103,59 @@ class CommunePageAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+
+class AvecCommuneFilter(SimpleListFilter):
+    title = "Avec ou sans commune"
+    parameter_name = "avec_commune"
+
+    def lookups(self, request, model_admin):
+        return (("O", "Avec commune"), ("N", "Sans commune"))
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "O":
+            return queryset.exclude(commune=None)
+        elif value == "N":
+            return queryset.filter(commune=None)
+        return queryset
+
+
+class MetropoleOutremerFilter(SimpleListFilter):
+    title = "Métropole ou Outremer"
+    parameter_name = "avec_commune"
+    condition = reduce(or_, (Q(code__startswith=str(i)) for i in range(10)))
+
+    def lookups(self, request, model_admin):
+        return (("M", "Métropole seulement"), ("O", "Outremer seulement"))
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "M":
+            return queryset.filter(self.condition)
+        elif value == "O":
+            return queryset.exclude(self.condition)
+        return queryset
+
+
+@admin.register(Liste, site=admin_site)
+class ListeAdmin(admin.ModelAdmin):
+    readonly_fields = ("code", "nom", "lien_commune", "nuance", "candidats")
+
+    list_display = ["nom", "lien_commune", "soutien", "nuance"]
+    fields = ["code", "nom", "lien_commune", "soutien", "nuance", "candidats"]
+
+    list_filter = ("nuance", "soutien", AvecCommuneFilter, MetropoleOutremerFilter)
+
+    def lien_commune(self, object):
+        commune = object.commune
+        if commune:
+            return format_html(
+                '<a href="{link}">{name}</a>',
+                link=reverse(
+                    "admin:municipales_communepage_change", args=(commune.id,)
+                ),
+                name=str(commune),
+            )
+
+    lien_commune.short_description = "Commune"

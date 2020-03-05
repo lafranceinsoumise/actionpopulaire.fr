@@ -15,20 +15,10 @@ class Command(BaseCommand):
     help = "Met à jour la liste des communes depuis geo.data.gouv.fr"
 
     def add_arguments(self, parser):
-        group = parser.add_mutually_exclusive_group()
-        group.add_argument(
-            "-c", "--communes", action="store_const", const="communes", dest="target"
-        )
-        group.add_argument(
-            "-p", "--paris", action="store_const", const="paris", dest="target"
-        )
+        parser.add_argument("-c", "--communes")
+        parser.add_argument("-p", "--paris", action="store_true")
 
-    def polygon_union(self, geoms):
-        geoms = [GEOSGeometry(json.dumps(g)) for g in geoms]
-        return self.geometry_to_multipolygon(reduce(or_, geoms))
-
-    def geometry_to_multipolygon(self, geom):
-        geom = GEOSGeometry(json.dumps(geom))
+    def _geom_to_multipolygon(self, geom):
         if isinstance(geom, Polygon):
             return MultiPolygon(geom)
         elif isinstance(geom, MultiPolygon):
@@ -36,26 +26,30 @@ class Command(BaseCommand):
         else:
             raise TypeError("Mauvais type de geom (ni polygone ni multipolygone)")
 
-    def handle(self, *args, target, **options):
-        if target is None or target == "communes":
-            res = requests.get(
-                "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2019/geojson/communes-5m.geojson"
-            )
-            data = res.json()
-            for feature in tqdm(data["features"]):
-                CommunePage.objects.update_or_create(
-                    code=feature["properties"]["code"],
-                    defaults={
-                        "code_departement": feature["properties"]["departement"],
-                        "name": feature["properties"]["nom"],
-                        "slug": slugify(feature["properties"]["nom"]),
-                        "coordinates": self.geometry_to_multipolygon(
-                            feature["geometry"]
-                        ),
-                    },
-                )
+    def polygon_union(self, geoms):
+        geoms = [GEOSGeometry(json.dumps(g)) for g in geoms]
+        return self._geom_to_multipolygon(reduce(or_, geoms))
 
-        if target is None or target == "paris":
+    def parse_geom(self, geom):
+        geom = GEOSGeometry(json.dumps(geom))
+        return self._geom_to_multipolygon(geom)
+
+    def handle(self, *args, communes, paris, **options):
+        if communes:
+            with open(communes) as f:
+                for line in f:
+                    feature = json.loads(line)
+                    CommunePage.objects.update_or_create(
+                        code=feature["properties"]["code"],
+                        defaults={
+                            "code_departement": feature["properties"]["departement"],
+                            "name": feature["properties"]["nom"],
+                            "slug": slugify(feature["properties"]["nom"]),
+                            "coordinates": self.parse_geom(feature["geometry"]),
+                        },
+                    )
+
+        if paris:
             # arrondissements parisiens
             res = requests.get(
                 "https://opendata.paris.fr/api/records/1.0/search/?dataset=arrondissements&rows=20"
@@ -88,6 +82,6 @@ class Command(BaseCommand):
                         "slug": "paris-{}{}".format(
                             properties["c_ar"], "e" if properties["c_ar"] != 1 else "er"
                         ),
-                        "coordinates": self.geometry_to_multipolygon(geom),
+                        "coordinates": self.parse_geom(geom),
                     },
                 )

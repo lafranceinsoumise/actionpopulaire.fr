@@ -226,3 +226,12 @@ class Liste(models.Model):
         choices=SOUTIEN_CHOICES,
         default=SOUTIEN_NON,
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                name="commune_soutenue_unique",
+                fields=["commune"],
+                condition=~models.Q(soutien="N"),
+            )
+        ]
