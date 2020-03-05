@@ -209,7 +209,12 @@ class Liste(models.Model):
     )
     nom = models.CharField(verbose_name="Nom de la liste", max_length=300)
     commune = models.ForeignKey(
-        CommunePage, on_delete=models.CASCADE, null=True, blank=True
+        CommunePage,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="listes",
+        related_query_name="liste",
     )
 
     nuance = models.CharField(
@@ -235,3 +240,4 @@ class Liste(models.Model):
                 condition=~models.Q(soutien="N"),
             )
         ]
+        ordering = ("code",)
