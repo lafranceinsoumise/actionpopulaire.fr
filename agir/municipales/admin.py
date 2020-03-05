@@ -123,7 +123,7 @@ class AvecCommuneFilter(SimpleListFilter):
 
 class MetropoleOutremerFilter(SimpleListFilter):
     title = "Métropole ou Outremer"
-    parameter_name = "avec_commune"
+    parameter_name = "metropole_outremer"
     condition = reduce(or_, (Q(code__startswith=str(i)) for i in range(10)))
 
     def lookups(self, request, model_admin):
@@ -146,6 +146,8 @@ class ListeAdmin(admin.ModelAdmin):
     fields = ["code", "nom", "lien_commune", "soutien", "nuance", "candidats"]
 
     list_filter = ("nuance", "soutien", AvecCommuneFilter, MetropoleOutremerFilter)
+
+    search_fields = ("nom", "code", "commune__name")
 
     def lien_commune(self, object):
         commune = object.commune
