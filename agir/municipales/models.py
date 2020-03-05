@@ -1,4 +1,5 @@
 from django.contrib.gis.db.models import MultiPolygonField
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
 from django.db.models import UniqueConstraint
@@ -35,7 +36,7 @@ class CommunePage(TimeStampedModel, models.Model):
 
     published = models.BooleanField("Publiée", default=False, null=False)
 
-    code = models.CharField("Code INSEE", max_length=5, editable=False)
+    code = models.CharField("Code INSEE", max_length=10, editable=False)
     code_departement = models.CharField(
         "Code département", max_length=3, editable=False
     )
@@ -164,3 +165,64 @@ class CommunePage(TimeStampedModel, models.Model):
         )
         verbose_name = "Page de commune"
         verbose_name_plural = "Pages de commune"
+
+
+NUANCES_CHOICES = [
+    ("LDVC", "Divers centre"),
+    ("LDVG", "Divers gauche"),
+    ("LEXG", "Extrême gauche"),
+    ("LDIV", "Divers"),
+    ("LDVD", "Divers droite"),
+    ("LREM", "LREM"),
+    ("LUG", "Union de la gauche"),
+    ("LUD", "Union de la droite"),
+    ("LRN", "Rassemblement national"),
+    ("LECO", "Autre Ecologiste"),
+    ("LSOC", "Socialiste"),
+    ("LCOM", "Communiste"),
+    ("LFI", "FI"),
+    ("LVEC", "EELV"),
+    ("LUDI", "UDI"),
+    ("LLR", "Les Républicains"),
+    ("LDLF", "Debout la France"),
+    ("LEXD", "Extrême droite"),
+    ("LRDG", "Parti radical de gauche"),
+    ("LMDM", "Modem"),
+    ("LUC", "Union du centre"),
+    ("LREG", "Régionaliste"),
+    ("LGJ", "Gilets Jaunes"),
+]
+
+
+class Liste(models.Model):
+    SOUTIEN_PUBLIC = "P"
+    SOUTIEN_PREF = "O"
+    SOUTIEN_NON = "N"
+    SOUTIEN_CHOICES = (
+        (SOUTIEN_PUBLIC, "Soutien et participation de la FI"),
+        (SOUTIEN_PREF, "Préférence de la FI sans soutien"),
+        (SOUTIEN_NON, "Non soutenue"),
+    )
+
+    code = models.CharField(
+        verbose_name="Code", max_length=20, unique=True, editable=False
+    )
+    nom = models.CharField(verbose_name="Nom de la liste", max_length=300)
+    commune = models.ForeignKey(
+        CommunePage, on_delete=models.CASCADE, null=True, blank=True
+    )
+
+    nuance = models.CharField(
+        verbose_name="Nuance politique", max_length=4, choices=NUANCES_CHOICES
+    )
+
+    candidats = ArrayField(
+        verbose_name="Candidats", base_field=models.CharField(max_length=200)
+    )
+
+    soutien = models.CharField(
+        verbose_name="Soutien ou participation de la FI",
+        max_length=1,
+        choices=SOUTIEN_CHOICES,
+        default=SOUTIEN_NON,
+    )

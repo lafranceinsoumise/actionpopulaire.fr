@@ -1,7 +1,11 @@
-from django.contrib.gis.geos import MultiPolygon, Polygon
-from django.core.management.base import BaseCommand
+import json
+
 import requests
+from django.contrib.gis.geos import MultiPolygon, Polygon, GEOSGeometry
+from django.core.management.base import BaseCommand
 from django.utils.text import slugify
+from functools import reduce
+from operator import or_
 from tqdm import tqdm
 
 from agir.municipales.models import CommunePage
@@ -19,17 +23,18 @@ class Command(BaseCommand):
             "-p", "--paris", action="store_const", const="paris", dest="target"
         )
 
+    def polygon_union(self, geoms):
+        geoms = [GEOSGeometry(json.dumps(g)) for g in geoms]
+        return self.geometry_to_multipolygon(reduce(or_, geoms))
+
     def geometry_to_multipolygon(self, geom):
-        if geom["type"] == "Polygon":
-            args = (Polygon(*geom["coordinates"]),)
-        elif geom["type"] == "MultiPolygon":
-            args = (
-                Polygon(*polygon_coordinates)
-                for polygon_coordinates in geom["coordinates"]
-            )
+        geom = GEOSGeometry(json.dumps(geom))
+        if isinstance(geom, Polygon):
+            return MultiPolygon(geom)
+        elif isinstance(geom, MultiPolygon):
+            return geom
         else:
-            raise TypeError("Mauvais type de geom (ni polygone ni multipolygone")
-        return MultiPolygon(*args)
+            raise TypeError("Mauvais type de geom (ni polygone ni multipolygone)")
 
     def handle(self, *args, target, **options):
         if target is None or target == "communes":
@@ -40,8 +45,8 @@ class Command(BaseCommand):
             for feature in tqdm(data["features"]):
                 CommunePage.objects.update_or_create(
                     code=feature["properties"]["code"],
-                    code_departement=feature["properties"]["departement"],
                     defaults={
+                        "code_departement": feature["properties"]["departement"],
                         "name": feature["properties"]["nom"],
                         "slug": slugify(feature["properties"]["nom"]),
                         "coordinates": self.geometry_to_multipolygon(
@@ -57,14 +62,26 @@ class Command(BaseCommand):
             )
             data = res.json()
 
-            for result in tqdm(data["records"]):
-                properties = result["fields"]
+            centre = [d["fields"] for d in data["records"] if d["fields"]["c_ar"] <= 4]
+            CommunePage.objects.update_or_create(
+                code=f"75056SR01",
+                defaults={
+                    "code_departement": "75",
+                    "name": "Paris — centre",
+                    "slug": "paris-centre",
+                    "coordinates": self.polygon_union([p["geom"] for p in centre]),
+                },
+            )
+
+            autres = [d["fields"] for d in data["records"] if d["fields"]["c_ar"] > 4]
+
+            for properties in tqdm(autres):
                 geom = properties["geom"]
 
                 CommunePage.objects.update_or_create(
-                    code=properties["c_arinsee"],
-                    code_departement="75",
+                    code=f"75056SR{properties['c_ar']:02d}",
                     defaults={
+                        "code_departement": "75",
                         "name": "Paris — {} arrondissement".format(
                             properties["l_ar"].split()[0]
                         ),

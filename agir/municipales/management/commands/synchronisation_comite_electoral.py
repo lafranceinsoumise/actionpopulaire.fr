@@ -39,7 +39,6 @@ class Command(BaseCommand):
 
         df["Département"] = df["Département"].fillna(method="ffill")
         df = df[df["Code Insee"].notnull()]
-        df["Code Insee"] = df["Code Insee"].str.split().str.get(0)
         df["Stratégie validée"] = (
             df["Stratégie validée"].str.strip().str.lower() == "oui"
         ).fillna(False)
