@@ -13,6 +13,7 @@ from agir.people.person_forms.actions import (
     validate_custom_fields,
     get_people_form_class,
 )
+from agir.people.person_forms.schema import schema
 
 
 class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
@@ -50,7 +51,7 @@ class PersonFormForm(forms.ModelForm):
         widgets = {
             "description": AdminRichEditorWidget(),
             "confirmation_note": AdminRichEditorWidget(),
-            "custom_fields": AdminJsonWidget(),
+            "custom_fields": AdminJsonWidget(schema=schema),
             "config": AdminJsonWidget(),
         }
 

@@ -61,12 +61,19 @@ class AdminRichEditorWidget(RichEditorWidget):
 class AdminJsonWidget(Textarea):
     admin = True
     template_name = "custom_fields/admin_json.html"
+    schema = None
 
-    def __init__(self, attrs=None):
+    def __init__(self, schema=None, attrs=None):
+        self.schema = schema
         default_attrs = {"class": "jsoneditor"}
         if attrs:
             default_attrs.update(attrs)
         super().__init__(default_attrs)
+
+    def get_context(self, *args, **kwargs):
+        context = super().get_context(*args, **kwargs)
+        context["widget"]["schema"] = self.schema
+        return context
 
     @property
     def media(self):

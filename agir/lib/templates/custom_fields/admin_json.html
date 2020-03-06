@@ -4,3 +4,8 @@
 <script id="{{ widget.name }}-data" type="application/json">
   {{ widget.value|safe }}
 </script>
+{% if widget.schema %}
+  {% with script_name=widget.name|add:"-schema" %}
+    {{ widget.schema|json_script:script_name }}
+  {% endwith %}
+{% endif %}
