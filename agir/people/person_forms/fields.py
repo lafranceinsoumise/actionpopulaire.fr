@@ -178,7 +178,7 @@ FIELDS = {
 PREDEFINED_CHOICES = {
     "departements": departements_choices,
     "regions": regions_choices,
-    "commune_pages": tuple(
+    "commune_pages": lambda instance: tuple(
         (commune.code, f"{commune.name} ({commune.code_departement})")
         for commune in CommunePage.objects.filter(published=True)
     ),
