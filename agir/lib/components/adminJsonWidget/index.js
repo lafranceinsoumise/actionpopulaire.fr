@@ -34,7 +34,11 @@ document.addEventListener("DOMContentLoaded", function() {
         }
       ],
       modes: ["tree", "code"],
-      schema: require("./schema")
+      schema: document.getElementById(e.dataset.fieldname + "-schema")
+        ? JSON.parse(
+            document.getElementById(e.dataset.fieldname + "-schema").textContent
+          )
+        : null
     });
     editor.set(
       JSON.parse(
