@@ -20,7 +20,7 @@ from agir.lib.form_fields import DateTimePickerWidget, SelectizeWidget, IBANFiel
 from agir.lib.token_bucket import TokenBucket
 
 from ..models import Person
-
+from ...municipales.models import CommunePage
 
 logger = logging.getLogger(__name__)
 
@@ -178,6 +178,10 @@ FIELDS = {
 PREDEFINED_CHOICES = {
     "departements": departements_choices,
     "regions": regions_choices,
+    "commune_pages": tuple(
+        (commune.code, f"{commune.name} ({commune.code_departement})")
+        for commune in CommunePage.objects.filter(published=True)
+    ),
     "organized_events": lambda instance: (
         (
             e.id,
