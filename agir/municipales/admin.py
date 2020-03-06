@@ -1,10 +1,13 @@
+from django import forms
+from django.db import transaction
+from django.shortcuts import redirect, get_object_or_404
 from django.utils.html import format_html
-from functools import reduce
+from functools import reduce, update_wrapper
 
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Q
-from django.urls import reverse
+from django.urls import reverse, path
 from operator import or_
 
 from agir.api.admin import admin_site
@@ -30,8 +33,59 @@ class CheffeDeFileFilter(SimpleListFilter):
         return queryset
 
 
+class CommuneForm(forms.ModelForm):
+    liste_soutenue = forms.ModelChoiceField(
+        label="Liste soutenue par la Fi",
+        queryset=Liste.objects.none(),
+        empty_label="Aucune",
+        required=False,
+    )
+    type_soutien = forms.ChoiceField(
+        label="Type de soutien",
+        choices=[
+            (Liste.SOUTIEN_PUBLIC, "Soutien public"),
+            (Liste.SOUTIEN_PREF, "Simple préférence"),
+        ],
+        initial="P",
+        required="P",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        listes = self.instance.listes.all()
+
+        self.fields["liste_soutenue"].queryset = listes
+
+        try:
+            self.liste_soutenue = listes.exclude(soutien=Liste.SOUTIEN_NON).get()
+            self.fields["liste_soutenue"].initial = self.liste_soutenue
+            self.fields["type_soutien"].initial = self.liste_soutenue.soutien
+        except Liste.DoesNotExist:
+            self.liste_soutenue = None
+
+    def _save_m2m(self):
+        super()._save_m2m()
+
+        nouvelle_liste_soutenue = self.cleaned_data["liste_soutenue"]
+
+        if "liste_soutenue" in self.changed_data or "type_soutien" in self.changed_data:
+            with transaction.atomic():
+                if (
+                    self.liste_soutenue is not None
+                    and self.liste_soutenue != nouvelle_liste_soutenue
+                ):
+                    self.liste_soutenue.soutien = Liste.SOUTIEN_NON
+                    self.liste_soutenue.save(update_fields=["soutien"])
+
+                if nouvelle_liste_soutenue is not None:
+                    nouvelle_liste_soutenue.soutien = self.cleaned_data["type_soutien"]
+                    nouvelle_liste_soutenue.save(update_fields=["soutien"])
+
+
 @admin.register(CommunePage, site=admin_site)
 class CommunePageAdmin(admin.ModelAdmin):
+    form = CommuneForm
     readonly_fields = ("code", "code_departement", "name")
     fieldsets = (
         (None, {"fields": readonly_fields}),
@@ -41,6 +95,8 @@ class CommunePageAdmin(admin.ModelAdmin):
                 "fields": (
                     "published",
                     "strategy",
+                    "liste_soutenue",
+                    "type_soutien",
                     "tete_liste",
                     "contact_email",
                     "mandataire_email",
@@ -104,6 +160,24 @@ class CommunePageAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def get_urls(self):
+        # copié depuis super
+        def wrap(view):
+            def wrapper(*args, **kwargs):
+                return self.admin_site.admin_view(view)(*args, **kwargs)
+
+            wrapper.model_admin = self
+            return update_wrapper(wrapper, view)
+
+        return [
+            path("par_insee/<path:insee>/", wrap(self.redirect_from_insee_view))
+        ] + super().get_urls()
+
+    def redirect_from_insee_view(self, request, insee):
+        info = (self.model._meta.app_label, self.model._meta.model_name)
+        commune = get_object_or_404(CommunePage, code=insee)
+        return redirect("admin:%s_%s_change" % info, commune.id)
+
 
 class AvecCommuneFilter(SimpleListFilter):
     title = "Avec ou sans commune"
@@ -140,9 +214,16 @@ class MetropoleOutremerFilter(SimpleListFilter):
 
 @admin.register(Liste, site=admin_site)
 class ListeAdmin(admin.ModelAdmin):
-    readonly_fields = ("code", "nom", "lien_commune", "nuance", "candidats")
+    readonly_fields = (
+        "code",
+        "nom",
+        "lien_commune",
+        "nuance",
+        "tete_liste",
+        "candidats",
+    )
 
-    list_display = ["nom", "lien_commune", "soutien", "nuance"]
+    list_display = ["nom", "lien_commune", "soutien", "nuance", "tete_liste"]
     fields = ["code", "nom", "lien_commune", "soutien", "nuance", "candidats"]
 
     list_filter = ("nuance", "soutien", AvecCommuneFilter, MetropoleOutremerFilter)

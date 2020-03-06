@@ -232,6 +232,17 @@ class Liste(models.Model):
         default=SOUTIEN_NON,
     )
 
+    @property
+    def tete_liste(self):
+        return self.candidats[0]
+
+    @property
+    def numero_panneau(self):
+        return int(self.code.split("-")[-1])
+
+    def __str__(self):
+        return f"{self.numero_panneau}. {self.nuance} — «\u00a0{self.nom[:30]}\u00a0» ({self.tete_liste})"
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
