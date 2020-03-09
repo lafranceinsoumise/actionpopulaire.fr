@@ -1,4 +1,5 @@
 from itertools import chain
+from uuid import UUID
 
 from django.utils.text import capfirst
 from functools import reduce
@@ -86,6 +87,12 @@ class PersonFormDisplay:
             if isinstance(value, list):
                 return [self._get_choice_label(field, v, html) for v in value]
             else:
+                return value
+        elif field_type == "person":
+            try:
+                UUID(value)
+                return Person.objects.filter(id=value).first() or value
+            except ValueError:
                 return value
         elif field_type == "date":
             date = iso8601.parse_date(value)
