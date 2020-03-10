@@ -71,6 +71,7 @@ tablib = "*"
 pyrogram = "*"
 tgcrypto = "*"
 tenacity = "*"
+pandas = "==1.*"
 
 [dev-packages]
 ipython = "*"
@@ -79,6 +80,5 @@ coverage = "*"
 django-silk = "*"
 django-debug-toolbar = "*"
 redislite = "*"  # used for testing
-pandas = "*"
 click = "*"
 pympler = "*"
