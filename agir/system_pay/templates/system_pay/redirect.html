@@ -5,7 +5,20 @@
   {{ form }}
 </form>
 <script>
-  document.getElementById('payment-form').submit();
+  var _paq = _paq || [];
+  _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
+  _paq.push(["setCookieDomain", "*.lafranceinsoumise.fr"]);
+  _paq.push(["setDomains", ["*.lafranceinsoumise.fr"]]);
+  var u = "//matomo.lafranceinsoumise.fr/";
+  _paq.push(['setTrackerUrl', u + 'piwik.php']);
+  _paq.push(['setSiteId', '1']);
+  {% if matomo_goal %}
+    _paq.push(['trackGoal', {{ matomo_goal }}, {{ form.vads_amount.value }} / 100]);
+  {% endif %}
+</script>
+<script src="https://matomo.lafranceinsoumise.fr/piwik.js"></script>
+<script>
+  setTimeout(function() {document.getElementById('payment-form').submit()}, 500);
 </script>
 </body>
 </html>

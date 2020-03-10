@@ -26,6 +26,7 @@ from agir.system_pay.models import (
 )
 from agir.system_pay.serializers import SystemPayWebhookSerializer
 from .forms import SystempayPaymentForm, SystempayNewSubscriptionForm
+from ..payments.types import PAYMENT_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,7 @@ class SystempayRedirectView(BaseSystemPayRedirectView):
             form=SystempayPaymentForm.get_form_for_transaction(
                 self.transaction, self.sp_config
             ),
+            matomo_goal=PAYMENT_TYPES[self.transaction.payment.type].matomo_goal,
             **kwargs,
         )
 

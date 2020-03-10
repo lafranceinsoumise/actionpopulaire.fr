@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from django.conf import settings
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 
@@ -32,6 +33,7 @@ class DonsConfig(AppConfig):
             ReturnView.as_view(),
             status_listener=notification_listener,
             description_template="donations/description.html",
+            matomo_goal=settings.DONATION_MATOMO_GOAL,
         )
 
         monthly_payment_type = PaymentType(
@@ -40,6 +42,7 @@ class DonsConfig(AppConfig):
             ReturnView.as_view(),
             status_listener=notification_listener,
             description_template="donations/description.html",
+            matomo_goal=settings.MONTHLY_DONATION_MATOMO_GOAL,
         )
 
         register_payment_type(monthly_payment_type)

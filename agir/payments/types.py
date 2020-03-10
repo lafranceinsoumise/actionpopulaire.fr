@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Mapping, Any, TYPE_CHECKING
+from typing import Callable, Mapping, Any, TYPE_CHECKING, Optional
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest, HttpResponse
@@ -21,6 +21,7 @@ class PaymentType:
     status_listener: Callable[["Payment"], None] = None
     description_template: str = None
     description_context_generator: Callable[["Payment"], Mapping[str, Any]] = None
+    matomo_goal: Optional[int] = None
 
 
 def register_payment_type(payment_type: PaymentType):
