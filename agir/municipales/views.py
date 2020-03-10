@@ -197,7 +197,7 @@ class CampagneMixin:
         self.campagne = self.get_campagne()
 
         if self.campagne.get("inactive"):
-            return redirect(campagne.get("url_inactive"))
+            return redirect(self.campagne.get("url_inactive"))
 
         self.commune = self.campagne["commune"]
         return super().dispatch(*args, **kwargs)
