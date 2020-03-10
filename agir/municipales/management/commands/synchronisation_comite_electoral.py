@@ -39,11 +39,11 @@ class Command(BaseCommand):
 
         df["Département"] = df["Département"].fillna(method="ffill")
         df = df[df["Code Insee"].notnull()]
-        df["Stratégie validée"] = (
-            df["Stratégie validée"].str.strip().str.lower() == "oui"
+        df["Afficher la stratégie"] = (
+            df["Afficher la stratégie"].str.strip().str.lower() == "oui"
         ).fillna(False)
-        df["Binôme validé"] = (
-            df["Binôme validé"].str.strip().str.lower() == "oui"
+        df["Afficher le binôme"] = (
+            df["Afficher le binôme"].str.strip().str.lower() == "oui"
         ).fillna(False)
 
         return df.set_index(df["Code Insee"])
@@ -106,25 +106,25 @@ class Command(BaseCommand):
         strategies = pd.DataFrame({"strategie": df["Stratégie adoptée"]})
 
         strategies["strategie"] = strategies["strategie"].where(
-            df["Stratégie validée"], ""
+            df["Afficher la stratégie"], ""
         )
 
         noms = df["Binôme FI"].str.strip().str.split(" - ")
         strategies[["first_name_1", "last_name_1"]] = (
             noms.str.get(0)
             .str.split(" ", 1, expand=True)
-            .where(df["Binôme validé"])
+            .where(df["Afficher le binôme"])
             .fillna("")
         )
         strategies[["first_name_2", "last_name_2"]] = (
             noms.str.get(1)
             .str.split(" ", 1, expand=True)
-            .where(df["Binôme validé"])
+            .where(df["Afficher le binôme"])
             .fillna("")
         )
 
         strategies["tete_liste"] = df["Tête de liste"].fillna("")
-        strategies["published"] = df["Stratégie validée"] | df["Binôme validé"]
+        strategies["published"] = df["Afficher la stratégie"] | df["Afficher le binôme"]
 
         for infos in strategies.itertuples():
             commune = all_communes.get(infos.Index)
