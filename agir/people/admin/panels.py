@@ -52,8 +52,10 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "display_contact_phone",
         "is_insoumise",
         "subscribed",
-        "role_link",
+        "location_city",
+        "location_zip",
         "created",
+        "role_link",
     )
     list_display_links = ("__str__",)
     form = PersonAdminForm
@@ -164,7 +166,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             text=_("Voir le rôle"),
         )
 
-    role_link.short_description = _("Lien vers le rôle")
+    role_link.short_description = _("Rôle")
 
     def role_totp_link(self, obj):
         return format_html_join(
