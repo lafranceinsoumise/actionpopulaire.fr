@@ -1,7 +1,8 @@
 from django import forms
+from django.contrib.gis.measure import D
 from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 from functools import reduce, update_wrapper
 
 from django.contrib import admin
@@ -12,6 +13,7 @@ from operator import or_
 
 from agir.api.admin import admin_site
 from agir.municipales.models import CommunePage, Liste
+from agir.people.models import Person
 
 
 class CheffeDeFileFilter(SimpleListFilter):
@@ -115,7 +117,10 @@ class CommunePageAdmin(admin.ModelAdmin):
             "Informations pour les dons par chèque",
             {"fields": ("ordre_don", "adresse_don")},
         ),
-        ("Permission", {"fields": ("municipales2020_admins",)}),
+        (
+            "Permission",
+            {"fields": ("municipales2020_admins", "municipales2020_people_list",)},
+        ),
     )
 
     list_display = (
@@ -148,6 +153,32 @@ class CommunePageAdmin(admin.ModelAdmin):
         return reverse(
             "view_commune",
             kwargs={"code_departement": self.code_departement, "slug": self.slug},
+        )
+
+    def municipales2020_people_list(self, object):
+        if (
+            object.listes.fitler(
+                soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
+            ).first()
+            is None
+            or object.municipales2020_admins.count() > 0
+        ):
+            return "-"
+
+        people = Person.objects.filter(
+            coordinates__distance__lt=(object.coordinates, D(m=1000))
+        ).search(
+            *object.listes.fitler(
+                soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
+            )
+            .first()
+            .candidats
+        )
+
+        return format_html_join(
+            ", ",
+            '<a href="{}">{}</a>',
+            ((reverse("admin:people_person_change", args=[p]), str(p)) for p in people),
         )
 
     def get_search_results(self, request, queryset, search_term):

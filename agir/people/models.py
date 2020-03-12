@@ -14,7 +14,7 @@ from django.utils.functional import cached_property
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
-from functools import partial
+from functools import partial, reduce
 from nuntius.models import AbstractSubscriber
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -40,8 +40,12 @@ class PersonQueryset(models.QuerySet):
     def verified(self):
         return self.filter(contact_phone_status=Person.CONTACT_PHONE_VERIFIED)
 
-    def search(self, query):
-        q = Q(search=PrefixSearchQuery(query, config="simple_unaccented"))
+    def search(self, query, *or_query):
+        q = reduce(
+            lambda a, b: a | Q(search=PrefixSearchQuery(b, config="simple_unaccented")),
+            or_query,
+            Q(search=PrefixSearchQuery(query, config="simple_unaccented")),
+        )
         try:
             phonenumbers.parse(query, "FR")
         except phonenumbers.phonenumberutil.NumberParseException:
