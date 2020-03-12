@@ -206,6 +206,7 @@
   _paq.push(["setDomains", ["*.lafranceinsoumise.fr"]]);
   _paq.push(['trackPageView']);
   _paq.push(['enableLinkTracking']);
+  {% block matomo_extra_tracking %}{% endblock %}
   (function () {
     var u = "//matomo.lafranceinsoumise.fr/";
     _paq.push(['setTrackerUrl', u + 'piwik.php']);
