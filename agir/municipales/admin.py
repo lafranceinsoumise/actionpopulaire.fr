@@ -185,7 +185,7 @@ class CommunePageAdmin(admin.ModelAdmin):
         return mark_safe(
             "<p>"
             + format_html_join(
-                ", ",
+                "<br>",
                 "{}",
                 (
                     (name,)
@@ -198,7 +198,7 @@ class CommunePageAdmin(admin.ModelAdmin):
             )
             + "</p><p>"
             + format_html_join(
-                ", ",
+                "<br>",
                 '<a href="{}">{}</a>',
                 (
                     (reverse("admin:people_person_change", args=[p.pk]), str(p))
