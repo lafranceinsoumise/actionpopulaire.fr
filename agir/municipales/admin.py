@@ -95,7 +95,7 @@ class CommunePageAdmin(admin.ModelAdmin):
         "municipales2020_people_list",
     )
     fieldsets = (
-        (None, {"fields": readonly_fields}),
+        (None, {"fields": ("code", "code_departement", "name")}),
         (
             "Informations sur la campagne",
             {
