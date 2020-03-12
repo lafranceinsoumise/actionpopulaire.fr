@@ -162,7 +162,7 @@ class CommunePageAdmin(admin.ModelAdmin):
 
     def municipales2020_people_list(self, object):
         if (
-            object.listes.fitler(
+            object.listes.filter(
                 soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
             ).first()
             is None
