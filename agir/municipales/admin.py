@@ -185,7 +185,10 @@ class CommunePageAdmin(admin.ModelAdmin):
         return format_html_join(
             ", ",
             '<a href="{}">{}</a>',
-            ((reverse("admin:people_person_change", args=[p]), str(p)) for p in people),
+            (
+                (reverse("admin:people_person_change", args=[p.pk]), str(p))
+                for p in people
+            ),
         )
 
     def get_search_results(self, request, queryset, search_term):
