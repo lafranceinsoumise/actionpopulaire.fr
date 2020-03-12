@@ -171,7 +171,7 @@ class CommunePageAdmin(admin.ModelAdmin):
             return "-"
 
         people = Person.objects.filter(
-            coordinates__distance__lt=(object.coordinates, D(m=10000))
+            coordinates__distance_lt=(object.coordinates, D(m=10000))
         ).search(
             *(
                 object.listes.filter(
