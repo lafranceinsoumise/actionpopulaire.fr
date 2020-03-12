@@ -166,7 +166,6 @@ class CommunePageAdmin(admin.ModelAdmin):
                 soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
             ).first()
             is None
-            or object.municipales2020_admins.count() > 0
         ):
             return "-"
 
@@ -177,18 +176,32 @@ class CommunePageAdmin(admin.ModelAdmin):
                 object.listes.filter(
                     soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
                 )
-                .first()
+                .get()
                 .candidats
             )
         )
 
-        return format_html_join(
-            ", ",
-            '<a href="{}">{}</a>',
-            (
-                (reverse("admin:people_person_change", args=[p.pk]), str(p))
-                for p in people
-            ),
+        return (
+            "<p>"
+            + format_html_join(
+                ", ",
+                "{}",
+                object.listes.filter(
+                    soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
+                )
+                .get()
+                .candidats,
+            )
+            + "</p><p>"
+            + format_html_join(
+                ", ",
+                '<a href="{}">{}</a>',
+                (
+                    (reverse("admin:people_person_change", args=[p.pk]), str(p))
+                    for p in people
+                ),
+            )
+            + "</p>"
         )
 
     def get_search_results(self, request, queryset, search_term):
