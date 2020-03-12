@@ -115,6 +115,10 @@ class CommunePage(TimeStampedModel, models.Model):
         blank=True,
     )
 
+    population = models.PositiveIntegerField(
+        verbose_name="Population municipale", null=True, blank=True
+    )
+
     def __str__(self):
         return "{} ({})".format(self.name, self.code_departement)
 
