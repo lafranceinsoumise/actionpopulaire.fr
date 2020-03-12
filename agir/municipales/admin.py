@@ -88,7 +88,12 @@ class CommuneForm(forms.ModelForm):
 @admin.register(CommunePage, site=admin_site)
 class CommunePageAdmin(admin.ModelAdmin):
     form = CommuneForm
-    readonly_fields = ("code", "code_departement", "name")
+    readonly_fields = (
+        "code",
+        "code_departement",
+        "name",
+        "municipales2020_people_list",
+    )
     fieldsets = (
         (None, {"fields": readonly_fields}),
         (
