@@ -3,6 +3,7 @@ from django.contrib.gis.measure import D
 from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from functools import reduce, update_wrapper
 
 from django.contrib import admin
@@ -181,16 +182,19 @@ class CommunePageAdmin(admin.ModelAdmin):
             )
         )
 
-        return (
+        return mark_safe(
             "<p>"
             + format_html_join(
                 ", ",
                 "{}",
-                object.listes.filter(
-                    soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
-                )
-                .get()
-                .candidats,
+                (
+                    (name,)
+                    for name in object.listes.filter(
+                        soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
+                    )
+                    .get()
+                    .candidats
+                ),
             )
             + "</p><p>"
             + format_html_join(
