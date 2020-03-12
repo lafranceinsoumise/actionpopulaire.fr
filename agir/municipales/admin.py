@@ -173,11 +173,13 @@ class CommunePageAdmin(admin.ModelAdmin):
         people = Person.objects.filter(
             coordinates__distance__lt=(object.coordinates, D(m=10000))
         ).search(
-            *object.listes.filter(
-                soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
+            *(
+                object.listes.filter(
+                    soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
+                )
+                .first()
+                .candidats
             )
-            .first()
-            .candidats
         )
 
         return format_html_join(
