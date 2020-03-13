@@ -28,20 +28,16 @@
     <div class="col-md-6 gblock">
       <h3>La campagne à {{ commune.name }}</h3>
       {% if commune.strategy %}
-        <div><em><strong>{{ commune.strategy }}</strong></em></div>{% endif %}
+        <p><em><strong>{{ commune.strategy }}</strong></em></p>{% endif %}
       {% if commune.tete_liste %}
-        <div><strong>Tête de liste</strong> : {{ commune.tete_liste }}</div>{% endif %}
+        <p><strong>Tête de liste</strong> : {{ commune.tete_liste }}</p>{% endif %}
       {% if commune.chiefs %}
-        <div><strong>Chef⋅fe⋅s de file France insoumise</strong> : {{ commune.chiefs }}</div>{% endif %}
+        <p><strong>Chef⋅fe⋅s de file France insoumise</strong> : {{ commune.chiefs }}</p>{% endif %}
       {% if commune.website %}
-        <div><a href="{{ commune.website }}">Voir le site web de la liste</a></div>{% endif %}
+        <p><i class="fa fa-link" aria-hidden="true"></i> <a href="{{ commune.website }}">{{ commune.website }}</a></p>{% endif %}
       {% if commune.contact_email %}
-        <div>Pour écrire à cette liste : <a href="mailto:{{ commune.contact_email }}">{{ commune.contact_email }}</a>
-        </div>{% endif %}
-
-      <a class="btn btn-default" href="{% url "procuration_commune" commune.code_departement commune.slug %}">
-        Je cherche quelqu'un pour prendre ma procuration à {{ commune.name }}
-      </a>
+        <p><i class="fa fa-email" aria-hidden="true"></i> <a href="mailto:{{ commune.contact_email }}">{{ commune.contact_email }}</a>
+        </p>{% endif %}
     </div>
 
     {% if commune.ordre_don and commune.adresse_don %}
