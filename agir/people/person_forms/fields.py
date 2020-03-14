@@ -1,24 +1,19 @@
 import logging
 from uuid import UUID
 
-from datetime import datetime
+import iso8601
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
-from django.utils.translation import ugettext as _
 from django.utils.formats import localize_input
-
-import iso8601
-
+from django.utils.translation import ugettext as _
 from phonenumber_field.formfields import PhoneNumberField
 
 from agir.events.models import Event
 from agir.lib.data import departements_choices, regions_choices
 from agir.lib.form_fields import DateTimePickerWidget, SelectizeWidget, IBANField
-from agir.lib.token_bucket import TokenBucket
-
 from ..models import Person
 from ...municipales.models import CommunePage
 
@@ -204,7 +199,10 @@ def event_from_value(uuid):
         return uuid
 
 
-PREDEFINED_CHOICES_REVERSE = {"organized_events": event_from_value}
+PREDEFINED_CHOICES_REVERSE = {
+    "organized_events": event_from_value,
+    "commune_pages": lambda code: CommunePage.objects.filter(code=code).first(),
+}
 
 
 def is_actual_model_field(field_descriptor):

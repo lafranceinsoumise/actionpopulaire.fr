@@ -46,8 +46,9 @@ class PersonFormDisplay:
         """
         if isinstance(field_descriptor["choices"], str):
             if callable(PREDEFINED_CHOICES.get(field_descriptor["choices"])):
-                value = PREDEFINED_CHOICES_REVERSE.get(field_descriptor["choices"])(
-                    value
+                value = (
+                    PREDEFINED_CHOICES_REVERSE.get(field_descriptor["choices"])(value)
+                    or value
                 )
                 if hasattr(value, "get_absolute_url") and html:
                     return format_html(
