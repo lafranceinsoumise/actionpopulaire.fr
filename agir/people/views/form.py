@@ -190,7 +190,7 @@ class PeopleFormSubmissionsPrivateView(DetailView):
         return super().get(request, *args, **kwargs)
 
     def get_csv(self, request):
-        form = self.get_object()
+        self.object = form = self.get_object()
 
         headers, submissions = default_person_form_display.get_formatted_submissions(
             form,
