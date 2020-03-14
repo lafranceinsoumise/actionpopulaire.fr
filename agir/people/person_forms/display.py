@@ -82,7 +82,7 @@ class PersonFormDisplay:
 
         field_type = field.get("type")
 
-        if field_type == "choice" and "choices" in field:
+        if field_type in ["choice", "autocomplete_choice"] and "choices" in field:
             return self._get_choice_label(field, value, html)
         elif field_type == "multiple_choice" and "choices" in field:
             if isinstance(value, list):
