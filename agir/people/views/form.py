@@ -197,6 +197,7 @@ class PeopleFormSubmissionsPrivateView(DetailView):
             html=False,
             include_admin_fields=False,
             resolve_labels=bool(request.GET.get("resolve_labels")),
+            resolve_values=bool(request.GET.get("resolve_values")),
         )
 
         response = HttpResponse(content_type="text/csv")

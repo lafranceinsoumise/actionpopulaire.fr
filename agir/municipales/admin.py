@@ -125,7 +125,7 @@ class CommunePageAdmin(admin.ModelAdmin):
         ),
         (
             "Permission",
-            {"fields": ("municipales2020_admins", "municipales2020_people_list",)},
+            {"fields": ("municipales2020_admins", "municipales2020_people_list")},
         ),
     )
 

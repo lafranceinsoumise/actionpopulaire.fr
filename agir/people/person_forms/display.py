@@ -36,6 +36,16 @@ class PersonFormDisplay:
     def get_admin_fields_label(self, form):
         return self.admin_fields_label
 
+    def _get_form_and_submissions(self, submissions_or_form):
+        if isinstance(submissions_or_form, PersonForm):
+            form = submissions_or_form
+            submissions = form.submissions.all().order_by("created")
+        else:
+            submissions = submissions_or_form
+            form = submissions[0].form
+
+        return form, submissions
+
     def _get_choice_label(self, field_descriptor, value, html=False):
         """Renvoie le libellé correct pour un champ de choix
 
@@ -215,17 +225,13 @@ class PersonFormDisplay:
         html=True,
         include_admin_fields=True,
         resolve_labels=True,
+        resolve_values=True,
         fieldsets_titles=False,
     ):
         if not submissions_or_form:
             return [], []
 
-        if isinstance(submissions_or_form, PersonForm):
-            form = submissions_or_form
-            submissions = form.submissions.all().order_by("created")
-        else:
-            submissions = submissions_or_form
-            form = submissions[0].form
+        form, submissions = self._get_form_and_submissions(submissions_or_form)
 
         if len(submissions) == 0:
             return [], []
@@ -239,15 +245,18 @@ class PersonFormDisplay:
         )
 
         full_data = [sub.data for sub in submissions]
-        full_values = [
-            {
-                id: self._get_formatted_value(fields_dict[id], value, html)
-                if id in fields_dict
-                else value
-                for id, value in d.items()
-            }
-            for d in full_data
-        ]
+        if resolve_values:
+            full_values = [
+                {
+                    id: self._get_formatted_value(fields_dict[id], value, html)
+                    if id in fields_dict
+                    else value
+                    for id, value in d.items()
+                }
+                for d in full_data
+            ]
+        else:
+            full_values = full_data
 
         declared_fields = set(fields_dict)
         additional_fields = sorted(
@@ -258,14 +267,21 @@ class PersonFormDisplay:
 
         ordered_values = [
             [
-                v.get(i, self.NA_HTML_PLACEHOLDER if html else self.NA_TEXT_PLACEHOLDER)
+                v.get(
+                    i,
+                    self.NA_HTML_PLACEHOLDER
+                    if html and resolve_values
+                    else self.NA_TEXT_PLACEHOLDER
+                    if resolve_values
+                    else "",
+                )
                 for i in chain(fields_dict, additional_fields)
             ]
             for v in full_values
         ]
 
         if include_admin_fields:
-            admin_values = self._get_admin_fields(submissions, html)
+            admin_values = self._get_admin_fields(submissions, html and resolve_values)
             return (
                 self.get_admin_fields_label(form) + headers,
                 [
