@@ -60,7 +60,8 @@ class BasePersonalInformationView(UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
     def clear_session(self):
-        del self.request.session[self.session_namespace]
+        if self.session_namespace in self.request.session:
+            del self.request.session[self.session_namespace]
 
     def get_object(self, queryset=None):
         if self.request.user.is_authenticated:
