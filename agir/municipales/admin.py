@@ -166,8 +166,13 @@ class CommunePageAdmin(admin.ModelAdmin):
             soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
         ).first()
 
+        link_list = format_html(
+            '<a href="{}" class="button">Voir toutes les listes dans cette commune</a>',
+            f'{reverse("admin:municipales_liste_changelist",)}?q={object.code}',
+        )
+
         if liste is None:
-            return "-"
+            return link_list
 
         people = Person.objects.filter(
             coordinates__distance_lt=(object.coordinates, D(m=10000))
@@ -180,6 +185,8 @@ class CommunePageAdmin(admin.ModelAdmin):
 
         return mark_safe(
             "<p>"
+            + link_list
+            + "</p><p>"
             + format_html_join(
                 "<br>",
                 "{} {}",
