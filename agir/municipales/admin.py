@@ -162,23 +162,19 @@ class CommunePageAdmin(admin.ModelAdmin):
         )
 
     def municipales2020_people_list(self, object):
-        if (
-            object.listes.filter(
-                soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
-            ).first()
-            is None
-        ):
+        liste = object.listes.filter(
+            soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
+        ).first()
+
+        if liste is None:
             return "-"
 
         people = Person.objects.filter(
             coordinates__distance_lt=(object.coordinates, D(m=10000))
         ).search(
             *(
-                object.listes.filter(
-                    soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
-                )
-                .get()
-                .candidats
+                f"{nom} {prenom}"
+                for nom, prenom in zip(liste.candidats_noms, liste.candidats_prenoms)
             )
         )
 
@@ -186,14 +182,12 @@ class CommunePageAdmin(admin.ModelAdmin):
             "<p>"
             + format_html_join(
                 "<br>",
-                "{}",
+                "{} {}",
                 (
-                    (name,)
-                    for name in object.listes.filter(
-                        soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
+                    (nom, prenom)
+                    for nom, prenom in zip(
+                        liste.candidats_noms, liste.candidats_prenoms
                     )
-                    .get()
-                    .candidats
                 ),
             )
             + "</p><p>"
@@ -287,6 +281,28 @@ class ListeAdmin(admin.ModelAdmin):
     list_filter = ("nuance", "soutien", AvecCommuneFilter, MetropoleOutremerFilter)
 
     search_fields = ("nom", "code", "commune__name")
+
+    def candidats(self, obj):
+        return mark_safe(
+            "<ul>"
+            + format_html_join(
+                "\n",
+                "<li><strong>{}</strong> {} {}</li>",
+                (
+                    (
+                        nom,
+                        prenom,
+                        "(candidat au conseil communautaire)" if communautaire else "",
+                    )
+                    for nom, prenom, communautaire in zip(
+                        obj.candidats_noms,
+                        obj.candidats_prenoms,
+                        obj.candidats_communautaire,
+                    )
+                ),
+            )
+            + "<ul>"
+        )
 
     def lien_commune(self, object):
         commune = object.commune

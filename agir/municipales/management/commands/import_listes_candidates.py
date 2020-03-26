@@ -96,15 +96,26 @@ class Command(BaseCommand):
             df["insee"] + "-" + df["liste_numero"].astype(str).str.zfill(2)
         )
 
-        df["candidat"] = df["candidat_nom"] + (", " + df["candidat_prenom"]).fillna("")
+        df["conseil_communautaire"] = df["conseil_communautaire"] == "O"
 
         listes = (
             df[["liste_code", "insee", "liste_nom", "nuance"]]
             .drop_duplicates()
             .set_index(["liste_code"])
         )
-        listes["nuance"] = listes["nuance"].astype(str).fillna("")
-        listes["candidats"] = df.groupby(["liste_code"])["candidat"].agg(list)
+        listes["nuance"] = (
+            listes["nuance"]
+            .cat.remove_unused_categories()
+            .cat.add_categories([""])
+            .fillna("")
+        )
+        listes["candidats_noms"] = df.groupby(["liste_code"])["candidat_nom"].agg(list)
+        listes["candidats_prenoms"] = df.groupby(["liste_code"])["candidat_prenom"].agg(
+            list
+        )
+        listes["candidats_communautaire"] = df.groupby(["liste_code"])[
+            "conseil_communautaire"
+        ].agg(list)
 
         communes_ids = {
             c["code"]: c["id"]
@@ -119,7 +130,9 @@ class Command(BaseCommand):
                 defaults={
                     "nom": l.liste_nom,
                     "nuance": l.nuance,
-                    "candidats": l.candidats,
+                    "candidats_noms": l.candidats_noms,
+                    "candidats_prenoms": l.candidats_prenoms,
+                    "candidats_communautaire": l.candidats_communautaire,
                     "commune_id": communes_ids.get(l.insee),
                 },
             )

@@ -3,6 +3,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
 from django.db.models import UniqueConstraint
+from django.utils.html import format_html
 
 from agir.lib.model_fields import FacebookPageField, TwitterProfileField
 from agir.lib.models import TimeStampedModel
@@ -225,8 +226,21 @@ class Liste(models.Model):
         verbose_name="Nuance politique", max_length=4, choices=NUANCES_CHOICES
     )
 
-    candidats = ArrayField(
-        verbose_name="Candidats", base_field=models.CharField(max_length=200)
+    candidats_noms = ArrayField(
+        verbose_name="Noms candidats",
+        base_field=models.CharField(max_length=200),
+        default=list,
+    )
+    candidats_prenoms = ArrayField(
+        verbose_name="Prénoms candidats",
+        base_field=models.CharField(max_length=200),
+        default=list,
+    )
+
+    candidats_communautaire = ArrayField(
+        verbose_name="Candidats pour le conseil communautaire",
+        base_field=models.BooleanField(),
+        default=list,
     )
 
     soutien = models.CharField(
@@ -238,14 +252,18 @@ class Liste(models.Model):
 
     @property
     def tete_liste(self):
-        return self.candidats[0]
+        return format_html(
+            "<strong>{nom}</strong> {prenom}",
+            nom=self.candidats_noms[0],
+            prenom=self.candidats_prenoms[0],
+        )
 
     @property
     def numero_panneau(self):
         return int(self.code.split("-")[-1])
 
     def __str__(self):
-        return f"{self.numero_panneau}. {self.nuance} — «\u00a0{self.nom[:30]}\u00a0» ({self.tete_liste})"
+        return f"{self.numero_panneau}. {self.nuance} — «\u00a0{self.nom[:30]}\u00a0» ({self.candidats_noms[0]} {self.candidats_prenoms[0]})"
 
     class Meta:
         constraints = [
