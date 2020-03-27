@@ -74,6 +74,14 @@ class MandatMunicipal(models.Model):
 
     mandat = models.CharField("Type de mandat", max_length=3, choices=MANDAT_CHOICES)
 
+    email_officiel = models.ForeignKey(
+        to="people.PersonEmail",
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name="Adresse email officielle",
+        help_text="L'adresse avec laquelle contacter l'élu pour des questions officielles",
+    )
+
     delegations_municipales = ArrayField(
         verbose_name="Délégations",
         base_field=models.CharField(max_length=3, choices=DELEGATIONS_CHOICES),
