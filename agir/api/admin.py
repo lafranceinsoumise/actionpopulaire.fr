@@ -11,6 +11,8 @@ from django.utils.translation import ugettext_lazy as _
 from django_otp.admin import OTPAdminAuthenticationForm, OTPAdminSite
 from django_otp.plugins.otp_totp.admin import TOTPDeviceAdmin
 from django_otp.plugins.otp_totp.models import TOTPDevice
+import data_france.admin as data_france_admin
+import data_france.models as data_france_models
 
 
 class PersonAuthenticationForm(OTPAdminAuthenticationForm):
@@ -84,4 +86,10 @@ admin_site.register(TOTPDevice, DeviceAdmin)
 admin_site.register(nuntius.models.Campaign, nuntius.admin.CampaignAdmin)
 admin_site.register(
     nuntius.models.CampaignSentEvent, nuntius.admin.CampaignSentEventAdmin
+)
+admin_site.register(
+    data_france_models.Commune, data_france_admin.CommuneAdmin,
+)
+admin_site.register(
+    data_france_models.EPCI, data_france_admin.EPCIAdmin,
 )

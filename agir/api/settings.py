@@ -106,10 +106,11 @@ INSTALLED_APPS = [
     "agir.checks",
     "agir.loans",
     "agir.mailing",
-    "agir.notifications",
+    "agir.notifications.apps.NotificationsConfig",
     "agir.municipales.apps.MunicipalesConfig",
     "agir.legacy",
     "agir.telegram",
+    "agir.elus.apps.ElusConfig",
     # default contrib apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -153,6 +154,7 @@ INSTALLED_APPS = [
     "oauth2_provider",
     "reversion",
     "social_django",
+    "data_france",
 ]
 
 MIDDLEWARE = [

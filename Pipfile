@@ -72,6 +72,7 @@ pyrogram = "*"
 tgcrypto = "*"
 tenacity = "*"
 pandas = "==1.*"
+data-france = "==0.6.1"
 
 [dev-packages]
 ipython = "*"
