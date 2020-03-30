@@ -200,9 +200,14 @@ class CommunePageAdmin(admin.ModelAdmin):
             + "</p><p>"
             + format_html_join(
                 "<br>",
-                '<a href="{}">{}</a>',
+                '<a href="{}">{}</a> <a href="{}" class="button">créer un mandat pour cette personne</a>',
                 (
-                    (reverse("admin:people_person_change", args=[p.pk]), str(p))
+                    (
+                        reverse("admin:people_person_change", args=[p.pk]),
+                        str(p),
+                        reverse("admin:elus_mandatmunicipal_add")
+                        + f"?person={p.pk}&commune={object.code}",
+                    )
                     for p in people
                 ),
             )
