@@ -29,7 +29,7 @@ class DashboardTestCase(FakeDataMixin, TestCase):
         paris_nd = Point(2.349_722, 48.853_056)  # ND de Paris
 
         self.person1 = Person.objects.create_person(
-            "test@test.com", coordinates=paris_nd
+            "test@test.com", coordinates=paris_nd, create_role=True
         )
         self.person2 = Person.objects.create_person("test2@test.com")
         self.person3 = Person.objects.create_person("test3@test.com")
@@ -84,7 +84,9 @@ class DashboardTestCase(FakeDataMixin, TestCase):
 
 class ProfileTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com", is_insoumise=False)
+        self.person = Person.objects.create_person(
+            "test@test.com", is_insoumise=False, create_role=True
+        )
         self.person.add_email("test2@test.com")
         self.person_to_merge = Person.objects.create_person("merge@test.com")
 
@@ -284,7 +286,9 @@ class ProfileFormTestCase(TestCase):
             "mandates": "[]",
         }
 
-        self.person = Person.objects.create_person("test@test.com", **self.sample_data)
+        self.person = Person.objects.create_person(
+            "test@test.com", create_role=True, **self.sample_data
+        )
         self.client.force_login(self.person.role)
 
     def test_can_add_tag(self):
@@ -375,7 +379,7 @@ class ProfileFormTestCase(TestCase):
 
 class ActivityAbilityFormTestCases(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com")
+        self.person = Person.objects.create_person("test@test.com", create_role=True)
         self.client.force_login(self.person.role)
 
     def test_form_is_displayed(self):
@@ -402,7 +406,7 @@ class ActivityAbilityFormTestCases(TestCase):
 
 class InformationConfidentialityFormTestCases(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com")
+        self.person = Person.objects.create_person("test@test.com", create_role=True)
         self.client.force_login(self.person.role)
 
     def test_form_is_displayed(self):
@@ -415,7 +419,7 @@ class InformationConfidentialityFormTestCases(TestCase):
 
 class InformationPersonalFormTestCases(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com")
+        self.person = Person.objects.create_person("test@test.com", create_role=True)
         self.client.force_login(self.person.role)
 
     def test_form_is_displayed(self):
@@ -456,7 +460,7 @@ class InformationPersonalFormTestCases(TestCase):
 
 class VolunteerFormTestCases(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com")
+        self.person = Person.objects.create_person("test@test.com", create_role=True)
         self.client.force_login(self.person.role)
 
     def test_form_is_displayed(self):
@@ -489,6 +493,7 @@ class ExternalPersonPreferencesFormTestCases(TestCase):
             subscribed_sms=False,
             group_notifications=False,
             event_notifications=False,
+            create_role=True,
         )
 
     def test_form_is_displayed(self):
@@ -520,6 +525,7 @@ class InformationContactFormTestCases(TestCase):
             subscribed_sms=False,
             group_notifications=False,
             event_notifications=False,
+            create_role=True,
         )
         self.client.force_login(self.person.role)
 
@@ -556,7 +562,7 @@ class InformationContactFormTestCases(TestCase):
 class SMSValidationTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person(
-            "test@example.com", contact_phone="0612345678"
+            "test@example.com", contact_phone="0612345678", create_role=True
         )
         self.client.force_login(self.person.role)
 
@@ -730,10 +736,10 @@ class SMSRateLimitingTestCase(TestCase):
         self.phone = "+33612345678"
         self.other_phone = "+33687654321"
         self.person1 = Person.objects.create_person(
-            "test1@example.com", contact_phone=self.phone
+            "test1@example.com", contact_phone=self.phone, create_role=True
         )
         self.person2 = Person.objects.create_person(
-            "test2@example.com", contact_phone=self.phone
+            "test2@example.com", contact_phone=self.phone, create_role=True
         )
 
     # TODO: ajouter un message d'erreur pour le rate limite des sms a moins que pas besoin...

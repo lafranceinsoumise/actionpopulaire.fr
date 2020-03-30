@@ -21,7 +21,9 @@ from ..authentication.models import Role
 
 class TokenTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person(email="test@test.com")
+        self.person = Person.objects.create_person(
+            email="test@test.com", create_role=True
+        )
         self.scope = scopes.view_profile
         self.other_scope = scopes.edit_profile
         self.client = models.Client.objects.create_client(
@@ -80,13 +82,13 @@ class ScopeTestCase(APITestCase):
         # Then we create token with smaller scopes to test
         person_content_type = ContentType.objects.get_for_model(Person)
         self.person = Person.objects.create_superperson(
-            email="test@test.com", password="randomstring"
+            email="test@test.com", password="randomstring", create_role=True
         )
         add_permission = Permission.objects.get(
             content_type=person_content_type, codename="view_person"
         )
         self.person.role.user_permissions.add(add_permission)
-        self.other_person = Person.objects.create(email="test2@test.com")
+        self.other_person = Person.objects.create_person(email="test2@test.com")
 
         self.api_client = models.Client.objects.create_client(
             "client", scopes=scopes.scopes_names

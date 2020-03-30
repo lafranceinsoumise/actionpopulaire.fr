@@ -27,7 +27,7 @@ class MailTrainTestCase(TestCase):
     @mock.patch("agir.lib.mailtrain.subscribe_email")
     @mock.patch("agir.lib.mailtrain.unsubscribe_email")
     def test_update_person(self, unsubscribe, subscribe, delete, *args):
-        person = Person.objects.create(email="email@example.com")
+        person = Person.objects.create_person(email="email@example.com")
 
         mailtrain.update_person(person)
         subscribe.assert_called_once()

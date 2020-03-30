@@ -327,8 +327,8 @@ class NewParticipantForm(BasePersonForm):
                 "insoumise"
             ]
 
-        # pour sauver l'instance, même si c'est une création, il faut appeler la méthode ModelForm plutôt que celle
-        # de BasePersonForm
+        # pour sauver l'instance, il faut appeler la méthode ModelForm plutôt que celle
+        # de BasePersonForm parce que cette dernière ne crée jamais d'instance.
         with transaction.atomic():
             self.instance = forms.ModelForm.save(self, commit)
             self.submission = self.save_submission(self.instance)

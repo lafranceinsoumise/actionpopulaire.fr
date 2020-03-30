@@ -32,7 +32,7 @@ class MembershipTestCase(APITestCase):
     def setUp(self):
         self.supportgroup = SupportGroup.objects.create(name="Test")
 
-        self.person = Person.objects.create(email="marc.machin@truc.com")
+        self.person = Person.objects.create_person(email="marc.machin@truc.com")
 
         self.privileged_user = Person.objects.create_superperson("super@user.fr", None)
 
@@ -201,8 +201,10 @@ class GroupSubtypesTestCase(FakeDataMixin, TestCase):
 
 class GroupPageTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com")
-        self.other_person = Person.objects.create_person("other@test.fr")
+        self.person = Person.objects.create_person("test@test.com", create_role=True)
+        self.other_person = Person.objects.create_person(
+            "other@test.fr", create_role=True
+        )
 
         self.referent_group = SupportGroup.objects.create(name="Referent")
         Membership.objects.create(
@@ -546,7 +548,9 @@ class ExternalJoinSupportGroupTestCase(TestCase):
 class InvitationTestCase(TestCase):
     def setUp(self) -> None:
         self.group = SupportGroup.objects.create(name="Nom du groupe")
-        self.referent = Person.objects.create_person("user@example.com")
+        self.referent = Person.objects.create_person(
+            "user@example.com", create_role=True
+        )
 
         Membership.objects.create(
             supportgroup=self.group,

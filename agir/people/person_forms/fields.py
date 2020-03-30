@@ -144,7 +144,11 @@ class PersonChoiceField(forms.CharField):
                 self.error_messages["invalid_choice"], code="invalid_choice"
             )
 
-        if not self.allow_inactive and not value.role.is_active:
+        if (
+            not self.allow_inactive
+            and value.role is not None
+            and not value.role.is_active
+        ):
             raise ValidationError(
                 self.error_messages["invalid_choice"], code="invalid_choice"
             )

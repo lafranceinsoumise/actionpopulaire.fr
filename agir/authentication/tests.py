@@ -20,7 +20,7 @@ from agir.people.models import Person
 @using_separate_redis_server
 class MailLinkTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com")
+        self.person = Person.objects.create_person("test@test.com", create_role=True)
         self.person2 = Person.objects.create_person("test2@test.com")
 
         self.soft_backend = "agir.authentication.backend.MailLinkBackend"
@@ -243,7 +243,7 @@ class ShortCodeTestCase(TestCase):
 
 class AuthorizationTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com")
+        self.person = Person.objects.create_person("test@test.com", create_role=True)
 
         now = timezone.now()
         day = timezone.timedelta(days=1)

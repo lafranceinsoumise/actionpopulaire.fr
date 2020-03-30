@@ -13,7 +13,7 @@ from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmissi
 
 class SetUpPersonFormsMixin:
     def setUp(self):
-        self.person = Person.objects.create_person("person@corp.com")
+        self.person = Person.objects.create_person("person@corp.com", create_role=True)
         self.person.meta["custom-person-field"] = "Valeur méta préexistante"
         self.person.save()
         self.tag1 = PersonTag.objects.create(
@@ -477,7 +477,7 @@ class SubmissionFormatTestCase(TestCase):
 
 class FieldsTestCase(TestCase):
     def setUp(self) -> None:
-        self.person = Person.objects.create_person("test@example.com")
+        self.person = Person.objects.create_person("test@example.com", create_role=True)
         self.other_person = Person.objects.create_person("test2@example.com")
 
     # utilise un token bucket

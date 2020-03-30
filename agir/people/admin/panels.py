@@ -160,26 +160,30 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         return super().get_queryset(request).prefetch_related("emails")
 
     def role_link(self, obj):
-        return format_html(
-            '<a href="{link}">{text}</a>',
-            link=reverse("admin:authentication_role_change", args=[obj.role_id]),
-            text=_("Voir le rôle"),
-        )
+        if obj.role is not None:
+            return format_html(
+                '<a href="{link}">{text}</a>',
+                link=reverse("admin:authentication_role_change", args=[obj.role_id]),
+                text=_("Voir le rôle"),
+            )
+        return "-"
 
     role_link.short_description = _("Rôle")
 
     def role_totp_link(self, obj):
-        return format_html_join(
-            mark_safe("<br>"),
-            '<a href="{}">{}</a>',
-            (
+        if obj.role is not None:
+            return format_html_join(
+                mark_safe("<br>"),
+                '<a href="{}">{}</a>',
                 (
-                    reverse("admin:otp_totp_totpdevice_change", args=[device.id]),
-                    device.name,
-                )
-                for device in django_otp.devices_for_user(obj.role, confirmed=False)
-            ),
-        )
+                    (
+                        reverse("admin:otp_totp_totpdevice_change", args=[device.id]),
+                        device.name,
+                    )
+                    for device in django_otp.devices_for_user(obj.role, confirmed=False)
+                ),
+            )
+        return "-"
 
     role_totp_link.short_description = _(
         "Lien vers les téléphones Authenticator enregistrés"
@@ -213,7 +217,6 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     )
 
     def last_login(self, obj):
-
         if obj.role_id:
             return display_for_value(obj.role.last_login, "-")
         else:

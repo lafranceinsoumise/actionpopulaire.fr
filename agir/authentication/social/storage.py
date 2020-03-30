@@ -11,12 +11,12 @@ class AgirSocialUser(UserSocialAuth):
     @classmethod
     def get_users_by_email(cls, email):
         try:
-            return [
-                Person.objects.select_related("role")
-                .get(emails__address__iexact=email)
-                .role
-            ]
-        except (Person.DoesNotExist, Role.DoesNotExist):
+            person = Person.objects.select_related("role").get(
+                emails__address__iexact=email
+            )
+            person.ensure_role_exists()
+            return [person.role]
+        except (Person.DoesNotExist):
             return []
 
     class Meta:

@@ -7,7 +7,7 @@ from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.core.exceptions import ValidationError
-from django.db import models, transaction
+from django.db import models, transaction, IntegrityError
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -63,16 +63,10 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
 
     def create(self, *args, **kwargs):
         warnings.warn(
-            "You shoud use create_person or create_superperson.", DeprecationWarning
+            "You shoud use create_person_with_account or create_person_without_account.",
+            DeprecationWarning,
         )
-        if "email" not in kwargs:
-            raise ValueError("Email must be set")
-        email = kwargs.pop("email")
-        kwargs.setdefault("is_staff", False)
-        kwargs.setdefault("is_superuser", False)
-        person = self._create_person(email, kwargs.get("password", None), **kwargs)
-
-        return person
+        return self.create_person(*args, **kwargs)
 
     def get_by_natural_key(self, email):
         email_field_class = self.model.emails.rel.related_model
@@ -82,7 +76,15 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
             raise self.model.DoesNotExist
 
     def _create_person(
-        self, email, password, *, is_staff, is_superuser, is_active=True, **extra_fields
+        self,
+        email,
+        password,
+        *,
+        is_staff,
+        is_superuser,
+        is_active=True,
+        create_role=False,
+        **extra_fields,
     ):
         """
         Creates and saves a person with the given username, email and password.
@@ -90,16 +92,23 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         if not email:
             raise ValueError("The given email must be set")
 
-        role = Role(
-            type=Role.PERSON_ROLE,
-            is_staff=is_staff,
-            is_superuser=is_superuser,
-            is_active=is_active,
-        )
-        role.set_password(password)
+        if password or is_staff or is_superuser or not is_active:
+            create_role = True
 
         with transaction.atomic():
-            role.save()
+            if create_role:
+                role = Role(
+                    type=Role.PERSON_ROLE,
+                    is_staff=is_staff,
+                    is_superuser=is_superuser,
+                    is_active=is_active,
+                )
+                if password:
+                    role.set_password(password)
+
+                role.save()
+            else:
+                role = None
 
             person = self.model(role=role, **extra_fields)
             person.save(using=self._db)
@@ -190,7 +199,10 @@ class Person(
     objects = PersonManager()
 
     role = models.OneToOneField(
-        "authentication.Role", on_delete=models.PROTECT, related_name="person"
+        "authentication.Role",
+        on_delete=models.PROTECT,
+        related_name="person",
+        null=True,
     )
     auto_login_salt = models.CharField(max_length=255, blank=True, default="")
 
@@ -391,6 +403,11 @@ class Person(
                 address=email_address, person=self, **kwargs
             )
         else:
+            if email.person != self:
+                raise IntegrityError(
+                    f"L'email '{email_address}' est déjà associé à une autre personne"
+                )
+
             email.bounced = kwargs.get("bounced", email.bounced) or False
             email.bounced_date = kwargs.get("bounced_date", email.bounced_date)
             email.save()
@@ -427,6 +444,23 @@ class Person(
             "login_query": urlencode(generate_token_params(self)),
             "greeting": self.get_greeting(),
         }
+
+    def ensure_role_exists(self):
+        """Crée un compte pour cette personne si aucun n'existe.
+
+        Cette méthode n'a aucun effet si un compte existe déjà.
+        """
+        if self.role_id is not None:
+            return
+
+        with transaction.atomic():
+            self.role = Role.objects.create(
+                is_active=True,
+                is_staff=False,
+                is_superuser=False,
+                type=Role.PERSON_ROLE,
+            )
+            self.save(update_fields=["role"])
 
 
 class PersonTag(AbstractLabel):

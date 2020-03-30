@@ -9,7 +9,9 @@ from .models import Poll, PollOption, PollChoice
 
 class PollTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create(email="participant@example.com")
+        self.person = Person.objects.create_person(
+            email="participant@example.com", create_role=True
+        )
         self.poll = Poll.objects.create(
             start=timezone.now(), end=timezone.now() + timedelta(days=1)
         )

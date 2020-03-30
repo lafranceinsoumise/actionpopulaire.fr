@@ -25,6 +25,10 @@ class CreerMandatForm(forms.ModelForm):
 
         if "person" in self.fields:
             person = self.get_initial_for_field(self.fields["person"], "person")
+            self.fields["person"].required = False
+            self.fields[
+                "person"
+            ].help_text = "Attention, si vous ne choisissez pas de personne, cela créera une nouvelle personne."
         else:
             person = self.instance.person
 
@@ -42,6 +46,13 @@ class CreerMandatForm(forms.ModelForm):
         new_email = self.cleaned_data.get("new_email")
         email_officiel = self.cleaned_data.get("email_officiel")
 
+        if not person and not new_email:
+            self.add_error(
+                None,
+                "Sélectionnez un compte existant ou indiquez l'adresse email pour créer un"
+                " nouveau compte.",
+            )
+
         if new_email and person:
             try:
                 person_email = PersonEmail.objects.get_by_natural_key(new_email)
@@ -54,6 +65,15 @@ class CreerMandatForm(forms.ModelForm):
                         "Cette adresse email est déjà associée à une autre personne.",
                     )
 
+        if new_email and not person:
+            try:
+                person = Person.objects.get_by_natural_key(new_email)
+            except Person.DoesNotExist:
+                pass
+            else:
+                self.cleaned_data["person"] = person
+                del self.cleaned_data["new_email"]
+
         if email_officiel and person and email_officiel.person != person:
             self.cleaned_data["email_officiel"] = None
 
@@ -65,18 +85,32 @@ class CreerMandatForm(forms.ModelForm):
         cleaned_data = self.cleaned_data
         person = cleaned_data["person"]
 
-        if "person" not in self.changed_data:
-            person.first_name = cleaned_data["prenom"]
-            person.last_name = cleaned_data["nom"]
-            person.contact_phone = cleaned_data["contact_phone"]
-            person.save(update_fields=["first_name", "last_name", "contact_phone"])
+        if not person:
+            # création d'une personne
+            self.instance.person = Person.objects.create_person(
+                cleaned_data["new_email"],
+                first_name=cleaned_data.get("prenom", ""),
+                last_name=cleaned_data.get("nom", "nom"),
+                contact_phone=cleaned_data.get("contact_phone"),
+            )
+            self.instance.email_officiel = self.instance.person.primary_email
+            self.instance.save()
 
-        if "new_email" in self.changed_data:
-            person.add_email(cleaned_data["new_email"])
-            email = PersonEmail.objects.get_by_natural_key(cleaned_data["new_email"])
-            if email.person == person:
-                self.instance.email_officiel = email
-                self.instance.save(update_fields=["email_officiel"])
+        else:
+            if "person" not in self.changed_data:
+                person.first_name = cleaned_data["prenom"]
+                person.last_name = cleaned_data["nom"]
+                person.contact_phone = cleaned_data["contact_phone"]
+                person.save(update_fields=["first_name", "last_name", "contact_phone"])
+
+            if "new_email" in self.changed_data:
+                person.add_email(cleaned_data["new_email"])
+                email = PersonEmail.objects.get_by_natural_key(
+                    cleaned_data["new_email"]
+                )
+                if email.person == person:
+                    self.instance.email_officiel = email
+                    self.instance.save(update_fields=["email_officiel"])
 
 
 @admin.register(MandatMunicipal, site=admin_site)

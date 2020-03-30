@@ -21,14 +21,23 @@ class LegacyPersonEndpointTestCase(APITestCase):
 
     def setUp(self):
         self.basic_person = Person.objects.create_person(
-            email="jean.georges@domain.com", first_name="Jean", last_name="Georges"
+            email="jean.georges@domain.com",
+            first_name="Jean",
+            last_name="Georges",
+            create_role=True,
         )
 
-        self.viewer_person = Person.objects.create_person(email="viewer@viewer.fr")
+        self.viewer_person = Person.objects.create_person(
+            email="viewer@viewer.fr", create_role=True
+        )
 
-        self.adder_person = Person.objects.create_person(email="adder@adder.fr")
+        self.adder_person = Person.objects.create_person(
+            email="adder@adder.fr", create_role=True
+        )
 
-        self.changer_person = Person.objects.create_person(email="changer@changer.fr")
+        self.changer_person = Person.objects.create_person(
+            email="changer@changer.fr", create_role=True
+        )
 
         person_content_type = ContentType.objects.get_for_model(Person)
         view_permission = Permission.objects.get(
@@ -328,13 +337,19 @@ class LegacyEndpointFieldsTestCase(TestCase):
         return request
 
     def setUp(self):
-        self.superuser = Person.objects.create_superperson("super@user.fr", None)
+        self.superuser = Person.objects.create_superperson(
+            "super@user.fr", None, create_role=True
+        )
 
         self.tag = PersonTag.objects.create(label="tag1")
 
         self.person1 = Person.objects.create_person("person1@domain.fr")
-        self.person2 = Person.objects.create(email="person2@domain.fr", nb_id=12345)
-        self.person3 = Person.objects.create(email="person3@domain.fr", nb_id=67890)
+        self.person2 = Person.objects.create_person(
+            email="person2@domain.fr", nb_id=12345
+        )
+        self.person3 = Person.objects.create_person(
+            email="person3@domain.fr", nb_id=67890
+        )
 
         self.detail_view = LegacyPersonViewSet.as_view(
             {
@@ -409,8 +424,12 @@ class LegacyEndpointLookupFilterTestCase(TestCase):
     def setUp(self):
         self.superuser = Person.objects.create_superperson("super@user.fr", None)
         self.person1 = Person.objects.create_person("person1@domain.fr")
-        self.person2 = Person.objects.create(email="person2@domain.fr", nb_id=12345)
-        self.person3 = Person.objects.create(email="person3@domain.fr", nb_id=67890)
+        self.person2 = Person.objects.create_person(
+            email="person2@domain.fr", nb_id=12345
+        )
+        self.person3 = Person.objects.create_person(
+            email="person3@domain.fr", nb_id=67890
+        )
 
         self.detail_view = LegacyPersonViewSet.as_view(
             {

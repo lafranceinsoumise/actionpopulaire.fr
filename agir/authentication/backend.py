@@ -3,7 +3,6 @@ from django.core.exceptions import ValidationError
 from agir.authentication.backend_mixins import GetRoleMixin
 from agir.authentication.tokens import connection_token_generator, short_code_generator
 from agir.people.models import Person
-from .models import Role
 
 
 class ShortCodeBackend(GetRoleMixin):
@@ -14,7 +13,9 @@ class ShortCodeBackend(GetRoleMixin):
             login_meta = short_code_generator.check_short_code(user_pk, short_code)
             if login_meta is not None:
                 try:
-                    role = Role.objects.select_related("person").get(person__pk=user_pk)
+                    person = Person.objects.select_related("role").get(pk=user_pk)
+                    person.ensure_role_exists()
+                    role = person.role
                 except (Person.DoesNotExist, ValidationError):
                     return None
 
@@ -36,18 +37,9 @@ class MailLinkBackend(GetRoleMixin):
                 person = Person.objects.select_related("role").get(pk=user_pk)
             except (Person.DoesNotExist, ValidationError):
                 return None
-            if connection_token_generator.check_token(
-                token, user=person
-            ) and self.user_can_authenticate(person.role):
-                return person.role
+            if connection_token_generator.check_token(token, user=person):
+                person.ensure_role_exists()
+                if self.user_can_authenticate(person.role):
+                    return person.role
 
-        return None
-
-
-class OAuth2Backend(GetRoleMixin):
-    """Legacy backend, use to preserve current connection from people."""
-
-    prefetch = ["person"]
-
-    def authenticate(self, request):
         return None

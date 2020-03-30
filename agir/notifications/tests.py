@@ -12,7 +12,7 @@ from agir.people.models import Person
 
 class NotificationsTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com")
+        self.person = Person.objects.create_person("test@test.com", create_role=True)
         self.client.force_login(self.person.role)
 
     def test_can_follow_notification(self):

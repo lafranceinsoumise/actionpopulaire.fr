@@ -8,7 +8,9 @@ class NavsProfileMixinTestCase(TestCase):
     def setUp(self):
         super().setUp()
 
-        self.person = Person.objects.create_person("test@test.com", is_insoumise=True)
+        self.person = Person.objects.create_person(
+            "test@test.com", is_insoumise=True, create_role=True
+        )
         self.client.force_login(self.person.role)
 
     def test_can_see_insoumis_menue(self):

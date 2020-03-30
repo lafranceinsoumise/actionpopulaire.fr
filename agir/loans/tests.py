@@ -41,7 +41,7 @@ class LoansTestCase(TransactionTestCase):
         del PAYMENT_TYPES[loan_payment_type.id]
 
     def setUp(self):
-        self.p1 = Person.objects.create_person("test@test.com")
+        self.p1 = Person.objects.create_person("test@test.com", create_role=True)
 
         self.loan_information_payload = {
             "amount": "40000",
