@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("people", "0061_personform_campaign_template"),
-        ("data_france", "0003_importation_des_geometries"),
+        ("data_france", "0005_auto_20200330_0827"),
     ]
 
     operations = [
