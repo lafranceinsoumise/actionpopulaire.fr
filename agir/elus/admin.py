@@ -3,7 +3,9 @@ from datetime import datetime
 from data_france.models import Commune
 from django import forms
 from django.contrib import admin
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import format_html
 from phonenumber_field.formfields import PhoneNumberField
 
 from agir.api.admin import admin_site
@@ -48,7 +50,7 @@ class CreerMandatForm(forms.ModelForm):
             del self.fields["email_officiel"]
 
     def clean(self):
-        person = self.cleaned_data.get("person")
+        person = self.cleaned_data.get("person") or self.instance.person
         new_email = self.cleaned_data.get("new_email")
         email_officiel = self.cleaned_data.get("email_officiel")
 
@@ -89,7 +91,10 @@ class CreerMandatForm(forms.ModelForm):
         super()._save_m2m()
 
         cleaned_data = self.cleaned_data
-        person = cleaned_data["person"]
+        if "person" in self.fields:
+            person = cleaned_data["person"]
+        else:
+            person = self.instance.person
 
         if not person:
             # création d'une personne
@@ -127,7 +132,15 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
         (None, {"fields": ("person", "commune", "mandat")}),
         (
             "Informations sur l'élu⋅e",
-            {"fields": ("nom", "prenom", "contact_phone", "email_officiel")},
+            {
+                "fields": (
+                    "nom",
+                    "prenom",
+                    "contact_phone",
+                    "email_officiel",
+                    "new_email",
+                )
+            },
         ),
         (
             "Précisions sur le mandat",
@@ -136,13 +149,22 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
     )
 
     list_display = ("commune", "person", "mandat", "actif", "communautaire")
-    readonly_fields = ("actif",)
+    readonly_fields = ("actif", "person_link")
     autocomplete_fields = ("person", "commune")
 
     def actif(self, obj):
         return obj.debut <= timezone.now() <= obj.fin
 
     actif.short_description = "Actif"
+
+    def person_link(self, obj):
+        return format_html(
+            '<a href="{}">{}</a>',
+            reverse("admin:people_person_change", args=[obj.person_id]),
+            str(obj.person),
+        )
+
+    person_link.short_description = "Personne"
 
     def add_view(self, request, form_url="", extra_context=None):
         self.fieldsets = tuple(
@@ -163,7 +185,21 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
-        self.readonly_fields = (*self.readonly_fields, "person")
+        self.fieldsets = tuple(
+            (
+                (
+                    title,
+                    {
+                        **params,
+                        "fields": tuple(
+                            f if f != "person" else "person_link"
+                            for f in params["fields"]
+                        ),
+                    },
+                )
+                for title, params in self.fieldsets
+            )
+        )
         return super().change_view(request, object_id, form_url, extra_context)
 
     def get_changeform_initial_data(self, request):
