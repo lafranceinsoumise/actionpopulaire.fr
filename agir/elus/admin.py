@@ -7,7 +7,7 @@ from django.utils import timezone
 from phonenumber_field.formfields import PhoneNumberField
 
 from agir.api.admin import admin_site
-from agir.elus.models import MandatMunicipal
+from agir.elus.models import MandatMunicipal, DELEGATIONS_CHOICES
 from agir.people.models import Person, PersonEmail
 
 
@@ -19,6 +19,12 @@ class CreerMandatForm(forms.ModelForm):
         label="Email officiel", queryset=PersonEmail.objects.none(), required=False
     )
     new_email = forms.EmailField(label="Ajouter un email officiel", required=False)
+    delegations_municipales = forms.MultipleChoiceField(
+        choices=DELEGATIONS_CHOICES,
+        label="Délégations (pour un maire adjoint)",
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
