@@ -41,6 +41,15 @@ DELEGATIONS_CHOICES = (
     ("voirie", "Voirie"),
 )
 
+RESEAU_INSCRIT = "INS"
+RESEAU_DEMANDE = "DEM"
+RESEAU_NON = "NON"
+RESEAU_CHOICES = (
+    (RESEAU_INSCRIT, "Membre du réseau des élus"),
+    (RESEAU_DEMANDE, "Souhaite faire partie du réseau des élus"),
+    (RESEAU_NON, "Ne souhaite pas faire parti du réseau des élus"),
+)
+
 
 @reversion.register()
 class MandatMunicipal(models.Model):
@@ -90,6 +99,10 @@ class MandatMunicipal(models.Model):
         default=list,
     )
     communautaire = models.BooleanField("Élu dans l'intercommunalité", default=False)
+
+    reseau = models.CharField(
+        "Réseau des élus", max_length=3, choices=RESEAU_CHOICES, blank=True
+    )
 
     class Meta:
         verbose_name_plural = "Mandats municipaux"

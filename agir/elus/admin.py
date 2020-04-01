@@ -139,6 +139,7 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
                     "contact_phone",
                     "email_officiel",
                     "new_email",
+                    "reseau",
                 )
             },
         ),
