@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from agir.donations.models import Operation, SpendingRequest, Document
-from agir.donations.spending_requests import history
 from agir.groups.models import SupportGroupSubtype, SupportGroup, Membership
 from agir.payments.models import Payment
 from agir.people.models import Person
@@ -104,7 +103,7 @@ class SpendingRequestTestCase(TestCase):
         )
 
         self.assertEqual(
-            list(history(spending_request)),
+            spending_request.get_history(),
             [
                 {
                     "title": "Création de la demande",
@@ -405,7 +404,7 @@ class SpendingRequestTestCase(TestCase):
             },
         )
 
-        hist = list(history(spending_request))
+        hist = spending_request.get_history()
         for d in hist:
             del d["modified"]
 

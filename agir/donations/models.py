@@ -4,11 +4,14 @@ import reversion
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from dynamic_filenames import FilePattern
 from reversion.models import Revision, Version
 
 from agir.donations.model_fields import BalanceField
+from agir.lib.history import HistoryMixin
 from agir.payments.model_fields import AmountField
 from agir.lib.display import display_price
 from agir.lib.model_fields import IBANField
@@ -90,7 +93,19 @@ class Spending(Operation):
 
 
 @reversion.register(follow=["documents"])
-class SpendingRequest(TimeStampedModel):
+class SpendingRequest(HistoryMixin, TimeStampedModel):
+    DIFFED_FIELDS = [
+        "title",
+        "event",
+        "category",
+        "category_precisions",
+        "explanation",
+        "amount",
+        "spending_date",
+        "provider",
+        "iban",
+    ]
+
     STATUS_DRAFT = "D"
     STATUS_AWAITING_GROUP_VALIDATION = "G"
     STATUS_AWAITING_REVIEW = "R"
@@ -143,6 +158,23 @@ class SpendingRequest(TimeStampedModel):
         (CATEGORY_SERVICE, _("Prestation de service")),
         (CATEGORY_SERVICE, _("Autres")),
     )
+
+    HISTORY_MESSAGES = {
+        STATUS_DRAFT: "Création de la demande",
+        STATUS_AWAITING_GROUP_VALIDATION: "Validé par l'auteur d'origine",
+        STATUS_AWAITING_REVIEW: "Renvoyé pour validation à l'équipe de suivi des questions financières",
+        STATUS_AWAITING_SUPPLEMENTARY_INFORMATION: "Informations supplémentaires requises",
+        STATUS_VALIDATED: "Demande validée par l'équipe de suivi des questions financières",
+        STATUS_TO_PAY: "Demande en attente de réglement",
+        STATUS_PAID: "Demande réglée",
+        STATUS_REFUSED: "Demande rejetée par l'équipe de suivi des questions financières",
+        (
+            STATUS_AWAITING_GROUP_VALIDATION,
+            STATUS_AWAITING_REVIEW,
+        ): "Validé par un⋅e second⋅e animateur⋅rice",
+    }
+    for status, label in STATUS_CHOICES:
+        HISTORY_MESSAGES[(status, status)] = "Modification de la demande"
 
     id = models.UUIDField(_("Identifiant"), primary_key=True, default=uuid.uuid4)
 
@@ -235,6 +267,49 @@ class SpendingRequest(TimeStampedModel):
         )
         verbose_name = "Demande de dépense"
         verbose_name_plural = "Demandes de dépense"
+
+    # noinspection PyMethodOverriding
+    @classmethod
+    def get_history_step(cls, old, new, *, admin=False, **kwargs):
+        old_fields = old.field_dict if old else {}
+        new_fields = new.field_dict
+        old_status, new_status = old_fields.get("status"), new_fields["status"]
+        revision = new.revision
+        person = revision.user.person if revision and revision.user else None
+
+        res = {
+            "modified": new_fields["modified"],
+            "comment": revision.get_comment(),
+            "diff": cls.get_diff(old_fields, new_fields) if old_fields else [],
+        }
+
+        if person and admin:
+            res["user"] = format_html(
+                '<a href="{url}">{text}</a>',
+                url=reverse("admin:people_person_change", args=[person.pk]),
+                text=person.get_short_name(),
+            )
+        elif person:
+            res["user"] = person.get_short_name()
+        else:
+            res["user"] = "Équipe de suivi"
+
+        # cas spécifique : si on revient à "attente d'informations supplémentaires suite à une modification par un non admin
+        # c'est forcément une modification
+        if (
+            new_status == cls.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION
+            and person is not None
+        ):
+            res["title"] = "Modification de la demande"
+        # some couples (old_status, new_status)
+        elif (old_status, new_status) in cls.HISTORY_MESSAGES:
+            res["title"] = cls.HISTORY_MESSAGES[(old_status, new_status)]
+        else:
+            res["title"] = cls.HISTORY_MESSAGES.get(
+                new_status, "[Modification non identifiée]"
+            )
+
+        return res
 
 
 document_path = FilePattern(

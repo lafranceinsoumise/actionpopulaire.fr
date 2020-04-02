@@ -1,0 +1,45 @@
+{% extends 'admin/change_form.html' %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    .request-history-step {
+      padding: 8px 16px;
+    }
+  </style>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content %}
+  {{ block.super }}
+  {% if original %}
+    <div id="content-related">
+      <div class="request-history module">
+        <h2>Historique de cette fiche</h2>
+        <div>
+          {% for step in original.get_history %}
+            <div class="request-history-step">
+              <h5>{{ step.title }}{% if step.user %}
+                <small>({{ step.user }})</small>{% endif %}</h5>
+              <div><em>Le {{ step.modified }}</em></div>
+              {% if step.comment %}
+                <blockquote>{{ step.comment }}</blockquote>
+              {% endif %}
+              {% if step.diff %}
+                <div>
+                  Ont été modifiés :
+                  <ul>
+                    {% for field in step.diff %}
+                      <li>{{ field }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

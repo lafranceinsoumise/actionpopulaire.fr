@@ -1,8 +1,10 @@
 from datetime import datetime
 
+import reversion
 from data_france.models import Commune
 from django import forms
 from django.contrib import admin
+from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
@@ -30,6 +32,16 @@ class CreerMandatForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if self.instance.commune:
+            commune = self.instance.commune
+            print(commune)
+            if commune.epci:
+                self.fields[
+                    "communautaire"
+                ].label = f"Élu auprès de la {commune.epci.nom}"
+            else:
+                self.fields["communautaire"].disabled = True
 
         if "person" in self.fields:
             person = self.get_initial_for_field(self.fields["person"], "person")
@@ -105,8 +117,7 @@ class CreerMandatForm(forms.ModelForm):
                 contact_phone=cleaned_data.get("contact_phone"),
             )
             self.instance.email_officiel = self.instance.person.primary_email
-            self.instance.save()
-
+            self.instance.save(update_fields=["email_officiel"])
         else:
             if "person" not in self.changed_data:
                 person.first_name = cleaned_data["prenom"]
@@ -115,18 +126,22 @@ class CreerMandatForm(forms.ModelForm):
                 person.save(update_fields=["first_name", "last_name", "contact_phone"])
 
             if "new_email" in self.changed_data:
-                person.add_email(cleaned_data["new_email"])
-                email = PersonEmail.objects.get_by_natural_key(
-                    cleaned_data["new_email"]
-                )
-                if email.person == person:
+                try:
+                    email = person.add_email(cleaned_data["new_email"])
+                except IntegrityError:
+                    pass
+                else:
                     self.instance.email_officiel = email
                     self.instance.save(update_fields=["email_officiel"])
+
+        return super()._save_m2m()
 
 
 @admin.register(MandatMunicipal, site=admin_site)
 class MandatMunicipalAdmin(admin.ModelAdmin):
     form = CreerMandatForm
+    add_form_template = "admin/change_form.html"
+    change_form_template = "elus/admin/change_form.html"
 
     fieldsets = (
         (None, {"fields": ("person", "commune", "mandat")}),
@@ -154,7 +169,7 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
     autocomplete_fields = ("person", "commune")
 
     def actif(self, obj):
-        return obj.debut <= timezone.now() <= obj.fin
+        return obj.debut <= timezone.now().date() <= obj.fin
 
     actif.short_description = "Actif"
 
@@ -233,3 +248,9 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
                 pass
 
         return initial
+
+    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        with reversion.create_revision():
+            reversion.set_comment("Depuis l'interface d'aministration")
+            reversion.set_user(request.user)
+            return super().changeform_view(request, object_id, form_url, extra_context)

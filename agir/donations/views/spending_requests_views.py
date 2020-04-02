@@ -23,7 +23,6 @@ from agir.donations.spending_requests import (
     can_edit,
     get_current_action,
     summary,
-    history,
     validate_action,
 )
 from agir.groups.models import Membership, SupportGroup
@@ -152,7 +151,7 @@ class ManageSpendingRequestView(IsGroupManagerMixin, DetailView):
             can_edit=can_edit(self.object),
             action=get_current_action(self.object, self.request.user),
             summary=summary(self.object),
-            history=history(self.object),
+            history=self.object.get_history(),
             **kwargs,
         )
 

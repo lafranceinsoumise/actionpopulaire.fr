@@ -6,7 +6,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views.generic import DetailView
 
-from agir.donations.spending_requests import admin_summary, history
+from agir.donations.spending_requests import admin_summary
 from agir.donations.admin import HandleRequestForm
 from agir.donations.models import SpendingRequest, Spending
 from agir.lib.admin import AdminViewMixin
@@ -38,7 +38,7 @@ class HandleRequestView(AdminViewMixin, DetailView):
             spending_request=self.object,
             documents=self.object.documents.all(),
             fields=admin_summary(self.object),
-            history=history(self.object, True),
+            history=self.object.get_history(admin=True),
             **self.get_admin_helpers(kwargs["form"], kwargs["form"].fields),
             **kwargs
         )

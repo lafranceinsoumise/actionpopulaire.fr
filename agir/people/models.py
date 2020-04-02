@@ -415,6 +415,8 @@ class Person(
         if primary and email.person == self:
             self.set_primary_email(email)
 
+        return email
+
     def set_primary_email(self, email_address):
         if isinstance(email_address, PersonEmail):
             email_instance = email_address
