@@ -1,0 +1,4 @@
+<div{% if widget.admin %} style="margin-left: 170px;"{% endif %}><input
+  type="hidden" name="{{ widget.name }}" {% if widget.value %}value="{{ widget.value }}" data-label="{{ widget.label }}"{% endif %}
+  {% include "django/forms/widgets/attrs.html" %}>
+</div>
