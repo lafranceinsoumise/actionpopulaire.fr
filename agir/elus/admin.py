@@ -14,13 +14,28 @@ from agir.api.admin import admin_site
 from agir.elus.models import MandatMunicipal, DELEGATIONS_CHOICES
 from agir.people.models import Person, PersonEmail
 
+PERSON_FIELDS = [
+    "last_name",
+    "first_name",
+    "contact_phone",
+    "is_insoumise",
+    "subscribed",
+]
+
 
 class CreerMandatForm(forms.ModelForm):
-    nom = forms.CharField(label="Nom", required=False)
-    prenom = forms.CharField(label="Prénom", required=False)
+    last_name = forms.CharField(label="Nom", required=False)
+    first_name = forms.CharField(label="Prénom", required=False)
     contact_phone = PhoneNumberField(label="Numéro de téléphone", required=False)
     email_officiel = forms.ModelChoiceField(
         label="Email officiel", queryset=PersonEmail.objects.none(), required=False
+    )
+    is_insoumise = forms.BooleanField(label="Est insoumis⋅e", required=False)
+    subscribed = forms.BooleanField(
+        label="Inscrit à la lettre d'information de la FI",
+        required=False,
+        help_text="Assurez-vous d'avoir recueilli le consensus de la personne. Il n'est pas possible d'inscrire une"
+        " personne sans avoir recueilli son consentement EXPLICITE.",
     )
     new_email = forms.EmailField(label="Ajouter un email officiel", required=False)
     delegations_municipales = forms.MultipleChoiceField(
@@ -35,7 +50,6 @@ class CreerMandatForm(forms.ModelForm):
 
         if self.instance.commune:
             commune = self.instance.commune
-            print(commune)
             if commune.epci:
                 self.fields[
                     "communautaire"
@@ -53,9 +67,8 @@ class CreerMandatForm(forms.ModelForm):
             person = self.instance.person
 
         if person is not None:
-            self.fields["nom"].initial = person.last_name
-            self.fields["prenom"].initial = person.first_name
-            self.fields["contact_phone"].initial = person.contact_phone
+            for f in PERSON_FIELDS:
+                self.fields[f].initial = getattr(person, f)
             self.fields["email_officiel"].queryset = person.emails.all()
 
         if "email_officiel" not in self._meta.fields:
@@ -112,18 +125,16 @@ class CreerMandatForm(forms.ModelForm):
             # création d'une personne
             self.instance.person = Person.objects.create_person(
                 cleaned_data["new_email"],
-                first_name=cleaned_data.get("prenom", ""),
-                last_name=cleaned_data.get("nom", "nom"),
-                contact_phone=cleaned_data.get("contact_phone"),
+                **{k: v for k, v in cleaned_data.items() if k in PERSON_FIELDS},
             )
             self.instance.email_officiel = self.instance.person.primary_email
             self.instance.save(update_fields=["email_officiel"])
         else:
             if "person" not in self.changed_data:
-                person.first_name = cleaned_data["prenom"]
-                person.last_name = cleaned_data["nom"]
-                person.contact_phone = cleaned_data["contact_phone"]
-                person.save(update_fields=["first_name", "last_name", "contact_phone"])
+                for f in PERSON_FIELDS:
+                    setattr(person, f, cleaned_data[f])
+
+                person.save(update_fields=PERSON_FIELDS)
 
             if "new_email" in self.changed_data:
                 try:
@@ -143,20 +154,13 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
     add_form_template = "admin/change_form.html"
     change_form_template = "elus/admin/change_form.html"
 
+    list_filter = ("reseau",)
+
     fieldsets = (
         (None, {"fields": ("person", "commune", "mandat")}),
         (
             "Informations sur l'élu⋅e",
-            {
-                "fields": (
-                    "nom",
-                    "prenom",
-                    "contact_phone",
-                    "email_officiel",
-                    "new_email",
-                    "reseau",
-                )
-            },
+            {"fields": (*PERSON_FIELDS, "email_officiel", "new_email", "reseau",)},
         ),
         (
             "Précisions sur le mandat",
@@ -164,14 +168,22 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
         ),
     )
 
-    list_display = ("commune", "person", "mandat", "actif", "communautaire")
+    list_display = (
+        "commune",
+        "person",
+        "mandat",
+        "actif",
+        "communautaire",
+        "is_insoumise",
+        "reseau",
+    )
     readonly_fields = ("actif", "person_link")
     autocomplete_fields = ("person", "commune")
 
     def actif(self, obj):
-        return obj.debut <= timezone.now().date() <= obj.fin
+        return "Oui" if (obj.debut <= timezone.now().date() <= obj.fin) else "Non"
 
-    actif.short_description = "Actif"
+    actif.short_description = "Mandat en cours"
 
     def person_link(self, obj):
         return format_html(
@@ -181,6 +193,13 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
         )
 
     person_link.short_description = "Personne"
+
+    def is_insoumise(self, obj):
+        if obj.person:
+            return "Oui" if obj.person.is_insoumise else "Non"
+        return "-"
+
+    is_insoumise.short_description = "Insoumis⋅e"
 
     def add_view(self, request, form_url="", extra_context=None):
         self.fieldsets = tuple(
@@ -224,8 +243,6 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
         if "person" in request.GET:
             try:
                 initial["person"] = Person.objects.get(pk=request.GET["person"])
-                initial["nom"] = initial["person"].last_name
-                initial["prenom"] = initial["person"].first_name
             except Person.DoesNotExist:
                 pass
 
