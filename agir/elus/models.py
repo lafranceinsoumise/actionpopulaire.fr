@@ -85,7 +85,9 @@ class MandatMunicipal(HistoryMixin, models.Model):
         default=datetime.date(2026, 3, 1),
     )
 
-    mandat = models.CharField("Type de mandat", max_length=3, choices=MANDAT_CHOICES)
+    mandat = models.CharField(
+        "Type de mandat", max_length=3, choices=MANDAT_CHOICES, blank=True
+    )
 
     email_officiel = models.ForeignKey(
         to="people.PersonEmail",
