@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import reversion
-from data_france.models import Commune
+from data_france.models import Commune, EPCI
 from django import forms
 from django.contrib import admin
 from django.db import IntegrityError
@@ -48,23 +48,23 @@ class CreerMandatForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if self.instance.commune:
+        if hasattr(self.instance, "commune"):
             commune = self.instance.commune
-            if commune.epci:
-                self.fields[
-                    "communautaire"
-                ].label = f"Élu auprès de la {commune.epci.nom}"
+            epci = commune.epci
+            if epci:
+                self.fields["communautaire"].label = f"Élu auprès de la {epci.nom}"
             else:
                 self.fields["communautaire"].disabled = True
 
         if "person" in self.fields:
             person = self.get_initial_for_field(self.fields["person"], "person")
             self.fields["person"].required = False
+            self.fields["person"].label = "Compte plateforme de l'élu"
             self.fields[
                 "person"
-            ].help_text = "Attention, si vous ne choisissez pas de personne, cela créera une nouvelle personne."
+            ].help_text = "Attention, si vous ne choisissez pas de compte plateforme, cela créera une fiche élu sans compte."
         else:
-            person = self.instance.person
+            person = getattr(self.instance, "person", None)
 
         if person is not None:
             for f in PERSON_FIELDS:
@@ -75,15 +75,26 @@ class CreerMandatForm(forms.ModelForm):
             del self.fields["email_officiel"]
 
     def clean(self):
-        person = self.cleaned_data.get("person") or self.instance.person
+        if "person" in self.fields:
+            person = self.cleaned_data.get("person")
+        else:
+            person = getattr(self.instance, "person", None)
+
         new_email = self.cleaned_data.get("new_email")
+        contact_phone = self.cleaned_data.get("contact_phone")
+        last_name = self.cleaned_data.get("last_name")
+        first_name = self.cleaned_data.get("first_name")
         email_officiel = self.cleaned_data.get("email_officiel")
 
-        if not person and not new_email:
+        minimal_information = (
+            person or new_email or contact_phone or (last_name and first_name)
+        )
+
+        if not minimal_information:
             self.add_error(
                 None,
-                "Sélectionnez un compte existant ou indiquez l'adresse email pour créer un"
-                " nouveau compte.",
+                "Sélectionnez un compte existant ou indiquez adresse email, numéro de téléphone ou nom/prénom pour"
+                " créer une fiche élue sans compte.",
             )
 
         if new_email and person:
@@ -95,7 +106,7 @@ class CreerMandatForm(forms.ModelForm):
                 if person_email.person != person:
                     self.add_error(
                         "new_email",
-                        "Cette adresse email est déjà associée à une autre personne.",
+                        "Cette adresse email est déjà utilisée associée à quelqu'un d'autre sur la plateforme.",
                     )
 
         if new_email and not person:

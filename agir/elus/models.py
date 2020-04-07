@@ -140,3 +140,15 @@ class MandatMunicipal(HistoryMixin, models.Model):
             res["title"] = "Modification"
 
         return res
+
+    def __str__(self):
+        if hasattr(self, "person") and hasattr(self, "commune"):
+            if self.person.gender == "M":
+                elu = "élu"
+            elif self.person.gender == "F":
+                elu = "élue"
+            else:
+                elu = "élu⋅e"
+            return f"{self.person}, {elu} à {self.commune.nom_complet}"
+
+        return "Nouveau mandat municipal"
