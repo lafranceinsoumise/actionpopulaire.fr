@@ -18,6 +18,10 @@ PERSON_FIELDS = [
     "last_name",
     "first_name",
     "contact_phone",
+    "location_address",
+    "location_address2",
+    "location_zip",
+    "location_city",
     "is_insoumise",
     "subscribed",
 ]
@@ -27,6 +31,10 @@ class CreerMandatForm(forms.ModelForm):
     last_name = forms.CharField(label="Nom", required=False)
     first_name = forms.CharField(label="Prénom", required=False)
     contact_phone = PhoneNumberField(label="Numéro de téléphone", required=False)
+    location_address = forms.CharField(label="Adresse", required=False)
+    location_address2 = forms.CharField(label="Adresse (2ème ligne)", required=False)
+    location_zip = forms.CharField(label="Code postal", required=False)
+    location_city = forms.CharField(label="Ville (où habite l'élu)", required=False)
     email_officiel = forms.ModelChoiceField(
         label="Email officiel", queryset=PersonEmail.objects.none(), required=False
     )
@@ -180,13 +188,13 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
     )
 
     list_display = (
-        "commune",
         "person",
+        "commune",
         "mandat",
+        "reseau",
         "actif",
         "communautaire",
         "is_insoumise",
-        "reseau",
     )
     readonly_fields = ("actif", "person_link")
     autocomplete_fields = ("person", "commune")

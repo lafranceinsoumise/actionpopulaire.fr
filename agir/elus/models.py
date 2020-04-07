@@ -71,7 +71,9 @@ class MandatMunicipal(HistoryMixin, models.Model):
         (MANDAT_MAIRE_DA, "Maire d'une commune déléguée ou associée"),
     )
 
-    person = models.ForeignKey("people.Person", on_delete=models.CASCADE)
+    person = models.ForeignKey(
+        "people.Person", verbose_name="Élu", on_delete=models.CASCADE
+    )
     commune = models.ForeignKey(
         "data_france.Commune", null=False, on_delete=models.CASCADE
     )
@@ -112,6 +114,7 @@ class MandatMunicipal(HistoryMixin, models.Model):
 
     class Meta:
         verbose_name_plural = "Mandats municipaux"
+        unique_together = ("commune", "person")
 
     def get_history_step(cls, old, new, **kwargs):
         old_fields = old.field_dict if old else {}
