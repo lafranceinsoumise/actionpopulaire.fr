@@ -211,7 +211,7 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
             str(obj.person),
         )
 
-    person_link.short_description = "Personne"
+    person_link.short_description = "Profil de l'élu"
 
     def is_insoumise(self, obj):
         if obj.person:
@@ -239,6 +239,7 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
+        can_view_person = request.user.has_perm("people.view_person")
         self.fieldsets = tuple(
             (
                 (
@@ -248,6 +249,7 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
                         "fields": tuple(
                             f if f != "person" else "person_link"
                             for f in params["fields"]
+                            if can_view_person or f != "person"
                         ),
                     },
                 )
