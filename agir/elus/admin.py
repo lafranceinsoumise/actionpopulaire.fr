@@ -12,6 +12,7 @@ from phonenumber_field.formfields import PhoneNumberField
 
 from agir.api.admin import admin_site
 from agir.elus.models import MandatMunicipal, DELEGATIONS_CHOICES
+from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person, PersonEmail
 
 PERSON_FIELDS = [
@@ -196,8 +197,24 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
         "communautaire",
         "is_insoumise",
     )
+
     readonly_fields = ("actif", "person_link")
     autocomplete_fields = ("person", "commune")
+
+    search_fields = ("person",)
+
+    def get_search_results(self, request, queryset, search_term):
+        use_distinct = False
+        if search_term:
+            return (
+                queryset.filter(
+                    person__search=PrefixSearchQuery(
+                        search_term, config="simple_unaccented"
+                    )
+                ),
+                use_distinct,
+            )
+        return queryset, use_distinct
 
     def actif(self, obj):
         return "Oui" if (obj.debut <= timezone.now().date() <= obj.fin) else "Non"
