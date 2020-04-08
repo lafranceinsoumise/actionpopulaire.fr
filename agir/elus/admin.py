@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import reversion
-from data_france.models import Commune, EPCI
+from data_france.models import Commune
 from django import forms
 from django.contrib import admin
 from django.db import IntegrityError
@@ -233,8 +233,6 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
             )
             for title, params in self.fieldsets
         )
-
-        print(self.fieldsets)
 
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
 

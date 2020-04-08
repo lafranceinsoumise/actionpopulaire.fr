@@ -188,7 +188,7 @@ class CommunePageAdmin(admin.ModelAdmin):
             + link_list
             + "</p><p>"
             + format_html_join(
-                "<br>",
+                mark_safe("<br>"),
                 "{} {}",
                 (
                     (nom, prenom)
@@ -199,7 +199,7 @@ class CommunePageAdmin(admin.ModelAdmin):
             )
             + "</p><p>"
             + format_html_join(
-                "<br>",
+                mark_safe("<br>"),
                 '<a href="{}">{}</a> <a href="{}" class="button">créer un mandat pour cette personne</a>',
                 (
                     (
