@@ -112,7 +112,7 @@ class MandatMunicipal(HistoryMixin, models.Model):
     communautaire = models.BooleanField("Élu dans l'intercommunalité", default=False)
 
     reseau = models.CharField(
-        "Réseau des élus", max_length=3, choices=RESEAU_CHOICES, default=RESEAU_INCONNU
+        "Statut", max_length=3, choices=RESEAU_CHOICES, default=RESEAU_INCONNU
     )
 
     class Meta:

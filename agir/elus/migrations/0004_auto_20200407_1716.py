@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ],
                 default="INC",
                 max_length=3,
-                verbose_name="Réseau des élus",
+                verbose_name="Statut",
             ),
         ),
         migrations.AlterUniqueTogether(

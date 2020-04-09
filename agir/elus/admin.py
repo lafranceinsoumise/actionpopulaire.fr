@@ -4,6 +4,7 @@ import reversion
 from data_france.models import Commune
 from django import forms
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
@@ -12,6 +13,7 @@ from phonenumber_field.formfields import PhoneNumberField
 
 from agir.api.admin import admin_site
 from agir.elus.models import MandatMunicipal, DELEGATIONS_CHOICES
+from agir.lib.autocomplete_filter import AutocompleteFilter, SelectModelFilter
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person, PersonEmail
 
@@ -168,13 +170,28 @@ class CreerMandatForm(forms.ModelForm):
         return super()._save_m2m()
 
 
+class CommuneFilter(AutocompleteFilter):
+    field_name = "commune"
+    title = "Commune d'élection"
+
+
+class DepartementFilter(SelectModelFilter):
+    field_name = "commune__departement"
+    title = "Département"
+
+
+class RegionFilter(SelectModelFilter):
+    field_name = "commune__departement__region"
+    title = "Région"
+
+
 @admin.register(MandatMunicipal, site=admin_site)
 class MandatMunicipalAdmin(admin.ModelAdmin):
     form = CreerMandatForm
     add_form_template = "admin/change_form.html"
     change_form_template = "elus/admin/change_form.html"
 
-    list_filter = ("reseau",)
+    list_filter = ("reseau", CommuneFilter, DepartementFilter, RegionFilter)
 
     fieldsets = (
         (None, {"fields": ("person", "commune", "mandat")}),
@@ -307,3 +324,6 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
             reversion.set_comment("Depuis l'interface d'aministration")
             reversion.set_user(request.user)
             return super().changeform_view(request, object_id, form_url, extra_context)
+
+    class Media:
+        pass
