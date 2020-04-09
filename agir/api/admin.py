@@ -93,3 +93,9 @@ admin_site.register(
 admin_site.register(
     data_france_models.EPCI, data_france_admin.EPCIAdmin,
 )
+admin_site.register(
+    data_france_models.Departement, data_france_admin.DepartementAdmin,
+)
+admin_site.register(
+    data_france_models.Region, data_france_admin.RegionAdmin,
+)
