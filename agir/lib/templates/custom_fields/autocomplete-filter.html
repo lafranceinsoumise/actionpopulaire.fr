@@ -1,0 +1,5 @@
+{% load i18n %}
+<h3>{% blocktrans with filter_title=title %} By {{ filter_title }} {% endblocktrans %}</h3>
+    <ul>
+        <li>{{ spec.rendered_widget }}</li>
+    </ul>
