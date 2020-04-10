@@ -4,7 +4,6 @@ import reversion
 from data_france.models import Commune
 from django import forms
 from django.contrib import admin
-from django.contrib.admin import SimpleListFilter
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
@@ -63,7 +62,7 @@ class CreerMandatForm(forms.ModelForm):
             commune = self.instance.commune
             epci = commune.epci
             if epci:
-                self.fields["communautaire"].label = f"Élu auprès de la {epci.nom}"
+                self.fields["communautaire"].label = f"Mandat auprès de la {epci.nom}"
             else:
                 self.fields["communautaire"].disabled = True
 
@@ -194,14 +193,14 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
     list_filter = ("reseau", CommuneFilter, DepartementFilter, RegionFilter)
 
     fieldsets = (
-        (None, {"fields": ("person", "commune", "mandat")}),
+        (None, {"fields": ("person", "commune", "mandat", "communautaire")}),
         (
             "Informations sur l'élu⋅e",
             {"fields": (*PERSON_FIELDS, "email_officiel", "new_email", "reseau",)},
         ),
         (
             "Précisions sur le mandat",
-            {"fields": ("debut", "fin", "delegations_municipales", "communautaire")},
+            {"fields": ("debut", "fin", "delegations_municipales")},
         ),
     )
 

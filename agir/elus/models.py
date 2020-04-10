@@ -63,14 +63,29 @@ class MandatMunicipal(HistoryMixin, models.Model):
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
     MANDAT_MAIRE = "MAI"
     MANDAT_MAIRE_ADJOINT = "ADJ"
+    MANDAT_CONSEILLER_DELEGUE = "DEL"
     MANDAT_MAIRE_DA = "MDA"
 
     MANDAT_CHOICES = (
-        (MANDAT_CONSEILLER_MAJORITE, "Conseiller⋅e municipal de la majorité"),
-        (MANDAT_CONSEILLER_OPPOSITION, "Conseiller⋅e municipal de l'opposition"),
+        (MANDAT_CONSEILLER_MAJORITE, "Conseiller⋅e municipal majoritaire"),
+        (MANDAT_CONSEILLER_OPPOSITION, "Conseiller⋅e municipal minoritaire"),
         (MANDAT_MAIRE, "Maire"),
         (MANDAT_MAIRE_ADJOINT, "Adjoint⋅e au maire"),
+        (MANDAT_CONSEILLER_DELEGUE, "Conseiller⋅e municipal délégué"),
         (MANDAT_MAIRE_DA, "Maire d'une commune déléguée ou associée"),
+    )
+
+    MANDAT_EPCI_PAS_DE_MANDAT = "NON"
+    MANDAT_EPCI_MAJORITE = "MAJ"
+    MANDAT_EPCI_OPPOSITION = "OPP"
+    MANDAT_EPCI_PRESIDENT = "PRE"
+    MANDAT_EPCI_VICE_PRESIDENT = "VPR"
+    MANDAT_EPCI_CHOICES = (
+        (MANDAT_EPCI_PAS_DE_MANDAT, "Pas de mandat communautaire"),
+        (MANDAT_EPCI_MAJORITE, "Délégué⋅e majoritaire"),
+        (MANDAT_EPCI_OPPOSITION, "Délégué⋅e minoritaire",),
+        (MANDAT_EPCI_PRESIDENT, "Président"),
+        (MANDAT_EPCI_VICE_PRESIDENT, "Vice-Président"),
     )
 
     person = models.ForeignKey(
@@ -109,7 +124,13 @@ class MandatMunicipal(HistoryMixin, models.Model):
         blank=True,
         default=list,
     )
-    communautaire = models.BooleanField("Élu dans l'intercommunalité", default=False)
+
+    communautaire = models.CharField(
+        "Type de mandat communautaire",
+        max_length=3,
+        choices=MANDAT_EPCI_CHOICES,
+        default=MANDAT_EPCI_PAS_DE_MANDAT,
+    )
 
     reseau = models.CharField(
         "Statut", max_length=3, choices=RESEAU_CHOICES, default=RESEAU_INCONNU
