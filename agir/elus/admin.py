@@ -21,7 +21,7 @@ PERSON_FIELDS = [
     "last_name",
     "first_name",
     "contact_phone",
-    "location_address",
+    "location_address1",
     "location_address2",
     "location_zip",
     "location_city",
@@ -34,7 +34,7 @@ class CreerMandatForm(forms.ModelForm):
     last_name = forms.CharField(label="Nom", required=False)
     first_name = forms.CharField(label="Prénom", required=False)
     contact_phone = PhoneNumberField(label="Numéro de téléphone", required=False)
-    location_address = forms.CharField(label="Adresse", required=False)
+    location_address1 = forms.CharField(label="Adresse", required=False)
     location_address2 = forms.CharField(label="Adresse (2ème ligne)", required=False)
     location_zip = forms.CharField(label="Code postal", required=False)
     location_city = forms.CharField(label="Ville (où habite l'élu)", required=False)
