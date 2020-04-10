@@ -126,7 +126,7 @@ class MandatMunicipal(HistoryMixin, models.Model):
     )
 
     communautaire = models.CharField(
-        "Type de mandat communautaire",
+        "Élu EPCI",
         max_length=3,
         choices=MANDAT_EPCI_CHOICES,
         default=MANDAT_EPCI_PAS_DE_MANDAT,

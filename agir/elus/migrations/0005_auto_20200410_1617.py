@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ],
                 default="NON",
                 max_length=3,
-                verbose_name="Type de mandat communautaire",
+                verbose_name="Élu EPCI",
             ),
         ),
         migrations.AlterField(

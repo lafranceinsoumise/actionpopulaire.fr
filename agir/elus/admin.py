@@ -190,7 +190,14 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
     add_form_template = "admin/change_form.html"
     change_form_template = "elus/admin/change_form.html"
 
-    list_filter = ("reseau", CommuneFilter, DepartementFilter, RegionFilter)
+    list_filter = (
+        "reseau",
+        "mandat",
+        "communautaire",
+        CommuneFilter,
+        DepartementFilter,
+        RegionFilter,
+    )
 
     fieldsets = (
         (None, {"fields": ("person", "commune", "mandat", "communautaire")}),
