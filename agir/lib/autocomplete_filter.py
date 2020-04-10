@@ -1,11 +1,8 @@
-from django.contrib.admin.widgets import AutocompleteSelect
 from django import forms
 from django.contrib import admin
+from django.contrib.admin.utils import get_fields_from_path
+from django.contrib.admin.widgets import AutocompleteSelect
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models.fields.related_descriptors import (
-    ReverseManyToOneDescriptor,
-    ManyToManyDescriptor,
-)
 from django.forms.widgets import Media, MEDIA_TYPES
 
 
@@ -17,29 +14,19 @@ class SelectModelFilter(admin.SimpleListFilter):
     form_field = forms.ModelChoiceField
 
     def __init__(self, request, params, model, model_admin):
-        self.qs_filter_key = "{}__{}__exact".format(self.field_name, self.field_pk)
         self.parameter_name = self.parameter_name or self.field_name.replace("__", "-")
-        self.model_admin = model_admin
         super().__init__(request, params, model, model_admin)
 
+        self.model_admin = model_admin
+        self.qs_filter_key = "{}__{}__exact".format(self.field_name, self.field_pk)
         self.model = model
+        self.rendered_widget = self.get_rendered_widget()
 
-        field_name_parts = self.field_name.split("__")
-
-        for part in field_name_parts[:-1]:
-            model = model._meta.get_field(
-                part
-            ).remote_field.model  # saute vers le modèle suivant
-
-        self.rendered_widget = self.make_rendered_widget(model, field_name_parts[-1])
-
-    def make_rendered_widget(self, model, field_name):
+    def get_rendered_widget(self):
         widget = forms.Select()
         FieldClass = self.get_form_field()
         field = FieldClass(
-            queryset=self.get_queryset_for_field(model, field_name),
-            widget=widget,
-            required=False,
+            queryset=self.get_queryset_for_field(), widget=widget, required=False,
         )
 
         attrs = self.widget_attrs.copy()
@@ -51,19 +38,10 @@ class SelectModelFilter(admin.SimpleListFilter):
             attrs=attrs,
         )
 
-    def get_queryset_for_field(self, model, name):
-        field_desc = getattr(model, name)
-        if isinstance(field_desc, ManyToManyDescriptor):
-            related_model = (
-                field_desc.rel.related_model
-                if field_desc.reverse
-                else field_desc.rel.model
-            )
-        elif isinstance(field_desc, ReverseManyToOneDescriptor):
-            related_model = field_desc.rel.related_model
-        else:
-            return field_desc.get_queryset()
-        return related_model.objects.get_queryset()
+    def get_queryset_for_field(self):
+        fields = get_fields_from_path(self.model, self.field_name)
+        model = fields[-1].remote_field.model
+        return model._default_manager.all()
 
     def get_form_field(self):
         """Return the type of form field to be used."""
@@ -98,28 +76,12 @@ class AutocompleteFilter(SelectModelFilter):
             "screen": ("lib/autocomplete-filter.css",),
         }
 
-    def __init__(self, request, params, model, model_admin):
-        self.parameter_name = "{}__{}__exact".format(self.field_name, self.field_pk)
-        super().__init__(request, params, model, model_admin)
-
-        self.model = model
-
-        field_name_parts = self.field_name.split("__")
-
-        for part in field_name_parts[:-1]:
-            model = model._meta.get_field(
-                part
-            ).remote_field.model  # saute vers le modèle suivant
-
-    def make_rendered_widget(self, model, field_name):
-        rel = model._meta.get_field(field_name).remote_field
-
+    def get_rendered_widget(self):
+        rel = get_fields_from_path(self.model, self.field_name)[-1].remote_field
         widget = AutocompleteSelect(rel, self.model_admin.admin_site,)
         FieldClass = self.get_form_field()
         field = FieldClass(
-            queryset=self.get_queryset_for_field(model, field_name),
-            widget=widget,
-            required=False,
+            queryset=self.get_queryset_for_field(), widget=widget, required=False,
         )
 
         self._add_media(self.model_admin, widget)
