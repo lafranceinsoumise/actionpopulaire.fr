@@ -4,6 +4,7 @@ import reversion
 from data_france.models import Commune
 from django import forms
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
@@ -184,6 +185,26 @@ class RegionFilter(SelectModelFilter):
     title = "Région"
 
 
+class CommunautaireFilter(SimpleListFilter):
+    parameter_name = "communautaire"
+    title = "Par type de mandat communautaire"
+
+    def lookups(self, request, model_admin):
+        return [
+            *MandatMunicipal.MANDAT_EPCI_CHOICES,
+            ("AVEC", "Tous les mandats communautaire"),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() == "AVEC":
+            return queryset.exclude(
+                communautaire=MandatMunicipal.MANDAT_EPCI_PAS_DE_MANDAT
+            )
+        elif self.value() in {v for v, l in MandatMunicipal.MANDAT_EPCI_CHOICES}:
+            return queryset.filter(communautaire=self.value())
+        return queryset
+
+
 @admin.register(MandatMunicipal, site=admin_site)
 class MandatMunicipalAdmin(admin.ModelAdmin):
     form = CreerMandatForm
@@ -193,7 +214,7 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
     list_filter = (
         "reseau",
         "mandat",
-        "communautaire",
+        CommunautaireFilter,
         CommuneFilter,
         DepartementFilter,
         RegionFilter,
