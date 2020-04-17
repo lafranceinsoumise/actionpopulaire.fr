@@ -242,7 +242,10 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
         "is_insoumise",
     )
 
-    readonly_fields = ("actif", "person_link")
+    readonly_fields = (
+        "actif",
+        "person_link",
+    )
     autocomplete_fields = ("person", "commune")
 
     search_fields = ("person",)
@@ -281,41 +284,51 @@ class MandatMunicipalAdmin(admin.ModelAdmin):
 
     is_insoumise.short_description = "Insoumis⋅e"
 
-    def add_view(self, request, form_url="", extra_context=None):
-        self.fieldsets = tuple(
-            (
-                title,
-                {
-                    **params,
-                    "fields": tuple(
-                        f for f in params["fields"] if f != "email_officiel"
-                    ),
-                },
-            )
-            for title, params in self.fieldsets
-        )
+    def get_readonly_fields(self, request, obj=None):
+        if obj is not None:
+            return self.readonly_fields + ("person", "commune")
+        return self.readonly_fields
 
-        return super().add_view(request, form_url=form_url, extra_context=extra_context)
+    def get_fieldsets(self, request, obj=None):
+        """Permet de ne pas afficher les mêmes champs à l'ajout et à la modification
 
-    def change_view(self, request, object_id, form_url="", extra_context=None):
+        S'il y a ajout, on ne veux pas montrer le champ de choix de l'email officiel.
+
+        S'il y a modification, on veut montrer le lien vers la personne plutôt que la personne.
+        """
         can_view_person = request.user.has_perm("people.view_person")
-        self.fieldsets = tuple(
-            (
+
+        if obj is None:
+            return tuple(
                 (
                     title,
                     {
                         **params,
                         "fields": tuple(
-                            f if f != "person" else "person_link"
-                            for f in params["fields"]
-                            if can_view_person or f != "person"
+                            f for f in params["fields"] if f != "email_officiel"
                         ),
                     },
                 )
                 for title, params in self.fieldsets
             )
-        )
-        return super().change_view(request, object_id, form_url, extra_context)
+
+        elif can_view_person:
+            return tuple(
+                (
+                    (
+                        title,
+                        {
+                            **params,
+                            "fields": tuple(
+                                f if f != "person" else "person_link"
+                                for f in params["fields"]
+                            ),
+                        },
+                    )
+                    for title, params in self.fieldsets
+                )
+            )
+        return self.fieldsets
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
