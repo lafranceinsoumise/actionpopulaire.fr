@@ -11,7 +11,6 @@ from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from agir.api.admin import admin_site
 from agir.events.models import Calendar
 from agir.groups.models import SupportGroup
 from agir.lib.admin import (
@@ -232,7 +231,7 @@ class EventRsvpPersonFormDisplay(PersonFormDisplay):
         return results
 
 
-@admin.register(models.Event, site=admin_site)
+@admin.register(models.Event)
 class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     form = EventAdminForm
     person_form_display = EventRsvpPersonFormDisplay()
@@ -554,7 +553,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         ] + super().get_urls()
 
 
-@admin.register(models.Calendar, site=admin_site)
+@admin.register(models.Calendar)
 class CalendarAdmin(admin.ModelAdmin):
     fields = (
         "name",
@@ -582,13 +581,13 @@ class CalendarAdmin(admin.ModelAdmin):
     link.short_description = _("Lien vers l'agenda")
 
 
-@admin.register(models.EventTag, site=admin_site)
+@admin.register(models.EventTag)
 class EventTagAdmin(admin.ModelAdmin):
     search_fields = ("label",)
     pass
 
 
-@admin.register(models.EventSubtype, site=admin_site)
+@admin.register(models.EventSubtype)
 class EventSubtypeAdmin(admin.ModelAdmin):
     list_display = ("label", "description", "type", "visibility")
     list_filter = ("type", "visibility")
@@ -596,7 +595,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
     search_fields = ("label", "description")
 
 
-@admin.register(models.JitsiMeeting, site=admin_site)
+@admin.register(models.JitsiMeeting)
 class JitsiMeetingAdmin(admin.ModelAdmin):
     autocomplete_fields = ("event",)
     readonly_fields = ("start_time", "end_time", "display_link")

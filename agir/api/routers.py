@@ -12,4 +12,5 @@ legacy_api.register("people_tags", people_viewsets.PersonTagViewSet)
 # client and auth routes
 legacy_api.register("scopes", clients_viewsets.ScopeViewSet, basename="scopes")
 
+app_name = "legacy"
 urlpatterns = legacy_api.urls

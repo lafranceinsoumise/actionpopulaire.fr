@@ -1,11 +1,9 @@
 from django.contrib import admin
 
-from agir.api.admin import admin_site
-from agir.lib.admin import PersonLinkMixin
 from . import models
 
 
-@admin.register(models.SystemPayTransaction, site=admin_site)
+@admin.register(models.SystemPayTransaction)
 class SystemPayTransactionAdmin(admin.ModelAdmin):
     list_display = (
         "id",

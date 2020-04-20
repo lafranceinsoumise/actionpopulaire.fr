@@ -1,18 +1,16 @@
 from django import forms
+from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django.contrib.gis.measure import D
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse, path
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from functools import reduce, update_wrapper
-
-from django.contrib import admin
-from django.contrib.admin import SimpleListFilter
-from django.db.models import Q
-from django.urls import reverse, path
 from operator import or_
 
-from agir.api.admin import admin_site
 from agir.municipales.models import CommunePage, Liste
 from agir.people.models import Person
 
@@ -86,7 +84,7 @@ class CommuneForm(forms.ModelForm):
                     nouvelle_liste_soutenue.save(update_fields=["soutien"])
 
 
-@admin.register(CommunePage, site=admin_site)
+@admin.register(CommunePage)
 class CommunePageAdmin(admin.ModelAdmin):
     form = CommuneForm
     readonly_fields = (
@@ -276,7 +274,7 @@ class MetropoleOutremerFilter(SimpleListFilter):
         return queryset
 
 
-@admin.register(Liste, site=admin_site)
+@admin.register(Liste)
 class ListeAdmin(admin.ModelAdmin):
     readonly_fields = (
         "code",

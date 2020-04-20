@@ -13,7 +13,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from functools import partial, update_wrapper
 
-from agir.api.admin import admin_site
 from agir.events.models import Event
 from agir.groups import proxys
 from agir.lib.admin import (
@@ -78,7 +77,7 @@ class GroupHasEventsFilter(admin.SimpleListFilter):
             return queryset.filter(current_events_count=0)
 
 
-@admin.register(models.SupportGroup, site=admin_site)
+@admin.register(models.SupportGroup)
 class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     form = SupportGroupAdminForm
     fieldsets = (
@@ -290,7 +289,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         return [
             path(
                 "<uuid:pk>/add_member/",
-                admin_site.admin_view(self.add_member),
+                self.admin_site.admin_view(self.add_member),
                 name="{}_{}_add_member".format(
                     self.opts.app_label, self.opts.model_name
                 ),
@@ -314,18 +313,18 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         return cl
 
 
-@admin.register(proxys.ThematicGroup, site=admin_site)
+@admin.register(proxys.ThematicGroup)
 class ThematicGroupAdmin(SupportGroupAdmin):
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj) + ("type",)
 
 
-@admin.register(models.SupportGroupTag, site=admin_site)
+@admin.register(models.SupportGroupTag)
 class SupportGroupTagAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(models.SupportGroupSubtype, site=admin_site)
+@admin.register(models.SupportGroupSubtype)
 class SupportGroupSubtypeAdmin(admin.ModelAdmin):
     search_fields = ("label", "description")
     list_display = ("label", "description", "type", "visibility")

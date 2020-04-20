@@ -1,20 +1,17 @@
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
 from django import forms
 from django.contrib import admin, messages
 from django.db import transaction
 from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, ugettext, ngettext
-from django.template.response import TemplateResponse
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-
-from agir.api.admin import admin_site
 from agir.donations.form_fields import MoneyField
 from agir.payments.actions.payments import notify_status_change
 from agir.payments.admin import PaymentManagementAdminMixin
-
 from .models import CheckPayment
 
 
@@ -65,7 +62,7 @@ class CheckPaymentSearchForm(forms.Form):
         return numbers
 
 
-@admin.register(CheckPayment, site=admin_site)
+@admin.register(CheckPayment)
 class CheckPaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
@@ -107,12 +104,12 @@ class CheckPaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
         return [
             path(
                 "search/",
-                admin_site.admin_view(self.search_check_view),
+                self.admin_site.admin_view(self.search_check_view),
                 name="checks_checkpayment_search",
             ),
             path(
                 "validate/",
-                admin_site.admin_view(self.validate_check_view),
+                self.admin_site.admin_view(self.validate_check_view),
                 name="checks_checkpayment_validate",
             ),
         ] + super().get_urls()

@@ -13,7 +13,6 @@ from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 
-from agir.api.admin import admin_site
 from agir.elus.models import MandatMunicipal, MandatDepartemental, MandatRegional
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
@@ -270,7 +269,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
     mandats_regionaux.short_description = "Mandats régionaux"
 
 
-@admin.register(MandatMunicipal, site=admin_site)
+@admin.register(MandatMunicipal)
 class MandatMunicipalAdmin(BaseMandatAdmin):
     form = CreerMandatMunicipalForm
     autocomplete_fields = ("conseil",)
@@ -314,7 +313,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         pass
 
 
-@admin.register(MandatDepartemental, site=admin_site)
+@admin.register(MandatDepartemental)
 class MandatDepartementAdmin(BaseMandatAdmin):
     autocomplete_fields = ("conseil",)
     list_filter = ("statut", "mandat", DepartementFilter, DepartementRegionFilter)
@@ -347,7 +346,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
         pass
 
 
-@admin.register(MandatRegional, site=admin_site)
+@admin.register(MandatRegional)
 class MandatRegionalAdmin(BaseMandatAdmin):
     list_filter = ("statut", "mandat", RegionFilter)
 

@@ -1,10 +1,9 @@
-from django.contrib import admin
 from django import forms
+from django.contrib import admin
 from django.forms import CheckboxSelectMultiple
 from django.shortcuts import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
-from ..api.admin import admin_site
 
 from . import models
 from .scopes import scopes
@@ -17,7 +16,10 @@ class ClientForm(forms.ModelForm):
     )
 
 
-@admin.register(models.Client, site=admin_site)
+admin.site.unregister(models.Client)
+
+
+@admin.register(models.Client)
 class ClientAdmin(admin.ModelAdmin):
     form = ClientForm
     fieldsets = (

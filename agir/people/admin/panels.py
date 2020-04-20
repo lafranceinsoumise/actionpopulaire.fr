@@ -16,7 +16,6 @@ from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from agir.api.admin import admin_site
 from agir.authentication.models import Role
 from agir.lib.admin import (
     DisplayContactPhoneMixin,
@@ -45,7 +44,7 @@ __all__ = [
 ]
 
 
-@admin.register(Person, site=admin_site)
+@admin.register(Person)
 class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     list_display = (
         "__str__",
@@ -290,7 +289,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         )
 
 
-@admin.register(PersonTag, site=admin_site)
+@admin.register(PersonTag)
 class PersonTagAdmin(admin.ModelAdmin):
     list_display = ("label", "exported")
 
@@ -330,7 +329,7 @@ class PersonTagAdmin(admin.ModelAdmin):
     export_now.short_description = "Lancer une synchronisaton maintenant"
 
 
-@admin.register(PersonForm, site=admin_site)
+@admin.register(PersonForm)
 class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
     form = PersonFormForm
     save_as = True
@@ -524,7 +523,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
     submissions_number.short_description = "Nombre de réponses"
 
 
-@admin.register(PersonFormSubmission, site=admin_site)
+@admin.register(PersonFormSubmission)
 class PersonFormSubmissionAdmin(admin.ModelAdmin):
     autocomplete_fields = ("person",)
 

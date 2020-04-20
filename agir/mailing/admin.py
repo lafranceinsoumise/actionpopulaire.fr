@@ -3,7 +3,6 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.forms import ModelForm
 
-from agir.api.admin import admin_site
 from agir.lib.admin import CenterOnFranceMixin
 from agir.mailing.models import Segment
 
@@ -19,7 +18,7 @@ class SegmentAdminForm(ModelForm):
         )
 
 
-@admin.register(Segment, site=admin_site)
+@admin.register(Segment)
 class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     form = SegmentAdminForm
     save_as = True

@@ -9,7 +9,6 @@ from django.urls import reverse, path
 from django.utils import timezone
 from django.utils.html import escape, format_html, format_html_join
 
-from agir.api.admin import admin_site
 from agir.checks.models import CheckPayment
 from agir.donations.form_fields import MoneyField
 from agir.lib.admin import PersonLinkMixin
@@ -183,7 +182,7 @@ class PaymentAdminForm(forms.ModelForm):
     )
 
 
-@admin.register(models.Payment, site=admin_site)
+@admin.register(models.Payment)
 class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
     form = PaymentAdminForm
     list_display = (
@@ -275,7 +274,7 @@ class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
         return False
 
 
-@admin.register(models.Subscription, site=admin_site)
+@admin.register(models.Subscription)
 class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
     list_display = (
         "id",
@@ -303,7 +302,7 @@ class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
         return [
             path(
                 "<int:subscription_pk>/terminate/",
-                admin_site.admin_view(self.terminate_view),
+                self.admin_site.admin_view(self.terminate_view),
                 name="payments_subscription_terminate",
             )
         ] + super().get_urls()

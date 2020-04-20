@@ -96,6 +96,7 @@ INSTALLED_APPS = [
     "agir.events",
     "agir.groups",
     "agir.polls",
+    "oauth2_provider",  # avant clients pour pouvoir redéfinir l'admin
     "agir.clients",
     "agir.front",
     "agir.carte",
@@ -112,7 +113,7 @@ INSTALLED_APPS = [
     "agir.telegram",
     "agir.elus.apps.ElusConfig",
     # default contrib apps
-    "django.contrib.admin",
+    "agir.api.apps.AdminAppConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -151,7 +152,6 @@ INSTALLED_APPS = [
     "nuntius",
     # security
     "corsheaders",
-    "oauth2_provider",
     "reversion",
     "social_django",
     "data_france",
@@ -700,7 +700,6 @@ POLR_API_KEY = os.environ.get("POLR_API_KEY")
 
 # nuntius
 NUNTIUS_PUBLIC_URL = FRONT_DOMAIN
-NUNTIUS_DISABLE_DEFAULT_ADMIN = True
 NUNTIUS_SUBSCRIBER_MODEL = "people.Person"
 NUNTIUS_SEGMENT_MODEL = "mailing.segment"
 NUNTIUS_CELERY_BROKER_URL = "redis://"

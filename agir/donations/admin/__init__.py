@@ -1,11 +1,9 @@
-from functools import partial
-
 from django.contrib import admin
 from django.urls import reverse, path
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
+from functools import partial
 
-from agir.api.admin import admin_site
 from agir.donations.admin.forms import HandleRequestForm
 from agir.donations.admin.views import HandleRequestView
 from agir.donations.models import (
@@ -58,7 +56,7 @@ class RequestStatusFilter(admin.SimpleListFilter):
             return queryset.filter()
 
 
-@admin.register(SpendingRequest, site=admin_site)
+@admin.register(SpendingRequest)
 class SpendingRequestAdmin(admin.ModelAdmin):
     list_display = [
         "title",
@@ -127,7 +125,7 @@ class SpendingRequestAdmin(admin.ModelAdmin):
         return [
             path(
                 "<uuid:pk>/review/",
-                admin_site.admin_view(
+                self.admin_site.admin_view(
                     partial(HandleRequestView.as_view(), model_admin=self)
                 ),
                 name="donations_spendingrequest_review",
@@ -135,7 +133,7 @@ class SpendingRequestAdmin(admin.ModelAdmin):
         ] + super().get_urls()
 
 
-@admin.register(Operation, site=admin_site)
+@admin.register(Operation)
 class OperationAdmin(admin.ModelAdmin):
     list_display = ("group", "amount", "payment", "created")
 
@@ -146,7 +144,7 @@ class OperationAdmin(admin.ModelAdmin):
         return request.user.is_superuser
 
 
-@admin.register(MonthlyAllocation, site=admin_site)
+@admin.register(MonthlyAllocation)
 class MonthlyAllocationAdmin(admin.ModelAdmin):
     list_display = ("__str__", "group", "amount", "subscription")
 

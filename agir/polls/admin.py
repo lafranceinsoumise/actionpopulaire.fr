@@ -3,12 +3,9 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.translation import ugettext as _
 
-from agir.api.admin import admin_site
-from agir.lib.form_fields import AdminJsonWidget, RichEditorWidget
-from agir.lib.models import DescriptionField
-
-from .models import Poll, PollOption
+from agir.lib.form_fields import AdminJsonWidget
 from agir.lib.utils import front_url
+from .models import Poll, PollOption
 
 
 class PollOptionInline(admin.TabularInline):
@@ -21,7 +18,7 @@ class PollAdminForm(forms.ModelForm):
         widgets = {"rules": AdminJsonWidget()}
 
 
-@admin.register(Poll, site=admin_site)
+@admin.register(Poll)
 class PollAdmin(admin.ModelAdmin):
     form = PollAdminForm
     inlines = [PollOptionInline]

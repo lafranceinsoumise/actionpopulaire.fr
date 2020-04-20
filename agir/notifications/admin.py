@@ -4,7 +4,6 @@ from django.db.models import Count, Q
 
 from agir.lib.form_fields import AdminRichEditorWidget
 from agir.notifications.models import Announcement, Notification
-from agir.api.admin import admin_site
 
 
 class AnnouncementForm(forms.ModelForm):
@@ -13,7 +12,7 @@ class AnnouncementForm(forms.ModelForm):
         widgets = {"content": AdminRichEditorWidget()}
 
 
-@admin.register(Announcement, site=admin_site)
+@admin.register(Announcement)
 class AnnouncementAdmin(admin.ModelAdmin):
     form = AnnouncementForm
     fields = (
@@ -59,7 +58,7 @@ class AnnouncementAdmin(admin.ModelAdmin):
     clicked.short_description = "Clics"
 
 
-@admin.register(Notification, site=admin_site)
+@admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     fields = ("person", "content", "icon", "link", "status")
     autocomplete_fields = ("person",)
