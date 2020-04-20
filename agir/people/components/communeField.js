@@ -5,13 +5,14 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 import onDOMReady from "@agir/lib/onDOMReady"; // doit être importé avant React
 
-const url = "/chercher-commune/";
+const url = "/data-france/communes/";
 
 const types = {
   COM: "",
   ARM: "",
   COMA: ", commune associée",
-  COMD: ", commune déléguée"
+  COMD: ", commune déléguée",
+  SRM: ", secteur électoral"
 };
 
 const format = ({ code, nom, type }) => {

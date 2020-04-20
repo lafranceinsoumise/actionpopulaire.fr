@@ -1,7 +1,5 @@
 from django.urls import path, include
 
-from data_france.views import CommuneSearchView
-
 from agir.front import urls as front_urls
 from agir.events import urls as events_urls
 from agir.groups import urls as groups_urls
@@ -28,5 +26,5 @@ urlpatterns = [
     path("", include(loans_urls)),
     path("", include(municipales_urls)),
     path("", include("social_django.urls", namespace="social")),
-    path("chercher-commune/", CommuneSearchView.as_view()),
+    path("data-france/", include("data_france.urls")),
 ]
