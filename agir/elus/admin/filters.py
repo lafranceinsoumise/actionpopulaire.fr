@@ -5,17 +5,22 @@ from agir.lib.autocomplete_filter import AutocompleteFilter, SelectModelFilter
 
 
 class CommuneFilter(AutocompleteFilter):
-    field_name = "commune"
+    field_name = "conseil"
     title = "Commune d'élection"
 
 
 class DepartementFilter(SelectModelFilter):
-    field_name = "commune__departement"
+    field_name = "conseil__departement"
     title = "Département"
 
 
+class DepartementRegionFilter(SelectModelFilter):
+    field_name = "conseil__departement__region"
+    title = "Région"
+
+
 class RegionFilter(SelectModelFilter):
-    field_name = "commune__departement__region"
+    field_name = "conseil__region"
     title = "Région"
 
 

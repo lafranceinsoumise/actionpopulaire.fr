@@ -47,14 +47,6 @@ class CreerMandatForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if hasattr(self.instance, "commune"):
-            commune = self.instance.commune
-            epci = commune.epci
-            if epci:
-                self.fields["communautaire"].label = f"Mandat auprès de la {epci.nom}"
-            else:
-                self.fields["communautaire"].disabled = True
-
         if "person" in self.fields:
             person = self.get_initial_for_field(self.fields["person"], "person")
             self.fields["person"].required = False
@@ -156,3 +148,16 @@ class CreerMandatForm(forms.ModelForm):
                     self.instance.save(update_fields=["email_officiel"])
 
         return super()._save_m2m()
+
+
+class CreerMandatMunicipalForm(CreerMandatForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if hasattr(self.instance, "conseil"):
+            commune = self.instance.conseil
+            epci = commune.epci
+            if epci:
+                self.fields["communautaire"].label = f"Mandat auprès de la {epci.nom}"
+            else:
+                self.fields["communautaire"].disabled = True

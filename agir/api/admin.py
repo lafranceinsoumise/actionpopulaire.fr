@@ -99,3 +99,11 @@ admin_site.register(
 admin_site.register(
     data_france_models.Region, data_france_admin.RegionAdmin,
 )
+admin_site.register(
+    data_france_models.CollectiviteDepartementale,
+    data_france_admin.CollectiviteDepartementaleAdmin,
+)
+admin_site.register(
+    data_france_models.CollectiviteRegionale,
+    data_france_admin.CollectiviteRegionaleAdmin,
+)
