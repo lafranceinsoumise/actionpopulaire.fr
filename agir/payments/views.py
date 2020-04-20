@@ -65,7 +65,7 @@ class SubscriptionView(DetailView):
         )
 
 
-class TerminateSubscriptionView(DetailView, HardLoginRequiredMixin):
+class TerminateSubscriptionView(HardLoginRequiredMixin, DetailView):
     template_name = "payments/subscription_terminate.html"
 
     def get_queryset(self):
