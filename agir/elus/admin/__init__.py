@@ -153,7 +153,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
         return queryset, use_distinct
 
     def actif(self, obj):
-        return "Oui" if (obj.debut <= timezone.now().date() <= obj.fin) else "Non"
+        return "Oui" if timezone.now().date() in obj.dates else "Non"
 
     actif.short_description = "Mandat en cours"
 
@@ -288,10 +288,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
             "Informations sur l'élu⋅e",
             {"fields": (*PERSON_FIELDS, "email_officiel", "new_email", "statut",)},
         ),
-        (
-            "Précisions sur le mandat",
-            {"fields": ("debut", "fin", "delegations_municipales")},
-        ),
+        ("Précisions sur le mandat", {"fields": ("dates", "delegations_municipales")},),
     )
 
     list_display = (
@@ -324,10 +321,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
             "Informations sur l'élu⋅e",
             {"fields": (*PERSON_FIELDS, "email_officiel", "new_email", "statut",)},
         ),
-        (
-            "Précisions sur le mandat",
-            {"fields": ("debut", "fin", "delegations_municipales")},
-        ),
+        ("Précisions sur le mandat", {"fields": ("dates", "delegations_municipales")},),
     )
 
     list_display = (
@@ -356,10 +350,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
             "Informations sur l'élu⋅e",
             {"fields": (*PERSON_FIELDS, "email_officiel", "new_email", "statut",)},
         ),
-        (
-            "Précisions sur le mandat",
-            {"fields": ("debut", "fin", "delegations_municipales")},
-        ),
+        ("Précisions sur le mandat", {"fields": ("dates", "delegations_municipales")},),
     )
 
     list_display = (

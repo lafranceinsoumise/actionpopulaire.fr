@@ -1,10 +1,12 @@
 import datetime
 
 import reversion
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, DateRangeField
+from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
+from psycopg2._range import DateRange
 
 from agir.lib.history import HistoryMixin
 
@@ -58,6 +60,20 @@ STATUT_CHOICES = (
 )
 
 
+def mandat_municipal_dates_par_defaut():
+    return DateRange(lower=datetime.date(2020, 3, 22), upper=datetime.date(2026, 3, 1))
+
+
+def mandat_departemental_dates_par_defaut():
+    return DateRange(lower=datetime.date(2015, 3, 29), upper=datetime.date(2021, 3, 31))
+
+
+def mandat_regional_dates_par_defaut():
+    return DateRange(
+        lower=datetime.date(2015, 12, 13), upper=datetime.date(2021, 3, 31)
+    )
+
+
 class MandatHistoryMixin(HistoryMixin):
     def get_history_step(cls, old, new, **kwargs):
         old_fields = old.field_dict if old else {}
@@ -88,8 +104,52 @@ class MandatHistoryMixin(HistoryMixin):
         return res
 
 
+class UniqueWithinDates:
+    def validate_unique(self, exclude=None):
+        """Vérifie qu'il n'existe pas d'autre mandat avec même personne, même conseil, et plage de dates en conflit
+
+        Ajoute une `ValidationError` dans ce cas. Deux plages de dates sont en conflits si elles se chevauchent, même
+        partiellement.
+
+        Cette unicité est assurée côté base de données par une contrainte EXCLUDE mise en place dans la migration
+        `0007_plusieurs_mandats`.
+        """
+        try:
+            super().validate_unique(exclude)
+        except ValidationError as e:
+            errors = e.error_dict
+        else:
+            errors = {}
+
+        if exclude is None:
+            exclude = []
+
+        if not any(f in exclude for f in ["person", "conseil", "dates"]):
+            qs = self.__class__._default_manager.filter(
+                person_id=self.person_id,
+                conseil_id=self.conseil_id,
+                dates__overlap=self.dates,
+            )
+            model_class_pk = self._get_pk_val()
+            if not self._state.adding and model_class_pk is not None:
+                qs = qs.exclude(pk=model_class_pk)
+
+            if qs.exists():
+                other = qs.first()
+                errors.setdefault(NON_FIELD_ERRORS, []).append(
+                    ValidationError(
+                        message="Il existe déjà un mandat pour cette personne et ce conseil aux mêmes dates.",
+                        code="dates_overlap",
+                        params={"other": other.id},
+                    )
+                )
+
+        if errors:
+            raise ValidationError(errors)
+
+
 @reversion.register()
-class MandatMunicipal(MandatHistoryMixin, models.Model):
+class MandatMunicipal(MandatHistoryMixin, UniqueWithinDates, models.Model):
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
     MANDAT_MAIRE = "MAI"
@@ -130,13 +190,11 @@ class MandatMunicipal(MandatHistoryMixin, models.Model):
         on_delete=models.CASCADE,
     )
 
-    debut = models.DateField(
-        "Date de début du mandat", default=datetime.date(2020, 3, 22)
-    )
-    fin = models.DateField(
-        "Date de fin du mandat",
-        help_text="Date légale si dans le futur, date effective si dans le passé.",
-        default=datetime.date(2026, 3, 1),
+    dates = DateRangeField(
+        verbose_name="Début et fin du mandat",
+        help_text="La date de fin correspond à la date théorique de fin du mandat si elle est dans le futur et à la"
+        " date effective sinon.",
+        default=mandat_municipal_dates_par_defaut,
     )
 
     mandat = models.CharField(
@@ -172,7 +230,6 @@ class MandatMunicipal(MandatHistoryMixin, models.Model):
 
     class Meta:
         verbose_name_plural = "Mandats municipaux"
-        unique_together = ("conseil", "person")
         ordering = ("conseil", "person")
 
     def __str__(self):
@@ -189,7 +246,7 @@ class MandatMunicipal(MandatHistoryMixin, models.Model):
 
 
 @reversion.register()
-class MandatDepartemental(MandatHistoryMixin, models.Model):
+class MandatDepartemental(MandatHistoryMixin, UniqueWithinDates, models.Model):
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
     MANDAT_PRESIDENT = "PRE"
@@ -213,13 +270,11 @@ class MandatDepartemental(MandatHistoryMixin, models.Model):
         on_delete=models.CASCADE,
     )
 
-    debut = models.DateField(
-        "Date de début du mandat", default=datetime.date(2015, 3, 29)
-    )
-    fin = models.DateField(
-        "Date de fin du mandat",
-        help_text="Date légale si dans le futur, date effective si dans le passé.",
-        default=datetime.date(2021, 3, 31),
+    dates = DateRangeField(
+        verbose_name="Début et fin du mandat",
+        help_text="La date de fin correspond à la date théorique de fin du mandat si elle est dans le futur et à la"
+        " date effective sinon.",
+        default=mandat_departemental_dates_par_defaut,
     )
 
     mandat = models.CharField(
@@ -249,7 +304,6 @@ class MandatDepartemental(MandatHistoryMixin, models.Model):
     class Meta:
         verbose_name = "Mandat départemental"
         verbose_name_plural = "Mandats départementaux"
-        unique_together = ("conseil", "person")
         ordering = ("conseil", "person")
 
     def __str__(self):
@@ -266,7 +320,7 @@ class MandatDepartemental(MandatHistoryMixin, models.Model):
 
 
 @reversion.register()
-class MandatRegional(MandatHistoryMixin, models.Model):
+class MandatRegional(MandatHistoryMixin, UniqueWithinDates, models.Model):
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
     MANDAT_PRESIDENT = "PRE"
@@ -290,13 +344,11 @@ class MandatRegional(MandatHistoryMixin, models.Model):
         on_delete=models.CASCADE,
     )
 
-    debut = models.DateField(
-        "Date de début du mandat", default=datetime.date(2015, 12, 13)
-    )
-    fin = models.DateField(
-        "Date de fin du mandat",
-        help_text="Date légale si dans le futur, date effective si dans le passé.",
-        default=datetime.date(2021, 3, 31),
+    dates = DateRangeField(
+        verbose_name="Début et fin du mandat",
+        help_text="La date de fin correspond à la date théorique de fin du mandat si elle est dans le futur et à la"
+        " date effective sinon.",
+        default=mandat_regional_dates_par_defaut,
     )
 
     mandat = models.CharField(
@@ -326,7 +378,6 @@ class MandatRegional(MandatHistoryMixin, models.Model):
     class Meta:
         verbose_name = "Mandat régional"
         verbose_name_plural = "Mandats régionaux"
-        unique_together = ("conseil", "person")
         ordering = ("conseil", "person")
 
     def __str__(self):

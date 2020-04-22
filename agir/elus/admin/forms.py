@@ -1,5 +1,8 @@
 from django import forms
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.db import IntegrityError
+from django.urls import reverse
+from django.utils.html import format_html
 from phonenumber_field.formfields import PhoneNumberField
 
 from agir.elus.models import DELEGATIONS_CHOICES
@@ -66,16 +69,20 @@ class CreerMandatForm(forms.ModelForm):
             del self.fields["email_officiel"]
 
     def clean(self):
+        # appeler super est obligatoire pour que le ModelForm valide les contraintes de base de données
+        # (en appelant self.instance.validate_unique())
+        cleaned_data = super().clean()
+
         if "person" in self.fields:
-            person = self.cleaned_data.get("person")
+            person = cleaned_data.get("person")
         else:
             person = getattr(self.instance, "person", None)
 
-        new_email = self.cleaned_data.get("new_email")
-        contact_phone = self.cleaned_data.get("contact_phone")
-        last_name = self.cleaned_data.get("last_name")
-        first_name = self.cleaned_data.get("first_name")
-        email_officiel = self.cleaned_data.get("email_officiel")
+        new_email = cleaned_data.get("new_email")
+        contact_phone = cleaned_data.get("contact_phone")
+        last_name = cleaned_data.get("last_name")
+        first_name = cleaned_data.get("first_name")
+        email_officiel = cleaned_data.get("email_officiel")
 
         minimal_information = (
             person or new_email or contact_phone or (last_name and first_name)
@@ -106,13 +113,13 @@ class CreerMandatForm(forms.ModelForm):
             except Person.DoesNotExist:
                 pass
             else:
-                self.cleaned_data["person"] = person
-                del self.cleaned_data["new_email"]
+                cleaned_data["person"] = person
+                del cleaned_data["new_email"]
 
         if email_officiel and person and email_officiel.person != person:
-            self.cleaned_data["email_officiel"] = None
+            cleaned_data["email_officiel"] = None
 
-        return self.cleaned_data
+        return cleaned_data
 
     def _save_m2m(self):
         super()._save_m2m()
@@ -148,6 +155,44 @@ class CreerMandatForm(forms.ModelForm):
                     self.instance.save(update_fields=["email_officiel"])
 
         return super()._save_m2m()
+
+    def _update_errors(self, errors):
+        """Ajoute à l'erreur d'unicité d'un mandat sur une période donnée le lien vers le mandat en conflit
+
+        Solution un peu hacky, car utilise une interface privée.
+        """
+        if hasattr(errors, "error_dict"):
+            error_dict = errors.error_dict
+        else:
+            error_dict = {NON_FIELD_ERRORS: errors}
+
+        if NON_FIELD_ERRORS in error_dict and any(
+            e.code == "dates_overlap"
+            for e in error_dict[NON_FIELD_ERRORS]
+            if isinstance(e, ValidationError)
+        ):
+            dates_error = [
+                e
+                for e in error_dict[NON_FIELD_ERRORS]
+                if isinstance(e, ValidationError) and e.code == "dates_overlap"
+            ]
+            error_dict[NON_FIELD_ERRORS] = [
+                e
+                for e in error_dict[NON_FIELD_ERRORS]
+                if not isinstance(e, ValidationError) or e.code != "dates_overlap"
+            ]
+
+            info = (self._meta.model._meta.app_label, self._meta.model._meta.model_name)
+            for e in dates_error:
+                e.message = format_html(
+                    '{} <a href="{}">{}</a>',
+                    e.message,
+                    reverse("admin:%s_%s_change" % info, args=(e.params["other"],)),
+                    "Voir l'autre mandat",
+                )
+            self.add_error(None, dates_error)
+
+        super()._update_errors(errors)
 
 
 class CreerMandatMunicipalForm(CreerMandatForm):
