@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 
 import Button from "@agir/lib/bootstrap/Button";
+import GroupSelector from "@agir/groups/groupSelector/GroupSelector";
 import {
   changeSingleGroupAllocation,
   changeUnallocatedAmount,
   totalAllocatedFromState
 } from "../allocationsReducer";
-import { GroupAllocation, GroupSelector } from "./components";
+import { GroupAllocation } from "./components";
 import { AllocationsArray, ButtonHolder, RecipientLabel } from "./Styles";
 
 const filterChoices = currentList => {
@@ -59,7 +60,7 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
             }}
           >
             <GroupSelector
-              value={{ id, name, amount }}
+              value={{ id, name }}
               groupChoices={groupChoices}
               filter={currentFilter}
               onChange={newVal =>
