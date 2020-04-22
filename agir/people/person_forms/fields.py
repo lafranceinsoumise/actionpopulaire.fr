@@ -6,6 +6,7 @@ from data_france.models import Commune
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
+from django.forms.models import ModelChoiceIterator
 from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
 from django.utils.formats import localize_input
@@ -17,6 +18,7 @@ from agir.events.models import Event
 from agir.lib.data import departements_choices, regions_choices
 from agir.lib.form_fields import DateTimePickerWidget, SelectizeWidget, IBANField
 from ..models import Person
+from ...groups.models import SupportGroup
 from ...municipales.models import CommunePage
 
 logger = logging.getLogger(__name__)
@@ -217,6 +219,66 @@ class CommuneField(forms.CharField):
             return None
 
 
+class GroupWidget(forms.Select):
+    @property
+    def media(self):
+        if self.attrs.get("data-group-selector") == "Y":
+            return forms.Media(
+                js=(webpack_loader_utils.get_files("groups/groupSelector")[0]["url"],)
+            )
+        return forms.Media()
+
+
+class ModelDefaultChoiceIterator(ModelChoiceIterator):
+    def __init__(self, field):
+        super().__init__(field)
+        self.queryset = field.default_queryset
+
+
+class GroupField(forms.ModelChoiceField):
+    instance_in_kwargs = True
+    widget = GroupWidget
+    iterator = ModelDefaultChoiceIterator
+
+    def __init__(
+        self, *, instance, choices=None, default_options_label="Mes groupes", **kwargs
+    ):
+        queryset = SupportGroup.objects.active()
+        self.default_queryset = queryset.filter(memberships__person_id=instance.id)
+
+        if choices in ["animateur", "animator"]:
+            queryset = self.default_queryset = SupportGroup.objects.filter(
+                memberships__person_id=instance.id, memberships__is_referent=True
+            )
+        elif choices in ["membre", "member"]:
+            queryset = self.default_queryset
+        elif choices:
+            raise ValueError(
+                f"Valeur '{choices}' du paramètres choices incorrect: laissez vide ou indiquez 'member' ou 'animator'"
+            )
+        self.choice_constraint = choices
+        self.default_options_label = default_options_label
+
+        # Attention : exécuter à la fin, parce que super().__init__ initialise le widget, et lui assigne les
+        # choix (donc besoin de default_queryset), et appelle widget_attrs (donc besoin de choice_constraint et
+        # default_options_label
+        super().__init__(queryset, **kwargs)
+
+    def widget_attrs(self, widget):
+        attrs = super().widget_attrs(widget)
+        if self.choice_constraint is None:
+            attrs["data-group-selector"] = "Y"
+        if self.default_options_label:
+            attrs["data-default-options-label"] = self.default_options_label
+        return attrs
+
+    def to_python(self, value):
+        value = super().to_python(value)
+        if value is None:
+            return None
+        return str(value.pk)
+
+
 FIELDS = {
     "short_text": ShortTextField,
     "long_text": LongTextField,
@@ -234,6 +296,7 @@ FIELDS = {
     "person": PersonChoiceField,
     "iban": IBANField,
     "commune": CommuneField,
+    "group": GroupField,
 }
 
 PREDEFINED_CHOICES = {
@@ -294,13 +357,18 @@ def get_form_field(field_descriptor: dict, is_submission_edition=False, instance
 
     klass = FIELDS.get(field_type)
 
-    if "choices" in field_descriptor and isinstance(field_descriptor["choices"], str):
-        choices = PREDEFINED_CHOICES.get(field_descriptor["choices"])
+    if (
+        isinstance(field_descriptor.get("choices"), str)
+        and field_descriptor["choices"] in PREDEFINED_CHOICES
+    ):
+        choices = PREDEFINED_CHOICES[field_descriptor["choices"]]
         field_descriptor["choices"] = (
             choices if not callable(choices) else choices(instance)
         )
 
     if klass:
+        if getattr(klass, "instance_in_kwargs", False):
+            return klass(**field_descriptor, instance=instance)
         return klass(**field_descriptor)
 
     raise ValueError(f"Unkwnown field type: '{field_type}'")

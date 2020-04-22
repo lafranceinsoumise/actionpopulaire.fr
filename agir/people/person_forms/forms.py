@@ -132,6 +132,8 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         self.update_meta_initial()
 
+        # Vérifier les potentiels risques de sécurité ici (forger un lien qui préremplit un formulaire
+        # différement de ce qu'on aurait souhaité).
         if query_params is not None:
             for field in self.fields:
                 if field in query_params:
