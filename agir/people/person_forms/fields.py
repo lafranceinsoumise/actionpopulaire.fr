@@ -247,7 +247,7 @@ class GroupField(forms.ModelChoiceField):
         self.default_queryset = queryset.filter(memberships__person_id=instance.id)
 
         if choices in ["animateur", "animator"]:
-            queryset = self.default_queryset = SupportGroup.objects.filter(
+            queryset = self.default_queryset = queryset.filter(
                 memberships__person_id=instance.id, memberships__is_referent=True
             )
         elif choices in ["membre", "member"]:
