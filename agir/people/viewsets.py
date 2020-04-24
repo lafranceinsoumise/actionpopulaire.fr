@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 import django_filters
 
 from agir.lib.pagination import LegacyPaginator
-from agir.lib.permissions import RestrictViewPermissions
+from agir.lib.rest_framework_permissions import RestrictViewPermissions
 from agir.lib.views import NationBuilderViewMixin
 from agir.authentication.models import Role
 from agir.people.models import PersonEmail, PersonEmailManager

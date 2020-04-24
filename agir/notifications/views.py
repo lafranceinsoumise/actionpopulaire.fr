@@ -4,7 +4,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
-from agir.lib.permissions import IsPersonPermission
+from agir.lib.rest_framework_permissions import IsPersonPermission
 from agir.notifications.actions import serialize_notifications
 from agir.notifications.models import Notification
 from agir.notifications.serializers import (
