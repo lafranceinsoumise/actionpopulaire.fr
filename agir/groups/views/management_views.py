@@ -22,7 +22,7 @@ from agir.authentication.tokens import (
 from agir.authentication.utils import hard_login
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
-    PermissionsRequiredMixin,
+    GlobalOrObjectPermissionRequiredMixin,
     VerifyLinkSignatureMixin,
 )
 from agir.donations.allocations import get_balance
@@ -63,9 +63,11 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
-class BaseSupportGroupAdminView(HardLoginRequiredMixin, PermissionsRequiredMixin, View):
+class BaseSupportGroupAdminView(
+    HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, View
+):
     queryset = SupportGroup.objects.active()
-    permissions_required = ("groups.change_supportgroup",)
+    permission_required = ("groups.change_supportgroup",)
 
 
 class SupportGroupManagementView(BaseSupportGroupAdminView, DetailView):
@@ -273,7 +275,7 @@ class RemoveManagerView(BaseSupportGroupAdminView, DetailView):
         .select_related("supportgroup")
         .select_related("person")
     )
-    permissions_required = ("groups.change_membership",)
+    permission_required = ("groups.change_membership",)
 
     def get_context_data(self, **kwargs):
         person = self.object.person

@@ -8,9 +8,11 @@ from django.views import View
 from django.views.generic import TemplateView, DetailView, UpdateView, CreateView
 from django.views.generic.detail import SingleObjectMixin
 
-from agir.authentication.view_mixins import HardLoginRequiredMixin
+from agir.authentication.view_mixins import (
+    HardLoginRequiredMixin,
+    GlobalOrObjectPermissionRequiredMixin,
+)
 from agir.donations import forms
-from agir.donations.allocations import group_can_handle_allocation
 from agir.donations.forms import (
     SpendingRequestCreationForm,
     DocumentOnCreationFormset,
@@ -19,14 +21,12 @@ from agir.donations.forms import (
 )
 from agir.donations.models import SpendingRequest, Document
 from agir.donations.spending_requests import (
-    EDITABLE_STATUSES,
     can_edit,
     get_current_action,
     summary,
     validate_action,
 )
-from agir.groups.models import Membership, SupportGroup
-
+from agir.groups.models import SupportGroup
 
 __all__ = (
     "CreateSpendingRequestView",
@@ -38,19 +38,14 @@ __all__ = (
 )
 
 
-class CreateSpendingRequestView(HardLoginRequiredMixin, TemplateView):
+class CreateSpendingRequestView(
+    HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, TemplateView
+):
     template_name = "donations/create_spending_request.html"
+    permission_required = ("donations.add_spendingrequest",)
 
-    def is_authorized(self, request):
-        return (
-            super().is_authorized(request)
-            and group_can_handle_allocation(self.group)
-            and Membership.objects.filter(
-                person=request.user.person,
-                supportgroup=self.group,
-                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-            ).exists()
-        )
+    def get_permission_object(self):
+        return self.group
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -118,33 +113,12 @@ class CreateSpendingRequestView(HardLoginRequiredMixin, TemplateView):
         return super().get_context_data(**kwargs)
 
 
-class IsGroupManagerMixin(HardLoginRequiredMixin):
-    spending_request_pk_field = "pk"
-
-    def is_authorized(self, request):
-        return super().is_authorized(request) and self.get_membership(request)
-
-    def get_membership(self, request):
-        return Membership.objects.filter(
-            person=request.user.person,
-            supportgroup__spending_request__id=self.kwargs[
-                self.spending_request_pk_field
-            ],
-        )
-
-
-class CanEdit(IsGroupManagerMixin):
-    def get_membership(self, request):
-        return (
-            super()
-            .get_membership(request)
-            .filter(supportgroup__spending_request__status__in=EDITABLE_STATUSES)
-        )
-
-
-class ManageSpendingRequestView(IsGroupManagerMixin, DetailView):
+class ManageSpendingRequestView(
+    HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, DetailView
+):
     model = SpendingRequest
     template_name = "donations/manage_spending_request.html"
+    permission_required = ("donations.view_spendingrequest",)
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
@@ -176,8 +150,11 @@ class ManageSpendingRequestView(IsGroupManagerMixin, DetailView):
         )
 
 
-class EditSpendingRequestView(IsGroupManagerMixin, UpdateView):
+class EditSpendingRequestView(
+    HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, UpdateView
+):
     model = SpendingRequest
+    permission_required = ("donations.change_spendingrequest",)
     form_class = forms.SpendingRequestEditForm
     template_name = "donations/edit_spending_request.html"
 
@@ -189,6 +166,17 @@ class EditSpendingRequestView(IsGroupManagerMixin, UpdateView):
     def get_success_url(self):
         return reverse("manage_spending_request", args=(self.object.pk,))
 
+    def dispatch(self, request, *args, **kwargs):
+        if not can_edit(self.get_object()):
+            messages.add_message(
+                self.request,
+                messages.INFO,
+                "Il n'est plus possible d'éditer cette demande de dépense.",
+            )
+            return reverse("manage_spending_request", args=(self.object.pk,))
+
+        return super().dispatch(request, *args, **kwargs)
+
     def render_to_response(self, context, **response_kwargs):
         if self.object.status in SpendingRequest.STATUS_EDITION_MESSAGES:
             messages.add_message(
@@ -199,23 +187,19 @@ class EditSpendingRequestView(IsGroupManagerMixin, UpdateView):
         return super().render_to_response(context, **response_kwargs)
 
 
-class CreateDocumentView(IsGroupManagerMixin, CreateView):
+class CreateDocumentView(
+    HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, CreateView
+):
     model = Document
     form_class = DocumentForm
-    spending_request_pk_field = "spending_request_id"
+    permission_required = ("donations.change_spendingrequest",)
     template_name = "donations/create_document.html"
 
-    def get(self, *args, **kwargs):
+    def get_permission_object(self):
         self.spending_request = get_object_or_404(
             SpendingRequest, pk=self.kwargs["spending_request_id"]
         )
-        return super().get(*args, **kwargs)
-
-    def post(self, *args, **kwargs):
-        self.spending_request = get_object_or_404(
-            SpendingRequest, pk=self.kwargs["spending_request_id"]
-        )
-        return super().post(*args, **kwargs)
+        return self.spending_request
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -236,29 +220,25 @@ class CreateDocumentView(IsGroupManagerMixin, CreateView):
         return super().render_to_response(context, **response_kwargs)
 
 
-class EditDocumentView(IsGroupManagerMixin, UpdateView):
+class AccessDocumentMixin(
+    HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin
+):
+    permission_required = ("donations.change_spendingrequest",)
+
+    def get_permission_object(self):
+        self.spending_request = get_object_or_404(
+            SpendingRequest,
+            pk=self.kwargs["spending_request_id"],
+            document__pk=self.kwargs["pk"],
+        )
+        return self.spending_request
+
+
+class EditDocumentView(AccessDocumentMixin, UpdateView):
     model = Document
     queryset = Document.objects.filter(deleted=False)
     form_class = DocumentForm
-    spending_request_pk_field = "spending_request_id"
     template_name = "donations/edit_document.html"
-
-    def get(self, *args, **kwargs):
-        self.spending_request = get_object_or_404(
-            SpendingRequest,
-            pk=self.kwargs["spending_request_id"],
-            document__pk=self.kwargs["pk"],
-        )
-
-        return super().get(*args, **kwargs)
-
-    def post(self, *args, **kwargs):
-        self.spending_request = get_object_or_404(
-            SpendingRequest,
-            pk=self.kwargs["spending_request_id"],
-            document__pk=self.kwargs["pk"],
-        )
-        return super().post(*args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -279,16 +259,10 @@ class EditDocumentView(IsGroupManagerMixin, UpdateView):
         return super().render_to_response(context, **response_kwargs)
 
 
-class DeleteDocumentView(IsGroupManagerMixin, SingleObjectMixin, View):
+class DeleteDocumentView(AccessDocumentMixin, SingleObjectMixin, View):
     model = Document
-    spending_request_pk_field = "spending_request_id"
 
     def post(self, request, *args, **kwargs):
-        self.spending_request = get_object_or_404(
-            SpendingRequest,
-            pk=self.kwargs[self.spending_request_pk_field],
-            document__pk=self.kwargs["pk"],
-        )
         self.object = self.get_object()
 
         with reversion.create_revision():

@@ -56,30 +56,30 @@ class ImageSizeWarningTestCase(TestCase):
         :return:
         """
 
-        def functional_test_on_view(url_from, url_to, data, image_field):
+        def assertViewRaiseWarning(form_url, success_url, post_data, image_field):
             """
-            La fonction qui effectue les teste sur une vue
+            La fonction qui effectue les tests sur une vue
 
-            :param url_from: l'url de la vue contenant le formulaire
-            :param url_to: l'url de la vue atteinte après le formulaire
-            :param data: les champ du formulaire sous forme de dictionnaire
+            :param form_url: l'url de la vue contenant le formulaire
+            :param success_url: l'url de la vue atteinte après le formulaire
+            :param post_data: les champ du formulaire sous forme de dictionnaire
             :param image_field: le nom du champ de l'image dans le formulaire
             :return:
             """
             # test sans fichier
-            response = self.client.post(url_from, data)
-            self.assertRedirects(response, url_to)
+            response = self.client.post(form_url, post_data)
+            self.assertRedirects(response, success_url)
 
             # test mauvaise dimensions
             with open(IMG_TEST_DIR / "wrong_dimension.jpg", "rb") as f:
-                data.update({image_field: f})
-                response = self.client.post(url_from, data, follow=True)
+                post_data.update({image_field: f})
+                response = self.client.post(form_url, post_data, follow=True)
             self.assertContains(response, "Attention, les dimensions de l")
 
             # test mauvaise dimensions
             with open(IMG_TEST_DIR / "right_dimension.png", "rb") as f:
-                data.update({image_field: f})
-                response = self.client.post(url_from, data, follow=True)
+                post_data.update({image_field: f})
+                response = self.client.post(form_url, post_data, follow=True)
             self.assertNotContains(response, "Attention, les dimensions de l")
 
         self.client.force_login(self.person.role)
@@ -107,9 +107,9 @@ class ImageSizeWarningTestCase(TestCase):
         edit_report_event_url = reverse("edit_event_report", args=[self.past_event.pk])
         manage_report_event_url = reverse("manage_event", args=[self.past_event.pk])
 
-        functional_test_on_view(
+        assertViewRaiseWarning(
             edit_event_url, manage_event_url, event_post_data, "image"
         )
-        functional_test_on_view(
+        assertViewRaiseWarning(
             edit_report_event_url, manage_report_event_url, post_data, "report_image"
         )

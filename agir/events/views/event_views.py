@@ -1,5 +1,4 @@
 import ics
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
@@ -23,14 +22,13 @@ from django.views.generic import (
     TemplateView,
     DeleteView,
     DetailView,
-    ListView,
 )
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import ProcessFormView, FormMixin
 
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
-    PermissionsRequiredMixin,
+    GlobalOrObjectPermissionRequiredMixin,
     SoftLoginRequiredMixin,
 )
 from agir.events.actions.legal import ASKED_QUESTIONS
@@ -41,7 +39,7 @@ from agir.front.view_mixins import (
     FilterView,
 )
 from agir.lib.export import dict_to_camelcase
-from agir.lib.views import ImageSizeWarningMixin, IframableMixin
+from agir.lib.views import ImageSizeWarningMixin
 from ..filters import EventFilter
 from ..forms import (
     EventForm,
@@ -52,7 +50,7 @@ from ..forms import (
     AuthorForm,
     EventLegalForm,
 )
-from ..models import Event, RSVP, Calendar, EventSubtype
+from ..models import Event, RSVP, EventSubtype
 from ..tasks import (
     send_cancellation_notification,
     send_event_report,
@@ -69,10 +67,6 @@ __all__ = [
     "EventDetailView",
     "EventParticipationView",
     "EventIcsView",
-    "CalendarView",
-    "CalendarIcsView",
-    "CalendarView",
-    "CalendarIcsView",
     "ChangeEventLocationView",
     "EditEventReportView",
     "SendEventReportView",
@@ -81,6 +75,10 @@ __all__ = [
     "EventSearchView",
     "PerformCreateEventView",
 ]
+
+
+# PUBLIC VIEWS
+# ============
 
 
 class EventSearchView(FilterView):
@@ -97,17 +95,19 @@ class EventSearchView(FilterView):
     filter_class = EventFilter
 
 
-class EventDetailMixin:
-    permissions_required = ("events.view_event",)
-    model = Event
+class BaseEventDetailView(GlobalOrObjectPermissionRequiredMixin, DetailView):
+    permission_required = ("events.view_event",)
+    queryset = (
+        Event.objects.all()
+    )  # y compris les événements cachés, pour pouvoir montrer des pages GONE
 
     title_prefix = _("Evénement local")
     meta_description = _(
         "Participez aux événements organisés par les membres de la France insoumise."
     )
 
-    def get_permission_denied_response(self, event):
-        if event.visibility == Event.VISIBILITY_ADMIN:
+    def handle_no_permission(self):
+        if self.get_object().visibility == Event.VISIBILITY_ADMIN:
             return HttpResponseGone()
         return redirect_to_login(self.request.get_full_path())
 
@@ -122,17 +122,15 @@ class EventDetailMixin:
         )
 
 
-class EventDetailView(
-    EventDetailMixin, ObjectOpengraphMixin, PermissionsRequiredMixin, DetailView
-):
+class EventDetailView(ObjectOpengraphMixin, BaseEventDetailView):
     template_name = "events/detail.html"
 
 
 class EventParticipationView(
-    EventDetailMixin, PermissionsRequiredMixin, SoftLoginRequiredMixin, DetailView
+    SoftLoginRequiredMixin, BaseEventDetailView,
 ):
     template_name = "events/participation.html"
-    permissions_required = ("events.view_event", "events.participate_online")
+    permission_required = ("events.view_event", "events.participate_online")
     permission_denied_message = _(
         "Vous devez être inscrit⋅e à l'événement pour accéder à cette page."
     )
@@ -176,10 +174,135 @@ class EventParticipationView(
         return context_data
 
 
-class EventIcsView(PermissionsRequiredMixin, DetailView):
-    model = Event
-    permissions_required = ("events.view_event",)
+class QuitEventView(
+    SoftLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, DeleteView
+):
+    template_name = "events/quit.html"
+    permission_required = ("events.delete_rsvp",)
+    success_url = reverse_lazy("dashboard")
+    context_object_name = "rsvp"
+
+    def get_queryset(self):
+        return RSVP.objects.filter(event__end_time__gte=timezone.now())
+
+    def get_object(self, queryset=None):
+        try:
+            rsvp = (
+                self.get_queryset()
+                .select_related("event")
+                .get(event__pk=self.kwargs["pk"], person=self.request.user.person)
+            )
+            if not self.request.user.has_perm("events.view_event", rsvp.event):
+                raise Http404
+        except RSVP.DoesNotExist:
+            raise Http404()
+
+        return rsvp
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["event"] = self.object.event
+        context["success_url"] = self.get_success_url()
+        return context
+
+    def delete(self, request, *args, **kwargs):
+        # first get response to make sure there's no error before adding message
+        res = super().delete(request, *args, **kwargs)
+
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            format_html(
+                _("Vous ne participez plus à l'événement <em>{}</em>"),
+                self.object.event.name,
+            ),
+        )
+
+        return res
+
+
+class UploadEventImageView(
+    SoftLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, CreateView
+):
+    template_name = "events/upload_event_image.html"
+    form_class = UploadEventImageForm
+    permission_required = ("events.view_event",)
     permission_denied_to_not_found = True
+
+    def get_queryset(self):
+        return Event.objects.past(as_of=timezone.now())
+
+    def get_success_url(self):
+        return reverse("view_event", args=(self.event.pk,))
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"author": self.request.user.person, "event": self.event})
+        return kwargs
+
+    def get_author_form(self):
+        author_form_kwargs = {"instance": self.request.user.person}
+        if self.request.method in ["POST", "PUT"]:
+            author_form_kwargs["data"] = self.request.POST
+
+        return AuthorForm(**author_form_kwargs)
+
+    def get_context_data(self, **kwargs):
+        if "author_form" not in kwargs:
+            kwargs["author_form"] = self.get_author_form()
+
+        return super().get_context_data(event=self.event, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.object = None
+        self.event = self.get_object()
+
+        if not self.event.rsvps.filter(person=request.user.person).exists():
+            raise PermissionDenied(
+                _("Seuls les participants à l'événement peuvent poster des images")
+            )
+
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        self.event = self.get_object()
+
+        if not self.event.rsvps.filter(person=request.user.person).exists():
+            raise PermissionDenied(
+                _("Seuls les participants à l'événement peuvent poster des images")
+            )
+
+        form = self.get_form()
+        author_form = self.get_author_form()
+
+        if form.is_valid() and author_form.is_valid():
+            return self.form_valid(form, author_form)
+        else:
+            return self.form_invalid(form, author_form)
+
+    # noinspection PyMethodOverriding
+    def form_invalid(self, form, author_form):
+        return self.render_to_response(
+            self.get_context_data(form=form, author_form=author_form)
+        )
+
+    # noinspection PyMethodOverriding
+    def form_valid(self, form, author_form):
+        author_form.save()
+        form.save()
+
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            _("Votre photo a correctement été importée, merci de l'avoir partagée !"),
+        )
+
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class EventIcsView(BaseEventDetailView):
+    model = Event
 
     def render_to_response(self, context, **response_kwargs):
         ics_calendar = ics.Calendar(events=[context["event"].to_ics()])
@@ -187,65 +310,8 @@ class EventIcsView(PermissionsRequiredMixin, DetailView):
         return HttpResponse(ics_calendar, content_type="text/calendar")
 
 
-class ManageEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailView):
-    template_name = "events/manage.html"
-    permissions_required = ("events.change_event",)
-    model = Event
-
-    error_messages = {
-        "denied": _(
-            "Vous ne pouvez pas accéder à cette page sans être organisateur de l'événement."
-        )
-    }
-
-    def get_success_url(self):
-        return reverse("manage_event", kwargs={"pk": self.object.pk})
-
-    def get_form(self):
-        kwargs = {}
-
-        if self.request.method in ("POST", "PUT"):
-            kwargs.update({"data": self.request.POST})
-
-        return AddOrganizerForm(self.object, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        if "add_organizer_form" not in kwargs:
-            kwargs["add_organizer_form"] = self.get_form()
-
-        try:
-            report_is_sent = self.request.session["report_sent"] == str(self.object.pk)
-            del self.request.session["report_sent"]
-        except KeyError:
-            report_is_sent = False
-
-        legal_form = EventLegalForm(self.object)
-
-        return super().get_context_data(
-            report_is_sent=report_is_sent,
-            is_organizer=self.request.user.is_authenticated
-            and self.object.organizers.filter(pk=self.request.user.person.id).exists(),
-            organizers=self.object.organizers.all(),
-            rsvps=self.object.rsvps.all(),
-            legal_sections=legal_form.included_sections,
-            incomplete_sections=list(legal_form.incomplete_sections),
-            **kwargs,
-        )
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        if self.object.is_past():
-            raise PermissionDenied(
-                _("Vous ne pouvez pas ajouter d'organisateur à un événement terminé.")
-            )
-
-        form = self.get_form()
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(self.get_success_url())
-
-        return self.render_to_response(self.get_context_data(add_organizer_form=form))
+# CREATION VIEWS
+# ==============
 
 
 class CreateEventView(SoftLoginRequiredMixin, TemplateView):
@@ -346,10 +412,75 @@ class PerformCreateEventView(SoftLoginRequiredMixin, FormMixin, ProcessFormView)
         )
 
 
-class ModifyEventView(
-    HardLoginRequiredMixin, PermissionsRequiredMixin, ImageSizeWarningMixin, UpdateView
+# ADMIN VIEWS
+
+
+class BaseEventAdminView(
+    HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, View
 ):
-    permissions_required = ("events.change_event",)
+    permission_required = ("events.change_event",)
+    queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
+
+
+class ManageEventView(BaseEventAdminView, DetailView):
+    template_name = "events/manage.html"
+
+    error_messages = {
+        "denied": _(
+            "Vous ne pouvez pas accéder à cette page sans être organisateur de l'événement."
+        )
+    }
+
+    def get_success_url(self):
+        return reverse("manage_event", kwargs={"pk": self.object.pk})
+
+    def get_form(self):
+        kwargs = {}
+
+        if self.request.method in ("POST", "PUT"):
+            kwargs.update({"data": self.request.POST})
+
+        return AddOrganizerForm(self.object, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        if "add_organizer_form" not in kwargs:
+            kwargs["add_organizer_form"] = self.get_form()
+
+        try:
+            report_is_sent = self.request.session["report_sent"] == str(self.object.pk)
+            del self.request.session["report_sent"]
+        except KeyError:
+            report_is_sent = False
+
+        legal_form = EventLegalForm(self.object)
+
+        return super().get_context_data(
+            report_is_sent=report_is_sent,
+            organizers=self.object.organizers.all(),
+            organizing_groups=self.object.organizers_groups.all().distinct(),
+            rsvps=self.object.rsvps.all(),
+            legal_sections=legal_form.included_sections,
+            incomplete_sections=list(legal_form.incomplete_sections),
+            **kwargs,
+        )
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.is_past():
+            raise PermissionDenied(
+                _("Vous ne pouvez pas ajouter d'organisateur à un événement terminé.")
+            )
+
+        form = self.get_form()
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(self.get_success_url())
+
+        return self.render_to_response(self.get_context_data(add_organizer_form=form))
+
+
+class ModifyEventView(ImageSizeWarningMixin, BaseEventAdminView, UpdateView):
     template_name = "events/modify.html"
     form_class = EventForm
     image_field = "image"
@@ -386,8 +517,7 @@ class ModifyEventView(
         return res
 
 
-class CancelEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailView):
-    permissions_required = ("events.change_event",)
+class CancelEventView(BaseEventAdminView, DetailView):
     template_name = "events/cancel.html"
     success_url = reverse_lazy("list_events")
 
@@ -411,129 +541,10 @@ class CancelEventView(HardLoginRequiredMixin, PermissionsRequiredMixin, DetailVi
         return HttpResponseRedirect(self.success_url)
 
 
-class QuitEventView(SoftLoginRequiredMixin, PermissionsRequiredMixin, DeleteView):
-    template_name = "events/quit.html"
-    success_url = reverse_lazy("dashboard")
-    context_object_name = "rsvp"
-
-    def get_queryset(self):
-        return RSVP.objects.filter(event__end_time__gte=timezone.now())
-
-    def get_object(self, queryset=None):
-        try:
-            rsvp = (
-                self.get_queryset()
-                .select_related("event")
-                .get(event__pk=self.kwargs["pk"], person=self.request.user.person)
-            )
-            if not self.request.user.has_perm("events.view_event", rsvp.event):
-                raise Http404
-        except RSVP.DoesNotExist:
-            raise Http404()
-
-        return rsvp
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["event"] = self.object.event
-        context["success_url"] = self.get_success_url()
-        return context
-
-    def delete(self, request, *args, **kwargs):
-        # first get response to make sure there's no error before adding message
-        res = super().delete(request, *args, **kwargs)
-
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            format_html(
-                _("Vous ne participez plus à l'événement <em>{}</em>"),
-                self.object.event.name,
-            ),
-        )
-
-        return res
-
-
-class CalendarView(IframableMixin, ObjectOpengraphMixin, ListView):
-    model = Calendar
-    paginate_by = 10
-    context_object_name = "events"
-
-    def get_template_names(self):
-        if self.request.GET.get("iframe"):
-            return ["events/calendar_iframe.html"]
-        return ["events/calendar.html"]
-
-    def get(self, request, *args, **kwargs):
-        try:
-            self.calendar = self.object = self.model.objects.get(
-                slug=self.kwargs.get("slug")
-            )
-        except self.model.DoesNotExist:
-            raise Http404("Ce calendrier n'existe pas.")
-
-        return super().get(request, *args, **kwargs)
-
-    def get_queryset(self):
-        calendar_ids = self.get_calendar_ids(self.calendar.id)
-
-        return (
-            Event.objects.upcoming(as_of=timezone.now())
-            .filter(calendar_items__calendar_id__in=calendar_ids)
-            .order_by("start_time", "id")
-            .distinct("start_time", "id")
-        )
-
-    def get_context_data(self, **kwargs):
-        # get all ids of calendar that are either the one selected, or children of it
-        return super().get_context_data(
-            default_event_image=settings.DEFAULT_EVENT_IMAGE, calendar=self.calendar
-        )
-
-    @staticmethod
-    def get_calendar_ids(parent_id):
-        ids = Calendar.objects.raw(
-            """
-        WITH RECURSIVE children AS (
-            SELECT id
-            FROM events_calendar
-            WHERE id = %s
-          UNION ALL
-            SELECT c.id
-            FROM events_calendar AS c
-            JOIN children
-            ON c.parent_id = children.id
-        )
-        SELECT id FROM children;
-        """,
-            [parent_id],
-        )
-
-        return list(ids)
-
-
-class CalendarIcsView(DetailView):
-    model = Calendar
-
-    def render_to_response(self, context, **response_kwargs):
-        calendar = ics.Calendar(
-            events=[
-                event.to_ics()
-                for event in self.object.events.filter(
-                    visibility=Event.VISIBILITY_PUBLIC
-                )
-            ]
-        )
-
-        return HttpResponse(calendar, content_type="text/calendar")
-
-
 class ChangeEventLocationView(
-    HardLoginRequiredMixin, PermissionsRequiredMixin, ChangeLocationBaseView
+    BaseEventAdminView, ChangeLocationBaseView,
 ):
     template_name = "events/change_location.html"
-    permissions_required = ("events.change_event",)
     form_class = EventGeocodingForm
     success_view_name = "manage_event"
 
@@ -542,10 +553,9 @@ class ChangeEventLocationView(
 
 
 class EditEventReportView(
-    HardLoginRequiredMixin, PermissionsRequiredMixin, ImageSizeWarningMixin, UpdateView
+    BaseEventAdminView, ImageSizeWarningMixin, UpdateView,
 ):
     template_name = "events/edit_event_report.html"
-    permissions_required = ("events.change_event",)
     form_class = EventReportForm
     image_field = "report_image"
 
@@ -557,9 +567,8 @@ class EditEventReportView(
 
 
 class SendEventReportView(
-    HardLoginRequiredMixin, PermissionsRequiredMixin, SingleObjectMixin, View
+    BaseEventAdminView, SingleObjectMixin, View,
 ):
-    permissions_required = ("events.change_event",)
     model = Event
 
     def post(self, request, pk, *args, **kwargs):
@@ -580,9 +589,8 @@ class SendEventReportView(
         return HttpResponseRedirect(reverse("manage_event", kwargs={"pk": pk}))
 
 
-class EditEventLegalView(HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView):
+class EditEventLegalView(BaseEventAdminView, UpdateView):
     template_name = "events/edit_legal.html"
-    permissions_required = ("events.change_event",)
     form_class = EventLegalForm
     model = Event
 
@@ -605,83 +613,3 @@ class EditEventLegalView(HardLoginRequiredMixin, PermissionsRequiredMixin, Updat
 
     def get_success_url(self):
         return reverse("manage_event", args=(self.object.pk,))
-
-
-class UploadEventImageView(
-    SoftLoginRequiredMixin, PermissionsRequiredMixin, CreateView
-):
-    template_name = "events/upload_event_image.html"
-    form_class = UploadEventImageForm
-    permissions_required = ("events.view_event",)
-    permission_denied_to_not_found = True
-
-    def get_queryset(self):
-        return Event.objects.past(as_of=timezone.now())
-
-    def get_success_url(self):
-        return reverse("view_event", args=(self.event.pk,))
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({"author": self.request.user.person, "event": self.event})
-        return kwargs
-
-    def get_author_form(self):
-        author_form_kwargs = {"instance": self.request.user.person}
-        if self.request.method in ["POST", "PUT"]:
-            author_form_kwargs["data"] = self.request.POST
-
-        return AuthorForm(**author_form_kwargs)
-
-    def get_context_data(self, **kwargs):
-        if "author_form" not in kwargs:
-            kwargs["author_form"] = self.get_author_form()
-
-        return super().get_context_data(event=self.event, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        self.object = None
-        self.event = self.get_object()
-
-        if not self.event.rsvps.filter(person=request.user.person).exists():
-            raise PermissionDenied(
-                _("Seuls les participants à l'événement peuvent poster des images")
-            )
-
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.object = None
-        self.event = self.get_object()
-
-        if not self.event.rsvps.filter(person=request.user.person).exists():
-            raise PermissionDenied(
-                _("Seuls les participants à l'événement peuvent poster des images")
-            )
-
-        form = self.get_form()
-        author_form = self.get_author_form()
-
-        if form.is_valid() and author_form.is_valid():
-            return self.form_valid(form, author_form)
-        else:
-            return self.form_invalid(form, author_form)
-
-    # noinspection PyMethodOverriding
-    def form_invalid(self, form, author_form):
-        return self.render_to_response(
-            self.get_context_data(form=form, author_form=author_form)
-        )
-
-    # noinspection PyMethodOverriding
-    def form_valid(self, form, author_form):
-        author_form.save()
-        form.save()
-
-        messages.add_message(
-            self.request,
-            messages.SUCCESS,
-            _("Votre photo a correctement été importée, merci de l'avoir partagée !"),
-        )
-
-        return HttpResponseRedirect(self.get_success_url())

@@ -12,7 +12,7 @@ from rest_framework.generics import ListAPIView
 
 from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
-    PermissionsRequiredMixin,
+    GlobalOrObjectPermissionRequiredMixin,
 )
 from agir.events.models import Event
 from agir.lib.token_bucket import TokenBucket
@@ -91,12 +91,15 @@ class SearchView(ListAPIView):
 
 
 class CommuneChangeView(
-    CommunePageMixin, SoftLoginRequiredMixin, PermissionsRequiredMixin, UpdateView
+    CommunePageMixin,
+    SoftLoginRequiredMixin,
+    GlobalOrObjectPermissionRequiredMixin,
+    UpdateView,
 ):
     queryset = CommunePage.objects.filter(published=True)
     form_class = CommunePageForm
     template_name = "municipales/commune_change.html"
-    permissions_required = ("municipales.change_communepage",)
+    permission_required = ("municipales.change_communepage",)
 
     def get_success_url(self):
         return self.object.get_absolute_url()
@@ -140,7 +143,7 @@ class CommuneProcurationView(CommunePageMixin, UpdateView):
 class CommuneCostCertificateFormView(CommunePageMixin, SingleObjectMixin, FormView):
     queryset = CommunePage.objects.filter(published=True)
     template_name = "municipales/cost_certificate_form.html"
-    permissions_required = ("municipales.change_communepage",)
+    permission_required = ("municipales.change_communepage",)
     form_class = CostCertificateForm
 
     def get(self, request, *args, **kwargs):
@@ -177,7 +180,7 @@ class CommuneCostCertificateFormView(CommunePageMixin, SingleObjectMixin, FormVi
 
 class CommuneCostCertificateDownloadView(CommunePageMixin, BaseDetailView):
     queryset = CommunePage.objects.filter(published=True)
-    permissions_required = ("municipales.change_communepage",)
+    permission_required = ("municipales.change_communepage",)
 
     def render_to_response(self, context):
         path = certificate_path(context["object"])

@@ -1,74 +1,66 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import (
+    AccessMixin,
+    LoginRequiredMixin,
+)
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext as _
+from rules.contrib.views import PermissionRequiredMixin
 
 from agir.authentication.utils import is_hard_logged
 
+SoftLoginRequiredMixin = LoginRequiredMixin
 
-class SoftLoginRequiredMixin(object):
-    def is_authorized(self, request):
-        # cette méthode peut être redéfinie par les classes qui intègrent ce Mixin pour spécialiser davantage
-        # le mécanisme d'autorisation
-        #
-        # Voir par exemple :py:class:agir.donations.views.spending_requests_views.CreateSpendingRequestView
-        return request.user.is_authenticated
 
+class PermissionErrorTo404Mixin:
     def dispatch(self, request, *args, **kwargs):
-        if self.is_authorized(request):
+        try:
             return super().dispatch(request, *args, **kwargs)
+        except PermissionDenied:
+            raise Http404()
 
-        return redirect_to_login(request.get_full_path())
 
-
-class HardLoginRequiredMixin(SoftLoginRequiredMixin):
-    def is_authorized(self, request):
+class HardLoginRequiredMixin(AccessMixin):
+    def dispatch(self, request, *args, **kwargs):
         if not is_hard_logged(request):
-            if not super().is_authorized(request):
+            if request.user.is_authenticated:
                 messages.add_message(
                     request,
                     messages.WARNING,
-                    "Pour accéder à cette partie du site, nous devons vérifier que vous avez bien accès à votre adresse"
-                    " email en vous demandant de vous reconnecter.",
+                    _(
+                        "Pour accéder à cette partie du site, nous devons vous demander de vous reconnecter.",
+                    ),
                 )
-            return False
-        return True
+
+            # TOUJOURS rediriger vers le login pour du hardlogin
+            # N.B. on ne peut pas redéfinir handle_no_permission, sinon on rend impossible l'utilisation
+            # de ce mixin en même temps qu'un des mixins de permissions.
+            return redirect_to_login(
+                self.request.get_full_path(),
+                self.get_login_url(),
+                self.get_redirect_field_name(),
+            )
+        return super().dispatch(request, *args, **kwargs)
 
 
-class PermissionsRequiredMixin(object):
-    permissions_required = ()
-    permission_denied_to_not_found = False
-    permission_denied_message = _(
-        "Vous n'avez pas l'autorisation d'accéder à cette page."
-    )
+class GlobalOrObjectPermissionRequiredMixin(PermissionRequiredMixin):
+    raise_exception = True
 
-    def get_object(self):
-        if not hasattr(self, "_cached_object"):
-            self._cached_object = super().get_object()
-        return self._cached_object
+    def has_permission(self):
+        perms = self.get_permission_required()
 
-    def get_permission_denied_response(self, object):
-        if self.permission_denied_to_not_found:
-            raise Http404()
-        raise PermissionDenied(self.permission_denied_message)
-
-    def dispatch(self, *args, **kwargs):
-        # check if there are some perms that the user does not have globally
         user = self.request.user
-        local_perms = {
-            perm for perm in self.permissions_required if not user.has_perm(perm)
-        }
-
-        if local_perms:
-            obj = self.get_object()
-
-            for perm in local_perms:
+        required_object_perms = {perm for perm in perms if not user.has_perm(perm)}
+        if required_object_perms:
+            obj = self.get_permission_object()
+            for perm in required_object_perms:
                 if not user.has_perm(perm, obj):
-                    return self.get_permission_denied_response(obj)
+                    return False
 
-        return super().dispatch(*args, **kwargs)
+        return True
 
 
 class VerifyLinkSignatureMixin:

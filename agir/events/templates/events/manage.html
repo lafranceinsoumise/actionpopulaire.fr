@@ -24,10 +24,10 @@
       <div class="row">
         <div class="col-md-6">
           {% spaceless %}
-            {% if event.organizers_groups.all|length > 0 %}
+            {% if organizing_groups %}
               <p>
                 Organisé par le(s) groupe(s) d'action
-                {% for supportgroup in event.organizers_groups.all.distinct %}
+                {% for supportgroup in organizing_groups %}
                   <a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a>
                   {% if not forloop.last %}{% if forloop.revcounter0 == 1 %} et {% else %}
                     , {% endif %}{% else %}.{% endif %}

@@ -18,7 +18,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, DeleteView, FormView, ListView
 
 from agir.authentication.view_mixins import (
-    PermissionsRequiredMixin,
+    GlobalOrObjectPermissionRequiredMixin,
     HardLoginRequiredMixin,
 )
 from agir.front.view_mixins import ObjectOpengraphMixin, FilterView
@@ -52,16 +52,16 @@ class SupportGroupListView(FilterView):
 
 
 class SupportGroupDetailView(
-    ObjectOpengraphMixin, PermissionsRequiredMixin, DetailView
+    ObjectOpengraphMixin, GlobalOrObjectPermissionRequiredMixin, DetailView
 ):
-    permissions_required = ("groups.view_supportgroup",)
+    permission_required = ("groups.view_supportgroup",)
     template_name = "groups/detail.html"
     model = SupportGroup
 
     title_prefix = "Groupe d'action"
     meta_description = "Rejoignez les groupes d'action de la France insoumise."
 
-    def get_permission_denied_response(self, object):
+    def handle_no_permission(self):
         return HttpResponseGone()
 
     def get_template_names(self):
@@ -130,12 +130,12 @@ class SupportGroupIcsView(DetailView):
 
 
 class QuitSupportGroupView(
-    HardLoginRequiredMixin, PermissionsRequiredMixin, DeleteView
+    HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, DeleteView
 ):
     template_name = "groups/quit.html"
     success_url = reverse_lazy("dashboard")
     queryset = Membership.objects.active().all()
-    permissions_required = ("groups.delete_membership",)
+    permission_required = ("groups.delete_membership",)
     context_object_name = "membership"
 
     def get_object(self, queryset=None):
