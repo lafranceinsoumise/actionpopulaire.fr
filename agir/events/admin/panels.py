@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from agir.events.models import Calendar
-from agir.groups.models import SupportGroup
+from agir.groups.models import SupportGroup, Membership
 from agir.lib.admin import (
     CenterOnFranceMixin,
     DepartementListFilter,
@@ -113,7 +113,8 @@ class OrganizerConfigInlineAdminForm(forms.ModelForm):
             self.fields["as_group"].queryset = SupportGroup.objects.none()
         else:
             self.fields["as_group"].queryset = SupportGroup.objects.filter(
-                memberships__person=self.instance.person, memberships__is_manager=True
+                memberships__person=self.instance.person,
+                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
             )
 
 

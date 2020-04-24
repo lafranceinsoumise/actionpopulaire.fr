@@ -19,6 +19,7 @@ from dynamic_filenames import FilePattern
 from slugify import slugify
 from stdimage.models import StdImageField
 
+from agir.groups.models import Membership
 from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.form_fields import DateTimePickerWidget
 from agir.lib.model_fields import FacebookEventField
@@ -770,11 +771,12 @@ class OrganizerConfig(ExportModelOperationsMixin("organizer_config"), models.Mod
 
     def clean(self):
         super().clean()
-        memberships = self.person.memberships.filter(is_manager=True).select_related(
-            "supportgroup"
-        )
-        managed_groups = [membership.supportgroup for membership in memberships]
-        if self.as_group and self.as_group not in managed_groups:
+        if self.as_group is None:
+            return
+
+        if not self.as_group.memberships.filter(
+            person=self.person, membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        ).exists():
             raise ValidationError(
                 {"as_group": "Le groupe doit être un groupe que vous gérez."}
             )

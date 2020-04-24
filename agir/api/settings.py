@@ -31,6 +31,11 @@ ENABLE_DEBUG_TOOLBAR = os.environ.get("ENABLE_DEBUG_TOOLBAR", "false").lower() =
 ENABLE_SILK = os.environ.get("ENABLE_SILK", "false").lower() == "true"
 
 
+# Supprimer une fausse erreur
+# On a remplacé django.contrib.auth.context_processors.auth par un équivalent,
+# agir.authentication.context_processors.auth
+SILENCED_SYSTEM_CHECKS = ["admin.E402"]
+
 ENABLE_API = not os.environ.get("ENABLE_API", "y").lower() in ["n", "no", "false"]
 ENABLE_FRONT = (
     os.environ.get("ENABLE_FRONT", "n").lower() in ["y", "yes", "true"] or DEBUG
@@ -196,7 +201,7 @@ TEMPLATES = [
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
+                "agir.authentication.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "agir.api.context_processors.domain_names",
                 "agir.notifications.context_processors.notifications",

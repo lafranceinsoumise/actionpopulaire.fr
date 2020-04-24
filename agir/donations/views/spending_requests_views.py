@@ -46,7 +46,9 @@ class CreateSpendingRequestView(HardLoginRequiredMixin, TemplateView):
             super().is_authorized(request)
             and group_can_handle_allocation(self.group)
             and Membership.objects.filter(
-                person=request.user.person, supportgroup=self.group, is_manager=True
+                person=request.user.person,
+                supportgroup=self.group,
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
             ).exists()
         )
 

@@ -59,14 +59,12 @@ def load_fake_data():
     Membership.objects.create(
         supportgroup=groups["user1_group"],
         person=people["user1"],
-        is_manager=True,
-        is_referent=True,
+        membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
     )
     Membership.objects.create(
         supportgroup=groups["user2_group"],
         person=people["user2"],
-        is_manager=True,
-        is_referent=True,
+        membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
     )
     Membership.objects.create(
         supportgroup=groups["user1_group"], person=people["user2"]

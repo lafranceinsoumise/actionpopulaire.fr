@@ -142,7 +142,7 @@
             {% endfor %}
           </ul>
 
-          {% if referents|length == 1 and is_referent %}
+          {% if referents|length == 1 and supportgroup in perms.groups.add_referent_to_supportgroup %}
             <div>
               <p>
                 Vous etes à l'heure actuelle l'unique animatrice ou animateur enregistré de ce groupe d'action. La
@@ -192,7 +192,7 @@
             <p><strong>Il n'y a pas de membres gestionnaires dans le groupe pour le moment !</strong></p>
           {% endif %}
 
-          {% if is_referent %}
+          {% if supportgroup in perms.groups.add_manager_to_supportgroup %}
             <p>Ajouter un membre gestionnaire :</p>
             {% crispy add_manager_form %}
           {% endif %}

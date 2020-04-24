@@ -5,6 +5,7 @@ from django.db.models import Q, Sum
 from django_countries.fields import CountryField
 from nuntius.models import BaseSegment, CampaignSentStatusType
 
+from agir.groups.models import Membership
 from agir.lib import data
 from agir.lib.model_fields import ChoiceArrayField
 from agir.payments.model_fields import AmountField
@@ -201,12 +202,13 @@ class Segment(BaseSegment, models.Model):
             elif self.supportgroup_status == self.GA_STATUS_REFERENT:
                 query = Q(
                     memberships__supportgroup__published=True,
-                    memberships__is_referent=True,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
                 )
             else:
                 # ==> self.supportgroup_status == self.GA_STATUS_MANAGER
-                query = Q(memberships__supportgroup__published=True) & (
-                    Q(memberships__is_manager=True) | Q(memberships__is_referent=True)
+                query = Q(
+                    memberships__supportgroup__published=True,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
                 )
 
             if self.supportgroup_subtypes.all().count() > 0:

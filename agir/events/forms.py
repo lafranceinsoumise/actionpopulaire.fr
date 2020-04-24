@@ -14,7 +14,7 @@ from phonenumber_field.formfields import PhoneNumberField
 
 from agir.events.actions import legal
 from agir.events.actions.legal import needs_approval
-from agir.groups.models import SupportGroup
+from agir.groups.models import SupportGroup, Membership
 from agir.groups.tasks import notify_new_group_event
 from agir.lib.form_components import *
 from agir.lib.form_mixins import (
@@ -110,7 +110,9 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
 
         self.fields["as_group"] = forms.ModelChoiceField(
             queryset=SupportGroup.objects.filter(
-                memberships__person=person, memberships__is_manager=True, published=True
+                memberships__person=person,
+                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                published=True,
             ),
             empty_label="Ne pas créer au nom d'un groupe",
             label=_("Créer l'événement au nom d'un groupe d'action"),

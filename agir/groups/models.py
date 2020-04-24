@@ -194,6 +194,15 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
     This model also indicates if the person is referent for this support group
     """
 
+    MEMBERSHIP_TYPE_MEMBER = 10
+    MEMBERSHIP_TYPE_MANAGER = 50
+    MEMBERSHIP_TYPE_REFERENT = 100
+    MEMBERSHIP_TYPE_CHOICES = (
+        (MEMBERSHIP_TYPE_MEMBER, "Membre du groupe"),
+        (MEMBERSHIP_TYPE_MANAGER, "Membre gestionnaire"),
+        (MEMBERSHIP_TYPE_REFERENT, "Animateur⋅rice"),
+    )
+
     objects = MembershipQuerySet.as_manager()
 
     person = models.ForeignKey(
@@ -210,8 +219,11 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
         editable=False,
     )
 
-    is_referent = models.BooleanField(_("animateur du groupe"), default=False)
-    is_manager = models.BooleanField(_("autre gestionnaire du groupe"), default=False)
+    membership_type = models.IntegerField(
+        _("Statut dans le groupe"),
+        choices=MEMBERSHIP_TYPE_CHOICES,
+        default=MEMBERSHIP_TYPE_MEMBER,
+    )
 
     notifications_enabled = models.BooleanField(
         _("Recevoir les notifications de ce groupe"),
@@ -225,8 +237,16 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
         unique_together = ("supportgroup", "person")
 
     def __str__(self):
-        return _("{person} --> {supportgroup},  (animateur = {is_referent})").format(
+        return _("{person} --> {supportgroup},  ({type})").format(
             person=self.person,
             supportgroup=self.supportgroup,
-            is_referent=self.is_referent,
+            type=self.get_membership_type_display(),
         )
+
+    @property
+    def is_referent(self):
+        return self.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
+
+    @property
+    def is_manager(self):
+        return self.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER

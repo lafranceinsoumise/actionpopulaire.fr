@@ -27,7 +27,7 @@ class RSVPInline(admin.TabularInline):
 class MembershipInline(admin.TabularInline):
     model = Membership
     can_add = False
-    fields = ("supportgroup_link", "is_referent", "is_manager")
+    fields = ("supportgroup_link", "membership_type")
     readonly_fields = ("supportgroup_link",)
 
     def supportgroup_link(self, obj):

@@ -28,11 +28,12 @@ from . import views
 from .forms import SupportGroupAdminForm
 from .. import models
 from ..actions.promo_codes import get_next_promo_code
+from ..models import Membership
 
 
 class MembershipInline(admin.TabularInline):
     model = models.Membership
-    fields = ("person_link", "is_referent", "is_manager")
+    fields = ("person_link", "membership_type")
     readonly_fields = ("person_link",)
 
     def person_link(self, obj):
@@ -160,7 +161,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "location_short",
         "membership_count",
         "created",
-        "referent",
+        "referents",
         "allocation",
     )
     list_filter = (
@@ -186,14 +187,16 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     promo_code.short_description = _("Code promo du mois")
 
-    def referent(self, object):
-        referent = object.memberships.filter(is_referent=True).first()
-        if referent:
-            return referent.person.email
+    def referents(self, object):
+        referents = object.memberships.filter(
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT
+        ).select_related("person")
+        if referents:
+            return " / ".join(a.person.email for a in referents)
 
-        return ""
+        return "-"
 
-    referent.short_description = _("Animateurice")
+    referents.short_description = _("Animateur⋅ices")
 
     def location_short(self, object):
         return _("{zip} {city}, {country}").format(

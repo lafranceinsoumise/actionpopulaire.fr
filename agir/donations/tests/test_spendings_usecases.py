@@ -34,10 +34,14 @@ class SpendingRequestTestCase(TestCase):
         self.group1.subtypes.add(self.certified_subtype)
 
         self.membership1 = Membership.objects.create(
-            person=self.p1, supportgroup=self.group1, is_manager=True
+            person=self.p1,
+            supportgroup=self.group1,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
         self.membership2 = Membership.objects.create(
-            person=self.p2, supportgroup=self.group1, is_manager=True
+            person=self.p2,
+            supportgroup=self.group1,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
 
         self.payment = Payment.objects.create(

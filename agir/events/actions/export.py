@@ -26,7 +26,7 @@ COMMON_FIELDS = [
 ADRESS_FIELDS = ["location_name", "location_address1", "location_address2"]
 LINK_FIELDS = ["link", "admin_link"]
 
-FIELDS = COMMON_FIELDS + ["address", "animators"] + LINK_FIELDS
+FIELDS = COMMON_FIELDS + ["address", "referents"] + LINK_FIELDS
 
 common_extractor = attrgetter(*COMMON_FIELDS)
 address_parts_extractor = attrgetter(*ADRESS_FIELDS)
@@ -65,7 +65,7 @@ def events_to_dicts(queryset, timezone=None):
             component for component in address_parts_extractor(e) if component
         )
 
-        d["animators"] = " / ".join(
+        d["referents"] = " / ".join(
             initiator_template.format(*initiator_extractor(og.person)).strip()
             for og in e.organizer_configs.all()
         )

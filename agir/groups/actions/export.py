@@ -5,6 +5,7 @@ from html import unescape
 from django.conf import settings
 from django.urls import reverse
 
+from agir.groups.models import Membership
 from agir.lib.export import dicts_to_csv_lines
 
 
@@ -23,10 +24,10 @@ COMMON_FIELDS = [
 ADDRESS_FIELDS = ["location_name", "location_address1", "location_address2"]
 LINK_FIELDS = ["link", "admin_link"]
 
-FIELDS = COMMON_FIELDS + ["address", "animators"] + LINK_FIELDS
+FIELDS = COMMON_FIELDS + ["address", "referents"] + LINK_FIELDS
 
-ANIMATOR_SIMPLE_FIELDS = ["email", "last_name", "first_name", "contact_phone"]
-ANIMATOR_FIELDS = ANIMATOR_SIMPLE_FIELDS + [
+REFERENT_SIMPLE_FIELDS = ["email", "last_name", "first_name", "contact_phone"]
+REFERENT_FIELDS = REFERENT_SIMPLE_FIELDS + [
     "group_name",
     "admin_link",
     "group_link",
@@ -36,13 +37,13 @@ ANIMATOR_FIELDS = ANIMATOR_SIMPLE_FIELDS + [
 common_extractor = attrgetter(*COMMON_FIELDS)
 address_parts_extractor = attrgetter(*ADDRESS_FIELDS)
 
-animator_extractor = attrgetter(*ANIMATOR_SIMPLE_FIELDS)
+referent_extractor = attrgetter(*REFERENT_SIMPLE_FIELDS)
 
 initiator_template = "{first_name} {last_name} {contact_phone} <{email}>"
 
 
 def memberships_to_csv(queryset, output):
-    w = csv.DictWriter(output, fieldnames=ANIMATOR_FIELDS)
+    w = csv.DictWriter(output, fieldnames=REFERENT_FIELDS)
     w.writeheader()
     w.writerows(memberships_to_dict(queryset))
 
@@ -69,14 +70,16 @@ def groups_to_dicts(queryset):
             bleach.clean(d["description"].replace("<br />", "\n"), tags=[], strip=True)
         )
 
-        animators = (
+        referents = (
             initiator_template.format(
-                **dict(zip(ANIMATOR_SIMPLE_FIELDS, animator_extractor(m.person)))
+                **dict(zip(REFERENT_SIMPLE_FIELDS, referent_extractor(m.person)))
             )
-            for m in g.memberships.filter(is_referent=True)
+            for m in g.memberships.filter(
+                membership_type=Membership.MEMBERSHIP_TYPE_REFERENT
+            )
         )
 
-        d["animators"] = " / ".join(animators)
+        d["referents"] = " / ".join(referents)
 
         d["link"] = settings.FRONT_DOMAIN + reverse(
             "manage_group", urlconf=front_urls, args=[g.id]
@@ -92,7 +95,7 @@ def memberships_to_dict(queryset):
     from agir.api import front_urls
 
     for m in queryset:
-        d = {k: v for k, v in zip(ANIMATOR_SIMPLE_FIELDS, animator_extractor(m.person))}
+        d = {k: v for k, v in zip(REFERENT_SIMPLE_FIELDS, referent_extractor(m.person))}
         d["group_name"] = m.supportgroup.name
         d["admin_link"] = settings.API_DOMAIN + reverse(
             "admin:people_person_change", args=[m.person_id]

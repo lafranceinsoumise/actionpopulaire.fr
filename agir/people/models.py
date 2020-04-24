@@ -464,6 +464,10 @@ class Person(
             )
             self.save(update_fields=["role"])
 
+    def has_perm(self, perm, obj=None):
+        """Simple raccourci pour vérifier les permissions"""
+        return self.role.has_perm(perm, obj)
+
 
 class PersonTag(AbstractLabel):
     """

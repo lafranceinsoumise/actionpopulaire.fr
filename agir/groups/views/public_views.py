@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import IntegrityError
-from django.db.models import Q
 from django.http import (
     HttpResponseGone,
     HttpResponseForbidden,
@@ -83,11 +82,6 @@ class SupportGroupDetailView(
             and self.object.memberships.filter(
                 person=self.request.user.person
             ).exists(),
-            is_referent_or_manager=self.request.user.is_authenticated
-            and self.object.memberships.filter(
-                Q(person=self.request.user.person)
-                & (Q(is_referent=True) | Q(is_manager=True))
-            ).exists(),
             **kwargs,
         )
 
@@ -135,10 +129,13 @@ class SupportGroupIcsView(DetailView):
         return HttpResponse(calendar, content_type="text/calendar")
 
 
-class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
+class QuitSupportGroupView(
+    HardLoginRequiredMixin, PermissionsRequiredMixin, DeleteView
+):
     template_name = "groups/quit.html"
     success_url = reverse_lazy("dashboard")
     queryset = Membership.objects.active().all()
+    permissions_required = ("groups.delete_membership",)
     context_object_name = "membership"
 
     def get_object(self, queryset=None):
@@ -163,31 +160,16 @@ class QuitSupportGroupView(HardLoginRequiredMixin, DeleteView):
         self.object = self.get_object()
         success_url = self.get_success_url()
 
-        # make sure user is not a referent who cannot quit groups
-        if (
-            self.object.is_referent
-            and len(self.object.supportgroup.memberships.filter(is_referent=True)) < 2
-        ):
-            messages.add_message(
-                request,
-                messages.ERROR,
-                _(
-                    "Vous êtes seul animateur⋅rice de ce groupe, et ne pouvez donc pas le quitter."
-                    " Votre groupe doit d'abord se choisir un ou une autre animatrice pour permettre votre départ."
-                ),
-            )
+        self.object.delete()
 
-        else:
-            self.object.delete()
-
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                format_html(
-                    _("Vous avez bien quitté le groupe <em>{}</em>"),
-                    self.object.supportgroup.name,
-                ),
-            )
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            format_html(
+                _("Vous avez bien quitté le groupe <em>{}</em>"),
+                self.object.supportgroup.name,
+            ),
+        )
 
         return HttpResponseRedirect(success_url)
 

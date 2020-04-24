@@ -3,7 +3,17 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.core.paginator import Paginator
-from django.db.models import Value, F, TextField, Q, Case, When, BooleanField, Sum
+from django.db.models import (
+    Value,
+    TextField,
+    Q,
+    Case,
+    When,
+    BooleanField,
+    Sum,
+    Exists,
+    OuterRef,
+)
 from django.utils import timezone
 from django.views.generic import TemplateView
 
@@ -11,7 +21,7 @@ from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.events.models import Event
 from agir.groups.actions import get_next_promo_code
 from agir.groups.actions.promo_codes import is_promo_code_delayed, next_promo_code_date
-from agir.groups.models import SupportGroup
+from agir.groups.models import SupportGroup, Membership
 from agir.lib.tasks import geocode_person
 from agir.municipales.models import CommunePage
 from agir.payments.models import Payment
@@ -40,12 +50,17 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
             rsvped_events = rsvped_events.annotate(
                 distance=Distance("coordinates", person.coordinates)
             )
+
         members_groups = list(
             SupportGroup.objects.filter(memberships__person=person, published=True)
             .order_by("name")
             .annotate(
-                user_is_manager=F("memberships__is_manager")._combine(
-                    F("memberships__is_referent"), "OR", False
+                user_is_manager=Exists(
+                    Membership.objects.filter(
+                        supportgroup_id=OuterRef("id"),
+                        person=person,
+                        membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                    )
                 ),
                 has_promo_code=Sum(
                     Case(

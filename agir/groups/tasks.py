@@ -126,7 +126,7 @@ def send_someone_joined_notification(membership_pk):
 
     person_information = str(membership.person)
 
-    managers_filter = (Q(is_referent=True) | Q(is_manager=True)) & Q(
+    managers_filter = (Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)) & Q(
         notifications_enabled=True
     )
     managing_membership = (

@@ -8,6 +8,7 @@ from django.conf import settings
 from django.db.models import Q
 from requests import HTTPError
 
+from agir.groups.models import Membership
 from agir.lib.utils import generate_token_params
 
 params = {"access_token": settings.MAILTRAIN_API_KEY}
@@ -16,7 +17,7 @@ params = {"access_token": settings.MAILTRAIN_API_KEY}
 def data_from_person(person, tmp_tags=None):
     data = {}
 
-    is_animateur = Q(is_referent=True) | Q(is_manager=True)
+    is_animateur = Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT)
     inscriptions = [
         ("evenements_yes" if person.events.upcoming().count() > 0 else "evenements_no"),
         ("groupe_yes" if person.supportgroups.active().count() > 0 else "groupe_no"),

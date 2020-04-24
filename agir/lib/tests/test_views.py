@@ -19,7 +19,9 @@ class ImageSizeWarningTestCase(TestCase):
         self.role = self.person.role
         self.group = SupportGroup.objects.create(name="Group name")
         Membership.objects.create(
-            supportgroup=self.group, person=self.person, is_manager=True
+            supportgroup=self.group,
+            person=self.person,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
 
         self.now = now = timezone.now().astimezone(timezone.get_default_timezone())

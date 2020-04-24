@@ -20,8 +20,7 @@ class NavbarTestCase(TestCase):
         Membership.objects.create(
             person=self.person,
             supportgroup=self.group,
-            is_referent=True,
-            is_manager=True,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
 
     def test_navbar_authenticated(self):
@@ -60,8 +59,7 @@ class PagesLoadingTestCase(TestCase):
         Membership.objects.create(
             person=self.person,
             supportgroup=self.group,
-            is_referent=True,
-            is_manager=True,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
 
     @mock.patch("agir.people.views.dashboard.geocode_person")

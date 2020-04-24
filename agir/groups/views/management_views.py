@@ -63,36 +63,12 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
-class CheckMembershipMixin:
-    def user_is_referent(self):
-        return self.user_membership is not None and self.user_membership.is_referent
-
-    def user_is_manager(self):
-        return self.user_membership is not None and (
-            self.user_membership.is_referent or self.user_membership.is_manager
-        )
-
-    @property
-    def user_membership(self):
-        if not hasattr(self, "_user_membership"):
-            if isinstance(self.object, SupportGroup):
-                group = self.object
-            else:
-                group = self.object.supportgroup
-
-            try:
-                self._user_membership = group.memberships.get(
-                    person=self.request.user.person
-                )
-            except Membership.DoesNotExist:
-                self._user_membership = None
-
-        return self._user_membership
+class BaseSupportGroupAdminView(HardLoginRequiredMixin, PermissionsRequiredMixin, View):
+    queryset = SupportGroup.objects.active()
+    permissions_required = ("groups.change_supportgroup",)
 
 
-class SupportGroupManagementView(
-    HardLoginRequiredMixin, CheckMembershipMixin, DetailView
-):
+class SupportGroupManagementView(BaseSupportGroupAdminView, DetailView):
     template_name = "groups/manage.html"
     queryset = SupportGroup.objects.active().all().prefetch_related("memberships")
     messages = {
@@ -106,7 +82,6 @@ class SupportGroupManagementView(
             "{email} a bien été invité à rejoindre votre groupe."
         ),
     }
-    need_referent_status = {"add_referent_form", "add_manager_form"}
     active_panel = {
         "add_referent_form": "animation",
         "add_manager_form": "animation",
@@ -128,11 +103,11 @@ class SupportGroupManagementView(
         }
 
     def get_context_data(self, **kwargs):
-        kwargs["referents"] = self.object.memberships.filter(is_referent=True).order_by(
-            "created"
-        )
+        kwargs["referents"] = self.object.memberships.filter(
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT
+        ).order_by("created")
         kwargs["managers"] = self.object.memberships.filter(
-            is_manager=True, is_referent=False
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER
         ).order_by("created")
         kwargs["members"] = self.object.memberships.all().order_by("created")
         kwargs["has_promo_code"] = self.object.tags.filter(
@@ -163,20 +138,10 @@ class SupportGroupManagementView(
         for form_name, form in forms.items():
             kwargs.setdefault(form_name, form)
 
-        return super().get_context_data(
-            is_referent=self.user_membership is not None
-            and self.user_membership.is_referent,
-            is_manager=self.user_membership is not None
-            and (self.user_membership.is_referent or self.user_membership.is_manager),
-            **kwargs,
-        )
+        return super().get_context_data(**kwargs,)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-
-        # only managers can access the page
-        if not self.user_is_manager():
-            raise PermissionDenied("Vous n'etes pas gestionnaire de ce groupe.")
 
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
@@ -185,13 +150,6 @@ class SupportGroupManagementView(
         self.object = self.get_object()
 
         form_name = request.POST.get("form")
-
-        # only referents can add referents and managers
-        if not self.user_is_referent() and form_name in self.need_referent_status:
-            raise PermissionDenied(
-                "Vous n'êtes pas animateur de ce groupe et ne pouvez donc pas modifier les "
-                "animateurs et gestionnaires."
-            )
 
         forms = self.get_forms()
         if form_name in forms:
@@ -280,12 +238,8 @@ class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFo
         )
 
 
-class ModifySupportGroupView(
-    HardLoginRequiredMixin, PermissionsRequiredMixin, UpdateView
-):
-    permissions_required = ("groups.change_supportgroup",)
+class ModifySupportGroupView(BaseSupportGroupAdminView, UpdateView):
     template_name = "groups/modify.html"
-    queryset = SupportGroup.objects.active().all()
     form_class = SupportGroupForm
 
     def get_form_kwargs(self):
@@ -311,7 +265,7 @@ class ModifySupportGroupView(
         return res
 
 
-class RemoveManagerView(HardLoginRequiredMixin, CheckMembershipMixin, DetailView):
+class RemoveManagerView(BaseSupportGroupAdminView, DetailView):
     template_name = "front/confirm.html"
     queryset = (
         Membership.objects.active()
@@ -319,6 +273,7 @@ class RemoveManagerView(HardLoginRequiredMixin, CheckMembershipMixin, DetailView
         .select_related("supportgroup")
         .select_related("person")
     )
+    permissions_required = ("groups.change_membership",)
 
     def get_context_data(self, **kwargs):
         person = self.object.person
@@ -343,26 +298,13 @@ class RemoveManagerView(HardLoginRequiredMixin, CheckMembershipMixin, DetailView
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if not self.user_is_referent():
-            raise PermissionDenied(
-                "Vous n'êtes pas animateur de cet événement et ne pouvez donc pas modifier les "
-                "animateurs et gestionnaires."
-            )
-
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        # user has to be referent, and target user cannot be a referent
-        if not self.user_is_referent() or self.object.is_referent:
-            raise PermissionDenied(
-                "Vous n'êtes pas animateur de cet événement et ne pouvez donc pas modifier les "
-                "animateurs et gestionnaires."
-            )
-
-        self.object.is_manager = False
+        self.object.membership_type = Membership.MEMBERSHIP_TYPE_MEMBER
         self.object.save()
 
         messages.add_message(
@@ -378,16 +320,14 @@ class RemoveManagerView(HardLoginRequiredMixin, CheckMembershipMixin, DetailView
         )
 
 
-class ChangeGroupLocationView(ChangeLocationBaseView):
+class ChangeGroupLocationView(BaseSupportGroupAdminView, ChangeLocationBaseView):
     template_name = "groups/change_location.html"
     form_class = GroupGeocodingForm
-    queryset = SupportGroup.objects.active().all()
     success_view_name = "manage_group"
 
 
-class RedirectToPresseroView(HardLoginRequiredMixin, DetailView):
+class RedirectToPresseroView(BaseSupportGroupAdminView, DetailView):
     template_name = "groups/pressero_error.html"
-    queryset = SupportGroup.objects.active()
 
     def get(self, request, *args, **kwargs):
         group = self.get_object()
@@ -398,11 +338,6 @@ class RedirectToPresseroView(HardLoginRequiredMixin, DetailView):
 
         if not group.is_certified:
             raise Http404("Cette page n'existe pas")
-
-        if not Membership.objects.filter(
-            supportgroup=group, person=person, is_manager=True
-        ).exists:
-            raise PermissionDenied("Vous ne pouvez pas accéder à cette page.")
 
         try:
             return redirect_to_pressero(person)

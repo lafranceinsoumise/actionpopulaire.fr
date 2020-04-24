@@ -54,7 +54,9 @@ class OrganizerAsGroupTestCase(TestCase):
         )
         self.group1 = SupportGroup.objects.create(name="Nom")
         Membership.objects.create(
-            person=self.person, supportgroup=self.group1, is_manager=True
+            person=self.person,
+            supportgroup=self.group1,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
         self.group2 = SupportGroup.objects.create(name="Nom")
         Membership.objects.create(person=self.person, supportgroup=self.group2)
@@ -81,7 +83,9 @@ class EventPagesTestCase(TestCase):
         )
         self.group = SupportGroup.objects.create(name="Group name")
         Membership.objects.create(
-            supportgroup=self.group, person=self.person, is_manager=True
+            supportgroup=self.group,
+            person=self.person,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
 
         self.now = now = timezone.now().astimezone(timezone.get_default_timezone())

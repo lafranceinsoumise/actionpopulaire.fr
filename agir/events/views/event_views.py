@@ -58,6 +58,7 @@ from ..tasks import (
     send_event_report,
     send_secretariat_notification,
 )
+from ...groups.models import Membership
 
 __all__ = [
     "CreateEventView",
@@ -256,7 +257,8 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
         groups = [
             {"id": str(m.supportgroup.pk), "name": m.supportgroup.name}
             for m in person.memberships.filter(
-                supportgroup__published=True, is_manager=True
+                supportgroup__published=True,
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
             )
         ]
 

@@ -171,8 +171,7 @@ class SupportGroupForm(
             self.membership = Membership.objects.create(
                 person=self.person,
                 supportgroup=self.instance,
-                is_referent=True,
-                is_manager=True,
+                membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
             )
 
     def schedule_tasks(self):
@@ -225,7 +224,9 @@ class MembershipChoiceField(forms.ModelChoiceField):
 class AddReferentForm(forms.Form):
     form = forms.CharField(initial="add_referent_form", widget=forms.HiddenInput())
     referent = MembershipChoiceField(
-        queryset=Membership.objects.filter(is_referent=False),
+        queryset=Membership.objects.filter(
+            membership_type__lt=Membership.MEMBERSHIP_TYPE_REFERENT
+        ),
         label=_("Second animateur"),
     )
 
@@ -242,8 +243,7 @@ class AddReferentForm(forms.Form):
     def perform(self):
         membership = self.cleaned_data["referent"]
 
-        membership.is_referent = True
-        membership.is_manager = True
+        membership.membership_type = Membership.MEMBERSHIP_TYPE_REFERENT
         membership.save()
 
         return {"email": membership.person.email}
@@ -252,7 +252,10 @@ class AddReferentForm(forms.Form):
 class AddManagerForm(forms.Form):
     form = forms.CharField(initial="add_manager_form", widget=forms.HiddenInput())
     manager = MembershipChoiceField(
-        queryset=Membership.objects.filter(is_manager=False), label=False
+        queryset=Membership.objects.filter(
+            membership_type__lt=Membership.MEMBERSHIP_TYPE_MANAGER
+        ),
+        label=False,
     )
 
     def __init__(self, support_group, *args, **kwargs):

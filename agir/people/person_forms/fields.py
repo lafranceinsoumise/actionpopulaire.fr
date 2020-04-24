@@ -18,7 +18,7 @@ from agir.events.models import Event
 from agir.lib.data import departements_choices, regions_choices
 from agir.lib.form_fields import DateTimePickerWidget, SelectizeWidget, IBANField
 from ..models import Person
-from ...groups.models import SupportGroup
+from ...groups.models import SupportGroup, Membership
 from ...municipales.models import CommunePage
 
 logger = logging.getLogger(__name__)
@@ -246,15 +246,21 @@ class GroupField(forms.ModelChoiceField):
         queryset = SupportGroup.objects.active()
         self.default_queryset = queryset.filter(memberships__person_id=instance.id)
 
-        if choices in ["animateur", "animator"]:
+        if choices in ["animateur", "animator", "referent"]:
             queryset = self.default_queryset = queryset.filter(
-                memberships__person_id=instance.id, memberships__is_referent=True
+                memberships__person_id=instance.id,
+                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+            )
+        elif choices in ["manager", "gestionnaire"]:
+            queryset = self.default_queryset = queryset.filter(
+                memberships__person_id=instance.id,
+                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
             )
         elif choices in ["membre", "member"]:
             queryset = self.default_queryset
         elif choices:
             raise ValueError(
-                f"Valeur '{choices}' du paramètres choices incorrect: laissez vide ou indiquez 'member' ou 'animator'"
+                f"Valeur '{choices}' du paramètres choices incorrect: laissez vide ou indiquez 'member' ou 'referent'"
             )
         self.choice_constraint = choices
         self.default_options_label = default_options_label

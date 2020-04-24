@@ -28,8 +28,7 @@ def merge_persons(p1, p2):
             if m2.supportgroup_id in groups:
                 m1 = groups[m2.supportgroup_id]
                 m1.created = min(m1.created, m2.created)
-                merge_attr_or(m1, m2, "is_referent")
-                merge_attr_or(m1, m2, "is_manager")
+                m1.membership_type = max(m1.membership_type, m2.membership_type)
                 merge_attr_or(m1, m2, "notifications_enabled")
 
                 m1.save()
