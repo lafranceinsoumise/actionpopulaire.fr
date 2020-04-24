@@ -1,4 +1,4 @@
-from django.contrib.auth import BACKEND_SESSION_KEY
+from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
@@ -9,19 +9,32 @@ from agir.authentication.utils import is_hard_logged
 
 
 class SoftLoginRequiredMixin(object):
+    def is_authorized(self, request):
+        # cette méthode peut être redéfinie par les classes qui intègrent ce Mixin pour spécialiser davantage
+        # le mécanisme d'autorisation
+        #
+        # Voir par exemple :py:class:agir.donations.views.spending_requests_views.CreateSpendingRequestView
+        return request.user.is_authenticated
+
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
+        if self.is_authorized(request):
             return super().dispatch(request, *args, **kwargs)
 
         return redirect_to_login(request.get_full_path())
 
 
-class HardLoginRequiredMixin(object):
-    def dispatch(self, request, *args, **kwargs):
-        if is_hard_logged(request):
-            return super().dispatch(request, *args, **kwargs)
-
-        return redirect_to_login(request.get_full_path())
+class HardLoginRequiredMixin(SoftLoginRequiredMixin):
+    def is_authorized(self, request):
+        if not is_hard_logged(request):
+            if not super().is_authorized(request):
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    "Pour accéder à cette partie du site, nous devons vérifier que vous avez bien accès à votre adresse"
+                    " email en vous demandant de vous reconnecter.",
+                )
+            return False
+        return True
 
 
 class PermissionsRequiredMixin(object):
