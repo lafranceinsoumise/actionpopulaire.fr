@@ -82,6 +82,13 @@ rules.add_perm(
     "groups.spend_group_allocation",
     is_authenticated_person & is_at_least_manager_for_group,
 )
+rules.add_perm(
+    "groups.change_group_name", is_authenticated_person & is_at_least_referent_for_group
+)
+rules.add_perm(
+    "groups.delete_supportgroup",
+    is_authenticated_person & is_at_least_referent_for_group,
+)
 rules.add_perm("groups.view_supportgroup", is_group_published)
 rules.add_perm(
     "groups.add_manager_to_supportgroup",

@@ -36,20 +36,20 @@
         <div class="col-md-6">
           {% if supportgroup.coordinates_type == None %}
             <div class="alert alert-info">Localisation sur la carte en cours... Si cela dure trop longtemps, essayez <a
-              href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
+                href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
             </div>
           {% elif supportgroup.coordinates_type == supportgroup.COORDINATES_NO_POSITION %}
             <div class="alert alert-info">Ce groupe n'a pas d'adresse, ni de positionnement manuel sur le carte.</div>
           {% elif supportgroup.coordinates_type == supportgroup.COORDINATES_NOT_FOUND %}
             <div class="alert alert-danger">
               Localisation sur la carte à partir de l'adresse non réussie. Merci de <a
-              href="{% url "edit_group" supportgroup.pk %}">préciser l'adresse</a> ou <a
-              href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
+                href="{% url "edit_group" supportgroup.pk %}">préciser l'adresse</a> ou <a
+                href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
             </div>
           {% elif supportgroup.coordinates == None %}
             <div class="alert alert-danger">
               Il semble y avoir un problème avec les coordonnées de votre groupe. Essayez <a
-              href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
+                href="{% url "change_group_location" supportgroup.pk %}">d'indiquer manuellement la position</a>.
             </div>
           {% else %}
             <iframe title="Carte" class="col-sm-6"
@@ -97,7 +97,7 @@
     })
   </script>
 
-  <div class="tab-content">
+  <div class="tab-content" style="margin-bottom: 4em;">
     <div role="tabpanel" class="tab-pane{% if not active %} active{% endif %}" id="membership">
       <h3>Liste des membres</h3>
 
@@ -183,7 +183,7 @@
                       {{ person.email }}!
                     {% endif %}
                     <a href="{% url 'remove_manager' pk=membership.pk %}" aria-label="Retirer ce gestionnaire"> <i
-                      class="fa fa-remove" aria-hidden="true" title="Retirer ce gestionnaire"></i> </a>
+                        class="fa fa-remove" aria-hidden="true" title="Retirer ce gestionnaire"></i> </a>
                   </li>
                 {% endwith %}
               {% endfor %}
@@ -198,6 +198,26 @@
           {% endif %}
         </div>
       </div>
+      <div>
+        <h3>Autres opérations</h3>
+        <ul class="list-inline">
+          {% if supportgroup in perms.groups.change_group_name %}
+            <li><a class="btn btn-default"
+                   href="https://agir.lafranceinsoumise.fr/formulaires/demande-changement-nom-ga/">Changer
+              le nom du groupe</a></li>
+          {% endif %}
+          {% if supportgroup in perms.groups.add_referent_to_supportgroup %}
+            <li><a class="btn btn-default"
+                   href="https://agir.lafranceinsoumise.fr/formulaires/demande-changement-animation-ga/">Changer
+              l'animation
+              du groupe</a></li>
+          {% endif %}
+          {% if supportgroup in perms.groups.delete_supportgroup %}
+            <li><a class="btn btn-danger" href="https://agir.lafranceinsoumise.fr/formulaires/demande-suppression-ga/">Supprimer
+              le groupe</a></li>
+          {% endif %}
+        </ul>
+      </div>
     </div>
 
     <div role="tabpanel" class="tab-pane" id="materiel">
@@ -211,7 +231,7 @@
         {% else %}
           <div style="text-align: center; margin: 2em auto;">
             <span
-              style="padding: 10px; font-weight: bolder; font-size: 2em; border: 2px solid darkgrey;">{{ group_promo_code }}</span>
+                style="padding: 10px; font-weight: bolder; font-size: 2em; border: 2px solid darkgrey;">{{ group_promo_code }}</span>
           </div>
 
           <p>
@@ -241,7 +261,7 @@
         {% else %}
           <p>
             Personne n'a encore alloué de dons à vos actions. Vous pouvez le faire <a
-            href="{% url "donation_amount" %}">sur
+              href="{% url "donation_amount" %}">sur
             la page de dons</a>. </p>
           <p>
             Vous pouvez déjà créer une demande de dépense, mais vous ne pourrez la faire valider que lorsque votre
@@ -291,8 +311,8 @@
             ci-dessous.
           </p>
           <a
-            href="https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/?group-id={{ supportgroup.pk }}&email={{ user.person.email }}&animateur={{ user.person.get_full_name }}"
-            class="btn btn-primary">Demander la certification</a>
+              href="https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/?group-id={{ supportgroup.pk }}&email={{ user.person.email }}&animateur={{ user.person.get_full_name }}"
+              class="btn btn-primary">Demander la certification</a>
         {% else %}
           <p>
             Pour pouvoir demander la certification, vous devez nous indiquer l'identité du deuxième animateur du groupe.
