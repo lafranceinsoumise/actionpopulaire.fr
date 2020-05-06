@@ -78,6 +78,21 @@ class GroupHasEventsFilter(admin.SimpleListFilter):
             return queryset.filter(current_events_count=0)
 
 
+class MembersFilter(admin.SimpleListFilter):
+    title = "Membres"
+    parameter_name = "members"
+
+    def lookups(self, request, model_admin):
+        return (("no_members", "Aucun membre"), ("no_referent", "Aucun animateur"))
+
+    def queryset(self, request, queryset):
+        if self.value() == "no_members":
+            return queryset.filter(members=None)
+
+        if self.value() == "no_referent":
+            return queryset.exclude(memberships__is_referent=True)
+
+
 @admin.register(models.SupportGroup)
 class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     form = SupportGroupAdminForm
@@ -171,6 +186,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         DepartementListFilter,
         RegionListFilter,
         "coordinates_type",
+        MembersFilter,
         "type",
         "subtypes",
         "tags",
