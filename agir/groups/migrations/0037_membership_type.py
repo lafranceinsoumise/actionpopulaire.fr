@@ -48,6 +48,4 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunPython(code=bools_vers_choices, reverse_code=choices_vers_bools),
-        migrations.RemoveField(model_name="membership", name="is_manager",),
-        migrations.RemoveField(model_name="membership", name="is_referent",),
     ]
