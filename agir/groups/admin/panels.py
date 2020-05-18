@@ -90,7 +90,9 @@ class MembersFilter(admin.SimpleListFilter):
             return queryset.filter(members=None)
 
         if self.value() == "no_referent":
-            return queryset.exclude(memberships__is_referent=True)
+            return queryset.exclude(
+                memberships__membership_type=Membership.MEMBERSHIP_TYPE_REFERENT
+            )
 
 
 @admin.register(models.SupportGroup)
