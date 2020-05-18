@@ -272,7 +272,9 @@ class AddManagerForm(forms.Form):
     def perform(self):
         membership = self.cleaned_data["manager"]
 
-        membership.is_manager = True
+        membership.membership_type = max(
+            membership.membership_type, Membership.MEMBERSHIP_TYPE_MANAGER
+        )
         membership.save()
 
         return {"email": membership.person.email}
