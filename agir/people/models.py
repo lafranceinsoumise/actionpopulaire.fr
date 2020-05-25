@@ -89,9 +89,6 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         """
         Creates and saves a person with the given username, email and password.
         """
-        if not email:
-            raise ValueError("The given email must be set")
-
         if password or is_staff or is_superuser or not is_active:
             create_role = True
 
@@ -113,7 +110,8 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
             person = self.model(role=role, **extra_fields)
             person.save(using=self._db)
 
-            person.add_email(email)
+            if email:
+                person.add_email(email)
 
         if not settings.MAILTRAIN_DISABLE:
             from .tasks import update_person_mailtrain

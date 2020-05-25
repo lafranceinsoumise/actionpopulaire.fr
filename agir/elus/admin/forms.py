@@ -66,16 +66,18 @@ class CreerMandatForm(forms.ModelForm):
             del self.fields["email_officiel"]
 
     def clean(self):
+        cleaned_data = super().clean()
+
         if "person" in self.fields:
-            person = self.cleaned_data.get("person")
+            person = cleaned_data.get("person")
         else:
             person = getattr(self.instance, "person", None)
 
-        new_email = self.cleaned_data.get("new_email")
-        contact_phone = self.cleaned_data.get("contact_phone")
-        last_name = self.cleaned_data.get("last_name")
-        first_name = self.cleaned_data.get("first_name")
-        email_officiel = self.cleaned_data.get("email_officiel")
+        new_email = cleaned_data.get("new_email")
+        contact_phone = cleaned_data.get("contact_phone")
+        last_name = cleaned_data.get("last_name")
+        first_name = cleaned_data.get("first_name")
+        email_officiel = cleaned_data.get("email_officiel")
 
         minimal_information = (
             person or new_email or contact_phone or (last_name and first_name)
@@ -106,17 +108,15 @@ class CreerMandatForm(forms.ModelForm):
             except Person.DoesNotExist:
                 pass
             else:
-                self.cleaned_data["person"] = person
-                del self.cleaned_data["new_email"]
+                cleaned_data["person"] = person
+                del cleaned_data["new_email"]
 
         if email_officiel and person and email_officiel.person != person:
-            self.cleaned_data["email_officiel"] = None
+            cleaned_data["email_officiel"] = None
 
-        return self.cleaned_data
+        return cleaned_data
 
-    def _save_m2m(self):
-        super()._save_m2m()
-
+    def save(self, commit=True):
         cleaned_data = self.cleaned_data
         if "person" in self.fields:
             person = cleaned_data["person"]
@@ -130,13 +130,10 @@ class CreerMandatForm(forms.ModelForm):
                 **{k: v for k, v in cleaned_data.items() if k in PERSON_FIELDS},
             )
             self.instance.email_officiel = self.instance.person.primary_email
-            self.instance.save(update_fields=["email_officiel"])
         else:
             if "person" not in self.changed_data:
                 for f in PERSON_FIELDS:
                     setattr(person, f, cleaned_data[f])
-
-                person.save(update_fields=PERSON_FIELDS)
 
             if "new_email" in self.changed_data:
                 try:
@@ -145,9 +142,8 @@ class CreerMandatForm(forms.ModelForm):
                     pass
                 else:
                     self.instance.email_officiel = email
-                    self.instance.save(update_fields=["email_officiel"])
 
-        return super()._save_m2m()
+        return super().save(commit=commit)
 
 
 class CreerMandatMunicipalForm(CreerMandatForm):
