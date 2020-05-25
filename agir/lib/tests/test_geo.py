@@ -2,16 +2,54 @@ import json
 from pathlib import Path
 from unittest.mock import patch, Mock
 
+import requests
+from django.db.transaction import get_connection
 from functools import wraps
 
 from django.test import TestCase
 
-from agir.lib.geo import geocode_ban
+from agir.lib.geo import geocode_france
 from agir.lib.models import LocationMixin
 from agir.people.models import Person
 
 
 JSON_DIR = Path(__file__).parent / "geoban_json"
+DATA_DIR = Path(__file__).parent / "data"
+
+
+def import_communes_test_data():
+    with get_connection().cursor() as cursor:
+        cursor.execute(
+            "ALTER TABLE data_france_commune DROP CONSTRAINT IF EXISTS commune_departement_constraint;"
+        )
+
+        with (DATA_DIR / "commune.csv").open() as f:
+            cursor.copy_from(
+                f,
+                "data_france_commune",
+                columns=[
+                    "id",
+                    "code",
+                    "type",
+                    "nom",
+                    "type_nom",
+                    "population_municipale",
+                    "population_cap",
+                    "geometry",
+                    "search",
+                    "commune_parent_id",
+                ],
+            )
+        with (DATA_DIR / "codepostal.csv").open() as f:
+            cursor.copy_from(
+                f, "data_france_codepostal", columns=["id", "code"],
+            )
+        with (DATA_DIR / "codepostal_communes.csv").open() as f:
+            cursor.copy_from(
+                f,
+                "data_france_codepostal_communes",
+                columns=["id", "codepostal_id", "commune_id"],
+            )
 
 
 def with_json_response(file_name):
@@ -29,32 +67,38 @@ def with_json_response(file_name):
     return wrapper_maker
 
 
-# test ville normale (une municipalite, pas d'arrondissement)
-# test ville pure avec arrondissement
-# test arrondissement
-# test multi code postale
-# test dom/tom
-# test invalide poste_code
-# test
+def with_no_request(f=None):
+    def wrapper_maker(func):
+        def wrapper(*args, **kwargs):
+            with patch("agir.lib.geo.requests") as requests_patch:
+                res = requests_patch.get.side_effect = requests.ConnectionError
+                func(*args, **kwargs)
+
+        return wrapper
+
+    if f is not None:
+        return wrapper_maker(f)
+    return wrapper_maker
 
 
-class BanTestCase(TestCase):
+class FranceGeocodingTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person(
             "multi_city@test.com", location_country="FR"
         )
+        import_communes_test_data()
 
-    @with_json_response("21570_shared_postcode.json")
+    @with_no_request
     def test_geocode_ban_only_zip(self):
         """
-            On a une requette avec de multiple municipalité. On ne peut pas determiner de citycode
+            On a une requête avec de multiples municipalités. On ne peut pas determiner de citycode
         :return:
         """
 
         self.person.location_zip = "21570"
         self.person.save()
 
-        geocode_ban(self.person)
+        geocode_france(self.person)
         self.assertEqual(self.person.location_citycode, "")
         self.assertIsNotNone(self.person.coordinates)
         self.assertEqual(
@@ -72,12 +116,12 @@ class BanTestCase(TestCase):
         self.person.location_zip = "92160"
         self.person.save()
 
-        geocode_ban(self.person)
+        geocode_france(self.person)
         self.assertEqual(self.person.location_citycode, "92002")
         self.assertIsNotNone(self.person.coordinates)
         self.assertEqual(self.person.coordinates_type, LocationMixin.COORDINATES_EXACT)
 
-    @with_json_response("21000_dijon.json")
+    @with_no_request
     def test_geocode_ban_only_zip_one_result(self):
         """
             Test le fonctionement avec seulement un code postale mais un seul resultat de commune
@@ -86,11 +130,12 @@ class BanTestCase(TestCase):
         self.person.location_zip = "21000"
         self.person.save()
 
-        geocode_ban(self.person)
+        geocode_france(self.person)
         self.assert_(self.person.location_citycode, "21231")
         self.assertIsNotNone(self.person.coordinates)
         self.assert_(self.person.coordinates_type, LocationMixin.COORDINATES_EXACT)
 
+    @with_no_request
     def test_geocode_ban_district_post_code(self):
         """
             Test le fonctionement avec les arrondissement des grande ville qui ont un code INSEE pour chaque arrondissement
@@ -99,22 +144,34 @@ class BanTestCase(TestCase):
         self.person.location_zip = "13005"
         self.person.save()
 
-        geocode_ban(self.person)
+        geocode_france(self.person)
         self.assertEqual(self.person.location_citycode, "13205")
         self.assertIsNotNone(self.person.coordinates)
         self.assertEqual(
             self.person.coordinates_type, LocationMixin.COORDINATES_DISTRICT
         )
 
-    @with_json_response("45621_invalide.json")
-    def test_geocode_ban_invalide_postcode(self):
+    @with_no_request
+    def test_geocode_invalide_postcode(self):
         """
             Test le fonctionement avec un seulement un code postale invalide
         :return:
         """
         self.person.location_zip = "45621"
-        geocode_ban(self.person)
+        self.person.save()
+        geocode_france(self.person)
         self.assertIsNone(self.person.coordinates)
         self.assertEqual(
             self.person.coordinates_type, LocationMixin.COORDINATES_NOT_FOUND
         )
+
+    @with_no_request
+    def test_geocode_with_citycode(self):
+
+        self.person.location_citycode = "21058"
+        self.person.save()
+        geocode_france(self.person)
+
+        self.assertIsNotNone(self.person.coordinates)
+        self.assertEqual(self.person.coordinates_type, LocationMixin.COORDINATES_CITY)
+        self.assertEqual(self.person.location_city, "Belan-sur-Ource")

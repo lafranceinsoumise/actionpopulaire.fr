@@ -1,20 +1,24 @@
-import json
 import logging
-from pathlib import Path
 
+import re
 import requests
+from data_france.models import CodePostal, Commune
 from django.contrib.gis.geos import Point
+from unidecode import unidecode
 
 from .models import LocationMixin
 
 logger = logging.getLogger(__name__)
 
+NON_WORD = re.compile("[^\w]+")
+MULTIPLE_SPACES = re.compile("\s\s+")
+
 BAN_ENDPOINT = "https://api-adresse.data.gouv.fr/search"
 NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org/"
 
 
-with open(Path(__file__).parent / "data" / "arrondissements.json") as f:
-    ARRONDISSEMENTS = json.load(f)
+def normaliser_nom_ville(s):
+    return MULTIPLE_SPACES.sub(" ", NON_WORD.sub(" ", unidecode(s.strip()))).lower()
 
 
 def geocode_element(item):
@@ -27,9 +31,9 @@ def geocode_element(item):
     # geocoding only if got at least: country AND (city OR zip)
     if item.location_country and (item.location_city or item.location_zip):
         if item.location_country == "FR":
-            geocode_ban(item)
+            geocode_france(item)
         else:
-            geocode_nominatim(item)
+            geocode_internationally(item)
     else:
         item.coordinates = None
         item.coordinates_type = LocationMixin.COORDINATES_NO_POSITION
@@ -57,78 +61,111 @@ def get_results_from_ban(query):
     return results
 
 
-def geocode_ban_district_exception(item):
-    arrondissement = ARRONDISSEMENTS[item.location_zip]
-    item.location_citycode = arrondissement["citycode"]
-    item.coordinates = Point(*arrondissement["coordinates"])
-    item.location_city = arrondissement["city"]
-    item.coordinates_type = LocationMixin.COORDINATES_DISTRICT
-
-
-def geocode_ban_citylevel(item):
-    query = {
-        "q": item.location_city or item.location_zip,
-        "type": "municipality",
-        "limit": 30,
-    }
-    if item.location_zip:
-        query["postcode"] = item.location_zip
-
-    results = get_results_from_ban(query)
-    if not results:
-        item.coordinates = None
-        item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
-        return
-
-    citycodes = [
-        f["properties"]["citycode"]
-        for f in results["features"]
-        if f["geometry"]["type"] == "Point"
-    ]
-    coordinates = [
-        f["geometry"]["coordinates"]
-        for f in results["features"]
-        if f["geometry"]["type"] == "Point"
-    ]
-
-    if len(coordinates) == 0:
-        item.coordinates = None
-        item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
-        return
-
-    if item.location_city:
-        # si on a un nom de ville, on prend le premier de la liste, ça devrait être le bon
-        item.coordinates = Point(coordinates[0])
-        item.location_citycode = citycodes[0]
-
-    else:
-        # sinon, on prend le milieu des différentes villes
-        lon = sum(c[0] for c in coordinates) / len(coordinates)
-        lat = sum(c[1] for c in coordinates) / len(coordinates)
-
-        item.coordinates = Point(lon, lat)
-        item.coordinates_type = (
-            LocationMixin.COORDINATES_CITY
-            if len(coordinates) == 1
-            else LocationMixin.COORDINATES_UNKNOWN_PRECISION
-        )
-        item.location_citycode = citycodes[0] if len(set(citycodes)) == 1 else ""
-
-
-def geocode_ban(item):
-    """Find the location of an item using its location fields
-
-    :param item:
-    """
-
-    no_address = not item.location_address1 and not item.location_address2
-
-    if no_address:
-        if item.location_zip in ARRONDISSEMENTS:
-            geocode_ban_district_exception(item)
+def geocode_data_france(item):
+    if item.location_citycode:
+        try:
+            commune = Commune.objects.get(code=item.location_citycode)
+        except Commune.DoesNotExist:
+            pass
+        else:
+            item.coordinates = commune.geometry.centroid
+            item.coordinates_type = (
+                LocationMixin.COORDINATES_CITY
+                if commune.type == Commune.TYPE_COMMUNE
+                else LocationMixin.COORDINATES_DISTRICT
+            )
+            item.location_city = commune.nom_complet
             return
 
-        geocode_ban_citylevel(item)
+    if item.location_zip:
+        try:
+            code_postal = CodePostal.objects.get(code=item.location_zip)
+        except CodePostal.DoesNotExist:
+            pass
+        else:
+            if code_postal.communes.count() == 1:
+                commune = code_postal.communes.get()
+                item.coordinates = commune.geometry.centroid
+                item.coordinates_type = (
+                    LocationMixin.COORDINATES_CITY
+                    if commune.type == Commune.TYPE_COMMUNE
+                    else LocationMixin.COORDINATES_DISTRICT
+                )
+                item.location_city = commune.nom_complet
+                item.location_citycode = commune.code
+                return
+            elif item.location_city:
+                nom_normalise = normaliser_nom_ville(item.location_city)
+                try:
+                    commune = next(
+                        v
+                        for v in code_postal.communes.all()
+                        if normaliser_nom_ville(v.nom) == nom_normalise
+                    )
+                    if commune.geometry:
+                        item.coordinates = commune.geometry.centroid
+                        item.location_citycode = commune.code
+                        item.coordinates_type = (
+                            LocationMixin.COORDINATES_CITY
+                            if commune.type == Commune.TYPE_COMMUNE
+                            else LocationMixin.COORDINATES_DISTRICT
+                        )
+                        return
+                except StopIteration:
+                    pass
+            else:
+                code_postal = CodePostal.objects.raw(
+                    """
+                    SELECT cp.*, ST_CENTROID(ST_UNION(c.geometry :: geometry)) centroid
+                    FROM data_france_codepostal cp
+                    JOIN data_france_codepostal_communes cc ON cp.id = cc.codepostal_id
+                    JOIN data_france_commune c on cc.commune_id = c.id
+                    WHERE cp.id = %(cp_id)s
+                    GROUP BY cp.id; 
+                """,
+                    {"cp_id": code_postal.id},
+                )[0]
+                item.coordinates = code_postal.centroid
+                item.coordinates_type = LocationMixin.COORDINATES_UNKNOWN_PRECISION
+                return
+
+    # pas de code postal
+    if item.location_city:
+        nom_normalise = normaliser_nom_ville(item.location_city)
+        communes = [
+            c
+            for c in Commune.objects.search(item.location_city)
+            if normaliser_nom_ville(c) == nom_normalise
+        ]
+
+        if len(communes) == 1:
+            commune = communes[0]
+            if commune.geometry is not None:
+                item.coordinates = commune.geometry.centroid
+                item.coordinates_type = (
+                    LocationMixin.COORDINATES_CITY
+                    if commune.type == Commune.TYPE_COMMUNE
+                    else LocationMixin.COORDINATES_DISTRICT
+                )
+                return
+
+    item.coordinates = None
+    item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
+
+
+def geocode_france(item):
+    """Trouver la localisation géographique d'un item
+
+    Si on a juste un code postal ou une ville, on utilise les coordonnées données
+    par data_france.
+
+    Dans le cas où on a une adresse plus précise, on peut aller interroger la BAN.
+    """
+
+    has_precise_address = item.location_address1 or item.location_address2
+
+    if not has_precise_address:
+        geocode_data_france(item)
         return
 
     q = " ".join(
@@ -167,8 +204,8 @@ def geocode_ban(item):
     item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
 
 
-def geocode_nominatim(item):
-    """Find location of an item with its address
+def geocode_internationally(item):
+    """Find location of an item with its address for non French addresses
 
     :return: True if the item has changed (and should be saved), False in the other case
     """
