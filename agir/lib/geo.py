@@ -65,9 +65,14 @@ def geocode_data_france(item):
     if item.location_citycode:
         try:
             commune = Commune.objects.get(code=item.location_citycode)
+        except Commune.MultipleObjectsReturned:
+            commune = Commune.objects.get(
+                code=item.location_citycode, type=Commune.TYPE_COMMUNE
+            )
         except Commune.DoesNotExist:
-            pass
-        else:
+            commune = None
+
+        if commune is not None:
             item.coordinates = commune.geometry.centroid
             item.coordinates_type = (
                 LocationMixin.COORDINATES_CITY
@@ -85,6 +90,7 @@ def geocode_data_france(item):
             pass
         else:
             nb_communes = code_postal.communes.count()
+
             if nb_communes == 1:
                 commune = code_postal.communes.get()
                 item.coordinates = commune.geometry.centroid
