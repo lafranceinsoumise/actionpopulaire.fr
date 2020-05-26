@@ -75,6 +75,7 @@ def geocode_data_france(item):
                 else LocationMixin.COORDINATES_DISTRICT
             )
             item.location_city = commune.nom_complet
+            item.location_citycode = commune.code
             return
 
     if item.location_zip:
@@ -83,7 +84,8 @@ def geocode_data_france(item):
         except CodePostal.DoesNotExist:
             pass
         else:
-            if code_postal.communes.count() == 1:
+            nb_communes = code_postal.communes.count()
+            if nb_communes == 1:
                 commune = code_postal.communes.get()
                 item.coordinates = commune.geometry.centroid
                 item.coordinates_type = (
@@ -94,7 +96,8 @@ def geocode_data_france(item):
                 item.location_city = commune.nom_complet
                 item.location_citycode = commune.code
                 return
-            elif item.location_city:
+
+            if nb_communes > 1 and item.location_city:
                 nom_normalise = normaliser_nom_ville(item.location_city)
                 try:
                     commune = next(
@@ -113,7 +116,8 @@ def geocode_data_france(item):
                         return
                 except StopIteration:
                     pass
-            else:
+
+            if nb_communes > 1:
                 code_postal = CodePostal.objects.raw(
                     """
                     SELECT cp.*, ST_CENTROID(ST_UNION(c.geometry :: geometry)) centroid
@@ -135,7 +139,7 @@ def geocode_data_france(item):
         communes = [
             c
             for c in Commune.objects.search(item.location_city)
-            if normaliser_nom_ville(c) == nom_normalise
+            if normaliser_nom_ville(c.nom_complet) == nom_normalise
         ]
 
         if len(communes) == 1:
@@ -147,6 +151,8 @@ def geocode_data_france(item):
                     if commune.type == Commune.TYPE_COMMUNE
                     else LocationMixin.COORDINATES_DISTRICT
                 )
+                item.location_city = commune.nom_complet
+                item.location_citycode = commune.code
                 return
 
     item.coordinates = None
