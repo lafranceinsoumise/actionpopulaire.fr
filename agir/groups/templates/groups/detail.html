@@ -1,4 +1,5 @@
 {% extends "front/layout.html" %}
+{% load admin_url %}
 
 {% block title %}«&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
 
@@ -22,7 +23,7 @@
       {% if user.is_authenticated %}
         {% if user.is_staff and perms.groups.change_supportgroup %}
           <a class="btn btn-default"
-             href="{{ API_DOMAIN }}{% url "admin:groups_supportgroup_change" supportgroup.pk %}">Administration</a>
+             href="{% admin_url "groups_supportgroup_change" supportgroup.pk %}">Administration</a>
         {% endif %}
         {% if is_member %}
           {% if supportgroup in perms.groups.change_supportgroup %}

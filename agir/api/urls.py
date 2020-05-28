@@ -14,7 +14,6 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf.urls.static import static
-from django.contrib import admin
 from django.urls import path, include
 from django_prometheus.exports import ExportToDjangoView as metric_view
 
@@ -34,7 +33,7 @@ urlpatterns = [
 ]
 
 if settings.ENABLE_ADMIN:
-    urlpatterns.append(path("admin/", admin.site.urls))
+    urlpatterns.append(path("", include("agir.api.admin_urls")))
 
 if settings.ENABLE_API:
     urlpatterns.append(path("legacy/", include("agir.api.routers")))

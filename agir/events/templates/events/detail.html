@@ -1,4 +1,5 @@
 {% extends "front/layout.html" %}
+{% load admin_url %}
 {% load static %}
 
 {% block title %}«&nbsp;{{ event.name }}&nbsp;»{% endblock %}
@@ -42,7 +43,7 @@
     <div class="text-right">
       {% if user.is_authenticated %}
         {% if user.is_staff %}
-          <a class="btn btn-default" href="{{ API_DOMAIN }}{% url "admin:events_event_change" event.pk %}">Administration</a>
+          <a class="btn btn-default" href="{% admin_url "admin:events_event_change" event.pk %}">Administration</a>
         {% endif %}
         {% if is_organizer %}
           <a class="btn btn-default" href="{% url "manage_event" event.pk %}">Gérer l'événement</a>
