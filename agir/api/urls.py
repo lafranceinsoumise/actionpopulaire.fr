@@ -22,7 +22,6 @@ from agir.lib.http import with_http_basic_auth
 from . import settings
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
     path("nuntius/", include("nuntius.urls")),
     path("webhooks/", include("agir.webhooks.urls")),
     path("anymail/", include("anymail.urls")),
@@ -33,6 +32,9 @@ urlpatterns = [
         ),
     ),
 ]
+
+if settings.ENABLE_ADMIN:
+    urlpatterns.append(path("admin/", admin.site.urls))
 
 if settings.ENABLE_API:
     urlpatterns.append(path("legacy/", include("agir.api.routers")))
