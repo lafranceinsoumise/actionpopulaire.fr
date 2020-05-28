@@ -13,36 +13,29 @@ sudo bash -c 'printf "fr_FR.UTF8 UTF-8\nen_US.UTF-8 UTF-8\n" > /etc/locale.gen'
 sudo locale-gen
 sudo localectl set-locale LANG=fr_FR.UTF-8
 
+echo "## update packages"
+sudo apt-get update -qq > /dev/null
+
 echo "## Install Python..."
-if ! (dpkg -s python3.7 && dpkg -s python3.7-dev) &> /dev/null; then
-    sudo add-apt-repository ppa:deadsnakes/ppa > /dev/null
-    sudo apt-get -yqq update > /dev/null
-    sudo apt-get -yqq install python3.7 python3.7-dev python3-pip libsystemd-dev > /dev/null
+if ! (dpkg -s python3.8 && dpkg -s python3.8-dev) &> /dev/null; then
+    sudo apt-get -yqq install python3.8 python3.8-dev python3.8-venv python3-pip libsystemd-dev > /dev/null
     sudo -H pip3 install pipenv
 fi
 
 echo "## Install wkhtmltopdf"
 if ! dpkg -s wkhtmltox &> /dev/null; then
-    RELEASE=$(. /etc/lsb-release ; echo $DISTRIB_CODENAME)
-    curl https://builds.wkhtmltopdf.org/0.12.1.3/wkhtmltox_0.12.1.3-1~${RELEASE}_amd64.deb --output wkhtmltox.deb -q
-    sudo apt-get -yqq install libpng16-16 xfonts-75dpi xfonts-base fontconfig libjpeg-turbo8 libxrender1 > /dev/null
-    sudo dpkg -i wkhtmltox.deb
+     sudo apt-get -yqq install wkhtmltopdf > /dev/null
 fi
 
 echo "## Install node..."
 if ! dpkg -s nodejs &> /dev/null; then
-    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - > /dev/null
     sudo apt-get -yqq install nodejs > /dev/null
 fi
 
 echo "## Install postgresql..."
 
-if ! dpkg -s postgresql-9.6 &> /dev/null; then
-    sudo add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main"
-    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-    sudo apt-get -qq update > /dev/null
-    sudo apt-get -yqq upgrade > /dev/null
-    sudo apt-get -yqq install postgresql-9.6 postgis postgresql-server-dev-9.6 > /dev/null
+if ! dpkg -s postgresql-12 &> /dev/null; then
+    sudo apt-get -yqq install postgresql-12 postgresql-12-postgis-3 postgresql-12-postgis-3-scripts libpq-dev > /dev/null
 fi
 sudo -u postgres psql -c "CREATE ROLE api WITH PASSWORD 'password';" || echo "PostgreSQL role already exists"
 sudo -u postgres psql -c "CREATE DATABASE api WITH owner api;" || echo "PostgreSQL database already exists"

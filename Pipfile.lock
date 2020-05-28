@@ -1,10 +1,12 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "33d069ac4901d04310650e0d135dd0a90e3b03fb02214f5d3bb9eff7c0cad734"
+            "sha256": "46eeae486b56d495976317fc39c7dddbb14587f0ab0451019e739311af24e23c"
         },
         "pipfile-spec": 6,
-        "requires": {},
+        "requires": {
+            "python_version": "3.8"
+        },
         "sources": [
             {
                 "name": "pypi",
@@ -450,14 +452,6 @@
             ],
             "version": "==2.9"
         },
-        "importlib-metadata": {
-            "hashes": [
-                "sha256:2a688cbaa90e0cc587f1df48bdc97a6eadccdcd9c35fb3f976a09e3b5016d90f",
-                "sha256:34513a8a0c4962bc66d35b359558fd8a5e10cd472d37aec5f66858addef32c1e"
-            ],
-            "markers": "python_version < '3.8'",
-            "version": "==1.6.0"
-        },
         "iso8601": {
             "hashes": [
                 "sha256:210e0134677cc0d02f6028087fee1df1e1d76d372ee1db0bf30bf66c5c1c89a3",
@@ -863,10 +857,10 @@
         },
         "tatsu": {
             "hashes": [
-                "sha256:80713413473a009f2081148d0f494884cabaf9d6866b71f2a68a92b6442f343d",
-                "sha256:c9211eeee9a2d4c90f69879ec0b518b1aa0d9450249cb0dd181f5f5b18be0a92"
+                "sha256:0adbf7189a8c4f9a882b442f7b8ed6c6ab3baae37057db0e96b6888daacffad0",
+                "sha256:3a043490e577632a05374b5033646bbc26cbb17386df81735a569ecbd45d934b"
             ],
-            "version": "==4.4.0"
+            "version": "==5.5.0"
         },
         "tenacity": {
             "hashes": [
@@ -975,13 +969,6 @@
             ],
             "index": "pypi",
             "version": "==3.4.0"
-        },
-        "zipp": {
-            "hashes": [
-                "sha256:aa36550ff0c0b7ef7fa639055d797116ee891440eac1a56f378e2d3179e0320b",
-                "sha256:c599e4d75c98f6798c509911d08a22e6c021d074469042177c8c86fb92eefd96"
-            ],
-            "version": "==3.1.0"
         }
     },
     "develop": {
