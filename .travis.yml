@@ -1,20 +1,19 @@
 language: python
 python:
-  - "3.7"
+  - "3.8"
 services:
   - postgresql
 addons:
-  postgresql: "9.6"
+  postgresql: "12"
   apt:
     packages:
       - libgdal-dev
-      - postgresql-9.6-postgis-2.4
+      - postgresql-12-postgis-3
       - libsystemd-dev
-dist: xenial
-sudo: required
+dist: bionic  # pas encore focal
 env:
   global:
-    - export DATABASE_URL="postgis://postgres@localhost/api"
+    - export DATABASE_URL="postgis://postgres:%2Fvar%2Frun%2Fpostgresql/agir"
     - export PIP_USE_MIRRORS=true
     - export LOG_DISABLE_JOURNALD=true
 
@@ -23,6 +22,7 @@ cache:
   - npm
 
 before_install:
+  - sudo apt-get install language-pack-fr
   - pip install -U pipenv
 
 install:
