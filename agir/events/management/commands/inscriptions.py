@@ -110,18 +110,23 @@ def get_stats(status, config):
     )
 
     final_status = status[status.subscribe_limit < now]  # potentiellement vide
-    final_subscribed = count_by(final_status, "_subscribed")
-    final_drawn = count_by(final_status, "_drawn")
+    final_subscribed = (
+        count_by(final_status, "_subscribed")
+        .reindex(index=colleges)
+        .fillna(0, downcast="infer")
+    )
+    final_drawn = (
+        count_by(final_status, "_drawn")
+        .reindex(index=colleges)
+        .fillna(0, downcast="infer")
+    )
 
     res["needed"] = res["targets"] - res["subscribed"]
     res.loc[res["needed"] < 0, "needed"] = 0  # évitons les catastrophes
 
-    final_subscribed.reindex(colleges).fillna(0, downcast="infer")
-    final_drawn.reindex(colleges).fillna(0, downcast="infer")
-
     res["final"] = final_subscribed.map(str) + " / " + final_drawn.map(str)
 
-    if config.get("overdraw_rate"):
+    if config.get("subscription_prior"):
         from scipy.stats import beta
 
         subscription_prior = config["subscription_prior"]
@@ -130,7 +135,7 @@ def get_stats(status, config):
         a = subscription_prior * prior_weight / 2
         b = (1 - subscription_prior) * prior_weight / 2
 
-        overdraw_rate = pd.Series(
+        estimated_maximum_rate = pd.Series(
             {
                 college: beta.ppf(0.95, a=a + sub, b=b + drawn - sub)
                 for college, (sub, drawn) in pd.concat(
@@ -142,10 +147,10 @@ def get_stats(status, config):
         res["acceptance_rate"] = (
             (final_subscribed / final_drawn).map("{:.3f}".format)
             + " (95 % < "
-            + overdraw_rate.map("{:.3f}".format)
+            + estimated_maximum_rate.map("{:.3f}".format)
             + ")"
         )
-        res["adjusted"] = np.floor(res["needed"] / overdraw_rate).astype(int)
+        res["adjusted"] = np.floor(res["needed"] / estimated_maximum_rate).astype(int)
     else:
         res["adjusted"] = res["needed"]
 
