@@ -178,25 +178,6 @@ def send_mosaico_email(
             email.send(fail_silently=fail_silently)
 
 
-def send_mail(
-    subject,
-    html_message,
-    from_email,
-    recipient_list,
-    fail_silently=False,
-    connection=None,
-):
-    text_message = generate_plain_text(html_message)
-
-    address_list = [recipient.email for recipient in recipient_list]
-
-    msg = EmailMultiAlternatives(
-        subject, text_message, from_email, address_list, connection=connection
-    )
-    msg.attach_alternative(html_message, "text/html")
-    msg.send(fail_silently=fail_silently)
-
-
 def fetch_mosaico_template(url):
     res = requests.get(url)
     res.raise_for_status()

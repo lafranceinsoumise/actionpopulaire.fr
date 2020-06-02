@@ -9,14 +9,13 @@ import pandas as pd
 import numpy as np
 import requests
 import yaml
-from django.core.mail import get_connection
+from django.core.mail import get_connection, EmailMultiAlternatives
 from django.core.management import BaseCommand
 from django.db import transaction
 from django.template import Template, Context
 from django.utils import timezone
 
 from agir.events.models import Event
-from agir.lib.mailing import send_mail
 from agir.lib.utils import generate_token_params
 from agir.people.models import Person, PersonTag
 
@@ -168,7 +167,7 @@ def config_file(string):
 
     current_dir = p.parent
 
-    for k in ["status_file", "email_file"]:
+    for k in ["status_file", "email_html_file", "email_text_file"]:
         config[k] = current_dir / Path(config[k])
 
     return config
@@ -219,7 +218,7 @@ class Command(BaseCommand):
 
     def download_email(self, config, **options):
         r = requests.get(config["email_link"])
-        with open(config["email_file"], "wb") as f:
+        with open(config["email_html_file"], "wb") as f:
             f.write(r.content)
 
     def update_and_draw(self, config, do_it=False, **options):
@@ -278,10 +277,11 @@ class Command(BaseCommand):
                     *status.loc[status._active | new_draws, "id"].map(active_persons)
                 )
 
-        with open(config["email_file"]) as f:
-            template_content = f.read()
+        with open(config["email_html_file"]) as f:
+            html_template = Template(f.read())
+        with open(config["email_text_file"]) as f:
+            text_template = Template(f.read())
 
-        template = Template(template_content)
         connection = get_connection()
 
         locale.setlocale(locale.LC_TIME, "fr_FR.UTF-8")
@@ -290,29 +290,34 @@ class Command(BaseCommand):
             for i, row in enumerate(status.loc[new_draws].itertuples()):
                 person = active_persons[row.id]
 
-                html_message = template.render(
-                    Context(
-                        {
-                            "email": person.email,
-                            "login_query": urlencode(generate_token_params(person)),
-                            "limit_time": row.subscribe_limit.strftime(
-                                "%A %d %B avant %Hh"
-                            ),
-                        }
-                    )
+                context = Context(
+                    {
+                        "email": person.email,
+                        "login_query": urlencode(generate_token_params(person)),
+                        "limit_time": row.subscribe_limit.strftime(
+                            "%A %d %B avant %Hh"
+                        ),
+                    }
                 )
+
+                html_message = html_template.render(context)
+                text_message = text_template.render(context)
+
+                msg = EmailMultiAlternatives(
+                    subject=config["email_subject"],
+                    body=text_message,
+                    from_email=config.get(
+                        "email_from",
+                        "La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
+                    ),
+                    to=[person.email],
+                    connection=connection,
+                )
+                msg.attach_alternative(html_message, "text/html")
 
                 print(row.college, end="\n" if i % 80 == 79 else "", flush=True)
 
                 if do_it:
-                    send_mail(
-                        subject=config["email_subject"],
-                        html_message=html_message,
-                        from_email=config.get(
-                            "email_from",
-                            "La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
-                        ),
-                        recipient_list=[person],
-                        connection=connection,
-                    )
+                    msg.send(fail_silently=False)
+
         print()  # newline
