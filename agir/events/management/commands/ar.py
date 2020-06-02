@@ -32,7 +32,7 @@ def colored_text(text, color):
 
 
 def count_by(df, by):
-    return df.groupby(["gender"])[by].sum().astype(int)
+    return df.groupby(["college"])[by].sum().astype(int)
 
 
 def df_to_table(df):
@@ -91,6 +91,8 @@ def get_current_status(config):
 def get_stats(status, config):
     now = timezone.now().astimezone(timezone.get_default_timezone())
 
+    colleges = list(config["targets"].keys())
+
     res = pd.DataFrame(
         {
             "targets": pd.Series(config["targets"]),
@@ -107,27 +109,31 @@ def get_stats(status, config):
         columns=["available", "targets", "drawn", "subscribed", "refused", "active"]
     )
 
-    final_status = status[status.subscribe_limit < now]
+    final_status = status[status.subscribe_limit < now]  # potentiellement vide
     final_subscribed = count_by(final_status, "_subscribed")
     final_drawn = count_by(final_status, "_drawn")
 
     res["needed"] = res["targets"] - res["subscribed"]
     res.loc[res["needed"] < 0, "needed"] = 0  # évitons les catastrophes
 
+    final_subscribed.reindex(colleges).fillna(0, downcast="infer")
+    final_drawn.reindex(colleges).fillna(0, downcast="infer")
+
     res["final"] = final_subscribed.map(str) + " / " + final_drawn.map(str)
 
     if config.get("overdraw_rate"):
         from scipy.stats import beta
 
-        overdraw = config["overdraw_rate"]
+        subscription_prior = config["subscription_prior"]
+        prior_weight = 10
 
-        a = 1
-        b = (1 - overdraw) / overdraw
+        a = subscription_prior * prior_weight / 2
+        b = (1 - subscription_prior) * prior_weight / 2
 
         overdraw_rate = pd.Series(
             {
-                g: beta.ppf(0.95, a=a + sub, b=b + drawn - sub)
-                for g, (sub, drawn) in pd.concat(
+                college: beta.ppf(0.95, a=a + sub, b=b + drawn - sub)
+                for college, (sub, drawn) in pd.concat(
                     [final_subscribed, final_drawn], axis=1
                 ).iterrows()
             }
@@ -218,7 +224,7 @@ class Command(BaseCommand):
         new_draws = status.id.isin(
             [
                 id
-                for name, g in status[status._available].groupby(["gender"])
+                for name, g in status[status._available].groupby(["college"])
                 for id in g["id"].iloc[: stats.loc[name, "to_draw"]]
             ]
         )
@@ -238,7 +244,7 @@ class Command(BaseCommand):
         status.loc[new_draws, "subscribe_limit"] = limit
 
         if self.verbosity >= 1:
-            drawn_counts = Counter(status.loc[new_draws, "gender"])
+            drawn_counts = Counter(status.loc[new_draws, "college"])
             print("Tirage :")
             for g, c in drawn_counts.items():
                 print(f"{g}: {c} personnes")
@@ -291,13 +297,16 @@ class Command(BaseCommand):
                     )
                 )
 
-                print(row.gender, end="\n" if i % 80 == 79 else "", flush=True)
+                print(row.college, end="\n" if i % 80 == 79 else "", flush=True)
 
                 if do_it:
                     send_mail(
                         subject=config["email_subject"],
                         html_message=html_message,
-                        from_email=config.get("email_from", "La France insoumise <nepasrepondre@lafranceinsoumise.fr>"),
+                        from_email=config.get(
+                            "email_from",
+                            "La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
+                        ),
                         recipient_list=[person],
                         connection=connection,
                     )
