@@ -13,7 +13,7 @@ addons:
 dist: bionic  # pas encore focal
 env:
   global:
-    - export DATABASE_URL="postgis://postgres:%2Fvar%2Frun%2Fpostgresql/agir"
+    - export DATABASE_URL="postgis://postgres@%2Fvar%2Frun%2Fpostgresql/agir"
     - export PIP_USE_MIRRORS=true
     - export LOG_DISABLE_JOURNALD=true
 
