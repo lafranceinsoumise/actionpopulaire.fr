@@ -265,8 +265,8 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         permissions = (
             ("review_spendingrequest", _("Peut traiter les demandes de dépenses")),
         )
-        verbose_name = "Demande de dépense"
-        verbose_name_plural = "Demandes de dépense"
+        verbose_name = "Demande de dépense ou remboursement"
+        verbose_name_plural = "Demandes de dépense ou remboursement"
 
     # noinspection PyMethodOverriding
     @classmethod

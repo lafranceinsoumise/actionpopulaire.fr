@@ -180,7 +180,7 @@ def get_current_action(spending_request, user):
         if not can_be_sent(spending_request):
             return {
                 "button": None,
-                "explanation": "Avant de pouvoir être envoyée pour validation, votre demande de dépense doit être"
+                "explanation": "Avant de pouvoir être envoyée pour validation, votre demande doit être"
                 " complète et comporter au moins une facture.",
             }
 

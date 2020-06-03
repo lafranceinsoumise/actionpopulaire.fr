@@ -1,7 +1,7 @@
 Bonjour Marie-Pierre et Maxime,
 
 
-Une nouvelle demande de dépense à traiter est en ligne. Elle s'intitule "{{ SPENDING_REQUEST_NAME }}", et a été créée par le groupe "{{ GROUP_NAME }}".  
+Une nouvelle demande de dépense ou de remboursement à traiter est en ligne. Elle s'intitule "{{ SPENDING_REQUEST_NAME }}", et a été créée par le groupe "{{ GROUP_NAME }}".
   
   
 [Traiter la dépense]({{ SPENDING_REQUEST_ADMIN_LINK }})  

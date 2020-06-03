@@ -41,7 +41,7 @@ def send_spending_request_to_review_email(spending_request_pk):
 
     send_mosaico_email(
         code="SPENDING_REQUEST_TO_REVIEW_NOTIFICATION",
-        subject="Nouvelle demande de dépense",
+        subject="Nouvelle demande de dépense ou de remboursement",
         from_email=settings.EMAIL_FROM,
         bindings={
             "SPENDING_REQUEST_NAME": spending_request.title,

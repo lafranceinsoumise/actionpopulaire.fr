@@ -1,18 +1,18 @@
 {% extends 'front/layout.html' %}{% load crispy_forms_tags %}{% load static %}
 
 {% block title %}
-  Créer une demande de dépense
+  Créer une demande de dépense ou de remboursement
 {% endblock %}
 
 {% block main %}
   <div class="row">
     <div class="col-responsive">
-      <h1>Créer une demande de dépense</h1>
+      <h1>Créer une demande de dépense ou de remboursement</h1>
 
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <fieldset>
-          <legend>Les informations de votre demande de dépense</legend>
+          <legend>Les informations de votre demande</legend>
           {% crispy spending_request_form %}
         </fieldset>
         <fieldset>

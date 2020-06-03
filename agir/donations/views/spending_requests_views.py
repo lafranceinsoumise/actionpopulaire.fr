@@ -69,7 +69,7 @@ class CreateSpendingRequestView(
     def form_valid(self, spending_request_form, document_formset):
         with reversion.create_revision():
             reversion.set_user(self.request.user)
-            reversion.set_comment("Création de la demande de dépense")
+            reversion.set_comment("Création de la demande")
 
             self.spending_request = spending_request_form.save()
             document_formset.save()
