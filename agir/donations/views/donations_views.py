@@ -70,8 +70,11 @@ class AskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
     success_url = reverse_lazy("donation_information")
     session_namespace = DONATION_SESSION_NAMESPACE
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.group = None
+        super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
         if "group" in request.GET:
             try:
                 self.group = SupportGroup.objects.get(pk=request.GET["group"])
