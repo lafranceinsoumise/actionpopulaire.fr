@@ -72,7 +72,7 @@ class AskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
 
     def get(self, request, *args, **kwargs):
         self.group = None
-        if "group_id" in request.GET:
+        if "group" in request.GET:
             try:
                 self.group = SupportGroup.objects.get(pk=request.GET["group"])
             except SupportGroup.DoesNotExist:
