@@ -1,14 +1,12 @@
 from django import template
 from django.template import TemplateSyntaxError
-from django.template.base import kwarg_re
-from django.template.defaulttags import URLNode
+from django.template.base import kwarg_re, Node
 from django.utils.html import conditional_escape
 
 register = template.Library()
 
 
-@register.tag
-def admin_url(parser, token):
+def parse_global_url(parser, token):
     r"""
     Exactly like the url template tag, but returns fully qualified url to admin_view
 
@@ -46,13 +44,19 @@ def admin_url(parser, token):
         else:
             args.append(parser.compile_filter(value))
 
-    return AdminURLNode(viewname, args, kwargs, asvar)
+    return (viewname, args, kwargs, asvar)
 
 
-class AdminURLNode(URLNode):
+class GlobalURLNode(Node):
+    def __init__(self, view_name, args, kwargs, asvar, url_function):
+        self.view_name = view_name
+        self.args = args
+        self.kwargs = kwargs
+        self.asvar = asvar
+        self.url_function = url_function
+
     def render(self, context):
         from django.urls import NoReverseMatch
-        from ..utils import admin_url
 
         args = [arg.resolve(context) for arg in self.args]
         kwargs = {k: v.resolve(context) for k, v in self.kwargs.items()}
@@ -60,7 +64,7 @@ class AdminURLNode(URLNode):
 
         url = ""
         try:
-            url = admin_url(view_name, args=args, kwargs=kwargs)
+            url = self.url_function(view_name, args=args, kwargs=kwargs)
         except NoReverseMatch:
             if self.asvar is None:
                 raise
@@ -72,3 +76,17 @@ class AdminURLNode(URLNode):
             if context.autoescape:
                 url = conditional_escape(url)
             return url
+
+
+@register.tag
+def admin_url(parser, token):
+    from ..utils import admin_url
+
+    return GlobalURLNode(*parse_global_url(parser, token), url_function=admin_url)
+
+
+@register.tag
+def front_url(parser, token):
+    from ..utils import front_url
+
+    return GlobalURLNode(*parse_global_url(parser, token), url_function=front_url)

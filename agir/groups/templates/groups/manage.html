@@ -1,4 +1,5 @@
-{% extends "front/layout.html" %}{% load crispy_forms_tags %}
+% extends "front/layout.html" %}
+{% load global_urls %}{% load crispy_forms_tags %}
 {% load display_lib %}
 
 {% block title %}Gérer le groupe «&nbsp;{{ supportgroup.name }}&nbsp;»{% endblock %}
@@ -229,9 +230,13 @@
             code promo sera disponible à partir du {{ promo_code_delay|date }}.
           </div>
         {% else %}
-          <div style="text-align: center; margin: 2em auto;">
-            <span
-                style="padding: 10px; font-weight: bolder; font-size: 2em; border: 2px solid darkgrey;">{{ group_promo_code }}</span>
+          <div class="form-inline">
+            <div class="form-group">
+              <label for="promo_code">Le code promo actuel de mon groupe :</label>
+              <div class="input-group">
+                <input id="promo_code" class="form-control copybox" size="14" type="text" value="{{ group_promo_code }}" readonly>
+              </div>
+            </div>
           </div>
 
           <p>
@@ -252,6 +257,20 @@
       {% endif %}
     </div>
     <div role="tabpanel" class="tab-pane" id="financement">
+      <h3>Solliciter des dons pour mon groupe</h3>
+      <div>
+        Pour solliciter des dons pour votre groupe, vous pouvez utiliser le lien ci-dessous.
+
+        <div class="form-inline">
+          <div class="form-group">
+            <label for="donation_link">Le lien de don pour mon groupe :</label>
+            <div class="input-group">
+              <input id="donation_link" class="form-control copybox" size="40" type="text" value="{% front_url "donation_amount" %}?group={{ supportgroup.pk }}" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {% if supportgroup.is_certified %}
         <h3>Dons alloués aux actions de mon groupe</h3>
         {% if allocation_balance > 0 %}
@@ -344,4 +363,5 @@
 
 
   </div>
+
 {% endblock %}
