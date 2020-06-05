@@ -72,7 +72,7 @@ class AskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
 
     def dispatch(self, request, *args, **kwargs):
         self.group = None
-        super().dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         if "group" in request.GET:
