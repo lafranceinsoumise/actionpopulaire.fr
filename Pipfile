@@ -8,7 +8,7 @@ python_version = '3.8'
 
 [packages]
 # Django et extensions
-django = ">=2.2.9,<3.0"
+django = ">=2.2.11,<3.0"
 ## config helpers
 dj-database-url = "==0.5.*"  # for easing up database settings
 dj-email-url = "==0.2.*"  # for easing up SMTP settings
