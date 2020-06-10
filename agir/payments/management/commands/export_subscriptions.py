@@ -18,7 +18,7 @@ FILE_DESC = {
         T.hex,
     ),
     "No_abonnement": "subscription.id",
-    "Email": "person.email",
+    "Email": Coalesce("person.email", "email"),
     "Nom": Coalesce("person.last_name", "subscription.meta.last_name"),
     "Prénom": Coalesce(
         "person.first_name", "subscription.meta.first_name", skip=("",), default=""
