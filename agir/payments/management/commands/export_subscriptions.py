@@ -74,12 +74,27 @@ class Command(BaseCommand):
     help = "Exporte les informations supplémentaires nécessaires pour l'audit des dons réguliers"
 
     def add_arguments(self, parser):
-        parser.add_argument("month", type=month_argument)
         parser.add_argument(
-            "-s", "--send-to", dest="emails", action="append", type=email_argument
+            "month",
+            type=month_argument,
+            metavar="MONTH",
+            help="Le mois pour lequel extraire les abonnements",
         )
         parser.add_argument(
-            "-o", "--output-to", dest="output", type=FileType(mode="wb")
+            "-s",
+            "--send-to",
+            dest="emails",
+            action="append",
+            type=email_argument,
+            metavar="EMAIL",
+            help="Un email auquel envoyer l'extraction (utilisation multiple possible)",
+        )
+        parser.add_argument(
+            "-o",
+            "--output-to",
+            dest="output",
+            type=FileType(mode="wb"),
+            help="Le chemin où sauvegarder l'extraction.",
         )
 
     def handle(self, *args, month, emails, output, **options):
