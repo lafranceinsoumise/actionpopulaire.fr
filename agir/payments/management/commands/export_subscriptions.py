@@ -117,11 +117,10 @@ class Command(BaseCommand):
 
         df = pd.DataFrame(results)
         xls_buffer = BytesIO()
-        df.to_excel(xls_buffer, engine="xlwt")
+        df.to_excel(xls_buffer, engine="xlwt", index=False)
         xls_file = xls_buffer.getvalue()
 
         if not output and not emails:
-            df.to_excel()
             self.stdout.buffer.write(xls_file)
 
         if output:
