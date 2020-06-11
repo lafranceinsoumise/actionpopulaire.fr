@@ -1,6 +1,7 @@
 from argparse import FileType
+from io import BytesIO
 
-import tablib as tablib
+import pandas as pd
 from django.core.mail import EmailMessage, get_connection
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -114,10 +115,13 @@ class Command(BaseCommand):
 
         results = glom(payments, [FILE_DESC])
 
-        s = tablib.Dataset(*(r.values() for r in results), headers=FILE_DESC.keys())
-        xls_file = s.export("xls")
+        df = pd.DataFrame(results)
+        xls_buffer = BytesIO()
+        df.to_excel(xls_buffer, engine="xlwt")
+        xls_file = xls_buffer.getvalue()
 
         if not output and not emails:
+            df.to_excel()
             self.stdout.buffer.write(xls_file)
 
         if output:
