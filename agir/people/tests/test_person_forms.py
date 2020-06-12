@@ -1,5 +1,6 @@
 from unittest import mock
 
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -428,7 +429,7 @@ class SubmissionFormatTestCase(TestCase):
                 "first_name": "Arthur",
                 "date": self.some_date,
                 "phone_number": "+33612345678",
-                "file": "/test/truc.pdf",
+                "file": "test/truc.pdf",
                 "missing_field": "Unknown value",
             },
         )
@@ -450,7 +451,7 @@ class SubmissionFormatTestCase(TestCase):
                         {"label": "Tel.", "value": "+33 6 12 34 56 78"},
                         {
                             "label": "Fichier",
-                            "value": '<a href="http://agir.local:8000/media//test/truc.pdf">Accéder au fichier</a>',
+                            "value": f'<a href="{settings.FRONT_DOMAIN}/media/test/truc.pdf">Accéder au fichier</a>',
                         },
                     ],
                 },
