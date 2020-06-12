@@ -38,6 +38,11 @@
       {% if commune.contact_email %}
         <p><i class="fa fa-email" aria-hidden="true"></i> <a href="mailto:{{ commune.contact_email }}">{{ commune.contact_email }}</a>
         </p>{% endif %}
+
+      <a href="{% url "procuration_commune" commune.code_departement commune.slug %}">
+          Je cherche quelqu'un pour prendre ma procuration à {{ commune.name }}
+      </a>
+
     </div>
 
     {% if commune.ordre_don and commune.adresse_don %}

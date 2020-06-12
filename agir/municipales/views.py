@@ -46,6 +46,7 @@ def certificate_path(commune):
 
 class CommunePageMixin(View):
     context_object_name = "commune"
+    tour = None
 
     def get_object(self, queryset=None):
         return get_object_or_404(
@@ -61,7 +62,7 @@ class CommuneView(CommunePageMixin, IframableMixin, DetailView):
     def get_template_names(self):
         if self.request.GET.get("iframe"):
             return ["municipales/commune_details_iframe.html"]
-        return ["municipales/commune_details.html"]
+        return [f"municipales/commune_details_tour_{self.tour}.html"]
 
     def get_context_data(self, **kwargs):
         events = (

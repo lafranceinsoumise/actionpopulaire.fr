@@ -16,7 +16,7 @@ urlpatterns = (
     path("communes/chercher/", SearchView.as_view(), name="search_commune"),
     path(
         "communes/<str:code_departement>/<str:slug>/",
-        CommuneView.as_view(),
+        CommuneView.as_view(tour=2),
         name="view_commune",
     ),
     path(
