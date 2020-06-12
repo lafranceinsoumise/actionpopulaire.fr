@@ -81,9 +81,9 @@ class Command(BaseCommand):
 
                 persons.append(p)
 
-            commune.municipales2020_admins.add(*persons)
-            commune.municipales2020_admins.remove(
-                *commune.municipales2020_admins.exclude(pk__in=[p.pk for p in persons])
+            commune.chefs_file.add(*persons)
+            commune.chefs_file.remove(
+                *commune.chefs_file.exclude(pk__in=[p.pk for p in persons])
             )
             all_ids.extend(p.id for p in persons)
 
@@ -129,7 +129,7 @@ class Command(BaseCommand):
         for infos in strategies.itertuples():
             commune = all_communes.get(infos.Index)
             if commune:
-                commune.strategy = infos.strategie
+                commune.liste_tour_1 = infos.strategie
                 commune.first_name_1 = infos.first_name_1
                 commune.last_name_1 = infos.last_name_1
                 commune.first_name_2 = infos.first_name_2
@@ -139,7 +139,7 @@ class Command(BaseCommand):
 
                 commune.save(
                     update_fields=[
-                        "strategy",
+                        "liste_tour_1",
                         "first_name_1",
                         "last_name_1",
                         "first_name_2",

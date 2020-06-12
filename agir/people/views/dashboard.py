@@ -157,7 +157,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
             "-created"
         )
 
-        communes = CommunePage.objects.filter(municipales2020_admins=person)
+        communes = CommunePage.objects.filter(chefs_file=person)
 
         kwargs.update(
             {

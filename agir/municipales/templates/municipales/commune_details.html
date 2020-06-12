@@ -27,8 +27,8 @@
   <div class="row masonry">
     <div class="col-md-6 gblock">
       <h3>La campagne à {{ commune.name }}</h3>
-      {% if commune.strategy %}
-        <p><em><strong>{{ commune.strategy }}</strong></em></p>{% endif %}
+      {% if commune.liste_tour_1 %}
+        <p><em><strong>{{ commune.liste_tour_1 }}</strong></em></p>{% endif %}
       {% if commune.tete_liste %}
         <p><strong>Tête de liste</strong> : {{ commune.tete_liste }}</p>{% endif %}
       {% if commune.chiefs %}

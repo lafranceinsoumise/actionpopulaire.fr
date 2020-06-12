@@ -44,10 +44,24 @@ class CommunePage(TimeStampedModel, models.Model):
     coordinates = MultiPolygonField("Périmètre de la commune", geography=True)
     name = models.CharField("Nom de la commune", max_length=255)
     slug = models.SlugField("Slug")
-    strategy = models.CharField("Stratégie", max_length=255, blank=True)
 
-    tete_liste = models.CharField(
-        "Nom de la tête de liste",
+    liste_tour_1 = models.CharField(
+        "Nom de la liste du 1er tour", max_length=255, blank=True
+    )
+
+    tete_liste_tour_1 = models.CharField(
+        "Nom de la tête de liste au 1er tour",
+        max_length=255,
+        blank=True,
+        help_text="Le nom de la tête de liste, tel qu'il s'affichera publiquement",
+    )
+
+    liste_tour_2 = models.CharField(
+        "Nom de la liste du 2e tour", max_length=255, blank=True
+    )
+
+    tete_liste_tour_2 = models.CharField(
+        "Nom de la tête de liste au 2e tour",
         max_length=255,
         blank=True,
         help_text="Le nom de la tête de liste, tel qu'il s'affichera publiquement",
@@ -109,7 +123,7 @@ class CommunePage(TimeStampedModel, models.Model):
         " ce moment.",
     )
 
-    municipales2020_admins = models.ManyToManyField(
+    chefs_file = models.ManyToManyField(
         "people.Person",
         verbose_name="Têtes de file pour les élections municipales de 2020",
         related_name="municipales2020_commune",

@@ -34,7 +34,7 @@ class ProcurationTestCase(TestCase):
             slug="blagny",
             name="Blagny",
             published=True,
-            tete_liste="Marc Lefevre",
+            tete_liste_tour_1="Marc Lefevre",
             coordinates=BLAGNY_WKT,
         )
         self.url = reverse(
