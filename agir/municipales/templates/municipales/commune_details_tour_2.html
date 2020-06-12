@@ -28,9 +28,9 @@
     <div class="col-md-6 gblock">
       <h3>Le deuxième tour des municipales à {{ commune.name }}</h3>
       {% if commune.liste_tour_2 %}
-        <p><em><strong>{{ commune.liste_tour_1 }}</strong></em></p>{% endif %}
-      {% if commune.tete_liste_2 %}
-        <p><strong>Tête de liste</strong> : {{ commune.tete_liste }}</p>{% endif %}
+        <p><em><strong>{{ commune.liste_tour_2 }}</strong></em></p>{% endif %}
+      {% if commune.tete_liste_tour_2 %}
+        <p><strong>Tête de liste</strong> : {{ commune.tete_liste_tour_2 }}</p>{% endif %}
 
       <a href="{% url "procuration_commune" commune.code_departement commune.slug %}">
         Je cherche quelqu'un pour prendre ma procuration à {{ commune.name }}
