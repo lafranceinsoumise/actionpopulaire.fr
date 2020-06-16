@@ -113,7 +113,7 @@ class SpendingRequestTestCase(TestCase):
                     "title": "Création de la demande",
                     "user": self.p1.get_short_name(),
                     "modified": round_date_like_reversion(spending_request.modified),
-                    "comment": "Création de la demande de dépense",
+                    "comment": "Création de la demande",
                     "diff": [],
                 }
             ],
@@ -418,7 +418,7 @@ class SpendingRequestTestCase(TestCase):
                 {
                     "title": "Création de la demande",
                     "user": self.p1.get_short_name(),
-                    "comment": "Création de la demande de dépense",
+                    "comment": "Création de la demande",
                     "diff": [],
                 },
                 {
