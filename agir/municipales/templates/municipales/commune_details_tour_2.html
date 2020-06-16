@@ -1,0 +1,55 @@
+{% extends "front/layout.html" %}
+{% load render_bundle from webpack_loader %}
+
+{% block extra_scripts %}
+  {{ block.super }}
+  {% render_bundle 'lib/masonry' attrs='defer' %}
+  <style>
+
+  </style>
+{% endblock %}
+
+{% block title %}{{ commune.name }}{% endblock title %}
+
+
+{% block main %}
+
+  <h1>{{ commune.name }}
+    {% if change_commune %}
+      <a class="btn btn-default" href="{% url "change_commune" commune.code_departement commune.slug %}">
+        Modifier ces informations
+      </a>
+      <a class="btn btn-default" href="{% url "municipales_certificate_form" commune.code_departement commune.slug %}">
+        Télécharger mon attestation de coût
+      </a>
+    {% endif %}
+  </h1>
+  <div class="row masonry">
+    <div class="col-md-6 gblock">
+      <h3>Le deuxième tour des municipales à {{ commune.name }}</h3>
+      {% if commune.liste_tour_2 %}
+        <p><em><strong>{{ commune.liste_tour_2 }}</strong></em></p>{% endif %}
+      {% if commune.tete_liste_tour_2 %}
+        <p><strong>Tête de liste</strong> : {{ commune.tete_liste_tour_2 }}</p>{% endif %}
+
+      <a href="{% url "procuration_commune" commune.code_departement commune.slug %}">
+        Je cherche quelqu'un pour prendre ma procuration à {{ commune.name }}
+      </a>
+
+    </div>
+
+    <div class="col-md-6 gblock">
+      <h3>Agenda</h3>
+      {% include "events/includes/events_by_day.html" with events=events empty_message="Aucun événement à venir dans cette commune." %}
+    </div>
+    <div class="col-md-6 gblock">
+      <h3>Rejoignez un groupe d'action&nbsp;!</h3>
+      <iframe
+              title="Carte"
+              src="{{ MAP_DOMAIN }}{% url "carte:commune_groups_map" commune.code_departement commune.slug %}"
+              height="300"
+              style="width: 100%;" scrolling="no"
+              frameBorder="0"></iframe>
+    </div>
+  </div>
+{% endblock %}

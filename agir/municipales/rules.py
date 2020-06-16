@@ -7,7 +7,7 @@ def is_chef_de_file(role, obj):
         obj
         and obj.published
         and getattr(role, "person", None)
-        and role.person in obj.municipales2020_admins.filter()
+        and role.person in obj.chefs_file.filter()
     )
 
 

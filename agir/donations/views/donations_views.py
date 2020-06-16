@@ -15,6 +15,7 @@ from agir.donations.allocations import create_monthly_donation
 from agir.donations.apps import DonsConfig
 from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
 from agir.donations.forms import AlreadyHasSubscriptionForm
+from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.groups.models import SupportGroup
 from agir.payments import payment_modes
 from agir.payments.actions.payments import (
@@ -56,7 +57,7 @@ __all__ = (
 DONATION_SESSION_NAMESPACE = "_donation_"
 
 
-class AskAmountView(BaseAskAmountView):
+class AskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
     meta_title = "Je donne à la France insoumise"
     meta_description = (
         "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
@@ -69,11 +70,41 @@ class AskAmountView(BaseAskAmountView):
     success_url = reverse_lazy("donation_information")
     session_namespace = DONATION_SESSION_NAMESPACE
 
+    def dispatch(self, request, *args, **kwargs):
+        self.group = None
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        if "group" in request.GET:
+            try:
+                self.group = SupportGroup.objects.get(pk=request.GET["group"])
+            except SupportGroup.DoesNotExist:
+                pass
+        return super().get(request, *args, **kwargs)
+
+    def get_meta_title(self):
+        if self.group is not None:
+            return f"J'aide {self.group.name}"
+        return super().get_meta_title()
+
+    def get_meta_description(self):
+        if self.group is not None:
+            return (
+                f"Pour financer les dépenses liées à ses activités, le groupe d'action « {self.group.name} » a"
+                f" besoin de votre aide !"
+            )
+        return super().get_meta_description()
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["group_id"] = self.request.GET.get("group")
         kwargs["user"] = self.request.user
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        if self.group is not None:
+            kwargs["donation_title"] = f"J'aide {self.group.name}"
+        return super().get_context_data(**kwargs)
 
     def form_valid(self, form):
         if (

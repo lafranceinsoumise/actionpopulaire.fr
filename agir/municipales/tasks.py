@@ -45,7 +45,7 @@ def send_procuration_email(commune_id, nom_complet, email, phone, bureau, autres
         personnel = False
         recipients = [commune.contact_email]
     else:
-        recipients = [p.email for p in commune.municipales2020_admins.all()]
+        recipients = [p.email for p in commune.chefs_file.all()]
         personnel = True
 
     if not recipients:

@@ -27,8 +27,8 @@
   <div class="row masonry">
     <div class="col-md-6 gblock">
       <h3>La campagne à {{ commune.name }}</h3>
-      {% if commune.strategy %}
-        <p><em><strong>{{ commune.strategy }}</strong></em></p>{% endif %}
+      {% if commune.liste_tour_1 %}
+        <p><em><strong>{{ commune.liste_tour_1 }}</strong></em></p>{% endif %}
       {% if commune.tete_liste %}
         <p><strong>Tête de liste</strong> : {{ commune.tete_liste }}</p>{% endif %}
       {% if commune.chiefs %}
@@ -38,6 +38,11 @@
       {% if commune.contact_email %}
         <p><i class="fa fa-email" aria-hidden="true"></i> <a href="mailto:{{ commune.contact_email }}">{{ commune.contact_email }}</a>
         </p>{% endif %}
+
+      <a href="{% url "procuration_commune" commune.code_departement commune.slug %}">
+          Je cherche quelqu'un pour prendre ma procuration à {{ commune.name }}
+      </a>
+
     </div>
 
     {% if commune.ordre_don and commune.adresse_don %}

@@ -1,6 +1,7 @@
 from argparse import FileType
+from io import BytesIO
 
-import tablib as tablib
+import pandas as pd
 from django.core.mail import EmailMessage, get_connection
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -18,7 +19,7 @@ FILE_DESC = {
         T.hex,
     ),
     "No_abonnement": "subscription.id",
-    "Email": "person.email",
+    "Email": Coalesce("person.email", "email"),
     "Nom": Coalesce("person.last_name", "subscription.meta.last_name"),
     "Prénom": Coalesce(
         "person.first_name", "subscription.meta.first_name", skip=("",), default=""
@@ -74,12 +75,27 @@ class Command(BaseCommand):
     help = "Exporte les informations supplémentaires nécessaires pour l'audit des dons réguliers"
 
     def add_arguments(self, parser):
-        parser.add_argument("month", type=month_argument)
         parser.add_argument(
-            "-s", "--send-to", dest="emails", action="append", type=email_argument
+            "month",
+            type=month_argument,
+            metavar="MONTH",
+            help="Le mois pour lequel extraire les abonnements",
         )
         parser.add_argument(
-            "-o", "--output-to", dest="output", type=FileType(mode="wb")
+            "-s",
+            "--send-to",
+            dest="emails",
+            action="append",
+            type=email_argument,
+            metavar="EMAIL",
+            help="Un email auquel envoyer l'extraction (utilisation multiple possible)",
+        )
+        parser.add_argument(
+            "-o",
+            "--output-to",
+            dest="output",
+            type=FileType(mode="wb"),
+            help="Le chemin où sauvegarder l'extraction.",
         )
 
     def handle(self, *args, month, emails, output, **options):
@@ -99,8 +115,10 @@ class Command(BaseCommand):
 
         results = glom(payments, [FILE_DESC])
 
-        s = tablib.Dataset(*(r.values() for r in results), headers=FILE_DESC.keys())
-        xls_file = s.export("xls")
+        df = pd.DataFrame(results)
+        xls_buffer = BytesIO()
+        df.to_excel(xls_buffer, engine="xlwt", index=False)
+        xls_file = xls_buffer.getvalue()
 
         if not output and not emails:
             self.stdout.buffer.write(xls_file)

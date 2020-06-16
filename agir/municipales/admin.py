@@ -28,9 +28,9 @@ class CheffeDeFileFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value == "O":
-            return queryset.exclude(municipales2020_admins=None)
+            return queryset.exclude(chefs_file=None)
         elif value == "N":
-            return queryset.filter(municipales2020_admins=None)
+            return queryset.filter(chefs_file=None)
         return queryset
 
 
@@ -100,10 +100,12 @@ class CommunePageAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "published",
-                    "strategy",
+                    "liste_tour_1",
+                    "liste_tour_2",
                     "liste_soutenue",
                     "type_soutien",
-                    "tete_liste",
+                    "tete_liste_tour_1",
+                    "tete_liste_tour_2",
                     "contact_email",
                     "mandataire_email",
                     "first_name_1",
@@ -121,27 +123,14 @@ class CommunePageAdmin(admin.ModelAdmin):
             "Informations pour les dons par chèque",
             {"fields": ("ordre_don", "adresse_don")},
         ),
-        (
-            "Permission",
-            {"fields": ("municipales2020_admins", "municipales2020_people_list")},
-        ),
+        ("Permission", {"fields": ("chefs_file", "municipales2020_people_list")},),
     )
 
     list_display = (
         "__str__",
         "published",
-        "strategy",
-        "first_name_1",
-        "last_name_1",
-        "first_name_2",
-        "last_name_2",
-        "twitter",
-        "facebook",
-        "website",
-    )
-    list_editable = (
-        "published",
-        "strategy",
+        "liste_tour_1",
+        "liste_tour_2",
         "first_name_1",
         "last_name_1",
         "first_name_2",
@@ -150,7 +139,7 @@ class CommunePageAdmin(admin.ModelAdmin):
 
     # doit être True-ish pour déclencher l'utilisation
     search_fields = ("name", "code_departement")
-    autocomplete_fields = ("municipales2020_admins",)
+    autocomplete_fields = ("chefs_file",)
     list_filter = (CheffeDeFileFilter, "published")
 
     def get_absolute_url(self):

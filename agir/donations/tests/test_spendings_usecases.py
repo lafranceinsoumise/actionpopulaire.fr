@@ -160,7 +160,7 @@ class SpendingRequestTestCase(TestCase):
         self.assertEqual(spending_request.amount, 7700)
 
     def test_can_add_document(self):
-        """Peut ajouter un document justificatif
+        """Un gestionnaire du groupe peut ajouter un document justificatif à une demande
         """
         self.client.force_login(self.p1.role)
         spending_request = SpendingRequest.objects.create(
@@ -192,7 +192,7 @@ class SpendingRequestTestCase(TestCase):
         self.assertEqual(spending_request.documents.first().title, "Mon super fichier")
 
     def test_can_modify_document(self):
-        """Peut modifier un document justificatif
+        """Un gestionnaire du groupe peut modifier un des documents justificatifs
         """
         self.client.force_login(self.p1.role)
         spending_request = SpendingRequest.objects.create(
@@ -303,7 +303,7 @@ class SpendingRequestTestCase(TestCase):
         self.assertEqual(operation.amount, -8500)
 
     def test_history_is_correct(self):
-        """L"historique est correctement généré
+        """L'historique d'une demande de dépense est correctement généré
         """
         self.maxDiff = None
 

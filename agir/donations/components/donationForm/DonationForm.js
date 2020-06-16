@@ -117,7 +117,7 @@ const DonationForm = ({
 
       {enableAllocations && (
         <>
-          <Title>Je choisis à qui va {typeActe}</Title>
+          <Title>Je choisis une répartition pour {typeActe}</Title>
           <AllocationWidget
             groupChoices={groupChoices}
             value={allocations}
