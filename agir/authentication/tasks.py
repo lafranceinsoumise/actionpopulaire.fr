@@ -22,7 +22,7 @@ def send_login_email(email, short_code, expiry_time):
 
     send_mosaico_email(
         code="LOGIN_MESSAGE",
-        subject="Connexion à agir.lafranceinsoumise.fr",
+        subject="Connexion à la plateforme",
         from_email=settings.EMAIL_FROM,
         bindings={
             "CODE": interleave_spaces(short_code),
