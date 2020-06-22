@@ -88,6 +88,7 @@ def send_mosaico_email(
     subject,
     from_email,
     recipients,
+    recipient_type="to",
     bindings=None,
     connection=None,
     backend=None,
@@ -112,6 +113,9 @@ def send_mosaico_email(
         iter(recipients)
     except TypeError:
         recipients = [recipients]
+
+    if recipient_type not in ["to", "cc", "bcc"]:
+        raise ValueError("`recipient_type` must be to, cc or bcc")
 
     if bindings is None:
         bindings = {}
@@ -162,8 +166,12 @@ def send_mosaico_email(
                 body=text_message,
                 from_email=from_email,
                 reply_to=reply_to,
-                to=[recipient.email if isinstance(recipient, Person) else recipient],
                 connection=connection,
+                **{
+                    recipient_type: [
+                        recipient.email if isinstance(recipient, Person) else recipient
+                    ]
+                },
             )
             email.attach_alternative(html_message, "text/html")
             if attachments is not None:
