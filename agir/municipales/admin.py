@@ -35,14 +35,30 @@ class CheffeDeFileFilter(SimpleListFilter):
 
 
 class CommuneForm(forms.ModelForm):
-    liste_soutenue = forms.ModelChoiceField(
-        label="Liste soutenue par la Fi",
+    liste_soutenue_tour_1 = forms.ModelChoiceField(
+        label="Liste soutenue par la FI — 1er tour",
         queryset=Liste.objects.none(),
         empty_label="Aucune",
         required=False,
     )
-    type_soutien = forms.ChoiceField(
-        label="Type de soutien",
+    type_soutien_tour_1 = forms.ChoiceField(
+        label="Type de soutien — 1er tour",
+        choices=[
+            (Liste.SOUTIEN_PUBLIC, "Soutien public"),
+            (Liste.SOUTIEN_PREF, "Simple préférence"),
+        ],
+        initial="P",
+        required="P",
+    )
+
+    liste_soutenue_tour_2 = forms.ModelChoiceField(
+        label="Liste soutenue par la FI — 2ème tour",
+        queryset=Liste.objects.none(),
+        empty_label="Aucune",
+        required=False,
+    )
+    type_soutien_tour_2 = forms.ChoiceField(
+        label="Type de soutien — 2ème tour",
         choices=[
             (Liste.SOUTIEN_PUBLIC, "Soutien public"),
             (Liste.SOUTIEN_PREF, "Simple préférence"),
@@ -54,16 +70,33 @@ class CommuneForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        listes = self.instance.listes.all()
+        listes_tour_1 = self.instance.listes.filter(tour=1)
+        listes_tour_2 = self.instance.listes.filter(tour=2)
 
-        self.fields["liste_soutenue"].queryset = listes
+        self.fields["liste_soutenue_tour_1"].queryset = listes_tour_1
+        self.fields["liste_soutenue_tour_2"].queryset = listes_tour_2
 
         try:
-            self.liste_soutenue = listes.exclude(soutien=Liste.SOUTIEN_NON).get()
-            self.fields["liste_soutenue"].initial = self.liste_soutenue
-            self.fields["type_soutien"].initial = self.liste_soutenue.soutien
+            self.liste_soutenue_tour_1 = listes_tour_1.exclude(
+                soutien=Liste.SOUTIEN_NON
+            ).get()
+            self.fields["liste_soutenue_tour_1"].initial = self.liste_soutenue_tour_1
+            self.fields[
+                "type_soutien_tour_1"
+            ].initial = self.liste_soutenue_tour_1.soutien
         except Liste.DoesNotExist:
-            self.liste_soutenue = None
+            self.liste_soutenue_tour_1 = None
+
+        try:
+            self.liste_soutenue_tour_2 = listes_tour_2.exclude(
+                soutien=Liste.SOUTIEN_NON
+            ).get()
+            self.fields["liste_soutenue_tour_2"].initial = self.liste_soutenue_tour_2
+            self.fields[
+                "type_soutien_tour_2"
+            ].initial = self.liste_soutenue_tour_2.soutien
+        except Liste.DoesNotExist:
+            self.liste_soutenue_tour_2 = None
 
     def _save_m2m(self):
         super()._save_m2m()
@@ -96,22 +129,38 @@ class CommunePageAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {"fields": ("code", "code_departement", "name")}),
         (
-            "Informations sur la campagne",
+            "Campagne FI",
             {
                 "fields": (
                     "published",
-                    "liste_tour_1",
-                    "liste_tour_2",
-                    "liste_soutenue",
-                    "type_soutien",
-                    "tete_liste_tour_1",
-                    "tete_liste_tour_2",
                     "contact_email",
                     "mandataire_email",
                     "first_name_1",
                     "last_name_1",
                     "first_name_2",
                     "last_name_2",
+                )
+            },
+        ),
+        (
+            "Premier tour",
+            {
+                "fields": (
+                    "liste_tour_1",
+                    "liste_soutenue_tour_1",
+                    "type_soutien_tour_1",
+                    "tete_liste_tour_1",
+                )
+            },
+        ),
+        (
+            "Deuxième tour",
+            {
+                "fields": (
+                    "liste_tour_2",
+                    "liste_soutenue_tour_2",
+                    "type_soutien_tour_2",
+                    "tete_liste_tour_2",
                 )
             },
         ),

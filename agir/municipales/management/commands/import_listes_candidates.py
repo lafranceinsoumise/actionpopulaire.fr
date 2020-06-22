@@ -1,10 +1,14 @@
 import pandas as pd
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, CommandError
 from tqdm import tqdm
 
 from agir.municipales.models import CommunePage, Liste
 
-URL = "https://static.data.gouv.fr/resources/elections-municipales-2020-candidatures-au-1er-tour/20200304-105123/livre-des-listes-et-candidats.txt"
+URL = {
+    1: "https://static.data.gouv.fr/resources/elections-municipales-2020-candidatures-au-1er-tour/20200304-105123/livre-des-listes-et-candidats.txt",
+    2: "https://static.data.gouv.fr/resources/elections-municipales-2020-candidatures-au-second-tour/20200605-144701/livre-des-listes-et-candidats-subcom-t2-france-entiere.txt",
+}
+
 DTYPE = {
     "Code du département": "category",
     "Libellé du département": "category",
@@ -31,8 +35,8 @@ def pairs(it):
 class Command(BaseCommand):
     help = "Importer les listes du ministère pour pouvoir faire les rapprochements avec nos listes."
 
-    def import_listes(self):
-        df = pd.read_csv(URL, sep="\t", dtype=DTYPE, skiprows=2, encoding="latin1")
+    def import_tour_1(self):
+        df = pd.read_csv(URL[1], sep="\t", dtype=DTYPE, skiprows=2, encoding="latin1")
 
         df.columns = [
             "departement",
@@ -85,8 +89,53 @@ class Command(BaseCommand):
 
         return df
 
-    def handle(self, *args, **options):
-        df = self.import_listes()
+    def import_tour_2(self):
+        df = pd.read_csv(
+            URL[2],
+            sep="\t",
+            dtype={
+                "Code du département": str,
+                "Code commune": str,
+                "Nuance Liste": "category",
+                "Nuance candidat": "category",
+            },
+            encoding="latin1",
+        )
+
+        df.columns = [
+            "departement",
+            "departement_libelle",
+            "commune",
+            "commune_libelle",
+            "liste_numero",
+            "liste_numero_depot",
+            "liste_nom_court",
+            "liste_nom",
+            "nuance",
+            "candidat_numero",
+            "candidat_sexe",
+            "candidat_nom",
+            "candidat_prenom",
+            "candidat_naissance_date",
+            "candidat_naissance_lieu",
+            "candidat_nuance",
+            "candidat_profession",
+            "nationalite",
+            "conseil_communautaire",
+        ]
+
+        return df
+
+    def add_arguments(self, parser):
+        parser.add_argument("tour", type=int)
+
+    def handle(self, *args, tour, **options):
+        if tour == 1:
+            df = self.import_tour_1()
+        elif tour == 2:
+            df = self.import_tour_2()
+        else:
+            raise CommandError("Il n'y a que deux tours de scrutin.")
 
         df["insee"] = df["departement"].astype(str).str.zfill(2) + df[
             "commune"
@@ -127,6 +176,7 @@ class Command(BaseCommand):
         for l in tqdm(listes.itertuples(), total=len(listes)):
             Liste.objects.update_or_create(
                 code=l.Index,
+                tour=tour,
                 defaults={
                     "nom": l.liste_nom,
                     "nuance": l.nuance,

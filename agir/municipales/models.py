@@ -223,9 +223,7 @@ class Liste(models.Model):
         (SOUTIEN_NON, "Non soutenue"),
     )
 
-    code = models.CharField(
-        verbose_name="Code", max_length=20, unique=True, editable=False
-    )
+    code = models.CharField(verbose_name="Code", max_length=20, editable=False)
     nom = models.CharField(verbose_name="Nom de la liste", max_length=300)
     commune = models.ForeignKey(
         CommunePage,
@@ -234,6 +232,10 @@ class Liste(models.Model):
         blank=True,
         related_name="listes",
         related_query_name="liste",
+    )
+
+    tour = models.IntegerField(
+        "Tour", choices=[(1, "Premier tour"), (2, "Deuxième tour")]
     )
 
     nuance = models.CharField(
@@ -245,6 +247,7 @@ class Liste(models.Model):
         base_field=models.CharField(max_length=200),
         default=list,
     )
+
     candidats_prenoms = ArrayField(
         verbose_name="Prénoms candidats",
         base_field=models.CharField(max_length=200),
@@ -281,10 +284,11 @@ class Liste(models.Model):
 
     class Meta:
         constraints = [
+            models.UniqueConstraint(name="code_unique", fields=["tour", "code"]),
             models.UniqueConstraint(
                 name="commune_soutenue_unique",
-                fields=["commune"],
+                fields=["tour", "commune"],
                 condition=~models.Q(soutien="N"),
-            )
+            ),
         ]
         ordering = ("code",)
