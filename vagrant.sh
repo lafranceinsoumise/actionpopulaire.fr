@@ -55,9 +55,6 @@ fi
 echo "## Install python dependencies..."
 (cd /vagrant && /usr/local/bin/pipenv sync --dev) &> /dev/null
 
-echo "## Install npm dependencies..."
-(cd /vagrant && /usr/local/bin/pipenv run npm install) &> /dev/null
-
 echo "## Migrate and populate test database..."
 (cd /vagrant && /usr/local/bin/pipenv run ./manage.py migrate && (/usr/local/bin/pipenv run ./manage.py load_fake_data || true)) &> /dev/null
 
