@@ -1,18 +1,51 @@
+from functools import reduce, update_wrapper
+from operator import or_
+
 from django import forms
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
-from django.contrib.gis.measure import D
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse, path
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
-from functools import reduce, update_wrapper
-from operator import or_
 
 from agir.municipales.models import CommunePage, Liste
-from agir.people.models import Person
+
+
+def presentation_liste(liste):
+    code = liste.commune.code
+    people = liste.obtenir_comptes_candidats()
+
+    liste_candidats = format_html_join(
+        mark_safe("<br>"),
+        "{} {}",
+        (
+            (nom, prenom)
+            for nom, prenom in zip(liste.candidats_noms, liste.candidats_prenoms)
+        ),
+    )
+
+    liste_comptes = format_html_join(
+        mark_safe("<br>"),
+        '<a href="{}">{}</a> <a href="{}" class="button">créer un mandat pour cette personne</a>',
+        (
+            (
+                reverse("admin:people_person_change", args=[p.pk]),
+                str(p),
+                reverse("admin:elus_mandatmunicipal_add")
+                + f"?person={p.pk}&commune={code}",
+            )
+            for p in people
+        ),
+    )
+
+    return format_html(
+        "<p>{liste_candidats}</p><p>{liste_comptes}</p>",
+        liste_candidats=liste_candidats,
+        liste_comptes=liste_comptes,
+    )
 
 
 class CheffeDeFileFilter(SimpleListFilter):
@@ -67,54 +100,51 @@ class CommuneForm(forms.ModelForm):
         required="P",
     )
 
+    TOURS = [
+        (1, "liste_soutenue_tour_1", "type_soutien_tour_1"),
+        (2, "liste_soutenue_tour_2", "type_soutien_tour_2"),
+    ]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        listes_tour_1 = self.instance.listes.filter(tour=1)
-        listes_tour_2 = self.instance.listes.filter(tour=2)
+        for tour, liste_soutenue_f, type_soutien_f in self.TOURS:
+            listes = self.instance.listes.filter(tour=tour)
 
-        self.fields["liste_soutenue_tour_1"].queryset = listes_tour_1
-        self.fields["liste_soutenue_tour_2"].queryset = listes_tour_2
-
-        try:
-            self.liste_soutenue_tour_1 = listes_tour_1.exclude(
-                soutien=Liste.SOUTIEN_NON
-            ).get()
-            self.fields["liste_soutenue_tour_1"].initial = self.liste_soutenue_tour_1
-            self.fields[
-                "type_soutien_tour_1"
-            ].initial = self.liste_soutenue_tour_1.soutien
-        except Liste.DoesNotExist:
-            self.liste_soutenue_tour_1 = None
-
-        try:
-            self.liste_soutenue_tour_2 = listes_tour_2.exclude(
-                soutien=Liste.SOUTIEN_NON
-            ).get()
-            self.fields["liste_soutenue_tour_2"].initial = self.liste_soutenue_tour_2
-            self.fields[
-                "type_soutien_tour_2"
-            ].initial = self.liste_soutenue_tour_2.soutien
-        except Liste.DoesNotExist:
-            self.liste_soutenue_tour_2 = None
+            self.fields[liste_soutenue_f].queryset = listes
+            try:
+                liste_actuelle = listes.exclude(soutien=Liste.SOUTIEN_NON).get()
+            except Liste.DoesNotExist:
+                setattr(self, liste_soutenue_f, None)
+            else:
+                setattr(self, liste_soutenue_f, liste_actuelle)
+                self.fields[liste_soutenue_f].initial = liste_actuelle
+                self.fields[type_soutien_f].initial = liste_actuelle.soutien
 
     def _save_m2m(self):
         super()._save_m2m()
 
-        nouvelle_liste_soutenue = self.cleaned_data["liste_soutenue"]
+        for _, liste_soutenue_f, type_soutien_f in self.TOURS:
+            nouvelle_liste_soutenue = self.cleaned_data[liste_soutenue_f]
 
-        if "liste_soutenue" in self.changed_data or "type_soutien" in self.changed_data:
-            with transaction.atomic():
-                if (
-                    self.liste_soutenue is not None
-                    and self.liste_soutenue != nouvelle_liste_soutenue
-                ):
-                    self.liste_soutenue.soutien = Liste.SOUTIEN_NON
-                    self.liste_soutenue.save(update_fields=["soutien"])
+            if (
+                liste_soutenue_f in self.changed_data
+                or type_soutien_f in self.changed_data
+            ):
+                with transaction.atomic():
+                    liste_actuelle = getattr(self, liste_soutenue_f, None)
+                    if (
+                        liste_actuelle is not None
+                        and liste_actuelle != nouvelle_liste_soutenue
+                    ):
+                        self.liste_soutenue.soutien = Liste.SOUTIEN_NON
+                        self.liste_soutenue.save(update_fields=["soutien"])
 
-                if nouvelle_liste_soutenue is not None:
-                    nouvelle_liste_soutenue.soutien = self.cleaned_data["type_soutien"]
-                    nouvelle_liste_soutenue.save(update_fields=["soutien"])
+                    if nouvelle_liste_soutenue is not None:
+                        nouvelle_liste_soutenue.soutien = self.cleaned_data[
+                            type_soutien_f
+                        ]
+                        nouvelle_liste_soutenue.save(update_fields=["soutien"])
 
 
 @admin.register(CommunePage)
@@ -124,7 +154,9 @@ class CommunePageAdmin(admin.ModelAdmin):
         "code",
         "code_departement",
         "name",
-        "municipales2020_people_list",
+        "candidats_liste_tour_1",
+        "candidats_liste_tour_2",
+        "toutes_les_listes",
     )
     fieldsets = (
         (None, {"fields": ("code", "code_departement", "name")}),
@@ -150,6 +182,7 @@ class CommunePageAdmin(admin.ModelAdmin):
                     "liste_soutenue_tour_1",
                     "type_soutien_tour_1",
                     "tete_liste_tour_1",
+                    "candidats_liste_tour_1",
                 )
             },
         ),
@@ -161,6 +194,7 @@ class CommunePageAdmin(admin.ModelAdmin):
                     "liste_soutenue_tour_2",
                     "type_soutien_tour_2",
                     "tete_liste_tour_2",
+                    "candidats_liste_tour_2",
                 )
             },
         ),
@@ -172,7 +206,7 @@ class CommunePageAdmin(admin.ModelAdmin):
             "Informations pour les dons par chèque",
             {"fields": ("ordre_don", "adresse_don")},
         ),
-        ("Permission", {"fields": ("chefs_file", "municipales2020_people_list")},),
+        ("Permission", {"fields": ("chefs_file", "toutes_les_listes")},),
     )
 
     list_display = (
@@ -197,58 +231,35 @@ class CommunePageAdmin(admin.ModelAdmin):
             kwargs={"code_departement": self.code_departement, "slug": self.slug},
         )
 
-    def municipales2020_people_list(self, object):
-        liste = object.listes.filter(
-            soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF]
+    def candidats_liste_tour_1(self, object):
+        liste_tour_1 = object.listes.filter(
+            soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF], tour=1
         ).first()
 
-        link_list = format_html(
+        if liste_tour_1 is None:
+            return ""
+        return presentation_liste(liste_tour_1)
+
+    candidats_liste_tour_1.short_description = "Liste soutenue au 1er tour"
+
+    def candidats_liste_tour_2(self, object):
+        liste_tour_2 = object.listes.filter(
+            soutien__in=[Liste.SOUTIEN_PUBLIC, Liste.SOUTIEN_PREF], tour=2
+        ).first()
+
+        if liste_tour_2 is None:
+            return ""
+        return presentation_liste(liste_tour_2)
+
+    candidats_liste_tour_2.short_description = "Liste soutenue au 2ème tour"
+
+    def toutes_les_listes(self, object):
+        return format_html(
             '<a href="{}" class="button">Voir toutes les listes dans cette commune</a>',
             f'{reverse("admin:municipales_liste_changelist",)}?q={object.code}',
         )
 
-        if liste is None:
-            return link_list
-
-        people = Person.objects.filter(
-            coordinates__distance_lt=(object.coordinates, D(m=10000))
-        ).search(
-            *(
-                f"{nom} {prenom}"
-                for nom, prenom in zip(liste.candidats_noms, liste.candidats_prenoms)
-            )
-        )
-
-        return mark_safe(
-            "<p>"
-            + link_list
-            + "</p><p>"
-            + format_html_join(
-                mark_safe("<br>"),
-                "{} {}",
-                (
-                    (nom, prenom)
-                    for nom, prenom in zip(
-                        liste.candidats_noms, liste.candidats_prenoms
-                    )
-                ),
-            )
-            + "</p><p>"
-            + format_html_join(
-                mark_safe("<br>"),
-                '<a href="{}">{}</a> <a href="{}" class="button">créer un mandat pour cette personne</a>',
-                (
-                    (
-                        reverse("admin:people_person_change", args=[p.pk]),
-                        str(p),
-                        reverse("admin:elus_mandatmunicipal_add")
-                        + f"?person={p.pk}&commune={object.code}",
-                    )
-                    for p in people
-                ),
-            )
-            + "</p>"
-        )
+    toutes_les_listes.short_description = "Autres listes"
 
     def get_search_results(self, request, queryset, search_term):
         if search_term:
@@ -318,13 +329,14 @@ class ListeAdmin(admin.ModelAdmin):
         "code",
         "nom",
         "lien_commune",
+        "tour",
         "nuance",
         "tete_liste",
         "candidats",
     )
 
-    list_display = ["nom", "lien_commune", "soutien", "nuance", "tete_liste"]
-    fields = ["code", "nom", "lien_commune", "soutien", "nuance", "candidats"]
+    list_display = ["nom", "lien_commune", "tour", "soutien", "nuance", "tete_liste"]
+    fields = ["code", "nom", "lien_commune", "tour", "soutien", "nuance", "candidats"]
 
     list_filter = ("nuance", "soutien", AvecCommuneFilter, MetropoleOutremerFilter)
 

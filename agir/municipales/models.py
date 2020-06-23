@@ -1,4 +1,5 @@
 from django.contrib.gis.db.models import MultiPolygonField
+from django.contrib.gis.measure import D
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
@@ -9,6 +10,7 @@ from agir.lib.model_fields import FacebookPageField, TwitterProfileField
 from agir.lib.models import TimeStampedModel
 from agir.lib.search import PrefixSearchQuery
 from agir.lib.utils import front_url
+from agir.people.models import Person
 
 
 class RegexExtractorValidator:
@@ -46,7 +48,10 @@ class CommunePage(TimeStampedModel, models.Model):
     slug = models.SlugField("Slug")
 
     liste_tour_1 = models.CharField(
-        "Nom de la liste du 1er tour", max_length=255, blank=True
+        "Nom de la liste du 1er tour",
+        max_length=255,
+        blank=True,
+        help_text="Le nom de la liste tel qu'il sera affiché publiquement",
     )
 
     tete_liste_tour_1 = models.CharField(
@@ -57,7 +62,10 @@ class CommunePage(TimeStampedModel, models.Model):
     )
 
     liste_tour_2 = models.CharField(
-        "Nom de la liste du 2e tour", max_length=255, blank=True
+        "Nom de la liste du 2e tour",
+        max_length=255,
+        blank=True,
+        help_text="Le nom de la liste tel qu'il sera affiché publiquement",
     )
 
     tete_liste_tour_2 = models.CharField(
@@ -281,6 +289,16 @@ class Liste(models.Model):
 
     def __str__(self):
         return f"{self.numero_panneau}. {self.nuance} — «\u00a0{self.nom[:30]}\u00a0» ({self.candidats_noms[0]} {self.candidats_prenoms[0]})"
+
+    def obtenir_comptes_candidats(self):
+        return Person.objects.filter(
+            coordinates__distance_lt=(self.commune.coordinates, D(m=10000)),
+        ).search(
+            *(
+                f"{nom} {prenom}"
+                for nom, prenom in zip(self.candidats_noms, self.candidats_prenoms)
+            )
+        )
 
     class Meta:
         constraints = [
