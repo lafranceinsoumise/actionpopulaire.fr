@@ -178,6 +178,10 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                     id, ValidationError("Ce champ ne peut pas être modifié.")
                 )
 
+        for part in self.parts:
+            if hasattr(part, "clean"):
+                cleaned_data = part.clean(self, cleaned_data)
+
         return cleaned_data
 
     @property

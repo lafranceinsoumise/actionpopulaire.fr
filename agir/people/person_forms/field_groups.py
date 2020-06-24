@@ -1,18 +1,39 @@
+from functools import partial
 from itertools import product
 from typing import List, Dict, Tuple
 
 from crispy_forms.layout import Fieldset, Row
 from django import forms
+from django.core.exceptions import NON_FIELD_ERRORS
+from django.forms import Field
+from django.utils.functional import lazy, lazystr
+from django.utils.html import format_html_join, format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from agir.lib.form_components import *
 from agir.people.person_forms.fields import is_actual_model_field, get_form_field
 
 
-class FieldSet:
+class FieldGroup:
+    def __init__(self, **kwargs):
+        pass
+
+    def set_up_fields(self, form, is_edition):
+        raise NotImplementedError()
+
+    def collect_results(self, cleaned_data):
+        raise NotImplementedError()
+
+    def clean(self, form, cleaned_data):
+        return cleaned_data
+
+
+class FieldSet(FieldGroup):
     def __init__(
         self, title: str, fields: List[Dict], intro_html: str = None, **kwargs
     ):
+        super().__init__(**kwargs)
         self.title = title
         self.fields = fields
         self.intro_html = intro_html
@@ -54,7 +75,7 @@ class FieldSet:
         }
 
 
-class CrossTable:
+class CrossTable(FieldGroup):
     def __init__(
         self,
         *,
@@ -64,14 +85,18 @@ class CrossTable:
         rows=None,
         columns=None,
         subset=None,
+        minimum_required=None,
         **kwargs,
     ):
+        super().__init__(**kwargs)
         self.title = title
         self.intro = intro
         self.field_descriptor = field
         self.rows = rows
         self.columns = columns
         self.subset = subset
+        self.minimum_required = minimum_required
+        self.fake_field_id = field["id"] + "_hidden"
 
         if field.get("person_field"):
             raise ValueError(
@@ -113,8 +138,49 @@ class CrossTable:
             + "</td></tr>"
         )
 
-    def set_up_fields(self, form: forms.Form, is_edition):
+    def display_errors(self, form: forms.Form):
+        errors = [err.message for err in form.errors.get(self.fake_field_id, [])]
+
         it = self.subset or product(self.rows, self.columns)
+        errors.extend(
+            f"{c} {r} : {err.message}"
+            for r, c in it
+            for err in form.errors.get(self.get_id(r, c), [])
+        )
+
+        if errors:
+            return format_html(
+                '<div class="has-error">\n<ul class="help-block">\n{all_errors}\n</ul>\n</div>',
+                all_errors=format_html_join("\n", "<li>{}</li>", errors),
+            )
+        return ""
+
+    def render_part(self):
+        intro = f"<p>{self.intro}</p>" if self.intro else ""
+
+        return (
+            f"""
+        {intro}
+        {self.display_errors(self.form)}
+        <table class="table">
+        <thead>
+        {self.get_header_row()}
+        </thead>
+        <tbody>"""
+            + "".join(self.get_row(self.form, row) for row in self.rows)
+            + """
+        </tbody>
+        </table>
+        """
+        )
+
+    def set_up_fields(self, form: forms.Form, is_edition):
+        self.form = form
+        it = self.subset or product(self.rows, self.columns)
+
+        # ajoute un faux champ pour y mettre les erreurs de table
+        fake_field = forms.Field(required=False)
+        form.fields[self.fake_field_id] = fake_field
 
         for (row, col) in it:
             id = self.get_id(row, col)
@@ -122,24 +188,26 @@ class CrossTable:
             field = get_form_field(field_descriptor, is_edition, form.instance)
             form.fields[id] = field
 
-        intro = f"<p>{self.intro}</p>" if self.intro else ""
+        form.helper.layout.append(Fieldset(self.title, HTML(lazy(self.render_part)())))
 
-        text = (
-            intro
-            + f"""
-        <table class="table">
-        <thead>
-        {self.get_header_row()}
-        </thead>
-        <tbody>"""
-            + "".join(self.get_row(form, row) for row in self.rows)
-            + """
-        </tbody>
-        </table>
-        """
-        )
+    def clean(self, form: forms.Form, cleaned_data):
+        if self.minimum_required is not None:
+            all_fields = self.subset or list(product(self.rows, self.columns))
+            has_error = any(form.has_error(self.get_id(r, c)) for r, c in all_fields)
+            if has_error:
+                return cleaned_data
 
-        form.helper.layout.append(Fieldset(self.title, HTML(text)))
+            n_values = sum(
+                1 for r, c in all_fields if cleaned_data.get(self.get_id(r, c))
+            )
+
+            print(n_values)
+
+            if n_values < self.minimum_required:
+                form.add_error(
+                    None, f"Vous devez remplir au {self.minimum_required} champs.",
+                )
+            return cleaned_data
 
     def collect_results(self, cleaned_data):
         it = self.subset or product(self.rows, self.columns)
@@ -149,7 +217,7 @@ class CrossTable:
         }
 
 
-class DoubleEntryTable:
+class DoubleEntryTable(FieldGroup):
     def __init__(
         self,
         *,
@@ -161,6 +229,7 @@ class DoubleEntryTable:
         fields: List[Dict],
         **kwargs,
     ):
+        super().__init__(**kwargs)
         self.title = title
         self.intro = intro
         self.id = id

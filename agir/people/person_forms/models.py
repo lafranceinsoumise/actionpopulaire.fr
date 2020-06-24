@@ -164,7 +164,7 @@ class PersonForm(TimeStampedModel):
                 (
                     field
                     for fieldset in self.custom_fields
-                    for field in fieldset["fields"]
+                    for field in fieldset.get("fields", [])
                 ),
                 self.config.get("hidden_fields", []),
             )

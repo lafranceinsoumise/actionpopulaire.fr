@@ -192,7 +192,7 @@ class PersonFormDisplay:
         person_fields = {f.name: f for f in Person._meta.get_fields()}
 
         for fieldset in form.custom_fields:
-            for field in fieldset["fields"]:
+            for field in fieldset.get("fields", []):
                 if field.get("person_field") and field["id"] in person_fields:
                     label = field.get(
                         "label",
@@ -315,7 +315,7 @@ class PersonFormDisplay:
 
         for fieldset in submission.form.custom_fields:
             fieldset_data = []
-            for field in fieldset["fields"]:
+            for field in fieldset.get("fields", []):
                 id = field["id"]
                 if id in data:
                     label = labels[id]
