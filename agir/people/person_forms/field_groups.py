@@ -1,14 +1,10 @@
-from functools import partial
 from itertools import product
 from typing import List, Dict, Tuple
 
 from crispy_forms.layout import Fieldset, Row
 from django import forms
-from django.core.exceptions import NON_FIELD_ERRORS
-from django.forms import Field
-from django.utils.functional import lazy, lazystr
+from django.utils.functional import lazy
 from django.utils.html import format_html_join, format_html
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from agir.lib.form_components import *
@@ -139,19 +135,21 @@ class CrossTable(FieldGroup):
         )
 
     def display_errors(self, form: forms.Form):
-        errors = [err.message for err in form.errors.get(self.fake_field_id, [])]
+        errors = [err for err in form.errors.get(self.fake_field_id, [])]
 
         it = self.subset or product(self.rows, self.columns)
         errors.extend(
-            f"{c} {r} : {err.message}"
+            f"{c} {r} : {err}"
             for r, c in it
             for err in form.errors.get(self.get_id(r, c), [])
         )
 
         if errors:
             return format_html(
-                '<div class="has-error">\n<ul class="help-block">\n{all_errors}\n</ul>\n</div>',
-                all_errors=format_html_join("\n", "<li>{}</li>", errors),
+                '<div class="has-error"><ul class="help-block">{all_errors}</ul></div>',
+                all_errors=format_html_join(
+                    "\n", "<li>{}</li>", ((e,) for e in errors)
+                ),
             )
         return ""
 
@@ -205,7 +203,8 @@ class CrossTable(FieldGroup):
 
             if n_values < self.minimum_required:
                 form.add_error(
-                    None, f"Vous devez remplir au {self.minimum_required} champs.",
+                    self.fake_field_id,
+                    f"Vous devez remplir au moins {self.minimum_required} champs.",
                 )
             return cleaned_data
 
