@@ -18,9 +18,10 @@ class Command(BaseCommand):
         all_communes = self.get_pages_communes(df.index)
 
         liste = df["Nom de la liste 2nd tour"]
-        liste = liste.where(df["published"], "")
-
-        tete_liste = df["Tête de liste"].fillna("")
+        liste = liste.where(df["published"] | df["soutenu"], "")
+        tete_liste = (
+            df["Tête de liste"].where(df["published"] | df["soutenu"]).fillna("")
+        )
 
         for commune, liste, tete_liste, published in zip(
             df.index, liste, tete_liste, df.published
@@ -35,7 +36,9 @@ class Command(BaseCommand):
                     update_fields=["liste_tour_2", "tete_liste_tour_2", "published",]
                 )
 
-        CommunePage.objects.exclude(code__in=df.index).update(published=False)
+        CommunePage.objects.exclude(code__in=df.index).update(
+            published=False, liste_tour_2="", tete_liste_tour_2=""
+        )
 
     def get_pages_communes(self, codes):
         pages_commune = {c.code: c for c in CommunePage.objects.filter(code__in=codes)}
@@ -66,6 +69,10 @@ class Command(BaseCommand):
 
         df["published"] = (
             df["Décision publication"].str.strip().str.lower() == "oui"
+        ).fillna(False)
+
+        df["soutenu"] = (
+            df["Décision soutien"].str.strip().str.lower() == "oui"
         ).fillna(False)
 
         return df.set_index(df["Code commune"])

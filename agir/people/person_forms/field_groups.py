@@ -1,3 +1,4 @@
+from itertools import product
 from typing import List, Dict, Tuple
 
 from crispy_forms.layout import Fieldset, Row
@@ -50,6 +51,101 @@ class FieldSet:
         return {
             field_descriptor["id"]: cleaned_data[field_descriptor["id"]]
             for field_descriptor in self.fields
+        }
+
+
+class CrossTable:
+    def __init__(
+        self,
+        *,
+        title,
+        intro=None,
+        field,
+        rows=None,
+        columns=None,
+        subset=None,
+        **kwargs,
+    ):
+        self.title = title
+        self.intro = intro
+        self.field_descriptor = field
+        self.rows = rows
+        self.columns = columns
+        self.subset = subset
+
+        if field.get("person_field"):
+            raise ValueError(
+                "Pas possible d'utiliser des champs de personne dans les cross tables"
+            )
+
+        if self.rows is None:
+            if self.subset is None:
+                raise ValueError(
+                    "L'un des paramètres 'rows' ou 'subset' doit être défini"
+                )
+            seen = set()
+            self.rows = [r for r, c in self.subset if not (r in seen or seen.add(r))]
+        if self.columns is None:
+            if self.subset is None:
+                raise ValueError(
+                    "L'un des paramètres 'columns' ou 'subset' doit être défini"
+                )
+            seen = set()
+            self.columns = [c for r, c in self.subset if not (c in seen or seen.add(c))]
+
+        self.subset = set(tuple(c) for c in self.subset)
+
+    def get_id(self, row_id, column_id):
+        return f"{self.field_descriptor['id']}_{row_id}_{column_id}"
+
+    def get_header_row(self):
+        return f"<tr><th></th><th>" + "</th><th>".join(self.columns) + "</th></tr>"
+
+    def get_row(self, form, row):
+        return (
+            f"<tr><th>{row}</th><td>"
+            + "</td><td>".join(
+                str(form[self.get_id(row, col)])
+                if self.subset is None or (row, col) in self.subset
+                else ""
+                for col in self.columns
+            )
+            + "</td></tr>"
+        )
+
+    def set_up_fields(self, form: forms.Form, is_edition):
+        it = self.subset or product(self.rows, self.columns)
+
+        for (row, col) in it:
+            id = self.get_id(row, col)
+            field_descriptor = {**self.field_descriptor, "id": id}
+            field = get_form_field(field_descriptor, is_edition, form.instance)
+            form.fields[id] = field
+
+        intro = f"<p>{self.intro}</p>" if self.intro else ""
+
+        text = (
+            intro
+            + f"""
+        <table class="table">
+        <thead>
+        {self.get_header_row()}
+        </thead>
+        <tbody>"""
+            + "".join(self.get_row(form, row) for row in self.rows)
+            + """
+        </tbody>
+        </table>
+        """
+        )
+
+        form.helper.layout.append(Fieldset(self.title, HTML(text)))
+
+    def collect_results(self, cleaned_data):
+        it = self.subset or product(self.rows, self.columns)
+        return {
+            self.get_id(row, col): cleaned_data[self.get_id(row, col)]
+            for row, col in it
         }
 
 
@@ -128,7 +224,11 @@ class DoubleEntryTable:
         }
 
 
-PARTS = {"fieldset": FieldSet, "double_entry": DoubleEntryTable}
+PARTS = {
+    "fieldset": FieldSet,
+    "cross_table": CrossTable,
+    "double_entry": DoubleEntryTable,
+}
 
 
 def get_form_part(part):

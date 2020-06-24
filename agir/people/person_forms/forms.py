@@ -45,7 +45,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         return [
             field["id"]
             for fieldset in self.person_form_instance.custom_fields
-            for field in fieldset["fields"]
+            for field in fieldset.get("fields", [])
             if field.get("person_field") and not is_actual_model_field(field)
         ]
 
