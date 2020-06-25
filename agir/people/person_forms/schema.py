@@ -33,10 +33,15 @@ schema = {
                                 {
                                     "type": "array",
                                     "items": {
-                                        "type": "array",
-                                        "maxItems": 2,
-                                        "minItems": 2,
-                                        "items": {"type": "string"},
+                                        "anyOf": [
+                                            {
+                                                "type": "array",
+                                                "maxItems": 2,
+                                                "minItems": 2,
+                                                "items": {"type": "string"},
+                                            },
+                                            {"type": "string"},
+                                        ]
                                     },
                                 },
                                 {"type": "string"},

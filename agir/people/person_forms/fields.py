@@ -57,7 +57,17 @@ class DateTimeField(forms.DateTimeField):
     widget = DateTimePickerWidget
 
 
-class ChoiceField(forms.ChoiceField):
+class SimpleChoiceListMixin:
+    def __init__(self, *args, choices, **kwargs):
+        choices = [
+            (choice, choice) if isinstance(choice, str) else (choice[0], choice[1])
+            for choice in choices
+        ]
+
+        super().__init__(choices=choices, *args, **kwargs)
+
+
+class ChoiceField(SimpleChoiceListMixin, forms.ChoiceField):
     def __init__(self, *, choices, default_label=None, required=True, **kwargs):
         if default_label is None:
             default_label = (
@@ -69,7 +79,7 @@ class ChoiceField(forms.ChoiceField):
         super().__init__(choices=choices, required=required, **kwargs)
 
 
-class RadioChoiceField(forms.ChoiceField):
+class RadioChoiceField(SimpleChoiceListMixin, forms.ChoiceField):
     widget = forms.RadioSelect
 
 
@@ -77,7 +87,9 @@ class AutocompleteChoiceField(ChoiceField):
     widget = SelectizeWidget
 
 
-class MultipleChoiceField(NotRequiredByDefaultMixin, forms.MultipleChoiceField):
+class MultipleChoiceField(
+    SimpleChoiceListMixin, NotRequiredByDefaultMixin, forms.MultipleChoiceField
+):
     widget = forms.CheckboxSelectMultiple
 
 
