@@ -69,6 +69,10 @@ class ChoiceField(forms.ChoiceField):
         super().__init__(choices=choices, required=required, **kwargs)
 
 
+class RadioChoiceField(forms.ChoiceField):
+    widget = forms.RadioSelect
+
+
 class AutocompleteChoiceField(ChoiceField):
     widget = SelectizeWidget
 
@@ -289,6 +293,7 @@ FIELDS = {
     "short_text": ShortTextField,
     "long_text": LongTextField,
     "choice": ChoiceField,
+    "radio_choice": RadioChoiceField,
     "autocomplete_choice": AutocompleteChoiceField,
     "multiple_choice": MultipleChoiceField,
     "email_address": forms.EmailField,
