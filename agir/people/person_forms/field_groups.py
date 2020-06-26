@@ -5,6 +5,7 @@ from crispy_forms.layout import Fieldset, Row
 from django import forms
 from django.utils.functional import lazy
 from django.utils.html import format_html_join, format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from agir.lib.form_components import *
@@ -120,18 +121,29 @@ class CrossTable(FieldGroup):
         return f"{self.field_descriptor['id']}_{row_id}_{column_id}"
 
     def get_header_row(self):
-        return f"<tr><th></th><th>" + "</th><th>".join(self.columns) + "</th></tr>"
+        return format_html(
+            "<tr><th></th>{}</tr>",
+            format_html_join(
+                "",
+                '<th style="text-align: center;">{}</th>',
+                ((c,) for c in self.columns),
+            ),
+        )
 
     def get_row(self, form, row):
-        return (
-            f"<tr><th>{row}</th><td>"
-            + "</td><td>".join(
-                str(form[self.get_id(row, col)])
-                if self.subset is None or (row, col) in self.subset
-                else ""
-                for col in self.columns
-            )
-            + "</td></tr>"
+        return format_html(
+            '<tr><th style="text-align: right;">{row_name}</th>{row_content}</tr>',
+            row_name=row,
+            row_content=format_html_join(
+                "\n",
+                '<td><label style="display:block;margin:0;">{}</label></td>',
+                (
+                    (mark_safe((form[self.get_id(row, col)])),)
+                    if self.subset is None or (row, col) in self.subset
+                    else ("",)
+                    for col in self.columns
+                ),
+            ),
         )
 
     def display_errors(self, form: forms.Form):
@@ -160,7 +172,7 @@ class CrossTable(FieldGroup):
             f"""
         {intro}
         {self.display_errors(self.form)}
-        <table class="table">
+        <table class="table" style="text-align: center;">
         <thead>
         {self.get_header_row()}
         </thead>
