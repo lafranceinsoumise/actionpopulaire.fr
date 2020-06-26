@@ -216,7 +216,7 @@ def compute_sms_length_information(message):
 
 class SMSSendException(Exception):
     def __init__(self, *args, sent=None, invalid=None):
-        super().__init__()
+        super().__init__(*args)
 
         if sent is None:
             sent = frozenset()
@@ -235,26 +235,32 @@ def send_sms(message, phone_number, force=False, at=None):
     phone_number = to_phone_number(phone_number)
 
     if not force and not phone_number.is_valid():
-        raise SMSSendException("Le numéro ne semble pas correct")
+        raise SMSSendException(
+            "Le numéro ne semble pas correct", invalid=[phone_number]
+        )
 
     if not force and number_type(phone_number) not in [
         PhoneNumberType.FIXED_LINE_OR_MOBILE,
         PhoneNumberType.MOBILE,
     ]:
-        raise SMSSendException("Le numéro ne semble pas être un numéro de mobile")
+        raise SMSSendException(
+            "Le numéro ne semble pas être un numéro de mobile", invalid=[phone_number]
+        )
 
     try:
         result = _send_sms(message, [phone_number], at=at)
     except Exception:
         logger.exception("Le message n'a pas été envoyé.")
-        raise SMSSendException("Le message n'a pas été envoyé.")
+        raise SMSSendException("Le message n'a pas été envoyé.", invalid=[phone_number])
 
     if len(result["invalidReceivers"]) > 0:
         logger.error(f"Destinataires invalides {' '.join(result['invalidReceivers'])}")
-        raise SMSSendException("Destinataire invalide.")
+        raise SMSSendException(
+            "Destinataire invalide.", invalid=result["invalidReceivers"]
+        )
 
     if len(result["validReceivers"]) < 1:
-        raise SMSSendException("Le message n'a pas été envoyé.")
+        raise SMSSendException("Le message n'a pas été envoyé.", invalid=[phone_number])
 
 
 def send_bulk_sms(message, phone_numbers, at=None):
