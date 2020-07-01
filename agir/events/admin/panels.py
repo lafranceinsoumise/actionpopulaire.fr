@@ -374,6 +374,8 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "tags",
     )
 
+    search_fields = ("name",)
+
     actions = (
         actions.export_events,
         actions.make_published,
