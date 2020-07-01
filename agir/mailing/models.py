@@ -182,6 +182,13 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
 
+    add_segments = models.ManyToManyField(
+        "self",
+        symmetrical=False,
+        related_name="+",
+        verbose_name="Ajouter les personnes membres des segments suivants",
+    )
+
     def get_subscribers_queryset(self):
         qs = Person.objects.filter(
             subscribed=True, emails___bounced=False, emails___order=0
@@ -338,6 +345,11 @@ class Segment(BaseSegment, models.Model):
         if self.exclude_segments.all().count() > 0:
             qs = qs.difference(
                 *(s.get_subscribers_queryset() for s in self.exclude_segments.all())
+            )
+
+        if self.add_segments.all().count() > 0:
+            qs = qs.union(
+                *(s.get_subscribers_queryset() for s in self.add_segments.all())
             )
 
         return qs.order_by("id").distinct("id")

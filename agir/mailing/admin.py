@@ -67,6 +67,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 )
             },
         ),
+        ("Combiner des segments", {"fields": ("add_segments",)}),
         ("Abonnés", {"fields": ("get_subscribers_count",)}),
     )
     map_template = "custom_fields/french_area_widget.html"
