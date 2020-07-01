@@ -3,5 +3,7 @@
 
 {% block result_list %}
   {{ block.super }}
-  Total des paiements complétés : {{ cl.sum | display_price }}
+  <p>
+    Total des paiements complétés : {{ cl.sum | display_price }}
+  </p>
 {% endblock %}
