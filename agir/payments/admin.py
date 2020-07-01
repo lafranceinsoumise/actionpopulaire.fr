@@ -8,6 +8,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse, path
 from django.utils import timezone
 from django.utils.html import escape, format_html, format_html_join
+from rangefilter.filter import DateRangeFilter
 
 from agir.checks.models import CheckPayment
 from agir.donations.form_fields import MoneyField
@@ -238,7 +239,7 @@ class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
             return super().get_readonly_fields(request, payment) + ("status_buttons",)
         return super().get_readonly_fields(request, payment)
 
-    list_filter = ("status", "type", "mode")
+    list_filter = ("status", "type", "mode", ("created", DateRangeFilter))
     search_fields = ("email", "first_name", "last_name", "=id")
 
     actions = [
