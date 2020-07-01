@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.contrib.admin.views.autocomplete import AutocompleteJsonView
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import Q
-from django.http import Http404, JsonResponse
 from django.template.loader import render_to_string
 from django.urls import path
 from django.urls import reverse
@@ -238,9 +237,9 @@ class AutoCompleteEventView(AutocompleteJsonView):
     def get_queryset(self):
         """Return queryset based on ModelAdmin.get_search_results()."""
         qs = models.Event.objects.all()
-        qs, search_use_distinct = self.model_admin.get_search_results(
-            self.request, qs, self.term
-        )
+        qs, search_use_distinct = super(
+            EventAdmin, self.model_admin
+        ).get_search_results(self.request, qs, self.term)
         if search_use_distinct:
             qs = qs.distinct()
         return qs
