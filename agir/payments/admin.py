@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib import admin, messages
+from django.contrib.admin.views.main import ChangeList
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
+from django.db.models import Sum
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
@@ -183,6 +185,17 @@ class PaymentAdminForm(forms.ModelForm):
     )
 
 
+class PaymentChangeList(ChangeList):
+    def get_results(self, *args, **kwargs):
+        super().get_results(*args, **kwargs)
+        self.sum = (
+            self.result_list.filter(status=Payment.STATUS_COMPLETED).aggregate(
+                sum=Sum("price")
+            )["sum"]
+            or 0
+        )
+
+
 @admin.register(models.Payment)
 class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
     form = PaymentAdminForm
@@ -217,6 +230,9 @@ class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
         "get_price_display",
     )
     fields = readonly_fields
+
+    def get_changelist(self, request, **kwargs):
+        return PaymentChangeList
 
     def get_fields(self, request, payment=None):
         if payment is not None and payment.status in [

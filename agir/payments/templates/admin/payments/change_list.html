@@ -1,0 +1,7 @@
+{% extends "admin/change_list.html" %}
+{% load display_lib %}
+
+{% block result_list %}
+  {{ block.super }}
+  Total des paiements complétés : {{ cl.sum | display_price }}
+{% endblock %}
