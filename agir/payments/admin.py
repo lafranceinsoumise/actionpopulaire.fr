@@ -189,7 +189,7 @@ class PaymentChangeList(ChangeList):
     def get_results(self, *args, **kwargs):
         super().get_results(*args, **kwargs)
         self.sum = (
-            self.result_list.filter(status=Payment.STATUS_COMPLETED).aggregate(
+            self.queryset.filter(status=Payment.STATUS_COMPLETED).aggregate(
                 sum=Sum("price")
             )["sum"]
             or 0
