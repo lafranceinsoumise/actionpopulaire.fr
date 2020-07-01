@@ -7,13 +7,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mailing', '0025_segment_add_segments'),
+        ("mailing", "0025_segment_add_segments"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='segment',
-            name='add_segments',
-            field=models.ManyToManyField(blank=True, related_name='_segment_add_segments_+', to=settings.NUNTIUS_SEGMENT_MODEL, verbose_name='Ajouter les personnes membres des segments suivants'),
+            model_name="segment",
+            name="add_segments",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="_segment_add_segments_+",
+                to=settings.NUNTIUS_SEGMENT_MODEL,
+                verbose_name="Ajouter les personnes membres des segments suivants",
+            ),
         ),
     ]
