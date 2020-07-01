@@ -187,6 +187,7 @@ class Segment(BaseSegment, models.Model):
         symmetrical=False,
         related_name="+",
         verbose_name="Ajouter les personnes membres des segments suivants",
+        blank=True,
     )
 
     def get_subscribers_queryset(self):
