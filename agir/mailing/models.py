@@ -192,26 +192,6 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
 
-    def get_base_queryset(self):
-        qs = Person.objects.all()
-
-        if self.donation_total_min or self.donation_total_max:
-            donation_range = (
-                {
-                    "payments__created__gt": self.donation_total_range.lower,
-                    "payments__created__lt": self.donation_total_range.upper,
-                }
-                if self.donation_total_range
-                else {}
-            )
-            qs = qs.annotate(
-                donation_total=Sum(
-                    "payments__price", filter=Q(**DONATION_FILTER, **donation_range)
-                )
-            )
-
-        return qs
-
     def get_subscribers_q(self):
         q = Q(subscribed=True, emails___bounced=False, emails___order=0)
 
@@ -326,11 +306,32 @@ class Segment(BaseSegment, models.Model):
         if self.donation_not_after is not None:
             q = q & ~Q(payments__created__gt=self.donation_not_after, **DONATION_FILTER)
 
-        if self.donation_total_min:
-            q = q & Q(donation_total__gte=self.donation_total_min)
+        if self.donation_total_min or self.donation_total_max:
+            donation_range = (
+                {
+                    "payments__created__gt": self.donation_total_range.lower,
+                    "payments__created__lt": self.donation_total_range.upper,
+                }
+                if self.donation_total_range
+                else {}
+            )
+            annotated_qs = Person.objects.annotate(
+                donation_total=Sum(
+                    "payments__price", filter=Q(**DONATION_FILTER, **donation_range)
+                )
+            )
 
-        if self.donation_total_max:
-            q = q & Q(donation_total__lte=self.donation_total_max)
+            if self.donation_total_min:
+                annotated_qs = annotated_qs.filter(
+                    donation_total__gte=self.donation_total_min
+                )
+
+            if self.donation_total_max:
+                annotated_qs = annotated_qs.filter(
+                    donation_total__lte=self.donation_total_max
+                )
+
+            q = q & Q(id__in=annotated_qs.values_list("id"))
 
         if self.subscription is not None:
             if self.subscription:
@@ -356,8 +357,7 @@ class Segment(BaseSegment, models.Model):
 
     def get_subscribers_queryset(self):
         return (
-            self.get_base_queryset()
-            .filter(self.get_subscribers_q())
+            Person.objects.filter(self.get_subscribers_q())
             .order_by("id")
             .distinct("id")
         )
