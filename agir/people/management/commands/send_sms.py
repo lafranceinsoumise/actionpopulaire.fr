@@ -61,10 +61,12 @@ class Command(BaseCommand):
         parser.add_argument("-s", "--sentfile", type=FileType(mode="r"))
 
     def can_send(self, phone):
-        return phone.is_valid() and number_type(phone) in [
-            PhoneNumberType.MOBILE,
-            PhoneNumberType.FIXED_LINE_OR_MOBILE,
-        ]
+        return (
+            isinstance(phone, PhoneNumber)
+            and phone.is_valid()
+            and number_type(phone)
+            in [PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE,]
+        )
 
     def write_numbers(self, path, numbers):
         with open(path, "w") as f:
