@@ -23,10 +23,17 @@ Vagrant.configure("2") do |config|
   # using a specific IP.
   config.vm.network "private_network", ip: "192.168.33.12"
 
+
+  NOW = Time.now.strftime("%d.%m.%Y.%H:%M:%S")
+  FILENAME = "serial-debug-%s.log" % NOW
+
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   config.vm.provider "virtualbox" do |vb|
-      vb.memory = "3000"
+     vb.memory = "3000"
+     vb.customize [ "modifyvm", :id, "--uart1", "0x3F8", "4" ]
+     vb.customize [ "modifyvm", :id, "--uartmode1", "file",
+     File.join(Dir.pwd, FILENAME) ]
   end
 
   # Enable provisioning with a shell script.
