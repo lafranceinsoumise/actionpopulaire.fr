@@ -37,7 +37,11 @@ class Poll(BaseAPIResource):
         default=dict,
     )
     tags = models.ManyToManyField(
-        "people.PersonTag", related_name="polls", related_query_name="poll", blank=True
+        "people.PersonTag",
+        related_name="polls",
+        related_query_name="poll",
+        blank=True,
+        verbose_name="Tag à ajouter aux participant⋅es",
     )
 
     confirmation_note = DescriptionField(
