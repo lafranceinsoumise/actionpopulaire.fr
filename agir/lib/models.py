@@ -3,7 +3,7 @@ import uuid
 import re
 from django.contrib.admin.widgets import AdminTextareaWidget
 from django.contrib.gis.db import models
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, FileExtensionValidator
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe, format_html, format_html_join
@@ -427,6 +427,11 @@ class ImageMixin(models.Model):
             " sociaux en cas de partage. Préférez une image à peu près deux fois plus large que haute. Elle doit"
             " faire au minimum 1200 pixels de large et 630 de haut pour une qualité optimale."
         ),
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=["jpg", "jpeg", "gif", "png", "svg"]
+            )
+        ],
     )
 
     class Meta:
