@@ -193,6 +193,11 @@
         </div>
       {% endif %}
       {% block main %}
+        <div class="row">
+          <div class="col-responsive">
+            {% block main_column %}{% endblock %}
+          </div>
+        </div>
       {% endblock %}
     </main>
   </div>
