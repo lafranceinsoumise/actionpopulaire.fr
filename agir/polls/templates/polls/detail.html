@@ -5,7 +5,7 @@
 
 {% block title %}{{ poll.title }}{% endblock %}
 
-{% block main %}
+{% block main_column %}
   <h2 class="headline">{{ poll.title }}</h2>
   <p>{{ poll.html_description }}</p>
   {% if already_voted %}
