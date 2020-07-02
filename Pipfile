@@ -76,6 +76,7 @@ beautifultable = "==0.8.*"
 scipy = "==1.4.*"
 PyYAML = "==5.*"
 xlwt = "==1.*"
+django-admin-rangefilter = "*"
 
 [dev-packages]
 ipython = "*"

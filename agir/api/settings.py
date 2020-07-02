@@ -143,6 +143,8 @@ INSTALLED_APPS = [
     # OTP for admin
     "django_otp",
     "django_otp.plugins.otp_totp",
+    # date in admin
+    "rangefilter",
     # geodjango
     "django.contrib.gis",
     "rest_framework_gis",

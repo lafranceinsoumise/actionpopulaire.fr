@@ -1,13 +1,16 @@
 from django import forms
 from django.contrib import admin, messages
+from django.contrib.admin.views.main import ChangeList
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
+from django.db.models import Sum
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse, path
 from django.utils import timezone
 from django.utils.html import escape, format_html, format_html_join
+from rangefilter.filter import DateRangeFilter
 
 from agir.checks.models import CheckPayment
 from agir.donations.form_fields import MoneyField
@@ -182,6 +185,17 @@ class PaymentAdminForm(forms.ModelForm):
     )
 
 
+class PaymentChangeList(ChangeList):
+    def get_results(self, *args, **kwargs):
+        super().get_results(*args, **kwargs)
+        self.sum = (
+            self.queryset.filter(status=Payment.STATUS_COMPLETED).aggregate(
+                sum=Sum("price")
+            )["sum"]
+            or 0
+        )
+
+
 @admin.register(models.Payment)
 class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
     form = PaymentAdminForm
@@ -217,6 +231,9 @@ class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
     )
     fields = readonly_fields
 
+    def get_changelist(self, request, **kwargs):
+        return PaymentChangeList
+
     def get_fields(self, request, payment=None):
         if payment is not None and payment.status in [
             Payment.STATUS_WAITING,
@@ -238,7 +255,7 @@ class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
             return super().get_readonly_fields(request, payment) + ("status_buttons",)
         return super().get_readonly_fields(request, payment)
 
-    list_filter = ("status", "type", "mode")
+    list_filter = ("status", "type", "mode", ("created", DateRangeFilter))
     search_fields = ("email", "first_name", "last_name", "=id")
 
     actions = [

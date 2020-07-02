@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.contrib.admin.views.autocomplete import AutocompleteJsonView
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import Q
-from django.http import Http404, JsonResponse
 from django.template.loader import render_to_string
 from django.urls import path
 from django.urls import reverse
@@ -234,34 +233,16 @@ class EventRsvpPersonFormDisplay(PersonFormDisplay):
         return results
 
 
-class AutoCompleteNoPaginationView(AutocompleteJsonView):
-    def get(self, request, *args, **kwargs):
-        """
-        Return a JsonResponse with search results of the form:
-        {
-            results: [{id: "123" text: "foo"}],
-            pagination: {more: true}
-        }
-        """
-        if not self.model_admin.get_search_fields(request):
-            raise Http404(
-                "%s must have search_fields for the autocomplete_view."
-                % type(self.model_admin).__name__
-            )
-        if not self.has_perm(request):
-            return JsonResponse({"error": "403 Forbidden"}, status=403)
-
-        self.term = request.GET.get("term", "")
-        self.object_list = self.get_queryset()[: self.paginate_by]
-
-        return JsonResponse(
-            {
-                "results": [
-                    {"id": str(obj.pk), "text": str(obj)} for obj in self.object_list
-                ],
-                "pagination": {"more": False},
-            }
-        )
+class AutoCompleteEventView(AutocompleteJsonView):
+    def get_queryset(self):
+        """Return queryset based on ModelAdmin.get_search_results()."""
+        qs = models.Event.objects.all()
+        qs, search_use_distinct = super(
+            EventAdmin, self.model_admin
+        ).get_search_results(self.request, qs, self.term)
+        if search_use_distinct:
+            qs = qs.distinct()
+        return qs
 
 
 @admin.register(models.Event)
@@ -392,13 +373,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "tags",
     )
 
-    search_fields = (
-        "name",
-        "location_city",
-        "location_zip",
-        "description",
-        "report_content",
-    )
+    search_fields = ("name",)
 
     actions = (
         actions.export_events,
@@ -555,7 +530,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         return views.EventSummaryView.as_view()(request, model_admin=self)
 
     def autocomplete_view(self, request):
-        return AutoCompleteNoPaginationView.as_view(model_admin=self)(request)
+        return AutoCompleteEventView.as_view(model_admin=self)(request)
 
     def get_urls(self):
         return [
