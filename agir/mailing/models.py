@@ -1,3 +1,5 @@
+from functools import reduce
+
 from django.contrib.gis.db.models import MultiPolygonField
 from django.contrib.postgres.fields import DateRangeField
 from django.db import models
@@ -190,44 +192,62 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
 
-    def get_subscribers_queryset(self):
-        qs = Person.objects.filter(
-            subscribed=True, emails___bounced=False, emails___order=0
-        )
+    def get_base_queryset(self):
+        qs = Person.objects.all()
+
+        if self.donation_total_min or self.donation_total_max:
+            donation_range = (
+                {
+                    "payments__created__gt": self.donation_total_range.lower,
+                    "payments__created__lt": self.donation_total_range.upper,
+                }
+                if self.donation_total_range
+                else {}
+            )
+            qs = qs.annotate(
+                donation_total=Sum(
+                    "payments__price", filter=Q(**DONATION_FILTER, **donation_range)
+                )
+            )
+
+        return qs
+
+    def get_subscribers_q(self):
+        q = Q(subscribed=True, emails___bounced=False, emails___order=0)
 
         if not self.force_non_insoumis:
-            qs = qs.filter(is_insoumise=True)
+            q = q & Q(is_insoumise=True)
 
         if self.tags.all().count() > 0:
-            qs = qs.filter(tags__in=self.tags.all())
+            q = q & Q(tags__in=self.tags.all())
 
         if self.supportgroup_status:
             if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
-                query = ~Q(memberships__supportgroup__published=True)
+                supportgroup_q = ~Q(memberships__supportgroup__published=True)
             elif self.supportgroup_status == self.GA_STATUS_MEMBER:
-                query = Q(memberships__supportgroup__published=True)
+                supportgroup_q = Q(memberships__supportgroup__published=True)
 
             elif self.supportgroup_status == self.GA_STATUS_REFERENT:
-                query = Q(
+                supportgroup_q = Q(
                     memberships__supportgroup__published=True,
                     memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
                 )
             else:
                 # ==> self.supportgroup_status == self.GA_STATUS_MANAGER
-                query = Q(
+                supportgroup_q = Q(
                     memberships__supportgroup__published=True,
                     memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
                 )
 
             if self.supportgroup_subtypes.all().count() > 0:
-                query = query & Q(
+                supportgroup_q = supportgroup_q & Q(
                     memberships__supportgroup__subtypes__in=self.supportgroup_subtypes.all()
                 )
 
-            qs = qs.filter(query)
+            q = q & supportgroup_q
 
         if self.events.all().count() > 0:
-            qs = qs.filter(events__in=self.events.all())
+            q = q & Q(events__in=self.events.all())
 
         events_filter = {}
         if self.events_subtypes.all().count() > 0:
@@ -245,10 +265,10 @@ class Segment(BaseSegment, models.Model):
             }
 
         if events_filter:
-            qs = qs.filter(**events_filter)
+            q = q & Q(**events_filter)
 
         if self.forms.all().count() > 0:
-            qs = qs.filter(form_submissions__form__in=self.forms.all())
+            q = q & Q(form_submissions__form__in=self.forms.all())
 
         if self.campaigns.all().count() > 0:
             if self.campaigns_feedback == self.FEEDBACK_OPEN:
@@ -267,7 +287,7 @@ class Segment(BaseSegment, models.Model):
             else:
                 campaign__kwargs = {}
 
-            qs = qs.filter(
+            q = q & Q(
                 campaignsentevent__result__in=[
                     CampaignSentStatusType.UNKNOWN,
                     CampaignSentStatusType.OK,
@@ -277,83 +297,64 @@ class Segment(BaseSegment, models.Model):
             )
 
         if len(self.countries) > 0:
-            qs = qs.filter(location_country__in=self.countries)
+            q = q & Q(location_country__in=self.countries)
 
         if len(self.departements) > 0:
-            qs = qs.filter(data.filtre_departements(*self.departements))
+            q = q & Q(data.filtre_departements(*self.departements))
 
         if self.area is not None:
-            qs = qs.filter(coordinates__intersects=self.area)
+            q = q & Q(coordinates__intersects=self.area)
 
         if self.registration_date is not None:
-            qs = qs.filter(created__gt=self.registration_date)
+            q = q & Q(created__gt=self.registration_date)
 
         if self.last_login is not None:
-            qs = qs.filter(role__last_login__gt=self.last_login)
+            q = q & Q(role__last_login__gt=self.last_login)
 
         if self.gender:
-            qs = qs.filter(gender=self.gender)
+            q = q & Q(gender=self.gender)
 
         if self.born_after is not None:
-            qs = qs.filter(date_of_birth__gt=self.born_after)
+            q = q & Q(date_of_birth__gt=self.born_after)
 
         if self.born_before is not None:
-            qs = qs.filter(date_of_birth__lt=self.born_before)
+            q = q & Q(date_of_birth__lt=self.born_before)
 
         if self.donation_after is not None:
-            qs = qs.filter(payments__created__gt=self.donation_after, **DONATION_FILTER)
+            q = q & Q(payments__created__gt=self.donation_after, **DONATION_FILTER)
 
         if self.donation_not_after is not None:
-            qs = qs.exclude(
-                payments__created__gt=self.donation_not_after, **DONATION_FILTER
-            )
+            q = q & ~Q(payments__created__gt=self.donation_not_after, **DONATION_FILTER)
 
-        if self.donation_total_min or self.donation_total_max:
-            donation_range = (
-                {
-                    "payments__created__gt": self.donation_total_range.lower,
-                    "payments__created__lt": self.donation_total_range.upper,
-                }
-                if self.donation_total_range
-                else {}
-            )
-            annotated_qs = Person.objects.annotate(
-                donation_total=Sum(
-                    "payments__price", filter=Q(**DONATION_FILTER, **donation_range)
-                )
-            )
+        if self.donation_total_min:
+            q = q & Q(donation_total__gte=self.donation_total_min)
 
-            if self.donation_total_min:
-                annotated_qs = annotated_qs.filter(
-                    donation_total__gte=self.donation_total_min
-                )
-
-            if self.donation_total_max:
-                annotated_qs = annotated_qs.filter(
-                    donation_total__lte=self.donation_total_max
-                )
-
-            if annotated_qs.count() == 0:
-                qs = qs.none()
-            else:
-                qs = qs.filter(id__in=annotated_qs.values_list("id"))
+        if self.donation_total_max:
+            q = q & Q(donation_total__lte=self.donation_total_max)
 
         if self.subscription is not None:
-            qs = getattr(qs, "filter" if self.subscription else "exclude")(
-                subscriptions__status=Subscription.STATUS_COMPLETED
-            )
+            if self.subscription:
+                q = q & Q(subscriptions__status=Subscription.STATUS_COMPLETED)
+            else:
+                q = q & ~Q(subscriptions__status=Subscription.STATUS_COMPLETED)
 
         if self.exclude_segments.all().count() > 0:
-            qs = qs.difference(
-                *(s.get_subscribers_queryset() for s in self.exclude_segments.all())
+            q = reduce(
+                lambda q1, q2: q1 & ~q2,
+                *(s.get_subscribers_q() for s in self.exclude_segments.all()),
+                q
             )
 
         if self.add_segments.all().count() > 0:
-            qs = qs.union(
-                *(s.get_subscribers_queryset() for s in self.add_segments.all())
+            q = reduce(
+                lambda q1, q2: q1 | q2,
+                *(s.get_subscribers_q() for s in self.add_segments.all())
             )
 
-        return qs.order_by("id").distinct("id")
+        return q
+
+    def get_subscribers_queryset(self):
+        return self.get_base_queryset().filter(self.get_subscribers_q())
 
     def get_subscribers_count(self):
         return self.get_subscribers_queryset().count()
