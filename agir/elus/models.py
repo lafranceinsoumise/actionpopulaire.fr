@@ -1,7 +1,6 @@
-import datetime
-
 import reversion
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, DateRangeField
+from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
@@ -88,8 +87,79 @@ class MandatHistoryMixin(HistoryMixin):
         return res
 
 
+class UniqueWithinDates:
+    def validate_unique(self, exclude=None):
+        """Vérifie qu'il n'existe pas d'autre mandat avec même personne, même conseil, et plage de dates en conflit
+
+        Ajoute une `ValidationError` dans ce cas. Deux plages de dates sont en conflits si elles se chevauchent, même
+        partiellement.
+
+        Cette unicité est assurée côté base de données par une contrainte EXCLUDE mise en place dans la migration
+        `0008_plusieurs_mandats`.
+        """
+        try:
+            super().validate_unique(exclude)
+        except ValidationError as e:
+            errors = e.error_dict
+        else:
+            errors = {}
+
+        if exclude is None:
+            exclude = []
+
+        if not any(f in exclude for f in ["person", "conseil", "dates"]):
+            qs = self.__class__._default_manager.filter(
+                person_id=self.person_id,
+                conseil_id=self.conseil_id,
+                dates__overlap=self.dates,
+            )
+            model_class_pk = self._get_pk_val()
+            if not self._state.adding and model_class_pk is not None:
+                qs = qs.exclude(pk=model_class_pk)
+
+            if qs.exists():
+                other = qs.first()
+                errors.setdefault(NON_FIELD_ERRORS, []).append(
+                    ValidationError(
+                        message="Il existe déjà un mandat pour cette personne et ce conseil aux mêmes dates.",
+                        code="dates_overlap",
+                        params={"other": other.id},
+                    )
+                )
+
+        if errors:
+            raise ValidationError(errors)
+
+
+class MandatAbstrait(UniqueWithinDates, MandatHistoryMixin, models.Model):
+    person = models.ForeignKey(
+        "people.Person", verbose_name="Élu", on_delete=models.CASCADE
+    )
+
+    dates = DateRangeField(
+        verbose_name="Début et fin du mandat",
+        help_text="La date de fin correspond à la date théorique de fin du mandat si elle est dans le futur et à la"
+        " date effective sinon.",
+    )
+
+    email_officiel = models.ForeignKey(
+        to="people.PersonEmail",
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name="Adresse email officielle",
+        help_text="L'adresse avec laquelle contacter l'élu pour des questions officielles",
+    )
+
+    statut = models.CharField(
+        "Statut", max_length=3, choices=STATUT_CHOICES, default=STATUT_A_VERIFIER_ADMIN
+    )
+
+    class Meta:
+        abstract = True
+
+
 @reversion.register()
-class MandatMunicipal(MandatHistoryMixin, models.Model):
+class MandatMunicipal(MandatAbstrait):
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
     MANDAT_MAIRE = "MAI"
@@ -119,10 +189,6 @@ class MandatMunicipal(MandatHistoryMixin, models.Model):
         (MANDAT_EPCI_VICE_PRESIDENT, "Vice-Président"),
     )
 
-    person = models.ForeignKey(
-        "people.Person", verbose_name="Élu", on_delete=models.CASCADE
-    )
-
     conseil = models.ForeignKey(
         "data_france.Commune",
         verbose_name="Commune",
@@ -130,28 +196,11 @@ class MandatMunicipal(MandatHistoryMixin, models.Model):
         on_delete=models.CASCADE,
     )
 
-    debut = models.DateField(
-        "Date de début du mandat", default=datetime.date(2020, 3, 22)
-    )
-    fin = models.DateField(
-        "Date de fin du mandat",
-        help_text="Date légale si dans le futur, date effective si dans le passé.",
-        default=datetime.date(2026, 3, 1),
-    )
-
     mandat = models.CharField(
         "Type de mandat", max_length=3, choices=MANDAT_CHOICES, blank=True
     )
 
-    email_officiel = models.ForeignKey(
-        to="people.PersonEmail",
-        on_delete=models.SET_NULL,
-        null=True,
-        verbose_name="Adresse email officielle",
-        help_text="L'adresse avec laquelle contacter l'élu pour des questions officielles",
-    )
-
-    delegations_municipales = ArrayField(
+    delegations = ArrayField(
         verbose_name="Délégations",
         base_field=models.CharField(max_length=20, choices=DELEGATIONS_CHOICES),
         null=False,
@@ -166,13 +215,8 @@ class MandatMunicipal(MandatHistoryMixin, models.Model):
         default=MANDAT_EPCI_PAS_DE_MANDAT,
     )
 
-    statut = models.CharField(
-        "Statut", max_length=3, choices=STATUT_CHOICES, default=STATUT_A_VERIFIER_ADMIN
-    )
-
     class Meta:
         verbose_name_plural = "Mandats municipaux"
-        unique_together = ("conseil", "person")
         ordering = ("conseil", "person")
 
     def __str__(self):
@@ -189,7 +233,7 @@ class MandatMunicipal(MandatHistoryMixin, models.Model):
 
 
 @reversion.register()
-class MandatDepartemental(MandatHistoryMixin, models.Model):
+class MandatDepartemental(MandatAbstrait):
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
     MANDAT_PRESIDENT = "PRE"
@@ -202,10 +246,6 @@ class MandatDepartemental(MandatHistoryMixin, models.Model):
         (MANDAT_VICE_PRESIDENT, "Vice-Président"),
     )
 
-    person = models.ForeignKey(
-        "people.Person", verbose_name="Élu", on_delete=models.CASCADE
-    )
-
     conseil = models.ForeignKey(
         "data_france.CollectiviteDepartementale",
         verbose_name="Conseil départemental (ou de métropole)",
@@ -213,28 +253,11 @@ class MandatDepartemental(MandatHistoryMixin, models.Model):
         on_delete=models.CASCADE,
     )
 
-    debut = models.DateField(
-        "Date de début du mandat", default=datetime.date(2015, 3, 29)
-    )
-    fin = models.DateField(
-        "Date de fin du mandat",
-        help_text="Date légale si dans le futur, date effective si dans le passé.",
-        default=datetime.date(2021, 3, 31),
-    )
-
     mandat = models.CharField(
         "Type de mandat", max_length=3, choices=MANDAT_CHOICES, blank=True
     )
 
-    email_officiel = models.ForeignKey(
-        to="people.PersonEmail",
-        on_delete=models.SET_NULL,
-        null=True,
-        verbose_name="Adresse email officielle",
-        help_text="L'adresse avec laquelle contacter l'élu pour des questions officielles",
-    )
-
-    delegations_municipales = ArrayField(
+    delegations = ArrayField(
         verbose_name="Délégations",
         base_field=models.CharField(max_length=20, choices=DELEGATIONS_CHOICES),
         null=False,
@@ -242,14 +265,9 @@ class MandatDepartemental(MandatHistoryMixin, models.Model):
         default=list,
     )
 
-    statut = models.CharField(
-        "Statut", max_length=3, choices=STATUT_CHOICES, default=STATUT_A_VERIFIER_ADMIN
-    )
-
     class Meta:
         verbose_name = "Mandat départemental"
         verbose_name_plural = "Mandats départementaux"
-        unique_together = ("conseil", "person")
         ordering = ("conseil", "person")
 
     def __str__(self):
@@ -266,7 +284,7 @@ class MandatDepartemental(MandatHistoryMixin, models.Model):
 
 
 @reversion.register()
-class MandatRegional(MandatHistoryMixin, models.Model):
+class MandatRegional(MandatAbstrait):
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
     MANDAT_PRESIDENT = "PRE"
@@ -279,10 +297,6 @@ class MandatRegional(MandatHistoryMixin, models.Model):
         (MANDAT_VICE_PRESIDENT, "Vice-Président"),
     )
 
-    person = models.ForeignKey(
-        "people.Person", verbose_name="Élu", on_delete=models.CASCADE
-    )
-
     conseil = models.ForeignKey(
         "data_france.CollectiviteRegionale",
         verbose_name="Conseil régional (ou de collectivité unique)",
@@ -290,28 +304,11 @@ class MandatRegional(MandatHistoryMixin, models.Model):
         on_delete=models.CASCADE,
     )
 
-    debut = models.DateField(
-        "Date de début du mandat", default=datetime.date(2015, 12, 13)
-    )
-    fin = models.DateField(
-        "Date de fin du mandat",
-        help_text="Date légale si dans le futur, date effective si dans le passé.",
-        default=datetime.date(2021, 3, 31),
-    )
-
     mandat = models.CharField(
         "Type de mandat", max_length=3, choices=MANDAT_CHOICES, blank=True
     )
 
-    email_officiel = models.ForeignKey(
-        to="people.PersonEmail",
-        on_delete=models.SET_NULL,
-        null=True,
-        verbose_name="Adresse email officielle",
-        help_text="L'adresse avec laquelle contacter l'élu pour des questions officielles",
-    )
-
-    delegations_municipales = ArrayField(
+    delegations = ArrayField(
         verbose_name="Délégations",
         base_field=models.CharField(max_length=20, choices=DELEGATIONS_CHOICES),
         null=False,
@@ -326,7 +323,6 @@ class MandatRegional(MandatHistoryMixin, models.Model):
     class Meta:
         verbose_name = "Mandat régional"
         verbose_name_plural = "Mandats régionaux"
-        unique_together = ("conseil", "person")
         ordering = ("conseil", "person")
 
     def __str__(self):
