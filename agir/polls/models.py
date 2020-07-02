@@ -53,6 +53,16 @@ class Poll(BaseAPIResource):
         blank=True,
     )
 
+    authorized_segment = models.ForeignKey(
+        "mailing.Segment",
+        on_delete=models.SET_NULL,
+        related_name="+",
+        related_query_name="+",
+        blank=True,
+        null=True,
+        verbose_name="Limiter l'accès à la consultation à ce segment",
+    )
+
     def make_choice(self, person, options):
         with transaction.atomic():
             if self.tags.all().count() > 0:

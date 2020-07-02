@@ -34,8 +34,10 @@ class PollAdmin(admin.ModelAdmin):
         "end",
         "rules",
         "tags",
+        "authorized_segment",
     ]
     readonly_fields = ["link"]
+    autocomplete_fields = ("authorized_segment",)
 
     def link(self, object):
         if object.pk:

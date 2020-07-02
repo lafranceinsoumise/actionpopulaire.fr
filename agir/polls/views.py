@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
@@ -5,12 +6,14 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView, FormView
 from django.views.generic.detail import SingleObjectMixin
-from django.contrib import messages
-from django.utils.translation import ugettext as _
 
-from agir.authentication.view_mixins import SoftLoginRequiredMixin
+from agir.authentication.view_mixins import (
+    SoftLoginRequiredMixin,
+    GlobalOrObjectPermissionRequiredMixin,
+)
 from agir.people.models import Person
 from .forms import PollParticipationForm
 from .models import Poll, PollChoice
@@ -18,7 +21,9 @@ from .models import Poll, PollChoice
 __all__ = ["PollParticipationView", "PollFinishedView"]
 
 
-class PollParticipationView(SoftLoginRequiredMixin, SingleObjectMixin, FormView):
+class PollParticipationView(
+    SoftLoginRequiredMixin, SingleObjectMixin, FormView,
+):
     template_name = "polls/detail.html"
     context_object_name = "poll"
     form_class = PollParticipationForm
@@ -46,6 +51,15 @@ class PollParticipationView(SoftLoginRequiredMixin, SingleObjectMixin, FormView)
     def get(self, *args, **kwargs):
         self.object = self.get_object()
         if (
+            self.object.authorized_segment is not None
+            and not self.object.authorized_segment.get_subscribers_queryset()
+            .filter(id=self.request.user.person.id)
+            .exists()
+        ):
+            raise PermissionDenied(
+                "Vous n'êtes pas autorisé⋅e à participer à cette consultation."
+            )
+        if (
             self.object.end < timezone.now()
             and PollChoice.objects.filter(
                 person=self.request.user.person, poll=self.object
@@ -67,6 +81,15 @@ class PollParticipationView(SoftLoginRequiredMixin, SingleObjectMixin, FormView)
 
     def post(self, *args, **kwargs):
         self.object = self.get_object()
+        if (
+            self.object.authorized_segment is not None
+            and not self.object.authorized_segment.get_subscribers_queryset()
+            .filter(id=self.request.user.person.id)
+            .exists()
+        ):
+            raise PermissionDenied(
+                "Vous n'êtes pas autorisé⋅e à participer à cette consultation."
+            )
         if (
             self.object.rules.get("require_verified")
             and self.request.user.person.contact_phone_status
