@@ -355,7 +355,12 @@ class Segment(BaseSegment, models.Model):
         return q
 
     def get_subscribers_queryset(self):
-        return self.get_base_queryset().filter(self.get_subscribers_q())
+        return (
+            self.get_base_queryset()
+            .filter(self.get_subscribers_q())
+            .order_by("id")
+            .distinct("id")
+        )
 
     def get_subscribers_count(self):
         return self.get_subscribers_queryset().count()
