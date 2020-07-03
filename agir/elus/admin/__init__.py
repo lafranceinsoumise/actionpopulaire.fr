@@ -153,7 +153,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
         return queryset, use_distinct
 
     def actif(self, obj):
-        return "Oui" if (obj.debut <= timezone.now().date() <= obj.fin) else "Non"
+        return "Oui" if (timezone.now().date() in obj.dates) else "Non"
 
     actif.short_description = "Mandat en cours"
 
