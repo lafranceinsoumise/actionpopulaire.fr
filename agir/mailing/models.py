@@ -349,17 +349,17 @@ class Segment(BaseSegment, models.Model):
             else:
                 q = q & ~Q(subscriptions__status=Subscription.STATUS_COMPLETED)
 
-        if self.exclude_segments.all().count() > 0:
-            q = reduce(
-                lambda q1, q2: q1 & ~q2,
-                (s.get_subscribers_q() for s in self.exclude_segments.all()),
-                q,
-            )
-
         if self.add_segments.all().count() > 0:
             q = reduce(
                 lambda q1, q2: q1 | q2,
                 (s.get_subscribers_q() for s in self.add_segments.all()),
+                q,
+            )
+
+        if self.exclude_segments.all().count() > 0:
+            q = reduce(
+                lambda q1, q2: q1 & ~q2,
+                (s.get_subscribers_q() for s in self.exclude_segments.all()),
                 q,
             )
 
