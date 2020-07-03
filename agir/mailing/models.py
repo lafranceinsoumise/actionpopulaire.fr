@@ -88,6 +88,13 @@ class Segment(BaseSegment, models.Model):
         related_name="+",
     )
 
+    polls = models.ManyToManyField(
+        "polls.Poll",
+        verbose_name="A participé à au moins une de ces consultations",
+        blank=True,
+        related_name="+",
+    )
+
     countries = CountryField("Limiter aux pays", multiple=True, blank=True)
     departements = ChoiceArrayField(
         models.CharField(choices=data.departements_choices, max_length=3),
@@ -249,6 +256,9 @@ class Segment(BaseSegment, models.Model):
 
         if self.forms.all().count() > 0:
             q = q & Q(form_submissions__form__in=self.forms.all())
+
+        if self.polls.all().count() > 0:
+            q = q & Q(poll_choices__poll__in=self.polls.all())
 
         if self.campaigns.all().count() > 0:
             if self.campaigns_feedback == self.FEEDBACK_OPEN:

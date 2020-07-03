@@ -35,6 +35,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "events_end_date",
                     "events_organizer",
                     "forms",
+                    "polls",
                 )
             },
         ),
@@ -80,6 +81,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "exclude_segments",
         "add_segments",
         "forms",
+        "polls",
     )
     readonly_fields = ("get_subscribers_count",)
     ordering = ("name",)
