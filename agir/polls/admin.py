@@ -24,7 +24,7 @@ class PollAdmin(admin.ModelAdmin):
     inlines = [PollOptionInline]
 
     list_display = ("title", "start", "end")
-
+    search_fields = ("title",)
     fields = [
         "title",
         "link",
