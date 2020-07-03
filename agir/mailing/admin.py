@@ -23,7 +23,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     form = SegmentAdminForm
     save_as = True
     fieldsets = (
-        (None, {"fields": ("name", "tags", "exclude_segments", "force_non_insoumis")}),
+        (None, {"fields": ("name", "tags", "force_non_insoumis")}),
         (
             "GA, événements et formulaires",
             {
@@ -35,6 +35,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "events_end_date",
                     "events_organizer",
                     "forms",
+                    "polls",
                 )
             },
         ),
@@ -67,7 +68,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 )
             },
         ),
-        ("Combiner des segments", {"fields": ("add_segments",)}),
+        ("Combiner des segments", {"fields": ("add_segments", "exclude_segments")}),
         ("Abonnés", {"fields": ("get_subscribers_count",)}),
     )
     map_template = "custom_fields/french_area_widget.html"
@@ -80,6 +81,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "exclude_segments",
         "add_segments",
         "forms",
+        "polls",
     )
     readonly_fields = ("get_subscribers_count",)
     ordering = ("name",)

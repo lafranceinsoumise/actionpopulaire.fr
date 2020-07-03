@@ -37,7 +37,11 @@ class Poll(BaseAPIResource):
         default=dict,
     )
     tags = models.ManyToManyField(
-        "people.PersonTag", related_name="polls", related_query_name="poll", blank=True
+        "people.PersonTag",
+        related_name="polls",
+        related_query_name="poll",
+        blank=True,
+        verbose_name="Tag à ajouter aux participant⋅es",
     )
 
     confirmation_note = DescriptionField(
@@ -47,6 +51,16 @@ class Poll(BaseAPIResource):
             "Note montrée à l'utilisateur une fois la participation enregistrée."
         ),
         blank=True,
+    )
+
+    authorized_segment = models.ForeignKey(
+        "mailing.Segment",
+        on_delete=models.SET_NULL,
+        related_name="+",
+        related_query_name="+",
+        blank=True,
+        null=True,
+        verbose_name="Limiter l'accès à la consultation à ce segment",
     )
 
     def make_choice(self, person, options):

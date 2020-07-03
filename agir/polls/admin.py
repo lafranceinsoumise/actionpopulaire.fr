@@ -24,7 +24,7 @@ class PollAdmin(admin.ModelAdmin):
     inlines = [PollOptionInline]
 
     list_display = ("title", "start", "end")
-
+    search_fields = ("title",)
     fields = [
         "title",
         "link",
@@ -34,8 +34,10 @@ class PollAdmin(admin.ModelAdmin):
         "end",
         "rules",
         "tags",
+        "authorized_segment",
     ]
     readonly_fields = ["link"]
+    autocomplete_fields = ("authorized_segment",)
 
     def link(self, object):
         if object.pk:
