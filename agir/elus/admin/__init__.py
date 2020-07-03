@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
+from psycopg2._range import DateRange
 
 from agir.elus.models import MandatMunicipal, MandatDepartemental, MandatRegional
 from agir.lib.search import PrefixSearchQuery
@@ -190,15 +191,12 @@ class BaseMandatAdmin(admin.ModelAdmin):
             except ObjectDoesNotExist:
                 pass
 
-        if "debut" in request.GET:
+        if "debut" in request.GET and "fin" in request.GET:
             try:
-                initial["debut"] = datetime.strptime(request.GET["debut"], "%Y-%m-%d")
-            except ValueError:
-                pass
-
-        if "fin" in request.GET:
-            try:
-                initial["fin"] = datetime.strptime(request.GET["fin"], "%Y-%m-%d")
+                initial["dates"] = DateRange(
+                    datetime.strptime(request.GET["debut"], "%Y-%m-%d"),
+                    datetime.strptime(request.GET["fin"], "%Y-%m-%d"),
+                )
             except ValueError:
                 pass
 
@@ -288,10 +286,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
             "Informations sur l'élu⋅e",
             {"fields": (*PERSON_FIELDS, "email_officiel", "new_email", "statut",)},
         ),
-        (
-            "Précisions sur le mandat",
-            {"fields": ("debut", "fin", "delegations_municipales")},
-        ),
+        ("Précisions sur le mandat", {"fields": ("dates", "delegations_municipales")},),
     )
 
     list_display = (
@@ -324,10 +319,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
             "Informations sur l'élu⋅e",
             {"fields": (*PERSON_FIELDS, "email_officiel", "new_email", "statut",)},
         ),
-        (
-            "Précisions sur le mandat",
-            {"fields": ("debut", "fin", "delegations_municipales")},
-        ),
+        ("Précisions sur le mandat", {"fields": ("dates", "delegations_municipales")},),
     )
 
     list_display = (
@@ -356,10 +348,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
             "Informations sur l'élu⋅e",
             {"fields": (*PERSON_FIELDS, "email_officiel", "new_email", "statut",)},
         ),
-        (
-            "Précisions sur le mandat",
-            {"fields": ("debut", "fin", "delegations_municipales")},
-        ),
+        ("Précisions sur le mandat", {"fields": ("dates", "delegations_municipales")},),
     )
 
     list_display = (
