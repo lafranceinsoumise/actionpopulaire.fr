@@ -96,7 +96,7 @@ def resize_and_autorotate(
 
 
 def shorten_url(url, secret=False):
-    return requests.get(
+    return requests.post(
         settings.DJAN_URL + "/api/shorten",
         params={"token": settings.DJAN_API_KEY,},
         data={"url": url, "length": 10 if secret else 5},
