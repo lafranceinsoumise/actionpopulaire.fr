@@ -97,10 +97,7 @@ def resize_and_autorotate(
 
 def shorten_url(url, secret=False):
     return requests.get(
-        settings.POLR_URL + "/api/v2/action/shorten",
-        params={
-            "key": settings.POLR_API_KEY,
-            "url": url,
-            "is_secret": "true" if secret else "false",
-        },
+        settings.DJAN_URL + "/api/shorten",
+        params={"token": settings.DJAN_API_KEY,},
+        data={"url": url, "length": 10 if secret else 5},
     ).text

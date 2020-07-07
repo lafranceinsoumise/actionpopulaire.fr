@@ -710,9 +710,9 @@ PRESSERO_SITE = os.environ.get("PRESSERO_SITE", "").rstrip("/")
 PRESSERO_APPROBATOR_ID = os.environ.get("PRESSERO_APPROBATOR_ID")
 PRESSERO_GROUP_ID = os.environ.get("PRESSERO_GROUP_ID")
 
-# polr
-POLR_URL = "https://la-fi.fr/"
-POLR_API_KEY = os.environ.get("POLR_API_KEY")
+# djan
+DJAN_URL = "https://la-fi.fr/"
+DJAN_API_KEY = os.environ.get("DJAN_API_KEY")
 
 # nuntius
 NUNTIUS_PUBLIC_URL = FRONT_DOMAIN
