@@ -14,6 +14,7 @@ PERSON_FIELDS = [
     "location_zip",
     "location_city",
     "is_insoumise",
+    "membre_reseau_elus",
     "subscribed",
 ]
 
@@ -30,6 +31,7 @@ class CreerMandatForm(forms.ModelForm):
         label="Email officiel", queryset=PersonEmail.objects.none(), required=False
     )
     is_insoumise = forms.BooleanField(label="Est insoumis⋅e", required=False)
+    membre_reseau_elus = forms.BooleanField()
     subscribed = forms.BooleanField(
         label="Inscrit à la lettre d'information de la FI",
         required=False,

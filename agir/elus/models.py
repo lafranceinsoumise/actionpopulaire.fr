@@ -46,6 +46,7 @@ DELEGATIONS_CHOICES = (
 
 STATUT_A_VERIFIER_ADMIN = "INC"
 STATUT_A_VERIFIER_INSCRIPTION = "DEM"
+STATUT_A_VERIFIER_IMPORT = "IMP"
 STATUT_VERIFIE = "INS"
 STATUT_CHOICES = (
     (STATUT_A_VERIFIER_ADMIN, "Mandat à vérifier (ajouté côté admin)"),
@@ -53,6 +54,7 @@ STATUT_CHOICES = (
         STATUT_A_VERIFIER_INSCRIPTION,
         "Mandat à vérifier (ajouté par la personne elle-même)",
     ),
+    (STATUT_A_VERIFIER_IMPORT, "Importé par une opération automatique"),
     (STATUT_VERIFIE, "Mandat vérifié"),
 )
 
@@ -177,12 +179,14 @@ class MandatMunicipal(MandatAbstrait):
     )
 
     MANDAT_EPCI_PAS_DE_MANDAT = "NON"
+    MANDAT_EPCI_MANDAT_INCONNU = "INC"
     MANDAT_EPCI_MAJORITE = "MAJ"
     MANDAT_EPCI_OPPOSITION = "OPP"
     MANDAT_EPCI_PRESIDENT = "PRE"
     MANDAT_EPCI_VICE_PRESIDENT = "VPR"
     MANDAT_EPCI_CHOICES = (
         (MANDAT_EPCI_PAS_DE_MANDAT, "Pas de mandat communautaire"),
+        (MANDAT_EPCI_MANDAT_INCONNU, "Délégué⋅e, situation inconnue"),
         (MANDAT_EPCI_MAJORITE, "Délégué⋅e majoritaire"),
         (MANDAT_EPCI_OPPOSITION, "Délégué⋅e minoritaire",),
         (MANDAT_EPCI_PRESIDENT, "Président"),
