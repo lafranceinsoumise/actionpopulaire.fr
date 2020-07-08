@@ -8,7 +8,7 @@ from agir.system_pay.models import SystemPaySubscription
 
 
 class Command(BaseCommand):
-    def handle(self,):
+    def handle(self, **kwargs):
         if now().month == (now() + timedelta(days=7)).month:
             # seulement le dernier dimanche du mois
             return
