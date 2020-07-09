@@ -14,7 +14,7 @@ __all__ = [
     "UnsubscribeView",
     "DeleteAccountView",
     "DeleteEmailAddressView",
-    "PeopleFormView",
+    "PeopleFormNewSubmissionView",
     "PeopleFormConfirmationView",
     "DashboardView",
 ]

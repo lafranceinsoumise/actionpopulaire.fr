@@ -19,9 +19,13 @@ from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
 
 
-class PeopleFormView(UpdateView):
+class BasePeopleFormView(UpdateView):
     queryset = PersonForm.objects.published()
     template_name = "people/person_form.html"
+
+    def setup(self, *args, **kwargs):
+        super().setup(*args, **kwargs)
+        self.person_form_instance = self.get_person_form_instance()
 
     def get_success_url(self):
         return reverse(
@@ -54,15 +58,6 @@ class PeopleFormView(UpdateView):
         )
 
     def dispatch(self, request, *args, **kwargs):
-        self.person_form_instance = self.get_person_form_instance()
-
-        event = Event.objects.filter(
-            subscription_form=self.person_form_instance
-        ).first()
-
-        if event is not None:
-            return redirect("rsvp_event", event.pk)
-
         if self.person_form_instance.allow_anonymous or request.user.is_authenticated:
             return super().dispatch(request, *args, **kwargs)
 
@@ -103,9 +98,21 @@ class PeopleFormView(UpdateView):
         return r
 
 
-class PeopleFormEditSubmissionView(PeopleFormView):
+class PeopleFormNewSubmissionView(BasePeopleFormView):
+    def dispatch(self, *args, **kwargs):
+        event = Event.objects.filter(
+            subscription_form=self.person_form_instance
+        ).first()
+
+        if event is not None:
+            return redirect("rsvp_event", event.pk)
+
+        return super().dispatch(*args, **kwargs)
+
+
+class PeopleFormEditSubmissionView(BasePeopleFormView):
     def get_form_kwargs(self):
-        if self.person_form_instance.editable == False:
+        if not self.person_form_instance.editable:
             raise Http404()
 
         kwargs = super().get_form_kwargs()
@@ -119,6 +126,16 @@ class PeopleFormEditSubmissionView(PeopleFormView):
             )
 
         return kwargs
+
+    def get_success_url(self):
+        event = Event.objects.filter(
+            subscription_form=self.person_form_instance
+        ).first()
+
+        if event is not None:
+            return redirect("rsvp_event", event.pk)
+
+        return super().get_success_url()
 
 
 class PeopleFormConfirmationView(DetailView):

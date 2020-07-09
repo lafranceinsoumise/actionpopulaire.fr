@@ -107,7 +107,7 @@ unsubscribe_urls = [
 form_urls = [
     path(
         "formulaires/<slug:slug>/",
-        views.PeopleFormView.as_view(),
+        views.PeopleFormNewSubmissionView.as_view(),
         name="view_person_form",
     ),
     path(
