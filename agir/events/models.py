@@ -452,7 +452,7 @@ class Event(
 
             d = {tuple(v for v in m["values"]): m["price"] for m in mapping["mapping"]}
 
-            price += d.get(tuple(values), 0)
+            price += d[tuple(values)]
 
         if "free_pricing" in self.payment_parameters:
             field = self.payment_parameters["free_pricing"]
