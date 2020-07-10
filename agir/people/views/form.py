@@ -107,6 +107,22 @@ class PeopleFormNewSubmissionView(BasePeopleFormView):
         if event is not None:
             return redirect("rsvp_event", event.pk)
 
+        if self.person_form_instance.editable:
+            existing_submission = PersonFormSubmission.objects.filter(
+                person=self.request.user.person, form=self.person_form_instance
+            ).last()
+            if existing_submission is not None:
+                messages.add_message(
+                    self.request,
+                    messages.INFO,
+                    "Vous avez déjà rempli ce formulaire, mais vous pouvez modifier certaines de vos réponses.",
+                )
+                return redirect(
+                    "edit_person_form_submission",
+                    slug=self.person_form_instance.slug,
+                    pk=existing_submission.pk,
+                )
+
         return super().dispatch(*args, **kwargs)
 
 

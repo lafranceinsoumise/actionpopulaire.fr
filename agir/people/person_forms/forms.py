@@ -66,20 +66,10 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         super().__init__(*args, data=data, **kwargs)
 
-        if self.person_form_instance.editable:
-            self.submission = (
-                self.submission
-                or PersonFormSubmission.objects.filter(
-                    person=self.instance, form=self.person_form_instance
-                )
-                .order_by("modified")
-                .last()
-            )
-
-            if self.submission is not None:
-                for id, value in get_data_from_submission(self.submission).items():
-                    self.initial[id] = value
-                self.is_submission_edition = True
+        if self.person_form_instance.editable and self.submission is not None:
+            for id, value in get_data_from_submission(self.submission).items():
+                self.initial[id] = value
+            self.is_submission_edition = True
 
         parts = []
 
@@ -213,20 +203,12 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             if isinstance(value, File):
                 data[key] = self._save_file(value)
 
-        if self.person_form_instance.editable and person is not None:
-            if self.submission is None:
-                self.submission, created = PersonFormSubmission.objects.get_or_create(
-                    person=person, form=self.person_form_instance
-                )
+        if self.submission is not None:
             self.submission.data = data
             self.submission.save()
-        elif person is not None:
-            self.submission = PersonFormSubmission.objects.create(
-                person=person, form=self.person_form_instance, data=data
-            )
         else:
             self.submission = PersonFormSubmission.objects.create(
-                form=self.person_form_instance, data=data
+                person=person, form=self.person_form_instance, data=data
             )
 
         return self.submission

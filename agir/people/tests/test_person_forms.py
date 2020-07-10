@@ -171,7 +171,7 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
             "/formulaires/formulaire-complexe/",
             data={
                 "contact_phone": "06 34 56 78 90",
-                "custom-field": 'valeur du champ libre "person_field": "false"',
+                "custom-field": "valeur du champ libre person_field false",
             },
         )
         self.assertContains(res, "has-error")
@@ -181,8 +181,8 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
             data={
                 "tag": "tag2",
                 "contact_phone": "06 34 56 78 90",
-                "custom-field": 'valeur du champ libre "person_field": "false"',
-                "custom-person-field": 'valeur du champ libre avec "person_field": "true"',
+                "custom-field": "valeur du champ libre person_field false",
+                "custom-person-field": "valeur du champ libre avec person_field true",
             },
         )
         self.assertRedirects(res, "/formulaires/formulaire-complexe/confirmation/")
@@ -192,7 +192,7 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         self.assertCountEqual(self.person.tags.all(), [self.tag2])
         self.assertEqual(
             self.person.meta["custom-person-field"],
-            'valeur du champ libre avec "person_field": "true"',
+            "valeur du champ libre avec person_field true",
         )
 
         submissions = PersonFormSubmission.objects.all()
@@ -200,11 +200,11 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
 
         self.assertEqual(
             submissions[0].data["custom-field"],
-            'valeur du champ libre "person_field": "false"',
+            "valeur du champ libre person_field false",
         )
         self.assertEqual(
             submissions[0].data["custom-person-field"],
-            'valeur du champ libre avec "person_field": "true"',
+            "valeur du champ libre avec person_field true",
         )
 
     def test_can_update_form(self):
@@ -212,20 +212,29 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         self.complex_form.save()
         self.test_can_validate_complex_form()
 
+        self.assertEqual(PersonFormSubmission.objects.count(), 1)
+        edit_url = reverse(
+            "edit_person_form_submission",
+            args=[self.complex_form.slug, PersonFormSubmission.objects.get().pk],
+        )
+
         res = self.client.get(
             reverse("view_person_form", args=[self.complex_form.slug])
         )
+        self.assertRedirects(res, edit_url)
+
+        res = self.client.get(edit_url)
         self.assertContains(
-            res, "valeur du champ libre"
-        )  # data from first post are present
+            res, "valeur du champ libre person_field false"
+        )  # data from first post is present
 
         res = self.client.post(
-            reverse("view_person_form", args=[self.complex_form.slug]),
+            edit_url,
             data={
                 "tag": "tag1",
                 "contact_phone": "06 34 56 78 91",
-                "custom-field": 'valeur modifié du champ libre "person_field": "false"',
-                "custom-person-field": 'valeur modifiée du champ libre "person_field": "true"',
+                "custom-field": "valeur modifié du champ libre person_field false",
+                "custom-person-field": "valeur modifiée du champ libre person_field true",
             },
         )
         self.assertRedirects(res, "/formulaires/formulaire-complexe/confirmation/")
@@ -235,19 +244,19 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         self.assertCountEqual(self.person.tags.all(), [self.tag1, self.tag2])
         self.assertEqual(
             self.person.meta["custom-person-field"],
-            'valeur modifiée du champ libre "person_field": "true"',
+            "valeur modifiée du champ libre person_field true",
         )
 
-        submissions = PersonFormSubmission.objects.all()
-        self.assertEqual(len(submissions), 1)
+        self.assertEqual(PersonFormSubmission.objects.count(), 1)
 
+        submission = PersonFormSubmission.objects.get()
         self.assertEqual(
-            submissions[0].data["custom-field"],
-            'valeur modifié du champ libre "person_field": "false"',
+            submission.data["custom-field"],
+            "valeur modifié du champ libre person_field false",
         )
         self.assertEqual(
-            submissions[0].data["custom-person-field"],
-            'valeur modifiée du champ libre "person_field": "true"',
+            submission.data["custom-person-field"],
+            "valeur modifiée du champ libre person_field true",
         )
 
     def test_only_update_allowed_fields(self):
@@ -256,20 +265,18 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         self.complex_form.save()
         self.test_can_validate_complex_form()
 
-        res = self.client.get(
-            reverse("view_person_form", args=[self.complex_form.slug])
+        edit_url = reverse(
+            "edit_person_form_submission",
+            args=[self.complex_form.slug, PersonFormSubmission.objects.get().pk],
         )
-        self.assertContains(
-            res, "valeur du champ libre"
-        )  # data from first post are present
 
-        res = self.client.post(
-            reverse("view_person_form", args=[self.complex_form.slug]),
+        self.client.post(
+            edit_url,
             data={
                 "tag": "tag1",
                 "contact_phone": "06 34 56 78 91",
-                "custom-field": 'valeur modifié du champ libre "person_field": "false"',
-                "custom-person-field": 'valeur modifiée du champ libre "person_field": "true"',
+                "custom-field": "valeur modifié du champ libre person_field false",
+                "custom-person-field": "valeur modifiée du champ libre person_field true",
             },
         )
 
@@ -278,7 +285,7 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         self.assertCountEqual(self.person.tags.all(), [self.tag2, self.tag1])
         self.assertEqual(
             self.person.meta["custom-person-field"],
-            'valeur du champ libre avec "person_field": "true"',
+            "valeur du champ libre avec person_field true",
         )
 
         submissions = PersonFormSubmission.objects.all()
@@ -286,11 +293,11 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
 
         self.assertEqual(
             submissions[0].data["custom-field"],
-            'valeur modifié du champ libre "person_field": "false"',
+            "valeur modifié du champ libre person_field false",
         )
         self.assertEqual(
             submissions[0].data["custom-person-field"],
-            'valeur du champ libre avec "person_field": "true"',
+            "valeur du champ libre avec person_field true",
         )
 
     def test_creates_new_submission_if_not_editable(self):
@@ -300,15 +307,15 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
             reverse("view_person_form", args=[self.complex_form.slug])
         )
         self.assertNotContains(
-            res, 'valeur du champ libre "person_field": "false"'
+            res, "valeur du champ libre person_field false"
         )  # data from first post must not be present
         self.client.post(
             reverse("view_person_form", args=[self.complex_form.slug]),
             data={
                 "tag": "tag1",
                 "contact_phone": "06 34 56 78 91",
-                "custom-field": 'valeur modifié du champ libre "person_field": "false"',
-                "custom-person-field": 'valeur modifiée du champ libre "person_field": "true"',
+                "custom-field": "valeur modifié du champ libre person_field false",
+                "custom-person-field": "valeur modifiée du champ libre person_field true",
             },
         )
         submissions = PersonFormSubmission.objects.all()
@@ -341,8 +348,8 @@ class AccessControlTestCase(SetUpPersonFormsMixin, TestCase):
             data={
                 "tag": "tag2",
                 "contact_phone": "06 34 56 78 90",
-                "custom-field": 'valeur du champ libre "person_field": "false"',
-                "custom-person-field": 'valeur du champ libre avec "person_field": "true"',
+                "custom-field": "valeur du champ libre person_field false",
+                "custom-person-field": "valeur du champ libre avec person_field true",
             },
         )
         self.assertContains(res, "Ce formulaire est maintenant fermé.")
@@ -365,8 +372,8 @@ class AccessControlTestCase(SetUpPersonFormsMixin, TestCase):
             data={
                 "tag": "tag2",
                 "contact_phone": "06 34 56 78 90",
-                "custom-field": 'valeur du champ libre "person_field": "false"',
-                "custom-person-field": 'valeur du champ libre avec "person_field": "true"',
+                "custom-field": "valeur du champ libre person_field false",
+                "custom-person-field": "valeur du champ libre avec person_field true",
             },
         )
         self.assertContains(res, "SENTINEL")
@@ -582,7 +589,7 @@ class CampaignTemplateTestCase(SetUpPersonFormsMixin, TestCase):
                 "tag": "tag2",
                 "contact_phone": "06 34 56 78 90",
                 "custom-field": "Super titre<script>alert('xss');{{ malicious_template }}",
-                "custom-person-field": 'valeur du champ libre avec "person_field": "true"',
+                "custom-person-field": "valeur du champ libre avec person_field true",
             },
         )
         self.assertRedirects(res, "/formulaires/formulaire-complexe/confirmation/")

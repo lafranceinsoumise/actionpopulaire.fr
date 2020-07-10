@@ -874,6 +874,9 @@ class RSVPTestCase(TestCase):
         self.form_event.allow_guests = True
         self.form_event.save()
 
+        self.form_event.subscription_form.editable = True
+        self.form_event.subscription_form.save()
+
         self.client.force_login(self.already_rsvped.role)
 
         event_url = reverse("view_event", kwargs={"pk": self.form_event.pk})
@@ -894,6 +897,9 @@ class RSVPTestCase(TestCase):
         guest_confirmation.delay.assert_called_once()
 
         rsvp = RSVP.objects.get(person=self.already_rsvped, event=self.form_event)
+        self.assertNotEqual(
+            rsvp.form_submission_id, rsvp.identified_guests.first().submission_id
+        )
         self.assertEqual(guest_confirmation.delay.call_args[0][0], rsvp.pk)
 
     def test_cannot_add_guest_to_form_event_if_forbidden(self):
