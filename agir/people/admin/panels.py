@@ -407,12 +407,6 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
     last_submission.short_description = "Dernière réponse"
     last_submission.admin_order_field = "last_submission"
 
-    def get_readonly_fields(self, request, obj=None):
-        pass
-        if obj is not None:
-            return self.readonly_fields + ("editable",)
-        return self.readonly_fields
-
     def get_queryset(self, request):
         qs = super().get_queryset(request)
 
