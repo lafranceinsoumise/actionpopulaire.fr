@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 
 import reversion
 from data_france.models import (
@@ -30,11 +30,17 @@ from .forms import (
 )
 
 
+MUNICIPAL_DEFAULT_DATE_RANGE = DateRange(date(2020, 6, 28), date(2026, 3, 31))
+DEPARTEMENTAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 3, 29), date(2021, 3, 31))
+REGIONAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 12, 13), date(2021, 3, 31))
+
+
 class BaseMandatAdmin(admin.ModelAdmin):
     form = CreerMandatForm
     add_form_template = "admin/change_form.html"
     change_form_template = "elus/admin/history_change_form.html"
     search_fields = ("person",)
+    default_date_range = None
 
     def get_conseil_queryset(self, request):
         raise NotImplementedError("Implémenter cette méthode est obligatoire")
@@ -175,7 +181,9 @@ class BaseMandatAdmin(admin.ModelAdmin):
     is_insoumise.short_description = "Insoumis⋅e"
 
     def get_changeform_initial_data(self, request):
+        """Permet de préremplir le champs `dates' en fonction de la dernière élection"""
         initial = super().get_changeform_initial_data(request)
+        initial.setdefault("dates", self.default_date_range)
 
         if "person" in request.GET:
             try:
@@ -194,8 +202,8 @@ class BaseMandatAdmin(admin.ModelAdmin):
         if "debut" in request.GET and "fin" in request.GET:
             try:
                 initial["dates"] = DateRange(
-                    datetime.strptime(request.GET["debut"], "%Y-%m-%d"),
-                    datetime.strptime(request.GET["fin"], "%Y-%m-%d"),
+                    datetime.strptime(request.GET["debut"], "%Y-%m-%d").date(),
+                    datetime.strptime(request.GET["fin"], "%Y-%m-%d").date(),
                 )
             except ValueError:
                 pass
@@ -271,6 +279,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
 class MandatMunicipalAdmin(BaseMandatAdmin):
     form = CreerMandatMunicipalForm
     autocomplete_fields = ("conseil",)
+    default_date_range = MUNICIPAL_DEFAULT_DATE_RANGE
 
     list_filter = (
         "statut",
@@ -281,10 +290,34 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
     )
 
     fieldsets = (
-        (None, {"fields": ("person", "conseil", "mandat", "communautaire")}),
+        (
+            None,
+            {
+                "fields": (
+                    "person",
+                    "conseil",
+                    "statut",
+                    "membre_reseau_elus",
+                    "mandat",
+                    "communautaire",
+                )
+            },
+        ),
         (
             "Informations sur l'élu⋅e",
-            {"fields": (*PERSON_FIELDS, "email_officiel", "new_email", "statut",)},
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "email_officiel",
+                    "contact_phone",
+                    "location_address1",
+                    "location_address2",
+                    "location_zip",
+                    "location_city",
+                    "new_email",
+                )
+            },
         ),
         ("Précisions sur le mandat", {"fields": ("dates", "delegations_municipales")},),
     )
@@ -312,6 +345,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
 class MandatDepartementAdmin(BaseMandatAdmin):
     autocomplete_fields = ("conseil",)
     list_filter = ("statut", "mandat", DepartementFilter, DepartementRegionFilter)
+    default_date_range = DEPARTEMENTAL_DEFAULT_DATE_RANGE
 
     fieldsets = (
         (None, {"fields": ("person", "conseil", "mandat")}),
@@ -341,6 +375,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
 @admin.register(MandatRegional)
 class MandatRegionalAdmin(BaseMandatAdmin):
     list_filter = ("statut", "mandat", RegionFilter)
+    default_date_range = REGIONAL_DEFAULT_DATE_RANGE
 
     fieldsets = (
         (None, {"fields": ("person", "conseil", "mandat")}),

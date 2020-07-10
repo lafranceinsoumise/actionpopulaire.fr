@@ -153,7 +153,13 @@ class MandatAbstrait(UniqueWithinDates, MandatHistoryMixin, models.Model):
     )
 
     statut = models.CharField(
-        "Statut", max_length=3, choices=STATUT_CHOICES, default=STATUT_A_VERIFIER_ADMIN
+        "Statut",
+        max_length=3,
+        choices=STATUT_CHOICES,
+        default=STATUT_A_VERIFIER_ADMIN,
+        help_text="Indique la qualité de l'information sur cet⋅te élu⋅e, indépendamment des questions politiques et de"
+        " son appartenance au réseau des élus. Une valeur « Vérifié » signifie que : 1) il a été vérifié que le mandat"
+        " existe réellement et 2) le compte éventuellement associé appartient bien à la personne élue.",
     )
 
     class Meta:
@@ -162,6 +168,7 @@ class MandatAbstrait(UniqueWithinDates, MandatHistoryMixin, models.Model):
 
 @reversion.register()
 class MandatMunicipal(MandatAbstrait):
+    MANDAT_INCONNU = "INC"
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
     MANDAT_MAIRE = "MAI"
@@ -170,6 +177,7 @@ class MandatMunicipal(MandatAbstrait):
     MANDAT_MAIRE_DA = "MDA"
 
     MANDAT_CHOICES = (
+        (MANDAT_INCONNU, "Situation au conseil inconnue"),
         (MANDAT_CONSEILLER_MAJORITE, "Conseiller⋅e municipal majoritaire"),
         (MANDAT_CONSEILLER_OPPOSITION, "Conseiller⋅e municipal minoritaire"),
         (MANDAT_MAIRE, "Maire"),
@@ -201,7 +209,11 @@ class MandatMunicipal(MandatAbstrait):
     )
 
     mandat = models.CharField(
-        "Type de mandat", max_length=3, choices=MANDAT_CHOICES, blank=True
+        "Type de mandat",
+        max_length=3,
+        choices=MANDAT_CHOICES,
+        blank=False,
+        default=MANDAT_INCONNU,
     )
 
     delegations = ArrayField(
@@ -238,12 +250,14 @@ class MandatMunicipal(MandatAbstrait):
 
 @reversion.register()
 class MandatDepartemental(MandatAbstrait):
+    MANDAT_INCONNU = "INC"
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
     MANDAT_PRESIDENT = "PRE"
     MANDAT_VICE_PRESIDENT = "VPR"
 
     MANDAT_CHOICES = (
+        (MANDAT_INCONNU, "Situation au conseil inconnue"),
         (MANDAT_CONSEILLER_MAJORITE, "Conseiller⋅e majoritaire"),
         (MANDAT_CONSEILLER_OPPOSITION, "Conseiller⋅e minoritaire"),
         (MANDAT_PRESIDENT, "Président du conseil"),
@@ -258,7 +272,11 @@ class MandatDepartemental(MandatAbstrait):
     )
 
     mandat = models.CharField(
-        "Type de mandat", max_length=3, choices=MANDAT_CHOICES, blank=True
+        "Type de mandat",
+        max_length=3,
+        choices=MANDAT_CHOICES,
+        blank=False,
+        default=MANDAT_INCONNU,
     )
 
     delegations = ArrayField(
@@ -289,12 +307,14 @@ class MandatDepartemental(MandatAbstrait):
 
 @reversion.register()
 class MandatRegional(MandatAbstrait):
+    MANDAT_INCONNU = "INC"
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
     MANDAT_PRESIDENT = "PRE"
     MANDAT_VICE_PRESIDENT = "VPR"
 
     MANDAT_CHOICES = (
+        (MANDAT_INCONNU, "Situation au conseil inconnue"),
         (MANDAT_CONSEILLER_MAJORITE, "Conseiller⋅e majoritaire"),
         (MANDAT_CONSEILLER_OPPOSITION, "Conseiller⋅e minoritaire"),
         (MANDAT_PRESIDENT, "Président du conseil"),
@@ -309,7 +329,11 @@ class MandatRegional(MandatAbstrait):
     )
 
     mandat = models.CharField(
-        "Type de mandat", max_length=3, choices=MANDAT_CHOICES, blank=True
+        "Type de mandat",
+        max_length=3,
+        choices=MANDAT_CHOICES,
+        blank=False,
+        default=MANDAT_INCONNU,
     )
 
     delegations = ArrayField(
@@ -318,10 +342,6 @@ class MandatRegional(MandatAbstrait):
         null=False,
         blank=True,
         default=list,
-    )
-
-    statut = models.CharField(
-        "Statut", max_length=3, choices=STATUT_CHOICES, default=STATUT_A_VERIFIER_ADMIN
     )
 
     class Meta:

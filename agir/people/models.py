@@ -207,14 +207,16 @@ class Person(
     is_insoumise = models.BooleanField(_("Insoumis⋅e"), default=True)
 
     MEMBRE_RESEAU_INCONNU = "I"
+    MEMBRE_RESEAU_SOUHAITE = "S"
     MEMBRE_RESEAU_OUI = "O"
     MEMBRE_RESEAU_NON = "N"
     MEMBRE_RESEAU_EXCLUS = "E"
     MEMBRE_RESEAU_CHOICES = (
         (MEMBRE_RESEAU_INCONNU, "Inconnu / Non pertinent"),
-        (MEMBRE_RESEAU_OUI, "Oui"),
-        (MEMBRE_RESEAU_NON, "Non"),
-        (MEMBRE_RESEAU_EXCLUS, "Exclus"),
+        (MEMBRE_RESEAU_SOUHAITE, "Souhaite faire partie du réseau des élus"),
+        (MEMBRE_RESEAU_OUI, "Fait partie du réseau des élus"),
+        (MEMBRE_RESEAU_NON, "Ne souhaite pas faire partie du réseau des élus"),
+        (MEMBRE_RESEAU_EXCLUS, "Exclus du réseau"),
     )
     membre_reseau_elus = models.CharField(
         _("Membre du réseau des élus"),

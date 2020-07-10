@@ -31,7 +31,11 @@ class CreerMandatForm(forms.ModelForm):
         label="Email officiel", queryset=PersonEmail.objects.none(), required=False
     )
     is_insoumise = forms.BooleanField(label="Est insoumis⋅e", required=False)
-    membre_reseau_elus = forms.BooleanField()
+    membre_reseau_elus = forms.ChoiceField(
+        label="Membre du réseau ?",
+        choices=Person.MEMBRE_RESEAU_CHOICES,
+        help_text="Indique la relation de l'élu⋅e au réseau des élus de la France insoumise.",
+    )
     subscribed = forms.BooleanField(
         label="Inscrit à la lettre d'information de la FI",
         required=False,
