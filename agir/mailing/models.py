@@ -7,6 +7,7 @@ from django.db.models import Q, Sum
 from django_countries.fields import CountryField
 from nuntius.models import BaseSegment, CampaignSentStatusType
 
+from agir.events.models import RSVP
 from agir.groups.models import Membership
 from agir.lib import data
 from agir.lib.model_fields import ChoiceArrayField
@@ -233,26 +234,31 @@ class Segment(BaseSegment, models.Model):
 
             q = q & supportgroup_q
 
-        if self.events.all().count() > 0:
-            q = q & Q(events__in=self.events.all())
-
         events_filter = {}
+
+        if self.events.all().count() > 0:
+            events_filter["in"] = self.events.all()
+
         if self.events_subtypes.all().count() > 0:
-            events_filter["events__subtype__in"] = self.events_subtypes.all()
+            events_filter["subtype__in"] = self.events_subtypes.all()
 
         if self.events_start_date is not None:
-            events_filter["events__start_time__gt"] = self.events_start_date
+            events_filter["start_time__gt"] = self.events_start_date
 
         if self.events_end_date is not None:
-            events_filter["events__end_time__lt"] = self.events_end_date
-
-        if self.events_organizer:
-            events_filter = {
-                "organized_" + key: value for key, value in events_filter.items()
-            }
+            events_filter["end_time__lt"] = self.events_end_date
 
         if events_filter:
-            q = q & Q(**events_filter)
+            prefix = "organized_events" if self.events_organizer else "rsvps__event"
+            q = q & Q(**{f"{prefix}__{k}": v for k, v in events_filter.items()})
+
+            if not self.events_organizer:
+                q = q & Q(
+                    rsvps__status__in=[
+                        RSVP.STATUS_CONFIRMED,
+                        RSVP.STATUS_AWAITING_PAYMENT,
+                    ]
+                )
 
         if self.forms.all().count() > 0:
             q = q & Q(form_submissions__form__in=self.forms.all())
@@ -283,7 +289,7 @@ class Segment(BaseSegment, models.Model):
                     CampaignSentStatusType.OK,
                 ],
                 campaignsentevent__campaign__in=self.campaigns.all(),
-                **campaign__kwargs
+                **campaign__kwargs,
             )
 
         if len(self.countries) > 0:
