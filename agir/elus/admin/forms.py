@@ -138,8 +138,10 @@ class CreerMandatForm(forms.ModelForm):
             self.instance.email_officiel = self.instance.person.primary_email
         else:
             if "person" not in self.changed_data:
-                for f in PERSON_FIELDS:
-                    setattr(person, f, cleaned_data[f])
+                if any(f in self.changed_data for f in PERSON_FIELDS):
+                    for f in PERSON_FIELDS:
+                        setattr(person, f, cleaned_data[f])
+                    person.save()
 
             if "new_email" in self.changed_data:
                 try:
