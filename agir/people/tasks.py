@@ -1,3 +1,4 @@
+from celery import shared_task
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.http import urlencode
@@ -14,8 +15,9 @@ from agir.lib.mailing import send_mosaico_email
 from agir.lib.mailtrain import update_person, delete_email
 from agir.lib.utils import front_url
 from agir.people.person_forms.display import default_person_form_display
-from .models import Person, PersonFormSubmission, PersonEmail
-from ..lib.celery import emailing_task, http_task
+from .models import Person, PersonFormSubmission, PersonEmail, PersonValidationSMS
+from ..lib.celery import emailing_task, http_task, retry_on_http_strategy
+from ..lib.sms import send_sms
 
 
 @emailing_task
@@ -227,3 +229,16 @@ def send_person_form_notification(submission_pk):
         recipients=[form.send_answers_to],
         bindings=bindings,
     )
+
+
+@shared_task
+def send_validation_sms(sms_id):
+    try:
+        sms = PersonValidationSMS.objects.get(id=sms_id)
+    except PersonValidationSMS.DoesNotExist:
+        return
+
+    formatted_code = sms.code[:3] + " " + sms.code[3:]
+    message = f"Votre code de validation pour votre compte France insoumise est {formatted_code}"
+
+    send_sms(message, sms.phone_number)

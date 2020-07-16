@@ -19,7 +19,6 @@ from agir.lib.phone_numbers import (
 from agir.people.actions.validation_codes import (
     send_new_code,
     RateLimitedException,
-    ValidationCodeSendingException,
     is_valid_code,
 )
 from agir.people.models import Person, PersonEmail, PersonValidationSMS
@@ -132,7 +131,6 @@ class SendValidationSMSForm(forms.ModelForm):
         "Pas d'inquiétude si vous n'avez pas de numéro français, elle n'est pas obligatoire !",
         "mobile_only": "Vous devez donner un numéro de téléphone mobile.",
         "rate_limited": "Trop de SMS envoyés. Merci de réessayer dans quelques minutes.",
-        "sending_error": "Le SMS n'a pu être envoyé suite à un problème technique. Merci de réessayer plus tard.",
         "already_used": "Ce numéro a déjà été utilisé pour voter. Si vous le partagez avec une autre"
         ' personne, <a href="{}">vous pouvez'
         " exceptionnellement en demander le déblocage</a>.",
@@ -192,11 +190,6 @@ class SendValidationSMSForm(forms.ModelForm):
                 ValidationError(self.error_messages["rate_limited"], "rate_limited"),
             )
             return None
-        except ValidationCodeSendingException:
-            self.add_error(
-                "contact_phone",
-                ValidationError(self.error_messages["sending_error"], "sending_error"),
-            )
 
     class Meta:
         model = Person

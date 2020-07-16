@@ -9,8 +9,7 @@ from prometheus_client import Counter
 from agir.people.models import PersonValidationSMS
 
 from agir.lib.token_bucket import TokenBucket
-from agir.lib.sms import send_sms, SMSSendException
-
+from agir.people.tasks import send_validation_sms
 
 RATE_LIMITED_1_MINUTE_MESSAGE = _(
     "Vous êtes limités à un SMS toutes les minutes, merci de bien vouloir patienter quelques secondes."
@@ -52,10 +51,6 @@ code_counter = Counter(
 )
 
 
-class ValidationCodeSendingException(Exception):
-    pass
-
-
 class RateLimitedException(Exception):
     pass
 
@@ -79,23 +74,15 @@ def send_new_code(person, request):
         sms_counter.labels("ip_limited").inc()
         raise RateLimitedException(RATE_LIMITED_MESSAGE)
 
-    sms = PersonValidationSMS(phone_number=person.contact_phone, person=person)
-    formatted_code = sms.code[:3] + " " + sms.code[3:]
-    message = "Votre code de validation pour votre compte France insoumise est {0}".format(
-        formatted_code
+    sms = PersonValidationSMS.objects.create(
+        phone_number=person.contact_phone, person=person
     )
+    formatted_code = sms.code[:3] + " " + sms.code[3:]
 
     if not settings.OVH_SMS_DISABLE:
-        try:
-            send_sms(message, person.contact_phone)
-        except SMSSendException:
-            raise ValidationCodeSendingException(
-                _("Une erreur est survenue en tentant d'envoyer le SMS de validation")
-            )
+        send_validation_sms.delay(sms.id)
+        sms_counter.labels("sent").inc()
 
-    sms_counter.labels("sent").inc()
-
-    sms.save()
     return formatted_code
 
 
