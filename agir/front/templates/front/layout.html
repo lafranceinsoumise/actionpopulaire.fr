@@ -209,6 +209,11 @@
   _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
   _paq.push(["setCookieDomain", "*.lafranceinsoumise.fr"]);
   _paq.push(["setDomains", ["*.lafranceinsoumise.fr"]]);
+  {% if user.is_authenticated %}
+  _paq.push(['setUserId', '{{ user.person.id }}']);
+  {% else %}
+  _paq.push(['resetUserId']);
+  {% endif %}
   _paq.push(['trackPageView']);
   _paq.push(['enableLinkTracking']);
   {% block matomo_extra_tracking %}{% endblock %}
