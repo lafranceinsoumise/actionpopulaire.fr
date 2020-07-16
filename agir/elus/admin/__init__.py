@@ -274,6 +274,12 @@ class BaseMandatAdmin(admin.ModelAdmin):
 
     mandats_regionaux.short_description = "Mandats régionaux"
 
+    def membre_reseau_elus(self, object):
+        return object.person.get_membre_reseau_elus_display()
+
+    membre_reseau_elus.short_description = "Membre du réseau ?"
+    membre_reseau_elus.admin_order_field = "person__membre_reseau_elus"
+
 
 @admin.register(MandatMunicipal)
 class MandatMunicipalAdmin(BaseMandatAdmin):
@@ -300,6 +306,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                     "membre_reseau_elus",
                     "mandat",
                     "communautaire",
+                    "commentaires",
                 )
             },
         ),
@@ -319,13 +326,14 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                 )
             },
         ),
-        ("Précisions sur le mandat", {"fields": ("dates", "delegations_municipales")},),
+        ("Précisions sur le mandat", {"fields": ("dates", "delegations")},),
     )
 
     list_display = (
         "person",
         "conseil",
         "mandat",
+        "membre_reseau_elus",
         "statut",
         "actif",
         "communautaire",
@@ -336,6 +344,9 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         return Commune.objects.filter(
             type__in=[Commune.TYPE_COMMUNE, Commune.TYPE_SECTEUR_PLM]
         )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("person")
 
     class Media:
         pass
@@ -348,18 +359,43 @@ class MandatDepartementAdmin(BaseMandatAdmin):
     default_date_range = DEPARTEMENTAL_DEFAULT_DATE_RANGE
 
     fieldsets = (
-        (None, {"fields": ("person", "conseil", "mandat")}),
+        (
+            None,
+            {
+                "fields": (
+                    "person",
+                    "conseil",
+                    "statut",
+                    "membre_reseau_elus",
+                    "mandat",
+                    "commentaires",
+                )
+            },
+        ),
         (
             "Informations sur l'élu⋅e",
-            {"fields": (*PERSON_FIELDS, "email_officiel", "new_email", "statut",)},
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "email_officiel",
+                    "contact_phone",
+                    "location_address1",
+                    "location_address2",
+                    "location_zip",
+                    "location_city",
+                    "new_email",
+                )
+            },
         ),
-        ("Précisions sur le mandat", {"fields": ("dates", "delegations_municipales")},),
+        ("Précisions sur le mandat", {"fields": ("dates", "delegations")},),
     )
 
     list_display = (
         "person",
         "conseil",
         "mandat",
+        "membre_reseau_elus",
         "statut",
         "actif",
         "is_insoumise",
@@ -378,18 +414,43 @@ class MandatRegionalAdmin(BaseMandatAdmin):
     default_date_range = REGIONAL_DEFAULT_DATE_RANGE
 
     fieldsets = (
-        (None, {"fields": ("person", "conseil", "mandat")}),
+        (
+            None,
+            {
+                "fields": (
+                    "person",
+                    "conseil",
+                    "statut",
+                    "membre_reseau_elus",
+                    "mandat",
+                    "commentaires",
+                )
+            },
+        ),
         (
             "Informations sur l'élu⋅e",
-            {"fields": (*PERSON_FIELDS, "email_officiel", "new_email", "statut",)},
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "email_officiel",
+                    "contact_phone",
+                    "location_address1",
+                    "location_address2",
+                    "location_zip",
+                    "location_city",
+                    "new_email",
+                )
+            },
         ),
-        ("Précisions sur le mandat", {"fields": ("dates", "delegations_municipales")},),
+        ("Précisions sur le mandat", {"fields": ("dates", "delegations")},),
     )
 
     list_display = (
         "person",
         "conseil",
         "mandat",
+        "membre_reseau_elus",
         "statut",
         "actif",
         "is_insoumise",

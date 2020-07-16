@@ -223,6 +223,7 @@ class Person(
         max_length=1,
         blank=False,
         null=False,
+        choices=MEMBRE_RESEAU_CHOICES,
         default=MEMBRE_RESEAU_INCONNU,
         help_text="Pertinent uniquement si la personne a un ou plusieurs mandats électoraux.",
     )
@@ -323,6 +324,13 @@ class Person(
     mandates = MandatesField(_("Mandats électoraux"), default=list, blank=True)
 
     meta = JSONField(_("Autres données"), default=dict, blank=True)
+
+    commentaires = models.TextField(
+        "Commentaires",
+        blank=True,
+        help_text="ATTENTION : en cas de demande d'accès à ses données par la personne concernée par cette fiche, le"
+        " contenu de ce champ lui sera communiqué. N'indiquez ici que des éléments factuels.",
+    )
 
     search = SearchVectorField("Données de recherche", editable=False, null=True)
 

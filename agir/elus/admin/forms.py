@@ -1,6 +1,5 @@
 from django import forms
 from django.db import IntegrityError
-from phonenumber_field.formfields import PhoneNumberField
 
 from agir.elus.models import DELEGATIONS_CHOICES
 from agir.people.models import PersonEmail, Person
@@ -16,25 +15,20 @@ PERSON_FIELDS = [
     "is_insoumise",
     "membre_reseau_elus",
     "subscribed",
+    "commentaires",
 ]
+
+creer_mandat_declared_fields = {
+    f.name: f.formfield() for f in Person._meta.get_fields() if f.name in PERSON_FIELDS
+}
+creer_mandat_declared_fields = {
+    f: creer_mandat_declared_fields[f] for f in PERSON_FIELDS
+}
 
 
 class CreerMandatForm(forms.ModelForm):
-    last_name = forms.CharField(label="Nom", required=False)
-    first_name = forms.CharField(label="Prénom", required=False)
-    contact_phone = PhoneNumberField(label="Numéro de téléphone", required=False)
-    location_address1 = forms.CharField(label="Adresse", required=False)
-    location_address2 = forms.CharField(label="Adresse (2ème ligne)", required=False)
-    location_zip = forms.CharField(label="Code postal", required=False)
-    location_city = forms.CharField(label="Ville (où habite l'élu)", required=False)
     email_officiel = forms.ModelChoiceField(
         label="Email officiel", queryset=PersonEmail.objects.none(), required=False
-    )
-    is_insoumise = forms.BooleanField(label="Est insoumis⋅e", required=False)
-    membre_reseau_elus = forms.ChoiceField(
-        label="Membre du réseau ?",
-        choices=Person.MEMBRE_RESEAU_CHOICES,
-        help_text="Indique la relation de l'élu⋅e au réseau des élus de la France insoumise.",
     )
     subscribed = forms.BooleanField(
         label="Inscrit à la lettre d'information de la FI",
@@ -43,9 +37,9 @@ class CreerMandatForm(forms.ModelForm):
         " personne sans avoir recueilli son consentement EXPLICITE.",
     )
     new_email = forms.EmailField(label="Ajouter un email officiel", required=False)
-    delegations_municipales = forms.MultipleChoiceField(
+    delegations = forms.MultipleChoiceField(
         choices=DELEGATIONS_CHOICES,
-        label="Délégations (pour un maire adjoint)",
+        label="Délégations (pour un maire adjoint ou un vice-président)",
         required=False,
         widget=forms.CheckboxSelectMultiple,
     )
@@ -152,6 +146,14 @@ class CreerMandatForm(forms.ModelForm):
                     self.instance.email_officiel = email
 
         return super().save(commit=commit)
+
+
+# Inspiré du code de DeclarativeFieldsMetaclass et ModelFormMetaclass
+# base_fields et declared_fields semblent toujours etre le meme objet
+creer_mandat_declared_fields.update(CreerMandatForm.declared_fields)
+CreerMandatForm.base_fields = (
+    CreerMandatForm.declared_fields
+) = creer_mandat_declared_fields
 
 
 class CreerMandatMunicipalForm(CreerMandatForm):
