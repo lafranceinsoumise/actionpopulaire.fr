@@ -149,7 +149,7 @@ class PeopleFormEditSubmissionView(BasePeopleFormView):
         ).first()
 
         if event is not None:
-            return redirect("rsvp_event", event.pk)
+            return reverse("rsvp_event", kwargs={"pk": event.pk})
 
         return super().get_success_url()
 
