@@ -1,16 +1,21 @@
 import axios from "axios";
 
-const url = "/data-france/communes/";
+const url = "/data-france/communes/chercher/";
 
-const search = async q => {
+const search = async (q, types = []) => {
   if (q.trim().length < 3) {
     return [];
   }
 
+  const params = new URLSearchParams([
+    ["q", q],
+    ...types.map((t) => ["type", t]),
+  ]);
+
   try {
     const res = await axios.get(url, {
-      params: { q },
-      headers: { Accept: "application/json" }
+      params,
+      headers: { Accept: "application/json" },
     });
 
     return res.data.results;

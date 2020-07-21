@@ -2,7 +2,6 @@ import logging
 from uuid import UUID
 
 import iso8601
-from data_france.models import Commune
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
@@ -16,7 +15,12 @@ from webpack_loader import utils as webpack_loader_utils
 
 from agir.events.models import Event
 from agir.lib.data import departements_choices, regions_choices
-from agir.lib.form_fields import DateTimePickerWidget, SelectizeWidget, IBANField
+from agir.lib.form_fields import (
+    DateTimePickerWidget,
+    SelectizeWidget,
+    IBANField,
+    CommuneField as GenericCommuneField,
+)
 from ..models import Person
 from ...groups.models import SupportGroup, Membership
 from ...municipales.models import CommunePage
@@ -176,63 +180,14 @@ class PersonChoiceField(forms.CharField):
         return value.pk
 
 
-class CommuneWidget(forms.Widget):
-    template_name = "people/widgets/commune.html"
+class CommuneField(GenericCommuneField):
+    def to_python(self, value):
+        value = super().to_python(value)
 
-    def format_value(self, value):
         if value is None:
             return None
 
         return f"{value.type}-{value.code}"
-
-    def get_context(self, name, value, attrs):
-        context = super().get_context(name, value, attrs)
-        if value is not None:
-            context[
-                "label"
-            ] = f"{value.nom} ({value.code_departement}, {value.get_type_display()})"
-
-        return context
-
-    @property
-    def media(self):
-        return forms.Media(
-            js=(webpack_loader_utils.get_files("people/communeField")[0]["url"],)
-        )
-
-
-class CommuneField(forms.CharField):
-    widget = CommuneWidget
-
-    def widget_attrs(self, widget):
-        return {**super().widget_attrs(widget), "data-commune": "Y"}
-
-    def commune(self, value):
-        try:
-            type, code = value.split("-")
-            return Commune.objects.get(type=type, code=code)
-        except (ValueError, Commune.DoesNotExist):
-            raise ValidationError("Commune inconnue")
-
-    def to_python(self, value):
-        if value in self.empty_values:
-            return None
-
-        self.commune(value)
-
-        return value
-
-    def prepare_value(self, value):
-        if value == "" or value is None:
-            return None
-
-        if isinstance(value, Commune):
-            return value
-
-        try:
-            return self.commune(value)
-        except ValidationError:
-            return None
 
 
 class GroupWidget(forms.Select):

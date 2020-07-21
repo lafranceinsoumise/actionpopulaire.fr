@@ -9,7 +9,7 @@ const types = {
   ARM: "",
   COMA: ", commune associée",
   COMD: ", commune déléguée",
-  SRM: ", secteur électoral"
+  SRM: ", secteur électoral",
 };
 
 const defaultSearch = debounce(search, 200);
@@ -24,14 +24,15 @@ const CommuneField = ({
   onChange,
   search,
   valueGetter,
-  labelGetter
+  labelGetter,
+  types,
 }) => (
   <Async
     value={value}
     onChange={onChange}
-    loadOptions={q =>
-      search(q).then(results =>
-        results.map(c => ({ value: valueGetter(c), label: labelGetter(c) }))
+    loadOptions={(q) =>
+      search(q, types).then((results) =>
+        results.map((c) => ({ value: valueGetter(c), label: labelGetter(c) }))
       )
     }
     cacheOptions
@@ -49,14 +50,16 @@ CommuneField.propTypes = {
   onChange: PropTypes.func,
   search: PropTypes.func,
   valueGetter: PropTypes.func,
-  labelGetter: PropTypes.func
+  labelGetter: PropTypes.func,
+  types: PropTypes.arrayOf(PropTypes.string),
 };
 CommuneField.defaultProps = {
   value: null,
   onChange: () => null,
   search: defaultSearch,
   valueGetter: defaultValueGetter,
-  labelGetter: defaultLabelGetter
+  labelGetter: defaultLabelGetter,
+  types: [],
 };
 
 export default CommuneField;

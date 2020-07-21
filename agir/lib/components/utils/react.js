@@ -2,18 +2,22 @@ import ReactDOM from "@hot-loader/react-dom";
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 
-const defaultGetInitial = field => field.value || null;
+const defaultGetInitial = (field) => field.value || null;
 const defaultGetProps = () => ({});
-const defaultGetValue = value =>
+const defaultGetValue = (value) =>
   value ? (typeof value === "string" ? value : value.value) : "";
 
+// Permet d'afficher un champ controlé Field à l'emplacement défini par selector
+// avec gestion automatique de l'état. Une valeur initiale peut etre défini en
+// passant une fonction `getInitial'. D'autres propriétés peuvent etre ajoutées
+// avec une fonction`getProps'.
 export function getStatefulRenderer(
   Field,
   selector,
   {
     getInitial = defaultGetInitial,
     getProps = defaultGetProps,
-    getValue = defaultGetValue
+    valueToString = defaultGetValue,
   }
 ) {
   return () => {
@@ -24,29 +28,35 @@ export function getStatefulRenderer(
       const props = {
         initial: getInitial(field),
         name: field.name,
-        fieldProps: getProps(field)
+        fieldProps: getProps(field),
       };
       insertingNode.removeChild(field);
       ReactDOM.render(
-        <RootComponent Field={Field} getValue={getValue} {...props} />,
+        <RootComponent
+          Field={Field}
+          valueToString={valueToString}
+          {...props}
+        />,
         insertingNode
       );
     }
   };
 }
 
+// Transforme n'importe quel champ controlé en un composant
+// qui gère son état lui-meme
 export const RootComponent = ({
   name,
   initial,
   Field,
-  getValue,
-  fieldProps
+  valueToString,
+  fieldProps,
 }) => {
   const [value, setValue] = useState(initial);
 
   return (
     <>
-      <input type="hidden" name={name} value={getValue(value)} />
+      <input type="hidden" name={name} value={valueToString(value)} />
       <Field value={value} onChange={setValue} {...fieldProps} />
     </>
   );
@@ -55,9 +65,9 @@ RootComponent.propTypes = {
   name: PropTypes.string,
   initial: PropTypes.shape({
     label: PropTypes.string,
-    value: PropTypes.string
+    value: PropTypes.string,
   }),
   Field: PropTypes.elementType,
-  getValue: PropTypes.func,
-  fieldProps: PropTypes.object
+  valueToString: PropTypes.func,
+  fieldProps: PropTypes.object,
 };

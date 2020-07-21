@@ -1,3 +1,6 @@
+import json
+
+from data_france.models import Commune
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
@@ -204,3 +207,70 @@ class IBANField(forms.Field):
             attrs["minlength"] = 14
             attrs["maxlength"] = 34
         return attrs
+
+
+class CommuneWidget(forms.Widget):
+    template_name = "custom_fields/commune.html"
+
+    def __init__(self, attrs=None):
+        if attrs is None:
+            attrs = {}
+        attrs.setdefault("data-commune", "Y")
+        super().__init__(attrs=attrs)
+
+    def format_value(self, value):
+        if value is None:
+            return None
+
+        return f"{value.type}-{value.code}"
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        if value is not None:
+            context[
+                "label"
+            ] = f"{value.nom} ({value.code_departement}, {value.get_type_display()})"
+
+        return context
+
+    @property
+    def media(self):
+        return forms.Media(
+            js=(webpack_loader_utils.get_files("lib/communeField")[0]["url"],)
+        )
+
+
+class CommuneField(forms.CharField):
+    widget = CommuneWidget
+
+    def __init__(self, *, types=None, **kwargs):
+        self.types = types or []
+        super().__init__(**kwargs)
+
+    def widget_attrs(self, widget):
+        return {**super().widget_attrs(widget), "data-types": json.dumps(self.types)}
+
+    def commune(self, value):
+        try:
+            type, code = value.split("-")
+            return Commune.objects.get(type=type, code=code)
+        except (ValueError, Commune.DoesNotExist):
+            raise ValidationError("Commune inconnue")
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return None
+
+        return self.commune(value)
+
+    def prepare_value(self, value):
+        if value == "" or value is None:
+            return None
+
+        if isinstance(value, Commune):
+            return value
+
+        try:
+            return self.commune(value)
+        except ValidationError:
+            return None
