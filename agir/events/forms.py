@@ -594,7 +594,7 @@ class BillingForm(forms.ModelForm):
         PersonFormSubmission.objects.all(), widget=forms.HiddenInput, required=False
     )
     payment_mode = PaymentModeField(
-        required=True, payment_modes=["system_pay", "check"]
+        required=True, payment_modes=["system_pay", "check_events"]
     )
     is_guest = forms.BooleanField(required=False, widget=forms.HiddenInput)
 

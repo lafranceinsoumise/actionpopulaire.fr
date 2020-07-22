@@ -174,7 +174,7 @@ class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
 
 class PaymentModeFormMixin(forms.ModelForm):
     mode = PaymentModeField(
-        payment_modes=["system_pay", "check"], label="Mode de versement"
+        payment_modes=["system_pay", "check_donations"], label="Mode de versement"
     )
 
     def __init__(self, *args, **kwargs):
