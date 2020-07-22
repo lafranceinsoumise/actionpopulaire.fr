@@ -119,6 +119,7 @@ class BaseEventDetailView(GlobalOrObjectPermissionRequiredMixin, DetailView):
             and self.object.organizers.filter(pk=self.request.user.person.id).exists(),
             organizers_groups=self.object.organizers_groups.distinct(),
             event_images=self.object.images.all(),
+            **kwargs,
         )
 
 
