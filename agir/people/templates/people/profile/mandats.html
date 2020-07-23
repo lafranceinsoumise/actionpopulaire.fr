@@ -2,6 +2,7 @@
 {% load static %}
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% load display_lib %}
 
 {% block title %}{% trans "Mes mandats" %}{% endblock %}
 
@@ -16,7 +17,7 @@
             <div class="list-group-item{% if mandat.besoin_validation_personne %} list-group-item-danger{% endif %}">
               <h4>{{ mandat.titre_complet }} <small>{% if mandat.actif %}mandat actif{% else %}ancien mandat{% endif %}</small></h4>
               {% if mandat.communautaire != MANDAT_EPCI_PAS_DE_MANDAT %}
-                <p><em>Aussi élu⋅e à la communauté de communes</em></p>
+                <p><em>Aussi {% genrer "élu⋅e" %} à la communauté de communes</em></p>
               {% endif %}
               {% if mandat.besoin_validation_personne %}
                 <p><strong>
@@ -33,7 +34,7 @@
                   {% endif %}
                 </a>
                 <a class="btn btn-default" href="{% url "supprimer_mandat_municipal"  pk=mandat.id %}">
-                  Je {% if mandat.actif %}ne suis{% else %}n'étais{% endif %} pas élu⋅e dans cette commune
+                  Je {% if mandat.actif %}ne suis{% else %}n'étais{% endif %} pas {% genrer "élu⋅e" %} dans cette commune
                 </a>
               </div>
             </div>

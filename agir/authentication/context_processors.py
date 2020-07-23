@@ -3,6 +3,8 @@ from django.contrib.auth.context_processors import (
     PermLookupDict as OriginalPermLookupDict,
 )
 
+from agir.people.models import Person
+
 
 class SpecificPermLookup:
     def __init__(self, user, app_label, perm_name):
@@ -41,12 +43,22 @@ def auth(request):
 
     if hasattr(request, "user"):
         user = request.user
+        try:
+            person = user.person
+        except (AttributeError, Person.DoesNotExist):
+            person = None
+
+        gender = person.gender if person else "O"
     else:
         from django.contrib.auth.models import AnonymousUser
 
         user = AnonymousUser()
+        person = None
+        gender = "O"
 
     return {
         "user": user,
         "perms": PermWrapper(user),
+        "person": person,
+        "gender": gender,
     }

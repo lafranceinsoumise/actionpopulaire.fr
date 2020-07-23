@@ -1,4 +1,5 @@
 {% extends "front/layout.html" %}
+{% load display_lib %}
 {% load static %}
 {% load i18n %}
 {% load crispy_forms_tags %}
@@ -9,11 +10,11 @@
     <div class="col-xs-12 col-md-10">
       <div class="col-xs-12 col-md-12 ">
         <p>
-          Vous n'etes en réalité pas élu⋅e {{ mandat.conseil.nom_avec_charniere }} ? Nous vous somme reconnaissants de
+          Vous n'êtes en réalité pas {% genrer "élu⋅e" %} {{ mandat.conseil.nom_avec_charniere }} ? Nous vous somme reconnaissants de
           bien vouloir nous le signaler via ce formulaire
         </p>
         <div class="alert alert-info">
-          Généralement, vous avez incorrectement été identifié⋅e comme élu car une personne homonyme a été élue dans
+          Généralement, vous avez incorrectement été {% genrer "identifié⋅e" %} comme élu car une personne homonyme a été élue dans
           une commune proche de chez vous.
         </div>
 
@@ -22,7 +23,7 @@
           <div class="form-group">
           <label>
             <input name="confirmation" type="checkbox" required>
-            Je ne suis pas élu⋅e dans la commune {{ mandat.conseil.nom_avec_charniere }}
+            Je ne suis pas {% genrer "élu⋅e" %} dans la commune {{ mandat.conseil.nom_avec_charniere }}
           </label>
             </div>
           <button type="submit" class="btn btn-default">Supprimer ce mandat</button>
