@@ -19,7 +19,7 @@ def create_payment(*, person=None, type, price, mode=DEFAULT_MODE, meta=None, **
     :param person: person that is paying, must have all necessary fields (name and location)
     :param type: type of payment
     :param price: price as a decimal
-    :param payement_mode: the mode of payment, as found in module agir.payments.modes
+    :param mode: the mode of payment, as found in module agir.payments.modes
     :param meta: an arbitrary bundle of data that will be sent to the payment provider
     :return: an HTTP response
     """

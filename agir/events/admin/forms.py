@@ -237,7 +237,7 @@ class NewParticipantForm(BasePersonForm):
     )
 
     payment_mode = PaymentModeField(
-        required=True, payment_modes=["system_pay", "check", "money"]
+        required=True, payment_modes=["system_pay", "check_events", "money"]
     )
 
     def __init__(self, *args, model_admin, event, **kwargs):

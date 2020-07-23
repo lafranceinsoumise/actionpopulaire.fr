@@ -939,7 +939,7 @@ class RSVPTestCase(TestCase):
             reverse("pay_event"),
             data={
                 "event": self.simple_paying_event.pk,
-                "payment_mode": "check",
+                "payment_mode": "check_events",
                 **self.billing_information,
             },
         )
@@ -987,7 +987,7 @@ class RSVPTestCase(TestCase):
             reverse("pay_event"),
             data={
                 "event": self.simple_paying_event.pk,
-                "payment_mode": "check",
+                "payment_mode": "check_events",
                 "is_guest": "yes",
                 **self.billing_information,
             },
@@ -1041,7 +1041,7 @@ class RSVPTestCase(TestCase):
             data={
                 "event": self.form_paying_event.pk,
                 "submission": submission.pk,
-                "payment_mode": "check",
+                "payment_mode": "check_events",
                 **self.billing_information,
             },
         )
@@ -1105,7 +1105,7 @@ class RSVPTestCase(TestCase):
             data={
                 "event": self.form_paying_event.pk,
                 "submission": submission.pk,
-                "payment_mode": "check",
+                "payment_mode": "check_events",
                 "is_guest": "yes",
                 **self.billing_information,
             },

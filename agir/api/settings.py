@@ -677,7 +677,8 @@ EMAIL_DISABLED_DOMAINS = (
 # The first one will be the default one
 PAYMENT_MODES = [
     "agir.system_pay.SystemPayPaymentMode",
-    "agir.checks.CheckPaymentMode",
+    "agir.checks.DonationCheckPaymentMode",
+    "agir.checks.EventCheckPaymentMode",
     "agir.money.MoneyPaymentMode",
     "agir.payments.imported.ImportedPaymentMode",
 ]
