@@ -8,7 +8,7 @@ import "./style.css";
 import CreateGroupForm from "./createGroupForm";
 import CreateEventForm from "./createEventForm";
 
-const render = Component => (id, props = {}) => {
+const render = (Component) => (id, props = {}) => {
   ReactDOM.render(<Component {...props} />, document.getElementById(id));
 };
 

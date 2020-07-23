@@ -22,15 +22,15 @@ export default class FormStep extends React.Component {
   }
 
   setError(field, message) {
-    this.setState(state => ({
-      errors: Object.assign({}, state.errors, { [field]: message })
+    this.setState((state) => ({
+      errors: Object.assign({}, state.errors, { [field]: message }),
     }));
     this.errorCache[field] = true;
   }
 
   clearError(field) {
-    this.setState(state => ({
-      errors: Object.assign({}, state.errors, { [field]: null })
+    this.setState((state) => ({
+      errors: Object.assign({}, state.errors, { [field]: null }),
     }));
     this.errorCache[field] = false;
   }
@@ -40,7 +40,7 @@ export default class FormStep extends React.Component {
   }
 
   hasErrors() {
-    return Object.keys(this.errorCache).some(field => this.errorCache[field]);
+    return Object.keys(this.errorCache).some((field) => this.errorCache[field]);
   }
 
   showError(field) {
@@ -50,12 +50,12 @@ export default class FormStep extends React.Component {
   }
 
   setField(field) {
-    return value => this.props.setFields({ [field]: value });
+    return (value) => this.props.setFields({ [field]: value });
   }
 }
 
 FormStep.propTypes = {
   setFields: PropTypes.func,
   jumpToStep: PropTypes.func,
-  fields: PropTypes.object
+  fields: PropTypes.object,
 };

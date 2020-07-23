@@ -2,54 +2,54 @@ import axios from "axios";
 
 function geoApi(url, fields, optionGetter) {
   return {
-    query: nom =>
+    query: (nom) =>
       axios
         .get(url, {
           params: { nom, fields },
-          headers: { Accept: "application/json" }
+          headers: { Accept: "application/json" },
         })
         .then(
-          res => res.data.map(optionGetter),
+          (res) => res.data.map(optionGetter),
           () => {
             throw new Error("Problème de connexion.");
           }
         ),
-    reverse: code =>
+    reverse: (code) =>
       axios
         .get(url, {
           params: { code, fields },
-          headers: { Accept: "application/json" }
+          headers: { Accept: "application/json" },
         })
-        .then(res => optionGetter(res.data[0]))
+        .then((res) => optionGetter(res.data[0])),
   };
 }
 
 const recupererCommunes = geoApi(
   "https://geo.api.gouv.fr/communes",
   "code,nom,departement",
-  commune => ({
+  (commune) => ({
     value: commune.code,
-    label: `${commune.nom} (${commune.departement.nom})`
+    label: `${commune.nom} (${commune.departement.nom})`,
   })
 );
 
 const recupererDepartements = geoApi(
   "https://geo.api.gouv.fr/departements",
   "code,nom",
-  departement => ({
+  (departement) => ({
     value: departement.code,
-    label: `${departement.nom} (${departement.code})`
+    label: `${departement.nom} (${departement.code})`,
   })
 );
 
 const communeDescriptor = {
   name: "Commune",
-  getter: recupererCommunes
+  getter: recupererCommunes,
 };
 
 const departementDescriptor = {
   name: "Département",
-  getter: recupererDepartements
+  getter: recupererDepartements,
 };
 
 const regionDescriptor = {
@@ -68,13 +68,13 @@ const regionDescriptor = {
     { label: "Occitanie", value: "76" },
     { label: "Pays de la Loire", value: "52" },
     { label: "Provence-Alpes-Côte d'Azur", value: "93" },
-    { label: "La Réunion", value: "04" }
-  ]
+    { label: "La Réunion", value: "04" },
+  ],
 };
 
 const arrondissementDescriptor = {
   name: "Ville",
-  values: ["Paris", "Lyon", "Marseille"].map(v => ({ label: v, value: v }))
+  values: ["Paris", "Lyon", "Marseille"].map((v) => ({ label: v, value: v })),
 };
 
 const collectiviteUniqueDescriptor = {
@@ -83,8 +83,8 @@ const collectiviteUniqueDescriptor = {
     { label: "Assemblée de Corse", value: "corse-unique" },
     { label: "Assemblée de Guyane", value: "guyane-unique" },
     { label: "Assemblée de Martinique", value: "martinique-unique" },
-    { label: "Conseil départemental de Mayotte", value: "mayotte-unique" }
-  ]
+    { label: "Conseil départemental de Mayotte", value: "mayotte-unique" },
+  ],
 };
 
 const COMDescriptor = {
@@ -92,22 +92,22 @@ const COMDescriptor = {
   values: [
     {
       label: "Assemblée de la Polynésie française",
-      value: "polynesie-francaise"
+      value: "polynesie-francaise",
     },
     {
       label: "Conseil territorial de Saint-Barthélémy",
-      value: "saint-barthelemy"
+      value: "saint-barthelemy",
     },
     { label: "Conseil territorial de Saint-Martin", value: "saint-martin" },
     {
       label: "Conseil territorial de Saint-Pierre-et-Miquelon",
-      value: "saint-pierre-et-miquelon"
+      value: "saint-pierre-et-miquelon",
     },
     {
       label: "Assemblée territoriale des îles Wallis-et-Futuna",
-      value: "wallis-et-futuna"
-    }
-  ]
+      value: "wallis-et-futuna",
+    },
+  ],
 };
 
 const provinceNouvelleCaledonieDescriptor = {
@@ -115,8 +115,8 @@ const provinceNouvelleCaledonieDescriptor = {
   values: [
     { label: "Province Sud", value: "sud" },
     { label: "Province Nord", value: "nord" },
-    { label: "Province des Îles Loyauté", value: "iles-loyaute" }
-  ]
+    { label: "Province des Îles Loyauté", value: "iles-loyaute" },
+  ],
 };
 
 export const mandateGroups = [
@@ -125,8 +125,8 @@ export const mandateGroups = [
     mandates: [
       { id: "depute", name: "Député", division: null },
       { id: "senateur", name: "Sénateur", division: departementDescriptor },
-      { id: "depute-europeen", name: "Député européen", division: null }
-    ]
+      { id: "depute-europeen", name: "Député européen", division: null },
+    ],
   },
   {
     name: "Mandats régionaux",
@@ -134,9 +134,9 @@ export const mandateGroups = [
       {
         id: "conseiller-regional",
         name: "Conseiller régional",
-        division: regionDescriptor
-      }
-    ]
+        division: regionDescriptor,
+      },
+    ],
   },
   {
     name: "Mandats départementaux",
@@ -144,9 +144,9 @@ export const mandateGroups = [
       {
         id: "conseiller-departemental",
         name: "Conseiller départemental",
-        division: departementDescriptor
-      }
-    ]
+        division: departementDescriptor,
+      },
+    ],
   },
   {
     name: "Mandats municipaux",
@@ -155,34 +155,34 @@ export const mandateGroups = [
       {
         id: "maire-delegue",
         name: "Maire délégué",
-        division: communeDescriptor
+        division: communeDescriptor,
       },
       {
         id: "maire-adjoint",
         name: "Maire adjoint",
-        division: communeDescriptor
+        division: communeDescriptor,
       },
       {
         id: "conseiller-municipal",
         name: "Conseiller municipal",
-        division: communeDescriptor
+        division: communeDescriptor,
       },
       {
         id: "president-intercommunalite",
         name: "Président d'intercommunalité",
-        division: null
+        division: null,
       },
       {
         id: "vice-president-intercommunalite",
         name: "Vice-Président d'intercommunalité",
-        division: null
+        division: null,
       },
       {
         id: "conseiller-intercommunalite",
         name: "Conseiller d'intercommunalité",
-        division: null
-      }
-    ]
+        division: null,
+      },
+    ],
   },
   {
     name: "Mandats Paris / Lyon / Marseille",
@@ -191,24 +191,24 @@ export const mandateGroups = [
       {
         id: "conseiller-metropole-lyon",
         name: "Conseiller métropolitain de Lyon",
-        division: null
+        division: null,
       },
       {
         id: "maire-arrondissement",
         name: "Maire d'arrondissement",
-        division: arrondissementDescriptor
+        division: arrondissementDescriptor,
       },
       {
         id: "maire-adjoint-arrondissement",
         name: "Maire adjoint  d'arrondissement",
-        division: arrondissementDescriptor
+        division: arrondissementDescriptor,
       },
       {
         id: "conseiller-arrondissement",
         name: "Conseiller  d'arrondissement ou de secteur",
-        division: arrondissementDescriptor
-      }
-    ]
+        division: arrondissementDescriptor,
+      },
+    ],
   },
   {
     name: "Autres mandats locaux",
@@ -216,24 +216,24 @@ export const mandateGroups = [
       {
         id: "elu-collectivite-unique",
         name: "Élu d'une collectivité territoriale unique",
-        division: collectiviteUniqueDescriptor
+        division: collectiviteUniqueDescriptor,
       },
       {
         id: "elu-collectivite-outre-mer",
         name: "Élu d'une collectivité d'outre-mer",
-        division: COMDescriptor
+        division: COMDescriptor,
       },
       {
         id: "elu-congres-nouvelle-caledonie",
         name: "Élu au congrès de la Nouvelle-Calédonie",
-        division: null
+        division: null,
       },
       {
         id: "elu-province-nouvelle-caledonie",
         name: "Élu d'une assemblée de province de Nouvelle-Calédonie",
-        division: provinceNouvelleCaledonieDescriptor
-      }
-    ]
+        division: provinceNouvelleCaledonieDescriptor,
+      },
+    ],
   },
   {
     name: "Mandats Français de l'étranger",
@@ -241,15 +241,15 @@ export const mandateGroups = [
       {
         id: "conseiller-afe",
         name: "Conseiller à l'Assemblée des Français de l'Étranger (AFE)",
-        division: null
+        division: null,
       },
       {
         id: "conseiller-consulaire",
         name: "Conseiller consulaire",
-        division: null
-      }
-    ]
-  }
+        division: null,
+      },
+    ],
+  },
 ];
 
 export const mandateDict = {};

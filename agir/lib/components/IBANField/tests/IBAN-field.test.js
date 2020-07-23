@@ -24,7 +24,7 @@ test("Entrer une donnée mal formatée", () => {
     <IBANField placeholder={placeHolder} />
   ).getByPlaceholderText(placeHolder);
   fireEvent.change(input, {
-    target: { value: "  abc   ;:,:;:! 'éDEF çàèçè--0123" }
+    target: { value: "  abc   ;:,:;:! 'éDEF çàèçè--0123" },
   });
   expect(input.value).toBe("ABCD EF01 23");
 });
@@ -36,7 +36,7 @@ test("Un IBAN d'une nationalité non accepté", () => {
   );
   const input = iban.getByRole("textbox");
   fireEvent.change(input, {
-    target: { value: "EN1234567890" }
+    target: { value: "EN1234567890" },
   });
   fireEvent.blur(input);
   const wrongCountry = iban.getByText(
@@ -52,7 +52,7 @@ test("Un IBAN invalide", () => {
   );
   const input = iban.getByPlaceholderText(placeHolder);
   fireEvent.change(input, {
-    target: { value: "FR8439084093843098490309843908" }
+    target: { value: "FR8439084093843098490309843908" },
   });
 
   fireEvent.blur(input);

@@ -16,11 +16,11 @@ export default async function itemMap(
 ) {
   const style = makeStyle(iconConfiguration);
   const feature = new Feature({
-    geometry: new Point(proj.fromLonLat(coordinates))
+    geometry: new Point(proj.fromLonLat(coordinates)),
   });
   feature.setStyle(style);
   const layer = new VectorLayer({
-    source: new VectorSource({ features: [feature] })
+    source: new VectorSource({ features: [feature] }),
   });
 
   try {

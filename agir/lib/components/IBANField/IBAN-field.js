@@ -4,12 +4,12 @@ import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import {
   isIBANValid,
-  formatInputContent
+  formatInputContent,
 } from "@agir/lib/IBANField/validation";
 
 const errorMessages = {
   wrongCountry: "La nationalité de cet IBAN n'est pas acceptée.",
-  invalid: "Cet IBAN est invalide."
+  invalid: "Cet IBAN est invalide.",
 };
 
 function HelpBlock({ children }) {
@@ -51,7 +51,7 @@ const IBANField = ({ id, name, initial, placeholder, allowedCountries }) => {
         className={"form-control"}
         placeholder={placeholder}
         value={inputState.value}
-        onChange={e => {
+        onChange={(e) => {
           setInputState(
             formatInputContent(
               ref.current.value,
@@ -75,17 +75,17 @@ IBANField.propTypes = {
   name: PropTypes.string,
   initial: PropTypes.string,
   placeholder: PropTypes.string,
-  allowedCountries: PropTypes.arrayOf(PropTypes.string)
+  allowedCountries: PropTypes.arrayOf(PropTypes.string),
 };
 
 IBANField.defaultProps = {
   initial: "",
   placeholder: "IBAN",
-  allowedCountries: null
+  allowedCountries: null,
 };
 
 HelpBlock.propTypes = {
-  children: PropTypes.oneOfType([PropTypes.element, PropTypes.string])
+  children: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
 };
 
 export default hot(IBANField);

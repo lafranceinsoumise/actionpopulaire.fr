@@ -6,7 +6,7 @@ const InputGroup = ({ children }) => (
 );
 
 InputGroup.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 InputGroup.Addon = ({ children }) => (
@@ -14,7 +14,7 @@ InputGroup.Addon = ({ children }) => (
 );
 
 InputGroup.Addon.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 InputGroup.Addon.displayName = "InputGroup.Addon";

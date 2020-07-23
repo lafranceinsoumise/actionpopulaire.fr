@@ -38,26 +38,26 @@ class CreateGroupForm extends React.Component {
             subtypes={this.props.subtypes}
             types={this.props.types}
           />
-        )
+        ),
       },
       {
         name: "Informations de contact",
         component: (
           <ContactStep setFields={this.setFields} fields={this.state.fields} />
-        )
+        ),
       },
       {
         name: "Localisation",
         component: (
           <LocationStep setFields={this.setFields} fields={this.state.fields} />
-        )
+        ),
       },
       {
         name: "Validation et nom",
         component: (
           <ValidateStep fields={this.state.fields} types={this.props.types} />
-        )
-      }
+        ),
+      },
     ];
 
     return <MultiStepForm steps={steps} />;
@@ -66,7 +66,7 @@ class CreateGroupForm extends React.Component {
 CreateGroupForm.propTypes = {
   initial: PropTypes.object,
   subtypes: PropTypes.array,
-  types: PropTypes.array
+  types: PropTypes.array,
 };
 
 class GroupTypeStep extends FormStep {
@@ -81,7 +81,7 @@ class GroupTypeStep extends FormStep {
   }
 
   subtypesFor(type) {
-    return this.props.subtypes.filter(s => s.type === type);
+    return this.props.subtypes.filter((s) => s.type === type);
   }
 
   setType(type) {
@@ -92,7 +92,7 @@ class GroupTypeStep extends FormStep {
       const subtypes = this.subtypesFor(type);
 
       if (subtypes.length < 2) {
-        this.props.setFields({ type, subtypes: subtypes.map(s => s.label) });
+        this.props.setFields({ type, subtypes: subtypes.map((s) => s.label) });
       }
     };
   }
@@ -151,7 +151,7 @@ class GroupTypeStep extends FormStep {
                 mountOnEnter
                 unmountOnExit
               >
-                {state => {
+                {(state) => {
                   const show =
                     this.groupRefs[i].current &&
                     ["entering", "entered"].includes(state);
@@ -162,7 +162,7 @@ class GroupTypeStep extends FormStep {
                       style={{
                         height: show
                           ? this.groupRefs[i].current.scrollHeight + "px"
-                          : "0"
+                          : "0",
                       }}
                     >
                       <div>
@@ -170,13 +170,13 @@ class GroupTypeStep extends FormStep {
                           Choisissez maintenant les thèmes qui vous intéressent.
                         </em>
                         <NavSelect
-                          choices={this.subtypesFor(type.id).map(s => ({
+                          choices={this.subtypesFor(type.id).map((s) => ({
                             value: s.label,
-                            label: s.description
+                            label: s.description,
                           }))}
                           value={fields.subtypes}
                           max={3}
-                          onChange={subtypes =>
+                          onChange={(subtypes) =>
                             this.props.setFields({ subtypes })
                           }
                         />
@@ -218,7 +218,7 @@ class ValidateStep extends FormStep {
       location_city: fields.locationCity,
       location_country: fields.locationCountryCode,
       type: fields.type,
-      subtypes: fields.subtypes
+      subtypes: fields.subtypes,
     });
 
     try {
@@ -238,7 +238,7 @@ class ValidateStep extends FormStep {
           <ul>
             <li>
               <strong>Type de groupe&nbsp;:</strong>{" "}
-              {types.find(t => t.id === fields.type).label}
+              {types.find((t) => t.id === fields.type).label}
             </li>
             <li>
               <strong>Numéro de téléphone&nbsp;:</strong> {fields.phone} (
@@ -279,7 +279,7 @@ class ValidateStep extends FormStep {
             <div className="form-group">
               <input
                 className="form-control"
-                ref={i => (this.groupName = i)}
+                ref={(i) => (this.groupName = i)}
                 type="text"
                 placeholder="Nom du groupe"
                 required

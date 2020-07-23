@@ -55,7 +55,7 @@ export default class ScheduleStep extends FormStep {
               <Datetime
                 locale="fr"
                 onChange={this.setField("startTime")}
-                isValidDate={d => d.isAfter(moment())}
+                isValidDate={(d) => d.isAfter(moment())}
                 value={fields.startTime}
               />
               {this.showError("startTime")}
@@ -69,7 +69,7 @@ export default class ScheduleStep extends FormStep {
               <Datetime
                 locale="fr"
                 onChange={this.setField("endTime")}
-                isValidDate={d => d.isAfter(Datetime.moment())}
+                isValidDate={(d) => d.isAfter(Datetime.moment())}
                 value={fields.endTime}
               />
               {this.showError("endTime")}

@@ -5,7 +5,7 @@ function selectAllWhenFocusing(e) {
 function setUpCopyBoxes() {
   const copyboxes = document.querySelectorAll(".copybox");
 
-  Array.prototype.map.call(copyboxes, function(copybox) {
+  Array.prototype.map.call(copyboxes, function (copybox) {
     copybox.addEventListener("focus", selectAllWhenFocusing);
 
     if (navigator.clipboard) {
@@ -16,7 +16,7 @@ function setUpCopyBoxes() {
       buttonContainer.classList.add("input-group-btn");
       buttonContainer.appendChild(button);
       copybox.parentNode.appendChild(buttonContainer);
-      button.addEventListener("click", function() {
+      button.addEventListener("click", function () {
         navigator.clipboard.writeText(copybox.value);
       });
     }

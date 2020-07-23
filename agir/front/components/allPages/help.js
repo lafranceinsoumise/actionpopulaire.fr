@@ -1,7 +1,7 @@
 import introJs from "intro.js";
 import "intro.js/introjs.css";
 
-const onLoad = function() {
+const onLoad = function () {
   const steps = [];
   const elems = document.getElementsByClassName("help-dialog");
 
@@ -10,7 +10,7 @@ const onLoad = function() {
       Object.assign(
         {
           element: elem.parentElement,
-          intro: elem.innerHTML
+          intro: elem.innerHTML,
         },
         elem.dataset
       )
@@ -24,7 +24,7 @@ const onLoad = function() {
     nextLabel: "Suivant &rarr;",
     prevLabel: "&larr; Précédent",
     skipLabel: "Passer",
-    doneLabel: "Terminé"
+    doneLabel: "Terminé",
   });
 
   if (steps.length > 0) {

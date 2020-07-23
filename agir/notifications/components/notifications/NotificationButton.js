@@ -25,7 +25,7 @@ const NotificationIcon = styled.i`
 
 const NotificationButton = ({ unread, onClick }) => (
   <a
-    onClick={e => {
+    onClick={(e) => {
       onClick(e);
       e.preventDefault();
     }}
@@ -38,7 +38,7 @@ const NotificationButton = ({ unread, onClick }) => (
 );
 NotificationButton.propTypes = {
   unread: PropTypes.number,
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
 };
 
 export default NotificationButton;

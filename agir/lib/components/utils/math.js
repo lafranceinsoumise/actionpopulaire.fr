@@ -1,6 +1,6 @@
-export const sum = array => array.reduce((a, b) => a + b, 0);
+export const sum = (array) => array.reduce((a, b) => a + b, 0);
 
-export const maxIndex = array =>
+export const maxIndex = (array) =>
   array.reduce((iMax, x, i, array) => (array[iMax] < x ? i : iMax), 0);
 
 export const dealFromWeights = (weights, newTotal) => {
@@ -12,7 +12,7 @@ export const dealFromWeights = (weights, newTotal) => {
     weightSum = weights.length;
   }
 
-  const newDeal = weights.map(weight =>
+  const newDeal = weights.map((weight) =>
     Math.floor((weight * newTotal) / weightSum)
   );
 

@@ -8,7 +8,7 @@ import {
   AmountBoxContainer,
   RecipientContainer,
   Row,
-  SliderContainer
+  SliderContainer,
 } from "@agir/donations/donationForm/AllocationsWidget/Styles";
 
 export const RemoveButton = ({ onClick }) => (
@@ -22,7 +22,7 @@ export const RemoveButton = ({ onClick }) => (
   </AlignedButton>
 );
 RemoveButton.propTypes = {
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
 };
 
 export const GroupAllocation = ({
@@ -31,7 +31,7 @@ export const GroupAllocation = ({
   onChange,
   onRemove,
   disabled,
-  children
+  children,
 }) => (
   <Row>
     <RecipientContainer>{children}</RecipientContainer>
@@ -48,7 +48,7 @@ export const GroupAllocation = ({
     <AmountBoxContainer>
       <AmountInput
         value={amount}
-        onChange={v => {
+        onChange={(v) => {
           if (v === null) {
             onChange(0);
           }
@@ -67,12 +67,12 @@ GroupAllocation.propTypes = {
   maxAmount: PropTypes.number,
   onChange: PropTypes.func,
   onRemove: PropTypes.func,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
 };
 GroupAllocation.defaultProps = {
   amount: 0,
   maxAmount: 0,
   onChange: () => null,
   onRemove: null,
-  disabled: false
+  disabled: false,
 };

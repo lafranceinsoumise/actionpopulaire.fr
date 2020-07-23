@@ -6,12 +6,12 @@ import "jsoneditor/dist/jsoneditor.css";
 
 const loaded = [];
 
-document.addEventListener("DOMContentLoaded", function() {
-  document.querySelectorAll(".jsoneditordiv").forEach(e => {
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".jsoneditordiv").forEach((e) => {
     if (loaded.includes(e.dataset.fieldname)) return;
 
     const editor = new JsonEditor(e, {
-      onChangeText: content => {
+      onChangeText: (content) => {
         document.getElementById(`id_${e.dataset.fieldname}`).value = content;
       },
       templates: [
@@ -20,8 +20,8 @@ document.addEventListener("DOMContentLoaded", function() {
           title: "Insérer un groupe de champs",
           value: {
             title: "Mon groupe de champs",
-            fields: []
-          }
+            fields: [],
+          },
         },
         {
           text: "Champ",
@@ -29,16 +29,16 @@ document.addEventListener("DOMContentLoaded", function() {
           value: {
             id: "identifiant_du_champ",
             label: "Label du champ",
-            type: "short_text"
-          }
-        }
+            type: "short_text",
+          },
+        },
       ],
       modes: ["tree", "code"],
       schema: document.getElementById(e.dataset.fieldname + "-schema")
         ? JSON.parse(
             document.getElementById(e.dataset.fieldname + "-schema").textContent
           )
-        : null
+        : null,
     });
     editor.set(
       JSON.parse(

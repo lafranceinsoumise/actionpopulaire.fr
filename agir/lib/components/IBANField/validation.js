@@ -32,7 +32,7 @@ export function formatInputContent(value, cursor, deleteBackwards = false) {
 
   return {
     value: formatedValue,
-    cursor: Math.min(formatedCursor, formatedValue.length)
+    cursor: Math.min(formatedCursor, formatedValue.length),
   };
 }
 
@@ -44,7 +44,7 @@ export function formatInputContent(value, cursor, deleteBackwards = false) {
  * @returns {string} - L'IBAN avec les lettres remplacées.
  */
 function convertIBANLetters(iban) {
-  return iban.replace(/[A-Z]/g, c => parseInt(c, 36).toString());
+  return iban.replace(/[A-Z]/g, (c) => parseInt(c, 36).toString());
 }
 
 /**

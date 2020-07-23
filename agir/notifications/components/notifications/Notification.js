@@ -15,7 +15,7 @@ const NotificationLink = styled.a`
   align-items: center;
   color: #333 !important;
 
-  ${props =>
+  ${(props) =>
     props.status === "C"
       ? `
       &:hover {
@@ -65,7 +65,7 @@ const Notification = ({ id, created, content, icon, status, link }) => (
     <NotificationLink
       status={status}
       href={link}
-      onClick={e => {
+      onClick={(e) => {
         e.currentTarget.href = `/notification/${id}/`;
       }}
     >
@@ -75,7 +75,7 @@ const Notification = ({ id, created, content, icon, status, link }) => (
         <Date>
           <span
             dangerouslySetInnerHTML={{
-              __html: displayHumanDate(dateFromISOString(created))
+              __html: displayHumanDate(dateFromISOString(created)),
             }}
           />
         </Date>
@@ -90,7 +90,7 @@ Notification.propTypes = {
   created: PropTypes.string.isRequired,
   icon: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
-  status: PropTypes.string.isRequired
+  status: PropTypes.string.isRequired,
 };
 
 export default Notification;

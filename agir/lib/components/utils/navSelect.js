@@ -8,7 +8,7 @@ class NavSelect extends React.Component {
   }
 
   setChoice(choice) {
-    return e => {
+    return (e) => {
       e.preventDefault();
       let previousChoices = this.props.value;
       let newChoices;
@@ -32,7 +32,7 @@ class NavSelect extends React.Component {
     return (
       <div>
         <ul className="nav nav-pills">
-          {choices.map(choice => (
+          {choices.map((choice) => (
             <li
               key={choice.value}
               className={value.includes(choice.value) ? "active" : ""}
@@ -59,7 +59,7 @@ NavSelect.propTypes = {
   choices: PropTypes.array,
   value: PropTypes.array,
   onChange: PropTypes.func,
-  max: PropTypes.number
+  max: PropTypes.number,
 };
 
 export default NavSelect;

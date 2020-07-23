@@ -61,7 +61,7 @@ class DeleteDocumentButton extends React.Component {
 
 DeleteDocumentButton.propTypes = {
   documentName: PropTypes.string,
-  deleteUrl: PropTypes.string
+  deleteUrl: PropTypes.string,
 };
 
 export default DeleteDocumentButton;

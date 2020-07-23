@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback } from "react";
 import throttle from "lodash/throttle";
 import debounce from "lodash/debounce";
 
-export const usePrevious = value => {
+export const usePrevious = (value) => {
   const ref = useRef(null);
   useEffect(() => {
     ref.current = value;
@@ -28,7 +28,7 @@ export const useThrottle = (func, wait) => {
   return useCallback(
     throttle((...args) => ref.current(...args), wait, {
       leading: true,
-      trailing: false
+      trailing: false,
     }),
     [wait]
   );
@@ -51,7 +51,7 @@ export const useDebounce = (func, wait) => {
   return useCallback(
     debounce((...args) => ref.current(...args), wait, {
       leading: false,
-      trailing: true
+      trailing: true,
     }),
     [wait]
   );

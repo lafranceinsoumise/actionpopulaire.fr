@@ -33,7 +33,7 @@ function disambiguate(points) {
         angle = Math.PI / 2 + (i * 2 * Math.PI) / n;
         p.coordinates.coordinates = [
           p.coordinates.coordinates[0] + OFFSET * Math.cos(angle),
-          p.coordinates.coordinates[1] + OFFSET * Math.sin(angle)
+          p.coordinates.coordinates[1] + OFFSET * Math.sin(angle),
         ];
       }
     }
@@ -68,7 +68,7 @@ class Display {
       if (listType === "events") {
         this.subtypePastStyles[subtype.id] =
           makeStyle(subtype, {
-            color: false
+            color: false,
           }) || this.typePastStyles[subtype.type];
       }
       this.popupAnchors[subtype.id] = subtype.popupAnchor;
@@ -77,14 +77,14 @@ class Display {
   }
 
   getLayers() {
-    return this.types.map(type => this.layers[type.id]);
+    return this.types.map((type) => this.layers[type.id]);
   }
 
   getFeatureFor(item) {
     const feature = new Feature({
       geometry: new Point(proj.fromLonLat(item.coordinates.coordinates)),
       popupAnchor: (this.popupAnchors[item.subtype] || -5) - ARROW_SIZE,
-      popupContent: this.formatPopup(item)
+      popupContent: this.formatPopup(item),
     });
     feature.setId(item.id);
 
@@ -126,12 +126,12 @@ class Display {
 
   getControls(data) {
     return makeLayerControl(
-      this.types.map(type => ({
+      this.types.map((type) => ({
         label: type.label,
         color: type.color,
-        layer: this.layers[type.id]
+        layer: this.layers[type.id],
       })),
-      hideInactive => this.updateFeatures(data, hideInactive)
+      (hideInactive) => this.updateFeatures(data, hideInactive)
     );
   }
 }
@@ -146,7 +146,7 @@ export default async function listMap(
     bounds,
     focusGeometry,
     showSearch = true,
-    showActiveControl = true
+    showActiveControl = true,
   }
 ) {
   const display = new Display(types, subtypes, listType);
@@ -164,11 +164,11 @@ export default async function listMap(
       new Style({
         stroke: new Stroke({
           color: "red",
-          width: 1
+          width: 1,
         }),
         fill: new Fill({
-          color: "rgba(255,234,28,0.1)"
-        })
+          color: "rgba(255,234,28,0.1)",
+        }),
       })
     );
     const source = new VectorSource();
@@ -205,7 +205,7 @@ export default async function listMap(
   const [
     hideInactiveButton,
     layerControlButton,
-    layerControl
+    layerControl,
   ] = display.getControls(res.data);
 
   if (types.length > 1) {

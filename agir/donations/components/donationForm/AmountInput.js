@@ -28,7 +28,7 @@ const AmountInput = ({ placeholder, onChange, value, disabled }) => {
         placeholder={placeholder}
         step={1}
         disabled={disabled}
-        onChange={e => {
+        onChange={(e) => {
           if (e.target.value === "") {
             setText("");
             if (value !== null) {
@@ -54,13 +54,13 @@ AmountInput.propTypes = {
   placeholder: PropTypes.string,
   onChange: PropTypes.func,
   disabled: PropTypes.bool,
-  value: PropTypes.number // price in cents
+  value: PropTypes.number, // price in cents
 };
 AmountInput.defaultProps = {
   placeholder: "",
   onChange: () => null,
   disabled: false,
-  value: null
+  value: null,
 };
 
 export default AmountInput;

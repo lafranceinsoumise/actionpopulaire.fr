@@ -26,7 +26,7 @@ function getChoices(select) {
       Object.assign(
         {
           value: options[i].value,
-          label: options[i].label
+          label: options[i].label,
         },
         choiceAttrs ? choiceAttrs[i] || {} : {}
       )
@@ -36,7 +36,7 @@ function getChoices(select) {
   return choices;
 }
 
-const replaceForm = selector => {
+const replaceForm = (selector) => {
   const form = document.querySelector(selector);
   const props = { initial: {} };
 
@@ -79,7 +79,7 @@ const replaceForm = selector => {
 
   // pour tous les champs hidden restant, on les transmet tels quels
   props.hiddenFields = {};
-  Array.from(form.querySelectorAll('input[type="hidden"]')).forEach(input => {
+  Array.from(form.querySelectorAll('input[type="hidden"]')).forEach((input) => {
     props.hiddenFields[input.name] = input.value;
   });
 
@@ -91,7 +91,7 @@ const replaceForm = selector => {
   render(<DonationForm {...props} />, reactDiv);
 };
 
-const onLoad = function() {
+const onLoad = function () {
   replaceForm("form.donation-form");
 };
 

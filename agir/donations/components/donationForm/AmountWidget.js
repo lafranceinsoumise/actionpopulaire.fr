@@ -28,7 +28,7 @@ class AmountWidget extends React.Component {
     const custom = props.amount && !amountChoices.includes(props.amount);
 
     this.state = {
-      custom
+      custom,
     };
   }
 
@@ -51,7 +51,7 @@ class AmountWidget extends React.Component {
     return (
       <div className="amount-component">
         <FlexContainer className={error ? " has-error" : ""}>
-          {amountChoices.map(value => (
+          {amountChoices.map((value) => (
             <AmountButton
               disabled={disabled}
               key={value}
@@ -59,7 +59,7 @@ class AmountWidget extends React.Component {
               onClick={() => this.updateWithButton(value)}
               className={[
                 "btn",
-                custom || amount !== value ? "btn-default" : "btn-primary"
+                custom || amount !== value ? "btn-default" : "btn-primary",
               ].join(" ")}
             >
               {displayPrice(value)}
@@ -105,7 +105,7 @@ AmountWidget.propTypes = {
   error: PropTypes.string,
   amountChoices: PropTypes.arrayOf(PropTypes.number),
   showTaxCredit: PropTypes.bool,
-  byMonth: PropTypes.bool
+  byMonth: PropTypes.bool,
 };
 
 export default AmountWidget;

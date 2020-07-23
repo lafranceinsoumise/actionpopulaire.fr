@@ -2,10 +2,10 @@ import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 
 export default function getFormatPopups(types, subtypes) {
   function formatEvent(event) {
-    var subtype = subtypes.find(function(type) {
+    var subtype = subtypes.find(function (type) {
       return type.id === event.subtype;
     });
-    var type = types.find(function(type) {
+    var type = types.find(function (type) {
       return type.id === subtype.type;
     });
     return (
@@ -24,13 +24,13 @@ export default function getFormatPopups(types, subtypes) {
 
   function formatGroup(group) {
     var displayableSubtypes = subtypes
-      .filter(function(subtype) {
+      .filter(function (subtype) {
         return group.subtypes.indexOf(subtype.id) !== -1 && !subtype.hideLabel;
       })
-      .map(function(subtype) {
+      .map(function (subtype) {
         return subtype.description;
       });
-    var type = types.find(function(type) {
+    var type = types.find(function (type) {
       return type.id === group.type;
     });
     return (

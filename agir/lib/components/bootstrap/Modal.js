@@ -9,23 +9,23 @@ export default class Modal extends React.Component {
 
     return (
       <Transition in={show} timeout={300} enter={false}>
-        {state => (
+        {(state) => (
           <div>
             <div
               className={classNames("modal", "fade", {
-                in: state === "entered"
+                in: state === "entered",
               })}
               style={{
                 display: ["entered", "exiting"].includes(state)
                   ? "block"
-                  : "none"
+                  : "none",
               }}
               onClick={onHide}
             >
               <div
                 className={classNames("modal-dialog", size && `modal-${size}`)}
                 role="document"
-                onClick={e => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
               >
                 <div className="modal-content">
                   <div className="modal-header">
@@ -68,12 +68,12 @@ Modal.propTypes = {
   show: PropTypes.bool.isRequired,
   onHide: PropTypes.func,
   size: PropTypes.string,
-  showClosingIcon: PropTypes.bool
+  showClosingIcon: PropTypes.bool,
 };
 
 Modal.defaultProps = {
   onHide: () => {},
-  showClosingIcon: true
+  showClosingIcon: true,
 };
 
 Modal.Body = ({ children }) => <div className="modal-body">{children}</div>;

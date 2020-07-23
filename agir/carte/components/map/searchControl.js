@@ -8,7 +8,7 @@ import {
   filter,
   switchMap,
   startWith,
-  tap
+  tap,
 } from "rxjs/operators";
 
 import { element } from "./utils";
@@ -20,7 +20,7 @@ export default function makeSearchControl(view) {
   const list = element("ul", [], { className: "results" });
   const form = element("form", [
     input,
-    ["button", [["i", [], { className: "fa fa-search" }]]]
+    ["button", [["i", [], { className: "fa fa-search" }]]],
   ]);
 
   const control = element("div", [form, list], { className: "search_box" });
@@ -31,7 +31,7 @@ export default function makeSearchControl(view) {
       results = await provider.search({ query: value });
     } catch (e) {
       return {
-        error: "Impossible de contacter le service de recherche d'adresses."
+        error: "Impossible de contacter le service de recherche d'adresses.",
       };
     }
     if (results.length === 0) {
@@ -43,14 +43,14 @@ export default function makeSearchControl(view) {
   function goToCoordinates(coords) {
     view.animate({
       center: proj.fromLonLat(coords),
-      zoom: 14
+      zoom: 14,
     });
   }
 
   function updateResults(results) {
     list.innerHTML = results
       .map(
-        r =>
+        (r) =>
           `<li><a href="#" data-cx="${r.x}" data-cy="${r.y}">${r.label}</a></li>`
       )
       .join("");
@@ -66,22 +66,22 @@ export default function makeSearchControl(view) {
     list.classList.remove("show");
   }
 
-  control.addEventListener("click", function(ev) {
+  control.addEventListener("click", function (ev) {
     ev.stopPropagation();
   });
 
   const documentClicked$ = fromEvent(document, "click");
   const debouncedInputChange$ = fromEvent(input, "input").pipe(
     debounceTime(700),
-    filter(e => e.target.value.length > 3)
+    filter((e) => e.target.value.length > 3)
   );
   const formSubmitted$ = fromEvent(form, "submit").pipe(
-    tap(e => e.preventDefault())
+    tap((e) => e.preventDefault())
   );
   const listLinkClicked$ = fromEvent(list, "click").pipe(
-    filter(e => e.target.tagName === "A"),
-    tap(e => e.preventDefault()),
-    map(e => [+e.target.dataset.cx, +e.target.dataset.cy])
+    filter((e) => e.target.tagName === "A"),
+    tap((e) => e.preventDefault()),
+    map((e) => [+e.target.dataset.cx, +e.target.dataset.cy])
   );
 
   // l'observable des requêtes réalisées à partir du champ de recherche
@@ -95,7 +95,7 @@ export default function makeSearchControl(view) {
     )
   ).pipe(
     map(() => input.value), // la valeur du champ
-    switchMap(v => from(search(v))) // le switchMap permet d'éviter d'afficher une requête précédente en cours
+    switchMap((v) => from(search(v))) // le switchMap permet d'éviter d'afficher une requête précédente en cours
   );
 
   // faire un switchMap depuis documentClicked$ permet d'annuler la recherche
@@ -110,15 +110,15 @@ export default function makeSearchControl(view) {
     );
 
   listLinkClicked$.subscribe({
-    next: coords => {
+    next: (coords) => {
       goToCoordinates(coords);
       hideList();
-    }
+    },
   });
 
   documentClicked$.subscribe({ next: hideList });
 
   return new Control({
-    element: control
+    element: control,
   });
 }

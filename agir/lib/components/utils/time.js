@@ -10,7 +10,7 @@ const MONTHS = [
   "septembre",
   "octobre",
   "novembre",
-  "décembre"
+  "décembre",
 ];
 
 const DAYS = [
@@ -20,7 +20,7 @@ const DAYS = [
   "mercredi",
   "jeudi",
   "vendredi",
-  "samedi"
+  "samedi",
 ];
 
 export function dateFromISOString(s) {
@@ -40,10 +40,7 @@ export function displayHumanDate(date) {
   const time = `${date
     .getHours()
     .toString()
-    .padStart(2, "0")}:${date
-    .getMinutes()
-    .toString()
-    .padStart(2, "0")}`;
+    .padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
   const dayOfMonth =
     date.getDate() === 1 ? "1<sup>er</sup>" : date.getDate().toString();
 

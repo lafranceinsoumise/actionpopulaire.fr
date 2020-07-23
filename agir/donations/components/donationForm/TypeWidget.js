@@ -55,7 +55,7 @@ TypeButton.propTypes = {
   label: PropTypes.string,
   onChange: PropTypes.func,
   icon: PropTypes.string,
-  checked: PropTypes.bool
+  checked: PropTypes.bool,
 };
 
 const TypeWidget = ({ typeChoices, type, onTypeChange }) => (
@@ -77,10 +77,10 @@ TypeWidget.propTypes = {
   typeChoices: PropTypes.arrayOf(
     PropTypes.shape({
       value: PropTypes.string,
-      label: PropTypes.string
+      label: PropTypes.string,
     }).isRequired
   ),
-  onTypeChange: PropTypes.func
+  onTypeChange: PropTypes.func,
 };
 
 export default TypeWidget;

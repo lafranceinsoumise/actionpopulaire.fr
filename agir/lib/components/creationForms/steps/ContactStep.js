@@ -18,8 +18,8 @@ class ContactStep extends FormStep {
     return [
       this.validateName(),
       this.validateEmail(),
-      this.validatePhone()
-    ].every(c => c);
+      this.validatePhone(),
+    ].every((c) => c);
   }
 
   validateName() {

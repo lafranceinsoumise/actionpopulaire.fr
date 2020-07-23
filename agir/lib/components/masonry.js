@@ -6,7 +6,7 @@ import Masonry from "masonry-layout";
 const elem = document.querySelector(".masonry");
 new Masonry(elem, {
   itemSelector: ".gblock",
-  percentPosition: true
+  percentPosition: true,
 });
 
 const blocks = document.querySelectorAll(".gblock");

@@ -2,7 +2,7 @@ import React from "react";
 import classNames from "classnames";
 import PropTypes from "prop-types";
 
-const Button = props => {
+const Button = (props) => {
   const { children, bsStyle, bsSize, active, type, ...otherProps } = props;
   return (
     <button
@@ -24,13 +24,13 @@ Button.propTypes = {
   type: PropTypes.string,
   bsStyle: PropTypes.string,
   bsSize: PropTypes.string,
-  active: PropTypes.bool
+  active: PropTypes.bool,
 };
 
 Button.defaultProps = {
   type: "button",
   bsStyle: "default",
-  active: false
+  active: false,
 };
 
 export default Button;

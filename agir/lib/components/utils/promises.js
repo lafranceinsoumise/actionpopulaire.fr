@@ -16,7 +16,7 @@ export const debounce = (func, wait) => {
 
   return (...args) => {
     if (currentResolve === null) {
-      currentPromise = new Promise(resolve => {
+      currentPromise = new Promise((resolve) => {
         currentResolve = resolve;
       }).then(() => func(...lastArgs));
     }

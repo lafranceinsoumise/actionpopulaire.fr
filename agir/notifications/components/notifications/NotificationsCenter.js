@@ -9,17 +9,19 @@ import NotificationsPanel from "./NotificationsPanel";
 import axios from "@agir/lib/utils/axios";
 
 function markAsSeen(notifications) {
-  const unreadNotifications = notifications.filter(n => n.status === "U");
+  const unreadNotifications = notifications.filter((n) => n.status === "U");
 
   if (unreadNotifications.length > 0) {
     axios.post("/notification/seen/", {
-      notifications: notifications.filter(n => n.status === "U").map(n => n.id)
+      notifications: notifications
+        .filter((n) => n.status === "U")
+        .map((n) => n.id),
     });
   }
 
-  return notifications.map(n => ({
+  return notifications.map((n) => ({
     ...n,
-    status: n.status === "U" ? "S" : n.status
+    status: n.status === "U" ? "S" : n.status,
   }));
 }
 
@@ -70,7 +72,7 @@ const NotificationsCenter = ({ notifications: initialNotifications }) => {
   useInterval(async () => {
     try {
       const res = await axios.get("/notification/liste", {
-        length: notifications.length
+        length: notifications.length,
       });
       setNotifications(mergeNotifications(notifications, res.data));
     } catch (e) {
@@ -80,18 +82,18 @@ const NotificationsCenter = ({ notifications: initialNotifications }) => {
   }, 120 * 1000);
 
   const unread = notifications.filter(
-    notification => notification.status === "U"
+    (notification) => notification.status === "U"
   ).length;
 
-  const loadMore = async e => {
+  const loadMore = async (e) => {
     e.preventDefault();
     setLoadingMore("loading");
     try {
       const res = await axios.get("/notification/liste", {
         params: {
           offset: notifications.length,
-          length: 5
-        }
+          length: 5,
+        },
       });
       setNotifications(mergeNotifications(notifications, res.data));
 
@@ -120,7 +122,7 @@ const NotificationsCenter = ({ notifications: initialNotifications }) => {
 };
 
 NotificationsCenter.propTypes = {
-  notifications: PropTypes.array
+  notifications: PropTypes.array,
 };
 
 export default hot(NotificationsCenter);

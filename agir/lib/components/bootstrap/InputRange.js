@@ -29,11 +29,11 @@ DraggableContainer.displayName = "DraggableContainer";
 DraggableContainer.propTypes = {
   children: PropTypes.node,
   onDrag: PropTypes.func,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
 };
 DraggableContainer.defaultProps = {
   onDrag: () => null,
-  disabled: false
+  disabled: false,
 };
 
 const BaseTrack = styled.div`
@@ -65,13 +65,13 @@ const Track = ({ position, disabled }) => {
 Track.propTypes = {
   position: PropTypes.any,
   onChange: PropTypes.func,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
 };
 
 Track.defaultProps = {
   position: 0,
   onChange: () => null,
-  disabled: false
+  disabled: false,
 };
 
 const SliderPointer = animated(styled.div`
@@ -100,11 +100,11 @@ const Slider = ({ position, disabled }) => {
 };
 Slider.propTypes = {
   position: PropTypes.any,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
 };
 Slider.defaultProps = {
   position: 0,
-  disabled: false
+  disabled: false,
 };
 
 const InputRange = ({
@@ -113,7 +113,7 @@ const InputRange = ({
   maxValue,
   step,
   onChange,
-  disabled
+  disabled,
 }) => {
   const [dragValue, setDragValue] = useState(null);
   const displayValue = dragValue === null ? value : dragValue;
@@ -122,7 +122,7 @@ const InputRange = ({
   const containerRef = useRef();
   const throttledOnChange = useThrottle(onChange, 100);
 
-  const clamp = x => {
+  const clamp = (x) => {
     const bounds = containerRef.current.getBoundingClientRect();
     const val =
       Math.floor(
@@ -133,7 +133,7 @@ const InputRange = ({
   };
 
   const { x } = useSpring({
-    x: `${(Number.isNaN(valueInPercent) ? 0 : valueInPercent) * 100}%`
+    x: `${(Number.isNaN(valueInPercent) ? 0 : valueInPercent) * 100}%`,
   });
 
   const handleChange = (x, stoppedDragging) => {
@@ -168,7 +168,7 @@ InputRange.propTypes = {
   maxValue: PropTypes.number,
   step: PropTypes.number,
   onChange: PropTypes.func,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
 };
 
 InputRange.defaultProps = {
@@ -177,7 +177,7 @@ InputRange.defaultProps = {
   maxValue: 100,
   step: 1,
   onChange: () => null,
-  disabled: false
+  disabled: false,
 };
 
 export default InputRange;

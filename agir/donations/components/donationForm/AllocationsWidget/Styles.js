@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import {
   FlexContainer,
-  MarginBox
+  MarginBox,
 } from "@agir/donations/donationForm/elements";
 import React from "react";
 
@@ -10,7 +10,9 @@ export const AllocationsArray = styled(MarginBox)`
   width: 100%;
 `;
 
-export const Row = props => <FlexContainer alignItems="center" {...props} s />;
+export const Row = (props) => (
+  <FlexContainer alignItems="center" {...props} s />
+);
 
 export const RecipientLabel = styled.div`
   text-align: right;

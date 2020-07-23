@@ -26,11 +26,11 @@ const addLabelToAllocations = (allocations, groupChoices) => {
   return allocations.map(({ group, amount }) => ({
     id: group,
     name: groupChoices.find(({ id }) => id === group).name,
-    amount
+    amount,
   }));
 };
 
-const serializeAllocations = allocations => {
+const serializeAllocations = (allocations) => {
   if (!allocations) {
     return [];
   }
@@ -54,7 +54,7 @@ const DonationForm = ({
   maxAmountError,
   showTaxCredit,
   enableAllocations,
-  typeActe
+  typeActe,
 }) => {
   const [type, setType] = useState(initial.type || null);
   const [allocations, setAllocations] = useState(
@@ -75,8 +75,8 @@ const DonationForm = ({
     (!typeChoices || type !== null) && amount !== null && amount > 0;
 
   return (
-    <form method="post" onSubmit={e => valid || e.preventDefault()}>
-      {Object.keys(hiddenFields).map(k => (
+    <form method="post" onSubmit={(e) => valid || e.preventDefault()}>
+      {Object.keys(hiddenFields).map((k) => (
         <input key={k} type="hidden" name={k} value={hiddenFields[k]} />
       ))}
       <input type="hidden" name="type" value={type || ""} />
@@ -97,7 +97,7 @@ const DonationForm = ({
         showTaxCredit={showTaxCredit}
         byMonth={type === "M"}
         error={customError}
-        onAmountChange={newAmount => {
+        onAmountChange={(newAmount) => {
           setAmount(newAmount);
           setAllocations(changeTotalAmount(allocations, amount, newAmount));
         }}
@@ -108,7 +108,7 @@ const DonationForm = ({
           <TypeWidget
             type={type}
             typeChoices={typeChoices}
-            onTypeChange={type => {
+            onTypeChange={(type) => {
               setType(type);
             }}
           />
@@ -152,7 +152,7 @@ DonationForm.propTypes = {
   typeChoices: PropTypes.arrayOf(
     PropTypes.shape({
       value: PropTypes.string,
-      label: PropTypes.string
+      label: PropTypes.string,
     })
   ),
   amountChoices: PropTypes.arrayOf(PropTypes.number),
@@ -162,12 +162,12 @@ DonationForm.propTypes = {
   groupChoices: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string,
-      id: PropTypes.string
+      id: PropTypes.string,
     })
   ),
   hiddenFields: PropTypes.objectOf(PropTypes.string),
   typeActe: PropTypes.string,
-  enableAllocations: PropTypes.bool
+  enableAllocations: PropTypes.bool,
 };
 
 DonationForm.defaultProps = {
@@ -175,7 +175,7 @@ DonationForm.defaultProps = {
   maxAMount: 100000,
   groupChoices: [],
   typeActe: "mon don",
-  enableAllocations: true
+  enableAllocations: true,
 };
 
 export default hot(DonationForm);

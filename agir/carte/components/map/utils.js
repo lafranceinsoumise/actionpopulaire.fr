@@ -26,7 +26,7 @@ function deepAssign(target, source) {
 export function element(tag, children = [], attrs = {}) {
   const elem = document.createElement(tag);
   children
-    .map(e => {
+    .map((e) => {
       if (e instanceof Element) {
         return e;
       } else if (e.constructor === String) {
@@ -34,7 +34,7 @@ export function element(tag, children = [], attrs = {}) {
       }
       return element.apply(null, e);
     })
-    .forEach(e => elem.appendChild(e));
+    .forEach((e) => elem.appendChild(e));
   deepAssign(elem, attrs);
   return elem;
 }
@@ -43,7 +43,7 @@ export function fontIsLoaded(fontName) {
   return new Promise((resolve, reject) =>
     FontFaceOnload(fontName, {
       success: resolve,
-      error: reject
+      error: reject,
     })
   );
 }

@@ -13,7 +13,7 @@ import { mandateGroups, mandateDict } from "./divisions";
 const mandateOptions = [
   <option key="" value="">
     Choisissez une valeur
-  </option>
+  </option>,
 ];
 
 for (let group of mandateGroups) {
@@ -41,7 +41,7 @@ function SelectField({ value, divisionDescriptor, onChange }) {
       <select
         className="form-control"
         value={value.value}
-        onChange={e => onChange({ value: e.target.value })}
+        onChange={(e) => onChange({ value: e.target.value })}
       >
         <option value="">
           Choisissez votre {divisionDescriptor.name.toLowerCase()}
@@ -87,7 +87,7 @@ class MandatesField extends React.Component {
     }
 
     const currentSelection = mandates
-      .filter(m => m.type in mandateDict)
+      .filter((m) => m.type in mandateDict)
       .map(this.prepareSelection);
 
     if (currentSelection.length === 0) {
@@ -97,7 +97,7 @@ class MandatesField extends React.Component {
     this.state = {
       modalIsOpen: false,
       mandates,
-      currentSelection
+      currentSelection,
     };
   }
 
@@ -105,18 +105,18 @@ class MandatesField extends React.Component {
     const divisionType = mandateDict[type].division;
     if ("getter" in divisionType) {
       const symbol = Symbol();
-      divisionType.getter.reverse(division).then(division => {
+      divisionType.getter.reverse(division).then((division) => {
         const currentSelection = this.state.currentSelection;
         const i = currentSelection.findIndex(
-          s => s.symbol === symbol && s.type === type
+          (s) => s.symbol === symbol && s.type === type
         );
         if (i !== undefined) {
           this.setState({
             currentSelection: [
               ...currentSelection.slice(0, i),
               { type, division },
-              ...currentSelection.slice(i + 1)
-            ]
+              ...currentSelection.slice(i + 1),
+            ],
           });
         }
       });
@@ -134,27 +134,27 @@ class MandatesField extends React.Component {
   }
 
   updateAndClose() {
-    const currentSelection = this.state.currentSelection.map(mandate => ({
+    const currentSelection = this.state.currentSelection.map((mandate) => ({
       type: mandate.type,
       division: mandate.division,
       error:
         mandate.type !== "" &&
         mandateDict[mandate.type].division !== null &&
-        mandate.division.value === ""
+        mandate.division.value === "",
     }));
 
-    if (currentSelection.some(m => m.error)) {
+    if (currentSelection.some((m) => m.error)) {
       this.setState({ currentSelection });
     } else {
       const mandates = currentSelection
         .map(({ type, division }) => ({
           type,
-          division: division.value
+          division: division.value,
         }))
         .filter(({ type }) => type !== "");
       this.setState({
         mandates,
-        currentSelection
+        currentSelection,
       });
       this.closeModal();
       this.props.hiddenField.value = JSON.stringify(mandates);
@@ -165,7 +165,7 @@ class MandatesField extends React.Component {
     const currentSelection = this.state.currentSelection;
     if (currentSelection[currentSelection.length - 1].type !== "") {
       this.setState({
-        currentSelection: [...currentSelection, emptySelection]
+        currentSelection: [...currentSelection, emptySelection],
       });
     }
   }
@@ -175,34 +175,34 @@ class MandatesField extends React.Component {
       const currentSelection = this.state.currentSelection;
       if (i === currentSelection.length - 1) {
         this.setState({
-          currentSelection: [...currentSelection.slice(0, -1), emptySelection]
+          currentSelection: [...currentSelection.slice(0, -1), emptySelection],
         });
       } else {
         this.setState({
           currentSelection: [
             ...currentSelection.slice(0, i),
-            ...currentSelection.slice(i + 1)
-          ]
+            ...currentSelection.slice(i + 1),
+          ],
         });
       }
     };
   }
 
   updateType(i) {
-    return e => {
+    return (e) => {
       const currentSelection = this.state.currentSelection.slice();
       currentSelection[i] = Object.assign({}, currentSelection[i], {
-        type: e.target.value
+        type: e.target.value,
       });
       this.setState({ currentSelection });
     };
   }
 
   updateDivision(i) {
-    return value => {
+    return (value) => {
       const currentSelection = this.state.currentSelection.slice();
       currentSelection[i] = Object.assign({}, currentSelection[i], {
-        division: value
+        division: value,
       });
       this.setState({ currentSelection });
     };
@@ -286,7 +286,7 @@ class MandatesField extends React.Component {
 }
 
 MandatesField.propTypes = {
-  hiddenField: PropTypes.object
+  hiddenField: PropTypes.object,
 };
 
 export default hot(MandatesField);

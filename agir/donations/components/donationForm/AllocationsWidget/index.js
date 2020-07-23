@@ -6,14 +6,14 @@ import GroupSelector from "@agir/groups/groupSelector/GroupSelector";
 import {
   changeSingleGroupAllocation,
   changeUnallocatedAmount,
-  totalAllocatedFromState
+  totalAllocatedFromState,
 } from "../allocationsReducer";
 import { GroupAllocation } from "./components";
 import { AllocationsArray, ButtonHolder, RecipientLabel } from "./Styles";
 
-const filterChoices = currentList => {
+const filterChoices = (currentList) => {
   const currentSet = new Set(currentList.map(({ id }) => id));
-  return choice => !currentSet.has(choice.id);
+  return (choice) => !currentSet.has(choice.id);
 };
 
 const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
@@ -36,7 +36,7 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
           <GroupAllocation
             amount={maxAmount - totalAllocatedFromState(value)}
             maxAmount={maxAmount}
-            onChange={amount =>
+            onChange={(amount) =>
               onChange(changeUnallocatedAmount(value, maxAmount - amount))
             }
             disabled={value.length === 0}
@@ -50,7 +50,7 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
             key={id}
             amount={amount}
             maxAmount={maxAmount}
-            onChange={newAmount =>
+            onChange={(newAmount) =>
               onChange(
                 changeSingleGroupAllocation(value, i, newAmount, maxAmount)
               )
@@ -63,11 +63,11 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
               value={{ id, name }}
               groupChoices={groupChoices}
               filter={currentFilter}
-              onChange={newVal =>
+              onChange={(newVal) =>
                 onChange([
                   ...value.slice(0, i),
                   { amount, ...newVal },
-                  ...value.slice(i + 1)
+                  ...value.slice(i + 1),
                 ])
               }
             />
@@ -82,7 +82,7 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
             <GroupSelector
               groupChoices={groupChoices}
               filter={currentFilter}
-              onChange={newGroup => {
+              onChange={(newGroup) => {
                 setExtra(false);
                 onChange(value.concat({ amount: 0, ...newGroup }));
               }}
@@ -110,11 +110,11 @@ AllocationsWidget.propTypes = {
     PropTypes.shape({
       id: PropTypes.string,
       name: PropTypes.string,
-      amount: PropTypes.number
+      amount: PropTypes.number,
     })
   ),
   onChange: PropTypes.func,
-  maxAmount: PropTypes.number
+  maxAmount: PropTypes.number,
 };
 
 export default AllocationsWidget;

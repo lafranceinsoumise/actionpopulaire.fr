@@ -11,12 +11,12 @@ afterEach(cleanup);
 test("GroupSelector dans son état initial", () => {
   const choices = [
     { id: "1", name: "Groupe 1" },
-    { id: "2", name: "Groupe 2" }
+    { id: "2", name: "Groupe 2" },
   ];
 
   let lastValue = null;
 
-  const setLastValue = v => {
+  const setLastValue = (v) => {
     lastValue = v;
   };
 
@@ -45,11 +45,11 @@ test("Recherche simple dans GroupSelector", async () => {
   let lastSearch = null;
   let signalAfterSearch = null;
 
-  const afterSearch = new Promise(resolve => {
+  const afterSearch = new Promise((resolve) => {
     signalAfterSearch = resolve;
   });
 
-  const search = q => {
+  const search = (q) => {
     lastSearch = q;
     setImmediate(signalAfterSearch);
     return Promise.resolve([{ id: "3", name: "Groupe 3" }]);

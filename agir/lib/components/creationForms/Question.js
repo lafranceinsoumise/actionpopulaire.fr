@@ -17,7 +17,7 @@ const Question = ({ question, setValue, style }) => (
 Question.propTypes = {
   question: PropTypes.object,
   setValue: PropTypes.func,
-  style: PropTypes.object
+  style: PropTypes.object,
 };
 
 export default Question;

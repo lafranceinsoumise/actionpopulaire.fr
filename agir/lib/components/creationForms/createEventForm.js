@@ -44,7 +44,7 @@ class CreateEventForm extends React.Component {
             types={this.props.types}
             subtypes={this.props.subtypes}
           />
-        )
+        ),
       },
       {
         name: "Questions légales",
@@ -56,25 +56,25 @@ class CreateEventForm extends React.Component {
             questions={this.props.questions}
             nextStep={this.hasGroupStep() ? 3 : 2}
           />
-        )
+        ),
       },
       {
         name: "Qui contacter ?",
         component: (
           <ContactStep setFields={this.setFields} fields={this.state.fields} />
-        )
+        ),
       },
       {
         name: "Quand ?",
         component: (
           <ScheduleStep setFields={this.setFields} fields={this.state.fields} />
-        )
+        ),
       },
       {
         name: "Où ?",
         component: (
           <LocationStep setFields={this.setFields} fields={this.state.fields} />
-        )
+        ),
       },
       {
         name: "Validation et nom",
@@ -83,8 +83,8 @@ class CreateEventForm extends React.Component {
             fields={this.state.fields}
             subtypes={this.props.subtypes}
           />
-        )
-      }
+        ),
+      },
     ];
 
     if (this.hasGroupStep()) {
@@ -96,7 +96,7 @@ class CreateEventForm extends React.Component {
             fields={this.state.fields}
             groups={this.props.groups}
           />
-        )
+        ),
       });
     }
 
@@ -114,7 +114,7 @@ CreateEventForm.propTypes = {
   initial: PropTypes.object,
   types: PropTypes.array,
   subtypes: PropTypes.array,
-  questions: PropTypes.array
+  questions: PropTypes.array,
 };
 
 function SubtypeSelector({ children }) {
@@ -122,7 +122,7 @@ function SubtypeSelector({ children }) {
 }
 
 SubtypeSelector.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 const Icon = styled.i`
@@ -134,7 +134,7 @@ const Icon = styled.i`
   text-align: center;
   margin-right: 0.4em;
   box-sizing: content-box;
-  ${props =>
+  ${(props) =>
     props.active
       ? "border: 1px solid transparent;"
       : "border: 1px solid rgba(10, 10, 10, 0.3);"}
@@ -145,7 +145,7 @@ function CheckBox({ label, active, onClick, icon, iconName, color }) {
     <li className={active ? "active" : ""}>
       <a
         href="#"
-        onClick={e => {
+        onClick={(e) => {
           e.preventDefault();
           onClick();
         }}
@@ -172,7 +172,7 @@ CheckBox.propTypes = {
   onClick: PropTypes.func,
   icon: PropTypes.string,
   iconName: PropTypes.string,
-  color: PropTypes.string
+  color: PropTypes.string,
 };
 
 class EventTypeStep extends FormStep {
@@ -182,7 +182,7 @@ class EventTypeStep extends FormStep {
 
   setSubtype(subtype) {
     this.props.setFields({
-      subtype: subtype.label
+      subtype: subtype.label,
     });
   }
 
@@ -225,11 +225,11 @@ class EventTypeStep extends FormStep {
         </div>
         <div className="col-sm-6 padbottom">
           <h3>Je veux créer...</h3>
-          {this.props.types.map(type => (
+          {this.props.types.map((type) => (
             <div key={type.id}>
               <h4>{type.label}</h4>
               <SubtypeSelector>
-                {rankedSubtypes[type.id].map(subtype => (
+                {rankedSubtypes[type.id].map((subtype) => (
                   <CheckBox
                     key={subtype.description}
                     active={this.isCurrentSubtype(subtype)}
@@ -265,10 +265,10 @@ class LegalQuestionsStep extends FormStep {
 
   getQuestions() {
     const subtype = this.props.subtypes.find(
-      s => s.label === this.props.fields.subtype
+      (s) => s.label === this.props.fields.subtype
     );
     return this.props.questions.filter(
-      q =>
+      (q) =>
         (!q.type || q.type.includes(subtype.type)) &&
         (!q.when || this.getAnswer(q.when)) &&
         (!q.notWhen || !this.getAnswer(q.notWhen))
@@ -278,8 +278,8 @@ class LegalQuestionsStep extends FormStep {
   setAnswer(id, value) {
     this.props.setFields({
       legal: Object.assign({}, this.props.fields.legal || {}, {
-        [id]: value
-      })
+        [id]: value,
+      }),
     });
 
     if (this.state.question >= this.getQuestions().length - 1) {
@@ -289,7 +289,7 @@ class LegalQuestionsStep extends FormStep {
   }
 
   isValidated() {
-    return this.getQuestions().every(q => this.getAnswer(q.id) !== null);
+    return this.getQuestions().every((q) => this.getAnswer(q.id) !== null);
   }
 
   render() {
@@ -307,13 +307,13 @@ class LegalQuestionsStep extends FormStep {
         </div>
         <div className="col-sm-6 padbottom">
           <Spring key={q.id} from={{ opacity: 0 }} to={{ opacity: 1 }}>
-            {props => (
+            {(props) => (
               <Question
                 style={props}
                 key={q.id}
                 question={q}
                 value={this.getAnswer(q.id)}
-                setValue={v => this.setAnswer(q.id, v)}
+                setValue={(v) => this.setAnswer(q.id, v)}
               />
             )}
           </Spring>
@@ -368,7 +368,7 @@ class OrganizerStep extends FormStep {
           <div>
             <h4>...par un groupe d'action</h4>
             <SubtypeSelector>
-              {this.props.groups.map(group => (
+              {this.props.groups.map((group) => (
                 <CheckBox
                   iconName="users"
                   color="#0098b6"
@@ -414,7 +414,7 @@ class ValidateStep extends FormStep {
       location_country: fields.locationCountryCode,
       subtype: fields.subtype,
       as_group: fields.organizerGroup,
-      legal: JSON.stringify(fields.legal)
+      legal: JSON.stringify(fields.legal),
     });
 
     try {
@@ -426,8 +426,9 @@ class ValidateStep extends FormStep {
   }
 
   getSubtypeDescription() {
-    return this.props.subtypes.find(s => s.label === this.props.fields.subtype)
-      .description;
+    return this.props.subtypes.find(
+      (s) => s.label === this.props.fields.subtype
+    ).description;
   }
 
   render() {
@@ -487,7 +488,7 @@ class ValidateStep extends FormStep {
             <div className="form-group">
               <input
                 className="form-control"
-                ref={i => (this.eventName = i)}
+                ref={(i) => (this.eventName = i)}
                 type="text"
                 placeholder="Nom de l'événement"
                 required

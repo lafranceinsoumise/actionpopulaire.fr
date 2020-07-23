@@ -9,10 +9,10 @@ function getResults(query) {
     .get(nominatim_url, {
       params: {
         q: query,
-        format: "jsonv2"
-      }
+        format: "jsonv2",
+      },
     })
-    .then(function(res) {
+    .then(function (res) {
       if (res.status === 200) {
         return res.data;
       } else {
@@ -33,7 +33,7 @@ function createLinkElement(text, handler) {
   return li;
 }
 
-export default function(input) {
+export default function (input) {
   const form = input.form;
   const dropdownDiv = input.parentElement;
   const resultList = document.createElement("ul");
@@ -51,14 +51,14 @@ export default function(input) {
 
   const submitButton = form.querySelector('input[type="submit"]');
 
-  document.addEventListener("click", function() {
+  document.addEventListener("click", function () {
     dropdownDiv.classList.remove("open");
   });
-  dropdownDiv.addEventListener("click", function(e) {
+  dropdownDiv.addEventListener("click", function (e) {
     e.stopPropagation();
   });
 
-  submitButton.addEventListener("click", function(event) {
+  submitButton.addEventListener("click", function (event) {
     // prevent form from being submitted
     event.preventDefault();
 
@@ -70,7 +70,7 @@ export default function(input) {
     }
 
     getResults(query).then(
-      function(results) {
+      function (results) {
         if (results.length === 0) {
           resultList.appendChild(createLinkElement("Pas de résultats..."));
           dropdownDiv.appendChild(resultList);
@@ -79,9 +79,9 @@ export default function(input) {
           setCoordinates(results[0]);
           form.submit();
         } else {
-          results.slice(0, 10).forEach(function(d) {
+          results.slice(0, 10).forEach(function (d) {
             resultList.appendChild(
-              createLinkElement(d.display_name, function(e) {
+              createLinkElement(d.display_name, function (e) {
                 e.preventDefault();
                 setCoordinates(d);
                 input.value = d.display_name;
@@ -95,7 +95,7 @@ export default function(input) {
 
         submitButton.disabled = false;
       },
-      function(_error) {
+      function (_error) {
         resultList.appendChild(
           createLinkElement(
             "Erreur de connexion au serveur de géolocalisation... Réessayez plus tard."

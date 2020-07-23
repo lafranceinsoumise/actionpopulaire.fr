@@ -20,7 +20,9 @@ const getProps = (field) => {
       if (Array.isArray(types)) {
         props.types = types;
       }
-    } catch (e) {}
+    } catch (e) {
+      /* Rien à faire ici */
+    }
   }
   return props;
 };

@@ -37,7 +37,7 @@ const NotificationsPanel = ({ notifications, loadingMore, loadMore }) => {
     <Panel className="dropdown-menu">
       <Header className="menu-item">Notifications</Header>
       {notifications.length > 0 ? (
-        notifications.map(notification => (
+        notifications.map((notification) => (
           <Notification key={notification.id} {...notification} />
         ))
       ) : (
@@ -66,7 +66,7 @@ const NotificationsPanel = ({ notifications, loadingMore, loadMore }) => {
 NotificationsPanel.propTypes = {
   notifications: PropTypes.array.isRequired,
   loadingMore: PropTypes.string,
-  loadMore: PropTypes.func
+  loadMore: PropTypes.func,
 };
 
 export default NotificationsPanel;

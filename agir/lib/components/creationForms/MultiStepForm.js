@@ -21,9 +21,9 @@ export default function MultiStepForm({ steps, startAtStep }) {
 
 MultiStepForm.propTypes = {
   steps: PropTypes.array.isRequired,
-  startAtStep: PropTypes.number
+  startAtStep: PropTypes.number,
 };
 
 MultiStepForm.defaultProps = {
-  startAtStep: 0
+  startAtStep: 0,
 };

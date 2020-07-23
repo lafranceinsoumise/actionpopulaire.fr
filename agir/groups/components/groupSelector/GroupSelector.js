@@ -8,7 +8,7 @@ import { debounce } from "@agir/lib/utils/promises";
 
 const GROUP_TYPE = PropTypes.shape({
   id: PropTypes.string,
-  name: PropTypes.string
+  name: PropTypes.string,
 });
 
 const debouncedSearch = debounce(search, 200);
@@ -19,30 +19,30 @@ const GroupSelector = ({
   value,
   filter,
   defaultOptionsLabel,
-  search
+  search,
 }) => {
   const defaultOptions = {
     label: defaultOptionsLabel,
-    options: groupChoices.filter(filter)
+    options: groupChoices.filter(filter),
   };
   return (
     <Async
       value={value}
-      loadOptions={terms =>
-        search(terms).then(options =>
+      loadOptions={(terms) =>
+        search(terms).then((options) =>
           options.length
             ? [
                 {
                   label: "Ma recherche",
-                  options: options
+                  options: options,
                 },
-                defaultOptions
+                defaultOptions,
               ]
             : []
         )
       }
       defaultOptions={[defaultOptions]}
-      formatGroupLabel={g => {
+      formatGroupLabel={(g) => {
         return g.label;
       }}
       getOptionValue={({ id }) => id}
@@ -72,7 +72,7 @@ GroupSelector.propTypes = {
   value: GROUP_TYPE,
   filter: PropTypes.func,
   defaultOptionsLabel: PropTypes.string,
-  search: PropTypes.func
+  search: PropTypes.func,
 };
 GroupSelector.defaultProps = {
   onChange: () => null,
@@ -80,7 +80,7 @@ GroupSelector.defaultProps = {
   groupChoices: [],
   value: null,
   defaultOptionsLabel: "Mes groupes",
-  search: debouncedSearch
+  search: debouncedSearch,
 };
 
 export default GroupSelector;

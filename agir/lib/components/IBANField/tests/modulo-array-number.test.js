@@ -1,6 +1,6 @@
 import {
   arrayNumberModulo,
-  strToArrayNumber
+  strToArrayNumber,
 } from "@agir/lib/IBANField/validation";
 
 test("strToArrayNumber", () => {
@@ -23,7 +23,7 @@ test("La fonction modulo sur des nombres contenues dans un array", () => {
     "78947",
     "10000000",
     "12356489",
-    "9876543210"
+    "9876543210",
   ];
   const maxPowTen = 8;
   const modulos = [1, 2, 5, 7, 27, 41, 32, 53, 48, 96, 97, 100, 562, 1992];

@@ -14,5 +14,5 @@ export const FlexContainer = styled.div`
 
 export const MarginBox = styled.div`
   position: relative; // stacking context
-  margin: ${props => (props.margin ? props.margin : "1rem 0")};
+  margin: ${(props) => (props.margin ? props.margin : "1rem 0")};
 `;

@@ -4,10 +4,10 @@ const countries = require("localized-countries/data/fr");
 const countriesFirst = ["FR", "PT", "DZ", "MA", "TR", "IT", "GB", "ES"];
 
 const fullCountryList = countriesFirst
-  .map(code => ({ code, label: countries[code], key: `${code}1` }))
+  .map((code) => ({ code, label: countries[code], key: `${code}1` }))
   .concat(
     Object.keys(countries)
-      .map(code => ({ code, label: countries[code], key: `${code}2` }))
+      .map((code) => ({ code, label: countries[code], key: `${code}2` }))
       .sort(({ label: label1 }, { label: label2 }) =>
         label1.localeCompare(label2)
       )
@@ -19,7 +19,7 @@ const requiredFields = [
   "locationName",
   "locationAddress1",
   "locationCity",
-  "locationCountryCode"
+  "locationCountryCode",
 ];
 
 export default class LocationStep extends FormStep {
@@ -163,7 +163,7 @@ export default class LocationStep extends FormStep {
               className="form-control"
               required
             >
-              {fullCountryList.map(country => (
+              {fullCountryList.map((country) => (
                 <option value={country.code} key={country.key}>
                   {country.label}
                 </option>

@@ -6,7 +6,7 @@ afterEach(cleanup);
 
 const typeChoices = [
   { value: "S", label: "une seule fois" },
-  { value: "M", label: "tous les mois" }
+  { value: "M", label: "tous les mois" },
 ];
 
 test("TypeWidget style le bouton quand c'est sélectionné", () => {
@@ -20,7 +20,7 @@ test("TypeWidget réagit quand on clique", () => {
   const component = render(
     <TypeWidget
       typeChoices={typeChoices}
-      onTypeChange={t => (currentType = t)}
+      onTypeChange={(t) => (currentType = t)}
     />
   );
 

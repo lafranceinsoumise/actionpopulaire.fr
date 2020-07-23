@@ -37,7 +37,7 @@ test("Sélectionner des valeurs dans le AmountWidget", () => {
   const component = render(
     <AmountWidget
       amount={null}
-      onAmountChange={amount => (currentValue = amount)}
+      onAmountChange={(amount) => (currentValue = amount)}
       error={null}
     />
   );
@@ -56,7 +56,7 @@ test("utiliser des montants autres que ceux par défaut", () => {
   const component = render(<AmountWidget amountChoices={choices} />);
   const buttons = component.queryAllByText(/[0-9]+\s*€/);
 
-  expect(buttons.map(e => +/([0-9]+)\s*€/.exec(e.textContent)[1])).toEqual(
+  expect(buttons.map((e) => +/([0-9]+)\s*€/.exec(e.textContent)[1])).toEqual(
     choices
   );
 });
