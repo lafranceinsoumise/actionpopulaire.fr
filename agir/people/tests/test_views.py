@@ -358,24 +358,6 @@ class ProfileFormTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, "has-error")
 
-    def test_weird_values_for_mandates_should_not_crash_the_form(self):
-        del self.sample_data["mandates"]
-
-        res = self.client.post(reverse("skills"), data=self.sample_data)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        testing_values = ["", "hhfedhgyu", '"huihui"', '{"key": "value"}']
-
-        for test_value in testing_values:
-            res = self.client.post(
-                reverse("skills"), data={**self.sample_data, "mandates": test_value}
-            )
-            self.assertEqual(
-                res.status_code,
-                status.HTTP_200_OK,
-                msg=f"Mauvais statut pour mandates={test_value}",
-            )
-
 
 class ActivityAbilityFormTestCases(TestCase):
     def setUp(self):
