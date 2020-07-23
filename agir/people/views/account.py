@@ -226,8 +226,8 @@ class MandatsView(SoftLoginRequiredMixin, UpdateView):
         mandats_municipaux = MandatMunicipal.objects.filter(person=person)
 
         if (
-            mandats_municipaux
-            and person.membre_reseau_elus == Person.MEMBRE_RESEAU_EXCLUS
+            not mandats_municipaux
+            or person.membre_reseau_elus == Person.MEMBRE_RESEAU_EXCLUS
         ):
             kwargs["form"] = None
 
