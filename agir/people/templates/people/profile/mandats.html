@@ -1,0 +1,65 @@
+{% extends "front/layout.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Mes mandats" %}{% endblock %}
+
+{% block main %}
+  <div class="row">
+    {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="MANDATS" %} {% endblock %}
+    <div class="col-xs-12 col-md-10">
+      <div class="col-xs-12 col-md-12 ">
+        <h3>Vos mandats</h3>
+        <div class="list-group">
+          {% for mandat in mandats_municipaux %}
+            <div class="list-group-item{% if mandat.besoin_validation_personne %} list-group-item-danger{% endif %}">
+              <h4>{{ mandat.titre_complet }} <small>{% if mandat.actif %}mandat actif{% else %}ancien mandat{% endif %}</small></h4>
+              {% if mandat.communautaire != MANDAT_EPCI_PAS_DE_MANDAT %}
+                <p><em>Aussi élu⋅e à la communauté de communes</em></p>
+              {% endif %}
+              {% if mandat.besoin_validation_personne %}
+                <p><strong>
+                  Ces données ont été ajoutées automatiquement à votre compte parce que vous ou une personne qui porte
+                  les memes noms et prénoms que vous a été élue dans une commune près de chez vous.
+                </strong></p>
+              {% endif %}
+              <div class="btn-group">
+                <a class="btn btn-primary" href="{% url "modifier_mandat_municipal" pk=mandat.id %}">
+                  {% if mandat.besoin_validation_personne %}
+                    Vérifier ces informations
+                  {% else %}
+                    Modifier ces informations
+                  {% endif %}
+                </a>
+                <a class="btn btn-default" href="{% url "supprimer_mandat_municipal"  pk=mandat.id %}">
+                  Je {% if mandat.actif %}ne suis{% else %}n'étais{% endif %} pas élu⋅e dans cette commune
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+          <div class="list-group-item">
+            <h4>{% if mandats_municipaux %}
+              Vous exercez ou avez exercé un autre mandat ?
+            {% else %}
+              Vous exercez ou avez exercé un mandat municipal ?
+            {% endif %}</h4>
+            <p><a href="{% url "creer_mandat_municipal" %}" class="btn btn-primary">Je signale un mandat municipal</a>
+            </p>
+          </div>
+        </div>
+
+        {% if form %}
+          <h3>Réseau des élu⋅es insoumis⋅es et citoyen⋅nes</h3>
+          {% crispy form %}
+
+          Vous pouvez retrouver
+          <a href="https://lafranceinsoumise.fr/comment-ca-marche/espace-des-elus-et-contre-pouvoirs/reseau-des-elus/">
+            des informations sur le réseau des élu⋅es</a> ou
+          <a href="mailto:elus@lafranceinsoumise.fr">les contacter par email</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

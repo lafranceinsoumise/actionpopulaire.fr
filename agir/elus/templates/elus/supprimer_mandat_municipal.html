@@ -1,0 +1,33 @@
+{% extends "front/layout.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+  <div class="row">
+    {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="MANDATS" %} {% endblock %}
+    <div class="col-xs-12 col-md-10">
+      <div class="col-xs-12 col-md-12 ">
+        <p>
+          Vous n'etes en réalité pas élu⋅e {{ mandat.conseil.nom_avec_charniere }} ? Nous vous somme reconnaissants de
+          bien vouloir nous le signaler via ce formulaire
+        </p>
+        <div class="alert alert-info">
+          Généralement, vous avez incorrectement été identifié⋅e comme élu car une personne homonyme a été élue dans
+          une commune proche de chez vous.
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-group">
+          <label>
+            <input name="confirmation" type="checkbox" required>
+            Je ne suis pas élu⋅e dans la commune {{ mandat.conseil.nom_avec_charniere }}
+          </label>
+            </div>
+          <button type="submit" class="btn btn-default">Supprimer ce mandat</button>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

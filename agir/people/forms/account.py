@@ -245,3 +245,66 @@ class CodeValidationForm(Form):
             )
 
         raise ValidationError("Votre code est incorrect ou expiré.")
+
+
+class MembreReseauElusForm(forms.ModelForm):
+    membre_reseau_elus = forms.ChoiceField(
+        label="Souhaitez-vous etre membre du réseau des élu⋅es insoumis⋅es et citoyen⋅nes ?",
+        required=True,
+        choices=(
+            (
+                Person.MEMBRE_RESEAU_SOUHAITE,
+                "Je souhaite rejoindre le réseau des élu⋅es",
+            ),
+            (
+                Person.MEMBRE_RESEAU_NON,
+                "Je ne souhaite pas rejoindre le réseau des élu⋅es",
+            ),
+        ),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+
+        status = self.instance.membre_reseau_elus
+        self.helper.layout = Layout("membre_reseau_elus")
+
+        print(status)
+
+        if status == Person.MEMBRE_RESEAU_INCONNU:
+            self.helper.add_input(Submit("valider", "Valider"))
+        elif status in [Person.MEMBRE_RESEAU_SOUHAITE, Person.MEMBRE_RESEAU_OUI]:
+            self.fields["membre_reseau_elus"].widget = forms.HiddenInput()
+            self.fields["membre_reseau_elus"].choices = (
+                (Person.MEMBRE_RESEAU_NON, ""),
+            )
+            self.initial["membre_reseau_elus"] = Person.MEMBRE_RESEAU_NON
+            self.helper.layout.fields.append(
+                HTML(
+                    "Vous ne souhaitez plus faire partie du réseau des élu⋅es ? Signalez-le ici."
+                ),
+            )
+            self.helper.add_input(
+                Submit(
+                    "valider", "Je ne souhaite plus faire partie du réseau des élu⋅es"
+                )
+            )
+        elif status == Person.MEMBRE_RESEAU_NON:
+            self.fields["membre_reseau_elus"].widget = forms.HiddenInput()
+            self.fields["membre_reseau_elus"].choices = (
+                (Person.MEMBRE_RESEAU_SOUHAITE, ""),
+            )
+            self.initial["membre_reseau_elus"] = Person.MEMBRE_RESEAU_SOUHAITE
+            self.helper.layout.fields.append(
+                HTML(
+                    "Vous souhaitez finalement faire partie du réseau des élu⋅s ? Signalez le-nous."
+                ),
+            )
+            self.helper.add_input(
+                Submit("valider", "Je souhaite faire partie du réseau des élu⋅es")
+            )
+
+    class Meta:
+        model = Person
+        fields = ("membre_reseau_elus",)

@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime
 
 import reversion
 from data_france.models import (
@@ -14,7 +14,14 @@ from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from psycopg2._range import DateRange
 
-from agir.elus.models import MandatMunicipal, MandatDepartemental, MandatRegional
+from agir.elus.models import (
+    MandatMunicipal,
+    MandatDepartemental,
+    MandatRegional,
+    MUNICIPAL_DEFAULT_DATE_RANGE,
+    DEPARTEMENTAL_DEFAULT_DATE_RANGE,
+    REGIONAL_DEFAULT_DATE_RANGE,
+)
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
 from .filters import (
@@ -28,11 +35,6 @@ from .forms import (
     CreerMandatForm,
     CreerMandatMunicipalForm,
 )
-
-
-MUNICIPAL_DEFAULT_DATE_RANGE = DateRange(date(2020, 6, 28), date(2026, 3, 31))
-DEPARTEMENTAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 3, 29), date(2021, 3, 31))
-REGIONAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 12, 13), date(2021, 3, 31))
 
 
 class BaseMandatAdmin(admin.ModelAdmin):

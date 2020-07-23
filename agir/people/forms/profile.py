@@ -425,7 +425,6 @@ class ActivityAndSkillsForm(MetaFieldsMixin, TagMixin, forms.ModelForm):
                     "unions",
                     Field("party", placeholder="Nom du parti"),
                     Field("party_responsibility", placeholder="Responsabilité"),
-                    "mandates",
                 ),
                 ThirdCol(
                     HTML("<label>Savoir-faire</label>"),
@@ -448,4 +447,4 @@ class ActivityAndSkillsForm(MetaFieldsMixin, TagMixin, forms.ModelForm):
 
     class Meta:
         model = Person
-        fields = ("mandates",)
+        fields = []

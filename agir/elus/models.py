@@ -1,11 +1,19 @@
+from datetime import date
+
 import reversion
 from django.contrib.postgres.fields import ArrayField, DateRangeField
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
+from psycopg2._range import DateRange
 
 from agir.lib.history import HistoryMixin
+
+MUNICIPAL_DEFAULT_DATE_RANGE = DateRange(date(2020, 6, 28), date(2026, 3, 31))
+DEPARTEMENTAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 3, 29), date(2021, 3, 31))
+REGIONAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 12, 13), date(2021, 3, 31))
 
 DELEGATIONS_CHOICES = (
     ("social", "Action sociale"),
@@ -162,6 +170,12 @@ class MandatAbstrait(UniqueWithinDates, MandatHistoryMixin, models.Model):
         " existe réellement et 2) le compte éventuellement associé appartient bien à la personne élue.",
     )
 
+    def besoin_validation_personne(self):
+        return self.statut in [STATUT_A_VERIFIER_IMPORT, STATUT_A_VERIFIER_ADMIN]
+
+    def actif(self):
+        return timezone.now().date() in self.dates
+
     class Meta:
         abstract = True
 
@@ -173,16 +187,14 @@ class MandatMunicipal(MandatAbstrait):
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
     MANDAT_MAIRE = "MAI"
     MANDAT_MAIRE_ADJOINT = "ADJ"
-    MANDAT_CONSEILLER_DELEGUE = "DEL"
     MANDAT_MAIRE_DA = "MDA"
 
     MANDAT_CHOICES = (
         (MANDAT_INCONNU, "Situation au conseil inconnue"),
-        (MANDAT_CONSEILLER_MAJORITE, "Conseiller⋅e municipal majoritaire"),
-        (MANDAT_CONSEILLER_OPPOSITION, "Conseiller⋅e municipal minoritaire"),
+        (MANDAT_CONSEILLER_MAJORITE, "Conseiller⋅e municipal⋅e majoritaire"),
+        (MANDAT_CONSEILLER_OPPOSITION, "Conseiller⋅e municipal⋅e minoritaire"),
         (MANDAT_MAIRE, "Maire"),
         (MANDAT_MAIRE_ADJOINT, "Adjoint⋅e au maire"),
-        (MANDAT_CONSEILLER_DELEGUE, "Conseiller⋅e municipal délégué"),
         (MANDAT_MAIRE_DA, "Maire d'une commune déléguée ou associée"),
     )
 
@@ -246,6 +258,28 @@ class MandatMunicipal(MandatAbstrait):
             return f"{self.person}, {elu} à {self.conseil.nom_complet}"
 
         return "Nouveau mandat municipal"
+
+    def titre_complet(self):
+        if self.mandat in [
+            self.MANDAT_INCONNU,
+            self.MANDAT_CONSEILLER_MAJORITE,
+            self.MANDAT_CONSEILLER_OPPOSITION,
+        ]:
+            titre = {"M": "Conseiller municipal", "F": "Conseillère municipale"}.get(
+                self.person.gender, "Conseiller⋅ère municipal⋅e"
+            )
+            titre += {
+                self.MANDAT_CONSEILLER_MAJORITE: " majoritaire",
+                self.MANDAT_CONSEILLER_OPPOSITION: " minoritaire",
+            }.get(self.mandat, "")
+        elif self.mandat == self.MANDAT_MAIRE_ADJOINT:
+            titre = {"M": "Adjoint", "F": "Adjointe"}.get(
+                self.person.gender, "Adjoint⋅e"
+            ) + " au maire"
+        else:
+            titre = self.get_mandat_display()
+
+        return f"{titre} {self.conseil.nom_avec_charniere}"
 
 
 @reversion.register()

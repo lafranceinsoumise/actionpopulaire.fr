@@ -68,6 +68,7 @@ profile_urls = [
         views.ConfirmChangeMailView.as_view(),
         name="confirm_change_mail",
     ),
+    path("profil/mandats/", views.MandatsView.as_view(), name="mandats"),
     path(
         "profil/confidentialite/",
         views.PersonalDataView.as_view(),

@@ -30,5 +30,4 @@ class Command(BaseCommand):
             phone_number=phone_number, session_string=session_string
         )
 
-        print("OK !")
         client.stop()

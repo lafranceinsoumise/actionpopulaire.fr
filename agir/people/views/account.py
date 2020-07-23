@@ -8,7 +8,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils.http import urlquote
 from django.utils.translation import ugettext as _
 from django.views import View
-from django.views.generic import UpdateView, DeleteView, FormView
+from django.views.generic import UpdateView, DeleteView, FormView, TemplateView
 
 from agir.authentication.tokens import add_email_confirmation_token_generator
 from agir.authentication.utils import hard_login
@@ -17,7 +17,12 @@ from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
 )
 from agir.authentication.views import RedirectToMixin
-from agir.people.forms import SendValidationSMSForm, CodeValidationForm
+from agir.elus.models import MandatMunicipal
+from agir.people.forms import (
+    SendValidationSMSForm,
+    CodeValidationForm,
+    MembreReseauElusForm,
+)
 from agir.people.models import Person
 
 
@@ -205,4 +210,40 @@ class CodeValidationView(
             )
 
         person.save()
+        return super().form_valid(form)
+
+
+class MandatsView(SoftLoginRequiredMixin, UpdateView):
+    template_name = "people/profile/mandats.html"
+    form_class = MembreReseauElusForm
+    success_url = reverse_lazy("mandats")
+
+    def get_object(self, queryset=None):
+        return self.request.user.person
+
+    def get_context_data(self, **kwargs):
+        person = self.request.user.person
+        mandats_municipaux = MandatMunicipal.objects.filter(person=person)
+
+        if (
+            mandats_municipaux
+            and person.membre_reseau_elus == Person.MEMBRE_RESEAU_EXCLUS
+        ):
+            kwargs["form"] = None
+
+        return super().get_context_data(
+            **kwargs, mandats_municipaux=mandats_municipaux, person=person,
+        )
+
+    def form_invalid(self, form):
+        print(form.errors)
+        print(form.fields["membre_reseau_elus"].choices)
+        return super().form_invalid(form)
+
+    def form_valid(self, form):
+        messages.add_message(
+            request=self.request,
+            level=messages.SUCCESS,
+            message="Merci, votre choix a été pris en compte",
+        )
         return super().form_valid(form)
