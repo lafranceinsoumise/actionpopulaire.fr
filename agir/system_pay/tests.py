@@ -241,7 +241,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
 
         self.assertEqual(res.status_code, 200)
         subscription.refresh_from_db()
-        self.assertEqual(subscription.status, Subscription.STATUS_COMPLETED)
+        self.assertEqual(subscription.status, Subscription.STATUS_ACTIVE)
         self.assertEqual(subscription.payments.all().count(), 0)
 
         sp_sub = subscription.system_pay_subscriptions.get(active=True)
@@ -319,7 +319,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
 
         self.assertEqual(res.status_code, 200)
         subscription.refresh_from_db()
-        self.assertEqual(subscription.status, Subscription.STATUS_COMPLETED)
+        self.assertEqual(subscription.status, Subscription.STATUS_ACTIVE)
 
         self.assertEqual(2, subscription.system_pay_subscriptions.count())
         self.assertEqual(

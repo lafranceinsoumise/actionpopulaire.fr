@@ -142,7 +142,7 @@ class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
     )
 
     previous_subscription = forms.ModelChoiceField(
-        queryset=Subscription.objects.filter(status=Subscription.STATUS_COMPLETED),
+        queryset=Subscription.objects.filter(status=Subscription.STATUS_ACTIVE),
         required=False,
         widget=forms.HiddenInput,
     )
@@ -224,7 +224,7 @@ class AllocationMonthlyDonorForm(AllocationDonorFormMixin, BaseDonorForm):
     button_label = "Je donne {amount} par mois."
 
     previous_subscription = forms.ModelChoiceField(
-        queryset=Subscription.objects.filter(status=Subscription.STATUS_COMPLETED),
+        queryset=Subscription.objects.filter(status=Subscription.STATUS_ACTIVE),
         required=False,
         widget=forms.HiddenInput,
     )

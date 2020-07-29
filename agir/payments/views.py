@@ -50,7 +50,7 @@ class RetryPaymentView(DetailView):
 
 class SubscriptionView(DetailView):
     queryset = Subscription.objects.filter(
-        status__in=(Subscription.STATUS_WAITING, Subscription.STATUS_COMPLETED)
+        status__in=(Subscription.STATUS_WAITING, Subscription.STATUS_ACTIVE)
     )
 
     def get(self, request, *args, **kwargs):
@@ -70,7 +70,7 @@ class TerminateSubscriptionView(HardLoginRequiredMixin, DetailView):
 
     def get_queryset(self):
         return Subscription.objects.filter(
-            status=Subscription.STATUS_COMPLETED, person=self.request.user.person
+            status=Subscription.STATUS_ACTIVE, person=self.request.user.person
         )
 
     def post(self, request, pk):

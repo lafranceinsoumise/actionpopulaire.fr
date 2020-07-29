@@ -219,7 +219,7 @@ class MonthlyDonationPersonalInformationView(
 
             if (
                 Subscription.objects.filter(
-                    person=self.object, status=Subscription.STATUS_COMPLETED
+                    person=self.object, status=Subscription.STATUS_ACTIVE
                 )
                 and not previous_subscription
             ):
@@ -298,7 +298,7 @@ class AlreadyHasSubscriptionView(FormView):
         ] = deserialize_allocations(self.new_subscription_info["meta"]["allocations"])
 
         self.old_subscription = Subscription.objects.filter(
-            person=request.user.person, status=Subscription.STATUS_COMPLETED
+            person=request.user.person, status=Subscription.STATUS_ACTIVE
         ).first()
         if self.old_subscription is None:
             return redirect(self.first_step_url)
@@ -427,7 +427,7 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
 
         if (
             Subscription.objects.filter(
-                person=person, status=Subscription.STATUS_COMPLETED
+                person=person, status=Subscription.STATUS_ACTIVE
             ).exists()
             and not known_previous_subscription
         ):
@@ -465,7 +465,7 @@ class ReturnView(TemplateView):
 
 
 def subscription_notification_listener(subscription):
-    if subscription.status == Subscription.STATUS_COMPLETED:
+    if subscription.status == Subscription.STATUS_ACTIVE:
         transaction.on_commit(
             partial(send_donation_email.delay, subscription.person.pk)
         )

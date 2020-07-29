@@ -151,19 +151,19 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
 
 class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel):
     STATUS_WAITING = 0
-    STATUS_COMPLETED = 1
+    STATUS_ACTIVE = 1
     STATUS_ABANDONED = 2
     STATUS_CANCELED = 3
     STATUS_REFUSED = 4
     STATUS_TERMINATED = 5
 
     STATUS_CHOICES = (
-        (STATUS_WAITING, "Souscription en attente"),
-        (STATUS_COMPLETED, "Souscription active"),
-        (STATUS_ABANDONED, "Souscription abandonnée"),
-        (STATUS_CANCELED, "Souscription annulée"),
-        (STATUS_REFUSED, "Souscription refusée"),
-        (STATUS_TERMINATED, "Souscription désactivée"),
+        (STATUS_WAITING, "Souscription en attente de confirmation par SystemPay"),
+        (STATUS_ACTIVE, "Souscription active"),
+        (STATUS_ABANDONED, "Souscription abandonnée avant complétion par la personne"),
+        (STATUS_CANCELED, "Souscription refusée côté FI"),
+        (STATUS_REFUSED, "Souscription refusée côté banque"),
+        (STATUS_TERMINATED, "Souscription terminée"),
     )
 
     person = models.ForeignKey(

@@ -30,7 +30,7 @@ def complete_subscription(subscription):
     ):
         raise SubscriptionException("L'abonnement a déjà été annulé.")
 
-    subscription.status = Subscription.STATUS_COMPLETED
+    subscription.status = Subscription.STATUS_ACTIVE
     subscription.save()
 
 
@@ -44,7 +44,7 @@ def notify_status_change(subscription):
 
 
 def terminate_subscription(subscription):
-    if subscription.status != Subscription.STATUS_COMPLETED:
+    if subscription.status != Subscription.STATUS_ACTIVE:
         raise SubscriptionException("Impossible de mettre fin un abonnement non actif.")
 
     with transaction.atomic():
@@ -76,7 +76,7 @@ def description_for_subscription(subscription):
 
 def replace_subscription(previous_subscription, new_subscription):
     assert previous_subscription.mode == new_subscription.mode
-    assert previous_subscription.status == Subscription.STATUS_COMPLETED
+    assert previous_subscription.status == Subscription.STATUS_ACTIVE
     assert new_subscription.status == Subscription.STATUS_WAITING
 
     PAYMENT_MODES[previous_subscription.mode].subscription_replace_action(
@@ -84,6 +84,6 @@ def replace_subscription(previous_subscription, new_subscription):
     )
 
     previous_subscription.status = Subscription.STATUS_TERMINATED
-    new_subscription.status = Subscription.STATUS_COMPLETED
+    new_subscription.status = Subscription.STATUS_ACTIVE
     previous_subscription.save(update_fields=["status"])
     new_subscription.save(update_fields=["status"])

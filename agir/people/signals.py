@@ -4,10 +4,8 @@ from django.db.models.signals import post_save, pre_delete, post_delete
 from django.dispatch import receiver
 from functools import partial
 
-from agir.payments.actions import subscriptions
 from . import tasks
 from .models import Person, PersonEmail
-from ..payments.models import Subscription
 
 
 @receiver(post_save, sender=Person, dispatch_uid="person_update_mailtrain")
@@ -25,16 +23,6 @@ def update_mailtrain(sender, instance, raw, **kwargs):
 def delete_mailtrain(sender, instance, **kwargs):
     if instance.email:
         tasks.delete_email_mailtrain.delay(instance.email)
-
-
-@receiver(pre_delete, sender=Person, dispatch_uid="person_terminate_subscriptions")
-def terminate_subscriptions(sender, instance, **kwargs):
-    for subscription in instance.subscriptions.exclude(
-        status=Subscription.STATUS_TERMINATED
-    ):
-        # TODO: à faire dans une tâche Celery ?
-        # we get a 500 if some remove their account with a waiting subscription, but that should not happen
-        subscriptions.terminate_subscription(subscription)
 
 
 @receiver(post_delete, sender=Person, dispatch_uid="person_delete_role")

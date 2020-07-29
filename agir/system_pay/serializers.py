@@ -180,7 +180,7 @@ class SystemPayWebhookSerializer(serializers.Serializer):
                 detail="mauvais montant", code="wrong_price"
             )
 
-        if subscription.status != Subscription.STATUS_COMPLETED:
+        if subscription.status != Subscription.STATUS_ACTIVE:
             raise serializers.ValidationError(
                 detail="Souscription non active", code="inactive_subscription"
             )

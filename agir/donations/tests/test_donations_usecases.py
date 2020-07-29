@@ -330,7 +330,7 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
         s = Subscription.objects.create(
             person=person,
             price=amount,
-            status=Subscription.STATUS_COMPLETED,
+            status=Subscription.STATUS_ACTIVE,
             type="don_mensuel",
             mode="system_pay",
         )

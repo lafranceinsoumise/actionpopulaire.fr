@@ -338,7 +338,7 @@ class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
     def terminate_view(self, request, subscription_pk):
         try:
             subscription = Subscription.objects.get(
-                pk=subscription_pk, status=Subscription.STATUS_COMPLETED
+                pk=subscription_pk, status=Subscription.STATUS_ACTIVE
             )
         except Subscription.DoesNotExist:
             raise Http404()

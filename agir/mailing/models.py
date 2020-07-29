@@ -351,9 +351,9 @@ class Segment(BaseSegment, models.Model):
 
         if self.subscription is not None:
             if self.subscription:
-                q = q & Q(subscriptions__status=Subscription.STATUS_COMPLETED)
+                q = q & Q(subscriptions__status=Subscription.STATUS_ACTIVE)
             else:
-                q = q & ~Q(subscriptions__status=Subscription.STATUS_COMPLETED)
+                q = q & ~Q(subscriptions__status=Subscription.STATUS_ACTIVE)
 
         if self.add_segments.all().count() > 0:
             q = reduce(

@@ -304,7 +304,7 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
 
     def get_subscriptions(self):
         return self.request.user.person.subscriptions.filter(
-            status=Subscription.STATUS_COMPLETED
+            status=Subscription.STATUS_ACTIVE
         )
 
     def get_initial_for_subscription(self, subscription):
