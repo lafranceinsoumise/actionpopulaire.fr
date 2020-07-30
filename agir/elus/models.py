@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from psycopg2._range import DateRange
 
+from agir.lib.display import genrer
 from agir.lib.history import HistoryMixin
 
 MUNICIPAL_DEFAULT_DATE_RANGE = DateRange(date(2020, 6, 28), date(2026, 3, 31))
@@ -249,13 +250,7 @@ class MandatMunicipal(MandatAbstrait):
 
     def __str__(self):
         if hasattr(self, "person") and hasattr(self, "conseil"):
-            if self.person.gender == "M":
-                elu = "élu"
-            elif self.person.gender == "F":
-                elu = "élue"
-            else:
-                elu = "élu⋅e"
-            return f"{self.person}, {elu} à {self.conseil.nom_complet}"
+            return f"{self.person}, {genrer(self.person.gender, 'élu⋅e')} à {self.conseil.nom_complet}"
 
         return "Nouveau mandat municipal"
 
@@ -265,21 +260,22 @@ class MandatMunicipal(MandatAbstrait):
             self.MANDAT_CONSEILLER_MAJORITE,
             self.MANDAT_CONSEILLER_OPPOSITION,
         ]:
-            titre = {"M": "Conseiller municipal", "F": "Conseillère municipale"}.get(
-                self.person.gender, "Conseiller⋅ère municipal⋅e"
-            )
+            titre = genrer(self.person.gender, "Conseiller⋅ère municipal⋅e")
             titre += {
                 self.MANDAT_CONSEILLER_MAJORITE: " majoritaire",
                 self.MANDAT_CONSEILLER_OPPOSITION: " minoritaire",
             }.get(self.mandat, "")
         elif self.mandat == self.MANDAT_MAIRE_ADJOINT:
-            titre = {"M": "Adjoint", "F": "Adjointe"}.get(
-                self.person.gender, "Adjoint⋅e"
-            ) + " au maire"
+            titre = f"{genrer(self.person.gender, 'Adjoint⋅e')} au maire"
         else:
             titre = self.get_mandat_display()
 
         return f"{titre} {self.conseil.nom_avec_charniere}"
+
+    def get_absolute_url(self):
+        return reverse(
+            viewname="elus:modifier_mandat_municipal", kwargs={"pk": self.id},
+        )
 
 
 @reversion.register()
@@ -294,7 +290,7 @@ class MandatDepartemental(MandatAbstrait):
         (MANDAT_INCONNU, "Situation au conseil inconnue"),
         (MANDAT_CONSEILLER_MAJORITE, "Conseiller⋅e majoritaire"),
         (MANDAT_CONSEILLER_OPPOSITION, "Conseiller⋅e minoritaire"),
-        (MANDAT_PRESIDENT, "Président du conseil"),
+        (MANDAT_PRESIDENT, "Président"),
         (MANDAT_VICE_PRESIDENT, "Vice-Président"),
     )
 
@@ -328,15 +324,32 @@ class MandatDepartemental(MandatAbstrait):
 
     def __str__(self):
         if hasattr(self, "person") and hasattr(self, "conseil"):
-            if self.person.gender == "M":
-                elu = "élu"
-            elif self.person.gender == "F":
-                elu = "élue"
-            else:
-                elu = "élu⋅e"
-            return f"{self.person}, {elu} à {self.conseil.nom}"
+            return f"{self.person}, {genrer(self.person.gender, 'élu.e')} au {self.conseil.nom}"
 
         return "Nouveau mandat départemental"
+
+    def titre_complet(self):
+        if self.mandat in [
+            self.MANDAT_INCONNU,
+            self.MANDAT_CONSEILLER_MAJORITE,
+            self.MANDAT_CONSEILLER_OPPOSITION,
+        ]:
+            titre = genrer(self.person.gender, "Conseiller⋅ère")
+            titre += {
+                self.MANDAT_CONSEILLER_MAJORITE: " majoritaire",
+                self.MANDAT_CONSEILLER_OPPOSITION: " minoritaire",
+            }.get(self.mandat, "")
+        elif self.mandat == self.MANDAT_VICE_PRESIDENT:
+            titre = genrer(self.person.gender, "Vice-président⋅e")
+        else:
+            titre = self.get_mandat_display()
+
+        return f"{titre} au {self.conseil.nom}"
+
+    def get_absolute_url(self):
+        return reverse(
+            viewname="elus:modifier_mandat_departemental", kwargs={"pk": self.id},
+        )
 
 
 @reversion.register()
@@ -351,7 +364,7 @@ class MandatRegional(MandatAbstrait):
         (MANDAT_INCONNU, "Situation au conseil inconnue"),
         (MANDAT_CONSEILLER_MAJORITE, "Conseiller⋅e majoritaire"),
         (MANDAT_CONSEILLER_OPPOSITION, "Conseiller⋅e minoritaire"),
-        (MANDAT_PRESIDENT, "Président du conseil"),
+        (MANDAT_PRESIDENT, "Président"),
         (MANDAT_VICE_PRESIDENT, "Vice-Président"),
     )
 
@@ -391,6 +404,33 @@ class MandatRegional(MandatAbstrait):
                 elu = "élue"
             else:
                 elu = "élu⋅e"
-            return f"{self.person}, {elu} à {self.conseil.nom}"
+            return f"{self.person}, {elu} au {self.conseil.nom}"
 
-        return "Nouveau mandat départemental"
+        return "Nouveau mandat régional"
+
+    def titre_complet(self):
+        if self.mandat in [
+            self.MANDAT_INCONNU,
+            self.MANDAT_CONSEILLER_MAJORITE,
+            self.MANDAT_CONSEILLER_OPPOSITION,
+        ]:
+            titre = genrer(self.person.gender, "Conseiller⋅ère")
+            titre += {
+                self.MANDAT_CONSEILLER_MAJORITE: " majoritaire",
+                self.MANDAT_CONSEILLER_OPPOSITION: " minoritaire",
+            }.get(self.mandat, "")
+        elif self.mandat == self.MANDAT_VICE_PRESIDENT:
+            titre = genrer(self.person.gender, "Vice-président⋅e")
+        else:
+            titre = self.get_mandat_display()
+
+        nom_conseil = self.conseil.nom
+        if nom_conseil.startswith("Assemblée"):
+            return f"{titre} à l'{nom_conseil}"
+
+        return f"{titre} au {nom_conseil}"
+
+    def get_absolute_url(self):
+        return reverse(
+            viewname="elus:modifier_mandat_regional", kwargs={"pk": self.id},
+        )

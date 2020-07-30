@@ -13,29 +13,31 @@
       <div class="col-xs-12 col-md-12 ">
         <h3>Vos mandats</h3>
         <div class="list-group">
-          {% for mandat in mandats_municipaux %}
+          {% for mandat in mandats %}
             <div class="list-group-item{% if mandat.besoin_validation_personne %} list-group-item-danger{% endif %}">
-              <h4>{{ mandat.titre_complet }} <small>{% if mandat.actif %}mandat actif{% else %}ancien mandat{% endif %}</small></h4>
+              <a class="badge" href="{% url "elus:supprimer_mandat_municipal"  pk=mandat.id %}">
+                Ce n'est pas vous ?
+              </a>
+              <h4>{{ mandat.titre_complet }} <small>{% if mandat.actif %}mandat actif{% else %}ancien
+                mandat{% endif %}</small></h4>
               {% if mandat.communautaire != MANDAT_EPCI_PAS_DE_MANDAT %}
-                <p><em>Aussi {% genrer "élu⋅e" %} à la communauté de communes</em></p>
+                <p><em>Aussi {% genrer "élu⋅e" %} à la {{ mandat.conseil.epci.nom }}</em></p>
               {% endif %}
               {% if mandat.besoin_validation_personne %}
                 <p><strong>
                   Ces données ont été ajoutées automatiquement à votre compte parce que vous ou une personne qui porte
-                  les memes noms et prénoms que vous a été élue dans une commune près de chez vous.
+                  les memes noms et prénoms que vous a été élue près de chez vous.
                 </strong></p>
               {% endif %}
               <div class="btn-group">
-                <a class="btn btn-primary" href="{% url "modifier_mandat_municipal" pk=mandat.id %}">
+                <a class="btn btn-default" href="{{ mandat.get_absolute_url }}">
                   {% if mandat.besoin_validation_personne %}
                     Vérifier ces informations
                   {% else %}
                     Modifier ces informations
                   {% endif %}
                 </a>
-                <a class="btn btn-default" href="{% url "supprimer_mandat_municipal"  pk=mandat.id %}">
-                  Je {% if mandat.actif %}ne suis{% else %}n'étais{% endif %} pas {% genrer "élu⋅e" %} dans cette commune
-                </a>
+
               </div>
             </div>
           {% endfor %}
@@ -43,9 +45,15 @@
             <h4>{% if mandats_municipaux %}
               Vous exercez ou avez exercé un autre mandat ?
             {% else %}
-              Vous exercez ou avez exercé un mandat municipal ?
+              Vous exercez ou avez exercé un mandat ?
             {% endif %}</h4>
-            <p><a href="{% url "creer_mandat_municipal" %}" class="btn btn-primary">Je signale un mandat municipal</a>
+            <p>Signalez-nous :</p>
+            <p>
+              <a href="{% url "elus:creer_mandat_municipal" %}" class="btn btn-default">Un mandat municipal</a>
+              <a href="{% url "elus:creer_mandat_departemental" %}" class="btn btn-default">Un mandat départemental ou
+                métropolitain</a>
+              <a href="{% url "elus:creer_mandat_regional" %}" class="btn btn-default">Un mandat régional ou auprès
+                d'une collectivité unique</a>
             </p>
           </div>
         </div>
@@ -63,4 +71,3 @@
     </div>
   </div>
 {% endblock %}
-

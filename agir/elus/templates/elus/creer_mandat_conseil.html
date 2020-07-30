@@ -5,7 +5,7 @@
 {% load display_lib %}
 
 {% block title %}
-  Signaler un mandat municipal dont je suis investi
+  Signaler un mandat {% genrer mandat_adjectif "M" %} dont je suis investi
 {% endblock %}
 
 {% block main %}
@@ -13,10 +13,11 @@
     {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="MANDATS" %} {% endblock %}
     <div class="col-xs-12 col-md-10">
       <div class="col-xs-12 col-md-12 ">
-        <h1>Je signale un mandat municipal dont je suis {% genrer "investi⋅e" %}</h1>
+        <h1>Je signale un mandat {% genrer mandat_adjectif "M" %} dont je suis {% genrer "investi⋅e" %}</h1>
 
-        <p>Vous avez été {% genrer "élu⋅e" %} lors des dernières élections municipales, ou à une date antérieure, et
-          souhaitez être {% genrer "intégré⋅e" %} au réseau des élus de la France insoumise ? Signalez-le nous via ce
+        <p>Vous avez été {% genrer "élu⋅e" %} lors des dernières élections {% genrer mandat_adjectif "F" %}, ou à une
+          date antérieure, et  souhaitez être {% genrer "intégré⋅e" %} au réseau des élus de la France insoumise ?
+          Signalez-le nous via ce
           formulaire.</p>
 
         {% crispy form %}

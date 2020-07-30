@@ -1,3 +1,4 @@
+from itertools import chain
 from uuid import UUID
 
 from django.contrib import messages
@@ -17,7 +18,7 @@ from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
 )
 from agir.authentication.views import RedirectToMixin
-from agir.elus.models import MandatMunicipal
+from agir.elus.models import MandatMunicipal, MandatDepartemental, MandatRegional
 from agir.people.forms import (
     SendValidationSMSForm,
     CodeValidationForm,
@@ -224,16 +225,17 @@ class MandatsView(SoftLoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         person = self.request.user.person
         mandats_municipaux = MandatMunicipal.objects.filter(person=person)
+        mandats_departementaux = MandatDepartemental.objects.filter(person=person)
+        mandats_regionaux = MandatRegional.objects.filter(person=person)
 
-        if (
-            not mandats_municipaux
-            or person.membre_reseau_elus == Person.MEMBRE_RESEAU_EXCLUS
-        ):
+        mandats = list(
+            chain(mandats_municipaux, mandats_departementaux, mandats_regionaux)
+        )
+
+        if not mandats or person.membre_reseau_elus == Person.MEMBRE_RESEAU_EXCLUS:
             kwargs["form"] = None
 
-        return super().get_context_data(
-            **kwargs, mandats_municipaux=mandats_municipaux, person=person,
-        )
+        return super().get_context_data(**kwargs, mandats=mandats, person=person,)
 
     def form_invalid(self, form):
         print(form.errors)

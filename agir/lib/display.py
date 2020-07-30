@@ -97,22 +97,32 @@ def str_summary(text, length_max=500, last_word_limit=100):
     return text
 
 
+def genrer_mot_inclusif(mot, genre):
+    if "⋅" not in mot or genre not in ["M", "F"]:
+        return mot
+
+    racine, ext = mot.split("⋅", 1)
+
+    if ext[-1] != "e" and ext[-2:] != "es":
+        raise ValueError(
+            "Seules les terminaisons en e ou es peuvent utiliser la forme à 2 arguments."
+        )
+
+    pluriel = "s" if ext[-1:] == "s" and racine[-1] not in "sx" else ""
+    if pluriel:
+        ext = ext[:-1]
+    tronque = len(racine) - len(ext) + 1
+
+    if genre == "M":
+        return f"{racine}{pluriel}"
+    return f"{racine[:tronque]}{ext}{pluriel}"
+
+
 def genrer(genre, *args):
     if len(args) not in (1, 3):
         raise TypeError
 
     if len(args) == 1:
-        racine, ext = args[0].split("⋅", 1)
-        if ext[-1] != "e" and ext[-2:] != "es":
-            raise ValueError(
-                "Seules les terminaisons en e ou es peuvent utiliser la forme à 2 arguments."
-            )
-
-        pluriel = "s" if ext[-1:] == "s" else ""
-        if pluriel:
-            ext = ext[:-1]
-        tronque = len(racine) - len(ext) + 1
-
-        args = [f"{racine}{pluriel}", f"{racine[:tronque]}{ext}{pluriel}", args[0]]
+        return " ".join(genrer_mot_inclusif(mot, genre) for mot in args[0].split())
 
     return args[0 if genre == "M" else 1 if genre == "F" else 2]
