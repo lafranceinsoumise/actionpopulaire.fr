@@ -306,6 +306,7 @@ class SpendingRequestCreationForm(SpendingRequestFormMixin, forms.ModelForm):
             "spending_date",
             "provider",
             "iban",
+            "payer_name",
         )
 
 
@@ -355,6 +356,7 @@ class SpendingRequestEditForm(SpendingRequestFormMixin, forms.ModelForm):
             "spending_date",
             "provider",
             "iban",
+            "payer_name",
         )
 
 

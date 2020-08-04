@@ -38,13 +38,13 @@ def admin_summary(spending_request):
         "spending_date": "spending_date",
         "provider": "provider",
         "iban": "iban",
+        "payer_name": "payer_name",
     }
 
     values = glom(spending_request, spec)
 
     return [
-        {"label": SpendingRequest._meta.get_field(f).verbose_name, "value": values[f]}
-        for f in spec
+        {"label": get_spending_request_field_label(f), "value": values[f]} for f in spec
     ]
 
 
@@ -61,6 +61,7 @@ def summary(spending_request):
         "spending_date",
         "provider",
         "iban",
+        "payer_name",
     ]
 
     yield {"label": "Identifiant de la demande", "value": str(spending_request.pk)[:6]}

@@ -255,10 +255,18 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         blank=False,
         null=False,
         help_text=_(
-            "Indiquez le RIB du prestataire s'il s'agit d'un réglement, ou le RIB de la personne concernée s'il s'agit"
+            "Indiquez le RIB du prestataire s'il s'agit d'un réglement, ou le RIB de la personne qui a payé s'il s'agit"
             " d'un remboursement."
         ),
         allowed_countries=["FR"],
+    )
+
+    payer_name = models.CharField(
+        _("Nom de la personne qui a payé"),
+        blank=True,
+        max_length=200,
+        help_text="S'il s'agit du remboursement d'une dépense déjà faite, indiquez le nom de la personne qui a payé"
+        " et à qui l'IBAN correspond. Sinon, laissez vide.",
     )
 
     class Meta:
