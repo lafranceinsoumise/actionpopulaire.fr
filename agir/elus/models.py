@@ -29,6 +29,7 @@ DELEGATIONS_CHOICES = (
     ("international", "Coopération internationale"),
     ("culture", "Culture"),
     ("eau", "Eau assainissement"),
+    ("ess", "Économie sociale et solidaire"),
     ("égalité F/H", "Égalité F/H"),
     ("emploi", "Emploi"),
     ("environnement", "Environnement"),
