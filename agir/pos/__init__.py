@@ -1,4 +1,4 @@
-from agir.money.payment_mode import AbstractMoneyPaymentMode
+from agir.pos.payment_mode import AbstractMoneyPaymentMode
 
 
 class MoneyPaymentMode(AbstractMoneyPaymentMode):
