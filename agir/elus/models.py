@@ -435,3 +435,10 @@ class MandatRegional(MandatAbstrait):
         return reverse(
             viewname="elus:modifier_mandat_regional", kwargs={"pk": self.id},
         )
+
+
+types_elus = {
+    "municipal": MandatMunicipal,
+    "departemental": MandatDepartemental,
+    "regional": MandatRegional,
+}
