@@ -106,7 +106,7 @@ class PaymentManagementAdminMixin:
         ):
             return payment.get_mode_display()
 
-        if admin_modes := PAYMENT_TYPES[payment.type].admin_modes is not None:
+        if (admin_modes := PAYMENT_TYPES[payment.type].admin_modes) is not None:
             payment_modes = {k: v for k, v in PAYMENT_MODES.items() if k in admin_modes}
         else:
             payment_modes = PAYMENT_MODES
