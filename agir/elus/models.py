@@ -118,7 +118,7 @@ class UniqueWithinDates:
         if exclude is None:
             exclude = []
 
-        if not any(f in exclude for f in ["person", "conseil", "dates"]):
+        if not all(f in exclude for f in ["person", "conseil", "dates"]):
             qs = self.__class__._default_manager.filter(
                 person_id=self.person_id,
                 conseil_id=self.conseil_id,

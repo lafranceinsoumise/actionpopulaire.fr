@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.postgres.forms import DateRangeField
 
 from data_france.models import CollectiviteDepartementale, CollectiviteRegionale
+from django.core.exceptions import NON_FIELD_ERRORS
 
 from agir.elus.models import (
     MandatMunicipal,
@@ -84,6 +85,12 @@ class BaseMandatForm(forms.ModelForm):
 
     class Meta:
         fields = ("dates", "mandat")
+        error_messages = {
+            NON_FIELD_ERRORS: {
+                "dates_overlap": "Vous avez déjà indiqué un autre mandat pour ce conseil à des dates qui se"
+                " chevauchent. Modifiez plutôt cet autre mandat."
+            }
+        }
 
 
 class MandatMunicipalForm(BaseMandatForm):
@@ -93,7 +100,7 @@ class MandatMunicipalForm(BaseMandatForm):
         super().__init__(*args, **kwargs)
 
         self.fields["delegations"].help_text = (
-            "Si vous êtes maire adjoint⋅e ou vice-président⋅e de l'EPCI, indiquez dans quels domains rentrent vos"
+            "Si vous êtes maire adjoint⋅e ou vice-président⋅e de l'EPCI, indiquez dans quels domaines rentrent vos"
             " délégations."
         )
 
@@ -117,7 +124,7 @@ class MandatMunicipalForm(BaseMandatForm):
         if "membre_reseau_elus" in self.fields:
             self.helper.layout.fields.insert(2, "membre_reseau_elus")
 
-    class Meta:
+    class Meta(BaseMandatForm.Meta):
         model = MandatMunicipal
         fields = BaseMandatForm.Meta.fields + ("communautaire", "delegations",)
 
@@ -137,7 +144,7 @@ class CreerMandatMunicipalForm(MandatMunicipalForm):
 class MandatDepartementalForm(BaseMandatForm):
     default_date_range = DEPARTEMENTAL_DEFAULT_DATE_RANGE
 
-    class Meta:
+    class Meta(BaseMandatForm.Meta):
         model = MandatDepartemental
         fields = BaseMandatForm.Meta.fields + ("delegations",)
 
@@ -162,7 +169,7 @@ class CreerMandatDepartementalForm(MandatDepartementalForm):
 class MandatRegionalForm(BaseMandatForm):
     default_date_range = REGIONAL_DEFAULT_DATE_RANGE
 
-    class Meta:
+    class Meta(BaseMandatForm.Meta):
         model = MandatRegional
         fields = BaseMandatForm.Meta.fields + ("delegations",)
 
