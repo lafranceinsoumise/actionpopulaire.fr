@@ -25,6 +25,7 @@ from agir.payments.actions.subscriptions import terminate_subscription
 from agir.payments.models import Subscription, Payment
 from agir.payments.payment_modes import PAYMENT_MODES
 from . import models
+from .types import PAYMENT_TYPES
 
 
 def notify_status_action(model_admin, request, queryset):
@@ -105,12 +106,17 @@ class PaymentManagementAdminMixin:
         ):
             return payment.get_mode_display()
 
+        if (admin_modes := PAYMENT_TYPES[payment.type].admin_modes) is not None:
+            payment_modes = {k: v for k, v in PAYMENT_MODES.items() if k in admin_modes}
+        else:
+            payment_modes = PAYMENT_MODES
+
         return format_html_join(
             " ",
             '<button type="submit" class="button" name="_changemode" {} value="{}">{}</button>',
             (
                 ("disabled" if payment.mode == id else "", id, mode.label)
-                for id, mode in PAYMENT_MODES.items()
+                for id, mode in payment_modes.items()
             ),
         )
 

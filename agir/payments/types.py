@@ -22,6 +22,7 @@ class PaymentType:
     description_template: str = None
     description_context_generator: Callable[["Payment"], Mapping[str, Any]] = None
     matomo_goal: Optional[int] = None
+    admin_modes: Optional[list] = None
 
 
 def register_payment_type(payment_type: PaymentType):

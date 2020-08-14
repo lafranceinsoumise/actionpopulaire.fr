@@ -100,7 +100,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
             PAYMENT_TYPES[self.type].label if self.type in PAYMENT_TYPES else self.type
         )
 
-    get_type_display.short_description = "Type d'abonnement"
+    get_type_display.short_description = "Type de paiement"
 
     def get_payment_url(self):
         return front_url("payment_page", args=[self.pk])
