@@ -86,8 +86,9 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
                 pass
 
         if "is_authorized" not in kwargs:
-            kwargs["is_authorized"] = self.event.subscription_form.is_authorized(
-                self.request.user.person
+            kwargs["is_authorized"] = (
+                self.event.subscription_form is None
+                or self.event.subscription_form.is_authorized(self.request.user.person)
             )
 
         kwargs = {
@@ -131,7 +132,7 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
 
     def get(self, request, *args, **kwargs):
         self.event = self.object = self.get_object()
-        if self.event.subscription_form is None:
+        if self.event.subscription_form is None and self.event.is_free:
             return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))
 
         context = self.get_context_data(object=self.event)

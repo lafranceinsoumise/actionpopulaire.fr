@@ -32,7 +32,13 @@ class PaymentView(DetailView):
 
 class RetryPaymentView(DetailView):
     def get_queryset(self):
-        return Payment.objects.exclude(status=Payment.STATUS_COMPLETED).filter(
+        return Payment.objects.filter(
+            status__in=[
+                Payment.STATUS_WAITING,
+                Payment.STATUS_ABANDONED,
+                Payment.STATUS_REFUSED,
+            ]
+        ).filter(
             mode__in=[mode.id for mode in PAYMENT_MODES.values() if mode.can_retry]
         )
 

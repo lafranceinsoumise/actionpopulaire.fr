@@ -47,12 +47,12 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     STATUS_REFUND = -1
 
     STATUS_CHOICES = (
-        (STATUS_WAITING, "En attente"),
-        (STATUS_COMPLETED, "Terminé"),
-        (STATUS_ABANDONED, "Abandonné"),
-        (STATUS_CANCELED, "Annulé"),
-        (STATUS_REFUSED, "Refusé"),
-        (STATUS_REFUND, "Remboursé"),
+        (STATUS_WAITING, "Paiement en attente"),
+        (STATUS_COMPLETED, "Paiement terminé"),
+        (STATUS_ABANDONED, "Paiement abandonné en cours"),
+        (STATUS_CANCELED, "Paiement annulé avant encaissement"),
+        (STATUS_REFUSED, "Paiement refusé par votre banque"),
+        (STATUS_REFUND, "Paiement remboursé"),
     )
 
     person = models.ForeignKey(

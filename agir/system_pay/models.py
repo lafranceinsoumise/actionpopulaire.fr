@@ -16,11 +16,11 @@ class SystemPayTransaction(
     STATUS_REFUSED = 4
 
     STATUS_CHOICES = (
-        (STATUS_WAITING, "En attente"),
-        (STATUS_COMPLETED, "Terminé"),
-        (STATUS_ABANDONED, "Abandonné"),
-        (STATUS_CANCELED, "Annulé"),
-        (STATUS_REFUSED, "Refusé"),
+        (STATUS_WAITING, "Paiement en attente"),
+        (STATUS_COMPLETED, "Paiement terminé"),
+        (STATUS_ABANDONED, "Paiement abandonné au milieu"),
+        (STATUS_CANCELED, "Paiement annulé avant encaissement"),
+        (STATUS_REFUSED, "Paiement refusé par la banque"),
     )
 
     status = models.IntegerField(

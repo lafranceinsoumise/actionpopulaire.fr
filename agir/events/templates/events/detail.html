@@ -50,41 +50,53 @@
         {% endif %}
         {% if not event.is_past %}
           {% if rsvp %}
-            <span class="dropdown">
-                            <button class="btn btn-primary" data-toggle="dropdown">
-                                {{ rsvp.get_status_display }}{% if rsvp.guests > 0 %} ({{ rsvp.guests|add:1 }}
-                                  participant⋅e⋅s){% endif %}
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                {% if event.subscription_form %}
-                                  <li><a href="{% url "rsvp_event" event.pk %}">Voir ma participation</a></li>
-                                {% endif %}
-                              {% if event.is_free %}
-                                <li><a href="{% url "quit_event" event.pk %}">Annuler ma participation</a></li>
-                              {% endif %}
-                              {% if event.allow_guests %}
-                                <li>
-                                        {% if event.subscription_form is None %}
-                                          <form id="add-guest" style="display:none;"
-                                                action="{% url "rsvp_event" event.pk %}" method="post">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="guests" value="{{ rsvp.guests|add:1 }}"/>
-                                            </form>
-                                          <a data-turbolinks="false"
-                                             href="#"
-                                             onclick="$('#add-guest').submit()">
-                                        {% else %}
-                                          <a href="{% url "rsvp_event" event.pk %}">
-                                        {% endif %}
-                                  Ajouter un invité</a>
-                                    </li>
-                              {% endif %}
-                            </ul>
-                        </span>
-              {% if event.is_current and event.enable_jitsi %}
-                <a class="btn btn-default" href="{% url "view_event_participation" event.pk %}" data-turbolinks="false">Lancer l'événement en ligne&nbsp;!</a>
-              {% endif %}
+            <div class="dropdown">
+              <button class="btn btn-primary" data-toggle="dropdown">
+                {% if rsvp.status == rsvp.STATUS_AWAITING_PAYMENT %}
+                  {{ rsvp.payment.get_status_display }}
+                {% else %}
+                  {{ rsvp.get_status_display }}
+                {% endif %}
+                {% if rsvp.guests > 0 %} ({{ rsvp.guests|add:1 }}
+                  participant⋅e⋅s){% endif %}
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-right">
+                {% if event.status == event.STATUS_AWAITING_PAYMENT %}
+                  <li><a href="{% url "payment_retry" rsvp.payment_id %}">Retenter le paiement</a></li>
+                  {% if rsvp.payment.can_cancel %}
+                    <li><a href="{% url "rsvp_change_payment" rsvp.pk %}">Utiliser un autre moyen de paiement</a></li>
+                  {% endif %}
+                {% endif %}
+                {% if event.subscription_form or not event.is_free %}
+                  <li><a href="{% url "rsvp_event" event.pk %}">Voir ma participation</a></li>
+                {% endif %}
+                {% if event.is_free %}
+                  <li><a href="{% url "quit_event" event.pk %}">Annuler ma participation</a></li>
+                {% endif %}
+                {% if event.allow_guests %}
+                  <li>
+                    {% if event.subscription_form is None %}
+                      <form id="add-guest" style="display:none;"
+                            action="{% url "rsvp_event" event.pk %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="guests" value="{{ rsvp.guests|add:1 }}"/>
+                      </form>
+                      <a data-turbolinks="false"
+                         href="#"
+                         onclick="$('#add-guest').submit()">
+                    {% else %}
+                      <a href="{% url "rsvp_event" event.pk %}">
+                    {% endif %}
+                    Ajouter un invité</a>
+                  </li>
+                {% endif %}
+              </ul>
+            </div>
+            {% if event.is_current and event.enable_jitsi %}
+              <a class="btn btn-default" href="{% url "view_event_participation" event.pk %}" data-turbolinks="false">Lancer
+                l'événement en ligne&nbsp;!</a>
+            {% endif %}
           {% elif user.person.is_insoumise or event.subtype.allow_external %}
             {% if event.max_participants and event.participants >= event.max_participants %}
               <span class="btn btn-primary">Évènement complet</span>
@@ -112,7 +124,7 @@
             <input type="email" name="email" class="form-control" placeholder="email@exemple.fr">
             <span class="input-group-btn">
                         <button class="btn btn-primary" type="submit">Participer à cet événement <i
-                          class="fa fa-check"></i></button>
+                            class="fa fa-check"></i></button>
                       </span>
           </div>
         </form>
@@ -160,10 +172,10 @@
         <h4>Contact</h4>
         <p>{{ event.html_full_contact }}</p>
         {% if event.facebook %}
-        <a href="https://www.facebook.com/events/{{ event.facebook }}/" target="_blank">
-          <i class="fa fa-facebook-official"></i> sur Facebook
-        </a>
-      {% endif %}
+          <a href="https://www.facebook.com/events/{{ event.facebook }}/" target="_blank">
+            <i class="fa fa-facebook-official"></i> sur Facebook
+          </a>
+        {% endif %}
       {% endif %}
 
       {% spaceless %}
@@ -174,7 +186,7 @@
               d'action{% endif %}
             {% for supportgroup in event.organizers_groups.all.distinct %}
               <a href="{% url "view_group" supportgroup.pk %}"><i
-                class="fa fa-group"></i> {{ supportgroup.name }}</a>
+                  class="fa fa-group"></i> {{ supportgroup.name }}</a>
               {% if not forloop.last %}{% if forloop.revcounter0 == 1 %} et {% else %}
                 , {% endif %}{% else %}.
               {% endif %}
@@ -200,7 +212,8 @@
         {% else %}
           <i>Cet événement n'a pas encore de description.</i>
           {% if is_organizer %}
-            &nbsp;<a href="{% url "edit_event" event.pk %}#div_id_description"><span class="fa fa-edit"></span> Ajouter</a>
+            &nbsp;
+            <a href="{% url "edit_event" event.pk %}#div_id_description"><span class="fa fa-edit"></span> Ajouter</a>
           {% endif %}
         {% endif %}
       </p>
