@@ -21,6 +21,7 @@ class Command(BaseCommand):
         writer.writerow(
             [
                 "numero",
+                "canceled",
                 "full_name",
                 "uuid",
                 "contact_email",
@@ -35,6 +36,7 @@ class Command(BaseCommand):
             writer.writerow(
                 [
                     "R" + str(rsvp.pk),
+                    "O" if rsvp.status == RSVP.STATUS_CANCELED else "",
                     f"{rsvp.form_submission.data.get('first_name')} {rsvp.form_submission.data.get('last_name')}",
                     str(rsvp.person.id),
                     rsvp.person.email,
