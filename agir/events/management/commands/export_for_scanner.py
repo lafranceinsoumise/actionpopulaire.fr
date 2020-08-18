@@ -50,6 +50,7 @@ class Command(BaseCommand):
                 writer.writerow(
                     [
                         "G" + str(rsvp.pk) + "g" + str(guest.pk),
+                        "O" if guest.status == RSVP.STATUS_CANCELED else "",
                         f"{guest.submission.data['first_name']} {guest.submission.data['last_name']}",
                         str(rsvp.person.id),
                         rsvp.person.email,
