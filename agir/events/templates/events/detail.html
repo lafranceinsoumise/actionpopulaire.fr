@@ -62,8 +62,10 @@
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu dropdown-menu-right">
-                {% if event.status == event.STATUS_AWAITING_PAYMENT %}
-                  <li><a href="{% url "payment_retry" rsvp.payment_id %}">Retenter le paiement</a></li>
+                {% if rsvp.status == rsvp.STATUS_AWAITING_PAYMENT %}
+                  {% if rsvp.payment_id %}
+                    <li><a href="{% url "payment_retry" rsvp.payment_id %}">Retenter le paiement</a></li>
+                  {% endif %}
                   {% if rsvp.payment.can_cancel %}
                     <li><a href="{% url "rsvp_change_payment" rsvp.pk %}">Utiliser un autre moyen de paiement</a></li>
                   {% endif %}
