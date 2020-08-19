@@ -35,26 +35,31 @@
             <li><strong>Numéro de transaction</strong> : {{ rsvp.payment.pk }}</li>
             <li><strong>Mode de paiement</strong> : {{ rsvp.payment.get_mode_display }}
               {% if rsvp.payment.can_cancel %}
-                <a href="{% url "rsvp_change_payment" rsvp.pk %}">Changer de mode de paiement</a>
+                <a class="btn btn-default" href="{% url "rsvp_change_payment" rsvp.pk %}">Changer de mode de
+                  paiement</a>
               {% endif %}
             </li>
             <li>
               <strong>Status</strong> : {{ rsvp.payment.get_status_display }}
               {% if rsvp.payment.can_retry %}
-                <a href="{% url "payment_retry" rsvp.payment.pk %}">Retenter le paiement</a>
+                <a class="btn btn-default" href="{% url "payment_retry" rsvp.payment.pk %}">Retenter le paiement</a>
               {% endif %}
             </li>
           </ul>
         {% endif %}
-        <p>
-          Voici les informations que vous avez donné :
-        </p>
 
-        {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
-        {% if person_form_instance.editable %}
-          <a class="btn btn-default"
-             href="{% url 'edit_person_form_submission' person_form_instance.slug submission.pk %}">
-            Modifier ces informations</a>
+        {% if submission_data %}
+          <p>
+            Voici les informations que vous avez donné :
+          </p>
+
+          {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
+
+          {% if person_form_instance.editable %}
+            <a class="btn btn-default"
+               href="{% url 'edit_person_form_submission' person_form_instance.slug submission.pk %}">
+              Modifier ces informations</a>
+          {% endif %}
         {% endif %}
 
         {% if guests_submission_data %}
@@ -64,6 +69,7 @@
             {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
           {% endfor %}
         {% endif %}
+
         {% if form %}
           <h3>Inscrire un⋅e autre participant⋅e</h3>
           <div class="alert alert-info">

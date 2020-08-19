@@ -1,4 +1,5 @@
 import secrets
+from operator import or_
 
 import phonenumbers
 import warnings
@@ -52,6 +53,32 @@ class PersonQueryset(models.QuerySet):
             return self.filter(q)
         else:
             return self.filter(q | Q(contact_phone__icontains=query[1:]))
+
+    def annotate_elus(self, current=True):
+        from agir.elus.models import types_elus
+
+        annotations = {
+            f"elu_{label}": klass.objects.filter(person_id=models.OuterRef("id"))
+            for label, klass in types_elus.items()
+        }
+
+        if current:
+            today = timezone.now().date()
+            annotations = {
+                label: subq.filter(dates__contains=today)
+                for label, subq in annotations.items()
+            }
+
+        return self.annotate(
+            **{label: models.Exists(subq) for label, subq in annotations.items()}
+        )
+
+    def elus(self, current=True):
+        from agir.elus.models import types_elus
+
+        return self.annotate_elus(current).filter(
+            reduce(or_, (Q(**{f"elu_{label}": True}) for label in types_elus))
+        )
 
 
 class PersonManager(models.Manager.from_queryset(PersonQueryset)):

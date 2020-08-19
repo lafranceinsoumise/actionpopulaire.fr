@@ -29,6 +29,7 @@ DELEGATIONS_CHOICES = (
     ("international", "Coopération internationale"),
     ("culture", "Culture"),
     ("eau", "Eau assainissement"),
+    ("ess", "Économie sociale et solidaire"),
     ("égalité F/H", "Égalité F/H"),
     ("emploi", "Emploi"),
     ("environnement", "Environnement"),
@@ -434,3 +435,10 @@ class MandatRegional(MandatAbstrait):
         return reverse(
             viewname="elus:modifier_mandat_regional", kwargs={"pk": self.id},
         )
+
+
+types_elus = {
+    "municipal": MandatMunicipal,
+    "departemental": MandatDepartemental,
+    "regional": MandatRegional,
+}
