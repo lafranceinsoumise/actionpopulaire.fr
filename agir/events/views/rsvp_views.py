@@ -418,16 +418,6 @@ def notification_listener(payment):
         # VERSION 2
         is_guest = payment.meta["is_guest"]
 
-        if payment.status in [
-            Payment.STATUS_REFUSED,
-            Payment.STATUS_CANCELED,
-            Payment.STATUS_ABANDONED,
-        ]:
-            if is_guest:
-                cancel_payment_for_guest(payment)
-            else:
-                cancel_payment_for_rsvp(payment)
-
         if payment.status == Payment.STATUS_COMPLETED:
             # we don't check for cancellation of the event because we want all actually paid rsvps to be registered in
             # case we need to manage refunding
