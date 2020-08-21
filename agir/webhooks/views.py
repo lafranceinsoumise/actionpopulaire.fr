@@ -38,20 +38,9 @@ class BounceView(APIView):
     authentication_classes = (SendgridSesWebhookAuthentication,)
 
     def handleBounce(self, recipient_email):
-        try:
-            person_email = PersonEmail.objects.get_by_natural_key(recipient_email)
-        except PersonEmail.DoesNotExist:
-            return
-
-        older_than_one_hour = (
-            person_email.person.created + timezone.timedelta(hours=1) < timezone.now()
-        )
-        if older_than_one_hour:
-            person_email.bounced = True
-            person_email.save()
-            return
-
-        person_email.person.delete()
+        # Auparavant on supprimait les personnes dont l'adresse email bounçait
+        # dans l'heure suivant la création.
+        pass
 
 
 class WrongContentTypeJSONParser(JSONParser):
