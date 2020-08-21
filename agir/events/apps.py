@@ -22,7 +22,7 @@ class EventsConfig(AppConfig):
             status_listener=notification_listener,
             description_template="events/payment_description.html",
             description_context_generator=payment_description_context_generator,
-            admin_modes=["check_events", "money", "tpe"],
+            admin_modes=["system_pay", "check_events", "money", "tpe"],
         )
 
         register_payment_type(payment_type)
