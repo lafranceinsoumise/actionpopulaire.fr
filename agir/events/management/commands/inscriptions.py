@@ -16,7 +16,7 @@ from django.db import transaction
 from django.template import Template, Context
 from django.utils import timezone
 
-from agir.events.models import Event
+from agir.events.models import Event, RSVP
 from agir.lib.utils import generate_token_params
 from agir.people.models import Person, PersonTag
 
@@ -86,7 +86,11 @@ def get_current_status(config):
 
     tag_unable = PersonTag.objects.get(label=f"{config['tag_prefix']} - renoncé")
     subscribed_ids = [
-        str(id) for id in event.attendees.all().values_list("id", flat=True)
+        str(id)
+        for id in Person.objects.filter(
+            rsvps__event=event,
+            rsvps__status__in=[RSVP.STATUS_AWAITING_PAYMENT, RSVP.STATUS_CONFIRMED],
+        ).values_list("id", flat=True)
     ]
     unable_ids = [
         str(id) for id in tag_unable.people.all().values_list("id", flat=True)
