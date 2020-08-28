@@ -31,8 +31,8 @@ def colored_text(text, color):
     return COLORED_TEXT.format(color=color, text=text)
 
 
-def color_to(column, mask, color):
-    column.loc[mask] = column.loc[mask].map(partial(colored_text, color=color))
+def color_to(df, column, mask, color):
+    df.loc[mask, column] = df.loc[mask, column].map(partial(colored_text, color=color))
 
 
 def count_by(df, by):
@@ -43,20 +43,23 @@ def df_to_table(df):
     table = beautifultable.BeautifulTable(max_width=160)
     table.column_headers = [df.index.name] + list(df.columns)
 
-    df = df.copy()
+    df = df.reset_index().copy()
 
     reached_target = df["subscribed"] == df["targets"]
     exceeded_target = df["subscribed"] > df["targets"]
     missing_candidates = df["available"] < df["to_draw"]
     too_many_actives = df["active"] > df["adjusted"]
+    issue = missing_candidates | exceeded_target | too_many_actives | missing_candidates
 
-    color_to(df["available"], missing_candidates, RED)
-    color_to(df["subscribed"], reached_target, GREEN)
-    color_to(df["subscribed"], exceeded_target, RED)
-    color_to(df["active"], too_many_actives, RED)
-    color_to(df["to_draw"], missing_candidates, RED)
+    color_to(df, "college", issue, RED)
+    color_to(df, "college", reached_target & ~issue, GREEN)
+    color_to(df, "available", missing_candidates, RED)
+    color_to(df, "subscribed", reached_target, GREEN)
+    color_to(df, "subscribed", exceeded_target, RED)
+    color_to(df, "active", too_many_actives, RED)
+    color_to(df, "to_draw", missing_candidates, RED)
 
-    for tup in df.itertuples():
+    for tup in df.itertuples(index=False):
         table.append_row(tup)
 
     return table
