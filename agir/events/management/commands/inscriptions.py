@@ -90,7 +90,7 @@ def get_current_status(config):
 def get_stats(status, config):
     now = timezone.now().astimezone(timezone.get_default_timezone())
 
-    colleges = list(config["targets"].keys())
+    colleges = pd.Index(config["targets"].keys(), name="college")
 
     res = pd.DataFrame(
         {
@@ -99,7 +99,8 @@ def get_stats(status, config):
             "subscribed": count_by(status, "_subscribed"),
             "active": count_by(status, "_active"),
             "available": count_by(status, "_available"),
-        }
+        },
+        index=colleges,
     ).fillna(0, downcast="infer")
 
     res["refused"] = res["drawn"] - res["subscribed"] - res["active"]
