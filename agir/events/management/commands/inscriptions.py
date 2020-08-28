@@ -1,4 +1,5 @@
 from collections import Counter
+from functools import partial
 from pathlib import Path
 
 import locale
@@ -30,6 +31,10 @@ def colored_text(text, color):
     return COLORED_TEXT.format(color=color, text=text)
 
 
+def color_to(column, mask, color):
+    column.loc[mask] = column.loc[mask].map(partial(colored_text, color=color))
+
+
 def count_by(df, by):
     return df.groupby(["college"])[by].sum().astype(int)
 
@@ -37,6 +42,20 @@ def count_by(df, by):
 def df_to_table(df):
     table = beautifultable.BeautifulTable(max_width=160)
     table.column_headers = [df.index.name] + list(df.columns)
+
+    df = df.copy()
+
+    reached_target = df["subscribed"] == df["targets"]
+    exceeded_target = df["subscribed"] > df["targets"]
+    missing_candidates = df["available"] < df["to_draw"]
+    too_many_actives = df["active"] > df["adjusted"]
+
+    color_to(df["available"], missing_candidates, RED)
+    color_to(df["subscribed"], reached_target, GREEN)
+    color_to(df["subscribed"], exceeded_target, RED)
+    color_to(df["active"], too_many_actives, RED)
+    color_to(df["to_draw"], missing_candidates, RED)
+
     for tup in df.itertuples():
         table.append_row(tup)
 
