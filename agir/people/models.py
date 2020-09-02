@@ -501,12 +501,13 @@ class Person(
             "greeting": self.get_greeting(),
             "full_name": self.get_full_name(),
             "short_name": self.get_short_name(),
+            "ancienne_region": self.ancienne_region,
             "region": self.region,
             "departement": self.departement,
             "city": self.location_city,
             "short_address": self.short_address,
-            "short_location": self.short_location,
-            "full_address": self.html_full_address,
+            "short_location": self.short_location(),
+            "full_address": self.html_full_address(),
         }
 
     def ensure_role_exists(self):
