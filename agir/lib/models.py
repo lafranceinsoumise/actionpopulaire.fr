@@ -214,7 +214,9 @@ class LocationMixin(models.Model):
         if self.location_country in FRANCE_COUNTRY_CODES and RE_FRENCH_ZIPCODE.match(
             self.location_zip
         ):
-            return departement_from_zipcode(self.location_zip)["nom"] or ""
+            departement = departement_from_zipcode(self.location_zip)
+            if departement:
+                return departement["nom"]
 
         return ""
 
