@@ -39,7 +39,7 @@ def count_by(df, by):
     return df.groupby(["college"])[by].sum().astype(int)
 
 
-def df_to_table(df, columns=None):
+def df_to_table(df, columns=None, colors=True):
     table = beautifultable.BeautifulTable(max_width=160)
     table.column_headers = [df.index.name] + (columns or list(df.columns))
 
@@ -51,13 +51,14 @@ def df_to_table(df, columns=None):
     too_many_actives = df["active"] > df["adjusted"]
     issue = missing_candidates | exceeded_target | too_many_actives | missing_candidates
 
-    color_to(df, "college", issue, RED)
-    color_to(df, "college", reached_target & ~issue, GREEN)
-    color_to(df, "available", missing_candidates, RED)
-    color_to(df, "subscribed", reached_target, GREEN)
-    color_to(df, "subscribed", exceeded_target, RED)
-    color_to(df, "active", too_many_actives, RED)
-    color_to(df, "to_draw", missing_candidates, RED)
+    if colors:
+        color_to(df, "college", issue, RED)
+        color_to(df, "college", reached_target & ~issue, GREEN)
+        color_to(df, "available", missing_candidates, RED)
+        color_to(df, "subscribed", reached_target, GREEN)
+        color_to(df, "subscribed", exceeded_target, RED)
+        color_to(df, "active", too_many_actives, RED)
+        color_to(df, "to_draw", missing_candidates, RED)
 
     if columns is not None and len(columns) > 0:
         df = df[["college"] + columns]
@@ -216,6 +217,7 @@ class Command(BaseCommand):
             "status", help="Afficher le statut actuel", aliases=["s"]
         )
         status_parser.add_argument("-c", "--columns", nargs="+", dest="columns")
+        status_parser.add_argument("--no-color", action="store_false", dest="colors")
         status_parser.set_defaults(command=self.print_stats)
 
         update_parser = subparsers.add_parser(
@@ -237,7 +239,7 @@ class Command(BaseCommand):
         self.verbosity = verbosity
         return command(config, **options)
 
-    def print_stats(self, config, columns=None, **options):
+    def print_stats(self, config, columns=None, colors=False, **options):
         status = get_current_status(config)
 
         print(
@@ -245,7 +247,7 @@ class Command(BaseCommand):
         )
 
         stats = get_stats(status, config)
-        print(df_to_table(stats, columns))
+        print(df_to_table(stats, columns, colors))
 
     def download_email(self, config, **options):
         r = requests.get(config["email_link"])
