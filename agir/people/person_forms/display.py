@@ -68,6 +68,10 @@ class PersonFormDisplay:
             choices = PREDEFINED_CHOICES.get(field_descriptor["choices"])
         else:
             choices = field_descriptor["choices"]
+        choices = [
+            (choice, choice) if isinstance(choice, str) else (choice[0], choice[1])
+            for choice in choices
+        ]
         try:
             return next(label for id, label in choices if id == value)
         except StopIteration:
