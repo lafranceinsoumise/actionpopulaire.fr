@@ -201,7 +201,7 @@ class Segment(BaseSegment, models.Model):
     )
 
     def get_subscribers_q(self):
-        q = Q(subscribed=True, emails___bounced=False, emails___order=0)
+        q = Q(subscribed=True, emails___bounced=False)
 
         if not self.force_non_insoumis:
             q = q & Q(is_insoumise=True)
