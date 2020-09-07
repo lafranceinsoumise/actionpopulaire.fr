@@ -61,7 +61,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new BundleTracker({ path: DISTPATH }),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({ filename: "[name]-[chunkhash].css" }),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new BundleAnalyzerPlugin({ analyzerMode: "static", openAnalyzer: false }),
   ],
