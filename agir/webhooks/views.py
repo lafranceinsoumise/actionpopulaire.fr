@@ -37,10 +37,15 @@ class BounceView(APIView):
     permission_classes = (IsBasicAuthenticated,)
     authentication_classes = (SendgridSesWebhookAuthentication,)
 
-    def handleBounce(self, recipient_email):
-        # Auparavant on supprimait les personnes dont l'adresse email bounçait
-        # dans l'heure suivant la création.
-        pass
+    def handle_bounce(self, recipient_email):
+        try:
+            person_email = PersonEmail.objects.get_by_natural_key(recipient_email)
+        except PersonEmail.DoesNotExist:
+            pass
+        else:
+            person_email.bounced = True
+            person_email.save()
+            return
 
 
 class WrongContentTypeJSONParser(JSONParser):
@@ -67,7 +72,7 @@ class SesBounceView(BounceView):
         if message["bounce"]["bounceType"] != "Permanent":
             return response
 
-        self.handleBounce(message["mail"]["destination"][0])
+        self.handle_bounce(message["mail"]["destination"][0])
 
         return response
 
@@ -77,5 +82,5 @@ class SendgridBounceView(BounceView):
         for webhook in request.data:
             if webhook["event"] != "bounce" and webhook["event"] != "dropped":
                 continue
-            self.handleBounce(webhook["email"])
+            self.handle_bounce(webhook["email"])
         return Response({"status": "Accepted"}, 202)

@@ -7,26 +7,26 @@ from agir.people.models import Person, PersonEmail
 
 class WebhookTestCase(APITestCase):
     def setUp(self):
-        self.new_bounced_person = Person.objects.create_person(email="new@bounce.com")
-
-        self.old_bounced_person = Person.objects.create_person(
-            email="old@bounce.com", created=timezone.now() - timezone.timedelta(hours=2)
+        self.person = Person.objects.create_person(
+            email="primary@bounce.com",
+            created=timezone.now() - timezone.timedelta(hours=2),
         )
-        self.old_bounced_person.add_email("other_old@bounce.com")
+        self.person.add_email("secondary@bounce.com")
 
         self.sendgrid_payload = [
-            {"email": "new@bounce.com", "event": "bounce"},
-            {"email": "old@bounce.com", "event": "bounce"},
+            {"email": "primary@bounce.com", "event": "bounce"},
         ]
 
-        self.sendgrid_payload2 = [{"email": "other_old@bounce.com", "event": "bounce"}]
+        self.sendgrid_payload2 = [
+            {"email": "secondary@bounce.com", "event": "bounce"},
+        ]
 
         self.ses_payload = r"""{
                   "Type" : "Notification",
-                  "Message" : "{\"notificationType\":\"Bounce\",\"bounce\":{\"bounceType\":\"Permanent\",\"bounceSubType\":\"General\",\"bouncedRecipients\":[{\"emailAddress\":\"old@bounce.com\",\"action\":\"failed\",\"status\":\"5.1.1\",\"diagnosticCode\":\"smtp; 550 5.1.1 <old@bounce.com>: Recipient address rejected: User unknown in virtual mailbox table\"}]},\"mail\":{\"destination\":[\"old@bounce.com\"]}}"
+                  "Message" : "{\"notificationType\":\"Bounce\",\"bounce\":{\"bounceType\":\"Permanent\",\"bounceSubType\":\"General\",\"bouncedRecipients\":[{\"emailAddress\":\"primary@bounce.com\",\"action\":\"failed\",\"status\":\"5.1.1\",\"diagnosticCode\":\"smtp; 550 5.1.1 <primary@bounce.com>: Recipient address rejected: User unknown in virtual mailbox table\"}]},\"mail\":{\"destination\":[\"primary@bounce.com\"]}}"
                 }"""
 
-    def test_sendgrid_bounce_users(self):
+    def test_sendgrid_bounce(self):
         response = self.client.post(
             "/webhooks/sendgrid_bounce",
             self.sendgrid_payload,
@@ -35,13 +35,11 @@ class WebhookTestCase(APITestCase):
             + (base64.b64encode(b"fi:prout").decode("utf-8")),
         )
         self.assertEqual(response.status_code, 202)
+        self.person.refresh_from_db()
         self.assertEqual(
-            "other_old@bounce.com",
-            Person.objects.get_by_natural_key("old@bounce.com").email,
+            "secondary@bounce.com", self.person.email,
         )
-        self.assertTrue(PersonEmail.objects.get(address="old@bounce.com").bounced)
-        with self.assertRaises(Person.DoesNotExist):
-            Person.objects.get(email="new@bounce.com")
+        self.assertTrue(PersonEmail.objects.get(address="primary@bounce.com").bounced)
 
     def test_sendgrid_auth(self):
         response = self.client.post(
@@ -57,7 +55,7 @@ class WebhookTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 401)
 
-    def test_amazon_bounce_old_user(self):
+    def test_amazon_bounce(self):
         response = self.client.post(
             "/webhooks/ses_bounce",
             self.ses_payload,
@@ -66,11 +64,11 @@ class WebhookTestCase(APITestCase):
             + (base64.b64encode(b"fi:prout").decode("utf-8")),
         )
         self.assertEqual(response.status_code, 202)
+        self.person.refresh_from_db()
         self.assertEqual(
-            "other_old@bounce.com",
-            Person.objects.get_by_natural_key("old@bounce.com").email,
+            "secondary@bounce.com", self.person.email,
         )
-        self.assertTrue(PersonEmail.objects.get(address="old@bounce.com").bounced)
+        self.assertTrue(PersonEmail.objects.get(address="primary@bounce.com").bounced)
 
     def test_amazon_auth(self):
         response = self.client.post(
@@ -93,7 +91,6 @@ class WebhookTestCase(APITestCase):
             + (base64.b64encode(b"fi:prout").decode("utf-8")),
         )
         self.assertEqual(response.status_code, 202)
-        self.assertEqual(False, Person.objects.get(email="old@bounce.com").bounced)
-        self.assertEqual(
-            True, Person.objects.get(email="old@bounce.com").emails.all()[1].bounced
-        )
+        self.person.refresh_from_db()
+        self.assertFalse(PersonEmail.objects.get(address="primary@bounce.com").bounced)
+        self.assertTrue(PersonEmail.objects.get(address="secondary@bounce.com").bounced)
