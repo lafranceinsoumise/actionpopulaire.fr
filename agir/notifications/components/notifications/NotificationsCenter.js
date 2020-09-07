@@ -104,7 +104,7 @@ const NotificationsCenter = ({ notifications: initialNotifications }) => {
   };
 
   return (
-    <li ref={ref} className={`menu-item dropdown ${open ? "open" : ""}`}>
+    <>
       <NotificationButton
         unread={unread}
         onClick={() => {
@@ -117,7 +117,7 @@ const NotificationsCenter = ({ notifications: initialNotifications }) => {
         loadingMore={loadingMore}
         loadMore={loadMore}
       />
-    </li>
+    </>
   );
 };
 

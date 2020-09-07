@@ -34,7 +34,7 @@ const Action = styled.li`
 
 const NotificationsPanel = ({ notifications, loadingMore, loadMore }) => {
   return (
-    <Panel className="dropdown-menu">
+    <Panel className="dropdown-menu dropdown-menu-right">
       <Header className="menu-item">Notifications</Header>
       {notifications.length > 0 ? (
         notifications.map((notification) => (

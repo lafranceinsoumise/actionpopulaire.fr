@@ -9,10 +9,10 @@
   <title>{% block title %}{{ meta_title }}{% endblock %}</title>
 
   {% render_bundle 'theme' 'css' %}
-  <link rel="icon" href="{% static "front/images/cropped-cropped-phi-32x32.png" %}" sizes="32x32"/>
-  <link rel="icon" href="{% static "front/images/cropped-cropped-phi-192x192.png" %}" sizes="192x192"/>
-  <link rel="apple-touch-icon-precomposed" href="{% static "front/images/cropped-cropped-phi-180x180.png" %}"/>
-  <meta name="msapplication-TileImage" content="{% static "front/images/cropped-cropped-phi-270x270.png" %}"/>
+  <link rel="icon" href="{% static "front/images/favicon-32x32.png" %}" sizes="32x32"/>
+  <link rel="icon" href="{% static "front/images/favicon-192x192.png" %}" sizes="192x192"/>
+  <link rel="apple-touch-icon-precomposed" href="{% static "front/images/facivon-180x180.png" %}"/>
+  <meta name="msapplication-TileImage" content="{% static "front/images/favicon-270x270.png" %}"/>
   {% block additional_headers %}{% endblock %}
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js">
@@ -34,11 +34,10 @@
                 data-target="#main-navbar-collapse" aria-expanded="false">
           Menu <span class="caret"></span>
         </button>
-        <a href="https://lafranceinsoumise.fr" class="custom-logo-link" rel="home" itemprop="url"><img
-          src="{% static "front/images/170428_logoRectangle_transparent.png" %}"
+        <a href="https://lafranceinsoumise.fr" class="custom-logo-link navbar-brand" rel="home" itemprop="url"><img
+          src="{% static "front/images/logo_300.png" %}"
           class="custom-logo" alt="La France insoumise" itemprop="logo"
-          srcset="{% static "front/images/170428_logoRectangle_transparent.png" %} 1038w, {% static "front/images/170428_logoRectangle_transparent-300x145.png" %} 300w, {% static "170428_logoRectangle_transparent-768x370.png" %} 768w, {% static "front/images/170428_logoRectangle_transparent-1024x493.png" %} 1024w"
-          sizes="(max-width: 1038px) 100vw, 1038px"/></a></div>
+        /></a></div>
       <div class="collapse navbar-collapse" id="main-navbar-collapse">
         <div id="menu-export"></div>
         <script>

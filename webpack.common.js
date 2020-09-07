@@ -9,16 +9,15 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpack = require("webpack");
 
 const DISTPATH = path.resolve(__dirname, "assets/components");
-const cssName = require("@fi/theme/dist/assets.json")["main.css"];
 
-const flatten = array => array.reduce((acc, curr) => acc.concat(curr));
-const isDirectory = f => fs.statSync(f).isDirectory();
-const directoryHasFile = f => d => fs.readdirSync(d).includes(f);
+const flatten = (array) => array.reduce((acc, curr) => acc.concat(curr));
+const isDirectory = (f) => fs.statSync(f).isDirectory();
+const directoryHasFile = (f) => (d) => fs.readdirSync(d).includes(f);
 
 // establish the list of Django applications with a `components` folder
 const applications = fs
   .readdirSync(path.resolve(__dirname, "agir"))
-  .map(f => path.resolve(__dirname, "agir", f))
+  .map((f) => path.resolve(__dirname, "agir", f))
   .filter(isDirectory)
   .filter(directoryHasFile("components"));
 
@@ -29,10 +28,10 @@ const applications = fs
 //
 // The bundle name will be `<django app name>/<name of directory / .js file>`
 const components = flatten(
-  applications.map(dir =>
+  applications.map((dir) =>
     fs
       .readdirSync(path.resolve(dir, "components"))
-      .map(f => [path.basename(dir), path.resolve(dir, "components", f)])
+      .map((f) => [path.basename(dir), path.resolve(dir, "components", f)])
   )
 )
   .filter(
@@ -55,7 +54,7 @@ module.exports = {
   context: path.resolve(__dirname, "agir/"),
   entry: Object.assign(
     {
-      theme: "@fi/theme/dist/styles/" + cssName
+      theme: "@fi/theme/dist/theme.css",
     },
     components
   ),
@@ -64,13 +63,13 @@ module.exports = {
     new BundleTracker({ path: DISTPATH }),
     new MiniCssExtractPlugin(),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new BundleAnalyzerPlugin({ analyzerMode: "static", openAnalyzer: false })
+    new BundleAnalyzerPlugin({ analyzerMode: "static", openAnalyzer: false }),
   ],
   output: {
     libraryTarget: "window",
     library: "[name]",
     filename: "[name]-[chunkhash].js",
-    path: DISTPATH
+    path: DISTPATH,
   },
   module: {
     rules: [
@@ -80,18 +79,18 @@ module.exports = {
         use: {
           loader: "babel-loader",
           options: {
-            cacheDirectory: true
-          }
-        }
+            cacheDirectory: true,
+          },
+        },
       },
       {
-        test: new RegExp("@fi/theme/dist/styles/" + cssName),
-        use: [MiniCssExtractPlugin.loader, "css-loader"]
+        test: new RegExp("@fi/theme/dist/theme.css"),
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
       {
         test: /\.css$/,
         exclude: [/node_modules\/tinymce/, /node_modules\/@fi\/theme/],
-        use: ["style-loader", "css-loader"]
+        use: ["style-loader", "css-loader"],
       },
       {
         test: /\.(png|woff|woff2|eot|ttf|svg)$/,
@@ -99,17 +98,17 @@ module.exports = {
         loader: "file-loader",
         options: {
           name: "[name]-[hash].[ext]",
-          outputPath: "files"
-        }
-      }
-    ]
+          outputPath: "files",
+        },
+      },
+    ],
   },
   target: "web",
   resolve: {
     alias: aliases,
-    modules: ["node_modules"]
+    modules: ["node_modules"],
   },
   watchOptions: {
-    ignored: /node_modules/
-  }
+    ignored: /node_modules/,
+  },
 };

@@ -10,19 +10,6 @@ const UnreadCounter = styled.span`
   }
 `;
 
-const NotificationTitle = styled.span`
-  @media (min-width: 992px) {
-    display: none;
-  }
-`;
-
-const NotificationIcon = styled.i`
-  display: none;
-  @media (min-width: 992px) {
-    display: inline-block;
-  }
-`;
-
 const NotificationButton = ({ unread, onClick }) => (
   <a
     onClick={(e) => {
@@ -30,9 +17,10 @@ const NotificationButton = ({ unread, onClick }) => (
       e.preventDefault();
     }}
     href="#"
+    className="dropdown-toggle"
+    data-toggle="dropdown"
   >
-    <NotificationIcon className="fa fa-comment" />
-    <NotificationTitle>Notifications</NotificationTitle>{" "}
+    <i className="fa fa-comment" />
     {unread > 0 && <UnreadCounter className="badge">{unread}</UnreadCounter>}
   </a>
 );
