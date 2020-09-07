@@ -138,7 +138,7 @@
                   <i class="fa fa-check" title="Utilisateur avec un numéro de téléphone vérifié !"></i>
                 {% endif %}
                 <span class="caret"></span></a>
-              <ul class="dropdown-menu">
+              <ul class="dropdown-menu dropdown-menu-right">
                 {% if user.person.contact_phone_status == 'U' %}
                   <li class="menu-item"><a title="Vérifier mon numéro de téléphone" href="{% url 'send_validation_sms' %}">Vérifier
                     mon numéro de téléphone</a></li>
@@ -162,22 +162,11 @@
                                      href="{% url "short_code_login" %}?next={{ request.get_full_path }}">Connexion</a>
             </li>
           {% endif %}
-          <li class="menu-item dropdown">
-            <a href="#" data-toggle="dropdown" class="dropdown-toggle"><i class="fa fa-question-circle-o"></i> <span class="hidden-xs">Aide</span>
-              <span class="caret"></span></a>
-            <ul class="dropdown-menu dropdown-menu-right">
-              <li class="menu-item"><a title="Questions courantes"
-                                       href="https://lafranceinsoumise.fr/formulaire-de-contact/">Questions
-                courantes</a></li>
-              <li class="menu-item"><a class="help-button" style="display:none;" href="#">Visite guidée de la page</a>
-              </li>
-            </ul>
-          </li>
         </ul>
       </div>
       {% if user.is_authenticated %}
         <div class="visible-xs-block clearfix"></div>
-        <div id="supporter-nav-collapse" class="collapse navbar-collapse">
+        <div id="supporter-nav-collapse" class="collapse navbar-collapse" style="overflow-y: visible">
           <ul id="menu-menu-principal" class="nav navbar-nav navbar-left">
             <li class="menu-item"><a title="Tableau de bord" href="{% url 'dashboard' %}">Tableau de bord</a></li>
             {% if user.person.is_insoumise %}
@@ -187,6 +176,17 @@
             {% else %}
               <li class="menu-item"><a title="profil" href="{% url "become_insoumise" %}">Profil</a></li>
             {% endif %}
+            <li class="menu-item dropdown">
+              <a href="#" data-toggle="dropdown" class="dropdown-toggle"><i class="fa fa-question-circle-o"></i> <span class="hidden-xs">Aide</span>
+                <span class="caret"></span></a>
+              <ul class="dropdown-menu dropdown-menu-right">
+                <li class="menu-item"><a title="Questions courantes"
+                                         href="https://lafranceinsoumise.fr/formulaire-de-contact/">Questions
+                  courantes</a></li>
+                <li class="menu-item"><a class="help-button" style="display:none;" href="#">Visite guidée de la page</a>
+                </li>
+              </ul>
+            </li>
           </ul>
         </div>
       {% endif %}
