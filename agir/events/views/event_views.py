@@ -102,9 +102,6 @@ class BaseEventDetailView(GlobalOrObjectPermissionRequiredMixin, DetailView):
     )  # y compris les événements cachés, pour pouvoir montrer des pages GONE
 
     title_prefix = _("Evénement local")
-    meta_description = _(
-        "Participez aux événements organisés par les membres de la France insoumise."
-    )
 
     def handle_no_permission(self):
         if self.get_object().visibility == Event.VISIBILITY_ADMIN:
@@ -124,6 +121,9 @@ class BaseEventDetailView(GlobalOrObjectPermissionRequiredMixin, DetailView):
 
 
 class EventDetailView(ObjectOpengraphMixin, BaseEventDetailView):
+    meta_description = (
+        "Participez aux événements organisés par les membres de la France insoumise."
+    )
     template_name = "events/detail.html"
 
 
