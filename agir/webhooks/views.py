@@ -2,17 +2,15 @@ import json
 import logging
 
 import requests
-from django.utils import timezone
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.conf import settings
+from rest_framework import exceptions
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import BasePermission
-from rest_framework import exceptions
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from agir.people.models import PersonEmail
-from django.conf import settings
-
 
 logger = logging.getLogger(__name__)
 
