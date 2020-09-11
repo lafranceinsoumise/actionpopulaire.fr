@@ -9,7 +9,7 @@ def add_message(backend, user, details, new_association, *args, **kwargs):
     if request is not None:
         if user:
             if new_association:
-                if not user.emails.filter(address=email).exists():
+                if not user.person.emails.filter(address=email).exists():
                     message = (
                         f"Votre compte Facebook a bien été relié à votre compte la France insoumise. "
                         f"Vous pourrez désormais l'utiliser pour vous connecter."
