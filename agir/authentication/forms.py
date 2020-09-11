@@ -1,5 +1,5 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Submit, Row, Div, Layout
 from django import forms
 from django.contrib.auth import authenticate
 
@@ -19,12 +19,15 @@ class EmailForm(forms.Form):
         " vérifier la bonne réception avant d'en demander d'autres.",
     }
 
-    email = forms.EmailField(label="Votre adresse email", required=True)
+    email = forms.EmailField(label="Utiliser une autre adresse email", required=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(Div("email", css_class="col-xs-12 col-md-6 col-md-offset-3",))
+        )
         self.helper.add_input(Submit("submit", "Valider"))
 
     def clean_email(self):

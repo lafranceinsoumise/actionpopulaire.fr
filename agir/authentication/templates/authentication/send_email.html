@@ -5,15 +5,20 @@
 {% block title %}Connexion à la plateforme{% endblock %}
 
 {% block main %}
-  <div class="col-responsive">
-    <h2>Formulaire de connexion</h2>
+  <div class="col-responsive center">
+    <h2>Connexion automatique</h2>
     {% if is_hard_logged %}
       <p>Vous êtes déjà connecté⋅e, <a href={% url 'disconnect' %}>cliquez ici</a> pour vous déconnecter.</p>
     {% else %}
+      <a href="{% url "social:begin" "facebook" %}" class="btn btn-primary marginbottom" style="background-color: #475994; border-color: #475994;">
+        Se connecter avec Facebook <i class="fa fa-facebook"></i></a>
+      <p class="text-muted small">Vous devez utiliser la même adresse email sur Facebook et sur la France insoumise, <br>ou avoir déjà associé
+      manuellement vos comptes.</p>
+      <h3>Se connecter avec son adresse email</h3>
       {% if bookmarked_emails %}
         <form method="post">
           {% csrf_token %}
-          <label>Je me connecte avec une adresse précédemment utilisée&nbsp;</label>
+          <label>Utiliser une adresse précédemment utilisée&nbsp;</label>
           <div>
             {% for email in bookmarked_emails %}
               <p>
