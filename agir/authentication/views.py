@@ -187,7 +187,7 @@ class SocialLoginError(RedirectView):
     url = reverse_lazy("short_code_login")
 
     def get(self, request, *args, **kwargs):
-        if self.GET.get("message"):
+        if self.request.GET.get("message"):
             messages.add_message(
                 request=request,
                 level=messages.ERROR,
