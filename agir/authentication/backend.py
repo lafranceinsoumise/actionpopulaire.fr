@@ -1,4 +1,6 @@
+from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 from agir.authentication.backend_mixins import GetRoleMixin
 from agir.authentication.tokens import connection_token_generator, short_code_generator

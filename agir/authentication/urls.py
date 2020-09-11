@@ -27,10 +27,6 @@ urlpatterns = [
     path(
         "o/introspect/", oauth2_views.IntrospectTokenView.as_view(), name="introspect"
     ),
-    path(
-        "connexion/facebook",
-        TemplateView.as_view(template_name="authentication/facebook.html"),
-    ),
     path("connexion/social/", include("social_django.urls", namespace="social")),
     path(
         "connexion/social/erreur/",

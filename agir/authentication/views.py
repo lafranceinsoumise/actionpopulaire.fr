@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.http import is_safe_url, urlquote
+from django.utils.safestring import mark_safe
 from django.views.generic import FormView, RedirectView
 from oauth2_provider.views import AuthorizationView
 
@@ -142,6 +143,17 @@ class CheckCodeView(RedirectToMixin, FormView):
     def form_valid(self, form):
         login(self.request, form.role)
         validated_email = form.role.login_meta.get("email")
+
+        if not form.role.social_auth.filter(provider="facebook").exists():
+            messages.add_message(
+                request=self.request,
+                level=messages.SUCCESS,
+                message=mark_safe(
+                    "Pour vous connecter plus facilement, vous pouvez "
+                    f'<a href="{reverse("social:begin", args=["facebook"])}">associer '
+                    "votre compte Facebook</a> et votre compte France insoumise."
+                ),
+            )
 
         if validated_email and form.role.person.primary_email.bounced:
             try:
