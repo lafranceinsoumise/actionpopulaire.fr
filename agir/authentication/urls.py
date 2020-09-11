@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, include
+from django.views.generic import TemplateView
 from oauth2_provider import views as oauth2_views
 
 from .views import (
@@ -26,5 +27,14 @@ urlpatterns = [
     path(
         "o/introspect/", oauth2_views.IntrospectTokenView.as_view(), name="introspect"
     ),
-    path("social/erreur/", SocialLoginError.as_view(), name="social_login_error"),
+    path(
+        "connexion/facebook",
+        TemplateView.as_view(template_name="authentication/facebook.html"),
+    ),
+    path("connexion/social/", include("social_django.urls", namespace="social")),
+    path(
+        "connexion/social/erreur/",
+        SocialLoginError.as_view(),
+        name="social_login_error",
+    ),
 ]

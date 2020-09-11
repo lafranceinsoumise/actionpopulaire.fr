@@ -13,6 +13,5 @@ urlpatterns = [
     path("", include("agir.notifications.urls")),
     path("", include("agir.loans.urls")),
     path("", include("agir.municipales.urls")),
-    path("", include("social_django.urls", namespace="social")),
     path("data-france/", include("data_france.urls")),
 ]
