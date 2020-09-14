@@ -5,18 +5,26 @@
   {{ form }}
 </form>
 <script>
-  var _paq = _paq || [];
-  _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-  _paq.push(["setCookieDomain", "*.lafranceinsoumise.fr"]);
-  _paq.push(["setDomains", ["*.lafranceinsoumise.fr"]]);
-  var u = "//matomo.lafranceinsoumise.fr/";
-  _paq.push(['setTrackerUrl', u + 'piwik.php']);
-  _paq.push(['setSiteId', '1']);
-  {% if matomo_goal %}
-    _paq.push(['trackGoal', {{ matomo_goal }}, {{ form.vads_amount.value }} / 100]);
+  var _paq = window._paq = window._paq || [];
+  {% if user.is_authenticated %}
+  _paq.push(['setUserId', '{{ user.person.id }}']);
+  {% else %}
+  _paq.push(['resetUserId']);
   {% endif %}
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="https://matomo.lafranceinsoumise.fr/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '10']);
+    {% if matomo_goal %}
+      _paq.push(['trackGoal', {{ matomo_goal }}, {{ form.vads_amount.value }} / 100]);
+    {% endif %}
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+  {% block matomo_extra_tracking %}{% endblock %}
 </script>
-<script src="https://matomo.lafranceinsoumise.fr/piwik.js"></script>
 <script>
   setTimeout(function() {document.getElementById('payment-form').submit()}, 500);
 </script>
