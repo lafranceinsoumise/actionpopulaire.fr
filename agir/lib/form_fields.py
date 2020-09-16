@@ -4,7 +4,13 @@ from data_france.models import Commune
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
-from django.forms.widgets import Textarea, DateTimeBaseInput, Input, Select
+from django.forms.widgets import (
+    Textarea,
+    DateTimeBaseInput,
+    Input,
+    Select,
+    SelectMultiple,
+)
 from django.utils import formats
 from django.utils.translation import ugettext_lazy as _
 from django_countries import countries
@@ -85,12 +91,14 @@ class AdminJsonWidget(Textarea):
         )
 
 
-class SelectizeWidget(Select):
+class SelectizeMixin:
     template_name = "custom_fields/selectize_choice.html"
     create = False
+    max_items = 1
 
-    def __init__(self, *args, create=False, **kwargs):
+    def __init__(self, *args, create=False, max_items=1, **kwargs):
         self.create = create
+        self.max_items = max_items
         super().__init__(*args, **kwargs)
 
     def get_context(self, name, value, attrs):
@@ -108,6 +116,14 @@ class SelectizeWidget(Select):
         js = (
             "https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js",
         )
+
+
+class SelectizeWidget(SelectizeMixin, Select):
+    pass
+
+
+class SelectizeMultipleWidget(SelectizeMixin, SelectMultiple):
+    pass
 
 
 class AcceptCreativeCommonsLicenceField(forms.BooleanField):

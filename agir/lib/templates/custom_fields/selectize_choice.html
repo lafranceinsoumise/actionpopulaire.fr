@@ -4,6 +4,7 @@
   $('#{{ widget.attrs.id }}').selectize({
     sortField: 'text',
     create: {{ widget.create|yesno:"true,false" }},
+    maxItems: {{ widget.max_items|default:"null" }},
     placeholder: "{% if widget.create %}Choisissez parmi les choix proposés ou tapez votre propre réponse.{% else %}Tapez pour rechercher.{% endif %}",
     render: {
       option_create: function(data, escape) {

@@ -20,6 +20,7 @@ from agir.lib.form_fields import (
     SelectizeWidget,
     IBANField,
     CommuneField as GenericCommuneField,
+    SelectizeMultipleWidget,
 )
 from ..models import Person
 from ...groups.models import SupportGroup, Membership
@@ -95,6 +96,14 @@ class MultipleChoiceField(
     SimpleChoiceListMixin, NotRequiredByDefaultMixin, forms.MultipleChoiceField
 ):
     widget = forms.CheckboxSelectMultiple
+
+
+class AutocompleteMultipleChoiceField(MultipleChoiceField):
+    def __init__(self, max_items=None, *args, choices, **kwargs):
+        choices = ["", *choices]
+        self.widget = SelectizeMultipleWidget(max_items=max_items, choices=choices)
+
+        super().__init__(*args, choices=choices, **kwargs)
 
 
 class BooleanField(NotRequiredByDefaultMixin, forms.BooleanField):
@@ -262,6 +271,7 @@ FIELDS = {
     "choice": ChoiceField,
     "radio_choice": RadioChoiceField,
     "autocomplete_choice": AutocompleteChoiceField,
+    "autocomplete_multiple_choice": AutocompleteMultipleChoiceField,
     "multiple_choice": MultipleChoiceField,
     "email_address": forms.EmailField,
     "phone_number": PhoneNumberField,
