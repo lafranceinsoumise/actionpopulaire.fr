@@ -103,6 +103,7 @@ class SelectizeMixin:
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
+        context["widget"]["max_items"] = self.max_items
         if self.create:
             context["widget"]["create"] = True
         return context
