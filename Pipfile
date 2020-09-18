@@ -55,7 +55,7 @@ tqdm = "*"
 prometheus-client = "==0.7.*"
 systemd = "==0.*"
 ovh = "*"
-nuntius = ">=2.0.0"
+nuntius = ">=2.0.1"
 # parsing and formats
 ics = "*"  # calendar format
 iso8601 = "*"  # parse ISO8601 dates
