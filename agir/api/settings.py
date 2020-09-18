@@ -510,7 +510,7 @@ if not DEBUG:
             "celery": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
             "nuntius.signals": {
                 "handlers": ["journald"],
-                "lebel": "INFO",
+                "level": "INFO",
                 "propagate": False,
             },
             "nuntius": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
@@ -561,7 +561,7 @@ CELERY_BROKER_URL = os.environ.get("BROKER_URL", "redis://")
 # make sure there is a max_retries option
 CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 4}
 # make sure celery does not mess with the root logger
-CELERY_WORKER_HIJACK_ROOT_LOGGER = NUNTIUS_CELERY_WORKER_HIJACK_ROOT_LOGGER = DEBUG
+CELERY_WORKER_HIJACK_ROOT_LOGGER = DEBUG
 # enable worker events to allow monitoring
 CELERY_WORKER_SEND_TASK_EVENTS = True
 # enable task events to allow monitoring
@@ -720,7 +720,6 @@ DJAN_API_KEY = os.environ.get("DJAN_API_KEY")
 NUNTIUS_PUBLIC_URL = FRONT_DOMAIN
 NUNTIUS_SUBSCRIBER_MODEL = "people.Person"
 NUNTIUS_SEGMENT_MODEL = "mailing.segment"
-NUNTIUS_CELERY_BROKER_URL = "redis://"
 if not DEBUG:
     NUNTIUS_EMAIL_BACKEND = "anymail.backends.amazon_ses.EmailBackend"
 NUNTIUS_MOSAICO_TEMPLATES = [
@@ -730,6 +729,15 @@ NUNTIUS_MOSAICO_TEMPLATES = [
     ),
     ("/static/mosaico_templates/versafix-fi/template.html", "Template LFI"),
 ]
+
+NUNTIUS_MAX_SENDING_RATE = int(os.environ.get("NUNTIUS_MAX_SENDING_RATE", 80))
+NUNTIUS_MAX_CONCURRENT_SENDERS = int(
+    os.environ.get("NUNTIUS_MAX_CONCURRENT_SENDERS", 6)
+)
+NUNTIUS_MAX_MESSAGES_PER_CONNECTION = int(
+    os.environ.get("NUNTIUS_MAX_MESSAGES_PER_CONNECTION", 0)
+)
+NUNTIUS_POLLING_INTERVAL = int(os.environ.get("NUNTIUS_POLLING_INTERVAL", 2))
 
 ANYMAIL = {
     "AMAZON_SES_CLIENT_PARAMS": {
