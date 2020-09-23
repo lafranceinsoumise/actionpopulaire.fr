@@ -120,11 +120,11 @@ class ShortCodeTestCase(TestCase):
         )
         code, expiry = short_code_generator.generate_short_code(self.person.pk)
 
-        res = self.client.get(check_short_code_link)
+        res = self.client.get(check_short_code_link + "?next=/profil/identite/")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         res = self.client.post(check_short_code_link, {"code": code})
-        self.assertRedirects(res, "/")
+        self.assertRedirects(res, "/profil/identite/")
 
     def test_warned_if_using_wrong_format(self):
         check_short_code_link = reverse(

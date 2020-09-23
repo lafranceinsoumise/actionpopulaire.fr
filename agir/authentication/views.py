@@ -16,6 +16,8 @@ from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.people.models import Person, PersonEmail
 from .forms import EmailForm, CodeForm
 
+REDIRECT_SESSION_KEY = "_auth_next"
+
 
 def valid_emails(candidate_emails):
     for email in candidate_emails:
@@ -57,11 +59,20 @@ def bookmark_email(email, request, response):
 class RedirectToMixin:
     redirect_field_name = REDIRECT_FIELD_NAME
 
+    def dispatch(self, request, *args, **kwargs):
+        params = self.request.POST.get(
+            self.redirect_field_name,
+            self.request.GET.get(self.redirect_field_name, None),
+        )
+
+        if params is not None:
+            self.request.session[REDIRECT_SESSION_KEY] = params
+
+        return super().dispatch(request, *args, **kwargs)
+
     def get_redirect_url(self):
         """Return the user-originating redirect URL if it's safe."""
-        redirect_to = self.request.POST.get(
-            self.redirect_field_name, self.request.GET.get(self.redirect_field_name, "")
-        )
+        redirect_to = self.request.session.get(REDIRECT_SESSION_KEY, "")
 
         # we first strip to remove potential trailing slash, then rsplit and take last component to remove
         # http:// or https://
