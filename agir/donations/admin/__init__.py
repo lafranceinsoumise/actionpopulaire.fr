@@ -66,7 +66,9 @@ class SpendingRequestAdmin(admin.ModelAdmin):
         "show_amount",
         "category",
         "spending_request_actions",
+        "modified",
     ]
+    ordering = ("-modified",)
     sortable_by = ("title", "spending_date", "show_amount")
     search_fields = ("id", "title", "group__name")
     list_filter = (RequestStatusFilter,)
