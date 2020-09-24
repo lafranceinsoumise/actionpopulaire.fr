@@ -46,6 +46,8 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 "fields": (
                     "campaigns",
                     "campaigns_feedback",
+                    "last_open",
+                    "last_click",
                     "registration_date",
                     "last_login",
                 )
