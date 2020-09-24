@@ -114,6 +114,18 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
 
+    last_open = models.DurationField(
+        "Limiter aux personnes ayant ouvert un email envoyé au court de la durée indiquée",
+        blank=True,
+        null=True,
+    )
+
+    last_click = models.DurationField(
+        "Limiter aux personnes ayant cliqué dans un email envoyé au court de la durée indiquée",
+        blank=True,
+        null=True,
+    )
+
     FEEDBACK_OPEN = 1
     FEEDBACK_CLICKED = 2
     FEEDBACK_NOT_OPEN = 3
@@ -290,6 +302,18 @@ class Segment(BaseSegment, models.Model):
                 ],
                 campaignsentevent__campaign__in=self.campaigns.all(),
                 **campaign__kwargs,
+            )
+
+        if self.last_open is not None:
+            q = q & Q(
+                campaignsentevent__open_count__gt=0,
+                campaignsentevent__datetime__gt=self.last_open,
+            )
+
+        if self.last_click is not None:
+            q = q & Q(
+                campaignsentevent__click_count__gt=0,
+                campaignsentevent__datetime__gt=self.last_click,
             )
 
         if len(self.countries) > 0:
