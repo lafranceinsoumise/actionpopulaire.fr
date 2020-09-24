@@ -4,6 +4,7 @@ from django.contrib.gis.db.models import MultiPolygonField
 from django.contrib.postgres.fields import DateRangeField
 from django.db import models
 from django.db.models import Q, Sum
+from django.utils.timezone import now
 from django_countries.fields import CountryField
 from nuntius.models import BaseSegment, CampaignSentStatusType
 
@@ -307,13 +308,13 @@ class Segment(BaseSegment, models.Model):
         if self.last_open is not None:
             q = q & Q(
                 campaignsentevent__open_count__gt=0,
-                campaignsentevent__datetime__gt=self.last_open,
+                campaignsentevent__datetime__gt=now() - self.last_open,
             )
 
         if self.last_click is not None:
             q = q & Q(
                 campaignsentevent__click_count__gt=0,
-                campaignsentevent__datetime__gt=self.last_click,
+                campaignsentevent__datetime__gt=now() - self.last_click,
             )
 
         if len(self.countries) > 0:
