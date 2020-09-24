@@ -14,23 +14,7 @@ class ContactStep extends FormStep {
   }
 
   isValidated() {
-    // shortcircuit-less and
-    return [
-      this.validateName(),
-      this.validateEmail(),
-      this.validatePhone(),
-    ].every((c) => c);
-  }
-
-  validateName() {
-    const { name } = this.props.fields;
-    if (!name || name === "") {
-      this.setError("name", "Vous devez indiquer un nom de contact.");
-      return false;
-    }
-
-    this.clearError("name");
-    return true;
+    return [this.validateEmail(), this.validatePhone()].every((c) => c);
   }
 
   validateEmail() {
