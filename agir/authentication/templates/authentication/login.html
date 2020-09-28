@@ -17,7 +17,7 @@
       {% if bookmarked_emails %}
         <form method="post">
           {% csrf_token %}
-          <label>ou utiliser une adresse précédemment utilisée&nbsp;</label>
+          <label>utiliser une adresse précédemment utilisée&nbsp;</label>
           <div>
             {% for email in bookmarked_emails %}
               <p>
