@@ -19,16 +19,20 @@ class EmailForm(forms.Form):
         " vérifier la bonne réception avant d'en demander d'autres.",
     }
 
-    email = forms.EmailField(label="Utiliser une autre adresse email", required=True)
+    email = forms.EmailField(required=True)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, has_bookmarked_emails=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields[
+            "email"
+        ].label = f"Se connecter avec une {'autre ' if has_bookmarked_emails else ''}adresse email"
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(Div("email", css_class="col-xs-12 col-md-6 col-md-offset-3",))
         )
-        self.helper.add_input(Submit("submit", "Valider"))
+        self.helper.add_input(Submit("submit", "Se connecter"))
 
     def clean_email(self):
         email = self.cleaned_data["email"]

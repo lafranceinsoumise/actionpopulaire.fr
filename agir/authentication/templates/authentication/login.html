@@ -6,7 +6,7 @@
 
 {% block main %}
   <div class="col-responsive center">
-    <h2>Connexion automatique</h2>
+    <h1 class="marginbottommore padbottommore">Se connecter</h1>
     {% if is_hard_logged %}
       <p>Vous êtes déjà connecté⋅e, <a href={% url 'disconnect' %}>cliquez ici</a> pour vous déconnecter.</p>
     {% else %}
@@ -14,7 +14,7 @@
         Se connecter avec Facebook <i class="fa fa-facebook"></i></a>
       <p class="text-muted small">Vous devez utiliser la même adresse email sur Facebook et sur la France insoumise, <br>ou avoir déjà associé
       manuellement vos comptes.</p>
-      <h3>Se connecter avec son adresse email</h3>
+      <h3>ou</h3>
       {% if bookmarked_emails %}
         <form method="post">
           {% csrf_token %}
@@ -27,6 +27,7 @@
             {% endfor %}
           </div>
         </form>
+        <h3>ou</h3>
       {% endif %}
       {% crispy form %}
     {% endif %}

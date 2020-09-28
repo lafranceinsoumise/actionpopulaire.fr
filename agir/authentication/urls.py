@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 from oauth2_provider import views as oauth2_views
 
 from .views import (
-    SendEmailView,
+    LoginView,
     CheckCodeView,
     DisconnectView,
     Oauth2AuthorizationView,
@@ -12,7 +12,7 @@ from .views import (
 
 
 urlpatterns = [
-    path("connexion/", SendEmailView.as_view(), name="short_code_login"),
+    path("connexion/", LoginView.as_view(), name="short_code_login"),
     path(
         "connexion/code/<uuid:user_pk>",
         CheckCodeView.as_view(),

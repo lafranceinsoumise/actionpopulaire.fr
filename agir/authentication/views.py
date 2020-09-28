@@ -86,9 +86,13 @@ class RedirectToMixin:
         return redirect_to if url_is_safe else ""
 
 
-class SendEmailView(RedirectToMixin, FormView):
+class LoginView(RedirectToMixin, FormView):
     form_class = EmailForm
-    template_name = "authentication/send_email.html"
+    template_name = "authentication/login.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.bookmarked_emails = get_bookmarked_emails(self.request)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         if is_soft_logged(request):
@@ -98,6 +102,12 @@ class SendEmailView(RedirectToMixin, FormView):
                 return self.form_valid(form)
 
         return super().get(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        return {
+            "has_bookmarked_emails": len(self.bookmarked_emails) > 0,
+            **super().get_form_kwargs(),
+        }
 
     def form_valid(self, form):
         if not form.send_email():
@@ -123,7 +133,7 @@ class SendEmailView(RedirectToMixin, FormView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            bookmarked_emails=get_bookmarked_emails(self.request),
+            bookmarked_emails=self.bookmarked_emails,
             is_hard_logged=is_hard_logged(self.request),
             **kwargs,
         )
