@@ -26,7 +26,7 @@ class EmailForm(forms.Form):
 
         self.fields[
             "email"
-        ].label = f"Se connecter avec une {'autre ' if has_bookmarked_emails else ''}adresse email"
+        ].label = f"ou se connecter avec une {'autre ' if has_bookmarked_emails else ''}adresse email"
 
         self.helper = FormHelper()
         self.helper.layout = Layout(

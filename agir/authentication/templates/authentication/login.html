@@ -12,13 +12,12 @@
     {% else %}
       <a href="{% url "social:begin" "facebook" %}" class="btn btn-primary marginbottom" style="background-color: #475994; border-color: #475994;">
         Se connecter avec Facebook <i class="fa fa-facebook"></i></a>
-      <p class="text-muted small">Vous devez utiliser la même adresse email sur Facebook et sur la France insoumise, <br>ou avoir déjà associé
+      <p class="text-muted small marginbottommore">Vous devez utiliser la même adresse email sur Facebook et sur la France insoumise, <br>ou avoir déjà associé
       manuellement vos comptes.</p>
-      <h3>ou</h3>
       {% if bookmarked_emails %}
         <form method="post">
           {% csrf_token %}
-          <label>Utiliser une adresse précédemment utilisée&nbsp;</label>
+          <label>ou utiliser une adresse précédemment utilisée&nbsp;</label>
           <div>
             {% for email in bookmarked_emails %}
               <p>
@@ -27,9 +26,9 @@
             {% endfor %}
           </div>
         </form>
-        <h3>ou</h3>
       {% endif %}
       {% crispy form %}
     {% endif %}
+    <p class="margintopmore">Pas encore de compte&nbsp;? <a href="{% url "subscription" %}">Rejoignez la France insoumise</a>.</p>
   </div>
 {% endblock %}
