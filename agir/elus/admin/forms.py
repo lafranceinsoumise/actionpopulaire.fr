@@ -49,7 +49,6 @@ class CreerMandatForm(forms.ModelForm):
 
         if "person" in self.fields:
             person = self.get_initial_for_field(self.fields["person"], "person")
-            self.fields["person"].required = False
             self.fields["person"].label = "Compte plateforme de l'élu"
             self.fields[
                 "person"
@@ -121,7 +120,7 @@ class CreerMandatForm(forms.ModelForm):
         if "person" in self.fields:
             person = cleaned_data["person"]
         else:
-            person = self.instance.person
+            person = getattr(self.instance, "person", None)
 
         if not person:
             # création d'une personne
@@ -131,7 +130,7 @@ class CreerMandatForm(forms.ModelForm):
             )
             self.instance.email_officiel = self.instance.person.primary_email
         else:
-            if "person" not in self.changed_data:
+            if "person" not in self.fields:
                 if any(f in self.changed_data for f in PERSON_FIELDS):
                     for f in PERSON_FIELDS:
                         setattr(person, f, cleaned_data[f])

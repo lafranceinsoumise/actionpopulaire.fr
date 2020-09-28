@@ -9,7 +9,6 @@ from data_france.models import (
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from psycopg2._range import DateRange
@@ -65,21 +64,50 @@ class BaseMandatAdmin(admin.ModelAdmin):
         S'il y a modification, on veut montrer le lien vers la personne plutôt que la personne.
         """
         can_view_person = request.user.has_perm("people.view_person")
+        create_new_person = request.GET.get("nouvelle") == "O"
 
         # cas de la création d'un nouveau mandat
         if obj is None:
-            return tuple(
-                (
-                    title,
-                    {
-                        **params,
-                        "fields": tuple(
-                            f for f in params["fields"] if f != "email_officiel"
-                        ),
-                    },
+            # si on crée une nouvelle personne, on affiche tous les champs
+            # sauf le choix d'une personne existante, et le choix d'un des
+            # emails comme email officiel
+            if create_new_person:
+                return tuple(
+                    (
+                        title,
+                        {
+                            **params,
+                            "fields": tuple(
+                                f
+                                for f in params["fields"]
+                                if f not in ["email_officiel", "person"]
+                            ),
+                        },
+                    )
+                    for title, params in self.fieldsets
                 )
-                for title, params in self.fieldsets
-            )
+            else:
+                # Si on utilise une personne existante, on n'affiche que les champs
+                # de sélection de la personne et des caractéristiques du mandat.
+                # Afficher les champs de modification des caractéristiques de la personne
+                # (nom, prénom, etc.) mènerait soit à ignorer les données saisies par
+                # l'utilisateur, soit à écraser les données existantes sans les présenter
+                # d'abord à l'utilisateur.
+                return (
+                    (
+                        None,
+                        {
+                            "fields": (
+                                "person",
+                                "create_new_person",
+                                "conseil",
+                                "statut",
+                                "mandat",
+                                "dates",
+                            )
+                        },
+                    ),
+                )
 
         additional_fieldsets = ()
         if obj.person is not None:
@@ -135,6 +163,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj) + (
             "actif",
+            "create_new_person",
             "person_link",
             "mandats_municipaux",
             "mandats_departementaux",
@@ -160,6 +189,16 @@ class BaseMandatAdmin(admin.ModelAdmin):
                 use_distinct,
             )
         return queryset, use_distinct
+
+    def create_new_person(self, obj):
+        info = self.model._meta.app_label, self.model._meta.model_name
+        return format_html(
+            '<a href="{}">{}</a>',
+            f'{reverse("admin:%s_%s_add" % info)}?nouvelle=O',
+            "Créer un élu sans compte",
+        )
+
+    create_new_person.short_description = "Il s'agit d'un élu sans compte ?"
 
     def actif(self, obj):
         if obj:
