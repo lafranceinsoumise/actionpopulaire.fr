@@ -717,6 +717,7 @@ DJAN_URL = "https://la-fi.fr/"
 DJAN_API_KEY = os.environ.get("DJAN_API_KEY")
 
 # nuntius
+NUNTIUS_REDIS_CONNECTION_GETTER = "agir.api.redis.get_auth_redis_client"
 NUNTIUS_PUBLIC_URL = FRONT_DOMAIN
 NUNTIUS_SUBSCRIBER_MODEL = "people.Person"
 NUNTIUS_SEGMENT_MODEL = "mailing.segment"
