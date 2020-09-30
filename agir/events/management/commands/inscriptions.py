@@ -163,7 +163,11 @@ def get_stats(status, config):
 
     res["final"] = final_subscribed.map(str) + " / " + final_drawn.map(str)
 
-    if config.get("subscription_prior"):
+    if config.get("subscription_prior") and config.get("ignore_actual_rate"):
+        res["adjusted"] = np.floor(res["needed"] / config["subscription_prior"]).astype(
+            int
+        )
+    elif config.get("subscription_prior"):
         from scipy.stats import beta
 
         subscription_prior = config["subscription_prior"]
