@@ -89,15 +89,21 @@ def get_current_status(config):
     }
 
     tag_unable = PersonTag.objects.get(label=f"{config['tag_prefix']} - renoncé")
+    tag_designated = PersonTag.objects.get(label=f"{config['tag_prefix']} - nommé")
     subscribed_ids = [
         str(id)
         for id in Person.objects.filter(
             rsvps__event=event,
             rsvps__status__in=[RSVP.STATUS_AWAITING_PAYMENT, RSVP.STATUS_CONFIRMED],
-        ).values_list("id", flat=True)
+        )
+        .exclude(tags=tag_designated)
+        .values_list("id", flat=True)
     ]
     unable_ids = [
         str(id) for id in tag_unable.people.all().values_list("id", flat=True)
+    ]
+    designated_ids = [
+        str(id) for id in tag_designated.people.all().values_list("id", flat=True)
     ]
 
     now = timezone.now().astimezone(timezone.get_default_timezone())
@@ -105,6 +111,7 @@ def get_current_status(config):
     status["_exists"] = status.id.isin(all_persons)
     status["_drawn"] = status.subscribe_limit.notnull()
     status["_subscribed"] = status.id.isin(subscribed_ids)
+    status["_designated"] = status.id.isin(designated_ids)
     status["_unable"] = status.id.isin(unable_ids)
     status["_active"] = (
         status._exists
@@ -156,7 +163,11 @@ def get_stats(status, config):
 
     res["final"] = final_subscribed.map(str) + " / " + final_drawn.map(str)
 
-    if config.get("subscription_prior"):
+    if config.get("subscription_prior") and config.get("ignore_actual_rate"):
+        res["adjusted"] = np.floor(res["needed"] / config["subscription_prior"]).astype(
+            int
+        )
+    elif config.get("subscription_prior"):
         from scipy.stats import beta
 
         subscription_prior = config["subscription_prior"]
