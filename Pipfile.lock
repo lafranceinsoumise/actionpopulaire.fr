@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1ee1ce623cd77ac231c2c9db979e13639db98f4ce56312fa9ad4582d74ff2007"
+            "sha256": "6ae18f75a6b07dd6d79332d9493268da69d9c0e1c889b8892ee2fcf1379c81bd"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -602,9 +602,12 @@
             "version": "==1.19.2"
         },
         "nuntius": {
-            "editable": true,
-            "git": "https://github.com/lafranceinsoumise/nuntius",
-            "ref": "8033b786036bb1f45395643c854e30bcf889e33b"
+            "hashes": [
+                "sha256:59e3ba8ad64ee4ca7e82013a257d66ff26c417229943bf61c534a007c456a3b0",
+                "sha256:c88e010f55e67be8a51f5220cbb8bd8ff23d350107cf8a72d0b9c04fd8625c3b"
+            ],
+            "index": "pypi",
+            "version": "==2.1.2"
         },
         "oauthlib": {
             "hashes": [
