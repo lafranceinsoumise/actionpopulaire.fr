@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib import admin
 from django.db.models import Count, Q
+from django.template.defaultfilters import truncatechars
 
 from agir.lib.form_fields import AdminRichEditorWidget
 from agir.notifications.models import Announcement, Notification
@@ -60,5 +61,9 @@ class AnnouncementAdmin(admin.ModelAdmin):
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
+    list_display = ("created", "person", "icon", "content_truncated", "status")
     fields = ("person", "content", "icon", "link", "status")
     autocomplete_fields = ("person",)
+
+    def content_truncated(self, obj):
+        return truncatechars(obj.content, 60)
