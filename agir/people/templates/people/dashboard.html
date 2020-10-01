@@ -83,8 +83,7 @@
                 {% if promo_code_delayed %}
                       <em>Les codes promos seront disponibles le {{ promo_code_delay|date }}</em>
                 {% elif group.has_promo_code %}
-                  <div>Code promo du mois : <strong>{{ group.promo_codes.0 }}</strong></div>
-                  <div>Code promo du mois dernier : <strong>{{ group.promo_codes.1 }}</strong></div>
+                  <div>Codes promo en cours : <strong>{{ group.promo_codes.0 }}, {{ group.promo_codes.1 }}</strong></div>
                 {% endif %}
                 <span class="input-group-btn">
                                 <a class='btn btn-default' href="{% url 'manage_group' group.pk %}">Gestion</a>
