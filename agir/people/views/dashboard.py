@@ -157,8 +157,6 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
             "-created"
         )
 
-        communes = CommunePage.objects.filter(chefs_file=person)
-
         kwargs.update(
             {
                 "person": person,
@@ -171,7 +169,6 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
                 "organized_events": organized_events,
                 "past_organized_events": past_organized_events,
                 "payments": payments,
-                "communes": communes,
             }
         )
         return super().get_context_data(**kwargs)

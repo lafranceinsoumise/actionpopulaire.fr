@@ -16,24 +16,6 @@
         Attention&nbsp;! Le fait que vous organisiez un événement ne veut pas nécessairement
         dire que vous y participez, même si c'est souvent le cas.
       </div>
-      {% if communes %}
-        <h3 class="clearfix">Ma campagne municipale</h3>
-        <div class="list-group">
-          {% for commune in communes %}
-            <div class="list-group-item">
-              <div class="input-group">
-                <i class="fa fa-envelope-open"></i>
-                <a href="{% url "view_commune" commune.code_departement commune.slug %}">{{ commune.name }}</a>
-                <div>Je suis chef{% if person.gender == "F" %}fe{% elif person.gender != "M" %}⋅fe{% endif %} de file
-                </div>
-                <span class="input-group-btn">
-                <a class='btn btn-default' href="{% url 'change_commune' commune.code_departement commune.slug %}">Modifier les informations</a>
-              </span>
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
       <h3 class="clearfix">Mon agenda</h3>
       <div class="btn-group">
         <button class="btn btn-default btn-sm dropdown-toggle" id="rechercher-evenement" data-toggle="dropdown"
