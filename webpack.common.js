@@ -54,7 +54,7 @@ module.exports = {
   context: path.resolve(__dirname, "agir/"),
   entry: Object.assign(
     {
-      theme: "@fi/theme/dist/theme.css",
+      theme: path.resolve(__dirname, "agir/front/components/theme/theme.scss"),
     },
     components
   ),
@@ -84,8 +84,8 @@ module.exports = {
         },
       },
       {
-        test: new RegExp("@fi/theme/dist/theme.css"),
-        use: [MiniCssExtractPlugin.loader, "css-loader"],
+        test: /\.(scss)$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
       },
       {
         test: /\.css$/,

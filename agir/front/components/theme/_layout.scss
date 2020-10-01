@@ -1,0 +1,49 @@
+body {
+  margin: auto;
+}
+
+.bottom-margin {
+  margin-bottom: 20px;
+}
+
+.text-important {
+  font-weight: bold;
+  color: $brand-secondary;
+}
+
+button, .btn {
+  transition: all 0.3s ease 0s;
+  font-family: $font-family-sans-serif;
+  text-transform: uppercase;
+}
+
+a.alt-color {
+  color: $brand-secondary;
+
+  &:hover, &:active {
+    color: darken($brand-secondary, 15%);
+  }
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  &.alt-color {
+    color: $brand-secondary;
+  }
+}
+
+.error-message {
+  @extend .text-danger;
+}
+
+@mixin make-one-main-column() {
+  @include make-sm-column(12);
+  @include make-md-column(10);
+  @include make-md-column-offset(1);
+  @include make-lg-column(8);
+  @include make-lg-column-offset(2);
+}
+
+.col-responsive {
+  @include make-one-main-column();
+}

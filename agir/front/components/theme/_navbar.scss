@@ -1,0 +1,78 @@
+.navbar-default {
+  font-family: $font-family-sans-serif;
+
+  .navbar-nav .navbar-img {
+    padding-top: 20px;
+    padding-bottom: 20px;
+      img {
+        height: $navbar-height - (20px*2);
+        width: auto;
+      }
+  }
+
+  .navbar-brand {
+    img {
+      margin-top: -10px;
+      margin-bottom: -10px;
+      height: $navbar-height - (29px*2) + (10px*2);
+      width: auto;
+    }
+  }
+}
+
+.navbar-supporter {
+  @extend .navbar-inverse;
+  border: 0px;
+  margin-top: -$navbar-margin-bottom;
+  min-height: 60px;
+  border-radius: 0px;
+
+  /* Rewrite everything so dropdown don't collapse in navbar */
+  .navbar-nav > li > a {
+    padding-top: 19px;
+    padding-bottom: 19px;
+  }
+
+  .divider {
+    @include nav-divider($dropdown-divider-bg);
+    background-color: $dropdown-divider-bg !important;
+  }
+
+  .navbar-nav .open .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    z-index: $zindex-dropdown;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0; // override default ul
+    font-size: $font-size-base;
+    text-align: left; // Ensures proper alignment if parent has it changed (e.g., modal footer)
+    list-style: none;
+    background-color: $dropdown-bg;
+    background-clip: padding-box;
+    border: 1px solid $dropdown-fallback-border; // IE8 fallback
+    border: 1px solid $dropdown-border;
+    border-radius: $border-radius-base;
+    @include box-shadow(0 6px 12px rgba(0, 0, 0, .175));
+
+    // Links within the dropdown menu
+    > li > a {
+      display: block;
+      padding: 3px 20px;
+      clear: both;
+      font-weight: 400;
+      line-height: $line-height-base;
+      color: $dropdown-link-color;
+      white-space: nowrap; // prevent links from randomly breaking onto new lines
+
+      &:hover,
+      &:focus {
+        color: $dropdown-link-hover-color;
+        text-decoration: none;
+        background-color: $dropdown-link-hover-bg;
+      }
+    }
+  }
+  box-shadow: 1px 4px 7px 2px rgba(0,0,0,0.3);
+}
