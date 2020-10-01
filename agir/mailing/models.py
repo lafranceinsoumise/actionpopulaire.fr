@@ -1,3 +1,4 @@
+from datetime import timedelta
 from functools import reduce
 
 from django.contrib.gis.db.models import MultiPolygonField
@@ -115,14 +116,16 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
 
-    last_open = models.DurationField(
-        "Limiter aux personnes ayant ouvert un email envoyé au court de la durée indiquée",
+    last_open = models.IntegerField(
+        "Limiter aux personnes ayant ouvert un email envoyé au court de derniers jours",
+        help_text="Indiquer le nombre de jours",
         blank=True,
         null=True,
     )
 
-    last_click = models.DurationField(
-        "Limiter aux personnes ayant cliqué dans un email envoyé au court de la durée indiquée",
+    last_click = models.IntegerField(
+        "Limiter aux personnes ayant cliqué dans un email envoyé au court des derniers jours",
+        help_text="Indiquer le nombre de jours",
         blank=True,
         null=True,
     )
@@ -308,13 +311,13 @@ class Segment(BaseSegment, models.Model):
         if self.last_open is not None:
             q = q & Q(
                 campaignsentevent__open_count__gt=0,
-                campaignsentevent__datetime__gt=now() - self.last_open,
+                campaignsentevent__datetime__gt=now() - timedelta(days=self.last_open),
             )
 
         if self.last_click is not None:
             q = q & Q(
                 campaignsentevent__click_count__gt=0,
-                campaignsentevent__datetime__gt=now() - self.last_click,
+                campaignsentevent__datetime__gt=now() - timedelta(days=self.last_click),
             )
 
         if len(self.countries) > 0:
