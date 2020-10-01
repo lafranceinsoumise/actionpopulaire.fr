@@ -90,13 +90,15 @@ def generate_code_for_group(group, expiration_date):
 def get_promo_codes(group):
     today = timezone.now().astimezone(timezone.get_default_timezone())
 
-    if today.month >= 11:
-        year = today.year + 1
+    if today.month == 12:
+        current_expiration_date = date(today.year + 1, 2, 1)
+        previous_expiration_date = date(today.year + 1, 1, 1)
+    elif today.month == 11:
+        current_expiration_date = date(today.year + 1, 1, 1)
+        previous_expiration_date = date(today.year, 12, 1)
     else:
-        year = today.year
-
-    current_expiration_date = date(year + 1, (today.month + 2) % 12, 1)
-    previous_expiration_date = date(year + 1, (today.month + 1) % 12, 1)
+        current_expiration_date = date(today.year, today.month + 2, 1)
+        previous_expiration_date = date(today.year, today.month + 1, 1)
 
     return (
         generate_code_for_group(group, current_expiration_date),
