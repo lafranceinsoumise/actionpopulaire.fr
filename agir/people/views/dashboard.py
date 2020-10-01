@@ -19,7 +19,7 @@ from django.views.generic import TemplateView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.events.models import Event
-from agir.groups.actions import get_next_promo_code
+from agir.groups.actions import get_promo_codes
 from agir.groups.actions.promo_codes import is_promo_code_delayed, next_promo_code_date
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tasks import geocode_person
@@ -77,7 +77,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
         else:
             for group in members_groups:
                 if group.user_is_manager and group.has_promo_code:
-                    group.promo_code = get_next_promo_code(group)
+                    group.promo_code = get_promo_codes(group)
             promo_code_delay = None
 
         suggested_events = (

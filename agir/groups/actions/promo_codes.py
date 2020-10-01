@@ -14,7 +14,7 @@ DIGESTMOD = hashlib.sha1
 BASE64ENC = base64.urlsafe_b64encode
 
 
-__all__ = ["get_next_promo_code"]
+__all__ = ["get_promo_codes"]
 
 
 def generate_date_fragment(expiration_date):
@@ -87,15 +87,21 @@ def generate_code_for_group(group, expiration_date):
     return sign_code(msg).decode("ascii")
 
 
-def get_next_promo_code(group):
+def get_promo_codes(group):
     today = timezone.now().astimezone(timezone.get_default_timezone())
 
-    if today.month == 12:
-        expiration_date = date(today.year + 1, 1, 1)
+    if today.month >= 11:
+        year = today.year + 1
     else:
-        expiration_date = date(today.year, today.month + 1, 1)
+        year = today.year
 
-    return generate_code_for_group(group, expiration_date)
+    current_expiration_date = date(year + 1, (today.month + 2) % 12, 1)
+    previous_expiration_date = date(year + 1, (today.month + 1) % 12, 1)
+
+    return (
+        generate_code_for_group(group, current_expiration_date),
+        generate_code_for_group(group, previous_expiration_date),
+    )
 
 
 def is_promo_code_delayed():

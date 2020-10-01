@@ -27,7 +27,7 @@ from . import actions
 from . import views
 from .forms import SupportGroupAdminForm
 from .. import models
-from ..actions.promo_codes import get_next_promo_code
+from ..actions.promo_codes import get_promo_codes
 from ..models import Membership
 
 
@@ -199,7 +199,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     def promo_code(self, object):
         if object.pk and object.tags.filter(label=settings.PROMO_CODE_TAG).exists():
-            return get_next_promo_code(object)
+            return ", ".join(get_promo_codes(object))
         else:
             return "-"
 

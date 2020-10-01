@@ -28,7 +28,7 @@ from agir.authentication.view_mixins import (
 from agir.donations.allocations import get_balance
 from agir.donations.models import SpendingRequest
 from agir.front.view_mixins import ChangeLocationBaseView
-from agir.groups.actions import get_next_promo_code
+from agir.groups.actions import get_promo_codes
 from agir.groups.actions.pressero import is_pressero_enabled, redirect_to_pressero
 from agir.groups.actions.promo_codes import is_promo_code_delayed, next_promo_code_date
 from agir.groups.forms import (
@@ -116,7 +116,7 @@ class SupportGroupManagementView(BaseSupportGroupAdminView, DetailView):
             label=settings.PROMO_CODE_TAG
         ).exists()
         if kwargs["has_promo_code"]:
-            kwargs["group_promo_code"] = get_next_promo_code(self.object)
+            kwargs["group_promo_codes"] = get_promo_codes(self.object)
 
         if is_promo_code_delayed():
             kwargs["promo_code_delay"] = next_promo_code_date()
