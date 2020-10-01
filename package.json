@@ -1,8 +1,5 @@
 {
-  "name": "fi-api",
-  "version": "1.0.0",
-  "description": "api-django ==========",
-  "main": "src/js/index.js",
+  "name": "agir",
   "scripts": {
     "test": "jest",
     "build": "webpack --config webpack.production.js",
@@ -10,16 +7,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lafranceinsoumise/api-django.git"
+    "url": "git+https://github.com/lafranceinsoumise/agir.lafranceinsoumise.fr.git"
   },
-  "author": "",
-  "license": "ISC",
+  "license": "AGPL",
   "bugs": {
-    "url": "https://github.com/lafranceinsoumise/api-django/issues"
+    "url": "https://github.com/lafranceinsoumise/agir.lafranceinsoumise.fr.git/issues"
   },
-  "homepage": "https://github.com/lafranceinsoumise/api-django#readme",
   "dependencies": {
-    "@fi/theme": "github:lafranceinsoumise/theme#master",
     "axios": "^0.19.2",
     "babel-plugin-styled-components": "^1.11.1",
     "bootstrap-sass": "^3.4.1",
