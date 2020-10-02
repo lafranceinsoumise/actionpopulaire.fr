@@ -25,25 +25,16 @@ export const changeSingleGroupAllocation = (
   newValue,
   maxAmount
 ) => {
+  const totalAllocated = oldState.reduce((acc, alloc) => acc + alloc.amount, 0);
+  const maxAmountForThisGroup =
+    maxAmount - totalAllocated + oldState[groupIndex].amount;
+
   const newState = oldState.slice();
-  newState[groupIndex] = { ...oldState[groupIndex], amount: newValue };
-
-  if (newValue <= oldState[groupIndex]) {
-    return newState;
-  }
-
-  const newTotal = maxAmount - totalAllocatedFromState(newState);
-
-  if (newTotal >= 0) {
-    return newState;
-  }
-
-  allocations[groupIndex] = 0;
-
-  const allocations = newState.map(({ amount }) => amount);
-  const newAllocations = dealFromWeights(allocations, maxAmount - newValue);
-  newAllocations[groupIndex] = newValue;
-  return newAllocations.map((amount, i) => ({ ...oldState[i], amount }));
+  newState[groupIndex] = {
+    ...oldState[groupIndex],
+    amount: Math.min(newValue, maxAmountForThisGroup),
+  };
+  return newState;
 };
 
 export const totalAllocatedFromState = (state) =>

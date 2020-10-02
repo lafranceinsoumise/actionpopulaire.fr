@@ -28,7 +28,7 @@ export const useThrottle = (func, wait) => {
   return useCallback(
     throttle((...args) => ref.current(...args), wait, {
       leading: true,
-      trailing: false,
+      trailing: true,
     }),
     [wait]
   );
