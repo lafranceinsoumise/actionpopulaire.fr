@@ -84,6 +84,12 @@ class Segment(BaseSegment, models.Model):
         default=False,
     )
 
+    draw_status = models.NullBooleanField(
+        "Limiter aux gens dont l'inscription au tirage au sort est",
+        blank=True,
+        default=None,
+    )
+
     forms = models.ManyToManyField(
         "people.PersonForm",
         verbose_name="A répondu à au moins un de ces formulaires",
@@ -275,6 +281,9 @@ class Segment(BaseSegment, models.Model):
                         RSVP.STATUS_AWAITING_PAYMENT,
                     ]
                 )
+
+        if self.draw_status is not None:
+            q = q & Q(draw_participation=self.draw_status)
 
         if self.forms.all().count() > 0:
             q = q & Q(form_submissions__form__in=self.forms.all())
