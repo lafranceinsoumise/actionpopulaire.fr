@@ -4,6 +4,7 @@ from crispy_forms.layout import Layout, Row, Submit, Div
 from django import forms
 
 from agir.events.models import EventSubtype, Event
+from agir.lib.filters import FixedModelMultipleChoiceFilter
 
 
 class EventFilterForm(forms.Form):
@@ -19,7 +20,7 @@ class EventFilterForm(forms.Form):
         self.helper.add_input(Submit("chercher", "Chercher"))
 
 
-class EventFilter(django_filters.FilterSet):
+class EventFilter(django_filters.rest_framework.FilterSet):
     q = django_filters.CharFilter(method="filter_search", label="Chercher")
 
     type = django_filters.ChoiceFilter(
@@ -27,6 +28,12 @@ class EventFilter(django_filters.FilterSet):
         lookup_expr="exact",
         label="Type d'événement",
         choices=EventSubtype.TYPE_CHOICES,
+    )
+
+    subtype = FixedModelMultipleChoiceFilter(
+        field_name="subtype",
+        to_field_name="label",
+        queryset=EventSubtype.objects.all(),
     )
 
     past = django_filters.BooleanFilter(
