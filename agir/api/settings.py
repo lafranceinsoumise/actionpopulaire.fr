@@ -74,7 +74,6 @@ SECRET_KEY = os.environ.get(
 )
 SENDGRID_SES_WEBHOOK_USER = os.environ.get("SENDGRID_SES_WEBHOOK_USER", "fi")
 SENDGRID_SES_WEBHOOK_PASSWORD = os.environ.get("SENDGRID_SES_WEBHOOK_PASSWORD", "prout")
-MAILTRAIN_API_KEY = os.environ.get("MAILTRAIN_API_KEY", "prout")
 SCANNER_API = os.environ.get("SCANNER_API", "http://agir.local:8000")
 SCANNER_API_KEY = os.environ.get("SCANNER_API_KEY", "prout")
 SCANNER_API_SECRET = os.environ.get("SCANNER_API_SECRET", "prout")
@@ -93,9 +92,6 @@ MAP_DOMAIN = os.environ.get(
     "MAP_DOMAIN",
     "http://agir.local:8000" if DEBUG else "https://agir.lafranceinsoumise.fr",
 )
-MAILTRAIN_HOST = os.environ.get("MAILTRAIN_HOST", "http://agir.local:8000")
-MAILTRAIN_LIST_ID = os.environ.get("MAILTRAIN_LIST_ID", "SyWda9pi")
-MAILTRAIN_DISABLE = DEBUG
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,agir.local").split(",")
 

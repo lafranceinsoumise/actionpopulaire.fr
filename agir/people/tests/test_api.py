@@ -7,11 +7,9 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate, APITestCase
 
-from agir.api.redis import using_separate_redis_server
 from agir.events.models import Event, RSVP
 from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person, PersonTag
-from agir.people.tasks import update_person_mailtrain
 from agir.people.viewsets import LegacyPersonViewSet
 
 
@@ -215,7 +213,6 @@ class LegacyPersonEndpointTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    @override_settings(MAILTRAIN_DISABLE=False)
     @mock.patch("django.db.transaction.on_commit")
     def test_can_update_email_list(self, on_commit):
         """
@@ -238,7 +235,6 @@ class LegacyPersonEndpointTestCase(APITestCase):
 
         on_commit.assert_called_once()
         partial = on_commit.call_args[0][0]
-        self.assertEqual(partial.func, update_person_mailtrain.delay)
         self.assertEqual(partial.args, (self.basic_person.pk,))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

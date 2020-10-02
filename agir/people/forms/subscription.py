@@ -10,7 +10,6 @@ from agir.people.models import Person
 from agir.people.tasks import (
     send_unsubscribe_email,
     send_confirmation_email,
-    delete_email_mailtrain,
 )
 
 
@@ -36,7 +35,7 @@ class AnonymousUnsubscribeForm(forms.Form):
             person.subscribed = False
             person.save()
         except Person.DoesNotExist:
-            delete_email_mailtrain.delay(email)
+            pass
 
 
 class BaseSubscriptionForm(forms.Form):

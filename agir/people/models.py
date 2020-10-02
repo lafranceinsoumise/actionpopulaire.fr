@@ -140,11 +140,6 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
             if email:
                 person.add_email(email)
 
-        if not settings.MAILTRAIN_DISABLE:
-            from .tasks import update_person_mailtrain
-
-            transaction.on_commit(partial(update_person_mailtrain.delay, person.pk))
-
         return person
 
     def create_person(self, email, password=None, **extra_fields):

@@ -12,11 +12,10 @@ from agir.authentication.tokens import (
 )
 from agir.lib.display import pretty_time_since
 from agir.lib.mailing import send_mosaico_email
-from agir.lib.mailtrain import update_person, delete_email
 from agir.lib.utils import front_url
 from agir.people.person_forms.display import default_person_form_display
 from .models import Person, PersonFormSubmission, PersonEmail, PersonValidationSMS
-from ..lib.celery import emailing_task, http_task, retry_on_http_strategy
+from ..lib.celery import emailing_task
 from ..lib.sms import send_sms
 
 
@@ -152,21 +151,6 @@ def send_unsubscribe_email(person_pk):
         recipients=[person],
         bindings=bindings,
     )
-
-
-@http_task
-def update_person_mailtrain(person_pk):
-    try:
-        person = Person.objects.prefetch_related("emails").get(pk=person_pk)
-    except Person.DoesNotExist:
-        return
-
-    update_person(person)
-
-
-@http_task
-def delete_email_mailtrain(email):
-    delete_email(email)
 
 
 @emailing_task

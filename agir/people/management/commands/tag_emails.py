@@ -1,10 +1,9 @@
-import sys
 import re
+import sys
 
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
-from agir.lib.mailtrain import update_person
 from ...models import Person, PersonTag
 
 
@@ -41,19 +40,11 @@ class Command(BaseCommand):
             dest="tmp",
             default=False,
             help=(
-                "Does not write the tag in api. If mailtrain is off and create missing is off, the command does nothing."
+                "Does not write the tag in api. If create missing is off, the command does nothing."
             ),
         )
-        parser.add_argument(
-            "-m",
-            "--mailtrain",
-            action="store_true",
-            dest="mailtrain",
-            default=False,
-            help=("Copy the tag in mailtrain"),
-        )
 
-    def handle(self, *args, tag, create, insoumis, tmp, mailtrain, **options):
+    def handle(self, *args, tag, create, insoumis, tmp, **options):
         emails = re.findall(self.EMAIL_RE, sys.stdin.read())
 
         self.stdout.write(f"{len(emails)} email addresses found...")
@@ -81,8 +72,6 @@ class Command(BaseCommand):
             if tmp is False:
                 # noinspection PyUnboundLocalVariable
                 tag_object.people.add(person)
-            if mailtrain is True:
-                update_person(person, tmp_tags=[tag])
 
         if create:
             self.stdout.write(f"Users for {missing} / {len(emails)} were created.")

@@ -34,7 +34,6 @@ from agir.people.admin.views import (
 from agir.people.models import Person, PersonTag
 from agir.people.person_forms.display import default_person_form_display
 from agir.people.person_forms.models import PersonForm, PersonFormSubmission
-from agir.people.tasks import update_person_mailtrain
 
 __all__ = [
     "PersonAdmin",
@@ -293,40 +292,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 class PersonTagAdmin(admin.ModelAdmin):
     list_display = ("label", "exported")
 
-    actions = ("set_as_exported", "set_as_not_exported", "export_now")
     search_fields = ("label",)
-
-    def set_as_exported(self, request, queryset):
-        queryset.update(exported=True)
-
-    set_as_exported.short_description = _("Exporter ces tags")
-
-    def set_as_not_exported(self, request, queryset):
-        queryset.update(exported=False)
-
-    set_as_not_exported.short_description = _("Ne plus exporter")
-
-    def export_now(self, request, queryset):
-        persons = Person.objects.filter(tags__in=queryset).distinct()
-        count = persons.count()
-
-        if count > 5000:
-            self.message_user(
-                request,
-                "Vous ne pouvez synchroniser plus de 5000 personnes de cette manière.",
-                level=messages.ERROR,
-            )
-
-            return
-        else:
-            update_person_mailtrain.map(persons)
-            self.message_user(
-                request,
-                f"Synchronisation en cours de {count} personnes. Cela peut prendre un moment.",
-                level=messages.SUCCESS,
-            )
-
-    export_now.short_description = "Lancer une synchronisaton maintenant"
 
 
 @admin.register(PersonForm)

@@ -1,12 +1,11 @@
 from unittest import mock
 
-from django.test import TestCase, override_settings
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
+from django.test import TestCase
 
 from agir.authentication.models import Role
-from agir.people.models import Person, PersonEmail
-from agir.people.tasks import update_person_mailtrain
+from agir.people.models import Person
 
 
 class BasicPersonTestCase(TestCase):
@@ -84,33 +83,6 @@ class BasicPersonTestCase(TestCase):
         person = Person.objects.create_person("test1@domain.com")
 
         self.assertEqual(str(person), "test1@domain.com")
-
-    @override_settings(MAILTRAIN_DISABLE=False)
-    @mock.patch("django.db.transaction.on_commit")
-    def test_person_is_updated_in_mailtrain(self, on_commit):
-        person = Person.objects.create_person("test1@domain.com")
-
-        on_commit.assert_called_once()
-        partial = on_commit.call_args[0][0]
-        self.assertEqual(partial.func, update_person_mailtrain.delay)
-        self.assertEqual(partial.args, (person.pk,))
-
-    @override_settings(MAILTRAIN_DISABLE=False)
-    @mock.patch("agir.people.tasks.update_person_mailtrain")
-    @mock.patch("agir.people.tasks.delete_email_mailtrain")
-    def test_email_is_deleted_from_mailtrain_when_email_deleted(
-        self, delete_email_mailtrain, update_person_email
-    ):
-        person = Person.objects.create_person("test1@domain.com")
-        p2 = PersonEmail.objects.create_email(address="test2@domain.com", person=person)
-
-        delete_email_mailtrain.reset_mock()
-
-        address = p2.address
-        p2.delete()
-
-        delete_email_mailtrain.delay.assert_called_once()
-        self.assertEqual(delete_email_mailtrain.delay.call_args[0][0], address)
 
 
 class ContactPhoneTestCase(TestCase):
