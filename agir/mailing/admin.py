@@ -25,9 +25,10 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     fieldsets = (
         (None, {"fields": ("name", "tags", "force_non_insoumis")}),
         (
-            "GA, événements et formulaires",
+            "GA, événements, tirage au sort et formulaires",
             {
                 "fields": (
+                    "draw_status",
                     "supportgroup_status",
                     "supportgroup_subtypes",
                     "events",
