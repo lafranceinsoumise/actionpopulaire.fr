@@ -213,8 +213,7 @@ class LegacyPersonEndpointTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    @mock.patch("django.db.transaction.on_commit")
-    def test_can_update_email_list(self, on_commit):
+    def test_can_update_email_list(self):
         """
         We test at the same time that we can replace the list,
         and that we can set the primary email with the 'email' field
@@ -232,10 +231,6 @@ class LegacyPersonEndpointTestCase(APITestCase):
         )
         force_authenticate(request, self.changer_person.role)
         response = self.detail_view(request, pk=self.basic_person.pk)
-
-        on_commit.assert_called_once()
-        partial = on_commit.call_args[0][0]
-        self.assertEqual(partial.args, (self.basic_person.pk,))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.basic_person.email, "testprimary@example.com")
