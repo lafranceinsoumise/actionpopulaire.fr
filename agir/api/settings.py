@@ -28,6 +28,7 @@ YES_VALUES = ["y", "yes", "true", "t"]
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
+ADMIN_PRODUCTION = os.environ.get("ADMIN_PRODUCTION", "false").lower() == "true"
 DEBUG = os.environ.get("DEBUG", "true").lower() == "true"
 ENABLE_DEBUG_TOOLBAR = os.environ.get("ENABLE_DEBUG_TOOLBAR", "false").lower() == "true"
 ENABLE_SILK = os.environ.get("ENABLE_SILK", "false").lower() == "true"
@@ -625,23 +626,6 @@ SYSTEMPAY_SITE_ID = os.environ.get("SYSTEMPAY_SITE_ID", 0)
 SYSTEMPAY_PRODUCTION = os.environ.get("SYSTEMPAY_PRODUCTION", "false").lower() == "true"
 SYSTEMPAY_CURRENCY = os.environ.get("SYSTEMPAY_CURRENCY", 978)
 SYSTEMPAY_CERTIFICATE = os.environ.get("SYSTEMPAY_CERTIFICATE", "arbitrarystring")
-
-SYSTEMPAY_AFCE_SITE_ID = os.environ.get("SYSTEMPAY_AFCE_SITE_ID", 0)
-SYSTEMPAY_AFCE_PRODUCTION = (
-    os.environ.get("SYSTEMPAY_AFCE_PRODUCTION", "false").lower() == "true"
-)
-SYSTEMPAY_AFCE_CERTIFICATE = os.environ.get(
-    "SYSTEMPAY_AFCE_CERTIFICATE", "arbitrarystring"
-)
-
-SYSTEMPAY_AFCE_LOANS_SITE_ID = os.environ.get("SYSTEMPAY_AFCE_LOANS_SITE_ID", 0)
-SYSTEMPAY_AFCE_LOANS_PRODUCTION = (
-    os.environ.get("SYSTEMPAY_AFCE_LOANS_PRODUCTION", "false").lower() == "true"
-)
-SYSTEMPAY_AFCE_LOANS_CERTIFICATE = os.environ.get(
-    "SYSTEMPAY_AFCE_LOANS_CERTIFICATE", "arbitrarystring"
-)
-
 
 DONATION_MINIMUM = 1 * 100  # 1 €
 DONATION_MAXIMUM = 1000 * 100  # 1000 €
