@@ -1,0 +1,63 @@
+name: run-tests
+on: [push]
+jobs:
+
+  python-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install build dependencies
+        run: |
+          sudo apt-get install language-pack-fr libgdal-dev libsystemd-dev
+          python -m pip install --upgrade pip
+          pip install -U pipenv
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.local/share/virtualenvs/agir.lafranceinsoumise.fr-72nLCFOJ
+          key: ${{ runner.os }}-pip-${{ hashFiles('Pipfile.lock') }}
+      - name: Install Pipenv dependencies
+        run: pipenv install --dev --deploy
+      - name: Run black
+        run: pipenv run black --check .
+      - name: Run tests
+        run: pipenv run ./manage.py test -v 2
+        env:
+          DATABASE_URL: "postgis://postgres:postgres@localhost:5432/postgres"
+          LOG_DISABLE_JOURNALD: true
+          WEBPACK_LOADER_SKIP: true
+
+  js-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - name: Install node dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm run test
