@@ -34,9 +34,8 @@ const components = flatten(
       .map((f) => [path.basename(dir), path.resolve(dir, "components", f)])
   )
 )
-  .filter(
-    ([_app, f]) =>
-      (isDirectory(f) && directoryHasFile("index.js")(f)) || f.endsWith(".js")
+  .filter(([_app, f]) =>
+    isDirectory(f) ? directoryHasFile("index.js")(f) : f.endsWith(".js")
   )
   .map(([app, f]) => [app + "/" + path.basename(f, ".js"), f])
   .reduce((obj, [name, file]) => {
