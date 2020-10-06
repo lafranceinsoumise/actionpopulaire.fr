@@ -1,4 +1,4 @@
-import InputRange from "@agir/lib/bootstrap/InputRange";
+import InputRange from "@agir/front/genericComponents/InputRange";
 import AmountInput from "@agir/donations/donationForm/AmountInput";
 import PropTypes from "prop-types";
 import React from "react";
