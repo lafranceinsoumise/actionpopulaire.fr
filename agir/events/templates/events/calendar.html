@@ -9,9 +9,9 @@
   {% endif %}
 
   {% url 'ics_calendar' calendar.slug as calendar_url %}
-  <h2>{{ calendar.name }}
+  <h1>{{ calendar.name }}
     <small>S'abonner {% include 'events/calendar_subscribe_modal.html' with url=calendar_url %}</small>
-  </h2>
+  </h1>
 
   {% if calendar.description %}
     <div class="intro">

@@ -5,7 +5,7 @@
 {% block title %}Modifier la localisation de mon groupe{% endblock %}
 
 {% block main %}
-  <h2><a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a></h2>
+  <h1><a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a></h1>
   <ol class="breadcrumb">
     <li><a href="{% url "view_group" supportgroup.pk %}">Page publique du groupe</a></li>
     <li><a href="{% url "manage_group" supportgroup.pk %}">Gestion du groupe</a></li>
