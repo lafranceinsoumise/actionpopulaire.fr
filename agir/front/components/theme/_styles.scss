@@ -6,7 +6,7 @@ h4, .h4,
 h5, .h5,
 h6, .h6 {
 	margin-top: 0.8em;
-	margin-bottom: 1em;
+	margin-bottom: 0.7em;
 }
 
 
@@ -84,8 +84,23 @@ img {
 	}
 }
 
+fieldset {
+	margin-top: 2em;
+
+	label {
+		font-weight: 500;
+	}
+
+	legend {
+		font-size: 24px;
+		font-weight: 700;
+		margin-bottom: 20px;
+		border: 0;
+	}
+}
+
 .help-block {
-  color: $gray-light; // lighten the text some for contrast
+	color: $gray-light; // lighten the text some for contrast
 }
 
 // Buttons sizes

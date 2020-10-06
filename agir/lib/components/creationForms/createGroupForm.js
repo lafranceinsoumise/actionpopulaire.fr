@@ -103,7 +103,7 @@ class GroupTypeStep extends FormStep {
     return (
       <div className="row padtopmore">
         <div className="col-sm-6">
-          <h4>Quel type de groupe voulez-vous créer ?</h4>
+          <h3>Quel type de groupe voulez-vous créer ?</h3>
           <blockquote>
             <p>
               &laquo;&nbsp;Chaque insoumis.e peut créer ou rejoindre un ou

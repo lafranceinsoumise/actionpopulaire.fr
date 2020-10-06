@@ -3,22 +3,6 @@
 
 {% block title %}S'inscrire pour «&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
-{% block additional_headers %}
-  <style>
-    fieldset legend {
-      font-family: Montserrat, sans-serif;
-      font-weight: 500;
-      line-height: 1.1;
-      color: #0098b6;
-      font-size: 28px;
-    }
-
-    fieldset {
-      margin-top: 2em;
-    }
-  </style>
-{% endblock %}
-
 {% block main %}
   <div class="col-responsive">
     <h2><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h2>

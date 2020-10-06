@@ -203,7 +203,7 @@ class EventTypeStep extends FormStep {
     return (
       <div className="row padtopmore">
         <div className="col-sm-6">
-          <h2>Quel type d'événement voulez-vous créer ?</h2>
+          <h3>Quel type d'événement voulez-vous créer ?</h3>
           <p>
             Chaque insoumis·e peut créer un événement sur la plateforme dès lors
             qu’il respecte le cadre et la démarche de la France insoumise dans
