@@ -30,12 +30,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -U pipenv
       - uses: actions/cache@v2
+        id: restore-cache
         with:
           path: |
             ~/.cache/pip
             ~/.local/share/virtualenvs/agir.lafranceinsoumise.fr-72nLCFOJ
           key: ${{ runner.os }}-pip-${{ hashFiles('Pipfile.lock') }}
       - name: Install Pipenv dependencies
+        if: steps.restore-cache.outputs.cache-hit != 'true'
         run: pipenv install --dev --deploy
       - name: Run black
         run: pipenv run black --check .
