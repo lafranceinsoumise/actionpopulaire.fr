@@ -83,3 +83,20 @@ img {
 		@extend .margintopless;
 	}
 }
+
+.help-block {
+  color: $gray-light; // lighten the text some for contrast
+}
+
+// Buttons sizes
+// 	@include button-size($padding-base-vertical, $padding-base-horizontal, $font-size, $line-height-base, $btn-border-radius-base);
+.btn {
+	@include button-size(12px, 24px, 14px, $line-height-base, $btn-border-radius-base);
+}
+
+.btn-lg {
+	@include button-size($padding-large-vertical, $padding-large-horizontal, 16px, $line-height-large, $btn-border-radius-large);
+}
+.btn-sm {
+	@include button-size($padding-small-vertical, $padding-small-horizontal, 12px, $line-height-small, $btn-border-radius-small);
+}

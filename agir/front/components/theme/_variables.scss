@@ -97,6 +97,8 @@ $border-radius-small:       0px;
 //
 //## For each of Bootstrap's buttons, define text, background and border color.
 
+$btn-font-weight:                700;
+
 $btn-primary-color:              #fff !default;
 $btn-primary-bg:                 $brand-secondary !default;
 $btn-primary-border:             darken($btn-primary-bg, 5%) !default;

@@ -4,7 +4,7 @@
     var endTime = $("#id_end_time");
 
     var buttons = [1, 2, 4].map(function (i) {
-      return ' <button type="button" class="duration-btn btn btn-default btn-xs" data-number="' + i + '"><i class="fa fa-arrow-right"></i> ' + i + "h</button>";
+      return ' <button type="button" class="duration-btn btn btn-default btn-sm" data-number="' + i + '"><i class="fa fa-arrow-right"></i> ' + i + "h</button>";
     }).join('');
 
     $('#div_id_end_time').append('<span class="help-block"><span id="id_duration"></span><br/>' + buttons + '</span>');
