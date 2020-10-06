@@ -206,6 +206,25 @@ class Segment(BaseSegment, models.Model):
         "A une souscription mensuelle active", blank=True, null=True
     )
 
+    ELUS_NON = "N"
+    ELUS_MEMBRE_RESEAU = "M"
+    ELUS_REFERENCE = "R"
+    ELUS_CHOICES = (
+        (ELUS_NON, "Non"),
+        (ELUS_MEMBRE_RESEAU, "Membre du réseau des élus"),
+        (ELUS_REFERENCE, "Référencé comme élu, non exclus"),
+    )
+
+    elu = models.CharField(
+        "Est un élu", max_length=1, choices=ELUS_CHOICES, default=ELUS_NON
+    )
+
+    elu_municipal = models.BooleanField("Avec un mandat municipal", default=True)
+    elu_departemental = models.BooleanField(
+        "Avec un mandat départemental", default=True
+    )
+    elu_regional = models.BooleanField("Avec un mandat régional", default=True)
+
     exclude_segments = models.ManyToManyField(
         "self",
         symmetrical=False,
@@ -392,6 +411,22 @@ class Segment(BaseSegment, models.Model):
             else:
                 q = q & ~Q(subscriptions__status=Subscription.STATUS_ACTIVE)
 
+        if self.elu != Segment.ELUS_NON:
+            if self.elu == Segment.ELUS_MEMBRE_RESEAU:
+                q &= Q(membre_reseau_elus=Person.MEMBRE_RESEAU_OUI)
+            elif self.elu == Segment.ELUS_REFERENCE:
+                q &= ~Q(membre_reseau_elus=Person.MEMBRE_RESEAU_EXCLUS)
+
+            q_mandats = Q()
+            for t in [
+                "elu_municipal",
+                "elu_departemental",
+                "elu_regional",
+            ]:
+                if getattr(self, t):
+                    q_mandats |= Q(**{t: True})
+            q &= q_mandats
+
         if self.add_segments.all().count() > 0:
             q = reduce(
                 lambda q1, q2: q1 | q2,
@@ -409,11 +444,12 @@ class Segment(BaseSegment, models.Model):
         return q
 
     def get_subscribers_queryset(self):
-        return (
-            Person.objects.filter(self.get_subscribers_q())
-            .order_by("id")
-            .distinct("id")
-        )
+        qs = Person.objects.all()
+
+        if self.elu != Segment.ELUS_NON:
+            qs = qs.annotate_elus()
+
+        return qs.filter(self.get_subscribers_q()).order_by("id").distinct("id")
 
     def get_subscribers_count(self):
         return self.get_subscribers_queryset().count()

@@ -55,7 +55,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             },
         ),
         (
-            "Informations personelles",
+            "Informations personnelles",
             {"fields": ("gender", "born_after", "born_before")},
         ),
         (
@@ -70,6 +70,10 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "subscription",
                 )
             },
+        ),
+        (
+            "Réseau des élus",
+            {"fields": ("elu", "elu_municipal", "elu_departemental", "elu_regional",)},
         ),
         ("Combiner des segments", {"fields": ("add_segments", "exclude_segments")}),
         ("Abonnés", {"fields": ("get_subscribers_count",)}),

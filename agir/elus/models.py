@@ -219,6 +219,14 @@ class MandatMunicipal(MandatAbstrait):
         (MANDAT_EPCI_VICE_PRESIDENT, "Vice-Président"),
     )
 
+    person = models.ForeignKey(
+        "people.Person",
+        verbose_name="Élu",
+        on_delete=models.CASCADE,
+        related_name="mandats_municipaux",
+        related_query_name="mandat_municipal",
+    )
+
     conseil = models.ForeignKey(
         "data_france.Commune",
         verbose_name="Commune",
@@ -299,6 +307,14 @@ class MandatDepartemental(MandatAbstrait):
         (MANDAT_VICE_PRESIDENT, "Vice-Président"),
     )
 
+    person = models.ForeignKey(
+        "people.Person",
+        verbose_name="Élu",
+        on_delete=models.CASCADE,
+        related_name="mandats_departementaux",
+        related_query_name="mandat_departemental",
+    )
+
     conseil = models.ForeignKey(
         "data_france.CollectiviteDepartementale",
         verbose_name="Conseil départemental (ou de métropole)",
@@ -371,6 +387,14 @@ class MandatRegional(MandatAbstrait):
         (MANDAT_CONSEILLER_OPPOSITION, "Conseiller⋅e minoritaire"),
         (MANDAT_PRESIDENT, "Président"),
         (MANDAT_VICE_PRESIDENT, "Vice-Président"),
+    )
+
+    person = models.ForeignKey(
+        "people.Person",
+        verbose_name="Élu",
+        on_delete=models.CASCADE,
+        related_name="mandats_regionaux",
+        related_query_name="mandat_regional",
     )
 
     conseil = models.ForeignKey(
