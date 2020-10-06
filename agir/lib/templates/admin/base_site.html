@@ -1,4 +1,14 @@
 {% extends "admin/base_site.html" %}
+
+{% load static %}
+
+{% block extrastyle %}
+  {% if production_colors %}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/prod_colors.css" %}"/>
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/staging_colors.css" %}"/>
+  {% endif %}
+{% endblock %}
 {% block extrahead %}
   <style>
     .form-row .widget-limit-max-height {

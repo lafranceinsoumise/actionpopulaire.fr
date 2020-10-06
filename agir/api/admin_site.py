@@ -1,5 +1,6 @@
 import django_otp
 from django import forms
+from django.conf import settings
 from django.contrib.auth import authenticate, BACKEND_SESSION_KEY
 from django.utils.translation import ugettext_lazy as _
 from django_otp.admin import OTPAdminAuthenticationForm, OTPAdminSite
@@ -59,3 +60,9 @@ class APIAdminSite(OTPAdminSite):
                 or not django_otp.user_has_device(request.user)
             )
         )
+
+    def each_context(self, request):
+        return {
+            "production_colors": settings.ADMIN_PRODUCTION,
+            **super().each_context(request),
+        }
