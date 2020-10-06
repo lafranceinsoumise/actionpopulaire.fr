@@ -362,6 +362,9 @@ WEBPACK_LOADER = {
         ),
     }
 }
+WEBPACK_LOADER_SKIP = os.environ.get("WEBPACK_LOADER_SKIP", "false").lower() == "true"
+if WEBPACK_LOADER_SKIP:
+    WEBPACK_LOADER["DEFAULT"]["LOADER_CLASS"] = "agir.front.build.DummyWebpackLoader"
 
 MEDIA_URL = "/media/"
 
