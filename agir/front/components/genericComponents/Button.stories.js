@@ -9,23 +9,26 @@ export default {
 
 const Template = (args) => <Button {...args} />;
 
+export const Default = Template.bind({});
+Default.args = { small: false, disabled: false, children: "Texte du bouton" };
+
 export const PrimaryColor = Template.bind({});
 PrimaryColor.args = {
-  children: "Voir le groupe",
+  ...Default.args,
   color: "primary",
 };
 
 export const SecondaryColor = Template.bind({});
 SecondaryColor.args = {
-  children: "Participer à l'événement",
+  ...Default.args,
   color: "secondary",
 };
 
-export const Default = Template.bind({});
-Default.args = { children: "Modifier" };
+export const Unavailable = Template.bind({});
+Unavailable.args = { ...Default.args, color: "unavailable" };
 
-export const Small = Template.bind({});
-Small.args = { children: "Petit bouton", small: true };
+export const SmallExample = Template.bind({});
+SmallExample.args = { ...Default.args, small: true };
 
-export const Disabled = Template.bind({});
-Disabled.args = { children: "Désactivé", disabled: true };
+export const DisabledExample = Template.bind({});
+DisabledExample.args = { ...Default.args, disabled: true };
