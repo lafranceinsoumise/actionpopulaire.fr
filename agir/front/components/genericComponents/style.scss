@@ -1,187 +1,229 @@
-@import "node_modules/normalize.css";
-@import "../theme/variables";
+@import url(https://fonts.googleapis.com/css?family=Montserrat:400,500,700);
+@import "../../../../node_modules/normalize.css";
+
+$gray-base: #000 !default;
+$gray-darker: lighten($gray-base, 13.5%) !default; // #222
+$gray-dark: lighten($gray-base, 20%) !default; // #333
+$gray: lighten($gray-base, 33.5%) !default; // #555
+$gray-light: lighten($gray-base, 46.7%) !default; // #777
+$gray-lighter: lighten($gray-base, 93.5%) !default; // #eee
+
+$brand-primary: #0098b6; // bleu
+$brand-secondary: #c9462c; // terre de sienne
+$brand-black: #00232c;
+
+$font-family-base: 'Montserrat', sans-serif;
+$font-size-base: 16px;
+$line-height-base: 1.428571429;
+$text-color: $brand-black;
+
+$link-color: $brand-primary !default;
+$link-hover-color: darken($link-color, 15%) !default;
+$link-hover-decoration: underline !default;
+
+:export {
+grayBase: $gray-base;
+grayDarker: $gray-darker;
+grayDark: $gray-dark;
+gray: $gray;
+grayLight: $gray-light;
+grayLighter: $gray-lighter;
+
+brandPrimary: $brand-primary;
+brandSecondary: $brand-secondary;
+brandBlack: $brand-black;
+
+fontFamilyBase: $font-family-base;
+fontSizeBase: $font-size-base;
+lineHeightBase: $line-height-base;
+textColor: $text-color;
+
+linkColor: $link-color;
+linkHoverColor: $link-hover-color;
+linkHoverDecoration : $link-hover-decoration;
+}
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 *:before,
 *:after {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-    font-family: $font-family-base;
-    font-size: $font-size-base;
-    line-height: $line-height-base;
-    color: $text-color;
-    background-color: #fff;
-    margin: auto;
-    padding-bottom: 40px;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  color: $text-color;
+  background-color: #fff;
+  margin: auto;
+  padding-bottom: 40px;
 }
 
 input,
 button,
 select,
 textarea {
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 a {
-    color: $link-color;
-    text-decoration: none;
+  color: $link-color;
+  text-decoration: none;
 }
 
 a:hover, a:focus {
-    color: $link-hover-color;
-    text-decoration: $link-hover-decoration;
+  color: $link-hover-color;
+  text-decoration: $link-hover-decoration;
 }
 
 a:focus {
-    outline: 5px auto -webkit-focus-ring-color;
-    outline-offset: -2px;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
 }
 
 img {
-    vertical-align: middle;
-    max-width: 100%;
-    height: auto;
+  vertical-align: middle;
+  max-width: 100%;
+  height: auto;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-weight: 700;
-    line-height: 1.2;
-    color: #00232c;
-    margin-top: 0.8em;
-    margin-bottom: 0.7em;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #00232c;
+  margin-top: 0.8em;
+  margin-bottom: 0.7em;
 }
 
 /* Headings */
 
 h1 {
-    font-size: 41px;
+  font-size: 41px;
 }
 
 h2 {
-    font-size: 34px;
+  font-size: 34px;
 }
 
 h3 {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 h4 {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 h5 {
-    font-size: $font-size-base;
+  font-size: $font-size-base;
 }
 
 h6 {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 p {
-    margin: 0 0 11px;
+  margin: 0 0 11px;
 }
 
 hr {
-    margin-top: 22px;
-    margin-bottom: 22px;
-    border: 0;
-    border-top: 1px solid $gray-lighter;
+  margin-top: 22px;
+  margin-bottom: 22px;
+  border: 0;
+  border-top: 1px solid $gray-lighter;
 }
 
 abbr[title],
 abbr[data-original-title] {
-    cursor: help;
+  cursor: help;
 }
 
 /* Lists */
 
 ul,
 ol {
-    margin-top: 0;
-    margin-bottom: 11px;
+  margin-top: 0;
+  margin-bottom: 11px;
 }
 
 ul ul,
 ul ol,
 ol ul,
 ol ol {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 /* Tables */
 
 table {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 table col[class*=col-] {
-    position: static;
-    display: table-column;
-    float: none;
+  position: static;
+  display: table-column;
+  float: none;
 }
 
 table td[class*=col-],
 table th[class*=col-] {
-    position: static;
-    display: table-cell;
-    float: none;
+  position: static;
+  display: table-cell;
+  float: none;
 }
 
 th {
-    text-align: left;
+  text-align: left;
 }
 
 /* Forms */
 
 fieldset {
-    min-width: 0;
-    padding: 0;
-    margin: 0;
-    border: 0;
-    margin-top: 2em;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  margin: 2em 0 0;
 }
 
 legend {
-    display: block;
-    width: 100%;
-    padding: 0;
-    margin-bottom: 20px;
-    font-size: 24px;
-    font-weight: 700;
-    line-height: inherit;
-    color: $gray-dark;
-    border: 0;
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: inherit;
+  color: $gray-dark;
+  border: 0;
 }
 
 label {
-    display: inline-block;
-    max-width: 100%;
-    margin-bottom: 5px;
-    font-weight: 500;
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 5px;
+  font-weight: 500;
 }
 
 input[type=search] {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    -webkit-appearance: none;
-    appearance: none;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 input[type=radio],
 input[type=checkbox] {
-    margin: 4px 0 0;
-    margin-top: 1px \9;
-    line-height: normal;
+  margin: 4px 0 0;
+  margin-top: 1px \9
+;
+  line-height: normal;
 }
 
 input[type=radio][disabled],
@@ -190,34 +232,34 @@ fieldset[disabled] input[type=radio],
 input[type=checkbox][disabled],
 input[type=checkbox].disabled,
 fieldset[disabled] input[type=checkbox] {
-    cursor: not-allowed;
+  cursor: not-allowed;
 }
 
 input[type=file] {
-    display: block;
+  display: block;
 }
 
 input[type=range] {
-    display: block;
-    width: 100%;
+  display: block;
+  width: 100%;
 }
 
 select[multiple],
 select[size] {
-    height: auto;
+  height: auto;
 }
 
 input[type=file]:focus,
 input[type=radio]:focus,
 input[type=checkbox]:focus {
-    outline: 5px auto -webkit-focus-ring-color;
-    outline-offset: -2px;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
 }
 
 output {
-    display: block;
-    padding-top: 7px;
-    font-size: $font-size-base;
-    line-height: $line-height-base;
-    color: $gray;
+  display: block;
+  padding-top: 7px;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  color: $gray;
 }

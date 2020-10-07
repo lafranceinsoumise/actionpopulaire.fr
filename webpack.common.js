@@ -83,12 +83,17 @@ module.exports = {
         },
       },
       {
-        test: /\.(scss)$/,
+        test: /theme\.scss$/,
         use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
       },
       {
+        test: /\.scss$/,
+        exclude: [/theme\/theme.scss/],
+        use: ["style-loader", "css-loader", "sass-loader"],
+      },
+      {
         test: /\.css$/,
-        exclude: [/node_modules\/tinymce/, /node_modules\/@fi\/theme/],
+        exclude: [/node_modules\/tinymce/],
         use: ["style-loader", "css-loader"],
       },
       {
