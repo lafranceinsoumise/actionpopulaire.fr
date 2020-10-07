@@ -34,6 +34,7 @@
     "lodash": "^4.17.20",
     "masonry-layout": "^4.2.2",
     "moment": "^2.27.0",
+    "normalize.css": "^8.0.1",
     "ol": "^6.4.3",
     "promise": "^8.1.0",
     "prop-types": "^15.7.2",
