@@ -167,7 +167,7 @@ InputRange.propTypes = {
   minValue: PropTypes.number,
   maxValue: PropTypes.number,
   step: PropTypes.number,
-  onChange: PropTypes.func,
+  onChange: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };
 
@@ -176,7 +176,6 @@ InputRange.defaultProps = {
   minValue: 0,
   maxValue: 100,
   step: 1,
-  onChange: () => null,
   disabled: false,
 };
 
