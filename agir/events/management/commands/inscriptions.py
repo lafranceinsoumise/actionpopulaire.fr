@@ -168,14 +168,34 @@ def get_stats(status, config):
             int
         )
     elif config.get("subscription_prior"):
+        # On utilise un modèle bayésien simple :
+        # - on considère que chaque tirage au sort est une variable de Bernoulli : soit la personne
+        #   accepte, avec une probabilité `p`, soit elle refuse, avec une probabilité `1-p`
+        # - au sein de chaque collège, on considère que cette probabilité `p` est identique.
+        # - on cherche donc à estimer, pour chaque collège, la valeur de cette probabilité `p`.
+        #
+        # On choisit donc comme prior pour `p` une distribution Beta, car il s'agit de la distribution
+        # conjuguée de la distribution de Bernoulli, ce qui rend la mise à jour du prior très simple.
         from scipy.stats import beta
 
+        # On utilise les deux paramètres `subscription_prior` et `prior_weight`  pour paramétrer cette
+        # distribution a priori et obtenir les paramètres classiques `a` et `b`
         subscription_prior = config["subscription_prior"]
-        prior_weight = 10
+        prior_weight = 5
+        a = subscription_prior * prior_weight
+        b = (1 - subscription_prior) * prior_weight
+        # Dit autrement, `subscription_prior` est la moyenne souhaitée pour la distribution a priori,
+        # et prior_weight donne le nombre d'essais réels qu'il faudra effectuer pour que l'information
+        # obtenue "compte autant" dans la distribution a posteriori que notre prior.
 
-        a = subscription_prior * prior_weight / 2
-        b = (1 - subscription_prior) * prior_weight / 2
+        # Toutefois, ce qui nous intéresse in fine, c'est le nombre de personnes à tirer pour espérer remplir
+        # l'objectif, sans néanmoins risquer de le dépasser. Si on suppose que le taux réel est de `p`, il faudrait
+        # tirer en moyenne
 
+        # Enfin, pour décider combien de personnes on tire, on prend le 95ème centile que nous donne
+        # notre distribution a posteriori : dit autrement, on estime qu'il y a 95 % de chances que le taux
+        # réel de réponse positive soit pire que ce taux, compte tenu de notre prior et des réponses déjà observées.
+        # Il s'agit donc en quelque sorte d'une "borne maximum" (à 95 %) sur la valeur du taux réel.
         estimated_maximum_rate = pd.Series(
             {
                 college: beta.ppf(0.95, a=a + sub, b=b + drawn - sub)
@@ -185,6 +205,8 @@ def get_stats(status, config):
             }
         )
 
+        # On décide donc de tirer le nombre de personnes qu'il faudrait _en moyenne_ pour remplir la salle, si notre
+        # borne maximale était le taux réel.
         res["acceptance_rate"] = (
             (final_subscribed / final_drawn).map("{:.3f}".format)
             + " (95 % < "
