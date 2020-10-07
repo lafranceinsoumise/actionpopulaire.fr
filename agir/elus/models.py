@@ -182,6 +182,10 @@ class MandatAbstrait(UniqueWithinDates, MandatHistoryMixin, models.Model):
     def actif(self):
         return timezone.now().date() in self.dates
 
+    @property
+    def nom_conseil(self):
+        return self.conseil.nom
+
     class Meta:
         abstract = True
 
@@ -267,7 +271,7 @@ class MandatMunicipal(MandatAbstrait):
 
         return "Nouveau mandat municipal"
 
-    def titre_complet(self):
+    def titre_complet(self, conseil_avant=False):
         if self.mandat in [
             self.MANDAT_INCONNU,
             self.MANDAT_CONSEILLER_MAJORITE,
@@ -283,6 +287,8 @@ class MandatMunicipal(MandatAbstrait):
         else:
             titre = self.get_mandat_display()
 
+        if conseil_avant:
+            return f"{self.conseil.nom_complet}, {titre}"
         return f"{titre} {self.conseil.nom_avec_charniere}"
 
     def get_absolute_url(self):
@@ -349,7 +355,7 @@ class MandatDepartemental(MandatAbstrait):
 
         return "Nouveau mandat départemental"
 
-    def titre_complet(self):
+    def titre_complet(self, conseil_avant=False):
         if self.mandat in [
             self.MANDAT_INCONNU,
             self.MANDAT_CONSEILLER_MAJORITE,
@@ -365,6 +371,8 @@ class MandatDepartemental(MandatAbstrait):
         else:
             titre = self.get_mandat_display()
 
+        if conseil_avant:
+            return f"{self.conseil.nom}, {titre}"
         return f"{titre} au {self.conseil.nom}"
 
     def get_absolute_url(self):
@@ -437,7 +445,7 @@ class MandatRegional(MandatAbstrait):
 
         return "Nouveau mandat régional"
 
-    def titre_complet(self):
+    def titre_complet(self, conseil_avant=False):
         if self.mandat in [
             self.MANDAT_INCONNU,
             self.MANDAT_CONSEILLER_MAJORITE,
@@ -454,6 +462,10 @@ class MandatRegional(MandatAbstrait):
             titre = self.get_mandat_display()
 
         nom_conseil = self.conseil.nom
+
+        if conseil_avant:
+            return f"{nom_conseil}, {titre}"
+
         if nom_conseil.startswith("Assemblée"):
             return f"{titre} à l'{nom_conseil}"
 
