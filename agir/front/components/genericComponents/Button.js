@@ -29,6 +29,10 @@ const Button = styled.button`
       background = style.brandSecondary;
       hoverBackground = style.brandSecondaryDark;
       labelColor = "#fff";
+    } else if (color === "confirmed") {
+      background = style.brandPrimaryLight;
+      hoverBackground = style.brandPrimaryLightHover;
+      labelColor = style.brandPrimary;
     } else if (color === "unavailable") {
       background = "#fff";
       hoverBackground = "#fff";
@@ -70,7 +74,7 @@ const Button = styled.button`
 
 Button.propTypes = {
   onClick: PropTypes.func,
-  color: PropTypes.oneOf(["primary", "secondary", "unavailable"]),
+  color: PropTypes.oneOf(["primary", "secondary", "confirmed", "unavailable"]),
   small: PropTypes.bool,
   disabled: PropTypes.bool,
 };

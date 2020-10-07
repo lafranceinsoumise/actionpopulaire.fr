@@ -24,6 +24,12 @@ SecondaryColor.args = {
   color: "secondary",
 };
 
+export const ConfirmedColor = Template.bind({});
+ConfirmedColor.args = {
+  ...Default.args,
+  color: "confirmed",
+};
+
 export const Unavailable = Template.bind({});
 Unavailable.args = { ...Default.args, color: "unavailable" };
 

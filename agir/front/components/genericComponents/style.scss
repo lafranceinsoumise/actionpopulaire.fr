@@ -10,6 +10,8 @@ $gray-lighter: #eee; // #eee
 
 $brand-primary: #0098b6; // bleu
 $brand-primary-dark: #1D7384;
+$brand-primary-light: #DAF0F3;
+$brand-primary-light-hover: #BFE7EC;
 $brand-secondary: #c9462c; // terre de sienne
 $brand-secondary-dark: #A32F18;
 $brand-black: #00232c;
@@ -33,6 +35,8 @@ grayLighter: $gray-lighter;
 
 brandPrimary: $brand-primary;
 brandPrimaryDark: $brand-primary-dark;
+brandPrimaryLight: $brand-primary-light;
+brandPrimaryLightHover: $brand-primary-light-hover;
 brandSecondary: $brand-secondary;
 brandSecondaryDark: $brand-secondary-dark;
 brandBlack: $brand-black;
