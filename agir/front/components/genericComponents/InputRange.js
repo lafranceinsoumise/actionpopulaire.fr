@@ -122,12 +122,14 @@ const InputRange = ({
   const containerRef = useRef();
   const throttledOnChange = useThrottle(onChange, 100);
 
-  const clamp = (x) => {
+  const valueFromPosition = (x) => {
     const bounds = containerRef.current.getBoundingClientRect();
-    const val =
-      Math.floor(
-        (((x - bounds.left) / bounds.width) * (maxValue - minValue)) / step
-      ) * step;
+    const val = ((x - bounds.left) / bounds.width) * (maxValue - minValue);
+    return val < minValue ? minValue : val > maxValue ? maxValue : val;
+  };
+
+  const clampValue = (val) => {
+    val = Math.round(val / step) * step;
 
     return val < minValue ? minValue : val > maxValue ? maxValue : val;
   };
@@ -138,14 +140,15 @@ const InputRange = ({
 
   const handleChange = (x, stoppedDragging) => {
     if (!disabled) {
-      const newValue = clamp(x);
+      const visibleValue = valueFromPosition(x);
+      const newValue = clampValue(visibleValue);
 
       if (stoppedDragging) {
         onChange(newValue);
         setDragValue(null);
       } else {
         throttledOnChange(newValue);
-        setDragValue(newValue);
+        setDragValue(visibleValue);
       }
     }
   };
