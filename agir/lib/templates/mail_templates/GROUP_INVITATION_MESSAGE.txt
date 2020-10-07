@@ -1,6 +1,6 @@
 Bonjour,
 
-Vous avez été invité à rejoindre le groupe d'action « {{ GROUP_NAME }} » par un de ses animateurs.
+Vous avez été invité⋅e à rejoindre le groupe d'action « {{ GROUP_NAME }} » par un de ses animateurs.
 
 >> Je rejoins le groupe d'action
 {{ CONFIRMATION_URL }}

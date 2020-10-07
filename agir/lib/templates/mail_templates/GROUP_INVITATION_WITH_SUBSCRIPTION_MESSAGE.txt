@@ -1,6 +1,6 @@
 Bonjour,
 
-Vous avez été invité à rejoindre la France insoumise et le groupe d'action « {{ GROUP_NAME }} » par un de ses animateurs.
+Vous avez été invité⋅e à rejoindre la France insoumise et le groupe d'action « {{ GROUP_NAME }} » par un de ses animateurs.
   
   
 >> Je rejoins la France insoumise

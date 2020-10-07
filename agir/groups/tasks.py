@@ -201,7 +201,7 @@ def invite_to_group(group_id, invited_email, inviter_id):
 
         send_mosaico_email(
             code="GROUP_INVITATION_MESSAGE",
-            subject="Vous avez été invité à rejoindre un groupe de la FI",
+            subject="Vous avez été invité⋅e à rejoindre un groupe de la FI",
             from_email=settings.EMAIL_FROM,
             recipients=[person],
             bindings={
@@ -225,7 +225,7 @@ def invite_to_group(group_id, invited_email, inviter_id):
 
         send_mosaico_email(
             code="GROUP_INVITATION_WITH_SUBSCRIPTION_MESSAGE",
-            subject="Vous avez été invité à rejoindre la France insoumise",
+            subject="Vous avez été invité⋅e à rejoindre la France insoumise",
             from_email=settings.EMAIL_FROM,
             recipients=[invited_email],
             bindings={

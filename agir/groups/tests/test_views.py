@@ -436,11 +436,11 @@ class InvitationTestCase(TestCase):
         email = mail.outbox[0]
 
         self.assertEqual(
-            email.subject, "Vous avez été invité à rejoindre un groupe de la FI"
+            email.subject, "Vous avez été invité⋅e à rejoindre un groupe de la FI"
         )
 
         self.assertIn(
-            "Vous avez été invité à rejoindre le groupe d'action « Nom du groupe » par un de ses animateurs",
+            "Vous avez été invité⋅e à rejoindre le groupe d'action « Nom du groupe » par un de ses animateurs",
             email.body,
         )
 
@@ -480,11 +480,11 @@ class InvitationTestCase(TestCase):
         email = mail.outbox[0]
 
         self.assertEqual(
-            email.subject, "Vous avez été invité à rejoindre la France insoumise"
+            email.subject, "Vous avez été invité⋅e à rejoindre la France insoumise"
         )
 
         self.assertIn(
-            "Vous avez été invité à rejoindre la France insoumise et le groupe d'action « Nom du groupe » par un de ses animateurs",
+            "Vous avez été invité⋅e à rejoindre la France insoumise et le groupe d'action « Nom du groupe » par un de ses animateurs",
             email.body,
         )
 
@@ -497,7 +497,7 @@ class InvitationTestCase(TestCase):
         res = self.client.get(join_url)
         self.assertEqual(res.status_code, 200)
         self.assertContains(
-            res, "<h2>Vous avez été invité à rejoindre la France insoumise</h2>"
+            res, "<h1>Vous avez été invité⋅e à rejoindre la France insoumise</h1>"
         )
 
         res = self.client.post(
@@ -542,7 +542,7 @@ class InvitationTestCase(TestCase):
 
             # following to make it work with auto_login
             res = self.client.get(report_url, follow=True)
-            self.assertContains(res, "<h2>Signaler un email non sollicité</h2>")
+            self.assertContains(res, "<h1>Signaler un email non sollicité</h1>")
             self.assertContains(res, "<form")
 
             if res.redirect_chain:
