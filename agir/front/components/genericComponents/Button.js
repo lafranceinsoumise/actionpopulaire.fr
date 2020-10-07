@@ -1,6 +1,7 @@
 import style from "./style.scss";
 import styled from "styled-components";
 import PropTypes from "prop-types";
+import { transparentize } from "polished";
 
 const Button = styled.button`
   display: inline-block;
@@ -13,8 +14,6 @@ const Button = styled.button`
   text-transform: uppercase;
   font-weight: 700;
   font-size: ${({ small }) => (small ? "11px" : "14px")};
-  
-  ${({ disabled }) => (disabled ? "cursor: not-allowed;" : "")}
 
   ${({ color, disabled }) => {
     let background,
@@ -30,7 +29,11 @@ const Button = styled.button`
       background = style.brandSecondary;
       hoverBackground = style.brandSecondaryDark;
       labelColor = "#fff";
-    } else if (disabled) {
+    } else if (color === "confirmed") {
+      background = style.brandPrimaryLight;
+      hoverBackground = style.brandPrimaryLightHover;
+      labelColor = style.brandPrimary;
+    } else if (color === "unavailable") {
       background = "#fff";
       hoverBackground = "#fff";
       labelColor = style.gray;
@@ -41,21 +44,37 @@ const Button = styled.button`
       labelColor = style.textColor;
     }
 
-    return `
+    if (disabled) {
+      background = transparentize(0.7, background);
+      labelColor = transparentize(0.3, labelColor);
+    }
+
+    let result = `
       background-color: ${background};
       color: ${labelColor};
-      
-      ${border ? `border: 1px solid ${border};` : ""}
-      
-      &:hover {
-        background-color: ${hoverBackground};
-      }
     `;
+
+    if (border) {
+      result += `border: 1px solid ${border};`;
+    }
+
+    if (disabled) {
+      result += `cursor: not-allowed;`;
+    } else {
+      result += `
+        &:hover {
+          background-color: ${hoverBackground};
+        }
+      `;
+    }
+
+    return result;
   }}
 `;
 
 Button.propTypes = {
-  color: PropTypes.oneOf(["primary", "secondary"]),
+  onClick: PropTypes.func,
+  color: PropTypes.oneOf(["primary", "secondary", "confirmed", "unavailable"]),
   small: PropTypes.bool,
   disabled: PropTypes.bool,
 };
