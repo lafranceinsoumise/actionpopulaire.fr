@@ -550,7 +550,7 @@ class InvitationTestCase(TestCase):
             else:
                 res = self.client.post(report_url)
 
-            self.assertContains(res, "<h2>Merci de votre signalement</h2>")
+            self.assertContains(res, "<h1>Merci de votre signalement</h1>")
 
             call_count += 1
             self.assertEqual(send_abuse_report_message.delay.call_count, call_count)
