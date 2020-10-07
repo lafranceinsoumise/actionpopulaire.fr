@@ -4,12 +4,14 @@
 $gray-base: #000 !default;
 $gray-darker: lighten($gray-base, 13.5%) !default; // #222
 $gray-dark: lighten($gray-base, 20%) !default; // #333
-$gray: lighten($gray-base, 33.5%) !default; // #555
-$gray-light: lighten($gray-base, 46.7%) !default; // #777
-$gray-lighter: lighten($gray-base, 93.5%) !default; // #eee
+$gray: #777;
+$gray-light: #dfdfdf;
+$gray-lighter: #eee; // #eee
 
 $brand-primary: #0098b6; // bleu
+$brand-primary-dark: #1D7384;
 $brand-secondary: #c9462c; // terre de sienne
+$brand-secondary-dark: #A32F18;
 $brand-black: #00232c;
 
 $font-family-base: 'Montserrat', sans-serif;
@@ -18,8 +20,8 @@ $line-height-base: 1.428571429;
 $text-color: $brand-black;
 
 $link-color: $brand-primary !default;
-$link-hover-color: darken($link-color, 15%) !default;
-$link-hover-decoration: underline !default;
+$link-hover-color: darken($link-color, 15%);
+$link-hover-decoration: underline;
 
 :export {
 grayBase: $gray-base;
@@ -30,7 +32,9 @@ grayLight: $gray-light;
 grayLighter: $gray-lighter;
 
 brandPrimary: $brand-primary;
+brandPrimaryDark: $brand-primary-dark;
 brandSecondary: $brand-secondary;
+brandSecondaryDark: $brand-secondary-dark;
 brandBlack: $brand-black;
 
 fontFamilyBase: $font-family-base;
