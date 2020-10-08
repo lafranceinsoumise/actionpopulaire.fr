@@ -72,9 +72,11 @@ const Button = styled.button`
   }}
 `;
 
+Button.colors = ["primary", "secondary", "confirmed", "unavailable"];
+
 Button.propTypes = {
   onClick: PropTypes.func,
-  color: PropTypes.oneOf(["primary", "secondary", "confirmed", "unavailable"]),
+  color: PropTypes.oneOf(Button.colors),
   small: PropTypes.bool,
   disabled: PropTypes.bool,
 };

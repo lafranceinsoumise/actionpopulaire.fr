@@ -5,6 +5,14 @@ import Button from "./Button";
 export default {
   component: Button,
   title: "Button",
+  argTypes: {
+    color: {
+      control: {
+        type: "select",
+        options: Button.colors,
+      },
+    },
+  },
 };
 
 const Template = (args) => <Button {...args} />;
