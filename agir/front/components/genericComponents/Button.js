@@ -52,6 +52,11 @@ const Button = styled.button`
     let result = `
       background-color: ${background};
       color: ${labelColor};
+
+      &:hover {
+        color: ${labelColor};
+        text-decoration: none;
+      }
     `;
 
     if (border) {
@@ -79,6 +84,7 @@ Button.propTypes = {
   color: PropTypes.oneOf(Button.colors),
   small: PropTypes.bool,
   disabled: PropTypes.bool,
+  href: PropTypes.string,
 };
 
 Button.defaultProps = {
