@@ -36,9 +36,6 @@ export const RawFeatherIcon = styled.div.attrs(
   align-items: center;
 
   svg {
-    position: relative;
-    top: ${(props) => props.vOffset || 0};
-
     width: ${(props) => props.width};
     height: ${(props) => props.height};
   }
@@ -67,7 +64,6 @@ const FeatherIcon = ({ name, type, color }) => {
 
   // positionning dimensions
   const remDimension = type === "normal" ? 1.5 : 1;
-  const topValue = type === "normal" ? 0.3 : 0.175;
 
   // color
   color = color || (type === "normal" ? mainStyle.brandBlack : mainStyle.gray);
@@ -79,7 +75,6 @@ const FeatherIcon = ({ name, type, color }) => {
       height={`${remDimension}rem`}
       color={color}
       strokeWidth={strokeWidth}
-      vOffset={`${topValue}rem`}
     />
   );
 };
