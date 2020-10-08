@@ -7,6 +7,7 @@ $gray-dark: lighten($gray-base, 20%) !default; // #333
 $gray: #777;
 $gray-light: #dfdfdf;
 $gray-lighter: #eee; // #eee
+$page-background-color: #E5E5E5;
 
 $brand-primary: #0098b6; // bleu
 $brand-primary-dark: #1D7384;
@@ -32,6 +33,7 @@ grayDark: $gray-dark;
 gray: $gray;
 grayLight: $gray-light;
 grayLighter: $gray-lighter;
+pageBackgroundColor: $page-background-color;
 
 brandPrimary: $brand-primary;
 brandPrimaryDark: $brand-primary-dark;

@@ -46,3 +46,9 @@ SmallExample.args = { ...Default.args, small: true };
 
 export const DisabledExample = Template.bind({});
 DisabledExample.args = { ...Default.args, disabled: true };
+
+export const LinkButton = Template.bind({});
+LinkButton.args = {
+  ...Default.args,
+  as: "a",
+};
