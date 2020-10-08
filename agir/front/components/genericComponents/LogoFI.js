@@ -1,15 +1,16 @@
-import React from "react";
 import PropTypes from "prop-types";
+import styled from "styled-components";
 
 import "./style.scss";
 import svgLogo from "./logo.svg";
 
-const LogoFI = ({ alt, height, width }) => {
-  return <img src={svgLogo} alt={alt} style={{ height, width }} />;
-};
+const LogoFI = styled.img.attrs(() => ({ src: svgLogo }))`
+  height: ${(props) => props.height || "auto"};
+  width: ${(props) => props.width || "auto"};
+`;
 LogoFI.propTypes = {
-  width: PropTypes.number,
-  height: PropTypes.number,
+  width: PropTypes.string,
+  height: PropTypes.string,
   alt: PropTypes.string,
 };
 

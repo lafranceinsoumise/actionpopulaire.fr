@@ -24,7 +24,7 @@ const Template = (args) => <LogoFI {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
-  height: null,
-  width: null,
   alt: "La France insoumise",
+  height: "auto",
+  width: "auto",
 };
