@@ -7,16 +7,63 @@ import Button from "./Button";
 import style from "./style.scss";
 import LogoFI from "@agir/front/genericComponents/LogoFI";
 
+const HeaderBar = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  padding: 0.75rem 2rem;
+
+  background-color: #fff;
+`;
+
+const HeaderContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .large-only {
+    @media only screen and (max-width: 900px) {
+      display: none;
+    }
+  }
+
+  .small-only {
+    @media only screen and (min-width: 901px) {
+      display: none;
+    }
+  }
+
+  .grow {
+    flex-grow: 1;
+  }
+
+  .justify {
+    justify-content: center;
+  }
+`;
+
+const HorizontalFlex = styled.div`
+  display: flex;
+  align-items: center;
+
+  * + * {
+    margin-left: 1em;
+  }
+`;
+
 const MenuLink = styled.a`
   display: flex;
   align-items: center;
-  margin: 0 1em;
   color: ${style.brandBlack};
   font-weight: 500;
   height: 3rem;
 
   * + * {
-    margin-left: 1em;
+    margin-left: 0.5em;
   }
 
   :hover {
@@ -29,46 +76,11 @@ const MenuLink = styled.a`
   }
 `;
 
-const HeaderBar = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  padding: 10px 30px;
-
-  background-color: #fff;
-`;
-
-const HeaderContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-
-  max-width: 1400px;
-  margin: 0 auto;
-`;
-
-const HorizontalFlex = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const SearchMenu = styled(MenuLink)`
-  display: none;
-
-  @media only screen and (max-width: 900px) {
-    display: flex;
-  }
-`;
-
 const SearchBar = styled.form`
   border: 1px ${style.grayLighter};
   position: relative;
   margin: 0 1em;
-
-  @media only screen and (max-width: 900px) {
-    display: none;
-  }
+  max-width: 450px;
 `;
 
 const SearchBarIndicator = styled.div`
@@ -91,8 +103,9 @@ const SearchBarButton = styled.button.attrs(() => ({ type: "submit" }))`
 `;
 
 const SearchBarInput = styled.input.attrs(() => ({ type: "text" }))`
-  min-width: 450px;
+  width: 100%;
   height: 3rem;
+  margin: 0;
   padding: 1px 3.5rem;
 
   border-radius: 0;
@@ -109,29 +122,21 @@ const SearchBarInput = styled.input.attrs(() => ({ type: "text" }))`
   }
 `;
 
-const BigScreenOnly = styled.div`
-  @media only screen and (max-width: 900px) {
-    display: none;
-  }
-`;
-
 const ConnectionInfo = ({ loggedAs, profileUrl, signInUrl, logInUrl }) =>
   loggedAs === undefined || loggedAs === "" ? (
     <>
       <MenuLink href={logInUrl}>
         <FeatherIcon name="user" />
-        <BigScreenOnly>Connexion</BigScreenOnly>
+        <span className="large-only">Connexion</span>
       </MenuLink>
-      <BigScreenOnly>
-        <Button color="secondary" href={signInUrl}>
-          Créer mon compte
-        </Button>
-      </BigScreenOnly>
+      <Button color="secondary" href={signInUrl} className="large-only">
+        Créer mon compte
+      </Button>
     </>
   ) : (
     <MenuLink href={profileUrl}>
       <FeatherIcon name="user" />
-      <BigScreenOnly>{loggedAs}</BigScreenOnly>
+      <span className="large-only">{loggedAs}</span>
     </MenuLink>
   );
 
@@ -151,13 +156,13 @@ const Header = ({ loggedAs }) => {
   return (
     <HeaderBar>
       <HeaderContainer>
-        <SearchMenu href="#">
+        <MenuLink href="#" className="small-only">
           <FeatherIcon name="search" />
-        </SearchMenu>
+        </MenuLink>
 
-        <HorizontalFlex>
-          <LogoFI height="48px" />
-          <SearchBar>
+        <HorizontalFlex className="grow justify">
+          <LogoFI height="3rem" />
+          <SearchBar className="large-only grow">
             <SearchBarIndicator>
               <FeatherIcon
                 name="search"
@@ -176,12 +181,10 @@ const Header = ({ loggedAs }) => {
           </SearchBar>
         </HorizontalFlex>
         <HorizontalFlex>
-          <BigScreenOnly>
-            <MenuLink href="#">
-              <FeatherIcon name="help-circle" />
-              <span>Aide</span>
-            </MenuLink>
-          </BigScreenOnly>
+          <MenuLink href="#" className="large-only">
+            <FeatherIcon name="help-circle" />
+            <span>Aide</span>
+          </MenuLink>
           <ConnectionInfo
             profileUrl="#"
             signInUrl="#"
