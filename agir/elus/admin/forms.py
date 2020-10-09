@@ -21,9 +21,6 @@ PERSON_FIELDS = [
 creer_mandat_declared_fields = {
     f.name: f.formfield() for f in Person._meta.get_fields() if f.name in PERSON_FIELDS
 }
-creer_mandat_declared_fields = {
-    f: creer_mandat_declared_fields[f] for f in PERSON_FIELDS
-}
 
 
 class CreerMandatForm(forms.ModelForm):
@@ -50,16 +47,17 @@ class CreerMandatForm(forms.ModelForm):
         if "person" in self.fields:
             person = self.get_initial_for_field(self.fields["person"], "person")
             self.fields["person"].label = "Compte plateforme de l'élu"
-            self.fields[
-                "person"
-            ].help_text = "Attention, si vous ne choisissez pas de compte plateforme, cela créera une fiche élu sans compte."
+            # on retire les champs de personne
+            for name in PERSON_FIELDS:
+                del self.fields[name]
+
         else:
             person = getattr(self.instance, "person", None)
 
-        if person is not None:
-            for f in PERSON_FIELDS:
-                self.fields[f].initial = getattr(person, f)
-            self.fields["email_officiel"].queryset = person.emails.all()
+            if person is not None:
+                for f in PERSON_FIELDS:
+                    self.fields[f].initial = getattr(person, f)
+                self.fields["email_officiel"].queryset = person.emails.all()
 
         if "email_officiel" not in self._meta.fields:
             del self.fields["email_officiel"]
