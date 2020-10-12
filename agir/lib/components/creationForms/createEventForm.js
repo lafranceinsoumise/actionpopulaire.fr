@@ -17,6 +17,8 @@ import "./style.css";
 import { Spring } from "react-spring/renderprops";
 
 import styled from "styled-components";
+import moment from "moment";
+import Datetime from "react-datetime";
 
 class CreateEventForm extends React.Component {
   constructor(props) {
@@ -459,7 +461,14 @@ class ValidateStep extends FormStep {
             <li>
               <strong>Horaires&nbsp;:</strong> Du{" "}
               {fields.startTime.format("LLL")} au {fields.endTime.format("LLL")}
-              .
+              {fields.startTime.isBefore(moment()) && (
+                <p className="alert alert-warning margintop">
+                  Attention&nbsp;! Vous avez indiqué une date dans le passé pour
+                  votre événement. Cela est possible pour rencenser des
+                  événements passés sur la plateforme, mais personne ne pourra
+                  le rejoindre.
+                </p>
+              )}
             </li>
             <li>
               <strong>Lieu&nbsp;:</strong>

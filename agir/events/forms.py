@@ -212,18 +212,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
 
         remove_excluded_field_from_layout(self.helper.layout, excluded_fields)
 
-    def clean_start_time(self):
-        start_time = self.cleaned_data["start_time"]
-
-        if start_time < timezone.now():
-            raise forms.ValidationError(
-                _(
-                    "Vos événements feraient mieux de se passer dans le futur ! Ce serait plus efficace…"
-                )
-            )
-
-        return start_time
-
     def clean(self):
         cleaned_data = super().clean()
 

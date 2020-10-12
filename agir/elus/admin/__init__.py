@@ -270,7 +270,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
             (
                 (
                     reverse("admin:elus_mandatmunicipal_change", args=(m.id,)),
-                    f"{m.conseil.nom_complet}, {m.get_mandat_display()}",
+                    m.titre_complet(conseil_avant=True),
                 )
                 for m in mandats
                 if m != obj
@@ -289,7 +289,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
             (
                 (
                     reverse("admin:elus_mandatdepartemental_change", args=(m.id,)),
-                    f"{m.conseil.nom}, {m.get_mandat_display()}",
+                    m.titre_complet(conseil_avant=True),
                 )
                 for m in mandats
                 if m != obj
@@ -308,7 +308,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
             (
                 (
                     reverse("admin:elus_mandatregional_change", args=(m.id,)),
-                    f"{m.conseil.nom}, {m.get_mandat_display()}",
+                    m.titre_complet(conseil_avant=True),
                 )
                 for m in mandats
                 if m != obj
