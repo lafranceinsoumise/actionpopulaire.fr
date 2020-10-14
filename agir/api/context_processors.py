@@ -9,7 +9,9 @@ def basic_information(request):
         "FRONT_DOMAIN": settings.FRONT_DOMAIN,
         "MAP_DOMAIN": settings.MAP_DOMAIN,
         "header_props": {
-            "loggedAs": request.user.get_full_name(),
+            "loggedAs": request.user.get_full_name()
+            if request.user.is_authenticated
+            else None,
             "dashboardUrl": reverse("dashboard"),
             "searchUrl": reverse("search_event"),
             "helpUrl": "https://lafranceinsoumise.fr/contact/",
