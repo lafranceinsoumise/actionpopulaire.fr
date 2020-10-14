@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "babel-plugin-styled-components": "^1.11.1",
     "bootstrap-sass": "^3.4.1",
     "classnames": "^2.2.6",
     "cleave.js": "^1.6.0",
@@ -53,7 +52,7 @@
     "rxjs": "^6.6.3",
     "sass": "^1.26.11",
     "sass-loader": "^10.0.2",
-    "styled-components": "^4.4.1",
+    "styled-components": "^5.2.0",
     "tinymce": "^4.9.11",
     "tinymce-i18n": "^17.12.31",
     "turbolinks": "^5.2.0"
@@ -74,6 +73,7 @@
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.3.0",
     "babel-loader": "^8.1.0",
+    "babel-plugin-styled-components": "^1.11.1",
     "clean-webpack-plugin": "^2.0.2",
     "css-loader": "^2.1.1",
     "eslint": "^6.8.0",
