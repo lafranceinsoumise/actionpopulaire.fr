@@ -22,6 +22,9 @@ export default {
     type: {
       name: "Type d'icône",
     },
+    inline: {
+      name: "Aligner sur le texte",
+    },
   },
 };
 
@@ -53,6 +56,7 @@ WithText.argTypes = {
   text: {
     type: "string",
     name: "Texte",
+    inline: true,
   },
   fontSize: {
     name: "Taille de la police du texte",

@@ -36,8 +36,10 @@ export const RawFeatherIcon = styled.div.attrs(
   align-items: center;
 
   svg {
+    position: relative;
     width: ${(props) => props.width};
     height: ${(props) => props.height};
+    top: ${(props) => props.top};
   }
 `;
 
@@ -58,12 +60,14 @@ Les grands icônes doivent faire 24 pixels (1.5rem)
 Les petits icônes doivent faire 16 pixels (1rem)
  */
 
-const FeatherIcon = ({ name, type, color }) => {
+const FeatherIcon = ({ name, type, color, inline }) => {
   // stroke dimensions
   const strokeWidth = type === "normal" ? 2 : 1.33;
 
   // positionning dimensions
   const dimension = type === "normal" ? "1.5rem" : "1rem";
+
+  const top = inline ? (type === "normal" ? "0.3rem" : "0.15rem") : "0";
 
   // color
   color = color || (type === "normal" ? mainStyle.brandBlack : mainStyle.gray);
@@ -74,6 +78,7 @@ const FeatherIcon = ({ name, type, color }) => {
       width={dimension}
       height={dimension}
       color={color}
+      top={top}
       strokeWidth={strokeWidth}
     />
   );
@@ -82,10 +87,12 @@ FeatherIcon.propTypes = {
   name: PropTypes.oneOf(allIcons),
   type: PropTypes.oneOf(["normal", "small"]),
   color: PropTypes.string,
+  inline: PropTypes.bool,
 };
 
 FeatherIcon.defaultProps = {
   type: "normal",
+  inline: false,
 };
 
 FeatherIcon.RawFeatherIcon = RawFeatherIcon;
