@@ -8,7 +8,7 @@ python_version = '3.8'
 
 [packages]
 # Django et extensions
-django = ">=2.2.11,<3.0"
+django = ">=3.0,<4.0"
 ## config helpers
 dj-database-url = "==0.5.*"  # for easing up database settings
 dj-email-url = "==0.2.*"  # for easing up SMTP settings
@@ -28,8 +28,8 @@ django-oauth-toolkit = "==1.*"  # add OAuth server
 rules = "==2.*"  # add useful authorization rules
 django-reversion = "==3.*"  # versioning of models
 ## Django Rest Framework
-djangorestframework = "==3.*,>=3.9.1"
-djangorestframework-gis = "==0.14.*"
+djangorestframework = "==3.*,>=3.10"
+djangorestframework-gis = "==0.16.*"
 ## adapters for third-party systems
 django-redis = "==4.*"
 psycopg2 = "*"

@@ -596,5 +596,5 @@ class CampaignTemplateTestCase(SetUpPersonFormsMixin, TestCase):
         self.assertEqual(Campaign.objects.all().count(), 2)
         self.assertEqual(
             Campaign.objects.last().message_content_html,
-            "<title>Super titre&lt;script&gt;alert(&#39;xss&#39;); malicious_template }}</title>",
+            "<title>Super titre&lt;script&gt;alert(&#x27;xss&#x27;); malicious_template }}</title>",
         )

@@ -80,7 +80,8 @@ class PaymentUXTestCase(FakeDataMixin, TestCase):
         res = self.client.get(reverse("payment_page", args=[payment.pk]))
 
         self.assertEqual(
-            res.get("Cache-control"), "max-age=0, no-cache, no-store, must-revalidate"
+            res.get("Cache-control"),
+            "max-age=0, no-cache, no-store, must-revalidate, private",
         )
 
         initial = res.context_data["form"].initial

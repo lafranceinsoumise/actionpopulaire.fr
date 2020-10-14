@@ -47,7 +47,7 @@ abusive_invitation_report_token_generator = SignatureGenerator(
 )  # Token generator to report an abusive invitation
 
 monthly_donation_confirmation_token_generator = SignatureGenerator(
-    validity=2,
+    2,
     key_salt="monthly_donation_confirmation_token_generator",
     token_params=["email", "subscription_total", "allocations"],
     params_separator="|",

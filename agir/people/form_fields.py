@@ -1,8 +1,8 @@
 import json
 from django import forms
 from django.contrib.postgres.forms import JSONField
-from django.contrib.postgres.forms.jsonb import InvalidJSONInput
 from django.core.exceptions import ValidationError
+from django.forms.fields import InvalidJSONInput
 from django.forms.widgets import Input
 from django.utils.translation import ugettext_lazy as _
 from webpack_loader.utils import get_files

@@ -446,7 +446,7 @@ class LegacyEndpointLookupFilterTestCase(TestCase):
     def test_can_query_by_nb_id(self):
         request = self.get_request()
 
-        response = self.detail_view(request, pk=str(self.person2.nb_id))
+        response = self.detail_view(request, pk=self.person2.nb_id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["email"], self.person2.email)
