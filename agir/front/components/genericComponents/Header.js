@@ -12,8 +12,10 @@ const HeaderBar = styled.div`
   top: 0;
   left: 0;
 
+  z-index: 10;
+
   width: 100%;
-  padding: 0.75rem 2rem;
+  padding: 0.75em 2em; /* rem */
 
   background-color: #fff;
 `;
@@ -51,7 +53,7 @@ const HorizontalFlex = styled.div`
   align-items: center;
 
   * + * {
-    margin-left: 1em;
+    margin-left: 1.25em;
   }
 `;
 
@@ -60,7 +62,7 @@ const MenuLink = styled.a`
   align-items: center;
   color: ${style.brandBlack};
   font-weight: 500;
-  height: 3rem;
+  height: 3em; /* rem */
 
   * + * {
     margin-left: 0.5em;
@@ -76,25 +78,24 @@ const MenuLink = styled.a`
   }
 `;
 
-const SearchBar = styled.form`
+const SearchBar = styled.div`
   border: 1px ${style.grayLighter};
   position: relative;
-  margin: 0 1em;
   max-width: 450px;
 `;
 
 const SearchBarIndicator = styled.div`
   position: absolute;
-  left: 1.5rem;
-  top: 0.75rem;
+  left: 1.5em; /* rem */
+  top: 0.75em; /* rem */
 `;
 
 const SearchBarButton = styled.button.attrs(() => ({ type: "submit" }))`
   border: 0;
   background: none;
   position: absolute;
-  right: 1.5rem;
-  top: 0.75rem;
+  right: 1.5em; /* rem */
+  top: 0.75em; /* rem */
   display: none;
 
   input:focus + & {
@@ -102,11 +103,11 @@ const SearchBarButton = styled.button.attrs(() => ({ type: "submit" }))`
   }
 `;
 
-const SearchBarInput = styled.input.attrs(() => ({ type: "text" }))`
+const SearchBarInput = styled.input.attrs(() => ({ type: "text", name: "q" }))`
   width: 100%;
-  height: 3rem;
+  height: 3em; /* rem */
   margin: 0;
-  padding: 1px 3.5rem;
+  padding: 1px 3.5em; /* rem */
 
   border-radius: 0;
   background-color: ${style.grayLighter};
@@ -152,43 +153,55 @@ ConnectionInfo.defaultProps = {
   logInUrl: "#",
 };
 
-const Header = ({ loggedAs }) => {
+const Header = ({
+  loggedAs,
+  dashboardUrl,
+  searchUrl,
+  helpUrl,
+  profileUrl,
+  signInUrl,
+  logInUrl,
+}) => {
   return (
     <HeaderBar>
       <HeaderContainer>
-        <MenuLink href="#" className="small-only">
+        <MenuLink href={searchUrl} className="small-only">
           <FeatherIcon name="search" />
         </MenuLink>
 
         <HorizontalFlex className="grow justify">
-          <LogoFI height="3rem" />
-          <SearchBar className="large-only grow">
-            <SearchBarIndicator>
-              <FeatherIcon
-                name="search"
-                color={style.gray}
-                alignOnText={false}
-              />
-            </SearchBarIndicator>
-            <SearchBarInput placeholder="Rechercher un groupe ou un événement" />
-            <SearchBarButton>
-              <FeatherIcon
-                name="arrow-right"
-                color={style.gray}
-                alignOnText={false}
-              />
-            </SearchBarButton>
-          </SearchBar>
+          <MenuLink href={dashboardUrl}>
+            <LogoFI height="3em" />
+          </MenuLink>
+          <form className="large-only grow" method="post">
+            <SearchBar method="post" action={searchUrl}>
+              <SearchBarIndicator>
+                <FeatherIcon
+                  name="search"
+                  color={style.gray}
+                  alignOnText={false}
+                />
+              </SearchBarIndicator>
+              <SearchBarInput placeholder="Rechercher un groupe ou un événement" />
+              <SearchBarButton>
+                <FeatherIcon
+                  name="arrow-right"
+                  color={style.gray}
+                  alignOnText={false}
+                />
+              </SearchBarButton>
+            </SearchBar>
+          </form>
         </HorizontalFlex>
         <HorizontalFlex>
-          <MenuLink href="#" className="large-only">
+          <MenuLink href={helpUrl} className="large-only">
             <FeatherIcon name="help-circle" />
             <span>Aide</span>
           </MenuLink>
           <ConnectionInfo
-            profileUrl="#"
-            signInUrl="#"
-            logInUrl="#"
+            profileUrl={profileUrl}
+            signInUrl={signInUrl}
+            logInUrl={logInUrl}
             loggedAs={loggedAs}
           />
         </HorizontalFlex>
@@ -198,6 +211,20 @@ const Header = ({ loggedAs }) => {
 };
 Header.propTypes = {
   loggedAs: PropTypes.string,
+  dashboardUrl: PropTypes.string,
+  searchUrl: PropTypes.string,
+  helpUrl: PropTypes.string,
+  profileUrl: PropTypes.string,
+  signInUrl: PropTypes.string,
+  logInUrl: PropTypes.string,
+};
+Header.defaultProps = {
+  dashboardUrl: "#",
+  searchUrl: "#",
+  helpUrl: "#",
+  profileUrl: "#",
+  signInUrl: "#",
+  logInUrl: "#",
 };
 
 export default Header;

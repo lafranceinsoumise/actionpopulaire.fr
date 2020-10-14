@@ -44,8 +44,8 @@ export const RawFeatherIcon = styled.div.attrs(
 RawFeatherIcon.propTypes = {
   name: PropTypes.oneOf(allIcons),
   color: PropTypes.string,
-  width: PropTypes.number,
-  height: PropTypes.number,
+  width: PropTypes.string,
+  height: PropTypes.string,
   strokeWidth: PropTypes.number,
   strokeLinecap: PropTypes.number,
   strokeLinejoin: PropTypes.number,

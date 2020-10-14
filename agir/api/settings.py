@@ -209,7 +209,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "agir.authentication.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "agir.api.context_processors.domain_names",
+                "agir.api.context_processors.basic_information",
                 "agir.notifications.context_processors.notifications",
             ]
         },

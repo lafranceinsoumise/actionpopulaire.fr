@@ -69,130 +69,19 @@
           integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
           crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  {{ header_props|json_script:"headerProps" }}
   {% render_bundle 'front/allPages' attrs='defer data-turbolinks-track="reload"' %}
   {% render_bundle 'notifications/notifications' %}
   {% block extra_scripts %}{% endblock %}
 
 </head>
-<body class="home archive">
+<body class="home archive" style="padding-top: 4.5em;">
 <!--[if IE]>
       <div class="alert alert-warning">
         Vous utilisez une version obsolète de votre navigateur. Veuillez le  <a href="http://browsehappy.com/">mettre à jour</a> pour visionner votre site correctement.      </div>
     <![endif]-->
-<header class="banner">
-  <nav class="nav-primary navbar navbar-default navbar-static-top">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                data-target="#main-navbar-collapse" aria-expanded="false">
-          Menu <span class="caret"></span>
-        </button>
-        <a href="https://lafranceinsoumise.fr" class="custom-logo-link navbar-brand" rel="home" itemprop="url"><img
-          src="{% static "front/images/logo_300.png" %}"
-          class="custom-logo" alt="La France insoumise" itemprop="logo"
-        /></a></div>
-      <div class="collapse navbar-collapse" id="main-navbar-collapse">
-        <div id="menu-export"></div>
-        <script>
-          (function () {
-            /** SETTINGS **/
-            var themeLocation = 'primary';
-            var addBootstrapCSS = true;
-            var menu_class = 'nav%20navbar-nav%20navbar-right';
-            var container = '';
+<div id="header"></div>
 
-            var r = new XMLHttpRequest();
-            r.open('GET', 'https://lafranceinsoumise.fr/?menu_export=1&theme_location=' + themeLocation +
-              '&menu_class=' + menu_class + '&container=' + container +
-              (addBootstrapCSS ? '&bootstrap=1' : ''), true);
-            r.onreadystatechange = function () {
-              if (r.readyState != 4 || r.status != 200) return;
-              document.getElementById('menu-export').innerHTML = r.responseText;
-            };
-            r.send();
-          })();
-        </script>
-      </div>
-    </div>
-  </nav>
-  <nav class="navbar navbar-supporter">
-    <div class="container">
-      {% if user.is_authenticated %}
-        <div class="navbar-header navbar-left pull-left">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                  data-target="#supporter-nav-collapse">
-            <span class="sr-only">Activer la navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-        </div>
-      {% endif %}
-      <div class="navbar-header navbar-right pull-right">
-        <ul id="menu-menu-connexion" class="nav navbar-nav navbar-right">
-          {% if user.is_authenticated %}
-            <li class="menu-item dropdown">
-              <a href="#" data-toggle="dropdown" class="dropdown-toggle">
-                {{ user.person.email }}
-                {% if user.person.contact_phone_status == user.person.CONTACT_PHONE_VERIFIED %}
-                  <i class="fa fa-check" title="Utilisateur avec un numéro de téléphone vérifié !"></i>
-                {% endif %}
-                <span class="caret"></span></a>
-              <ul class="dropdown-menu dropdown-menu-right">
-                {% if user.person.contact_phone_status == 'U' %}
-                  <li class="menu-item"><a title="Vérifier mon numéro de téléphone" href="{% url 'send_validation_sms' %}">Vérifier
-                    mon numéro de téléphone</a></li>
-                  <li role="separator" class="divider"></li>
-                {% endif %}
-                {% include "people/profile/profile_menu.html" %}
-                <li role="separator" class="divider"></li>
-                <li class="menu-item"><a title="Déconnexion"
-                                         href="{% url "disconnect" %}">Déconnexion</a></li>
-              </ul>
-            </li>
-            {{ notifications.notifications|json_script:"notifications-data" }}
-            <li id="notifications-center" class="menu-item dropdown"></li>
-            <script>
-              var notifications = JSON.parse(document.getElementById("notifications-data").textContent);
-              var notificationsElement = document.getElementById("notifications-center");
-              window["notifications/notifications"].setUpNotificationsCenter(notificationsElement, notifications);
-            </script>
-          {% else %}
-            <li class="menu-item"><a title="Connexion"
-                                     href="{% url "short_code_login" %}?next={{ request.get_full_path }}">Connexion</a>
-            </li>
-          {% endif %}
-        </ul>
-      </div>
-      {% if user.is_authenticated %}
-        <div class="visible-xs-block clearfix"></div>
-        <div id="supporter-nav-collapse" class="collapse navbar-collapse" style="overflow-y: visible">
-          <ul id="menu-menu-principal" class="nav navbar-nav navbar-left">
-            <li class="menu-item"><a title="Tableau de bord" href="{% url 'dashboard' %}">Tableau de bord</a></li>
-            {% if user.person.is_insoumise %}
-              <li class="menu-item"><a title="Profil" href="{% url "personal_information" %}">Profil</a></li>
-              <li class="menu-item"><a title="Fiches pratiques" href="https://lafranceinsoumise.fr/fiches_pour_agir/">Fiches
-                pratiques</a></li>
-            {% else %}
-              <li class="menu-item"><a title="profil" href="{% url "become_insoumise" %}">Profil</a></li>
-            {% endif %}
-            <li class="menu-item dropdown">
-              <a href="#" data-toggle="dropdown" class="dropdown-toggle"><i class="fa fa-question-circle-o"></i> <span class="hidden-xs">Aide</span>
-                <span class="caret"></span></a>
-              <ul class="dropdown-menu dropdown-menu-right">
-                <li class="menu-item"><a title="Questions courantes"
-                                         href="https://lafranceinsoumise.fr/formulaire-de-contact/">Questions
-                  courantes</a></li>
-                <li class="menu-item"><a class="help-button" style="display:none;" href="#">Visite guidée de la page</a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      {% endif %}
-    </div>
-  </nav>
-</header>
 {% block full_width %}
   <div class="wrap container" role="document">
     <main class="main">
