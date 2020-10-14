@@ -4,7 +4,7 @@ import LogoFI from "./LogoFI";
 
 export default {
   component: LogoFI,
-  title: "Logo FI",
+  title: "Generic/Logo FI",
   decorators: [
     (story) => (
       <div

@@ -3,7 +3,7 @@ import Card from "./Card";
 import { Column, Container, GrayBackgrund, Row } from "./grid";
 
 export default {
-  title: "Grid",
+  title: "Generic/Grid",
 };
 
 const lorem =

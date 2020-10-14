@@ -4,7 +4,7 @@ import FeatherIcon, { allIcons, RawFeatherIcon } from "./FeatherIcon";
 export default {
   component: FeatherIcon,
   subcomponents: { RawFeatherIcon },
-  title: "FeatherIcon",
+  title: "Generic/FeatherIcon",
   argTypes: {
     name: {
       name: "Nom de l'icône",

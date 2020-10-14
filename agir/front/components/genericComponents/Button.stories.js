@@ -4,7 +4,7 @@ import Button from "./Button";
 
 export default {
   component: Button,
-  title: "Button",
+  title: "Generic/Button",
   argTypes: {
     color: {
       control: {

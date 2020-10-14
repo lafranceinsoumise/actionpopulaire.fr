@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import FeatherIcon from "./FeatherIcon";
-import Button from "./Button";
+import FeatherIcon from "../genericComponents/FeatherIcon";
+import Button from "../genericComponents/Button";
 
-import style from "./style.scss";
-import LogoFI from "@agir/front/genericComponents/LogoFI";
+import style from "../genericComponents/style.scss";
+import LogoFI from "../genericComponents/LogoFI";
 
 const HeaderBar = styled.div`
   position: fixed;

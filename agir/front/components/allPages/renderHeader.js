@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import Header from "../genericComponents/Header";
+import Header from "./Header";
 
 const headerProps = JSON.parse(
   document.getElementById("headerProps").textContent
