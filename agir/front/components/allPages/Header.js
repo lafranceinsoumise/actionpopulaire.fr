@@ -15,7 +15,7 @@ const HeaderBar = styled.div`
   z-index: 10;
 
   width: 100%;
-  padding: 0.75 2rem;
+  padding: 0.75rem 2rem;
 
   background-color: #fff;
   box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
