@@ -14,7 +14,9 @@ from ..polls.models import Poll, PollOption, PollChoice
 
 class NavbarTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com", create_role=True)
+        self.person = Person.objects.create_person(
+            "test@test.com", first_name="Arthur", last_name="Machin", create_role=True
+        )
 
         self.group = SupportGroup.objects.create(name="group")
         Membership.objects.create(
@@ -28,7 +30,7 @@ class NavbarTestCase(TestCase):
         response = self.client.get("/groupes/" + str(self.group.id) + "/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn(b"Tableau de bord", response.content)
+        self.assertIn(b"Arthur Machin", response.content)
 
     def test_navbar_unauthenticated(self):
         response = self.client.get("/groupes/" + str(self.group.id) + "/")

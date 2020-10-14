@@ -13,7 +13,7 @@ class NavsProfileMixinTestCase(TestCase):
         )
         self.client.force_login(self.person.role)
 
-    def test_can_see_insoumis_menue(self):
+    def test_can_see_insoumis_menu(self):
         self.person.is_insoumise = True
         self.person.save()
 
