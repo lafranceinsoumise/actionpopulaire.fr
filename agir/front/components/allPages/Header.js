@@ -15,7 +15,7 @@ const HeaderBar = styled.div`
   z-index: 10;
 
   width: 100%;
-  padding: 0.75rem 2rem;
+  padding: 0.75 2rem;
 
   background-color: #fff;
   box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
@@ -92,14 +92,21 @@ const SearchBarIndicator = styled.div`
 `;
 
 const SearchBarButton = styled.button.attrs(() => ({ type: "submit" }))`
-  border: 0;
-  background: none;
   position: absolute;
   right: 1em;
   top: 0.75rem;
-  display: none;
 
-  input:focus + & {
+  padding: 0;
+  width: 1.5rem;
+
+  border: 0;
+  background: none;
+
+  svg {
+    display: none;
+  }
+
+  input:focus + & svg {
     display: block;
   }
 `;
@@ -163,6 +170,8 @@ const Header = ({
   signInUrl,
   logInUrl,
 }) => {
+  const inputRef = React.useRef();
+
   return (
     <HeaderBar>
       <HeaderContainer>
@@ -183,8 +192,18 @@ const Header = ({
                   alignOnText={false}
                 />
               </SearchBarIndicator>
-              <SearchBarInput placeholder="Rechercher un groupe ou un événement" />
-              <SearchBarButton>
+              <SearchBarInput
+                ref={inputRef}
+                placeholder="Rechercher un groupe ou un événement"
+              />
+              <SearchBarButton
+                onClick={(e) => {
+                  if (inputRef.current.value.trim() === "") {
+                    inputRef.current.focus();
+                    e.preventDefault();
+                  }
+                }}
+              >
                 <FeatherIcon
                   name="arrow-right"
                   color={style.gray}
