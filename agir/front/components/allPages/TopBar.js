@@ -7,7 +7,7 @@ import Button from "../genericComponents/Button";
 import style from "../genericComponents/style.scss";
 import LogoFI from "../genericComponents/LogoFI";
 
-const HeaderBar = styled.div`
+const TopBarBar = styled.div`
   position: fixed;
   top: 0;
   left: 0;
@@ -22,7 +22,7 @@ const HeaderBar = styled.div`
     0px 3px 2px rgba(0, 35, 44, 0.05);
 `;
 
-const HeaderContainer = styled.div`
+const TopBarContainer = styled.div`
   display: flex;
   justify-content: space-between;
 
@@ -161,7 +161,7 @@ ConnectionInfo.defaultProps = {
   logInUrl: "#",
 };
 
-const Header = ({
+const TopBar = ({
   loggedAs,
   dashboardUrl,
   searchUrl,
@@ -173,8 +173,8 @@ const Header = ({
   const inputRef = React.useRef();
 
   return (
-    <HeaderBar>
-      <HeaderContainer>
+    <TopBarBar>
+      <TopBarContainer>
         <MenuLink href={searchUrl} className="small-only">
           <FeatherIcon name="search" />
         </MenuLink>
@@ -225,11 +225,11 @@ const Header = ({
             loggedAs={loggedAs}
           />
         </HorizontalFlex>
-      </HeaderContainer>
-    </HeaderBar>
+      </TopBarContainer>
+    </TopBarBar>
   );
 };
-Header.propTypes = {
+TopBar.propTypes = {
   loggedAs: PropTypes.string,
   dashboardUrl: PropTypes.string,
   searchUrl: PropTypes.string,
@@ -238,7 +238,7 @@ Header.propTypes = {
   signInUrl: PropTypes.string,
   logInUrl: PropTypes.string,
 };
-Header.defaultProps = {
+TopBar.defaultProps = {
   dashboardUrl: "#",
   searchUrl: "#",
   helpUrl: "#",
@@ -247,4 +247,4 @@ Header.defaultProps = {
   logInUrl: "#",
 };
 
-export default Header;
+export default TopBar;
