@@ -1,6 +1,7 @@
 import re
 
-from django.contrib.postgres.search import SearchQuery
+from django.contrib.postgres.search import SearchQuery, SearchConfig
+from django.db.models import Value
 from django.utils.encoding import force_text
 
 
@@ -26,15 +27,8 @@ def escape_query(text, re_escape_chars):
 
 
 class PrefixSearchQuery(SearchQuery):
-    def as_sql(self, compiler, connection):
-        params = [escape_query(self.value, RE_POSTGRES_ESCAPE_CHARS)]
-        if self.config:
-            config_sql, config_params = compiler.compile(self.config)
-            template = "to_tsquery({}::regconfig, %s)".format(config_sql)
-            params = config_params + params
-        else:
-            template = "to_tsquery(%s)"
-        if self.invert:
-            template = "!!({})".format(template)
-
-        return template, params
+    def __init__(self, value, output_field=None, *, config=None, invert=False):
+        value = escape_query(value, RE_POSTGRES_ESCAPE_CHARS)
+        super().__init__(
+            value, output_field, config=config, invert=invert, search_type="raw"
+        )

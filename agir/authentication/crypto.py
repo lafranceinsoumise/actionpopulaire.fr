@@ -16,8 +16,8 @@ class SignatureGenerator(PasswordResetTokenGenerator):
     token_params = []
     params_separator = "|"
 
-    def __init__(self, validity, **kwargs):
-        self.validity = validity
+    def __init__(self, days_validity, **kwargs):
+        self.validity = days_validity * 24 * 60 * 60
 
         for key, value in kwargs.items():
             if not hasattr(self.__class__, key):
@@ -28,6 +28,8 @@ class SignatureGenerator(PasswordResetTokenGenerator):
 
             setattr(self, key, value)
 
+        super().__init__()
+
     def _check_params(self, params):
         if not set(params).issuperset(set(self.token_params)):
             raise TypeError(
@@ -36,7 +38,7 @@ class SignatureGenerator(PasswordResetTokenGenerator):
 
     def make_token(self, **params):
         self._check_params(params)
-        return self._make_token_with_timestamp(params, self._num_days(self._today()))
+        return self._make_token_with_timestamp(params, self._num_seconds(self._now()))
 
     def _make_hash_value(self, params: Mapping[str, Any], timestamp):
         # order the params by lexicographical order, so that there is some determinism
@@ -57,7 +59,7 @@ class SignatureGenerator(PasswordResetTokenGenerator):
             return False
 
         # Check the timestamp is within limit
-        if (self._num_days(self._today()) - ts) > self.validity:
+        if (self._num_seconds(self._now()) - ts) > self.validity:
             return True
 
         return False
@@ -85,7 +87,7 @@ class SignatureGenerator(PasswordResetTokenGenerator):
             return False
 
         # Check the timestamp is within limit
-        if (self._num_days(self._today()) - ts) > self.validity:
+        if (self._num_seconds(self._now()) - ts) > self.validity:
             return False
 
         return True

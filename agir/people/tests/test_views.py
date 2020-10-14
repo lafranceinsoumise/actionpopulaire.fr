@@ -199,7 +199,9 @@ class ProfileTestCase(TestCase):
         match = re.search(regex_token, mail.outbox[0].body)
         ts = match.group(2)
         signature = match.group(3)
-        token_expired = int_to_base36((base36_to_int(ts) - 8)) + "-" + signature
+        token_expired = (
+            int_to_base36((base36_to_int(ts) - 8 * 24 * 60 * 60)) + "-" + signature
+        )
         params = {
             "new_email": new_mail,
             "user": str(self.person.pk),
