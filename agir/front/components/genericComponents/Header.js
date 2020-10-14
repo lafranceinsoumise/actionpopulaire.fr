@@ -173,8 +173,8 @@ const Header = ({
           <MenuLink href={dashboardUrl}>
             <LogoFI height="3em" />
           </MenuLink>
-          <form className="large-only grow" method="post">
-            <SearchBar method="post" action={searchUrl}>
+          <form className="large-only grow" method="get" action={searchUrl}>
+            <SearchBar>
               <SearchBarIndicator>
                 <FeatherIcon
                   name="search"
