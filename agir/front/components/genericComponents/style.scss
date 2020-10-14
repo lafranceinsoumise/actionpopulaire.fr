@@ -64,6 +64,10 @@ linkHoverDecoration : $link-hover-decoration;
   box-sizing: border-box;
 }
 
+html {
+  font-size: 100%;
+}
+
 body {
   font-family: $font-family-base;
   font-size: $font-size-base;

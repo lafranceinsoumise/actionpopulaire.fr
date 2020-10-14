@@ -15,7 +15,7 @@ const HeaderBar = styled.div`
   z-index: 10;
 
   width: 100%;
-  padding: 0.75em 2em; /* rem */
+  padding: 0.75rem 2rem;
 
   background-color: #fff;
   box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
@@ -64,7 +64,7 @@ const MenuLink = styled.a`
   align-items: center;
   color: ${style.brandBlack};
   font-weight: 500;
-  height: 3em; /* rem */
+  height: 3rem;
 
   * + * {
     margin-left: 0.5em;
@@ -81,23 +81,22 @@ const MenuLink = styled.a`
 `;
 
 const SearchBar = styled.div`
-  border: 1px ${style.grayLighter};
   position: relative;
   max-width: 450px;
 `;
 
 const SearchBarIndicator = styled.div`
   position: absolute;
-  left: 1.5em; /* rem */
-  top: 0.75em; /* rem */
+  left: 1rem;
+  top: 0.75rem;
 `;
 
 const SearchBarButton = styled.button.attrs(() => ({ type: "submit" }))`
   border: 0;
   background: none;
   position: absolute;
-  right: 1.5em; /* rem */
-  top: 0.75em; /* rem */
+  right: 1em;
+  top: 0.75rem;
   display: none;
 
   input:focus + & {
@@ -107,11 +106,11 @@ const SearchBarButton = styled.button.attrs(() => ({ type: "submit" }))`
 
 const SearchBarInput = styled.input.attrs(() => ({ type: "text", name: "q" }))`
   width: 100%;
-  height: 3em; /* rem */
+  height: 3rem;
   margin: 0;
-  padding: 1px 3.5em; /* rem */
+  padding: 0 3.5rem;
 
-  border-radius: 0;
+  border-radius: 3px;
   background-color: ${style.grayLighter};
   color: ${style.brandBlack};
   border: 1px solid ${style.grayLighter};
@@ -173,7 +172,7 @@ const Header = ({
 
         <HorizontalFlex className="grow justify">
           <MenuLink href={dashboardUrl}>
-            <LogoFI height="3em" />
+            <LogoFI height="3rem" />
           </MenuLink>
           <form className="large-only grow" method="get" action={searchUrl}>
             <SearchBar>

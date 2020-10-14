@@ -12,7 +12,7 @@ def basic_information(request):
             "loggedAs": request.user.get_full_name(),
             "dashboardUrl": reverse("dashboard"),
             "searchUrl": reverse("search_event"),
-            "helpUrl": "#",
+            "helpUrl": "https://lafranceinsoumise.fr/contact/",
             "profileUrl": reverse("personal_information"),
             "signInUrl": reverse("subscription"),
             "logInUrl": reverse("short_code_login"),

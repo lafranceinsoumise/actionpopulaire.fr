@@ -9,6 +9,7 @@ const Button = styled.button`
   line-height: ${({ small }) => (small ? "95%" : style.lineHeightBase)}
   margin: 0;
   border: 0;
+  border-radius: 3px;
   min-height: ${({ small }) => (small ? "32px" : "48px")};
   text-align: center;
   text-transform: uppercase;

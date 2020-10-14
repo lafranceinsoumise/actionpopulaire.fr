@@ -63,7 +63,7 @@ const FeatherIcon = ({ name, type, color }) => {
   const strokeWidth = type === "normal" ? 2 : 1.33;
 
   // positionning dimensions
-  const remDimension = type === "normal" ? 1.5 : 1;
+  const dimension = type === "normal" ? "1.5rem" : "1rem";
 
   // color
   color = color || (type === "normal" ? mainStyle.brandBlack : mainStyle.gray);
@@ -71,8 +71,8 @@ const FeatherIcon = ({ name, type, color }) => {
   return (
     <RawFeatherIcon
       name={name}
-      width={`${remDimension}rem`}
-      height={`${remDimension}rem`}
+      width={dimension}
+      height={dimension}
       color={color}
       strokeWidth={strokeWidth}
     />
