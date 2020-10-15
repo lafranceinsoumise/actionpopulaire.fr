@@ -24,8 +24,8 @@ export default {
         type: "color",
       },
     },
-    type: {
-      name: "Type d'icône",
+    small: {
+      name: "Version petite",
     },
     inline: {
       name: "Aligner sur le texte",
@@ -43,7 +43,7 @@ Default.args = {
 export const Small = Template.bind({});
 Small.args = {
   ...Default.args,
-  type: "small",
+  small: true,
 };
 
 export const WithText = ({ text, fontSize, ...args }) => (

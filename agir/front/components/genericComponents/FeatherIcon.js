@@ -60,17 +60,17 @@ Les grands icônes doivent faire 24 pixels (1.5rem)
 Les petits icônes doivent faire 16 pixels (1rem)
  */
 
-const FeatherIcon = ({ name, type, color, inline }) => {
+const FeatherIcon = ({ name, small, color, inline }) => {
   // stroke dimensions
-  const strokeWidth = type === "normal" ? 2 : 1.33;
+  const strokeWidth = !small ? 2 : 1.33;
 
   // positionning dimensions
-  const dimension = type === "normal" ? "1.5rem" : "1rem";
+  const dimension = !small ? "1.5rem" : "1rem";
 
-  const top = inline ? (type === "normal" ? "0.3rem" : "0.15rem") : "0";
+  const top = inline ? (!small ? "0.3rem" : "0.15rem") : "0";
 
   // color
-  color = color || (type === "normal" ? mainStyle.brandBlack : mainStyle.gray);
+  color = color || (!small ? mainStyle.brandBlack : mainStyle.gray);
 
   return (
     <RawFeatherIcon
@@ -85,13 +85,13 @@ const FeatherIcon = ({ name, type, color, inline }) => {
 };
 FeatherIcon.propTypes = {
   name: PropTypes.oneOf(allIcons),
-  type: PropTypes.oneOf(["normal", "small"]),
+  small: PropTypes.bool,
   color: PropTypes.string,
   inline: PropTypes.bool,
 };
 
 FeatherIcon.defaultProps = {
-  type: "normal",
+  small: false,
   inline: false,
 };
 
