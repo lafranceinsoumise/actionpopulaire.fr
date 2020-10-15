@@ -1,14 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import TopBar from "./TopBar";
-
-const headerProps = JSON.parse(
-  document.getElementById("headerProps").textContent
-);
+import { ConfigProvider } from "../genericComponents/Config";
 
 const showHeader = () => {
   ReactDOM.render(
-    <TopBar {...headerProps} />,
+    <ConfigProvider>
+      <TopBar />
+    </ConfigProvider>,
     document.getElementById("top-bar")
   );
 };

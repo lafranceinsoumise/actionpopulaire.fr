@@ -3,26 +3,32 @@ from django.urls import reverse
 
 
 def basic_information(request):
-    logged_as = None
-    profile_url = reverse("personal_information")
+    user = None
+
+    routes = {
+        "dashboard": reverse("dashboard"),
+        "search": reverse("search_event"),
+        "help": "https://lafranceinsoumise.fr/contact/",
+        "personalInformation": reverse("personal_information"),
+        "contactConfiguration": reverse("contact"),
+        "signIn": reverse("subscription"),
+        "logIn": reverse("short_code_login"),
+    }
 
     if request.user.is_authenticated:
-        logged_as = request.user.get_full_name()
-        if not request.user.person.is_insoumise:
-            profile_url = reverse("contact")
+        user = {
+            "displayName": request.user.get_full_name(),
+            "isInsoumise": request.user.person.is_insoumise,
+        }
 
     return {
         "MAIN_DOMAIN": settings.MAIN_DOMAIN,
         "API_DOMAIN": settings.API_DOMAIN,
         "FRONT_DOMAIN": settings.FRONT_DOMAIN,
         "MAP_DOMAIN": settings.MAP_DOMAIN,
-        "header_props": {
-            "loggedAs": logged_as,
-            "dashboardUrl": reverse("dashboard"),
-            "searchUrl": reverse("search_event"),
-            "helpUrl": "https://lafranceinsoumise.fr/contact/",
-            "profileUrl": profile_url,
-            "signInUrl": reverse("subscription"),
-            "logInUrl": reverse("short_code_login"),
+        "config_context": {
+            "user": user,
+            "routes": routes,
+            "domain": settings.MAIN_DOMAIN,
         },
     }

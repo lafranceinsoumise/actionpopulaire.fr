@@ -6,6 +6,7 @@ import Button from "../genericComponents/Button";
 
 import style from "../genericComponents/style.scss";
 import LogoFI from "../genericComponents/LogoFI";
+import { useConfig } from "@agir/front/genericComponents/Config";
 
 const TopBarBar = styled.div`
   position: fixed;
@@ -131,59 +132,53 @@ const SearchBarInput = styled.input.attrs(() => ({ type: "text", name: "q" }))`
   }
 `;
 
-const ConnectionInfo = ({ loggedAs, profileUrl, signInUrl, logInUrl }) =>
-  loggedAs === undefined || loggedAs === "" ? (
+const ConnectionInfo = ({ user, routes }) =>
+  user === null ? (
     <>
-      <MenuLink href={logInUrl}>
+      <MenuLink href={routes.logIn}>
         <FeatherIcon name="user" />
         <span className="large-only">Connexion</span>
       </MenuLink>
-      <Button color="secondary" href={signInUrl} className="large-only">
+      <Button color="secondary" href={routes.signIn} className="large-only">
         Créer mon compte
       </Button>
     </>
   ) : (
-    <MenuLink href={profileUrl}>
+    <MenuLink
+      href={
+        user.isInsoumise
+          ? routes.personalInformation
+          : routes.contactConfiguration
+      }
+    >
       <FeatherIcon name="user" />
-      <span className="large-only">{loggedAs}</span>
+      <span className="large-only">{user.displayName}</span>
     </MenuLink>
   );
 
 ConnectionInfo.propTypes = {
-  loggedAs: PropTypes.string,
-  profileUrl: PropTypes.string,
-  signInUrl: PropTypes.string,
-  logInUrl: PropTypes.string,
-};
-ConnectionInfo.defaultProps = {
-  profileUrl: "#",
-  signInUrl: "#",
-  logInUrl: "#",
+  user: PropTypes.shape({
+    displayName: PropTypes.string,
+    isInsoumise: PropTypes.bool,
+  }),
+  routes: PropTypes.objectOf(PropTypes.string),
 };
 
-const TopBar = ({
-  loggedAs,
-  dashboardUrl,
-  searchUrl,
-  helpUrl,
-  profileUrl,
-  signInUrl,
-  logInUrl,
-}) => {
+export const PureTopBar = ({ user, routes }) => {
   const inputRef = React.useRef();
 
   return (
     <TopBarBar>
       <TopBarContainer>
-        <MenuLink href={searchUrl} className="small-only">
+        <MenuLink href={routes.search} className="small-only">
           <FeatherIcon name="search" />
         </MenuLink>
 
         <HorizontalFlex className="grow justify">
-          <MenuLink href={dashboardUrl}>
+          <MenuLink href={routes.dashboard}>
             <LogoFI height="3rem" />
           </MenuLink>
-          <form className="large-only grow" method="get" action={searchUrl}>
+          <form className="large-only grow" method="get" action={routes.search}>
             <SearchBar>
               <SearchBarIndicator>
                 <FeatherIcon
@@ -214,37 +209,39 @@ const TopBar = ({
           </form>
         </HorizontalFlex>
         <HorizontalFlex>
-          <MenuLink href={helpUrl} className="large-only">
+          <MenuLink href={routes.help} className="large-only">
             <FeatherIcon name="help-circle" />
             <span>Aide</span>
           </MenuLink>
-          <ConnectionInfo
-            profileUrl={profileUrl}
-            signInUrl={signInUrl}
-            logInUrl={logInUrl}
-            loggedAs={loggedAs}
-          />
+          <ConnectionInfo user={user} routes={routes} />
         </HorizontalFlex>
       </TopBarContainer>
     </TopBarBar>
   );
 };
-TopBar.propTypes = {
-  loggedAs: PropTypes.string,
-  dashboardUrl: PropTypes.string,
-  searchUrl: PropTypes.string,
-  helpUrl: PropTypes.string,
-  profileUrl: PropTypes.string,
-  signInUrl: PropTypes.string,
-  logInUrl: PropTypes.string,
+PureTopBar.propTypes = {
+  user: PropTypes.shape({
+    displayName: PropTypes.string,
+    isInsoumise: PropTypes.bool,
+  }),
+  routes: PropTypes.objectOf(PropTypes.string),
 };
-TopBar.defaultProps = {
-  dashboardUrl: "#",
-  searchUrl: "#",
-  helpUrl: "#",
-  profileUrl: "#",
-  signInUrl: "#",
-  logInUrl: "#",
+PureTopBar.defaultProps = {
+  user: null,
+  routes: {
+    dashboard: "#dashboard",
+    search: "#search",
+    help: "#help",
+    personalInformation: "#personalInformation",
+    contactConfiguration: "#contactConfiguration",
+    signIn: "#signIn",
+    logIn: "#logIn",
+  },
+};
+
+const TopBar = () => {
+  const config = useConfig();
+  return <PureTopBar {...config} />;
 };
 
 export default TopBar;

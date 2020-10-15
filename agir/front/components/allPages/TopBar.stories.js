@@ -1,12 +1,22 @@
 import React from "react";
-import TopBar from "./TopBar";
+import { PureTopBar } from "./TopBar";
 
 export default {
-  component: TopBar,
+  component: PureTopBar,
   title: "Layout/TopBar",
 };
 
-const Template = (args) => <TopBar {...args} />;
+const Template = ({ loggedIn, displayName, isInsoumise }) => (
+  <PureTopBar user={loggedIn ? { displayName, isInsoumise } : null} />
+);
 
 export const Default = Template.bind({});
-Default.args = {};
+Default.args = {
+  loggedIn: false,
+  displayName: "Arthur",
+  isInsoumise: true,
+};
+Default.argTypes = {
+  user: { table: { disable: true } },
+  routes: { table: { disable: true } },
+};
