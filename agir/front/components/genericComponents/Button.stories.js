@@ -1,6 +1,7 @@
 import React from "react";
 
 import Button from "./Button";
+import { allIcons } from "./FeatherIcon";
 
 export default {
   component: Button,
@@ -10,6 +11,13 @@ export default {
       control: {
         type: "select",
         options: Button.colors,
+      },
+    },
+    icon: {
+      name: "Nom de l'icône",
+      control: {
+        type: "select",
+        options: allIcons,
       },
     },
   },
@@ -51,4 +59,10 @@ export const LinkButton = Template.bind({});
 LinkButton.args = {
   ...Default.args,
   as: "a",
+};
+
+export const IconButton = Template.bind({});
+IconButton.args = {
+  ...Default.args,
+  icon: "copy",
 };

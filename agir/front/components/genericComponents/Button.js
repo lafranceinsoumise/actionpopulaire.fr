@@ -2,6 +2,7 @@ import style from "./style.scss";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import { transparentize } from "polished";
+import { icons } from "feather-icons";
 
 const Button = styled.button`
   display: inline-block;
@@ -76,6 +77,20 @@ const Button = styled.button`
 
     return result;
   }}
+
+  ${({ icon, small }) =>
+    icon
+      ? `
+    &:before {
+      content: url('data:image/svg+xml;utf8,${icons[icon].toSvg({
+        height: small ? 11 : 16,
+      })}');
+      position: relative;
+      top: 0.15rem;
+    }
+  `
+      : ""}
+}}
 `;
 
 Button.colors = ["primary", "secondary", "confirmed", "unavailable"];
