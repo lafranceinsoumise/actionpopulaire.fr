@@ -31,13 +31,13 @@ const TopBarContainer = styled.div`
   margin: 0 auto;
 
   .large-only {
-    @media only screen and (max-width: 900px) {
+    @media only screen and (max-width: 992px) {
       display: none;
     }
   }
 
   .small-only {
-    @media only screen and (min-width: 901px) {
+    @media only screen and (min-width: 993px) {
       display: none;
     }
   }

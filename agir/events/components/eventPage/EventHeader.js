@@ -16,22 +16,21 @@ const dateFormat = {
 };
 
 const EventHeaderContainer = styled.div`
-  margin: 3.825rem auto 3.825rem 10.7rem;
-
   * {
     margin: 0.5rem 0;
   }
 `;
 
 const EventTitle = styled.h1`
-  font-size: 1.75rem/1.4;
+  font-size: 1.75rem;
+  line-height: 1.4;
   font-weight: 800;
   margin-bottom: 0.5rem;
 
   a,
   a:hover {
     text-decoration: none;
-    color: ${(props) => style.brandBlack};
+    color: ${() => style.brandBlack};
   }
 `;
 
@@ -44,6 +43,12 @@ const SmallText = styled.div`
   font-color: ${style.gray};
 `;
 
+const ResponsiveButton = styled(Button)`
+  @media only screen and (max-width: 500px) {
+    display: block;
+  }
+`;
+
 const RSVPButton = ({ past, rsvped, logged, routes }) => {
   if (past) {
     return <Button color="unavailable">Événement terminé</Button>;
@@ -52,22 +57,22 @@ const RSVPButton = ({ past, rsvped, logged, routes }) => {
   if (logged) {
     if (rsvped) {
       return (
-        <Button icon="check-circle" color="confirmed">
+        <ResponsiveButton icon="check-circle" color="confirmed">
           Je participe
-        </Button>
+        </ResponsiveButton>
       );
     } else {
       return (
-        <Button as="a" color="secondary" href={routes.join}>
+        <ResponsiveButton as="a" color="secondary" href={routes.join}>
           Participer à l'événement
-        </Button>
+        </ResponsiveButton>
       );
     }
   } else {
     return (
-      <Button color="secondary" disabled={true}>
+      <ResponsiveButton color="secondary" disabled={true}>
         Participer à l'événement
-      </Button>
+      </ResponsiveButton>
     );
   }
 };

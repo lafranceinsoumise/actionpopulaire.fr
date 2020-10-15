@@ -7,10 +7,13 @@ import { icons } from "feather-icons";
 const Button = styled.button`
   display: inline-block;
   padding: ${({ small }) => (small ? "8px 12px" : "12px 24px")};
-  line-height: ${({ small }) => (small ? "95%" : style.lineHeightBase)}
+  line-height: ${({ small }) =>
+    small
+      ? "95%"
+      : 1.714}; /* pour s'assurer que les liens sont correctement centrés */
   margin: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   min-height: ${({ small }) => (small ? "32px" : "48px")};
   text-align: center;
   text-transform: uppercase;
@@ -103,10 +106,12 @@ Button.propTypes = {
   small: PropTypes.bool,
   disabled: PropTypes.bool,
   href: PropTypes.string,
+  block: PropTypes.bool,
 };
 
 Button.defaultProps = {
   small: false,
+  block: false,
 };
 
 export default Button;
