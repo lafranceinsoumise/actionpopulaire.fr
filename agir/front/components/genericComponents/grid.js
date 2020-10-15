@@ -67,26 +67,14 @@ export const Container = styled.section`
   padding-right: ${gutter}px;
 `;
 
-export const Row = styled.div`
-  margin-left: -${gutter}px;
-  margin-right: -${gutter}px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: ${({ align }) => align || "stretch"};
-  justify-content: ${({ justify }) => justify || "start"};
-  height: 100%;
-`;
-
 export const Column = styled.div`
   flex-basis: ${({ width, fill }) => (width || fill ? width || "1px" : "auto")};
   flex-grow: ${({ fill }) => (fill ? 1 : 0)};
-  padding-left: ${gutter}px;
-  padding-right: ${gutter}px;
   & > ${Card} {
     margin-bottom: 16px;
   }
 
-  @media (max-width: ${collapse}px) {
+  @media (max-width: ${({ collapse }) => collapse || 0}px) {
     min-width: 100%;
     padding-left: 0;
     padding-right: 0;
@@ -94,6 +82,28 @@ export const Column = styled.div`
     & > ${Card} {
       margin-bottom: 0px;
     }
+  }
+`;
+
+Column.propTypes = {
+  width: PropTypes.string, // can be anything like "50%" "400px"
+  fill: PropTypes.bool, // does the column fill the remaining space
+};
+
+export const Row = styled.div`
+  margin-left: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
+  margin-right: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: ${({ align }) => align || "stretch"};
+  justify-content: ${({ justify }) => justify || "start"};
+  height: 100%;
+
+  & > ${Column} {
+    padding-left: ${(props) =>
+      typeof props.gutter === "undefined" ? gutter : props.gutter}px;
+    padding-right: ${(props) =>
+      typeof props.gutter === "undefined" ? gutter : props.gutter}px;
   }
 `;
 
@@ -114,9 +124,4 @@ Row.propTypes = {
     "space-around",
     "space-evenly",
   ]), // justify-content CSS property
-};
-
-Column.propTypes = {
-  width: PropTypes.string, // can be anything like "50%" "400px"
-  fill: PropTypes.bool, // does the column fill the remaining space
 };
