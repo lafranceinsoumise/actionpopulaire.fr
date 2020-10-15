@@ -8,14 +8,16 @@ import mainStyle from "./style.scss";
 export const allIcons = Object.keys(icons);
 
 export const RawFeatherIcon = styled.div.attrs(
-  ({ name, color, strokeWidth, strokeLinecap, strokeLinejoin, svgStyle }) => {
+  ({ name, strokeWidth, color, strokeLinecap, strokeLinejoin, svgStyle }) => {
     const attrs = {
       name,
-      color,
       "stroke-width": strokeWidth,
       "stroke-linecap": strokeLinecap,
       "stroke-linejoin": strokeLinejoin,
     };
+    if (typeof color !== "undefined") {
+      attrs.color = color;
+    }
     Object.keys(attrs).map((k) => attrs[k] === undefined && delete attrs[k]);
 
     if (svgStyle !== undefined) {
@@ -69,15 +71,12 @@ const FeatherIcon = ({ name, small, color, inline }) => {
 
   const top = inline ? (!small ? "0.3rem" : "0.15rem") : "0";
 
-  // color
-  color = color || (!small ? mainStyle.brandBlack : mainStyle.gray);
-
   return (
     <RawFeatherIcon
+      color={color}
       name={name}
       width={dimension}
       height={dimension}
-      color={color}
       top={top}
       strokeWidth={strokeWidth}
     />

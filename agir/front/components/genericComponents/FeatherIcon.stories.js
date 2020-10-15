@@ -47,8 +47,8 @@ Small.args = {
 };
 
 export const WithText = ({ text, fontSize, ...args }) => (
-  <div style={{ fontSize: `${fontSize}px` }}>
-    <FeatherIcon {...args} /> <span>{text}</span>
+  <div style={{ fontSize: `${fontSize}px`, color: "blue" }}>
+    <FeatherIcon {...args} inline small /> <span>{text}</span>
   </div>
 );
 WithText.args = {
