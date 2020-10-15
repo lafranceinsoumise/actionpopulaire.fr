@@ -10,7 +10,7 @@ const Button = styled.button`
   line-height: ${({ small }) => (small ? "95%" : style.lineHeightBase)}
   margin: 0;
   border: 0;
-  border-radius: 3px;
+  border-radius: 8px;
   min-height: ${({ small }) => (small ? "32px" : "48px")};
   text-align: center;
   text-transform: uppercase;
@@ -84,9 +84,11 @@ const Button = styled.button`
     &:before {
       content: url('data:image/svg+xml;utf8,${icons[icon].toSvg({
         height: small ? 11 : 16,
+        width: small ? 11 : 16,
       })}');
       position: relative;
       top: 0.15rem;
+      margin-right: ${small ? "4px" : "8px"};
     }
   `
       : ""}

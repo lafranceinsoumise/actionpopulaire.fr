@@ -1,5 +1,6 @@
+import style from "./style.scss";
 import Card from "./Card";
-import React from "react";
+import React, { useCallback, useRef, useState } from "react";
 import Button from "./Button";
 import { Column, Row } from "./grid";
 import facebookLogo from "./logos/facebook.svg";
@@ -10,14 +11,21 @@ import whatsappLogo from "./logos/whatsapp.svg";
 let logoSpacing = { margin: "0 8px" };
 
 const Share = () => {
+  let [copied, setCopied] = useState(false);
+  let copyUrl = useCallback(() => {
+    inputEl.current.select();
+    document.execCommand("copy");
+    setCopied(true);
+  }, []);
+
+  const inputEl = useRef(null);
+  const buttonEl = useRef(null);
   let encodedLocation = encodeURIComponent(window.location.href);
   return (
     <Card>
-      <Row gutter={2}>
+      <Row gutter={2} style={{ marginBottom: "1rem" }}>
         <Column fill collapse={false}>
-          <p>
-            <b>Partager</b>
-          </p>
+          <b>Partager</b>
         </Column>
         <Column collapse={false}>
           <a href={`https://wa.me/?text=${encodedLocation}`}>
@@ -44,10 +52,28 @@ const Share = () => {
       <Row gutter={4}>
         <Column fill collapse={false}>
           {" "}
-          <input type="text" value="Prout" style={{ width: "100%" }} />
+          <input
+            type="text"
+            value={window.location.href}
+            style={{
+              width: "100%",
+              height: "32px",
+              border: `1px solid ${style.grayLight}`,
+              borderRadius: "8px",
+              padding: "8px",
+            }}
+            readOnly
+            ref={inputEl}
+            onClick={copyUrl}
+          />
         </Column>
         <Column collapse={false}>
-          <Button small icon="copy">
+          <Button
+            small
+            icon={copied ? "check" : "copy"}
+            onClick={copyUrl}
+            ref={buttonEl}
+          >
             Copier le lien
           </Button>
         </Column>
