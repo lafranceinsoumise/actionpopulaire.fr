@@ -1,5 +1,10 @@
 import React from "react";
-import FeatherIcon, { allIcons, RawFeatherIcon } from "./FeatherIcon";
+import FeatherIcon, {
+  allIcons,
+  IconList,
+  IconListItem,
+  RawFeatherIcon,
+} from "./FeatherIcon";
 
 export default {
   component: FeatherIcon,
@@ -63,3 +68,20 @@ WithText.argTypes = {
   },
 };
 WithText.storyName = "Avec du texte";
+
+export const AsList = () => (
+  <>
+    <p>Exemple de liste avec des icônes</p>
+    <IconList>
+      <IconListItem name="user">Avec du texte</IconListItem>
+      <IconListItem name="activity">
+        Avec du texte sur
+        <br />
+        plusieurs lignes
+      </IconListItem>
+      <IconListItem name="user">Avec du texte</IconListItem>
+    </IconList>
+  </>
+);
+AsList.args = {};
+AsList.storyName = "En liste";

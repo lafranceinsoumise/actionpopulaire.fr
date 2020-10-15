@@ -99,3 +99,22 @@ FeatherIcon.RawFeatherIcon = RawFeatherIcon;
 FeatherIcon.allIcons = allIcons;
 
 export default FeatherIcon;
+
+export const IconList = styled.ul`
+  padding-left: 1.5rem;
+`;
+
+export const IconListItem = styled.li`
+  list-style: none;
+  position: relative;
+  margin-bottom: 0.5rem;
+  &:before {
+    // prettier-ignore
+    content: url('data:image/svg+xml;utf8,${(props) =>
+      icons[props.name].toSvg({ height: 16, color: "grey" })}');
+    height: 1rem;
+    position: absolute;
+    top: 0.15rem;
+    left: -1.75rem;
+  }
+`;
