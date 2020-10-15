@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 import { icons } from "feather-icons";
 
-import mainStyle from "./style.scss";
-
 export const allIcons = Object.keys(icons);
 
 export const RawFeatherIcon = styled.div.attrs(
