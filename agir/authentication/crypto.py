@@ -58,6 +58,9 @@ class SignatureGenerator(PasswordResetTokenGenerator):
         except ValueError:
             return False
 
+        if ts < 7228:
+            ts = ts * 24 * 60 * 60
+
         # Check the timestamp is within limit
         if (self._num_seconds(self._now()) - ts) > self.validity:
             return True
