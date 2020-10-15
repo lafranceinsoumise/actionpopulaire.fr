@@ -85,9 +85,12 @@ class SignatureGenerator(PasswordResetTokenGenerator):
 
         # Check that the timestamp/uid has not been tampered with
         if not constant_time_compare(
-            self._make_token_with_timestamp(params, ts), token
+            self._make_token_with_timestamp(params, ts, legacy=ts < 7228), token
         ):
             return False
+
+        if ts < 7228:
+            ts = ts * 24 * 60 * 60
 
         # Check the timestamp is within limit
         if (self._num_seconds(self._now()) - ts) > self.validity:
