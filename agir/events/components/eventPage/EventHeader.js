@@ -26,12 +26,6 @@ const EventTitle = styled.h1`
   line-height: 1.4;
   font-weight: 800;
   margin-bottom: 0.5rem;
-
-  a,
-  a:hover {
-    text-decoration: none;
-    color: ${() => style.brandBlack};
-  }
 `;
 
 const EventDate = styled.div`
@@ -84,43 +78,41 @@ RSVPButton.propTypes = {
 const EventHeader = ({ name, date, rsvped, routes }) => {
   const config = useConfig();
   const logged = config.user !== null;
-  const eventDate = DateTime.fromISO(date).setLocale("fr");
   const now = DateTime.local();
-  const past = now > eventDate;
-  let eventString = eventDate.toLocaleString(dateFormat);
+  const past = now > date;
+  let eventString = date.toLocaleString(dateFormat);
   eventString = eventString.slice(0, 1).toUpperCase() + eventString.slice(1);
 
   return (
     <EventHeaderContainer>
-      <EventTitle>
-        <a href={routes.page}>{name}</a>
-      </EventTitle>
+      <EventTitle>{name}</EventTitle>
       <EventDate>{eventString}</EventDate>
       <RSVPButton past={past} logged={logged} rsvped={rsvped} routes={routes} />
-      {logged ? (
-        rsvped ? (
-          <SmallText>
-            <a href={routes.cancel}>Annuler ma participation</a>
-          </SmallText>
+      {!past &&
+        (logged ? (
+          rsvped ? (
+            <SmallText>
+              <a href={routes.cancel}>Annuler ma participation</a>
+            </SmallText>
+          ) : (
+            <SmallText>
+              Votre email sera communiquée à l'organisateur.rice
+            </SmallText>
+          )
         ) : (
-          <SmallText>
-            Votre email sera communiquée à l'organisateur.rice
-          </SmallText>
-        )
-      ) : (
-        <div>
-          <a href={config.routes.logIn}>Je me connecte</a> ou{" "}
-          <a href={config.routes.signIn}>je m'inscris</a> pour participer à
-          l'événement
-        </div>
-      )}
+          <div>
+            <a href={config.routes.logIn}>Je me connecte</a> ou{" "}
+            <a href={config.routes.signIn}>je m'inscris</a> pour participer à
+            l'événement
+          </div>
+        ))}
     </EventHeaderContainer>
   );
 };
 
 EventHeader.propTypes = {
   name: PropTypes.string,
-  date: PropTypes.string,
+  date: PropTypes.instanceOf(DateTime),
   rsvped: PropTypes.bool,
   routes: PropTypes.shape({
     page: PropTypes.string,
