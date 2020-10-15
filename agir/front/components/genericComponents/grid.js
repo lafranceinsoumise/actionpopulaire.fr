@@ -74,7 +74,10 @@ export const Column = styled.div`
     margin-bottom: 16px;
   }
 
-  @media (max-width: ${({ collapse }) => collapse || 0}px) {
+  @media (max-width: ${(props) =>
+      typeof props.collapse === "undefined"
+        ? collapse
+        : props.collapse || 0}px) {
     min-width: 100%;
     padding-left: 0;
     padding-right: 0;
