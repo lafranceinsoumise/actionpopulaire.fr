@@ -96,10 +96,10 @@ export const Column = styled.div`
 `;
 
 Column.propTypes = {
-  width: PropTypes.oneOfType(
+  width: PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.arrayOf(PropTypes.string)
-  ), // can be anything like "50%" "400px"
+    PropTypes.arrayOf(PropTypes.string),
+  ]), // can be anything like "50%" "400px"
   // if array first is mobile size, second is desktop
   fill: PropTypes.bool, // does the column fill the remaining space
 };

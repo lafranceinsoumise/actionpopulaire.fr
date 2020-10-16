@@ -11,5 +11,5 @@ const Template = (args) => <FacebookLink {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
-  facebookUrl: "https://facebook.com",
+  routes: { facebook: "https://facebook.com" },
 };

@@ -4,7 +4,7 @@ import facebookLogo from "../../../front/components/genericComponents/logos/face
 import PropTypes from "prop-types";
 import FeatherIcon from "../../../front/components/genericComponents/FeatherIcon";
 
-const FacebookLink = ({ facebookUrl }) => (
+const FacebookLink = ({ routes: { facebook } }) => (
   <Card>
     <img
       src={facebookLogo}
@@ -12,7 +12,7 @@ const FacebookLink = ({ facebookUrl }) => (
       height="24"
       style={{ marginRight: "16px" }}
     />
-    <a href={facebookUrl} style={{ fontWeight: 500 }}>
+    <a href={facebook} style={{ fontWeight: 500 }}>
       L'événement sur Facebook
       <span style={{ marginLeft: "8px" }}>
         <FeatherIcon name="external-link" inline small />
@@ -22,7 +22,7 @@ const FacebookLink = ({ facebookUrl }) => (
 );
 
 FacebookLink.propTypes = {
-  facebookUrl: PropTypes.string,
+  routes: PropTypes.shape({ facebook: PropTypes.string }),
 };
 
 export default FacebookLink;

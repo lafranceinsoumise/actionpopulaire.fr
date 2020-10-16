@@ -6,9 +6,12 @@ import { DateTime } from "luxon";
 
 const routes = { logIn: "#login", signIn: "#signin" };
 
+const defaultStartTime = DateTime.local().plus({ days: 2 });
+const defaultEndTime = defaultStartTime.plus({ hours: 2 });
+
 export default {
   component: EventHeader,
-  title: "Events/Header",
+  title: "Events/EventHeader",
   decorators: [
     (story, { args }) => (
       <TestConfigProvider value={{ user: args.logged ? {} : null, routes }}>
@@ -34,9 +37,9 @@ const Template = (args) => (
   <EventHeader
     {...{
       ...args,
-      date: DateTime.fromMillis(+args.date, { zone: "Europe/Paris" }).setLocale(
-        "fr"
-      ),
+      startTime: DateTime.fromMillis(+args.startTime, {
+        zone: "Europe/Paris",
+      }).setLocale("fr"),
     }}
   />
 );
@@ -44,7 +47,8 @@ const Template = (args) => (
 export const Default = Template.bind({});
 Default.args = {
   name: "Mon événement",
-  date: 1605177480000,
+  startTime: defaultStartTime.toMillis(),
+  endTime: defaultEndTime.toMillis(),
   logged: true,
   routes: { page: "#event", join: "#event/join", cancel: "#event/cancel" },
 };

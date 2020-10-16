@@ -75,12 +75,12 @@ RSVPButton.propTypes = {
   rsvped: PropTypes.bool,
 };
 
-const EventHeader = ({ name, date, rsvped, routes }) => {
+const EventHeader = ({ name, startTime, rsvped, routes }) => {
   const config = useConfig();
   const logged = config.user !== null;
   const now = DateTime.local();
-  const past = now > date;
-  let eventString = date.toLocaleString(dateFormat);
+  const past = now > startTime;
+  let eventString = startTime.toLocaleString(dateFormat);
   eventString = eventString.slice(0, 1).toUpperCase() + eventString.slice(1);
 
   return (
@@ -112,7 +112,7 @@ const EventHeader = ({ name, date, rsvped, routes }) => {
 
 EventHeader.propTypes = {
   name: PropTypes.string,
-  date: PropTypes.instanceOf(DateTime),
+  startTime: PropTypes.instanceOf(DateTime),
   rsvped: PropTypes.bool,
   routes: PropTypes.shape({
     page: PropTypes.string,
