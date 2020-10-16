@@ -1,8 +1,8 @@
 import React from "react";
+import { DateTime } from "luxon";
 
 import EventHeader from "./EventHeader";
 import { TestConfigProvider } from "@agir/front/genericComponents/Config";
-import { DateTime } from "luxon";
 
 const routes = { logIn: "#login", signIn: "#signin" };
 
@@ -23,24 +23,34 @@ export default {
     logged: {
       type: "boolean",
     },
+    startTime: {
+      type: "string",
+      control: { type: "date" },
+    },
+    endTime: {
+      type: "string",
+      control: { type: "date" },
+    },
     routes: {
       table: { disable: true },
     },
-    date: {
-      type: "string",
-      control: { type: "date" },
+    options: {
+      table: { disable: true },
+    },
+    rsvp: {
+      table: { disable: true },
     },
   },
 };
 
-const Template = (args) => (
+const Template = ({ startTime, price, rsvped, ...args }) => (
   <EventHeader
-    {...{
-      ...args,
-      startTime: DateTime.fromMillis(+args.startTime, {
-        zone: "Europe/Paris",
-      }).setLocale("fr"),
-    }}
+    {...args}
+    startTime={DateTime.fromMillis(+startTime, {
+      zone: "Europe/Paris",
+    }).setLocale("fr")}
+    options={{ price }}
+    rsvp={rsvped ? { id: "prout" } : null}
   />
 );
 
@@ -50,5 +60,10 @@ Default.args = {
   startTime: defaultStartTime.toMillis(),
   endTime: defaultEndTime.toMillis(),
   logged: true,
-  routes: { page: "#event", join: "#event/join", cancel: "#event/cancel" },
+  price: null,
+  routes: {
+    page: "#page",
+    join: "#join",
+    cancel: "#cancel",
+  },
 };

@@ -66,7 +66,7 @@ const CalendarButtonHolder = styled.ul`
   }
 `;
 
-const EventLocation = ({ date, location, routes }) => {
+const EventLocation = ({ startTime, location, routes }) => {
   return (
     <EventLocationCard>
       <MapContainer>
@@ -74,7 +74,7 @@ const EventLocation = ({ date, location, routes }) => {
       </MapContainer>
       <IconList>
         <IconListItem name="clock">
-          {date.toLocaleString(dateFormat)}
+          {startTime.toLocaleString(dateFormat)}
         </IconListItem>
         <IconListItem name="map-pin">
           <WithLinebreak>
@@ -107,7 +107,7 @@ const EventLocation = ({ date, location, routes }) => {
   );
 };
 EventLocation.propTypes = {
-  date: PropTypes.string,
+  startTime: PropTypes.string,
   location: PropTypes.shape({
     name: PropTypes.string,
     address: PropTypes.string,

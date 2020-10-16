@@ -16,7 +16,7 @@ const dateFormat = {
 };
 
 const EventHeaderContainer = styled.div`
-  * {
+  > * {
     margin: 0.5rem 0;
   }
 `;
@@ -37,13 +37,20 @@ const SmallText = styled.div`
   font-color: ${style.gray};
 `;
 
-const ResponsiveButton = styled(Button)`
-  @media only screen and (max-width: 500px) {
-    display: block;
+/* Bouton qui prend 100 % de la largeur en petits écrans */
+const ActionButton = styled(Button)`
+  margin: 0.5rem 0;
+  display: block;
+
+  @media only screen and (min-width: 501px) {
+    display: inline-block;
+    & + & {
+      margin-left: 0.5rem;
+    }
   }
 `;
 
-const RSVPButton = ({ past, rsvped, logged, routes }) => {
+const ActionButtons = ({ past, rsvped, logged, routes }) => {
   if (past) {
     return <Button color="unavailable">Événement terminé</Button>;
   }
@@ -51,33 +58,72 @@ const RSVPButton = ({ past, rsvped, logged, routes }) => {
   if (logged) {
     if (rsvped) {
       return (
-        <ResponsiveButton icon="check-circle" color="confirmed">
-          Je participe
-        </ResponsiveButton>
+        <div>
+          <ActionButton icon="check-circle" color="confirmed">
+            Je participe
+          </ActionButton>
+        </div>
       );
     } else {
       return (
-        <ResponsiveButton as="a" color="secondary" href={routes.join}>
-          Participer à l'événement
-        </ResponsiveButton>
+        <div>
+          <ActionButton as="a" color="secondary" href={routes.join}>
+            Participer à l'événement
+          </ActionButton>
+        </div>
       );
     }
   } else {
     return (
-      <ResponsiveButton color="secondary" disabled={true}>
-        Participer à l'événement
-      </ResponsiveButton>
+      <div>
+        <ActionButton color="secondary" disabled={true}>
+          Participer à l'événement
+        </ActionButton>
+      </div>
     );
   }
 };
-RSVPButton.propTypes = {
+ActionButtons.propTypes = {
   logged: PropTypes.bool,
   rsvped: PropTypes.bool,
 };
 
-const EventHeader = ({ name, startTime, rsvped, routes }) => {
+const AdditionalMessage = ({ logged, rsvped, price, routes }) => {
+  if (logged) {
+    if (rsvped) {
+      return (
+        <SmallText>
+          <a href={routes.cancel}>Annuler ma participation</a>
+        </SmallText>
+      );
+    } else if (price) {
+      return (
+        <SmallText>
+          <strong>Entrée :</strong>
+          {price}
+        </SmallText>
+      );
+    } else {
+      return (
+        <SmallText>
+          Votre email sera communiquée à l'organisateur.rice
+        </SmallText>
+      );
+    }
+  } else {
+    return (
+      <div>
+        <a href={routes.logIn}>Je me connecte</a> ou{" "}
+        <a href={routes.signIn}>je m'inscris</a> pour participer à l'événement
+      </div>
+    );
+  }
+};
+
+const EventHeader = ({ name, rsvp, options, startTime, routes }) => {
   const config = useConfig();
   const logged = config.user !== null;
+  const rsvped = !!rsvp;
   const now = DateTime.local();
   const past = now > startTime;
   let eventString = startTime.toLocaleString(dateFormat);
@@ -87,25 +133,21 @@ const EventHeader = ({ name, startTime, rsvped, routes }) => {
     <EventHeaderContainer>
       <EventTitle>{name}</EventTitle>
       <EventDate>{eventString}</EventDate>
-      <RSVPButton past={past} logged={logged} rsvped={rsvped} routes={routes} />
-      {!past &&
-        (logged ? (
-          rsvped ? (
-            <SmallText>
-              <a href={routes.cancel}>Annuler ma participation</a>
-            </SmallText>
-          ) : (
-            <SmallText>
-              Votre email sera communiquée à l'organisateur.rice
-            </SmallText>
-          )
-        ) : (
-          <div>
-            <a href={config.routes.logIn}>Je me connecte</a> ou{" "}
-            <a href={config.routes.signIn}>je m'inscris</a> pour participer à
-            l'événement
-          </div>
-        ))}
+      <ActionButtons
+        past={past}
+        logged={logged}
+        rsvped={rsvped}
+        routes={routes}
+      />
+      {!past && (
+        <AdditionalMessage
+          past={past}
+          logged={logged}
+          rsvped={rsvped}
+          price={options.price}
+          routes={{ ...routes, ...config.routes }}
+        />
+      )}
     </EventHeaderContainer>
   );
 };
@@ -114,6 +156,10 @@ EventHeader.propTypes = {
   name: PropTypes.string,
   startTime: PropTypes.instanceOf(DateTime),
   rsvped: PropTypes.bool,
+  options: PropTypes.shape({
+    price: PropTypes.string,
+  }),
+  rsvp: PropTypes.shape({ status: PropTypes.string }),
   routes: PropTypes.shape({
     page: PropTypes.string,
     join: PropTypes.string,

@@ -7,7 +7,7 @@ export default {
   component: EventLocation,
   title: "Events/EventLocation",
   argTypes: {
-    date: {
+    startTime: {
       type: "string",
       control: { type: "date" },
     },
@@ -15,7 +15,7 @@ export default {
     routes: { control: { disable: true } },
   },
   decorators: [
-    (Story, { args: { maxWidth, date } }) => (
+    (Story, { args: { maxWidth, startTime } }) => (
       <div style={{ maxWidth }}>
         <Story />
       </div>
@@ -23,13 +23,15 @@ export default {
   ],
 };
 
-const Template = ({ date, locationName, locationAddress, ...args }) => {
-  date = DateTime.fromMillis(+date, { zone: "Europe/Paris" }).setLocale("fr");
+const Template = ({ startTime, locationName, locationAddress, ...args }) => {
+  startTime = DateTime.fromMillis(+startTime, {
+    zone: "Europe/Paris",
+  }).setLocale("fr");
 
   return (
     <EventLocation
       {...args}
-      date={date}
+      startTime={startTime}
       location={{
         name: locationName,
         address: locationAddress,
@@ -40,7 +42,7 @@ const Template = ({ date, locationName, locationAddress, ...args }) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  date: DateTime.local().plus({ days: 1 }),
+  startTime: DateTime.local().plus({ days: 1 }),
   locationName: "Place de la République",
   locationAddress: "Place de la République\n75011 Paris",
   routes: {

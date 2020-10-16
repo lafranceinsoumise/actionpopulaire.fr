@@ -7,8 +7,11 @@ import Description from "./Description";
 import { DateTime } from "luxon";
 
 const EventPage = (props) => {
-  props.starTime = DateTime.fromISO(props.startTime).setLocale("fr");
-  props.endTime = DateTime.fromISO(props.endTime).setLocale("fr");
+  props = {
+    ...props,
+    startTime: DateTime.fromISO(props.startTime).setLocale("fr"),
+    endTime: DateTime.fromISO(props.endTime).setLocale("fr"),
+  };
 
   return (
     <div>
