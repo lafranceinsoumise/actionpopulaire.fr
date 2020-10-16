@@ -5,6 +5,11 @@ const Card = styled.section`
   background: #ffffff;
   padding: 1.5rem;
   border-radius: 0.5rem;
+  font-weight: 500;
+
+  & p {
+    font-wieght: 400;
+  }
 `;
 
 export default Card;
