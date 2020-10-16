@@ -68,7 +68,10 @@ export const Container = styled.section`
 `;
 
 export const Column = styled.div`
-  flex-basis: ${({ width, fill }) => (width || fill ? width || "1px" : "auto")};
+  flex-basis: ${({ width, fill }) =>
+    width || fill
+      ? (Array.isArray(width) && width[1] ? width[1] : width) || "1px"
+      : "auto"};
   flex-grow: ${({ fill }) => (fill ? 1 : 0)};
   & > ${Card} {
     margin-bottom: 16px;
@@ -78,18 +81,26 @@ export const Column = styled.div`
       typeof props.collapse === "undefined"
         ? collapse
         : props.collapse || 0}px) {
-    min-width: 100%;
+    flex-basis: ${(props) =>
+      Array.isArray(props.width) && props.width[0] ? props.width[0] : "100%"};
     padding-left: 0;
     padding-right: 0;
 
     & > ${Card} {
       margin-bottom: 0px;
+      margin-left: -${gutter}px;
+      margin-right: -${gutter}px;
+      border-radius: 0px;
     }
   }
 `;
 
 Column.propTypes = {
-  width: PropTypes.string, // can be anything like "50%" "400px"
+  width: PropTypes.oneOfType(
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string)
+  ), // can be anything like "50%" "400px"
+  // if array first is mobile size, second is desktop
   fill: PropTypes.bool, // does the column fill the remaining space
 };
 
