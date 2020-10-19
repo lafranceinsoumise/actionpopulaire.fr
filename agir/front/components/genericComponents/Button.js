@@ -52,8 +52,8 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
     disabled ? transparentize(0.3, labelColor) : labelColor};
   background-color: ${({ background, disabled }) =>
     disabled ? transparentize(0.7, background) : background};
-  border: 1px solid ${({ borderColor, background }) =>
-    borderColor ? borderColor : background};
+  border: ${({ borderColor }) =>
+    borderColor ? `1px solid ${borderColor}` : "0"};
 
   &:hover {
     background-color: ${({ hoverBackground }) => hoverBackground};
