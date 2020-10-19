@@ -56,7 +56,8 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
     borderColor ? `1px solid ${borderColor}` : "0"};
 
   &:hover {
-    background-color: ${({ hoverBackground }) => hoverBackground};
+    ${({ disabled, hoverBackground }) =>
+      disabled ? "" : `background-color: ${hoverBackground};`}
     text-decoration: none;
   }
   
