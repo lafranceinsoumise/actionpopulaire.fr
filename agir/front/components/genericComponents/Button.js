@@ -27,17 +27,17 @@ const Button = styled.button`
       border = false;
 
     if (color === "primary") {
-      background = style.brandPrimary;
-      hoverBackground = style.brandPrimaryDark;
+      background = style.primary500;
+      hoverBackground = style.primary600;
       labelColor = "#fff";
     } else if (color === "secondary") {
       background = style.brandSecondary;
       hoverBackground = style.brandSecondaryDark;
       labelColor = "#fff";
     } else if (color === "confirmed") {
-      background = style.brandPrimaryLight;
-      hoverBackground = style.brandPrimaryLightHover;
-      labelColor = style.brandPrimary;
+      background = style.primary100;
+      hoverBackground = style.primary150;
+      labelColor = style.primary500;
     } else if (color === "unavailable") {
       background = "#fff";
       hoverBackground = "#fff";

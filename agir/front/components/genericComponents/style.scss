@@ -1,47 +1,42 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap');
 @import "../../../../node_modules/normalize.css";
 
-$gray-base: #000 !default;
-$gray-darker: lighten($gray-base, 13.5%) !default; // #222
-$gray-dark: lighten($gray-base, 20%) !default; // #333
-$gray: #777;
-$gray-light: #dfdfdf;
-$gray-lighter: #eee; // #eee
-$page-background-color: #E5E5E5;
+$black1000: #00232c;
+$black500: #777;
+$black100: #dfdfdf;
+$black50: #eee;
+$black25: #f8f8f8;
 
-$brand-primary: #0098b6; // bleu
-$brand-primary-dark: #1D7384;
-$brand-primary-light: #DAF0F3;
-$brand-primary-light-hover: #BFE7EC;
+$primary600: #1D7384;
+$primary500: #0098b6;
+$primary150: #BFE7EC;
+$primary100: #DAF0F3;
+
 $brand-secondary: #c9462c; // terre de sienne
 $brand-secondary-dark: #A32F18;
-$brand-black: #00232c;
 
 $font-family-base: 'Montserrat', sans-serif;
 $font-size-base: 16px;
 $line-height-base: 1.428571429;
-$text-color: $brand-black;
+$text-color: $black1000;
 
-$link-color: $brand-primary !default;
-$link-hover-color: darken($link-color, 15%);
+$link-color: $primary500;
+$link-hover-color: $primary600;
 $link-hover-decoration: underline;
 
 :export {
-grayBase: $gray-base;
-grayDarker: $gray-darker;
-grayDark: $gray-dark;
-gray: $gray;
-grayLight: $gray-light;
-grayLighter: $gray-lighter;
-pageBackgroundColor: $page-background-color;
+black1000: $black1000;
+black500: $black500;
+black100: $black100;
+black50: $black50;
+black25: $black25;
 
-brandPrimary: $brand-primary;
-brandPrimaryDark: $brand-primary-dark;
-brandPrimaryLight: $brand-primary-light;
-brandPrimaryLightHover: $brand-primary-light-hover;
+primary500: $primary500;
+primary600: $primary600;
+primary150: $primary150;
+primary100: $primary100;
 brandSecondary: $brand-secondary;
 brandSecondaryDark: $brand-secondary-dark;
-brandBlack: $brand-black;
 
 fontFamilyBase: $font-family-base;
 fontSizeBase: $font-size-base;
@@ -150,7 +145,7 @@ hr {
   margin-top: 22px;
   margin-bottom: 22px;
   border: 0;
-  border-top: 1px solid $gray-lighter;
+  border-top: 1px solid $black50;
 }
 
 abbr[title],
@@ -213,7 +208,6 @@ legend {
   font-size: 24px;
   font-weight: 700;
   line-height: inherit;
-  color: $gray-dark;
   border: 0;
 }
 
@@ -275,5 +269,5 @@ output {
   padding-top: 7px;
   font-size: $font-size-base;
   line-height: $line-height-base;
-  color: $gray;
+  color: $black500;
 }

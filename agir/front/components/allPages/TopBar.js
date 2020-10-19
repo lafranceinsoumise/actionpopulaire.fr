@@ -63,7 +63,7 @@ const HorizontalFlex = styled.div`
 const MenuLink = styled.a`
   display: flex;
   align-items: center;
-  color: ${style.brandBlack};
+  color: ${style.black1000};
   font-weight: 500;
   height: 3rem;
 
@@ -73,7 +73,7 @@ const MenuLink = styled.a`
 
   :hover {
     text-decoration: none;
-    color: ${style.brandBlack};
+    color: ${style.black1000};
   }
 
   :hover > * {
@@ -120,7 +120,7 @@ const SearchBarInput = styled.input.attrs(() => ({ type: "text", name: "q" }))`
 
   border-radius: 3px;
   background-color: ${style.grayLighter};
-  color: ${style.brandBlack};
+  color: ${style.black1000};
   border: 1px solid ${style.grayLighter};
 
   &::placeholder {

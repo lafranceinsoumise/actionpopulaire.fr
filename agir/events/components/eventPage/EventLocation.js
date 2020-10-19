@@ -25,7 +25,7 @@ const EventLocationCard = styled(Card)`
 `;
 
 const LocationName = styled.span`
-  color: ${style.brandBlack};
+  color: ${style.black1000};
 `;
 
 const WithLinebreak = styled.span`
