@@ -4,82 +4,63 @@ import PropTypes from "prop-types";
 import { transparentize } from "polished";
 import { icons } from "feather-icons";
 
-const Button = styled.button`
+const buttonColors = {
+  default: {
+    background: style.black50,
+    hoverBackground: style.black100,
+    labelColor: style.black1000,
+  },
+  primary: {
+    background: style.primary500,
+    labelColor: style.white,
+    hoverBackground: style.primary600,
+  },
+  secondary: {
+    background: style.secondary500,
+    labelColor: style.white,
+    hoverBackground: style.secondary600,
+  },
+  confirmed: {
+    background: style.primary100,
+    hoverBackground: style.primary150,
+    labelColor: style.primary500,
+  },
+  unavailable: {
+    background: style.white,
+    hoverBackground: style.white,
+    labelColor: style.black500,
+    borderColor: style.black100,
+  },
+};
+
+const Button = styled.button.attrs(({ color }) => buttonColors[color])`
   display: inline-block;
-  padding: ${({ small }) => (small ? "8px 12px" : "12px 24px")};
+  padding: ${({ small }) => (small ? "0.5rem 0.75rem" : "0.75rem 1.5rem")};
   line-height: ${({ small }) =>
     small
       ? "95%"
-      : 1.714}; /* pour s'assurer que les liens sont correctement centrés */
+      : "1.5rem"}; /* pour s'assurer que les liens sont correctement centrés */
   margin: 0;
-  border: 0;
   border-radius: 0.5rem;
-  min-height: ${({ small }) => (small ? "32px" : "48px")};
+  min-height: ${({ small }) => (small ? "2rem" : "3rem")};
   text-align: center;
   text-transform: uppercase;
   font-weight: 700;
-  font-size: ${({ small }) => (small ? "11px" : "14px")};
+  font-size: ${({ small }) => (small ? "0.6875rem" : "0.875rem")};
 
-  ${({ color, disabled }) => {
-    let background,
-      hoverBackground,
-      labelColor,
-      border = false;
+  color: ${({ labelColor, disabled }) =>
+    disabled ? transparentize(0.3, labelColor) : labelColor};
+  background-color: ${({ background, disabled }) =>
+    disabled ? transparentize(0.7, background) : background};
+  border: 1px solid ${({ borderColor, background }) =>
+    borderColor ? borderColor : background};
 
-    if (color === "primary") {
-      background = style.primary500;
-      hoverBackground = style.primary600;
-      labelColor = "#fff";
-    } else if (color === "secondary") {
-      background = style.brandSecondary;
-      hoverBackground = style.brandSecondaryDark;
-      labelColor = "#fff";
-    } else if (color === "confirmed") {
-      background = style.primary100;
-      hoverBackground = style.primary150;
-      labelColor = style.primary500;
-    } else if (color === "unavailable") {
-      background = "#fff";
-      hoverBackground = "#fff";
-      labelColor = style.gray;
-      border = style.grayLight;
-    } else {
-      background = style.grayLighter;
-      hoverBackground = style.grayLight;
-      labelColor = style.textColor;
-    }
-
-    if (disabled) {
-      background = transparentize(0.7, background);
-      labelColor = transparentize(0.3, labelColor);
-    }
-
-    let result = `
-      background-color: ${background};
-      color: ${labelColor};
-
-      &:hover {
-        color: ${labelColor};
-        text-decoration: none;
-      }
-    `;
-
-    if (border) {
-      result += `border: 1px solid ${border};`;
-    }
-
-    if (disabled) {
-      result += `cursor: not-allowed;`;
-    } else {
-      result += `
-        &:hover {
-          background-color: ${hoverBackground};
-        }
-      `;
-    }
-
-    return result;
-  }}
+  &:hover {
+    background-color: ${({ hoverBackground }) => hoverBackground};
+    text-decoration: none;
+  }
+  
+  ${({ disabled }) => disabled && "cursor: not-allowed;"}
 
   ${({ icon, small }) =>
     icon
@@ -91,14 +72,14 @@ const Button = styled.button`
       })}');
       position: relative;
       top: 0.15rem;
-      margin-right: ${small ? "4px" : "8px"};
+      margin-right: ${small ? "0.25rem" : "0.5rem"};
     }
   `
       : ""}
 }}
 `;
 
-Button.colors = ["primary", "secondary", "confirmed", "unavailable"];
+Button.colors = Object.keys(buttonColors);
 
 Button.propTypes = {
   onClick: PropTypes.func,
@@ -110,6 +91,7 @@ Button.propTypes = {
 };
 
 Button.defaultProps = {
+  color: "default",
   small: false,
   block: false,
 };
