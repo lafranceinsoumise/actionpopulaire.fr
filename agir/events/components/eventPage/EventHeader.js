@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { DateTime } from "luxon";
 
 import Button from "@agir/front/genericComponents/Button";
-import { useConfig } from "@agir/front/genericComponents/Config";
+import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
 import style from "@agir/front/genericComponents/style.scss";
 
 const dateFormat = {
@@ -121,7 +121,7 @@ const AdditionalMessage = ({ logged, rsvped, price, routes }) => {
 };
 
 const EventHeader = ({ name, rsvp, options, startTime, routes }) => {
-  const config = useConfig();
+  const config = useGlobalContext();
   const logged = config.user !== null;
   const rsvped = !!rsvp;
   const now = DateTime.local();

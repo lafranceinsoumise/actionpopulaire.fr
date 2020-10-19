@@ -26,7 +26,7 @@ def basic_information(request):
         "API_DOMAIN": settings.API_DOMAIN,
         "FRONT_DOMAIN": settings.FRONT_DOMAIN,
         "MAP_DOMAIN": settings.MAP_DOMAIN,
-        "config_context": {
+        "global_context": {
             "user": user,
             "routes": routes,
             "domain": settings.MAIN_DOMAIN,

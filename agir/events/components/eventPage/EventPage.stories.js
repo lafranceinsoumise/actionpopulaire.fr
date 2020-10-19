@@ -2,7 +2,7 @@ import React from "react";
 import { DateTime } from "luxon";
 
 import EventPage from "./EventPage";
-import { TestConfigProvider } from "@agir/front/genericComponents/Config";
+import { TestGlobalContextProvider } from "@agir/front/genericComponents/GobalContext";
 import { Default as DescriptionStory } from "./Description.stories";
 
 export default {
@@ -10,11 +10,11 @@ export default {
   title: "Events/EventPage",
   decorators: [
     (story, { args }) => (
-      <TestConfigProvider
+      <TestGlobalContextProvider
         value={{ user: args.logged ? {} : null, routes: testGlobalRoutes }}
       >
         {story()}
-      </TestConfigProvider>
+      </TestGlobalContextProvider>
     ),
   ],
 };

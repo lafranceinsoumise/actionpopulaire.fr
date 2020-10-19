@@ -6,7 +6,7 @@ import Button from "../genericComponents/Button";
 
 import style from "../genericComponents/style.scss";
 import LogoFI from "../genericComponents/LogoFI";
-import { useConfig } from "@agir/front/genericComponents/Config";
+import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
 
 const TopBarBar = styled.div`
   position: fixed;
@@ -240,7 +240,7 @@ PureTopBar.defaultProps = {
 };
 
 const TopBar = () => {
-  const config = useConfig();
+  const config = useGlobalContext();
   return <PureTopBar {...config} />;
 };
 

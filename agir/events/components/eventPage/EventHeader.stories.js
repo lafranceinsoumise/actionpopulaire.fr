@@ -2,7 +2,7 @@ import React from "react";
 import { DateTime } from "luxon";
 
 import EventHeader from "./EventHeader";
-import { TestConfigProvider } from "@agir/front/genericComponents/Config";
+import { TestGlobalContextProvider } from "@agir/front/genericComponents/GobalContext";
 
 const routes = { logIn: "#login", signIn: "#signin" };
 
@@ -14,9 +14,11 @@ export default {
   title: "Events/EventHeader",
   decorators: [
     (story, { args }) => (
-      <TestConfigProvider value={{ user: args.logged ? {} : null, routes }}>
+      <TestGlobalContextProvider
+        value={{ user: args.logged ? {} : null, routes }}
+      >
         {story()}
-      </TestConfigProvider>
+      </TestGlobalContextProvider>
     ),
   ],
   argTypes: {
