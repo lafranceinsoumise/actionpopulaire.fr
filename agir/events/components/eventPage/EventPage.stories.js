@@ -6,6 +6,7 @@ import { TestGlobalContextProvider } from "@agir/front/genericComponents/GobalCo
 import { Default as DescriptionStory } from "./Description.stories";
 import { Default as EventInfoStory } from "./EventInfo.stories";
 import { Default as GroupCardStory } from "./GroupCard.stories";
+import TopBar from "@agir/front/allPages/TopBar";
 
 export default {
   component: EventPage,
@@ -39,10 +40,13 @@ const defaultStartTime = DateTime.local().plus({ days: 2 });
 const defaultEndTime = defaultStartTime.plus({ hours: 2 });
 
 const Template = ({ locationName, locationAddress, ...args }) => (
-  <EventPage
-    {...args}
-    location={{ name: locationName, address: locationAddress }}
-  />
+  <div style={{ paddingTop: "4.5em" }}>
+    <TopBar />
+    <EventPage
+      {...args}
+      location={{ name: locationName, address: locationAddress }}
+    />
+  </div>
 );
 
 export const Default = Template.bind({});

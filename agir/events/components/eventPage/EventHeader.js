@@ -6,6 +6,7 @@ import { DateTime } from "luxon";
 import Button from "@agir/front/genericComponents/Button";
 import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
 import style from "@agir/front/genericComponents/style.scss";
+import { Hide } from "@agir/front/genericComponents/grid";
 
 const dateFormat = {
   weekday: "long",
@@ -132,7 +133,9 @@ const EventHeader = ({ name, rsvp, options, startTime, routes }) => {
   return (
     <EventHeaderContainer>
       <EventTitle>{name}</EventTitle>
-      <EventDate>{eventString}</EventDate>
+      <Hide under>
+        <EventDate>{eventString}</EventDate>
+      </Hide>
       <ActionButtons
         past={past}
         logged={logged}

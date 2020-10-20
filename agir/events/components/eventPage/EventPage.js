@@ -43,7 +43,7 @@ const MobileLayout = (props) => {
             <EventHeader {...props} />
           </Card>
           <EventLocation {...props} />
-          <Contact {...props} />
+          <EventInfo {...props} />
           <Card>
             <Description {...props} />
           </Card>
