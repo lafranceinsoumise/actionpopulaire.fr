@@ -4,6 +4,8 @@ import { DateTime } from "luxon";
 import EventPage from "./EventPage";
 import { TestGlobalContextProvider } from "@agir/front/genericComponents/GobalContext";
 import { Default as DescriptionStory } from "./Description.stories";
+import { Default as EventInfoStory } from "./EventInfo.stories";
+import { Default as GroupCardStory } from "./GroupCard.stories";
 
 export default {
   component: EventPage,
@@ -46,7 +48,10 @@ const Template = ({ locationName, locationAddress, ...args }) => (
 export const Default = Template.bind({});
 Default.args = {
   id: "12343432423",
+  name: "Super événement",
   ...DescriptionStory.args,
+  ...EventInfoStory.args,
+  group: { ...GroupCardStory.args },
   startTime: defaultStartTime.toISO(),
   endTime: defaultEndTime.toISO(),
   options: { price: null },

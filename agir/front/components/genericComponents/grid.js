@@ -54,7 +54,7 @@ export const Hide = styled.div`
  * Grid
  */
 
-const gutter = 32;
+const gutter = 16;
 const collapse = 992;
 
 export const GrayBackground = styled.div`

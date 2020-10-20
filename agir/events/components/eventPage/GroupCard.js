@@ -34,7 +34,7 @@ const Label = styled.span`
       : ""}
 `;
 
-const Description = ({
+const GroupCard = ({
   name,
   url,
   description,
@@ -44,59 +44,67 @@ const Description = ({
   type,
   labels,
 }) => (
-  <Card>
-    <Row gutter={6}>
-      <Column collapse={0}>
-        <img src={Svg} alt="Groupe" />
-      </Column>
-      <Column collapse={0} fill>
-        <h3 style={{ marginTop: 2, marginBottom: 2 }}>
-          <a href={url}>{name}</a>
-        </h3>
-        <small style={{ color: styles.gray }}>
-          {eventCount} événements • {membersCount} membres
-        </small>
-      </Column>
-    </Row>
+  <>
+    <Hide under style={{ marginBottom: "1rem", marginTop: "2.5rem" }}>
+      <h3>Organisé par</h3>
+    </Hide>
+    <Card>
+      <Hide over style={{ marginBottom: "1rem" }}>
+        <h3>Organisé par</h3>
+      </Hide>
+      <Row gutter={6}>
+        <Column collapse={0}>
+          <img src={Svg} alt="Groupe" />
+        </Column>
+        <Column collapse={0} fill>
+          <h3 style={{ marginTop: 2, marginBottom: 2 }}>
+            <a href={url}>{name}</a>
+          </h3>
+          <small style={{ color: styles.gray }}>
+            {eventCount} événements • {membersCount} membres
+          </small>
+        </Column>
+      </Row>
 
-    <div style={{ marginTop: "24px" }}>
-      <Label main>{type}</Label>
-      {labels.map((label, index) => (
-        <Label key={index}>{label}</Label>
-      ))}
-    </div>
+      <div style={{ marginTop: "24px" }}>
+        <Label main>{type}</Label>
+        {labels.map((label, index) => (
+          <Label key={index}>{label}</Label>
+        ))}
+      </div>
 
-    <div
-      dangerouslySetInnerHTML={{ __html: description }}
-      style={{ margin: "24px 0" }}
-    />
-    <Row gutter={6}>
-      <Column width={["45%", "content"]} collapse={500}>
-        <ResponsiveButton color="primary" as="a">
-          Détails
-        </ResponsiveButton>
-      </Column>
-      {!isMember && (
-        <Column width={["55%", "content"]} collapse={500}>
-          <ResponsiveButton as="a">
-            Rejoindre
-            <Hide as="span" under={800}>
-              {" "}
-              le groupe
-            </Hide>
+      <div
+        dangerouslySetInnerHTML={{ __html: description }}
+        style={{ margin: "24px 0" }}
+      />
+      <Row gutter={6}>
+        <Column width={["45%", "content"]} collapse={500}>
+          <ResponsiveButton color="primary" as="a">
+            Détails
           </ResponsiveButton>
         </Column>
+        {!isMember && (
+          <Column width={["55%", "content"]} collapse={500}>
+            <ResponsiveButton as="a">
+              Rejoindre
+              <Hide as="span" under={800}>
+                {" "}
+                le groupe
+              </Hide>
+            </ResponsiveButton>
+          </Column>
+        )}
+      </Row>
+      {isMember && (
+        <div style={{ marginTop: "1em" }}>
+          <FeatherIcon small inline name="check" /> Vous êtes membre du groupe
+        </div>
       )}
-    </Row>
-    {isMember && (
-      <div style={{ marginTop: "1em" }}>
-        <FeatherIcon small inline name="check" /> Vous êtes membre du groupe
-      </div>
-    )}
-  </Card>
+    </Card>
+  </>
 );
 
-Description.propTypes = {
+GroupCard.propTypes = {
   name: PropTypes.string,
   url: PropTypes.arrayOf(PropTypes.string),
   description: PropTypes.string,
@@ -107,4 +115,4 @@ Description.propTypes = {
   labels: PropTypes.arrayOf(PropTypes.string),
 };
 
-export default Description;
+export default GroupCard;

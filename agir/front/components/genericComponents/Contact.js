@@ -9,9 +9,9 @@ const Contact = ({ name, phone, email }) => (
       <b>Contact</b>
     </p>
     <IconList>
-      <IconListItem name="user">{name}</IconListItem>
-      <IconListItem name="phone">{phone}</IconListItem>
-      <IconListItem name="mail">{email}</IconListItem>
+      {name && <IconListItem name="user">{name}</IconListItem>}
+      {phone && <IconListItem name="phone">{phone}</IconListItem>}
+      {email && <IconListItem name="mail">{email}</IconListItem>}
     </IconList>
   </Card>
 );
