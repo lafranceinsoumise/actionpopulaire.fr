@@ -12,6 +12,7 @@ const EventDescription = ({
   isOrganizer,
   endTime,
   rsvp,
+  routes,
 }) => (
   <>
     {(!!compteRendu || !!compteRenduPhotos) && (
@@ -30,12 +31,16 @@ const EventDescription = ({
       </Row>
     )}
     {isOrganizer && (
-      <Button color="primary" href="#" style={{ marginTop: "1em" }}>
+      <Button
+        color="primary"
+        href={routes.compteRendu}
+        style={{ marginTop: "1em" }}
+      >
         {compteRendu ? "Modifier le" : "Ajouter un"} compte-rendu
       </Button>
     )}
     {endTime > DateTime.local() && !!rsvp && (
-      <Button href="#" style={{ marginTop: "1em" }}>
+      <Button href={routes.addPhoto} style={{ marginTop: "1em" }}>
         Ajouter une photo
       </Button>
     )}
@@ -70,6 +75,7 @@ EventDescription.propTypes = {
   isOrganizer: PropTypes.bool,
   endTime: PropTypes.instanceOf(DateTime),
   rsvp: PropTypes,
+  routes: PropTypes.object,
 };
 
 export default EventDescription;

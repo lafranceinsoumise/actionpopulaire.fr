@@ -137,6 +137,8 @@ EventPage.propTypes = {
     googleExport: PropTypes.string,
     outlookExport: PropTypes.string,
     facebook: PropTypes.string,
+    addPhoto: PropTypes.string,
+    compteRendu: PropTypes.string,
   }),
 };
 

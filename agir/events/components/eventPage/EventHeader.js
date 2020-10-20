@@ -51,7 +51,7 @@ const ActionButton = styled(Button)`
   }
 `;
 
-const ActionButtons = ({ past, rsvped, logged, routes }) => {
+const ActionButtons = ({ past, rsvped, logged, isOrganizer, routes }) => {
   if (past) {
     return <Button color="unavailable">Événement terminé</Button>;
   }
@@ -59,28 +59,25 @@ const ActionButtons = ({ past, rsvped, logged, routes }) => {
   if (logged) {
     if (rsvped) {
       return (
-        <div>
+        <>
           <ActionButton icon="check-circle" color="confirmed">
             Je participe
           </ActionButton>
-        </div>
+          {isOrganizer && <ActionButton>Modifier l'événement</ActionButton>}
+        </>
       );
     } else {
       return (
-        <div>
-          <ActionButton as="a" color="secondary" href={routes.join}>
-            Participer à l'événement
-          </ActionButton>
-        </div>
+        <ActionButton as="a" color="secondary" href={routes.join}>
+          Participer à l'événement
+        </ActionButton>
       );
     }
   } else {
     return (
-      <div>
-        <ActionButton color="secondary" disabled={true}>
-          Participer à l'événement
-        </ActionButton>
-      </div>
+      <ActionButton color="secondary" disabled={true}>
+        Participer à l'événement
+      </ActionButton>
     );
   }
 };
@@ -121,7 +118,14 @@ const AdditionalMessage = ({ logged, rsvped, price, routes }) => {
   }
 };
 
-const EventHeader = ({ name, rsvp, options, startTime, routes }) => {
+const EventHeader = ({
+  name,
+  rsvp,
+  options,
+  startTime,
+  routes,
+  isOrganizer,
+}) => {
   const config = useGlobalContext();
   const logged = config.user !== null;
   const rsvped = !!rsvp;
@@ -141,6 +145,7 @@ const EventHeader = ({ name, rsvp, options, startTime, routes }) => {
         logged={logged}
         rsvped={rsvped}
         routes={routes}
+        isOrganizer={isOrganizer}
       />
       {!past && (
         <AdditionalMessage
