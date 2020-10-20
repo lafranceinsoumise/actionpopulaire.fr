@@ -13,6 +13,7 @@ from django.db.models import Case, Sum, Count, When, CharField, F, Q
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone
+from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 from dynamic_filenames import FilePattern
@@ -462,6 +463,18 @@ class Event(
 
     def get_absolute_url(self):
         return front_url("view_event", args=[self.pk])
+
+    def get_google_calendar_url(self):
+        df = "%Y%m%dT%H%i00"
+
+        query = {
+            "text": self.name,
+            "dates": f"{self.start_time.strftime(df)}/{self.end_time.strftime(df)}",
+            "location": self.short_address,
+            "details": self.description,
+        }
+
+        return f"https://calendar.google.com/calendar/r/eventedit?{urlencode(query)}"
 
 
 class EventSubtype(BaseSubtype):

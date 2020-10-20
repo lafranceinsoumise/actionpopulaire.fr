@@ -136,6 +136,16 @@ class SupportGroup(
     )
 
     @property
+    def events_count(self):
+        from agir.events.models import Event
+
+        return self.organized_events.filter(visibility=Event.VISIBILITY_PUBLIC).count()
+
+    @property
+    def members_count(self):
+        return Membership.objects.filter(supportgroup=self).count()
+
+    @property
     def is_certified(self):
         return self.subtypes.filter(
             label__in=settings.CERTIFIED_GROUP_SUBTYPES

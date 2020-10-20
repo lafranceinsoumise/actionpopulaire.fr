@@ -11,6 +11,7 @@ import style from "@agir/front/genericComponents/style.scss";
 import googleLogo from "./assets/Google.svg";
 import outlookLogo from "./assets/Outlook.svg";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
+import { DateTime } from "luxon";
 
 const dateFormat = {
   weekday: "long",
@@ -105,7 +106,7 @@ const EventLocationCard = ({ startTime, location, routes }) => {
   );
 };
 EventLocationCard.propTypes = {
-  startTime: PropTypes.string,
+  startTime: PropTypes.instanceOf(DateTime),
   location: PropTypes.shape({
     name: PropTypes.string,
     address: PropTypes.string,

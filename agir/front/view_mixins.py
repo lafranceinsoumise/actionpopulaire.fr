@@ -11,9 +11,10 @@ from django.contrib.gis.measure import Distance as DistanceMeasure
 from django.db.models import Value, FloatField
 from django.shortcuts import reverse
 from django.views.generic import UpdateView, ListView
-from django.views.generic.base import ContextMixin
+from django.views.generic.base import ContextMixin, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
+from rest_framework.serializers import Serializer
 
 
 class SimpleOpengraphMixin(ContextMixin):
@@ -164,3 +165,33 @@ class FilterView(FormMixin, ListView):
 
     def get_form(self, form_class=None):
         return self.get_filter().form
+
+
+class ReactSingleObjectView(SingleObjectMixin, TemplateView):
+    bundle_name = None
+    serializer_class = None
+
+    data_script_id = "exportedContent"
+    app_mount_id = "mainApp"
+
+    template_name = "front/react_view.html"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
+
+    def get_serializer(self):
+        return self.serializer_class(
+            instance=self.object, context={"request": self.request}
+        )
+
+    def get_export_data(self):
+        return self.get_serializer().data
+
+    def get_context_data(self, **kwargs):
+        kwargs.setdefault("export_data", self.get_export_data())
+        kwargs.setdefault("bundle_name", self.bundle_name)
+        kwargs.setdefault("app_mount_id", self.app_mount_id)
+        kwargs.setdefault("data_script_id", self.data_script_id)
+
+        return super().get_context_data(**kwargs)

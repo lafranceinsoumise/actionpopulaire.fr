@@ -36,7 +36,9 @@ const EventInfoCard = ({ groups, participantCount }) => (
 );
 
 EventInfoCard.propTypes = {
-  groups: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
+  groups: PropTypes.arrayOf(
+    PropTypes.shape({ name: PropTypes.string, url: PropTypes.string })
+  ),
   participantCount: PropTypes.number,
 };
 

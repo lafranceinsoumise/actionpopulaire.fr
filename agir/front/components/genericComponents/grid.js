@@ -123,7 +123,7 @@ export const Row = styled.div`
 `;
 
 Row.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.instanceOf(Column)),
+  children: PropTypes.node,
   align: PropTypes.arrayOf([
     "stretch",
     "baseline",

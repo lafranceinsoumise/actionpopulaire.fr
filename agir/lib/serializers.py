@@ -37,6 +37,35 @@ class NullableCountryField(NullAsBlankMixin, CountryField):
     pass
 
 
+class LocationSerializer(serializers.Serializer):
+    name = serializers.CharField(source="location_name")
+    address1 = serializers.CharField(source="location_address1")
+    address2 = serializers.CharField(source="location_address2")
+    zip = serializers.CharField(source="location_zip")
+    city = serializers.CharField(source="location_city")
+    country = CountryField(source="location_country")
+
+    address = serializers.SerializerMethodField()
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance=instance)
+        if all(not v for v in data.values()):
+            return None
+        return data
+
+    def get_address(self, obj):
+        parts = [
+            obj.location_address1,
+            obj.location_address2,
+            f"{obj.location_zip} {obj.location_city}".strip(),
+        ]
+
+        if obj.location_country and obj.location_country != "FR":
+            parts.append(obj.location_country.name)
+
+        return "\n".join(p for p in parts if p)
+
+
 class LegacyBaseAPISerializer(serializers.ModelSerializer):
     """
     A legacy serializer that handles id fields (both internal and nationbuilder) and creation/modification time fields

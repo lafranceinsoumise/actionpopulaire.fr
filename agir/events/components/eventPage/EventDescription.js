@@ -74,8 +74,8 @@ EventDescription.propTypes = {
   description: PropTypes.string,
   isOrganizer: PropTypes.bool,
   endTime: PropTypes.instanceOf(DateTime),
-  rsvp: PropTypes,
   routes: PropTypes.object,
+  rsvp: PropTypes.string,
 };
 
 export default EventDescription;

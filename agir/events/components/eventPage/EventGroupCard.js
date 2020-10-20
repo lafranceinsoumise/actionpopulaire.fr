@@ -106,7 +106,7 @@ const EventGroupCard = ({
 
 EventGroupCard.propTypes = {
   name: PropTypes.string,
-  url: PropTypes.arrayOf(PropTypes.string),
+  url: PropTypes.string,
   description: PropTypes.string,
   eventCount: PropTypes.number,
   membersCount: PropTypes.number,

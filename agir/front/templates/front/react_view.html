@@ -1,0 +1,8 @@
+{% extends "front/layout.html" %}
+{% load webpack_loader %}
+
+{% block main %}
+  <main id="{{ app_mount_id }}"></main>
+  {{ export_data|json_script:data_script_id }}
+  {% render_bundle bundle_name %}
+{% endblock %}

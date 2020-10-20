@@ -37,9 +37,11 @@ from agir.front.view_mixins import (
     ObjectOpengraphMixin,
     ChangeLocationBaseView,
     FilterView,
+    ReactSingleObjectView,
 )
 from agir.lib.export import dict_to_camelcase
 from agir.lib.views import ImageSizeWarningMixin
+from .. import serializers
 from ..filters import EventFilter
 from ..forms import (
     EventForm,
@@ -120,11 +122,14 @@ class BaseEventDetailView(GlobalOrObjectPermissionRequiredMixin, DetailView):
         )
 
 
-class EventDetailView(ObjectOpengraphMixin, BaseEventDetailView):
+class EventDetailView(ObjectOpengraphMixin, ReactSingleObjectView):
     meta_description = (
         "Participez aux événements organisés par les membres de la France insoumise."
     )
-    template_name = "events/detail.html"
+    serializer_class = serializers.EventReactSerializer
+    queryset = Event.objects.all()
+    bundle_name = "events/eventPage"
+    data_script_id = "exportedEvent"
 
 
 class EventParticipationView(

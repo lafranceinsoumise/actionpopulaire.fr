@@ -126,6 +126,7 @@ EventPage.propTypes = {
     address: PropTypes.string,
   }),
   contact: PropTypes.shape(ContactCard.propTypes),
+  options: PropTypes.shape({ price: PropTypes.string }),
   groups: PropTypes.arrayOf(PropTypes.shape(EventGroupCard.propTypes)),
   routes: PropTypes.shape({
     page: PropTypes.string,
@@ -142,7 +143,10 @@ EventPage.propTypes = {
   }),
 };
 
-MobileLayout.propTypes = EventPage.propTypes;
-DesktopLayout.propTypes = EventPage.propTypes;
+DesktopLayout.propTypes = MobileLayout.propTypes = {
+  ...EventPage.propTypes,
+  startTime: PropTypes.instanceOf(DateTime),
+  endTime: PropTypes.instanceOf(DateTime),
+};
 
 export default EventPage;
