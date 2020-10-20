@@ -59,6 +59,7 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
     ${({ disabled, hoverBackground }) =>
       disabled ? "" : `background-color: ${hoverBackground};`}
     text-decoration: none;
+    color: ${({ labelColor }) => labelColor};
   }
   
   ${({ disabled }) => disabled && "cursor: not-allowed;"}
