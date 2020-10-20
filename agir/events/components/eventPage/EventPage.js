@@ -42,12 +42,12 @@ const MobileLayout = (props) => {
           <Card>
             <EventHeader {...props} />
           </Card>
-          <EventLocationCard {...props} />
+          <EventLocationCard {...props.location} />
           <EventInfoCard {...props} />
           <Card>
             <EventDescription {...props} />
           </Card>
-          <ContactCard {...props} />
+          {props.contact && <ContactCard {...props.contact} />}
           <EventFacebookLinkCard {...props} />
           <ShareCard />
           {props.groups.length > 0 &&
@@ -66,7 +66,7 @@ const DesktopLayout = (props) => {
       <Container>
         <Row>
           <Column fill>
-            <div style={{ margin: "0 -1000px" }}>
+            <div style={{ margin: "0 -1000px 40px" }}>
               <div
                 style={{
                   padding: "60px 1000px",
@@ -85,7 +85,7 @@ const DesktopLayout = (props) => {
           </Column>
           <Column width="380px" style={{ paddingTop: "24px" }}>
             <EventLocationCard {...props} />
-            <ContactCard {...props} />
+            {props.contact && <ContactCard {...props.contact} />}
             <EventInfoCard {...props} />
             <EventFacebookLinkCard {...props} />
             <ShareCard />
@@ -112,14 +112,15 @@ const EventPage = (props) => {
 };
 
 EventPage.propTypes = {
-  id: PropTypes.string,
-  name: PropTypes.string,
+  id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  isOrganizer: PropTypes.bool,
   compteRendu: PropTypes.string,
   compteRenduPhotos: PropTypes.arrayOf(PropTypes.string),
   illustration: PropTypes.string,
   description: PropTypes.string,
-  startTime: PropTypes.string,
-  endTime: PropTypes.string,
+  startTime: PropTypes.string.isRequired,
+  endTime: PropTypes.string.isRequired,
   location: PropTypes.shape({
     name: PropTypes.string,
     address: PropTypes.string,

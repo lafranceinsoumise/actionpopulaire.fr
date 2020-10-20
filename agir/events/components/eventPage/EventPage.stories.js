@@ -56,6 +56,10 @@ Default.args = {
   name: "Super événement",
   ...DescriptionStory.args,
   ...EventInfoStory.args,
+  isOrganizer: false,
+  rsvp: {
+    status: "confirmed",
+  },
   groups: [{ ...GroupCardStory.args }],
   contact: { ...ContactCardStory.args },
   startTime: defaultStartTime.toISO(),

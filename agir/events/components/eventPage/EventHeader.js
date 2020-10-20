@@ -158,7 +158,7 @@ const EventHeader = ({ name, rsvp, options, startTime, routes }) => {
 EventHeader.propTypes = {
   name: PropTypes.string,
   startTime: PropTypes.instanceOf(DateTime),
-  rsvped: PropTypes.bool,
+  isOrganizer: PropTypes.bool,
   options: PropTypes.shape({
     price: PropTypes.string,
   }),

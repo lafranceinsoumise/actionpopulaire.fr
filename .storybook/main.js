@@ -15,6 +15,8 @@ module.exports = {
       alias: { ...config.resolve.alias, ...webpackConfig.resolve.alias },
     };
 
+    config.devtool = "eval";
+
     return config;
   },
 };
