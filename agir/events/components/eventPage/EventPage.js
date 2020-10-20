@@ -2,8 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import EventHeader from "./EventHeader";
 import EventLocation from "./EventLocation";
-import FacebookLink from "./FacebookLink";
-import Description from "./Description";
+import EventFacebookLink from "./EventFacebookLink";
+import EventDescription from "./EventDescription";
 import { DateTime } from "luxon";
 import {
   Column,
@@ -16,7 +16,7 @@ import Contact from "@agir/front/genericComponents/Contact";
 import EventInfo from "@agir/events/eventPage/EventInfo";
 import Share from "@agir/front/genericComponents/Share";
 import Card from "@agir/front/genericComponents/Card";
-import GroupCard from "@agir/events/eventPage/GroupCard";
+import EventGroupCard from "@agir/events/eventPage/EventGroupCard";
 
 const MobileLayout = (props) => {
   return (
@@ -45,12 +45,12 @@ const MobileLayout = (props) => {
           <EventLocation {...props} />
           <EventInfo {...props} />
           <Card>
-            <Description {...props} />
+            <EventDescription {...props} />
           </Card>
           <Contact {...props} />
-          <FacebookLink {...props} />
+          <EventFacebookLink {...props} />
           <Share />
-          <GroupCard {...props.group} />
+          <EventGroupCard {...props.group} />
         </Column>
       </Row>
     </Container>
@@ -74,14 +74,14 @@ const DesktopLayout = (props) => {
                 <EventHeader {...props} />
               </div>
             </div>
-            <Description {...props} />
-            <GroupCard {...props.group} />
+            <EventDescription {...props} />
+            <EventGroupCard {...props.group} />
           </Column>
           <Column width="380px" style={{ paddingTop: "24px" }}>
             <EventLocation {...props} />
             <Contact {...props} />
             <EventInfo {...props} />
-            <FacebookLink {...props} />
+            <EventFacebookLink {...props} />
             <Share />
           </Column>
         </Row>

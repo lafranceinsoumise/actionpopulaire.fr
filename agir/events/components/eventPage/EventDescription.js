@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Column, Row } from "../../../front/components/genericComponents/grid";
 import Button from "../../../front/components/genericComponents/Button";
 
-const Description = ({
+const EventDescription = ({
   compteRendu,
   compteRenduPhotos,
   illustration,
@@ -52,11 +52,11 @@ const Description = ({
   </>
 );
 
-Description.propTypes = {
+EventDescription.propTypes = {
   compteRendu: PropTypes.string,
   compteRenduPhotos: PropTypes.arrayOf(PropTypes.string),
   illustration: PropTypes.string,
   description: PropTypes.string,
 };
 
-export default Description;
+export default EventDescription;

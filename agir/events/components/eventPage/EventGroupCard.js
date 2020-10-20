@@ -34,7 +34,7 @@ const Label = styled.span`
       : ""}
 `;
 
-const GroupCard = ({
+const EventGroupCard = ({
   name,
   url,
   description,
@@ -104,7 +104,7 @@ const GroupCard = ({
   </>
 );
 
-GroupCard.propTypes = {
+EventGroupCard.propTypes = {
   name: PropTypes.string,
   url: PropTypes.arrayOf(PropTypes.string),
   description: PropTypes.string,
@@ -115,4 +115,4 @@ GroupCard.propTypes = {
   labels: PropTypes.arrayOf(PropTypes.string),
 };
 
-export default GroupCard;
+export default EventGroupCard;

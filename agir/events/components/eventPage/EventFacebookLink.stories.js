@@ -1,13 +1,13 @@
 import React from "react";
 
-import FacebookLink from "./FacebookLink";
+import EventFacebookLink from "./EventFacebookLink";
 
 export default {
-  component: FacebookLink,
+  component: EventFacebookLink,
   title: "Events/FacebookLink",
 };
 
-const Template = (args) => <FacebookLink {...args} />;
+const Template = (args) => <EventFacebookLink {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

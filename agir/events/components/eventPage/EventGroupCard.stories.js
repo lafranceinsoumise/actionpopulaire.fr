@@ -1,13 +1,13 @@
 import React from "react";
 
-import GroupCard from "./GroupCard";
+import EventGroupCard from "./EventGroupCard";
 
 export default {
-  component: GroupCard,
+  component: EventGroupCard,
   title: "Events/GroupCard",
 };
 
-const Template = (args) => <GroupCard {...args} />;
+const Template = (args) => <EventGroupCard {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

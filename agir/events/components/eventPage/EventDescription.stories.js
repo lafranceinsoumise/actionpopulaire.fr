@@ -1,6 +1,6 @@
 import React from "react";
 
-import Description from "./Description";
+import EventDescription from "./EventDescription";
 
 const htmlDummyText =
   "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod" +
@@ -23,11 +23,11 @@ const htmlDummyText =
   "bibndum at varius vel pharetra vel turpis. Pretium aenean pharetra magna.</p>";
 
 export default {
-  component: Description,
+  component: EventDescription,
   title: "Events/Description",
 };
 
-const Template = (args) => <Description {...args} />;
+const Template = (args) => <EventDescription {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

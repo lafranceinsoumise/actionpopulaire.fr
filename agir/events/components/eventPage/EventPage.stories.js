@@ -3,9 +3,9 @@ import { DateTime } from "luxon";
 
 import EventPage from "./EventPage";
 import { TestGlobalContextProvider } from "@agir/front/genericComponents/GobalContext";
-import { Default as DescriptionStory } from "./Description.stories";
+import { Default as DescriptionStory } from "./EventDescription.stories";
 import { Default as EventInfoStory } from "./EventInfo.stories";
-import { Default as GroupCardStory } from "./GroupCard.stories";
+import { Default as GroupCardStory } from "./EventGroupCard.stories";
 import TopBar from "@agir/front/allPages/TopBar";
 
 export default {
