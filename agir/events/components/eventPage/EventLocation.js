@@ -10,7 +10,7 @@ import Card from "@agir/front/genericComponents/Card";
 import style from "@agir/front/genericComponents/style.scss";
 import googleLogo from "./assets/Google.svg";
 import outlookLogo from "./assets/Outlook.svg";
-import { Column, Row } from "@agir/front/genericComponents/grid";
+import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 
 const dateFormat = {
   weekday: "long",
@@ -19,10 +19,6 @@ const dateFormat = {
   hour: "numeric",
   minute: "2-digit",
 };
-
-const EventLocationCard = styled(Card)`
-  font-weight: 500;
-`;
 
 const LocationName = styled.span`
   color: ${style.black1000};
@@ -35,7 +31,7 @@ const WithLinebreak = styled.span`
 
 const MapContainer = styled.div`
   border-radius: 0.5rem 0.5rem 0 0;
-  margin: -1.5rem -1.5rem 0.5rem;
+  margin: -1.5rem -1.5rem 1.5rem;
 `;
 
 const MapIframe = styled.iframe.attrs((props) => ({
@@ -47,7 +43,7 @@ const MapIframe = styled.iframe.attrs((props) => ({
   border-radius: 0.5rem 0.5rem 0 0;
 
   width: 100%;
-  min-height: 300px;
+  min-height: 216px;
 `;
 
 const CalendarButtonHolder = styled.ul`
@@ -68,10 +64,12 @@ const CalendarButtonHolder = styled.ul`
 
 const EventLocation = ({ startTime, location, routes }) => {
   return (
-    <EventLocationCard>
-      <MapContainer>
-        <MapIframe src={routes.map} />
-      </MapContainer>
+    <Card>
+      <Hide under>
+        <MapContainer>
+          <MapIframe src={routes.map} />
+        </MapContainer>
+      </Hide>
       <IconList>
         <IconListItem name="clock">
           {startTime.toLocaleString(dateFormat)}
@@ -103,7 +101,7 @@ const EventLocation = ({ startTime, location, routes }) => {
           </CalendarButtonHolder>
         </Column>
       </Row>
-    </EventLocationCard>
+    </Card>
   );
 };
 EventLocation.propTypes = {
