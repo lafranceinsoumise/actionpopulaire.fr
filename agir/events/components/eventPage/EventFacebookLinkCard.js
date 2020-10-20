@@ -4,7 +4,7 @@ import facebookLogo from "../../../front/components/genericComponents/logos/face
 import PropTypes from "prop-types";
 import FeatherIcon from "../../../front/components/genericComponents/FeatherIcon";
 
-const EventFacebookLink = ({ routes: { facebook } }) => (
+const EventFacebookLinkCard = ({ routes: { facebook } }) => (
   <Card>
     <img
       src={facebookLogo}
@@ -21,8 +21,8 @@ const EventFacebookLink = ({ routes: { facebook } }) => (
   </Card>
 );
 
-EventFacebookLink.propTypes = {
+EventFacebookLinkCard.propTypes = {
   routes: PropTypes.shape({ facebook: PropTypes.string }),
 };
 
-export default EventFacebookLink;
+export default EventFacebookLinkCard;

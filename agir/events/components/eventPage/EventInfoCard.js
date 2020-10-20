@@ -6,7 +6,7 @@ import {
 } from "@agir/front/genericComponents/FeatherIcon";
 import Card from "@agir/front/genericComponents/Card";
 
-const EventInfo = ({ groups, participantCount }) => (
+const EventInfoCard = ({ groups, participantCount }) => (
   <Card>
     <IconList>
       {groups.length > 0 && (
@@ -35,9 +35,9 @@ const EventInfo = ({ groups, participantCount }) => (
   </Card>
 );
 
-EventInfo.propTypes = {
+EventInfoCard.propTypes = {
   groups: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
   participantCount: PropTypes.number,
 };
 
-export default EventInfo;
+export default EventInfoCard;

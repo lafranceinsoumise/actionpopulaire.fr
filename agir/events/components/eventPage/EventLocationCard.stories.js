@@ -1,10 +1,10 @@
 import React from "react";
 
-import EventLocation from "./EventLocation";
+import EventLocationCard from "./EventLocationCard";
 import { DateTime } from "luxon";
 
 export default {
-  component: EventLocation,
+  component: EventLocationCard,
   title: "Events/EventLocation",
   argTypes: {
     startTime: {
@@ -29,7 +29,7 @@ const Template = ({ startTime, locationName, locationAddress, ...args }) => {
   }).setLocale("fr");
 
   return (
-    <EventLocation
+    <EventLocationCard
       {...args}
       startTime={startTime}
       location={{

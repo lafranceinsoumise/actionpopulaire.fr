@@ -1,13 +1,13 @@
 import React from "react";
 
-import Share from "./Share";
+import ShareCard from "./ShareCard";
 
 export default {
-  component: Share,
+  component: ShareCard,
   title: "Generic/Share",
 };
 
-const Template = (args) => <Share {...args} />;
+const Template = (args) => <ShareCard {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {};

@@ -1,13 +1,13 @@
 import React from "react";
 
-import Contact from "./Contact";
+import ContactCard from "./ContactCard";
 
 export default {
-  component: Contact,
-  title: "Generic/Contact",
+  component: ContactCard,
+  title: "Generic/ContactCard",
 };
 
-const Template = (args) => <Contact {...args} />;
+const Template = (args) => <ContactCard {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

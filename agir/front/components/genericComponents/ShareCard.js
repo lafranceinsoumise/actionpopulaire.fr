@@ -10,7 +10,7 @@ import whatsappLogo from "./logos/whatsapp.svg";
 
 let logoSpacing = { margin: "0 8px" };
 
-const Share = () => {
+const ShareCard = () => {
   let [copied, setCopied] = useState(false);
   let copyUrl = useCallback(() => {
     inputEl.current.select();
@@ -81,4 +81,4 @@ const Share = () => {
     </Card>
   );
 };
-export default Share;
+export default ShareCard;

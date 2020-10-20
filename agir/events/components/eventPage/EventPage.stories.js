@@ -4,8 +4,9 @@ import { DateTime } from "luxon";
 import EventPage from "./EventPage";
 import { TestGlobalContextProvider } from "@agir/front/genericComponents/GobalContext";
 import { Default as DescriptionStory } from "./EventDescription.stories";
-import { Default as EventInfoStory } from "./EventInfo.stories";
+import { Default as EventInfoStory } from "./EventInfoCard.stories";
 import { Default as GroupCardStory } from "./EventGroupCard.stories";
+import { Default as ContactCardStory } from "@agir/front/genericComponents/ContactCard.stories";
 import TopBar from "@agir/front/allPages/TopBar";
 
 export default {
@@ -55,7 +56,8 @@ Default.args = {
   name: "Super événement",
   ...DescriptionStory.args,
   ...EventInfoStory.args,
-  group: { ...GroupCardStory.args },
+  groups: [{ ...GroupCardStory.args }],
+  contact: { ...ContactCardStory.args },
   startTime: defaultStartTime.toISO(),
   endTime: defaultEndTime.toISO(),
   options: { price: null },

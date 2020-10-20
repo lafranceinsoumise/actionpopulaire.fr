@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import EventHeader from "./EventHeader";
-import EventLocation from "./EventLocation";
-import EventFacebookLink from "./EventFacebookLink";
+import EventLocationCard from "./EventLocationCard";
+import EventFacebookLinkCard from "./EventFacebookLinkCard";
 import EventDescription from "./EventDescription";
 import { DateTime } from "luxon";
 import {
@@ -12,9 +12,9 @@ import {
   ResponsiveLayout,
   Row,
 } from "@agir/front/genericComponents/grid";
-import Contact from "@agir/front/genericComponents/Contact";
-import EventInfo from "@agir/events/eventPage/EventInfo";
-import Share from "@agir/front/genericComponents/Share";
+import ContactCard from "@agir/front/genericComponents/ContactCard";
+import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
+import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Card from "@agir/front/genericComponents/Card";
 import EventGroupCard from "@agir/events/eventPage/EventGroupCard";
 
@@ -42,15 +42,18 @@ const MobileLayout = (props) => {
           <Card>
             <EventHeader {...props} />
           </Card>
-          <EventLocation {...props} />
-          <EventInfo {...props} />
+          <EventLocationCard {...props} />
+          <EventInfoCard {...props} />
           <Card>
             <EventDescription {...props} />
           </Card>
-          <Contact {...props} />
-          <EventFacebookLink {...props} />
-          <Share />
-          <EventGroupCard {...props.group} />
+          <ContactCard {...props} />
+          <EventFacebookLinkCard {...props} />
+          <ShareCard />
+          {props.groups.length > 0 &&
+            props.groups.map((group, key) => (
+              <EventGroupCard key={key} {...group} />
+            ))}
         </Column>
       </Row>
     </Container>
@@ -75,14 +78,17 @@ const DesktopLayout = (props) => {
               </div>
             </div>
             <EventDescription {...props} />
-            <EventGroupCard {...props.group} />
+            {props.groups.length > 0 &&
+              props.groups.map((group, key) => (
+                <EventGroupCard key={key} {...group} />
+              ))}
           </Column>
           <Column width="380px" style={{ paddingTop: "24px" }}>
-            <EventLocation {...props} />
-            <Contact {...props} />
-            <EventInfo {...props} />
-            <EventFacebookLink {...props} />
-            <Share />
+            <EventLocationCard {...props} />
+            <ContactCard {...props} />
+            <EventInfoCard {...props} />
+            <EventFacebookLinkCard {...props} />
+            <ShareCard />
           </Column>
         </Row>
       </Container>
@@ -118,7 +124,8 @@ EventPage.propTypes = {
     name: PropTypes.string,
     address: PropTypes.string,
   }),
-  group: PropTypes.objectOf(PropTypes.string),
+  contact: PropTypes.objectOf(PropTypes.string),
+  groups: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
   routes: PropTypes.shape({
     page: PropTypes.string,
     map: PropTypes.string,

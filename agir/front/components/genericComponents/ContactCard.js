@@ -3,7 +3,7 @@ import Card from "./Card";
 import React from "react";
 import { IconList, IconListItem } from "./FeatherIcon";
 
-const Contact = ({ name, phone, email }) => (
+const ContactCard = ({ name, phone, email }) => (
   <Card>
     <p>
       <b>Contact</b>
@@ -16,10 +16,10 @@ const Contact = ({ name, phone, email }) => (
   </Card>
 );
 
-Contact.propTypes = {
+ContactCard.propTypes = {
   name: PropTypes.string,
   phone: PropTypes.string,
   email: PropTypes.string,
 };
 
-export default Contact;
+export default ContactCard;

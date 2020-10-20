@@ -1,13 +1,13 @@
 import React from "react";
 
-import EventInfo from "./EventInfo";
+import EventInfoCard from "./EventInfoCard";
 
 export default {
-  component: EventInfo,
+  component: EventInfoCard,
   title: "Events/EventInfo",
 };
 
-const Template = (args) => <EventInfo {...args} />;
+const Template = (args) => <EventInfoCard {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

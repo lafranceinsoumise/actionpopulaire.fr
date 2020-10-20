@@ -62,7 +62,7 @@ const CalendarButtonHolder = styled.ul`
   }
 `;
 
-const EventLocation = ({ startTime, location, routes }) => {
+const EventLocationCard = ({ startTime, location, routes }) => {
   return (
     <Card>
       <Hide under>
@@ -104,7 +104,7 @@ const EventLocation = ({ startTime, location, routes }) => {
     </Card>
   );
 };
-EventLocation.propTypes = {
+EventLocationCard.propTypes = {
   startTime: PropTypes.string,
   location: PropTypes.shape({
     name: PropTypes.string,
@@ -118,4 +118,4 @@ EventLocation.propTypes = {
   }),
 };
 
-export default EventLocation;
+export default EventLocationCard;
