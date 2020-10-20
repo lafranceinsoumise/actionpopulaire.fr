@@ -26,7 +26,7 @@ const LocationName = styled.span`
 
 const WithLinebreak = styled.span`
   white-space: pre-line;
-  color: ${style.gray};
+  color: ${style.black500};
 `;
 
 const MapContainer = styled.div`
@@ -57,7 +57,7 @@ const CalendarButtonHolder = styled.ul`
 
   * + * {
     margin-left: 1rem;
-    border-left: 1px ${style.grayLight} solid;
+    border-left: 1px ${style.black100} solid;
     padding-left: 1rem;
   }
 `;

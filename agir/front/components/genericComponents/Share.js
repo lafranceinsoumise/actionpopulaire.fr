@@ -58,7 +58,7 @@ const Share = () => {
             style={{
               width: "100%",
               height: "32px",
-              border: `1px solid ${style.grayLight}`,
+              border: `1px solid ${style.black100}`,
               borderRadius: "8px",
               padding: "8px",
             }}

@@ -119,16 +119,18 @@ const SearchBarInput = styled.input.attrs(() => ({ type: "text", name: "q" }))`
   padding: 0 3.5rem;
 
   border-radius: 3px;
-  background-color: ${style.grayLighter};
+  background-color: ${style.black50};
   color: ${style.black1000};
-  border: 1px solid ${style.grayLighter};
+  border: 1px solid ${style.black50};
 
   &::placeholder {
-    color: ${style.gray};
+    color: ${style.black500};
+    font-weight: 500;
+    opacity: 1;
   }
   &:focus {
     background: #fff;
-    border: 1px solid ${style.gray};
+    border: 1px solid ${style.black500};
   }
 `;
 
@@ -183,7 +185,7 @@ export const PureTopBar = ({ user, routes }) => {
               <SearchBarIndicator>
                 <FeatherIcon
                   name="search"
-                  color={style.gray}
+                  color={style.black500}
                   alignOnText={false}
                 />
               </SearchBarIndicator>
@@ -201,7 +203,7 @@ export const PureTopBar = ({ user, routes }) => {
               >
                 <FeatherIcon
                   name="arrow-right"
-                  color={style.gray}
+                  color={style.black500}
                   alignOnText={false}
                 />
               </SearchBarButton>

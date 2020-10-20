@@ -34,7 +34,7 @@ const EventDate = styled.div`
 
 const SmallText = styled.div`
   font-size: 0.81rem;
-  font-color: ${style.gray};
+  font-color: ${style.black500};
 `;
 
 /* Bouton qui prend 100 % de la largeur en petits écrans */

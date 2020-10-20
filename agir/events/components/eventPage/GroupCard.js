@@ -60,7 +60,7 @@ const GroupCard = ({
           <h3 style={{ marginTop: 2, marginBottom: 2 }}>
             <a href={url}>{name}</a>
           </h3>
-          <small style={{ color: styles.gray }}>
+          <small style={{ color: styles.black500 }}>
             {eventCount} événements • {membersCount} membres
           </small>
         </Column>
