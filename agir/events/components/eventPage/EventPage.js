@@ -124,8 +124,8 @@ EventPage.propTypes = {
     name: PropTypes.string,
     address: PropTypes.string,
   }),
-  contact: PropTypes.objectOf(PropTypes.string),
-  groups: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
+  contact: PropTypes.shape(ContactCard.propTypes),
+  groups: PropTypes.arrayOf(PropTypes.shape(EventGroupCard.propTypes)),
   routes: PropTypes.shape({
     page: PropTypes.string,
     map: PropTypes.string,
