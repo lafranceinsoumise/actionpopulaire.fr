@@ -57,9 +57,12 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
 
   &:hover {
     ${({ disabled, hoverBackground }) =>
-      disabled ? "" : `background-color: ${hoverBackground};`}
+      disabled
+        ? ""
+        : `background-color: ${hoverBackground};`} // disabled buttons must not change color on hover
     text-decoration: none;
-    color: ${({ labelColor }) => labelColor};
+    color: ${({ labelColor }) =>
+      labelColor}; // we need to overwrite link hover colors
   }
   
   ${({ disabled }) => disabled && "cursor: not-allowed;"}
