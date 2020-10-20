@@ -2,6 +2,8 @@ import styled from "styled-components";
 import PropTypes from "prop-types";
 import Card from "./Card";
 import style from "./style.scss";
+import { useCallback, useEffect, useState } from "react";
+import React from "react";
 
 /**
  * Accessibility
@@ -39,11 +41,11 @@ export const PullRight = styled.div`
  * Media queries
  */
 export const Hide = styled.div`
-  @media (max-width: ${({ under }) => under}px) {
+  @media (max-width: ${({ under }) => (under === true ? collapse : under)}px) {
     display: none;
   }
 
-  @media (min-width: ${({ over }) => over}px) {
+  @media (min-width: ${({ over }) => (over === true ? collapse : over)}px) {
     display: none;
   }
 `;
@@ -55,8 +57,8 @@ export const Hide = styled.div`
 const gutter = 32;
 const collapse = 992;
 
-export const GrayBackgrund = styled.div`
-  background-color: ${style.pageBackgroundColor};
+export const GrayBackground = styled.div`
+  background-color: ${style.black25};
 `;
 
 export const Container = styled.section`
@@ -111,7 +113,6 @@ export const Row = styled.div`
   flex-wrap: wrap;
   align-items: ${({ align }) => align || "stretch"};
   justify-content: ${({ justify }) => justify || "start"};
-  height: 100%;
 
   & > ${Column} {
     padding-left: ${(props) =>
@@ -138,4 +139,23 @@ Row.propTypes = {
     "space-around",
     "space-evenly",
   ]), // justify-content CSS property
+};
+
+export const ResponsiveLayout = ({ mobile, desktop, breakpoint }) => {
+  breakpoint = breakpoint || collapse;
+  const [isDesktop, setDesktop] = useState(window.innerWidth > breakpoint);
+
+  let refresh = useCallback(() => setDesktop(window.innerWidth > breakpoint), [
+    breakpoint,
+  ]);
+
+  useEffect(() => {
+    window.addEventListener("resize", refresh);
+
+    return function cleanup() {
+      window.removeEventListener("resize", refresh);
+    };
+  }, [refresh]);
+
+  return <>{isDesktop ? desktop : mobile}</>;
 };

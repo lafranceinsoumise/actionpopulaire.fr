@@ -1,6 +1,6 @@
 import React from "react";
 import Card from "./Card";
-import { Column, Container, GrayBackgrund, Row } from "./grid";
+import { Column, Container, GrayBackground, Row } from "./grid";
 
 export default {
   title: "Generic/Grid",
@@ -15,7 +15,7 @@ const lorem =
   "cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
 const Template = () => (
-  <GrayBackgrund>
+  <GrayBackground>
     <Container>
       <Row>
         <Column fill>
@@ -30,7 +30,7 @@ const Template = () => (
         </Column>
       </Row>
     </Container>
-  </GrayBackgrund>
+  </GrayBackground>
 );
 
 export const FixedSideBarExample = Template.bind({});
