@@ -8,4 +8,7 @@ class MediaURLField(serializers.URLField):
 
     def to_internal_value(self, data):
         value = super().to_internal_value(data)
-        return value.removeprefix(settings.MEDIA_URL)
+        if value.startswith(settings.MEDIA_URL):
+            value = value[len(settings.MEDIA_URL) :]
+
+        return value
