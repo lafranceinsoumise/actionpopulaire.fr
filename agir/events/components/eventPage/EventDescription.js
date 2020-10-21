@@ -15,10 +15,10 @@ const EventDescription = ({
   routes,
 }) => (
   <>
-    {(!!compteRendu || !!compteRenduPhotos) && (
+    {(!!compteRendu || compteRenduPhotos.length > 0) && (
       <h2 style={{ fontSize: "20px" }}>Compte-rendu</h2>
     )}
-    {compteRenduPhotos && (
+    {compteRenduPhotos.length > 0 && (
       <Row gutter={12}>
         {compteRenduPhotos.map((url, key) => (
           <Column collapse={500} key={key} width={["50%", "content"]}>
@@ -30,17 +30,17 @@ const EventDescription = ({
         ))}
       </Row>
     )}
-    {isOrganizer && (
+    {endTime < DateTime.local() && isOrganizer && (
       <Button
         as="a"
         color="primary"
         href={routes.compteRendu}
-        style={{ marginTop: "1em" }}
+        style={{ margin: "1em 1em 0 0" }}
       >
         {compteRendu ? "Modifier le" : "Ajouter un"} compte-rendu
       </Button>
     )}
-    {endTime > DateTime.local() && !!rsvp && (
+    {endTime < DateTime.local() && !!rsvp && (
       <Button as="a" href={routes.addPhoto} style={{ marginTop: "1em" }}>
         Ajouter une photo
       </Button>
@@ -51,7 +51,7 @@ const EventDescription = ({
         style={{ margin: "1em 0 6em" }}
       />
     )}
-    <h2 style={{ fontSize: "20px" }}>L'événement</h2>
+    {description && <h2 style={{ fontSize: "20px" }}>L'événement</h2>}
     {illustration && (
       <img
         src={illustration}
