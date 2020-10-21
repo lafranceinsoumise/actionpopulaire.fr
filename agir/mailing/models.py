@@ -84,8 +84,9 @@ class Segment(BaseSegment, models.Model):
         default=False,
     )
 
-    draw_status = models.NullBooleanField(
+    draw_status = models.BooleanField(
         "Limiter aux gens dont l'inscription au tirage au sort est",
+        null=True,
         blank=True,
         default=None,
     )
