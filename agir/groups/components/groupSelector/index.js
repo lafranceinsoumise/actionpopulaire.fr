@@ -1,5 +1,3 @@
-import "core-js/stable";
-import "regenerator-runtime/runtime";
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 
 const getInitial = (field) =>

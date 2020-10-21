@@ -1,5 +1,3 @@
-import "core-js/stable";
-import "regenerator-runtime/runtime";
 import "./style.css";
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 

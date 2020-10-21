@@ -1,6 +1,3 @@
-import "core-js/stable";
-import "regenerator-runtime/runtime";
-
 export const setUpNotificationsCenter = async function (
   element,
   notifications
