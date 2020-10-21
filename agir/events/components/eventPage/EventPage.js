@@ -42,7 +42,7 @@ const MobileLayout = (props) => {
           <Card>
             <EventHeader {...props} />
           </Card>
-          <EventLocationCard {...props.location} />
+          <EventLocationCard {...props} />
           {(props.participantCount > 1 || props.groups.length > 0) && (
             <EventInfoCard {...props} />
           )}
@@ -141,7 +141,6 @@ EventPage.propTypes = {
     manage: PropTypes.string,
     calendarExport: PropTypes.string,
     googleExport: PropTypes.string,
-    outlookExport: PropTypes.string,
     facebook: PropTypes.string,
     addPhoto: PropTypes.string,
     compteRendu: PropTypes.string,

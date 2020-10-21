@@ -89,17 +89,17 @@ const EventLocationCard = ({ startTime, location, routes }) => {
       </IconList>
       <Row>
         <Column fill width={["content", "content"]}>
-          <a href={routes.exportCalendar}>Ajouter à mon agenda</a>
+          <a href={routes.calendarExport}>Ajouter à mon agenda</a>
         </Column>
         <Column width={["content", "content"]}>
           <CalendarButtonHolder>
             <li>
-              <a href={routes.googleCalendar}>
+              <a href={routes.googleExport}>
                 <img src={googleLogo} alt="logo Google" />
               </a>
             </li>
             <li>
-              <a href={routes.outlookCalendar}>
+              <a href={routes.calendarExport}>
                 <img src={outlookLogo} alt="logo Outlook" />
               </a>
             </li>
@@ -117,9 +117,8 @@ EventLocationCard.propTypes = {
   }),
   routes: PropTypes.shape({
     map: PropTypes.string,
-    googleCalendar: PropTypes.string,
-    outlookCalendar: PropTypes.string,
-    exportCalendar: PropTypes.string,
+    calendarExport: PropTypes.string,
+    googleExport: PropTypes.string,
   }),
 };
 
