@@ -3,7 +3,11 @@ from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
 from agir.front.serializer_utils import MediaURLField
-from agir.lib.serializers import ExistingRelatedLabelField, LocationSerializer
+from agir.lib.serializers import (
+    ExistingRelatedLabelField,
+    LocationSerializer,
+    ContactMixinSerializer,
+)
 from . import models
 from .models import OrganizerConfig, RSVP
 from ..groups.serializers import SupportGroupReactSerializer
@@ -73,12 +77,15 @@ class EventReactSerializer(serializers.Serializer):
 
     isOrganizer = serializers.SerializerMethodField()
     rsvp = serializers.SerializerMethodField()
+    participantCount = serializers.IntegerField(source="participants")
 
     options = EventOptionsSerializer(source="*")
 
     routes = serializers.SerializerMethodField()
 
     groups = SupportGroupReactSerializer(many=True, source="organizers_groups")
+
+    contact = ContactMixinSerializer(source="*")
 
     def to_representation(self, instance):
         user = self.context["request"].user

@@ -322,3 +322,14 @@ class UpdatableListSerializer(serializers.ListSerializer):
                 instance.delete()
 
         return ret
+
+
+class ContactMixinSerializer(serializers.Serializer):
+    name = serializers.CharField(source="contact_name")
+    email = serializers.CharField(source="contact_email")
+    phone = serializers.SerializerMethodField(source="contact_phone")
+
+    def get_phone(self, obj):
+        if obj.contact_hide_phone:
+            return None
+        return obj.contact_phone

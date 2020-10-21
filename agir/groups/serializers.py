@@ -33,6 +33,7 @@ class SupportGroupSubtypeSerializer(serializers.ModelSerializer):
 
 class SupportGroupReactSerializer(serializers.Serializer):
     id = serializers.UUIDField()
+    name = serializers.CharField()
     description = serializers.CharField()
     type = serializers.CharField()
 

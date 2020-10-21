@@ -39,7 +39,7 @@ EventInfoCard.propTypes = {
   groups: PropTypes.arrayOf(
     PropTypes.shape({ name: PropTypes.string, url: PropTypes.string })
   ),
-  participantCount: PropTypes.number,
+  participantCount: PropTypes.number.isRequired,
 };
 
 export default EventInfoCard;

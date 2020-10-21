@@ -43,12 +43,14 @@ const MobileLayout = (props) => {
             <EventHeader {...props} />
           </Card>
           <EventLocationCard {...props.location} />
-          <EventInfoCard {...props} />
+          {(props.participantCount > 1 || props.groups.length > 0) && (
+            <EventInfoCard {...props} />
+          )}
           <Card>
             <EventDescription {...props} />
           </Card>
           {props.contact && <ContactCard {...props.contact} />}
-          <EventFacebookLinkCard {...props} />
+          {props.routes.facebook && <EventFacebookLinkCard {...props} />}
           <ShareCard />
           {props.groups.length > 0 &&
             props.groups.map((group, key) => (
@@ -86,8 +88,10 @@ const DesktopLayout = (props) => {
           <Column width="380px" style={{ paddingTop: "24px" }}>
             <EventLocationCard {...props} />
             {props.contact && <ContactCard {...props.contact} />}
-            <EventInfoCard {...props} />
-            <EventFacebookLinkCard {...props} />
+            {(props.participantCount > 1 || props.groups.length > 0) && (
+              <EventInfoCard {...props} />
+            )}
+            {props.routes.facebook && <EventFacebookLinkCard {...props} />}
             <ShareCard />
           </Column>
         </Row>
@@ -125,6 +129,7 @@ EventPage.propTypes = {
     name: PropTypes.string,
     address: PropTypes.string,
   }),
+  participantCount: PropTypes.number.isRequired,
   contact: PropTypes.shape(ContactCard.propTypes),
   options: PropTypes.shape({ price: PropTypes.string }),
   groups: PropTypes.arrayOf(PropTypes.shape(EventGroupCard.propTypes)),
