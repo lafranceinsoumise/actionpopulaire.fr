@@ -35,6 +35,7 @@ module.exports = merge.merge(common, {
   },
   optimization: {
     namedModules: true,
+    namedChunks: true,
     noEmitOnErrors: true,
   },
   plugins: [new webpack.HotModuleReplacementPlugin()],

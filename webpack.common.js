@@ -74,7 +74,13 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        exclude: [/node_modules(?!(\/react-spring))/, /bower_components/],
+        include: [
+          path.resolve(__dirname, "agir"),
+          path.resolve(__dirname, "node_modules/react-spring"),
+        ],
+        exclude: [
+          path.resolve(__dirname, "node_modules/react-spring/renderprops.js"),
+        ],
         use: {
           loader: "babel-loader",
           options: {

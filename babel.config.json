@@ -3,6 +3,7 @@
   "plugins": [
     "react-hot-loader/babel",
     "babel-plugin-styled-components",
-    "@babel/plugin-proposal-object-rest-spread"
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-transform-runtime"
   ]
 }
