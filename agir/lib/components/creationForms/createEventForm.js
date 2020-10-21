@@ -18,7 +18,6 @@ import { Spring } from "react-spring/renderprops";
 
 import styled from "styled-components";
 import moment from "moment";
-import Datetime from "react-datetime";
 
 class CreateEventForm extends React.Component {
   constructor(props) {

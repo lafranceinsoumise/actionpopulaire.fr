@@ -1,6 +1,5 @@
 import React from "react";
 import Datetime from "react-datetime";
-import moment from "moment";
 import "moment/locale/fr";
 
 import "react-datetime/css/react-datetime.css";

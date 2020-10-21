@@ -1,17 +1,31 @@
-import React from "react";
-import ReactDom from "react-dom";
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+import onDOMReady from "@agir/lib/utils/onDOMReady";
 
-import { GlobalContextProvider } from "@agir/front/genericComponents/GobalContext";
-import EventPage from "./EventPage";
+(async function () {
+  const [
+    { default: React },
+    { default: ReactDOM },
+    { GlobalContextProvider },
+    { default: EventPage },
+  ] = await Promise.all([
+    import("react"),
+    import("react-dom"),
+    import("@agir/front/genericComponents/GobalContext"),
+    import("./EventPage"),
+  ]);
 
-const render = () => {
-  const data = JSON.parse(document.getElementById("exportedEvent").textContent);
-  ReactDom.render(
-    <GlobalContextProvider>
-      <EventPage {...data} />
-    </GlobalContextProvider>,
-    document.getElementById("mainApp")
-  );
-};
+  const render = () => {
+    const data = JSON.parse(
+      document.getElementById("exportedEvent").textContent
+    );
+    ReactDOM.render(
+      <GlobalContextProvider>
+        <EventPage {...data} />
+      </GlobalContextProvider>,
+      document.getElementById("mainApp")
+    );
+  };
 
-document.addEventListener("turbolinks:load", render);
+  onDOMReady(render);
+})();
