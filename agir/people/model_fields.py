@@ -3,14 +3,8 @@ from phonenumber_field.modelfields import PhoneNumberDescriptor, PhoneNumberFiel
 from phonenumber_field.phonenumber import to_python
 
 
-from . import form_fields
-
-
 class MandatesField(JSONField):
-    def formfield(self, **kwargs):
-        defaults = {"form_class": form_fields.MandatesField}
-        defaults.update(kwargs)
-        return super().formfield(**defaults)
+    pass
 
 
 class ValidatedPhoneNumberDescriptor(PhoneNumberDescriptor):
