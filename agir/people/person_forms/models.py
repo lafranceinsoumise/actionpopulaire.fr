@@ -2,7 +2,7 @@ from collections import OrderedDict
 from itertools import chain
 
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _

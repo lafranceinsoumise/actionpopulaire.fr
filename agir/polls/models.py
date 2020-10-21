@@ -2,7 +2,7 @@ import uuid
 
 import markdown
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models, transaction
 from django.utils.safestring import mark_safe
