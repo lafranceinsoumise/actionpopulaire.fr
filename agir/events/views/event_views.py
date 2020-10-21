@@ -97,7 +97,7 @@ class EventSearchView(FilterView):
     filter_class = EventFilter
 
 
-class BaseEventDetailView(GlobalOrObjectPermissionRequiredMixin, DetailView):
+class EventDetailMixin(GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("events.view_event",)
     queryset = (
         Event.objects.all()
@@ -122,7 +122,8 @@ class BaseEventDetailView(GlobalOrObjectPermissionRequiredMixin, DetailView):
         )
 
 
-class EventDetailView(ObjectOpengraphMixin, ReactSingleObjectView):
+class EventDetailView(ObjectOpengraphMixin, EventDetailMixin, ReactSingleObjectView):
+    permission_required = ("events.view_event",)
     meta_description = (
         "Participez aux événements organisés par les membres de la France insoumise."
     )
@@ -132,9 +133,7 @@ class EventDetailView(ObjectOpengraphMixin, ReactSingleObjectView):
     data_script_id = "exportedEvent"
 
 
-class EventParticipationView(
-    SoftLoginRequiredMixin, BaseEventDetailView,
-):
+class EventParticipationView(SoftLoginRequiredMixin, EventDetailMixin, DetailView):
     template_name = "events/participation.html"
     permission_required = ("events.view_event", "events.participate_online")
     permission_denied_message = _(
@@ -307,7 +306,7 @@ class UploadEventImageView(
         return HttpResponseRedirect(self.get_success_url())
 
 
-class EventIcsView(BaseEventDetailView):
+class EventIcsView(EventDetailMixin, DetailView):
     model = Event
 
     def render_to_response(self, context, **response_kwargs):

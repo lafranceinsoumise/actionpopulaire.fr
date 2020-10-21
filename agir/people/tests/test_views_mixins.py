@@ -26,17 +26,3 @@ class NavsProfileMixinTestCase(TestCase):
         self.assertContains(response, reverse(("personal_data")))
 
         self.assertNotContains(response, reverse("become_insoumise"))
-
-    def test_can_see_not_insoumis_menue(self):
-        self.person.is_insoumise = False
-        self.person.save()
-
-        response = self.client.get(reverse("contact"))
-
-        self.assertContains(response, reverse("contact"))
-        self.assertContains(response, reverse("become_insoumise"))
-        self.assertContains(response, reverse(("personal_data")))
-
-        self.assertNotContains(response, reverse("skills"))
-        self.assertNotContains(response, reverse("personal_information"))
-        self.assertNotContains(response, reverse("volunteer"))

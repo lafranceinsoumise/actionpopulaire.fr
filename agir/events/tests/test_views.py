@@ -715,7 +715,7 @@ class RSVPTestCase(TestCase):
 
         # can see the form
         response = self.client.get(url)
-        self.assertIn("Participer à cet événement", response.content.decode())
+        self.assertFalse(response.context["export_data"]["rsvp"])
 
         # can actually post the form
         response = self.client.post(
@@ -742,7 +742,7 @@ class RSVPTestCase(TestCase):
 
         url = reverse("view_event", kwargs={"pk": self.simple_event.pk})
         response = self.client.get(url)
-        self.assertIn("Inscription confirmée", response.content.decode())
+        self.assertEqual("CO", response.context["export_data"]["rsvp"])
         self.assertEqual(1, self.simple_event.participants)
 
     def test_cannot_rsvp_if_max_participants_reached(self):
@@ -1424,8 +1424,6 @@ class ExternalRSVPTestCase(TestCase):
 
     def test_can_rsvp(self):
         res = self.client.get(reverse("view_event", args=[self.event.pk]))
-        self.assertNotContains(res, "Se connecter pour")
-        self.assertContains(res, "Participer à cet événement")
 
         self.client.post(
             reverse("external_rsvp_event", args=[self.event.pk]),
