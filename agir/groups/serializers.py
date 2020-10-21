@@ -74,7 +74,10 @@ class SupportGroupReactSerializer(serializers.Serializer):
         return self.membership is not None
 
     def get_isManager(self, obj):
-        return self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+        return (
+            self.membership is not None
+            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+        )
 
     def get_typeLabel(self, obj):
         return obj.get_type_display()
