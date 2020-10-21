@@ -1,13 +1,12 @@
-from django.urls import reverse
 from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
-from agir.front.serializer_utils import MediaURLField
 from agir.lib.serializers import (
     ExistingRelatedLabelField,
     LocationSerializer,
     ContactMixinSerializer,
 )
+from agir.front.serializer_utils import MediaURLField, RoutesField
 from . import models
 from .models import OrganizerConfig, RSVP
 from ..groups.serializers import SupportGroupReactSerializer
@@ -51,6 +50,8 @@ EVENT_ROUTES = {
     "cancel": "quit_event",
     "manage": "manage_event",
     "calendarExport": "ics_event",
+    "compteRendu": "edit_event_report",
+    "addPhoto": "upload_event_image",
 }
 
 
@@ -63,6 +64,7 @@ class EventOptionsSerializer(serializers.Serializer):
 
 class EventReactSerializer(serializers.Serializer):
     id = serializers.UUIDField()
+    url = serializers.HyperlinkedIdentityField(view_name="view_event")
     name = serializers.CharField()
 
     description = serializers.CharField()
@@ -81,7 +83,7 @@ class EventReactSerializer(serializers.Serializer):
 
     options = EventOptionsSerializer(source="*")
 
-    routes = serializers.SerializerMethodField()
+    routes = RoutesField(routes=EVENT_ROUTES)
 
     groups = SupportGroupReactSerializer(many=True, source="organizers_groups")
 
@@ -109,18 +111,11 @@ class EventReactSerializer(serializers.Serializer):
         return [image.image for image in obj.images.all()]
 
     def get_routes(self, obj):
-        routes = {
-            attr: reverse(route_name, kwargs={"pk": obj.id})
-            for attr, route_name in EVENT_ROUTES.items()
-        }
+        routes = {}
 
         if obj.facebook:
             routes["facebook"] = f"https://www.facebook.com/events/{obj.facebook}"
 
         routes["googleExport"] = obj.get_google_calendar_url()
-        routes["outlookExport"] = routes["calendarExport"]
 
         return routes
-
-
-# group: PropTypes.objectOf(PropTypes.string),

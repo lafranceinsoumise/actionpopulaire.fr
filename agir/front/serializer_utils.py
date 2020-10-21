@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.urls import reverse
 from rest_framework import serializers
 
 
@@ -12,3 +13,25 @@ class MediaURLField(serializers.URLField):
             value = value[len(settings.MEDIA_URL) :]
 
         return value
+
+
+class RoutesField(serializers.SerializerMethodField):
+    def __init__(self, *, routes=None, **kwargs):
+        kwargs.setdefault("source", "*")
+        super().__init__(**kwargs)
+
+        if routes is None:
+            routes = {}
+        self.routes = routes
+
+    def to_representation(self, value):
+        method = getattr(self.parent, self.method_name, None)
+        routes = {
+            key: reverse(view_name, args=(value.pk,))
+            for key, view_name in self.routes.items()
+        }
+
+        if method is not None:
+            routes.update(method(value))
+
+        return routes

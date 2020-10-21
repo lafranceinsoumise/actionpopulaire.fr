@@ -32,6 +32,7 @@ const EventDescription = ({
     )}
     {isOrganizer && (
       <Button
+        as="a"
         color="primary"
         href={routes.compteRendu}
         style={{ marginTop: "1em" }}
@@ -40,7 +41,7 @@ const EventDescription = ({
       </Button>
     )}
     {endTime > DateTime.local() && !!rsvp && (
-      <Button href={routes.addPhoto} style={{ marginTop: "1em" }}>
+      <Button as="a" href={routes.addPhoto} style={{ marginTop: "1em" }}>
         Ajouter une photo
       </Button>
     )}

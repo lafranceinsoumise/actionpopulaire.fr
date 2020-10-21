@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import FeatherIcon, {
+import {
   IconList,
   IconListItem,
 } from "@agir/front/genericComponents/FeatherIcon";
@@ -77,8 +77,12 @@ const EventLocationCard = ({ startTime, location, routes }) => {
         </IconListItem>
         <IconListItem name="map-pin">
           <WithLinebreak>
-            <LocationName>{location.name}</LocationName>
-            {"\n"}
+            {location.name && (
+              <>
+                <LocationName>{location.name}</LocationName>
+                {"\n"}
+              </>
+            )}
             {location.address}
           </WithLinebreak>
         </IconListItem>

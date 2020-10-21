@@ -41,7 +41,7 @@ const EventGroupCard = ({
   eventCount,
   membersCount,
   isMember,
-  type,
+  typeLabel,
   labels,
 }) => (
   <>
@@ -67,7 +67,7 @@ const EventGroupCard = ({
       </Row>
 
       <div style={{ marginTop: "24px" }}>
-        <Label main>{type}</Label>
+        <Label main>{typeLabel}</Label>
         {labels.map((label, index) => (
           <Label key={index}>{label}</Label>
         ))}
@@ -79,13 +79,13 @@ const EventGroupCard = ({
       />
       <Row gutter={6}>
         <Column width={["45%", "content"]} collapse={500}>
-          <ResponsiveButton color="primary" as="a">
+          <ResponsiveButton color="primary" as="a" href={url}>
             Détails
           </ResponsiveButton>
         </Column>
         {!isMember && (
           <Column width={["55%", "content"]} collapse={500}>
-            <ResponsiveButton as="a">
+            <ResponsiveButton as="a" href={url}>
               Rejoindre
               <Hide as="span" under={800}>
                 {" "}
@@ -111,7 +111,7 @@ EventGroupCard.propTypes = {
   eventCount: PropTypes.number,
   membersCount: PropTypes.number,
   isMember: PropTypes.bool,
-  type: PropTypes.string,
+  typeLabel: PropTypes.string,
   labels: PropTypes.arrayOf(PropTypes.string),
 };
 
