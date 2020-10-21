@@ -29,8 +29,6 @@ from ..actions.rsvps import (
     add_paid_identified_guest_and_get_payment,
     validate_payment_for_guest,
     is_participant,
-    cancel_payment_for_guest,
-    cancel_payment_for_rsvp,
     RSVPException,
 )
 from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm

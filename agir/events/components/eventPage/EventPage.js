@@ -118,6 +118,7 @@ const EventPage = (props) => {
 EventPage.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
+  hasSubscriptionForm: PropTypes.bool,
   isOrganizer: PropTypes.bool,
   compteRendu: PropTypes.string,
   compteRenduPhotos: PropTypes.arrayOf(PropTypes.string),

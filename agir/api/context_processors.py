@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.middleware.csrf import get_token
 from django.urls import reverse
 
 
@@ -29,6 +30,7 @@ def basic_information(request):
         "global_context": {
             "user": user,
             "routes": routes,
+            "csrfToken": get_token(request),
             "domain": settings.MAIN_DOMAIN,
         },
     }

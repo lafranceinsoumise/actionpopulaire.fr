@@ -7,6 +7,7 @@ import Button from "@agir/front/genericComponents/Button";
 import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
 import style from "@agir/front/genericComponents/style.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
+import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 
 const dateFormat = {
   weekday: "long",
@@ -51,7 +52,14 @@ const ActionButton = styled(Button)`
   }
 `;
 
-const ActionButtons = ({ past, rsvped, logged, isOrganizer, routes }) => {
+const ActionButtons = ({
+  hasSubscriptionForm,
+  past,
+  rsvped,
+  logged,
+  isOrganizer,
+  routes,
+}) => {
   if (past) {
     return <Button color="unavailable">Événement terminé</Button>;
   }
@@ -63,15 +71,29 @@ const ActionButtons = ({ past, rsvped, logged, isOrganizer, routes }) => {
           <ActionButton icon="check-circle" color="confirmed">
             Je participe
           </ActionButton>
-          {isOrganizer && <ActionButton>Modifier l'événement</ActionButton>}
+          {isOrganizer && (
+            <ActionButton as="a" href={routes.manage}>
+              Modifier l'événement
+            </ActionButton>
+          )}
         </>
       );
     } else {
-      return (
-        <ActionButton as="a" color="secondary" href={routes.join}>
-          Participer à l'événement
-        </ActionButton>
-      );
+      if (hasSubscriptionForm) {
+        return (
+          <ActionButton as="a" color="secondary" href={routes.attend}>
+            Participer à l'événement
+          </ActionButton>
+        );
+      } else {
+        return (
+          <CSRFProtectedForm method="post" action={routes.attend}>
+            <ActionButton type="submit" color="secondary">
+              Participer à l'événement
+            </ActionButton>
+          </CSRFProtectedForm>
+        );
+      }
     }
   } else {
     return (
@@ -80,10 +102,6 @@ const ActionButtons = ({ past, rsvped, logged, isOrganizer, routes }) => {
       </ActionButton>
     );
   }
-};
-ActionButtons.propTypes = {
-  logged: PropTypes.bool,
-  rsvped: PropTypes.bool,
 };
 
 const AdditionalMessage = ({ logged, rsvped, price, routes }) => {
@@ -125,6 +143,7 @@ const EventHeader = ({
   startTime,
   routes,
   isOrganizer,
+  hasSubscriptionForm,
 }) => {
   const config = useGlobalContext();
   const logged = config.user !== null;
@@ -141,6 +160,7 @@ const EventHeader = ({
         <EventDate>{eventString}</EventDate>
       </Hide>
       <ActionButtons
+        hasSubscriptionForm={hasSubscriptionForm}
         past={past}
         logged={logged}
         rsvped={rsvped}
@@ -163,6 +183,7 @@ const EventHeader = ({
 EventHeader.propTypes = {
   name: PropTypes.string,
   startTime: PropTypes.instanceOf(DateTime),
+  hasSubscriptionForm: PropTypes.bool,
   isOrganizer: PropTypes.bool,
   options: PropTypes.shape({
     price: PropTypes.string,

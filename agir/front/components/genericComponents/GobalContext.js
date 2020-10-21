@@ -19,6 +19,7 @@ const routes = new Proxy(
 const GobalContext = React.createContext({
   user: null,
   domain: "https://agir.lafranceinsoumise.fr",
+  csrfToken: null,
   routes,
 });
 

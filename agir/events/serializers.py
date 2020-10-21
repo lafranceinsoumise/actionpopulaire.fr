@@ -46,7 +46,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
 EVENT_ROUTES = {
     "page": "view_event",
     "map": "carte:single_event_map",
-    "join": "rsvp_event",
+    "attend": "rsvp_event",
     "cancel": "quit_event",
     "manage": "manage_event",
     "calendarExport": "ics_event",
@@ -66,6 +66,7 @@ class EventReactSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     url = serializers.HyperlinkedIdentityField(view_name="view_event")
     name = serializers.CharField()
+    hasSubscriptionForm = serializers.SerializerMethodField()
 
     description = serializers.CharField()
     compteRendu = serializers.CharField(source="report_content")
@@ -100,6 +101,9 @@ class EventReactSerializer(serializers.Serializer):
             self.rsvp = RSVP.objects.filter(event=instance, person=user.person).first()
 
         return super().to_representation(instance)
+
+    def get_hasSubscriptionForm(self, obj):
+        return bool(obj.subscription_form_id)
 
     def get_isOrganizer(self, obj):
         return bool(self.organizer_config)
