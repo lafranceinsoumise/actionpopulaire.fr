@@ -52,6 +52,11 @@ const ActionButton = styled(Button)`
   }
 `;
 
+const ActionLink = styled.a`
+  font-weight: 700;
+  text-decoration: underline;
+`;
+
 const ActionButtons = ({
   hasSubscriptionForm,
   past,
@@ -129,8 +134,9 @@ const AdditionalMessage = ({ logged, rsvped, price, routes }) => {
   } else {
     return (
       <div>
-        <a href={routes.logIn}>Je me connecte</a> ou{" "}
-        <a href={routes.signIn}>je m'inscris</a> pour participer à l'événement
+        <ActionLink href={routes.logIn}>Je me connecte</ActionLink> ou{" "}
+        <ActionLink href={routes.signIn}>je m'inscris</ActionLink> pour
+        participer à l'événement
       </div>
     );
   }
