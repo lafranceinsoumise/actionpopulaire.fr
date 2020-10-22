@@ -112,7 +112,7 @@ class EventReactSerializer(serializers.Serializer):
         return self.rsvp and self.rsvp.status
 
     def get_compteRenduPhotos(self, obj):
-        return [image.image for image in obj.images.all()]
+        return [instance.image.thumbnail.url for instance in obj.images.all()]
 
     def get_routes(self, obj):
         routes = {}

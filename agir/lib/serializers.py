@@ -52,7 +52,7 @@ class LocationSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance=instance)
-        if not data["zip"] and not data["city"]:
+        if not ["name"] and not data["zip"] and not data["city"]:
             return None
         return data
 
