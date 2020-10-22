@@ -115,7 +115,7 @@ const AdditionalMessage = ({ logged, rsvped, price, routes }) => {
     } else if (price) {
       return (
         <SmallText>
-          <strong>Entrée :</strong>
+          <strong>Entrée&nbsp;: </strong>
           {price}
         </SmallText>
       );

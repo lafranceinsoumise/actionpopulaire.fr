@@ -3,6 +3,7 @@ from rest_framework import serializers, exceptions, validators
 from rest_framework.fields import empty
 from django_countries.serializer_fields import CountryField
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework_gis.fields import GeometryField
 
 
 class NullAsBlankMixin:
@@ -46,6 +47,8 @@ class LocationSerializer(serializers.Serializer):
     country = CountryField(source="location_country")
 
     address = serializers.SerializerMethodField()
+
+    coordinates = GeometryField()
 
     def to_representation(self, instance):
         data = super().to_representation(instance=instance)

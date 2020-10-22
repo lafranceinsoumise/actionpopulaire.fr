@@ -66,26 +66,30 @@ const CalendarButtonHolder = styled.ul`
 const EventLocationCard = ({ startTime, location, routes }) => {
   return (
     <Card>
-      <Hide under>
-        <MapContainer>
-          <MapIframe src={routes.map} />
-        </MapContainer>
-      </Hide>
+      {location && location.coordinates && (
+        <Hide under>
+          <MapContainer>
+            <MapIframe src={routes.map} />
+          </MapContainer>
+        </Hide>
+      )}
       <IconList>
         <IconListItem name="clock">
           {startTime.toLocaleString(dateFormat)}
         </IconListItem>
-        <IconListItem name="map-pin">
-          <WithLinebreak>
-            {location.name && (
-              <>
-                <LocationName>{location.name}</LocationName>
-                {"\n"}
-              </>
-            )}
-            {location.address}
-          </WithLinebreak>
-        </IconListItem>
+        {location && (
+          <IconListItem name="map-pin">
+            <WithLinebreak>
+              {location.name && (
+                <>
+                  <LocationName>{location.name}</LocationName>
+                  {"\n"}
+                </>
+              )}
+              {location.address}
+            </WithLinebreak>
+          </IconListItem>
+        )}
       </IconList>
       <Row>
         <Column fill width={["content", "content"]}>
@@ -114,6 +118,7 @@ EventLocationCard.propTypes = {
   location: PropTypes.shape({
     name: PropTypes.string,
     address: PropTypes.string,
+    coordinates: PropTypes.string,
   }),
   routes: PropTypes.shape({
     map: PropTypes.string,
