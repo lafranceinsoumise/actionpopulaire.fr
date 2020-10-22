@@ -48,7 +48,7 @@ const EventDescription = ({
     {compteRendu && (
       <div
         dangerouslySetInnerHTML={{ __html: compteRendu }}
-        style={{ margin: "1em 0 6em" }}
+        style={{ margin: "1em 0 3em" }}
       />
     )}
     {description && <h2 style={{ fontSize: "20px" }}>L'événement</h2>}
@@ -66,7 +66,23 @@ const EventDescription = ({
         />
       )}
     </Hide>
-    <div dangerouslySetInnerHTML={{ __html: description }} />
+    {description ? (
+      <div dangerouslySetInnerHTML={{ __html: description }} />
+    ) : (
+      isOrganizer && (
+        <>
+          <h2 style={{ fontSize: "20px" }}>Ajoutez une description !</h2>
+          <p>
+            Donner tous les informations nécessaires aux participants de votre
+            événement. Comment accéder au lieu, quel est le programme, les liens
+            pour être tenu au courant... Et ajoutez une image !
+          </p>
+          <Button as="a" color="primary" href={routes.manage}>
+            Ajouter une description
+          </Button>
+        </>
+      )
+    )}
   </>
 );
 
