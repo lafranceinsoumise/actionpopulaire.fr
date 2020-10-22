@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Column, Row } from "@agir/front/genericComponents/grid";
+import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import { DateTime } from "luxon";
 import Button from "@agir/front/genericComponents/Button";
 
@@ -52,18 +52,20 @@ const EventDescription = ({
       />
     )}
     {description && <h2 style={{ fontSize: "20px" }}>L'événement</h2>}
-    {illustration && (
-      <img
-        src={illustration}
-        alt="Image d'illustration de l'événement postée par l'utilisateur"
-        style={{
-          width: "100%",
-          maxWidth: "500px",
-          height: "auto",
-          marginBottom: "32px",
-        }}
-      />
-    )}
+    <Hide under>
+      {illustration && (
+        <img
+          src={illustration}
+          alt="Image d'illustration de l'événement postée par l'utilisateur"
+          style={{
+            width: "100%",
+            maxWidth: "500px",
+            height: "auto",
+            marginBottom: "32px",
+          }}
+        />
+      )}
+    </Hide>
     <div dangerouslySetInnerHTML={{ __html: description }} />
   </>
 );

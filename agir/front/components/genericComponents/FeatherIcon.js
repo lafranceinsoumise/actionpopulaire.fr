@@ -99,12 +99,16 @@ export default FeatherIcon;
 
 export const IconList = styled.ul`
   padding-left: 1.5rem;
+  margin-bottom: 0;
 `;
 
 export const IconListItem = styled.li`
   list-style: none;
   position: relative;
   margin-bottom: 0.5rem;
+  &:last-child {
+    margin-bottom: 0;
+  }
   &:before {
     // prettier-ignore
     content: url('data:image/svg+xml;utf8,${(props) =>
