@@ -1,21 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import { DateTime } from "luxon";
+import { Interval, DateTime } from "luxon";
 
 import Button from "@agir/front/genericComponents/Button";
 import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
 import style from "@agir/front/genericComponents/style.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
 import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
-
-const dateFormat = {
-  weekday: "long",
-  month: "long",
-  day: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-};
+import { displayHumanDate } from "@agir/lib/utils/time";
 
 const EventHeaderContainer = styled.div`
   > * {
@@ -146,7 +139,7 @@ const EventHeader = ({
   name,
   rsvp,
   options,
-  startTime,
+  schedule,
   routes,
   isOrganizer,
   hasSubscriptionForm,
@@ -155,8 +148,8 @@ const EventHeader = ({
   const logged = config.user !== null;
   const rsvped = !!rsvp;
   const now = DateTime.local();
-  const past = now > startTime;
-  let eventString = startTime.toLocaleString(dateFormat);
+  const past = now > schedule.start;
+  let eventString = displayHumanDate(schedule.start);
   eventString = eventString.slice(0, 1).toUpperCase() + eventString.slice(1);
 
   return (
@@ -188,13 +181,13 @@ const EventHeader = ({
 
 EventHeader.propTypes = {
   name: PropTypes.string,
-  startTime: PropTypes.instanceOf(DateTime),
+  schedule: PropTypes.instanceOf(Interval),
   hasSubscriptionForm: PropTypes.bool,
   isOrganizer: PropTypes.bool,
   options: PropTypes.shape({
     price: PropTypes.string,
   }),
-  rsvp: PropTypes.shape({ status: PropTypes.string }),
+  rsvp: PropTypes.string,
   routes: PropTypes.shape({
     page: PropTypes.string,
     join: PropTypes.string,

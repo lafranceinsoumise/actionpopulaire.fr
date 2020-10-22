@@ -4,7 +4,7 @@ import EventHeader from "./EventHeader";
 import EventLocationCard from "./EventLocationCard";
 import EventFacebookLinkCard from "./EventFacebookLinkCard";
 import EventDescription from "./EventDescription";
-import { DateTime } from "luxon";
+import { DateTime, Interval } from "luxon";
 import {
   Column,
   Container,
@@ -107,11 +107,13 @@ const DesktopLayout = (props) => {
   );
 };
 
-const EventPage = (props) => {
+const EventPage = ({ startTime, endTime, ...props }) => {
   props = {
     ...props,
-    startTime: DateTime.fromISO(props.startTime).setLocale("fr"),
-    endTime: DateTime.fromISO(props.endTime).setLocale("fr"),
+    schedule: Interval.fromDateTimes(
+      DateTime.fromISO(startTime).setLocale("fr"),
+      DateTime.fromISO(endTime).setLocale("fr")
+    ),
   };
 
   return (
@@ -153,12 +155,6 @@ EventPage.propTypes = {
     addPhoto: PropTypes.string,
     compteRendu: PropTypes.string,
   }),
-};
-
-DesktopLayout.propTypes = MobileLayout.propTypes = {
-  ...EventPage.propTypes,
-  startTime: PropTypes.instanceOf(DateTime),
-  endTime: PropTypes.instanceOf(DateTime),
 };
 
 export default EventPage;

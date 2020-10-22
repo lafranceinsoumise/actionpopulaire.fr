@@ -6,20 +6,13 @@ import {
   IconListItem,
 } from "@agir/front/genericComponents/FeatherIcon";
 import Card from "@agir/front/genericComponents/Card";
+import { Interval } from "luxon";
 
 import style from "@agir/front/genericComponents/style.scss";
 import googleLogo from "./assets/Google.svg";
 import outlookLogo from "./assets/Outlook.svg";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
-import { DateTime } from "luxon";
-
-const dateFormat = {
-  weekday: "long",
-  month: "long",
-  day: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-};
+import { displayInterval } from "@agir/lib/utils/time";
 
 const LocationName = styled.span`
   color: ${style.black1000};
@@ -63,7 +56,9 @@ const CalendarButtonHolder = styled.ul`
   }
 `;
 
-const EventLocationCard = ({ startTime, location, routes }) => {
+const EventLocationCard = ({ schedule, location, routes }) => {
+  let interval = displayInterval(schedule);
+  interval = interval.charAt(0).toUpperCase() + interval.slice(1);
   return (
     <Card>
       {location && location.coordinates && (
@@ -74,9 +69,7 @@ const EventLocationCard = ({ startTime, location, routes }) => {
         </Hide>
       )}
       <IconList>
-        <IconListItem name="clock">
-          {startTime.toLocaleString(dateFormat)}
-        </IconListItem>
+        <IconListItem name="clock">{interval}</IconListItem>
         {location && (
           <IconListItem name="map-pin">
             <WithLinebreak>
@@ -114,11 +107,11 @@ const EventLocationCard = ({ startTime, location, routes }) => {
   );
 };
 EventLocationCard.propTypes = {
-  startTime: PropTypes.instanceOf(DateTime),
+  schedule: PropTypes.instanceOf(Interval),
   location: PropTypes.shape({
     name: PropTypes.string,
     address: PropTypes.string,
-    coordinates: PropTypes.string,
+    coordinates: PropTypes.object,
   }),
   routes: PropTypes.shape({
     map: PropTypes.string,
