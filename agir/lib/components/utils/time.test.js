@@ -71,15 +71,19 @@ test("displayDate renvoie une date complète pour une date plus lointaine", () =
 });
 
 test("displayInterval renvoie des valeurs correctes pour deux horaires le même jour", () => {
-  expect(
-    displayInterval(
-      Interval.fromDateTimes(date("21/3 10:00"), date("21/3 12:00"))
-    )
-  ).toEqual("le 21 mars 2021, de 10:00 à 12:00");
+  const relativeTo = date("20/3 12:00"); // Samedi 20 mars 2021, 12:00
 
   expect(
     displayInterval(
-      Interval.fromDateTimes(date("21/3 19:00"), date("22/3 12:00"))
+      Interval.fromDateTimes(date("21/3 10:00"), date("21/3 12:00")),
+      relativeTo
     )
-  ).toEqual("du 21 mars 2021 à 19:00 au 22 mars à 12:00");
+  ).toEqual("le 21 mars, de 10:00 à 12:00");
+
+  expect(
+    displayInterval(
+      Interval.fromDateTimes(date("21/9 19:00"), date("22/9 12:00")),
+      relativeTo
+    )
+  ).toEqual("du 21 septembre 2021 à 19:00 au 22 septembre à 12:00");
 });

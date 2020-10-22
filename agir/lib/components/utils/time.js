@@ -46,31 +46,48 @@ export function displayHumanDate(datetime, relativeTo) {
     return `${dayPart} ${qualifier} à ${datetime.toLocaleString(
       HOUR_ONLY_FORMAT
     )}`;
-  } else if (interval.count("months") <= 5) {
+  } else if (interval.count("months") <= 4) {
     return datetime.toLocaleString(SAME_YEAR_FORMAT);
   } else {
     return datetime.toLocaleString(OTHER_YEAR_FORMAT);
   }
 }
 
-export function displayInterval(interval) {
-  const calendarDays = interval.count("days");
+export function displayInterval(interval, relativeTo) {
+  if (relativeTo === undefined) {
+    relativeTo = DateTime.local().setLocale("fr");
+  }
 
-  if (calendarDays === 1) {
-    const dayPart = interval.start.toLocaleString({
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  const fromNowInterval =
+    relativeTo < interval.start
+      ? Interval.fromDateTimes(relativeTo, interval.start)
+      : Interval.fromDateTimes(interval.start, relativeTo);
+
+  const showYear = fromNowInterval.count("months") > 4;
+  const scheduleCalendarDays = interval.count("days");
+
+  const dayPartFormat = {
+    year: showYear ? "numeric" : undefined,
+    month: "long",
+    day: "numeric",
+  };
+
+  if (scheduleCalendarDays === 1) {
+    const dayPart = interval.start.toLocaleString(dayPartFormat);
     const hourPart = `de ${interval.start.toLocaleString(
       HOUR_ONLY_FORMAT
     )} à ${interval.end.toLocaleString(HOUR_ONLY_FORMAT)}`;
     return `le ${dayPart}, ${hourPart}`;
   }
 
-  const start = interval.start.toLocaleString(OTHER_YEAR_FORMAT);
-  const end = interval.end.toLocaleString(
-    Object.assign({}, OTHER_YEAR_FORMAT, { year: undefined })
-  );
+  const start = interval.start.toLocaleString({
+    ...dayPartFormat,
+    ...HOUR_ONLY_FORMAT,
+  });
+  const end = interval.end.toLocaleString({
+    ...dayPartFormat,
+    ...HOUR_ONLY_FORMAT,
+    year: undefined,
+  });
   return `du ${start} au ${end}`;
 }
