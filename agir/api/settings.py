@@ -39,7 +39,7 @@ ENABLE_SILK = os.environ.get("ENABLE_SILK", "false").lower() == "true"
 # Supprimer une fausse erreur
 # On a remplacé django.contrib.auth.context_processors.auth par un équivalent,
 # agir.authentication.context_processors.auth
-SILENCED_SYSTEM_CHECKS = ["admin.E402"]
+SILENCED_SYSTEM_CHECKS = ["admin.E402", "fields.W904"]
 
 # Django < 3.1 not compatible with GDAL 3
 if os.environ.get("GDAL_LIBRARY_PATH"):
