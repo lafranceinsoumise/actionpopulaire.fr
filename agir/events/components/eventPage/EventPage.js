@@ -64,7 +64,7 @@ const MobileLayout = (props) => {
 
 const DesktopLayout = (props) => {
   return (
-    <GrayBackground>
+    <GrayBackground style={{ overflowX: "hidden" }}>
       <Container>
         <Row>
           <Column fill>
