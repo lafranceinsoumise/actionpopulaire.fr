@@ -1,5 +1,5 @@
 import React from "react";
-import { DateTime } from "luxon";
+import { DateTime, Duration, Interval } from "luxon";
 
 import EventHeader from "./EventHeader";
 import { TestGlobalContextProvider } from "@agir/front/genericComponents/GobalContext";
@@ -17,7 +17,7 @@ export default {
       <TestGlobalContextProvider
         value={{ user: args.logged ? {} : null, routes }}
       >
-        {story()}
+        <div style={{ margin: "1rem" }}>{story()}</div>
       </TestGlobalContextProvider>
     ),
   ],
@@ -26,10 +26,6 @@ export default {
       type: "boolean",
     },
     startTime: {
-      type: "string",
-      control: { type: "date" },
-    },
-    endTime: {
       type: "string",
       control: { type: "date" },
     },
@@ -42,27 +38,38 @@ export default {
     rsvp: {
       table: { disable: true },
     },
+    schedule: {
+      table: { disable: true },
+    },
   },
 };
 
-const Template = ({ startTime, price, rsvped, ...args }) => (
-  <EventHeader
-    {...args}
-    startTime={DateTime.fromMillis(+startTime, {
+const Template = ({ startTime, duration, price, rsvped, ...args }) => {
+  const schedule = Interval.after(
+    DateTime.fromMillis(+startTime, {
       zone: "Europe/Paris",
-    }).setLocale("fr")}
-    options={{ price }}
-    rsvp={rsvped ? { id: "prout" } : null}
-  />
-);
+      locale: "fr",
+    }),
+    Duration.fromObject({ hours: duration })
+  );
+
+  return (
+    <EventHeader
+      {...args}
+      schedule={schedule}
+      options={price !== "" ? { price } : {}}
+      rsvp={rsvped ? { id: "prout" } : null}
+    />
+  );
+};
 
 export const Default = Template.bind({});
 Default.args = {
   name: "Mon événement",
   startTime: defaultStartTime.toMillis(),
-  endTime: defaultEndTime.toMillis(),
+  duration: 2,
   logged: true,
-  price: null,
+  price: "",
   routes: {
     page: "#page",
     join: "#join",

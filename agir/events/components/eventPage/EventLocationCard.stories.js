@@ -1,7 +1,7 @@
 import React from "react";
 
 import EventLocationCard from "./EventLocationCard";
-import { DateTime } from "luxon";
+import { DateTime, Duration, Interval } from "luxon";
 
 export default {
   component: EventLocationCard,
@@ -11,27 +11,37 @@ export default {
       type: "string",
       control: { type: "date" },
     },
-    location: { control: { disable: true } },
-    routes: { control: { disable: true } },
+    location: { table: { disable: true } },
+    routes: { table: { disable: true } },
+    schedule: { table: { disable: true } },
   },
   decorators: [
-    (Story, { args: { maxWidth, startTime } }) => (
-      <div style={{ maxWidth }}>
+    (Story, { args: { maxWidth } }) => (
+      <div style={{ maxWidth, margin: "1rem" }}>
         <Story />
       </div>
     ),
   ],
 };
 
-const Template = ({ startTime, locationName, locationAddress, ...args }) => {
-  startTime = DateTime.fromMillis(+startTime, {
-    zone: "Europe/Paris",
-  }).setLocale("fr");
-
+const Template = ({
+  startTime,
+  duration,
+  locationName,
+  locationAddress,
+  ...args
+}) => {
+  const schedule = Interval.after(
+    DateTime.fromMillis(+startTime, {
+      zone: "Europe/Paris",
+      locale: "fr",
+    }),
+    Duration.fromObject({ hours: duration })
+  );
   return (
     <EventLocationCard
       {...args}
-      startTime={startTime}
+      schedule={schedule}
       location={{
         name: locationName,
         address: locationAddress,
@@ -42,7 +52,8 @@ const Template = ({ startTime, locationName, locationAddress, ...args }) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  startTime: DateTime.local().plus({ days: 1 }),
+  startTime: DateTime.local().plus({ days: 1 }).toMillis(),
+  duration: 2,
   locationName: "Place de la République",
   locationAddress: "Place de la République\n75011 Paris",
   routes: {

@@ -16,6 +16,6 @@ Default.args = {
   description: "MegaProut",
   eventCount: 10,
   membersCount: 3,
-  type: "Groupe fonctionnel",
+  typeLabel: "Groupe fonctionnel",
   labels: ["Groupe certifié", "Espace opérationnel"],
 };
