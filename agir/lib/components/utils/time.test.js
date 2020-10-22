@@ -3,9 +3,8 @@ import { DateTime, Interval } from "luxon";
 import { displayHumanDate, displayInterval } from "./time";
 
 const date = (s) =>
-  DateTime.fromFormat(s, "d/M H:mm")
+  DateTime.fromFormat(s, "d/M H:mm", { zone: "Europe/Paris" })
     .set({ year: 2021 })
-    .setZone("Europe/Paris")
     .setLocale("fr");
 
 test("displayDate des dates relatives pour des dates proches", () => {
