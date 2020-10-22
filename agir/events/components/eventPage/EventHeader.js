@@ -72,8 +72,8 @@ const ActionButtons = ({
             Je participe
           </ActionButton>
           {isOrganizer && (
-            <ActionButton as="a" href={routes.manage}>
-              Modifier l'événement
+            <ActionButton icon="settings" as="a" href={routes.manage}>
+              Gérer l'événement
             </ActionButton>
           )}
         </>
