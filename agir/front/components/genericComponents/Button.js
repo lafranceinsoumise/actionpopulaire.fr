@@ -67,14 +67,25 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
   
   ${({ disabled }) => disabled && "cursor: not-allowed;"}
 
-  ${({ icon, small }) =>
+  ${({ icon, labelColor, small }) =>
     icon
       ? `
     &:before {
-      content: url('data:image/svg+xml;utf8,${icons[icon].toSvg({
-        height: small ? 11 : 16,
-        width: small ? 11 : 16,
-      })}');
+      content: url('data:image/svg+xml;utf8,${
+        icons[icon]
+          .toSvg({
+            color: encodeURI(labelColor),
+            height: small ? 11 : 16,
+            width: small ? 11 : 16,
+          })
+          .replace("#", "%23")
+        /*
+         * problème bizarre, quand le SVG est utilisé dans un URL data:
+         * Il faut remplacer les # des couleurs par l'équivalent url-encoded, mais
+         * appliquer la même procédure aux autres substitutions (avec encodeURI par
+         * exemple) ne fonctionne pas.
+         *  */
+      }');
       position: relative;
       top: 0.15rem;
       margin-right: ${small ? "0.25rem" : "0.5rem"};
