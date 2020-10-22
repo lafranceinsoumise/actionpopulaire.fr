@@ -73,7 +73,7 @@ const ActionButtons = ({
     if (rsvped) {
       return (
         <>
-          <ActionButton icon="check-circle" color="confirmed">
+          <ActionButton icon="check" color="confirmed">
             Je participe
           </ActionButton>
           {isOrganizer && (
