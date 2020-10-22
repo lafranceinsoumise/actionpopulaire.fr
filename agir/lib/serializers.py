@@ -49,7 +49,7 @@ class LocationSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance=instance)
-        if all(not v for v in data.values()):
+        if not data["zip"] and not data["city"]:
             return None
         return data
 
@@ -333,3 +333,9 @@ class ContactMixinSerializer(serializers.Serializer):
         if obj.contact_hide_phone:
             return None
         return obj.contact_phone
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance=instance)
+        if all(not v for v in data.values()):
+            return None
+        return data
