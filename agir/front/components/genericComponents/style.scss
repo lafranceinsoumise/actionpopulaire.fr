@@ -29,6 +29,8 @@ $link-color: $primary500;
 $link-hover-color: $primary600;
 $link-hover-decoration: underline;
 
+$collapse: 992;
+
 :export {
 white: $white;
 
@@ -57,6 +59,8 @@ textColor: $text-color;
 linkColor: $link-color;
 linkHoverColor: $link-hover-color;
 linkHoverDecoration : $link-hover-decoration;
+
+collapse: $collapse;
 }
 
 * {

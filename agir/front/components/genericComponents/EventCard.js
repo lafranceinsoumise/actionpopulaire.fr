@@ -37,6 +37,14 @@ const RSVPButton = ({ rsvp, routes }) => (
   </InlineButton>
 );
 
+const Illustration = styled.img`
+  max-height: 200px;
+
+  @media only screen and (min-width: ${styles.collapse}) {
+    max-height: 360px;
+  }
+`;
+
 const EventCard = ({
   illustration,
   schedule,
@@ -54,11 +62,7 @@ const EventCard = ({
         backgroundColor: styles.black50,
       }}
     >
-      <img
-        src={illustration}
-        alt="Image d'illustration"
-        style={{ maxHeight: "200px" }}
-      />
+      <Illustration src={illustration} alt="Image d'illustration" />
     </div>
     <p style={{ fontSize: "14px" }}>
       <FeatherIcon name="clock" inline small /> {displayInterval(schedule)}

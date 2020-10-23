@@ -55,7 +55,7 @@ export const Hide = styled.div`
  */
 
 const gutter = 16;
-const collapse = 992;
+const collapse = style.collapse;
 
 export const GrayBackground = styled.div`
   background-color: ${style.black25};
