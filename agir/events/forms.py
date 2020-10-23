@@ -61,22 +61,6 @@ class AgendaChoiceField(forms.ModelChoiceField):
 class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.ModelForm):
     geocoding_task = geocode_event
 
-    CHANGES = {
-        "name": "information",
-        "start_time": "timing",
-        "end_time": "timing",
-        "contact_name": "contact",
-        "contact_email": "contact",
-        "contact_phone": "contact",
-        "location_name": "location",
-        "location_address1": "location",
-        "location_address2": "location",
-        "location_city": "location",
-        "location_zip": "location",
-        "location_country": "location",
-        "description": "information",
-    }
-
     image_field = "image"
 
     subtype = forms.ModelChoiceField(
@@ -123,23 +107,13 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         self.fields["name"].help_text = None
 
         if not self.is_creation:
-            self.fields["notify"] = forms.BooleanField(
-                required=False,
-                initial=False,
-                label=_("Signalez ces changements aux participants à l'événement"),
-                help_text=_(
-                    "Un email sera envoyé à la validation de ce formulaire. Merci de ne pas abuser de cette"
-                    " fonctionnalité."
-                ),
-            )
-            notify_field = [Row(FullCol("notify"))]
             try:
                 self.organizer_config = OrganizerConfig.objects.get(
                     person=self.person, event=self.instance
                 )
             except OrganizerConfig.DoesNotExist:
                 raise PermissionDenied(
-                    "Vous ne pouvez pas modifier un événement que vous n'organisez pas sans passer par l'administration."
+                    "Vous ne pouvez pas modifier un événement que vous n'organisez pas."
                 )
             self.fields["as_group"].initial = self.organizer_config.as_group
             del self.fields["subtype"]
@@ -151,8 +125,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
             for f in excluded_fields:
                 if f in self.fields:
                     del self.fields[f]
-        else:
-            notify_field = []
 
         self.helper = FormHelper()
         self.helper.form_method = "POST"
@@ -207,7 +179,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                     )
                 ),
             ),
-            *notify_field,
         )
 
         remove_excluded_field_from_layout(self.helper.layout, excluded_fields)
@@ -266,15 +237,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
     def schedule_tasks(self):
         super().schedule_tasks()
 
-        # create set so that values are unique, but turns to list because set are not JSON-serializable
-        changes = list(
-            {
-                self.CHANGES[field]
-                for field in self.changed_data
-                if field in self.CHANGES
-            }
-        )
-
         # if it's a new event creation, send the confirmation notification and geolocate it
         if self.is_creation:
             # membership attribute created by _save_m2m
@@ -287,9 +249,11 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                 )
 
         else:
-            # send changes notification if the notify checkbox was checked
-            if changes and self.cleaned_data.get("notify"):
-                send_event_changed_notification.delay(self.instance.pk, changes)
+            # send changes notification
+            if self.changed_data:
+                send_event_changed_notification.delay(
+                    self.instance.pk, self.changed_data
+                )
 
         # also notify members if it is organized by a group
         if self.cleaned_data["as_group"] and "as_group" in self.changed_data:

@@ -40,20 +40,6 @@ class SupportGroupForm(
 ):
     geocoding_task = geocode_support_group
 
-    CHANGES = {
-        "name": "information",
-        "contact_email": "contact",
-        "contact_phone": "contact",
-        "contact_hide_phone": "contact",
-        "location_name": "location",
-        "location_address1": "location",
-        "location_address2": "location",
-        "location_city": "location",
-        "location_zip": "location",
-        "location_country": "location",
-        "description": "information",
-    }
-
     image_field = "image"
 
     subtypes = forms.ModelMultipleChoiceField(
@@ -82,18 +68,8 @@ class SupportGroupForm(
             description_field = [Row(FullCol("description"))]
 
         if not self.is_creation:
-            self.fields["notify"] = forms.BooleanField(
-                required=False,
-                initial=False,
-                label=_("Signalez ces changements aux membres du groupe"),
-                help_text=_(
-                    "Un email sera envoyé à la validation de ce formulaire. Merci de ne pas abuser de cette"
-                    " fonctionnalité."
-                ),
-            )
             del self.fields["type"]
             del self.fields["subtypes"]
-            notify_field = [Row(FullCol("notify"))]
 
             excluded_fields = reduce(
                 or_,
@@ -109,9 +85,6 @@ class SupportGroupForm(
 
             for f in excluded_fields & set(self.fields):
                 del self.fields[f]
-
-        else:
-            notify_field = []
 
         self.helper.layout = Layout(
             Row(FullCol("name")),
@@ -152,7 +125,6 @@ class SupportGroupForm(
                 Row(FullCol("location_country")),
             ),
             *description_field,
-            *notify_field,
         )
 
         remove_excluded_field_from_layout(self.helper.layout, excluded_fields)
@@ -177,23 +149,16 @@ class SupportGroupForm(
     def schedule_tasks(self):
         super().schedule_tasks()
 
-        # create set so that values are unique, but turns to list because set are not JSON-serializable
-        changes = list(
-            {
-                self.CHANGES[field]
-                for field in self.changed_data
-                if field in self.CHANGES
-            }
-        )
-
         # if it's a new group creation, send the confirmation notification and geolocate it
         if self.is_creation:
             # membership attribute created by _save_m2m
             send_support_group_creation_notification.delay(self.membership.pk)
         else:
-            # send changes notification if the notify checkbox was checked
-            if changes and self.cleaned_data.get("notify"):
-                send_support_group_changed_notification.delay(self.instance.pk, changes)
+            # send changes notification
+            if self.changed_data:
+                send_support_group_changed_notification.delay(
+                    self.instance.pk, self.changed_data
+                )
 
     class Meta:
         model = SupportGroup

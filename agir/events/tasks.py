@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
@@ -16,11 +17,29 @@ from agir.lib.display import str_summary
 from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
-from agir.notifications.actions import add_notification
 from agir.people.models import Person
 from .models import Event, RSVP, OrganizerConfig
 
 # encodes the preferred order when showing the messages
+from agir.activity.models import Activity
+
+NOTIFIED_CHANGES = {
+    "name": "information",
+    "start_time": "timing",
+    "end_time": "timing",
+    "contact_name": "contact",
+    "contact_email": "contact",
+    "contact_phone": "contact",
+    "location_name": "location",
+    "location_address1": "location",
+    "location_address2": "location",
+    "location_city": "location",
+    "location_zip": "location",
+    "location_country": "location",
+    "description": "information",
+    "facebook": "information",
+}
+
 CHANGE_DESCRIPTION = OrderedDict(
     (
         ("information", _("les informations générales de l'événement")),
@@ -77,15 +96,18 @@ def send_event_creation_notification(organizer_config_pk):
 
 
 @emailing_task
-def send_event_changed_notification(event_pk, changes):
+def send_event_changed_notification(event_pk, changed_data):
     try:
         event = Event.objects.get(pk=event_pk)
     except Event.DoesNotExist:
         # event does not exist anymore ?! nothing to do
         return
 
+    change_categories = {
+        NOTIFIED_CHANGES[f] for f in changed_data if f in NOTIFIED_CHANGES
+    }
     change_descriptions = [
-        desc for label, desc in CHANGE_DESCRIPTION.items() if label in changes
+        desc for id, desc in CHANGE_DESCRIPTION.items() if id in change_categories
     ]
     change_fragment = render_to_string(
         template_name="lib/list_fragment.html", context={"items": change_descriptions}
@@ -102,12 +124,25 @@ def send_event_changed_notification(event_pk, changes):
     ]
 
     for r in recipients:
-        add_notification(
-            person=r,
-            content=f"L'événement « {event.name} » a été modifié par ses organisateurs. Vérifiez que vous pouvez toujours y participer ! ",
-            link=front_url("view_event", kwargs={"pk": event_pk}),
-            icon="calendar",
-        )
+        notification = Activity.objects.filter(
+            type=Activity.TYPE_EVENT_UPDATE,
+            recipient=r,
+            event=event,
+            status=Activity.STATUS_UNDISPLAYED,
+        ).first()
+        if notification is not None:
+            notification.meta["changed_fields"] = list(
+                set(changed_data).union(notification.meta["changed_field"])
+            )
+            notification.timestamp = timezone.now()
+            notification.save()
+        else:
+            Activity.objects.create(
+                type=Activity.TYPE_EVENT_UPDATE,
+                recipient=r,
+                event=event,
+                meta={"changed_fields": changed_data},
+            )
 
     bindings = {
         "EVENT_NAME": event.name,
@@ -193,6 +228,15 @@ def send_rsvp_notification(rsvp_pk):
         bindings=organizer_bindings,
     )
 
+    for r in recipients:
+        # can merge activity with previous one if not displayed yet
+        Activity.objects.create(
+            recipient=r,
+            type=Activity.TYPE_NEW_ATTENDEE,
+            event=rsvp.event,
+            individual=rsvp.person,
+        )
+
 
 @emailing_task
 def send_guest_confirmation(rsvp_pk):
@@ -253,6 +297,11 @@ def send_cancellation_notification(event_pk):
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
+    )
+
+    Activity.objects.bulk_create(
+        Activity(type=Activity.TYPE_CANCELLED_EVENT, recipient=r, event=event,)
+        for r in recipients
     )
 
 
@@ -429,10 +478,7 @@ def notify_on_event_report(event_pk):
     except (Event.DoesNotExist):
         return
 
-    for r in event.attendees.all():
-        add_notification(
-            content=f"Un compte-rendu a été posté pour l'événement « {event.name} »",
-            link=front_url("view_event", args=(event_pk,)),
-            icon="calendar",
-            person=r,
-        )
+    Activity.objects.bulk_create(
+        Activity(type=Activity.TYPE_NEW_REPORT, recipient=r, event=event)
+        for r in event.attendees.all()
+    )
