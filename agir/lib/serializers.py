@@ -48,6 +48,8 @@ class LocationSerializer(serializers.Serializer):
 
     address = serializers.SerializerMethodField()
 
+    shortAddress = serializers.CharField()
+
     coordinates = GeometryField()
 
     def to_representation(self, instance):

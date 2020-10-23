@@ -129,6 +129,7 @@ EventPage.propTypes = {
   name: PropTypes.string.isRequired,
   hasSubscriptionForm: PropTypes.bool,
   isOrganizer: PropTypes.bool,
+  rsvp: PropTypes.string,
   compteRendu: PropTypes.string,
   compteRenduPhotos: PropTypes.arrayOf(PropTypes.string),
   illustration: PropTypes.string,
@@ -138,6 +139,7 @@ EventPage.propTypes = {
   location: PropTypes.shape({
     name: PropTypes.string,
     address: PropTypes.string,
+    shortAddress: PropTypes.string,
   }),
   participantCount: PropTypes.number.isRequired,
   contact: PropTypes.shape(ContactCard.propTypes),
@@ -155,6 +157,11 @@ EventPage.propTypes = {
     addPhoto: PropTypes.string,
     compteRendu: PropTypes.string,
   }),
+};
+
+DesktopLayout.propTypes = MobileLayout.propTypes = {
+  ...EventPage.propTypes,
+  schedule: PropTypes.instanceOf(Interval),
 };
 
 export default EventPage;

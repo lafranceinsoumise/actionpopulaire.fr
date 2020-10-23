@@ -57,9 +57,7 @@ Default.args = {
   ...DescriptionStory.args,
   ...EventInfoStory.args,
   isOrganizer: false,
-  rsvp: {
-    status: "confirmed",
-  },
+  rsvp: "CO",
   groups: [{ ...GroupCardStory.args }],
   contact: { ...ContactCardStory.args },
   startTime: defaultStartTime.toISO(),
