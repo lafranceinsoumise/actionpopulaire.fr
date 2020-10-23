@@ -75,7 +75,7 @@ class NotificationsTestCase(TestCase):
             [n.status for n in notifs],
             [
                 Notification.STATUS_SEEN,
-                Notification.STATUS_UNSEEN,
+                Notification.STATUS_UNDISPLAYED,
                 Notification.STATUS_SEEN,
             ],
         )
@@ -129,7 +129,7 @@ class NotificationsTestCase(TestCase):
             [
                 Notification.STATUS_CLICKED,
                 Notification.STATUS_SEEN,
-                Notification.STATUS_UNSEEN,
-                Notification.STATUS_UNSEEN,
+                Notification.STATUS_UNDISPLAYED,
+                Notification.STATUS_UNDISPLAYED,
             ],
         )

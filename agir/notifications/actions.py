@@ -4,34 +4,11 @@ from django.utils.functional import cached_property
 from glom import glom, T, Coalesce
 
 from agir.authentication.models import Role
-from agir.notifications.models import Announcement, Notification
+from agir.notifications.models import Announcement
 
 
 def add_announcements(person):
-    announcements = (
-        Announcement.objects.active()
-        .annotate(
-            already_added=Exists(
-                Notification.objects.filter(
-                    person=person, announcement_id=OuterRef("id")
-                )
-            )
-        )
-        .exclude(already_added=True)
-        .select_related("segment")
-    )
-
-    for gn in announcements:
-        if (
-            not gn.segment
-            or gn.segment.get_subscribers_queryset().filter(id=person.pk).exists()
-        ):
-            try:
-                Notification.objects.create(
-                    person=person, announcement=gn, created=gn.start_date
-                )
-            except IntegrityError:
-                pass
+    pass
 
 
 def get_notifications(request):
@@ -41,7 +18,7 @@ def get_notifications(request):
     person = request.user.person
     add_announcements(person)
 
-    notifications = person.notifications.all().select_related("announcement")[:5]
+    notifications = []
 
     return serialize_notifications(notifications)
 
@@ -80,4 +57,4 @@ class NotificationRequestManager:
 
 
 def add_notification(**kwargs):
-    Notification.objects.create(**kwargs)
+    pass
