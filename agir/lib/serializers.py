@@ -48,7 +48,7 @@ class LocationSerializer(serializers.Serializer):
 
     address = serializers.SerializerMethodField()
 
-    shortAddress = serializers.CharField()
+    shortAddress = serializers.CharField(source="short_address")
 
     coordinates = GeometryField()
 
