@@ -116,6 +116,7 @@ INSTALLED_APPS = [
     "agir.checks",
     "agir.loans",
     "agir.mailing",
+    "agir.activity.apps.ActivityConfig",
     "agir.notifications.apps.NotificationsConfig",
     "agir.municipales.apps.MunicipalesConfig",
     "agir.legacy",
@@ -252,8 +253,6 @@ EMAIL_TEMPLATES = {
     "ALREADY_SUBSCRIBED_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/d7040d22-703f-4ac7-883c-d2f04c13be1a.html",
     # INVITATION_SUBSCRIPTION_MESSAGE: [GROUP_NAME], [CONFIRMATION_URL] [SIGNAL_URL]
     "GROUP_INVITATION_WITH_SUBSCRIPTION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/1db59e8e-0ebd-4dab-8b2d-e7a2d679d6aa.html",
-    # INVITATION_CONFIRMATION_MESSAGE: [GROUP_NAME], [CONFIRMATION_URL] [SIGNAL_URL]
-    "GROUP_INVITATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/4a704705-9b5d-4356-b799-285741e558c6.html",
     # GROUP_INVITATION_ABUSE_MESSAGE
     "GROUP_INVITATION_ABUSE_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/b70f5728-c2fb-490e-aa25-1a678b6a5864.html",
     # DONATION_MESSAGE variables : [PROFILE_LINK]
