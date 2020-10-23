@@ -40,7 +40,7 @@ const RSVPButton = ({ rsvp, routes }) => (
 const Illustration = styled.img`
   max-height: 200px;
 
-  @media only screen and (min-width: ${styles.collapse}) {
+  @media only screen and (min-width: ${styles.collapse}px) {
     max-height: 360px;
   }
 `;
@@ -85,7 +85,7 @@ EventCard.propTypes = {
   name: PropTypes.string.isRequired,
   participantCount: PropTypes.number.isRequired,
   illustration: PropTypes.string,
-  schedule: PropTypes.instanceOf(Interval),
+  schedule: PropTypes.instanceOf(Interval).isRequired,
   location: PropTypes.shape({
     name: PropTypes.string,
     address: PropTypes.string,
@@ -93,6 +93,7 @@ EventCard.propTypes = {
   }),
   rsvp: PropTypes.string,
   routes: PropTypes.shape({
+    details: PropTypes.string,
     join: PropTypes.string,
     cancel: PropTypes.string,
     compteRendu: PropTypes.string,

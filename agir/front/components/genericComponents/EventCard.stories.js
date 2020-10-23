@@ -12,15 +12,7 @@ export default {
 const defaultStartTime = DateTime.local().plus({ days: 2 });
 const defaultEndTime = defaultStartTime.plus({ hours: 2 });
 
-const Template = ({ startTime, endTime, ...args }) => {
-  args = {
-    ...args,
-    schedule: Interval.fromDateTimes(
-      DateTime.fromISO(startTime).setLocale("fr"),
-      DateTime.fromISO(endTime).setLocale("fr")
-    ),
-  };
-
+const Template = (args) => {
   return (
     <GrayBackground style={{ padding: "40px" }}>
       <Container>
@@ -38,8 +30,10 @@ Default.args = {
   name: "Super événement",
   rsvp: "CO",
   participantCount: 6,
-  startTime: defaultStartTime.toISO(),
-  endTime: defaultEndTime.toISO(),
+  schedule: Interval.fromDateTimes(
+    DateTime.fromISO(defaultStartTime.toISO()).setLocale("fr"),
+    DateTime.fromISO(defaultEndTime.toISO()).setLocale("fr")
+  ),
   illustration:
     "https://i.picsum.photos/id/523/1920/1080.jpg?hmac=sy_3fHrsxYu8cmYYWmQ2yWzPMfGNI42qloxWKF97ISk",
   location: {
