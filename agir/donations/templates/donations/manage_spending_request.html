@@ -1,6 +1,10 @@
 {% extends 'front/layout.html' %}{% load static %}{% load render_bundle from webpack_loader %}
 
 
+{% block extra_scripts %}
+  {% render_bundle "donations/spendingRequestLib" %}
+{% endblock %}
+
 {% block title %}
   Gérer l'avancement de votre demande de dépense ou de remboursement
 {% endblock %}
@@ -56,7 +60,6 @@
             {% endfor %}
             </tbody>
           </table>
-          {% render_bundle "donations/spendingRequestLib" %}
         {% else %}
           <p>Vous n'avez pas encore joint de pièce justificative à votre demande. Vous devez joindre au moins
             une
