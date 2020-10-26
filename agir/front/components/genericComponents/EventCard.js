@@ -4,7 +4,7 @@ import React from "react";
 import FeatherIcon from "./FeatherIcon";
 import { Interval } from "luxon";
 import { displayInterval } from "@agir/lib/utils/time";
-import { Column, Row } from "@agir/front/genericComponents/grid";
+import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import styles from "@agir/front/genericComponents/style.scss";
 import styled from "styled-components";
 
@@ -66,15 +66,23 @@ const EventCard = ({
     </div>
     <p style={{ fontSize: "14px" }}>
       <FeatherIcon name="clock" inline small /> {displayInterval(schedule)}
-      {location && location.shortAddress && <>⋅ {location.shortAddress}</>}
+      {location && location.shortAddress && <> • {location.shortAddress}</>}
     </p>
     <h3 style={{ fontWeight: 700 }}>{name}</h3>
     <Row style={{ fontSize: "14px" }}>
-      <Column fill>
+      <Column fill collapse={0}>
         <RSVPButton {...{ rsvp, routes }} />
       </Column>
       {participantCount > 1 && (
-        <Column>{participantCount} participant⋅es</Column>
+        <Column collapse={0}>
+          {participantCount}{" "}
+          <Hide as="span" under={400}>
+            participant⋅es
+          </Hide>
+          <Hide as="span" over={401}>
+            <FeatherIcon inline small name="user" />
+          </Hide>
+        </Column>
       )}
     </Row>
   </Card>

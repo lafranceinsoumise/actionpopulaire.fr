@@ -4,6 +4,7 @@ import { Default as EventCardStory } from "./EventCard.stories";
 
 import ActivityCard from "./ActivityCard";
 import { eventCardIcons } from "@agir/front/genericComponents/ActivityCard";
+import { DateTime } from "luxon";
 
 export default {
   component: ActivityCard,
@@ -30,4 +31,5 @@ Default.args = {
     url: "#url",
   },
   individual: "Clara Zetkin",
+  timestamp: DateTime.local().minus({ hours: 5 }).toISO(),
 };

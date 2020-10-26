@@ -6,6 +6,7 @@ import EventCard from "@agir/front/genericComponents/EventCard";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 import styles from "@agir/front/genericComponents/style.scss";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 
 const eventCardTypes = [
   "group-coorganization-accepted",
@@ -46,7 +47,7 @@ const ActivityText = ({ type, event, supportGroup, individual }) => {
     "new-member": (
       <>
         {individual} a rejoint votre groupe {supportGroup}. Prenez le temps de
-        l’accueillir !
+        l’accueillir&nbsp;!
       </>
     ),
     "waiting-location-group": (
@@ -69,7 +70,7 @@ const ActivityText = ({ type, event, supportGroup, individual }) => {
     "group-info-update": <>Votre groupe {supportGroup} a été mis à jour</>,
     "accepted-invitation-member": (
       <>
-        {individual} a rejoint {supportGroup} en acceptant une invitation.
+        {individual} a rejoint {supportGroup} en acceptant une invitation
       </>
     ),
     "new-attendee": (
@@ -80,7 +81,7 @@ const ActivityText = ({ type, event, supportGroup, individual }) => {
     "event-update": (
       <>
         Mise à jour : l'événement {event} auquel vous participez a changé de
-        date.
+        date
       </>
     ),
     "new-event-mygroups": (
@@ -104,7 +105,7 @@ const ActivityText = ({ type, event, supportGroup, individual }) => {
         {event}
       </>
     ),
-    "cancelled-event": <>L'événement {event} a été annulé.</>,
+    "cancelled-event": <>L'événement {event} a été annulé</>,
   }[type];
 };
 
@@ -118,9 +119,16 @@ const EventCardContainer = styled.div`
   @media only screen and (min-width: ${styles.collapse}px) {
     padding-left: 2.5rem;
   }
+
+  & ${Card} {
+    box-shadow: none;
+    border: 1px solid ${styles.black100};
+  }
 `;
 
 const ActivityCard = (props) => {
+  let timestamp = dateFromISOString(props.timestamp);
+
   let textProps = {
     type: props.type,
     event: props.event && (
@@ -139,16 +147,25 @@ const ActivityCard = (props) => {
   return (
     <LowMarginCard>
       <Row gutter="8" align="center">
-        <Column width="1rem" collapse={0}>
+        <Column width="1rem" collapse={0} style={{ paddingTop: "2px" }}>
           <FeatherIcon
             name={eventCardIcons[props.type]}
             color={styles.black500}
           />
         </Column>
-        <Column collapse={0} fill>
+        <Column collapse={0} fill style={{ fontSize: "15px" }}>
           <ActivityText {...textProps} />
         </Column>
       </Row>
+      <div
+        style={{
+          paddingLeft: "2.5rem",
+          fontSize: "15px",
+          color: styles.black700,
+        }}
+      >
+        {displayHumanDate(timestamp)}
+      </div>
 
       {eventCardTypes.includes(props.type) && (
         <EventCardContainer>
@@ -167,6 +184,7 @@ ActivityCard.propTypes = {
     url: PropTypes.string,
   }),
   individual: PropTypes.string,
+  timestamp: PropTypes.string.isRequired,
 };
 
 export default ActivityCard;
