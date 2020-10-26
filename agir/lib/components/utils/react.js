@@ -31,7 +31,7 @@ export function getStatefulRenderer(
         fieldProps: getProps(field),
       };
       insertingNode.removeChild(field);
-      ReactDOM.render(
+      renderReactComponent(
         <RootComponent
           Field={Field}
           valueToString={valueToString}
@@ -71,3 +71,22 @@ RootComponent.propTypes = {
   valueToString: PropTypes.func,
   fieldProps: PropTypes.object,
 };
+
+const RENDERED_NODES = [];
+
+export const renderReactComponent = (component, node) => {
+  ReactDOM.render(component, node);
+  RENDERED_NODES.push(node);
+};
+
+const unmountRenderedComponents = () => {
+  console.log(`Démontage de ${RENDERED_NODES.length}`);
+  while (RENDERED_NODES.length > 0) {
+    const node = RENDERED_NODES.pop();
+    if (!("turbolinksPermanent" in node.dataset)) {
+      ReactDOM.unmountComponentAtNode(node);
+    }
+  }
+};
+
+document.addEventListener("turbolinks:before-visit", unmountRenderedComponents);

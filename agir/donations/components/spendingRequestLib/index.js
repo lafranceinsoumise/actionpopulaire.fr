@@ -3,17 +3,17 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
 (async function () {
   const [
     { default: React },
-    { default: ReactDOM },
+    { renderReactComponent },
     { default: DeleteDocumentButton },
   ] = await Promise.all([
     import("react"),
-    import("react-dom"),
+    import("@agir/lib/utils/react"),
     import("./DeleteDocumentButton"),
   ]);
 
   function render() {
     for (let documentDelete of document.querySelectorAll(".delete-document")) {
-      ReactDOM.render(
+      renderReactComponent(
         <DeleteDocumentButton {...documentDelete.dataset} />,
         documentDelete
       );

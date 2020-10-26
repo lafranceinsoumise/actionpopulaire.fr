@@ -1,12 +1,12 @@
 (async function () {
   const [
     { default: React },
-    { default: ReactDOM },
+    { renderReactComponent },
     { default: IBANField },
     { default: onDOMReady },
   ] = await Promise.all([
     import("react"),
-    import("react-dom"),
+    import("@agir/lib/utils/react"),
     import("./IBAN-field"),
     import("@agir/lib/utils/onDOMReady"),
   ]);
@@ -19,7 +19,7 @@
     for (let field of fields) {
       const renderingNode = document.createElement("div");
       const parent = field.parentNode;
-      ReactDOM.render(
+      renderReactComponent(
         <IBANField
           name={field.name}
           id={field.id}

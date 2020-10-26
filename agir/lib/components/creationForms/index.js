@@ -4,18 +4,18 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
 (async function () {
   const [
     { default: React },
-    { default: ReactDOM },
+    { renderReactComponent },
     { default: CreateGroupForm },
     { default: CreateEventForm },
   ] = await Promise.all([
     import("react"),
-    import("react-dom"),
+    import("@agir/lib/utils/react"),
     import("./createGroupForm"),
     import("./createEventForm"),
   ]);
 
   const render = (Component) => (id, props = {}) => {
-    ReactDOM.render(<Component {...props} />, document.getElementById(id));
+    renderReactComponent(<Component {...props} />, document.getElementById(id));
   };
 
   const renderCreateEventForm = render(CreateEventForm);

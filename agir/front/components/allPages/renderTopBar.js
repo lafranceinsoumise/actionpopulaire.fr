@@ -3,18 +3,18 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
 (async function () {
   const [
     { default: React },
-    { default: ReactDOM },
+    { renderReactComponent },
     { default: TopBar },
     { GlobalContextProvider },
   ] = await Promise.all([
     import("react"),
-    import("react-dom"),
+    import("@agir/lib/utils/react"),
     import("./TopBar"),
     import("../genericComponents/GobalContext"),
   ]);
 
   const showHeader = () => {
-    ReactDOM.render(
+    renderReactComponent(
       <GlobalContextProvider>
         <TopBar />
       </GlobalContextProvider>,

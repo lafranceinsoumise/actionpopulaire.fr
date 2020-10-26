@@ -4,15 +4,15 @@ export const setUpNotificationsCenter = async function (
 ) {
   const [
     { default: React },
-    { default: ReactDOM },
+    { renderReactComponent },
     { default: NotificationsCenter },
   ] = await Promise.all([
     import("react"),
-    import("react-dom"),
+    import("@agir/lib/utils/react"),
     import("./NotificationsCenter"),
   ]);
 
-  ReactDOM.render(
+  renderReactComponent(
     <NotificationsCenter notifications={notifications} />,
     element
   );

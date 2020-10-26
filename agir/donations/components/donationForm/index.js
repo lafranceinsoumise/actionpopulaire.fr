@@ -29,15 +29,15 @@ function getChoices(select) {
 
 (async function () {
   const [
-    { default: React, default: ReactDOM, default: DonationForm },
+    { default: React, renderReactComponent, default: DonationForm },
   ] = await Promise.all([
     import("react"),
-    import("react-dom"),
+    import("@agir/lib/utils/react"),
     import("./DonationForm"),
   ]);
 
   const render = (widget, element) => {
-    ReactDOM.render(widget, element);
+    renderReactComponent(widget, element);
   };
 
   const replaceForm = (selector) => {

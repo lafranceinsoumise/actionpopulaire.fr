@@ -14,10 +14,7 @@ from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from agir.people.actions.subscription import make_subscription_token
 from agir.people.models import Person
-from .actions.invitation import (
-    make_abusive_invitation_report_link,
-    make_invitation_link,
-)
+from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
 from ..activity.models import Activity
 
