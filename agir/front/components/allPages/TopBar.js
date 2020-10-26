@@ -30,14 +30,14 @@ const TopBarContainer = styled.div`
   max-width: 1400px;
   margin: 0 auto;
 
-  .large-only {
+  & .large-only {
     @media only screen and (max-width: ${style.collapse}px) {
       display: none;
     }
   }
 
-  .small-only {
-    @media only screen and (min-width: ${style.collpase + 1}px) {
+  & .small-only {
+    @media only screen and (min-width: ${+style.collapse + 1}px) {
       display: none;
     }
   }
