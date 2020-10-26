@@ -16,10 +16,29 @@ const eventCardTypes = [
   "group-coorganization-info",
 ];
 
+export const eventCardIcons = {
+  "waiting-payment": "alert-circle",
+  "group-invitation": "mail",
+  "new-member": "user-plus",
+  "waiting-location-group": "alert-circle",
+  "group-coorganization-invite": "mail",
+  "waiting-location-event": "alert-circle",
+  "group-coorganization-accepted": "calendar",
+  "group-info-update": "info",
+  "accepted-invitation-member": "user-plus",
+  "new-attendee": "user-plus",
+  "event-update": "info",
+  "new-event-mygroups": "calendar",
+  "new-report": "file-text",
+  "new-event-aroundme": "calendar",
+  "group-coorganization-info": "calendar",
+  "cancelled-event": "x-circle",
+};
+
 const ActivityText = ({ type, event, supportGroup, individual }) => {
   return {
     "waiting-payment": (
-      <>Vous n'avez pas encore réglé votre place pour l'événément : {event}</>
+      <>Vous n'avez pas encore réglé votre place pour l'événément {event}</>
     ),
     "group-invitation": (
       <>Vous avez été invité⋅e à rejoindre le groupe {supportGroup}</>
@@ -121,7 +140,10 @@ const ActivityCard = (props) => {
     <LowMarginCard>
       <Row gutter="8" align="center">
         <Column width="1rem" collapse={0}>
-          <FeatherIcon name="calendar" color={styles.black500} />
+          <FeatherIcon
+            name={eventCardIcons[props.type]}
+            color={styles.black500}
+          />
         </Column>
         <Column collapse={0} fill>
           <ActivityText {...textProps} />

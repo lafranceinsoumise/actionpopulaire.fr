@@ -124,14 +124,14 @@ export const Row = styled.div`
 
 Row.propTypes = {
   children: PropTypes.node,
-  align: PropTypes.arrayOf([
+  align: PropTypes.oneOf([
     "stretch",
     "baseline",
     "center",
     "flex-start",
     "flex-end",
   ]), // align-items CSS property
-  justify: PropTypes.arrayOf([
+  justify: PropTypes.oneOf([
     "flex-start",
     "flex-end",
     "center",

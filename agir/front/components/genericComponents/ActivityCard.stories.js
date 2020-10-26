@@ -3,10 +3,20 @@ import React from "react";
 import { Default as EventCardStory } from "./EventCard.stories";
 
 import ActivityCard from "./ActivityCard";
+import { eventCardIcons } from "@agir/front/genericComponents/ActivityCard";
 
 export default {
   component: ActivityCard,
-  title: "Folder/ActivityCard",
+  title: "Activities/ActivityCard",
+  argTypes: {
+    type: {
+      name: "Type de carte",
+      control: {
+        type: "select",
+        options: Object.keys(eventCardIcons),
+      },
+    },
+  },
 };
 
 const Template = (args) => <ActivityCard {...args} />;
