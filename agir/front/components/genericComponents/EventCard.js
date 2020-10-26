@@ -70,7 +70,7 @@ const EventCard = ({
     </p>
     <h3 style={{ fontWeight: 700 }}>{name}</h3>
     <Row style={{ fontSize: "14px" }}>
-      <Column fill collapse={0}>
+      <Column grow collapse={0}>
         <RSVPButton {...{ rsvp, routes }} />
       </Column>
       {participantCount > 1 && (

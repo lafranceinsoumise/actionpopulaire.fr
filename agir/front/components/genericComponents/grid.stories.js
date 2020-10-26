@@ -18,7 +18,7 @@ const Template = () => (
   <GrayBackground>
     <Container>
       <Row>
-        <Column fill>
+        <Column grow>
           <Card>{lorem}</Card>
           <Card>{lorem}</Card>
           <Card>{lorem}</Card>

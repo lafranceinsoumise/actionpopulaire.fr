@@ -85,7 +85,7 @@ const EventLocationCard = ({ schedule, location, routes }) => {
         )}
       </IconList>
       <Row>
-        <Column fill width={["content", "content"]}>
+        <Column grow width={["content", "content"]}>
           <a href={routes.calendarExport}>Ajouter à mon agenda</a>
         </Column>
         <Column width={["content", "content"]}>

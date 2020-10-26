@@ -74,7 +74,7 @@ const DesktopLayout = (props) => {
     >
       <Container>
         <Row>
-          <Column fill>
+          <Column grow>
             <div style={{ margin: "0 -1000px 40px" }}>
               <div
                 style={{
@@ -157,11 +157,6 @@ EventPage.propTypes = {
     addPhoto: PropTypes.string,
     compteRendu: PropTypes.string,
   }),
-};
-
-DesktopLayout.propTypes = MobileLayout.propTypes = {
-  ...EventPage.propTypes,
-  schedule: PropTypes.instanceOf(Interval),
 };
 
 export default EventPage;

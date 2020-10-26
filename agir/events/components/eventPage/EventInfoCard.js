@@ -13,16 +13,14 @@ const EventInfoCard = ({ groups, participantCount }) => (
         <IconListItem name="users">
           Organisé par{" "}
           {groups.map(({ name, url }, key) => (
-            <>
-              <a key={key} href={url}>
-                {name}
-              </a>
+            <React.Fragment key={key}>
+              <a href={url}>{name}</a>
               {key < groups.length - 2
                 ? ", "
                 : key === groups.length - 2
                 ? " et "
                 : ""}
-            </>
+            </React.Fragment>
           ))}
         </IconListItem>
       )}

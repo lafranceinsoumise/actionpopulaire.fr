@@ -24,7 +24,7 @@ const ShareCard = () => {
   return (
     <Card>
       <Row gutter={2} style={{ marginBottom: "1rem" }}>
-        <Column fill collapse={false}>
+        <Column grow collapse={false}>
           <b>Partager</b>
         </Column>
         <Column collapse={false}>
@@ -50,7 +50,7 @@ const ShareCard = () => {
       </Row>
 
       <Row gutter={4}>
-        <Column fill collapse={false}>
+        <Column grow collapse={false}>
           {" "}
           <input
             type="text"

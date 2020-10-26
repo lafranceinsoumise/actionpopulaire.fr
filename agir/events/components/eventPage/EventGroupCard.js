@@ -56,7 +56,7 @@ const EventGroupCard = ({
         <Column collapse={0}>
           <img src={Svg} alt="Groupe" />
         </Column>
-        <Column collapse={0} fill>
+        <Column collapse={0} grow>
           <h3 style={{ marginTop: 2, marginBottom: 2 }}>
             <a href={url}>{name}</a>
           </h3>

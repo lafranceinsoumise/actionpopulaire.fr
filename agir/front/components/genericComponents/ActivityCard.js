@@ -70,7 +70,7 @@ const ActivityText = ({ type, event, supportGroup, individual }) => {
     "group-info-update": <>Votre groupe {supportGroup} a été mis à jour</>,
     "accepted-invitation-member": (
       <>
-        {individual} a rejoint {supportGroup} en acceptant une invitation
+        {individual} a rejoint {supportGroup} en acceptant une invitation.
       </>
     ),
     "new-attendee": (
@@ -81,7 +81,7 @@ const ActivityText = ({ type, event, supportGroup, individual }) => {
     "event-update": (
       <>
         Mise à jour : l'événement {event} auquel vous participez a changé de
-        date
+        date.
       </>
     ),
     "new-event-mygroups": (
@@ -105,7 +105,7 @@ const ActivityText = ({ type, event, supportGroup, individual }) => {
         {event}
       </>
     ),
-    "cancelled-event": <>L'événement {event} a été annulé</>,
+    "cancelled-event": <>L'événement {event} a été annulé.</>,
   }[type];
 };
 
@@ -153,7 +153,7 @@ const ActivityCard = (props) => {
             color={styles.black500}
           />
         </Column>
-        <Column collapse={0} fill style={{ fontSize: "15px" }}>
+        <Column collapse={0} grow style={{ fontSize: "15px" }}>
           <ActivityText {...textProps} />
         </Column>
       </Row>

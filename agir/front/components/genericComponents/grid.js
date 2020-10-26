@@ -70,11 +70,11 @@ export const Container = styled.section`
 `;
 
 export const Column = styled.div`
-  flex-basis: ${({ width, fill }) =>
-    width || fill
+  flex-basis: ${({ width, grow }) =>
+    width || grow
       ? (Array.isArray(width) && width[1] ? width[1] : width) || "1px"
       : "auto"};
-  flex-grow: ${({ fill }) => (fill ? 1 : 0)};
+  flex-grow: ${({ grow }) => (grow ? 1 : 0)};
   & > ${Card} {
     margin-bottom: 16px;
   }
@@ -103,7 +103,7 @@ Column.propTypes = {
     PropTypes.arrayOf(PropTypes.string),
   ]), // can be anything like "50%" "400px"
   // if array first is mobile size, second is desktop
-  fill: PropTypes.bool, // does the column fill the remaining space
+  grow: PropTypes.bool, // does the column fill the remaining space
 };
 
 export const Row = styled.div`
