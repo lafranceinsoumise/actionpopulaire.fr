@@ -1,9 +1,7 @@
 import React from "react";
-import { PhoneNumberUtil } from "google-libphonenumber";
+import parsePhoneNumber from "libphonenumber-js";
 import Cleave from "cleave.js/react";
 import "cleave.js/dist/addons/cleave-phone.fr";
-
-const phoneUtil = PhoneNumberUtil.getInstance();
 
 import FormStep from "./FormStep";
 
@@ -49,13 +47,13 @@ class ContactStep extends FormStep {
     let phoneNumber;
 
     try {
-      phoneNumber = phoneUtil.parse(phone, "FR");
+      phoneNumber = parsePhoneNumber(phone, "FR");
     } catch (e) {
       this.setError("phone", "Ce numéro de téléphone n'est pas valide");
       return false;
     }
 
-    if (!phoneUtil.isValidNumber(phoneNumber)) {
+    if (!phoneNumber.isValid()) {
       this.setError("phone", "Ce numéro de téléphone n'est pas valide");
       return false;
     }

@@ -27,10 +27,10 @@
     "feather-icons": "^4.28.0",
     "fontawesome": "^4.7.2",
     "fontfaceonload": "^1.0.2",
-    "google-libphonenumber": "^3.2.13",
     "intro.js": "^2.9.3",
     "jsoneditor": "^5.34.0",
     "leaflet-geosearch": "^2.7.0",
+    "libphonenumber-js": "^1.8.5",
     "localized-countries": "^1.0.2",
     "lodash": "^4.17.20",
     "luxon": "^1.25.0",
@@ -113,7 +113,7 @@
     ],
     "transformIgnorePatterns": [
       "/node_modules/(?!@babel/runtime-corejs3/helpers/esm/)",
-      "\\.pnp\\.[^\\\/]+$"
+      "\\.pnp\\.[^\\/]+$"
     ]
   }
 }
