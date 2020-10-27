@@ -1,13 +1,12 @@
 from django.db.models import JSONField
 from django.db import models
 from django.template.defaultfilters import floatformat
-from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.lib.models import LocationMixin, TimeStampedModel
-from agir.lib.display import display_address
+from agir.lib.display import display_address, display_price
 from agir.lib.utils import front_url
 from agir.payments.model_fields import AmountField
 from .types import get_payment_choices, PAYMENT_TYPES
@@ -190,7 +189,7 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
     end_date = models.DateField("Fin de l'abonnement", blank=True, null=True)
 
     def get_price_display(self):
-        return "{} €".format(floatformat(self.price / 100, 2))
+        return display_price(self.price)
 
     get_price_display.short_description = "Prix"
 
