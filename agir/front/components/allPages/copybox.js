@@ -1,3 +1,5 @@
+import onDOMReady from "@agir/lib/utils/onDOMReady";
+
 function selectAllWhenFocusing(e) {
   e.target.setSelectionRange(0, e.target.value.length);
 }
@@ -23,4 +25,4 @@ function setUpCopyBoxes() {
   });
 }
 
-document.addEventListener("turbolinks:load", setUpCopyBoxes);
+onDOMReady(setUpCopyBoxes);
