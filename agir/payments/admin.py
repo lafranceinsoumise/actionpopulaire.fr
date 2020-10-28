@@ -302,7 +302,7 @@ class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "person_link",
-        "price",
+        "get_price_display",
         "type",
         "status",
         "created",
@@ -313,7 +313,7 @@ class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
         "mode",
         "type",
         "person_link",
-        "price",
+        "get_price_display",
         "status",
         "terminate_button",
     )
