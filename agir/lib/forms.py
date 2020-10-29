@@ -42,6 +42,7 @@ class CoordinatesFormMixin(forms.Form):
         if explicitly_asked_for or (
             address_changed and self.instance.should_relocate_when_address_changed()
         ):
+            self.instance.location_citycode = ""
             # geocode directly in process
             geocode_element(self.instance)
 
