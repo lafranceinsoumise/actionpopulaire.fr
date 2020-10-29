@@ -104,6 +104,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "location_zip",
                     "location_state",
                     "location_country",
+                    "location_citycode",
                     "coordinates",
                     "coordinates_type",
                     "redo_geocoding",
@@ -126,6 +127,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "events",
         "coordinates_type",
         "mandats",
+        "location_citycode",
     )
 
     list_filter = (

@@ -129,6 +129,8 @@ class PersonalInformationsForm(forms.ModelForm):
         )
 
         if address_has_changed and self.instance.should_relocate_when_address_changed():
+            self.instance.location_citycode = ""
+            self.instance.save()
             geocode_person.delay(self.instance.pk)
 
     class Meta:
