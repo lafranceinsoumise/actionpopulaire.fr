@@ -3,6 +3,7 @@ from django.contrib.sitemaps.views import sitemap, index as sitemap_index
 from django.urls import reverse_lazy, path, re_path
 from django.views.generic import RedirectView
 
+from .views import ActivityView
 from ..front.sitemaps import sitemaps
 from . import views
 
@@ -28,6 +29,7 @@ urlpatterns = [
         RedirectView.as_view(url=reverse_lazy("dashboard")),
         name="list_events",
     ),
+    path("activite/", ActivityView.as_view(), name="list_activities",),
     # old urls
     re_path("^old(.*)$", views.NBUrlsView.as_view(), name="old_urls"),
 ]

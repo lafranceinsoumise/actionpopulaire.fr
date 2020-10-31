@@ -3,15 +3,30 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from agir.lib.data import french_zipcode_to_country_code
+from .models import Person
 from .tasks import send_confirmation_email
 
 from agir.lib.serializers import (
     LegacyBaseAPISerializer,
     LegacyLocationMixin,
     RelatedLabelField,
+    FlexibleFieldsMixin,
 )
 
 from . import models
+
+
+class PersonSerializer(FlexibleFieldsMixin, serializers.Serializer):
+    id = serializers.UUIDField()
+
+    email = serializers.CharField()
+
+    firstName = serializers.CharField()
+    lastName = serializers.CharField()
+    fullName = serializers.SerializerMethodField()
+
+    def get_fullName(self, obj: Person):
+        return obj.get_full_name()
 
 
 class PersonEmailSerializer(serializers.ModelSerializer):

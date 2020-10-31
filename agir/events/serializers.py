@@ -5,14 +5,15 @@ from agir.lib.serializers import (
     ExistingRelatedLabelField,
     LocationSerializer,
     ContactMixinSerializer,
+    FlexibleFieldsMixin,
 )
 from agir.front.serializer_utils import MediaURLField, RoutesField
 from . import models
 from .models import OrganizerConfig, RSVP
-from ..groups.serializers import SupportGroupReactSerializer
+from ..groups.serializers import SupportGroupSerializer
 
 
-class EventSerializer(CountryFieldMixin, serializers.ModelSerializer):
+class EventLegacySerializer(CountryFieldMixin, serializers.ModelSerializer):
     subtype = ExistingRelatedLabelField(
         queryset=models.EventSubtype.objects.all(), required=False
     )
@@ -62,7 +63,7 @@ class EventOptionsSerializer(serializers.Serializer):
         return obj.get_price_display()
 
 
-class EventReactSerializer(serializers.Serializer):
+class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     id = serializers.UUIDField()
     url = serializers.HyperlinkedIdentityField(view_name="view_event")
     name = serializers.CharField()
@@ -86,7 +87,7 @@ class EventReactSerializer(serializers.Serializer):
 
     routes = RoutesField(routes=EVENT_ROUTES)
 
-    groups = SupportGroupReactSerializer(many=True, source="organizers_groups")
+    groups = SupportGroupSerializer(many=True, source="organizers_groups")
 
     contact = ContactMixinSerializer(source="*")
 

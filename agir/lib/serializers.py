@@ -3,6 +3,7 @@ from rest_framework import serializers, exceptions, validators
 from rest_framework.fields import empty
 from django_countries.serializer_fields import CountryField
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
 
 
@@ -344,3 +345,12 @@ class ContactMixinSerializer(serializers.Serializer):
         if all(not v for v in data.values()):
             return None
         return data
+
+
+class FlexibleFieldsMixin(BaseSerializer):
+    def __init__(self, instance=None, data=empty, fields=None, **kwargs):
+        super().__init__(instance=instance, data=data, **kwargs)
+
+        if fields is not None:
+            for f in set(self.fields).difference(fields):
+                del self.fields[f]

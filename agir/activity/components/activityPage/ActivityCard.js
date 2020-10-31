@@ -1,7 +1,9 @@
-import Card from "./Card";
+import Card from "@agir/front/genericComponents/Card";
 import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
+import { Interval } from "luxon";
+
 import EventCard from "@agir/front/genericComponents/EventCard";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 import styles from "@agir/front/genericComponents/style.scss";
@@ -17,7 +19,7 @@ const eventCardTypes = [
   "group-coorganization-info",
 ];
 
-export const eventCardIcons = {
+export const activityCardIcons = {
   "waiting-payment": "alert-circle",
   "group-invitation": "mail",
   "new-member": "user-plus",
@@ -141,7 +143,14 @@ const ActivityCard = (props) => {
         <a href={props.supportGroup.url}>{props.supportGroup.name}</a>
       </b>
     ),
-    individual: <b>{props.individual}</b>,
+    individual: props.individual && <b>{props.individual.fullName}</b>,
+  };
+
+  const event = props.event && {
+    ...props.event,
+    schedule: Interval.fromISO(
+      `${props.event.startTime}/${props.event.endTime}`
+    ),
   };
 
   return (
@@ -149,7 +158,7 @@ const ActivityCard = (props) => {
       <Row gutter="8" align="center">
         <Column width="1rem" collapse={0} style={{ paddingTop: "2px" }}>
           <FeatherIcon
-            name={eventCardIcons[props.type]}
+            name={activityCardIcons[props.type]}
             color={styles.black500}
           />
         </Column>
@@ -169,7 +178,7 @@ const ActivityCard = (props) => {
 
       {eventCardTypes.includes(props.type) && (
         <EventCardContainer>
-          <EventCard {...props.event} />
+          <EventCard {...event} />
         </EventCardContainer>
       )}
     </LowMarginCard>
@@ -183,7 +192,7 @@ ActivityCard.propTypes = {
     name: PropTypes.string,
     url: PropTypes.string,
   }),
-  individual: PropTypes.string,
+  individual: PropTypes.shape({ fullName: PropTypes.string }),
   timestamp: PropTypes.string.isRequired,
 };
 

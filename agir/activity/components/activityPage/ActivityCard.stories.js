@@ -1,9 +1,9 @@
 import React from "react";
 
-import { Default as EventCardStory } from "./EventCard.stories";
+import { Default as EventCardStory } from "@agir/front/genericComponents/EventCard.stories";
 
 import ActivityCard from "./ActivityCard";
-import { eventCardIcons } from "@agir/front/genericComponents/ActivityCard";
+import { activityCardIcons } from "./ActivityCard";
 import { DateTime } from "luxon";
 
 export default {
@@ -14,7 +14,7 @@ export default {
       name: "Type de carte",
       control: {
         type: "select",
-        options: Object.keys(eventCardIcons),
+        options: Object.keys(activityCardIcons),
       },
     },
   },

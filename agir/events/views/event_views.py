@@ -127,7 +127,7 @@ class EventDetailView(ObjectOpengraphMixin, EventDetailMixin, ReactSingleObjectV
     meta_description = (
         "Participez aux événements organisés par les membres de la France insoumise."
     )
-    serializer_class = serializers.EventReactSerializer
+    serializer_class = serializers.EventSerializer
     queryset = Event.objects.all()
     bundle_name = "events/eventPage"
     data_script_id = "exportedEvent"

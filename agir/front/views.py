@@ -2,6 +2,10 @@ from django.urls import reverse, reverse_lazy
 from django.http import HttpResponsePermanentRedirect, HttpResponse, Http404
 from django.views.generic import View
 
+from .view_mixins import ReactListView
+from ..activity.models import Activity
+from ..activity.serializers import ActivitySerializer
+from ..authentication.view_mixins import SoftLoginRequiredMixin
 from ..events.models import Event
 from ..groups.models import SupportGroup
 
@@ -69,3 +73,13 @@ class NBUrlsView(View):
             pass
 
         raise Http404()
+
+
+class ActivityView(SoftLoginRequiredMixin, ReactListView):
+    bundle_name = "activity/activityPage"
+    serializer_class = ActivitySerializer
+    page_size = 20
+
+    def get_queryset(self):
+        person = self.request.user.person
+        return Activity.objects.filter(recipient=person)

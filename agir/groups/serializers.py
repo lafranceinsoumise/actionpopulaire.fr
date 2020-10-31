@@ -4,9 +4,10 @@ from rest_framework import serializers
 from . import models
 from .models import Membership
 from ..front.serializer_utils import RoutesField
+from ..lib.serializers import FlexibleFieldsMixin
 
 
-class SupportGroupSerializer(CountryFieldMixin, serializers.ModelSerializer):
+class SupportGroupLegacySerializer(CountryFieldMixin, serializers.ModelSerializer):
     class Meta:
         model = models.SupportGroup
         fields = (
@@ -41,7 +42,7 @@ class SupportGroupSubtypeSerializer(serializers.ModelSerializer):
         fields = ("label", "description", "color", "icon", "type")
 
 
-class SupportGroupReactSerializer(serializers.Serializer):
+class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     id = serializers.UUIDField()
     name = serializers.CharField()
     description = serializers.CharField()

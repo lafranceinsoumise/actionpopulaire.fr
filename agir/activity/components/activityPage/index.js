@@ -4,31 +4,35 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
   const [
     { default: React },
     { renderReactComponent },
+    { default: ActivityCard },
     { GlobalContextProvider },
-    { default: EventPage },
   ] = await Promise.all([
     import("react"),
     import("@agir/lib/utils/react"),
+    import("./ActivityCard"),
     import("@agir/front/genericComponents/GobalContext"),
-    import("./EventPage"),
   ]);
 
-  const render = () => {
-    const dataElement = document.getElementById("exportedEvent");
+  const showActivities = () => {
+    const dataElement = document.getElementById("exportedContent");
     const renderElement = document.getElementById("mainApp");
 
     if (!dataElement || !renderElement) {
       return;
     }
 
-    const data = JSON.parse(dataElement.textContent);
+    const payload = JSON.parse(dataElement.textContent);
+    console.log(payload);
     renderReactComponent(
       <GlobalContextProvider>
-        <EventPage {...data} />
+        <div>
+          {payload.data.map(({ id, ...props }) => (
+            <ActivityCard key={id} {...props} />
+          ))}
+        </div>
       </GlobalContextProvider>,
       renderElement
     );
   };
-
-  onDOMReady(render);
+  onDOMReady(showActivities);
 })();
