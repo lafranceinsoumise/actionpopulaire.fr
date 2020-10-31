@@ -113,6 +113,9 @@ module.exports = {
       },
     ],
   },
+  optimization: {
+    runtimeChunk: "single",
+  },
   target: "web",
   resolve: {
     alias: aliases,
