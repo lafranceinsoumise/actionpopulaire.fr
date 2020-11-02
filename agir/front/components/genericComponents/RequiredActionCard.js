@@ -1,10 +1,18 @@
 import PropTypes from "prop-types";
 import React from "react";
+import styled from "styled-components";
 
 import { Container, Row, Column } from "@agir/front/genericComponents/grid";
 import Card from "@agir/front/genericComponents/Card";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Button from "@agir/front/genericComponents/Button";
+
+const StyledButton = styled(Button)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+`;
 
 const RequiredActionCard = (props) => {
   const {
@@ -26,15 +34,25 @@ const RequiredActionCard = (props) => {
             <p style={{ fontWeight: 600, fontSize: 14, marginBottom: 16 }}>
               {text}
             </p>
-            <Button onClick={onConfirm} small color="primary">
-              {confirmLabel}
-            </Button>
+            {typeof onConfirm === "function" ? (
+              <StyledButton onClick={onConfirm} small color="primary">
+                {confirmLabel}
+              </StyledButton>
+            ) : typeof onConfirm === "string" ? (
+              <StyledButton small color="primary" as="a" href={onConfirm}>
+                {confirmLabel}
+              </StyledButton>
+            ) : null}
             &ensp;
-            {typeof onDismiss === "function" && (
-              <Button onClick={onDismiss} small color="dismiss">
+            {typeof onDismiss === "function" ? (
+              <StyledButton onClick={onDismiss} small color="dismiss">
                 {dismissLabel}
-              </Button>
-            )}
+              </StyledButton>
+            ) : typeof onDismiss === "string" ? (
+              <StyledButton small color="dismiss" as="a" href={onDismiss}>
+                {dismissLabel}
+              </StyledButton>
+            ) : null}
           </Column>
         </Row>
       </Container>
@@ -44,7 +62,7 @@ const RequiredActionCard = (props) => {
 
 RequiredActionCard.propTypes = {
   name: PropTypes.string.isRequired,
-  text: PropTypes.string.isRequired,
+  text: PropTypes.node.isRequired,
   iconName: PropTypes.oneOf([
     "alert-circle",
     "calendar",
@@ -55,9 +73,9 @@ RequiredActionCard.propTypes = {
     "x-circle",
   ]).isRequired,
   confirmLabel: PropTypes.string.isRequired,
-  onConfirm: PropTypes.func.isRequired,
+  onConfirm: PropTypes.oneOfType([PropTypes.string, PropTypes.func]).isRequired,
   dismissLabel: PropTypes.string,
-  onDismiss: PropTypes.func,
+  onDismiss: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
 };
 RequiredActionCard.defaultProps = {
   dismissLabel: "Cacher",
