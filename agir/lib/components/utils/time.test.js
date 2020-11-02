@@ -86,3 +86,25 @@ test("displayInterval renvoie des valeurs correctes pour deux horaires le même 
     )
   ).toEqual("du 21 septembre 2021 à 19:00 au 22 septembre à 12:00");
 });
+
+test("displayHumanDate n'a pas de problème quand on franchit la fin d'un mois", () => {
+  expect(displayHumanDate(date("01/07 20:00"), date("29/06 20:00"))).toEqual(
+    "après-demain à 20:00"
+  );
+});
+
+test("displayHumanDate gère correctement les cas ambigus", () => {
+  const relativeTo = date("17/3 12:00"); // Mercredi 17 mars 2021
+
+  expect(displayHumanDate(date("20/3 12:00"), relativeTo)).toEqual(
+    "samedi à 12:00"
+  );
+
+  expect(displayHumanDate(date("23/3 12:00"), relativeTo)).toEqual(
+    "mardi prochain à 12:00"
+  );
+
+  expect(displayHumanDate(date("14/3 12:00"), relativeTo)).toEqual(
+    "dimanche dernier à 12:00"
+  );
+});

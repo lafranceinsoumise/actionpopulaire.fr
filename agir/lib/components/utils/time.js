@@ -34,16 +34,20 @@ export function displayHumanDate(datetime, relativeTo) {
       ? Interval.fromDateTimes(relativeTo, datetime)
       : Interval.fromDateTimes(datetime, relativeTo);
 
-  const qualifier = relativeTo < datetime ? "prochain" : "dernier";
-
   const calendarDays = interval.count("days");
+  const calendarWeeks = interval.count("weeks");
+  const qualifier =
+    relativeTo < datetime ? (calendarWeeks > 1 ? " prochain" : "") : " dernier";
 
   if (calendarDays <= 3) {
-    const dayPart = datetime.toRelativeCalendar({ base: relativeTo });
+    const dayPart = datetime.toRelativeCalendar({
+      base: relativeTo,
+      unit: "days",
+    });
     return `${dayPart} à ${datetime.toLocaleString(HOUR_ONLY_FORMAT)}`;
   } else if (calendarDays <= 8) {
     const dayPart = datetime.weekdayLong;
-    return `${dayPart} ${qualifier} à ${datetime.toLocaleString(
+    return `${dayPart}${qualifier} à ${datetime.toLocaleString(
       HOUR_ONLY_FORMAT
     )}`;
   } else if (interval.count("months") <= 4) {
