@@ -282,7 +282,23 @@ class EventPagesTestCase(TestCase):
         args = patched_send_notification.delay.call_args[0]
 
         self.assertEqual(args[0], self.organized_event.pk)
-        self.assertCountEqual(args[1], ["contact", "location", "timing", "information"])
+        self.assertCountEqual(
+            args[1],
+            [
+                "name",
+                "start_time",
+                "end_time",
+                "contact_name",
+                "contact_email",
+                "contact_phone",
+                "location_name",
+                "location_address1",
+                "location_zip",
+                "location_city",
+                "description",
+                "as_group",
+            ],
+        )
 
         patched_geocode.delay.assert_called_once()
         args = patched_geocode.delay.call_args[0]

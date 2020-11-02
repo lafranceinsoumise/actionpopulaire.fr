@@ -20,6 +20,7 @@ from ..activity.models import Activity
 
 NOTIFIED_CHANGES = {
     "name": "information",
+    "contact_name": "contact",
     "contact_email": "contact",
     "contact_phone": "contact",
     "contact_hide_phone": "contact",
@@ -97,7 +98,7 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
             type=Activity.TYPE_GROUP_INFO_UPDATE,
             recipient=r,
             supportgroup=group,
-            meta={"changed_data": changed_data},
+            meta={"changed_data": [f for f in changed_data if f in NOTIFIED_CHANGES]},
         )
 
     change_descriptions = [

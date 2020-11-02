@@ -103,11 +103,14 @@ def send_event_changed_notification(event_pk, changed_data):
         # event does not exist anymore ?! nothing to do
         return
 
-    change_categories = {
-        NOTIFIED_CHANGES[f] for f in changed_data if f in NOTIFIED_CHANGES
-    }
+    changed_data = [f for f in changed_data if f in NOTIFIED_CHANGES]
+
+    if not changed_data:
+        return
+
+    changed_categories = {NOTIFIED_CHANGES[f] for f in changed_data}
     change_descriptions = [
-        desc for id, desc in CHANGE_DESCRIPTION.items() if id in change_categories
+        desc for id, desc in CHANGE_DESCRIPTION.items() if id in changed_categories
     ]
     change_fragment = render_to_string(
         template_name="lib/list_fragment.html", context={"items": change_descriptions}
@@ -116,33 +119,34 @@ def send_event_changed_notification(event_pk, changed_data):
     notifications_enabled = Q(notifications_enabled=True) & Q(
         person__event_notifications=True
     )
+
+    for r in event.attendees.all():
+        activity = Activity.objects.filter(
+            type=Activity.TYPE_EVENT_UPDATE,
+            recipient=r,
+            event=event,
+            status=Activity.STATUS_UNDISPLAYED,
+        ).first()
+        if activity is not None:
+            activity.meta["changed_data"] = list(
+                set(changed_data).union(activity.meta["changed_data"])
+            )
+            activity.timestamp = timezone.now()
+            activity.save()
+        else:
+            Activity.objects.create(
+                type=Activity.TYPE_EVENT_UPDATE,
+                recipient=r,
+                event=event,
+                meta={"changed_data": changed_data},
+            )
+
     recipients = [
         rsvp.person
         for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
             "person__emails"
         )
     ]
-
-    for r in recipients:
-        notification = Activity.objects.filter(
-            type=Activity.TYPE_EVENT_UPDATE,
-            recipient=r,
-            event=event,
-            status=Activity.STATUS_UNDISPLAYED,
-        ).first()
-        if notification is not None:
-            notification.meta["changed_fields"] = list(
-                set(changed_data).union(notification.meta["changed_field"])
-            )
-            notification.timestamp = timezone.now()
-            notification.save()
-        else:
-            Activity.objects.create(
-                type=Activity.TYPE_EVENT_UPDATE,
-                recipient=r,
-                event=event,
-                meta={"changed_fields": changed_data},
-            )
 
     bindings = {
         "EVENT_NAME": event.name,

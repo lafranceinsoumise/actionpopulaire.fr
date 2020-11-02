@@ -6,6 +6,7 @@ from django.utils import timezone
 from agir.people.models import Person
 from .. import tasks
 from ..models import SupportGroup, Membership
+from ...activity.models import Activity
 
 
 class NotificationTasksTestCase(TestCase):
@@ -96,7 +97,7 @@ class NotificationTasksTestCase(TestCase):
 
     def test_changed_group_notification_mail(self):
         tasks.send_support_group_changed_notification(
-            self.group.pk, ["information", "contact"]
+            self.group.pk, ["name", "contact_name"]
         )
 
         self.assertEqual(len(mail.outbox), 3)
@@ -115,14 +116,24 @@ class NotificationTasksTestCase(TestCase):
             text = message.body.replace("\n", "")
 
             self.assert_(self.group.name in text, "group name not in message")
-            # self.assert_(
-            #     dj_reverse('quit_group', kwargs={'pk': self.group.pk}, urlconf='front.urls') in message.body,
-            #     'quit group link not in message'
-            # )
             self.assertIn(
                 "/groupes/{}".format(self.group.pk), text, "group link not in message"
             )
 
-            self.assertIn(str(tasks.CHANGE_DESCRIPTION["information"]), text)
-            self.assertIn(str(tasks.CHANGE_DESCRIPTION["contact"]), text)
-            self.assertNotIn(str(tasks.CHANGE_DESCRIPTION["location"]), text)
+    def test_changed_group_activity(self):
+        tasks.send_support_group_changed_notification(
+            self.group.pk, ["name", "contact_name", "description"]
+        )
+
+        activities = Activity.objects.all()
+        self.assertEqual(
+            activities.count(), 4
+        )  # inclut la personne qui a désactivé les notifications
+        self.assertCountEqual(
+            [a.recipient for a in activities],
+            [self.creator, self.member1, self.member2, self.member_no_notification],
+        )
+        for a in activities:
+            self.assertCountEqual(
+                a.meta["changed_data"], ["name", "contact_name", "description"]
+            )

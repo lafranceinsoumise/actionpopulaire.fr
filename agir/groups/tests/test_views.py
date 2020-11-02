@@ -16,6 +16,7 @@ from agir.groups.tasks import invite_to_group
 from agir.people.models import Person
 from ..forms import SupportGroupForm
 from ..models import SupportGroup, Membership, SupportGroupSubtype
+from ...activity.models import Activity
 
 
 class SupportGroupMixin:
@@ -153,7 +154,9 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
         args = patched_send_notification.delay.call_args[0]
 
         self.assertEqual(args[0], self.manager_group.pk)
-        self.assertCountEqual(args[1], ["contact", "location"])
+        self.assertCountEqual(
+            args[1], ["contact_name", "contact_email", "contact_phone", "location_city"]
+        )
 
         patched_geocode.delay.assert_called_once()
         args = patched_geocode.delay.call_args[0]
@@ -428,49 +431,18 @@ class InvitationTestCase(TestCase):
             (str(self.group.pk), "userunknown@example.com", str(self.referent.pk)),
         )
 
-    def test_invitation_mail_is_sent_to_existing_user(self):
+    def test_activity_is_created_for_existing_user(self):
         invite_to_group(self.group.pk, "user2@example.com", self.referent.pk)
 
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 0)
 
-        email = mail.outbox[0]
+        activities = Activity.objects.filter(recipient=self.invitee)
+        self.assertEqual(activities.count(), 1)
 
-        self.assertEqual(
-            email.subject, "Vous avez été invité⋅e à rejoindre un groupe de la FI"
-        )
+        activity = activities.get()
 
-        self.assertIn(
-            "Vous avez été invité⋅e à rejoindre le groupe d'action « Nom du groupe » par un de ses animateurs",
-            email.body,
-        )
-
-        self.assertIn("/groupes/invitation/?", email.body)
-
-        join_url = re.search(
-            "/groupes/invitation/\?[A-Za-z0-9&=_-]+", email.body
-        ).group(0)
-
-        res = self.client.get(join_url, follow=True)
-
-        self.assertRedirects(
-            res,
-            reverse("view_group", args=(self.group.pk,)),
-            fetch_redirect_response=False,
-        )
-
-        self.assertTrue(
-            any(
-                "Vous venez de rejoindre le groupe d'action <em>Nom du groupe</em>"
-                in m.message
-                for m in get_messages(res.wsgi_request)
-            )
-        )
-
-        self.assertTrue(
-            Membership.objects.filter(
-                person=self.invitee, supportgroup=self.group
-            ).exists()
-        )
+        self.assertEqual(activity.type, Activity.TYPE_GROUP_INVITATION)
+        self.assertEqual(activity.supportgroup, self.group)
 
     def test_invitation_mail_is_sent_to_new_user(self):
         invite_to_group(self.group.pk, "userunknown@example.com", self.referent.pk)
@@ -527,33 +499,30 @@ class InvitationTestCase(TestCase):
         )
 
     @patch("agir.groups.views.management_views.send_abuse_report_message")
-    def test_can_report_abuse_from_both_emails(self, send_abuse_report_message):
-        call_count = 0
+    def test_can_report_abuse_when_not_subscrived(self, send_abuse_report_message):
+        email_address = "userunknown@example.com"
+        invite_to_group(self.group.pk, email_address, self.referent.pk)
+        email = mail.outbox[-1]
 
-        for email_address in ["user2@example.com", "userunknown@example.com"]:
-            invite_to_group(self.group.pk, email_address, self.referent.pk)
-            email = mail.outbox[-1]
+        self.assertIn("/groupes/invitation/abus/", email.body)
 
-            self.assertIn("/groupes/invitation/abus/", email.body)
+        report_url = re.search(
+            r"/groupes/invitation/abus/\?[%.A-za-z0-9&=-]+", email.body
+        ).group(0)
 
-            report_url = re.search(
-                r"/groupes/invitation/abus/\?[%.A-za-z0-9&=-]+", email.body
-            ).group(0)
+        # following to make it work with auto_login
+        res = self.client.get(report_url, follow=True)
+        self.assertContains(res, "<h1>Signaler un email non sollicité</h1>")
+        self.assertContains(res, "<form")
 
-            # following to make it work with auto_login
-            res = self.client.get(report_url, follow=True)
-            self.assertContains(res, "<h1>Signaler un email non sollicité</h1>")
-            self.assertContains(res, "<form")
+        if res.redirect_chain:
+            res = self.client.post(res.redirect_chain[-1][0])
+        else:
+            res = self.client.post(report_url)
 
-            if res.redirect_chain:
-                res = self.client.post(res.redirect_chain[-1][0])
-            else:
-                res = self.client.post(report_url)
+        self.assertContains(res, "<h1>Merci de votre signalement</h1>")
 
-            self.assertContains(res, "<h1>Merci de votre signalement</h1>")
-
-            call_count += 1
-            self.assertEqual(send_abuse_report_message.delay.call_count, call_count)
-            self.assertEqual(
-                send_abuse_report_message.delay.call_args[0], (str(self.referent.id),)
-            )
+        send_abuse_report_message.delay.assert_called_once()
+        self.assertEqual(
+            send_abuse_report_message.delay.call_args[0], (str(self.referent.id),)
+        )

@@ -7,6 +7,7 @@ from agir.people.models import Person
 
 from .. import tasks
 from ..models import Event, Calendar, RSVP, OrganizerConfig
+from ...activity.models import Activity
 
 
 class EventTasksTestCase(TestCase):
@@ -104,7 +105,7 @@ class EventTasksTestCase(TestCase):
             self.assert_(value in text, "{} missing from mail".format(name))
 
     def test_changed_event_notification_mail(self):
-        tasks.send_event_changed_notification(self.event.pk, ["information", "timing"])
+        tasks.send_event_changed_notification(self.event.pk, ["name", "start_time"])
 
         self.assertEqual(len(mail.outbox), 2)
 
@@ -129,6 +130,25 @@ class EventTasksTestCase(TestCase):
             self.assert_(str(tasks.CHANGE_DESCRIPTION["information"]) in text)
             self.assert_(str(tasks.CHANGE_DESCRIPTION["timing"]) in text)
             self.assert_(str(tasks.CHANGE_DESCRIPTION["contact"]) not in text)
+
+    def test_changed_event_activity(self):
+        tasks.send_event_changed_notification(
+            self.event.pk, ["name", "start_time", "end_time"]
+        )
+
+        self.assertEqual(len(Activity.objects.all()), 3)
+
+        activities = Activity.objects.all()
+
+        self.assertCountEqual(
+            [a.recipient for a in activities],
+            [self.attendee1, self.attendee2, self.attendee_no_notification],
+        )
+
+        for activity in activities:
+            self.assertCountEqual(
+                activity.meta["changed_data"], ["name", "start_time", "end_time"]
+            )
 
     def test_send_event_report_mail(self):
         tasks.send_event_report(self.event.pk)
