@@ -89,7 +89,7 @@ export const Column = styled.div`
     padding-right: 0;
 
     & > ${Card} {
-      margin-bottom: 0px;
+      ${(props) => (props.stack ? "margin-bottom: 0px;" : "")}
       margin-left: -${gutter}px;
       margin-right: -${gutter}px;
       border-radius: 0px;

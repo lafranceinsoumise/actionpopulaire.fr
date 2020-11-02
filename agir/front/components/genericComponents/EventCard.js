@@ -7,34 +7,17 @@ import { displayInterval } from "@agir/lib/utils/time";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import styles from "@agir/front/genericComponents/style.scss";
 import styled from "styled-components";
-
-const InlineButton = styled.a`
-  font-size: 14px;
-  text-transform: uppercase;
-  font-weight: 700;
-
-  color: ${({ color }) => color};
-  &:hover {
-    color: ${({ color }) => color};
-  }
-`;
+import Button from "@agir/front/genericComponents/Button";
 
 const RSVPButton = ({ rsvp, routes }) => (
-  <InlineButton
-    color={rsvp ? styles.green500 : styles.secondary500}
+  <Button
+    small
+    color={rsvp ? "confirmed" : "secondary"}
+    icon={rsvp ? "check" : "calendar"}
     a={rsvp ? routes.cancel : routes.join}
   >
-    {rsvp ? (
-      <>
-        <FeatherIcon name="check" inline small />
-        Je participe
-      </>
-    ) : (
-      <>
-        <FeatherIcon name="calendar" inline small /> Participer
-      </>
-    )}
-  </InlineButton>
+    {rsvp ? "Je participe" : "Participer"}
+  </Button>
 );
 
 const Illustration = styled.img`
@@ -64,14 +47,22 @@ const EventCard = ({
     >
       <Illustration src={illustration} alt="Image d'illustration" />
     </div>
-    <p style={{ fontSize: "14px" }}>
-      <FeatherIcon name="clock" inline small /> {displayInterval(schedule)}
+    <p style={{ fontSize: "14px", color: styles.primary500, fontWeight: 600 }}>
+      {displayInterval(schedule)}
       {location && location.shortAddress && <> • {location.shortAddress}</>}
     </p>
     <h3 style={{ fontWeight: 700 }}>{name}</h3>
     <Row style={{ fontSize: "14px" }}>
       <Column grow collapse={0}>
         <RSVPButton {...{ rsvp, routes }} />
+        <Button
+          small
+          as="a"
+          href={routes.details}
+          style={{ marginLeft: "8px" }}
+        >
+          Details
+        </Button>
       </Column>
       {participantCount > 1 && (
         <Column collapse={0}>
