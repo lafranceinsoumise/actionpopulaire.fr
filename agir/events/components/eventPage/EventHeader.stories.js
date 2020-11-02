@@ -1,13 +1,16 @@
 import React from "react";
-import { DateTime, Duration, Interval } from "luxon";
+import { DateTime } from "luxon";
 
 import EventHeader from "./EventHeader";
 import { TestGlobalContextProvider } from "@agir/front/genericComponents/GobalContext";
+import {
+  scheduleFromStartTimeAndDuration,
+  decorateArgs,
+} from "@agir/lib/utils/storyUtils";
 
 const routes = { logIn: "#login", signIn: "#signin" };
 
 const defaultStartTime = DateTime.local().plus({ days: 2 });
-const defaultEndTime = defaultStartTime.plus({ hours: 2 });
 
 export default {
   component: EventHeader,
@@ -44,24 +47,18 @@ export default {
   },
 };
 
-const Template = ({ startTime, duration, price, rsvped, ...args }) => {
-  const schedule = Interval.after(
-    DateTime.fromMillis(+startTime, {
-      zone: "Europe/Paris",
-      locale: "fr",
-    }),
-    Duration.fromObject({ hours: duration })
-  );
-
-  return (
-    <EventHeader
-      {...args}
-      schedule={schedule}
-      options={price !== "" ? { price } : {}}
-      rsvp={rsvped ? { id: "prout" } : null}
-    />
-  );
-};
+const Template = decorateArgs(
+  scheduleFromStartTimeAndDuration(),
+  ({ price, rsvped, ...args }) => {
+    return (
+      <EventHeader
+        {...args}
+        options={price !== "" ? { price } : {}}
+        rsvp={rsvped ? { id: "prout" } : null}
+      />
+    );
+  }
+);
 
 export const Default = Template.bind({});
 Default.args = {

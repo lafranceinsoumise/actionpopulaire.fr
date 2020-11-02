@@ -5,7 +5,7 @@ import { icons } from "feather-icons";
 
 export const allIcons = Object.keys(icons);
 
-export const RawFeatherIcon = styled.div.attrs(
+export const RawFeatherIcon = styled.span.attrs(
   ({ name, strokeWidth, color, strokeLinecap, strokeLinejoin, svgStyle }) => {
     const attrs = {
       name,

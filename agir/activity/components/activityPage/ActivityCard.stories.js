@@ -1,10 +1,9 @@
-import React from "react";
-
 import { Default as EventCardStory } from "@agir/front/genericComponents/EventCard.stories";
 
 import ActivityCard from "./ActivityCard";
 import { activityCardIcons } from "./ActivityCard";
 import { DateTime } from "luxon";
+import { decorateArgs, reorganize } from "@agir/lib/utils/storyUtils";
 
 export default {
   component: ActivityCard,
@@ -17,10 +16,49 @@ export default {
         options: Object.keys(activityCardIcons),
       },
     },
+    event: {
+      control: { type: "object" },
+    },
+    supportGroup: {
+      control: { type: "object" },
+    },
   },
 };
 
-const Template = (args) => <ActivityCard {...args} />;
+/**
+ * Convertit startTime/duration fourni par les contrôles dans le format attendu
+ * par le composant : startTime et endTime, au format ISO tous les deux.
+ */
+const convertDatetimes = ({
+  event: { startTime, duration, ...event },
+  ...args
+}) => {
+  const start = DateTime.fromMillis(startTime);
+  return {
+    ...args,
+    event: {
+      ...event,
+      startTime: start.toISO(),
+      endTime: start.plus({ hours: duration }).toISO(),
+    },
+  };
+};
+
+const Template = decorateArgs(
+  convertDatetimes,
+  reorganize(
+    {
+      individual: { fullName: "individual" },
+      "event.location": {
+        name: "event.locationName",
+        address: "event.locationAddress",
+        shortAddress: "event.shortAddress",
+      },
+    },
+    true
+  ),
+  ActivityCard
+);
 
 export const Default = Template.bind({});
 Default.args = {

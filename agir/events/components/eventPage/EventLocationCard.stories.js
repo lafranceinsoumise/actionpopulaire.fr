@@ -1,7 +1,12 @@
 import React from "react";
 
 import EventLocationCard from "./EventLocationCard";
-import { DateTime, Duration, Interval } from "luxon";
+import { DateTime } from "luxon";
+import {
+  decorateArgs,
+  reorganize,
+  scheduleFromStartTimeAndDuration,
+} from "@agir/lib/utils/storyUtils";
 
 export default {
   component: EventLocationCard,
@@ -24,31 +29,13 @@ export default {
   ],
 };
 
-const Template = ({
-  startTime,
-  duration,
-  locationName,
-  locationAddress,
-  ...args
-}) => {
-  const schedule = Interval.after(
-    DateTime.fromMillis(+startTime, {
-      zone: "Europe/Paris",
-      locale: "fr",
-    }),
-    Duration.fromObject({ hours: duration })
-  );
-  return (
-    <EventLocationCard
-      {...args}
-      schedule={schedule}
-      location={{
-        name: locationName,
-        address: locationAddress,
-      }}
-    />
-  );
-};
+const Template = decorateArgs(
+  scheduleFromStartTimeAndDuration(),
+  reorganize({
+    location: { name: "locationName", address: "locationAddress" },
+  }),
+  EventLocationCard
+);
 
 export const Default = Template.bind({});
 Default.args = {
