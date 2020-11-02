@@ -48,7 +48,6 @@ if os.environ.get("GDAL_LIBRARY_PATH"):
 ENABLE_API = os.environ.get("ENABLE_API", "n").lower() in YES_VALUES or DEBUG
 ENABLE_ADMIN = os.environ.get("ENABLE_ADMIN", "n").lower() in YES_VALUES or DEBUG
 ENABLE_FRONT = os.environ.get("ENABLE_FRONT", "n").lower() in YES_VALUES or DEBUG
-ENABLE_MAP = os.environ.get("ENABLE_MAP", "n").lower() in YES_VALUES or DEBUG
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

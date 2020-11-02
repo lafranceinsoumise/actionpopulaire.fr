@@ -26,8 +26,15 @@ class AutoLoginUrl(str):
         return self
 
 
-def front_url(*args, query=None, absolute=True, auto_login=True, **kwargs):
-    url = reverse(*args, urlconf="agir.api.front_urls", **kwargs)
+def front_url(
+    *args,
+    query=None,
+    absolute=True,
+    auto_login=True,
+    urlconf="agir.api.front_urls",
+    **kwargs,
+):
+    url = reverse(*args, urlconf=urlconf, **kwargs)
     if absolute:
         url = urljoin(settings.FRONT_DOMAIN, url)
     if query:

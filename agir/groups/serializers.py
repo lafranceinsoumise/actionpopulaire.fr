@@ -1,10 +1,13 @@
+from django.conf import settings
 from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
 from . import models
+from .actions import get_promo_codes
 from .models import Membership
 from ..front.serializer_utils import RoutesField
 from ..lib.serializers import FlexibleFieldsMixin
+from ..lib.utils import front_url
 
 
 class SupportGroupLegacySerializer(CountryFieldMixin, serializers.ModelSerializer):
@@ -57,6 +60,8 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isManager = serializers.SerializerMethodField()
     labels = serializers.SerializerMethodField()
 
+    discountCodes = serializers.SerializerMethodField()
+
     routes = RoutesField(routes=GROUP_ROUTES)
 
     def to_representation(self, instance):
@@ -89,3 +94,16 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
             for s in obj.subtypes.all()
             if s.description and not s.hide_text_label
         ]
+
+    def get_routes(self, obj):
+        additional_routes = {}
+        if obj.is_certified:
+            additional_routes["fund"] = front_url(
+                "donation_amount", query={"group": obj.pk}
+            )
+        return {}
+
+    def get_discountCodes(self, obj):
+        if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
+            return [{"code": code, "date": date} for code, date in get_promo_codes(obj)]
+        return []

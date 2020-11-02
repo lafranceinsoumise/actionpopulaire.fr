@@ -72,13 +72,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
             )
         )
 
-        if is_promo_code_delayed():
-            promo_code_delay = next_promo_code_date()
-        else:
-            for group in members_groups:
-                if group.user_is_manager and group.has_promo_code:
-                    group.promo_codes = get_promo_codes(group)
-            promo_code_delay = None
+        promo_code_delay = None
 
         suggested_events = (
             Event.objects.upcoming()

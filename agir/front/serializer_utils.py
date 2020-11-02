@@ -1,6 +1,7 @@
 from django.conf import settings
-from django.urls import reverse
 from rest_framework import serializers
+
+from agir.lib.utils import front_url
 
 
 class MediaURLField(serializers.URLField):
@@ -27,7 +28,7 @@ class RoutesField(serializers.SerializerMethodField):
     def to_representation(self, value):
         method = getattr(self.parent, self.method_name, None)
         routes = {
-            key: reverse(view_name, args=(value.pk,))
+            key: front_url(view_name, args=(value.pk,))
             for key, view_name in self.routes.items()
         }
 

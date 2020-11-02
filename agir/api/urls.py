@@ -41,9 +41,6 @@ if settings.ENABLE_API:
 if settings.ENABLE_FRONT:
     urlpatterns += [path("", include("agir.api.front_urls"))]
 
-if settings.ENABLE_MAP:
-    urlpatterns.append(path("carte/", include("agir.carte.urls")))
-
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
