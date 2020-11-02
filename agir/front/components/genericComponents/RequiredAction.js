@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 
 import RequiredActionCard from "./RequiredActionCard";
+import useCopyToClipboard from "./useCopyToClipboard";
 
 export const requiredActionTypes = [
   "waiting-payment",
@@ -18,6 +19,8 @@ const RequiredAction = (props) => {
   const handleDismiss = useCallback(() => {
     onDismiss(id);
   }, [id]);
+
+  const [isEmailCopied, copyEmail] = useCopyToClipboard(individual.email);
 
   switch (type) {
     case "waiting-payment": {
@@ -58,9 +61,9 @@ const RequiredAction = (props) => {
       return (
         <RequiredActionCard
           iconName="user-plus"
-          confirmLabel="Copier le mail"
+          confirmLabel={isEmailCopied ? "✓ Copié !" : "Copier le mail"}
           dismissLabel="C'est fait"
-          onConfirm={`mailto:${individual.email}`}
+          onConfirm={copyEmail}
           onDismiss={handleDismiss}
           text={
             <>
