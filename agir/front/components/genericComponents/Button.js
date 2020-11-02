@@ -31,6 +31,12 @@ const buttonColors = {
     labelColor: style.black500,
     borderColor: style.black100,
   },
+  dismiss: {
+    background: "transparent",
+    labelColor: style.primary600,
+    hoverBackground: "transparent",
+    borderColor: style.primary600,
+  },
 };
 
 const Button = styled.button.attrs(({ color }) => buttonColors[color])`
@@ -63,7 +69,7 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
     color: ${({ labelColor }) =>
       labelColor}; // we need to overwrite link hover colors
   }
-  
+
   ${({ disabled }) => disabled && "cursor: not-allowed;"}
 
   ${({ icon, labelColor, small }) =>
