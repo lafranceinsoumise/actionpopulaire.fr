@@ -22,7 +22,7 @@ const MobileLayout = (props) => {
   return (
     <Container>
       <Row>
-        <Column>
+        <Column stack>
           {props.illustration && (
             <div
               style={{
