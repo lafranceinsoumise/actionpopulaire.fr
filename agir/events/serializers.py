@@ -45,9 +45,9 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
 
 
 EVENT_ROUTES = {
-    "page": "view_event",
+    "details": "view_event",
     "map": "carte:single_event_map",
-    "attend": "rsvp_event",
+    "join": "rsvp_event",
     "cancel": "quit_event",
     "manage": "manage_event",
     "calendarExport": "ics_event",

@@ -79,13 +79,13 @@ const ActionButtons = ({
     } else {
       if (hasSubscriptionForm) {
         return (
-          <ActionButton as="a" color="secondary" href={routes.attend}>
+          <ActionButton as="a" color="secondary" href={routes.join}>
             Participer à l'événement
           </ActionButton>
         );
       } else {
         return (
-          <CSRFProtectedForm method="post" action={routes.attend}>
+          <CSRFProtectedForm method="post" action={routes.join}>
             <ActionButton type="submit" color="secondary">
               Participer à l'événement
             </ActionButton>
@@ -189,7 +189,7 @@ EventHeader.propTypes = {
   }),
   rsvp: PropTypes.string,
   routes: PropTypes.shape({
-    page: PropTypes.string,
+    details: PropTypes.string,
     join: PropTypes.string,
     cancel: PropTypes.string,
   }),

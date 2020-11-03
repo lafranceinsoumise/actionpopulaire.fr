@@ -8,18 +8,40 @@ import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import styles from "@agir/front/genericComponents/style.scss";
 import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
+import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 
-const RSVPButton = ({ rsvp, routes }) => (
-  <Button
-    small
-    color={rsvp ? "confirmed" : "secondary"}
-    icon={rsvp ? "check" : "calendar"}
-    a={rsvp ? routes.cancel : routes.join}
-  >
-    {rsvp ? "Je participe" : "Participer"}
-  </Button>
-);
+const RSVPButton = ({ hasSubscriptionForm, rsvp, routes }) => {
+  if (rsvp) {
+    return (
+      <Button as="a" small color="confirmed" icon="check" href={routes.cancel}>
+        Je participe
+      </Button>
+    );
+  }
+
+  if (hasSubscriptionForm) {
+    return (
+      <Button as="a" color="secondary" href={routes.join}>
+        Participer
+      </Button>
+    );
+  }
+
+  return (
+    <CSRFProtectedForm
+      method="post"
+      action={routes.join}
+      style={{ display: "inline-block" }}
+    >
+      <Button small type="submit" color="secondary" icon="calendar">
+        Participer
+      </Button>
+    </CSRFProtectedForm>
+  );
+};
+
 RSVPButton.propTypes = {
+  hasSubscriptionForm: PropTypes.bool,
   rsvp: PropTypes.bool,
   routes: PropTypes.shape({ cancel: PropTypes.string, join: PropTypes.string }),
 };
@@ -34,6 +56,7 @@ const Illustration = styled.img`
 
 const EventCard = ({
   illustration,
+  hasSubscriptionForm,
   schedule,
   location,
   name,
@@ -60,7 +83,11 @@ const EventCard = ({
     <h3 style={{ fontWeight: 700 }}>{name}</h3>
     <Row style={{ fontSize: "14px" }}>
       <Column grow collapse={0}>
-        <RSVPButton {...{ rsvp, routes }} />
+        <RSVPButton
+          hasSubscriptionForm={hasSubscriptionForm}
+          rsvp={!!rsvp}
+          routes={routes}
+        />
         <Button
           small
           as="a"
@@ -89,6 +116,7 @@ EventCard.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   participantCount: PropTypes.number.isRequired,
+  hasSubscriptionForm: PropTypes.bool,
   illustration: PropTypes.string,
   schedule: PropTypes.instanceOf(Interval).isRequired,
   location: PropTypes.shape({
