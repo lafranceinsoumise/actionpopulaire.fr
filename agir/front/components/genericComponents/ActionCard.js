@@ -8,17 +8,24 @@ import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Button from "@agir/front/genericComponents/Button";
 
 const StyledText = styled.p`
-  font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 16px;
+  && {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
 
-  & > a,
   & > strong {
+    font-weight: bolder;
+  }
+  & > a {
     color: inherit;
-    font-weight: bold;
+    text-decoration: underline;
   }
 `;
-
+const StyledFooter = styled.footer`
+  display: flex;
+  flex-flow: row nowrap;
+`;
 const StyledButton = styled(Button)`
   display: inline-flex;
   align-items: center;
@@ -49,47 +56,49 @@ const ActionCard = (props) => {
           </Column>
           <Column grow collapse={0}>
             <StyledText>{text}</StyledText>
-            {typeof onConfirm === "function" ? (
-              <StyledButton
-                onClick={onConfirm}
-                small
-                color="primary"
-                disabled={disabled}
-              >
-                {confirmLabel}
-              </StyledButton>
-            ) : typeof onConfirm === "string" ? (
-              <StyledButton
-                small
-                color="primary"
-                as="a"
-                href={onConfirm}
-                disabled={disabled}
-              >
-                {confirmLabel}
-              </StyledButton>
-            ) : null}
-            &ensp;
-            {typeof onDismiss === "function" ? (
-              <StyledButton
-                onClick={onDismiss}
-                small
-                color="dismiss"
-                disabled={disabled}
-              >
-                {dismissLabel}
-              </StyledButton>
-            ) : typeof onDismiss === "string" ? (
-              <StyledButton
-                small
-                color="dismiss"
-                as="a"
-                href={onDismiss}
-                disabled={disabled}
-              >
-                {dismissLabel}
-              </StyledButton>
-            ) : null}
+            <StyledFooter>
+              {typeof onConfirm === "function" ? (
+                <StyledButton
+                  onClick={onConfirm}
+                  small
+                  color="primary"
+                  disabled={disabled}
+                >
+                  {confirmLabel}
+                </StyledButton>
+              ) : typeof onConfirm === "string" ? (
+                <StyledButton
+                  small
+                  color="primary"
+                  as="a"
+                  href={onConfirm}
+                  disabled={disabled}
+                >
+                  {confirmLabel}
+                </StyledButton>
+              ) : null}
+              &ensp;
+              {typeof onDismiss === "function" ? (
+                <StyledButton
+                  onClick={onDismiss}
+                  small
+                  color="dismiss"
+                  disabled={disabled}
+                >
+                  {dismissLabel}
+                </StyledButton>
+              ) : typeof onDismiss === "string" ? (
+                <StyledButton
+                  small
+                  color="dismiss"
+                  as="a"
+                  href={onDismiss}
+                  disabled={disabled}
+                >
+                  {dismissLabel}
+                </StyledButton>
+              ) : null}
+            </StyledFooter>
           </Column>
         </Row>
       </Container>
