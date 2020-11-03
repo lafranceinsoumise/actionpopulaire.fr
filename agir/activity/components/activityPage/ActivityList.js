@@ -61,6 +61,9 @@ const ActivityList = (props) => {
     const unrequired = [];
     if (Array.isArray(data) && data.length > 0) {
       data.forEach((activity) => {
+        if (dismissed.includes(activity.id)) {
+          return;
+        }
         if (requiredActionTypes.includes(activity.type)) {
           include.includes("required") && required.push(activity);
         } else {
@@ -69,7 +72,7 @@ const ActivityList = (props) => {
       });
     }
     return [required, unrequired];
-  }, [data, include]);
+  }, [data, include, dismissed]);
 
   return (
     <article>
@@ -77,13 +80,11 @@ const ActivityList = (props) => {
         <StyledList type="required">
           <h2>À traiter</h2>
           <h4>Vos notifications qui requièrent une action de votre part</h4>
-          {required.map((activity) =>
-            dismissed.includes(activity.id) ? null : (
-              <li key={activity.id}>
-                <RequiredActionCard onDismiss={handleDismiss} {...activity} />
-              </li>
-            )
-          )}
+          {required.map((activity) => (
+            <li key={activity.id}>
+              <RequiredActionCard onDismiss={handleDismiss} {...activity} />
+            </li>
+          ))}
         </StyledList>
       ) : null}
       {unrequired.length > 0 ? (

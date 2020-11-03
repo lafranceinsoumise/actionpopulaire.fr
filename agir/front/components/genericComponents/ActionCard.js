@@ -101,7 +101,6 @@ const ActionCard = (props) => {
 };
 
 ActionCard.propTypes = {
-  name: PropTypes.string.isRequired,
   text: PropTypes.node.isRequired,
   iconName: PropTypes.oneOf([
     "alert-circle",
