@@ -52,7 +52,7 @@ export function displayHumanDay(datetime, relativeTo, interval) {
           ? " prochain"
           : ""
         : " dernier";
-    return `${datetime.weekdayLong} ${qualifier}`;
+    return `${datetime.weekdayLong}${qualifier}`;
   }
 }
 
