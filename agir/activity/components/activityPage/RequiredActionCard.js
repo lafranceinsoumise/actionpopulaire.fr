@@ -18,9 +18,9 @@ const RequiredActionCard = (props) => {
 
   const handleDismiss = useCallback(() => {
     onDismiss(id);
-  }, [id]);
+  }, [id, onDismiss]);
 
-  const [isEmailCopied, copyEmail] = useCopyToClipboard(individual.email);
+  const [isEmailCopied, copyEmail] = useCopyToClipboard(individual.email, 1000);
 
   switch (type) {
     case "waiting-payment": {

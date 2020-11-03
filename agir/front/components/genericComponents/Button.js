@@ -33,9 +33,9 @@ const buttonColors = {
   },
   dismiss: {
     background: "transparent",
-    labelColor: style.primary600,
+    labelColor: style.black1000,
     hoverBackground: "transparent",
-    borderColor: style.primary600,
+    borderColor: style.black1000,
   },
 };
 

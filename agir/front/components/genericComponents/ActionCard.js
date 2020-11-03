@@ -11,15 +11,8 @@ const StyledText = styled.p`
   && {
     font-weight: 600;
     font-size: 14px;
+    line-height: 1.5;
     margin-bottom: 16px;
-  }
-
-  & > strong {
-    font-weight: bolder;
-  }
-  & > a {
-    color: inherit;
-    text-decoration: underline;
   }
 `;
 const StyledFooter = styled.footer`
@@ -31,6 +24,7 @@ const StyledButton = styled(Button)`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  text-align: left;
 
   &[disabled] {
     cursor: default;
@@ -48,10 +42,10 @@ const ActionCard = (props) => {
     disabled,
   } = props;
   return (
-    <Card type="primary">
+    <Card type="alert">
       <Container>
-        <Row>
-          <Column width="40px" collapse={0} style={{ padding: 0 }}>
+        <Row justify="flex-start">
+          <Column width="auto" collapse={0} style={{ padding: 0 }}>
             <FeatherIcon name={iconName} />
           </Column>
           <Column grow collapse={0}>
@@ -61,7 +55,7 @@ const ActionCard = (props) => {
                 <StyledButton
                   onClick={onConfirm}
                   small
-                  color="primary"
+                  color="secondary"
                   disabled={disabled}
                 >
                   {confirmLabel}
@@ -69,7 +63,7 @@ const ActionCard = (props) => {
               ) : typeof onConfirm === "string" ? (
                 <StyledButton
                   small
-                  color="primary"
+                  color="secondary"
                   as="a"
                   href={onConfirm}
                   disabled={disabled}
