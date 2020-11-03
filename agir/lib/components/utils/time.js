@@ -25,6 +25,37 @@ export function dateFromISOString(s) {
   return DateTime.fromISO(s).setLocale("fr");
 }
 
+export function displayHumanDay(datetime, relativeTo, interval) {
+  if (relativeTo === undefined) {
+    relativeTo = DateTime.local();
+  }
+
+  if (interval === undefined) {
+    interval =
+      relativeTo < datetime
+        ? Interval.fromDateTimes(relativeTo, datetime)
+        : Interval.fromDateTimes(datetime, relativeTo);
+  }
+
+  const calendarDays = interval.count("days");
+
+  if (calendarDays <= 3) {
+    return datetime.toRelativeCalendar({
+      base: relativeTo,
+      unit: "days",
+    });
+  } else if (calendarDays <= 8) {
+    const calendarWeeks = interval.count("weeks");
+    const qualifier =
+      relativeTo < datetime
+        ? calendarWeeks > 1
+          ? " prochain"
+          : ""
+        : " dernier";
+    return `${datetime.weekdayLong}${qualifier}`;
+  }
+}
+
 export function displayHumanDate(datetime, relativeTo) {
   if (relativeTo === undefined) {
     relativeTo = DateTime.local();
@@ -35,21 +66,13 @@ export function displayHumanDate(datetime, relativeTo) {
       : Interval.fromDateTimes(datetime, relativeTo);
 
   const calendarDays = interval.count("days");
-  const calendarWeeks = interval.count("weeks");
-  const qualifier =
-    relativeTo < datetime ? (calendarWeeks > 1 ? " prochain" : "") : " dernier";
 
-  if (calendarDays <= 3) {
-    const dayPart = datetime.toRelativeCalendar({
-      base: relativeTo,
-      unit: "days",
-    });
-    return `${dayPart} à ${datetime.toLocaleString(HOUR_ONLY_FORMAT)}`;
-  } else if (calendarDays <= 8) {
-    const dayPart = datetime.weekdayLong;
-    return `${dayPart}${qualifier} à ${datetime.toLocaleString(
-      HOUR_ONLY_FORMAT
-    )}`;
+  if (calendarDays <= 8) {
+    return `${displayHumanDay(
+      datetime,
+      relativeTo,
+      interval
+    )} à ${datetime.toLocaleString(HOUR_ONLY_FORMAT)}`;
   } else if (interval.count("months") <= 4) {
     return datetime.toLocaleString(SAME_YEAR_FORMAT);
   } else {

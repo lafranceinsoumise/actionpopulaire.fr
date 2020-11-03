@@ -9,3 +9,5 @@ const AgendaPage = (props) => (
 );
 
 export default AgendaPage;
+
+AgendaPage.propTypes = Agenda.propTypes;
