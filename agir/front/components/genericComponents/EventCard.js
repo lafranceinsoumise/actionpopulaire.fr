@@ -21,7 +21,7 @@ const RSVPButton = ({ hasSubscriptionForm, rsvp, routes }) => {
 
   if (hasSubscriptionForm) {
     return (
-      <Button as="a" color="secondary" href={routes.join}>
+      <Button small as="a" color="secondary" href={routes.join}>
         Participer
       </Button>
     );
