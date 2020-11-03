@@ -1,6 +1,10 @@
 const path = require("path");
 const fs = require("fs");
 
+require("dotenv").config({
+  path: path.join(__dirname, ".env"),
+});
+
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const BundleTracker = require("webpack-bundle-tracker");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
