@@ -1,10 +1,10 @@
 import React from "react";
 
-import RequiredAction from "./RequiredAction";
+import RequiredActionCard from "./RequiredActionCard";
 
 export default {
-  component: RequiredAction,
-  title: "Generic/RequiredAction",
+  component: RequiredActionCard,
+  title: "Activities/RequiredActionCard",
   argTypes: {
     onDismiss: { action: "onDismiss" },
   },
@@ -18,7 +18,7 @@ const Template = (args) => {
         margin: "10px auto",
       }}
     >
-      <RequiredAction {...args} />
+      <RequiredActionCard {...args} />
     </div>
   );
 };

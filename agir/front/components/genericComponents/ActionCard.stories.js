@@ -1,10 +1,10 @@
 import React from "react";
 
-import RequiredActionCard from "./RequiredActionCard";
+import ActionCard from "./ActionCard";
 
 export default {
-  component: RequiredActionCard,
-  title: "Generic/RequiredActionCard",
+  component: ActionCard,
+  title: "Generic/ActionCard",
   argTypes: {
     onConfirm: { action: "onConfirm" },
     onDismiss: { action: "onDismiss" },
@@ -19,7 +19,7 @@ const Template = (args) => {
         margin: "10px auto",
       }}
     >
-      <RequiredActionCard {...args} />
+      <ActionCard {...args} />
     </div>
   );
 };

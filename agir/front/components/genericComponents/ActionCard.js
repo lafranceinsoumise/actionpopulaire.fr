@@ -14,7 +14,7 @@ const StyledButton = styled(Button)`
   cursor: pointer;
 `;
 
-const RequiredActionCard = (props) => {
+const ActionCard = (props) => {
   const {
     text,
     iconName,
@@ -60,7 +60,7 @@ const RequiredActionCard = (props) => {
   );
 };
 
-RequiredActionCard.propTypes = {
+ActionCard.propTypes = {
   name: PropTypes.string.isRequired,
   text: PropTypes.node.isRequired,
   iconName: PropTypes.oneOf([
@@ -77,8 +77,8 @@ RequiredActionCard.propTypes = {
   dismissLabel: PropTypes.string,
   onDismiss: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
 };
-RequiredActionCard.defaultProps = {
+ActionCard.defaultProps = {
   dismissLabel: "Cacher",
 };
 
-export default RequiredActionCard;
+export default ActionCard;

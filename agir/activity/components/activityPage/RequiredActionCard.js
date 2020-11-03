@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 
-import RequiredActionCard from "./RequiredActionCard";
-import useCopyToClipboard from "./useCopyToClipboard";
+import ActionCard from "@agir/front/genericComponents/ActionCard";
+import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
 export const requiredActionTypes = [
   "waiting-payment",
@@ -13,7 +13,7 @@ export const requiredActionTypes = [
   "waiting-location-event",
 ];
 
-const RequiredAction = (props) => {
+const RequiredActionCard = (props) => {
   const { id, type, event, supportGroup, individual, onDismiss } = props;
 
   const handleDismiss = useCallback(() => {
@@ -25,7 +25,7 @@ const RequiredAction = (props) => {
   switch (type) {
     case "waiting-payment": {
       return (
-        <RequiredActionCard
+        <ActionCard
           iconName="alert-circle"
           confirmLabel="Payer"
           dismissLabel="Voir l'événement"
@@ -42,7 +42,7 @@ const RequiredAction = (props) => {
     }
     case "group-invitation": {
       return (
-        <RequiredActionCard
+        <ActionCard
           iconName="mail"
           confirmLabel="Rejoindre"
           dismissLabel="Décliner"
@@ -59,7 +59,7 @@ const RequiredAction = (props) => {
     }
     case "new-member": {
       return (
-        <RequiredActionCard
+        <ActionCard
           iconName="user-plus"
           confirmLabel={isEmailCopied ? "✓ Copié !" : "Copier le mail"}
           dismissLabel="C'est fait"
@@ -77,7 +77,7 @@ const RequiredAction = (props) => {
     }
     case "waiting-location-group": {
       return (
-        <RequiredActionCard
+        <ActionCard
           iconName="alert-circle"
           confirmLabel="Mettre à jour"
           onConfirm={supportGroup.url}
@@ -93,7 +93,7 @@ const RequiredAction = (props) => {
     }
     case "group-coorganization-invite": {
       return (
-        <RequiredActionCard
+        <ActionCard
           iconName="mail"
           confirmLabel="Voir"
           dismissLabel="Décliner"
@@ -111,7 +111,7 @@ const RequiredAction = (props) => {
     }
     case "waiting-location-event": {
       return (
-        <RequiredActionCard
+        <ActionCard
           iconName="alert-circle"
           confirmLabel="Mettre à jour"
           onConfirm={event.routes.details}
@@ -129,7 +129,7 @@ const RequiredAction = (props) => {
       return null;
   }
 };
-RequiredAction.propTypes = {
+RequiredActionCard.propTypes = {
   id: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
   event: PropTypes.shape({
@@ -148,4 +148,4 @@ RequiredAction.propTypes = {
   }),
   onDismiss: PropTypes.func,
 };
-export default RequiredAction;
+export default RequiredActionCard;
