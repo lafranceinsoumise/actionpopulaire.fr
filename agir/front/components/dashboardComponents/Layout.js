@@ -10,7 +10,7 @@ import Navigation from "@agir/front/dashboardComponents/Navigation";
 
 const Layout = (props) => (
   <GrayBackground>
-    <Container>
+    <Container style={{ paddingTop: "64px" }}>
       <Row gutter={72}>
         <Column>
           <Navigation {...props} />

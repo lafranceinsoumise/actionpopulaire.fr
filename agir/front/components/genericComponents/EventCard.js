@@ -49,7 +49,9 @@ const EventCard = ({
         backgroundColor: styles.black50,
       }}
     >
-      <Illustration src={illustration} alt="Image d'illustration" />
+      {illustration && (
+        <Illustration src={illustration} alt="Image d'illustration" />
+      )}
     </div>
     <p style={{ fontSize: "14px", color: styles.primary500, fontWeight: 600 }}>
       {displayInterval(schedule)}
