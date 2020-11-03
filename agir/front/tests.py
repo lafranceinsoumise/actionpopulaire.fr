@@ -65,12 +65,6 @@ class PagesLoadingTestCase(TestCase):
         )
 
     @mock.patch("agir.people.views.dashboard.geocode_person")
-    def test_see_event_list(self, geocode_person):
-        response = self.client.get("/evenements/")
-        self.assertRedirects(response, reverse("dashboard"))
-        geocode_person.delay.assert_called_once()
-
-    @mock.patch("agir.people.views.dashboard.geocode_person")
     def test_see_group_list(self, geocode_person):
         response = self.client.get("/groupes/")
         self.assertRedirects(response, reverse("dashboard"))
