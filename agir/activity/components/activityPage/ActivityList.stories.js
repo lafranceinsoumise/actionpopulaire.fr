@@ -22,7 +22,7 @@ Default.args = {
   data: [
     {
       id: String(Date.now() + 1),
-      type: "group-coorganization-accepted",
+      type: "event-update",
       event: {
         id: "12343432423",
         name: "Super événement",
@@ -55,4 +55,9 @@ Default.args = {
       .map(({ args }) => args)
       .filter(Boolean),
   ],
+};
+export const RequiredOnly = Template.bind({});
+RequiredOnly.args = {
+  ...Default.args,
+  include: ["required"],
 };

@@ -10,6 +10,12 @@ const StyledList = styled.ul`
   box-sizing: border-box;
   max-width: 100%;
   padding: 12px;
+  background-color: ${({ type }) =>
+    type === "required" ? "white" : "transparent"};
+  box-shadow: ${({ type }) =>
+    type === "required"
+      ? "0px 0px 3px rgba(0, 35, 44, 0.1), 0px 3px 2px rgba(0, 35, 44, 0.05)"
+      : "none"};
 
   h2 {
     box-sizing: border-box;
@@ -38,7 +44,7 @@ const StyledList = styled.ul`
 `;
 
 const ActivityList = (props) => {
-  const { data } = props;
+  const { data, include } = props;
 
   const [dismissed, setDismissed] = useState([]);
   const handleDismiss = useCallback((id) => {
@@ -52,45 +58,53 @@ const ActivityList = (props) => {
     if (Array.isArray(data) && data.length > 0) {
       data.forEach((activity) => {
         if (requiredActionTypes.includes(activity.type)) {
-          required.push(activity);
+          include.includes("required") && required.push(activity);
         } else {
-          unrequired.push(activity);
+          include.includes("unrequired") && unrequired.push(activity);
         }
       });
     }
     return [required, unrequired];
-  }, [data]);
+  }, [data, include]);
 
   return (
-    <div>
-      <StyledList>
-        <h2>
-          <small>{required.length}</small>&ensp;À traiter
-        </h2>
-        {required.map((activity) =>
-          dismissed.includes(activity.id) ? null : (
-            <li key={activity.id}>
-              <RequiredActionCard onDismiss={handleDismiss} {...activity} />
+    <article>
+      {required.length > 0 ? (
+        <StyledList type="required">
+          <h2>
+            <small>{required.length}</small>&ensp;À traiter
+          </h2>
+          {required.map((activity) =>
+            dismissed.includes(activity.id) ? null : (
+              <li key={activity.id}>
+                <RequiredActionCard onDismiss={handleDismiss} {...activity} />
+              </li>
+            )
+          )}
+        </StyledList>
+      ) : null}
+      {unrequired.length > 0 ? (
+        <StyledList type="unrequired">
+          {unrequired.map(({ id, ...props }) => (
+            <li key={id}>
+              <ActivityCard {...props} />
             </li>
-          )
-        )}
-      </StyledList>
-      <StyledList>
-        {unrequired.map(({ id, ...props }) => (
-          <li key={id}>
-            <ActivityCard {...props} />
-          </li>
-        ))}
-      </StyledList>
-    </div>
+          ))}
+        </StyledList>
+      ) : null}
+    </article>
   );
 };
 ActivityList.propTypes = {
+  include: PropTypes.arrayOf(PropTypes.oneOf(["required", "unrequired"])),
   data: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.isRequired,
       type: PropTypes.string.isRequired,
     })
   ),
+};
+ActivityList.defaultProps = {
+  include: ["required", "unrequired"],
 };
 export default ActivityList;
