@@ -36,7 +36,7 @@ const TopBar = styled.div`
   display: flex;
   flex-direction: row;
   margin-bottom: 24px;
-
+  justify-content: space-between;
   & > h1 {
     @media only screen and (max-width: ${styles.collapse}px) {
       display: none;
@@ -45,7 +45,7 @@ const TopBar = styled.div`
     font-size: 28px;
   }
 
-  & > ${Button} {
+  & ${Button} {
     margin-right: 0.5rem;
   }
 `;
@@ -64,13 +64,15 @@ const Agenda = ({ rsvped, suggested }) => (
         <h1>Bonjour</h1>
       </Banner>
       <TopBar>
-        <h1>Agenda</h1>
-        <Button small as="a" color={"secondary"} href="#" icon="plus">
-          Créer un évenement
-        </Button>
-        <Button small as="a" href="#" icon="map">
-          Carte
-        </Button>
+        <h1>Événements</h1>
+        <div>
+          <Button small as="a" href="#" icon="map">
+            Carte
+          </Button>
+          <Button small as="a" color={"secondary"} href="#" icon="plus">
+            Créer un évenement
+          </Button>
+        </div>
       </TopBar>
     </header>
     {rsvped.length > 0 && (
