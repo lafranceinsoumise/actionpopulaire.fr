@@ -14,6 +14,7 @@ from ..authentication.view_mixins import SoftLoginRequiredMixin
 from ..events.models import Event
 from ..events.serializers import EventSerializer
 from ..groups.models import SupportGroup
+from ..groups.serializers import SupportGroupSerializer
 
 
 class NBUrlsView(View):
@@ -136,3 +137,12 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
                 instance=suggested_events, many=True, context={"request": self.request}
             ).data,
         }
+
+
+class MyGroupsView(SoftLoginRequiredMixin, ReactListView):
+    serializer_class = SupportGroupSerializer
+    bundle_name = "groups/groupsPage"
+    data_script_id = "mes-groupes"
+
+    def get_queryset(self):
+        return SupportGroup.objects.filter(memberships__person=self.request.user.person)

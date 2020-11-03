@@ -27,6 +27,7 @@ urlpatterns = [
     ),
     path("activite/", ActivityView.as_view(), name="list_activities",),
     path("evenements/", AgendaView.as_view(), name="list_events",),
+    path("mes-groupes/", views.MyGroupsView.as_view(), name="list_my_groups"),
     # old urls
     re_path("^old(.*)$", views.NBUrlsView.as_view(), name="old_urls"),
 ]

@@ -16,7 +16,7 @@ import ContactCard from "@agir/front/genericComponents/ContactCard";
 import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Card from "@agir/front/genericComponents/Card";
-import EventGroupCard from "@agir/events/eventPage/EventGroupCard";
+import GroupCard from "@agir/groups/groupComponents/GroupCard";
 
 const MobileLayout = (props) => {
   return (
@@ -52,10 +52,16 @@ const MobileLayout = (props) => {
           {props.contact && <ContactCard {...props.contact} />}
           {props.routes.facebook && <EventFacebookLinkCard {...props} />}
           <ShareCard />
-          {props.groups.length > 0 &&
-            props.groups.map((group, key) => (
-              <EventGroupCard key={key} {...group} />
-            ))}
+          {props.groups.length > 0 && (
+            <div>
+              <h3 style={{ marginBottom: "1rem", marginTop: "2.5rem" }}>
+                Organisé par
+              </h3>
+              {props.groups.map((group, key) => (
+                <GroupCard key={key} {...group} />
+              ))}
+            </div>
+          )}
         </Column>
       </Row>
     </Container>
@@ -87,10 +93,17 @@ const DesktopLayout = (props) => {
               </div>
             </div>
             <EventDescription {...props} />
-            {props.groups.length > 0 &&
-              props.groups.map((group, key) => (
-                <EventGroupCard key={key} {...group} />
-              ))}
+            {props.groups.length > 0 && (
+              <div>
+                <h3 style={{ marginBottom: "1rem", marginTop: "2.5rem" }}>
+                  Organisé par
+                </h3>
+
+                {props.groups.map((group, key) => (
+                  <GroupCard key={key} {...group} />
+                ))}
+              </div>
+            )}
           </Column>
           <Column width="380px" style={{ paddingTop: "24px" }}>
             <EventLocationCard {...props} />
@@ -144,7 +157,7 @@ EventPage.propTypes = {
   participantCount: PropTypes.number.isRequired,
   contact: PropTypes.shape(ContactCard.propTypes),
   options: PropTypes.shape({ price: PropTypes.string }),
-  groups: PropTypes.arrayOf(PropTypes.shape(EventGroupCard.propTypes)),
+  groups: PropTypes.arrayOf(PropTypes.shape(GroupCard.propTypes)),
   routes: PropTypes.shape({
     page: PropTypes.string,
     map: PropTypes.string,
@@ -161,8 +174,6 @@ EventPage.propTypes = {
 
 MobileLayout.propTypes = DesktopLayout.propTypes = {
   ...EventPage.propTypes,
-  startTime: undefined,
-  endTime: undefined,
   schedule: PropTypes.instanceOf(Interval),
 };
 
