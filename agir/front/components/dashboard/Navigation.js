@@ -97,6 +97,7 @@ const Counter = styled.span`
   }
 `;
 
+// eslint-disable-next-line react/prop-types
 const MenuLink = ({ href, icon, title, active, counter }) => (
   <MenuItem active={active}>
     <a href={href}>

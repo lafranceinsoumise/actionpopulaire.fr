@@ -19,6 +19,10 @@ const RSVPButton = ({ rsvp, routes }) => (
     {rsvp ? "Je participe" : "Participer"}
   </Button>
 );
+RSVPButton.propTypes = {
+  rsvp: PropTypes.bool,
+  routes: PropTypes.shape({ cancel: PropTypes.string, join: PropTypes.string }),
+};
 
 const Illustration = styled.img`
   max-height: 200px;

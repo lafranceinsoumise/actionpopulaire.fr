@@ -7,13 +7,14 @@
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
     "plugin:jest/recommended",
     "plugin:prettier/recommended",
     "prettier/react"
   ],
   "settings": {
     "react": {
-      "version": "16.6.0"
+      "version": "16.14.0"
     }
   },
   "env": {
@@ -32,5 +33,13 @@
         "argsIgnorePattern": "^_"
       }
     ]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.stories.js"],
+      "rules": {
+        "react/prop-types": "off"
+      }
+    }
+  ]
 }

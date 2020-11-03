@@ -159,4 +159,11 @@ EventPage.propTypes = {
   }),
 };
 
+MobileLayout.propTypes = DesktopLayout.propTypes = {
+  ...EventPage.propTypes,
+  startTime: undefined,
+  endTime: undefined,
+  schedule: PropTypes.instanceOf(Interval),
+};
+
 export default EventPage;

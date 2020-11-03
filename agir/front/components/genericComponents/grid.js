@@ -159,3 +159,8 @@ export const ResponsiveLayout = ({ mobile, desktop, breakpoint }) => {
 
   return <>{isDesktop ? desktop : mobile}</>;
 };
+ResponsiveLayout.propTypes = {
+  mobile: PropTypes.node.isRequired,
+  desktop: PropTypes.node.isRequired,
+  breakpoint: PropTypes.number,
+};
