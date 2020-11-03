@@ -51,7 +51,7 @@ const ActionCard = (props) => {
     <Card type="primary">
       <Container>
         <Row>
-          <Column width={40} collapse={0} style={{ padding: 0 }}>
+          <Column width="40px" collapse={0} style={{ padding: 0 }}>
             <FeatherIcon name={iconName} />
           </Column>
           <Column grow collapse={0}>
