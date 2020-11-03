@@ -1,4 +1,4 @@
-import style from "./style.scss";
+import style from "./_variables.scss";
 import Card from "./Card";
 import React, { useCallback, useRef, useState } from "react";
 import Button from "./Button";

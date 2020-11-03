@@ -6,7 +6,7 @@ import { Interval } from "luxon";
 
 import EventCard from "@agir/front/genericComponents/EventCard";
 import { Column, Row } from "@agir/front/genericComponents/grid";
-import styles from "@agir/front/genericComponents/style.scss";
+import styles from "@agir/front/genericComponents/_variables.scss";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 

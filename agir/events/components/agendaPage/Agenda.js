@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { Column } from "@agir/front/genericComponents/grid";
 import { Row } from "@agir/donations/donationForm/AllocationsWidget/Styles";
 
-import styles from "@agir/front/genericComponents/style.scss";
+import styles from "@agir/front/genericComponents/_variables.scss";
 import { DateTime, Interval } from "luxon";
 import EventCard from "@agir/front/genericComponents/EventCard";
 import PropTypes from "prop-types";

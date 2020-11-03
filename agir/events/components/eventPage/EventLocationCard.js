@@ -8,7 +8,7 @@ import {
 import Card from "@agir/front/genericComponents/Card";
 import { Interval } from "luxon";
 
-import style from "@agir/front/genericComponents/style.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 import googleLogo from "./assets/Google.svg";
 import outlookLogo from "./assets/Outlook.svg";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";

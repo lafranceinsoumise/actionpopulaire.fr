@@ -5,7 +5,7 @@ import FeatherIcon from "./FeatherIcon";
 import { Interval } from "luxon";
 import { displayInterval } from "@agir/lib/utils/time";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
-import styles from "@agir/front/genericComponents/style.scss";
+import styles from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
 import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";

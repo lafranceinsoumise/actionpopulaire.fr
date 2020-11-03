@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { ThemeProvider } from "styled-components";
 
-import styles from "./style.scss";
+import styles from "./_variables.scss";
 
 /*
  * Objet proxy utilisé en test pour toujours renvoyer quelque chose

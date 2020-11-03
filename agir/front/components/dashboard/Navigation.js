@@ -3,7 +3,7 @@ import React from "react";
 import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
-import styles from "@agir/front/genericComponents/style.scss";
+import styles from "@agir/front/genericComponents/_variables.scss";
 import PropTypes from "prop-types";
 
 const BottomBar = styled.nav`

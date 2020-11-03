@@ -1,4 +1,4 @@
-import style from "./style.scss";
+import style from "./_variables.scss";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import { transparentize } from "polished";

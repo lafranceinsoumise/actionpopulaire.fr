@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
-import "./style.scss";
+import "./_variables.scss";
 import svgLogo from "./logo.svg";
 
 const LogoFI = styled.img.attrs(() => ({ src: svgLogo }))`
