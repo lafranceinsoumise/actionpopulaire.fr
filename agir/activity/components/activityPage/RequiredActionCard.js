@@ -65,6 +65,7 @@ const RequiredActionCard = (props) => {
           dismissLabel="C'est fait"
           onConfirm={copyEmail}
           onDismiss={handleDismiss}
+          disabled={isEmailCopied}
           text={
             <>
               <strong>{individual.fullName}</strong> a rejoint votre groupe{" "}

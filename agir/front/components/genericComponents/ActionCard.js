@@ -7,11 +7,27 @@ import Card from "@agir/front/genericComponents/Card";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Button from "@agir/front/genericComponents/Button";
 
+const StyledText = styled.p`
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 16px;
+
+  & > a,
+  & > strong {
+    color: inherit;
+    font-weight: bold;
+  }
+`;
+
 const StyledButton = styled(Button)`
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+
+  &[disabled] {
+    cursor: default;
+  }
 `;
 
 const ActionCard = (props) => {
@@ -22,6 +38,7 @@ const ActionCard = (props) => {
     onConfirm,
     dismissLabel,
     onDismiss,
+    disabled,
   } = props;
   return (
     <Card type="primary">
@@ -31,25 +48,45 @@ const ActionCard = (props) => {
             <FeatherIcon name={iconName} />
           </Column>
           <Column grow collapse={0}>
-            <p style={{ fontWeight: 600, fontSize: 14, marginBottom: 16 }}>
-              {text}
-            </p>
+            <StyledText>{text}</StyledText>
             {typeof onConfirm === "function" ? (
-              <StyledButton onClick={onConfirm} small color="primary">
+              <StyledButton
+                onClick={onConfirm}
+                small
+                color="primary"
+                disabled={disabled}
+              >
                 {confirmLabel}
               </StyledButton>
             ) : typeof onConfirm === "string" ? (
-              <StyledButton small color="primary" as="a" href={onConfirm}>
+              <StyledButton
+                small
+                color="primary"
+                as="a"
+                href={onConfirm}
+                disabled={disabled}
+              >
                 {confirmLabel}
               </StyledButton>
             ) : null}
             &ensp;
             {typeof onDismiss === "function" ? (
-              <StyledButton onClick={onDismiss} small color="dismiss">
+              <StyledButton
+                onClick={onDismiss}
+                small
+                color="dismiss"
+                disabled={disabled}
+              >
                 {dismissLabel}
               </StyledButton>
             ) : typeof onDismiss === "string" ? (
-              <StyledButton small color="dismiss" as="a" href={onDismiss}>
+              <StyledButton
+                small
+                color="dismiss"
+                as="a"
+                href={onDismiss}
+                disabled={disabled}
+              >
                 {dismissLabel}
               </StyledButton>
             ) : null}
@@ -76,9 +113,11 @@ ActionCard.propTypes = {
   onConfirm: PropTypes.oneOfType([PropTypes.string, PropTypes.func]).isRequired,
   dismissLabel: PropTypes.string,
   onDismiss: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  disabled: PropTypes.bool,
 };
 ActionCard.defaultProps = {
   dismissLabel: "Cacher",
+  disabled: false,
 };
 
 export default ActionCard;
