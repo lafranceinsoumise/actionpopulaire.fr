@@ -4,6 +4,7 @@ from django.urls import reverse_lazy, path, re_path
 from django.views.generic import RedirectView
 
 from .views import ActivityView
+from .views import AgendaView
 from ..front.sitemaps import sitemaps
 from . import views
 
@@ -24,12 +25,8 @@ urlpatterns = [
         RedirectView.as_view(url=reverse_lazy("dashboard")),
         name="list_groups",
     ),
-    path(
-        "evenements/",
-        RedirectView.as_view(url=reverse_lazy("dashboard")),
-        name="list_events",
-    ),
     path("activite/", ActivityView.as_view(), name="list_activities",),
+    path("evenements/", AgendaView.as_view(), name="list_events",),
     # old urls
     re_path("^old(.*)$", views.NBUrlsView.as_view(), name="old_urls"),
 ]

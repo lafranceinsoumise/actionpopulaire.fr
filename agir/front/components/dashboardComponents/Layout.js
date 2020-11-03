@@ -6,8 +6,7 @@ import {
   GrayBackground,
   Row,
 } from "@agir/front/genericComponents/grid";
-import Navigation from "@agir/front/dashboard/Navigation";
-import Card from "@agir/front/genericComponents/Card";
+import Navigation from "@agir/front/dashboardComponents/Navigation";
 
 const Layout = (props) => (
   <GrayBackground>
@@ -16,10 +15,7 @@ const Layout = (props) => (
         <Column>
           <Navigation {...props} />
         </Column>
-        <Column grow>
-          <Card />
-          <Card />
-        </Column>
+        <Column grow>{props.children}</Column>
       </Row>
     </Container>
   </GrayBackground>
@@ -35,4 +31,12 @@ Layout.propTypes = {
     notifications: PropTypes.string.isRequired,
     menu: PropTypes.string.isRequired,
   }),
+  children: PropTypes.node,
+};
+Layout.defaultProps = {
+  routes: {
+    events: "/evenements",
+    groups: "#groupes",
+    notifications: "#notifications",
+  },
 };

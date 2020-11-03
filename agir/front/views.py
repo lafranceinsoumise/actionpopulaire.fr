@@ -1,12 +1,18 @@
+from datetime import timedelta
+
+from django.contrib.gis.db.models.functions import Distance
+from django.db.models import Q
+from django.http import HttpResponsePermanentRedirect, Http404
 from django.urls import reverse, reverse_lazy
-from django.http import HttpResponsePermanentRedirect, HttpResponse, Http404
+from django.utils import timezone
 from django.views.generic import View
 
-from .view_mixins import ReactListView
+from .view_mixins import ReactListView, ReactSerializerBaseView
 from ..activity.models import Activity
 from ..activity.serializers import ActivitySerializer
 from ..authentication.view_mixins import SoftLoginRequiredMixin
 from ..events.models import Event
+from ..events.serializers import EventSerializer
 from ..groups.models import SupportGroup
 
 
@@ -83,3 +89,50 @@ class ActivityView(SoftLoginRequiredMixin, ReactListView):
     def get_queryset(self):
         person = self.request.user.person
         return Activity.objects.filter(recipient=person)
+
+
+class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
+    bundle_name = "events/agendaPage"
+    serializer_class = EventSerializer
+
+    def get_export_data(self):
+        person = self.request.user.person
+
+        rsvped_events = (
+            Event.objects.upcoming()
+            .filter(attendees=person)
+            .order_by("start_time", "end_time")
+        )
+
+        suggested_events = (
+            Event.objects.upcoming()
+            .exclude(rsvps__person=person)
+            .filter(organizers_groups__in=person.supportgroups.all())
+            .order_by("start_time")
+        )
+
+        if person.coordinates is not None and len(suggested_events) < 10:
+            near_events = (
+                Event.objects.upcoming()
+                .filter(
+                    start_time__lt=timezone.now() + timedelta(days=30),
+                    do_not_list=False,
+                )
+                .exclude(pk__in=suggested_events)
+                .exclude(rsvps__person=person)
+                .annotate(distance=Distance("coordinates", person.coordinates))
+                .order_by("distance")[: (10 - suggested_events.count())]
+            )
+
+            suggested_events = Event.objects.filter(
+                Q(pk__in=suggested_events) | Q(pk__in=near_events)
+            ).order_by("start_time")
+
+        return {
+            "rsvped": self.serializer_class(
+                instance=rsvped_events, many=True, context={"request": self.request}
+            ).data,
+            "suggested": self.serializer_class(
+                instance=suggested_events, many=True, context={"request": self.request}
+            ).data,
+        }

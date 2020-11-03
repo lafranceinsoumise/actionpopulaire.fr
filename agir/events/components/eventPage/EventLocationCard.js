@@ -70,7 +70,7 @@ const EventLocationCard = ({ schedule, location, routes }) => {
       )}
       <IconList>
         <IconListItem name="clock">{interval}</IconListItem>
-        {location && (
+        {location && (location.name || location.address) && (
           <IconListItem name="map-pin">
             <WithLinebreak>
               {location.name && (

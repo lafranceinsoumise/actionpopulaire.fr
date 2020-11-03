@@ -11,7 +11,7 @@ import TopBar from "@agir/front/allPages/TopBar";
 
 export default {
   component: EventPage,
-  title: "Events/EventPage",
+  title: "Events/AgendaPage",
   decorators: [
     (story, { args }) => (
       <TestGlobalContextProvider
