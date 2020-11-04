@@ -8,7 +8,8 @@ import PropTypes from "prop-types";
 
 const BottomBar = styled.nav`
   @media only screen and (max-width: ${style.collapse}px) {
-    position: absolute;
+    background-color: ${style.white};
+    position: fixed;
     bottom: 0px;
     left: 0px;
     right: 0px;
@@ -123,10 +124,10 @@ const Navigation = ({ active, routes }) => (
         href={routes.groups}
       />
       <MenuLink
-        active={active === "notifications"}
+        active={active === "activity"}
         icon="bell"
         title="Notifications"
-        href={routes.notifications}
+        href={routes.activity}
         counter={2}
       />
       <MenuLink
@@ -142,11 +143,11 @@ const Navigation = ({ active, routes }) => (
 export default Navigation;
 
 Navigation.propTypes = {
-  active: PropTypes.oneOf(["events", "groups", "notifications", "menu"]),
+  active: PropTypes.oneOf(["events", "groups", "activity", "menu"]),
   routes: PropTypes.shape({
     events: PropTypes.string.isRequired,
     groups: PropTypes.string.isRequired,
-    notifications: PropTypes.string.isRequired,
+    activity: PropTypes.string.isRequired,
     menu: PropTypes.string.isRequired,
   }),
 };

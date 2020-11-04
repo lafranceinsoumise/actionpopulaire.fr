@@ -12,6 +12,7 @@ const requiredActivity = {
     name: "L'événement",
     routes: {
       details: "/",
+      manage: "/",
     },
   },
   supportGroup: {

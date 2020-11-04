@@ -6,16 +6,25 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import ActivityCard from "./ActivityCard";
 import RequiredActionCard, { requiredActionTypes } from "./RequiredActionCard";
 
+const StyledText = styled.p`
+  margin: 0;
+  width: 100%;
+  padding: 16px 0;
+`;
 const StyledList = styled.ul`
   list-style: none;
   max-width: 711px;
-  margin: 0 auto;
+  margin: 0;
   width: 100%;
   padding: 16px 0;
 
+  @media (max-width: ${style.collapse}px) {
+    margin: 0 auto;
+  }
+
   h2,
   h4 {
-    margin: 0 16px;
+    margin: 0;
     @media (max-width: ${style.collapse}px) {
       margin: 0 25px;
     }
@@ -40,7 +49,7 @@ const StyledList = styled.ul`
   }
 
   li {
-    margin: 0 16px 16px;
+    margin: 0 0 16px;
     @media (max-width: ${style.collapse}px) {
       margin: ${({ type }) => (type === "required" ? "0 12px 12px" : "16px 0")};
     }
@@ -76,6 +85,9 @@ const ActivityList = (props) => {
 
   return (
     <article>
+      {required.length + unrequired.length === 0 ? (
+        <StyledText>Vous n'avez pas de notifications !</StyledText>
+      ) : null}
       {required.length > 0 ? (
         <StyledList type="required">
           <h2>À traiter</h2>
