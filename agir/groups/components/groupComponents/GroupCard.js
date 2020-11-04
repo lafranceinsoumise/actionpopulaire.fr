@@ -29,7 +29,7 @@ const Label = styled.span`
 `;
 
 const DiscountCodesSection = styled.section`
-  margin: 2rem 0;
+  margin: 1.5rem 0 0;
 
   & > * {
     color: ${style.black700};
@@ -51,7 +51,7 @@ const DiscountCodesSection = styled.section`
 
 const GroupButton = ({ href, children, color = "default", icon }) => (
   <Column width={["33%", "content"]} collapse={500}>
-    <Button as="a" href={href} color={color} icon={icon}>
+    <Button as="a" href={href} color={color} icon={icon} small>
       {children}
     </Button>
   </Column>
@@ -67,8 +67,10 @@ const GroupCard = ({
   labels,
   routes,
   discountCodes,
-  displayMembership,
   displayGroupLogo,
+  displayType,
+  displayDescription,
+  displayMembership,
 }) => (
   <>
     <Card>
@@ -87,7 +89,7 @@ const GroupCard = ({
         </Column>
       </Row>
 
-      {typeLabel && (
+      {displayType && typeLabel && (
         <div style={{ marginTop: "24px" }}>
           <Label main>{typeLabel}</Label>
           {labels &&
@@ -95,7 +97,7 @@ const GroupCard = ({
         </div>
       )}
 
-      {description && (
+      {displayDescription && description && (
         <div
           dangerouslySetInnerHTML={{ __html: description }}
           style={{ margin: "24px 0" }}
@@ -117,7 +119,7 @@ const GroupCard = ({
           </ul>
         </DiscountCodesSection>
       )}
-      <Row gutter={6}>
+      <Row gutter={6} style={{ marginTop: "1.5rem" }}>
         <GroupButton color="primary" href={routes.page}>
           {isMember ? (
             "Voir le groupe"
@@ -164,9 +166,18 @@ GroupCard.propTypes = {
     fund: PropTypes.string,
     manage: PropTypes.string,
   }),
-  displayMembership: PropTypes.bool,
   displayGroupLogo: PropTypes.bool,
+  displayType: PropTypes.bool,
+  displayDescription: PropTypes.bool,
+  displayMembership: PropTypes.bool,
   ...DiscountCodesSection.propTypes,
+};
+
+GroupCard.defaultProps = {
+  displayGroupLogo: true,
+  displayType: true,
+  displayDescription: true,
+  displayMembership: true,
 };
 
 export default GroupCard;

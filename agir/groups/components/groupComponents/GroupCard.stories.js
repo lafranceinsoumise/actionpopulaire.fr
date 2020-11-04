@@ -62,8 +62,10 @@ Default.args = {
   labels: ["Groupe certifié", "Espace opérationnel"],
   fund: true,
   manage: true,
-  displayMembership: true,
   displayGroupLogo: true,
+  displayType: true,
+  displayDescription: true,
+  displayMembership: true,
   isMember: false,
   routes: {
     page: "#groupe",
@@ -76,8 +78,10 @@ OnMyGroupsPage.args = {
   description: undefined,
   typeLabel: undefined,
   labels: undefined,
-  displayMembership: false,
   displayGroupLogo: false,
+  displayType: false,
+  displayDescription: false,
+  displayMembership: false,
   discountCodes: [
     {
       code: "ZEziAujKIhjBJhjHuhguyuY",

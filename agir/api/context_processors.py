@@ -14,6 +14,9 @@ def basic_information(request):
         "contactConfiguration": reverse("contact"),
         "signIn": reverse("subscription"),
         "logIn": reverse("short_code_login"),
+        "createGroup": reverse("create_group"),
+        "createEvent": reverse("create_event"),
+        "groupsMap": reverse("carte:groups_map"),
     }
 
     if request.user.is_authenticated:
