@@ -6,27 +6,44 @@ export default {
   title: "Generic/Grid",
 };
 
-const lorem =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
-  "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim " +
-  "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea " +
-  "commodo consequat. Duis aute irure dolor in reprehenderit in voluptate " +
-  "velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat " +
-  "cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-
 const Template = () => (
   <GrayBackground>
-    <Container>
-      <Row>
-        <Column grow>
-          <Card>{lorem}</Card>
-          <Card>{lorem}</Card>
-          <Card>{lorem}</Card>
+    <Container style={{ border: "3px solid black" }}>
+      <Row gutter={72} style={{ backgroundColor: "blue" }}>
+        <Column grow style={{ border: "3px solid red" }}>
+          <Card>
+            <p>
+              Ici on a un Container, avec une &lt;Row gutter={72}&gt; (en bleu).
+            </p>
+            <p>
+              La première colonne a la propriété grow, la deuxième width="434px"
+            </p>
+          </Card>
+          <Row gutter={12} style={{ backgroundColor: "yellow" }}>
+            <Column width="50%">
+              <Card>Une Row avec un gutter de 12 dans une colonne</Card>
+            </Column>
+            <Column width="50%">
+              <Card>Ça marche</Card>
+            </Column>
+          </Row>
+          <Card>
+            Les Card ont elle même un padding, et une margin bottom de 10px
+          </Card>
         </Column>
         <Column width="434px">
-          <Card>{lorem}</Card>
-          <Card>{lorem}</Card>
-          <Card>{lorem}</Card>
+          <Card>Row est le seul item a prendre le paramètre gutter</Card>
+        </Column>
+      </Row>
+      <Row gutter={22}>
+        <Column width="33%">
+          <Card>Ici chaque colonne a width="33%"</Card>
+        </Column>{" "}
+        <Column width="33%">
+          <Card>Une ligne dans une colonne avec un plus petit gutter</Card>
+        </Column>
+        <Column width="33%">
+          <Card>Ça marche</Card>
         </Column>
       </Row>
     </Container>
@@ -34,4 +51,6 @@ const Template = () => (
 );
 
 export const FixedSideBarExample = Template.bind({});
-FixedSideBarExample.args = {};
+FixedSideBarExample.args = {
+  stack: false,
+};

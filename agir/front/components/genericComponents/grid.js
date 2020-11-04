@@ -61,14 +61,6 @@ export const GrayBackground = styled.div`
   background-color: ${style.black25};
 `;
 
-export const Container = styled.section`
-  width: ${1100 + gutter * 2}px;
-  max-width: 100%;
-  margin: 0 auto;
-  padding-left: ${gutter}px;
-  padding-right: ${gutter}px;
-`;
-
 export const Column = styled.div`
   flex-basis: ${({ width, grow }) =>
     width || grow
@@ -88,11 +80,8 @@ export const Column = styled.div`
     padding-left: 0;
     padding-right: 0;
 
-    & > ${Card} {
+    & > ${Column} > ${Card} {
       ${(props) => (props.stack ? "margin-bottom: 0px;" : "")}
-      margin-left: -${gutter}px;
-      margin-right: -${gutter}px;
-      border-radius: 0px;
     }
   }
 `;
@@ -120,6 +109,20 @@ export const Row = styled.div`
     padding-right: ${(props) =>
       typeof props.gutter === "undefined" ? gutter : props.gutter}px;
   }
+
+  & > ${Column} > & {
+  }
+
+  @media (max-width: ${(props) =>
+      typeof props.collapse === "undefined"
+        ? collapse
+        : props.collapse || 0}px) {
+    & > ${Column} > ${Card} {
+      margin-left: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
+      margin-right: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
+      border-radius: 0px;
+    }
+  }
 `;
 
 Row.propTypes = {
@@ -140,6 +143,19 @@ Row.propTypes = {
     "space-evenly",
   ]), // justify-content CSS property
 };
+
+export const Container = styled.section`
+  width: ${1100 + gutter * 2}px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding-left: ${gutter}px;
+  padding-right: ${gutter}px;
+
+  & > ${Row} {
+    margin-left: -${gutter}px;
+    margin-right: -${gutter}px;
+  }
+`;
 
 export const ResponsiveLayout = ({ mobile, desktop, breakpoint }) => {
   breakpoint = breakpoint || collapse;
