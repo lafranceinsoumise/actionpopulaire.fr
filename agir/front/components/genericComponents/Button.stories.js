@@ -2,6 +2,7 @@ import React from "react";
 
 import Button from "./Button";
 import { allIcons } from "./FeatherIcon";
+import { Column, Row } from "@agir/front/genericComponents/grid";
 
 export default {
   component: Button,
@@ -19,6 +20,10 @@ export default {
         type: "select",
         options: allIcons,
       },
+    },
+    small: {
+      name: "Petit",
+      control: "boolean",
     },
   },
 };
@@ -65,4 +70,20 @@ export const IconButton = Template.bind({});
 IconButton.args = {
   ...Default.args,
   icon: "copy",
+};
+
+export const ButtonAndLink = (args) => (
+  <Row gutter={6} style={{ margin: "2rem" }}>
+    <Column>
+      <Button {...args}>Bouton</Button>
+    </Column>
+    <Column>
+      <Button as="a" {...args}>
+        Lien
+      </Button>
+    </Column>
+  </Row>
+);
+ButtonAndLink.args = {
+  ...Default.args,
 };

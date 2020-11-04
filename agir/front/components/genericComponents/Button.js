@@ -39,16 +39,20 @@ const buttonColors = {
   },
 };
 
+/**
+ * Pour une raison obscure, lorsque la taille dédiée au contenu (telle que déterminée par min-height)
+ */
 const Button = styled.button.attrs(({ color }) => buttonColors[color])`
   display: inline-block;
   padding: ${({ small }) => (small ? "0.5rem 0.75rem" : "0.75rem 1.5rem")};
   line-height: ${({ small }) =>
     small
-      ? "95%"
+      ? "1rem"
       : "1.5rem"}; /* pour s'assurer que les liens sont correctement centrés */
   margin: 0;
   border-radius: 0.5rem;
   min-height: ${({ small }) => (small ? "2rem" : "3rem")};
+  min-height: calc(${({ small }) => (small ? "2rem" : "3rem")} + 2px);
   text-align: center;
   font-weight: 700;
   font-size: ${({ small }) => (small ? "0.6875rem" : "0.875rem")};
