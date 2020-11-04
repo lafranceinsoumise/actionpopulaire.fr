@@ -1,10 +1,12 @@
 import PropTypes from "prop-types";
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import ActivityCard from "./ActivityCard";
 import RequiredActionCard, { requiredActionTypes } from "./RequiredActionCard";
+
+import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
 
 const StyledText = styled.p`
   margin: 0;
@@ -56,8 +58,31 @@ const StyledList = styled.ul`
   }
 `;
 
+export const parseActivities = (
+  data,
+  dismissed = [],
+  include = ["required", "unrequired"]
+) => {
+  const required = [];
+  const unrequired = [];
+  if (Array.isArray(data) && data.length > 0) {
+    data.forEach((activity) => {
+      if (dismissed.includes(activity.id)) {
+        return;
+      }
+      if (requiredActionTypes.includes(activity.type)) {
+        include.includes("required") && required.push(activity);
+      } else {
+        include.includes("unrequired") && unrequired.push(activity);
+      }
+    });
+  }
+  return [required, unrequired];
+};
+
 const ActivityList = (props) => {
   const { data, include } = props;
+  const { dispatch } = useGlobalContext();
 
   const [dismissed, setDismissed] = useState([]);
   const handleDismiss = useCallback((id) => {
@@ -65,23 +90,17 @@ const ActivityList = (props) => {
     setDismissed((state) => [...state, id]);
   }, []);
 
-  const [required, unrequired] = useMemo(() => {
-    const required = [];
-    const unrequired = [];
-    if (Array.isArray(data) && data.length > 0) {
-      data.forEach((activity) => {
-        if (dismissed.includes(activity.id)) {
-          return;
-        }
-        if (requiredActionTypes.includes(activity.type)) {
-          include.includes("required") && required.push(activity);
-        } else {
-          include.includes("unrequired") && unrequired.push(activity);
-        }
-      });
-    }
-    return [required, unrequired];
-  }, [data, include, dismissed]);
+  const [required, unrequired] = useMemo(
+    () => parseActivities(data, dismissed, include),
+    [data, include, dismissed]
+  );
+
+  useEffect(() => {
+    dispatch({
+      type: "update-required-action-activities",
+      requiredActionActivities: required,
+    });
+  }, [dispatch, required]);
 
   return (
     <article>

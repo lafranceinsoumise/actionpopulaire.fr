@@ -1,10 +1,12 @@
-import styled from "styled-components";
+import PropTypes from "prop-types";
 import React from "react";
+import styled from "styled-components";
+
 import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
 import style from "@agir/front/genericComponents/_variables.scss";
-import PropTypes from "prop-types";
+import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
 
 const BottomBar = styled.nav`
   @media only screen and (max-width: ${style.collapse}px) {
@@ -108,37 +110,40 @@ const MenuLink = ({ href, icon, title, active, counter }) => (
   </MenuItem>
 );
 
-const Navigation = ({ active, routes }) => (
-  <BottomBar>
-    <Menu>
-      <MenuLink
-        active={active === "events"}
-        icon="calendar"
-        title="Évènements"
-        href={routes.events}
-      />
-      <MenuLink
-        active={active === "groups"}
-        icon="users"
-        title="Groupes"
-        href={routes.groups}
-      />
-      <MenuLink
-        active={active === "activity"}
-        icon="bell"
-        title="Notifications"
-        href={routes.activity}
-        counter={2}
-      />
-      <MenuLink
-        active={active === "menu"}
-        icon="menu"
-        title="Plus"
-        href={routes.menu}
-      />
-    </Menu>
-  </BottomBar>
-);
+const Navigation = ({ active, routes }) => {
+  const { requiredActionActivities = [] } = useGlobalContext();
+  return (
+    <BottomBar>
+      <Menu>
+        <MenuLink
+          active={active === "events"}
+          icon="calendar"
+          title="Évènements"
+          href={routes.events}
+        />
+        <MenuLink
+          active={active === "groups"}
+          icon="users"
+          title="Groupes"
+          href={routes.groups}
+        />
+        <MenuLink
+          active={active === "activity"}
+          icon="bell"
+          title="Notifications"
+          href={routes.activity}
+          counter={requiredActionActivities.length}
+        />
+        <MenuLink
+          active={active === "menu"}
+          icon="menu"
+          title="Plus"
+          href={routes.menu}
+        />
+      </Menu>
+    </BottomBar>
+  );
+};
 
 export default Navigation;
 
