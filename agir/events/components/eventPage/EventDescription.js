@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import { DateTime } from "luxon";
 import Button from "@agir/front/genericComponents/Button";
+import Collapsible from "@agir/front/genericComponents/Collapsible.js";
 
 const EventDescription = ({
   compteRendu,
@@ -67,7 +68,7 @@ const EventDescription = ({
       )}
     </Hide>
     {description ? (
-      <div dangerouslySetInnerHTML={{ __html: description }} />
+      <Collapsible content={description} />
     ) : (
       isOrganizer && (
         <>
