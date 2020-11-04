@@ -2,9 +2,13 @@ from django.conf import settings
 from django.middleware.csrf import get_token
 from django.urls import reverse
 
+from ..activity.models import Activity
+from ..activity.serializers import ActivitySerializer
+
 
 def basic_information(request):
     user = None
+    activities = []
 
     routes = {
         "dashboard": reverse("dashboard"),
@@ -24,6 +28,13 @@ def basic_information(request):
             "displayName": request.user.get_full_name(),
             "isInsoumise": request.user.person.is_insoumise,
         }
+        person = request.user.person
+        userActivities = Activity.objects.filter(recipient=person)[:20]
+        if userActivities.count() > 0:
+            activitySerializer = ActivitySerializer(
+                instance=userActivities, many=True, context={"request": request}
+            )
+            activities = activitySerializer.data
 
     return {
         "MAIN_DOMAIN": settings.MAIN_DOMAIN,
@@ -35,5 +46,6 @@ def basic_information(request):
             "routes": routes,
             "csrfToken": get_token(request),
             "domain": settings.MAIN_DOMAIN,
+            "activities": activities,
         },
     }
