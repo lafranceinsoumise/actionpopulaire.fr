@@ -47,16 +47,16 @@ class Activity(TimeStampedModel):
     STATUS_DISPLAYED = "S"
     STATUS_INTERACTED = "I"
     STATUS_CHOICES = (
-        (STATUS_UNDISPLAYED, "Non affichée"),
-        (STATUS_DISPLAYED, "Affichée"),
-        (STATUS_INTERACTED, "Interagie"),
+        (STATUS_UNDISPLAYED, "Pas encore présentée au destinataire"),
+        (STATUS_DISPLAYED, "Présentée au destinataire"),
+        (STATUS_INTERACTED, "Le destinataire a interagi avec"),
     )
 
     timestamp = models.DateTimeField(
         verbose_name="Date de la notification", null=False, default=timezone.now
     )
 
-    type = models.CharField("Type", max_length=50,)
+    type = models.CharField("Type", max_length=50, choices=TYPE_CHOICES)
 
     recipient = models.ForeignKey(
         "people.Person",
@@ -91,10 +91,18 @@ class Activity(TimeStampedModel):
 
     meta = models.JSONField("Autres données", blank=True, default=dict)
 
+    def __str__(self):
+        return f"« {self.get_type_display()} » pour {self.recipient} ({self.timestamp})"
+
+    def __repr__(self):
+        return f"Activity(timestamp={self.timestamp!r}, type={self.type!r}, recipient={self.recipient!r})"
+
     class Meta:
-        ordering = ("-created",)
+        verbose_name = "Notice d'activité"
+        verbose_name_plural = "Notices d'activité"
+        ordering = ("-timestamp",)
         indexes = (
             models.Index(
-                fields=("recipient", "created"), name="notifications_by_recipient"
+                fields=("recipient", "timestamp"), name="notifications_by_recipient"
             ),
         )
