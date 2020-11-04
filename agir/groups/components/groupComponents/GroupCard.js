@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 import Svg from "@agir/events/eventPage/group.svg";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
-import styles from "@agir/front/genericComponents/style.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import styled from "styled-components";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
@@ -32,7 +32,7 @@ const DiscountCodesSection = styled.section`
   margin: 2rem 0;
 
   & > * {
-    color: ${styles.black700};
+    color: ${style.black700};
     margin: 0.5rem 0;
   }
 
@@ -80,7 +80,7 @@ const GroupCard = ({
         )}
         <Column collapse={0} grow>
           <h3 style={{ marginTop: 2, marginBottom: 2 }}>{name}</h3>
-          <small style={{ color: styles.black500 }}>
+          <small style={{ color: style.black500 }}>
             {eventCount} événement{eventCount > 1 ? "s" : ""} &bull;{" "}
             {membersCount} membre{membersCount > 1 ? "s" : ""}
           </small>

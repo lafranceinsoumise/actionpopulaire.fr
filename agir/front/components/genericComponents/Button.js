@@ -1,4 +1,4 @@
-import style from "./_variables.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import { transparentize } from "polished";

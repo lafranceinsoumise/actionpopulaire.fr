@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import Card from "./Card";
-import style from "./_variables.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 import { useCallback, useEffect, useState } from "react";
 import React from "react";
 

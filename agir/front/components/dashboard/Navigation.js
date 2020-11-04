@@ -3,11 +3,11 @@ import React from "react";
 import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
-import styles from "@agir/front/genericComponents/_variables.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 import PropTypes from "prop-types";
 
 const BottomBar = styled.nav`
-  @media only screen and (max-width: ${styles.collapse}px) {
+  @media only screen and (max-width: ${style.collapse}px) {
     position: absolute;
     bottom: 0px;
     left: 0px;
@@ -19,7 +19,7 @@ const BottomBar = styled.nav`
 `;
 
 const Menu = styled.ul`
-  @media only screen and (max-width: ${styles.collapse}px) {
+  @media only screen and (max-width: ${style.collapse}px) {
     padding: 0;
     max-width: 600px;
     margin: auto;
@@ -29,7 +29,7 @@ const Menu = styled.ul`
 `;
 
 const MenuItem = styled.li`
-  @media only screen and (max-width: ${styles.collapse}px) {
+  @media only screen and (max-width: ${style.collapse}px) {
     width: 70px;
     height: 70px;
     display: flex;
@@ -44,14 +44,14 @@ const MenuItem = styled.li`
     ${(props) =>
       props.active &&
       `
-    border-top: 2px solid ${styles.primary500};
+    border-top: 2px solid ${style.primary500};
     `}
   }
 
-  @media only screen and (min-width: ${styles.collapse}px) {
+  @media only screen and (min-width: ${style.collapse}px) {
     margin-bottom: 1.5rem;
     & ${RawFeatherIcon} {
-      color: ${(props) => (props.active ? styles.primary500 : styles.black500)};
+      color: ${(props) => (props.active ? style.primary500 : style.black500)};
       margin-right: 1rem;
     }
   }
@@ -70,14 +70,14 @@ const MenuItem = styled.li`
   ${(props) =>
     props.active &&
     `
-    color: ${styles.primary500};
+    color: ${style.primary500};
     `}
 `;
 
 const Counter = styled.span`
   text-align: center;
   position: absolute;
-  background-color: ${styles.secondary500};
+  background-color: ${style.secondary500};
   color: #fff;
   font-size: 9px;
   height: 16px;
@@ -86,12 +86,12 @@ const Counter = styled.span`
   z-index: 1000;
   line-height: 14px;
 
-  @media only screen and (max-width: ${styles.collapse}px) {
+  @media only screen and (max-width: ${style.collapse}px) {
     top: 11px;
     right: 16px;
   }
 
-  @media only screen and (min-width: ${styles.collapse}px) {
+  @media only screen and (min-width: ${style.collapse}px) {
     top: 0px;
     left: 14px;
   }

@@ -1,4 +1,4 @@
-import style from "./_variables.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 import Card from "./Card";
 import React, { useCallback, useRef, useState } from "react";
 import Button from "./Button";
