@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { ThemeProvider } from "styled-components";
 
-import styles from "./style.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 
 /*
  * Objet proxy utilisé en test pour toujours renvoyer quelque chose
@@ -33,7 +33,7 @@ export const GlobalContextProvider = ({ children }) => {
 
   return (
     <GobalContext.Provider value={globalContext}>
-      <ThemeProvider theme={styles}>{children}</ThemeProvider>
+      <ThemeProvider theme={style}>{children}</ThemeProvider>
     </GobalContext.Provider>
   );
 };

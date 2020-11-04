@@ -1,4 +1,4 @@
-import style from "./style.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import { transparentize } from "polished";
@@ -31,6 +31,12 @@ const buttonColors = {
     labelColor: style.black500,
     borderColor: style.black100,
   },
+  dismiss: {
+    background: "transparent",
+    labelColor: style.black1000,
+    hoverBackground: "transparent",
+    borderColor: style.black1000,
+  },
 };
 
 const Button = styled.button.attrs(({ color }) => buttonColors[color])`
@@ -51,8 +57,11 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
     disabled ? transparentize(0.3, labelColor) : labelColor};
   background-color: ${({ background, disabled }) =>
     disabled ? transparentize(0.7, background) : background};
-  border: ${({ borderColor }) =>
-    borderColor ? `1px solid ${borderColor}` : "0"};
+  border: ${({ borderColor, background, disabled }) => {
+    if (!borderColor || !background) return "0";
+    if (borderColor) return `1px solid ${borderColor}`;
+    return disabled ? transparentize(0.7, background) : background;
+  }}}
 
   &:hover {
     ${({ disabled, hoverBackground }) =>
@@ -63,7 +72,7 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
     color: ${({ labelColor }) =>
       labelColor}; // we need to overwrite link hover colors
   }
-  
+
   ${({ disabled }) => disabled && "cursor: not-allowed;"}
 
   ${({ icon, labelColor, small }) =>

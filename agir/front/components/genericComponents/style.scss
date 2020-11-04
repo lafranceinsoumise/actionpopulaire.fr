@@ -1,69 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap");
 @import "../../../../node_modules/normalize.css";
-
-$white: #fff;
-
-$black1000: #00232c;
-$black700: #4F4F4F;
-$black500: #777;
-$black100: #dfdfdf;
-$black50: #eee;
-$black25: #f8f8f8;
-
-$primary600: #1D7384;
-$primary500: #0098b6;
-$primary150: #BFE7EC;
-$primary100: #DAF0F3;
-
-$secondary600: #A32F18;
-$secondary500: #C9462C; // terre de sienne
-$secondary100: #FAEDEA;
-
-$green500: #16A460;
-
-$font-family-base: 'Montserrat', sans-serif;
-$font-size-base: 16px;
-$line-height-base: 1.428571429;
-$text-color: $black1000;
-
-$link-color: $primary500;
-$link-hover-color: $primary600;
-$link-hover-decoration: underline;
-
-$collapse: 992;
-
-:export {
-white: $white;
-
-black1000: $black1000;
-black700: $black700;
-black500: $black500;
-black100: $black100;
-black50: $black50;
-black25: $black25;
-
-primary500: $primary500;
-primary600: $primary600;
-primary150: $primary150;
-primary100: $primary100;
-
-secondary600: $secondary600;
-secondary500: $secondary500;
-secondary100: $secondary100;
-
-green500: $green500;
-
-fontFamilyBase: $font-family-base;
-fontSizeBase: $font-size-base;
-lineHeightBase: $line-height-base;
-textColor: $text-color;
-
-linkColor: $link-color;
-linkHoverColor: $link-hover-color;
-linkHoverDecoration : $link-hover-decoration;
-
-collapse: $collapse;
-}
+@import "./_variables.scss";
 
 * {
   box-sizing: border-box;
@@ -104,7 +41,8 @@ a {
   text-decoration: none;
 }
 
-a:hover, a:focus {
+a:hover,
+a:focus {
   color: $link-hover-color;
   text-decoration: $link-hover-decoration;
 }
@@ -120,7 +58,12 @@ img {
   height: auto;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 700;
   line-height: 1.2;
   color: #00232c;
@@ -191,14 +134,14 @@ table {
   background-color: transparent;
 }
 
-table col[class*=col-] {
+table col[class*="col-"] {
   position: static;
   display: table-column;
   float: none;
 }
 
-table td[class*=col-],
-table th[class*=col-] {
+table td[class*="col-"],
+table th[class*="col-"] {
   position: static;
   display: table-cell;
   float: none;
@@ -235,7 +178,7 @@ label {
   font-weight: 500;
 }
 
-input[type=search] {
+input[type="search"] {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -243,28 +186,27 @@ input[type=search] {
   appearance: none;
 }
 
-input[type=radio],
-input[type=checkbox] {
+input[type="radio"],
+input[type="checkbox"] {
   margin: 4px 0 0;
-  margin-top: 1px \9
-;
+  margin-top: 1px \9;
   line-height: normal;
 }
 
-input[type=radio][disabled],
-input[type=radio].disabled,
-fieldset[disabled] input[type=radio],
-input[type=checkbox][disabled],
-input[type=checkbox].disabled,
-fieldset[disabled] input[type=checkbox] {
+input[type="radio"][disabled],
+input[type="radio"].disabled,
+fieldset[disabled] input[type="radio"],
+input[type="checkbox"][disabled],
+input[type="checkbox"].disabled,
+fieldset[disabled] input[type="checkbox"] {
   cursor: not-allowed;
 }
 
-input[type=file] {
+input[type="file"] {
   display: block;
 }
 
-input[type=range] {
+input[type="range"] {
   display: block;
   width: 100%;
 }
@@ -274,9 +216,9 @@ select[size] {
   height: auto;
 }
 
-input[type=file]:focus,
-input[type=radio]:focus,
-input[type=checkbox]:focus {
+input[type="file"]:focus,
+input[type="radio"]:focus,
+input[type="checkbox"]:focus {
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }

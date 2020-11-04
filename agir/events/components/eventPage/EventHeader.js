@@ -5,7 +5,7 @@ import { Interval, DateTime } from "luxon";
 
 import Button from "@agir/front/genericComponents/Button";
 import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
-import style from "@agir/front/genericComponents/style.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
 import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 import { displayHumanDate } from "@agir/lib/utils/time";

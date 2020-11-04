@@ -6,7 +6,7 @@ import { Interval } from "luxon";
 
 import EventCard from "@agir/front/genericComponents/EventCard";
 import { Column, Row } from "@agir/front/genericComponents/grid";
-import styles from "@agir/front/genericComponents/style.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 
@@ -118,13 +118,13 @@ const LowMarginCard = styled(Card)`
 const EventCardContainer = styled.div`
   margin-top: 1rem;
 
-  @media only screen and (min-width: ${styles.collapse}px) {
+  @media only screen and (min-width: ${style.collapse}px) {
     padding-left: 2.5rem;
   }
 
   & ${Card} {
     box-shadow: none;
-    border: 1px solid ${styles.black100};
+    border: 1px solid ${style.black100};
   }
 `;
 
@@ -159,7 +159,7 @@ const ActivityCard = (props) => {
         <Column width="1rem" collapse={0} style={{ paddingTop: "2px" }}>
           <FeatherIcon
             name={activityCardIcons[props.type]}
-            color={styles.black500}
+            color={style.black500}
           />
         </Column>
         <Column collapse={0} grow style={{ fontSize: "15px" }}>
@@ -170,7 +170,7 @@ const ActivityCard = (props) => {
         style={{
           paddingLeft: "2.5rem",
           fontSize: "15px",
-          color: styles.black700,
+          color: style.black700,
         }}
       >
         {displayHumanDate(timestamp)}

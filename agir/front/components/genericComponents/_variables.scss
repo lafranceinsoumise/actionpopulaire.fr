@@ -1,0 +1,63 @@
+$white: #fff;
+
+$black1000: #00232c;
+$black700: #4f4f4f;
+$black500: #777;
+$black100: #dfdfdf;
+$black50: #eee;
+$black25: #f8f8f8;
+
+$primary600: #1d7384;
+$primary500: #0098b6;
+$primary150: #bfe7ec;
+$primary100: #daf0f3;
+
+$secondary600: #a32f18;
+$secondary500: #c9462c; // terre de sienne
+$secondary100: #faedea;
+
+$green500: #16a460;
+
+$font-family-base: "Montserrat", sans-serif;
+$font-size-base: 16px;
+$line-height-base: 1.428571429;
+$text-color: $black1000;
+
+$link-color: $primary500;
+$link-hover-color: $primary600;
+$link-hover-decoration: underline;
+
+$collapse: 992;
+
+:export {
+  white: $white;
+
+  black1000: $black1000;
+  black700: $black700;
+  black500: $black500;
+  black100: $black100;
+  black50: $black50;
+  black25: $black25;
+
+  primary500: $primary500;
+  primary600: $primary600;
+  primary150: $primary150;
+  primary100: $primary100;
+
+  secondary600: $secondary600;
+  secondary500: $secondary500;
+  secondary100: $secondary100;
+
+  green500: $green500;
+
+  fontFamilyBase: $font-family-base;
+  fontSizeBase: $font-size-base;
+  lineHeightBase: $line-height-base;
+  textColor: $text-color;
+
+  linkColor: $link-color;
+  linkHoverColor: $link-hover-color;
+  linkHoverDecoration: $link-hover-decoration;
+
+  collapse: $collapse;
+}

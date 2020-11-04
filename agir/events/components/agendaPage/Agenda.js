@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { Column } from "@agir/front/genericComponents/grid";
 import { Row } from "@agir/donations/donationForm/AllocationsWidget/Styles";
 
-import styles from "@agir/front/genericComponents/style.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 import { DateTime, Interval } from "luxon";
 import EventCard from "@agir/front/genericComponents/EventCard";
 import PropTypes from "prop-types";
@@ -17,7 +17,7 @@ const StyledAgenda = styled.div`
 `;
 
 const Banner = styled.div`
-  @media only screen and (min-width: ${styles.collapse}px) {
+  @media only screen and (min-width: ${style.collapse}px) {
     display: none;
   }
 
@@ -38,7 +38,7 @@ const TopBar = styled.div`
   margin-bottom: 24px;
   justify-content: space-between;
   & > h1 {
-    @media only screen and (max-width: ${styles.collapse}px) {
+    @media only screen and (max-width: ${style.collapse}px) {
       display: none;
     }
     margin: 0 1.5rem 0 0;
@@ -51,7 +51,7 @@ const TopBar = styled.div`
 `;
 
 const Day = styled.h3`
-  color: ${styles.black500};
+  color: ${style.black500};
   text-transform: uppercase;
   font-size: 14px;
   margin-top: 24px;

@@ -5,7 +5,7 @@ import FeatherIcon from "./FeatherIcon";
 import { Interval } from "luxon";
 import { displayInterval } from "@agir/lib/utils/time";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
-import styles from "@agir/front/genericComponents/style.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
 import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
@@ -49,7 +49,7 @@ RSVPButton.propTypes = {
 const Illustration = styled.img`
   max-height: 200px;
 
-  @media only screen and (min-width: ${styles.collapse}px) {
+  @media only screen and (min-width: ${style.collapse}px) {
     max-height: 360px;
   }
 `;
@@ -69,14 +69,14 @@ const EventCard = ({
       style={{
         margin: "-1.5em -1.5em 1.5em",
         textAlign: "center",
-        backgroundColor: styles.black50,
+        backgroundColor: style.black50,
       }}
     >
       {illustration && (
         <Illustration src={illustration} alt="Image d'illustration" />
       )}
     </div>
-    <p style={{ fontSize: "14px", color: styles.primary500, fontWeight: 600 }}>
+    <p style={{ fontSize: "14px", color: style.primary500, fontWeight: 600 }}>
       {displayInterval(schedule)}
       {location && location.shortAddress && <> • {location.shortAddress}</>}
     </p>

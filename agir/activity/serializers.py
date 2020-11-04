@@ -28,6 +28,6 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.Serializer):
         ]
     )
     supportGroup = SupportGroupSerializer(source="supportgroup", fields=["name", "url"])
-    individual = PersonSerializer(fields=["fullName"])
+    individual = PersonSerializer(fields=["fullName", "email"])
 
     status = serializers.CharField()

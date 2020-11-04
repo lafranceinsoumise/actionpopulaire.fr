@@ -4,7 +4,7 @@ import styled from "styled-components";
 import FeatherIcon from "../genericComponents/FeatherIcon";
 import Button from "../genericComponents/Button";
 
-import style from "../genericComponents/style.scss";
+import style from "@agir/front/genericComponents/_variables.scss";
 import LogoFI from "../genericComponents/LogoFI";
 import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
 

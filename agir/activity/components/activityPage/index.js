@@ -4,12 +4,12 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
   const [
     { default: React },
     { renderReactComponent },
-    { default: ActivityCard },
+    { default: ActivityList },
     { GlobalContextProvider },
   ] = await Promise.all([
     import("react"),
     import("@agir/lib/utils/react"),
-    import("./ActivityCard"),
+    import("./ActivityList"),
     import("@agir/front/genericComponents/GobalContext"),
   ]);
 
@@ -25,11 +25,7 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
     console.log(payload);
     renderReactComponent(
       <GlobalContextProvider>
-        <div>
-          {payload.data.map(({ id, ...props }) => (
-            <ActivityCard key={id} {...props} />
-          ))}
-        </div>
+        <ActivityList {...payload} />
       </GlobalContextProvider>,
       renderElement
     );
