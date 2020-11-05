@@ -68,7 +68,7 @@ const EventDescription = ({
       )}
     </Hide>
     {description ? (
-      <Collapsible content={description} />
+      <Collapsible dangerouslySetInnerHTML={{ __html: description }} />
     ) : (
       isOrganizer && (
         <>

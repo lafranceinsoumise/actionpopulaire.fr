@@ -1,5 +1,11 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 
 import ExpandButton from "@agir/front/genericComponents/ExpandButton";
@@ -11,10 +17,17 @@ const StyledWrapper = styled.div`
 `;
 
 const Collapsible = (props) => {
-  const { content, maxHeight } = props;
+  const { children, maxHeight, dangerouslySetInnerHTML } = props;
 
   const wrapper = useRef(null);
   const [isCollapsed, setIsCollapsed] = useState(true);
+
+  const [isHtmlString, content] = useMemo(() => {
+    if (dangerouslySetInnerHTML && dangerouslySetInnerHTML.__html) {
+      return [true, dangerouslySetInnerHTML.__html];
+    }
+    return [false, children || null];
+  }, [children, dangerouslySetInnerHTML]);
 
   const expand = useCallback(() => {
     setIsCollapsed(false);
@@ -41,17 +54,26 @@ const Collapsible = (props) => {
 
   return (
     <>
-      <StyledWrapper
-        ref={wrapper}
-        collapsed={isCollapsed}
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
+      {isHtmlString ? (
+        <StyledWrapper
+          ref={wrapper}
+          collapsed={isCollapsed}
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
+      ) : (
+        <StyledWrapper ref={wrapper} collapsed={isCollapsed}>
+          {content}
+        </StyledWrapper>
+      )}
       {isCollapsed && <ExpandButton onClick={expand} />}
     </>
   );
 };
 Collapsible.propTypes = {
-  content: PropTypes.string,
+  children: PropTypes.node,
+  dangerouslySetInnerHTML: PropTypes.shape({
+    __html: PropTypes.string,
+  }),
   maxHeight: PropTypes.number,
 };
 Collapsible.defaultProps = {
