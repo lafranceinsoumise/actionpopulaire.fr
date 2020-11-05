@@ -5,10 +5,13 @@
 @import "../../../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 @import "../../../../node_modules/eonasdan-bootstrap-datetimepicker/src/sass/bootstrap-datetimepicker";
 
-// Default styles
+// Generic
 @import "styles";
-
+// Text
+@import "text";
+// Layout
 @import "layout";
-
+// Controls (buttons, links, inputs, ...)
+@import "controls";
 // Custom components
 @import "navbar";

@@ -4,7 +4,7 @@
 
   <div class="row">
     {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="PERSONAL_DATA" %} {% endblock %}
-    <div class="col-xs-12 col-md-10">
+    <div class="col-xs-12 col-md-9 margintopmore">
       <form action="" method="post">{% csrf_token %}
         <div class="alert alert-danger">
           <p>Voulez-vous vraiment effacer le compte {{ object.email }} ?</p>

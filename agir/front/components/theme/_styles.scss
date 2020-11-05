@@ -1,117 +1,63 @@
-// Headings
-h1, .h1,
-h2, .h2,
-h3, .h3,
-h4, .h4,
-h5, .h5,
-h6, .h6 {
-	margin-top: 0.8em;
-	margin-bottom: 0.7em;
-}
-
-
 // Change default display for images
 img {
-	max-width: 100%;
-	height: auto;
+  max-width: 100%;
+  height: auto;
 }
 
 // Utils
 .padtop {
-	padding-top: $line-height-computed * .5;
+  padding-top: $line-height-computed * 0.5;
 }
 
 .padbottom {
-	padding-bottom: $line-height-computed * .5;
+  padding-bottom: $line-height-computed * 0.5;
 }
 
 .padtopless {
-	padding-top: $line-height-computed * .25;
+  padding-top: $line-height-computed * 0.25;
 }
 
 .padbottomless {
-	padding-bottom: $line-height-computed * .25;
+  padding-bottom: $line-height-computed * 0.25;
 }
 
 .padtopmore {
-	padding-top: $line-height-computed * .75;
+  padding-top: $line-height-computed * 0.75;
 }
 
 .padbottommore {
-	padding-bottom: $line-height-computed * .75;
+  padding-bottom: $line-height-computed * 0.75;
 }
 
 .margintopless {
-	margin-top: $line-height-computed * .5;
+  margin-top: $line-height-computed * 0.5;
 }
 
 .margintop {
-	margin-top: $line-height-computed * .75;
+  margin-top: $line-height-computed * 0.75;
 }
 
 .margintopmore {
-	margin-top: $line-height-computed;
+  margin-top: $line-height-computed;
 }
 
 .marginbottomless {
-	margin-bottom: $line-height-computed * .5;
+  margin-bottom: $line-height-computed * 0.5;
 }
 
 .marginbottom {
-	margin-bottom: $line-height-computed * .75;
+  margin-bottom: $line-height-computed * 0.75;
 }
 
 .marginbottommore {
-	margin-bottom: $line-height-computed;
+  margin-bottom: $line-height-computed;
 }
 
 .center {
-	text-align: center;
+  text-align: center;
 }
 
 // Theme
 .navbar-brand {
-	height: auto;
-}
-
-// Forms
-.form-group  {
-	label {
-		display: block;
-	}
-	input + input {
-		@extend .margintopless;
-	}
-}
-
-fieldset {
-	margin-top: 2em;
-
-	label {
-		font-weight: 500;
-	}
-
-	legend {
-		font-size: 24px;
-		font-weight: 700;
-		margin-bottom: 20px;
-		border: 0;
-	}
-}
-
-.help-block {
-	color: $gray-light; // lighten the text some for contrast
-}
-
-// Buttons sizes
-// 	@include button-size($padding-base-vertical, $padding-base-horizontal, $font-size, $line-height-base, $btn-border-radius-base);
-.btn {
-	@include button-size(12px, 24px, 14px, $line-height-base, $btn-border-radius-base);
-}
-
-.btn-lg {
-	@include button-size($padding-large-vertical, $padding-large-horizontal, 16px, $line-height-large, $btn-border-radius-large);
-}
-.btn-sm {
-	@include button-size($padding-small-vertical, $padding-small-horizontal, 12px, $line-height-small, $btn-border-radius-small);
+  height: auto;
 }
