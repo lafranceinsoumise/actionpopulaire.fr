@@ -11,15 +11,13 @@ class LegacySubscribedMixin(ModelForm):
         required=False,
     )
 
-    def __init__(self, *args, initial=None, instance=None, **kwargs):
-        if initial is None:
-            initial = {}
-        initial["subscribed_lfi"] = (
-            instance is not None and Person.NEWSLETTER_LFI in instance.newsletters
+    def __init__(self, *args, instance=None, **kwargs):
+        super().__init__(
+            *args, instance=instance, **kwargs,
         )
 
-        super().__init__(
-            *args, initial=initial, instance=instance, **kwargs,
+        self.fields["subscribed_lfi"].initial = (
+            instance is not None and Person.NEWSLETTER_LFI in instance.newsletters
         )
 
     def save(self, commit=True):
