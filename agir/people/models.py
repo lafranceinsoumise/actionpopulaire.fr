@@ -32,6 +32,7 @@ from agir.lib.utils import generate_token_params
 from . import metrics
 from .model_fields import MandatesField, ValidatedPhoneNumberField
 from .person_forms.models import *
+from ..lib.model_fields import ChoiceArrayField
 
 
 class PersonQueryset(models.QuerySet):
@@ -153,8 +154,16 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
 
-        if not extra_fields.get("is_insoumise", True):
-            extra_fields.setdefault("subscribed", False)
+        if "subscribed" in extra_fields:
+            extra_fields.setdefault(
+                "newsletters",
+                [Person.NEWSLETTER_LFI] if extra_fields["subscribed"] else [],
+            )
+            del extra_fields["subscribed"]
+
+        if extra_fields.get("is_insoumise", True):
+            extra_fields.setdefault("newsletters", [Person.NEWSLETTER_LFI])
+        else:
             extra_fields.setdefault("event_notifications", False)
             extra_fields.setdefault("group_notifications", False)
 
@@ -227,6 +236,7 @@ class Person(
     auto_login_salt = models.CharField(max_length=255, blank=True, default="")
 
     is_insoumise = models.BooleanField(_("Insoumis⋅e"), default=True)
+    is_2022 = models.BooleanField(_("Soutien 2022"), default=False)
 
     MEMBRE_RESEAU_INCONNU = "I"
     MEMBRE_RESEAU_SOUHAITE = "S"
@@ -250,14 +260,17 @@ class Person(
         help_text="Pertinent uniquement si la personne a un ou plusieurs mandats électoraux.",
     )
 
-    subscribed = models.BooleanField(
-        _("Recevoir les lettres d'information"),
-        default=True,
+    NEWSLETTER_LFI = "LFI"
+    NEWSLETTER_2022 = "2022"
+    NEWSLETTERS_CHOICES = (
+        (NEWSLETTER_LFI, "Lettre d'information de la France insoumise"),
+        (NEWSLETTER_2022, "Lettre d'information de"),
+    )
+
+    newsletters = ChoiceArrayField(
+        models.CharField(choices=NEWSLETTERS_CHOICES, max_length=255),
+        default=list,
         blank=True,
-        help_text=_(
-            "Vous recevrez les lettres de la France insoumise, notamment : les lettres d'information, les"
-            " appels à volontaires, les annonces d'émissions ou d'événements..."
-        ),
     )
 
     subscribed_sms = models.BooleanField(
@@ -413,6 +426,17 @@ class Person(
     def bounced_date(self, value):
         self.primary_email.bounced_date = value
         self.primary_email.save()
+
+    @property
+    def subscribed(self):
+        return self.NEWSLETTER_LFI in self.newsletters
+
+    @subscribed.setter
+    def subscribed(self, value):
+        if value and not self.subscribed:
+            self.newsletters.append(self.NEWSLETTER_LFI)
+        if not value and self.subscribed:
+            self.newsletters.remove(self.NEWSLETTER_LFI)
 
     def get_full_name(self):
         """

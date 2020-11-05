@@ -50,7 +50,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "__str__",
         "display_contact_phone",
         "is_insoumise",
-        "subscribed",
+        "newsletters",
         "location_city",
         "location_zip",
         "created",
@@ -78,7 +78,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             _("Paramètres mails"),
             {
                 "fields": (
-                    "subscribed",
+                    "subscribed_lfi",
                     "subscribed_sms",
                     "event_notifications",
                     "group_notifications",
@@ -134,7 +134,6 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         DepartementListFilter,
         RegionListFilter,
         ("is_insoumise", admin.BooleanFieldListFilter),
-        ("subscribed", admin.BooleanFieldListFilter),
         ("subscribed_sms", admin.BooleanFieldListFilter),
         ("draw_participation", admin.BooleanFieldListFilter),
         "gender",

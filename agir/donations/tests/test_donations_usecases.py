@@ -674,7 +674,7 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
             information_url,
             data={
                 "email": "test@test.com",  # existing user email
-                "subscribed": "Y",
+                "subscribed_lfi": "Y",
                 **self.donation_information_payload,
                 "type": "M",
                 "amount": "500",
@@ -695,7 +695,6 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
             send_email.delay.call_args[1],
             {
                 "email": "test@test.com",
-                "subscribed": True,
                 "subscription_total": 500,
                 "allocations": json.dumps(
                     {str(self.group.pk): 100, str(self.other_group.pk): 300}

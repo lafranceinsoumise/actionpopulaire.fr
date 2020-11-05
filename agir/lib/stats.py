@@ -43,7 +43,7 @@ def get_events_by_subtype(start, end):
 def get_instant_stats():
     return {
         "subscribers": Person.objects.filter(
-            subscribed=True, emails___bounced=False
+            newsletters__contains=[Person.NEWSLETTER_LFI], emails___bounced=False
         ).count(),
         "groups": SupportGroup.objects.filter(
             type=SupportGroup.TYPE_LOCAL_GROUP, published=True
