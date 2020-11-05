@@ -11,11 +11,7 @@ import {
 } from "@agir/front/genericComponents/grid";
 import Navigation from "@agir/front/dashboardComponents/Navigation";
 
-const PageColumn = styled(Column)`
-  min-height: 100vh;
-`;
-
-const PageTitle = styled.h1`
+const LayoutTitle = styled.h1`
   font-size: 28px;
   margin: 0;
 
@@ -27,19 +23,21 @@ const PageTitle = styled.h1`
 
 const Layout = (props) => (
   <GrayBackground>
-    <Container gutter={72} style={{ paddingTop: "64px" }}>
+    <Container style={{ paddingTop: "64px" }}>
       <Row gutter={72}>
         <Column>
           <Navigation {...props} />
         </Column>
-        <PageColumn grow>
-          {props.title ? (
-            <header>
-              <PageTitle>{props.title}</PageTitle>
-            </header>
-          ) : null}
-          {props.children}
-        </PageColumn>
+        <Column grow style={{ minHeight: "100vh" }}>
+          <section>
+            {props.title ? (
+              <header>
+                <LayoutTitle>{props.title}</LayoutTitle>
+              </header>
+            ) : null}
+            {props.children}
+          </section>
+        </Column>
       </Row>
     </Container>
   </GrayBackground>

@@ -110,14 +110,11 @@ export const Row = styled.div`
       typeof props.gutter === "undefined" ? gutter : props.gutter}px;
   }
 
-  & > ${Column} > & {
-  }
-
   @media (max-width: ${(props) =>
       typeof props.collapse === "undefined"
         ? collapse
         : props.collapse || 0}px) {
-    & > ${Column} > ${Card} {
+    & > ${Column} > ${Card}, & > ${Column} > section {
       margin-left: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
       margin-right: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
       border-radius: 0px;

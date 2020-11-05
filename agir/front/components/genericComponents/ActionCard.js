@@ -43,7 +43,7 @@ const ActionCard = (props) => {
   } = props;
   return (
     <Card type="alert">
-      <Container>
+      <Container style={{ width: "auto" }}>
         <Row justify="flex-start">
           <Column width="auto" collapse={0} style={{ padding: 0 }}>
             <FeatherIcon name={iconName} />
