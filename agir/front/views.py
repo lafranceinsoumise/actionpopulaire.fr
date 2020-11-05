@@ -1,9 +1,11 @@
+from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponsePermanentRedirect, HttpResponse, Http404
-from django.views.generic import View
+from django.views.generic import View, RedirectView
 
 from ..events.models import Event
 from ..groups.models import SupportGroup
+from ..lib.http import add_query_params_to_url
 
 
 class NBUrlsView(View):
@@ -69,3 +71,22 @@ class NBUrlsView(View):
             pass
 
         raise Http404()
+
+
+class NSPView(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        url = settings.NSP_DOMAIN
+        if self.request.user.is_authenticated:
+            person = self.request.user.person
+            url = add_query_params_to_url(
+                url,
+                {
+                    "prenom": person.first_name,
+                    "nom": person.last_name,
+                    "email": person.email,
+                    "phone": person.contact_phone,
+                    "zipcode": person.location_zip,
+                },
+            )
+
+        return url
