@@ -107,7 +107,7 @@ class PeopleFormNewSubmissionView(BasePeopleFormView):
         if event is not None:
             return redirect("rsvp_event", event.pk)
 
-        if self.person_form_instance.editable:
+        if self.person_form_instance.editable and self.request.user.is_authenticated:
             existing_submission = PersonFormSubmission.objects.filter(
                 person=self.request.user.person, form=self.person_form_instance
             ).last()
