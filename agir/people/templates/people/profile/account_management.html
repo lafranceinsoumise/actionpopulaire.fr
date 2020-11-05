@@ -9,9 +9,8 @@
   <div class="row">
     {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="CONTACT" %} {% endblock %}
     <div class="col-xs-12 col-md-9 margintopmore">
-
+      {% include "people/profile/profile_title.html" with tab_code="CONTACT" %}
       <p>Ce champ vous permet d'ajouter une adresse e-mail à votre compte.</p>
-
       <ul>
         <li>
           Après confirmation, il sera possible d'utiliser cette adresse pour se connecter à votre compte.

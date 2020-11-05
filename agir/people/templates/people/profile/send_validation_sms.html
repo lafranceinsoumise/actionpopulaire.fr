@@ -10,7 +10,8 @@
   <div class="row">
     {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="CONTACT" %} {% endblock %}
     <div class="col-xs-12 col-md-9 margintopmore">
-      <h2 class="headline">Valider mon numéro de téléphone</h2>
+      {% include "people/profile/profile_title.html" with tab_code="CONTACT" %}
+      <h3>Valider mon numéro de téléphone</h3>
       <div>
         <div class="intro">
           <p>Pour certaines opérations, nous vous demanderons de valider votre numéro de téléphone : cela permet de

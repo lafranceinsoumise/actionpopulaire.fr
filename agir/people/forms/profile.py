@@ -69,7 +69,7 @@ class PersonalInformationsForm(forms.ModelForm):
         )
 
         description = HTML(
-            """<p>Ces informations nous permettrons de s'adresser à vous plus correctement et 
+            """<p>Ces informations nous permettrons de s'adresser à vous plus correctement et
             en fonction de votre situation géographique.</p>"""
         )
 
@@ -220,7 +220,7 @@ class InformationConfidentialityForm(Form):
                 """
 
         delete_account_link = format_html(
-            '<a href="{url}" class="btn btn-default">{label}</a>',
+            '<a href="{url}" class="btn btn-danger margintop marginbottom">{label}</a>',
             url=reverse("delete_account"),
             label="Je veux supprimer mon compte définitivement",
         )
@@ -292,7 +292,7 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
                     </div>
                 """
         validation_link = format_html(
-            '<a href="{url}" class="btn btn-default">{label}</a>',
+            '<a href="{url}" class="btn btn-default btn-block">{label}</a>',
             url=reverse("send_validation_sms"),
             label=_("Valider mon numéro de téléphone"),
         )
@@ -322,7 +322,7 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
                 Submit(
                     "no_mail",
                     "Ne plus recevoir d'emails ou de SMS",
-                    css_class="btn-danger",
+                    css_class="btn-danger btn-block marginbottom",
                 ),
                 css_class="text-right",
             )
@@ -330,16 +330,22 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
             else Div()
         )
 
+        btn_submit = FormActions(
+            Submit(
+                "submit", "Sauvegarder", css_class="btn-danger btn-block marginbottom",
+            )
+        )
+
         if self.instance.is_insoumise:
             fields.extend(
                 [
                     "subscribed",
-                    Div("newsletter_efi", style="margin-left: 50px;"),
+                    Div("newsletter_efi"),
                     "group_notifications",
                     "event_notifications",
                     Fieldset(
                         "Téléphone",
-                        Row(ThirdCol("contact_phone"), ThirdCol(validation_block)),
+                        Row(ThirdCol("contact_phone"), HalfCol(validation_block)),
                         "subscribed_sms",
                     ),
                 ]
@@ -352,7 +358,9 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
                 )
             )
 
-        fields.extend([FormActions(Submit("submit", "Sauvegarder")), btn_no_mails])
+        fields.extend(
+            [ThirdCol(btn_submit), HalfCol(btn_no_mails, css_class="col-md-offset-2"),]
+        )
         return fields
 
     def clean(self):
@@ -417,7 +425,7 @@ class ActivityAndSkillsForm(MetaFieldsMixin, TagMixin, forms.ModelForm):
             Row(
                 FullCol(
                     HTML(
-                        """<p>Lorsque nous cherchons des membres du mouvement avec des compétences particulières, 
+                        """<p>Lorsque nous cherchons des membres du mouvement avec des compétences particulières,
                         nous utilisons les informations saisies dans ce formulaire.</p>"""
                     )
                 ),

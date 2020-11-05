@@ -7,28 +7,27 @@
 {% block main %}
   <div class="row">
     {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="MANDATS" %} {% endblock %}
-    <div class="col-xs-12 col-md-10">
-      <div class="col-xs-12 col-md-12 ">
-        <p>
-          Nous vous avons {% genrer "identifié" %} par erreur comme {% genrer "élu⋅e" %} {{ conseil_avec_charniere }} ?
-          Nous vous somme reconnaissants de bien vouloir nous le signaler via ce formulaire.
-        </p>
-        <div class="alert alert-info">
-          Généralement, vous avez incorrectement été {% genrer "identifié⋅e" %} car une personne homonyme a
-          été élue près de chez vous.
-        </div>
-
-        <form method="post">
-          {% csrf_token %}
-          <div class="form-group">
-          <label>
-            <input name="confirmation" type="checkbox" required>
-            Je ne suis pas {% genrer "élu⋅e" %} {{ conseil_avec_charniere }}
-          </label>
-            </div>
-          <button type="submit" class="btn btn-default">Supprimer ce mandat</button>
-        </form>
+    <div class="col-xs-12 col-md-9 margintopmore">
+      {% include "people/profile/profile_title.html" with tab_code="MANDATS" %}
+      <p>
+        Nous vous avons {% genrer "identifié" %} par erreur comme {% genrer "élu⋅e" %} {{ conseil_avec_charniere }} ?
+        Nous vous somme reconnaissants de bien vouloir nous le signaler via ce formulaire.
+      </p>
+      <div class="alert alert-info">
+        Généralement, vous avez incorrectement été {% genrer "identifié⋅e" %} car une personne homonyme a
+        été élue près de chez vous.
       </div>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+        <label>
+          <input name="confirmation" type="checkbox" required>
+          Je ne suis pas {% genrer "élu⋅e" %} {{ conseil_avec_charniere }}
+        </label>
+          </div>
+        <button type="submit" class="btn btn-default">Supprimer ce mandat</button>
+      </form>
     </div>
   </div>
 {% endblock %}

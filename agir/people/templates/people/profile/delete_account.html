@@ -5,9 +5,10 @@
   <div class="row">
     {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="PERSONAL_DATA" %} {% endblock %}
     <div class="col-xs-12 col-md-9 margintopmore">
+      {% include "people/profile/profile_title.html" with tab_code="PERSONAL_DATA" %}
       <form action="" method="post">{% csrf_token %}
         <div class="alert alert-danger">
-          <p>Voulez-vous vraiment effacer le compte {{ object.email }} ?</p>
+          <p>Voulez-vous vraiment effacer le compte <strong>{{ object.email }}</strong> ?</p>
 
           <p>Toute votre activité sur la plateforme de la France insoumise sera perdue. Vos participations aux
             événements
@@ -18,12 +19,23 @@
 
           <p><strong>Cette action est irréversible.</strong></p>
         </div>
-        <div class="control-group marginbottom">
-          <label><input type="checkbox" required> J'ai bien compris que cette action est irréversible et je veux effacer
-            mon compte {{ object.email }}.</label>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" class="checkboxinput" required>
+            J'ai bien compris que cette action est irréversible et je veux effacer
+            mon compte <strong>{{ object.email }}</strong>.
+          </label>
         </div>
-        <input type="submit" class="btn btn-danger btn-lg" value="Effacer mon compte"/>
-        {#                <a class="btn btn-default btn-lg" href="{% url 'message_preferences' %}">Retour à mes préférences</a>#}
+        <div class="row">
+          <div class="col-xs-12 col-md-4 margintop">
+            <input
+            type="submit"
+            class="btn btn-primary btn-lg btn-block" value="Effacer  mon compte"/>
+          </div>
+          <div class="col-xs-12 col-md-4 margintop">
+            {#<a class="btn btn-default btn-lg btn-block" href="{% url 'message_preferences' %}">Retour à mes préférences</a>#}
+          </div>
+        </div>
       </form>
     </div>
   </div>
