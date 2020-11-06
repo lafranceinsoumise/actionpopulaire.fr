@@ -14,7 +14,6 @@ PERSON_FIELDS = [
     "location_city",
     "is_insoumise",
     "membre_reseau_elus",
-    "subscribed",
     "commentaires",
 ]
 
@@ -27,7 +26,7 @@ class CreerMandatForm(forms.ModelForm):
     email_officiel = forms.ModelChoiceField(
         label="Email officiel", queryset=PersonEmail.objects.none(), required=False
     )
-    subscribed = forms.BooleanField(
+    subscribed_lfi = forms.BooleanField(
         label="Inscrit à la lettre d'information de la FI",
         required=False,
         help_text="Assurez-vous d'avoir recueilli le consensus de la personne. Il n'est pas possible d'inscrire une"
@@ -45,7 +44,6 @@ class CreerMandatForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if "person" in self.fields:
-            person = self.get_initial_for_field(self.fields["person"], "person")
             self.fields["person"].label = "Compte plateforme de l'élu"
             # on retire les champs de personne
             for name in PERSON_FIELDS:
@@ -58,6 +56,9 @@ class CreerMandatForm(forms.ModelForm):
                 for f in PERSON_FIELDS:
                     self.fields[f].initial = getattr(person, f)
                 self.fields["email_officiel"].queryset = person.emails.all()
+                self.fields["subscribed_lfi"].initial = (
+                    Person.NEWSLETTER_LFI in person.newsletters
+                )
 
         if "email_officiel" not in self._meta.fields:
             del self.fields["email_officiel"]
@@ -126,12 +127,18 @@ class CreerMandatForm(forms.ModelForm):
                 cleaned_data["new_email"],
                 **{k: v for k, v in cleaned_data.items() if k in PERSON_FIELDS},
             )
+            self.instance.newsletters = (
+                [Person.NEWSLETTER_LFI] if cleaned_data["subscribed_lfi"] else []
+            )
             self.instance.email_officiel = self.instance.person.primary_email
         else:
             if "person" not in self.fields:
-                if any(f in self.changed_data for f in PERSON_FIELDS):
+                if any(
+                    f in self.changed_data for f in [*PERSON_FIELDS, "subscribed_lfi"]
+                ):
                     for f in PERSON_FIELDS:
                         setattr(person, f, cleaned_data[f])
+                    person.subscribed = cleaned_data["subscribed_lfi"]
                     person.save()
 
             if "new_email" in self.changed_data:
