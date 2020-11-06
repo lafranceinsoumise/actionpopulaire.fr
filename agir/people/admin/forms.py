@@ -17,7 +17,13 @@ from agir.people.person_forms.actions import (
 from agir.people.person_forms.schema import schema
 
 
-class PersonAdminForm(CoordinatesFormMixin, LegacySubscribedMixin, forms.ModelForm):
+class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
+    newsletters = forms.MultipleChoiceField(
+        label="Inscription aux lettres",
+        choices=Person.NEWSLETTERS_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

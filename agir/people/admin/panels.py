@@ -17,7 +17,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from agir.authentication.models import Role
-from agir.elus.models import MandatMunicipal, types_elus
+from agir.elus.models import types_elus
 from agir.lib.admin import (
     DisplayContactPhoneMixin,
     CenterOnFranceMixin,
@@ -78,7 +78,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             _("Paramètres mails"),
             {
                 "fields": (
-                    "subscribed_lfi",
+                    "newsletters",
                     "subscribed_sms",
                     "event_notifications",
                     "group_notifications",

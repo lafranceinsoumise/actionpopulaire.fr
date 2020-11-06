@@ -27,6 +27,10 @@ DONATION_FILTER = {
 }
 
 
+def default_newsletters():
+    return [Person.NEWSLETTER_LFI]
+
+
 class Segment(BaseSegment, models.Model):
     GA_STATUS_NOT_MEMBER = "N"
     GA_STATUS_MEMBER = "m"
@@ -49,7 +53,7 @@ class Segment(BaseSegment, models.Model):
     )
     newsletters = ChoiceArrayField(
         models.CharField(choices=Person.NEWSLETTERS_CHOICES, max_length=255),
-        default=(Person.NEWSLETTER_LFI,),
+        default=default_newsletters,
         help_text="Inclure les personnes abonnées aux newsletters suivantes",
     )
     supportgroup_status = models.CharField(

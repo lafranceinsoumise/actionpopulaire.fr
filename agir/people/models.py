@@ -265,9 +265,15 @@ class Person(
 
     NEWSLETTER_LFI = "LFI"
     NEWSLETTER_2022 = "2022"
+    NEWSLETTER_NSP_EN_LIGNE = "NSP_en_ligne"
+    NEWSLETTER_NSP_CHEZ_MOI = "NSP_chez_moi"
+    NEWSLETTER_NSP_PROGRAMME = "NSP_programme"
     NEWSLETTERS_CHOICES = (
         (NEWSLETTER_LFI, "Lettre d'information de la France insoumise"),
         (NEWSLETTER_2022, "Lettre d'information de"),
+        (NEWSLETTER_NSP_EN_LIGNE, "NSP en ligne"),
+        (NEWSLETTER_NSP_CHEZ_MOI, "NSP près de chez moi"),
+        (NEWSLETTER_NSP_PROGRAMME, "NSP programme"),
     )
 
     newsletters = ChoiceArrayField(
@@ -434,12 +440,12 @@ class Person(
     def subscribed(self):
         return self.NEWSLETTER_LFI in self.newsletters
 
-    @subscribed.setter
-    def subscribed(self, value):
-        if value and not self.subscribed:
-            self.newsletters.append(self.NEWSLETTER_LFI)
-        if not value and self.subscribed:
-            self.newsletters.remove(self.NEWSLETTER_LFI)
+    # @subscribed.setter
+    # def subscribed(self, value):
+    #     if value and not self.subscribed:
+    #         self.newsletters.append(self.NEWSLETTER_LFI)
+    #     if not value and self.subscribed:
+    #         self.newsletters.remove(self.NEWSLETTER_LFI)
 
     def get_full_name(self):
         """
