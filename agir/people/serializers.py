@@ -1,8 +1,13 @@
+from uuid import uuid4
+
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+from phonenumber_field.serializerfields import PhoneNumberField
+
 from agir.lib.data import french_zipcode_to_country_code
+from .models import Person
 from .tasks import send_confirmation_email
 
 from agir.lib.serializers import (
@@ -11,7 +16,15 @@ from agir.lib.serializers import (
     RelatedLabelField,
 )
 
+
 from . import models
+from .actions.subscription import (
+    SUBSCRIPTION_TYPE_LFI,
+    SUBSCRIPTION_TYPE_CHOICES,
+    SUBSCRIPTION_FIELD,
+)
+
+person_fields = {f.name: f for f in models.Person._meta.get_fields()}
 
 
 class PersonEmailSerializer(serializers.ModelSerializer):
@@ -136,19 +149,63 @@ class PersonTagSerializer(serializers.ModelSerializer):
         fields = ("url", "id", "label", "description")
 
 
-class SubscriptionSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-    location_zip = serializers.RegexField(regex=r"^[0-9]{5}$", required=True)
+class SubscriptionRequestSerializer(serializers.Serializer):
+    type = serializers.ChoiceField(
+        choices=SUBSCRIPTION_TYPE_CHOICES, default=SUBSCRIPTION_TYPE_LFI, required=False
+    )
 
-    def send_confirmation_email(self):
+    email = serializers.EmailField(required=True,)
+    location_zip = serializers.RegexField(regex=r"^[0-9]{5}$", required=True)
+    first_name = serializers.CharField(
+        max_length=person_fields["first_name"].max_length, required=False
+    )
+    last_name = serializers.CharField(
+        max_length=person_fields["last_name"].max_length, required=False
+    )
+    contact_phone = PhoneNumberField(required=False)
+
+    PERSON_FIELDS = ["location_zip", "first_name", "last_name", "contact_phone"]
+
+    def validate_contact_phone(self, value):
+        print(value and str(value))
+        return value and str(value)
+
+    def save(self):
         """Sends the confirmation email to the subscribed person.
 
         Use only after having validated the serializer
         """
-        location_country = french_zipcode_to_country_code(
-            self.validated_data["location_zip"]
-        )
+        email = self.validated_data["email"]
+        type = self.validated_data["type"]
 
-        send_confirmation_email.delay(
-            location_country=location_country, **self.validated_data
-        )
+        try:
+            person = Person.objects.get_by_natural_key(email)
+
+            for f in self.PERSON_FIELDS:
+                setattr(person, f, getattr(person, f, "") or self.validated_data[f])
+
+            setattr(person, SUBSCRIPTION_FIELD[type], True)
+
+            person.save()
+            self.result_data = {
+                "status": "known",
+                "id": str(person.id),
+                "url": f"/signature-confirmee/?agir-id={person.id}",
+            }
+            return person
+
+        except Person.DoesNotExist:
+            id = uuid4()
+            location_country = french_zipcode_to_country_code(
+                self.validated_data["location_zip"]
+            )
+
+            send_confirmation_email.delay(
+                id=str(id), location_country=location_country, **self.validated_data
+            )
+
+            self.result_data = {
+                "status": "new",
+                "id": str(id),
+                "url": "/validez-votre-e-mail/",
+            }

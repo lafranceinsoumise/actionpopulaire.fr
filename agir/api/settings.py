@@ -246,11 +246,13 @@ EMAIL_USE_SSL = email_config["EMAIL_USE_SSL"]
 # fixed for now ==> maybe more flexible?
 EMAIL_TEMPLATES = {
     # WELCOME_MESSAGE variables: [PROFILE_LINK]
-    "WELCOME_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/ac205f71-61a3-465b-8161-cec5729ecdbb.html",
+    "WELCOME_LFI_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/ac205f71-61a3-465b-8161-cec5729ecdbb.html",
     # CONFIRM_SUBSCRIPTION_MESSAGE variables: [CONFIRMATION_URL]
-    "SUBSCRIPTION_CONFIRMATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/cd878308-6fd7-4088-b525-a020c5bb3fe0.html",
+    "SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/cd878308-6fd7-4088-b525-a020c5bb3fe0.html",
     # ALREADY_SUBSCRIBED_MESSAGE: [AGO], [PANEL_LINK]
-    "ALREADY_SUBSCRIBED_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/d7040d22-703f-4ac7-883c-d2f04c13be1a.html",
+    "ALREADY_SUBSCRIBED_LFI_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/d7040d22-703f-4ac7-883c-d2f04c13be1a.html",
+    # [CONFIRMATION_URL]
+    "SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/7dd4eeb2-c7ce-40f6-a6c7-8207594b64f1.html",
     # INVITATION_SUBSCRIPTION_MESSAGE: [GROUP_NAME], [CONFIRMATION_URL] [SIGNAL_URL]
     "GROUP_INVITATION_WITH_SUBSCRIPTION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/1db59e8e-0ebd-4dab-8b2d-e7a2d679d6aa.html",
     # INVITATION_CONFIRMATION_MESSAGE: [GROUP_NAME], [CONFIRMATION_URL] [SIGNAL_URL]

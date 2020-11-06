@@ -1,3 +1,6 @@
+import urllib.parse
+
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -11,13 +14,19 @@ from django.views.generic import FormView, TemplateView
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.authentication.utils import hard_login
 from agir.front.view_mixins import SimpleOpengraphMixin
+from agir.people.actions.subscription import (
+    SUBSCRIPTION_TYPE_LFI,
+    SUBSCRIPTION_TYPE_NSP,
+    SUBSCRIPTION_FIELD,
+    SUBSCRIPTIONS_EMAILS,
+    SUBSCRIPTION_TYPE_LFI,
+)
 from agir.people.forms import (
     AnonymousUnsubscribeForm,
     SimpleSubscriptionForm,
     OverseasSubscriptionForm,
 )
 from agir.people.models import Person
-from agir.people.tasks import send_welcome_mail
 from agir.people.token_buckets import is_rate_limited_for_subscription
 
 
@@ -38,7 +47,7 @@ class UnsubscribeView(SimpleOpengraphMixin, FormView):
             email=self.request.user.person.email
             if self.request.user.is_authenticated
             else None,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -85,7 +94,7 @@ class OverseasSubscriptionView(BaseSubscriptionView):
 
 class ConfirmSubscriptionView(View):
     response_class = TemplateResponse
-    success_template = "people/confirmation_subscription.html"
+    lfi_success_template = "people/confirmation_subscription.html"
     error_template = "people/confirmation_mail_error.html"
     error_messages = {
         "invalid": _(
@@ -122,6 +131,8 @@ class ConfirmSubscriptionView(View):
         if not subscription_confirmation_token_generator.check_token(token, **params):
             return self.error_page(self.error_messages["expired"])
 
+        self.type = params.get("type", SUBSCRIPTION_TYPE_LFI)
+
         self.perform_create(params)
         return self.success_page()
 
@@ -131,22 +142,25 @@ class ConfirmSubscriptionView(View):
             {"message": message, "show_retry": self.create_insoumise},
         )
 
-    def success_page(self):
-        return self.render(self.success_template)
-
     def perform_create(self, params):
         try:
-            self.person = Person.objects.create_person(
-                is_insoumise=self.create_insoumise, **params
-            )
+            kwargs = params
+            if self.type in SUBSCRIPTION_FIELD:
+                kwargs[SUBSCRIPTION_FIELD[self.type]] = True
+            self.person = Person.objects.create_person(**kwargs)
         except IntegrityError:
             self.person = Person.objects.get_by_natural_key(params["email"])
+            if self.type in SUBSCRIPTION_FIELD:
+                setattr(self.person, SUBSCRIPTION_FIELD[self.type], True)
+                self.person.save()
             if self.show_already_created_message:
                 messages.add_message(
                     self.request, messages.INFO, self.error_messages["already_created"]
                 )
         else:
-            if self.create_insoumise:
+            if "welcome" in SUBSCRIPTIONS_EMAILS[self.type]:
+                from ..tasks import send_welcome_mail
+
                 send_welcome_mail.delay(self.person.pk)
 
         hard_login(self.request, self.person)
@@ -158,3 +172,10 @@ class ConfirmSubscriptionView(View):
         return self.response_class(
             request=self.request, template=[template], context=context, **kwargs
         )
+
+    def success_page(self):
+        if self.type == SUBSCRIPTION_TYPE_LFI:
+            return self.render(self.lfi_success_template)
+        elif self.type == SUBSCRIPTION_TYPE_NSP:
+            url = urllib.parse.urljoin(settings.NSP_DOMAIN, "/signature-confirmee/")
+            return HttpResponseRedirect(url)

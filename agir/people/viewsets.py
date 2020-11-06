@@ -46,7 +46,7 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
         if not ip or not SubscribeIPBucket.has_tokens(ip):
             raise PermissionDenied()
 
-        serializer = serializers.SubscriptionSerializer(data=request.data)
+        serializer = serializers.SubscriptionRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         if not SubscribeEmailBucket.has_tokens(

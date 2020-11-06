@@ -2,7 +2,16 @@ from django.urls import path, reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 
 from . import views
+from .views import api
 
+api_urls = [
+    path(
+        "api/people/subscription/",
+        api.SubscriptionAPIView.as_view(),
+        name="api_subscription",
+    ),
+    path("api/people/counter/", api.CounterAPIView.as_view(), name="api_counter",),
+]
 
 subscribe_urls = [
     path("inscription/", views.SimpleSubscriptionView.as_view(), name="subscription"),
@@ -155,7 +164,8 @@ legacy_urls = [
 ]
 
 urlpatterns = (
-    subscribe_urls
+    api_urls
+    + subscribe_urls
     + profile_urls
     + unsubscribe_urls
     + form_urls

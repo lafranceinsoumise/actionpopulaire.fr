@@ -13,8 +13,9 @@ from agir.authentication.tokens import (
 from agir.lib.display import pretty_time_since
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
-from agir.people.person_forms.display import default_person_form_display
 from .models import Person, PersonFormSubmission, PersonEmail, PersonValidationSMS
+from .person_forms.display import default_person_form_display
+from .actions.subscription import SUBSCRIPTIONS_EMAILS
 from ..lib.celery import emailing_task
 from ..lib.sms import send_sms
 
@@ -33,20 +34,23 @@ def send_welcome_mail(person_pk):
 
 
 @emailing_task
-def send_confirmation_email(email, **kwargs):
+def send_confirmation_email(type, email, **kwargs):
     if PersonEmail.objects.filter(address__iexact=email).exists():
         p = Person.objects.get_by_natural_key(email)
 
-        send_mosaico_email(
-            code="ALREADY_SUBSCRIBED_MESSAGE",
-            subject=_("Vous êtes déjà inscrit !"),
-            from_email=settings.EMAIL_FROM,
-            bindings={
-                "PANEL_LINK": front_url("dashboard", auto_login=True),
-                "AGO": pretty_time_since(p.created),
-            },
-            recipients=[p],
-        )
+        if "already_subscribed" in SUBSCRIPTIONS_EMAILS[type]:
+            code, subject = SUBSCRIPTIONS_EMAILS[type]["already_subscribed"]
+
+            send_mosaico_email(
+                code=code,
+                subject=subject,
+                from_email=settings.EMAIL_FROM,
+                bindings={
+                    "PANEL_LINK": front_url("dashboard", auto_login=True),
+                    "AGO": pretty_time_since(p.created),
+                },
+                recipients=[p],
+            )
 
         return
 
@@ -57,9 +61,11 @@ def send_confirmation_email(email, **kwargs):
     query_args = {"email": email, **kwargs, "token": subscription_token}
     confirm_subscription_url += "?" + urlencode(query_args)
 
+    code, subject = SUBSCRIPTIONS_EMAILS[type]["confirmation"]
+
     send_mosaico_email(
-        code="SUBSCRIPTION_CONFIRMATION_MESSAGE",
-        subject=_("Plus qu'un clic pour vous inscrire"),
+        code=code,
+        subject=subject,
         from_email=settings.EMAIL_FROM,
         recipients=[email],
         bindings={"CONFIRMATION_URL": confirm_subscription_url},

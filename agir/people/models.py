@@ -235,7 +235,7 @@ class Person(
     )
     auto_login_salt = models.CharField(max_length=255, blank=True, default="")
 
-    is_insoumise = models.BooleanField(_("Insoumis⋅e"), default=True)
+    is_insoumise = models.BooleanField(_("Insoumis⋅e"), default=False)
     is_2022 = models.BooleanField(_("Soutien 2022"), default=False)
 
     MEMBRE_RESEAU_INCONNU = "I"
