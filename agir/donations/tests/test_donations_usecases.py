@@ -211,6 +211,34 @@ class DonationTestCase(DonationTestMixin, TestCase):
         ]:
             self.assertEqual(getattr(p2, f), self.donation_information_payload[f])
 
+        self.assertNotIn(Person.NEWSLETTER_LFI, p2.newsletters)
+
+    def test_create_and_subscribe_with_new_address(self):
+        information_url = reverse("donation_information")
+
+        res = self.client.post(
+            reverse("donation_amount"),
+            {"type": AllocationDonationForm.TYPE_SINGLE_TIME, "amount": "200"},
+        )
+        self.assertRedirects(res, information_url)
+
+        self.donation_information_payload["email"] = "test2@test.com"
+        res = self.client.post(
+            information_url,
+            {**self.donation_information_payload, "subscribed_lfi": "Y"},
+        )
+        payment = Payment.objects.get()
+        self.assertRedirects(res, front_url("payment_page", args=[payment.pk]))
+
+        self.assertTrue(payment.meta.get("subscribed_lfi"))
+
+        # simulate correct payment
+        complete_payment(payment)
+        donation_notification_listener(payment)
+
+        p2 = Person.objects.exclude(pk=self.p1.pk).get()
+        self.assertIn(Person.NEWSLETTER_LFI, p2.newsletters)
+
     def test_cannot_donate_to_uncertified_group(self):
         self.group.subtypes.all().delete()
         self.client.force_login(self.p1.role)
@@ -708,6 +736,7 @@ class MonthlyDonationTestCase(DonationTestMixin, TestCase):
                 "location_city": "Bordeaux",
                 "location_country": "FR",
                 "contact_phone": "+33645789845",
+                "subscribed_lfi": True,
             },
         )
 

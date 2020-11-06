@@ -81,6 +81,7 @@ class BasePersonalInformationView(UpdateView):
     def get_metas(self, form):
         return {
             "nationality": form.cleaned_data["nationality"],
+            "subscribed_lfi": form.cleaned_data.get("subscribed_lfi", False),
             **{
                 k: v for k, v in form.cleaned_data.items() if k in form._meta.fields
             },  # person fields
