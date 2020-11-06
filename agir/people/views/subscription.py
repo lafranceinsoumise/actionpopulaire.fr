@@ -14,11 +14,13 @@ from django.views.generic import FormView, TemplateView
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.authentication.utils import hard_login
 from agir.front.view_mixins import SimpleOpengraphMixin
+from agir.lib.http import add_query_params_to_url
 from agir.people.actions.subscription import (
     SUBSCRIPTION_TYPE_LFI,
     SUBSCRIPTION_TYPE_NSP,
     SUBSCRIPTION_FIELD,
     SUBSCRIPTIONS_EMAILS,
+    nsp_confirmed_url,
 )
 from agir.people.forms import (
     AnonymousUnsubscribeForm,
@@ -181,5 +183,4 @@ class ConfirmSubscriptionView(View):
         if self.type == SUBSCRIPTION_TYPE_LFI:
             return self.render(self.lfi_success_template)
         elif self.type == SUBSCRIPTION_TYPE_NSP:
-            url = urllib.parse.urljoin(settings.NSP_DOMAIN, "/signature-confirmee/")
-            return HttpResponseRedirect(url)
+            return HttpResponseRedirect(nsp_confirmed_url(self.person))

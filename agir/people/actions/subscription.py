@@ -1,8 +1,10 @@
+import urllib.parse
 from dataclasses import dataclass
 
 from django.conf import settings
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
+from agir.lib.http import add_query_params_to_url
 
 
 def make_subscription_token(email, **kwargs):
@@ -52,3 +54,15 @@ SUBSCRIPTIONS_EMAILS = {
     },
     SUBSCRIPTION_TYPE_EXTERNAL: {},
 }
+
+
+def nsp_confirmed_url(person):
+    PERSON_FIELDS = ["location_zip", "first_name", "last_name", "contact_phone"]
+    params = {"agir_id": str(person.pk), "agir_email": str(person.email)}
+
+    for f in PERSON_FIELDS:
+        if getattr(person, f):
+            params["agir_" + f] = getattr(person, f)
+
+    url = urllib.parse.urljoin(settings.NSP_DOMAIN, "/signature-confirmee/")
+    return add_query_params_to_url(url, params)

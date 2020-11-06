@@ -1,5 +1,4 @@
-from uuid import uuid4
-
+from django.conf import settings
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -23,6 +22,7 @@ from .actions.subscription import (
     SUBSCRIPTION_TYPE_LFI,
     SUBSCRIPTION_TYPE_CHOICES,
     SUBSCRIPTION_FIELD,
+    nsp_confirmed_url,
 )
 
 person_fields = {f.name: f for f in models.Person._meta.get_fields()}
@@ -183,7 +183,9 @@ class SubscriptionRequestSerializer(serializers.Serializer):
             person = Person.objects.get_by_natural_key(email)
 
             for f in self.PERSON_FIELDS:
-                setattr(person, f, getattr(person, f, "") or self.validated_data[f])
+                setattr(
+                    person, f, self.validated_data.get(f, "") or getattr(person, f, "")
+                )
 
             setattr(person, SUBSCRIPTION_FIELD[type], True)
 
@@ -191,7 +193,7 @@ class SubscriptionRequestSerializer(serializers.Serializer):
             self.result_data = {
                 "status": "known",
                 "id": str(person.id),
-                "url": f"/signature-confirmee/?agir-id={person.id}",
+                "url": nsp_confirmed_url(person),
             }
             return person
 
@@ -206,7 +208,7 @@ class SubscriptionRequestSerializer(serializers.Serializer):
 
             self.result_data = {
                 "status": "new",
-                "url": "/validez-votre-e-mail/",
+                "url": f"{settings.NSP_DOMAIN}/validez-votre-e-mail/",
             }
 
 
