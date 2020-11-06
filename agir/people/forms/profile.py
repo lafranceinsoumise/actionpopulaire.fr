@@ -3,7 +3,7 @@ from crispy_forms.layout import Field, Div
 from crispy_forms.layout import Fieldset
 from crispy_forms.layout import HTML, Row, Submit, Layout
 from django import forms
-from django.forms import Form
+from django.forms import Form, BooleanField
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
@@ -15,6 +15,7 @@ from agir.lib.models import RE_FRENCH_ZIPCODE
 from agir.lib.tasks import geocode_person
 from agir.people.form_mixins import ContactPhoneNumberMixin
 from agir.people.forms import FormActions
+from agir.people.forms.mixins import LegacySubscribedMixin
 from agir.people.models import PersonTag, Person
 from agir.people.tags import skills_tags
 from agir.people.tasks import (
@@ -252,17 +253,7 @@ class InformationConfidentialityForm(Form):
         self.helper.layout = Layout(*self.get_fields())
 
 
-class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.ModelForm):
-    tags = [
-        (
-            "newsletter_efi",
-            _(
-                "Recevoir les informations liées aux cours de l'École de Formation insoumise"
-            ),
-        )
-    ]
-    tag_model_class = PersonTag
-
+class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelForm):
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
         self.helper = FormHelper()
@@ -275,11 +266,10 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
         self.fields["contact_phone"].label = "Numéro de contact"
 
         if not self.instance.is_insoumise:
-            del self.fields["subscribed"]
+            del self.fields["subscribed_lfi"]
             del self.fields["subscribed_sms"]
             del self.fields["event_notifications"]
             del self.fields["group_notifications"]
-            del self.fields["newsletter_efi"]
 
     def get_fields(self, fields=None):
         fields = fields or []
@@ -333,8 +323,7 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
         if self.instance.is_insoumise:
             fields.extend(
                 [
-                    "subscribed",
-                    Div("newsletter_efi", style="margin-left: 50px;"),
+                    "subscribed_lfi",
                     "group_notifications",
                     "event_notifications",
                     Fieldset(
@@ -375,7 +364,6 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
         fields = (
             "contact_phone",
             "subscribed_sms",
-            "subscribed",
             "group_notifications",
             "event_notifications",
         )

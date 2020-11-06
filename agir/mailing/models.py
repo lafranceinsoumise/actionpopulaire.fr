@@ -47,6 +47,11 @@ class Segment(BaseSegment, models.Model):
         default=False,
         help_text="Inclut par exemple les ancien⋅es donateurices non inscrits sur la plateforme. À utiliser uniquement si vous savez très bien ce que vous faites.",
     )
+    newsletters = ChoiceArrayField(
+        models.CharField(choices=Person.NEWSLETTERS_CHOICES, max_length=255),
+        default=(Person.NEWSLETTER_LFI,),
+        help_text="Inclure les personnes abonnées aux newsletters suivantes",
+    )
     supportgroup_status = models.CharField(
         "Limiter aux membres de groupes ayant ce statut",
         max_length=1,
@@ -243,7 +248,7 @@ class Segment(BaseSegment, models.Model):
     )
 
     def get_subscribers_q(self):
-        q = Q(subscribed=True, emails___bounced=False)
+        q = Q(newsletters__overlap=self.newsletters, emails___bounced=False)
 
         if not self.force_non_insoumis:
             q = q & Q(is_insoumise=True)

@@ -62,7 +62,9 @@ class Command(BaseCommand):
 
         base_qs = (
             Person.objects.filter(
-                draw_participation=True, created__lt=reference_date, subscribed=True
+                draw_participation=True,
+                created__lt=reference_date,
+                newsletters__contains=[Person.NEWSLETTER_LFI],
             )
             .exclude(tags__in=previous_tags)
             .exclude(gender="")

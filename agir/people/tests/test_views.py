@@ -248,9 +248,9 @@ class ProfileTestCase(TestCase):
         self.person.save()
 
         res = self.client.get(reverse("contact"))
-        self.assertContains(res, "subscribed")
+        self.assertContains(res, "subscribed_lfi")
 
-        res = self.client.post(reverse("contact"), data={"subscribed": "on"})
+        res = self.client.post(reverse("contact"), data={"subscribed_lfi": "on"})
         self.person.refresh_from_db()
         self.assertEqual(self.person.subscribed, True)
 
@@ -521,7 +521,7 @@ class InformationContactFormTestCases(TestCase):
             data={
                 "contact_phone": "0658985632",
                 "subscribed_sms": "on",
-                "subscribed": "on",
+                "subscribed_lfi": "on",
                 "group_notifications": "on",
                 "event_notifications": "on",
             },
