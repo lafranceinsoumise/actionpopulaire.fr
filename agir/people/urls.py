@@ -10,6 +10,11 @@ api_urls = [
         api.SubscriptionAPIView.as_view(),
         name="api_subscription",
     ),
+    path(
+        "api/people/newsletters/",
+        api.ManageNewslettersAPIView.as_view(),
+        name="api_newsletters",
+    ),
     path("api/people/counter/", api.CounterAPIView.as_view(), name="api_counter",),
 ]
 

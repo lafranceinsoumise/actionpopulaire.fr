@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
 from phonenumber_field.serializerfields import PhoneNumberField
@@ -207,3 +208,38 @@ class SubscriptionRequestSerializer(serializers.Serializer):
                 "status": "new",
                 "url": "/validez-votre-e-mail/",
             }
+
+
+class NewslettersField(serializers.DictField):
+    child = serializers.BooleanField()
+
+    def to_internal_value(self, data):
+        value = super().to_internal_value(data)
+
+        allowed_keys = {key for key, label in Person.NEWSLETTERS_CHOICES}
+        wrong_keys = set(value).difference(allowed_keys)
+        errors = [f"{key} n'est pas un nom de newsletter" for key in wrong_keys]
+
+        if errors:
+            raise ValidationError(errors)
+
+        return value
+
+
+class ManageNewslettersRequestSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    newsletters = NewslettersField()
+
+    def validate_id(self, value):
+        try:
+            self.person = Person.objects.get(pk=value)
+        except Person.DoesNotExist:
+            raise ValidationError("Cette ID ne correspond pas à une personne connue")
+
+    def save(self):
+        for newsletter, target_status in self.validated_data["newsletters"].items():
+            if newsletter in self.person.newsletters and not target_status:
+                self.person.newsletters.remove(newsletter)
+            elif newsletter not in self.person.newsletters and target_status:
+                self.person.newsletters.append(newsletter)
+        self.person.save()
