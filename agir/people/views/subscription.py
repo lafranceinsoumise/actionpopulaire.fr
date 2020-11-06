@@ -19,7 +19,6 @@ from agir.people.actions.subscription import (
     SUBSCRIPTION_TYPE_NSP,
     SUBSCRIPTION_FIELD,
     SUBSCRIPTIONS_EMAILS,
-    SUBSCRIPTION_TYPE_LFI,
 )
 from agir.people.forms import (
     AnonymousUnsubscribeForm,
@@ -161,7 +160,7 @@ class ConfirmSubscriptionView(View):
             if "welcome" in SUBSCRIPTIONS_EMAILS[self.type]:
                 from ..tasks import send_welcome_mail
 
-                send_welcome_mail.delay(self.person.pk)
+                send_welcome_mail.delay(self.person.pk, type=self.type)
 
         hard_login(self.request, self.person)
 

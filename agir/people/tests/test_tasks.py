@@ -10,7 +10,7 @@ class PeopleTasksTestCase(TestCase):
         self.person = Person.objects.create_person("me@me.org")
 
     def test_welcome_mail(self):
-        tasks.send_welcome_mail(self.person.pk)
+        tasks.send_welcome_mail(self.person.pk, type="LFI")
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].recipients(), [self.person.email])

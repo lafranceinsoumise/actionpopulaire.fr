@@ -1,3 +1,7 @@
+from dataclasses import dataclass
+
+from django.conf import settings
+
 from agir.authentication.tokens import subscription_confirmation_token_generator
 
 
@@ -7,28 +11,44 @@ def make_subscription_token(email, **kwargs):
 
 SUBSCRIPTION_TYPE_LFI = "LFI"
 SUBSCRIPTION_TYPE_NSP = "NSP"
-SUBSCRIPTION_TYPE_EXT = "EXT"
+SUBSCRIPTION_TYPE_EXTERNAL = "EXT"
 SUBSCRIPTION_TYPE_CHOICES = (
     (SUBSCRIPTION_TYPE_LFI, "LFI",),
     (SUBSCRIPTION_TYPE_NSP, "NSP",),
-    (SUBSCRIPTION_TYPE_EXT, "EXT"),
+    (SUBSCRIPTION_TYPE_EXTERNAL, "Externe"),
 )
 SUBSCRIPTION_FIELD = {
     SUBSCRIPTION_TYPE_LFI: "is_insoumise",
     SUBSCRIPTION_TYPE_NSP: "is_nsp",
 }
+
+
+@dataclass
+class SubscriptionMessageInfo:
+    code: str
+    subject: str
+    from_email: str = settings.EMAIL_FROM
+
+
 SUBSCRIPTIONS_EMAILS = {
     SUBSCRIPTION_TYPE_LFI: {
-        "confirmation": (
+        "confirmation": SubscriptionMessageInfo(
             "SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
             "Plus qu'un clic pour vous inscrire",
         ),
-        "already_subscribed": (
-            "ALREADY_SUBSCRIBED_LFI_MESSAGE",
-            "Vous êtes déjà inscrits !",
+        "already_subscribed": SubscriptionMessageInfo(
+            "ALREADY_SUBSCRIBED_LFI_MESSAGE", "Vous êtes déjà inscrits !",
         ),
-        "welcome": "WELCOME_LFI_MESSAGE",
+        "welcome": SubscriptionMessageInfo(
+            "WELCOME_LFI_MESSAGE", "Bienvenue sur la plateforme de la France insoumise"
+        ),
     },
-    SUBSCRIPTION_TYPE_NSP: {"confirmation": ("TODO CODE", "TODO SUJET",)},
-    SUBSCRIPTION_TYPE_EXT: {},
+    SUBSCRIPTION_TYPE_NSP: {
+        "confirmation": SubscriptionMessageInfo(
+            "SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE",
+            "Plus qu'un clic pour valider votre soutien !",
+            "nepasrepondre@noussommespour.fr",
+        )
+    },
+    SUBSCRIPTION_TYPE_EXTERNAL: {},
 }

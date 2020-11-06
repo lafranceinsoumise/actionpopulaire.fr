@@ -195,17 +195,15 @@ class SubscriptionRequestSerializer(serializers.Serializer):
             return person
 
         except Person.DoesNotExist:
-            id = uuid4()
             location_country = french_zipcode_to_country_code(
                 self.validated_data["location_zip"]
             )
 
             send_confirmation_email.delay(
-                id=str(id), location_country=location_country, **self.validated_data
+                location_country=location_country, **self.validated_data
             )
 
             self.result_data = {
                 "status": "new",
-                "id": str(id),
                 "url": "/validez-votre-e-mail/",
             }

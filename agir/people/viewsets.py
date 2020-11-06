@@ -54,7 +54,7 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
         ):
             raise PermissionDenied()
 
-        serializer.send_confirmation_email()
+        serializer.save()
         return Response(status=status.HTTP_201_CREATED)
 
     def get_queryset(self):

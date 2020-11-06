@@ -19,7 +19,10 @@ class SubscriptionAPIView(GenericAPIView):
 
 
 class CounterAPIView(GenericAPIView):
+    queryset = Person.objects.all()  # pour les permissions
+
     def get(self, request, *args, **kwargs):
         return Response(
-            {"value": Person.objects.filter(is_2022=True)}, status=status.HTTP_200_OK
+            {"value": Person.objects.filter(is_2022=True).count()},
+            status=status.HTTP_200_OK,
         )
