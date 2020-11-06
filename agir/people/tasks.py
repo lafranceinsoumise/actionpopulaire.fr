@@ -57,10 +57,10 @@ def send_confirmation_email(email, type=SUBSCRIPTION_TYPE_LFI, **kwargs):
         return
 
     subscription_token = subscription_confirmation_token_generator.make_token(
-        email=email, **kwargs
+        email=email, type=type, **kwargs
     )
     confirm_subscription_url = front_url("subscription_confirm", auto_login=False)
-    query_args = {"email": email, **kwargs, "token": subscription_token}
+    query_args = {"email": email, "type": type, **kwargs, "token": subscription_token}
     confirm_subscription_url += "?" + urlencode(query_args)
 
     message_info = SUBSCRIPTIONS_EMAILS[type]["confirmation"]
