@@ -440,12 +440,12 @@ class Person(
     def subscribed(self):
         return self.NEWSLETTER_LFI in self.newsletters
 
-    # @subscribed.setter
-    # def subscribed(self, value):
-    #     if value and not self.subscribed:
-    #         self.newsletters.append(self.NEWSLETTER_LFI)
-    #     if not value and self.subscribed:
-    #         self.newsletters.remove(self.NEWSLETTER_LFI)
+    @subscribed.setter
+    def subscribed(self, value):
+        if value and not self.subscribed:
+            self.newsletters.append(self.NEWSLETTER_LFI)
+        if not value and self.subscribed:
+            self.newsletters.remove(self.NEWSLETTER_LFI)
 
     def get_full_name(self):
         """

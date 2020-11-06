@@ -48,7 +48,7 @@ SUBSCRIPTIONS_EMAILS = {
     SUBSCRIPTION_TYPE_NSP: {
         "confirmation": SubscriptionMessageInfo(
             "SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE",
-            "Plus qu'un clic pour valider votre soutien !",
+            "Confirmez votre e-mail pour valider votre signature !",
             "nepasrepondre@noussommespour.fr",
         )
     },
