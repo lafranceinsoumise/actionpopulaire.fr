@@ -8,7 +8,7 @@ class NavsProfileMixinTestCase(TestCase):
     def setUp(self):
         super().setUp()
 
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             "test@test.com", is_insoumise=True, create_role=True
         )
         self.client.force_login(self.person.role)

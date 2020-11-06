@@ -143,7 +143,15 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
 
         return person
 
-    def create_person(self, email, password=None, **extra_fields):
+    def create_person(self, email, **extra_fields):
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        extra_fields.setdefault("password", None)
+        return self._create_person(email, **extra_fields)
+
+    def create_insoumise(
+        self, email, password=None, *, subscribed=None, **extra_fields
+    ):
         """
         Create a user
         :param email: the user's email
@@ -151,23 +159,18 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         :param extra_fields: any other field
         :return:
         """
-        extra_fields.setdefault("is_staff", False)
-        extra_fields.setdefault("is_superuser", False)
+        extra_fields.setdefault("is_insoumise", True)
 
-        if "subscribed" in extra_fields:
-            extra_fields.setdefault(
-                "newsletters",
-                [Person.NEWSLETTER_LFI] if extra_fields["subscribed"] else [],
-            )
-            del extra_fields["subscribed"]
-
-        if extra_fields.get("is_insoumise", True):
-            extra_fields.setdefault("newsletters", [Person.NEWSLETTER_LFI])
-        else:
+        if subscribed is False:
+            extra_fields.setdefault("newsletters", [])
             extra_fields.setdefault("event_notifications", False)
             extra_fields.setdefault("group_notifications", False)
+        else:
+            extra_fields.setdefault(
+                "newsletters", [Person.NEWSLETTER_LFI],
+            )
 
-        return self._create_person(email, password, **extra_fields)
+        return self.create_person(email, password=password, **extra_fields)
 
     def create_superperson(self, email, password, **extra_fields):
         """

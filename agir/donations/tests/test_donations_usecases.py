@@ -39,7 +39,7 @@ from ...system_pay.models import SystemPayAlias, SystemPaySubscription
 
 class DonationTestMixin:
     def setUp(self):
-        self.p1 = Person.objects.create_person("test@test.com", create_role=True)
+        self.p1 = Person.objects.create_insoumise("test@test.com", create_role=True)
 
         self.donation_information_payload = {
             "amount": "20000",

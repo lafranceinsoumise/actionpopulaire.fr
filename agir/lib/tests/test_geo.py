@@ -83,7 +83,7 @@ def with_no_request(f=None):
 
 class FranceGeocodingTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             "multi_city@test.com", location_country="FR"
         )
         import_communes_test_data()

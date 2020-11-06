@@ -398,7 +398,7 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
         try:
             person = Person.objects.get_by_natural_key(email)
         except Person.DoesNotExist:
-            person = Person.objects.create_person(
+            person = Person.objects.create_insoumise(
                 email=email,
                 **{
                     f.name: params[f.name]

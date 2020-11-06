@@ -114,7 +114,7 @@ class ConfirmSubscriptionView(View):
         "last_name",
     ]
     show_already_created_message = True
-    create_insoumise = True
+    default_type = SUBSCRIPTION_TYPE_LFI
 
     def get(self, request, *args, **kwargs):
         params = request.GET.dict()
@@ -130,7 +130,7 @@ class ConfirmSubscriptionView(View):
         if not subscription_confirmation_token_generator.check_token(token, **params):
             return self.error_page(self.error_messages["expired"])
 
-        self.type = params.get("type", SUBSCRIPTION_TYPE_LFI)
+        self.type = params.get("type", self.default_type)
 
         self.perform_create(params)
         return self.success_page()
@@ -138,7 +138,7 @@ class ConfirmSubscriptionView(View):
     def error_page(self, message):
         return self.render(
             self.error_template,
-            {"message": message, "show_retry": self.create_insoumise},
+            {"message": message, "show_retry": self.type == SUBSCRIPTION_TYPE_LFI},
         )
 
     def perform_create(self, params):

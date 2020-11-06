@@ -18,22 +18,22 @@ class LegacyPersonEndpointTestCase(APITestCase):
         force_authenticate(request, self.viewer_person.role)
 
     def setUp(self):
-        self.basic_person = Person.objects.create_person(
+        self.basic_person = Person.objects.create_insoumise(
             email="jean.georges@domain.com",
             first_name="Jean",
             last_name="Georges",
             create_role=True,
         )
 
-        self.viewer_person = Person.objects.create_person(
+        self.viewer_person = Person.objects.create_insoumise(
             email="viewer@viewer.fr", create_role=True
         )
 
-        self.adder_person = Person.objects.create_person(
+        self.adder_person = Person.objects.create_insoumise(
             email="adder@adder.fr", create_role=True
         )
 
-        self.changer_person = Person.objects.create_person(
+        self.changer_person = Person.objects.create_insoumise(
             email="changer@changer.fr", create_role=True
         )
 
@@ -334,11 +334,11 @@ class LegacyEndpointFieldsTestCase(TestCase):
 
         self.tag = PersonTag.objects.create(label="tag1")
 
-        self.person1 = Person.objects.create_person("person1@domain.fr")
-        self.person2 = Person.objects.create_person(
+        self.person1 = Person.objects.create_insoumise("person1@domain.fr")
+        self.person2 = Person.objects.create_insoumise(
             email="person2@domain.fr", nb_id=12345
         )
-        self.person3 = Person.objects.create_person(
+        self.person3 = Person.objects.create_insoumise(
             email="person3@domain.fr", nb_id=67890
         )
 
@@ -414,11 +414,11 @@ class LegacyEndpointLookupFilterTestCase(TestCase):
 
     def setUp(self):
         self.superuser = Person.objects.create_superperson("super@user.fr", None)
-        self.person1 = Person.objects.create_person("person1@domain.fr")
-        self.person2 = Person.objects.create_person(
+        self.person1 = Person.objects.create_insoumise("person1@domain.fr")
+        self.person2 = Person.objects.create_insoumise(
             email="person2@domain.fr", nb_id=12345
         )
-        self.person3 = Person.objects.create_person(
+        self.person3 = Person.objects.create_insoumise(
             email="person3@domain.fr", nb_id=67890
         )
 

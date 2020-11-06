@@ -40,7 +40,7 @@ class APISubscriptionTestCase(TestCase):
         patched_send_confirmation_mail.delay.assert_called_once()
         self.assertEqual(
             patched_send_confirmation_mail.delay.call_args[1],
-            {"location_country": "FR", **data},
+            {"location_country": "FR", "type": "LFI", **data},
         )
 
     def test_cannot_subscribe_without_client_ip(self):
@@ -141,7 +141,7 @@ class SubscriptionConfirmationTestCase(TestCase):
         Person.objects.get_by_natural_key("guillaume@email.com")
 
     def test_can_receive_specific_email_if_already_subscribed(self):
-        p = Person.objects.create_person("person@server.fr")
+        p = Person.objects.create_insoumise("person@server.fr")
 
         data = {"email": "person@server.fr", "location_zip": "75001"}
 

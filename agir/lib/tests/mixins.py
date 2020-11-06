@@ -24,8 +24,8 @@ culpa qui officia deserunt mollit anim id est laborum.
 def load_fake_data():
     people = {
         "admin": Person.objects.create_superperson("admin@example.com", PASSWORD),
-        "user1": Person.objects.create_person("user1@example.com", PASSWORD),
-        "user2": Person.objects.create_person("user2@example.com", PASSWORD),
+        "user1": Person.objects.create_insoumise("user1@example.com", PASSWORD),
+        "user2": Person.objects.create_insoumise("user2@example.com", PASSWORD),
     }
 
     # Groups

@@ -9,8 +9,8 @@ class AddEmailTestCase(TestCase):
         self.admin = Person.objects.create_superperson(
             "admin@agir.local", password="truc"
         )
-        self.user1 = Person.objects.create_person("user1@agir.local")
-        self.user2 = Person.objects.create_person("user2@agir.local")
+        self.user1 = Person.objects.create_insoumise("user1@agir.local")
+        self.user2 = Person.objects.create_insoumise("user2@agir.local")
 
         self.client.force_login(
             self.admin.role, backend="agir.people.backend.PersonBackend"
@@ -61,7 +61,7 @@ class PeopleAdminTestCase(TestCase):
         self.admin = Person.objects.create_superperson(
             "admin@agir.local", password="truc"
         )
-        self.user1 = Person.objects.create_person("user1@agir.local")
+        self.user1 = Person.objects.create_insoumise("user1@agir.local")
 
         self.tag = PersonTag.objects.create(label="tag")
 
@@ -107,7 +107,7 @@ class PersonFormAdminTestCase(TestCase):
         self.admin = Person.objects.create_superperson(
             "admin@agir.local", password="truc"
         )
-        self.user1 = Person.objects.create_person("user1@agir.local")
+        self.user1 = Person.objects.create_insoumise("user1@agir.local")
 
         self.person_form = PersonForm.objects.create(
             title="Formulaire simple",

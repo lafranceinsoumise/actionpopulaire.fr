@@ -8,7 +8,9 @@ from agir.people.models import Person
 
 class GroupRulesTestCase(TestCase):
     def setUp(self) -> None:
-        self.person = Person.objects.create_person("test@agir.local", create_role=True)
+        self.person = Person.objects.create_insoumise(
+            "test@agir.local", create_role=True
+        )
         self.group1 = SupportGroup.objects.create(name="Groupe 1")
         self.membership1 = Membership.objects.create(
             person=self.person, supportgroup=self.group1
@@ -53,16 +55,16 @@ class SupportGroupPermissionsTestCase(TestCase):
     def setUp(self) -> None:
         self.group = SupportGroup.objects.create(name="Group", published=True)
 
-        self.referent = Person.objects.create_person(
+        self.referent = Person.objects.create_insoumise(
             "animateur@agir.local", create_role=True
         )
-        self.manager = Person.objects.create_person(
+        self.manager = Person.objects.create_insoumise(
             "gestionnaire@agir.local", create_role=True
         )
-        self.member = Person.objects.create_person(
+        self.member = Person.objects.create_insoumise(
             "membre@agir.local", create_role=True
         )
-        self.outsider = Person.objects.create_person(
+        self.outsider = Person.objects.create_insoumise(
             "outsider@agir.local", create_role=True
         )
 

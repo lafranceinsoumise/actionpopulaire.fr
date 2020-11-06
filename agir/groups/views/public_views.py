@@ -27,6 +27,7 @@ from agir.groups.forms import ExternalJoinForm
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.groups.tasks import send_someone_joined_notification
 from agir.lib.utils import front_url
+from agir.people.actions.subscription import SUBSCRIPTION_TYPE_EXTERNAL
 from agir.people.views import ConfirmSubscriptionView
 
 __all__ = [
@@ -178,7 +179,7 @@ class ExternalJoinSupportGroupView(ConfirmSubscriptionView, FormView, DetailView
     queryset = SupportGroup.objects.filter(subtypes__allow_external=True)
     form_class = ExternalJoinForm
     show_already_created_message = False
-    create_insoumise = False
+    default_type = SUBSCRIPTION_TYPE_EXTERNAL
 
     def dispatch(self, request, *args, **kwargs):
         self.group = self.object = self.get_object()
