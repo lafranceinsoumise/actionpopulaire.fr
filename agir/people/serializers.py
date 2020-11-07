@@ -194,7 +194,12 @@ class SubscriptionRequestSerializer(serializers.Serializer):
             self.result_data = {
                 "status": "known",
                 "id": str(person.id),
-                "url": nsp_confirmed_url(person),
+                "url": nsp_confirmed_url(
+                    person,
+                    fields=set(self.PERSON_FIELDS).intersection(
+                        set(self.validated_data)
+                    ),
+                ),
             }
             return person
 

@@ -56,11 +56,12 @@ SUBSCRIPTIONS_EMAILS = {
 }
 
 
-def nsp_confirmed_url(person):
-    PERSON_FIELDS = ["location_zip", "first_name", "last_name", "contact_phone"]
+def nsp_confirmed_url(person, fields=None):
+    if fields is None:
+        fields = ["location_zip", "first_name", "last_name", "contact_phone"]
     params = {"agir_id": str(person.pk), "agir_email": str(person.email)}
 
-    for f in PERSON_FIELDS:
+    for f in fields:
         if getattr(person, f):
             params["agir_" + f] = getattr(person, f)
 
