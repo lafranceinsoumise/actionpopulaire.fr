@@ -222,9 +222,5 @@ class SubscriptionConfirmationTestCase(TestCase):
         self.assertIn(Person.NEWSLETTER_2022, p.newsletters)
         self.assertEqual(
             p.meta,
-            {
-                "subscriptions": {
-                    "is_2022": {"date": timezone.now().strftime("%Y/%m/%d")}
-                }
-            },
+            {"subscriptions": {"NSP": {"date": timezone.now().strftime("%Y/%m/%d")}}},
         )

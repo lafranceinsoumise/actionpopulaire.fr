@@ -72,14 +72,13 @@ def save_subscription_information(person, type, data):
 
     person.newsletters = list(SUBSCRIPTION_NEWSLETTERS[type].union(person.newsletters))
 
-    if not getattr(person, SUBSCRIPTION_FIELD[type]):
+    if type in SUBSCRIPTION_FIELD and not getattr(person, SUBSCRIPTION_FIELD[type]):
         setattr(person, SUBSCRIPTION_FIELD[type], True)
-        subscriptions = person.meta.setdefault("subscriptions", {})
-        subscriptions[SUBSCRIPTION_FIELD[type]] = {
-            "date": timezone.now().strftime("%Y/%m/%d")
-        }
+    subscriptions = person.meta.setdefault("subscriptions", {})
+    if type not in subscriptions:
+        subscriptions[type] = {"date": timezone.now().strftime("%Y/%m/%d")}
         if data.get("referer") and Person.objects.filter(pk=data["referer"]).exists():
-            subscriptions[SUBSCRIPTION_FIELD[type]]["referer"] = data["referer"]
+            subscriptions[type]["referer"] = data["referer"]
 
     person.save()
 
