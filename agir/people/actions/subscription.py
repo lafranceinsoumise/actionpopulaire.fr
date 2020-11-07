@@ -2,13 +2,22 @@ import urllib.parse
 from dataclasses import dataclass
 
 from django.conf import settings
+from django.utils import timezone
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.lib.http import add_query_params_to_url
+from agir.people.models import Person
 
 
 def make_subscription_token(email, **kwargs):
     return subscription_confirmation_token_generator.make_token(email=email, **kwargs)
+
+
+@dataclass
+class SubscriptionMessageInfo:
+    code: str
+    subject: str
+    from_email: str = settings.EMAIL_FROM
 
 
 SUBSCRIPTION_TYPE_LFI = "LFI"
@@ -23,14 +32,6 @@ SUBSCRIPTION_FIELD = {
     SUBSCRIPTION_TYPE_LFI: "is_insoumise",
     SUBSCRIPTION_TYPE_NSP: "is_2022",
 }
-
-
-@dataclass
-class SubscriptionMessageInfo:
-    code: str
-    subject: str
-    from_email: str = settings.EMAIL_FROM
-
 
 SUBSCRIPTIONS_EMAILS = {
     SUBSCRIPTION_TYPE_LFI: {
@@ -54,6 +55,33 @@ SUBSCRIPTIONS_EMAILS = {
     },
     SUBSCRIPTION_TYPE_EXTERNAL: {},
 }
+SUBSCRIPTION_NEWSLETTERS = {
+    SUBSCRIPTION_TYPE_LFI: {Person.NEWSLETTER_LFI},
+    SUBSCRIPTION_TYPE_NSP: {Person.NEWSLETTER_2022},
+    SUBSCRIPTION_TYPE_EXTERNAL: set(),
+}
+
+
+def save_subscription_information(person, type, data):
+    person_fields = set(f.name for f in Person._meta.get_fields())
+
+    # mise à jour des différents champs
+    for f in person_fields.intersection(data):
+        # On ne remplace que les champs vides de la personne
+        setattr(person, f, getattr(person, f) or data[f])
+
+    person.newsletters = list(SUBSCRIPTION_NEWSLETTERS[type].union(person.newsletters))
+
+    if not getattr(person, SUBSCRIPTION_FIELD[type]):
+        setattr(person, SUBSCRIPTION_FIELD[type], True)
+        subscriptions = person.meta.setdefault("subscriptions", {})
+        subscriptions[SUBSCRIPTION_FIELD[type]] = {
+            "date": timezone.now().strftime("%Y/%m/%d")
+        }
+        if data.get("referer") and Person.objects.filter(pk=data["referer"]).exists():
+            subscriptions[SUBSCRIPTION_FIELD[type]]["referer"] = data["referer"]
+
+    person.save()
 
 
 def nsp_confirmed_url(person, fields=None):

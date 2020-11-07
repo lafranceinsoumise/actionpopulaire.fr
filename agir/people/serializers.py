@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import transaction
 from django.http import Http404
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
@@ -24,6 +25,7 @@ from .actions.subscription import (
     SUBSCRIPTION_TYPE_CHOICES,
     SUBSCRIPTION_FIELD,
     nsp_confirmed_url,
+    save_subscription_information,
 )
 
 person_fields = {f.name: f for f in models.Person._meta.get_fields()}
@@ -166,6 +168,8 @@ class SubscriptionRequestSerializer(serializers.Serializer):
     )
     contact_phone = PhoneNumberField(required=False)
 
+    referer = serializers.UUIDField(required=False)
+
     PERSON_FIELDS = ["location_zip", "first_name", "last_name", "contact_phone"]
 
     def validate_contact_phone(self, value):
@@ -173,36 +177,17 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         return value and str(value)
 
     def save(self):
-        """Sends the confirmation email to the subscribed person.
+        """Saves the subscription information.
 
-        Use only after having validated the serializer
+        If there's already a person with that email address in the database, just update that row.
+
+        If not, create and send a message with a confirmation link to that email address.
         """
         email = self.validated_data["email"]
         type = self.validated_data["type"]
 
         try:
             person = Person.objects.get_by_natural_key(email)
-
-            for f in self.PERSON_FIELDS:
-                setattr(
-                    person, f, self.validated_data.get(f, "") or getattr(person, f, "")
-                )
-
-            setattr(person, SUBSCRIPTION_FIELD[type], True)
-
-            person.save()
-            self.result_data = {
-                "status": "known",
-                "id": str(person.id),
-                "url": nsp_confirmed_url(
-                    person,
-                    fields=set(self.PERSON_FIELDS).intersection(
-                        set(self.validated_data)
-                    ),
-                ),
-            }
-            return person
-
         except Person.DoesNotExist:
             location_country = french_zipcode_to_country_code(
                 self.validated_data["location_zip"]
@@ -216,6 +201,20 @@ class SubscriptionRequestSerializer(serializers.Serializer):
                 "status": "new",
                 "url": f"{settings.NSP_DOMAIN}/validez-votre-e-mail/",
             }
+        else:
+            save_subscription_information(person, type, self.validated_data)
+
+            self.result_data = {
+                "status": "known",
+                "id": str(person.id),
+                "url": nsp_confirmed_url(
+                    person,
+                    fields=set(self.PERSON_FIELDS).intersection(
+                        set(self.validated_data)
+                    ),
+                ),
+            }
+            return person
 
 
 class NewslettersField(serializers.DictField):

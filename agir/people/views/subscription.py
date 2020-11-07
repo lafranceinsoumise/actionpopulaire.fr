@@ -3,7 +3,7 @@ import urllib.parse
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy, reverse
@@ -21,6 +21,7 @@ from agir.people.actions.subscription import (
     SUBSCRIPTION_FIELD,
     SUBSCRIPTIONS_EMAILS,
     nsp_confirmed_url,
+    save_subscription_information,
 )
 from agir.people.forms import (
     AnonymousUnsubscribeForm,
@@ -149,25 +150,26 @@ class ConfirmSubscriptionView(View):
         )
 
     def perform_create(self, params):
-        try:
-            kwargs = params
-            if self.type in SUBSCRIPTION_FIELD:
-                kwargs[SUBSCRIPTION_FIELD[self.type]] = True
-            self.person = Person.objects.create_person(**kwargs)
-        except IntegrityError:
-            self.person = Person.objects.get_by_natural_key(params["email"])
-            if self.type in SUBSCRIPTION_FIELD:
-                setattr(self.person, SUBSCRIPTION_FIELD[self.type], True)
-                self.person.save()
-            if self.show_already_created_message:
-                messages.add_message(
-                    self.request, messages.INFO, self.error_messages["already_created"]
-                )
-        else:
-            if "welcome" in SUBSCRIPTIONS_EMAILS[self.type]:
-                from ..tasks import send_welcome_mail
+        with transaction.atomic():
+            try:
+                # double transaction sinon la transaction externe n'est plus utilisable après l'exception
+                with transaction.atomic():
+                    self.person = Person.objects.create_person(params["email"])
+                    already_created = False
+            except IntegrityError:
+                self.person = Person.objects.get_by_natural_key(params["email"])
+                already_created = True
 
-                send_welcome_mail.delay(self.person.pk, type=self.type)
+            save_subscription_information(self.person, self.type, params)
+
+        if already_created and self.show_already_created_message:
+            messages.add_message(
+                self.request, messages.INFO, self.error_messages["already_created"]
+            )
+        elif not already_created and "welcome" in SUBSCRIPTIONS_EMAILS[self.type]:
+            from ..tasks import send_welcome_mail
+
+            send_welcome_mail.delay(self.person.pk, type=self.type)
 
         hard_login(self.request, self.person)
 
