@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import transaction
+from django.http import Http404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
@@ -245,3 +246,36 @@ class ManageNewslettersRequestSerializer(serializers.Serializer):
             elif newsletter not in self.person.newsletters and target_status:
                 self.person.newsletters.append(newsletter)
         self.person.save()
+
+
+class RetrievePersonRequestSerializer(serializers.Serializer):
+    id = serializers.UUIDField(required=False)
+    email = serializers.EmailField(required=False)
+
+    def validate(self, attrs):
+        non_empty = sum(1 for k, v in attrs.items() if v)
+        print(non_empty)
+        if non_empty != 1:
+            raise ValidationError("Indiquez soit un email, soit un id")
+
+        return attrs
+
+    def retrieve(self):
+        try:
+            if "id" in self.validated_data:
+                return Person.objects.get(id=self.validated_data["id"])
+            return Person.objects.get_by_natural_key(self.validated_data["email"])
+        except Person.DoesNotExist:
+            raise Http404("Aucune personne trouvée")
+
+
+class PersonSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    email = serializers.EmailField()
+
+    firstName = serializers.CharField(source="first_name")
+    lastName = serializers.CharField(source="last_name")
+    contactPhone = PhoneNumberField(source="contact_phone")
+
+    isInsoumise = serializers.BooleanField(source="is_insoumise")
+    is2022 = serializers.BooleanField(source="is_2022")

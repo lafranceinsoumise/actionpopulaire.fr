@@ -6,14 +6,19 @@ from .views import api
 
 api_urls = [
     path(
+        "api/people/retrieve/",
+        api.RetrievePersonView.as_view(),
+        name="api_people_retrieve",
+    ),
+    path(
         "api/people/subscription/",
         api.SubscriptionAPIView.as_view(),
-        name="api_subscription",
+        name="api_people_subscription",
     ),
     path(
         "api/people/newsletters/",
         api.ManageNewslettersAPIView.as_view(),
-        name="api_newsletters",
+        name="api_people_newsletters",
     ),
     path("api/people/counter/", api.CounterAPIView.as_view(), name="api_counter",),
 ]
