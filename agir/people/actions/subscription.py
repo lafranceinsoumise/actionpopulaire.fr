@@ -93,4 +93,4 @@ def nsp_confirmed_url(person, fields=None):
             params["agir_" + f] = getattr(person, f)
 
     url = urllib.parse.urljoin(settings.NSP_DOMAIN, "/signature-confirmee/")
-    return add_query_params_to_url(url, params)
+    return add_query_params_to_url(url, params, as_fragment=True)

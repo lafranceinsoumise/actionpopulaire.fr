@@ -74,7 +74,9 @@ def with_http_basic_auth(identities):
     return decorator
 
 
-def add_query_params_to_url(url, query_params):
+def add_query_params_to_url(url, query_params, as_fragment=False):
     url = list(urlsplit(url))
-    url[3] = urlencode(parse_qsl(url[3]) + list(query_params.items()))
+    url[4 if as_fragment else 3] = urlencode(
+        parse_qsl(url[3]) + list(query_params.items())
+    )
     return urlunsplit(url)
