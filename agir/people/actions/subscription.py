@@ -50,7 +50,7 @@ SUBSCRIPTIONS_EMAILS = {
         "confirmation": SubscriptionMessageInfo(
             "SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE",
             "Confirmez votre e-mail pour valider votre signature !",
-            "nepasrepondre@noussommespour.fr",
+            "Nous sommes pour <nepasrepondre@noussommespour.fr>",
         )
     },
     SUBSCRIPTION_TYPE_EXTERNAL: {},
