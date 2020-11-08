@@ -76,6 +76,11 @@ class BasePersonalInformationView(UpdateView):
         return {**kwargs, "initial": {**initial, **self.persistent_data}}
 
     def get_context_data(self, **kwargs):
+        kwargs["branded_layout"] = (
+            "front/nsp_layout.html"
+            if self.request.GET.get("nsp")
+            else "front/layout.html"
+        )
         return super().get_context_data(**self.persistent_data, **kwargs)
 
     def get_metas(self, form):
