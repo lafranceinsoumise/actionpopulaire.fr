@@ -168,7 +168,7 @@ class SubscriptionRequestSerializer(serializers.Serializer):
     )
     contact_phone = PhoneNumberField(required=False)
 
-    referer = serializers.UUIDField(required=False)
+    referer = serializers.CharField(required=False)
 
     PERSON_FIELDS = ["location_zip", "first_name", "last_name", "contact_phone"]
 

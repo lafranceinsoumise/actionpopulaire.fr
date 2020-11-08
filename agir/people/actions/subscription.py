@@ -77,7 +77,7 @@ def save_subscription_information(person, type, data):
     subscriptions = person.meta.setdefault("subscriptions", {})
     if type not in subscriptions:
         subscriptions[type] = {"date": timezone.now().strftime("%Y/%m/%d")}
-        if data.get("referer") and Person.objects.filter(pk=data["referer"]).exists():
+        if data.get("referer"):
             subscriptions[type]["referer"] = data["referer"]
 
     person.save()
