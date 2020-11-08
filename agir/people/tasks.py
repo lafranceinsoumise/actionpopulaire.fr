@@ -15,7 +15,11 @@ from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from .models import Person, PersonFormSubmission, PersonEmail, PersonValidationSMS
 from .person_forms.display import default_person_form_display
-from .actions.subscription import SUBSCRIPTIONS_EMAILS, SUBSCRIPTION_TYPE_LFI
+from .actions.subscription import (
+    SUBSCRIPTIONS_EMAILS,
+    SUBSCRIPTION_TYPE_LFI,
+    SUBSCRIPTION_TYPE_NSP,
+)
 from ..lib.celery import emailing_task
 from ..lib.sms import send_sms
 
@@ -59,7 +63,9 @@ def send_confirmation_email(email, type=SUBSCRIPTION_TYPE_LFI, **kwargs):
     subscription_token = subscription_confirmation_token_generator.make_token(
         email=email, type=type, **kwargs
     )
-    confirm_subscription_url = front_url("subscription_confirm", auto_login=False)
+    confirm_subscription_url = front_url(
+        "subscription_confirm", auto_login=False, nsp=type == SUBSCRIPTION_TYPE_NSP
+    )
     query_args = {"email": email, "type": type, **kwargs, "token": subscription_token}
     confirm_subscription_url += "?" + urlencode(query_args)
 

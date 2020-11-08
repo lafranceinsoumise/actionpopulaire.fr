@@ -94,6 +94,7 @@ MAP_DOMAIN = os.environ.get(
     "http://agir.local:8000" if DEBUG else "https://agir.lafranceinsoumise.fr",
 )
 NSP_DOMAIN = os.environ.get("NSP_DOMAIN", "http://localhost")
+NSP_AGIR_DOMAIN = os.environ.get("NSP_AGIR_DOMAIN", "http://localhost")
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,agir.local").split(",")
 
