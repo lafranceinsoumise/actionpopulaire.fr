@@ -117,6 +117,7 @@ class ConfirmSubscriptionView(View):
         "last_name",
         "contact_phone",
         "type",
+        "referer",
     ]
     show_already_created_message = True
     default_type = SUBSCRIPTION_TYPE_LFI
