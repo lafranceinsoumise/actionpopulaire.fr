@@ -53,7 +53,7 @@ class APISubscriptionTestCase(TestCase):
             "location_zip": "75001",
             "contact_phone": "06 98 45 78 45",
             "type": "NSP",
-            "referer": uuid4(),
+            "referer": str(uuid4()),
         }
         response = self.client.post(reverse("api_people_subscription"), data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
