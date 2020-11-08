@@ -211,8 +211,6 @@ class CrossTable(FieldGroup):
                 1 for r, c in all_fields if cleaned_data.get(self.get_id(r, c))
             )
 
-            print(n_values)
-
             if n_values < self.minimum_required:
                 form.add_error(
                     self.fake_field_id,

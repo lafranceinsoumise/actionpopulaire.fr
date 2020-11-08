@@ -173,7 +173,6 @@ class SubscriptionRequestSerializer(serializers.Serializer):
     PERSON_FIELDS = ["location_zip", "first_name", "last_name", "contact_phone"]
 
     def validate_contact_phone(self, value):
-        print(value and str(value))
         return value and str(value)
 
     def save(self):
@@ -258,7 +257,6 @@ class RetrievePersonRequestSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         non_empty = sum(1 for k, v in attrs.items() if v)
-        print(non_empty)
         if non_empty != 1:
             raise ValidationError("Indiquez soit un email, soit un id")
 

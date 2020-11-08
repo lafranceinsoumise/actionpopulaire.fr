@@ -270,8 +270,6 @@ class MembreReseauElusForm(forms.ModelForm):
         status = self.instance.membre_reseau_elus
         self.helper.layout = Layout("membre_reseau_elus")
 
-        print(status)
-
         if status == Person.MEMBRE_RESEAU_INCONNU:
             self.helper.add_input(Submit("valider", "Valider"))
         elif status in [Person.MEMBRE_RESEAU_SOUHAITE, Person.MEMBRE_RESEAU_OUI]:
