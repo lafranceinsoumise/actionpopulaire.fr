@@ -78,6 +78,8 @@ class NSPView(RedirectView):
         url = settings.NSP_DOMAIN
         if self.request.user.is_authenticated:
             person = self.request.user.person
+            if person.is_2022:
+                return url
             url = add_query_params_to_url(
                 url,
                 {
