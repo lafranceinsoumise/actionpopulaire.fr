@@ -30,9 +30,14 @@ class EmailForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Row(Div("email", css_class="col-xs-12 col-md-6 col-md-offset-3",))
+            Row(Div("email", css_class="col-xs-12 col-md-6",)),
+            Row(
+                Div(
+                    Submit("submit", "Se connecter", css_class="btn-block"),
+                    css_class="col-xs-12 col-md-6",
+                )
+            ),
         )
-        self.helper.add_input(Submit("submit", "Se connecter"))
 
     def clean_email(self):
         email = self.cleaned_data["email"]

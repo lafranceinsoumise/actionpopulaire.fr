@@ -128,5 +128,5 @@ class OverseasSubscriptionForm(LocationFormMixin, BaseSubscriptionForm):
                     Submit("submit", "Enregistrer", css_class="btn-block btn-lg"),
                     css_class="col-sm-6 margintop",
                 )
-            )
+            ),
         )
