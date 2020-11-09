@@ -63,3 +63,9 @@ WithHTML.args = {
       "bibndum at varius vel pharetra vel turpis. Pretium aenean pharetra magna.</p>",
   },
 };
+
+export const WithFadingOverflow = Template.bind({});
+WithFadingOverflow.args = {
+  ...WithChildren.args,
+  fadingOverflow: true,
+};
