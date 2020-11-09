@@ -280,7 +280,9 @@ class MembreReseauElusForm(forms.ModelForm):
             )
             self.helper.add_input(
                 Submit(
-                    "valider", "Je ne souhaite plus faire partie du réseau des élu⋅es"
+                    "valider",
+                    "Je ne souhaite plus faire partie du réseau des élu⋅es",
+                    css_class="margintopmore btn-wrap",
                 )
             )
         elif status == Person.MEMBRE_RESEAU_NON:

@@ -9,8 +9,9 @@
     {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="MANDATS" %} {% endblock %}
     <div class="col-xs-12 col-md-9 margintopmore">
       {% include "people/profile/profile_title.html" with tab_code="MANDATS" %}
+      <h3>Suppression d'un mandat</h3>
       <p>
-        Nous vous avons {% genrer "identifié" %} par erreur comme {% genrer "élu⋅e" %} {{ conseil_avec_charniere }} ?
+        Nous vous avons {% genrer "identifié" %} par erreur comme <strong>{% genrer "élu⋅e" %} {{ conseil_avec_charniere }}</strong> ?
         Nous vous somme reconnaissants de bien vouloir nous le signaler via ce formulaire.
       </p>
       <div class="alert alert-info">
@@ -18,15 +19,19 @@
         été élue près de chez vous.
       </div>
 
-      <form method="post">
+      <form method="post" class="row">
         {% csrf_token %}
-        <div class="form-group">
-        <label>
-          <input name="confirmation" type="checkbox" required>
-          Je ne suis pas {% genrer "élu⋅e" %} {{ conseil_avec_charniere }}
-        </label>
-          </div>
-        <button type="submit" class="btn btn-default">Supprimer ce mandat</button>
+        <div class="form-group col-xs-12">
+          <label>
+            <input name="confirmation" type="checkbox" required>
+            Je ne suis pas {% genrer "élu⋅e" %} {{ conseil_avec_charniere }}
+          </label>
+        </div>
+        <div class="form-group col-xs-12 col-md-4">
+          <button type="submit" class="btn btn-danger btn-block">
+            Supprimer ce mandat
+          </button>
+        </div>
       </form>
     </div>
   </div>

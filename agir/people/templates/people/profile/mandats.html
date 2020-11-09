@@ -16,7 +16,7 @@
       <div class="list-group">
         {% for mandat in mandats %}
           <div class="list-group-item{% if mandat.besoin_validation_personne %} list-group-item-danger{% endif %}">
-            <a class="badge" href="{% url "elus:supprimer_mandat_municipal"  pk=mandat.id %}">
+            <a class="btn btn-xs btn-danger pull-right" href="{{ mandat.get_delete_url }}">
               Ce n'est pas vous ?
             </a>
             <h4>{{ mandat.titre_complet }} <small>{% if mandat.actif %}mandat actif{% else %}ancien
@@ -31,14 +31,13 @@
               </strong></p>
             {% endif %}
             <div class="btn-group">
-              <a class="btn btn-default" href="{{ mandat.get_absolute_url }}">
+              <a class="btn btn-default btn-sm" href="{{ mandat.get_absolute_url }}">
                 {% if mandat.besoin_validation_personne %}
                   Vérifier ces informations
                 {% else %}
                   Modifier ces informations
                 {% endif %}
               </a>
-
             </div>
           </div>
         {% endfor %}
@@ -50,11 +49,9 @@
           {% endif %}</h4>
           <p>Signalez-nous :</p>
           <p>
-            <a href="{% url "elus:creer_mandat_municipal" %}" class="btn btn-default btn-block">Un mandat municipal</a>
-            <a href="{% url "elus:creer_mandat_departemental" %}" class="btn btn-default btn-block">Un mandat départemental ou
-              métropolitain</a>
-            <a href="{% url "elus:creer_mandat_regional" %}" class="btn btn-default btn-block">Un mandat régional ou auprès
-              d'une collectivité unique</a>
+            <a href="{% url "elus:creer_mandat_municipal" %}" class="btn btn-default btn-block btn-wrap">Un mandat municipal</a>
+            <a href="{% url "elus:creer_mandat_departemental" %}" class="btn btn-default btn-block btn-wrap">Un mandat départemental ou métropolitain</a>
+            <a href="{% url "elus:creer_mandat_regional" %}" class="btn btn-default btn-block btn-wrap">Un mandat régional ou auprès d'une collectivité unique</a>
           </p>
         </div>
       </div>
@@ -62,7 +59,6 @@
       {% if form %}
         <h3>Réseau des élu⋅es insoumis⋅es et citoyen⋅nes</h3>
         {% crispy form %}
-
         Vous pouvez retrouver
         <a href="https://lafranceinsoumise.fr/comment-ca-marche/espace-des-elus-et-contre-pouvoirs/reseau-des-elus/">
           des informations sur le réseau des élu⋅es</a> ou

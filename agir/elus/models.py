@@ -296,6 +296,11 @@ class MandatMunicipal(MandatAbstrait):
             viewname="elus:modifier_mandat_municipal", kwargs={"pk": self.id},
         )
 
+    def get_delete_url(self):
+        return reverse(
+            viewname="elus:supprimer_mandat_municipal", kwargs={"pk": self.id},
+        )
+
 
 @reversion.register()
 class MandatDepartemental(MandatAbstrait):
@@ -378,6 +383,11 @@ class MandatDepartemental(MandatAbstrait):
     def get_absolute_url(self):
         return reverse(
             viewname="elus:modifier_mandat_departemental", kwargs={"pk": self.id},
+        )
+
+    def get_delete_url(self):
+        return reverse(
+            viewname="elus:supprimer_mandat_departemental", kwargs={"pk": self.id},
         )
 
 
@@ -474,6 +484,11 @@ class MandatRegional(MandatAbstrait):
     def get_absolute_url(self):
         return reverse(
             viewname="elus:modifier_mandat_regional", kwargs={"pk": self.id},
+        )
+
+    def get_delete_url(self):
+        return reverse(
+            viewname="elus:supprimer_mandat_regional", kwargs={"pk": self.id},
         )
 
 

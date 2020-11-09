@@ -58,12 +58,25 @@ fieldset {
     $btn-border-radius-small
   );
 }
+.btn-xs {
+  @include button-size(
+    3px,
+    7px,
+    12px,
+    1,
+    $btn-border-radius-small
+  );
+}
 
 button,
 .btn {
   border-radius: 8px;
   transition: all 0.3s ease 0s;
   font-family: $font-family-sans-serif;
+
+  &.btn-wrap {
+    white-space: normal;
+  }
 }
 
 // Anchors
