@@ -83,14 +83,8 @@ def save_subscription_information(person, type, data):
     person.save()
 
 
-def nsp_confirmed_url(person, fields=None):
-    if fields is None:
-        fields = ["location_zip", "first_name", "last_name", "contact_phone"]
-    params = {"agir_id": str(person.pk), "agir_email": str(person.email)}
-
-    for f in fields:
-        if getattr(person, f):
-            params["agir_" + f] = getattr(person, f)
-
+def nsp_confirmed_url(id, data):
+    params = {"agir_id": str(id)}
+    params.update({"agir_{k}": v for k, v in data.items()})
     url = urllib.parse.urljoin(settings.NSP_DOMAIN, "/signature-confirmee/")
     return add_query_params_to_url(url, params, as_fragment=True)

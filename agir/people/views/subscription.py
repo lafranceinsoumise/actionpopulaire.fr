@@ -139,7 +139,7 @@ class ConfirmSubscriptionView(View):
         self.type = params.pop("type", self.default_type)
 
         self.perform_create(params)
-        return self.success_page()
+        return self.success_page(params)
 
     def error_page(self, message):
         return self.render(
@@ -182,8 +182,8 @@ class ConfirmSubscriptionView(View):
             request=self.request, template=[template], context=context, **kwargs
         )
 
-    def success_page(self):
+    def success_page(self, params):
         if self.type == SUBSCRIPTION_TYPE_LFI:
             return self.render(self.lfi_success_template)
         elif self.type == SUBSCRIPTION_TYPE_NSP:
-            return HttpResponseRedirect(nsp_confirmed_url(self.person))
+            return HttpResponseRedirect(nsp_confirmed_url(self.person.id, params))
