@@ -9,7 +9,7 @@ from agir.people.models import PersonEmail
 class BlackListEmailValidator(EmailValidator):
     def validate_domain_part(self, domain_part):
         stats = (
-            PersonEmail.objects.filter(address__endswith="yopmail.com")
+            PersonEmail.objects.filter(address__endswith="@" + domain_part)
             .annotate(
                 new=Case(
                     When(person__created__gt=datetime(2020, 11, 8), then=Value(True)),
