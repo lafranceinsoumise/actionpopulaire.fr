@@ -23,3 +23,5 @@ class BlackListEmailValidator(EmailValidator):
         )
         if stats["count_apres"] > 2 and stats["count_avant"] < 20:
             return False
+
+        return super().validate_domain_part(domain_part)
