@@ -445,7 +445,7 @@ class ExternalRSVPView(ConfirmSubscriptionView, FormView, DetailView):
         self.event = self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
 
-    def success_page(self):
+    def success_page(self, params):
         if RSVP.objects.filter(person=self.person, event=self.event).exists():
             messages.add_message(
                 request=self.request,

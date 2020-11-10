@@ -185,7 +185,7 @@ class ExternalJoinSupportGroupView(ConfirmSubscriptionView, FormView, DetailView
         self.group = self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
 
-    def success_page(self):
+    def success_page(self, params):
         if Membership.objects.filter(
             person=self.person, supportgroup=self.group
         ).exists():
