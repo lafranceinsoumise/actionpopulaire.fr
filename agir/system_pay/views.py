@@ -152,23 +152,25 @@ class SystemPayWebhookView(APIView):
             # Aucune transaction avec cette UUID n'est connue, ce qui est attendu !
             pass
         else:
-            # Transaction déjà traitée ! On vérifie que l'appel précédent avait exactement les mêmes
-            # arguments, parce que sinon c'est bizarre
-            if sp_transaction.webhook_calls and serializer.is_identical(
-                sp_transaction.webhook_calls[-1]
-            ):
+            # Transaction déjà traitée !
+            # Si c'est un RETRY, on continue la prise en compte du paiement
+            # Sinon on vérifie que l'appel précédent avait exactement les mêmes
+            # arguments, parce que sinon c'est bizarre,
+            if serializer.validated_data.get("url_check_src") != "RETRY":
+                if sp_transaction.webhook_calls:
+                    differences = serializer.differences(
+                        sp_transaction.webhook_calls[-1]
+                    )
+                    if differences:
+                        logger.error(
+                            f"Webhook appelé deux fois différemment pour la même transaction",
+                            extra={"request": request, "differences": differences},
+                        )
+                        raise serializers.ValidationError(
+                            detail="Webhook appelé deux fois différemment pour la même transaction",
+                            code="duplicate_webhook",
+                        )
                 return self.successful_response()
-            else:
-                # Dans le cas où c'est un contenu différent, on vérifie que c'est bien un retry
-                if serializer.data.get("url_check_src") != "RETRY":
-                    logger.error(
-                        f"Webhook appelé deux fois différemment pour la même transaction",
-                        extra={"request": request},
-                    )
-                    raise serializers.ValidationError(
-                        detail="Webhook appelé deux fois différemment pour la même transaction",
-                        code="duplicate_webhook",
-                    )
 
         operation_type = serializer.data.get("vads_operation_type")
 
