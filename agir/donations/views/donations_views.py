@@ -233,7 +233,7 @@ class MonthlyDonationPersonalInformationView(
                         "subscription_total": amount,
                         "meta": self.get_metas(form),
                     },
-                    **self.request.session[self.session_namespace],
+                    **self.request.session.get(self.session_namespace, {}),
                 }
                 return HttpResponseRedirect(reverse("already_has_subscription"))
 
