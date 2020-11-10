@@ -153,10 +153,10 @@ class SystemPayWebhookView(APIView):
             pass
         else:
             # Transaction déjà traitée !
-            # Si c'est un RETRY, on continue la prise en compte du paiement
+            # Si c'est un RETRY ou une demande backoffice (BO), on continue la prise en compte du paiement
             # Sinon on vérifie que l'appel précédent avait exactement les mêmes
             # arguments, parce que sinon c'est bizarre,
-            if serializer.validated_data.get("url_check_src") != "RETRY":
+            if serializer.validated_data.get("url_check_src") not in ["RETRY", "BO"]:
                 if sp_transaction.webhook_calls:
                     differences = serializer.differences(
                         sp_transaction.webhook_calls[-1]
