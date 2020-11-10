@@ -764,5 +764,3 @@ if municipales_campagnes_filename:
         MUNICIPALES_CAMPAGNES = json.load(f)
 else:
     MUNICIPALES_CAMPAGNES = []
-
-EMAIL_DOMAIN_BLACKLIST = os.environ.get("EMAIL_DOMAIN_BLACKLIST", "").split(",")
