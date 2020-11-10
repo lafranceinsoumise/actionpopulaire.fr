@@ -67,7 +67,7 @@ class ContactStep extends FormStep {
     const { errors } = this.state;
 
     return (
-      <div className="row padtopmore">
+      <div className="row padtopmore padbottommore">
         <div className={"col-md-6" + (this.hasErrors() ? " has-error" : "")}>
           <h4>Informations de contact</h4>
           <p>
@@ -148,11 +148,13 @@ class ContactStep extends FormStep {
               </div>
             </div>
           </div>
-        </div>
-        <div>
-          Ces informations seront <strong>visibles par tous</strong> et seront
-          potentiellement{" "}
-          <strong>indexées par les moteurs de recherche.</strong>
+          <div className="row padtopmore">
+            <p className="col-xs-12">
+              Ces informations seront <strong>visibles par tous</strong> et
+              seront potentiellement{" "}
+              <strong>indexées par les moteurs de recherche.</strong>
+            </p>
+          </div>
         </div>
       </div>
     );

@@ -35,7 +35,7 @@ export default class ScheduleStep extends FormStep {
   render() {
     const { fields } = this.props;
     return (
-      <div className="row padtopmore">
+      <div className="row padtopmore padbottommore">
         <div className="col-md-6">
           <h4>Calendrier</h4>
           <p>
