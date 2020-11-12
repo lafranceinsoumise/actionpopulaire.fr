@@ -110,6 +110,8 @@ class CreateSpendingRequestView(
             kwargs["spending_request_form"] = spending_request
             kwargs["document_formset"] = document_formset
         kwargs["document_helper"] = DocumentHelper()
+        kwargs["supportgroup"] = self.group
+        kwargs["active"] = "financement"
         return super().get_context_data(**kwargs)
 
 
