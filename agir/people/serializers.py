@@ -1,35 +1,31 @@
 from django.conf import settings
 from django.db import transaction
 from django.http import Http404
-from django.utils import timezone
+from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
-from phonenumber_field.serializerfields import PhoneNumberField
-
 from agir.lib.data import french_zipcode_to_country_code
-from .models import Person
-from .tasks import send_confirmation_email
-
 from agir.lib.serializers import (
     LegacyBaseAPISerializer,
     LegacyLocationMixin,
     RelatedLabelField,
 )
-
-
 from . import models
 from .actions.subscription import (
     SUBSCRIPTION_TYPE_LFI,
     SUBSCRIPTION_TYPE_CHOICES,
-    SUBSCRIPTION_FIELD,
     nsp_confirmed_url,
     save_subscription_information,
 )
+from .models import Person
+from .tasks import send_confirmation_email
 from .validators import BlackListEmailValidator
+from ..lib.token_bucket import TokenBucket
 
 person_fields = {f.name: f for f in models.Person._meta.get_fields()}
+subscription_mail_bucket = TokenBucket("SubscriptionMail", 5, 600)
 
 
 class PersonEmailSerializer(serializers.ModelSerializer):
@@ -174,6 +170,13 @@ class SubscriptionRequestSerializer(serializers.Serializer):
     referer = serializers.CharField(required=False)
 
     PERSON_FIELDS = ["location_zip", "first_name", "last_name", "contact_phone"]
+
+    def validate_email(self, value):
+        if not subscription_mail_bucket.has_tokens(value):
+            raise serializers.ValidationError(
+                "Si vous n'avez pas encore reçu votre email de validation, attendez quelques instants."
+            )
+        return value
 
     def validate_contact_phone(self, value):
         return value and str(value)
