@@ -134,7 +134,10 @@ class SupportGroupManagementView(BaseSupportGroupAdminView, DetailView):
         ).exclude(status=SpendingRequest.STATUS_PAID)
         kwargs["is_pressero_enabled"] = is_pressero_enabled()
 
-        kwargs["active"] = self.active_panel.get(self.request.POST.get("form"))
+        if self.active_panel.get(self.request.POST.get("form")):
+            kwargs["active"] = self.active_panel.get(self.request.POST.get("form"))
+        else:
+            kwargs["active"] = self.request.GET.get("active")
 
         forms = self.get_forms()
         for form_name, form in forms.items():

@@ -40,14 +40,17 @@
   </li>
 </ul>
 
-<script>
-  $(function() {
-    $('a[data-toggle="pill"]').on("show.bs.tab", function (e) {
-      $("#dropdown_nav_active").text(e.target.innerText);
+{% if has_static_menu %}
+{% else %}
+  <script>
+    $(function() {
+      $('a[data-toggle="pill"]').on("show.bs.tab", function (e) {
+        $("#dropdown_nav_active").text(e.target.innerText);
+      });
+      $('a[data-toggle="pill"]').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+      });
     });
-    $('a[data-toggle="pill"]').click(function (e) {
-      e.preventDefault();
-      $(this).tab('show');
-    });
-  });
-</script>
+  </script>
+{% endif %}
