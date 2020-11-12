@@ -1,4 +1,5 @@
 import re
+from datetime import datetime, timedelta
 from unittest import mock
 from uuid import uuid4
 
@@ -97,7 +98,6 @@ class APISubscriptionTestCase(TestCase):
         self.assertEqual(person.first_name, "Marc")
         self.assertEqual(person.last_name, "Polo")
         self.assertEqual(person.location_zip, "75001")
-        self.assertIn(Person.NEWSLETTER_2022, person.newsletters)
 
 
 class SimpleSubscriptionFormTestCase(TestCase):
@@ -219,8 +219,8 @@ class SubscriptionConfirmationTestCase(TestCase):
         # check that the person has been created
         p = Person.objects.get_by_natural_key("personne@organisation.pays")
         self.assertTrue(p.is_2022)
-        self.assertIn(Person.NEWSLETTER_2022, p.newsletters)
-        self.assertEqual(
-            p.meta,
-            {"subscriptions": {"NSP": {"date": timezone.now().strftime("%Y/%m/%d")}}},
+        self.assertAlmostEqual(
+            datetime.fromisoformat(p.meta["subscriptions"]["NSP"]["date"]),
+            timezone.now(),
+            delta=timedelta(seconds=1),
         )
