@@ -18,7 +18,7 @@
     </div>
   </div>
 </div>
-{% if not supportgroup.is_certified %}
+{% if supportgroup.is_certified %}
   <div class="padtop padbottom">
     <h4>Dons alloués aux actions de mon groupe</h4>
     {% if allocation_balance > 0 %}
@@ -45,7 +45,7 @@
     </div>
   </div>
 
-  {% if not spending_requests %}
+  {% if spending_requests %}
     <div class="padtop padbottom">
       <h4>Les demandes de mon groupe en cours de traitement</h4>
       <div class="table-responsive">
