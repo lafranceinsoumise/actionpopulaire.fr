@@ -175,7 +175,7 @@ class Command(BaseCommand):
         self.stdout.write(f"Nombre de numéros : {len(numbers)}")
 
         if export_file is not None:
-            export_file.write("\n".join(str(number)) for number in numbers)
+            export_file.write("\n".join(str(number) for number in numbers))
             return
 
         if sentfile is not None:
