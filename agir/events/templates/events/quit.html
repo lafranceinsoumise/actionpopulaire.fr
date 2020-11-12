@@ -3,15 +3,38 @@
 {% block title %}Ne plus participer à l'événement {{ event.name }}{% endblock %}
 
 {% block main %}
-  <h3 class="text-center">Ne plus participer à l'événement <em>{{ event.name }}</em></h3>
-  <div class="row">
-    <div class="col-sm-12 form-group">
-      Souhaitez vous réellement ne plus participer à l'événement <em>{{ event.name }}</em> ?
-    </div>
-    <form method="POST">
+<div class="row">
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px;">
+    <a
+      class="btn btn-sm btn-default"
+      href="{% url "view_event" event.pk %}">
+      <i class="fa fa-external-link"></i> Page publique de l'événement
+    </a>
+  </div>
+  <div class="col-xs-12">
+    <h2 class="headline">
+      {{ event.name }}
+    </h2>
+    <hr />
+    <h3>
+      Annuler ma participation à un événement
+    </h3>
+    <p>
+      Souhaitez vous réellement ne plus participer à l'événement <strong>{{ event.name }}</strong> &nbsp;?
+    </p>
+    <form method="POST" class="row padtop">
       {% csrf_token %}
-      <a href="{{ success_url }}" class="btn btn-info">Retour</a>
-      <button type="submit" class="btn btn-danger">Quitter l'événement</button>
+      <div class="col-sm-3">
+        <a href="{% url "view_event" event.pk %}" class="marginbottomless btn btn-block btn-default">
+          Retour
+        </a>
+      </div>
+      <div class="col-sm-4">
+        <button type="submit" class="marginbottomless btn btn-block btn-danger">
+          Quitter l'événement
+        </button>
+      </div>
     </form>
   </div>
+</div>
 {% endblock %}
