@@ -202,7 +202,7 @@ class EventTypeStep extends FormStep {
     }, {});
 
     return (
-      <div className="row padtopmore">
+      <div className="row padtopmore padbottommore">
         <div className="col-sm-6">
           <h3>Quel type d'événement voulez-vous créer ?</h3>
           <p>
@@ -296,7 +296,7 @@ class LegalQuestionsStep extends FormStep {
   render() {
     let q = this.getQuestions()[this.state.question];
     return (
-      <div className="row padtopmore">
+      <div className="row padtopmore padbottommore">
         <div className="col-sm-6 padbottom">
           <div className="alert alert-danger">
             Attention&nbsp;! Vous ne pouvez engager de frais sans la validation
@@ -342,7 +342,7 @@ class OrganizerStep extends FormStep {
     const { organizerGroup } = this.props.fields;
 
     return (
-      <div className="row padtopmore">
+      <div className="row padtopmore padbottommore">
         <div className="col-sm-6">
           <h2>Qui organise l'événement ?</h2>
           <p>
@@ -435,56 +435,46 @@ class ValidateStep extends FormStep {
   render() {
     const { fields } = this.props;
     return (
-      <div className="row padtopmore">
+      <div className="row padtopmore padbottommore">
         <div className="col-md-6">
           <p>Voici les informations que vous avez entrées.</p>
-          <ul>
-            <li>
-              <strong>Type d'événement&nbsp;:</strong>{" "}
-              {this.getSubtypeDescription()}
-            </li>
-            <li>
-              <strong>Numéro de téléphone&nbsp;:</strong> {fields.phone} (
-              {fields.hidePhone ? "caché" : "public"})
-            </li>
+          <dl className="well confirmation-data-list">
+            <dt>Type d'événement&nbsp;:</dt>
+            <dd>{this.getSubtypeDescription()}</dd>
+
+            <dt>Numéro de téléphone&nbsp;:</dt>
+            <dd>
+              {fields.phone}&ensp;
+              <small>({fields.hidePhone ? "caché" : "public"})</small>
+            </dd>
             {fields.name && (
-              <li>
-                <strong>Nom du contact pour l'événement&nbsp;:</strong>{" "}
-                {fields.name}
-              </li>
+              <>
+                <dt>Nom du contact pour l'événement&nbsp;:</dt>{" "}
+                <dd>{fields.name}</dd>
+              </>
             )}
-            <li>
-              <strong>Adresse email de contact pour l'événement&nbsp;:</strong>{" "}
-              {fields.email}
-            </li>
-            <li>
-              <strong>Horaires&nbsp;:</strong> Du{" "}
-              {fields.startTime.format("LLL")} au {fields.endTime.format("LLL")}
-              {fields.startTime.isBefore(moment()) && (
-                <p className="alert alert-warning margintop">
-                  Attention&nbsp;! Vous avez indiqué une date dans le passé pour
-                  votre événement. Cela est possible pour rencenser des
-                  événements passés sur la plateforme, mais personne ne pourra
-                  le rejoindre.
-                </p>
-              )}
-            </li>
-            <li>
-              <strong>Lieu&nbsp;:</strong>
-              <br />
-              {fields.locationAddress1}
-              <br />
-              {fields.locationAddress2 ? (
-                <span>
-                  {fields.locationAddress2}
-                  <br />
-                </span>
-              ) : (
-                ""
-              )}
+            <dt>Adresse email de contact pour l'événement&nbsp;:</dt>{" "}
+            <dd>{fields.email}</dd>
+            <dt>Horaires&nbsp;:</dt>
+            <dd>
+              du {fields.startTime.format("LLL")} au {fields.endTime.format("LLL")}
+            </dd>
+            {fields.startTime.isBefore(moment()) && (
+              <p className="alert alert-w*arning margintop">
+                Attention&nbsp;! Vous avez indiqué une date dans le passé pour
+                votre événement. Cela est possible pour rencenser des événements
+                passés sur la plateforme, mais personne ne pourra le rejoindre.
+              </p>
+            )}
+            <dt>Lieu&nbsp;:</dt>
+            <dd>{fields.locationAddress1}</dd>
+            {fields.locationAddress2 ? (
+              <dd>{fields.locationAddress2}</dd>
+            ) : null}
+            <dd>
               {fields.locationZip}, {fields.locationCity}
-            </li>
-          </ul>
+            </dd>
+          </dl>
         </div>
         <div className="col-md-6">
           <p>
@@ -503,7 +493,7 @@ class ValidateStep extends FormStep {
               />
             </div>
             <button
-              className="btn btn-primary"
+              className="btn btn-primary btn-lg btn-block"
               type="submit"
               disabled={this.state.processing}
             >
