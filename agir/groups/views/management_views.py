@@ -271,7 +271,7 @@ class ModifySupportGroupView(BaseSupportGroupAdminView, UpdateView):
 
 
 class RemoveManagerView(BaseSupportGroupAdminView, DetailView):
-    template_name = "front/confirm.html"
+    template_name = "groups/manager_removal_confirm.html"
     queryset = (
         Membership.objects.active()
         .all()
@@ -290,15 +290,7 @@ class RemoveManagerView(BaseSupportGroupAdminView, DetailView):
         else:
             name = person.email
 
-        return super().get_context_data(
-            title=_("Confirmer le retrait du gestionnaire ?"),
-            message=_(
-                f"""
-            Voulez-vous vraiment retirer {name} de la liste des gestionnaires de ce groupe ?
-            """
-            ),
-            button_text="Confirmer le retrait",
-        )
+        return super().get_context_data(manager_name=name)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()

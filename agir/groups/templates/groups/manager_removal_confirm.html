@@ -1,0 +1,35 @@
+{% extends "front/layout.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block main %}
+  <div class="row">
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px;">
+    </div>
+    <div class="col-xs-12 col-md-3 margintopmore">
+    </div>
+    <div class="col-xs-12 col-md-9 tab-content">
+      <h2 class="headline">
+        Confirmer le retrait du gestionnaire ?
+      </h2>
+      <div class="form-group">
+        <p>
+          Voulez-vous vraiment retirer <strong>{{ manager_name }}</strong> de la liste des gestionnaires de ce groupe ?
+        </p>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="row padtop">
+            <div class="col-sm-12 col-md-4 padbottom">
+              <button
+                type="submit"
+                class="btn btn-lg btn-block btn-danger">
+                Confirmer le retrait
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
