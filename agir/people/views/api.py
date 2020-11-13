@@ -1,5 +1,8 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_headers
 from rest_framework import status
-from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404
+from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework.response import Response
 
 from agir.lib.rest_framework_permissions import RestrictViewPermissions
@@ -29,6 +32,8 @@ class CounterAPIView(GenericAPIView):
     queryset = Person.objects.all()  # pour les permissions
     permission_classes = (RestrictViewPermissions,)
 
+    @method_decorator(vary_on_headers("Authorization"))
+    @method_decorator(cache_page(60))
     def get(self, request, *args, **kwargs):
         return Response(
             {"value": Person.objects.filter(is_2022=True).count()},
