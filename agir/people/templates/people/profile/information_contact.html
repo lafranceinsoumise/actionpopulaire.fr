@@ -14,9 +14,10 @@
         <fieldset>
           <legend>Adresses e-mail</legend>
         </fieldset>
-        <div class="row marginbottommore">
+        <div class="row">
         {% if emails|length > 1 %}
-          <table class="table">
+          <div class="table-responsive padbottommore">
+            <table class="table">
             <tbody>
             {% for email in emails %}
               <tr {% if email.address == person.email %} class="active" {% endif %}>
@@ -63,6 +64,7 @@
               </tr>
             </tbody>
           </table>
+          </div>
         {% else %}
           <p class="col-xs-12 col-md-8">{{ person.email }}</p>
           <p class="col-xs-12 col-md-4"><a class="btn btn-sm btn-default" href="{% url "manage_account" %}">Ajouter ou changer d'adresse email</a></p>

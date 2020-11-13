@@ -220,7 +220,7 @@ class InformationConfidentialityForm(Form):
                 """
 
         delete_account_link = format_html(
-            '<a href="{url}" class="btn btn-danger margintop marginbottom">{label}</a>',
+            '<a href="{url}" class="btn btn-block btn-wrap btn-danger margintop marginbottom">{label}</a>',
             url=reverse("delete_account"),
             label="Je veux supprimer mon compte définitivement",
         )
@@ -318,22 +318,17 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
         )
 
         btn_no_mails = (
-            FormActions(
-                Submit(
-                    "no_mail",
-                    "Ne plus recevoir d'emails ou de SMS",
-                    css_class="btn-danger btn-block marginbottom",
-                ),
-                css_class="text-right",
+            Submit(
+                "no_mail",
+                "Ne plus recevoir d'emails ou de SMS",
+                css_class="btn-danger btn-block marginbottom",
             )
             if self.instance.is_insoumise
             else Div()
         )
 
-        btn_submit = FormActions(
-            Submit(
-                "submit", "Sauvegarder", css_class="btn-danger btn-block marginbottom",
-            )
+        btn_submit = Submit(
+            "submit", "Sauvegarder", css_class="btn-danger btn-block marginbottom",
         )
 
         if self.instance.is_insoumise:
@@ -359,7 +354,13 @@ class ContactForm(TagMixin, MetaFieldsMixin, ContactPhoneNumberMixin, forms.Mode
             )
 
         fields.extend(
-            [ThirdCol(btn_submit), HalfCol(btn_no_mails, css_class="col-md-offset-2"),]
+            [
+                Row(
+                    ThirdCol(btn_submit),
+                    HalfCol(btn_no_mails, css_class="col-md-offset-2"),
+                    css_class="padtop",
+                )
+            ]
         )
         return fields
 
