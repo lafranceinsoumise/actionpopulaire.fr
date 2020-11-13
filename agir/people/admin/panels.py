@@ -50,6 +50,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "__str__",
         "display_contact_phone",
         "is_insoumise",
+        "is_2022",
         "newsletters",
         "location_city",
         "location_zip",
@@ -88,7 +89,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         ),
         (
             _("Paramètres de participation"),
-            {"fields": ("is_insoumise", "draw_participation")},
+            {"fields": ("is_insoumise", "is_2022", "draw_participation")},
         ),
         (_("Profil"), {"fields": ("gender", "date_of_birth", "tags", "mandats")}),
         (

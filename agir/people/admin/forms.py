@@ -22,6 +22,7 @@ class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
         label="Inscription aux lettres",
         choices=Person.NEWSLETTERS_CHOICES,
         widget=forms.CheckboxSelectMultiple,
+        required=False,
     )
 
     def __init__(self, *args, **kwargs):
