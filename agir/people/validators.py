@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.conf import settings
 from django.core.validators import EmailValidator
 from django.db.models import Case, When, Value, BooleanField, Count, Q
 
@@ -8,6 +9,8 @@ from agir.people.models import PersonEmail
 
 class BlackListEmailValidator(EmailValidator):
     def validate_domain_part(self, domain_part):
+        if settings.DEBUG:
+            return super().validate_domain_part(domain_part)
         stats = (
             PersonEmail.objects.filter(address__endswith="@" + domain_part)
             .annotate(
