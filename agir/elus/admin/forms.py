@@ -12,7 +12,6 @@ PERSON_FIELDS = [
     "location_address2",
     "location_zip",
     "location_city",
-    "is_insoumise",
     "membre_reseau_elus",
     "commentaires",
 ]

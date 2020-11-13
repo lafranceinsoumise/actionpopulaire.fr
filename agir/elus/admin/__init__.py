@@ -168,6 +168,8 @@ class BaseMandatAdmin(admin.ModelAdmin):
             "mandats_municipaux",
             "mandats_departementaux",
             "mandats_regionaux",
+            "is_insoumise",
+            "is_2022",
         )
 
         if obj is not None:
@@ -218,10 +220,19 @@ class BaseMandatAdmin(admin.ModelAdmin):
 
     def is_insoumise(self, obj):
         if obj.person:
-            return "Oui" if obj.person.is_insoumise else "Non"
-        return "-"
+            return obj.person.is_insoumise
+        return None
 
     is_insoumise.short_description = "Insoumis⋅e"
+    is_insoumise.boolean = True
+
+    def is_2022(self, obj):
+        if obj.person:
+            return obj.person.is_2022
+        return None
+
+    is_2022.short_description = "Soutien 2022"
+    is_2022.boolean = True
 
     def get_changeform_initial_data(self, request):
         """Permet de préremplir le champs `dates' en fonction de la dernière élection"""
@@ -333,6 +344,8 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
     list_filter = (
         "statut",
         "mandat",
+        "person__is_insoumise",
+        "person__is_2022",
         CommuneFilter,
         DepartementFilter,
         DepartementRegionFilter,
@@ -349,6 +362,8 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                     "membre_reseau_elus",
                     "mandat",
                     "communautaire",
+                    "is_insoumise",
+                    "is_2022",
                     "commentaires",
                 )
             },
@@ -381,6 +396,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         "actif",
         "communautaire",
         "is_insoumise",
+        "is_2022",
     )
 
     def get_conseil_queryset(self, request):
@@ -398,7 +414,14 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
 @admin.register(MandatDepartemental)
 class MandatDepartementAdmin(BaseMandatAdmin):
     autocomplete_fields = ("conseil",)
-    list_filter = ("statut", "mandat", DepartementFilter, DepartementRegionFilter)
+    list_filter = (
+        "statut",
+        "mandat",
+        "person__is_insoumise",
+        "person__is_2022",
+        DepartementFilter,
+        DepartementRegionFilter,
+    )
     default_date_range = DEPARTEMENTAL_DEFAULT_DATE_RANGE
 
     fieldsets = (
@@ -411,6 +434,8 @@ class MandatDepartementAdmin(BaseMandatAdmin):
                     "statut",
                     "membre_reseau_elus",
                     "mandat",
+                    "is_insoumise",
+                    "is_2022",
                     "commentaires",
                 )
             },
@@ -442,6 +467,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
         "statut",
         "actif",
         "is_insoumise",
+        "is_2022",
     )
 
     def get_conseil_queryset(self, request):
@@ -453,7 +479,13 @@ class MandatDepartementAdmin(BaseMandatAdmin):
 
 @admin.register(MandatRegional)
 class MandatRegionalAdmin(BaseMandatAdmin):
-    list_filter = ("statut", "mandat", RegionFilter)
+    list_filter = (
+        "statut",
+        "mandat",
+        "person__is_insoumise",
+        "person__is_2022",
+        RegionFilter,
+    )
     default_date_range = REGIONAL_DEFAULT_DATE_RANGE
 
     fieldsets = (
@@ -466,6 +498,8 @@ class MandatRegionalAdmin(BaseMandatAdmin):
                     "statut",
                     "membre_reseau_elus",
                     "mandat",
+                    "is_insoumise",
+                    "is_2022",
                     "commentaires",
                 )
             },
@@ -497,6 +531,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
         "statut",
         "actif",
         "is_insoumise",
+        "is_2022",
     )
 
     readonly_fields = (
