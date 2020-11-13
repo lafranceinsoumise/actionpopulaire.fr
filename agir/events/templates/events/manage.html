@@ -147,19 +147,6 @@
               Afin que votre évenement soit approuvé, vous devez remplir les informations suivantes.
             </p>
             <p>
-              <span class="text-danger">
-                <i class="fa fa-exclamation-circle"></i> {{ "section.0" }}
-              </span>
-              <br>
-              <span class="text-{% if section in incomplete_sections %}danger{% else %}success{% endif %}">
-                <i class="fa fa-{% if section in incomplete_sections %}exclamation-circle{% else %}check{% endif %}"></i> {{ "section.0" }}
-              </span>
-              <br>
-              <span class="text-{% if section in incomplete_sections %}danger{% else %}success{% endif %}">
-                <i class="fa fa-{% if section in incomplete_sections %}exclamation-circle{% else %}check{% endif %}"></i> {{ "section.0" }}
-              </span>
-
-
               {% for section in legal_sections %}
                 <span class="text-{% if section in incomplete_sections %}danger{% else %}success{% endif %}">
                   <i class="fa fa-{% if section in incomplete_sections %}exclamation-circle{% else %}check{% endif %}"></i> {{ section.0 }}
