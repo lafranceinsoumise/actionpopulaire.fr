@@ -5,81 +5,86 @@
 {% endblock %}
 
 {% block main %}
-  {% if user.is_anonymous %}
-    <div class="alert alert-info">
-            <span aria-hidden="true" class="fa fa-arrow-up"
-                  style="font-weight: 700; text-shadow: 0 1px 0 #fff; float: right; font-size: 30px; margin-right: 20px;"></span>
-      <p>
-        Si vous avez déjà un compte sur <em>lafranceinsoumise.fr</em>, vous pouvez vous connecter pour éviter d'avoir à
-        saisir toutes ces informations. </p>
-    </div>
-  {% endif %}
-
-  <div class="row">
-    <div class="col-md-6">
-      <div class="alert alert-success">
-        {% block donation_reminder %}
-          <p>
-            Je souhaite donner <strong>{% if monthly %}chaque mois {% endif %}{{ amount | display_price }}</strong>
-            à {% block donation_dest %}la France insoumise.{% endblock %}
-          </p>
-        {% endblock %}
-        {% if allocations %}
-          <p>{% if monthly %}Chaque mois :{% else %}Ce don sera alloué comme suivant :{% endif %}
-          <ul>
-            <li><strong>{{ national | display_price }}</strong> seront alloués aux activités et campagnes
-              nationales
-            </li>
-            {% for group, amount in allocations.items %}
-              <li><strong>{{ amount | display_price }}</strong> seront alloués au financement des activités du groupe
-                d'action « <em>{{ group.name }}</em> »
-              </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-        {% if monthly %}
-          <p>
-            Mon paiement s'effectuera automatiquement chaque 8 du mois. Je peux arrêter mon don mensuel
-            à tout moment.
-          </p>
-        {% endif %}
-      </div>
-
-      {% crispy form %}
-    </div>
-    <div class="col-md-6">
-      <div style="font-size: smaller">
-        {% block legal %}
-          {% include "donations/legal.html" %}
-        {% endblock %}
-      </div>
+<div class="row padtop padbottom">
+  <div class="col-xs-12">
+    {% if user.is_anonymous %}
       <div class="alert alert-info">
+        <span aria-hidden="true" class="fa fa-arrow-up" style="font-weight: 700; text-shadow: 0 1px 0 #fff; float: right; font-size: 30px; margin-right: 20px;"></span>
         <p>
-          <span class="fa fa-info-circle" aria-hidden="true"></span>
-          Un problème pour remplir ce formulaire&nbsp;? Du lundi au vendredi, de 10h à 18h, vous pouvez téléphoner
-          au 01.42.81.02.92&nbsp;: un ou une volontaire pourra vous aider.
+          Si vous avez déjà un compte sur <strong>lafranceinsoumise.fr</strong>, vous pouvez vous connecter pour éviter d'avoir à
+          saisir toutes ces informations.
         </p>
       </div>
+    {% endif %}
+    <h2 class="headline">
+      Mon don à la France Insoumise
+    </h2>
+    <div class="row">
+      <div class="col-md-7 padtop padbottom">
+        <div class="alert alert-success">
+          {% block donation_reminder %}
+            <p>
+              Je souhaite donner <strong>{% if monthly %}chaque mois {% endif %}{{ amount | display_price }}</strong>
+              à {% block donation_dest %}la France insoumise.{% endblock %}
+            </p>
+          {% endblock %}
+          {% if allocations %}
+            <p>{% if monthly %}Chaque mois :{% else %}Ce don sera alloué comme suivant :{% endif %}
+            <ul>
+              <li><strong>{{ national | display_price }}</strong> seront alloués aux activités et campagnes
+                nationales
+              </li>
+              {% for group, amount in allocations.items %}
+                <li><strong>{{ amount | display_price }}</strong> seront alloués au financement des activités du groupe
+                  d'action « <em>{{ group.name }}</em> »
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          {% if monthly %}
+            <p>
+              Mon paiement s'effectuera automatiquement chaque 8 du mois. Je peux arrêter mon don mensuel
+              à tout moment.
+            </p>
+          {% endif %}
+        </div>
 
+        {% crispy form %}
+      </div>
+      <div class="col-md-5 padtop padbottom">
+        <div class="alert alert-info">
+          <p>
+            <span class="fa fa-info-circle" aria-hidden="true"></span>
+            Un problème pour remplir ce formulaire&nbsp;? Du lundi au vendredi, de 10h à 18h, vous pouvez téléphoner
+            au 01.42.81.02.92&nbsp;: un ou une volontaire pourra vous aider.
+          </p>
+        </div>
+        <div class="well" style="font-size: small">
+          {% block legal %}
+            {% include "donations/legal.html" %}
+          {% endblock %}
+        </div>
+      </div>
     </div>
+    {% block script %}
+      <script>
+        var fiscalResident = document.getElementById('id_fiscal_resident');
+        var nationality = document.getElementById('id_nationality');
+
+        function updateFiscalResident() {
+          var currentNationality = nationality.value;
+          var display = currentNationality !== '' && currentNationality !== 'FR';
+          fiscalResident.parentNode.style.display = display ? 'block' : 'none';
+          fiscalResident.disabled = !display;
+          fiscalResident.required = display;
+        }
+
+        if (fiscalResident) {
+          nationality.addEventListener('change', updateFiscalResident);
+          updateFiscalResident();
+        }
+      </script>
+    {% endblock %}
   </div>
-  {% block script %}
-    <script>
-      var fiscalResident = document.getElementById('id_fiscal_resident');
-      var nationality = document.getElementById('id_nationality');
-
-      function updateFiscalResident() {
-        var currentNationality = nationality.value;
-        var display = currentNationality !== '' && currentNationality !== 'FR';
-        fiscalResident.parentNode.style.display = display ? 'block' : 'none';
-        fiscalResident.disabled = !display;
-        fiscalResident.required = display;
-      }
-
-      if (fiscalResident) {
-        nationality.addEventListener('change', updateFiscalResident);
-        updateFiscalResident();
-      }
-    </script>
-  {% endblock %}
+</div>
 {% endblock %}
