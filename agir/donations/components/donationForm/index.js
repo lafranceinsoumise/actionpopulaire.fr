@@ -29,7 +29,9 @@ function getChoices(select) {
 
 (async function () {
   const [
-    { default: React, renderReactComponent, default: DonationForm },
+    { default: React },
+    { renderReactComponent },
+    { default: DonationForm },
   ] = await Promise.all([
     import("react"),
     import("@agir/lib/utils/react"),

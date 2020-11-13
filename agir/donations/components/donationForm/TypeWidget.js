@@ -14,8 +14,9 @@ const TypeButtonContainer = styled.label`
   font-weight: bold;
   min-width: 200px;
   padding: 1em;
-  border: 1px solid;
+  border: none;
   padding: 1em;
+  border-radius: 8px;
 
   cursor: pointer;
 
@@ -35,6 +36,7 @@ const TypeButtonContainer = styled.label`
 
   & > div + div {
     border-left: 1px solid #aaa;
+    border-color: ${({ checked }) => (checked ? "#e6e6e6" : "#aaa")};
   }
 `;
 
@@ -59,17 +61,19 @@ TypeButton.propTypes = {
 };
 
 const TypeWidget = ({ typeChoices, type, onTypeChange }) => (
-  <FlexContainer justifyContent="center">
-    {typeChoices.map(({ label, value, icon }) => (
-      <TypeButton
-        key={value}
-        onChange={() => onTypeChange(value)}
-        checked={type === value}
-        label={label}
-        icon={icon}
-      />
-    ))}
-  </FlexContainer>
+  <div className="padtop padbottom">
+    <FlexContainer justifyContent="center">
+      {typeChoices.map(({ label, value, icon }) => (
+        <TypeButton
+          key={value}
+          onChange={() => onTypeChange(value)}
+          checked={type === value}
+          label={label}
+          icon={icon}
+        />
+      ))}
+    </FlexContainer>
+  </div>
 );
 
 TypeWidget.propTypes = {

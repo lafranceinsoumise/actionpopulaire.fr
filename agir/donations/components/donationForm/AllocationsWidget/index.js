@@ -22,11 +22,12 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
   const currentFilter = filterChoices(value);
 
   return (
-    <>
+    <div className="padtop padbottom">
       <Button
         type="button"
         active={extra || value.length > 0}
         onClick={() => setExtra(!(extra || value.length > 0)) + onChange([])}
+        className="btn btn-wrap btn-primary"
       >
         Je souhaite allouer mon don à un ou plusieurs groupes
       </Button>
@@ -94,11 +95,12 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
       {(value.length > 0 || extra) && (
         <ButtonHolder>
           <Button type="button" disabled={extra} onClick={() => setExtra(true)}>
-            Allouer à un groupe supplémentaire
+            <span className="fa fa-plus" />
+            &ensp;Allouer à un groupe supplémentaire
           </Button>
         </ButtonHolder>
       )}
-    </>
+    </div>
   );
 };
 

@@ -1,13 +1,17 @@
+import React from "react";
 import styled from "styled-components";
+
+import style from "@agir/front/genericComponents/_variables.scss";
 import {
   FlexContainer,
   MarginBox,
 } from "@agir/donations/donationForm/elements";
-import React from "react";
 
 export const AllocationsArray = styled(MarginBox)`
   display: table;
   width: 100%;
+  margin: 30px auto 0;
+  max-width: 500px;
 `;
 
 export const Row = (props) => (
@@ -15,16 +19,21 @@ export const Row = (props) => (
 );
 
 export const RecipientLabel = styled.div`
-  text-align: right;
+  text-align: left;
 `;
 
 export const RecipientContainer = styled.div`
+  flex: 0 0 100%;
   font-weight: bold;
   width: 25rem;
+
+  @media (max-width: ${style.collapse}px) {
+    width: 100%;
+  }
 `;
 
 export const ButtonHolder = styled(MarginBox)`
-  text-align: right;
+  text-align: center;
 `;
 
 export const AlignedButton = styled.button`
@@ -38,8 +47,21 @@ export const AlignedButton = styled.button`
 export const SliderContainer = styled.div`
   flex-grow: 1;
   margin: 0 1.5rem;
+
+  @media (max-width: ${style.collapse}px) {
+    display: none;
+  }
 `;
 
 export const AmountBoxContainer = styled.div`
   max-width: 12rem;
+  margin: 10px 0;
+
+  @media (max-width: ${style.collapse}px) {
+    max-width: 100%;
+  }
+
+  & .input-group {
+    z-index: 0;
+  }
 `;

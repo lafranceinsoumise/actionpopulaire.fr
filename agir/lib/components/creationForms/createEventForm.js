@@ -441,7 +441,6 @@ class ValidateStep extends FormStep {
           <dl className="well confirmation-data-list">
             <dt>Type d'événement&nbsp;:</dt>
             <dd>{this.getSubtypeDescription()}</dd>
-
             <dt>Numéro de téléphone&nbsp;:</dt>
             <dd>
               {fields.phone}&ensp;
@@ -457,7 +456,8 @@ class ValidateStep extends FormStep {
             <dd>{fields.email}</dd>
             <dt>Horaires&nbsp;:</dt>
             <dd>
-              du {fields.startTime.format("LLL")} au {fields.endTime.format("LLL")}
+              du {fields.startTime.format("LLL")} au{" "}
+              {fields.endTime.format("LLL")}
             </dd>
             {fields.startTime.isBefore(moment()) && (
               <p className="alert alert-w*arning margintop">
