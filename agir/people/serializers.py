@@ -166,6 +166,9 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         max_length=person_fields["last_name"].max_length, required=False
     )
     contact_phone = PhoneNumberField(required=False)
+    mandat = serializers.ChoiceField(
+        choices=("municipal", "departemental", "regional"), required=False
+    )
 
     referer = serializers.CharField(required=False)
 

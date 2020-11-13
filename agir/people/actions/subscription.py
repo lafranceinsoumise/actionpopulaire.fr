@@ -79,6 +79,8 @@ def save_subscription_information(person, type, data):
         subscriptions[type] = {"date": timezone.now().isoformat()}
         if data.get("referer"):
             subscriptions[type]["referer"] = data["referer"]
+        if data.get("mandat"):
+            subscriptions[type]["mandat"] = data["mandat"]
 
     person.save()
 
