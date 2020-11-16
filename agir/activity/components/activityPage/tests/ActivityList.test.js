@@ -12,6 +12,7 @@ const requiredActivity = {
     name: "L'événement",
     routes: {
       details: "/",
+      manage: "/",
     },
   },
   supportGroup: {
@@ -30,7 +31,11 @@ const unrequiredActivity = {
   name: "not-" + requiredActionTypes[0],
 };
 const mockData = [requiredActivity, unrequiredActivity];
-
+jest.mock("@agir/front/genericComponents/GobalContext", () => ({
+  useGlobalContext: () => ({
+    dispatch: () => {},
+  }),
+}));
 jest.mock("../ActivityCard", () => {
   const ActivityCard = () => <div id="activity-card" />;
   ActivityCard.displayName = "ActivityCard";

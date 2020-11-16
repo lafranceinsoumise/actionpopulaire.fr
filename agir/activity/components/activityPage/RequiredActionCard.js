@@ -29,7 +29,7 @@ const RequiredActionCard = (props) => {
           iconName="alert-circle"
           confirmLabel="Payer"
           dismissLabel="Voir l'événement"
-          onConfirm={event.routes.details}
+          onConfirm={event.routes.join}
           onDismiss={event.routes.details}
           text={
             <>
@@ -115,7 +115,7 @@ const RequiredActionCard = (props) => {
         <ActionCard
           iconName="alert-circle"
           confirmLabel="Mettre à jour"
-          onConfirm={event.routes.details}
+          onConfirm={event.routes.manage}
           onDismiss={handleDismiss}
           text={
             <>
@@ -136,7 +136,15 @@ RequiredActionCard.propTypes = {
   event: PropTypes.shape({
     name: PropTypes.string.isRequired,
     routes: PropTypes.shape({
-      details: PropTypes.string.isRequired,
+      addPhoto: PropTypes.string,
+      calendarExport: PropTypes.string,
+      cancel: PropTypes.string,
+      compteRendu: PropTypes.string,
+      details: PropTypes.string,
+      googleExport: PropTypes.string,
+      join: PropTypes.string,
+      manage: PropTypes.string,
+      map: PropTypes.string,
     }).isRequired,
   }),
   supportGroup: PropTypes.shape({

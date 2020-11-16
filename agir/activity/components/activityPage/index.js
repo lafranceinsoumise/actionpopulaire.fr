@@ -4,27 +4,25 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
   const [
     { default: React },
     { renderReactComponent },
-    { default: ActivityList },
+    { default: ActivityPage },
     { GlobalContextProvider },
   ] = await Promise.all([
     import("react"),
     import("@agir/lib/utils/react"),
-    import("./ActivityList"),
+    import("./ActivityPage"),
     import("@agir/front/genericComponents/GobalContext"),
   ]);
 
   const showActivities = () => {
     const dataElement = document.getElementById("exportedContent");
     const renderElement = document.getElementById("mainApp");
-
     if (!dataElement || !renderElement) {
       return;
     }
-
     const payload = JSON.parse(dataElement.textContent);
     renderReactComponent(
       <GlobalContextProvider>
-        <ActivityList {...payload} />
+        <ActivityPage {...payload} />
       </GlobalContextProvider>,
       renderElement
     );
