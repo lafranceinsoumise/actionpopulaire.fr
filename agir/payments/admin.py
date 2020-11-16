@@ -194,12 +194,7 @@ class PaymentAdminForm(forms.ModelForm):
 class PaymentChangeList(ChangeList):
     def get_results(self, *args, **kwargs):
         super().get_results(*args, **kwargs)
-        self.sum = (
-            self.queryset.filter(status=Payment.STATUS_COMPLETED).aggregate(
-                sum=Sum("price")
-            )["sum"]
-            or 0
-        )
+        self.sum = self.queryset.aggregate(sum=Sum("price"))["sum"] or 0
 
 
 @admin.register(models.Payment)
@@ -318,8 +313,11 @@ class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
         "terminate_button",
     )
     fields = readonly_fields
-    list_filter = ("status", "mode")
+    list_filter = ("status", "mode", ("created", DateRangeFilter))
     search_fields = ("person__search", "=id")
+
+    def get_changelist(self, request, **kwargs):
+        return PaymentChangeList
 
     def get_urls(self):
         return [
