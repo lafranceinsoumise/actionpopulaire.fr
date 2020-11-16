@@ -110,6 +110,8 @@ class CreateSpendingRequestView(
             kwargs["spending_request_form"] = spending_request
             kwargs["document_formset"] = document_formset
         kwargs["document_helper"] = DocumentHelper()
+        kwargs["supportgroup"] = self.group
+        kwargs["active"] = "financement"
         return super().get_context_data(**kwargs)
 
 
@@ -184,7 +186,10 @@ class EditSpendingRequestView(
                 messages.WARNING,
                 SpendingRequest.STATUS_EDITION_MESSAGES[self.object.status],
             )
-        return super().render_to_response(context, **response_kwargs)
+        return super().render_to_response(self.get_context_data(), **response_kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(supportgroup=self.object.group, **kwargs,)
 
 
 class CreateDocumentView(
@@ -217,7 +222,12 @@ class CreateDocumentView(
                 messages.WARNING,
                 SpendingRequest.STATUS_EDITION_MESSAGES[self.spending_request.status],
             )
-        return super().render_to_response(context, **response_kwargs)
+        return super().render_to_response(self.get_context_data(), **response_kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            supportgroup=self.spending_request.group, **kwargs,
+        )
 
 
 class AccessDocumentMixin(
@@ -256,7 +266,12 @@ class EditDocumentView(AccessDocumentMixin, UpdateView):
                 SpendingRequest.STATUS_EDITION_MESSAGES[self.object.request.status],
             )
 
-        return super().render_to_response(context, **response_kwargs)
+        return super().render_to_response(self.get_context_data(), **response_kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            supportgroup=self.spending_request.group, **kwargs,
+        )
 
 
 class DeleteDocumentView(AccessDocumentMixin, SingleObjectMixin, View):

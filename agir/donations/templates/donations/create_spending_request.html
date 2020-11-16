@@ -6,9 +6,24 @@
 
 {% block main %}
   <div class="row">
-    <div class="col-responsive">
-      <h1>Créer une demande de dépense ou de remboursement</h1>
-
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px;">
+      <a
+        class="btn btn-sm btn-default"
+        href="{% url "view_group" supportgroup.pk %}">
+        <i class="fa fa-external-link"></i> Page publique du groupe
+      </a>
+    </div>
+    <div class="col-xs-12 col-md-3 margintopmore">
+      {% include "groups/includes/manage_nav.html" with has_static_menu=True %}
+    </div>
+    <div class="col-xs-12 col-md-9 tab-content">
+      <h2 class="headline">
+        {{ supportgroup.name }}
+      </h2>
+      <hr />
+      <h4 class="padbottom">
+        Créer une demande de dépense ou de remboursement
+      </h4>
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <fieldset>
@@ -31,9 +46,16 @@
           </p>
           {% crispy document_formset document_helper %}
         </fieldset>
-        <div class="controls ">
-          <input type="submit" name="submit" value="Créer un brouillon de demande" class="btn btn-primary"
-                 id="submit-id-valider"/>
+        <div class="row padtopmore">
+          <div class="col-xs-12 col-sm-6 col-md-4">
+            <input
+              type="submit"
+              name="submit"
+              value="Créer un brouillon de demande"
+              class="btn btn-block btn-lg btn-primary"
+              id="submit-id-valider"
+            />
+          </div>
         </div>
       </form>
     </div>

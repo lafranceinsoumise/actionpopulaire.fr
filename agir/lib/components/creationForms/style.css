@@ -1,31 +1,49 @@
 .progtrckr {
-    text-align: center;
+  text-align: center;
 }
 
 .type-selector {
-    border: 1px solid #CCC;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  border-radius: 8px;
 }
 
 .type-selector button {
-    border-radius: 0;
-    border: none;
-    background: none;
+  border-radius: 0;
+  border: none;
+  background: none;
+  padding: 20px;
+  font-weight: normal;
 }
 
 .type-selector button:hover {
-    background: #EEE;
+  background: #eee;
 }
 
-.type-selector button.active, .typer-selector button.active:hover {
-    background: #DDD;
+.type-selector button.active,
+.typer-selector button.active:hover {
+  background: #ddd;
+}
+
+.type-selector button strong {
+  font-size: 16px;
+  line-height: 1.2;
+  display: block;
+  font-weight: 700;
+  margin: 0.8em 0 0.7em;
 }
 
 .subtype-selector {
-    overflow: hidden;
-    transition: all 500ms ease-in-out;
-    margin: 0; padding: 0;
+  overflow: hidden;
+  transition: all 500ms ease-in-out;
+  margin: 0;
+  padding: 0;
 }
 
 .subtype-selector div {
-    padding: 15px 15px 10px 15px;
+  padding: 15px 15px 10px 15px;
+}
+
+.confirmation-data-list dt + dd {
+  margin-bottom: 1em;
 }

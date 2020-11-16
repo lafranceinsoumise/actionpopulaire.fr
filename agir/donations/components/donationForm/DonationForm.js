@@ -14,7 +14,10 @@ const Title = styled.h4`
   counter-increment: sectionformulaire;
 
   :before {
-    content: counter(sectionformulaire) ".\\0000a0\\0000a0";
+    display: block;
+    font-size: 1.4em;
+    line-height: 1.5;
+    content: counter(sectionformulaire) ".";
   }
 `;
 
@@ -75,7 +78,11 @@ const DonationForm = ({
     (!typeChoices || type !== null) && amount !== null && amount > 0;
 
   return (
-    <form method="post" onSubmit={(e) => valid || e.preventDefault()}>
+    <form
+      method="post"
+      onSubmit={(e) => valid || e.preventDefault()}
+      className="text-center"
+    >
       {Object.keys(hiddenFields).map((k) => (
         <input key={k} type="hidden" name={k} value={hiddenFields[k]} />
       ))}
@@ -105,6 +112,12 @@ const DonationForm = ({
       {typeChoices && (
         <>
           <Title>Je choisis de donner une fois ou chaque mois</Title>
+          {type === "M" && (
+            <p className="help-block">
+              <i className="fa fa-warning"></i>&ensp;Seul le don par carte bleue
+              est possible pour un don mensuel.
+            </p>
+          )}
           <TypeWidget
             type={type}
             typeChoices={typeChoices}
@@ -128,18 +141,11 @@ const DonationForm = ({
       )}
 
       <div className="form-group">
-        <div>
-          <Button type="submit" bsStyle="primary">
+        <div style={{ maxWidth: 500, margin: "20px auto" }}>
+          <Button type="submit" className="btn btn-primary btn-block btn-lg">
             Je donne !
           </Button>
         </div>
-        {type === "M" && (
-          <div>
-            <small>
-              Seul le don par carte bleue est possible pour un don mensuel.
-            </small>
-          </div>
-        )}
       </div>
     </form>
   );

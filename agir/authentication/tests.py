@@ -77,7 +77,7 @@ class MailLinkTestCase(TestCase):
         response = self.client.get(reverse("create_group"), follow=True)
         self.assertContains(
             response,
-            f"Pour vous authentifier, un e-mail vous a été envoyé à {self.person.email}",
+            f"Pour vous authentifier, un e-mail vous a été envoyé à l'adresse <strong>{self.person.email}</strong>.",
         )
         self.assertRedirects(
             response,

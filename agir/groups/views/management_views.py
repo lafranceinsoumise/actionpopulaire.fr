@@ -134,7 +134,10 @@ class SupportGroupManagementView(BaseSupportGroupAdminView, DetailView):
         ).exclude(status=SpendingRequest.STATUS_PAID)
         kwargs["is_pressero_enabled"] = is_pressero_enabled()
 
-        kwargs["active"] = self.active_panel.get(self.request.POST.get("form"))
+        if self.active_panel.get(self.request.POST.get("form")):
+            kwargs["active"] = self.active_panel.get(self.request.POST.get("form"))
+        else:
+            kwargs["active"] = self.request.GET.get("active")
 
         forms = self.get_forms()
         for form_name, form in forms.items():
@@ -268,7 +271,7 @@ class ModifySupportGroupView(BaseSupportGroupAdminView, UpdateView):
 
 
 class RemoveManagerView(BaseSupportGroupAdminView, DetailView):
-    template_name = "front/confirm.html"
+    template_name = "groups/manager_removal_confirm.html"
     queryset = (
         Membership.objects.active()
         .all()
@@ -287,15 +290,7 @@ class RemoveManagerView(BaseSupportGroupAdminView, DetailView):
         else:
             name = person.email
 
-        return super().get_context_data(
-            title=_("Confirmer le retrait du gestionnaire ?"),
-            message=_(
-                f"""
-            Voulez-vous vraiment retirer {name} de la liste des gestionnaires de ce groupe ?
-            """
-            ),
-            button_text="Confirmer le retrait",
-        )
+        return super().get_context_data(manager_name=name)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()

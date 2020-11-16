@@ -3,15 +3,45 @@
 {% block title %}Quitter le groupe {{ group.name }}{% endblock %}
 
 {% block main %}
-  <h3 class="text-center">Quitter le groupe {{ group.name }}</h3>
-  <div class="row">
-    <div class="col-sm-12 form-group">
-      Souhaitez vous réellement quitter le groupe {{ group.name }} ?
-    </div>
-    <form method="POST">
-      {% csrf_token %}
-      <a href="{{ success_url }}" class="btn btn-info">Retour</a>
-      <button type="submit" class="btn btn-danger">Quitter le groupe</button>
-    </form>
+<div class="row">
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px;">
+    <a
+      class="btn btn-sm btn-default"
+      href="{% url "view_group" group.pk %}">
+      <i class="fa fa-external-link"></i> Page publique du groupe
+    </a>
   </div>
+  <div class="col-xs-12 col-md-3 margintopmore">
+  </div>
+  <div class="col-xs-12 col-md-9 tab-content">
+    <h2 class="headline">
+      Quitter le groupe : {{ group.name }}
+    </h2>
+    <hr />
+    <div class="form-group">
+      <p>
+        Souhaitez vous réellement quitter le groupe <strong>{{ group.name }}</strong> ?
+      </p>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="row padtop">
+          <div class="col-sm-12 col-md-4 padbottom">
+            <a
+              href="{% url "view_group" group.pk %}"
+              class="btn btn-block btn-default">
+              Retour
+            </a>
+          </div>
+          <div class="col-sm-12 col-md-4 padbottom">
+            <button
+              type="submit"
+              class="btn btn-lg btn-block btn-danger">
+              Quitter le groupe
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

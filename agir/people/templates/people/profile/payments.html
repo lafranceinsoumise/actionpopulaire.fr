@@ -13,7 +13,8 @@
 {% block main %}
   <div class="row">
       {% block navbar %} {% include "people/profile/profile_nav.html" %} {% endblock %}
-    <div class="col-xs-12 col-md-10">
+    <div class="col-xs-12 col-md-9 margintopmore">
+      {% include "people/profile/profile_title.html" %}
       <div class="intro">
         <p>Cette page vous permet de lister l'ensemble de vos dons, prêts ou participations payantes à des
           événements.</p>
@@ -21,38 +22,44 @@
         {% if subscriptions %}
           <h3>Paiements automatiques actifs</h3>
           <div class="list-group">
-              {% for subscription in subscriptions %}
-                <div class="list-group-item">
-                    {{ subscription.description }}
-                  <div style="margin-bottom: 10px;">
+            {% for subscription in subscriptions %}
+              <div class="list-group-item">
+                {{ subscription.description }}
+                <div class="row">
+                  <div class="col-xs-12 col-md-4">
                     <button
-                            class="btn btn-primary" role="button" data-toggle="collapse"
-                            data-target="#edit-{{ subscription.pk }}" aria-expanded="false"
-                            aria-controls="edit-{{ subscription.pk }}"
-                    >
+                    class="btn btn-block btn-sm btn-primary margintop" role="button" data-toggle="collapse" data-target="#edit-{{ subscription.pk }}" aria-expanded="false" aria-controls="edit-{{ subscription.pk }}">
                       Modifier ce paiement
                     </button>
-                    <a href="{% url "subscription_page" subscription.pk %}" class="btn btn-default">Changer de carte de paiement</a>
-                    <a href="{% url "subscription_terminate" subscription.pk %}" class="btn btn-default">Mettre fin à ce
-                      paiement</a>
                   </div>
-                  <div class="collapse" id="edit-{{ subscription.pk }}">
-                    <div class="well">
-                        {% crispy subscription.modify_form %}
-                    </div>
+                  <div class="col-xs-12 col-md-4">
+                    <a href="{% url "subscription_page" subscription.pk %}" class="btn btn-block btn-sm btn-default margintop">
+                      Changer de carte de paiement
+                    </a>
+                  </div>
+                  <div class="col-xs-12 col-md-4">
+                    <a href="{% url "subscription_terminate" subscription.pk %}" class="btn btn-block btn-sm btn-default margintop">
+                      Mettre fin à ce paiement
+                    </a>
                   </div>
                 </div>
-              {% endfor %}
+                <div class="collapse margintopmore" id="edit-{{ subscription.pk }}">
+                  <div class="well">
+                      {% crispy subscription.modify_form %}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
           </div>
         {% else %}
           <h3>Dons mensuels</h3>
           <p>Vous pouvez aider régulièrement la France insoumise en faisant un don mensuel automatique.</p>
           <div class="row">
-            <div class="col-md-6">
-                {% crispy form %}
+            <div class="well col-md-6">
+              {% crispy form %}
             </div>
             <div class="col-md-6">
-              <div class="panel panel-default">
+              <div class="panel">
                 <div class="panel-body">
                   <h6>Comment ça marche&nbsp;?</h6>
                   <ol>

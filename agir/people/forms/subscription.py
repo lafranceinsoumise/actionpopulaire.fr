@@ -84,7 +84,7 @@ class SimpleSubscriptionForm(BaseSubscriptionForm):
                     css_class="col-sm-6",
                 ),
                 Div(
-                    Submit("submit", "Appuyer", css_class="btn-block btn-lg"),
+                    Submit("submit", "Enregistrer", css_class="btn-block btn-lg"),
                     css_class="col-sm-6",
                 ),
             ),
@@ -110,8 +110,6 @@ class OverseasSubscriptionForm(LocationFormMixin, BaseSubscriptionForm):
 
         self.helper = FormHelper()
         self.helper.form_method = "POST"
-        self.helper.add_input(Submit("submit", "Appuyer"))
-
         self.helper.layout = Layout(
             Row(FullCol("email")),
             Row(
@@ -125,4 +123,10 @@ class OverseasSubscriptionForm(LocationFormMixin, BaseSubscriptionForm):
                 Div("location_city", css_class="col-md-8"),
             ),
             Row(FullCol("location_country")),
+            Row(
+                FormGroup(
+                    Submit("submit", "Enregistrer", css_class="btn-block btn-lg"),
+                    css_class="col-sm-6 margintop",
+                )
+            ),
         )

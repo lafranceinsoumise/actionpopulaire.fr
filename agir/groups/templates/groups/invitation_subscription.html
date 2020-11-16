@@ -4,14 +4,33 @@
 {% block title %}Vous avez été invité⋅e à rejoindre la France insoumise{% endblock %}
 
 {% block main %}
-  <h1>Vous avez été invité⋅e à rejoindre la France insoumise</h1>
-
-  {% if group %}
-    <p>Un des animateurs du groupe d'action <em><a target="_blank"
-                                                   href="{% url "view_group" group.pk %}">{{ group.name }}</a></em> vous
-      a invité à rejoindre la France insoumise et son groupe d'action.</p>
-    <p>Pour valider votre inscription, merci de remplir le formulaire ci-dessous.</p>
-  {% endif %}
-
-  {% crispy form %}
+<div class="row">
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px;">
+    {% if group %}
+      <a
+        class="btn btn-sm btn-default"
+        target="_blank"
+        rel="noopener noreferrer"
+        href="{% url "view_group" group.pk %}">
+        <i class="fa fa-external-link"></i> Page publique du groupe {{ group.name }}
+      </a>
+    {% endif %}
+  </div>
+  <div class="col-xs-12 col-md-3 margintopmore">
+  </div>
+  <div class="col-xs-12 col-md-9 tab-content">
+    <h2 class="headline">
+      Vous avez été invité⋅e à rejoindre la France insoumise
+    </h2>
+    {% if group %}
+      <p>
+        Un des animateurs du groupe d'action <a target="_blank" rel="nooepener noreferrer" href="{% url "view_group" group.pk %}">{{ group.name }}</a> vous a invité à rejoindre la France insoumise et son groupe d'action.
+      </p>
+      <p>
+        Pour valider votre inscription, merci de remplir le formulaire ci-dessous.
+      </p>
+    {% endif %}
+    {% crispy form %}
+  </div>
+</div>
 {% endblock %}

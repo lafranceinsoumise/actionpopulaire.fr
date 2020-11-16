@@ -469,7 +469,7 @@ class InvitationTestCase(TestCase):
         res = self.client.get(join_url)
         self.assertEqual(res.status_code, 200)
         self.assertContains(
-            res, "<h1>Vous avez été invité⋅e à rejoindre la France insoumise</h1>"
+            res, "Vous avez été invité⋅e à rejoindre la France insoumise"
         )
 
         res = self.client.post(
@@ -512,7 +512,7 @@ class InvitationTestCase(TestCase):
 
         # following to make it work with auto_login
         res = self.client.get(report_url, follow=True)
-        self.assertContains(res, "<h1>Signaler un email non sollicité</h1>")
+        self.assertContains(res, "Signaler un email non sollicité")
         self.assertContains(res, "<form")
 
         if res.redirect_chain:
@@ -520,7 +520,7 @@ class InvitationTestCase(TestCase):
         else:
             res = self.client.post(report_url)
 
-        self.assertContains(res, "<h1>Merci de votre signalement</h1>")
+        self.assertContains(res, "Merci de votre signalement")
 
         send_abuse_report_message.delay.assert_called_once()
         self.assertEqual(

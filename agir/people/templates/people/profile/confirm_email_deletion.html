@@ -3,15 +3,35 @@
 {% block title %}Supprimer l'adresse {{ email.address }}{% endblock %}
 
 {% block main %}
-  <h3 class="text-center">Supprimer l'adresse {{ email.address }}</h3>
-  <div class="row text-center">
-    <div class="col-sm-12 form-group">
-      Souhaitez-vous vraiment supprimer l'adresse {{ email.address }} ?
+  <div class="row">
+    {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="CONTACT" %} {% endblock %}
+    <div class="col-xs-12 col-md-9 margintopmore">
+      {% include "people/profile/profile_title.html" with tab_code="CONTACT" %}
+      <div class="row">
+        <form method="POST">
+          <div class="col-sm-12">
+            <h3>
+              Supprimer l'adresse {{ email.address }}
+            </h3>
+            <p>
+              Souhaitez-vous vraiment supprimer l'adresse <strong class="text-info">{{ email.address }}</strong> ?
+            </p>
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-xs-12 col-md-2 margintop">
+                <a href="{{ success_url }}" class="btn btn-default btn-block">
+                  Retour
+                </a>
+              </div>
+              <div class="col-xs-12 col-md-3 margintop">
+                <button type="submit" class="btn btn-danger btn-block">
+                  Supprimer l'adresse
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
-    <form method="POST">
-      {% csrf_token %}
-      <a href="{{ success_url }}" class="btn btn-info">Retour</a>
-      <button type="submit" class="btn btn-danger">Supprimer l'adresse</button>
-    </form>
   </div>
 {% endblock %}

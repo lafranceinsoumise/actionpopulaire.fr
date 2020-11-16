@@ -8,14 +8,23 @@
 {% endblock %}
 
 {% block main %}
-  <h2><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h2>
-  <ol class="breadcrumb">
-    <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
-    <li>Participation en ligne</li>
-  </ol>
-
-  <div>
-    {{ content }}
+  <div class="row">
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px;">
+      <a
+        class="btn btn-sm btn-default"
+        href="{% url "view_event" event.pk %}">
+        <i class="fa fa-external-link"></i> Page publique de l'événement
+      </a>
+    </div>
+    <div class="col-xs-12 margintopmore">
+      <h2 class="headline">
+        {{ event.name }}
+      </h2>
+      <hr />
+      <h3>Participation en ligne</h3>
+      <div>
+        {{ content }}
+      </div>
+    </div>
   </div>
-
 {% endblock %}

@@ -21,7 +21,7 @@ const AmountInput = ({ placeholder, onChange, value, disabled }) => {
   }
 
   return (
-    <InputGroup>
+    <InputGroup className={value ? "selected" : ""}>
       <input
         type="text"
         className="form-control"

@@ -1,6 +1,9 @@
-<a href="#" type="button" data-toggle="modal" data-target="#calendar-modal">
-  <span class="fa fa-calendar"></span>
-</a>
+{% if no_trigger == True %}
+{% else %}
+  <a href="#" type="button" data-toggle="modal" data-target="#calendar-modal">
+    <span class="fa fa-calendar"></span>
+  </a>
+{% endif %}
 
 <div class="modal fade" id="calendar-modal" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
   <div class="modal-dialog" role="document">
@@ -11,12 +14,17 @@
         <h4 class="modal-title" id="calendar-modal-label">S'abonner au calendrier</h4>
       </div>
       <div class="modal-body">
-        <p>Pour ajouter l'agenda sur Google Calendar, Outlook ou une autre application, importez le lien suivant
-          depuis votre calendrier&nbsp;:</p>
-        <input class="form-control" type="text" value="{{ FRONT_DOMAIN }}{{ url }}" readonly>
+        <p>
+          Pour ajouter l'agenda sur Google Calendar, Outlook ou une autre application, importez le lien suivant depuis votre calendrier&nbsp;:
+        </p>
+        <input
+          class="form-control"
+          type="text"
+          value="{{ FRONT_DOMAIN }}{{ url }}"
+          readonly>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Fermer</button>
       </div>
     </div>
   </div>

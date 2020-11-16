@@ -101,7 +101,7 @@ class GroupTypeStep extends FormStep {
     const { fields } = this.props;
 
     return (
-      <div className="row padtopmore">
+      <div className="row padtopmore padbottommore">
         <div className="col-sm-6">
           <h3>Quel type de groupe voulez-vous créer ?</h3>
           <blockquote>
@@ -135,11 +135,13 @@ class GroupTypeStep extends FormStep {
           {this.props.types.map((type, i) => (
             <div key={type.id} className="type-selector">
               <button
-                className={fields.type === type.id ? "active" : ""}
+                className={`btn btn-default ${
+                  fields.type === type.id ? "active" : ""
+                }`}
                 style={{ whiteSpace: "normal" }}
                 onClick={this.setType(type.id)}
               >
-                <h5>{type.label}</h5>
+                <strong>{type.label}</strong>
                 {type.description}
               </button>
               <Transition
@@ -232,42 +234,34 @@ class ValidateStep extends FormStep {
   render() {
     const { fields, types } = this.props;
     return (
-      <div className="row padtopmore">
+      <div className="row padtopmore padbottommore">
         <div className="col-md-6">
-          <p>Voici les informations que vous avez entrées.</p>
-          <ul>
-            <li>
-              <strong>Type de groupe&nbsp;:</strong>{" "}
-              {types.find((t) => t.id === fields.type).label}
-            </li>
-            <li>
-              <strong>Numéro de téléphone&nbsp;:</strong> {fields.phone} (
-              {fields.hidePhone ? "caché" : "public"})
-            </li>
+          <p>Voici les informations que vous avez entrées&nbsp;:</p>
+          <dl className="well confirmation-data-list">
+            <dt>Type de groupe&nbsp;:</dt>{" "}
+            <dd>{types.find((t) => t.id === fields.type).label}</dd>
+            <dt>Numéro de téléphone&nbsp;:</dt>
+            <dd>
+              {fields.phone}&ensp;
+              <small>({fields.hidePhone ? "caché" : "public"})</small>
+            </dd>
             {fields.name && (
-              <li>
-                <strong>Nom du contact&nbsp;:</strong> {fields.name}
-              </li>
+              <>
+                <dt>Nom du contact&nbsp;:</dt>
+                <dd>{fields.name}</dd>
+              </>
             )}
-            <li>
-              <strong>Adresse email du groupe&nbsp;:</strong> {fields.email}
-            </li>
-            <li>
-              <strong>Lieu&nbsp;:</strong>
-              <br />
-              {fields.locationAddress1}
-              <br />
-              {fields.locationAddress2 ? (
-                <span>
-                  {fields.locationAddress2}
-                  <br />
-                </span>
-              ) : (
-                ""
-              )}
+            <dt>Adresse email du groupe&nbsp;:</dt>
+            <dd>{fields.email}</dd>
+            <dt>Lieu&nbsp;:</dt>
+            <dd>{fields.locationAddress1}</dd>
+            {fields.locationAddress2 ? (
+              <dd>{fields.locationAddress2}</dd>
+            ) : null}
+            <dd>
               {fields.locationZip}, {fields.locationCity}
-            </li>
-          </ul>
+            </dd>
+          </dl>
         </div>
         <div className="col-md-6">
           <p>
@@ -286,7 +280,7 @@ class ValidateStep extends FormStep {
               />
             </div>
             <button
-              className="btn btn-primary"
+              className="btn btn-primary btn-lg btn-block"
               type="submit"
               disabled={this.state.processing}
             >

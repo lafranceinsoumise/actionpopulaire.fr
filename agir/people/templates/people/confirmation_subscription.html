@@ -3,28 +3,22 @@
 {% block title %}Bienvenue ! - la France insoumise{% endblock %}
 
 {% block main %}
-  <h1 class="headline">Bienvenue !</h1>
-
-
-  <div class="row">
-    <div class="col-sm-6">
+  <h2 class="headline">Bienvenue !</h2>
+  <div class="row marginbottommore">
+    <div class="col-sm-6 marginbottom">
       <a class="btn btn-primary btn-block" href="{% url "volunteer" %}">Agir</a>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 marginbottom">
       <a class="btn btn-primary btn-block" href="https://dons.lafranceinsoumise.fr/">Je donne</a>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-sm-6">
+    <div class="col-sm-6 marginbottom">
       <a class="btn btn-primary btn-block" href="{% url "personal_information" %}">J'en dis plus sur moi</a>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-6 marginbottom">
       <a class="btn btn-primary btn-block" href="https://lafranceinsoumise.fr/groupes-appui/carte/">Je rejoins un groupe
         d'action</a>
     </div>
   </div>
-
-
   <div id="content">
     <div class="text-content">
       <p>

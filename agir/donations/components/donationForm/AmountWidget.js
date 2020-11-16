@@ -10,13 +10,34 @@ import { FlexContainer } from "./elements";
 
 const DEFAULT_AMOUNTS = [200 * 100, 100 * 100, 50 * 100, 20 * 100, 10 * 100];
 
+const AmountFlexContainer = styled(FlexContainer)`
+  @supports (display: grid) {
+    border-radius: 8px;
+    padding: 15px;
+    display: grid;
+    grid-template-columns: 32% 32% 32%;
+    grid-template-rows: auto auto;
+    grid-gap: 15px;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+
+    @media (max-width: 992px) {
+      grid-template-columns: 48% 48%;
+      grid-template-rows: auto auto auto;
+    }
+  }
+`;
+
 const AmountButton = styled.button`
-  display: block;
-  width: 30%;
-  height: 50px;
-  margin: 10px 0;
   font-weight: bold;
-  min-width: 200px;
+  border: none;
+  height: 55px;
+
+  &.btn-unselected {
+    background-color: white;
+    color: black;
+  }
 `;
 
 class AmountWidget extends React.Component {
@@ -49,8 +70,8 @@ class AmountWidget extends React.Component {
     const amountChoices = this.props.amountChoices || DEFAULT_AMOUNTS;
 
     return (
-      <div className="amount-component">
-        <FlexContainer className={error ? " has-error" : ""}>
+      <div className="amount-component padtop padbottom">
+        <AmountFlexContainer className={error ? " has-error" : ""}>
           {amountChoices.map((value) => (
             <AmountButton
               disabled={disabled}
@@ -59,7 +80,8 @@ class AmountWidget extends React.Component {
               onClick={() => this.updateWithButton(value)}
               className={[
                 "btn",
-                custom || amount !== value ? "btn-default" : "btn-primary",
+                "btn-primary",
+                custom || amount !== value ? "btn-unselected" : "",
               ].join(" ")}
             >
               {displayPrice(value)}
@@ -67,32 +89,30 @@ class AmountWidget extends React.Component {
           ))}
           <AmountInput
             disabled={disabled}
-            placeholder="autre montant"
+            placeholder="Autre montant"
             onChange={this.updateWithCustomValue.bind(this)}
             value={custom ? amount : null}
           />
 
           {error && <span className="help-block">{error}</span>}
-        </FlexContainer>
-        <p>
-          {showTaxCredit &&
-            (amount ? (
-              <em>
-                Si je paye des impôts, après réduction, ma contribution nette
-                sera de seulement{" "}
-                <strong className="text-danger">
-                  {displayPrice(amount * 0.34)}
-                </strong>
-                {byMonth && " par mois"}
-                &nbsp;!
-              </em>
-            ) : (
-              <em>
-                Si je paye des impôts, je bénéficie d&apos;une réduction
-                d&apos;impôt de <strong>66&nbsp;%</strong> de la somme donnée !
-              </em>
-            ))}
-        </p>
+        </AmountFlexContainer>
+        {showTaxCredit &&
+          (amount ? (
+            <p className="text-center">
+              Si je paye des impôts, après réduction, ma contribution nette sera
+              de seulement{" "}
+              <strong className="text-danger">
+                {displayPrice(amount * 0.34)}
+              </strong>
+              {byMonth && " par mois"}
+              &nbsp;!
+            </p>
+          ) : (
+            <p className="text-center">
+              Si je paye des impôts, je bénéficie d&apos;une réduction
+              d&apos;impôt de <strong>66&nbsp;%</strong> de la somme donnée !
+            </p>
+          ))}
       </div>
     );
   }

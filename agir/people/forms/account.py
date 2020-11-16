@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from crispy_forms.bootstrap import FormActions, FieldWithButtons
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Row, Submit, Layout, HTML
+from crispy_forms.layout import Field, Fieldset, Row, Submit, Layout, HTML
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import Form, CharField
@@ -157,15 +157,10 @@ class SendValidationSMSForm(forms.ModelForm):
             "Vous devez indiquer le numéro de mobile qui vous servira à valider votre compte."
         )
 
-        fields = [
-            Row(
-                HalfCol(
-                    FieldWithButtons(
-                        "contact_phone", Submit("submit", "Recevoir mon code")
-                    )
-                )
-            )
-        ]
+        phone_input = Field("contact_phone")
+        submit_button = Submit("submit", "Recevoir mon code")
+
+        fields = [Row(HalfCol(phone_input, submit_button))]
         self.helper = FormHelper()
         self.helper.form_method = "POST"
         self.helper.layout = Layout(*fields)
@@ -203,13 +198,11 @@ class CodeValidationForm(Form):
         super().__init__(*args, **kwargs)
         self.person = person
 
-        fields = [
-            Row(
-                HalfCol(
-                    FieldWithButtons("code", Submit("submit", "Valider mon numéro"))
-                )
-            )
-        ]
+        phone_input = Field("code")
+        submit_button = Submit("submit", "Valider mon numéro")
+
+        fields = [Row(HalfCol(phone_input, submit_button))]
+
         self.helper = FormHelper()
         self.helper.form_method = "POST"
         self.helper.layout = Layout(*fields)
@@ -287,7 +280,9 @@ class MembreReseauElusForm(forms.ModelForm):
             )
             self.helper.add_input(
                 Submit(
-                    "valider", "Je ne souhaite plus faire partie du réseau des élu⋅es"
+                    "valider",
+                    "Je ne souhaite plus faire partie du réseau des élu⋅es",
+                    css_class="margintopmore btn-wrap",
                 )
             )
         elif status == Person.MEMBRE_RESEAU_NON:
