@@ -54,17 +54,17 @@ export const updateGlobalContext = (
 
 export const GlobalContextProvider = ({ children }) => {
   const globalContextScript = document.getElementById("globalContext");
-  const globalContext = globalContextScript
+  const globalContextData = globalContextScript
     ? {
-        ...globalContext,
+        ...defaultGlobalContextState,
         ...JSON.parse(globalContextScript.textContent),
       }
     : defaultGlobalContextState;
 
-  const [state, dispatch] = useReducer(updateGlobalContext, globalContext);
+  const [state, dispatch] = useReducer(updateGlobalContext, globalContextData);
 
   useEffect(() => {
-    dispatch({ type: "@@INIT", ...globalContext });
+    dispatch({ type: "@@INIT", ...globalContextData });
     // eslint-disable-next-line
   }, []);
 

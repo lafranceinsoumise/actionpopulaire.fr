@@ -29,7 +29,7 @@ const RequiredActionCard = (props) => {
           iconName="alert-circle"
           confirmLabel="Payer"
           dismissLabel="Voir l'événement"
-          onConfirm={event.routes.manage}
+          onConfirm={event.routes.join}
           onDismiss={event.routes.details}
           text={
             <>

@@ -121,7 +121,7 @@ const ActivityList = (props) => {
       {unrequired.length > 0 ? (
         <StyledList type="unrequired">
           <h2>Mes autres notifications</h2>
-          <h4>L’actualité de vos groupes et de la France Insoumise</h4>
+          <h4>L’actualité de vos groupes et de la France insoumise</h4>
           {unrequired.map(({ id, ...props }) => (
             <li key={id}>
               <ActivityCard {...props} />
