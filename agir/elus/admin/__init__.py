@@ -173,7 +173,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
         )
 
         if obj is not None:
-            return readonly_fields + ("person", "conseil")
+            return readonly_fields + ("person",)
         return readonly_fields
 
     def get_autocomplete_fields(self, request):

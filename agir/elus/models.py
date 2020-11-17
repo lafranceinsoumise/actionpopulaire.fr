@@ -262,12 +262,18 @@ class MandatMunicipal(MandatAbstrait):
         default=MANDAT_EPCI_PAS_DE_MANDAT,
     )
 
+    def __init__(self, *args, **kwargs):
+        self._meta.get_field("dates").default = MUNICIPAL_DEFAULT_DATE_RANGE
+        super().__init__(*args, **kwargs)
+
     class Meta:
         verbose_name_plural = "Mandats municipaux"
         ordering = ("conseil", "person")
 
     def __str__(self):
         if hasattr(self, "person") and hasattr(self, "conseil"):
+            if self.conseil is None:
+                return f"{self.person}, {genrer(self.person.gender, 'élu⋅e')} {genrer(self.person.gender, 'municipal⋅e')} (commune inconnue)"
             return f"{self.person}, {genrer(self.person.gender, 'élu⋅e')} à {self.conseil.nom_complet}"
 
         return "Nouveau mandat municipal"
@@ -287,6 +293,9 @@ class MandatMunicipal(MandatAbstrait):
             titre = f"{genrer(self.person.gender, 'Adjoint⋅e')} au maire"
         else:
             titre = self.get_mandat_display()
+
+        if self.conseil is None:
+            return titre
 
         if conseil_avant:
             return f"{self.conseil.nom_complet}, {titre}"
@@ -346,6 +355,10 @@ class MandatDepartemental(MandatAbstrait):
         default=list,
     )
 
+    def __init__(self, *args, **kwargs):
+        self._meta.get_field("dates").default = DEPARTEMENTAL_DEFAULT_DATE_RANGE
+        super().__init__(*args, **kwargs)
+
     class Meta:
         verbose_name = "Mandat départemental"
         verbose_name_plural = "Mandats départementaux"
@@ -353,6 +366,8 @@ class MandatDepartemental(MandatAbstrait):
 
     def __str__(self):
         if hasattr(self, "person") and hasattr(self, "conseil"):
+            if self.conseil is None:
+                return f"{self.person}, {genrer(self.person.gender, 'élu⋅e')} {genrer(self.person.gender, 'départemental⋅e')} (lieu inconnu)"
             return f"{self.person}, {genrer(self.person.gender, 'élu.e')} au {self.conseil.nom}"
 
         return "Nouveau mandat départemental"
@@ -372,6 +387,9 @@ class MandatDepartemental(MandatAbstrait):
             titre = genrer(self.person.gender, "Vice-président⋅e")
         else:
             titre = self.get_mandat_display()
+
+        if self.conseil is None:
+            return titre
 
         if conseil_avant:
             return f"{self.conseil.nom}, {titre}"
@@ -431,6 +449,10 @@ class MandatRegional(MandatAbstrait):
         default=list,
     )
 
+    def __init__(self, *args, **kwargs):
+        self._meta.get_field("dates").default = REGIONAL_DEFAULT_DATE_RANGE
+        super().__init__(*args, **kwargs)
+
     class Meta:
         verbose_name = "Mandat régional"
         verbose_name_plural = "Mandats régionaux"
@@ -444,6 +466,8 @@ class MandatRegional(MandatAbstrait):
                 elu = "élue"
             else:
                 elu = "élu⋅e"
+                if self.conseil is None:
+                    return f"{self.person}, {genrer(self.person.gender, 'élu⋅e')} {genrer(self.person.gender, 'régional⋅e')} (lieu inconnu)"
             return f"{self.person}, {elu} au {self.conseil.nom}"
 
         return "Nouveau mandat régional"
@@ -463,6 +487,9 @@ class MandatRegional(MandatAbstrait):
             titre = genrer(self.person.gender, "Vice-président⋅e")
         else:
             titre = self.get_mandat_display()
+
+        if self.conseil is None:
+            return titre
 
         nom_conseil = self.conseil.nom
 
