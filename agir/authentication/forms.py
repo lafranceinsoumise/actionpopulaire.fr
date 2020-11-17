@@ -30,11 +30,11 @@ class EmailForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Row(Div("email", css_class="col-xs-12 col-md-6",)),
+            Row(Div("email", css_class="col-xs-12",)),
             Row(
                 Div(
                     Submit("submit", "Se connecter", css_class="btn-block"),
-                    css_class="col-xs-12 col-md-6",
+                    css_class="col-xs-12",
                 )
             ),
         )
