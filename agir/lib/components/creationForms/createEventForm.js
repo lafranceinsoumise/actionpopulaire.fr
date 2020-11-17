@@ -141,9 +141,17 @@ const Icon = styled.i`
       : "border: 1px solid rgba(10, 10, 10, 0.3);"}
 `;
 
-function CheckBox({ label, active, onClick, icon, iconName, color }) {
+function CheckBox({
+  label,
+  active,
+  onClick,
+  icon,
+  iconName,
+  color,
+  className,
+}) {
   return (
-    <li className={active ? "active" : ""}>
+    <li className={`${className} ${active ? "active" : ""}`.trim()}>
       <a
         href="#"
         onClick={(e) => {
@@ -174,6 +182,7 @@ CheckBox.propTypes = {
   icon: PropTypes.string,
   iconName: PropTypes.string,
   color: PropTypes.string,
+  className: PropTypes.string,
 };
 
 class EventTypeStep extends FormStep {
@@ -239,6 +248,7 @@ class EventTypeStep extends FormStep {
                     icon={subtype.icon}
                     iconName={subtype.iconName}
                     color={subtype.color}
+                    className="subtype-selector-choice"
                   />
                 ))}
               </SubtypeSelector>

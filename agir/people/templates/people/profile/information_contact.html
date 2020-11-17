@@ -10,7 +10,7 @@
     {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="CONTACT" %} {% endblock %}
     <div class="col-xs-12 col-md-9 margintopmore">
       {% include "people/profile/profile_title.html" with tab_code="CONTACT" %}
-      <div class="col-xs-12 col-md-12">
+      <div>
         <fieldset>
           <legend>Adresses e-mail</legend>
         </fieldset>
@@ -70,7 +70,9 @@
           <p class="col-xs-12 col-md-4"><a class="btn btn-sm btn-default" href="{% url "manage_account" %}">Ajouter ou changer d'adresse email</a></p>
         {% endif %}
         </div>
-        {% crispy form %}
+        <div class="row">
+          {% crispy form %}
+        </div>
       </div>
     </div>
   </div>

@@ -220,7 +220,7 @@ class InformationConfidentialityForm(Form):
                 """
 
         delete_account_link = format_html(
-            '<a href="{url}" class="btn btn-block btn-wrap btn-danger margintop marginbottom">{label}</a>',
+            '<a href="{url}" class="btn btn-wrap btn-danger margintop marginbottom">{label}</a>',
             url=reverse("delete_account"),
             label="Je veux supprimer mon compte définitivement",
         )

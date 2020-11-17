@@ -1,5 +1,8 @@
-.progtrckr {
+.step-progress ol.progtrckr {
   text-align: center;
+}
+.step-progress ol.progtrckr li span {
+  padding: 0;
 }
 
 .type-selector {
@@ -42,6 +45,10 @@
 
 .subtype-selector div {
   padding: 15px 15px 10px 15px;
+}
+
+.subtype-selector-choice a {
+  font-weight: 400 !important;
 }
 
 .confirmation-data-list dt + dd {

@@ -10,6 +10,12 @@
 
 {% block main %}
   <div class="row">
+    <div class="col-xs-12 margintopmore" style="margin-bottom: 0;">
+      <a class="menu-back-link" href="{% url "list_events" %}">
+        <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+      </a>
+      <hr />
+    </div>
     <div class="col-xs-12 margintopmore text-right" style="line-height: 45px;">
       {% if can_edit %}
         <a

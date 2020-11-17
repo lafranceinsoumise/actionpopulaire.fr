@@ -5,6 +5,12 @@
 
 {% block main %}
 <div class="row">
+  <div class="col-xs-12 margintopmore" style="margin-bottom: 0;">
+    <a class="menu-back-link" href="{% url "list_events" %}">
+      <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+    </a>
+    <hr />
+  </div>
   <div class="col-xs-12 margintopmore text-right" style="line-height: 45px;">
     <a
       class="btn btn-sm btn-default"
@@ -85,7 +91,7 @@
                 <div class="help-dialog">
                   Vous pouvez les modifier en cliquant sur ce bouton.
                 </div>
-                <a class="btn btn-block btn-default" href="{% url "edit_event" event.pk %}" data-turbolinks="false">
+                <a class="btn btn-block btn-wrap btn-primary" href="{% url "edit_event" event.pk %}" data-turbolinks="false">
                   Modifier ces informations
                 </a>
               </div>
@@ -93,7 +99,7 @@
                 <div class="help-dialog">
                   Vous pouvez aussi changer l'endroit où votre événement apparaît sur la carte si celui-ci n'était pas correct.
                 </div>
-                <a class="btn btn-block btn-default" href="{% url "change_event_location" event.pk %}">
+                <a class="btn btn-block btn-wrap btn-default" href="{% url "change_event_location" event.pk %}">
                   Corriger la localisation de l'événement
                 </a>
               </div>
@@ -101,7 +107,7 @@
                 <div class="help-dialog">
                   Vous pouvez enfin annuler votre événement. Un message sera envoyé à tous les participants pour leur signaler.
                 </div>
-                <a class="btn btn-block btn-danger" href="{% url "cancel_event" event.pk %}">
+                <a class="btn btn-block btn-wrap btn-default" href="{% url "cancel_event" event.pk %}">
                   Annuler l'événement
                 </a>
               </div>
