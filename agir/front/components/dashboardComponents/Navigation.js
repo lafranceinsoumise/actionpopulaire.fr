@@ -8,6 +8,8 @@ import FeatherIcon, {
 import style from "@agir/front/genericComponents/_variables.scss";
 import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
 
+import CONFIG from "@agir/front/dashboardComponents/navigation.config";
+
 const BottomBar = styled.nav`
   @media only screen and (max-width: ${style.collapse}px) {
     background-color: ${style.white};
@@ -32,10 +34,26 @@ const Menu = styled.ul`
 `;
 
 const MenuItem = styled.li`
+  font-size: 16px;
+  font-weight: 600;
+  display: block;
+  position: relative;
+
+  & a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  ${(props) =>
+    props.active &&
+    `
+    color: ${style.primary500};
+    `}
+
   @media only screen and (max-width: ${style.collapse}px) {
+    display: ${({ mobile }) => (mobile ? "flex" : "none")};
     width: 70px;
     height: 70px;
-    display: flex;
     flex-direction: column;
     justify-content: center;
     text-align: center;
@@ -52,29 +70,51 @@ const MenuItem = styled.li`
   }
 
   @media only screen and (min-width: ${style.collapse}px) {
+    display: ${({ desktop }) => (desktop ? "flex" : "none")};
+    line-height: 24px;
+    align-items: center;
     margin-bottom: 1.5rem;
+
     & ${RawFeatherIcon} {
       color: ${(props) => (props.active ? style.primary500 : style.black500)};
       margin-right: 1rem;
     }
+
+    ${RawFeatherIcon}:last-child {
+      margin-right: 0;
+      margin-left: 0.5rem;
+    }
   }
+`;
 
-  font-size: 16px;
-  font-weight: 600;
+const SecondaryMenu = styled.ul`
+  margin-top: 40px;
+  display: flex;
+  flex-flow: column nowrap;
+  list-style: none;
 
-  display: block;
-  position: relative;
-
-  & a {
-    color: inherit;
-    text-decoration: none;
+  @media only screen and (max-width: ${style.collapse}px) {
+    display: none;
   }
+`;
 
-  ${(props) =>
-    props.active &&
-    `
-    color: ${style.primary500};
-    `}
+const SecondaryMenuItem = styled.li`
+  font-size: 12px;
+  line-height: 15px;
+  color: ${style.black500};
+  margin-bottom: 16px;
+  font-weight: bold;
+
+  & a,
+  & a:hover,
+  & a:focus,
+  & a:active {
+    font-size: 13px;
+    font-weight: normal;
+    line-height: 1.1;
+    color: ${style.black700};
+    margin-bottom: 12px;
+  }
 `;
 
 const Counter = styled.span`
@@ -100,47 +140,64 @@ const Counter = styled.span`
   }
 `;
 
-const MenuLink = ({ href, icon, title, active, counter }) => (
-  <MenuItem active={active}>
-    <a href={href}>
-      {counter > 0 && <Counter>{counter}</Counter>}
-      <FeatherIcon name={icon} inline />
-      <span>{title}</span>
-    </a>
-  </MenuItem>
-);
+const MenuLink = (props) => {
+  const { href, icon, title, active, counter, external } = props;
+  const linkProps = React.useMemo(
+    () => ({
+      target: external ? "_blank" : undefined,
+      rel: external ? "noopener noreferrer" : undefined,
+    }),
+    [external]
+  );
+  return (
+    <MenuItem {...props} active={active}>
+      <a {...linkProps} href={href}>
+        {counter > 0 && <Counter>{counter}</Counter>}
+        <FeatherIcon name={icon} inline />
+        <span>{title}</span>
+        {external && <FeatherIcon name="external-link" inline small />}
+      </a>
+    </MenuItem>
+  );
+};
+MenuLink.propTypes = {
+  href: PropTypes.string,
+  icon: PropTypes.string,
+  title: PropTypes.string,
+  active: PropTypes.bool,
+  counter: PropTypes.number,
+  external: PropTypes.bool,
+};
 
-const Navigation = ({ active, routes }) => {
-  const { requiredActionActivities = [] } = useGlobalContext();
+const Navigation = ({ active }) => {
+  const { requiredActionActivities = [], routes } = useGlobalContext();
   return (
     <BottomBar>
       <Menu>
-        <MenuLink
-          active={active === "events"}
-          icon="calendar"
-          title="Évènements"
-          href={routes.events}
-        />
-        <MenuLink
-          active={active === "groups"}
-          icon="users"
-          title="Groupes"
-          href={routes.groups}
-        />
-        <MenuLink
-          active={active === "activity"}
-          icon="bell"
-          title="Notifications"
-          href={routes.activity}
-          counter={requiredActionActivities.length}
-        />
-        <MenuLink
-          active={active === "menu"}
-          icon="menu"
-          title="Plus"
-          href={routes.menu}
-        />
+        {CONFIG.menuLinks.map((link) => (
+          <MenuLink
+            {...link}
+            key={link.id}
+            active={active === link.id}
+            href={link.href || routes[link.route]}
+            counter={link.counter && requiredActionActivities.length}
+          />
+        ))}
       </Menu>
+      <SecondaryMenu>
+        <SecondaryMenuItem key="title">LIENS</SecondaryMenuItem>
+        {CONFIG.secondaryLinks.map((link) => (
+          <SecondaryMenuItem key={link.id}>
+            <a
+              href={link.href || routes[link.route]}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {link.title}
+            </a>
+          </SecondaryMenuItem>
+        ))}
+      </SecondaryMenu>
     </BottomBar>
   );
 };
@@ -149,10 +206,4 @@ export default Navigation;
 
 Navigation.propTypes = {
   active: PropTypes.oneOf(["events", "groups", "activity", "menu"]),
-  routes: PropTypes.shape({
-    events: PropTypes.string.isRequired,
-    groups: PropTypes.string.isRequired,
-    activity: PropTypes.string.isRequired,
-    menu: PropTypes.string.isRequired,
-  }),
 };
