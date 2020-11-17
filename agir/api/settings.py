@@ -209,12 +209,18 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "agir.authentication.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "agir.api.context_processors.basic_information",
-                "agir.notifications.context_processors.notifications",
             ]
         },
     }
 ]
+
+if ENABLE_FRONT:
+    TEMPLATES[0]["OPTIONS"]["context_processors"].extend(
+        [
+            "agir.api.context_processors.basic_information",
+            "agir.notifications.context_processors.notifications",
+        ]
+    )
 
 MESSAGE_TAGS = {ERROR: "danger"}
 MESSAGE_LEVEL = messages.DEBUG if DEBUG else messages.INFO
