@@ -59,7 +59,7 @@ Layout.propTypes = {
 Layout.defaultProps = {
   routes: {
     events: "/evenements",
-    groups: "#groupes",
+    groups: "/mes-groupes",
     activity: "/activite",
   },
 };

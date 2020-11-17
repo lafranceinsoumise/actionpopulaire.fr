@@ -13,6 +13,7 @@ const requiredActivity = {
     routes: {
       details: "/",
       manage: "/",
+      join: "/",
     },
   },
   supportGroup: {

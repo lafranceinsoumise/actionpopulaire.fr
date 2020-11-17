@@ -1,0 +1,82 @@
+{
+  "menuLinks": [
+    {
+      "id": "events",
+      "icon": "calendar",
+      "title": "Évènements",
+      "route": "events",
+      "desktop": true,
+      "mobile": true
+    },
+    {
+      "id": "groups",
+      "icon": "users",
+      "title": "Groupes",
+      "route": "groups",
+      "desktop": true,
+      "mobile": true
+    },
+    {
+      "id": "activity",
+      "icon": "bell",
+      "title": "Notifications",
+      "route": "activity",
+      "counter": true,
+      "desktop": true,
+      "mobile": true
+    },
+    {
+      "id": "materiel",
+      "icon": "shopping-bag",
+      "title": "Matériel",
+      "href": "https://materiel.lafranceinsoumise.fr/",
+      "desktop": true,
+      "mobile": false,
+      "external": true
+    },
+    {
+      "id": "help",
+      "icon": "help-circle",
+      "title": "Aide & Ressources",
+      "href": "https://lafranceinsoumise.fr/fiches_pour_agir/",
+      "desktop": true,
+      "mobile": false,
+      "external": true
+    },
+    {
+      "id": "menu",
+      "icon": "menu",
+      "title": "Plus",
+      "route": "menu",
+      "desktop": false,
+      "mobile": true
+    }
+  ],
+  "secondaryLinks": [
+    {
+      "id": "news",
+      "title": "Actualité de la France Insoumise",
+      "href": "https://lafranceinsoumise.fr/actualites/"
+    },
+    {
+      "id": "eventMap",
+      "title": "Carte des événements",
+      "href": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/"
+    },
+    {
+      "id": "groupMap",
+      "title": "Carte des groupes",
+      "href": "https://lafranceinsoumise.fr/groupes-action/carte-groupes/"
+    },
+    {
+      "id": "livretsThematiques",
+      "title": "Les livrets thématiques",
+      "href": "https://avenirencommun.fr/livrets-thematiques/"
+    },
+    {
+      "id": "contact",
+      "title": "Contact",
+      "href": "https://lafranceinsoumise.fr/contact/"
+    }
+  ]
+}

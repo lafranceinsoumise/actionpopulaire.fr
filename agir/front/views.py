@@ -7,7 +7,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import View
 
-from .view_mixins import ReactListView, ReactSerializerBaseView
+from .view_mixins import ReactListView, ReactSerializerBaseView, ReactBaseView
 from ..activity.models import Activity
 from ..activity.serializers import ActivitySerializer
 from ..authentication.view_mixins import SoftLoginRequiredMixin
@@ -80,6 +80,10 @@ class NBUrlsView(View):
             pass
 
         raise Http404()
+
+
+class NavigationMenuView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "front/navigationPage"
 
 
 class ActivityView(SoftLoginRequiredMixin, ReactListView):
