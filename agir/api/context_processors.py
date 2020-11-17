@@ -24,6 +24,7 @@ def basic_information(request):
         "events": reverse("list_events"),
         "groups": reverse("list_my_groups"),
         "activity": reverse("list_activities"),
+        "menu": reverse("navigation_menu"),
     }
 
     if request.user.is_authenticated:
