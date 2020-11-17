@@ -12,7 +12,7 @@ def basic_information(request):
 
     routes = {
         "dashboard": reverse("dashboard"),
-        "search": reverse("search_event"),
+        "search": reverse("dashboard_search"),
         "help": "https://lafranceinsoumise.fr/contact/",
         "personalInformation": reverse("personal_information"),
         "contactConfiguration": reverse("contact"),
