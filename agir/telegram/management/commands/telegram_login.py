@@ -17,17 +17,14 @@ class Command(BaseCommand):
         if not is_mobile_number(phone_number):
             raise ValueError("Le numéro doit être un numéro de téléphone mobile.")
 
-        try:
-            TelegramSession.objects.get(phone_number=phone_number)
-            raise ValueError("Ce numéro a déjà une session Telegram enregistrée.")
-        except TelegramSession.DoesNotExist:
-            pass
+        (session, created) = TelegramSession.objects.get_or_create(
+            phone_number=phone_number
+        )
 
         client = Client(":memory:", phone_number=str(phone_number), **api_params)
         client.start()
         session_string = client.export_session_string()
-        TelegramSession.objects.create(
-            phone_number=phone_number, session_string=session_string
-        )
+        session.session_string = session_string
+        session.save()
 
         client.stop()
