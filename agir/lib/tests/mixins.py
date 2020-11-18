@@ -53,7 +53,7 @@ def create_location():
     address = fake.street_address()
     coords = fake.local_latlng(country_code="FR", coords_only=True)
     return {
-        "coordinates": Point(float(coords[0]), float(coords[1])),
+        "coordinates": Point(float(coords[1]), float(coords[0])),
         "location_name": address,
         "location_address": address,
         "location_address1": address,
