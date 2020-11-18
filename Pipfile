@@ -16,7 +16,7 @@ django-cors-headers = "==3.*"  # configuring CORS Headers
 ## model and form fields
 django-countries = "==5.*"  # country fields
 django-phonenumber-field = "==3.*"  # phone number field
-phonenumbers = "*"  # optional requirement of django-phonenumber-field
+phonenumbers = "==8.12.11"  # optional requirement of django-phonenumber-field
 django-stdimage = "==5.*"  # better image field with handling of variations
 django-dynamic-filenames = "==1.*"  # better handling of upload path for file fields
 unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
@@ -77,6 +77,7 @@ scipy = "==1.4.*"
 PyYAML = "==5.*"
 xlwt = "==1.*"
 django-admin-rangefilter = "*"
+faker = "*"
 
 [dev-packages]
 ipython = "*"
