@@ -14,6 +14,7 @@ from agir.donations.form_fields import AskAmountField
 from agir.lib.data import FRANCE_COUNTRY_CODES
 from agir.lib.display import display_price
 from agir.lib.form_mixins import MetaFieldsMixin
+from agir.people.forms import LegacySubscribedMixin
 from agir.people.models import Person
 
 
@@ -50,7 +51,7 @@ class SimpleDonationForm(forms.Form):
         self.helper.layout = Layout("amount")
 
 
-class BaseDonorForm(MetaFieldsMixin, forms.ModelForm):
+class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
     meta_fields = ["nationality"]
     button_label = "Je donne {amount}"
     show_subscribed = True
@@ -61,13 +62,6 @@ class BaseDonorForm(MetaFieldsMixin, forms.ModelForm):
         help_text=_(
             "Si vous êtes déjà inscrit⋅e sur la plateforme, utilisez l'adresse avec laquelle vous êtes inscrit⋅e"
         ),
-    )
-
-    subscribed = forms.BooleanField(
-        label=_(
-            "Je souhaite être tenu informé de l'actualité de la France insoumise par email."
-        ),
-        required=False,
     )
 
     amount = forms.IntegerField(
@@ -116,7 +110,7 @@ class BaseDonorForm(MetaFieldsMixin, forms.ModelForm):
 
         # we remove the subscribed field for people who are already subscribed
         if not self.show_subscribed or (self.connected and self.instance.subscribed):
-            del self.fields["subscribed"]
+            del self.fields["subscribed_lfi"]
 
         for f in [
             "first_name",
@@ -162,8 +156,8 @@ class BaseDonorForm(MetaFieldsMixin, forms.ModelForm):
 
         fields.append("declaration")
 
-        if "subscribed" in self.fields:
-            fields.append("subscribed")
+        if "subscribed_lfi" in self.fields:
+            fields.append("subscribed_lfi")
 
         self.helper = FormHelper()
         self.helper.add_input(
@@ -232,5 +226,4 @@ class BaseDonorForm(MetaFieldsMixin, forms.ModelForm):
             "location_city",
             "location_country",
             "contact_phone",
-            "subscribed",
         )

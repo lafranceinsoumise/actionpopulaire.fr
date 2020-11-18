@@ -238,8 +238,6 @@ class MandatsView(SoftLoginRequiredMixin, UpdateView):
         return super().get_context_data(**kwargs, mandats=mandats, person=person,)
 
     def form_invalid(self, form):
-        print(form.errors)
-        print(form.fields["membre_reseau_elus"].choices)
         return super().form_invalid(form)
 
     def form_valid(self, form):

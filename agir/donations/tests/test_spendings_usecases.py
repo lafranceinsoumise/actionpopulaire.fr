@@ -16,8 +16,8 @@ def round_date_like_reversion(d):
 
 class SpendingRequestTestCase(TestCase):
     def setUp(self):
-        self.p1 = Person.objects.create_person("test1@test.com", create_role=True)
-        self.p2 = Person.objects.create_person("test2@test.com", create_role=True)
+        self.p1 = Person.objects.create_insoumise("test1@test.com", create_role=True)
+        self.p2 = Person.objects.create_insoumise("test2@test.com", create_role=True)
         self.treasurer = Person.objects.create_superperson(
             "treasurer@example.com", "huhuihui"
         )

@@ -48,7 +48,7 @@ class OrganizerAsGroupTestCase(TestCase):
         self.calendar = Calendar.objects.create_calendar(
             "calendar", user_contributed=True
         )
-        self.person = Person.objects.create_person(email="test@example.com")
+        self.person = Person.objects.create_insoumise(email="test@example.com")
         self.event = Event.objects.create(
             name="Event test", start_time=self.start_time, end_time=self.end_time
         )
@@ -77,8 +77,8 @@ class OrganizerAsGroupTestCase(TestCase):
 
 class EventPagesTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com", create_role=True)
-        self.other_person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise("test@test.com", create_role=True)
+        self.other_person = Person.objects.create_insoumise(
             "other@test.fr", create_role=True
         )
         self.group = SupportGroup.objects.create(name="Group name")
@@ -624,8 +624,8 @@ class EventPagesTestCase(TestCase):
 class RSVPTestCase(TestCase):
     # TODO: refactor this test case... too big
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com", create_role=True)
-        self.already_rsvped = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise("test@test.com", create_role=True)
+        self.already_rsvped = Person.objects.create_insoumise(
             "test2@test.com", create_role=True
         )
 
@@ -1306,7 +1306,7 @@ class RSVPTestCase(TestCase):
 
 class PricingTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com")
+        self.person = Person.objects.create_insoumise("test@test.com")
 
         self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
         day = timezone.timedelta(days=1)
@@ -1540,7 +1540,7 @@ class DoNotListEventTestCase(TestCase):
             coordinates=Point(2.349_722, 48.853_056),  # ND de Paris
         )
 
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             "test@test.com",
             create_role=True,
             coordinates=Point(2.349_722, 48.853_056),  # ND de Paris
@@ -1610,7 +1610,7 @@ class SearchEventTestCase(TestCase):
         self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
         self.day = day = timezone.timedelta(days=1)
         self.hour = hour = timezone.timedelta(hours=1)
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             "test@test.com",
             create_role=True,
             coordinates=Point(2.382_486, 48.888_022),  # Paris, 19eme

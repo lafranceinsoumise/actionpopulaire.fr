@@ -21,8 +21,8 @@ from ...activity.models import Activity
 
 class SupportGroupMixin:
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com", create_role=True)
-        self.other_person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise("test@test.com", create_role=True)
+        self.other_person = Person.objects.create_insoumise(
             "other@test.fr", create_role=True
         )
 
@@ -377,7 +377,7 @@ class ExternalJoinSupportGroupTestCase(TestCase):
 class InvitationTestCase(TestCase):
     def setUp(self) -> None:
         self.group = SupportGroup.objects.create(name="Nom du groupe")
-        self.referent = Person.objects.create_person(
+        self.referent = Person.objects.create_insoumise(
             "user@example.com", create_role=True
         )
 
@@ -387,7 +387,7 @@ class InvitationTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
 
-        self.invitee = Person.objects.create_person("user2@example.com")
+        self.invitee = Person.objects.create_insoumise("user2@example.com")
 
     @patch("agir.groups.forms.invite_to_group")
     def test_can_invite_already_subscribed_person(self, invite_to_group):

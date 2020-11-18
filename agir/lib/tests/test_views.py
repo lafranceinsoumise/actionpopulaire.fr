@@ -13,7 +13,7 @@ IMG_TEST_DIR = Path(__file__).parent / "data"
 
 class ImageSizeWarningTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             "test@test_other.com", create_role=True
         )
         self.role = self.person.role

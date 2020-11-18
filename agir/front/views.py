@@ -1,11 +1,12 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import Q
 from django.http import HttpResponsePermanentRedirect, Http404
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.views.generic import View
+from django.views.generic import View, RedirectView
 
 from .view_mixins import ReactListView, ReactSerializerBaseView, ReactBaseView
 from ..activity.models import Activity
@@ -15,6 +16,7 @@ from ..events.models import Event
 from ..events.serializers import EventSerializer
 from ..groups.models import SupportGroup
 from ..groups.serializers import SupportGroupSerializer
+from ..lib.http import add_query_params_to_url
 
 
 class NBUrlsView(View):
@@ -150,3 +152,24 @@ class MyGroupsView(SoftLoginRequiredMixin, ReactListView):
 
     def get_queryset(self):
         return SupportGroup.objects.filter(memberships__person=self.request.user.person)
+
+
+class NSPView(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        url = settings.NSP_DOMAIN
+        if self.request.user.is_authenticated:
+            person = self.request.user.person
+            if person.is_2022:
+                return url
+            url = add_query_params_to_url(
+                url,
+                {
+                    "prenom": person.first_name,
+                    "nom": person.last_name,
+                    "email": person.email,
+                    "phone": person.contact_phone,
+                    "zipcode": person.location_zip,
+                },
+            )
+
+        return url

@@ -42,7 +42,7 @@ class RSVPTestCase(TestCase):
             name="Test", start_time=start_time, end_time=end_time
         )
 
-        cls.person = Person.objects.create_person(email="marc.machin@truc.com")
+        cls.person = Person.objects.create_insoumise(email="marc.machin@truc.com")
 
     def test_create_rsvps(self):
         rsvp = RSVP.objects.create(person=self.person, event=self.event)
@@ -71,7 +71,7 @@ class RSVPTestCase(TestCase):
         self.assertEqual(self.event.participants, 11)
 
         RSVP.objects.create(
-            person=Person.objects.create_person(email="person2@domain.com"),
+            person=Person.objects.create_insoumise(email="person2@domain.com"),
             event=self.event,
         )
 

@@ -28,11 +28,11 @@ class DashboardTestCase(FakeDataMixin, TestCase):
         super().setUp()
         paris_nd = Point(2.349_722, 48.853_056)  # ND de Paris
 
-        self.person1 = Person.objects.create_person(
+        self.person1 = Person.objects.create_insoumise(
             "test@test.com", coordinates=paris_nd, create_role=True
         )
-        self.person2 = Person.objects.create_person("test2@test.com")
-        self.person3 = Person.objects.create_person("test3@test.com")
+        self.person2 = Person.objects.create_insoumise("test2@test.com")
+        self.person3 = Person.objects.create_insoumise("test3@test.com")
         now = timezone.now()
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
@@ -88,7 +88,7 @@ class ProfileTestCase(TestCase):
             "test@test.com", is_insoumise=False, create_role=True
         )
         self.person.add_email("test2@test.com")
-        self.person_to_merge = Person.objects.create_person("merge@test.com")
+        self.person_to_merge = Person.objects.create_insoumise("merge@test.com")
 
         self.client.force_login(self.person.role)
 
@@ -248,9 +248,9 @@ class ProfileTestCase(TestCase):
         self.person.save()
 
         res = self.client.get(reverse("contact"))
-        self.assertContains(res, "subscribed")
+        self.assertContains(res, "subscribed_lfi")
 
-        res = self.client.post(reverse("contact"), data={"subscribed": "on"})
+        res = self.client.post(reverse("contact"), data={"subscribed_lfi": "on"})
         self.person.refresh_from_db()
         self.assertEqual(self.person.subscribed, True)
 
@@ -288,7 +288,7 @@ class ProfileFormTestCase(TestCase):
             "mandates": "[]",
         }
 
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             "test@test.com", create_role=True, **self.sample_data
         )
         self.client.force_login(self.person.role)
@@ -363,7 +363,7 @@ class ProfileFormTestCase(TestCase):
 
 class ActivityAbilityFormTestCases(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com", create_role=True)
+        self.person = Person.objects.create_insoumise("test@test.com", create_role=True)
         self.client.force_login(self.person.role)
 
     def test_form_is_displayed(self):
@@ -390,7 +390,7 @@ class ActivityAbilityFormTestCases(TestCase):
 
 class InformationConfidentialityFormTestCases(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com", create_role=True)
+        self.person = Person.objects.create_insoumise("test@test.com", create_role=True)
         self.client.force_login(self.person.role)
 
     def test_form_is_displayed(self):
@@ -403,7 +403,7 @@ class InformationConfidentialityFormTestCases(TestCase):
 
 class InformationPersonalFormTestCases(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com", create_role=True)
+        self.person = Person.objects.create_insoumise("test@test.com", create_role=True)
         self.client.force_login(self.person.role)
 
     def test_form_is_displayed(self):
@@ -444,7 +444,7 @@ class InformationPersonalFormTestCases(TestCase):
 
 class VolunteerFormTestCases(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com", create_role=True)
+        self.person = Person.objects.create_insoumise("test@test.com", create_role=True)
         self.client.force_login(self.person.role)
 
     def test_form_is_displayed(self):
@@ -470,7 +470,7 @@ class VolunteerFormTestCases(TestCase):
 
 class ExternalPersonPreferencesFormTestCases(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             "test@test.com",
             is_insoumise=False,
             subscribed=False,
@@ -502,7 +502,7 @@ class ExternalPersonPreferencesFormTestCases(TestCase):
 
 class InformationContactFormTestCases(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             "test@test.com",
             is_insoumise=True,
             subscribed=False,
@@ -521,7 +521,7 @@ class InformationContactFormTestCases(TestCase):
             data={
                 "contact_phone": "0658985632",
                 "subscribed_sms": "on",
-                "subscribed": "on",
+                "subscribed_lfi": "on",
                 "group_notifications": "on",
                 "event_notifications": "on",
             },
@@ -545,7 +545,7 @@ class InformationContactFormTestCases(TestCase):
 
 class SMSValidationTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             "test@example.com", contact_phone="0612345678", create_role=True
         )
         self.client.force_login(self.person.role)
@@ -719,10 +719,10 @@ class SMSRateLimitingTestCase(TestCase):
     def setUp(self):
         self.phone = "+33612345678"
         self.other_phone = "+33687654321"
-        self.person1 = Person.objects.create_person(
+        self.person1 = Person.objects.create_insoumise(
             "test1@example.com", contact_phone=self.phone, create_role=True
         )
-        self.person2 = Person.objects.create_person(
+        self.person2 = Person.objects.create_insoumise(
             "test2@example.com", contact_phone=self.phone, create_role=True
         )
 

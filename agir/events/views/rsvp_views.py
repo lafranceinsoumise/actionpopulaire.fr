@@ -33,6 +33,7 @@ from ..actions.rsvps import (
 )
 from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
 from ..models import Event, RSVP
+from ...people.actions.subscription import SUBSCRIPTION_TYPE_EXTERNAL
 
 
 class RSVPEventView(SoftLoginRequiredMixin, DetailView):
@@ -436,13 +437,13 @@ class ExternalRSVPView(ConfirmSubscriptionView, FormView, DetailView):
     queryset = Event.objects.filter(subtype__allow_external=True)
     form_class = ExternalRSVPForm
     show_already_created_message = False
-    create_insoumise = False
+    default_type = SUBSCRIPTION_TYPE_EXTERNAL
 
     def dispatch(self, request, *args, **kwargs):
         self.event = self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
 
-    def success_page(self):
+    def success_page(self, params):
         if RSVP.objects.filter(person=self.person, event=self.event).exists():
             messages.add_message(
                 request=self.request,

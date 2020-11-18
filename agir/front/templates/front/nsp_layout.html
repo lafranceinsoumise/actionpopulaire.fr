@@ -1,0 +1,55 @@
+{% load static %}
+{% load render_bundle from webpack_loader %}
+<!doctype html>
+<html lang="fr-FR" prefix="og: http://ogp.me/ns#">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ meta_title }}{% endblock %}</title>
+
+  {% render_bundle 'theme' 'css' %}
+  <link rel="icon" href="{% static "front/images/favicon-32x32.png" %}" sizes="32x32"/>
+  <link rel="icon" href="{% static "front/images/favicon-192x192.png" %}" sizes="192x192"/>
+  <link rel="apple-touch-icon-precomposed" href="{% static "front/images/facivon-180x180.png" %}"/>
+  <meta name="msapplication-TileImage" content="{% static "front/images/favicon-270x270.png" %}"/>
+  {% block additional_headers %}{% endblock %}
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+          integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+          crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <style>
+    .main .alert.alert-info {
+      display:none;
+    }
+  </style>
+</head>
+<body class="home archive">
+<!--[if IE]>
+      <div class="alert alert-warning">
+        Vous utilisez une version obsolète de votre navigateur. Veuillez le  <a href="http://browsehappy.com/">mettre à jour</a> pour visionner votre site correctement.      </div>
+    <![endif]-->
+<header class="banner" style="text-align: center;">
+  <img src="{% static "front/images/logo_nsp.png" %}" alt="Logo NSP" style="margin:auto; max-height: 200px; width: auto;"/>
+</header>
+<div class="wrap container" role="document">
+  <div class="content row">
+    <main class="main">
+      {% if messages %}
+        <div style="margin-top: 1em;">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              {{ message|safe }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% block main %}
+      {% endblock %}
+    </main>
+  </div>
+</div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.forms import ModelForm
+from django.forms import ModelForm, CheckboxSelectMultiple
 
 from agir.lib.admin import CenterOnFranceMixin
 from agir.mailing.models import Segment
@@ -17,13 +17,21 @@ class SegmentAdminForm(ModelForm):
             "départements", False, choices=self.fields["departements"].choices
         )
 
+    class Meta:
+        widgets = {
+            "newsletters": CheckboxSelectMultiple,
+        }
+
 
 @admin.register(Segment)
 class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     form = SegmentAdminForm
     save_as = True
     fieldsets = (
-        (None, {"fields": ("name", "tags", "force_non_insoumis")}),
+        (
+            None,
+            {"fields": ("name", "newsletters", "tags", "is_2022", "is_insoumise",)},
+        ),
         (
             "GA, événements, tirage au sort et formulaires",
             {

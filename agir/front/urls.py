@@ -5,10 +5,12 @@ from django.views.generic import RedirectView
 
 from .views import ActivityView
 from .views import AgendaView
+from .views import NSPView
 from ..front.sitemaps import sitemaps
 from . import views
 
 urlpatterns = [
+    path("nsp/", NSPView.as_view(), name="nsp"),
     # https://lafranceinsoumise.fr/
     path("homepage/", RedirectView.as_view(url=settings.MAIN_DOMAIN), name="homepage"),
     # sitemap

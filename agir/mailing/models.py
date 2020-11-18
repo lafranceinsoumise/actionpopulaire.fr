@@ -27,6 +27,10 @@ DONATION_FILTER = {
 }
 
 
+def default_newsletters():
+    return [Person.NEWSLETTER_LFI]
+
+
 class Segment(BaseSegment, models.Model):
     GA_STATUS_NOT_MEMBER = "N"
     GA_STATUS_MEMBER = "m"
@@ -42,10 +46,16 @@ class Segment(BaseSegment, models.Model):
     name = models.CharField("Nom", max_length=255)
 
     tags = models.ManyToManyField("people.PersonTag", blank=True)
-    force_non_insoumis = models.BooleanField(
-        "Envoyer y compris aux non insoumis",
-        default=False,
-        help_text="Inclut par exemple les ancien⋅es donateurices non inscrits sur la plateforme. À utiliser uniquement si vous savez très bien ce que vous faites.",
+
+    is_2022 = models.BooleanField("Inscrits NSP", null=True, blank=True)
+    is_insoumise = models.BooleanField(
+        "Inscrits LFI", null=True, blank=True, default=True
+    )
+
+    newsletters = ChoiceArrayField(
+        models.CharField(choices=Person.NEWSLETTERS_CHOICES, max_length=255),
+        default=default_newsletters,
+        help_text="Inclure les personnes abonnées aux newsletters suivantes",
     )
     supportgroup_status = models.CharField(
         "Limiter aux membres de groupes ayant ce statut",
@@ -243,10 +253,13 @@ class Segment(BaseSegment, models.Model):
     )
 
     def get_subscribers_q(self):
-        q = Q(subscribed=True, emails___bounced=False)
+        q = Q(newsletters__overlap=self.newsletters, emails___bounced=False)
 
-        if not self.force_non_insoumis:
-            q = q & Q(is_insoumise=True)
+        if self.is_insoumise is not None:
+            q = q & Q(is_insoumise=self.is_insoumise)
+
+        if self.is_2022 is not None:
+            q = q & Q(is_2022=self.is_2022)
 
         if self.tags.all().count() > 0:
             q = q & Q(tags__in=self.tags.all())

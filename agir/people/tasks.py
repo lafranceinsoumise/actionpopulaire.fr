@@ -13,54 +13,68 @@ from agir.authentication.tokens import (
 from agir.lib.display import pretty_time_since
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
-from agir.people.person_forms.display import default_person_form_display
 from .models import Person, PersonFormSubmission, PersonEmail, PersonValidationSMS
+from .person_forms.display import default_person_form_display
+from .actions.subscription import (
+    SUBSCRIPTIONS_EMAILS,
+    SUBSCRIPTION_TYPE_LFI,
+    SUBSCRIPTION_TYPE_NSP,
+)
 from ..lib.celery import emailing_task
 from ..lib.sms import send_sms
 
 
 @emailing_task
-def send_welcome_mail(person_pk):
+def send_welcome_mail(person_pk, type):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
+    message_info = SUBSCRIPTIONS_EMAILS[type].get("welcome")
 
-    send_mosaico_email(
-        code="WELCOME_MESSAGE",
-        subject=_("Bienvenue sur la plateforme de la France insoumise"),
-        from_email=settings.EMAIL_FROM,
-        bindings={"PROFILE_LINK": front_url("personal_information")},
-        recipients=[person],
-    )
+    if message_info:
+        send_mosaico_email(
+            code=message_info.code,
+            subject=message_info.subject,
+            from_email=message_info.from_email,
+            bindings={"PROFILE_LINK": front_url("personal_information")},
+            recipients=[person],
+        )
 
 
 @emailing_task
-def send_confirmation_email(email, **kwargs):
+def send_confirmation_email(email, type=SUBSCRIPTION_TYPE_LFI, **kwargs):
     if PersonEmail.objects.filter(address__iexact=email).exists():
         p = Person.objects.get_by_natural_key(email)
 
-        send_mosaico_email(
-            code="ALREADY_SUBSCRIBED_MESSAGE",
-            subject=_("Vous êtes déjà inscrit !"),
-            from_email=settings.EMAIL_FROM,
-            bindings={
-                "PANEL_LINK": front_url("dashboard", auto_login=True),
-                "AGO": pretty_time_since(p.created),
-            },
-            recipients=[p],
-        )
+        if "already_subscribed" in SUBSCRIPTIONS_EMAILS[type]:
+            message_info = SUBSCRIPTIONS_EMAILS[type]["already_subscribed"]
+
+            send_mosaico_email(
+                code=message_info.code,
+                subject=message_info.subject,
+                from_email=message_info.from_email,
+                bindings={
+                    "PANEL_LINK": front_url("dashboard", auto_login=True),
+                    "AGO": pretty_time_since(p.created),
+                },
+                recipients=[p],
+            )
 
         return
 
     subscription_token = subscription_confirmation_token_generator.make_token(
-        email=email, **kwargs
+        email=email, type=type, **kwargs
     )
-    confirm_subscription_url = front_url("subscription_confirm", auto_login=False)
-    query_args = {"email": email, **kwargs, "token": subscription_token}
+    confirm_subscription_url = front_url(
+        "subscription_confirm", auto_login=False, nsp=type == SUBSCRIPTION_TYPE_NSP
+    )
+    query_args = {"email": email, "type": type, **kwargs, "token": subscription_token}
     confirm_subscription_url += "?" + urlencode(query_args)
 
+    message_info = SUBSCRIPTIONS_EMAILS[type]["confirmation"]
+
     send_mosaico_email(
-        code="SUBSCRIPTION_CONFIRMATION_MESSAGE",
-        subject=_("Plus qu'un clic pour vous inscrire"),
-        from_email=settings.EMAIL_FROM,
+        code=message_info.code,
+        subject=message_info.subject,
+        from_email=message_info.from_email,
         recipients=[email],
         bindings={"CONFIRMATION_URL": confirm_subscription_url},
     )

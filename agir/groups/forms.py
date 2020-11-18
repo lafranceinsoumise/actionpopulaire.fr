@@ -345,7 +345,7 @@ class InvitationWithSubscriptionConfirmationForm(forms.Form):
 
     def save(self):
         cleaned_data = self.cleaned_data
-        p = Person.objects.create_person(
+        p = Person.objects.create_insoumise(
             email=self.email,
             subscribed=cleaned_data["subscribed"],
             subscribed_sms=cleaned_data["subscribed"],

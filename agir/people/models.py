@@ -32,6 +32,7 @@ from agir.lib.utils import generate_token_params
 from . import metrics
 from .model_fields import MandatesField, ValidatedPhoneNumberField
 from .person_forms.models import *
+from ..lib.model_fields import ChoiceArrayField
 
 
 class PersonQueryset(models.QuerySet):
@@ -142,7 +143,15 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
 
         return person
 
-    def create_person(self, email, password=None, **extra_fields):
+    def create_person(self, email, **extra_fields):
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        extra_fields.setdefault("password", None)
+        return self._create_person(email, **extra_fields)
+
+    def create_insoumise(
+        self, email, password=None, *, subscribed=None, **extra_fields
+    ):
         """
         Create a user
         :param email: the user's email
@@ -150,15 +159,18 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         :param extra_fields: any other field
         :return:
         """
-        extra_fields.setdefault("is_staff", False)
-        extra_fields.setdefault("is_superuser", False)
+        extra_fields.setdefault("is_insoumise", True)
 
-        if not extra_fields.get("is_insoumise", True):
-            extra_fields.setdefault("subscribed", False)
+        if subscribed is False:
+            extra_fields.setdefault("newsletters", [])
             extra_fields.setdefault("event_notifications", False)
             extra_fields.setdefault("group_notifications", False)
+        else:
+            extra_fields.setdefault(
+                "newsletters", [Person.NEWSLETTER_LFI],
+            )
 
-        return self._create_person(email, password, **extra_fields)
+        return self.create_person(email, password=password, **extra_fields)
 
     def create_superperson(self, email, password, **extra_fields):
         """
@@ -226,7 +238,8 @@ class Person(
     )
     auto_login_salt = models.CharField(max_length=255, blank=True, default="")
 
-    is_insoumise = models.BooleanField(_("Insoumis⋅e"), default=True)
+    is_insoumise = models.BooleanField(_("Insoumis⋅e"), default=False)
+    is_2022 = models.BooleanField(_("Soutien 2022"), default=False)
 
     MEMBRE_RESEAU_INCONNU = "I"
     MEMBRE_RESEAU_SOUHAITE = "S"
@@ -250,14 +263,23 @@ class Person(
         help_text="Pertinent uniquement si la personne a un ou plusieurs mandats électoraux.",
     )
 
-    subscribed = models.BooleanField(
-        _("Recevoir les lettres d'information"),
-        default=True,
+    NEWSLETTER_LFI = "LFI"
+    NEWSLETTER_2022 = "2022"
+    NEWSLETTER_2022_EN_LIGNE = "2022_en_ligne"
+    NEWSLETTER_2022_CHEZ_MOI = "2022_chez_moi"
+    NEWSLETTER_2022_PROGRAMME = "2022_programme"
+    NEWSLETTERS_CHOICES = (
+        (NEWSLETTER_LFI, "Lettre d'information de la France insoumise"),
+        (NEWSLETTER_2022, "Lettre d'information NSP"),
+        (NEWSLETTER_2022_EN_LIGNE, "NSP actions en ligne"),
+        (NEWSLETTER_2022_CHEZ_MOI, "NSP agir près de chez moi"),
+        (NEWSLETTER_2022_PROGRAMME, "NSP processus programme"),
+    )
+
+    newsletters = ChoiceArrayField(
+        models.CharField(choices=NEWSLETTERS_CHOICES, max_length=255),
+        default=list,
         blank=True,
-        help_text=_(
-            "Vous recevrez les lettres de la France insoumise, notamment : les lettres d'information, les"
-            " appels à volontaires, les annonces d'émissions ou d'événements..."
-        ),
     )
 
     subscribed_sms = models.BooleanField(
@@ -413,6 +435,17 @@ class Person(
     def bounced_date(self, value):
         self.primary_email.bounced_date = value
         self.primary_email.save()
+
+    @property
+    def subscribed(self):
+        return self.NEWSLETTER_LFI in self.newsletters
+
+    @subscribed.setter
+    def subscribed(self, value):
+        if value and not self.subscribed:
+            self.newsletters.append(self.NEWSLETTER_LFI)
+        if not value and self.subscribed:
+            self.newsletters.remove(self.NEWSLETTER_LFI)
 
     def get_full_name(self):
         """

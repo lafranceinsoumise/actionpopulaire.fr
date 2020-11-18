@@ -8,6 +8,7 @@ from django.utils.html import format_html
 
 from agir.lib.form_fields import AdminRichEditorWidget, AdminJsonWidget
 from agir.lib.forms import CoordinatesFormMixin
+from agir.people.forms import LegacySubscribedMixin
 from agir.people.models import Person
 from agir.people.person_forms.actions import (
     validate_custom_fields,
@@ -17,6 +18,13 @@ from agir.people.person_forms.schema import schema
 
 
 class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
+    newsletters = forms.MultipleChoiceField(
+        label="Inscription aux lettres",
+        choices=Person.NEWSLETTERS_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

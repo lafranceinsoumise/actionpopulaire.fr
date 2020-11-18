@@ -59,6 +59,7 @@ class Command(BaseCommand):
         parser.add_argument("-a", "--at", type=datetime_argument)
         parser.add_argument("-T", "--exclude-telegram", action="store_true")
         parser.add_argument("-s", "--sentfile", type=FileType(mode="r"))
+        parser.add_argument("-E", "--export-file", type=FileType(mode="w"))
 
     def can_send(self, phone):
         return (
@@ -87,6 +88,7 @@ class Command(BaseCommand):
         sentfile,
         at,
         exclude_telegram,
+        export_file,
         **options,
     ):
         if (
@@ -171,6 +173,10 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(f"Nombre de numéros : {len(numbers)}")
+
+        if export_file is not None:
+            export_file.write("\n".join(str(number) for number in numbers))
+            return
 
         if sentfile is not None:
             sent_numbers = self.read_numbers(sentfile)

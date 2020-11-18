@@ -17,7 +17,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from agir.authentication.models import Role
-from agir.elus.models import MandatMunicipal, types_elus
+from agir.elus.models import types_elus
 from agir.lib.admin import (
     DisplayContactPhoneMixin,
     CenterOnFranceMixin,
@@ -50,7 +50,8 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "__str__",
         "display_contact_phone",
         "is_insoumise",
-        "subscribed",
+        "is_2022",
+        "newsletters",
         "location_city",
         "location_zip",
         "created",
@@ -78,7 +79,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             _("Paramètres mails"),
             {
                 "fields": (
-                    "subscribed",
+                    "newsletters",
                     "subscribed_sms",
                     "event_notifications",
                     "group_notifications",
@@ -88,7 +89,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         ),
         (
             _("Paramètres de participation"),
-            {"fields": ("is_insoumise", "draw_participation")},
+            {"fields": ("is_insoumise", "is_2022", "draw_participation")},
         ),
         (_("Profil"), {"fields": ("gender", "date_of_birth", "tags", "mandats")}),
         (
@@ -134,7 +135,6 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         DepartementListFilter,
         RegionListFilter,
         ("is_insoumise", admin.BooleanFieldListFilter),
-        ("subscribed", admin.BooleanFieldListFilter),
         ("subscribed_sms", admin.BooleanFieldListFilter),
         ("draw_participation", admin.BooleanFieldListFilter),
         "gender",

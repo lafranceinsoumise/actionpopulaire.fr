@@ -14,7 +14,7 @@ from ..polls.models import Poll, PollOption, PollChoice
 
 class NavbarTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             "test@test.com", first_name="Arthur", last_name="Machin", create_role=True
         )
 
@@ -42,7 +42,7 @@ class NavbarTestCase(TestCase):
 
 class PagesLoadingTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("test@test.com", create_role=True)
+        self.person = Person.objects.create_insoumise("test@test.com", create_role=True)
         self.client.force_login(self.person.role)
 
         now = timezone.now()
@@ -140,7 +140,7 @@ class NBUrlsTestCase(TestCase):
 
 class PollTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             email="participant@example.com",
             created=timezone.now() + timedelta(days=-10),
             create_role=True,
@@ -197,7 +197,7 @@ class PollTestCase(TestCase):
         )
 
     def test_cannot_participate_if_just_registered(self):
-        person = Person.objects.create_person(
+        person = Person.objects.create_insoumise(
             email="just_created@example.com", create_role=True
         )
         self.client.force_login(person.role)

@@ -233,7 +233,7 @@ class MonthlyDonationPersonalInformationView(
                         "subscription_total": amount,
                         "meta": self.get_metas(form),
                     },
-                    **self.request.session[self.session_namespace],
+                    **self.request.session.get(self.session_namespace, {}),
                 }
                 return HttpResponseRedirect(reverse("already_has_subscription"))
 
@@ -398,7 +398,7 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
         try:
             person = Person.objects.get_by_natural_key(email)
         except Person.DoesNotExist:
-            person = Person.objects.create_person(
+            person = Person.objects.create_insoumise(
                 email=email,
                 **{
                     f.name: params[f.name]

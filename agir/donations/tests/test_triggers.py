@@ -146,7 +146,7 @@ class SpendingTestCase(TriggersTestCaseMixin, TestCase):
 class MonthlyAllocationTestCase(TriggersTestCaseMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.p1 = Person.objects.create_person("test@test.com")
+        self.p1 = Person.objects.create_insoumise("test@test.com")
 
     def test_cannot_create_single_allocation_bigger_than_subscription(self):
         s = self.create_subscription(1000, self.p1)

@@ -9,7 +9,7 @@ from ..actions.management import merge_persons
 
 class PeopleFormActionsTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person("person@corp.com")
+        self.person = Person.objects.create_insoumise("person@corp.com")
 
         self.complex_form = PersonForm.objects.create(
             title="Formulaire complexe",

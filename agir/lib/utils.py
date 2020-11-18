@@ -31,12 +31,15 @@ def front_url(
     query=None,
     absolute=True,
     auto_login=True,
+    nsp=False,
     urlconf="agir.api.front_urls",
     **kwargs,
 ):
     url = reverse(*args, urlconf=urlconf, **kwargs)
-    if absolute:
+    if absolute and not nsp:
         url = urljoin(settings.FRONT_DOMAIN, url)
+    if absolute and nsp:
+        url = urljoin(settings.NSP_AGIR_DOMAIN, url)
     if query:
         url = add_query_params_to_url(url, query)
     return AutoLoginUrl(url) if auto_login else url

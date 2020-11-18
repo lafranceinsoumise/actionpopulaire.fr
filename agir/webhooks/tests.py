@@ -7,7 +7,7 @@ from agir.people.models import Person, PersonEmail
 
 class WebhookTestCase(APITestCase):
     def setUp(self):
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             email="primary@bounce.com",
             created=timezone.now() - timezone.timedelta(hours=2),
         )

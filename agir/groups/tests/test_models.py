@@ -19,7 +19,7 @@ class MembershipTestCase(APITestCase):
     def setUp(self):
         self.supportgroup = SupportGroup.objects.create(name="Test")
 
-        self.person = Person.objects.create_person(email="marc.machin@truc.com")
+        self.person = Person.objects.create_insoumise(email="marc.machin@truc.com")
 
         self.privileged_user = Person.objects.create_superperson("super@user.fr", None)
 

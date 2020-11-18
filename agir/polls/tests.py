@@ -9,7 +9,7 @@ from .models import Poll, PollOption, PollChoice
 
 class PollTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_person(
+        self.person = Person.objects.create_insoumise(
             email="participant@example.com", create_role=True
         )
         self.poll = Poll.objects.create(

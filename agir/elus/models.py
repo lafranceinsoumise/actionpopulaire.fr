@@ -234,7 +234,8 @@ class MandatMunicipal(MandatAbstrait):
     conseil = models.ForeignKey(
         "data_france.Commune",
         verbose_name="Commune",
-        null=False,
+        blank=True,
+        null=True,
         on_delete=models.CASCADE,
     )
 
@@ -329,7 +330,8 @@ class MandatDepartemental(MandatAbstrait):
     conseil = models.ForeignKey(
         "data_france.CollectiviteDepartementale",
         verbose_name="Conseil départemental (ou de métropole)",
-        null=False,
+        blank=True,
+        null=True,
         on_delete=models.CASCADE,
     )
 
@@ -418,7 +420,8 @@ class MandatRegional(MandatAbstrait):
     conseil = models.ForeignKey(
         "data_france.CollectiviteRegionale",
         verbose_name="Conseil régional (ou de collectivité unique)",
-        null=False,
+        blank=True,
+        null=True,
         on_delete=models.CASCADE,
     )
 
