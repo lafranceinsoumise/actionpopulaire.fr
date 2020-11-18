@@ -1,9 +1,13 @@
-from datetime import timedelta
+from datetime import timedelta, tzinfo
+import random
 
 from django.contrib.gis.geos import Point
 from django.db import transaction
 from django.test import TestCase
 from django.utils import timezone
+
+from data_france.models import Commune
+from faker import Faker
 
 from agir.events.models import Calendar, Event, OrganizerConfig, RSVP
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
@@ -18,6 +22,400 @@ aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in volup
 cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
 culpa qui officia deserunt mollit anim id est laborum.
 """
+
+fake = Faker("fr_FR")
+
+
+def get_random_object(model, nullable=False):
+    items = model.objects.all()
+    item = random.choice(items)
+
+    if nullable == False:
+        return item
+
+    return random.choice([item, None])
+
+
+# COMMONS
+def create_image_url(nullable=False):
+    image = "https://dummyimage.com/600x400/%s/fff&text=%s" % (
+        fake.color(luminosity="dark").replace("#", ""),
+        fake.word(),
+    )
+
+    if nullable == False:
+        return image
+
+    return random.choice([image, None])
+
+
+def create_location():
+    address = fake.street_address()
+    coords = fake.local_latlng(country_code="FR", coords_only=True)
+    return {
+        "coordinates": Point(float(coords[0]), float(coords[1])),
+        "location_name": address,
+        "location_address": address,
+        "location_address1": address,
+        "location_address2": "App. %s" % fake.building_number(),
+        "location_city": fake.city(),
+        "location_zip": fake.postcode(),
+        "location_state": "France",
+        "location_country": "FR",
+    }
+
+
+# PEOPLE
+def create_person():
+    person = {
+        "password": PASSWORD,
+        "first_name": fake.first_name(),
+        "last_name": fake.last_name(),
+        "email": fake.email(),
+        "contact_phone": "+33600000000",
+        "gender": random.choice(
+            [Person.GENDER_FEMALE, Person.GENDER_MALE, Person.GENDER_OTHER,]
+        ),
+        "date_of_birth": fake.date_between(start_date="-100y"),
+        "is_2022": fake.boolean(),
+        "newsletters": random.sample(
+            [
+                Person.NEWSLETTER_LFI,
+                Person.NEWSLETTER_2022,
+                Person.NEWSLETTER_2022_EN_LIGNE,
+                Person.NEWSLETTER_2022_CHEZ_MOI,
+                Person.NEWSLETTER_2022_PROGRAMME,
+            ],
+            k=random.randint(1, 5),
+        ),
+        "is_insoumise": fake.boolean(),
+        "subscribed_sms": fake.boolean(),
+        "event_notifications": fake.boolean(),
+        "group_notifications": fake.boolean(),
+        "draw_participation": fake.boolean(),
+        **create_location(),
+    }
+    person = Person.objects.create(**person)
+    return person
+
+
+@transaction.atomic
+def create_people(how_many=2):
+    people = [create_person() for _ in range(how_many)]
+    return people
+
+
+# GROUPS
+def create_group():
+    contact = get_random_object(Person)
+    group = {
+        "name": fake.company(),
+        "type": random.choice(
+            [
+                SupportGroup.TYPE_LOCAL_GROUP,
+                SupportGroup.TYPE_THEMATIC,
+                SupportGroup.TYPE_FUNCTIONAL,
+                SupportGroup.TYPE_PROFESSIONAL,
+            ]
+        ),
+        "description": fake.paragraph(),
+        "image": create_image_url(True),
+        "published": fake.boolean(),
+        "allow_html": fake.boolean(),
+        "contact_name": contact.first_name,
+        "contact_email": contact.email,
+        "contact_phone": contact.contact_phone,
+        "contact_hide_phone": fake.boolean(),
+        **create_location(),
+    }
+    group = SupportGroup.objects.create(**group)
+
+    group_subtype = get_random_object(SupportGroupSubtype)
+    group_subtype.supportgroups.set([group])
+
+    nb_people = random.choice(range(20))
+    for _ in range(nb_people):
+        person = get_random_object(Person)
+        if not Membership.objects.filter(supportgroup=group, person=person).exists():
+            Membership.objects.get_or_create(
+                supportgroup=group,
+                person=person,
+                membership_type=random.choice(
+                    [
+                        Membership.MEMBERSHIP_TYPE_MEMBER,
+                        Membership.MEMBERSHIP_TYPE_MANAGER,
+                        Membership.MEMBERSHIP_TYPE_REFERENT,
+                    ]
+                ),
+            )
+    return group
+
+
+@transaction.atomic
+def create_groups(how_many=2):
+    groups = [create_group() for _ in range(how_many)]
+    return groups
+
+
+# EVENTS
+def create_event():
+    organizer = get_random_object(Person)
+    as_group = get_random_object(SupportGroup, nullable=True)
+    is_upcoming = fake.boolean(chance_of_getting_true=75)
+    start_time = timezone.now() + timedelta(days=random.randint(1, 30))
+    report_content = ""
+
+    if is_upcoming == False:
+        start_time = timezone.now() - timedelta(days=random.randint(1, 30))
+        report_content = fake.paragraph(nb_sentences=20)
+
+    event = {
+        "name": fake.paragraph(nb_sentences=1),
+        "start_time": start_time,
+        "end_time": start_time + timedelta(hours=3),
+        "visibility": random.choice(
+            [
+                Event.VISIBILITY_ADMIN,
+                Event.VISIBILITY_ORGANIZER,
+                Event.VISIBILITY_PUBLIC,
+            ]
+        ),
+        "report_content": report_content,
+        **create_location(),
+    }
+
+    event = Event.objects.create(**event)
+    OrganizerConfig.objects.create(
+        event=event, person=organizer, is_creator=True, as_group=as_group
+    )
+
+    nb_people = random.choice(range(20))
+    for _ in range(nb_people):
+        person = get_random_object(Person)
+        RSVP.objects.get_or_create(person=person, event=event)
+
+    return event
+
+
+def create_calendar(events):
+    calendar = {
+        "name": "Évènements automatiques",
+        "slug": "calendar-%s" % fake.slug(),
+        "image": create_image_url(nullable=True),
+        "user_contributed": fake.boolean(),
+        "description": fake.paragraph(nb_sentences=15),
+    }
+    calendar = Calendar.objects.create(**calendar)
+    calendar.events.set(events)
+
+    return calendar
+
+
+@transaction.atomic
+def create_events(how_many=2):
+    events = [create_event() for _ in range(how_many)]
+    create_calendar(events)
+
+    return events
+
+
+# PERSON FORM
+
+
+def create_person_form():
+    choices = fake.words(7)
+    person_form = {
+        "title": fake.paragraph(nb_sentences=1),
+        "slug": "person-form-%s" % fake.slug(),
+        "description": fake.paragraph(),
+        "confirmation_note": fake.paragraph(),
+        "main_question": "%s ?" % fake.paragraph(nb_sentences=1),
+        "published": fake.boolean(),
+        "editable": fake.boolean(),
+        "allow_anonymous": fake.boolean(),
+        "send_confirmation": fake.boolean(),
+        "custom_fields": [
+            {
+                "title": "Questions",
+                "fields": [
+                    {
+                        "id": "short_text",
+                        "type": "short_text",
+                        "label": "Short text Field",
+                    },
+                    {
+                        "id": "long_text",
+                        "type": "long_text",
+                        "label": "Long text Field",
+                    },
+                    {
+                        "id": "choice",
+                        "type": "choice",
+                        "label": "Choice Field",
+                        "choices": choices,
+                    },
+                    {
+                        "id": "radio_choice",
+                        "type": "radio_choice",
+                        "label": "Radio choice Field",
+                        "choices": choices,
+                    },
+                    {
+                        "id": "autocomplete_choice",
+                        "type": "autocomplete_choice",
+                        "label": "Autocomplete choice Field",
+                        "choices": choices,
+                    },
+                    {
+                        "id": "autocomplete_multiple_choice",
+                        "type": "autocomplete_multiple_choice",
+                        "label": "Autocomplete multiple choice Field",
+                        "choices": choices,
+                    },
+                    {
+                        "id": "multiple_choice",
+                        "type": "multiple_choice",
+                        "label": "Multiple choice Field",
+                        "choices": choices,
+                    },
+                    {
+                        "id": "email_address",
+                        "type": "email_address",
+                        "label": "Email address Field",
+                    },
+                    {
+                        "id": "phone_number",
+                        "type": "phone_number",
+                        "label": "Phone number Field",
+                    },
+                    {"id": "url", "type": "url", "label": "Url Field"},
+                    {"id": "boolean", "type": "boolean", "label": "Boolean Field"},
+                    {"id": "integer", "type": "integer", "label": "Integer Field"},
+                    {"id": "decimal", "type": "decimal", "label": "Decimal Field"},
+                    {"id": "datetime", "type": "datetime", "label": "Datetime Field"},
+                    {"id": "person", "type": "person", "label": "Person Field"},
+                    {"id": "iban", "type": "iban", "label": "Iban Field"},
+                    {"id": "commune", "type": "commune", "label": "Commune Field"},
+                    {"id": "group", "type": "group", "label": "Group Field"},
+                ],
+            }
+        ],
+    }
+
+    person_form = PersonForm.objects.create(**person_form)
+
+    nb_people = random.choice(range(20))
+    for _ in range(nb_people):
+        person = get_random_object(Person)
+        PersonFormSubmission.objects.get_or_create(
+            person=person,
+            form=person_form,
+            data={
+                "short_text": fake.words(),
+                "long_text": fake.paragraph(),
+                "choice": random.choice(choices),
+                "radio_choice": random.choice(choices),
+                "autocomplete_choice": random.choice(choices),
+                "autocomplete_multiple_choice": random.choice(choices),
+                "multiple_choice": random.choice(choices),
+                "email_address": fake.email(),
+                "phone_number": "+33600000000",
+                "url": fake.url(),
+                "boolean": fake.boolean(),
+                "integer": random.randint(0, 100),
+                "decimal": random.random(),
+                "datetime": fake.date_time(),
+                "person": get_random_object(Person).pk,
+                "iban": fake.iban(),
+                "commune": get_random_object(Commune).pk,
+                "group": get_random_object(SupportGroup).pk,
+            },
+        )
+
+    return person_form
+
+
+@transaction.atomic
+def create_person_forms(how_many=2):
+    person_forms = [create_person_form() for _ in range(how_many)]
+
+    return person_forms
+
+
+@transaction.atomic
+def update_fake_data():
+    people = {
+        "admin": Person.objects.get(email="admin@example.com"),
+        "user1": Person.objects.get(email="user1@example.com"),
+        "user2": Person.objects.get(email="user2@example.com"),
+    }
+
+    # Groups
+    groups_subtypes = {
+        "local_group_default": SupportGroupSubtype.objects.get(label="groupe local"),
+        "certified_local_group": SupportGroupSubtype.objects.get(label="certifié"),
+        "booklet_redaction": SupportGroupSubtype.objects.get(
+            label="rédaction du livret"
+        ),
+        "test_thematic_booklet": SupportGroupSubtype.objects.get(label="livret test"),
+    }
+    groups = {
+        "user1_group": SupportGroup.objects.get(name="Groupe géré par user1"),
+        "user2_group": SupportGroup.objects.get(name="Groupe géré par user2"),
+    }
+    thematic_groups = {
+        "thematic_booklet": SupportGroup.objects.get(name="Livret thématique fictif"),
+        "thematic_group": SupportGroup.objects.get(
+            name="Groupe thématique rattaché au livret"
+        ),
+    }
+
+    # Events
+    calendars = {
+        "evenements_locaux": Calendar.objects.get(slug="calendar"),
+        "national": Calendar.objects.get(slug="national"),
+    }
+    events = {
+        "user1_event1": Event.objects.get(name="Événement créé par user1"),
+        "user1_event2": Event.objects.get(
+            name="Autre événement créé par user1 sans personne dedans"
+        ),
+        "user1_past_event": Event.objects.get(name="Événement passé créé par user1"),
+        "user1_unpublished_event": Event.objects.get(
+            name="Évenement non publié créé par user1"
+        ),
+    }
+
+    events["user1_event1"].start_time = timezone.now() + timedelta(days=1)
+    events["user1_event1"].end_time = timezone.now() + timedelta(days=1, hours=1)
+    events["user1_event1"].save()
+
+    events["user1_event2"].start_time = timezone.now() + timedelta(days=1)
+    events["user1_event2"].end_time = timezone.now() + timedelta(days=1, hours=1)
+    events["user1_event2"].save()
+
+    events["user1_past_event"].start_time = timezone.now() + timedelta(days=-1)
+    events["user1_past_event"].end_time = timezone.now() + timedelta(days=-1, hours=1)
+    events["user1_past_event"].save()
+
+    events["user1_unpublished_event"].start_time = timezone.now() + timedelta(days=1)
+    events["user1_unpublished_event"].end_time = timezone.now() + timedelta(
+        days=1, hours=1
+    )
+    events["user1_unpublished_event"].save()
+
+    # Person form
+    person_form = PersonForm.objects.get(title="Formulaire")
+
+    return {
+        "people": people,
+        "groups": groups,
+        "events": events,
+        "calendars": calendars,
+        "thematic_groups": thematic_groups,
+        "group_subtypes": groups_subtypes,
+        "person_form": person_form,
+    }
 
 
 @transaction.atomic
