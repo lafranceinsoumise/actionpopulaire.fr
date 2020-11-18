@@ -26,6 +26,7 @@ def basic_information(request):
         "groups": reverse("list_my_groups"),
         "activity": reverse("list_activities"),
         "menu": reverse("navigation_menu"),
+        "thematicTeams": reverse("thematic_teams_list"),
     }
 
     if request.user.is_authenticated:
