@@ -1,13 +1,16 @@
+import { DateTime, Interval } from "luxon";
+import PropTypes from "prop-types";
 import React from "react";
-import Button from "@agir/front/genericComponents/Button";
 import styled from "styled-components";
-import { Column } from "@agir/front/genericComponents/grid";
-import { Row } from "@agir/donations/donationForm/AllocationsWidget/Styles";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { DateTime, Interval } from "luxon";
+
+import { Row } from "@agir/donations/donationForm/AllocationsWidget/Styles";
+import { Column } from "@agir/front/genericComponents/grid";
+import Button from "@agir/front/genericComponents/Button";
 import EventCard from "@agir/front/genericComponents/EventCard";
-import PropTypes from "prop-types";
+
+import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
 import { displayHumanDay } from "@agir/lib/utils/time";
 
 const StyledAgenda = styled.div`
@@ -57,71 +60,80 @@ const Day = styled.h3`
   margin-top: 24px;
 `;
 
-const Agenda = ({ rsvped, suggested }) => (
-  <StyledAgenda>
-    <header>
-      <Banner>
-        <h1>Bonjour</h1>
-      </Banner>
-      <TopBar>
-        <h1>Événements</h1>
-        <div>
-          <Button small as="a" href="#" icon="map">
-            Carte
-          </Button>
-          <Button small as="a" color={"secondary"} href="#" icon="plus">
-            Créer un évenement
-          </Button>
-        </div>
-      </TopBar>
-    </header>
-    {rsvped.length > 0 && (
-      <Row>
-        <Column grow>
-          <h2>Mes événements</h2>
-          {rsvped.map(({ startTime, endTime, ...props }) => {
-            props = {
-              ...props,
-              schedule: Interval.fromDateTimes(
-                DateTime.fromISO(startTime).setLocale("fr"),
-                DateTime.fromISO(endTime).setLocale("fr")
-              ),
-            };
-            return <EventCard key={props.id} {...props} />;
-          })}
-        </Column>
-      </Row>
-    )}
-    {suggested.length > 0 && (
-      <Row>
-        <Column grow>
-          <h2>Les événements près de chez moi</h2>
-          {Object.entries(
-            suggested.reduce((days, event) => {
-              const day = displayHumanDay(DateTime.fromISO(event.startTime));
-              (days[day] = days[day] || []).push(event);
-              return days;
-            }, {})
-          ).map(([day, events]) => (
-            <div key={day}>
-              <Day>{day}</Day>
-              {events.map(({ startTime, endTime, ...props }) => {
-                props = {
-                  ...props,
-                  schedule: Interval.fromDateTimes(
-                    DateTime.fromISO(startTime).setLocale("fr"),
-                    DateTime.fromISO(endTime).setLocale("fr")
-                  ),
-                };
-                return <EventCard key={props.id} {...props} />;
-              })}
-            </div>
-          ))}
-        </Column>
-      </Row>
-    )}
-  </StyledAgenda>
-);
+const Agenda = ({ rsvped, suggested }) => {
+  const { routes } = useGlobalContext();
+  return (
+    <StyledAgenda>
+      <header>
+        <Banner>
+          <h1>Bonjour</h1>
+        </Banner>
+        <TopBar>
+          <h1>Événements</h1>
+          <div>
+            <Button small as="a" href={routes.eventMap} icon="map">
+              Carte
+            </Button>
+            <Button
+              small
+              as="a"
+              color="secondary"
+              href={routes.createEvent}
+              icon="plus"
+            >
+              Créer un évenement
+            </Button>
+          </div>
+        </TopBar>
+      </header>
+      {rsvped.length > 0 && (
+        <Row>
+          <Column grow>
+            <h2>Mes événements</h2>
+            {rsvped.map(({ startTime, endTime, ...props }) => {
+              props = {
+                ...props,
+                schedule: Interval.fromDateTimes(
+                  DateTime.fromISO(startTime).setLocale("fr"),
+                  DateTime.fromISO(endTime).setLocale("fr")
+                ),
+              };
+              return <EventCard key={props.id} {...props} />;
+            })}
+          </Column>
+        </Row>
+      )}
+      {suggested.length > 0 && (
+        <Row>
+          <Column grow>
+            <h2>Les événements près de chez moi</h2>
+            {Object.entries(
+              suggested.reduce((days, event) => {
+                const day = displayHumanDay(DateTime.fromISO(event.startTime));
+                (days[day] = days[day] || []).push(event);
+                return days;
+              }, {})
+            ).map(([day, events]) => (
+              <div key={day}>
+                <Day>{day}</Day>
+                {events.map(({ startTime, endTime, ...props }) => {
+                  props = {
+                    ...props,
+                    schedule: Interval.fromDateTimes(
+                      DateTime.fromISO(startTime).setLocale("fr"),
+                      DateTime.fromISO(endTime).setLocale("fr")
+                    ),
+                  };
+                  return <EventCard key={props.id} {...props} />;
+                })}
+              </div>
+            ))}
+          </Column>
+        </Row>
+      )}
+    </StyledAgenda>
+  );
+};
 export default Agenda;
 
 Agenda.propTypes = {

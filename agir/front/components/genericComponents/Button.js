@@ -44,6 +44,7 @@ const buttonColors = {
  */
 const Button = styled.button.attrs(({ color }) => buttonColors[color])`
   display: inline-block;
+  white-space: nowrap;
   padding: ${({ small }) => (small ? "0.5rem 0.75rem" : "0.75rem 1.5rem")};
   line-height: ${({ small }) =>
     small
