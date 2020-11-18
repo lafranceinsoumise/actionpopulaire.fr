@@ -41,78 +41,85 @@ export const activityCardIcons = {
 const ActivityText = ({ type, event, supportGroup, individual }) => {
   return {
     "waiting-payment": (
-      <>Vous n'avez pas encore réglé votre place pour l'événément {event}</>
+      <p>Vous n'avez pas encore réglé votre place pour l'événément {event}</p>
     ),
     "group-invitation": (
-      <>Vous avez été invité⋅e à rejoindre le groupe {supportGroup}</>
+      <p>Vous avez été invité⋅e à rejoindre le groupe {supportGroup}</p>
     ),
     "new-member": (
-      <>
+      <p>
         {individual} a rejoint votre groupe {supportGroup}. Prenez le temps de
         l’accueillir&nbsp;!
-      </>
+      </p>
     ),
     "waiting-location-group": (
-      <>Précisez la localisation de votre groupe {supportGroup}</>
+      <p>Précisez la localisation de votre groupe {supportGroup}</p>
     ),
     "group-coorganization-invite": (
-      <>
+      <p>
         {individual} a proposé à votre groupe {supportGroup} de co-organiser{" "}
         {event}
-      </>
+      </p>
     ),
     "waiting-location-event": (
-      <>Précisez la localisation de votre événement&nbsp;: {event}</>
+      <p>Précisez la localisation de votre événement&nbsp;: {event}</p>
     ),
     "group-coorganization-accepted": (
-      <>
+      <p>
         {supportGroup} a accepté de co-organiser votre événement {event}
-      </>
+      </p>
     ),
-    "group-info-update": <>Votre groupe {supportGroup} a été mis à jour</>,
+    "group-info-update": <p>Votre groupe {supportGroup} a été mis à jour</p>,
     "accepted-invitation-member": (
-      <>
+      <p>
         {individual} a rejoint {supportGroup} en acceptant une invitation.
-      </>
+      </p>
     ),
     "new-attendee": (
-      <>
+      <p>
         {individual} s'est inscrit à votre événement {event}
-      </>
+      </p>
     ),
     "event-update": (
-      <>
+      <p>
         Mise à jour : l'événement {event} auquel vous participez a changé de
         date.
-      </>
+      </p>
     ),
     "new-event-mygroups": (
-      <>{supportGroup || individual} a publié un nouvel événement</>
+      <p>{supportGroup || individual} a publié un nouvel événement</p>
     ),
     "new-report": (
-      <>
+      <p>
         Le compte-rendu de l'événement {event} a été ajouté par les
         organisateurs
-      </>
+      </p>
     ),
     "new-event-aroundme": (
-      <>
+      <p>
         Un nouvel événement a été publié près de chez vous par{" "}
         {supportGroup || individual}
-      </>
+      </p>
     ),
     "group-coorganization-info": (
-      <>
+      <p>
         Votre groupe {supportGroup} a rejoint l'organisation de l'événement{" "}
         {event}
-      </>
+      </p>
     ),
-    "cancelled-event": <>L'événement {event} a été annulé.</>,
+    "cancelled-event": <p>L'événement {event} a été annulé.</p>,
   }[type];
 };
 
 const LowMarginCard = styled(Card)`
   padding: 1rem;
+
+  & p {
+    & > strong,
+    & > a {
+      text-decoration: none;
+    }
+  }
 `;
 
 const EventCardContainer = styled.div`
@@ -134,16 +141,14 @@ const ActivityCard = (props) => {
   let textProps = {
     type: props.type,
     event: props.event && (
-      <b>
-        <a href={props.event.routes.details}>{props.event.name}</a>
-      </b>
+      <a href={props.event.routes.details}>{props.event.name}</a>
     ),
     supportGroup: props.supportGroup && (
-      <b>
-        <a href={props.supportGroup.url}>{props.supportGroup.name}</a>
-      </b>
+      <a href={props.supportGroup.url}>{props.supportGroup.name}</a>
     ),
-    individual: props.individual && <b>{props.individual.fullName}</b>,
+    individual: props.individual && (
+      <strong>{props.individual.fullName}</strong>
+    ),
   };
 
   const event = props.event && {
@@ -173,7 +178,10 @@ const ActivityCard = (props) => {
           color: style.black700,
         }}
       >
-        {displayHumanDate(timestamp)}
+        {displayHumanDate(timestamp)
+          .split("")
+          .map((ch, i) => (i ? ch : ch.toUpperCase()))
+          .join("")}
       </div>
 
       {eventCardTypes.includes(props.type) && (

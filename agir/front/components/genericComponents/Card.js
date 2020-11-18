@@ -22,7 +22,7 @@ const Card = styled.section`
     type && cardTypes[type] && cardTypes[type].background
       ? cardTypes[type].background
       : cardTypes.default.background};
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: ${({ type }) =>
     type && cardTypes[type] && cardTypes[type].borderRadius
       ? cardTypes[type].borderRadius
