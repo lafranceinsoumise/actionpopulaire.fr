@@ -118,3 +118,37 @@ export function displayInterval(interval, relativeTo) {
   });
   return `du ${start} au ${end}`;
 }
+
+export function displayIntervalStart(interval, relativeTo) {
+  if (relativeTo === undefined) {
+    relativeTo = DateTime.local().setLocale("fr");
+  }
+
+  const fromNowInterval =
+    relativeTo < interval.start
+      ? Interval.fromDateTimes(relativeTo, interval.start)
+      : Interval.fromDateTimes(interval.start, relativeTo);
+
+  const showYear = fromNowInterval.count("months") > 4;
+  const scheduleCalendarDays = interval.count("days");
+
+  const dayPartFormat = {
+    year: showYear ? "numeric" : undefined,
+    month: "long",
+    day: "numeric",
+  };
+
+  if (scheduleCalendarDays === 1) {
+    const dayPart = interval.start.toLocaleString(dayPartFormat);
+    const hourPart = `à ${interval.start.toLocaleString(HOUR_ONLY_FORMAT)}`;
+
+    return `${dayPart}, ${hourPart}`;
+  }
+
+  const start = interval.start.toLocaleString({
+    ...dayPartFormat,
+    ...HOUR_ONLY_FORMAT,
+  });
+
+  return `du ${start}`;
+}

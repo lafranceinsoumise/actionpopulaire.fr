@@ -44,6 +44,7 @@ const buttonColors = {
  */
 const Button = styled.button.attrs(({ color }) => buttonColors[color])`
   display: inline-block;
+  white-space: nowrap;
   padding: ${({ small }) => (small ? "0.5rem 0.75rem" : "0.75rem 1.5rem")};
   line-height: ${({ small }) =>
     small
@@ -55,7 +56,7 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
   min-height: calc(${({ small }) => (small ? "2rem" : "3rem")} + 2px);
   text-align: center;
   font-weight: 700;
-  font-size: ${({ small }) => (small ? "0.6875rem" : "0.875rem")};
+  font-size: ${({ small }) => (small ? "0.8125rem" : "0.875rem")};
 
   color: ${({ labelColor, disabled }) =>
     disabled ? transparentize(0.3, labelColor) : labelColor};

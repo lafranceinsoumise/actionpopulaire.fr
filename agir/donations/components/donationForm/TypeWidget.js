@@ -17,6 +17,8 @@ const TypeButtonContainer = styled.label`
   border: none;
   padding: 1em;
   border-radius: 8px;
+  box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.3),
+    0px 2px 0px rgba(0, 35, 44, 0.15);
 
   cursor: pointer;
 

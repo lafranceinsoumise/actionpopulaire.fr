@@ -3,7 +3,7 @@ import Card from "./Card";
 import React from "react";
 import FeatherIcon from "./FeatherIcon";
 import { Interval } from "luxon";
-import { displayInterval } from "@agir/lib/utils/time";
+import { displayIntervalStart } from "@agir/lib/utils/time";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
@@ -67,7 +67,7 @@ const EventCard = ({
   <Card>
     <div
       style={{
-        margin: "-1.5em -1.5em 1.5em",
+        margin: "-1rem -1rem 1rem",
         textAlign: "center",
         backgroundColor: style.black50,
       }}
@@ -77,7 +77,7 @@ const EventCard = ({
       )}
     </div>
     <p style={{ fontSize: "14px", color: style.primary500, fontWeight: 600 }}>
-      {displayInterval(schedule)}
+      {displayIntervalStart(schedule)}
       {location && location.shortAddress && <> • {location.shortAddress}</>}
     </p>
     <h3 style={{ fontWeight: 700 }}>{name}</h3>
@@ -98,7 +98,7 @@ const EventCard = ({
         </Button>
       </Column>
       {participantCount > 1 && (
-        <Column collapse={0}>
+        <Column collapse={0} style={{ alignSelf: "flex-end" }}>
           {participantCount}{" "}
           <Hide as="span" under={400}>
             participant⋅es
