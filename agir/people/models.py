@@ -272,6 +272,7 @@ class Person(
     NEWSLETTERS_CHOICES = (
         (NEWSLETTER_LFI, "Lettre d'information de la France insoumise"),
         (NEWSLETTER_2022, "Lettre d'information NSP"),
+        (NEWSLETTER_2022_EXCEPTIONNEL, "NSP : informations exceptionnelles"),
         (NEWSLETTER_2022_EN_LIGNE, "NSP actions en ligne"),
         (NEWSLETTER_2022_CHEZ_MOI, "NSP agir près de chez moi"),
         (NEWSLETTER_2022_PROGRAMME, "NSP processus programme"),
