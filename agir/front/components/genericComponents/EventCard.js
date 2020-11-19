@@ -94,7 +94,7 @@ const EventCard = ({
           href={routes.details}
           style={{ marginLeft: "8px" }}
         >
-          Details
+          Détails
         </Button>
       </Column>
       {participantCount > 1 && (

@@ -3,16 +3,12 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import { DateTime } from "luxon";
-import Layout from "@agir/front/dashboardComponents/Layout";
+import Layout, { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 import Button from "@agir/front/genericComponents/Button";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
-
-const Title = styled.h1`
-  margin: 0;
-`;
 
 const ButtonHolder = styled(Column)`
   display: flex;
@@ -46,7 +42,7 @@ const GroupsPage = ({ data }) => {
     <Layout active="groups">
       <Row style={{ margin: "0 0 1.5rem" }}>
         <Column width={["100%", "content"]} grow>
-          <Title>Mes groupes</Title>
+          <LayoutTitle>Mes groupes</LayoutTitle>
         </Column>
         <ButtonHolder>
           <Button

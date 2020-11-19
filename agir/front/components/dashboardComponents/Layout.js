@@ -11,7 +11,7 @@ import {
 } from "@agir/front/genericComponents/grid";
 import Navigation from "@agir/front/dashboardComponents/Navigation";
 
-const LayoutTitle = styled.h1`
+export const LayoutTitle = styled.h1`
   font-size: 28px;
   margin: 0;
 
