@@ -5,6 +5,8 @@ from django.urls import reverse
 from ..activity.models import Activity
 from ..activity.serializers import ActivitySerializer
 
+from ..groups.models import SupportGroup
+
 
 def basic_information(request):
     user = None
@@ -41,6 +43,19 @@ def basic_information(request):
                 instance=userActivities, many=True, context={"request": request}
             )
             activities = activitySerializer.data
+
+        personGroups = SupportGroup.objects.filter(
+            memberships__person=person, published=True
+        ).order_by("name")
+        if personGroups.count() > 0:
+            routes["groups__personGroups"] = []
+            for group in personGroups:
+                link = {
+                    "id": group.id,
+                    "label": group.name,
+                    "href": reverse("view_group", kwargs={"pk": group.pk}),
+                }
+                routes["groups__personGroups"].append(link)
 
     return {
         "MAIN_DOMAIN": settings.MAIN_DOMAIN,

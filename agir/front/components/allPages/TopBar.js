@@ -163,7 +163,18 @@ ConnectionInfo.propTypes = {
     displayName: PropTypes.string,
     isInsoumise: PropTypes.bool,
   }),
-  routes: PropTypes.objectOf(PropTypes.string),
+  routes: PropTypes.objectOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.string,
+          label: PropTypes.string,
+          href: PropTypes.string,
+        })
+      ),
+    ])
+  ),
 };
 
 export const PureTopBar = ({ user, routes }) => {
@@ -226,7 +237,18 @@ PureTopBar.propTypes = {
     displayName: PropTypes.string,
     isInsoumise: PropTypes.bool,
   }),
-  routes: PropTypes.objectOf(PropTypes.string),
+  routes: PropTypes.objectOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.string,
+          label: PropTypes.string,
+          href: PropTypes.string,
+        })
+      ),
+    ])
+  ),
 };
 PureTopBar.defaultProps = {
   user: null,

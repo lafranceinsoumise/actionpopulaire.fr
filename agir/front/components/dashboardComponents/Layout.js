@@ -47,12 +47,18 @@ export default Layout;
 
 Layout.propTypes = {
   active: PropTypes.oneOf(["events", "groups", "activity", "menu"]),
-  routes: PropTypes.shape({
-    events: PropTypes.string.isRequired,
-    groups: PropTypes.string.isRequired,
-    activity: PropTypes.string.isRequired,
-    menu: PropTypes.string.isRequired,
-  }),
+  routes: PropTypes.objectOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.string,
+          label: PropTypes.string,
+          href: PropTypes.string,
+        })
+      ),
+    ])
+  ),
   title: PropTypes.string,
   children: PropTypes.node,
 };

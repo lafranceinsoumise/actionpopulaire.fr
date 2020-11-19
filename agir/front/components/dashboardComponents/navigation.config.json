@@ -14,7 +14,8 @@
       "title": "Groupes",
       "route": "groups",
       "desktop": true,
-      "mobile": true
+      "mobile": true,
+      "secondaryLinks": "groups__personGroups"
     },
     {
       "id": "activity",
