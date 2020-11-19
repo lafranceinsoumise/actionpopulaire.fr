@@ -62,7 +62,8 @@ class MailLinkMiddleware:
         no_session = request.GET.get("no_session")
 
         if no_session:
-            request.user = link_user
+            if link_user:
+                request.user = link_user
             return self.get_response(request)
         elif not link_user:
             # if we don't have any link_user, it means the link was forged or expired: we just ignore and redirect to
