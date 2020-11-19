@@ -61,4 +61,6 @@ class RetrievePersonView(RetrieveAPIView):
     def get_object(self):
         serializer = RetrievePersonRequestSerializer(data=self.request.query_params)
         serializer.is_valid(raise_exception=True)
-        return serializer.retrieve()
+        obj = serializer.retrieve()
+        self.check_object_permissions(self.request, obj)
+        return obj
