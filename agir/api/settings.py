@@ -545,7 +545,7 @@ CACHES = {
 # SECURITY
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIAL = False
-CORS_URLS_REGEX = r"^(?:/legacy/|/communes/chercher/)"
+CORS_URLS_REGEX = r"^(?:/legacy/|/communes/chercher/|/api/)"
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
