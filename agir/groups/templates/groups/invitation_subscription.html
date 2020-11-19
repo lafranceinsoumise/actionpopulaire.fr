@@ -5,22 +5,25 @@
 
 {% block main %}
 <div class="row">
-  <div class="col-xs-12 margintopmore" style="margin-bottom: 0;">
-    <a class="menu-back-link" href="{% url "list_events" %}">
-      <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
-    </a>
-    <hr />
-  </div>
-  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px;">
-    {% if group %}
-      <a
-        class="btn btn-sm btn-default"
-        target="_blank"
-        rel="noopener noreferrer"
-        href="{% url "view_group" group.pk %}">
-        <i class="fa fa-external-link"></i> Page publique du groupe {{ group.name }}
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+    <div class="pull-left">
+      <a class="menu-back-link" href="{% url "list_events" %}">
+        <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
       </a>
-    {% endif %}
+    </div>
+    <div class="pull-right">
+      {% if group %}
+        <a
+          class="btn btn-sm btn-default"
+          target="_blank"
+          rel="noopener noreferrer"
+          href="{% url "view_group" group.pk %}">
+          Page publique du groupe {{ group.name }}
+        </a>
+      {% endif %}
+    </div>
+    <div class="clearfix"></div>
+    <hr />
   </div>
   <div class="col-xs-12 col-md-3 margintopmore">
   </div>
