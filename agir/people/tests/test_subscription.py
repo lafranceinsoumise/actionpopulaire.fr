@@ -232,28 +232,9 @@ class SubscriptionConfirmationTestCase(TestCase):
 class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
     def setUp(self):
         super().setUp()
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email="a@b.c",
             newsletters=[Person.NEWSLETTER_LFI, Person.NEWSLETTER_2022_EN_LIGNE],
-        )
-
-    def test_can_get_current_newsletters(self):
-        res = self.client.get(
-            f"{reverse('api_people_newsletters')}?id={self.person.id}",
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        content = json.loads(res.content)
-
-        self.assertEqual(
-            content,
-            {
-                "id": str(self.person.id),
-                "newsletters": {
-                    **{c: False for c, _ in Person.NEWSLETTERS_CHOICES},
-                    Person.NEWSLETTER_LFI: True,
-                    Person.NEWSLETTER_2022_EN_LIGNE: True,
-                },
-            },
         )
 
     def test_can_modify_current_newsletters(self):

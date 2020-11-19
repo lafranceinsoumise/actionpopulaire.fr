@@ -46,21 +46,6 @@ class ManageNewslettersAPIView(GenericAPIView):
     queryset = Person.objects.all()  # pour les permissions
     permission_classes = (RestrictViewPermissions,)
 
-    def get(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-        person = serializer.person
-
-        serializer = self.get_serializer(
-            instance={
-                "id": person.id,
-                "newsletters": {
-                    c: c in person.newsletters for c, _ in Person.NEWSLETTERS_CHOICES
-                },
-            }
-        )
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
