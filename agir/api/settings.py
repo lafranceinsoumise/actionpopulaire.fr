@@ -716,6 +716,7 @@ NUNTIUS_MOSAICO_TEMPLATES = [
         "Template sans bannière",
     ),
     ("/static/mosaico_templates/versafix-fi/template.html", "Template LFI"),
+    ("/static/mosaico_templates/versafix-nsp/template.html", "Template NSP"),
 ]
 
 NUNTIUS_MAX_SENDING_RATE = int(os.environ.get("NUNTIUS_MAX_SENDING_RATE", 80))
