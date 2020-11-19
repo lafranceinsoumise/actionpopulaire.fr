@@ -50,7 +50,7 @@ const MainContainer = styled(Container)`
     height: calc(100vh - 72px);
 
     @media (max-width: ${style.collapse}px) {
-      padding-top: 24px;
+      padding-top: 0;
       padding-bottom: 100px;
       height: calc(100vh - 144px);
     }

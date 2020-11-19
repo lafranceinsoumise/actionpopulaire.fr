@@ -13,26 +13,24 @@ import EventCard from "@agir/front/genericComponents/EventCard";
 import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
 import { displayHumanDay } from "@agir/lib/utils/time";
 
-const StyledAgenda = styled.div`
-  & h2 {
-    font-size: 18px;
-  }
-`;
+const Banner = styled.h1`
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: stretch;
+  justify-content: center;
+  margin: 0;
+  padding: 0 25px;
+  height: 10rem;
+  font-size: 29px;
+  color: #fff;
+  background-image: url(https://picsum.photos/992/500);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
 
-const Banner = styled.div`
   @media only screen and (min-width: ${style.collapse}px) {
     display: none;
   }
-
-  margin: 0 -16px 24px;
-  height: 10rem;
-  padding: 32px 200px 0 40px;
-  font-size: 29px;
-  & h1 {
-    color: #fff;
-  }
-
-  background-image: url(https://picsum.photos/992/500);
 `;
 
 const TopBar = styled.div`
@@ -60,20 +58,33 @@ const Day = styled.h3`
   margin-top: 24px;
 `;
 
+const StyledAgenda = styled.div`
+  & h2 {
+    font-size: 18px;
+  }
+
+  & h2,
+  & ${TopBar}, & ${Day} {
+    margin: 20px 0;
+
+    @media (max-width: ${style.collapse}px) {
+      margin: 20px 25px;
+    }
+  }
+`;
+
 const Agenda = ({ rsvped, suggested }) => {
-  const { routes } = useGlobalContext();
+  const { routes, user } = useGlobalContext();
   return (
     <StyledAgenda>
       <header>
         <Banner>
-          <h1>Bonjour</h1>
+          <span>Bonjour</span>
+          <span>{user && user.firstName}</span>
         </Banner>
         <TopBar>
           <h1>Événements</h1>
           <div>
-            <Button small as="a" href={routes.eventMap} icon="map">
-              Carte
-            </Button>
             <Button
               small
               as="a"
@@ -83,6 +94,15 @@ const Agenda = ({ rsvped, suggested }) => {
             >
               Créer un évenement
             </Button>
+            <Button
+              small
+              as="a"
+              href={routes.eventMap}
+              icon="map"
+              color="white"
+            >
+              Carte
+            </Button>
           </div>
         </TopBar>
       </header>
@@ -90,15 +110,15 @@ const Agenda = ({ rsvped, suggested }) => {
         <Row>
           <Column grow>
             <h2>Mes événements</h2>
-            {rsvped.map(({ startTime, endTime, ...props }) => {
-              props = {
-                ...props,
+            {rsvped.map(({ startTime, endTime, ...event }) => {
+              event = {
+                ...event,
                 schedule: Interval.fromDateTimes(
                   DateTime.fromISO(startTime).setLocale("fr"),
                   DateTime.fromISO(endTime).setLocale("fr")
                 ),
               };
-              return <EventCard key={props.id} {...props} />;
+              return <EventCard key={event.id} {...event} />;
             })}
           </Column>
         </Row>
@@ -116,15 +136,15 @@ const Agenda = ({ rsvped, suggested }) => {
             ).map(([day, events]) => (
               <div key={day}>
                 <Day>{day}</Day>
-                {events.map(({ startTime, endTime, ...props }) => {
-                  props = {
-                    ...props,
+                {events.map(({ startTime, endTime, ...event }) => {
+                  event = {
+                    ...event,
                     schedule: Interval.fromDateTimes(
                       DateTime.fromISO(startTime).setLocale("fr"),
                       DateTime.fromISO(endTime).setLocale("fr")
                     ),
                   };
-                  return <EventCard key={props.id} {...props} />;
+                  return <EventCard key={event.id} {...event} />;
                 })}
               </div>
             ))}
@@ -137,6 +157,18 @@ const Agenda = ({ rsvped, suggested }) => {
 export default Agenda;
 
 Agenda.propTypes = {
-  rsvped: PropTypes.array,
-  suggested: PropTypes.array,
+  rsvped: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    })
+  ),
+  suggested: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    })
+  ),
 };

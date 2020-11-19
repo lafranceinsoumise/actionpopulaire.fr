@@ -10,6 +10,12 @@ const buttonColors = {
     hoverBackground: style.black100,
     labelColor: style.black1000,
   },
+  white: {
+    background: style.white,
+    hoverBackground: style.black50,
+    labelColor: style.black1000,
+    borderColor: style.black50,
+  },
   primary: {
     background: style.primary500,
     labelColor: style.white,
@@ -62,13 +68,17 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
     disabled ? transparentize(0.3, labelColor) : labelColor};
   background-color: ${({ background, disabled }) =>
     disabled ? transparentize(0.7, background) : background};
-  border: ${({ borderColor, background, disabled }) => {
-    if (!borderColor || !background) return "0";
-    if (borderColor) return `1px solid ${borderColor}`;
-    return disabled ? transparentize(0.7, background) : background;
+  border: 1px solid transparent;
+  border-color: ${({ borderColor, background, disabled }) => {
+    if (!borderColor || !background) return "transparent";
+    if (borderColor) return borderColor;
+    if (disabled) return transparentize(0.7, background);
+    return background;
   }}}
 
-  &:hover {
+  &:hover,
+  &:focus,
+  &:active {
     ${({ disabled, hoverBackground }) =>
       disabled
         ? ""

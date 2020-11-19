@@ -88,9 +88,11 @@ const MenuItem = styled.li`
     justify-content: center;
     text-align: center;
     font-size: 11px;
+    font-weight: 500;
 
     & ${RawFeatherIcon} {
       display: block;
+      margin-bottom: 5px;
     }
     ${(props) =>
       props.active &&

@@ -34,7 +34,7 @@ export default {
 };
 
 const Template = (args) => (
-  <TestGlobalContextProvider testState={{ routes: mockRoutes }}>
+  <TestGlobalContextProvider value={{ routes: mockRoutes }}>
     <Navigation {...args} />
   </TestGlobalContextProvider>
 );
