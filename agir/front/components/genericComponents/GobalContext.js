@@ -80,4 +80,21 @@ GlobalContextProvider.propTypes = {
 
 export const useGlobalContext = () => React.useContext(GlobalContext);
 
-export const TestGlobalContextProvider = GlobalContext.Provider;
+export const TestGlobalContextProvider = ({ children, testState }) => {
+  const globalContextData = testState
+    ? {
+        ...defaultGlobalContextState,
+        ...testState,
+      }
+    : defaultGlobalContextState;
+
+  return (
+    <GlobalContext.Provider value={globalContextData}>
+      {children}
+    </GlobalContext.Provider>
+  );
+};
+TestGlobalContextProvider.propTypes = {
+  children: PropTypes.node,
+  testState: PropTypes.object,
+};

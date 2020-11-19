@@ -77,6 +77,8 @@ const GroupsPage = ({ data }) => {
   );
 };
 
-GroupsPage.propTypes = { data: PropTypes.arrayOf(GroupCard.propTypes) };
+GroupsPage.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.shape(GroupCard.propTypes)),
+};
 
 export default GroupsPage;

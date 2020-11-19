@@ -23,6 +23,36 @@ const BottomBar = styled.nav`
   }
 `;
 
+const SecondaryMenu = styled.ul`
+  margin-top: 40px;
+  display: flex;
+  flex-flow: column nowrap;
+  list-style: none;
+
+  @media only screen and (max-width: ${style.collapse}px) {
+    display: none;
+  }
+`;
+
+const SecondaryMenuItem = styled.li`
+  font-size: 12px;
+  line-height: 15px;
+  color: ${style.black500};
+  margin-bottom: 16px;
+  font-weight: bold;
+
+  & a,
+  & a:hover,
+  & a:focus,
+  & a:active {
+    font-size: 13px;
+    font-weight: normal;
+    line-height: 1.1;
+    color: ${style.black700};
+    margin-bottom: 12px;
+  }
+`;
+
 const Menu = styled.ul`
   @media only screen and (max-width: ${style.collapse}px) {
     padding: 0;
@@ -74,46 +104,33 @@ const MenuItem = styled.li`
     line-height: 24px;
     align-items: center;
     margin-bottom: 1.5rem;
+    flex-flow: column nowrap;
+    align-items: flex-start;
 
     & ${RawFeatherIcon} {
       color: ${(props) => (props.active ? style.primary500 : style.black500)};
       margin-right: 1rem;
     }
 
-    ${RawFeatherIcon}:last-child {
+    & ${RawFeatherIcon}:last-child {
       margin-right: 0;
       margin-left: 0.5rem;
     }
-  }
-`;
 
-const SecondaryMenu = styled.ul`
-  margin-top: 40px;
-  display: flex;
-  flex-flow: column nowrap;
-  list-style: none;
+    & ${SecondaryMenu} {
+      margin-top: 12px;
+      margin-bottom: 0;
 
-  @media only screen and (max-width: ${style.collapse}px) {
-    display: none;
-  }
-`;
+      ${SecondaryMenuItem} {
+        font-weight: 500;
+        color: #333333;
+        margin-bottom: 12px;
 
-const SecondaryMenuItem = styled.li`
-  font-size: 12px;
-  line-height: 15px;
-  color: ${style.black500};
-  margin-bottom: 16px;
-  font-weight: bold;
-
-  & a,
-  & a:hover,
-  & a:focus,
-  & a:active {
-    font-size: 13px;
-    font-weight: normal;
-    line-height: 1.1;
-    color: ${style.black700};
-    margin-bottom: 12px;
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
   }
 `;
 
@@ -141,7 +158,15 @@ const Counter = styled.span`
 `;
 
 const MenuLink = (props) => {
-  const { href, icon, title, active, counter, external } = props;
+  const {
+    href,
+    icon,
+    title,
+    active,
+    counter,
+    external,
+    secondaryLinks,
+  } = props;
   const linkProps = React.useMemo(
     () => ({
       target: external ? "_blank" : undefined,
@@ -157,6 +182,15 @@ const MenuLink = (props) => {
         <span>{title}</span>
         {external && <FeatherIcon name="external-link" inline small />}
       </a>
+      {Array.isArray(secondaryLinks) && secondaryLinks.length > 0 ? (
+        <SecondaryMenu>
+          {secondaryLinks.map((link) => (
+            <SecondaryMenuItem key={link.id}>
+              <a href={link.href}>{link.label}</a>
+            </SecondaryMenuItem>
+          ))}
+        </SecondaryMenu>
+      ) : null}
     </MenuItem>
   );
 };
@@ -167,6 +201,13 @@ MenuLink.propTypes = {
   active: PropTypes.bool,
   counter: PropTypes.number,
   external: PropTypes.bool,
+  secondaryLinks: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      label: PropTypes.string,
+      href: PropTypes.string,
+    })
+  ),
 };
 
 const Navigation = ({ active }) => {
@@ -181,6 +222,7 @@ const Navigation = ({ active }) => {
             active={active === link.id}
             href={link.href || routes[link.route]}
             counter={link.counter && requiredActionActivities.length}
+            secondaryLinks={link.secondaryLinks && routes[link.secondaryLinks]}
           />
         ))}
       </Menu>
