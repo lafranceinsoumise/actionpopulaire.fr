@@ -14,6 +14,8 @@ from rest_framework.reverse import reverse
 
 from agir.api.redis import using_separate_redis_server
 from agir.clients.models import Client
+from agir.lib.http import add_query_params_to_url
+from agir.lib.utils import generate_token_params
 from agir.people.models import Person
 from agir.people.tasks import send_confirmation_email
 
@@ -21,12 +23,24 @@ from agir.people.tasks import send_confirmation_email
 class WordpressClientMixin:
     def setUp(self):
         self.wordpress_client = Client.objects.create_client(client_id="wordpress")
+        self.unauthorized_client = Client.objects.create_client(
+            client_id="unauthorized"
+        )
 
         person_content_type = ContentType.objects.get_for_model(Person)
+        view_permission = Permission.objects.get(
+            content_type=person_content_type, codename="view_person"
+        )
         add_permission = Permission.objects.get(
             content_type=person_content_type, codename="add_person"
         )
-        self.wordpress_client.role.user_permissions.add(add_permission)
+        change_permission = Permission.objects.get(
+            content_type=person_content_type, codename="change_person"
+        )
+
+        self.wordpress_client.role.user_permissions.add(
+            view_permission, add_permission, change_permission
+        )
         self.client.force_login(self.wordpress_client.role)
 
 
@@ -48,6 +62,24 @@ class APISubscriptionTestCase(WordpressClientMixin, TestCase):
             {"location_country": "FR", "type": "LFI", **data},
         )
 
+    def test_cannot_subscribe_with_old_api_and_unauthorized_client(self):
+        self.client.force_login(self.unauthorized_client.role)
+        data = {"email": "guillaume@email.com", "location_zip": "75004"}
+
+        response = self.client.post(
+            reverse("legacy:person-subscribe"),
+            data=data,
+            HTTP_X_WORDPRESS_CLIENT="192.168.0.1",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_subscribe_without_client_ip_on_old_api(self):
+        data = {"email": "guillaume@email.com", "location_zip": "75004"}
+
+        response = self.client.post(reverse("legacy:person-subscribe"), data=data)
+
+        self.assertEqual(response.status_code, 403)
+
     @mock.patch("agir.people.serializers.send_confirmation_email")
     def test_can_subscribe_with_new_api(self, send_confirmation_email):
         data = {
@@ -68,12 +100,19 @@ class APISubscriptionTestCase(WordpressClientMixin, TestCase):
             {**data, "location_country": "FR", "contact_phone": "+33698457845"},
         )
 
-    def test_cannot_subscribe_without_client_ip(self):
-        data = {"email": "guillaume@email.com", "location_zip": "75004"}
-
-        response = self.client.post(reverse("legacy:person-subscribe"), data=data)
-
-        self.assertEqual(response.status_code, 403)
+    def test_cannot_subscribe_with_new_api_and_unauthorized_client(self):
+        self.client.force_login(self.unauthorized_client.role)
+        data = {
+            "email": "ragah@fez.com",
+            "first_name": "Jim",
+            "last_name": "Ballade",
+            "location_zip": "75001",
+            "contact_phone": "06 98 45 78 45",
+            "type": "NSP",
+            "referer": str(uuid4()),
+        }
+        response = self.client.post(reverse("api_people_subscription"), data=data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     @mock.patch("agir.people.serializers.send_confirmation_email")
     def test_can_subscribe_to_new_type_with_existing_person(
@@ -235,6 +274,7 @@ class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
         self.person = Person.objects.create_person(
             email="a@b.c",
             newsletters=[Person.NEWSLETTER_LFI, Person.NEWSLETTER_2022_EN_LIGNE],
+            create_role=True,
         )
 
     def test_can_modify_current_newsletters(self):
@@ -257,3 +297,77 @@ class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
         self.assertCountEqual(
             self.person.newsletters, [Person.NEWSLETTER_LFI, Person.NEWSLETTER_2022]
         )
+
+    def test_cannot_modify_while_anonymous(self):
+        self.client.logout()
+        res = self.client.post(
+            reverse("api_people_newsletters"),
+            data=(
+                {
+                    "id": str(self.person.id),
+                    "newsletters": {
+                        Person.NEWSLETTER_2022: True,
+                        Person.NEWSLETTER_2022_EN_LIGNE: False,
+                    },
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_cannot_modify_while_connected_as_same_person(self):
+        self.client.force_login(self.person.role)
+        res = self.client.post(
+            reverse("api_people_newsletters"),
+            data=(
+                {
+                    "id": str(self.person.id),
+                    "newsletters": {
+                        Person.NEWSLETTER_2022: True,
+                        Person.NEWSLETTER_2022_EN_LIGNE: False,
+                    },
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class RetrievePersonAPIViewTestCase(WordpressClientMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.person = Person.objects.create_person(
+            email="a@b.c", first_name="A", last_name="B", create_role=True
+        )
+        self.other_person = Person.objects.create_person(
+            email="m@n.o", create_role=True
+        )
+
+    def test_can_retrieve_person_information(self):
+        res = self.client.get(f"{reverse('api_people_retrieve')}?id={self.person.id}")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_can_retrieve_person_information_with_login_link(self):
+        self.client.logout()
+        params = generate_token_params(self.person)
+        url = add_query_params_to_url(
+            reverse("api_people_retrieve"),
+            {"id": str(self.person.id), "no_session": "o", **params},
+        )
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_can_retrieve_while_connected_as_same_person(self):
+        self.client.force_login(self.person.role)
+        res = self.client.get(f"{reverse('api_people_retrieve')}?id={self.person.id}")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_cannot_retrieve_while_connected_as_different_person(self):
+        self.client.force_login(self.other_person.role)
+        res = self.client.get(f"{reverse('api_people_retrieve')}?id={self.person.id}")
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_retrieve_while_anonymous(self):
+        self.client.logout()
+        res = self.client.get(f"{reverse('api_people_retrieve')}?id={self.person.id}")
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)

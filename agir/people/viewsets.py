@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 import django_filters
 
 from agir.lib.pagination import LegacyPaginator
-from agir.lib.rest_framework_permissions import RestrictViewPermissions
+from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
 from agir.lib.views import NationBuilderViewMixin
 from agir.authentication.models import Role
 from agir.people.models import PersonEmail, PersonEmailManager
@@ -32,7 +32,7 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
 
     pagination_class = LegacyPaginator
     queryset = models.Person.objects.all()
-    permission_classes = (RestrictViewPermissions,)
+    permission_classes = (GlobalOrObjectPermissions,)
     filterset_class = PeopleFilter
 
     @action(detail=False)
@@ -83,4 +83,4 @@ class PersonTagViewSet(ModelViewSet):
 
     serializer_class = serializers.PersonTagSerializer
     queryset = models.PersonTag.objects.all()
-    permission_classes = (RestrictViewPermissions,)
+    permission_classes = (GlobalOrObjectPermissions,)

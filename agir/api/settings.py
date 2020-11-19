@@ -463,7 +463,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
-        "agir.lib.rest_framework_permissions.PermissionsOrReadOnly",
+        "agir.lib.rest_framework_permissions.GlobalOnlyPermissions",
     ),
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
     "TEST_REQUEST_RENDERER_CLASSES": (

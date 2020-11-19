@@ -5,7 +5,10 @@ from rest_framework import status
 from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework.response import Response
 
-from agir.lib.rest_framework_permissions import RestrictViewPermissions
+from agir.lib.rest_framework_permissions import (
+    GlobalOrObjectPermissions,
+    GlobalOnlyPermissions,
+)
 from agir.people.models import Person
 from agir.people.serializers import (
     SubscriptionRequestSerializer,
@@ -18,7 +21,7 @@ from agir.people.serializers import (
 class SubscriptionAPIView(GenericAPIView):
     serializer_class = SubscriptionRequestSerializer
     queryset = Person.objects.all()  # pour les permissions
-    permission_classes = (RestrictViewPermissions,)
+    permission_classes = (GlobalOnlyPermissions,)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -30,7 +33,7 @@ class SubscriptionAPIView(GenericAPIView):
 
 class CounterAPIView(GenericAPIView):
     queryset = Person.objects.all()  # pour les permissions
-    permission_classes = (RestrictViewPermissions,)
+    permission_classes = (GlobalOnlyPermissions,)
 
     @method_decorator(vary_on_headers("Authorization"))
     @method_decorator(cache_page(60))
@@ -44,7 +47,7 @@ class CounterAPIView(GenericAPIView):
 class ManageNewslettersAPIView(GenericAPIView):
     serializer_class = ManageNewslettersRequestSerializer
     queryset = Person.objects.all()  # pour les permissions
-    permission_classes = (RestrictViewPermissions,)
+    permission_classes = (GlobalOnlyPermissions,)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -56,7 +59,9 @@ class ManageNewslettersAPIView(GenericAPIView):
 class RetrievePersonView(RetrieveAPIView):
     serializer_class = PersonSerializer
     queryset = Person.objects.all()  # pour les permissions
-    permission_classes = (RestrictViewPermissions,)
+    permission_classes = (
+        GlobalOrObjectPermissions,
+    )  # attention si on rajoute de l'édition sur ce point
 
     def get_object(self):
         serializer = RetrievePersonRequestSerializer(data=self.request.query_params)

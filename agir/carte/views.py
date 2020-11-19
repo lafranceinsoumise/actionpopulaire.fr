@@ -80,6 +80,7 @@ class BBoxFilterBackend(object):
 
 
 class EventsView(ListAPIView):
+    permission_classes = ()
     serializer_class = serializers.MapEventSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend)
     filterset_class = EventFilter
@@ -111,6 +112,7 @@ class GroupFilterSet(django_filters.rest_framework.FilterSet):
 
 
 class GroupsView(ListAPIView):
+    permission_classes = ()
     serializer_class = serializers.MapGroupSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend)
     filterset_class = GroupFilterSet
