@@ -23,7 +23,7 @@ def basic_information(request):
         "createGroup": reverse("create_group"),
         "createEvent": reverse("create_event"),
         "groupsMap": reverse("carte:groups_map"),
-        "eventMap": reverse("carte:events_map"),
+        "eventMap": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
         "events": reverse("list_events"),
         "groups": reverse("list_my_groups"),
         "activity": reverse("list_activities"),
@@ -32,11 +32,12 @@ def basic_information(request):
     }
 
     if request.user.is_authenticated:
+        person = request.user.person
         user = {
+            "firstName": person.first_name,
             "displayName": request.user.get_full_name(),
             "isInsoumise": request.user.person.is_insoumise,
         }
-        person = request.user.person
         userActivities = Activity.objects.filter(recipient=person)[:20]
         if userActivities.count() > 0:
             activitySerializer = ActivitySerializer(

@@ -12,6 +12,10 @@ const StyledText = styled.p`
   margin: 0;
   width: 100%;
   padding: 16px 0;
+
+  @media (max-width: ${style.collapse}px) {
+    margin: 0 25px;
+  }
 `;
 const StyledList = styled.ul`
   list-style: none;

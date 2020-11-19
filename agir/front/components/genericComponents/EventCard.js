@@ -63,54 +63,70 @@ const EventCard = ({
   participantCount,
   rsvp,
   routes,
-}) => (
-  <Card>
-    <div
-      style={{
-        margin: "-1rem -1rem 1rem",
-        textAlign: "center",
-        backgroundColor: style.black50,
-      }}
-    >
-      {illustration && (
-        <Illustration src={illustration} alt="Image d'illustration" />
-      )}
-    </div>
-    <p style={{ fontSize: "14px", color: style.primary500, fontWeight: 600 }}>
-      {displayIntervalStart(schedule)}
-      {location && location.shortAddress && <> • {location.shortAddress}</>}
-    </p>
-    <h3 style={{ fontWeight: 700 }}>{name}</h3>
-    <Row style={{ fontSize: "14px" }}>
-      <Column grow collapse={0}>
-        <RSVPButton
-          hasSubscriptionForm={hasSubscriptionForm}
-          rsvp={!!rsvp}
-          routes={routes}
-        />
-        <Button
-          small
-          as="a"
-          href={routes.details}
-          style={{ marginLeft: "8px" }}
-        >
-          Details
-        </Button>
-      </Column>
-      {participantCount > 1 && (
-        <Column collapse={0} style={{ alignSelf: "flex-end" }}>
-          {participantCount}{" "}
-          <Hide as="span" under={400}>
-            participant⋅es
-          </Hide>
-          <Hide as="span" over={401}>
-            <FeatherIcon inline small name="user" />
-          </Hide>
+}) => {
+  const mainLink = React.useRef(null);
+  const handleClick = React.useCallback(
+    (e) => {
+      if (
+        ["A", "BUTTON"].includes(e.target.tagName.toUpperCase()) ||
+        !routes.details
+      ) {
+        return;
+      }
+      mainLink.current && mainLink.current.click();
+    },
+    [routes]
+  );
+  return (
+    <Card onClick={handleClick}>
+      <div
+        style={{
+          margin: "-1rem -1rem 1rem",
+          textAlign: "center",
+          backgroundColor: style.black50,
+        }}
+      >
+        {illustration && (
+          <Illustration src={illustration} alt="Image d'illustration" />
+        )}
+      </div>
+      <p style={{ fontSize: "14px", color: style.primary500, fontWeight: 600 }}>
+        {displayIntervalStart(schedule)}
+        {location && location.shortAddress && <> • {location.shortAddress}</>}
+      </p>
+      <h3 style={{ fontWeight: 700 }}>{name}</h3>
+      <Row style={{ fontSize: "14px" }}>
+        <Column grow collapse={0}>
+          <RSVPButton
+            hasSubscriptionForm={hasSubscriptionForm}
+            rsvp={!!rsvp}
+            routes={routes}
+          />
+          <Button
+            small
+            as="a"
+            href={routes.details}
+            style={{ marginLeft: "8px" }}
+            ref={mainLink}
+          >
+            Détails
+          </Button>
         </Column>
-      )}
-    </Row>
-  </Card>
-);
+        {participantCount > 1 && (
+          <Column collapse={0} style={{ alignSelf: "flex-end" }}>
+            {participantCount}{" "}
+            <Hide as="span" under={400}>
+              participant⋅es
+            </Hide>
+            <Hide as="span" over={401}>
+              <FeatherIcon inline small name="user" />
+            </Hide>
+          </Column>
+        )}
+      </Row>
+    </Card>
+  );
+};
 
 EventCard.propTypes = {
   id: PropTypes.string.isRequired,

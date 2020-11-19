@@ -4,6 +4,10 @@ img {
   height: auto;
 }
 
+hr {
+  border-top-color: #dfdfdf !important;
+}
+
 // Utils
 .padtop {
   padding-top: $line-height-computed * 0.5;

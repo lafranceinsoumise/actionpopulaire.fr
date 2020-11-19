@@ -1,10 +1,12 @@
-import React from "react";
+import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
+import React from "react";
+import styled from "styled-components";
+
 import EventHeader from "./EventHeader";
 import EventLocationCard from "./EventLocationCard";
 import EventFacebookLinkCard from "./EventFacebookLinkCard";
 import EventDescription from "./EventDescription";
-import { DateTime, Interval } from "luxon";
 import {
   Column,
   Container,
@@ -18,11 +20,18 @@ import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 
+const StyledColumn = styled(Column)`
+  & > ${Card} {
+    box-shadow: none;
+    border-bottom: 1px solid #c4c4c4;
+  }
+`;
+
 const MobileLayout = (props) => {
   return (
     <Container>
       <Row>
-        <Column stack>
+        <StyledColumn stack>
           {props.illustration && (
             <div
               style={{
@@ -62,7 +71,7 @@ const MobileLayout = (props) => {
               ))}
             </div>
           )}
-        </Column>
+        </StyledColumn>
       </Row>
     </Container>
   );

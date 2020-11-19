@@ -6,18 +6,21 @@
 
 {% block main %}
 <div class="row">
-  <div class="col-xs-12 margintopmore" style="margin-bottom: 0;">
-    <a class="menu-back-link" href="{% url "list_events" %}">
-      <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
-    </a>
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+    <div class="pull-left">
+      <a class="menu-back-link" href="{% url "list_events" %}">
+        <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+      </a>
+    </div>
+    <div class="pull-right">
+      <a
+        class="btn btn-sm btn-default"
+        href="{% url "view_group" supportgroup.pk %}">
+        Page publique du groupe
+      </a>
+    </div>
+    <div class="clearfix"></div>
     <hr />
-  </div>
-  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px;">
-    <a
-      class="btn btn-sm btn-default"
-      href="{% url "view_group" supportgroup.pk %}">
-      <i class="fa fa-external-link"></i> Page publique du groupe
-    </a>
   </div>
   <div class="col-xs-12 col-md-3 margintopmore">
     {% include "groups/includes/manage_nav.html" %}

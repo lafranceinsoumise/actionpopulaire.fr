@@ -70,6 +70,7 @@ const EventDescription = ({
     {description ? (
       <Collapsible dangerouslySetInnerHTML={{ __html: description }} />
     ) : (
+      endTime < DateTime.local() &&
       isOrganizer && (
         <>
           <h2 style={{ fontSize: "20px" }}>Ajoutez une description !</h2>
@@ -78,7 +79,7 @@ const EventDescription = ({
             événement. Comment accéder au lieu, quel est le programme, les liens
             pour être tenu au courant... Et ajoutez une image !
           </p>
-          <Button as="a" color="primary" href={routes.manage}>
+          <Button as="a" color="primary" href={routes.edit}>
             Ajouter une description
           </Button>
         </>

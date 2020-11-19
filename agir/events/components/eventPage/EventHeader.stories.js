@@ -72,4 +72,5 @@ Default.args = {
     join: "#join",
     cancel: "#cancel",
   },
+  rsvped: true,
 };

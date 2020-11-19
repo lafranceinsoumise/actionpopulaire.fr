@@ -11,13 +11,13 @@ import {
 } from "@agir/front/genericComponents/grid";
 import Navigation from "@agir/front/dashboardComponents/Navigation";
 
-const LayoutTitle = styled.h1`
+export const LayoutTitle = styled.h1`
   font-size: 28px;
   margin: 0;
 
   @media (max-width: ${style.collapse}px) {
-    margin: 0 25px;
     font-size: 20px;
+    margin: 0 25px;
   }
 `;
 
@@ -50,14 +50,14 @@ const MainContainer = styled(Container)`
     height: calc(100vh - 72px);
 
     @media (max-width: ${style.collapse}px) {
-      padding-top: 24px;
+      padding-top: 0;
       padding-bottom: 100px;
       height: calc(100vh - 144px);
     }
 
     & > section {
       @media (min-width: ${style.collapse}px) {
-        max-width: 711px;
+        max-width: 720px;
       }
     }
   }

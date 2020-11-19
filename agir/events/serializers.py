@@ -53,6 +53,7 @@ EVENT_ROUTES = {
     "calendarExport": "ics_event",
     "compteRendu": "edit_event_report",
     "addPhoto": "upload_event_image",
+    "edit": "edit_event",
 }
 
 

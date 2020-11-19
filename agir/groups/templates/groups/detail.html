@@ -5,8 +5,13 @@
 
 {% block main %}
   <div class="row">
-    <div class="col-xs-12 margintopmore">
-      <div class="text-right" style="line-height: 45px;">
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+      <div class="pull-left">
+        <a class="menu-back-link" href="{% url "list_events" %}">
+          <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+        </a>
+      </div>
+      <div class="pull-right">
         {% if user.is_authenticated %}
 
           {% if user.is_staff and perms.groups.change_supportgroup %}
@@ -83,6 +88,10 @@
           </a>
         {% endif %}
       </div>
+      <div class="clearfix"></div>
+      <hr />
+    </div>
+    <div class="col-xs-12 margintopmore">
       <h2 class="headline">
         {{ supportgroup.name }}
         <small>

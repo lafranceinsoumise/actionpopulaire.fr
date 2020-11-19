@@ -28,6 +28,7 @@ const Card = styled.section`
       ? cardTypes[type].borderRadius
       : cardTypes.default.borderRadius};
   font-weight: 500;
+  cursor: ${({ onClick }) => (onClick ? "pointer" : "default")};
 
   @media (max-width: ${style.collapse}px) {
     border-radius: 0;
