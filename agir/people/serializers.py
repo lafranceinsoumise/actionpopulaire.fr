@@ -238,7 +238,7 @@ class NewslettersField(serializers.DictField):
 
 class ManageNewslettersRequestSerializer(serializers.Serializer):
     id = serializers.UUIDField()
-    newsletters = NewslettersField()
+    newsletters = NewslettersField(required=False, default={})
 
     def validate_id(self, value):
         try:

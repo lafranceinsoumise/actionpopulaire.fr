@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from unittest import mock
 from uuid import uuid4
 
+import json
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
@@ -17,7 +18,7 @@ from agir.people.models import Person
 from agir.people.tasks import send_confirmation_email
 
 
-class APISubscriptionTestCase(TestCase):
+class WordpressClientMixin:
     def setUp(self):
         self.wordpress_client = Client.objects.create_client(client_id="wordpress")
 
@@ -28,6 +29,8 @@ class APISubscriptionTestCase(TestCase):
         self.wordpress_client.role.user_permissions.add(add_permission)
         self.client.force_login(self.wordpress_client.role)
 
+
+class APISubscriptionTestCase(WordpressClientMixin, TestCase):
     @mock.patch("agir.people.serializers.send_confirmation_email")
     def test_can_subscribe_with_old_api(self, patched_send_confirmation_mail):
         data = {"email": "guillaume@email.com", "location_zip": "75004"}
@@ -223,4 +226,53 @@ class SubscriptionConfirmationTestCase(TestCase):
             datetime.fromisoformat(p.meta["subscriptions"]["NSP"]["date"]),
             timezone.now(),
             delta=timedelta(seconds=1),
+        )
+
+
+class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.person = Person.objects.create(
+            email="a@b.c",
+            newsletters=[Person.NEWSLETTER_LFI, Person.NEWSLETTER_2022_EN_LIGNE],
+        )
+
+    def test_can_get_current_newsletters(self):
+        res = self.client.get(
+            f"{reverse('api_people_newsletters')}?id={self.person.id}",
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        content = json.loads(res.content)
+
+        self.assertEqual(
+            content,
+            {
+                "id": str(self.person.id),
+                "newsletters": {
+                    **{c: False for c, _ in Person.NEWSLETTERS_CHOICES},
+                    Person.NEWSLETTER_LFI: True,
+                    Person.NEWSLETTER_2022_EN_LIGNE: True,
+                },
+            },
+        )
+
+    def test_can_modify_current_newsletters(self):
+        res = self.client.post(
+            reverse("api_people_newsletters"),
+            data=(
+                {
+                    "id": str(self.person.id),
+                    "newsletters": {
+                        Person.NEWSLETTER_2022: True,
+                        Person.NEWSLETTER_2022_EN_LIGNE: False,
+                    },
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.person.refresh_from_db()
+        self.assertCountEqual(
+            self.person.newsletters, [Person.NEWSLETTER_LFI, Person.NEWSLETTER_2022]
         )
