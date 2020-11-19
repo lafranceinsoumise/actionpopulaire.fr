@@ -16,8 +16,8 @@ export const LayoutTitle = styled.h1`
   margin: 0;
 
   @media (max-width: ${style.collapse}px) {
-    margin: 0 25px;
     font-size: 20px;
+    margin: 0 25px;
   }
 `;
 
@@ -57,7 +57,7 @@ const MainContainer = styled(Container)`
 
     & > section {
       @media (min-width: ${style.collapse}px) {
-        max-width: 711px;
+        max-width: 720px;
       }
     }
   }
