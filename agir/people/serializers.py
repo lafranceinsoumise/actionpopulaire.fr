@@ -285,3 +285,5 @@ class PersonSerializer(serializers.Serializer):
 
     isInsoumise = serializers.BooleanField(source="is_insoumise")
     is2022 = serializers.BooleanField(source="is_2022")
+
+    newsletters = serializers.ListField()
