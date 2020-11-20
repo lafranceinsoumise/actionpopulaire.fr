@@ -366,8 +366,9 @@ class SystemPayWebhookView(APIView):
 
     def check_payment_transaction_match_subscription(self, serializer, subscription):
         if subscription.person is None:
-            # si la personne n'existe plus, il y a un problème, on met fin à la souscription
-            subscriptions.terminate_subscription(subscription)
+            # si la personne n'existe plus, il y a un problème, et on met fin à la souscription si elle est active
+            if subscription.status == Subscription.STATUS_ACTIVE:
+                subscriptions.terminate_subscription(subscription)
             logger.error(
                 "Paiement automatique déclenché par SystemPay sur une transaction sans personne "
                 "associée. Par sécurité, la subscription a été terminée.",
