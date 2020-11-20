@@ -34,12 +34,13 @@ ENABLE_DEBUG_TOOLBAR = os.environ.get("ENABLE_DEBUG_TOOLBAR", "false").lower() =
 ENABLE_SILK = os.environ.get("ENABLE_SILK", "false").lower() == "true"
 
 
-## Workarounds
-
-# Supprimer une fausse erreur
-# On a remplacé django.contrib.auth.context_processors.auth par un équivalent,
-# agir.authentication.context_processors.auth
-SILENCED_SYSTEM_CHECKS = ["admin.E402"]
+# Rendre certains warnings silencieux
+SILENCED_SYSTEM_CHECKS = [
+    # On a remplacé django.contrib.auth.context_processors.auth par un équivalent, agir.authentication.context_processors.auth
+    "admin.E402",
+    # social_django utilise encore des champs postgres JSON (au lieu du nouveau JSONField de Django)
+    "fields.W904",
+]
 
 # Django < 3.1 not compatible with GDAL 3
 if os.environ.get("GDAL_LIBRARY_PATH"):
