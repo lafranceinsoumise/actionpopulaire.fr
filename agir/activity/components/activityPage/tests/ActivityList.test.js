@@ -1,7 +1,7 @@
 import React from "react";
 import { render, cleanup, fireEvent } from "@testing-library/react";
 
-import ActivityList from "../ActivityList";
+import { ActivityList } from "../ActivityList";
 import { requiredActionTypes } from "../RequiredActionCard";
 
 const requiredActivity = {
@@ -31,7 +31,7 @@ const unrequiredActivity = {
   type: "not-" + requiredActionTypes[0],
   name: "not-" + requiredActionTypes[0],
 };
-const mockData = [requiredActivity, unrequiredActivity];
+
 jest.mock("@agir/front/genericComponents/GobalContext", () => ({
   useGlobalContext: () => ({
     dispatch: () => {},
@@ -48,47 +48,37 @@ jest.mock("../ActivityCard", () => {
 
 describe("genericComponents/ActivityList", function () {
   afterEach(cleanup);
-  it("should not render any list if props.data is empty", function () {
+  it("should not render any list if props.required and props.unrequired are empty", function () {
     const props = {
-      data: [],
+      required: [],
+      unrequired: [],
     };
     const component = render(<ActivityList {...props} />);
     const lists = component.queryAllByRole("list");
     expect(lists).toHaveLength(0);
   });
-  it("should not render any list if props.include is empty", function () {
+  it("should render only one list if props.required is not empty but props.unrequired is", function () {
     const props = {
-      data: mockData,
-      include: [],
-    };
-    const component = render(<ActivityList {...props} />);
-    const lists = component.queryAllByRole("list");
-    expect(lists).toHaveLength(0);
-  });
-  it("should render only one list if props.include includes 'required' and some required activity is found in props.data", function () {
-    const unrequired = [unrequiredActivity];
-    const props = {
-      data: unrequired,
-      include: ["required"],
+      required: [],
+      unrequired: [],
     };
     const component = render(<ActivityList {...props} />);
     let lists = component.queryAllByRole("list");
     expect(lists).toHaveLength(0);
-    props.data = [requiredActivity];
+    props.required = [requiredActivity];
     component.rerender(<ActivityList {...props} />);
     lists = component.queryAllByRole("list");
     expect(lists).toHaveLength(1);
   });
-  it("should render only one list if props.include includes 'unrequired' and some unrequired activity is found in props.data", function () {
-    const required = [requiredActivity];
+  it("should render only one list if props.unrequired is not empty but props.required is", function () {
     const props = {
-      data: required,
-      include: ["unrequired"],
+      unrequired: [],
+      required: [],
     };
     const component = render(<ActivityList {...props} />);
     let lists = component.queryAllByRole("list");
     expect(lists).toHaveLength(0);
-    props.data = [unrequiredActivity];
+    props.unrequired = [unrequiredActivity];
     component.rerender(<ActivityList {...props} />);
     lists = component.queryAllByRole("list");
     expect(lists).toHaveLength(1);
@@ -101,16 +91,16 @@ describe("genericComponents/ActivityList", function () {
       },
     ];
     const props = {
-      data: required,
-      include: ["required"],
+      required: required,
+      onDismiss: jest.fn(),
     };
+    expect(props.onDismiss.mock.calls).toHaveLength(0);
     const component = render(<ActivityList {...props} />);
     let lists = component.queryAllByRole("list");
     expect(lists).toHaveLength(1);
     const buttons = component.queryAllByRole("button");
     expect(buttons).toHaveLength(2);
     fireEvent.click(buttons[1]);
-    lists = component.queryAllByRole("list");
-    expect(lists).toHaveLength(0);
+    expect(props.onDismiss.mock.calls).toHaveLength(1);
   });
 });

@@ -84,28 +84,8 @@ export const parseActivities = (
   return [required, unrequired];
 };
 
-const ActivityList = (props) => {
-  const { data, include } = props;
-  const { dispatch } = useGlobalContext();
-
-  const [dismissed, setDismissed] = useState([]);
-  const handleDismiss = useCallback((id) => {
-    // TODO: Actually update the activity status
-    setDismissed((state) => [...state, id]);
-  }, []);
-
-  const [required, unrequired] = useMemo(
-    () => parseActivities(data, dismissed, include),
-    [data, include, dismissed]
-  );
-
-  useEffect(() => {
-    dispatch({
-      type: "update-required-action-activities",
-      requiredActionActivities: required,
-    });
-  }, [dispatch, required]);
-
+export const ActivityList = (props) => {
+  const { required, unrequired, onDismiss } = props;
   return (
     <article>
       {required.length + unrequired.length === 0 ? (
@@ -117,7 +97,7 @@ const ActivityList = (props) => {
           <h4>Vos notifications qui requièrent une action de votre part</h4>
           {required.map((activity) => (
             <li key={activity.id}>
-              <RequiredActionCard onDismiss={handleDismiss} {...activity} />
+              <RequiredActionCard onDismiss={onDismiss} {...activity} />
             </li>
           ))}
         </StyledList>
@@ -137,6 +117,55 @@ const ActivityList = (props) => {
   );
 };
 ActivityList.propTypes = {
+  required: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.isRequired,
+      type: PropTypes.string.isRequired,
+    })
+  ),
+  unrequired: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.isRequired,
+      type: PropTypes.string.isRequired,
+    })
+  ),
+  onDismiss: PropTypes.func,
+};
+ActivityList.defaultProps = {
+  required: [],
+  unrequired: [],
+};
+const ActivityListContainer = (props) => {
+  const { include } = props;
+  const { activities, dispatch } = useGlobalContext();
+
+  const [dismissed, setDismissed] = useState([]);
+  const handleDismiss = useCallback((id) => {
+    // TODO: Actually update the activity status
+    setDismissed((state) => [...state, id]);
+  }, []);
+
+  const [required, unrequired] = useMemo(
+    () => parseActivities(activities, dismissed, include),
+    [activities, include, dismissed]
+  );
+
+  useEffect(() => {
+    dispatch({
+      type: "update-required-action-activities",
+      requiredActionActivities: required,
+    });
+  }, [dispatch, required]);
+
+  return (
+    <ActivityList
+      required={required}
+      unrequired={unrequired}
+      onDismiss={handleDismiss}
+    />
+  );
+};
+ActivityListContainer.propTypes = {
   include: PropTypes.arrayOf(PropTypes.oneOf(["required", "unrequired"])),
   data: PropTypes.arrayOf(
     PropTypes.shape({
@@ -145,7 +174,7 @@ ActivityList.propTypes = {
     })
   ),
 };
-ActivityList.defaultProps = {
+ActivityListContainer.defaultProps = {
   include: ["required", "unrequired"],
 };
-export default ActivityList;
+export default ActivityListContainer;

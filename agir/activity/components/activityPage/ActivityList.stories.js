@@ -1,6 +1,6 @@
 import React from "react";
 
-import ActivityList from "./ActivityList";
+import { ActivityList } from "./ActivityList";
 import * as RequiredActionCardStories from "./RequiredActionCard.stories";
 
 export default {
@@ -19,7 +19,7 @@ const Template = (args) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  data: [
+  unrequired: [
     {
       id: String(Date.now() + 1),
       type: "event-update",
@@ -51,13 +51,11 @@ Default.args = {
       },
       timestamp: Date.now(),
     },
+  ],
+  required: [
     ...Object.values(RequiredActionCardStories)
       .map(({ args }) => args)
       .filter(Boolean),
   ],
-};
-export const RequiredOnly = Template.bind({});
-RequiredOnly.args = {
-  ...Default.args,
-  include: ["required"],
+  onDismiss: () => {},
 };
