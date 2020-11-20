@@ -8,6 +8,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import styled from "styled-components";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import Collapsible from "@agir/front/genericComponents/Collapsible.js";
 
 const Label = styled.span`
   font-size: 13px;
@@ -98,10 +99,13 @@ const GroupCard = ({
       )}
 
       {displayDescription && description && (
-        <div
-          dangerouslySetInnerHTML={{ __html: description }}
-          style={{ margin: "24px 0" }}
-        />
+        <div style={{ margin: "24px 0" }}>
+          <Collapsible
+            maxHeight={100}
+            expanderLabel="Lire la suite"
+            dangerouslySetInnerHTML={{ __html: description }}
+          />
+        </div>
       )}
 
       {discountCodes && discountCodes.length > 0 && (

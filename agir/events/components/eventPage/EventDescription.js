@@ -17,7 +17,7 @@ const EventDescription = ({
 }) => (
   <>
     {(!!compteRendu || compteRenduPhotos.length > 0) && (
-      <h2 style={{ fontSize: "20px" }}>Compte-rendu</h2>
+      <h2 style={{ fontSize: "20px", marginTop: 0 }}>Compte-rendu</h2>
     )}
     {compteRenduPhotos.length > 0 && (
       <Row gutter={12}>
@@ -52,9 +52,11 @@ const EventDescription = ({
         style={{ margin: "1em 0 3em" }}
       />
     )}
-    {description && <h2 style={{ fontSize: "20px" }}>L'événement</h2>}
-    <Hide under>
-      {illustration && (
+    {description && (
+      <h2 style={{ fontSize: "20px", marginTop: 0 }}>L'événement</h2>
+    )}
+    {illustration && (
+      <Hide under>
         <img
           src={illustration}
           alt="Image d'illustration de l'événement postée par l'utilisateur"
@@ -65,15 +67,17 @@ const EventDescription = ({
             marginBottom: "32px",
           }}
         />
-      )}
-    </Hide>
+      </Hide>
+    )}
     {description ? (
       <Collapsible dangerouslySetInnerHTML={{ __html: description }} />
     ) : (
-      endTime < DateTime.local() &&
+      endTime > DateTime.local() &&
       isOrganizer && (
         <>
-          <h2 style={{ fontSize: "20px" }}>Ajoutez une description !</h2>
+          <h2 style={{ fontSize: "20px", marginTop: 0 }}>
+            Ajoutez une description !
+          </h2>
           <p>
             Donner tous les informations nécessaires aux participants de votre
             événement. Comment accéder au lieu, quel est le programme, les liens

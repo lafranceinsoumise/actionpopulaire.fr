@@ -22,10 +22,10 @@ const StyledButton = styled.button`
 `;
 
 const ExpandButton = (props) => {
-  const { onClick, disabled } = props;
+  const { onClick, disabled, label } = props;
   return (
     <StyledButton onClick={onClick} disabled={disabled}>
-      Voir plus&nbsp;
+      {label}&nbsp;
       <FeatherIcon name="chevron-down" small inline />
     </StyledButton>
   );
@@ -33,8 +33,10 @@ const ExpandButton = (props) => {
 ExpandButton.propTypes = {
   onClick: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
+  label: PropTypes.string,
 };
 ExpandButton.defaultProps = {
   disabled: false,
+  label: "Voir plus",
 };
 export default ExpandButton;

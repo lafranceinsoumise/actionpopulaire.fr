@@ -160,7 +160,12 @@ export const Container = styled.section`
   }
 `;
 
-export const ResponsiveLayout = ({ mobile, desktop, breakpoint }) => {
+export const ResponsiveLayout = ({
+  MobileLayout,
+  DesktopLayout,
+  breakpoint,
+  ...props
+}) => {
   breakpoint = breakpoint || collapse;
   const [isDesktop, setDesktop] = useState(window.innerWidth > breakpoint);
 
@@ -176,10 +181,10 @@ export const ResponsiveLayout = ({ mobile, desktop, breakpoint }) => {
     };
   }, [refresh]);
 
-  return <>{isDesktop ? desktop : mobile}</>;
+  return isDesktop ? <DesktopLayout {...props} /> : <MobileLayout {...props} />;
 };
 ResponsiveLayout.propTypes = {
-  mobile: PropTypes.node.isRequired,
-  desktop: PropTypes.node.isRequired,
+  MobileLayout: PropTypes.element.isRequired,
+  DesktopLayout: PropTypes.element.isRequired,
   breakpoint: PropTypes.number,
 };

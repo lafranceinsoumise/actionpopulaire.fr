@@ -47,13 +47,15 @@ export function displayHumanDay(datetime, relativeTo, interval) {
   } else if (calendarDays <= 8) {
     const calendarWeeks = interval.count("weeks");
     const qualifier =
-      relativeTo < datetime
-        ? calendarWeeks > 1
-          ? " prochain"
-          : ""
-        : " dernier";
-    return `${datetime.weekdayLong}${qualifier}`;
+      relativeTo < datetime ? (calendarWeeks > 1 ? "prochain" : "") : "dernier";
+    return `${datetime.weekdayLong} ${qualifier}`.trim();
   }
+
+  return datetime.toLocaleString({
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
 }
 
 export function displayHumanDate(datetime, relativeTo) {
