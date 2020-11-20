@@ -87,9 +87,12 @@ def save_subscription_information(person, type, data):
 
     with transaction.atomic():
         if data.get("mandat"):
-            types_elus[data["mandat"]].objects.get_or_create(
-                person=person, defaults={"statut": STATUT_A_VERIFIER_INSCRIPTION}
-            )
+            try:
+                types_elus[data["mandat"]].objects.get_or_create(
+                    person=person, defaults={"statut": STATUT_A_VERIFIER_INSCRIPTION}
+                )
+            except types_elus[data["mandat"]].MultipleObjectsReturned:
+                pass
 
         person.save()
 
