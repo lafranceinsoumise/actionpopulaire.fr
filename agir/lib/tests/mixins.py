@@ -12,6 +12,7 @@ from faker import Faker
 from agir.events.models import Calendar, Event, OrganizerConfig, RSVP
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.people.models import Person, PersonForm, PersonFormSubmission
+from agir.activity.models import Activity
 
 PASSWORD = "incredible password"
 
@@ -103,6 +104,59 @@ def create_person():
 def create_people(how_many=2):
     people = [create_person() for _ in range(how_many)]
     return people
+
+
+# ACTIVITIES
+def create_activity(person_email):
+    person = get_random_object(Person)
+    if person_email:
+        try:
+            person = Person.objects.get(email=person_email)
+        except:
+            person = person
+
+    activity = {
+        "type": random.choice(
+            [
+                Activity.TYPE_WAITING_PAYMENT,
+                Activity.TYPE_GROUP_INVITATION,
+                Activity.TYPE_NEW_MEMBER,
+                Activity.TYPE_WAITING_LOCATION_GROUP,
+                Activity.TYPE_GROUP_COORGANIZATION_INVITE,
+                Activity.TYPE_WAITING_LOCATION_EVENT,
+                Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED,
+                Activity.TYPE_GROUP_INFO_UPDATE,
+                Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
+                Activity.TYPE_NEW_ATTENDEE,
+                Activity.TYPE_EVENT_UPDATE,
+                Activity.TYPE_NEW_EVENT_MYGROUPS,
+                Activity.TYPE_NEW_REPORT,
+                Activity.TYPE_NEW_EVENT_AROUNDME,
+                Activity.TYPE_GROUP_COORGANIZATION_INFO,
+                Activity.TYPE_CANCELLED_EVENT,
+            ]
+        ),
+        "status": random.choice(
+            [
+                Activity.STATUS_UNDISPLAYED,
+                Activity.STATUS_DISPLAYED,
+                Activity.STATUS_INTERACTED,
+            ]
+        ),
+        "event": get_random_object(Event),
+        "recipient": person,
+        "individual": get_random_object(Person),
+        "supportgroup": get_random_object(SupportGroup),
+    }
+    activity = Activity.objects.create(**activity)
+
+    return activity
+
+
+@transaction.atomic
+def create_activities(how_many=2, person_email=None):
+    activities = [create_activity(person_email) for _ in range(how_many)]
+    return activities
 
 
 # GROUPS
@@ -219,9 +273,7 @@ def create_events(how_many=2):
     return events
 
 
-# PERSON FORM
-
-
+# PERSON FORMS
 def create_person_form():
     choices = fake.words(7)
     person_form = {

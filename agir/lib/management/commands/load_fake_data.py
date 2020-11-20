@@ -7,6 +7,7 @@ from agir.lib.tests.mixins import (
     create_groups,
     create_events,
     create_person_forms,
+    create_activities,
 )
 
 
@@ -33,6 +34,12 @@ class Command(BaseCommand):
         parser.add_argument(
             "--seed_events", type=int, help="Create n event objects",
         )
+        parser.add_argument(
+            "--seed_activities", type=int, help="Create n activity objects",
+        )
+        parser.add_argument(
+            "--email", type=str, help="The email of the activity related person",
+        )
 
     def handle(self, *args, **options):
         if options["seed_people"]:
@@ -56,6 +63,11 @@ class Command(BaseCommand):
                 "Seeding database with %d Event objects" % options["seed_events"]
             )
             create_events(options["seed_events"])
+        elif options["seed_activities"]:
+            self.stdout.write(
+                "Seeding database with %d Activity objects" % options["seed_activities"]
+            )
+            create_activities(options["seed_activities"], options["email"])
         elif options["update"] == True:
             self.stdout.write("Updating database fake data")
             update_fake_data()
