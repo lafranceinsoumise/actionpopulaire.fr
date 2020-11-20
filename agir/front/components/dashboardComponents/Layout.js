@@ -26,17 +26,10 @@ const FixedColumn = styled(Column)`
   z-index: 2;
 
   @media (min-width: ${style.collapse}px) {
-    position: fixed;
+    position: sticky;
     top: 72px;
     padding: 72px 0;
-    height: calc(100vh - 72px);
-    overflow-x: hidden;
-    overflow-y: auto;
   }
-`;
-
-const PlaceholderColumn = styled(Column)`
-  visibility: hidden;
 `;
 
 const MainColumn = styled(Column)`
@@ -61,13 +54,10 @@ const GrayDesktopBackground = styled(GrayBackground)`
 const Layout = (props) => (
   <GrayDesktopBackground>
     <MainContainer>
-      <Row gutter={72}>
+      <Row gutter={72} align="flex-start">
         <FixedColumn>
           <Navigation {...props} />
         </FixedColumn>
-        <PlaceholderColumn>
-          <Navigation {...props} />
-        </PlaceholderColumn>
         <MainColumn grow>
           <section>
             {props.title ? (
