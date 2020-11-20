@@ -38,6 +38,7 @@ const TopBar = styled.div`
   flex-direction: row;
   margin-bottom: 24px;
   justify-content: space-between;
+
   & > h1 {
     @media only screen and (max-width: ${style.collapse}px) {
       display: none;
@@ -46,8 +47,23 @@ const TopBar = styled.div`
     font-size: 28px;
   }
 
-  & ${Button} {
-    margin-right: 0.5rem;
+  & > div {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+
+    @media only screen and (max-width: ${style.collapse}px) {
+      flex-direction: row;
+    }
+  }
+
+  & ${Button} + ${Button} {
+    @media only screen and (min-width: ${style.collapse}px) {
+      margin-right: 0.5rem;
+    }
+    @media only screen and (max-width: ${style.collapse}px) {
+      margin-left: 0.5rem;
+    }
   }
 `;
 
@@ -64,8 +80,15 @@ const StyledAgenda = styled.div`
   }
 
   & h2,
-  & ${TopBar}, & ${Day} {
+  & ${Day} {
     margin: 20px 0;
+
+    @media (max-width: ${style.collapse}px) {
+      margin: 20px 25px;
+    }
+  }
+  & ${TopBar} {
+    margin: 0;
 
     @media (max-width: ${style.collapse}px) {
       margin: 20px 25px;
@@ -129,7 +152,9 @@ const Agenda = ({ rsvped, suggested }) => {
             <h2>Les événements près de chez moi</h2>
             {Object.entries(
               suggested.reduce((days, event) => {
-                const day = displayHumanDay(DateTime.fromISO(event.startTime));
+                const day = displayHumanDay(
+                  DateTime.fromISO(event.startTime).setLocale("fr")
+                );
                 (days[day] = days[day] || []).push(event);
                 return days;
               }, {})

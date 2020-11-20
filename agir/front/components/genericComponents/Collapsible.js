@@ -31,7 +31,7 @@ const FadingOverflowWrapper = styled.div`
   }
 `;
 const FadingOverflowCollapsible = (props) => {
-  const { children, maxHeight, dangerouslySetInnerHTML } = props;
+  const { children, maxHeight, dangerouslySetInnerHTML, expanderLabel } = props;
 
   const wrapper = useRef(null);
   const [mayCollapse, setMayCollapse] = useState(false);
@@ -78,7 +78,9 @@ const FadingOverflowCollapsible = (props) => {
           {content}
         </FadingOverflowWrapper>
       )}
-      {mayCollapse && isCollapsed && <ExpandButton onClick={expand} />}
+      {mayCollapse && isCollapsed && (
+        <ExpandButton onClick={expand} label={expanderLabel} />
+      )}
     </>
   );
 };
@@ -88,6 +90,7 @@ FadingOverflowCollapsible.propTypes = {
     __html: PropTypes.string,
   }),
   maxHeight: PropTypes.number,
+  expanderLabel: PropTypes.string,
 };
 FadingOverflowCollapsible.defaultProps = {
   maxHeight: 300,
@@ -100,7 +103,7 @@ const StyledWrapper = styled.div`
 `;
 
 const Collapsible = (props) => {
-  const { children, maxHeight, dangerouslySetInnerHTML } = props;
+  const { children, maxHeight, dangerouslySetInnerHTML, expanderLabel } = props;
 
   const wrapper = useRef(null);
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -148,7 +151,7 @@ const Collapsible = (props) => {
           {content}
         </StyledWrapper>
       )}
-      {isCollapsed && <ExpandButton onClick={expand} />}
+      {isCollapsed && <ExpandButton onClick={expand} label={expanderLabel} />}
     </>
   );
 };
@@ -158,6 +161,7 @@ Collapsible.propTypes = {
     __html: PropTypes.string,
   }),
   maxHeight: PropTypes.number,
+  expanderLabel: PropTypes.string,
 };
 Collapsible.defaultProps = {
   maxHeight: 300,

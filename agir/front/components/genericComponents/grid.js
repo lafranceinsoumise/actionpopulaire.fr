@@ -110,11 +110,17 @@ export const Row = styled.div`
       typeof props.gutter === "undefined" ? gutter : props.gutter}px;
   }
 
+  & > ${Column} > section {
+    margin-left: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
+    margin-right: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
+    border-radius: 0px;
+  }
+
   @media (max-width: ${(props) =>
       typeof props.collapse === "undefined"
         ? collapse
         : props.collapse || 0}px) {
-    & > ${Column} > ${Card}, & > ${Column} > section {
+    & > ${Column} > ${Card} {
       margin-left: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
       margin-right: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
       border-radius: 0px;
@@ -154,7 +160,12 @@ export const Container = styled.section`
   }
 `;
 
-export const ResponsiveLayout = ({ mobile, desktop, breakpoint }) => {
+export const ResponsiveLayout = ({
+  MobileLayout,
+  DesktopLayout,
+  breakpoint,
+  ...props
+}) => {
   breakpoint = breakpoint || collapse;
   const [isDesktop, setDesktop] = useState(window.innerWidth > breakpoint);
 
@@ -170,10 +181,10 @@ export const ResponsiveLayout = ({ mobile, desktop, breakpoint }) => {
     };
   }, [refresh]);
 
-  return <>{isDesktop ? desktop : mobile}</>;
+  return isDesktop ? <DesktopLayout {...props} /> : <MobileLayout {...props} />;
 };
 ResponsiveLayout.propTypes = {
-  mobile: PropTypes.node.isRequired,
-  desktop: PropTypes.node.isRequired,
+  MobileLayout: PropTypes.element.isRequired,
+  DesktopLayout: PropTypes.element.isRequired,
   breakpoint: PropTypes.number,
 };

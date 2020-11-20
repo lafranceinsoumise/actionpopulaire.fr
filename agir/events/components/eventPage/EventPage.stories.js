@@ -25,6 +25,19 @@ export default {
       </TestGlobalContextProvider>
     ),
   ],
+  argTypes: {
+    logged: {
+      type: "boolean",
+    },
+    startTime: {
+      type: "string",
+      control: { type: "date" },
+    },
+    endTime: {
+      type: "string",
+      control: { type: "date" },
+    },
+  },
 };
 
 const testAppRoutes = [

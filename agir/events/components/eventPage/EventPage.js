@@ -20,10 +20,31 @@ import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
+const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
-  & > ${Card} {
-    box-shadow: none;
-    border-bottom: 1px solid #c4c4c4;
+  & > ${Card}, & > ${CardLikeSection} {
+    @media (max-width: ${style.collapse}px) {
+      padding: 1.375rem;
+      box-shadow: none;
+      border-bottom: 1px solid #c4c4c4;
+      margin-bottom: 0;
+    }
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  & > ${CardLikeSection} {
+    & > h3 {
+      margin: 0;
+    }
+    & > ${Card} {
+      padding: 1.375rem 0;
+      box-shadow: none;
+    }
   }
 `;
 
@@ -56,20 +77,18 @@ const MobileLayout = (props) => {
             <EventInfoCard {...props} />
           )}
           <Card>
-            <EventDescription {...props} />
+            <EventDescription {...props} illustration={null} />
           </Card>
           {props.contact && <ContactCard {...props.contact} />}
           {props.routes.facebook && <EventFacebookLinkCard {...props} />}
           <ShareCard />
           {props.groups.length > 0 && (
-            <div>
-              <h3 style={{ marginBottom: "1rem", marginTop: "2.5rem" }}>
-                Organisé par
-              </h3>
+            <CardLikeSection>
+              <h3>Organisé par</h3>
               {props.groups.map((group, key) => (
                 <GroupCard key={key} {...group} />
               ))}
-            </div>
+            </CardLikeSection>
           )}
         </StyledColumn>
       </Row>
@@ -114,7 +133,7 @@ const DesktopLayout = (props) => {
               </div>
             )}
           </Column>
-          <Column width="380px" style={{ paddingTop: "24px" }}>
+          <StyledColumn width="380px" style={{ paddingTop: "24px" }}>
             <EventLocationCard {...props} />
             {props.contact && <ContactCard {...props.contact} />}
             {(props.participantCount > 1 || props.groups.length > 0) && (
@@ -122,26 +141,36 @@ const DesktopLayout = (props) => {
             )}
             {props.routes.facebook && <EventFacebookLinkCard {...props} />}
             <ShareCard />
-          </Column>
+          </StyledColumn>
         </Row>
       </Container>
     </GrayBackground>
   );
 };
 
-const EventPage = ({ startTime, endTime, ...props }) => {
-  props = {
-    ...props,
-    schedule: Interval.fromDateTimes(
-      DateTime.fromISO(startTime).setLocale("fr"),
-      DateTime.fromISO(endTime).setLocale("fr")
-    ),
-  };
-
+const EventPage = (props) => {
+  const { startTime, endTime, ...rest } = props;
+  const start =
+    typeof startTime === "string"
+      ? DateTime.fromISO(startTime).setLocale("fr")
+      : typeof startTime === "number"
+      ? DateTime.fromMillis(startTime).setLocale("fr")
+      : null;
+  const end =
+    typeof endTime === "string"
+      ? DateTime.fromISO(endTime).setLocale("fr")
+      : typeof endTime === "number"
+      ? DateTime.fromMillis(endTime).setLocale("fr")
+      : null;
+  const schedule = Interval.fromDateTimes(start, end);
   return (
     <ResponsiveLayout
-      desktop={<DesktopLayout {...props} />}
-      mobile={<MobileLayout {...props} />}
+      {...rest}
+      startTime={start}
+      endTime={end}
+      schedule={schedule}
+      DesktopLayout={DesktopLayout}
+      MobileLayout={MobileLayout}
     />
   );
 };
@@ -156,8 +185,9 @@ EventPage.propTypes = {
   compteRenduPhotos: PropTypes.arrayOf(PropTypes.string),
   illustration: PropTypes.string,
   description: PropTypes.string,
-  startTime: PropTypes.string.isRequired,
-  endTime: PropTypes.string.isRequired,
+  startTime: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    .isRequired,
+  endTime: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   location: PropTypes.shape({
     name: PropTypes.string,
     address: PropTypes.string,
@@ -183,6 +213,8 @@ EventPage.propTypes = {
 
 MobileLayout.propTypes = DesktopLayout.propTypes = {
   ...EventPage.propTypes,
+  startTime: PropTypes.instanceOf(DateTime),
+  endTime: PropTypes.instanceOf(DateTime),
   schedule: PropTypes.instanceOf(Interval),
 };
 

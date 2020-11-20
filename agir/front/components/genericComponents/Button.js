@@ -49,7 +49,8 @@ const buttonColors = {
  * Pour une raison obscure, lorsque la taille dédiée au contenu (telle que déterminée par min-height)
  */
 const Button = styled.button.attrs(({ color }) => buttonColors[color])`
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   white-space: nowrap;
   padding: ${({ small }) => (small ? "0.5rem 0.75rem" : "0.75rem 1.5rem")};
   line-height: ${({ small }) =>
@@ -94,12 +95,17 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
     icon
       ? `
     &:before {
-      content: url('data:image/svg+xml;utf8,${
+      content: "";
+      display: inline-block;
+      height: ${small ? "11px" : "16px"};
+      width: ${small ? "11px" : "16px"};
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-image: url('data:image/svg+xml;utf8,${
         icons[icon]
           .toSvg({
             color: encodeURI(labelColor),
-            height: small ? 11 : 16,
-            width: small ? 11 : 16,
           })
           .replace("#", "%23")
         /*
@@ -109,8 +115,6 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
          * exemple) ne fonctionne pas.
          *  */
       }');
-      position: relative;
-      top: 0.15rem;
       margin-right: ${small ? "0.25rem" : "0.5rem"};
     }
   `

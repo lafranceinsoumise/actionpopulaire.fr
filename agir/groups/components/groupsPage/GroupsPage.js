@@ -29,8 +29,23 @@ const TopBar = styled.div`
     }
   }
 
+  & > div {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+
+    @media only screen and (max-width: ${style.collapse}px) {
+      flex-direction: row;
+    }
+  }
+
   & ${Button} + ${Button} {
-    margin-left: 10px;
+    @media only screen and (min-width: ${style.collapse}px) {
+      margin-right: 0.5rem;
+    }
+    @media only screen and (max-width: ${style.collapse}px) {
+      margin-left: 0.5rem;
+    }
   }
 `;
 

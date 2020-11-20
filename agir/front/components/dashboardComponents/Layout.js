@@ -21,55 +21,43 @@ export const LayoutTitle = styled.h1`
   }
 `;
 
-const MainColumn = styled(Column)``;
+const FixedColumn = styled(Column)`
+  position: relative;
+  z-index: 2;
+
+  @media (min-width: ${style.collapse}px) {
+    position: sticky;
+    top: 72px;
+    padding: 72px 0;
+  }
+`;
+
+const MainColumn = styled(Column)`
+  padding-top: 72px;
+
+  @media (max-width: ${style.collapse}px) {
+    padding-top: 0;
+  }
+`;
 
 const MainContainer = styled(Container)`
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100vh;
-  width: 100%;
-  overflow: hidden;
-  padding-top: 72px;
+  min-height: calc(100vh - 72px);
   padding-bottom: 72px;
+`;
 
-  & > ${Row} > ${Column} {
-    max-height: calc(100vh - 72px);
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding-top: 72px;
-
-    @media (max-width: ${style.collapse}px) {
-      padding-top: 0;
-    }
-  }
-
-  & > ${Row} > ${MainColumn} {
-    height: calc(100vh - 72px);
-
-    @media (max-width: ${style.collapse}px) {
-      padding-top: 0;
-      padding-bottom: 100px;
-      height: calc(100vh - 144px);
-    }
-
-    & > section {
-      @media (min-width: ${style.collapse}px) {
-        max-width: 720px;
-      }
-    }
+const GrayDesktopBackground = styled(GrayBackground)`
+  @media (max-width: ${style.collapse}px) {
+    background-color: ${style.white};
   }
 `;
 
 const Layout = (props) => (
-  <GrayBackground>
+  <GrayDesktopBackground>
     <MainContainer>
-      <Row gutter={72}>
-        <Column>
+      <Row gutter={72} align="flex-start">
+        <FixedColumn>
           <Navigation {...props} />
-        </Column>
+        </FixedColumn>
         <MainColumn grow>
           <section>
             {props.title ? (
@@ -82,7 +70,7 @@ const Layout = (props) => (
         </MainColumn>
       </Row>
     </MainContainer>
-  </GrayBackground>
+  </GrayDesktopBackground>
 );
 
 export default Layout;

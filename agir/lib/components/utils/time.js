@@ -47,13 +47,15 @@ export function displayHumanDay(datetime, relativeTo, interval) {
   } else if (calendarDays <= 8) {
     const calendarWeeks = interval.count("weeks");
     const qualifier =
-      relativeTo < datetime
-        ? calendarWeeks > 1
-          ? " prochain"
-          : ""
-        : " dernier";
-    return `${datetime.weekdayLong}${qualifier}`;
+      relativeTo < datetime ? (calendarWeeks > 1 ? "prochain" : "") : "dernier";
+    return `${datetime.weekdayLong} ${qualifier}`.trim();
   }
+
+  return datetime.toLocaleString({
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
 }
 
 export function displayHumanDate(datetime, relativeTo) {
@@ -123,11 +125,12 @@ export function displayIntervalStart(interval, relativeTo) {
   if (relativeTo === undefined) {
     relativeTo = DateTime.local().setLocale("fr");
   }
+  const startDate = interval.start.setLocale("fr-FR");
 
   const fromNowInterval =
-    relativeTo < interval.start
-      ? Interval.fromDateTimes(relativeTo, interval.start)
-      : Interval.fromDateTimes(interval.start, relativeTo);
+    relativeTo < startDate
+      ? Interval.fromDateTimes(relativeTo, startDate)
+      : Interval.fromDateTimes(startDate, relativeTo);
 
   const showYear = fromNowInterval.count("months") > 4;
   const scheduleCalendarDays = interval.count("days");
@@ -139,16 +142,16 @@ export function displayIntervalStart(interval, relativeTo) {
   };
 
   if (scheduleCalendarDays === 1) {
-    const dayPart = interval.start.toLocaleString(dayPartFormat);
-    const hourPart = `à ${interval.start.toLocaleString(HOUR_ONLY_FORMAT)}`;
+    const dayPart = startDate.toLocaleString(dayPartFormat);
+    const hourPart = `${startDate.toLocaleString(HOUR_ONLY_FORMAT)}`;
 
     return `${dayPart}, ${hourPart}`;
   }
 
-  const start = interval.start.toLocaleString({
+  const start = startDate.toLocaleString({
     ...dayPartFormat,
     ...HOUR_ONLY_FORMAT,
   });
 
-  return `du ${start}`;
+  return `${start}`;
 }

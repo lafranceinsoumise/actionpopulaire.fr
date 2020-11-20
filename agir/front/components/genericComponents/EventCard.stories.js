@@ -36,7 +36,7 @@ const Template = decorateArgs(
     location: {
       name: "locationName",
       address: "locationAddress",
-      shortAddress: "shortAddress",
+      shortLocation: "shortLocation",
     },
   }),
   EventCard
@@ -56,11 +56,15 @@ Default.args = {
     "https://i.picsum.photos/id/523/1920/1080.jpg?hmac=sy_3fHrsxYu8cmYYWmQ2yWzPMfGNI42qloxWKF97ISk",
   locationName: "Place de la République",
   locationAddress: "Place de la République\n75011 Paris",
-  shortAddress: "Place de la République, 75011, Paris",
+  shortLocation: "Place de la République, 75011, Paris",
   routes: {
     join: "#join",
     cancel: "#cancel",
     compteRendu: "#compteRendu",
     details: "#details",
   },
+  groups: [
+    { id: "A", name: "Groupe d'action 1" },
+    { id: "B", name: "Groupe d'action B" },
+  ],
 };

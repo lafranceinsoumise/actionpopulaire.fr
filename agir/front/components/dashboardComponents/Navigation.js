@@ -54,8 +54,9 @@ const SecondaryMenuItem = styled.li`
 `;
 
 const Menu = styled.ul`
+  padding: 0;
+
   @media only screen and (max-width: ${style.collapse}px) {
-    padding: 0;
     max-width: 600px;
     margin: auto;
     display: flex;
