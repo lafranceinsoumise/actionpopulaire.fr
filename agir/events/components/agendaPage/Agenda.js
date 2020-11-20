@@ -64,8 +64,15 @@ const StyledAgenda = styled.div`
   }
 
   & h2,
-  & ${TopBar}, & ${Day} {
+  & ${Day} {
     margin: 20px 0;
+
+    @media (max-width: ${style.collapse}px) {
+      margin: 20px 25px;
+    }
+  }
+  & ${TopBar} {
+    margin: 0;
 
     @media (max-width: ${style.collapse}px) {
       margin: 20px 25px;

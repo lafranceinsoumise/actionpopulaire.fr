@@ -21,55 +21,47 @@ export const LayoutTitle = styled.h1`
   }
 `;
 
-const MainColumn = styled(Column)``;
+const FixedColumn = styled(Column)`
+  position: relative;
+  z-index: 2;
 
-const MainContainer = styled(Container)`
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100vh;
-  width: 100%;
-  overflow: hidden;
-  padding-top: 72px;
-  padding-bottom: 72px;
-
-  & > ${Row} > ${Column} {
-    max-height: calc(100vh - 72px);
+  @media (min-width: ${style.collapse}px) {
+    position: fixed;
+    top: 72px;
+    padding: 72px 0;
+    height: calc(100vh - 72px);
     overflow-x: hidden;
     overflow-y: auto;
-    padding-top: 72px;
-
-    @media (max-width: ${style.collapse}px) {
-      padding-top: 0;
-    }
   }
+`;
 
-  & > ${Row} > ${MainColumn} {
-    height: calc(100vh - 72px);
+const PlaceholderColumn = styled(Column)`
+  visibility: hidden;
+`;
 
-    @media (max-width: ${style.collapse}px) {
-      padding-top: 0;
-      padding-bottom: 100px;
-      height: calc(100vh - 144px);
-    }
+const MainColumn = styled(Column)`
+  padding-top: 72px;
 
-    & > section {
-      @media (min-width: ${style.collapse}px) {
-        max-width: 720px;
-      }
-    }
+  @media (max-width: ${style.collapse}px) {
+    padding-top: 0;
   }
+`;
+
+const MainContainer = styled(Container)`
+  min-height: calc(100vh - 72px);
+  padding-bottom: 72px;
 `;
 
 const Layout = (props) => (
   <GrayBackground>
     <MainContainer>
       <Row gutter={72}>
-        <Column>
+        <FixedColumn>
           <Navigation {...props} />
-        </Column>
+        </FixedColumn>
+        <PlaceholderColumn>
+          <Navigation {...props} />
+        </PlaceholderColumn>
         <MainColumn grow>
           <section>
             {props.title ? (
