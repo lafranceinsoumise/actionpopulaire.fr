@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
-from agir.elus.models import types_elus
+from agir.elus.models import types_elus, STATUT_A_VERIFIER_INSCRIPTION
 from agir.lib.http import add_query_params_to_url
 from agir.people.models import Person
 
@@ -86,7 +86,9 @@ def save_subscription_information(person, type, data):
     person.save()
 
     if data.get("mandat"):
-        types_elus[data["mandat"]].objects.create(person=person)
+        types_elus[data["mandat"]].objects.get_or_create(
+            person=person, defaults={"status": STATUT_A_VERIFIER_INSCRIPTION}
+        )
 
 
 def nsp_confirmed_url(id, data):
