@@ -5,26 +5,48 @@ import hmac
 from base64 import b64encode
 from django.conf import settings
 from django.utils import timezone
+from django.utils.functional import cached_property
 from zeep import Client, xsd
 
 from agir.payments.models import Subscription
 from agir.system_pay import SystemPayError
 from agir.system_pay.utils import get_recurrence_rule
 
-client = Client("https://paiement.systempay.fr/vads-ws/v5?wsdl")
 header_namespace = "{http://v5.ws.vads.lyra.com/Header/}"
 prefix_namespace = "{http://v5.ws.vads.lyra.com/}"
-cancel_subscription_type = client.get_type(prefix_namespace + "cancelSubscription")
-common_request_type = client.get_type(prefix_namespace + "commonRequest")
-query_request_type = client.get_type(prefix_namespace + "queryRequest")
-order_request_type = client.get_type(prefix_namespace + "orderRequest")
-card_request_type = client.get_type(prefix_namespace + "cardRequest")
-subscription_request_type = client.get_type(prefix_namespace + "subscriptionRequest")
 
 
 class SystemPaySoapClient:
     def __init__(self, sp_config):
         self.sp_config = sp_config
+
+    @cached_property
+    def client(self):
+        return Client("https://paiement.systempay.fr/vads-ws/v5?wsdl")
+
+    @cached_property
+    def cancel_subscription_type(self):
+        return self.client.get_type(prefix_namespace + "cancelSubscription")
+
+    @cached_property
+    def common_request_type(self):
+        return self.client.get_type(prefix_namespace + "commonRequest")
+
+    @cached_property
+    def query_request_type(self):
+        return self.client.get_type(prefix_namespace + "queryRequest")
+
+    @cached_property
+    def order_request_type(self):
+        return self.client.get_type(prefix_namespace + "orderRequest")
+
+    @cached_property
+    def card_request_type(self):
+        return self.client.get_type(prefix_namespace + "cardRequest")
+
+    @cached_property
+    def subscription_request_type(self):
+        return self.client.get_type(prefix_namespace + "subscriptionRequest")
 
     def _get_header(self):
         headers = list()
@@ -53,10 +75,10 @@ class SystemPaySoapClient:
         return headers
 
     def cancel_alias(self, alias):
-        res = client.service.cancelToken(
+        res = self.client.service.cancelToken(
             _soapheaders=self._get_header(),
-            commonRequest=common_request_type(),
-            queryRequest=query_request_type(paymentToken=alias.identifier.hex),
+            commonRequest=self.common_request_type(),
+            queryRequest=self.query_request_type(paymentToken=alias.identifier.hex),
         )
 
         if res["commonResponse"]["responseCode"] > 0:
@@ -66,10 +88,10 @@ class SystemPaySoapClient:
         system_pay_subscription = subscription.system_pay_subscriptions.get(active=True)
         alias = system_pay_subscription.alias
 
-        res = client.service.cancelSubscription(
+        res = self.client.service.cancelSubscription(
             _soapheaders=self._get_header(),
-            commonRequest=common_request_type(),
-            queryRequest=query_request_type(
+            commonRequest=self.common_request_type(),
+            queryRequest=self.query_request_type(
                 paymentToken=alias.identifier.hex,
                 subscriptionId=system_pay_subscription.identifier,
             ),
@@ -85,9 +107,9 @@ class SystemPaySoapClient:
         system_pay_subscription = subscription.system_pay_subscriptions.get(active=True)
         alias = system_pay_subscription.alias
 
-        res = client.service.getSubscriptionDetails(
+        res = self.client.service.getSubscriptionDetails(
             _soapheaders=self._get_header(),
-            queryRequest=query_request_type(
+            queryRequest=self.query_request_type(
                 paymentToken=alias.identifier.hex,
                 subscriptionId=system_pay_subscription.identifier,
             ),
@@ -118,11 +140,11 @@ class SystemPaySoapClient:
         if not alias.active:
             raise ValueError("L'alias doit être actif.")
 
-        res = client.service.createSubscription(
+        res = self.client.service.createSubscription(
             _soapheaders=self._get_header(),
-            commonRequest=common_request_type(),
-            orderRequest=order_request_type(orderId=f"S{subscription.id}"),
-            subscriptionRequest=subscription_request_type(
+            commonRequest=self.common_request_type(),
+            orderRequest=self.order_request_type(orderId=f"S{subscription.id}"),
+            subscriptionRequest=self.subscription_request_type(
                 effectDate=(timezone.now() + timezone.timedelta(hours=2)).strftime(
                     "%Y-%m-%dT%H:%M:%SZ"
                 ),
@@ -132,7 +154,7 @@ class SystemPaySoapClient:
                 currency=settings.SYSTEMPAY_CURRENCY,
                 rrule=get_recurrence_rule(subscription),
             ),
-            cardRequest=card_request_type(paymentToken=alias.identifier.hex),
+            cardRequest=self.card_request_type(paymentToken=alias.identifier.hex),
         )
 
         if res["commonResponse"]["responseCode"] > 0:
