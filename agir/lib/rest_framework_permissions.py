@@ -75,7 +75,19 @@ class GlobalOrObjectPermissionsMixin(object):
         return user.has_perms(perms) or user.has_perms(perms, obj)
 
 
-class RestrictViewPermissions(
+class GlobalOnlyPermissions(ScopePermissionsMixin, DjangoModelPermissions):
+    perms_map = {
+        "GET": ["%(app_label)s.view_%(model_name)s"],
+        "OPTIONS": ["%(app_label)s.view_%(model_name)s"],
+        "HEAD": ["%(app_label)s.view_%(model_name)s"],
+        "POST": ["%(app_label)s.add_%(model_name)s"],
+        "PUT": ["%(app_label)s.change_%(model_name)s"],
+        "PATCH": ["%(app_label)s.change_%(model_name)s"],
+        "DELETE": ["%(app_label)s.delete_%(model_name)s"],
+    }
+
+
+class GlobalOrObjectPermissions(
     ScopePermissionsMixin, GlobalOrObjectPermissionsMixin, DjangoModelPermissions
 ):
     authenticated_users_only = True
@@ -101,7 +113,7 @@ class RestrictViewPermissions(
     }
 
 
-class PermissionsOrReadOnly(
+class GlobalOrObjectPermissionOrReadOnly(
     ScopePermissionsMixin, GlobalOrObjectPermissionsMixin, DjangoModelPermissions
 ):
     authenticated_users_only = False

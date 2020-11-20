@@ -467,7 +467,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
-        "agir.lib.rest_framework_permissions.PermissionsOrReadOnly",
+        "agir.lib.rest_framework_permissions.GlobalOnlyPermissions",
     ),
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
     "TEST_REQUEST_RENDERER_CLASSES": (
@@ -549,7 +549,7 @@ CACHES = {
 # SECURITY
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIAL = False
-CORS_URLS_REGEX = r"^(?:/legacy/|/communes/chercher/)"
+CORS_URLS_REGEX = r"^(?:/legacy/|/communes/chercher/|/api/)"
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
@@ -720,6 +720,7 @@ NUNTIUS_MOSAICO_TEMPLATES = [
         "Template sans bannière",
     ),
     ("/static/mosaico_templates/versafix-fi/template.html", "Template LFI"),
+    ("/static/mosaico_templates/versafix-nsp/template.html", "Template NSP"),
 ]
 
 NUNTIUS_MAX_SENDING_RATE = int(os.environ.get("NUNTIUS_MAX_SENDING_RATE", 80))

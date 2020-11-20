@@ -265,12 +265,14 @@ class Person(
 
     NEWSLETTER_LFI = "LFI"
     NEWSLETTER_2022 = "2022"
+    NEWSLETTER_2022_EXCEPTIONNEL = "2022_exceptionnel"
     NEWSLETTER_2022_EN_LIGNE = "2022_en_ligne"
     NEWSLETTER_2022_CHEZ_MOI = "2022_chez_moi"
     NEWSLETTER_2022_PROGRAMME = "2022_programme"
     NEWSLETTERS_CHOICES = (
         (NEWSLETTER_LFI, "Lettre d'information de la France insoumise"),
         (NEWSLETTER_2022, "Lettre d'information NSP"),
+        (NEWSLETTER_2022_EXCEPTIONNEL, "NSP : informations exceptionnelles"),
         (NEWSLETTER_2022_EN_LIGNE, "NSP actions en ligne"),
         (NEWSLETTER_2022_CHEZ_MOI, "NSP agir près de chez moi"),
         (NEWSLETTER_2022_PROGRAMME, "NSP processus programme"),
@@ -513,8 +515,6 @@ class Person(
     def get_subscriber_status(self):
         if self.bounced:
             return AbstractSubscriber.STATUS_BOUNCED
-        if not self.subscribed:
-            return AbstractSubscriber.STATUS_UNSUBSCRIBED
         return AbstractSubscriber.STATUS_SUBSCRIBED
 
     def get_subscriber_email(self):

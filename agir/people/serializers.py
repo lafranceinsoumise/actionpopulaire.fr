@@ -29,22 +29,6 @@ person_fields = {f.name: f for f in models.Person._meta.get_fields()}
 subscription_mail_bucket = TokenBucket("SubscriptionMail", 5, 600)
 
 
-class PersonSerializer(FlexibleFieldsMixin, serializers.Serializer):
-    id = serializers.UUIDField()
-    email = serializers.EmailField()
-
-    firstName = serializers.CharField(source="first_name")
-    lastName = serializers.CharField(source="last_name")
-    fullName = serializers.SerializerMethodField()
-    contactPhone = PhoneNumberField(source="contact_phone")
-
-    isInsoumise = serializers.BooleanField(source="is_insoumise")
-    is2022 = serializers.BooleanField(source="is_2022")
-
-    def get_fullName(self, obj: Person):
-        return obj.get_full_name()
-
-
 class PersonEmailSerializer(serializers.ModelSerializer):
     """Basic PersonEmail serializer used to show and edit PersonEmail
     """
@@ -255,7 +239,7 @@ class NewslettersField(serializers.DictField):
 
 class ManageNewslettersRequestSerializer(serializers.Serializer):
     id = serializers.UUIDField()
-    newsletters = NewslettersField()
+    newsletters = NewslettersField(required=False, default={})
 
     def validate_id(self, value):
         try:
@@ -290,3 +274,21 @@ class RetrievePersonRequestSerializer(serializers.Serializer):
             return Person.objects.get_by_natural_key(self.validated_data["email"])
         except Person.DoesNotExist:
             raise Http404("Aucune personne trouvée")
+
+
+class PersonSerializer(FlexibleFieldsMixin, serializers.Serializer):
+    id = serializers.UUIDField()
+    email = serializers.EmailField()
+
+    firstName = serializers.CharField(source="first_name")
+    lastName = serializers.CharField(source="last_name")
+    fullName = serializers.SerializerMethodField()
+    contactPhone = PhoneNumberField(source="contact_phone")
+
+    isInsoumise = serializers.BooleanField(source="is_insoumise")
+    is2022 = serializers.BooleanField(source="is_2022")
+
+    newsletters = serializers.ListField()
+
+    def get_fullName(self, obj: Person):
+        return obj.get_full_name()

@@ -58,14 +58,18 @@ class MailLinkMiddleware:
             request, user_pk=request.GET["p"], token=request.GET["code"]
         )
 
-        # if we don't have any link_user, it means the link was forged or expired: we just ignore and redirect to
-        # same url without the parameters
-        if not link_user:
-            return HttpResponseRedirect(url)
-
         force_login = request.GET.get("force_login")
+        no_session = request.GET.get("no_session")
 
-        if request.user.is_anonymous or force_login:
+        if no_session:
+            if link_user:
+                request.user = link_user
+            return self.get_response(request)
+        elif not link_user:
+            # if we don't have any link_user, it means the link was forged or expired: we just ignore and redirect to
+            # same url without the parameters
+            return HttpResponseRedirect(url)
+        elif request.user.is_anonymous or force_login:
             # we have a link_user, and current user is anonymous or asked for force_login ==> we log her in and redirect
             login(request, link_user)
 
