@@ -10,16 +10,45 @@ from agir.system_pay.crypto import check_signature
 from agir.system_pay.models import SystemPayTransaction, SystemPaySubscription
 from agir.system_pay.utils import clean_system_pay_data
 
-SYSTEMPAY_OPERATION_TYPE_CHOICE = ["DEBIT", "CREDIT", "VERIFICATION"]
+# https://paiement.systempay.fr/doc/fr-FR/form-payment/standard-payment/vads-operation-type.html
+SYSTEMPAY_OPERATION_TYPE_CHOICE = [
+    "DEBIT",  # Dès qu'il y a un paiement
+    "CREDIT",  # Dès qu'il y a un remboursement
+    "VERIFICATION",  # quand il n'y a ni l'un ni l'autre (ie création alias ou souscription)
+]
+
+# https://paiement.systempay.fr/doc/fr-FR/form-payment/standard-payment/vads-page-action.html
+SYSTEMPAY_PAGE_ACTION_CHOICES = [
+    "PAYMENT",  # paiement simple
+    "REGISTER",  # création d'un alias
+    "REGISTER_UPDATE",  # mise à jour d'un alias
+    "REGISTER_PAY",  # création d'un alias et paiement
+    "REGISTER_SUBSCRIBE",  # création d'un alias et d'une souscription
+    "REGISTER_PAY_SUBSCRIBE",  # création d'un alias, paiement, et souscription
+    "SUBSCRIBE",  # souscription avec un alias existant
+    "REGISTER_UPDATE_PAY",  # modification d'un alias et paiement
+    "ASK_REGISTER_PAY",  # création optionnelle d'un alias et paiement
+]
+
+# https://paiement.systempay.fr/doc/fr-FR/form-payment/standard-payment/vads-trans-status.html
 SYSTEMPAY_STATUS_CHOICE = {
-    "ABANDONED": SystemPayTransaction.STATUS_ABANDONED,
-    "CANCELED": SystemPayTransaction.STATUS_CANCELED,
-    "REFUSED": SystemPayTransaction.STATUS_REFUSED,
-    "AUTHORISED": SystemPayTransaction.STATUS_COMPLETED,
-    "AUTHORISED_TO_VALIDATE": SystemPayTransaction.STATUS_COMPLETED,
-    "ACCEPTED": SystemPayTransaction.STATUS_COMPLETED,
-    "CAPTURED": SystemPayTransaction.STATUS_COMPLETED,
+    "ABANDONED": SystemPayTransaction.STATUS_ABANDONED,  # paiement abandonné par l'utilisateur
+    "CANCELED": SystemPayTransaction.STATUS_CANCELED,  # transaction annulée par le marchand
+    "REFUSED": SystemPayTransaction.STATUS_REFUSED,  # transaction refusée (banque ou carte)
+    "AUTHORISED": SystemPayTransaction.STATUS_COMPLETED,  # transaction acceptée (DEBIT et CREDIT)
+    "AUTHORISED_TO_VALIDATE": SystemPayTransaction.STATUS_COMPLETED,  # transaction à valider manuellement
+    "ACCEPTED": SystemPayTransaction.STATUS_COMPLETED,  # succès pour une transaction VERIFICATION
+    "CAPTURED": SystemPayTransaction.STATUS_COMPLETED,  # la transaction a été remise en banque
 }
+
+SYSTEMPAY_IDENTIFIER_STATUS = [
+    "CREATED",
+    "NOT_CREATED",
+    "UPDATED",
+    "NOT_UPDATED",
+    "ABANDONED",
+]
+SYSTEMPAY_RECURRENCE_STATUS_CHOICES = ["CREATED", "NOT_CREATED", "ABANDONED"]
 
 
 class SystemPayWebhookSerializer(serializers.Serializer):
@@ -29,6 +58,9 @@ class SystemPayWebhookSerializer(serializers.Serializer):
     )  # absent pour les abandons
     vads_operation_type = serializers.ChoiceField(
         choices=SYSTEMPAY_OPERATION_TYPE_CHOICE, required=False, source="operation_type"
+    )
+    vads_page_action = serializers.ChoiceField(
+        required=False, source="page_action", choices=SYSTEMPAY_PAGE_ACTION_CHOICES
     )
     vads_trans_status = serializers.ChoiceField(
         choices=list(SYSTEMPAY_STATUS_CHOICE), required=True, source="trans_status"
@@ -42,9 +74,17 @@ class SystemPayWebhookSerializer(serializers.Serializer):
     vads_identifier = serializers.UUIDField(required=False, source="identifier")
     vads_expiry_year = serializers.IntegerField(required=False, source="expiry_year")
     vads_expiry_month = serializers.IntegerField(required=False, source="expiry_month")
+    vads_identifier_status = serializers.ChoiceField(
+        required=False, source="identifier_status", choices=SYSTEMPAY_IDENTIFIER_STATUS
+    )
 
     # information de la subscription
     vads_subscription = serializers.CharField(required=False, source="subscription")
+    vads_recurrence_status = serializers.ChoiceField(
+        required=False,
+        source="recurrence_status",
+        choices=SYSTEMPAY_RECURRENCE_STATUS_CHOICES,
+    )  # Ce champ indique un potentiel cas d'erreur de création de souscription
 
     def __init__(self, sp_config, data=serializers.empty, **kwargs):
         super().__init__(instance=None, data=data)
@@ -140,7 +180,39 @@ class SystemPayWebhookSerializer(serializers.Serializer):
     def is_successful(self, validated_data=None):
         if validated_data is None:
             validated_data = self.validated_data
-        return validated_data["trans_status"] == SystemPayTransaction.STATUS_COMPLETED
+
+        if validated_data["trans_status"] != SystemPayTransaction.STATUS_COMPLETED:
+            return False
+
+        # Pour les cas où il y a création d'un alias, il faut vérifier le champ identifier_status
+        if (
+            validated_data["page_action"]
+            in [
+                "REGISTER",
+                "REGISTER_PAY",
+                "REGISTER_SUBSCRIBE",
+                "REGISTER_PAY_SUBSCRIBE",
+            ]
+            and validated_data["identifier_status"] != "CREATED"
+        ):
+            return False
+
+        # pour les cas où il y a modification d'un alias, c'est aussi le champ identifier_status
+        if (
+            validated_data["page_action"] in ["REGISTER_UPDATE", "REGISTER_UPDATE_PAY"]
+            and validated_data["identifier_status"] != "UPDATED"
+        ):
+            return False
+
+        # pour les cas où il y a création d'une souscription, il faut vérifier le champ recurrence_status
+        if (
+            validated_data["page_action"]
+            in ["REGISTER_SUBSCRIBE", "REGISTER_PAY_SUBSCRIBE", "SUBSCRIBE",]
+            and validated_data["recurrence_status"] != "CREATED"
+        ):
+            return False
+
+        return True
 
     def differences(self, log_data):
         retry_varying_data = ["vads_hash", "vads_url_check_src"]
