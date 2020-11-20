@@ -116,7 +116,6 @@ class SystemPayWebhookSerializer(serializers.Serializer):
             )
 
         if validated_data.get("operation_type") is None:
-            # on est probablement dans le cas d'une annulation
             if (
                 validated_data.get("trans_status")
                 != SystemPayTransaction.STATUS_ABANDONED
@@ -184,33 +183,22 @@ class SystemPayWebhookSerializer(serializers.Serializer):
         if validated_data["trans_status"] != SystemPayTransaction.STATUS_COMPLETED:
             return False
 
-        # Pour les cas où il y a création d'un alias, il faut vérifier le champ identifier_status
-        if (
-            validated_data["page_action"]
-            in [
-                "REGISTER",
-                "REGISTER_PAY",
-                "REGISTER_SUBSCRIBE",
-                "REGISTER_PAY_SUBSCRIBE",
-            ]
-            and validated_data["identifier_status"] != "CREATED"
-        ):
-            return False
+        if validated_data.get("operation_type") == "VERIFICATION":
+            # La seule `page_action` que nous utilisons qui donne lieu à un type d'opération
+            # VERIFICATION est REGISTER_SUBSCRIBE, donc il doit y avoir un identifier
+            # et une subscription
 
-        # pour les cas où il y a modification d'un alias, c'est aussi le champ identifier_status
-        if (
-            validated_data["page_action"] in ["REGISTER_UPDATE", "REGISTER_UPDATE_PAY"]
-            and validated_data["identifier_status"] != "UPDATED"
-        ):
-            return False
+            # ATTENTION : ces deux champs sont absents en cas de RETRY, donc ne pas
+            # inverser le test (i.e. vérifier que c'est égal à CREATED)
+            if validated_data.get("identifier_status") in ["NOT_CREATED", "ABANDONED"]:
+                return False
+            if validated_data.get("recurrence_status") in ["NOT_CREATED", "ABANDONED"]:
+                return False
 
-        # pour les cas où il y a création d'une souscription, il faut vérifier le champ recurrence_status
-        if (
-            validated_data["page_action"]
-            in ["REGISTER_SUBSCRIBE", "REGISTER_PAY_SUBSCRIBE", "SUBSCRIBE",]
-            and validated_data["recurrence_status"] != "CREATED"
-        ):
-            return False
+            if not validated_data.get("identifier") or not validated_data.get(
+                "subscription"
+            ):
+                return False
 
         return True
 
