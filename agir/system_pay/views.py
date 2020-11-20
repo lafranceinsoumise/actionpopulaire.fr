@@ -26,6 +26,7 @@ from agir.system_pay.models import (
 )
 from agir.system_pay.serializers import SystemPayWebhookSerializer
 from .forms import SystempayPaymentForm, SystempayNewSubscriptionForm
+from ..payments.models import Subscription
 from ..payments.types import PAYMENT_TYPES
 
 logger = logging.getLogger(__name__)
@@ -224,8 +225,7 @@ class SystemPayWebhookView(APIView):
                 code="wrong_mode",
             )
 
-        # N.B.: on accepte que les remboursements complets
-        serializer.check_payment_match_transaction(payment)
+        self.check_refund_transaction_match_payment(payment)
 
         sp_transaction = SystemPayTransaction.objects.get_or_create(
             uuid=serializer.validated_data["vads_trans_uuid"],
@@ -255,16 +255,12 @@ class SystemPayWebhookView(APIView):
                     code="wrong_mode",
                 )
 
-            serializer.check_and_update_alias(sp_subscription.alias)
-            serializer.check_subscription_match_transaction(subscription)
+            if self.update_alias_from_transaction(serializer, sp_subscription):
+                sp_subscription.save()
 
-            if subscription.person is None:
-                # si la personne n'existe plus, il y a un problème, on met fin à la souscription
-                subscriptions.terminate_subscription(subscription)
-                logger.error(
-                    "Paiement automatique déclenché par SystemPay sur une transaction sans personne "
-                    "associée. Par sécurité, la subscription a été terminée."
-                )
+            self.check_payment_transaction_match_subscription(
+                serializer=serializer, subscription=subscription
+            )
 
             payment = create_payment(
                 person=subscription.person,
@@ -315,21 +311,19 @@ class SystemPayWebhookView(APIView):
             )
 
         if serializer.is_successful():
-            # Création ou récupération de l'alias (normalement il s'agit d'un nouveau)
-            alias, created = SystemPayAlias.objects.get_or_create(
-                identifier=serializer.validated_data["identifier"],
-                defaults={"expiry_date": serializer.validated_data["expiry_date"]},
-            )
-            if not created:
-                serializer.check_and_update_alias(alias)
+            try:
+                sp_subscription = SystemPaySubscription.objects.get(
+                    identifier=serializer.validated_data["subscription"]
+                )
+            except SystemPaySubscription.DoesNotExist:
+                sp_subscription = SystemPaySubscription(
+                    identifier=serializer.validated_data["subscription"]
+                )
 
-            # création de la souscription SystemPay correspondante
-            # (pour relier, alias, souscription et identifiant de souscription)
-            sp_subscription, created = SystemPaySubscription.objects.get_or_create(
-                identifier=serializer.validated_data["subscription"],
-                subscription=sp_transaction.subscription,
-                alias=alias,
-            )
+            sp_subscription.subscription = sp_transaction.subscription
+
+            self.update_alias_from_transaction(serializer, sp_subscription)
+            sp_subscription.save()
 
             replace_sp_subscription_for_subscription(
                 sp_transaction.subscription, sp_subscription
@@ -344,6 +338,83 @@ class SystemPayWebhookView(APIView):
         notify_subscription_status_change(sp_transaction.subscription)
 
         return self.successful_response()
+
+    def update_alias_from_transaction(self, serializer, sp_subscription):
+        """Met à jour l'alias associé à une Souscription SystemPay
+
+        Si l'alias a changé de date d'expiration, met à jour l'alias.
+        Si c'est un nouvel alias, enregistre-le.
+
+        La valeur de retour indique si il faut sauvegarder la souscription SystemPay"""
+
+        alias, created = SystemPayAlias.objects.get_or_create(
+            identifier=serializer.validated_data["identifier"],
+            defaults={"expiry_date": serializer.validated_data["expiry_date"]},
+        )
+
+        # mise à jour de la date d'expiration de l'alias
+        if "expiry_date" in serializer.validated_data:
+            if alias.expiry_date != serializer.validated_data["expiry_date"]:
+                alias.expiry_date = serializer.validated_data["expiry_date"]
+                alias.save()
+
+        # Comparer les alias_id permet d'éviter une RelatedObjectDoesNotExist si aucun alias n'a encore été assigné
+        if sp_subscription.alias_id != alias.id:
+            sp_subscription.alias = alias
+            return True
+        return False
+
+    def check_payment_transaction_match_subscription(self, serializer, subscription):
+        if subscription.person is None:
+            # si la personne n'existe plus, il y a un problème, on met fin à la souscription
+            subscriptions.terminate_subscription(subscription)
+            logger.error(
+                "Paiement automatique déclenché par SystemPay sur une transaction sans personne "
+                "associée. Par sécurité, la subscription a été terminée.",
+                extra={"request": self.request},
+            )
+
+        if (
+            subscription.person is not None
+            and subscription.person.id != serializer.validated_data["cust_id"]
+        ):
+            logger.error(
+                "Personne différente pour la souscription entre agir et system_pay",
+                extra={"request": self.request},
+            )
+
+        if subscription.price != serializer.validated_data["amount"]:
+            logger.error(
+                "Le montant d'un paiement mensuel ne correspond pas à celui de la souscription",
+                extra={"request": self.request},
+            )
+
+        if subscription.status != Subscription.STATUS_ACTIVE:
+            logger.error(
+                "Paiement sur une souscription non active",
+                extra={"request": self.request},
+            )
+
+    def check_refund_transaction_match_payment(self, serializer, payment):
+        if payment is None:
+            raise serializers.ValidationError(
+                detail="Paiement inexistant", code="missing_payment"
+            )
+
+        if (
+            payment.person is not None
+            and payment.person.id != serializer.validated_data["cust_id"]
+        ):
+            logger.error(
+                "Personne différente pour un remboursement et le paiement d'origine",
+                extra={"request": self.request},
+            )
+
+        if payment.price != serializer.validated_data["amount"]:
+            logger.error(
+                "Le montant du remboursement ne correspond pas au montant du paiement d'origine",
+                extra={"request": self.request},
+            )
 
 
 def failure_view(request, pk):

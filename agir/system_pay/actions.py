@@ -46,10 +46,12 @@ def replace_sp_subscription_for_subscription(subscription, sp_subscription):
     for old_sp_subscription in SystemPaySubscription.objects.filter(
         subscription=subscription, active=True
     ).exclude(pk=sp_subscription.pk):
+        # Ne pas annuler l'alias si on le réutilise pour la nouvelle souscription
         alias = old_sp_subscription.alias
-        PAYMENT_MODES[subscription.mode].soap_client.cancel_alias(alias)
-        alias.active = False
-        alias.save(update_fields=["active"])
+        if alias != sp_subscription.alias:
+            PAYMENT_MODES[subscription.mode].soap_client.cancel_alias(alias)
+            alias.active = False
+            alias.save(update_fields=["active"])
         old_sp_subscription.active = False
         old_sp_subscription.save(update_fields=["active"])
 

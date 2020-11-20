@@ -1,14 +1,18 @@
-from datetime import date
-
 import calendar
+import logging
+from datetime import date
 from uuid import UUID
 
 from rest_framework import serializers
 
+from agir.payments.actions import subscriptions
 from agir.payments.models import Subscription
 from agir.system_pay.crypto import check_signature
 from agir.system_pay.models import SystemPayTransaction, SystemPaySubscription
 from agir.system_pay.utils import clean_system_pay_data
+
+logger = logging.getLogger(__name__)
+
 
 # https://paiement.systempay.fr/doc/fr-FR/form-payment/standard-payment/vads-operation-type.html
 SYSTEMPAY_OPERATION_TYPE_CHOICE = [
@@ -214,53 +218,6 @@ class SystemPayWebhookSerializer(serializers.Serializer):
             for k in set(current_cleaned_data).union(log_data)
             if log_data.get(k) != current_cleaned_data.get(k)
         }
-
-    def check_payment_match_transaction(self, payment):
-        if payment is None:
-            raise serializers.ValidationError(
-                detail="Paiement inexistant", code="missing_payment"
-            )
-
-        if (
-            payment.person is not None
-            and payment.person.id != self.validated_data["cust_id"]
-        ):
-            raise serializers.ValidationError(
-                detail="mauvaise personne", code="wrong_person"
-            )
-        if payment.price != self.validated_data["amount"]:
-            raise serializers.ValidationError(
-                detail="mauvais montant", code="wrong_amount"
-            )
-
-    def check_subscription_match_transaction(self, subscription):
-        person = subscription.person
-        if person is not None and person.id != self.validated_data["cust_id"]:
-            raise serializers.ValidationError(
-                detail="Personne différente pour la souscription", code="wrong_person"
-            )
-
-        if subscription.price != self.validated_data["amount"]:
-            raise serializers.ValidationError(
-                detail="mauvais montant", code="wrong_price"
-            )
-
-        if subscription.status != Subscription.STATUS_ACTIVE:
-            raise serializers.ValidationError(
-                detail="Souscription non active", code="inactive_subscription"
-            )
-
-    def check_and_update_alias(self, alias):
-        if alias.identifier != self.validated_data["identifier"]:
-            raise serializers.ValidationError(
-                "Alias différent de celui prévu", code="wrong_alias"
-            )
-
-        # mise à jour de la date d'expiration de l'alias
-        if "expiry_date" in self.validated_data:
-            if alias.expiry_date != self.validated_data["expiry_date"]:
-                alias.expiry_date = self.validated_data["expiry_date"]
-                alias.save()
 
     def get_transaction_by_uuid(self):
         if "trans_uuid" not in self.validated_data:
