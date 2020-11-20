@@ -59,7 +59,6 @@ const MenuItem = styled.li`
 `;
 
 const SecondaryMenu = styled.ul`
-  margin-top: 40px;
   display: flex;
   flex-flow: column nowrap;
   list-style: none;

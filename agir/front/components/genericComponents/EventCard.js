@@ -54,16 +54,18 @@ const Illustration = styled.img`
   }
 `;
 
-const EventCard = ({
-  illustration,
-  hasSubscriptionForm,
-  schedule,
-  location,
-  name,
-  participantCount,
-  rsvp,
-  routes,
-}) => {
+const EventCard = (props) => {
+  const {
+    illustration,
+    hasSubscriptionForm,
+    schedule,
+    location,
+    name,
+    participantCount,
+    rsvp,
+    routes,
+    groups,
+  } = props;
   const mainLink = React.useRef(null);
   const handleClick = React.useCallback(
     (e) => {
@@ -77,6 +79,7 @@ const EventCard = ({
     },
     [routes]
   );
+
   return (
     <Card onClick={handleClick}>
       <div
@@ -90,11 +93,32 @@ const EventCard = ({
           <Illustration src={illustration} alt="Image d'illustration" />
         )}
       </div>
-      <p style={{ fontSize: "14px", color: style.primary500, fontWeight: 600 }}>
-        {displayIntervalStart(schedule)}
-        {location && location.shortAddress && <> • {location.shortAddress}</>}
-      </p>
-      <h3 style={{ fontWeight: 700 }}>{name}</h3>
+      <header style={{ marginBottom: 20 }}>
+        <p
+          style={{ fontSize: "14px", color: style.primary500, fontWeight: 400 }}
+        >
+          {displayIntervalStart(schedule)}
+          {location && location.shortLocation && (
+            <> • {location.shortLocation}</>
+          )}
+        </p>
+        <h3 style={{ fontWeight: 700, fontSize: "1rem" }}>{name}</h3>
+        {Array.isArray(groups) && groups.length > 0
+          ? groups.map((group) => (
+              <p
+                key={group.id}
+                style={{
+                  fontWeight: "500",
+                  fontSize: "14px",
+                  lineHeight: "1",
+                  color: style.black500,
+                }}
+              >
+                {group.name}
+              </p>
+            ))
+          : null}
+      </header>
       <Row style={{ fontSize: "14px" }}>
         <Column grow collapse={0}>
           <RSVPButton
@@ -138,7 +162,7 @@ EventCard.propTypes = {
   location: PropTypes.shape({
     name: PropTypes.string,
     address: PropTypes.string,
-    shortAddress: PropTypes.string,
+    shortLocation: PropTypes.string,
   }),
   rsvp: PropTypes.string,
   routes: PropTypes.shape({
@@ -147,6 +171,12 @@ EventCard.propTypes = {
     cancel: PropTypes.string,
     compteRendu: PropTypes.string,
   }),
+  groups: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+    })
+  ),
 };
 
 export default EventCard;

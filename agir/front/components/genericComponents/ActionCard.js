@@ -9,7 +9,7 @@ import Button from "@agir/front/genericComponents/Button";
 
 const StyledText = styled.p`
   && {
-    font-weight: 600;
+    font-weight: 400;
     font-size: 14px;
     line-height: 1.5;
     margin-bottom: 16px;
