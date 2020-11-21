@@ -221,14 +221,15 @@ class Segment(BaseSegment, models.Model):
     ELUS_MEMBRE_RESEAU = "M"
     ELUS_REFERENCE = "R"
     ELUS_CHOICES = (
-        (ELUS_NON, "Non"),
-        (ELUS_MEMBRE_RESEAU, "Membre du réseau des élus"),
-        (ELUS_REFERENCE, "Référencé comme élu, non exclus"),
+        ("", "Peu importe"),
+        (ELUS_MEMBRE_RESEAU, "Uniquement les membres du réseau des élus"),
+        (
+            ELUS_REFERENCE,
+            "Tous les élus, membres ou non du réseau, sauf les exclus du réseau",
+        ),
     )
 
-    elu = models.CharField(
-        "Est un élu", max_length=1, choices=ELUS_CHOICES, default=ELUS_NON
-    )
+    elu = models.CharField("Est un élu", max_length=1, choices=ELUS_CHOICES, blank=True)
 
     elu_municipal = models.BooleanField("Avec un mandat municipal", default=True)
     elu_departemental = models.BooleanField(
@@ -425,7 +426,7 @@ class Segment(BaseSegment, models.Model):
             else:
                 q = q & ~Q(subscriptions__status=Subscription.STATUS_ACTIVE)
 
-        if self.elu != Segment.ELUS_NON:
+        if self.elu:
             if self.elu == Segment.ELUS_MEMBRE_RESEAU:
                 q &= Q(membre_reseau_elus=Person.MEMBRE_RESEAU_OUI)
             elif self.elu == Segment.ELUS_REFERENCE:
@@ -460,7 +461,7 @@ class Segment(BaseSegment, models.Model):
     def get_subscribers_queryset(self):
         qs = Person.objects.all()
 
-        if self.elu != Segment.ELUS_NON:
+        if self.elu:
             qs = qs.annotate_elus()
 
         return qs.filter(self.get_subscribers_q()).order_by("id").distinct("id")
