@@ -13,7 +13,7 @@ import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 const RSVPButton = ({ hasSubscriptionForm, rsvp, routes }) => {
   if (rsvp) {
     return (
-      <Button as="a" small color="confirmed" icon="check" href={routes.cancel}>
+      <Button as="a" small color="confirmed" icon="check" href={routes.details}>
         Je participe
       </Button>
     );
@@ -43,7 +43,10 @@ const RSVPButton = ({ hasSubscriptionForm, rsvp, routes }) => {
 RSVPButton.propTypes = {
   hasSubscriptionForm: PropTypes.bool,
   rsvp: PropTypes.bool,
-  routes: PropTypes.shape({ cancel: PropTypes.string, join: PropTypes.string }),
+  routes: PropTypes.shape({
+    details: PropTypes.string,
+    join: PropTypes.string,
+  }),
 };
 
 const Illustration = styled.img`
