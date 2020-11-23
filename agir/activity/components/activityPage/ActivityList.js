@@ -16,6 +16,10 @@ const StyledText = styled.p`
   @media (max-width: ${style.collapse}px) {
     margin: 0 25px;
   }
+
+  strong {
+    color: ${style.primary500};
+  }
 `;
 const StyledList = styled.ul`
   list-style: none;
@@ -89,7 +93,9 @@ export const ActivityList = (props) => {
   return (
     <article>
       {required.length + unrequired.length === 0 ? (
-        <StyledText>Vous n'avez pas de notifications !</StyledText>
+        <StyledText>
+          <strong>Vous n'avez pas de notifications !</strong>
+        </StyledText>
       ) : null}
       {required.length > 0 ? (
         <StyledList type="required">

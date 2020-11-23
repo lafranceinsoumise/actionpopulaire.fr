@@ -17,6 +17,11 @@ const Template = (args) => {
   );
 };
 
+export const Empty = Template.bind({});
+Empty.args = {
+  unrequired: [],
+  required: [],
+};
 export const Default = Template.bind({});
 Default.args = {
   unrequired: [
