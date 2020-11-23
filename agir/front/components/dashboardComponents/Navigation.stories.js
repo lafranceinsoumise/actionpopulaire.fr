@@ -34,7 +34,14 @@ export default {
 };
 
 const Template = (args) => (
-  <TestGlobalContextProvider value={{ routes: mockRoutes }}>
+  <TestGlobalContextProvider
+    value={{
+      routes: mockRoutes,
+      requiredActionActivities: Object.keys([
+        ...Array(args.requiredActionActivityCount),
+      ]),
+    }}
+  >
     <Navigation {...args} />
   </TestGlobalContextProvider>
 );
@@ -42,4 +49,8 @@ const Template = (args) => (
 export const Default = Template.bind({});
 Default.args = {
   active: "events",
+  requiredActionActivityCount: 1,
+};
+Default.argTypes = {
+  requiredActionActivityCount: { type: "number", min: 0 },
 };

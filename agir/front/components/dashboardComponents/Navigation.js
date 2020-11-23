@@ -106,7 +106,7 @@ const MenuItem = styled.li`
     display: ${({ desktop }) => (desktop ? "flex" : "none")};
     line-height: 24px;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     flex-flow: column nowrap;
     align-items: flex-start;
 
@@ -138,7 +138,6 @@ const MenuItem = styled.li`
 `;
 
 const Counter = styled.span`
-  text-align: center;
   position: absolute;
   background-color: ${style.secondary500};
   color: #fff;
@@ -147,7 +146,11 @@ const Counter = styled.span`
   width: 16px;
   border-radius: 8px;
   z-index: 1000;
-  line-height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 
   @media only screen and (max-width: ${style.collapse}px) {
     top: 11px;
@@ -229,7 +232,7 @@ const Navigation = ({ active }) => {
           />
         ))}
       </Menu>
-      <SecondaryMenu>
+      <SecondaryMenu style={{ padding: 0 }}>
         <SecondaryMenuItem key="title">LIENS</SecondaryMenuItem>
         {CONFIG.secondaryLinks.map((link) => (
           <SecondaryMenuItem key={link.id}>

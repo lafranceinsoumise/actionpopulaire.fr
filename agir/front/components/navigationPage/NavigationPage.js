@@ -34,7 +34,7 @@ const MenuItem = styled.li`
   position: relative;
   line-height: 24px;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 
   & ${RawFeatherIcon} {
     color: ${(props) => (props.active ? style.primary500 : style.black500)};

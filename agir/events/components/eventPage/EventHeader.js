@@ -17,10 +17,14 @@ const EventHeaderContainer = styled.div`
 `;
 
 const EventTitle = styled.h1`
-  font-size: 1.25rem;
+  font-size: 1.75rem;
   line-height: 1.4;
   font-weight: 700;
   margin-bottom: 1rem;
+
+  @media (max-width: ${style.collapse}px) {
+    font-size: 1.25rem;
+  }
 `;
 
 const EventDate = styled.div`

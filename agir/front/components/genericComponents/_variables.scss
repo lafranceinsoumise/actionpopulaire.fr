@@ -29,6 +29,9 @@ $link-hover-decoration: underline;
 
 $collapse: 992;
 
+$elaborate-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
+  0px 2px 0px rgba(0, 35, 44, 0.08);
+
 :export {
   white: $white;
 
@@ -60,4 +63,6 @@ $collapse: 992;
   linkHoverDecoration: $link-hover-decoration;
 
   collapse: $collapse;
+
+  elaborateShadow: $elaborate-shadow;
 }

@@ -46,11 +46,19 @@ RSVPButton.propTypes = {
   routes: PropTypes.shape({ cancel: PropTypes.string, join: PropTypes.string }),
 };
 
-const Illustration = styled.img`
-  max-height: 200px;
+const Illustration = styled.div`
+  margin: -1.5rem -1.5rem 1.5rem;
+  text-align: center;
+  background-color: ${style.black50};
+  @media only screen and (max-width: ${style.collapse}px) {
+    margin: -1rem -1rem 1rem;
+  }
+  img {
+    max-height: 200px;
 
-  @media only screen and (min-width: ${style.collapse}px) {
-    max-height: 360px;
+    @media only screen and (min-width: ${style.collapse}px) {
+      max-height: 360px;
+    }
   }
 `;
 
@@ -82,27 +90,28 @@ const EventCard = (props) => {
 
   return (
     <Card onClick={handleClick}>
-      <div
-        style={{
-          margin: "-1rem -1rem 1rem",
-          textAlign: "center",
-          backgroundColor: style.black50,
-        }}
-      >
-        {illustration && (
-          <Illustration src={illustration} alt="Image d'illustration" />
-        )}
-      </div>
+      <Illustration>
+        {illustration && <img src={illustration} alt="Image d'illustration" />}
+      </Illustration>
       <header style={{ marginBottom: 20 }}>
         <p
-          style={{ fontSize: "14px", color: style.primary500, fontWeight: 400 }}
+          style={{ fontSize: "14px", color: style.primary500, fontWeight: 500 }}
         >
           {displayIntervalStart(schedule)}
           {location && location.shortLocation && (
             <> • {location.shortLocation}</>
           )}
         </p>
-        <h3 style={{ fontWeight: 700, fontSize: "1rem" }}>{name}</h3>
+        <h3
+          style={{
+            fontWeight: 700,
+            fontSize: "1rem",
+            marginTop: 0,
+            marginBottom: "0.4rem",
+          }}
+        >
+          {name}
+        </h3>
         {Array.isArray(groups) && groups.length > 0
           ? groups.map((group) => (
               <p
