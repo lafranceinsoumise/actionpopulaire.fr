@@ -185,7 +185,7 @@ const Agenda = ({ rsvped, suggested }) => {
               </p>
               <p>
                 Il n'y a aucun événement à afficher avec les filtres
-                séléctionnés.
+                sélectionnés.
               </p>
               <p>
                 Pas d'événement prévu dans votre ville ?{" "}
