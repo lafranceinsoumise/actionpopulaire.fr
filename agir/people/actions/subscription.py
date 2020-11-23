@@ -2,6 +2,7 @@ import urllib.parse
 from dataclasses import dataclass
 
 from django.conf import settings
+from django.db import transaction
 from django.utils import timezone
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
@@ -80,15 +81,20 @@ def save_subscription_information(person, type, data):
         subscriptions[type] = {"date": timezone.now().isoformat()}
         if data.get("referer"):
             subscriptions[type]["referer"] = data["referer"]
-        if data.get("mandat"):
-            subscriptions[type]["mandat"] = data["mandat"]
-
-    person.save()
 
     if data.get("mandat"):
-        types_elus[data["mandat"]].objects.get_or_create(
-            person=person, defaults={"status": STATUT_A_VERIFIER_INSCRIPTION}
-        )
+        subscriptions[type]["mandat"] = data["mandat"]
+
+    with transaction.atomic():
+        if data.get("mandat"):
+            try:
+                types_elus[data["mandat"]].objects.get_or_create(
+                    person=person, defaults={"statut": STATUT_A_VERIFIER_INSCRIPTION}
+                )
+            except types_elus[data["mandat"]].MultipleObjectsReturned:
+                pass
+
+        person.save()
 
 
 def nsp_confirmed_url(id, data):

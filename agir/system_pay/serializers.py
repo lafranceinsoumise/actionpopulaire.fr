@@ -1,25 +1,58 @@
-from datetime import date
-
 import calendar
+import logging
+from datetime import date
 from uuid import UUID
 
 from rest_framework import serializers
 
+from agir.payments.actions import subscriptions
 from agir.payments.models import Subscription
 from agir.system_pay.crypto import check_signature
 from agir.system_pay.models import SystemPayTransaction, SystemPaySubscription
 from agir.system_pay.utils import clean_system_pay_data
 
-SYSTEMPAY_OPERATION_TYPE_CHOICE = ["DEBIT", "CREDIT", "VERIFICATION"]
+logger = logging.getLogger(__name__)
+
+
+# https://paiement.systempay.fr/doc/fr-FR/form-payment/standard-payment/vads-operation-type.html
+SYSTEMPAY_OPERATION_TYPE_CHOICE = [
+    "DEBIT",  # Dès qu'il y a un paiement
+    "CREDIT",  # Dès qu'il y a un remboursement
+    "VERIFICATION",  # quand il n'y a ni l'un ni l'autre (ie création alias ou souscription)
+]
+
+# https://paiement.systempay.fr/doc/fr-FR/form-payment/standard-payment/vads-page-action.html
+SYSTEMPAY_PAGE_ACTION_CHOICES = [
+    "PAYMENT",  # paiement simple
+    "REGISTER",  # création d'un alias
+    "REGISTER_UPDATE",  # mise à jour d'un alias
+    "REGISTER_PAY",  # création d'un alias et paiement
+    "REGISTER_SUBSCRIBE",  # création d'un alias et d'une souscription
+    "REGISTER_PAY_SUBSCRIBE",  # création d'un alias, paiement, et souscription
+    "SUBSCRIBE",  # souscription avec un alias existant
+    "REGISTER_UPDATE_PAY",  # modification d'un alias et paiement
+    "ASK_REGISTER_PAY",  # création optionnelle d'un alias et paiement
+]
+
+# https://paiement.systempay.fr/doc/fr-FR/form-payment/standard-payment/vads-trans-status.html
 SYSTEMPAY_STATUS_CHOICE = {
-    "ABANDONED": SystemPayTransaction.STATUS_ABANDONED,
-    "CANCELED": SystemPayTransaction.STATUS_CANCELED,
-    "REFUSED": SystemPayTransaction.STATUS_REFUSED,
-    "AUTHORISED": SystemPayTransaction.STATUS_COMPLETED,
-    "AUTHORISED_TO_VALIDATE": SystemPayTransaction.STATUS_COMPLETED,
-    "ACCEPTED": SystemPayTransaction.STATUS_COMPLETED,
-    "CAPTURED": SystemPayTransaction.STATUS_COMPLETED,
+    "ABANDONED": SystemPayTransaction.STATUS_ABANDONED,  # paiement abandonné par l'utilisateur
+    "CANCELED": SystemPayTransaction.STATUS_CANCELED,  # transaction annulée par le marchand
+    "REFUSED": SystemPayTransaction.STATUS_REFUSED,  # transaction refusée (banque ou carte)
+    "AUTHORISED": SystemPayTransaction.STATUS_COMPLETED,  # transaction acceptée (DEBIT et CREDIT)
+    "AUTHORISED_TO_VALIDATE": SystemPayTransaction.STATUS_COMPLETED,  # transaction à valider manuellement
+    "ACCEPTED": SystemPayTransaction.STATUS_COMPLETED,  # succès pour une transaction VERIFICATION
+    "CAPTURED": SystemPayTransaction.STATUS_COMPLETED,  # la transaction a été remise en banque
 }
+
+SYSTEMPAY_IDENTIFIER_STATUS = [
+    "CREATED",
+    "NOT_CREATED",
+    "UPDATED",
+    "NOT_UPDATED",
+    "ABANDONED",
+]
+SYSTEMPAY_RECURRENCE_STATUS_CHOICES = ["CREATED", "NOT_CREATED", "ABANDONED"]
 
 
 class SystemPayWebhookSerializer(serializers.Serializer):
@@ -29,6 +62,9 @@ class SystemPayWebhookSerializer(serializers.Serializer):
     )  # absent pour les abandons
     vads_operation_type = serializers.ChoiceField(
         choices=SYSTEMPAY_OPERATION_TYPE_CHOICE, required=False, source="operation_type"
+    )
+    vads_page_action = serializers.ChoiceField(
+        required=False, source="page_action", choices=SYSTEMPAY_PAGE_ACTION_CHOICES
     )
     vads_trans_status = serializers.ChoiceField(
         choices=list(SYSTEMPAY_STATUS_CHOICE), required=True, source="trans_status"
@@ -42,9 +78,17 @@ class SystemPayWebhookSerializer(serializers.Serializer):
     vads_identifier = serializers.UUIDField(required=False, source="identifier")
     vads_expiry_year = serializers.IntegerField(required=False, source="expiry_year")
     vads_expiry_month = serializers.IntegerField(required=False, source="expiry_month")
+    vads_identifier_status = serializers.ChoiceField(
+        required=False, source="identifier_status", choices=SYSTEMPAY_IDENTIFIER_STATUS
+    )
 
     # information de la subscription
     vads_subscription = serializers.CharField(required=False, source="subscription")
+    vads_recurrence_status = serializers.ChoiceField(
+        required=False,
+        source="recurrence_status",
+        choices=SYSTEMPAY_RECURRENCE_STATUS_CHOICES,
+    )  # Ce champ indique un potentiel cas d'erreur de création de souscription
 
     def __init__(self, sp_config, data=serializers.empty, **kwargs):
         super().__init__(instance=None, data=data)
@@ -76,7 +120,6 @@ class SystemPayWebhookSerializer(serializers.Serializer):
             )
 
         if validated_data.get("operation_type") is None:
-            # on est probablement dans le cas d'une annulation
             if (
                 validated_data.get("trans_status")
                 != SystemPayTransaction.STATUS_ABANDONED
@@ -140,7 +183,28 @@ class SystemPayWebhookSerializer(serializers.Serializer):
     def is_successful(self, validated_data=None):
         if validated_data is None:
             validated_data = self.validated_data
-        return validated_data["trans_status"] == SystemPayTransaction.STATUS_COMPLETED
+
+        if validated_data["trans_status"] != SystemPayTransaction.STATUS_COMPLETED:
+            return False
+
+        if validated_data.get("operation_type") == "VERIFICATION":
+            # La seule `page_action` que nous utilisons qui donne lieu à un type d'opération
+            # VERIFICATION est REGISTER_SUBSCRIBE, donc il doit y avoir un identifier
+            # et une subscription
+
+            # ATTENTION : ces deux champs sont absents en cas de RETRY, donc ne pas
+            # inverser le test (i.e. vérifier que c'est égal à CREATED)
+            if validated_data.get("identifier_status") in ["NOT_CREATED", "ABANDONED"]:
+                return False
+            if validated_data.get("recurrence_status") in ["NOT_CREATED", "ABANDONED"]:
+                return False
+
+            if not validated_data.get("identifier") or not validated_data.get(
+                "subscription"
+            ):
+                return False
+
+        return True
 
     def differences(self, log_data):
         retry_varying_data = ["vads_hash", "vads_url_check_src"]
@@ -154,53 +218,6 @@ class SystemPayWebhookSerializer(serializers.Serializer):
             for k in set(current_cleaned_data).union(log_data)
             if log_data.get(k) != current_cleaned_data.get(k)
         }
-
-    def check_payment_match_transaction(self, payment):
-        if payment is None:
-            raise serializers.ValidationError(
-                detail="Paiement inexistant", code="missing_payment"
-            )
-
-        if (
-            payment.person is not None
-            and payment.person.id != self.validated_data["cust_id"]
-        ):
-            raise serializers.ValidationError(
-                detail="mauvaise personne", code="wrong_person"
-            )
-        if payment.price != self.validated_data["amount"]:
-            raise serializers.ValidationError(
-                detail="mauvais montant", code="wrong_amount"
-            )
-
-    def check_subscription_match_transaction(self, subscription):
-        person = subscription.person
-        if person is not None and person.id != self.validated_data["cust_id"]:
-            raise serializers.ValidationError(
-                detail="Personne différente pour la souscription", code="wrong_person"
-            )
-
-        if subscription.price != self.validated_data["amount"]:
-            raise serializers.ValidationError(
-                detail="mauvais montant", code="wrong_price"
-            )
-
-        if subscription.status != Subscription.STATUS_ACTIVE:
-            raise serializers.ValidationError(
-                detail="Souscription non active", code="inactive_subscription"
-            )
-
-    def check_and_update_alias(self, alias):
-        if alias.identifier != self.validated_data["identifier"]:
-            raise serializers.ValidationError(
-                "Alias différent de celui prévu", code="wrong_alias"
-            )
-
-        # mise à jour de la date d'expiration de l'alias
-        if "expiry_date" in self.validated_data:
-            if alias.expiry_date != self.validated_data["expiry_date"]:
-                alias.expiry_date = self.validated_data["expiry_date"]
-                alias.save()
 
     def get_transaction_by_uuid(self):
         if "trans_uuid" not in self.validated_data:

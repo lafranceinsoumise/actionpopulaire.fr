@@ -7,6 +7,7 @@ from data_france.models import (
     CollectiviteRegionale,
 )
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
@@ -34,6 +35,29 @@ from .forms import (
     CreerMandatForm,
     CreerMandatMunicipalForm,
 )
+
+
+class AppelEluFilter(SimpleListFilter):
+    title = "2022 Appel élu⋅es"
+    parameter_name = "2022_appel_elus"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("O", "Signé appel élu"),
+            ("N", "Pas signé appel élu"),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "O":
+            return queryset.exclude(
+                person__meta__subscriptions__NSP__mandat__isnull=True
+            )
+        elif value == "N":
+            return queryset.filter(
+                person__meta__subscriptions__NSP__mandat__isnull=True
+            )
+        return queryset
 
 
 class BaseMandatAdmin(admin.ModelAdmin):
@@ -170,6 +194,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
             "mandats_regionaux",
             "is_insoumise",
             "is_2022",
+            "is_2022_appel_elus",
         )
 
         if obj is not None:
@@ -233,6 +258,17 @@ class BaseMandatAdmin(admin.ModelAdmin):
 
     is_2022.short_description = "Soutien 2022"
     is_2022.boolean = True
+
+    def is_2022_appel_elus(self, obj):
+        if obj.person:
+            return (
+                obj.person.meta.get("subscriptions", {}).get("NSP", {}).get("mandat")
+                is not None
+            )
+        return None
+
+    is_2022_appel_elus.short_description = "Soutien 2022 via appel élus"
+    is_2022_appel_elus.boolean = True
 
     def get_changeform_initial_data(self, request):
         """Permet de préremplir le champs `dates' en fonction de la dernière élection"""
@@ -346,6 +382,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         "mandat",
         "person__is_insoumise",
         "person__is_2022",
+        AppelEluFilter,
         CommuneFilter,
         DepartementFilter,
         DepartementRegionFilter,
@@ -364,6 +401,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                     "communautaire",
                     "is_insoumise",
                     "is_2022",
+                    "is_2022_appel_elus",
                     "commentaires",
                 )
             },
@@ -397,6 +435,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         "communautaire",
         "is_insoumise",
         "is_2022",
+        "is_2022_appel_elus",
     )
 
     def get_conseil_queryset(self, request):
@@ -419,6 +458,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
         "mandat",
         "person__is_insoumise",
         "person__is_2022",
+        AppelEluFilter,
         DepartementFilter,
         DepartementRegionFilter,
     )
@@ -436,6 +476,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
                     "mandat",
                     "is_insoumise",
                     "is_2022",
+                    "is_2022_appel_elus",
                     "commentaires",
                 )
             },
@@ -468,6 +509,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
         "actif",
         "is_insoumise",
         "is_2022",
+        "is_2022_appel_elus",
     )
 
     def get_conseil_queryset(self, request):
@@ -484,6 +526,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
         "mandat",
         "person__is_insoumise",
         "person__is_2022",
+        AppelEluFilter,
         RegionFilter,
     )
     default_date_range = REGIONAL_DEFAULT_DATE_RANGE
@@ -500,6 +543,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
                     "mandat",
                     "is_insoumise",
                     "is_2022",
+                    "is_2022_appel_elus",
                     "commentaires",
                 )
             },
@@ -532,6 +576,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
         "actif",
         "is_insoumise",
         "is_2022",
+        "is_2022_appel_elus",
     )
 
     readonly_fields = (
