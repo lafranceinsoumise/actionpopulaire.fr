@@ -74,13 +74,26 @@ const Day = styled.h3`
   margin-top: 24px;
 `;
 
+const EmptyAgenda = styled.div`
+  & p {
+    strong {
+      color: ${style.primary500};
+    }
+    a {
+      color: ${style.secondary500};
+      font-weight: bold;
+      cursor: pointer;
+    }
+  }
+`;
+
 const StyledAgenda = styled.div`
   & h2 {
     font-size: 18px;
   }
 
   & h2,
-  & ${Day} {
+  & ${Day}, & ${EmptyAgenda} {
     margin: 20px 0;
 
     @media (max-width: ${style.collapse}px) {
@@ -98,6 +111,40 @@ const StyledAgenda = styled.div`
 
 const Agenda = ({ rsvped, suggested }) => {
   const { routes, user } = useGlobalContext();
+
+  const rsvpedEvents = React.useMemo(
+    () =>
+      rsvped.map((event) => ({
+        ...event,
+        schedule: Interval.fromDateTimes(
+          DateTime.fromISO(event.startTime).setLocale("fr"),
+          DateTime.fromISO(event.endTime).setLocale("fr")
+        ),
+      })),
+    [rsvped]
+  );
+  const suggestedEventDates = React.useMemo(
+    () =>
+      Object.entries(
+        suggested
+          .map((event) => ({
+            ...event,
+            schedule: Interval.fromDateTimes(
+              DateTime.fromISO(event.startTime).setLocale("fr"),
+              DateTime.fromISO(event.endTime).setLocale("fr")
+            ),
+          }))
+          .reduce((days, event) => {
+            const day = displayHumanDay(
+              DateTime.fromISO(event.startTime).setLocale("fr")
+            );
+            (days[day] = days[day] || []).push(event);
+            return days;
+          }, {})
+      ),
+    [suggested]
+  );
+
   return (
     <StyledAgenda>
       <header>
@@ -129,53 +176,46 @@ const Agenda = ({ rsvped, suggested }) => {
           </div>
         </TopBar>
       </header>
-      {rsvped.length > 0 && (
-        <Row>
-          <Column grow>
-            <h2>Mes événements</h2>
-            {rsvped.map(({ startTime, endTime, ...event }) => {
-              event = {
-                ...event,
-                schedule: Interval.fromDateTimes(
-                  DateTime.fromISO(startTime).setLocale("fr"),
-                  DateTime.fromISO(endTime).setLocale("fr")
-                ),
-              };
-              return <EventCard key={event.id} {...event} />;
-            })}
-          </Column>
-        </Row>
-      )}
-      {suggested.length > 0 && (
-        <Row>
-          <Column grow>
-            <h2>Les événements près de chez moi</h2>
-            {Object.entries(
-              suggested.reduce((days, event) => {
-                const day = displayHumanDay(
-                  DateTime.fromISO(event.startTime).setLocale("fr")
-                );
-                (days[day] = days[day] || []).push(event);
-                return days;
-              }, {})
-            ).map(([day, events]) => (
-              <div key={day}>
-                <Day>{day}</Day>
-                {events.map(({ startTime, endTime, ...event }) => {
-                  event = {
-                    ...event,
-                    schedule: Interval.fromDateTimes(
-                      DateTime.fromISO(startTime).setLocale("fr"),
-                      DateTime.fromISO(endTime).setLocale("fr")
-                    ),
-                  };
-                  return <EventCard key={event.id} {...event} />;
-                })}
-              </div>
-            ))}
-          </Column>
-        </Row>
-      )}
+      <Row>
+        <Column grow>
+          {rsvped.length === 0 && suggested.length === 0 ? (
+            <EmptyAgenda>
+              <p>
+                <strong>Oups, il n'y a rien à afficher&nbsp;!</strong>
+              </p>
+              <p>
+                Il n'y a aucun événement à afficher avec les filtres
+                sélectionnés.
+              </p>
+              <p>
+                Pas d'événement prévu dans votre ville ?{" "}
+                <a href={routes.createEvent}>Commencez par en créer un</a>.
+              </p>
+            </EmptyAgenda>
+          ) : null}
+          {rsvpedEvents.length > 0 && (
+            <>
+              <h2>Mes événements</h2>
+              {rsvpedEvents.map((event) => (
+                <EventCard key={event.id} {...event} />
+              ))}
+            </>
+          )}
+          {suggestedEventDates.length > 0 && (
+            <>
+              <h2>Les événements près de chez moi</h2>
+              {suggestedEventDates.map(([date, events]) => (
+                <div key={date}>
+                  <Day>{date}</Day>
+                  {events.map((event) => (
+                    <EventCard key={event.id} {...event} />
+                  ))}
+                </div>
+              ))}
+            </>
+          )}
+        </Column>
+      </Row>
     </StyledAgenda>
   );
 };

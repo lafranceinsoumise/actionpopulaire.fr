@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
+import GroupOnboarding from "@agir/groups/groupComponents/GroupOnboarding";
 import { DateTime } from "luxon";
 import Layout, { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
 import Button from "@agir/front/genericComponents/Button";
@@ -50,6 +51,8 @@ const TopBar = styled.div`
 `;
 
 const GroupList = styled.article`
+  margin-bottom: 60px;
+
   @media (max-width: ${style.collapse}px) {
     padding: 0 16px;
   }
@@ -64,16 +67,31 @@ const GroupList = styled.article`
 
 const GroupsPage = ({ data }) => {
   const { routes } = useGlobalContext();
-  const groups = data.map(({ discountCodes, ...group }) => ({
-    ...group,
-    discountCodes: discountCodes.map(({ code, expirationDate }) => ({
-      code,
-      expirationDate: DateTime.fromISO(expirationDate, {
-        zone: "Europe/Paris",
-        locale: "fr",
-      }),
-    })),
-  }));
+  const groups = React.useMemo(
+    () =>
+      data.map(({ discountCodes, ...group }) => ({
+        ...group,
+        discountCodes: discountCodes.map(({ code, expirationDate }) => ({
+          code,
+          expirationDate: DateTime.fromISO(expirationDate, {
+            zone: "Europe/Paris",
+            locale: "fr",
+          }),
+        })),
+      })),
+    [data]
+  );
+
+  if (groups.length === 0) {
+    return (
+      <Layout active="groups">
+        <TopBar>
+          <LayoutTitle>Groupes</LayoutTitle>
+        </TopBar>
+        <GroupOnboarding type="action" routes={routes} />
+      </Layout>
+    );
+  }
 
   return (
     <Layout active="groups">
@@ -106,6 +124,9 @@ const GroupsPage = ({ data }) => {
           />
         ))}
       </GroupList>
+      {groups.every(({ type }) => type !== "B") ? (
+        <GroupOnboarding type="thematic" routes={routes} />
+      ) : null}
     </Layout>
   );
 };
