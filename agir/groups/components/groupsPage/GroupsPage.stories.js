@@ -116,3 +116,8 @@ Default.args = {
     },
   ],
 };
+
+export const WithoutThematicGroups = Template.bind({});
+WithoutThematicGroups.args = {
+  data: Default.args.data.filter((group) => group.type !== "B"),
+};

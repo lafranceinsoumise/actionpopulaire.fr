@@ -51,6 +51,8 @@ const TopBar = styled.div`
 `;
 
 const GroupList = styled.article`
+  margin-bottom: 60px;
+
   @media (max-width: ${style.collapse}px) {
     padding: 0 16px;
   }
@@ -87,7 +89,6 @@ const GroupsPage = ({ data }) => {
           <LayoutTitle>Groupes</LayoutTitle>
         </TopBar>
         <GroupOnboarding type="action" routes={routes} />
-        <GroupOnboarding type="thematic" routes={routes} />
       </Layout>
     );
   }
@@ -123,6 +124,9 @@ const GroupsPage = ({ data }) => {
           />
         ))}
       </GroupList>
+      {groups.every(({ type }) => type !== "B") ? (
+        <GroupOnboarding type="thematic" routes={routes} />
+      ) : null}
     </Layout>
   );
 };
