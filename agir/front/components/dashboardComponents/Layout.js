@@ -10,6 +10,7 @@ import {
   Row,
 } from "@agir/front/genericComponents/grid";
 import Navigation from "@agir/front/dashboardComponents/Navigation";
+import Footer from "@agir/front/dashboardComponents/Footer";
 
 export const LayoutTitle = styled.h1`
   font-size: 28px;
@@ -64,6 +65,7 @@ const Layout = (props) => (
         </MainColumn>
       </Row>
     </MainContainer>
+    <Footer />
   </GrayBackground>
 );
 
