@@ -206,7 +206,7 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
                 p.bounced = True
                 p.save()
             elif status == AbstractSubscriber.STATUS_COMPLAINED:
-                p.subscribed = False
+                p.newsletters = []
                 p.save()
 
 
