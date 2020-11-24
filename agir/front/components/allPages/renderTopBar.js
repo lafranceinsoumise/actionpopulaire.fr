@@ -10,7 +10,7 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
     import("react"),
     import("@agir/lib/utils/react"),
     import("./TopBar"),
-    import("../genericComponents/GobalContext"),
+    import("../genericComponents/GlobalContext"),
   ]);
 
   const showHeader = () => {

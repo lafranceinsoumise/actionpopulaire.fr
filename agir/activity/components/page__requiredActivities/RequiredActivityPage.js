@@ -1,7 +1,7 @@
 import React from "react";
 
 import Layout, { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
-import ActivityList from "@agir/activity/activityPage/ActivityList";
+import RequiredActivityList from "./RequiredActivityList";
 
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -14,13 +14,13 @@ const Page = styled.article`
   }
 `;
 
-const ActivityPage = (props) => (
-  <Layout active="activity">
+const RequiredActivityPage = (props) => (
+  <Layout active="required-activity">
     <Page>
-      <LayoutTitle>Notifications</LayoutTitle>
-      <ActivityList {...props} />
+      <LayoutTitle>À traiter</LayoutTitle>
+      <RequiredActivityList {...props} />
     </Page>
   </Layout>
 );
 
-export default ActivityPage;
+export default RequiredActivityPage;

@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
+import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 
 import Button from "@agir/front/genericComponents/Button";
 

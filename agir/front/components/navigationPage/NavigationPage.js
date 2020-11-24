@@ -8,7 +8,7 @@ import FeatherIcon, {
 } from "@agir/front/genericComponents/FeatherIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
+import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
 

@@ -10,7 +10,7 @@ import Layout, { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
 import Button from "@agir/front/genericComponents/Button";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
+import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 
 const TopBar = styled.div`
   display: flex;

@@ -18,11 +18,19 @@
       "secondaryLinks": "groups__personGroups"
     },
     {
+      "id": "required-activity",
+      "icon": "inbox",
+      "title": "À traiter",
+      "route": "required-activity",
+      "counter": true,
+      "desktop": true,
+      "mobile": true
+    },
+    {
       "id": "activity",
       "icon": "bell",
       "title": "Notifications",
       "route": "activity",
-      "counter": true,
       "desktop": true,
       "mobile": true
     },

@@ -88,14 +88,12 @@ class NavigationMenuView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/navigationPage"
 
 
-class ActivityView(SoftLoginRequiredMixin, ReactListView):
-    bundle_name = "activity/activityPage"
-    serializer_class = ActivitySerializer
-    page_size = 20
+class ActivityView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "activity/page__activities"
 
-    def get_queryset(self):
-        person = self.request.user.person
-        return Activity.objects.filter(recipient=person)
+
+class RequiredActivityView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "activity/page__requiredActivities"
 
 
 class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):

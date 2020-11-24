@@ -90,7 +90,7 @@ export const renderWithContext = async (
   ] = await Promise.all([
     import("react"),
     import("@agir/lib/utils/react"),
-    import("@agir/front/genericComponents/GobalContext"),
+    import("@agir/front/genericComponents/GlobalContext"),
     ComponentOrPromise,
   ]);
 

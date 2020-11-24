@@ -27,6 +27,7 @@ def basic_information(request):
         "events": reverse("list_events"),
         "groups": reverse("list_my_groups"),
         "activity": reverse("list_activities"),
+        "required-activity": reverse("list_required_activities"),
         "menu": reverse("navigation_menu"),
         "thematicTeams": reverse("thematic_teams_list"),
     }
