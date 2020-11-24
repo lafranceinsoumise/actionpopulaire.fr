@@ -17,12 +17,12 @@ const cardTypes = {
 };
 
 const Card = styled.div`
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.1), 0px 3px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: ${style.elaborateShadow};
   background: ${({ type }) =>
     type && cardTypes[type] && cardTypes[type].background
       ? cardTypes[type].background
       : cardTypes.default.background};
-  padding: 1rem;
+  padding: 1.5rem;
   border-radius: ${({ type }) =>
     type && cardTypes[type] && cardTypes[type].borderRadius
       ? cardTypes[type].borderRadius
@@ -32,6 +32,7 @@ const Card = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     border-radius: 0;
+    padding: 1rem;
   }
 
   & p {

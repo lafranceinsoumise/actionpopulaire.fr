@@ -45,14 +45,8 @@ const MainContainer = styled(Container)`
   padding-bottom: 72px;
 `;
 
-const GrayDesktopBackground = styled(GrayBackground)`
-  @media (max-width: ${style.collapse}px) {
-    background-color: ${style.white};
-  }
-`;
-
 const Layout = (props) => (
-  <GrayDesktopBackground>
+  <GrayBackground>
     <MainContainer>
       <Row gutter={72} align="flex-start">
         <FixedColumn>
@@ -70,7 +64,7 @@ const Layout = (props) => (
         </MainColumn>
       </Row>
     </MainContainer>
-  </GrayDesktopBackground>
+  </GrayBackground>
 );
 
 export default Layout;

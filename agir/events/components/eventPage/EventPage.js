@@ -10,7 +10,6 @@ import EventDescription from "./EventDescription";
 import {
   Column,
   Container,
-  GrayBackground,
   ResponsiveLayout,
   Row,
 } from "@agir/front/genericComponents/grid";
@@ -19,6 +18,7 @@ import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -47,6 +47,35 @@ const StyledColumn = styled(Column)`
     }
   }
 `;
+
+const IndexLinkAnchor = styled.a`
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  margin: 20px 0 20px -1rem;
+
+  &,
+  &:hover,
+  &:active {
+    text-decoration: none;
+    color: #585858;
+  }
+`;
+const IndexLink = (props) => {
+  return (
+    <Row>
+      <Column grow>
+        <IndexLinkAnchor href="#">
+          <FeatherIcon name="arrow-left" />
+          &ensp; Liste des événements
+        </IndexLinkAnchor>
+      </Column>
+    </Row>
+  );
+};
 
 const MobileLayout = (props) => {
   return (
@@ -98,28 +127,12 @@ const MobileLayout = (props) => {
 
 const DesktopLayout = (props) => {
   return (
-    <GrayBackground
-      style={{
-        overflowX: "hidden",
-        minHeight: "calc(100vh + 10rem)",
-        marginBottom: "-2.5rem",
-        paddingBottom: "2.5rem",
-      }}
-    >
-      <Container>
-        <Row>
-          <Column grow>
-            <div style={{ margin: "0 -1000px 40px" }}>
-              <div
-                style={{
-                  padding: "60px 1000px",
-                  backgroundColor: "#fff",
-                  boxShadow: "0px 1px 0px rgba(0, 0, 0, 0.05)",
-                }}
-              >
-                <EventHeader {...props} />
-              </div>
-            </div>
+    <Container>
+      <IndexLink />
+      <Row gutter={32}>
+        <Column grow>
+          <div>
+            <EventHeader {...props} />
             <EventDescription {...props} />
             {props.groups.length > 0 && (
               <div>
@@ -132,19 +145,19 @@ const DesktopLayout = (props) => {
                 ))}
               </div>
             )}
-          </Column>
-          <StyledColumn width="380px" style={{ paddingTop: "24px" }}>
-            <EventLocationCard {...props} />
-            {props.contact && <ContactCard {...props.contact} />}
-            {(props.participantCount > 1 || props.groups.length > 0) && (
-              <EventInfoCard {...props} />
-            )}
-            {props.routes.facebook && <EventFacebookLinkCard {...props} />}
-            <ShareCard />
-          </StyledColumn>
-        </Row>
-      </Container>
-    </GrayBackground>
+          </div>
+        </Column>
+        <StyledColumn width="380px">
+          <EventLocationCard {...props} />
+          {props.contact && <ContactCard {...props.contact} />}
+          {(props.participantCount > 1 || props.groups.length > 0) && (
+            <EventInfoCard {...props} />
+          )}
+          {props.routes.facebook && <EventFacebookLinkCard {...props} />}
+          <ShareCard />
+        </StyledColumn>
+      </Row>
+    </Container>
   );
 };
 

@@ -112,8 +112,6 @@ const ActivityText = ({ type, event, supportGroup, individual }) => {
 };
 
 const LowMarginCard = styled(Card)`
-  padding: 1rem;
-
   & p {
     & > strong,
     & > a {
@@ -160,7 +158,7 @@ const ActivityCard = (props) => {
 
   return (
     <LowMarginCard>
-      <Row gutter="8" align="center">
+      <Row gutter="8" align="flex-start">
         <Column width="1rem" collapse={0} style={{ paddingTop: "2px" }}>
           <FeatherIcon
             name={activityCardIcons[props.type]}
@@ -169,21 +167,21 @@ const ActivityCard = (props) => {
         </Column>
         <Column collapse={0} grow style={{ fontSize: "15px" }}>
           <ActivityText {...textProps} />
+          <p
+            style={{
+              marginTop: "-6px",
+              fontSize: "15px",
+              color: style.black700,
+              fontWeight: 400,
+            }}
+          >
+            {displayHumanDate(timestamp)
+              .split("")
+              .map((ch, i) => (i ? ch : ch.toUpperCase()))
+              .join("")}
+          </p>
         </Column>
       </Row>
-      <div
-        style={{
-          paddingLeft: "2.5rem",
-          fontSize: "15px",
-          color: style.black700,
-        }}
-      >
-        {displayHumanDate(timestamp)
-          .split("")
-          .map((ch, i) => (i ? ch : ch.toUpperCase()))
-          .join("")}
-      </div>
-
       {eventCardTypes.includes(props.type) && (
         <EventCardContainer>
           <EventCard {...event} />

@@ -60,8 +60,7 @@ const GroupList = styled.article`
   & > ${Card} {
     margin-bottom: 16px;
     border-radius: 8px;
-    box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
-      0px 2px 0px rgba(0, 35, 44, 0.08);
+    box-shadow: ${style.elaborateShadow};
   }
 `;
 

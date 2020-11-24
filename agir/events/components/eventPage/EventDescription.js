@@ -72,7 +72,6 @@ const EventDescription = ({
     {description ? (
       <Collapsible dangerouslySetInnerHTML={{ __html: description }} />
     ) : (
-      endTime > DateTime.local() &&
       isOrganizer && (
         <>
           <h2 style={{ fontSize: "20px", marginTop: 0 }}>
