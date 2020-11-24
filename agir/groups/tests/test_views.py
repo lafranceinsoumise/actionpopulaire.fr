@@ -73,7 +73,7 @@ class SupportGroupMixin:
 
 
 class SupportGroupPageTestCase(SupportGroupMixin, TestCase):
-    @mock.patch("agir.people.views.dashboard.geocode_person")
+    @mock.patch("agir.front.views.geocode_person")
     def test_basic_membr_can_quit_group(self, geocode_person):
         response = self.client.get(
             reverse("quit_group", kwargs={"pk": self.member_group.pk})
@@ -260,7 +260,7 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
         self.referent_group.published = False
         self.referent_group.save()
 
-        res = self.client.get(reverse("dashboard"))
+        res = self.client.get(reverse("dashboard_old"))
         self.assertNotContains(res, self.referent_group.pk)
         geocode_person.delay.assert_called_once()
 

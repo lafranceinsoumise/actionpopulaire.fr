@@ -57,13 +57,13 @@ class DashboardTestCase(FakeDataMixin, TestCase):
 
     def test_same_event_is_not_suggested_multiple_times(self):
         self.client.force_login(self.person1.role)
-        response = self.client.get(reverse("dashboard"))
+        response = self.client.get(reverse("dashboard_old"))
         self.assertContains(response, self.event.name, count=1)
 
     @mock.patch("agir.people.views.dashboard.geocode_person")
     def test_contains_everything(self, geocode_person):
         self.client.force_login(self.data["people"]["user2"].role)
-        response = self.client.get(reverse("dashboard"))
+        response = self.client.get(reverse("dashboard_old"))
 
         geocode_person.delay.assert_called_once()
         self.assertEqual(

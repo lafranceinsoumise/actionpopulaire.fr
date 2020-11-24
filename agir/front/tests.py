@@ -64,7 +64,7 @@ class PagesLoadingTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
 
-    @mock.patch("agir.people.views.dashboard.geocode_person")
+    @mock.patch("agir.front.views.geocode_person")
     def test_see_group_list(self, geocode_person):
         response = self.client.get("/groupes/")
         self.assertRedirects(response, reverse("dashboard"))
