@@ -30,6 +30,7 @@ from agir.people.forms import (
 )
 from agir.people.models import Person
 from agir.people.token_buckets import is_rate_limited_for_subscription
+from agir.lib.tasks import geocode_person
 
 
 class UnsubscribeView(SimpleOpengraphMixin, FormView):
@@ -174,6 +175,9 @@ class ConfirmSubscriptionView(View):
             send_welcome_mail.delay(self.person.pk, type=self.type)
 
         hard_login(self.request, self.person)
+
+        if self.person.coordinates_type is None:
+            geocode_person.delay(self.person.pk)
 
     def render(self, template, context=None, **kwargs):
         if context is None:

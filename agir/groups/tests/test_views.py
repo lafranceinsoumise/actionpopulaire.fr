@@ -84,6 +84,7 @@ class SupportGroupPageTestCase(SupportGroupMixin, TestCase):
             reverse("quit_group", kwargs={"pk": self.member_group.pk})
         )
         self.assertRedirects(response, reverse("dashboard"))
+
         geocode_person.delay.assert_called_once()
 
         self.assertFalse(
