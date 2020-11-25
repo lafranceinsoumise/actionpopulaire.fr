@@ -52,11 +52,7 @@ const FilterTabs = ({ tabs, onTabChange }) => {
         <Tab
           active={index === tab}
           key={index}
-          onClick={() =>
-            setTab(index) &&
-            typeof onTabChange === "function" &&
-            onTabChange(index)
-          }
+          onClick={() => setTab(index) + onTabChange(index)}
         >
           {label}
         </Tab>
@@ -68,5 +64,6 @@ const FilterTabs = ({ tabs, onTabChange }) => {
 export default FilterTabs;
 
 FilterTabs.propTypes = {
-  tabs: PropTypes.arrayOf(PropTypes.string),
+  tabs: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onTabChange: PropTypes.func.isRequired,
 };

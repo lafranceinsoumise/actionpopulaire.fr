@@ -51,6 +51,7 @@ def basic_information(request):
         ).order_by("name")
         if personGroups.count() > 0:
             routes["groups__personGroups"] = []
+            user["groups"] = []
             for group in personGroups:
                 link = {
                     "id": group.id,
@@ -58,6 +59,7 @@ def basic_information(request):
                     "href": reverse("view_group", kwargs={"pk": group.pk}),
                 }
                 routes["groups__personGroups"].append(link)
+                user["groups"].append(group.id)
 
     return {
         "MAIN_DOMAIN": settings.MAIN_DOMAIN,

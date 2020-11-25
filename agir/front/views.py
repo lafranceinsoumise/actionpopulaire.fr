@@ -109,36 +109,54 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
             .order_by("start_time", "end_time")
         )
 
-        suggested_events = (
+        groups_events = (
             Event.objects.upcoming()
             .exclude(rsvps__person=person)
             .filter(organizers_groups__in=person.supportgroups.all())
             .order_by("start_time")
         )
 
-        if person.coordinates is not None and len(suggested_events) < 10:
+        organized_events = (
+            Event.objects.past().filter(organizers=person).order_by("-start_time")[:10]
+        )
+
+        past_events = (
+            Event.objects.past()
+            .filter(rsvps__person=person)
+            .order_by("-start_time")[:10]
+        )
+
+        query = (
+            Q(pk__in=groups_events) | Q(pk__in=organized_events) | Q(pk__in=past_events)
+        )
+
+        if person.coordinates is not None:
             near_events = (
                 Event.objects.upcoming()
+                .exclude(rsvps__person=person)
                 .filter(
                     start_time__lt=timezone.now() + timedelta(days=30),
                     do_not_list=False,
                 )
-                .exclude(pk__in=suggested_events)
-                .exclude(rsvps__person=person)
+                .exclude(pk__in=groups_events)
                 .annotate(distance=Distance("coordinates", person.coordinates))
-                .order_by("distance")[: (10 - suggested_events.count())]
+                .order_by("distance")[:10]
             )
 
-            suggested_events = Event.objects.filter(
-                Q(pk__in=suggested_events) | Q(pk__in=near_events)
-            ).order_by("start_time")
+            other_events = (
+                Event.objects.filter(query | Q(pk__in=near_events))
+                .annotate(distance=Distance("coordinates", person.coordinates))
+                .order_by("start_time")
+            )
+        else:
+            other_events = Event.objects.filter(query).order_by("start_time")
 
         return {
             "rsvped": self.serializer_class(
                 instance=rsvped_events, many=True, context={"request": self.request}
             ).data,
-            "suggested": self.serializer_class(
-                instance=suggested_events, many=True, context={"request": self.request}
+            "others": self.serializer_class(
+                instance=other_events, many=True, context={"request": self.request}
             ).data,
         }
 

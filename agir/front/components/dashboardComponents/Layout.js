@@ -29,7 +29,7 @@ const FixedColumn = styled(Column)`
   @media (min-width: ${style.collapse}px) {
     position: sticky;
     top: 72px;
-    padding: 72px 0;
+    padding-top: 72px;
   }
 `;
 

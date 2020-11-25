@@ -19,4 +19,5 @@ Default.args = {
     "Toujours plus",
     "C'est sans fin",
   ],
+  onTabChange: () => true,
 };

@@ -92,6 +92,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     contact = ContactMixinSerializer(source="*")
 
+    distance = serializers.SerializerMethodField()
+
     def to_representation(self, instance):
         user = self.context["request"].user
         self.organizer_config = self.rsvp = None
@@ -125,3 +127,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         routes["googleExport"] = obj.get_google_calendar_url()
 
         return routes
+
+    def get_distance(self, obj):
+        if hasattr(obj, "distance"):
+            return obj.distance.m

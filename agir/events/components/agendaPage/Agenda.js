@@ -12,6 +12,7 @@ import EventCard from "@agir/front/genericComponents/EventCard";
 
 import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 import { displayHumanDay } from "@agir/lib/utils/time";
+import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 
 const Banner = styled.h1`
   display: flex;
@@ -88,6 +89,10 @@ const EmptyAgenda = styled.div`
 `;
 
 const StyledAgenda = styled.div`
+  & header {
+    margin-bottom: 32px;
+  }
+
   & h2 {
     font-size: 18px;
   }
@@ -109,24 +114,34 @@ const StyledAgenda = styled.div`
   }
 `;
 
-const Agenda = ({ rsvped, suggested }) => {
+const OtherEvents = ({ others }) => {
   const { routes, user } = useGlobalContext();
+  const NEAR_TYPE = "À proximité";
+  const GROUPS_TYPE = "Dans mes groupes";
+  const PAST_TYPE = "Passés";
+  const ORGANIZED_TYPE = "Organisés";
+  const types =
+    others[0].distance !== null
+      ? [NEAR_TYPE, GROUPS_TYPE, PAST_TYPE, ORGANIZED_TYPE]
+      : [GROUPS_TYPE, PAST_TYPE, ORGANIZED_TYPE];
 
-  const rsvpedEvents = React.useMemo(
-    () =>
-      rsvped.map((event) => ({
-        ...event,
-        schedule: Interval.fromDateTimes(
-          DateTime.fromISO(event.startTime).setLocale("fr"),
-          DateTime.fromISO(event.endTime).setLocale("fr")
-        ),
-      })),
-    [rsvped]
-  );
-  const suggestedEventDates = React.useMemo(
+  const [typeFilter, setTypeFilter] = React.useState(0);
+  const otherEventDates = React.useMemo(
     () =>
       Object.entries(
-        suggested
+        others
+          .filter((event) => {
+            switch (types[typeFilter]) {
+              case NEAR_TYPE:
+                return event.distance < 100 * 1000;
+              case GROUPS_TYPE:
+                return event.groups.includes(user.groups);
+              case PAST_TYPE:
+                return event.schedule < DateTime.local();
+              case ORGANIZED_TYPE:
+                return event.isOrganizer;
+            }
+          })
           .map((event) => ({
             ...event,
             schedule: Interval.fromDateTimes(
@@ -142,7 +157,54 @@ const Agenda = ({ rsvped, suggested }) => {
             return days;
           }, {})
       ),
-    [suggested]
+    [others, typeFilter]
+  );
+
+  return (
+    <>
+      <FilterTabs tabs={types} onTabChange={setTypeFilter} />
+
+      {otherEventDates.length > 0 ? (
+        otherEventDates.map(([date, events]) => (
+          <div key={date}>
+            <Day>{date}</Day>
+            {events.map((event) => (
+              <EventCard key={event.id} {...event} />
+            ))}
+          </div>
+        ))
+      ) : (
+        <EmptyAgenda>
+          <p>
+            Il n'y a aucun événement à afficher avec les filtres sélectionnés.
+          </p>
+          <p>
+            Pas d'événement prévu dans votre ville ?{" "}
+            <a href={routes.createEvent}>Commencez par en créer un</a>.
+          </p>
+        </EmptyAgenda>
+      )}
+    </>
+  );
+};
+
+OtherEvents.propTypes = {
+  others: PropTypes.arrayOf(PropTypes.object),
+};
+
+const Agenda = ({ rsvped, others }) => {
+  const { routes, user } = useGlobalContext();
+
+  const rsvpedEvents = React.useMemo(
+    () =>
+      rsvped.map((event) => ({
+        ...event,
+        schedule: Interval.fromDateTimes(
+          DateTime.fromISO(event.startTime).setLocale("fr"),
+          DateTime.fromISO(event.endTime).setLocale("fr")
+        ),
+      })),
+    [rsvped]
   );
 
   return (
@@ -178,42 +240,16 @@ const Agenda = ({ rsvped, suggested }) => {
       </header>
       <Row>
         <Column grow>
-          {rsvped.length === 0 && suggested.length === 0 ? (
-            <EmptyAgenda>
-              <p>
-                <strong>Oups, il n'y a rien à afficher&nbsp;!</strong>
-              </p>
-              <p>
-                Il n'y a aucun événement à afficher avec les filtres
-                sélectionnés.
-              </p>
-              <p>
-                Pas d'événement prévu dans votre ville ?{" "}
-                <a href={routes.createEvent}>Commencez par en créer un</a>.
-              </p>
-            </EmptyAgenda>
-          ) : null}
           {rsvpedEvents.length > 0 && (
             <>
               <h2>Mes événements</h2>
               {rsvpedEvents.map((event) => (
                 <EventCard key={event.id} {...event} />
               ))}
+              <h2>Autres événements près de chez moi</h2>
             </>
           )}
-          {suggestedEventDates.length > 0 && (
-            <>
-              <h2>Les événements près de chez moi</h2>
-              {suggestedEventDates.map(([date, events]) => (
-                <div key={date}>
-                  <Day>{date}</Day>
-                  {events.map((event) => (
-                    <EventCard key={event.id} {...event} />
-                  ))}
-                </div>
-              ))}
-            </>
-          )}
+          <OtherEvents others={others} />
         </Column>
       </Row>
     </StyledAgenda>
@@ -229,7 +265,7 @@ Agenda.propTypes = {
       endTime: PropTypes.string,
     })
   ),
-  suggested: PropTypes.arrayOf(
+  others: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
       startTime: PropTypes.string,
