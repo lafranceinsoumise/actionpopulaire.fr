@@ -11,7 +11,7 @@ import Button from "@agir/front/genericComponents/Button";
 import EventCard from "@agir/front/genericComponents/EventCard";
 
 import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
-import { displayHumanDay } from "@agir/lib/utils/time";
+import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 
 const Banner = styled.h1`
@@ -140,7 +140,7 @@ const OtherEvents = ({ others }) => {
                     .length > 0
                 );
               case PAST_TYPE:
-                return event.schedule < DateTime.local();
+                return dateFromISOString(event.startTime) < DateTime.local();
               case ORGANIZED_TYPE:
                 return event.isOrganizer;
             }
@@ -148,14 +148,12 @@ const OtherEvents = ({ others }) => {
           .map((event) => ({
             ...event,
             schedule: Interval.fromDateTimes(
-              DateTime.fromISO(event.startTime).setLocale("fr"),
-              DateTime.fromISO(event.endTime).setLocale("fr")
+              dateFromISOString(event.startTime),
+              dateFromISOString(event.endTime)
             ),
           }))
           .reduce((days, event) => {
-            const day = displayHumanDay(
-              DateTime.fromISO(event.startTime).setLocale("fr")
-            );
+            const day = displayHumanDay(dateFromISOString(event.startTime));
             (days[day] = days[day] || []).push(event);
             return days;
           }, {})
