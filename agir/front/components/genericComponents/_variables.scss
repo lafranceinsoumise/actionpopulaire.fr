@@ -1,22 +1,25 @@
 $white: #fff;
 
-$black1000: #00232c;
+$black1000: #000a2c;
 $black700: #4f4f4f;
-$black500: #777;
+$black500: #777777;
+$black200: #c4c4c4;
 $black100: #dfdfdf;
-$black50: #eee;
-$black25: #f8f8f8;
+$black50: #eeeeee;
+$black25: #fafafa;
 
-$primary600: #1d7384;
-$primary500: #0098b6;
-$primary150: #bfe7ec;
-$primary100: #daf0f3;
+$primary600: #4d26b9;
+$primary500: #571aff;
+$primary150: #cbbfec;
+$primary100: #e9e1ff;
 
-$secondary600: #a32f18;
-$secondary500: #c9462c; // terre de sienne
+$secondary600: #f5e30f;
+$secondary500: #f4ed0f;
 $secondary100: #faedea;
 
 $green500: #16a460;
+
+$redNSP: #e93a55;
 
 $font-family-base: "Poppins", sans-serif;
 $font-size-base: 16px;
@@ -31,6 +34,8 @@ $collapse: 992;
 
 $elaborate-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
   0px 2px 0px rgba(0, 35, 44, 0.08);
+
+$default-border-radius: 0;
 
 :export {
   white: $white;
@@ -65,4 +70,5 @@ $elaborate-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
   collapse: $collapse;
 
   elaborateShadow: $elaborate-shadow;
+  defaultBorderRadius: $default-border-radius;
 }

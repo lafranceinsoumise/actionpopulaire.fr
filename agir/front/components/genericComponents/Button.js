@@ -23,7 +23,7 @@ const buttonColors = {
   },
   secondary: {
     background: style.secondary500,
-    labelColor: style.white,
+    labelColor: style.black1000,
     hoverBackground: style.secondary600,
   },
   confirmed: {
@@ -58,7 +58,7 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
       ? "1rem"
       : "1.5rem"}; /* pour s'assurer que les liens sont correctement centrés */
   margin: 0;
-  border-radius: 0.5rem;
+  border-radius: ${style.defaultBorderRadius};
   min-height: ${({ small }) => (small ? "2rem" : "3rem")};
   min-height: calc(${({ small }) => (small ? "2rem" : "3rem")} + 2px);
   text-align: center;

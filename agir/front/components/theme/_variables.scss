@@ -13,13 +13,13 @@ $gray: lighten($gray-base, 33.5%) !default; // #555
 $gray-light: lighten($gray-base, 46.7%) !default; // #777
 $gray-lighter: lighten($gray-base, 93.5%) !default; // #eee
 
-$brand-primary: #0098b6; // blue
-$brand-secondary: #c9462c; // terre de sienne
-$brand-black: #00232c;
-$brand-success: #5cb85c !default;
+$brand-primary: #571aff; // blue
+$brand-secondary: #f4ed0f; // terre de sienne
+$brand-black: #000a2c;
+$brand-success: #16a460 !default;
 $brand-info: #5bc0de !default;
 $brand-warning: #f0ad4e !default;
-$brand-danger: #d9534f !default;
+$brand-danger: #e93a55 !default;
 
 //== Scaffolding
 //
@@ -98,18 +98,18 @@ $border-radius-small: 0px;
 
 $btn-font-weight: 700;
 
-$btn-primary-color: #fff !default;
+$btn-primary-color: $brand-black !default;
 $btn-primary-bg: $brand-secondary !default;
-$btn-primary-border: darken($btn-primary-bg, 5%) !default;
+$btn-primary-border: $btn-primary-bg !default;
 
 $btn-default-color: $brand-black !default;
 $btn-default-bg: #eeeeee !default;
-$btn-default-border: darken($btn-default-bg, 5%) !default;
+$btn-default-border: $btn-default-bg !default;
 
 // Allows for customizing button radius independently from global border radius
-$btn-border-radius-base: 5px;
-$btn-border-radius-large: 5px;
-$btn-border-radius-small: 5px;
+$btn-border-radius-base: 0;
+$btn-border-radius-large: 0;
+$btn-border-radius-small: 0;
 
 //== Forms
 //
