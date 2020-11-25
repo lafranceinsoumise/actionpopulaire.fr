@@ -14,7 +14,7 @@ const buttonColors = {
     background: style.white,
     hoverBackground: style.black50,
     labelColor: style.black1000,
-    borderColor: style.black50,
+    borderColor: style.black100,
   },
   primary: {
     background: style.primary500,
@@ -59,11 +59,10 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
       : "1.5rem"}; /* pour s'assurer que les liens sont correctement centrés */
   margin: 0;
   border-radius: ${style.defaultBorderRadius};
-  min-height: ${({ small }) => (small ? "2rem" : "3rem")};
-  min-height: calc(${({ small }) => (small ? "2rem" : "3rem")} + 2px);
+  
   text-align: center;
   font-weight: 700;
-  font-size: ${({ small }) => (small ? "0.8125rem" : "0.875rem")};
+  font-size: ${({ small }) => (small ? "0.875rem" : "1rem")};
 
   color: ${({ labelColor, disabled }) =>
     disabled ? transparentize(0.3, labelColor) : labelColor};
@@ -97,8 +96,8 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
     &:before {
       content: "";
       display: inline-block;
-      height: ${small ? "11px" : "16px"};
-      width: ${small ? "11px" : "16px"};
+      height: ${small ? "16px" : "16px"};
+      width: ${small ? "16px" : "16px"};
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center center;
@@ -115,7 +114,7 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
          * exemple) ne fonctionne pas.
          *  */
       }');
-      margin-right: ${small ? "0.25rem" : "0.5rem"};
+      margin-right: ${small ? "0.375rem" : "0.5rem"};
     }
   `
       : ""}

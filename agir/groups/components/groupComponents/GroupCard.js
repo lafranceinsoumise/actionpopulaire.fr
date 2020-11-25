@@ -110,7 +110,7 @@ const GroupCard = ({
 
       {discountCodes && discountCodes.length > 0 && (
         <DiscountCodesSection>
-          <h4>Codes matériels :</h4>
+          <h5>Codes matériels :</h5>
           <ul>
             {discountCodes.map(({ code, expirationDate }) => (
               <li key={code}>
@@ -131,8 +131,7 @@ const GroupCard = ({
             <>
               Rejoindre
               <Hide as="span" under={800}>
-                {" "}
-                le groupe
+                &nbsp;le groupe
               </Hide>
             </>
           )}

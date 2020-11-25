@@ -5,19 +5,17 @@ import styled from "styled-components";
 const cardTypes = {
   default: {
     background: style.white,
-    borderRadius: "0.5rem",
+    borderRadius: style.defaultBorderRadius,
   },
   primary: {
     background: style.primary100,
   },
   alert: {
-    background: `linear-gradient(90deg, ${style.secondary500} 0, ${style.secondary500} 3px, ${style.white} 3px)`,
-    borderRadius: "0",
+    background: `linear-gradient(90deg, ${style.black1000} 0, ${style.black1000} 3px, ${style.white} 3px)`,
   },
 };
 
 const Card = styled.div`
-  box-shadow: ${style.elaborateShadow};
   background: ${({ type }) =>
     type && cardTypes[type] && cardTypes[type].background
       ? cardTypes[type].background
@@ -29,8 +27,11 @@ const Card = styled.div`
       : cardTypes.default.borderRadius};
   font-weight: 500;
   cursor: ${({ onClick }) => (onClick ? "pointer" : "default")};
+  border: 1px solid ${style.black100};
 
   @media (max-width: ${style.collapse}px) {
+    border: none;
+    box-shadow: ${style.elaborateShadow};
     border-radius: 0;
     padding: 1rem;
   }

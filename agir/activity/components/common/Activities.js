@@ -9,11 +9,11 @@ export const EmptyList = styled.p`
   padding: 16px 0;
 
   @media (max-width: ${style.collapse}px) {
-    margin: 0 25px;
+    padding: 16px 25px;
   }
 
   strong {
-    color: ${style.primary500};
+    color: ${style.black1000};
   }
 `;
 
@@ -22,42 +22,19 @@ export const StyledList = styled.ul`
   max-width: 711px;
   margin: 0;
   width: 100%;
-  padding: 16px 0;
+  padding: 1.5rem 0;
 
   @media (max-width: ${style.collapse}px) {
+    padding: 0.5rem 0;
     margin: 0 auto;
-  }
-
-  h2,
-  h4 {
-    margin: 0;
-    @media (max-width: ${style.collapse}px) {
-      margin: 0 25px;
-    }
-  }
-
-  h2 {
-    font-size: 18px;
-    line-height: 1.5;
-    @media (max-width: ${style.collapse}px) {
-      font-size: 16px;
-    }
-  }
-
-  h4 {
-    font-size: 14px;
-    font-weight: normal;
-    margin-bottom: 20px;
-    line-height: 1.5;
-    @media (max-width: ${style.collapse}px) {
-      margin-bottom: 15px;
-    }
+    max-width: 100%;
   }
 
   li {
     margin: 0 0 16px;
+
     @media (max-width: ${style.collapse}px) {
-      margin: ${({ type }) => (type === "required" ? "0 12px 12px" : "16px 0")};
+      margin: 16px 0;
     }
   }
 `;

@@ -18,12 +18,8 @@ const TopBar = styled.div`
   justify-content: space-between;
   margin: 0 0 25px;
 
-  @media (max-width: ${style.collapse}px) {
-    margin: 25px;
-  }
-
   & > h1 {
-    margin: 0 0 16px;
+    margin: 0 0 1rem;
 
     @media (max-width: ${style.collapse}px) {
       flex: 0 0 100%;
@@ -37,6 +33,8 @@ const TopBar = styled.div`
 
     @media only screen and (max-width: ${style.collapse}px) {
       flex-direction: row;
+      margin-left: 1.5rem;
+      margin-right: 1.5rem;
     }
   }
 
@@ -59,8 +57,6 @@ const GroupList = styled.article`
 
   & > ${Card} {
     margin-bottom: 16px;
-    border-radius: 8px;
-    box-shadow: ${style.elaborateShadow};
   }
 `;
 
@@ -93,7 +89,7 @@ const GroupsPage = ({ data }) => {
   }
 
   return (
-    <Layout active="groups">
+    <Layout active="groups" smallBackgroundColor={style.black25}>
       <TopBar>
         <LayoutTitle>Mes groupes</LayoutTitle>
         <div>

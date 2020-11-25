@@ -38,83 +38,107 @@ export const activityCardIcons = {
   "cancelled-event": "x-circle",
 };
 
+const StyledParagraph = styled.p`
+  margin-bottom: 0;
+`;
 const ActivityText = ({ type, event, supportGroup, individual }) => {
   return {
     "waiting-payment": (
-      <p>Vous n'avez pas encore réglé votre place pour l'événément {event}</p>
+      <StyledParagraph>
+        Vous n'avez pas encore réglé votre place pour l'événément {event}
+      </StyledParagraph>
     ),
     "group-invitation": (
-      <p>Vous avez été invité⋅e à rejoindre le groupe {supportGroup}</p>
+      <StyledParagraph>
+        Vous avez été invité⋅e à rejoindre le groupe {supportGroup}
+      </StyledParagraph>
     ),
     "new-member": (
-      <p>
+      <StyledParagraph>
         {individual} a rejoint votre groupe {supportGroup}. Prenez le temps de
         l’accueillir&nbsp;!
-      </p>
+      </StyledParagraph>
     ),
     "waiting-location-group": (
-      <p>Précisez la localisation de votre groupe {supportGroup}</p>
+      <StyledParagraph>
+        Précisez la localisation de votre groupe {supportGroup}
+      </StyledParagraph>
     ),
     "group-coorganization-invite": (
-      <p>
+      <StyledParagraph>
         {individual} a proposé à votre groupe {supportGroup} de co-organiser{" "}
         {event}
-      </p>
+      </StyledParagraph>
     ),
     "waiting-location-event": (
-      <p>Précisez la localisation de votre événement&nbsp;: {event}</p>
+      <StyledParagraph>
+        Précisez la localisation de votre événement&nbsp;: {event}
+      </StyledParagraph>
     ),
     "group-coorganization-accepted": (
-      <p>
+      <StyledParagraph>
         {supportGroup} a accepté de co-organiser votre événement {event}
-      </p>
+      </StyledParagraph>
     ),
-    "group-info-update": <p>Votre groupe {supportGroup} a été mis à jour</p>,
+    "group-info-update": (
+      <StyledParagraph>
+        Votre groupe {supportGroup} a été mis à jour
+      </StyledParagraph>
+    ),
     "accepted-invitation-member": (
-      <p>
+      <StyledParagraph>
         {individual} a rejoint {supportGroup} en acceptant une invitation.
-      </p>
+      </StyledParagraph>
     ),
     "new-attendee": (
-      <p>
+      <StyledParagraph>
         {individual} s'est inscrit à votre événement {event}
-      </p>
+      </StyledParagraph>
     ),
     "event-update": (
-      <p>
+      <StyledParagraph>
         Mise à jour : l'événement {event} auquel vous participez a changé de
         date.
-      </p>
+      </StyledParagraph>
     ),
     "new-event-mygroups": (
-      <p>{supportGroup || individual} a publié un nouvel événement</p>
+      <StyledParagraph>
+        {supportGroup || individual} a publié un nouvel événement
+      </StyledParagraph>
     ),
     "new-report": (
-      <p>
+      <StyledParagraph>
         Le compte-rendu de l'événement {event} a été ajouté par les
         organisateurs
-      </p>
+      </StyledParagraph>
     ),
     "new-event-aroundme": (
-      <p>
+      <StyledParagraph>
         Un nouvel événement a été publié près de chez vous par{" "}
         {supportGroup || individual}
-      </p>
+      </StyledParagraph>
     ),
     "group-coorganization-info": (
-      <p>
+      <StyledParagraph>
         Votre groupe {supportGroup} a rejoint l'organisation de l'événement{" "}
         {event}
-      </p>
+      </StyledParagraph>
     ),
-    "cancelled-event": <p>L'événement {event} a été annulé.</p>,
+    "cancelled-event": (
+      <StyledParagraph>L'événement {event} a été annulé.</StyledParagraph>
+    ),
   }[type];
 };
 
 const LowMarginCard = styled(Card)`
-  & p {
+  @media only screen and (min-width: ${style.collapse}px) {
+    padding: 0;
+    border: none;
+  }
+  p {
     & > strong,
     & > a {
+      font-weight: 600;
       text-decoration: none;
     }
   }
@@ -125,6 +149,7 @@ const EventCardContainer = styled.div`
 
   @media only screen and (min-width: ${style.collapse}px) {
     padding-left: 2.5rem;
+    margin-bottom: 1.5rem;
   }
 
   & ${Card} {
@@ -169,8 +194,8 @@ const ActivityCard = (props) => {
           <ActivityText {...textProps} />
           <p
             style={{
-              marginTop: "-6px",
-              fontSize: "15px",
+              margin: "0.125rem 0 0",
+              fontSize: "13px",
               color: style.black700,
               fontWeight: 400,
             }}
