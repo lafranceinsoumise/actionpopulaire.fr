@@ -126,16 +126,19 @@ const OtherEvents = ({ others }) => {
       : [GROUPS_TYPE, PAST_TYPE, ORGANIZED_TYPE];
 
   const [typeFilter, setTypeFilter] = React.useState(0);
-  const otherEventDates = React.useMemo(
+  let otherEventDates = React.useMemo(
     () =>
       Object.entries(
         others
           .filter((event) => {
             switch (types[typeFilter]) {
               case NEAR_TYPE:
-                return event.distance < 100 * 1000;
+                return event.distance < 100 * 1000 && !event.rsvp;
               case GROUPS_TYPE:
-                return event.groups.includes(user.groups);
+                return (
+                  event.groups.filter((group) => user.groups.includes(group.id))
+                    .length > 0
+                );
               case PAST_TYPE:
                 return event.schedule < DateTime.local();
               case ORGANIZED_TYPE:
@@ -157,8 +160,14 @@ const OtherEvents = ({ others }) => {
             return days;
           }, {})
       ),
-    [others, typeFilter]
+    [others, types, typeFilter, user.groups]
   );
+
+  if ([ORGANIZED_TYPE, PAST_TYPE].includes(types[typeFilter])) {
+    otherEventDates = otherEventDates
+      .map(([date, events]) => [date, events.reverse()])
+      .reverse();
+  }
 
   return (
     <>

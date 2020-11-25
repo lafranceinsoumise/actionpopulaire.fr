@@ -105,13 +105,12 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
 
         rsvped_events = (
             Event.objects.upcoming()
-            .filter(attendees=person)
+            .filter(Q(attendees=person) | Q(organizers=person))
             .order_by("start_time", "end_time")
         )
 
         groups_events = (
             Event.objects.upcoming()
-            .exclude(rsvps__person=person)
             .filter(organizers_groups__in=person.supportgroups.all())
             .order_by("start_time")
         )
@@ -133,7 +132,6 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
         if person.coordinates is not None:
             near_events = (
                 Event.objects.upcoming()
-                .exclude(rsvps__person=person)
                 .filter(
                     start_time__lt=timezone.now() + timedelta(days=30),
                     do_not_list=False,
