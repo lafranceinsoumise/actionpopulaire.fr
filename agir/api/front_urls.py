@@ -13,6 +13,7 @@ urlpatterns = [
     path("", include("agir.notifications.urls")),
     path("", include("agir.loans.urls")),
     path("", include("agir.municipales.urls")),
+    path("", include("agir.activity.urls")),
     path("carte/", include("agir.carte.urls")),
     path("data-france/", include("data_france.urls")),
 ]
