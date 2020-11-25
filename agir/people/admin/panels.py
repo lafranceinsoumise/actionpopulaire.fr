@@ -134,9 +134,10 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     list_filter = (
         DepartementListFilter,
         RegionListFilter,
-        ("is_insoumise", admin.BooleanFieldListFilter),
-        ("subscribed_sms", admin.BooleanFieldListFilter),
-        ("draw_participation", admin.BooleanFieldListFilter),
+        "is_insoumise",
+        "is_2022",
+        "subscribed_sms",
+        "draw_participation",
         "gender",
         "tags",
     )
