@@ -1,30 +1,21 @@
 import React from "react";
 
-import { ActivityList } from "./ActivityList";
-import * as RequiredActionCardStories from "./RequiredActionCard.stories";
+import Activities from "@agir/activity/common/Activities";
+import ActivityCard from "./ActivityCard";
 
 export default {
-  component: ActivityList,
+  component: Activities,
   title: "Activities/ActivityList",
   argTypes: {},
 };
 
 const Template = (args) => {
-  return (
-    <div>
-      <ActivityList {...args} />
-    </div>
-  );
+  return <Activities {...args} />;
 };
 
-export const Empty = Template.bind({});
-Empty.args = {
-  unrequired: [],
-  required: [],
-};
 export const Default = Template.bind({});
 Default.args = {
-  unrequired: [
+  activities: [
     {
       id: String(Date.now() + 1),
       type: "event-update",
@@ -57,10 +48,11 @@ Default.args = {
       timestamp: Date.now(),
     },
   ],
-  required: [
-    ...Object.values(RequiredActionCardStories)
-      .map(({ args }) => args)
-      .filter(Boolean),
-  ],
+  CardComponent: ActivityCard,
+};
+
+export const Empty = Template.bind({});
+Empty.args = {
+  activities: [],
   onDismiss: () => {},
 };

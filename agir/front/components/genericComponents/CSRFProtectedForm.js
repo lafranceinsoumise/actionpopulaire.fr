@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
+import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 
 const CSRFProtectedForm = ({ children, ...props }) => {
   const { csrfToken } = useGlobalContext();

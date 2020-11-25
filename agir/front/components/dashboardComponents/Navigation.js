@@ -6,7 +6,7 @@ import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
 import style from "@agir/front/genericComponents/_variables.scss";
-import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
+import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
 
@@ -19,7 +19,7 @@ const BottomBar = styled.nav`
     right: 0px;
     box-shadow: inset 0px 1px 0px #eeeeee;
     height: 72px;
-    padding: 0 7%;
+    padding: 0 0.5rem;
   }
 `;
 
@@ -60,7 +60,7 @@ const Menu = styled.ul`
     max-width: 600px;
     margin: auto;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
   }
 `;
 
@@ -69,17 +69,12 @@ const MenuItem = styled.li`
   font-weight: 600;
   display: block;
   position: relative;
+  color: ${(props) => (props.active ? style.primary500 : "")};
 
   & a {
     color: inherit;
     text-decoration: none;
   }
-
-  ${(props) =>
-    props.active &&
-    `
-    color: ${style.primary500};
-    `}
 
   @media only screen and (max-width: ${style.collapse}px) {
     display: ${({ mobile }) => (mobile ? "flex" : "none")};
@@ -90,16 +85,17 @@ const MenuItem = styled.li`
     text-align: center;
     font-size: 11px;
     font-weight: 500;
+    border-top: 2px solid
+      ${(props) => (props.active ? style.primary500 : "transparent")};
 
     & ${RawFeatherIcon} {
       display: block;
       margin-bottom: 5px;
     }
-    ${(props) =>
-      props.active &&
-      `
-    border-top: 2px solid ${style.primary500};
-    `}
+  }
+
+  @media only screen and (max-width: 340px) {
+    font-size: 9px;
   }
 
   @media only screen and (min-width: ${style.collapse}px) {
@@ -180,6 +176,9 @@ const MenuLink = (props) => {
     }),
     [external]
   );
+  if (counter === 0) {
+    return null;
+  }
   return (
     <MenuItem {...props} active={active}>
       <a {...linkProps} href={href}>
@@ -253,5 +252,11 @@ const Navigation = ({ active }) => {
 export default Navigation;
 
 Navigation.propTypes = {
-  active: PropTypes.oneOf(["events", "groups", "activity", "menu"]),
+  active: PropTypes.oneOf([
+    "events",
+    "groups",
+    "activity",
+    "required-activity",
+    "menu",
+  ]),
 };

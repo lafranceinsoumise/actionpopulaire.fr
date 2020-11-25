@@ -10,7 +10,7 @@ import { Column } from "@agir/front/genericComponents/grid";
 import Button from "@agir/front/genericComponents/Button";
 import EventCard from "@agir/front/genericComponents/EventCard";
 
-import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
+import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 import { displayHumanDay } from "@agir/lib/utils/time";
 
 const Banner = styled.h1`

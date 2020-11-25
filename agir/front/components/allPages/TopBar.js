@@ -6,7 +6,7 @@ import Button from "../genericComponents/Button";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import LogoFI from "../genericComponents/LogoFI";
-import { useGlobalContext } from "@agir/front/genericComponents/GobalContext";
+import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 
 const TopBarBar = styled.div`
   position: fixed;

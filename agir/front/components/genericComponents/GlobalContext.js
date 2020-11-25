@@ -4,7 +4,7 @@ import { ThemeProvider } from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { parseActivities } from "@agir/activity/activityPage/ActivityList";
+import { parseActivities } from "@agir/activity/common/helpers";
 
 /*
  * Objet proxy utilisé en test pour toujours renvoyer quelque chose
@@ -34,7 +34,7 @@ export const updateGlobalContext = (
   action
 ) => {
   if (action.type === "@@INIT" && Array.isArray(action.activities)) {
-    const [required] = parseActivities(action.activities);
+    const { required } = parseActivities(action.activities);
     return {
       ...state,
       requiredActionActivities: required,
