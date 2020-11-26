@@ -150,8 +150,7 @@ class ContactStep extends FormStep {
           </div>
           <div className="row padtopmore">
             <p className="col-xs-12">
-              Ces informations seront <strong>visibles par tous</strong> et
-              seront potentiellement{" "}
+              Ces informations seront <strong>visibles par tous</strong> et{" "}
               <strong>indexées par les moteurs de recherche.</strong>
             </p>
           </div>

@@ -193,13 +193,20 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
             visibility=SupportGroupSubtype.VISIBILITY_ALL
         )
 
+        types = []
+        if person.is_insoumise:
+            types.extend(SupportGroup.TYPE_CHOICES[:4])
+
+        if person.is_2022:
+            types.extend(SupportGroup.TYPE_CHOICES[4:])
+
         types = [
             {
-                "id": elem["type"],
-                "label": dict(SupportGroup.TYPE_CHOICES)[elem["type"]],
-                "description": str(SupportGroup.TYPE_DESCRIPTION[elem["type"]]),
+                "id": elem[0],
+                "label": elem[1],
+                "description": SupportGroup.TYPE_DESCRIPTION[elem[0]],
             }
-            for elem in subtypes_qs.values("type").distinct()
+            for elem in types
         ]
 
         subtypes = [dict_to_camelcase(s.get_subtype_information()) for s in subtypes_qs]
