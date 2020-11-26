@@ -1,3 +1,13 @@
+import axios from "@agir/lib/utils/axios";
+
+const activityEndpoint = "/api/activity/:id";
+
+const activityStatus = {
+  STATUS_UNDISPLAYED: "U",
+  STATUS_DISPLAYED: "S",
+  STATUS_INTERACTED: "I",
+};
+
 export const requiredActivityTypes = [
   "waiting-payment",
   "group-invitation",
@@ -25,4 +35,25 @@ export const parseActivities = (data, dismissed = []) => {
     });
   }
   return parsedActivities;
+};
+
+export const dismissActivity = async (id) => {
+  let result = false;
+  if (!id) {
+    return result;
+  }
+  const url = activityEndpoint.replace(":id", id);
+  const data = {
+    status: activityStatus.STATUS_INTERACTED,
+  };
+  let res = null;
+  try {
+    res = await axios.put(url, data);
+    result = !!res && res.status === 200;
+  } catch (e) {
+    console.log(e);
+    result = false;
+  }
+
+  return result;
 };
