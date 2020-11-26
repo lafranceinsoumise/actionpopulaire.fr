@@ -133,11 +133,16 @@ const OtherEvents = ({ others }) => {
           .filter((event) => {
             switch (types[typeFilter]) {
               case NEAR_TYPE:
-                return event.distance < 100 * 1000 && !event.rsvp;
+                return (
+                  event.distance < 100 * 1000 &&
+                  !event.rsvp &&
+                  dateFromISOString(event.endTime) < DateTime.local()
+                );
               case GROUPS_TYPE:
                 return (
                   event.groups.filter((group) => user.groups.includes(group.id))
-                    .length > 0
+                    .length > 0 &&
+                  dateFromISOString(event.endTime) < DateTime.local()
                 );
               case PAST_TYPE:
                 return dateFromISOString(event.startTime) < DateTime.local();
