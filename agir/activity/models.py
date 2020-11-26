@@ -5,22 +5,24 @@ from agir.lib.models import TimeStampedModel
 
 
 class Activity(TimeStampedModel):
-    TYPE_WAITING_PAYMENT = "waiting-payment"
+    # DONE
     TYPE_GROUP_INVITATION = "group-invitation"
     TYPE_NEW_MEMBER = "new-member"
-    TYPE_WAITING_LOCATION_GROUP = "waiting-location-group"
-    TYPE_GROUP_COORGANIZATION_INVITE = "group-coorganization-invite"
-    TYPE_WAITING_LOCATION_EVENT = "waiting-location-event"
-    TYPE_GROUP_COORGANIZATION_ACCEPTED = "group-coorganization-accepted"
     TYPE_GROUP_INFO_UPDATE = "group-info-update"
-    TYPE_ACCEPTED_INVITATION_MEMBER = "accepted-invitation-member"
     TYPE_NEW_ATTENDEE = "new-attendee"
     TYPE_EVENT_UPDATE = "event-update"
     TYPE_NEW_EVENT_MYGROUPS = "new-event-mygroups"
     TYPE_NEW_REPORT = "new-report"
-    TYPE_NEW_EVENT_AROUNDME = "new-event-aroundme"
-    TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
     TYPE_CANCELLED_EVENT = "cancelled-event"
+    # TODO
+    TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
+    TYPE_NEW_EVENT_AROUNDME = "new-event-aroundme"
+    TYPE_ACCEPTED_INVITATION_MEMBER = "accepted-invitation-member"
+    TYPE_GROUP_COORGANIZATION_ACCEPTED = "group-coorganization-accepted"
+    TYPE_WAITING_LOCATION_EVENT = "waiting-location-event"
+    TYPE_GROUP_COORGANIZATION_INVITE = "group-coorganization-invite"
+    TYPE_WAITING_LOCATION_GROUP = "waiting-location-group"
+    TYPE_WAITING_PAYMENT = "waiting-payment"
 
     TYPE_CHOICES = (
         (TYPE_WAITING_PAYMENT, "Paiement en attente"),
