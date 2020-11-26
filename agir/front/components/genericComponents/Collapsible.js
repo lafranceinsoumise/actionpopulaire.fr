@@ -9,6 +9,8 @@ import React, {
 } from "react";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import ExpandButton from "@agir/front/genericComponents/ExpandButton";
 
 const FadingOverflowWrapper = styled.div`
@@ -18,6 +20,10 @@ const FadingOverflowWrapper = styled.div`
   position: relative;
   font-size: 0.875rem;
   line-height: 1.6;
+
+  @media (max-width: ${style.collapse}px) {
+    font-size: 14px;
+  }
 
   &::after {
     content: "";

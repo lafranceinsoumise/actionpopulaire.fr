@@ -1,7 +1,7 @@
 import React from "react";
 import { DateTime } from "luxon";
 
-import EventPage from "./EventPage";
+import { EventPage } from "./EventPage";
 import { TestGlobalContextProvider } from "@agir/front/genericComponents/GlobalContext";
 import { Default as DescriptionStory } from "./EventDescription.stories";
 import { Default as EventInfoStory } from "./EventInfoCard.stories";
