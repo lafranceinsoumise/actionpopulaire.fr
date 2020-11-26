@@ -52,43 +52,6 @@ class PreferencesFormMixin(forms.ModelForm):
         fields = ["contact_phone"]
 
 
-class BecomeInsoumiseForm(PreferencesFormMixin):
-    is_insoumise = forms.BooleanField(
-        required=True,
-        label=_("Je souhaite rejoindre la France insoumise"),
-        help_text=_(
-            "Cette action transformera votre compte de manière à vous permettre d'utiliser"
-            " toutes les fonctionnalités de la plateforme. Vous recevrez les lettres d'information, et vous pourrez "
-            "participer à la vie du mouvement."
-        ),
-    )
-
-    def get_fields(self, fields=None):
-        fields = super().get_fields()
-        if not self.instance.is_insoumise:
-            fields.append(
-                HTML(
-                    """<div class="alert alert-info">
-                <p>Vous disposez d'un compte sur la plateforme d'action de la France insoumise, mais n'êtes pas membre
-                de la France insoumise. Vous ne recevez par conséquent pas les lettres d'informations du mouvement, et
-                vous ne pouvez rejoindre que certains types de groupes et d'événements.</p>
-            </div>"""
-                )
-            )
-        fields.append(
-            Fieldset(
-                _("Rejoindre la France insoumise"),
-                "is_insoumise",
-                FormActions(Submit("submit", "Valider")),
-            )
-        )
-
-        return fields
-
-    class Meta(PreferencesFormMixin.Meta):
-        fields = ["is_insoumise"]
-
-
 class AddEmailForm(forms.ModelForm):
     def __init__(self, person, *args, **kwargs):
         super().__init__(*args, **kwargs)

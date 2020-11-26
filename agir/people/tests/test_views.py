@@ -468,38 +468,6 @@ class VolunteerFormTestCases(TestCase):
         self.assertContains(response, "N’attendez pas les consignes pour agir.")
 
 
-class ExternalPersonPreferencesFormTestCases(TestCase):
-    def setUp(self):
-        self.person = Person.objects.create_insoumise(
-            "test@test.com",
-            is_insoumise=False,
-            subscribed=False,
-            subscribed_sms=False,
-            group_notifications=False,
-            event_notifications=False,
-            create_role=True,
-        )
-
-    def test_form_is_displayed(self):
-        self.client.force_login(self.person.role)
-        url_form = reverse("become_insoumise")
-
-        response = self.client.post(url_form, data={"is_insoumise": "on"}, follow=True)
-
-        self.assertContains(
-            response, "Ces informations nous permettrons de s'adresser à vous plus"
-        )
-
-        self.person = Person.objects.get(pk=self.person.pk)
-        self.assertTrue(self.person.is_insoumise)
-
-        # Inscription aux e-mail+sms d'informations
-        self.assertTrue(self.person.subscribed)
-        self.assertTrue(self.person.subscribed_sms)
-        self.assertTrue(self.person.group_notifications)
-        self.assertTrue(self.person.event_notifications)
-
-
 class InformationContactFormTestCases(TestCase):
     def setUp(self):
         self.person = Person.objects.create_insoumise(
@@ -535,8 +503,7 @@ class InformationContactFormTestCases(TestCase):
         self.assertTrue(self.person.event_notifications)
 
         self.assertContains(
-            response,
-            "Vous recevrez des SMS de la France insoumise comme des meeting près de chez vous ou des appels à volontaire...",
+            response, "Nous envoyons parfois des SMS plutôt que des",
         )
 
         person = Person.objects.get(pk=self.person.pk)

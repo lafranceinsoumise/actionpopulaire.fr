@@ -51,11 +51,6 @@ profile_urls = [
     ),
     path("profil/competences", views.SkillsView.as_view(), name="skills"),
     path("profil/engagement/", views.VolunteerView.as_view(), name="volunteer"),
-    path(
-        "profil/rejoindre/",
-        views.BecomeInsoumiseView.as_view(),
-        name="become_insoumise",
-    ),
     path("profil/contact/", views.ContactView.as_view(), name="contact"),
     path(
         "profil/contact/adresses/",

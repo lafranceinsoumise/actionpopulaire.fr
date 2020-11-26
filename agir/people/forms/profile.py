@@ -54,7 +54,7 @@ class PersonalInformationsForm(forms.ModelForm):
         description_gender = HTML(
             format_html(
                 """<p class="help-block">{help_text}</p>""",
-                help_text="Utilisé pour la parité des tirages au sort et de l'animation des groupes d'action.",
+                help_text="Pour nous adresser à vous correctement, et pour mesurer la parité.",
             )
         )
 
