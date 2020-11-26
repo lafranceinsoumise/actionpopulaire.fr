@@ -64,12 +64,12 @@ const IndexLinkAnchor = styled.a`
     color: #585858;
   }
 `;
-const IndexLink = (props) => {
+const IndexLink = () => {
   return (
     <Row>
       <Column grow>
         <IndexLinkAnchor href="#">
-          <FeatherIcon name="arrow-left" />
+          <FeatherIcon name="arrow-left" small />
           &ensp; Liste des événements
         </IndexLinkAnchor>
       </Column>

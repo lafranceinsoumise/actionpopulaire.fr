@@ -16,6 +16,8 @@ const FadingOverflowWrapper = styled.div`
     collapsed && maxHeight ? `${maxHeight}px` : "unset"};
   overflow: hidden;
   position: relative;
+  font-size: 0.875rem;
+  line-height: 1.6;
 
   &::after {
     content: "";
@@ -26,7 +28,7 @@ const FadingOverflowWrapper = styled.div`
     right: 0;
     width: 100%;
     height: ${({ collapsed, maxHeight }) =>
-      collapsed && maxHeight ? `${maxHeight / 5}px` : "0"};
+      collapsed && maxHeight ? "30px" : "0"};
     background: linear-gradient(0deg, white 0%, transparent 200%);
   }
 `;
@@ -97,6 +99,9 @@ FadingOverflowCollapsible.defaultProps = {
 };
 
 const StyledWrapper = styled.div`
+  font-size: 0.875rem;
+  line-height: 1.6;
+
   & > .hidden {
     ${({ collapsed }) => (collapsed ? "display: none" : "")};
   }

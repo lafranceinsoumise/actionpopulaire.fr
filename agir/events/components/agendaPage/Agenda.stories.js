@@ -1,7 +1,7 @@
 import React from "react";
 
 import Agenda from "./Agenda";
-import { Container, GrayBackground } from "@agir/front/genericComponents/grid";
+import { Container } from "@agir/front/genericComponents/grid";
 
 export default {
   component: Agenda,
@@ -9,11 +9,9 @@ export default {
 };
 
 const Template = (args) => (
-  <GrayBackground>
-    <Container style={{ minHeight: "100vh" }}>
-      <Agenda {...args} />
-    </Container>
-  </GrayBackground>
+  <Container style={{ minHeight: "100vh" }}>
+    <Agenda {...args} />
+  </Container>
 );
 
 export const Empty = Template.bind({});

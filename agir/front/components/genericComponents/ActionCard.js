@@ -29,6 +29,10 @@ const StyledButton = styled(Button)`
   &[disabled] {
     cursor: default;
   }
+
+  & + & {
+    margin-left: 0.5rem;
+  }
 `;
 
 const ActionCard = (props) => {
@@ -71,24 +75,12 @@ const ActionCard = (props) => {
                   {confirmLabel}
                 </StyledButton>
               ) : null}
-              &ensp;
               {typeof onDismiss === "function" ? (
-                <StyledButton
-                  onClick={onDismiss}
-                  small
-                  color="dismiss"
-                  disabled={disabled}
-                >
+                <StyledButton onClick={onDismiss} small disabled={disabled}>
                   {dismissLabel}
                 </StyledButton>
               ) : typeof onDismiss === "string" ? (
-                <StyledButton
-                  small
-                  color="dismiss"
-                  as="a"
-                  href={onDismiss}
-                  disabled={disabled}
-                >
+                <StyledButton small as="a" href={onDismiss} disabled={disabled}>
                   {dismissLabel}
                 </StyledButton>
               ) : null}

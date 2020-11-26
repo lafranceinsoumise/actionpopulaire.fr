@@ -3,22 +3,30 @@ import React from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import {
-  Column,
-  Container,
-  GrayBackground,
-  Row,
-} from "@agir/front/genericComponents/grid";
+import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import Navigation from "@agir/front/dashboardComponents/Navigation";
 import Footer from "@agir/front/dashboardComponents/Footer";
 
+export const LayoutSubtitle = styled.h2`
+  color: ${style.black700};
+  font-weight: 400;
+  font-size: 14px;
+  margin: 8px 0;
+
+  @media (max-width: ${style.collapse}px) {
+    padding: 0 1.5rem;
+  }
+`;
+
 export const LayoutTitle = styled.h1`
-  font-size: 28px;
+  display: flex;
+  align-items: center;
+  font-size: 26px;
   margin: 0;
 
   @media (max-width: ${style.collapse}px) {
     font-size: 20px;
-    margin: 0 25px;
+    padding: 0 1.5rem;
   }
 `;
 
@@ -44,11 +52,17 @@ const MainColumn = styled(Column)`
 const MainContainer = styled(Container)`
   min-height: calc(100vh - 72px);
   padding-bottom: 72px;
+
+  @media (max-width: ${style.collapse}px) {
+    padding-top: 24px;
+    background-color: ${({ smallBackgroundColor }) =>
+      smallBackgroundColor || "transparent"};
+  }
 `;
 
 const Layout = (props) => (
-  <GrayBackground>
-    <MainContainer>
+  <>
+    <MainContainer {...props}>
       <Row gutter={72} align="flex-start">
         <FixedColumn>
           <Navigation {...props} />
@@ -58,6 +72,7 @@ const Layout = (props) => (
             {props.title ? (
               <header>
                 <LayoutTitle>{props.title}</LayoutTitle>
+                <LayoutSubtitle>{props.subtitle}</LayoutSubtitle>
               </header>
             ) : null}
             {props.children}
@@ -66,7 +81,7 @@ const Layout = (props) => (
       </Row>
     </MainContainer>
     <Footer />
-  </GrayBackground>
+  </>
 );
 
 export default Layout;
@@ -86,6 +101,7 @@ Layout.propTypes = {
     ])
   ),
   title: PropTypes.string,
+  subtitle: PropTypes.string,
   children: PropTypes.node,
 };
 Layout.defaultProps = {

@@ -2,7 +2,7 @@ import React from "react";
 
 import EventCard from "./EventCard";
 import { DateTime } from "luxon";
-import { Container, GrayBackground } from "@agir/front/genericComponents/grid";
+import { Container } from "@agir/front/genericComponents/grid";
 import {
   decorateArgs,
   reorganize,
@@ -21,9 +21,9 @@ export default {
   },
   decorators: [
     (story) => (
-      <GrayBackground style={{ padding: "40px" }}>
+      <div style={{ padding: "40px" }}>
         <Container>{story()}</Container>
-      </GrayBackground>
+      </div>
     ),
   ],
 };
@@ -47,7 +47,7 @@ Default.args = {};
 
 Default.args = {
   id: "12343432423",
-  name: "Super événement",
+  name: "Super évènement",
   rsvp: "CO",
   participantCount: 6,
   startTime: defaultStartTime.toMillis(),

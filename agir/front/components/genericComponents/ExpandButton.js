@@ -13,6 +13,7 @@ const StyledButton = styled.button`
   font-size: 16px;
   line-height: 1.4;
   cursor: pointer;
+  padding: 0;
 
   &:hover,
   &:focus {

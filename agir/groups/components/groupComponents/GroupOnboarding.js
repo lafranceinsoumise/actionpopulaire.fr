@@ -105,7 +105,7 @@ const GroupOnboarding = (props) => {
         <p dangerouslySetInnerHTML={{ __html: body }} />
       </article>
       <footer>
-        <Button as="a" href={href} color="secondary">
+        <Button as="a" href={href} color="primary">
           Voir les groupes dans ma ville
         </Button>
         <Button as="a" href={routes.createGroup}>

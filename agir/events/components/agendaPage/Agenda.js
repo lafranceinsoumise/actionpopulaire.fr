@@ -14,26 +14,6 @@ import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 
-const Banner = styled.h1`
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: stretch;
-  justify-content: center;
-  margin: 0;
-  padding: 0 25px;
-  height: 10rem;
-  font-size: 29px;
-  color: #fff;
-  background-image: url(https://picsum.photos/992/500);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center center;
-
-  @media only screen and (min-width: ${style.collapse}px) {
-    display: none;
-  }
-`;
-
 const TopBar = styled.div`
   display: flex;
   flex-direction: row;
@@ -78,10 +58,9 @@ const Day = styled.h3`
 const EmptyAgenda = styled.div`
   & p {
     strong {
-      color: ${style.primary500};
+      color: ${style.black1000};
     }
     a {
-      color: ${style.secondary500};
       font-weight: bold;
       cursor: pointer;
     }
@@ -95,6 +74,7 @@ const StyledAgenda = styled.div`
 
   & h2 {
     font-size: 18px;
+    font-weight: 500;
   }
 
   & h2,
@@ -120,10 +100,14 @@ const OtherEvents = ({ others }) => {
   const GROUPS_TYPE = "Dans mes groupes";
   const PAST_TYPE = "Passés";
   const ORGANIZED_TYPE = "Organisés";
-  const types =
-    others[0].distance !== null
-      ? [NEAR_TYPE, GROUPS_TYPE, PAST_TYPE, ORGANIZED_TYPE]
-      : [GROUPS_TYPE, PAST_TYPE, ORGANIZED_TYPE];
+
+  const types = React.useMemo(
+    () =>
+      others[0].distance !== null
+        ? [NEAR_TYPE, GROUPS_TYPE, PAST_TYPE, ORGANIZED_TYPE]
+        : [GROUPS_TYPE, PAST_TYPE, ORGANIZED_TYPE],
+    [others]
+  );
 
   const [typeFilter, setTypeFilter] = React.useState(0);
   let otherEventDates = React.useMemo(
@@ -200,7 +184,7 @@ OtherEvents.propTypes = {
 };
 
 const Agenda = ({ rsvped, others }) => {
-  const { routes, user } = useGlobalContext();
+  const { routes } = useGlobalContext();
 
   const rsvpedEvents = React.useMemo(
     () =>
@@ -217,10 +201,6 @@ const Agenda = ({ rsvped, others }) => {
   return (
     <StyledAgenda>
       <header>
-        <Banner>
-          <span>Bonjour</span>
-          <span>{user && user.firstName}</span>
-        </Banner>
         <TopBar>
           <h1>Événements</h1>
           <div>
@@ -233,13 +213,7 @@ const Agenda = ({ rsvped, others }) => {
             >
               Créer un évenement
             </Button>
-            <Button
-              small
-              as="a"
-              href={routes.eventMap}
-              icon="map"
-              color="white"
-            >
+            <Button small as="a" href={routes.eventMap} icon="map">
               Carte
             </Button>
           </div>

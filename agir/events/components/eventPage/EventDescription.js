@@ -50,27 +50,29 @@ const EventDescription = ({
       <div
         dangerouslySetInnerHTML={{ __html: compteRendu }}
         style={{ margin: "1em 0 3em" }}
+        fadingOverflow
       />
     )}
     {description && (
       <h2 style={{ fontSize: "20px", marginTop: 0 }}>L'événement</h2>
     )}
     {illustration && (
-      <Hide under>
-        <img
-          src={illustration}
-          alt="Image d'illustration de l'événement postée par l'utilisateur"
-          style={{
-            width: "100%",
-            maxWidth: "500px",
-            height: "auto",
-            marginBottom: "32px",
-          }}
-        />
-      </Hide>
+      <img
+        src={illustration}
+        alt="Image d'illustration de l'événement postée par l'utilisateur"
+        style={{
+          maxWidth: "100%",
+          height: "auto",
+          maxHeight: "500px",
+          marginBottom: "32px",
+        }}
+      />
     )}
     {description ? (
-      <Collapsible dangerouslySetInnerHTML={{ __html: description }} />
+      <Collapsible
+        dangerouslySetInnerHTML={{ __html: description }}
+        fadingOverflow
+      />
     ) : (
       isOrganizer && (
         <>

@@ -214,7 +214,7 @@ export const Footer = (props) => {
             <h3>Explorer</h3>
             <p>
               <a href="#">Evénements proches de chez moi</a>
-              <a href="#">Carte des événements</a>
+              <a href="#">Carte des évènements</a>
               <a href="#">Carte des groupes d’actions</a>
               <a href="#">Les livrets thématiques</a>
             </p>

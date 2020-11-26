@@ -4,12 +4,12 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
   const [
     { default: React },
     { renderReactComponent },
-    { default: RequiredActivityPage },
+    { default: RequiredActivityList },
     { GlobalContextProvider },
   ] = await Promise.all([
     import("react"),
     import("@agir/lib/utils/react"),
-    import("./RequiredActivityPage"),
+    import("./RequiredActivityList"),
     import("@agir/front/genericComponents/GlobalContext"),
   ]);
 
@@ -22,7 +22,7 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
     const payload = JSON.parse(dataElement.textContent);
     renderReactComponent(
       <GlobalContextProvider>
-        <RequiredActivityPage {...payload} />
+        <RequiredActivityList {...payload} />
       </GlobalContextProvider>,
       renderElement
     );

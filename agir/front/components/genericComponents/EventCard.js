@@ -21,7 +21,7 @@ const RSVPButton = ({ hasSubscriptionForm, rsvp, routes }) => {
 
   if (hasSubscriptionForm) {
     return (
-      <Button small as="a" color="secondary" href={routes.join}>
+      <Button small as="a" color="primary" href={routes.join}>
         Participer
       </Button>
     );
@@ -33,7 +33,7 @@ const RSVPButton = ({ hasSubscriptionForm, rsvp, routes }) => {
       action={routes.join}
       style={{ display: "inline-block" }}
     >
-      <Button small type="submit" color="secondary" icon="calendar">
+      <Button small type="submit" color="primary" icon="calendar">
         Participer
       </Button>
     </CSRFProtectedForm>
@@ -49,6 +49,9 @@ RSVPButton.propTypes = {
   }),
 };
 
+const Buttons = styled.div`
+  display: flex;
+`;
 const Illustration = styled.div`
   margin: -1.5rem -1.5rem 1.5rem;
   text-align: center;
@@ -58,10 +61,6 @@ const Illustration = styled.div`
   }
   img {
     max-height: 200px;
-
-    @media only screen and (min-width: ${style.collapse}px) {
-      max-height: 360px;
-    }
   }
 `;
 
@@ -133,20 +132,22 @@ const EventCard = (props) => {
       </header>
       <Row style={{ fontSize: "14px" }}>
         <Column grow collapse={0}>
-          <RSVPButton
-            hasSubscriptionForm={hasSubscriptionForm}
-            rsvp={!!rsvp}
-            routes={routes}
-          />
-          <Button
-            small
-            as="a"
-            href={routes.details}
-            style={{ marginLeft: "8px" }}
-            ref={mainLink}
-          >
-            Détails
-          </Button>
+          <Buttons>
+            <RSVPButton
+              hasSubscriptionForm={hasSubscriptionForm}
+              rsvp={!!rsvp}
+              routes={routes}
+            />
+            <Button
+              small
+              as="a"
+              href={routes.details}
+              style={{ marginLeft: "8px" }}
+              ref={mainLink}
+            >
+              Détails
+            </Button>
+          </Buttons>
         </Column>
         {participantCount > 1 && (
           <Column collapse={0} style={{ alignSelf: "flex-end" }}>

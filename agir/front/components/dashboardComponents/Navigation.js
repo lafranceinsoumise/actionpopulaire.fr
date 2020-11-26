@@ -135,7 +135,7 @@ const MenuItem = styled.li`
 
 const Counter = styled.span`
   position: absolute;
-  background-color: ${style.secondary500};
+  background-color: ${style.redNSP};
   color: #fff;
   font-size: 9px;
   height: 16px;

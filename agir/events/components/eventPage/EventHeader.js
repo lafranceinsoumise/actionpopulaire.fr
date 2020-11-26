@@ -11,6 +11,9 @@ import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 import { displayHumanDate } from "@agir/lib/utils/time";
 
 const EventHeaderContainer = styled.div`
+  @media (min-width: ${style.collapse}px) {
+    margin-bottom: 4rem;
+  }
   > * {
     margin: 0.5rem 0;
   }
@@ -20,15 +23,17 @@ const EventTitle = styled.h1`
   font-size: 1.75rem;
   line-height: 1.4;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 
   @media (max-width: ${style.collapse}px) {
+    margin-bottom: 1rem;
     font-size: 1.25rem;
   }
 `;
 
 const EventDate = styled.div`
   margin: 0.5rem 0;
+  font-weight: 500;
 `;
 
 const SmallText = styled.div`

@@ -1,7 +1,7 @@
 import React from "react";
 
 import GroupsPage from "./GroupsPage";
-import { Container, GrayBackground } from "@agir/front/genericComponents/grid";
+import { Container } from "@agir/front/genericComponents/grid";
 
 export default {
   component: GroupsPage,
@@ -9,11 +9,9 @@ export default {
 };
 
 const Template = (args) => (
-  <GrayBackground>
-    <Container style={{ minHeight: "100vh" }}>
-      <GroupsPage {...args} />
-    </Container>
-  </GrayBackground>
+  <Container style={{ minHeight: "100vh" }}>
+    <GroupsPage {...args} />
+  </Container>
 );
 
 export const Empty = Template.bind({});
