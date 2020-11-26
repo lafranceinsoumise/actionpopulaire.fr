@@ -169,19 +169,12 @@ const MenuLink = (props) => {
     external,
     secondaryLinks,
   } = props;
-  const linkProps = React.useMemo(
-    () => ({
-      target: external ? "_blank" : undefined,
-      rel: external ? "noopener noreferrer" : undefined,
-    }),
-    [external]
-  );
   if (counter === 0) {
     return null;
   }
   return (
     <MenuItem {...props} active={active}>
-      <a {...linkProps} href={href}>
+      <a href={href}>
         {counter > 0 && <Counter>{counter}</Counter>}
         <FeatherIcon name={icon} inline />
         <span>{title}</span>
@@ -235,13 +228,7 @@ const Navigation = ({ active }) => {
         <SecondaryMenuItem key="title">LIENS</SecondaryMenuItem>
         {CONFIG.secondaryLinks.map((link) => (
           <SecondaryMenuItem key={link.id}>
-            <a
-              href={link.href || routes[link.route]}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {link.title}
-            </a>
+            <a href={link.href || routes[link.route]}>{link.title}</a>
           </SecondaryMenuItem>
         ))}
       </SecondaryMenu>

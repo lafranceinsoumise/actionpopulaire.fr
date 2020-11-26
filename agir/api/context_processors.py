@@ -33,6 +33,8 @@ def basic_information(request):
     }
 
     if request.user.is_authenticated:
+        routes["signOut"] = reverse("disconnect")
+
         person = request.user.person
         user = {
             "firstName": person.first_name,

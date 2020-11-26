@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
+import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+
 import EventHeader from "./EventHeader";
 import EventLocationCard from "./EventLocationCard";
 import EventFacebookLinkCard from "./EventFacebookLinkCard";
@@ -25,6 +27,14 @@ import style from "@agir/front/genericComponents/_variables.scss";
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
   & > ${Card}, & > ${CardLikeSection} {
+    font-size: 14px;
+    font-weight: 400;
+
+    & a,
+    & strong {
+      font-weight: 600;
+    }
+
     @media (max-width: ${style.collapse}px) {
       padding: 1.375rem;
       box-shadow: none;
@@ -63,13 +73,18 @@ const IndexLinkAnchor = styled.a`
     text-decoration: none;
     color: #585858;
   }
+
+  span {
+    transform: rotate(180deg);
+    transform-origin: center center;
+  }
 `;
-const IndexLink = () => {
+const IndexLink = (route) => {
   return (
     <Row>
       <Column grow>
-        <IndexLinkAnchor href="#">
-          <FeatherIcon name="arrow-left" small />
+        <IndexLinkAnchor href={route}>
+          <span>&#10140;</span>
           &ensp; Liste des événements
         </IndexLinkAnchor>
       </Column>
@@ -127,8 +142,10 @@ const MobileLayout = (props) => {
 
 const DesktopLayout = (props) => {
   return (
-    <Container>
-      <IndexLink />
+    <Container style={{ margin: "4rem auto", padding: "0 4rem" }}>
+      {props.logged && props.appRoutes && props.appRoutes.events ? (
+        <IndexLink route={props.appRoutes.events} />
+      ) : null}
       <Row gutter={32}>
         <Column grow>
           <div>
@@ -161,7 +178,7 @@ const DesktopLayout = (props) => {
   );
 };
 
-const EventPage = (props) => {
+export const EventPage = (props) => {
   const { startTime, endTime, ...rest } = props;
   const start =
     typeof startTime === "string"
@@ -222,6 +239,8 @@ EventPage.propTypes = {
     addPhoto: PropTypes.string,
     compteRendu: PropTypes.string,
   }),
+  appRoutes: PropTypes.object,
+  logged: PropTypes.bool,
 };
 
 MobileLayout.propTypes = DesktopLayout.propTypes = {
@@ -231,4 +250,10 @@ MobileLayout.propTypes = DesktopLayout.propTypes = {
   schedule: PropTypes.instanceOf(Interval),
 };
 
-export default EventPage;
+export const ConnectedEventPage = (props) => {
+  const context = useGlobalContext();
+  const { user, routes } = context;
+  return <EventPage {...props} logged={!!user} appRoutes={routes} />;
+};
+
+export default ConnectedEventPage;
