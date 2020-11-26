@@ -2,6 +2,32 @@
 {% load crispy_forms_tags %}
 {% load display_lib %}
 
+{% if promo_code_delay or has_promo_code %}
+  <h4 class="margintopmore">Codes matériels</h4>
+  {% if promo_code_delay %}
+    <p style="padding: 0; margin: 0.5rem 0;">
+      <em>
+        Les codes promos seront disponibles le {{ promo_code_delay|date }}
+      </em>
+    </p>
+  {% else %}
+    <ul style="padding: 0; margin: 0.5rem 0;">
+      {% for promo_code in group_promo_codes %}
+      <li style="list-style: none;">
+        <strong>
+          {{ promo_code.0 }}
+        </strong>
+        &ensp;
+        <span style="font-weight: 400;">
+          (expire le {{ promo_code.1|date }})
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endif %}
+
+
 <h4 class="margintopmore">Les informations de mon groupe</h4>
 <div class="panel panel-default marginbottommore">
   <div class="panel-heading">
