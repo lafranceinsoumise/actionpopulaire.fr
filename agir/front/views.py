@@ -17,6 +17,7 @@ from ..events.serializers import EventSerializer
 from ..groups.models import SupportGroup
 from ..groups.serializers import SupportGroupSerializer
 from ..lib.http import add_query_params_to_url
+from agir.lib.tasks import geocode_person
 
 
 class NBUrlsView(View):
@@ -99,6 +100,14 @@ class RequiredActivityView(SoftLoginRequiredMixin, ReactBaseView):
 class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
     bundle_name = "events/agendaPage"
     serializer_class = EventSerializer
+
+    def get(self, request, *args, **kwargs):
+        person = request.user.person
+
+        if person.coordinates_type is None:
+            geocode_person.delay(person.pk)
+
+        return super().get(request, *args, **kwargs)
 
     def get_export_data(self):
         person = self.request.user.person

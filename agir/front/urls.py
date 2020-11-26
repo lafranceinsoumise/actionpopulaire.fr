@@ -31,7 +31,12 @@ urlpatterns = [
     path(
         "a-traiter/", RequiredActivityView.as_view(), name="list_required_activities",
     ),
-    path("evenements/", AgendaView.as_view(), name="list_events",),
+    path("", AgendaView.as_view(), name="dashboard",),
+    path(
+        "evenements/",
+        RedirectView.as_view(pattern_name="dashboard"),
+        name="list_events",
+    ),
     path("mes-groupes/", views.MyGroupsView.as_view(), name="list_my_groups"),
     path("navigation/", views.NavigationMenuView.as_view(), name="navigation_menu"),
     # old urls
