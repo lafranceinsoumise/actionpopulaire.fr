@@ -1,149 +1,153 @@
 /* arrow code from http://www.cssarrowplease.com/ */
 .map_popup {
-	position: relative;
-	background: #ffffff;
-	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
-	padding: 13px 19px;
-	-webkit-border-radius: 12px;
-	-moz-border-radius: 12px;
-	border-radius: 12px;
-	font-size: 15px;
+  position: relative;
+  background: #ffffff;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
+  padding: 13px 19px;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  border-radius: 12px;
+  font-size: 15px;
 }
 
 .map_popup:after {
-	top: 100%;
-	left: 50%;
-	border: solid transparent;
-	content: " ";
-	height: 0;
-	width: 0;
-	position: absolute;
-	pointer-events: none;
-	/*border-color: rgba(255, 255, 255, 0);*/
-	border-top-color: #ffffff;
-	border-width: 20px;
-	margin-left: -20px;
+  top: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  /*border-color: rgba(255, 255, 255, 0);*/
+  border-top-color: #ffffff;
+  border-width: 20px;
+  margin-left: -20px;
 }
 
 .map_popup a {
-	font-size: 18px;
-	font-weight: bold;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .layer_selector_button {
-	position: absolute;;
-	top: .5em;
-	right: .5em;
-	font-family: 'FontAwesome';
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  font-family: "FontAwesome";
 }
 
 .layer_selector {
-	display: none;
-	position: absolute;
-	background: #ffffff;
-	top: 2.5em;
-	right: .5em;
-	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-	border-radius: 5px;
-	padding: 6px 10px 6px 6px;
+  display: none;
+  position: absolute;
+  background: #ffffff;
+  top: 2.5em;
+  right: 0.5em;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  border-radius: 5px;
+  padding: 6px 10px 6px 6px;
 }
 
 .layer_selector.visible {
-    display: block;
+  display: block;
 }
 
 .layer_selector label {
-	display: block;
-	font-weight: normal;
-	font-size: 15px;
-	line-height: 1.5;
-	margin-bottom: 0;
+  display: block;
+  font-weight: normal;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 0;
 }
 
 .layer_selector input {
-	vertical-align: middle;
+  vertical-align: middle;
 }
 
 .layer_selector span {
-	margin-left: 5px;
-	vertical-align: middle;
+  margin-left: 5px;
+  vertical-align: middle;
 }
 
 .active_groups_button {
-	position: absolute;;
-	top: .5em;
-	right: 3em;
-	background: #ffffff;
-	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-	border-radius: 5px;
-	padding: 6px 6px 2px 6px;
-	font-size: 14px;
+  position: absolute;
+  top: 0.5em;
+  right: 3em;
+  background: #ffffff;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  border-radius: 5px;
+  padding: 6px 6px 2px 6px;
+  font-size: 14px;
 }
 
 .ol-zoom {
-	top: 2.5em;
+  top: 2.5em;
 }
 
 .search_box {
-	position: absolute;
-	top: .5em;
-	left: 0.5em;
-	width: calc(100% - 300px);
-	max-width: 600px;
+  position: absolute;
+  top: 0.5em;
+  left: 0.5em;
+  width: calc(100% - 300px);
+  max-width: 600px;
 }
 
 .search_box form {
-	padding-right: 34px;
-    font-size: 14px;
+  padding-right: 34px;
+  font-size: 14px;
 }
 
 .search_box input {
-	margin-right: 0;
-	padding: 0 3px;
-	border: 1px solid black;
-	border-right: none;
-	height: 30px;
-	width: 100%;
-    border-radius: 2px 0 0 2px;
+  margin-right: 0;
+  padding: 0 3px;
+  border: 1px solid black;
+  border-right: none;
+  height: 30px;
+  width: 100%;
+  border-radius: 2px 0 0 2px;
 }
 
 .search_box button {
-    text-align: center;
-    padding: 0;
-	margin-left: 0;
-	border-radius: 0 2px 2px 0;
-	border: 1px solid black;
-	height: 30px;
-	width: 30px;
-	margin-right: -30px;
+  text-align: center;
+  padding: 0;
+  margin-left: 0;
+  border-radius: 0 2px 2px 0;
+  border: 1px solid black;
+  height: 30px;
+  width: 30px;
+  margin-right: -30px;
 }
 
 .search_box ul {
-	display: none;
-	background: white;
-	border-radius: 0 0 5px 5px;
-	list-style: none;
-	padding: 0;
-	border: 1px solid black;
-	border-top: none;
+  display: none;
+  background: white;
+  border-radius: 0 0 5px 5px;
+  list-style: none;
+  padding: 0;
+  border: 1px solid black;
+  border-top: none;
 }
 
 .search_box ul.show {
-	display: block;
+  display: block;
 }
 
 .search_box li + li {
-	border-top: solid black 1px;
+  border-top: solid black 1px;
 }
 
 .search_box li a {
-	color: black;
-	text-decoration: none;
-	display: block;
-	padding: 5px;
-	font-size: 12px;
+  color: black;
+  text-decoration: none;
+  display: block;
+  padding: 5px;
+  font-size: 12px;
 }
 
 .search_box li a:hover {
-	background: #ddd;
+  background: #ddd;
+}
+
+.ol-attribution {
+  font-size: 12px;
 }

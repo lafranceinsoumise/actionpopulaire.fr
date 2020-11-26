@@ -23,6 +23,7 @@ def basic_information(request):
         "createGroup": reverse("create_group"),
         "createEvent": reverse("create_event"),
         "groupsMap": reverse("carte:groups_map"),
+        "eventsMap": reverse("carte:events_map"),
         "eventMap": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
         "events": reverse("list_events"),
         "groups": reverse("list_my_groups"),

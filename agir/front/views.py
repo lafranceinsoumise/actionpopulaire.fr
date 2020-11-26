@@ -177,6 +177,14 @@ class MyGroupsView(SoftLoginRequiredMixin, ReactListView):
         return SupportGroup.objects.filter(memberships__person=self.request.user.person)
 
 
+class EventMapView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "carte/page__eventMap"
+
+
+class GroupMapView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "carte/page__groupMap"
+
+
 class NSPView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         url = settings.NSP_DOMAIN
