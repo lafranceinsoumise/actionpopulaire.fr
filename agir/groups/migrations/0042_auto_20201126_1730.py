@@ -6,18 +6,39 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('groups', '0041_auto_20201021_1525'),
+        ("groups", "0041_auto_20201021_1525"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='supportgroup',
-            name='type',
-            field=models.CharField(choices=[('L', 'Groupe local'), ('B', 'Groupe thématique'), ('F', 'Groupe fonctionnel'), ('P', 'Groupe professionel'), ('2', 'Groupe de soutien « Nous Sommes Pour ! »')], default='L', max_length=1, verbose_name='type de groupe'),
+            model_name="supportgroup",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("L", "Groupe local"),
+                    ("B", "Groupe thématique"),
+                    ("F", "Groupe fonctionnel"),
+                    ("P", "Groupe professionel"),
+                    ("2", "Groupe de soutien « Nous Sommes Pour ! »"),
+                ],
+                default="L",
+                max_length=1,
+                verbose_name="type de groupe",
+            ),
         ),
         migrations.AlterField(
-            model_name='supportgroupsubtype',
-            name='type',
-            field=models.CharField(choices=[('L', 'Groupe local'), ('B', 'Groupe thématique'), ('F', 'Groupe fonctionnel'), ('P', 'Groupe professionel'), ('2', 'Groupe de soutien « Nous Sommes Pour ! »')], max_length=1, verbose_name='type de groupe'),
+            model_name="supportgroupsubtype",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("L", "Groupe local"),
+                    ("B", "Groupe thématique"),
+                    ("F", "Groupe fonctionnel"),
+                    ("P", "Groupe professionel"),
+                    ("2", "Groupe de soutien « Nous Sommes Pour ! »"),
+                ],
+                max_length=1,
+                verbose_name="type de groupe",
+            ),
         ),
     ]
