@@ -87,7 +87,13 @@ const Layout = (props) => (
 export default Layout;
 
 Layout.propTypes = {
-  active: PropTypes.oneOf(["events", "groups", "activity", "menu"]),
+  active: PropTypes.oneOf([
+    "events",
+    "groups",
+    "activity",
+    "required-activity",
+    "menu",
+  ]),
   routes: PropTypes.objectOf(
     PropTypes.oneOfType([
       PropTypes.string,

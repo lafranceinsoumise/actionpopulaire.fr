@@ -39,7 +39,9 @@ def basic_information(request):
             "displayName": request.user.get_full_name(),
             "isInsoumise": request.user.person.is_insoumise,
         }
-        userActivities = Activity.objects.filter(recipient=person)
+        userActivities = Activity.objects.filter(recipient=person).exclude(
+            status=Activity.STATUS_INTERACTED
+        )
         if userActivities.count() > 0:
             activitySerializer = ActivitySerializer(
                 instance=userActivities, many=True, context={"request": request}
