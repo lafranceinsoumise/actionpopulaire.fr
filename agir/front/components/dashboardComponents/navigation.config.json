@@ -86,6 +86,11 @@
       "id": "contact",
       "title": "Contact",
       "href": "https://lafranceinsoumise.fr/contact/"
+    },
+    {
+      "id": "signOut",
+      "title": "Déconnexion",
+      "route": "signOut"
     }
   ]
 }
