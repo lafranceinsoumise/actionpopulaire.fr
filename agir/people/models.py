@@ -289,7 +289,8 @@ class Person(
         default=True,
         blank=True,
         help_text=_(
-            "Vous recevrez des SMS de la France insoumise comme des meeting près de chez vous ou des appels à volontaire..."
+            "Nous envoyons parfois des SMS plutôt que des emails lors des grands événements&nbsp;! Vous ne recevrez que "
+            "les informations auxquelles vous êtes abonné⋅e."
         ),
     )
 

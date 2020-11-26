@@ -24,5 +24,3 @@ class NavsProfileMixinTestCase(TestCase):
         self.assertContains(response, reverse("skills"))
         self.assertContains(response, reverse("volunteer"))
         self.assertContains(response, reverse(("personal_data")))
-
-        self.assertNotContains(response, reverse("become_insoumise"))
