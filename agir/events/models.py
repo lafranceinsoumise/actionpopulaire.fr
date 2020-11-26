@@ -300,6 +300,20 @@ class Event(
         encoder=CustomJSONEncoder,
     )
 
+    FOR_USERS_INSOUMIS = "I"
+    FOR_USERS_2022 = "2"
+    FOR_USERS_CHOICES = (
+        (FOR_USERS_INSOUMIS, "Les insoumis⋅es"),
+        (FOR_USERS_2022, "Les signataires « Nous Sommes Pour ! »"),
+    )
+
+    for_users = models.CharField(
+        "Utilisateur⋅ices de la plateforme concerné⋅es par l'événement",
+        max_length=1,
+        blank=False,
+        choices=FOR_USERS_CHOICES,
+    )
+
     class Meta:
         verbose_name = _("événement")
         verbose_name_plural = _("événements")
