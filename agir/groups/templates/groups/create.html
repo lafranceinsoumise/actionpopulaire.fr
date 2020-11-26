@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% load render_bundle from webpack_loader %}
 
-{% block title %}Créer un groupe d'action{% endblock %}
+{% block title %}Créer un groupe{% endblock %}
 
 {% block extra_scripts %}
   {% render_bundle 'lib/creationForms' attrs='defer data-turbolinks-track="reload"' %}
@@ -12,8 +12,8 @@
 {% block main %}
   <div class="row">
     <div class="col-xs-12 margintopmore">
-      <h2 class="headline">
-        Créer un groupe d'action
+      <h2 class="headline text-center">
+        Créer un groupe
       </h2>
       {% if form.errors %}
         <ul class="alert alert-danger">

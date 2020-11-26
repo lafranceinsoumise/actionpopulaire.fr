@@ -19,8 +19,23 @@ import PropTypes from "prop-types";
 class CreateGroupForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { fields: props.initial || {} };
+    let state = { fields: props.initial || {} };
     this.setFields = this.setFields.bind(this);
+
+    if (this.props.types.length === 1) {
+      const subtypes = this.props.subtypes.filter(
+        (s) => s.type === this.props.types[0].id
+      );
+
+      if (subtypes.length < 2) {
+        Object.assign(state.fields, {
+          type: this.props.types[0].id,
+          subtypes: subtypes.map((s) => s.label),
+        });
+      }
+    }
+
+    this.state = state;
   }
 
   setFields(fields) {
@@ -29,17 +44,6 @@ class CreateGroupForm extends React.Component {
 
   render() {
     let steps = [
-      {
-        name: "Un groupe pour quoi ?",
-        component: (
-          <GroupTypeStep
-            setFields={this.setFields}
-            fields={this.state.fields}
-            subtypes={this.props.subtypes}
-            types={this.props.types}
-          />
-        ),
-      },
       {
         name: "Informations de contact",
         component: (
@@ -59,6 +63,22 @@ class CreateGroupForm extends React.Component {
         ),
       },
     ];
+
+    let typeStep = {
+      name: "Un groupe pour quoi ?",
+      component: (
+        <GroupTypeStep
+          setFields={this.setFields}
+          fields={this.state.fields}
+          subtypes={this.props.subtypes}
+          types={this.props.types}
+        />
+      ),
+    };
+
+    if (!this.state.fields.type || !this.state.fields.subtypes) {
+      steps.unshift(typeStep);
+    }
 
     return <MultiStepForm steps={steps} />;
   }
@@ -102,7 +122,7 @@ class GroupTypeStep extends FormStep {
 
     return (
       <div className="row padtopmore padbottommore">
-        <div className="col-sm-6">
+        <div className="col-sm-4">
           <h3>Quel type de groupe voulez-vous créer ?</h3>
           <blockquote>
             <p>
@@ -131,7 +151,7 @@ class GroupTypeStep extends FormStep {
             intérêts.
           </p>
         </div>
-        <div className="col-sm-6 padbottom">
+        <div className="col-sm-8 padbottom type-selectors">
           {this.props.types.map((type, i) => (
             <div key={type.id} className="type-selector">
               <button
