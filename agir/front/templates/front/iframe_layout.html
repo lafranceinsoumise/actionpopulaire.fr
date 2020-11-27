@@ -10,10 +10,9 @@
   <title>{{ calendar.name }}</title>
 
   {% render_bundle 'theme' 'css' attrs='data-turbolinks-track="reload"' %}
-  <link rel="icon" href="{% static "front/images/favicon-32x32.png" %}" sizes="32x32"/>
-  <link rel="icon" href="{% static "front/images/favicon-192x192.png" %}" sizes="192x192"/>
-  <link rel="apple-touch-icon-precomposed" href="{% static "front/images/facivon-180x180.png" %}"/>
-  <meta name="msapplication-TileImage" content="{% static "front/images/favicon-270x270.png" %}"/>
+
+  {% include "front/includes/favicon.html" %}
+
   <base target="_parent">
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
