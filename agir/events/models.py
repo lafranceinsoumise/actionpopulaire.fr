@@ -456,6 +456,11 @@ class Event(
     def is_free(self):
         return self.payment_parameters is None
 
+    @property
+    def is_2022(self):
+        # TODO: Use the new "for_user" property value once available
+        return "NSP" in self.name
+
     def get_price(self, submission_data: dict = None):
         price = self.payment_parameters.get("price", 0)
 
@@ -654,7 +659,7 @@ class CalendarItem(ExportModelOperationsMixin("calendar_item"), TimeStampedModel
 class RSVP(ExportModelOperationsMixin("rsvp"), TimeStampedModel):
     """
     Model that represents a RSVP for one person for an event.
-    
+
     An additional field indicates if the person is bringing any guests with her
     """
 

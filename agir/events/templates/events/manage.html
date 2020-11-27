@@ -39,7 +39,7 @@
           terminé){% endif %}
           <br />
           {% if organizing_groups %}
-            Organisé par le(s) groupe(s) d'action
+            Organisé par {% if organizing_groups.length > 1 %}les groupes{% else %}le groupe{% endif %}
             {% for supportgroup in organizing_groups %}
               <a href="{% url "view_group" supportgroup.pk %}">{{ supportgroup.name }}</a>
               {% if not forloop.last %}{% if forloop.revcounter0 == 1 %} et {% else %}
