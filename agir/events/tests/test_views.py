@@ -417,6 +417,7 @@ class EventPagesTestCase(TestCase):
                 "end_time": formats.localize_input(
                     self.now + timezone.timedelta(days=1, hours=1), "%d/%m/%Y %H:%M"
                 ),
+                "for_users": "I",
                 "contact_name": "Moi",
                 "contact_email": "moi@moi.fr",
                 "contact_phone": "01 23 45 67 89",

@@ -58,7 +58,7 @@ from ..tasks import (
     send_event_report,
     send_secretariat_notification,
 )
-from ...groups.models import Membership
+from ...groups.models import Membership, SupportGroup
 
 __all__ = [
     "CreateEventView",
@@ -326,7 +326,17 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
         person = self.request.user.person
 
         groups = [
-            {"id": str(m.supportgroup.pk), "name": m.supportgroup.name}
+            {
+                "id": str(m.supportgroup.pk),
+                "name": m.supportgroup.name,
+                "iconName": SupportGroup.TYPE_PARAMETERS[m.supportgroup.type][
+                    "icon_name"
+                ],
+                "color": SupportGroup.TYPE_PARAMETERS[m.supportgroup.type]["color"],
+                "forUsers": Event.FOR_USERS_2022
+                if (m.supportgroup.type == SupportGroup.TYPE_2022)
+                else Event.FOR_USERS_INSOUMIS,
+            }
             for m in person.memberships.filter(
                 supportgroup__published=True,
                 membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
@@ -369,15 +379,14 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
             dict_to_camelcase(s.get_subtype_information()) for s in subtype_queryset
         ]
 
-        questions = ASKED_QUESTIONS
-
         return super().get_context_data(
             props={
+                "isInsoumise": person.is_insoumise,
+                "is2022": person.is_2022,
                 "initial": initial,
                 "groups": groups,
                 "types": types,
                 "subtypes": subtypes,
-                "questions": questions,
             },
             **kwargs,
         )

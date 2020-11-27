@@ -30,12 +30,20 @@ class CreateEventForm extends React.Component {
     this.setState({ fields: Object.assign({}, this.state.fields, fields) });
   }
 
-  hasGroupStep() {
-    return this.props.groups && this.props.groups.length > 0;
-  }
-
   render() {
     let steps = [
+      {
+        name: "Qui organise ?",
+        component: (
+          <OrganizerStep
+            setFields={this.setFields}
+            fields={this.state.fields}
+            groups={this.props.groups}
+            is2022={this.props.is2022}
+            isInsoumise={this.props.isInsoumise}
+          />
+        ),
+      },
       {
         name: "Quel type ?",
         component: (
@@ -44,18 +52,6 @@ class CreateEventForm extends React.Component {
             fields={this.state.fields}
             types={this.props.types}
             subtypes={this.props.subtypes}
-          />
-        ),
-      },
-      {
-        name: "Questions légales",
-        component: (
-          <LegalQuestionsStep
-            setFields={this.setFields}
-            fields={this.state.fields}
-            subtypes={this.props.subtypes}
-            questions={this.props.questions}
-            nextStep={this.hasGroupStep() ? 3 : 2}
           />
         ),
       },
@@ -88,19 +84,6 @@ class CreateEventForm extends React.Component {
       },
     ];
 
-    if (this.hasGroupStep()) {
-      steps.splice(1, 0, {
-        name: "Qui organise ?",
-        component: (
-          <OrganizerStep
-            setFields={this.setFields}
-            fields={this.state.fields}
-            groups={this.props.groups}
-          />
-        ),
-      });
-    }
-
     return (
       <MultiStepForm
         steps={steps}
@@ -115,7 +98,8 @@ CreateEventForm.propTypes = {
   initial: PropTypes.object,
   types: PropTypes.array,
   subtypes: PropTypes.array,
-  questions: PropTypes.array,
+  is2022: PropTypes.bool,
+  isInsoumise: PropTypes.bool,
 };
 
 function SubtypeSelector({ children }) {
@@ -137,8 +121,8 @@ const Icon = styled.i`
   box-sizing: content-box;
   ${(props) =>
     props.active
-      ? "border: 1px solid transparent;"
-      : "border: 1px solid rgba(10, 10, 10, 0.3);"}
+      ? "border: 1px solid rgba(10, 10, 10, 0.3);"
+      : "border: 1px solid transparent;"}
 `;
 
 function CheckBox({
@@ -215,22 +199,9 @@ class EventTypeStep extends FormStep {
         <div className="col-sm-6">
           <h3>Quel type d'événement voulez-vous créer ?</h3>
           <p>
-            Chaque insoumis·e peut créer un événement sur la plateforme dès lors
-            qu’il respecte le cadre et la démarche de la France insoumise dans
-            un esprit d’ouverture, de bienveillance et de volonté de se projeter
-            dans l’action.
-          </p>
-          <p>
             Afin de mieux identifier les événements que vous créez, et de
-            pouvoir mieux les recommander aux autres insoumis⋅es, indiquez le
-            type d'événement que vous organisez.
-          </p>
-          <p>
-            Vous souhaitez inviter un⋅e député⋅e, candidat⋅e, ou animateur⋅ice
-            de livret&nbsp;?{" "}
-            <a href="https://lafranceinsoumise.fr/groupes-appui/inviter-des-intervenants/">
-              Suivez le mode d'emploi.
-            </a>
+            pouvoir mieux les recommander aux autres membres de la plateforme,
+            indiquez le type d'événement que vous organisez.
           </p>
         </div>
         <div className="col-sm-6 padbottom">
@@ -260,137 +231,109 @@ class EventTypeStep extends FormStep {
   }
 }
 
-class LegalQuestionsStep extends FormStep {
-  constructor(props) {
-    super(props);
-    this.state = { question: 0 };
-  }
-
-  getAnswer(id) {
-    const legal = this.props.fields.legal || {};
-    if (Object.prototype.hasOwnProperty.call(legal, id)) {
-      return legal[id];
-    }
-    return null;
-  }
-
-  getQuestions() {
-    const subtype = this.props.subtypes.find(
-      (s) => s.label === this.props.fields.subtype
-    );
-    return this.props.questions.filter(
-      (q) =>
-        (!q.type || q.type.includes(subtype.type)) &&
-        (!q.when || this.getAnswer(q.when)) &&
-        (!q.notWhen || !this.getAnswer(q.notWhen))
-    );
-  }
-
-  setAnswer(id, value) {
-    this.props.setFields({
-      legal: Object.assign({}, this.props.fields.legal || {}, {
-        [id]: value,
-      }),
-    });
-
-    if (this.state.question >= this.getQuestions().length - 1) {
-      return this.props.jumpToStep(this.props.nextStep);
-    }
-    this.setState({ question: this.state.question + 1 });
-  }
-
-  isValidated() {
-    return this.getQuestions().every((q) => this.getAnswer(q.id) !== null);
-  }
-
-  render() {
-    let q = this.getQuestions()[this.state.question];
-    return (
-      <div className="row padtopmore padbottommore">
-        <div className="col-sm-6 padbottom">
-          <div className="alert alert-danger">
-            Attention&nbsp;! Vous ne pouvez engager de frais sans la validation
-            de l'équipe de suivi des questions financières de La France
-            insoumise. Pour bien identifier la situation légale dans laquelle
-            vous vous trouvez, merci de bien vouloir répondre à ces quelques
-            questions.
-          </div>
-        </div>
-        <div className="col-sm-6 padbottom">
-          <Spring key={q.id} from={{ opacity: 0 }} to={{ opacity: 1 }}>
-            {(props) => (
-              <Question
-                style={props}
-                key={q.id}
-                question={q}
-                value={this.getAnswer(q.id)}
-                setValue={(v) => this.setAnswer(q.id, v)}
-              />
-            )}
-          </Spring>
-        </div>
-      </div>
-    );
-  }
-}
-
 class OrganizerStep extends FormStep {
   constructor(props) {
     super(props);
     this.setIndividual = this.setIndividual.bind(this);
   }
 
-  setIndividual() {
-    this.props.setFields({ organizerGroup: null });
+  setIndividual(forUsers) {
+    this.props.setFields({ organizerGroup: null, forUsers });
   }
 
   setGroup(group) {
-    this.props.setFields({ organizerGroup: group.id });
+    this.props.setFields({
+      organizerGroup: group.id,
+      forUsers: group.forUsers,
+    });
   }
 
   render() {
-    const { organizerGroup } = this.props.fields;
+    const { organizerGroup, forUsers } = this.props.fields;
+
+    let defaultForUsers;
+    if (this.props.isInsoumise && !this.props.is2022) {
+      defaultForUsers = "I";
+    } else if (this.props.is2022 && !this.props.isInsoumise) {
+      defaultForUsers = "2";
+    }
+
+    if (this.props.groups.length === 0 && defaultForUsers === "2") {
+      this.setIndividual(defaultForUsers);
+      this.props.jumpToStep(1);
+    }
 
     return (
       <div className="row padtopmore padbottommore">
         <div className="col-sm-6">
           <h2>Qui organise l'événement ?</h2>
           <p>
-            Un événement peut être organisé à titre individuel par une personne.
-            Mais comme vous êtes aussi gestionnaire d'un groupe d'action, il est
-            aussi possible d'indiquer que cet événement est organisé par votre
-            groupe.
+            Un événement peut être organisé à titre individuel. Mais comme vous
+            êtes aussi gestionnaire d'un groupe, il est aussi possible
+            d'indiquer que cet événement est organisé par votre groupe.
           </p>
         </div>
         <div className="col-md-6">
-          <h3>L'événement est organisé...</h3>
-          <div>
-            <h4>...à titre individuel</h4>
-            <SubtypeSelector>
-              <CheckBox
-                iconName="user"
-                color="#0098b6"
-                active={!organizerGroup}
-                label="J'en suis l'organisateur"
-                onClick={this.setIndividual}
-              />
-            </SubtypeSelector>
-          </div>
-          <div>
-            <h4>...par un groupe d'action</h4>
-            <SubtypeSelector>
-              {this.props.groups.map((group) => (
+          <h3>L'événement est organisé</h3>
+          {this.props.groups.length > 0 && (
+            <>
+              <h4>par un groupe d'action</h4>
+              <SubtypeSelector>
+                {this.props.groups.map((group) => (
+                  <CheckBox
+                    iconName={group.iconName}
+                    color={group.color}
+                    key={group.id}
+                    active={group.id === organizerGroup}
+                    label={group.name}
+                    onClick={() => this.setGroup(group)}
+                  />
+                ))}
+              </SubtypeSelector>
+              <h4>à titre individuel</h4>
+            </>
+          )}
+          <SubtypeSelector>
+            {this.props.is2022 && this.props.isInsoumise ? (
+              <>
                 <CheckBox
-                  iconName="users"
+                  iconName="user"
                   color="#0098b6"
-                  key={group.id}
-                  active={group.id === organizerGroup}
-                  label={group.name}
-                  onClick={() => this.setGroup(group)}
+                  active={!organizerGroup && forUsers === "I"}
+                  label="pour la France insoumise"
+                  onClick={() => this.setIndividual("I")}
                 />
-              ))}
-            </SubtypeSelector>
-          </div>
+                <CheckBox
+                  iconName="user"
+                  color="#571AFF"
+                  active={!organizerGroup && forUsers === "2"}
+                  label="pour la campagne « Nous Sommes Pour ! »"
+                  onClick={() => this.setIndividual("2")}
+                />
+              </>
+            ) : (
+              <>
+                <CheckBox
+                  iconName="user"
+                  color="#0098b6"
+                  active={!organizerGroup}
+                  label={
+                    defaultForUsers === "I"
+                      ? "pour la France insoumise"
+                      : "pour la campagne « Nous Sommes Pour ! »"
+                  }
+                  onClick={() => this.setIndividual(defaultForUsers)}
+                />
+              </>
+            )}
+          </SubtypeSelector>
+          {defaultForUsers === "I" && (
+            <p>
+              Pour organiser des événements « Nous Sommes Pour ! », vous devez
+              d'abord parrainer la candidature sur{" "}
+              <a href="https://noussommespour.fr">noussommespour.fr</a>.
+            </p>
+          )}
         </div>
       </div>
     );

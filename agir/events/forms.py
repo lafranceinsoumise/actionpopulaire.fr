@@ -107,6 +107,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         self.fields["name"].help_text = None
 
         if not self.is_creation:
+            del self.fields["for_users"]
             try:
                 self.organizer_config = OrganizerConfig.objects.get(
                     person=self.person, event=self.instance
@@ -286,6 +287,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
             "location_country",
             "description",
             "subtype",
+            "for_users",
             "legal",
         )
 
