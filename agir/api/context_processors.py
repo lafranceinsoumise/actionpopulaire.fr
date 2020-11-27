@@ -15,7 +15,6 @@ def basic_information(request):
     routes = {
         "dashboard": reverse("dashboard"),
         "search": reverse("dashboard_search"),
-        "help": "https://lafranceinsoumise.fr/contact/",
         "personalInformation": reverse("personal_information"),
         "contactConfiguration": reverse("contact"),
         "signIn": reverse("subscription"),
@@ -24,23 +23,44 @@ def basic_information(request):
         "createEvent": reverse("create_event"),
         "groupsMap": reverse("carte:groups_map"),
         "eventsMap": reverse("carte:events_map"),
-        "eventMap": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
         "events": reverse("list_events"),
         "groups": reverse("list_my_groups"),
         "activity": reverse("list_activities"),
         "required-activity": reverse("list_required_activities"),
         "menu": reverse("navigation_menu"),
+    }
+
+    routes_2022 = {
+        "materiel": "https://noussommespour.fr/boutique/",
+        "help": "https://noussommespour.fr/sinformer/",
+    }
+
+    routes_insoumis = {
+        "materiel": "https://materiel.lafranceinsoumise.fr/",
+        "help": "https://lafranceinsoumise.fr/fiches_pour_agir/",
+        "news": "https://lafranceinsoumise.fr/actualites/",
+        "contact": "https://lafranceinsoumise.fr/contact/",
+        "eventsMap": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
+        "groupsMap": "https://lafranceinsoumise.fr/groupes-action/carte-groupes/",
+        "eventMap": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
         "thematicTeams": reverse("thematic_teams_list"),
     }
 
     if request.user.is_authenticated:
         routes["signOut"] = reverse("disconnect")
-
         person = request.user.person
+
+        if person.is_insoumise:
+            routes = {**routes, **routes_insoumis}
+        elif person.is_2022:
+            routes = {**routes, **routes_2022}
+
         user = {
+            "id": person.pk,
             "firstName": person.first_name,
             "displayName": request.user.get_full_name(),
-            "isInsoumise": request.user.person.is_insoumise,
+            "isInsoumise": person.is_insoumise,
+            "is2022": person.is_2022,
         }
         userActivities = Activity.objects.filter(recipient=person).exclude(
             status=Activity.STATUS_INTERACTED

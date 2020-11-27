@@ -134,23 +134,27 @@ const NavigationPage = ({ active }) => {
     <Layout active="menu">
       <Navigation>
         <Menu>
-          {MAIN_LINKS.map((link) => (
-            <MenuLink
-              {...link}
-              key={link.id}
-              active={active === link.id}
-              href={link.href || routes[link.route]}
-              counter={link.counter && requiredActionActivities.length}
-            />
-          ))}
+          {MAIN_LINKS.map((link) =>
+            link.href || routes[link.route] ? (
+              <MenuLink
+                {...link}
+                key={link.id}
+                active={active === link.id}
+                href={link.href || routes[link.route]}
+                counter={link.counter && requiredActionActivities.length}
+              />
+            ) : null
+          )}
         </Menu>
         <SecondaryMenu>
           <SecondaryMenuItem key="title">LIENS</SecondaryMenuItem>
-          {CONFIG.secondaryLinks.map((link) => (
-            <SecondaryMenuItem key={link.id}>
-              <a href={link.href || routes[link.route]}>{link.title}</a>
-            </SecondaryMenuItem>
-          ))}
+          {CONFIG.secondaryLinks.map((link) =>
+            link.href || routes[link.route] ? (
+              <SecondaryMenuItem key={link.id}>
+                <a href={link.href || routes[link.route]}>{link.title}</a>
+              </SecondaryMenuItem>
+            ) : null
+          )}
         </SecondaryMenu>
       </Navigation>
     </Layout>
