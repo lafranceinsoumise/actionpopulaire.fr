@@ -79,11 +79,9 @@ class MailLinkTestCase(TestCase):
             response,
             f"Pour vous authentifier, un e-mail vous a été envoyé à l'adresse <strong>{self.person.email}</strong>.",
         )
+
         self.assertRedirects(
-            response,
-            reverse("check_short_code", args=[self.person.pk])
-            + "?next="
-            + reverse("create_group"),
+            response, reverse("check_short_code") + "?next=" + reverse("create_group"),
         )
         send_login_email.apply_async.assert_called_once()
 
@@ -110,15 +108,14 @@ class ShortCodeTestCase(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         res = self.client.post(send_mail_link, {"email": "test@test.com"})
-        self.assertRedirects(
-            res, reverse("check_short_code", kwargs={"user_pk": self.person.pk})
-        )
+        self.assertRedirects(res, reverse("check_short_code"))
 
     def test_checking_code(self):
-        check_short_code_link = reverse(
-            "check_short_code", kwargs={"user_pk": self.person.pk}
-        )
-        code, expiry = short_code_generator.generate_short_code(self.person.pk)
+        check_short_code_link = reverse("check_short_code")
+        code, expiry = short_code_generator.generate_short_code(self.person.email)
+        session = self.client.session
+        session["login_email"] = self.person.email
+        session.save()
 
         res = self.client.get(check_short_code_link + "?next=/profil/identite/")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -127,9 +124,11 @@ class ShortCodeTestCase(TestCase):
         self.assertRedirects(res, "/profil/identite/")
 
     def test_warned_if_using_wrong_format(self):
-        check_short_code_link = reverse(
-            "check_short_code", kwargs={"user_pk": self.person.pk}
-        )
+        check_short_code_link = reverse("check_short_code",)
+        session = self.client.session
+        session["login_email"] = self.person.email
+        session.save()
+
         res = self.client.post(check_short_code_link, {"code": "mù**2,;"})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertTrue(res.context_data["form"].has_error("code", "incorrect_format"))
@@ -141,18 +140,21 @@ class ShortCodeTestCase(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertTrue(res.context_data["form"].has_error("email", "invalid"))
 
-    def test_cannot_send_mail_with_unknown(self):
+    @mock.patch("agir.authentication.tasks.send_no_account_email.delay")
+    def test_will_get_unknown_account_email_with_unknown_address(
+        self, send_no_account_email
+    ):
         send_mail_link = reverse("short_code_login")
 
         res = self.client.post(send_mail_link, {"email": "unknown@test.com"})
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(res.context_data["form"].has_error("email", "unknown"))
+        self.assertRedirects(res, reverse("check_short_code"))
+
+        send_no_account_email.assert_called_once()
+        self.assertEqual(send_no_account_email.call_args[0][0], "unknown@test.com")
 
     def test_known_mails_feature(self):
         res = self.client.post(reverse("short_code_login"), {"email": "test@test.com"})
-        self.assertRedirects(
-            res, reverse("check_short_code", kwargs={"user_pk": self.person.pk})
-        )
+        self.assertRedirects(res, reverse("check_short_code"))
 
         self.assertEqual(res.cookies["knownEmails"].value, "test@test.com")
 
@@ -176,21 +178,22 @@ class ShortCodeTestCase(TestCase):
         # we should be able to send another mail 30 minutes later
         current_timestamp_mock.return_value = 30 * 60
         res = send_mail()
-        self.assertRedirects(
-            res, reverse("check_short_code", kwargs={"user_pk": self.person.pk})
-        )
+        self.assertRedirects(res, reverse("check_short_code"))
 
-    def test_cannot_check_code_with_unknown_person(self):
-        check_code_link = reverse("check_short_code", kwargs={"user_pk": uuid.uuid4()})
+    def test_cannot_check_code_without_filling_email_first(self):
+        check_code_link = reverse("check_short_code")
         self.assertRedirects(
             self.client.post(check_code_link), reverse("short_code_login")
         )
 
     @mock.patch("agir.lib.token_bucket.get_current_timestamp")
     def test_check_code_rate_limiting(self, current_timestamp_mock):
-        check_code_link = reverse(
-            "check_short_code", kwargs={"user_pk": self.person.pk}
-        )
+        check_code_link = reverse("check_short_code",)
+
+        session = self.client.session
+        session["login_email"] = self.person.email
+        session.save()
+
         wrong_code = short_code_generator._make_code()
         try_code = lambda: self.client.post(check_code_link, {"code": wrong_code})
 
@@ -219,9 +222,7 @@ class ShortCodeTestCase(TestCase):
 
         self.person.add_email("another_address@example.com", _bounced=True)
 
-        check_short_code_url = reverse(
-            "check_short_code", kwargs={"user_pk": self.person.pk}
-        )
+        check_short_code_url = reverse("check_short_code",)
 
         res = self.client.post(
             reverse("short_code_login"), data={"email": "another_address@example.com"}

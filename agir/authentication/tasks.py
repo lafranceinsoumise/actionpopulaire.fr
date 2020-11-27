@@ -21,8 +21,18 @@ def send_login_email(email, short_code, expiry_time):
         subject="Connexion à la plateforme",
         from_email=settings.EMAIL_FROM,
         bindings={
-            "CODE": interleave_spaces(short_code),
-            "EXPIRY_TIME": local_expiry_time.strftime("%H:%M"),
+            "code": interleave_spaces(short_code),
+            "expiry_time": local_expiry_time.strftime("%H:%M"),
         },
+        recipients=[email],
+    )
+
+
+@emailing_task
+def send_no_account_email(email):
+    send_mosaico_email(
+        code="LOGIN_NO_ACCOUNT",
+        subject="Vous n'avez pas encore de compte sur la plateforme",
+        from_email=settings.EMAIL_FROM,
         recipients=[email],
     )

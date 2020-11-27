@@ -1,17 +1,15 @@
-Connexion à la France insoumise
-
-Quelqu'un a demandé à se connecter à votre compte sur l'un des sites de la France insoumise avec votre adresse {{ EMAIL }}.
-
-Si vous êtes bien à l'origine de cette connexion, vous pouvez utiliser le code ci-dessous pour la confirmer :  
-
-    {{ CODE }}
-
-**Ce code est valable jusqu'à {{ EXPIRY_TIME }}. Après cette heure, il vous faudra redemander un nouveau code.**
-
-
-Amitiés insoumises,  
-L'équipe de la France insoumise.  
+Bonjour {{ name }} !
   
+Vous nous avez demandé de vous connecter à Action Populaire.
 
------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}.
+C'est très simple ! Entrez le code suivant dans la page de connexion où vous étiez il y a un instant :  
+  
+    {{ code }}
+  
+Remarque : ce code est valable jusqu'à {{ expiry_time }} et ne peut être utilisé qu'une seule fois.
+
+Amitiés  
+L'équipe d'Action Populaire  
+
+------------------------------------------------------------------
+Vous n'êtes pas à l'origine de cette demande de connexion ? Ignorez simplement ce message.

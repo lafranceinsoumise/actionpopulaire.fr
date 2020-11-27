@@ -305,8 +305,10 @@ EMAIL_TEMPLATES = {
     "FORM_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/6172a755-0459-4f01-b3e4-fcfa835224b0.html",
     # FORM_NOTIFICATION variables : PERSON_EMAIL, INFORMATIONS
     "FORM_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/45cd8bc1-8fb6-4ab6-bb67-739fd7e2e68e.html",
-    # LOGIN_MESSAGE variables: CODE, EXPIRY_TIME
-    "LOGIN_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/65cb8867-9d14-4448-bae8-8cf40c5fee78.html",
+    # LOGIN_MESSAGE variables: code, expiry_time, name
+    "LOGIN_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/b3958815-c3c2-4f93-8b24-47a6c1dd36e2.html",
+    # LOGIN_NO_ACCOUNT variables:
+    "LOGIN_SIGN_UP_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/83367020-bfd1-409f-84f2-30df33790db5.html",
     # EVENT_REPORT variables: EVENT_NAME,EVENT_REPORT_SUMMARY, EVENT_REPORT_LINK, PREFERENCES_LINK, EMAIL
     "EVENT_REPORT": "https://mosaico.lafranceinsoumise.fr/emails/7b39830d-8cf5-4d01-abbd-ab41e77c444e.html",
     # CHANGE_MAIL_CONFIRMATION variables: CONFIRMATION_URL

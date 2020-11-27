@@ -13,11 +13,7 @@ from .views import (
 
 urlpatterns = [
     path("connexion/", LoginView.as_view(), name="short_code_login"),
-    path(
-        "connexion/code/<uuid:user_pk>",
-        CheckCodeView.as_view(),
-        name="check_short_code",
-    ),
+    path("connexion/code/", CheckCodeView.as_view(), name="check_short_code",),
     path("deconnexion/", DisconnectView.as_view(), name="disconnect"),
     path("o/authorize/", Oauth2AuthorizationView.as_view(), name="authorize"),
     path("o/token/", oauth2_views.TokenView.as_view(), name="token"),

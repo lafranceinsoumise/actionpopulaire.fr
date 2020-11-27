@@ -70,7 +70,7 @@ def get_context_from_bindings(code, recipient, bindings):
     url = settings.EMAIL_TEMPLATES[code]
 
     res = dict(bindings)
-    res["EMAIL"] = recipient
+    res["email"] = res["EMAIL"] = recipient
 
     qs = QueryDict(mutable=True)
     qs.update(res)
