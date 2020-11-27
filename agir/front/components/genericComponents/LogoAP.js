@@ -2,20 +2,20 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 import "./_variables.scss";
-import svgLogo from "./logos/lfi.svg";
+import svgLogo from "./logos/action-populaire.svg";
 
-const LogoFI = styled.img.attrs(() => ({ src: svgLogo }))`
+const LogoAP = styled.img.attrs(() => ({ src: svgLogo }))`
   height: ${(props) => props.height || "auto"};
   width: ${(props) => props.width || "auto"};
 `;
-LogoFI.propTypes = {
+LogoAP.propTypes = {
   width: PropTypes.string,
   height: PropTypes.string,
   alt: PropTypes.string,
 };
 
-LogoFI.defaultProps = {
-  alt: "La France insoumise",
+LogoAP.defaultProps = {
+  alt: "Action Populaire",
 };
 
-export default LogoFI;
+export default LogoAP;
