@@ -20,7 +20,6 @@ import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -79,17 +78,19 @@ const IndexLinkAnchor = styled.a`
     transform-origin: center center;
   }
 `;
-const IndexLink = (route) => {
-  return (
+const IndexLink = ({ href }) =>
+  href ? (
     <Row>
       <Column grow>
-        <IndexLinkAnchor href={route}>
+        <IndexLinkAnchor href={href}>
           <span>&#10140;</span>
           &ensp; Liste des événements
         </IndexLinkAnchor>
       </Column>
     </Row>
-  );
+  ) : null;
+IndexLink.propTypes = {
+  href: PropTypes.string,
 };
 
 const MobileLayout = (props) => {
@@ -144,7 +145,7 @@ const DesktopLayout = (props) => {
   return (
     <Container style={{ margin: "4rem auto", padding: "0 4rem" }}>
       {props.logged && props.appRoutes && props.appRoutes.events ? (
-        <IndexLink route={props.appRoutes.events} />
+        <IndexLink href={props.appRoutes.events} />
       ) : null}
       <Row gutter={32}>
         <Column grow>

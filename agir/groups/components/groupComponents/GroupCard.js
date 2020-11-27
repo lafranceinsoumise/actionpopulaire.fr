@@ -50,13 +50,20 @@ const DiscountCodesSection = styled.section`
   }
 `;
 
-const GroupButton = ({ href, children, color = "default", icon }) => (
+let GroupButton = ({ href, children, color = "default", icon }, ref) => (
   <Column width={["33%", "content"]} collapse={500}>
-    <Button as="a" href={href} color={color} icon={icon} small>
+    <Button ref={ref} as="a" href={href} color={color} icon={icon} small>
       {children}
     </Button>
   </Column>
 );
+GroupButton.propTypes = {
+  href: PropTypes.string,
+  children: PropTypes.node,
+  color: PropTypes.string,
+  icon: PropTypes.string,
+};
+GroupButton = React.forwardRef(GroupButton);
 
 const GroupCard = ({
   name,
@@ -72,9 +79,22 @@ const GroupCard = ({
   displayType,
   displayDescription,
   displayMembership,
-}) => (
-  <>
-    <Card>
+}) => {
+  const mainLink = React.useRef(null);
+  const handleClick = React.useCallback(
+    (e) => {
+      if (
+        ["A", "BUTTON"].includes(e.target.tagName.toUpperCase()) ||
+        !routes.page
+      ) {
+        return;
+      }
+      mainLink.current && mainLink.current.click();
+    },
+    [routes]
+  );
+  return (
+    <Card onClick={handleClick}>
       <Row gutter={6}>
         {displayGroupLogo && (
           <Column collapse={0}>
@@ -124,7 +144,7 @@ const GroupCard = ({
         </DiscountCodesSection>
       )}
       <Row gutter={6} style={{ marginTop: "1.5rem" }}>
-        <GroupButton color="primary" href={routes.page}>
+        <GroupButton ref={mainLink} color="primary" href={routes.page}>
           {isMember ? (
             "Voir le groupe"
           ) : (
@@ -153,8 +173,8 @@ const GroupCard = ({
         </div>
       )}
     </Card>
-  </>
-);
+  );
+};
 
 GroupCard.propTypes = {
   name: PropTypes.string.isRequired,

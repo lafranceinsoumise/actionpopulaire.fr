@@ -184,7 +184,9 @@ export const ResponsiveLayout = ({
   return isDesktop ? <DesktopLayout {...props} /> : <MobileLayout {...props} />;
 };
 ResponsiveLayout.propTypes = {
-  MobileLayout: PropTypes.element.isRequired,
-  DesktopLayout: PropTypes.element.isRequired,
+  MobileLayout: PropTypes.oneOfType([PropTypes.element, PropTypes.func])
+    .isRequired,
+  DesktopLayout: PropTypes.oneOfType([PropTypes.element, PropTypes.func])
+    .isRequired,
   breakpoint: PropTypes.number,
 };

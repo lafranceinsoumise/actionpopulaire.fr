@@ -18,11 +18,12 @@ const TopBar = styled.div`
   justify-content: space-between;
   margin: 0 0 25px;
 
-  & > h1 {
-    margin: 0 0 1rem;
+  & > ${LayoutTitle} {
+    margin: 0;
 
     @media (max-width: ${style.collapse}px) {
       flex: 0 0 100%;
+      margin-bottom: 1rem;
     }
   }
 
@@ -93,18 +94,22 @@ const GroupsPage = ({ data }) => {
       <TopBar>
         <LayoutTitle>Mes groupes</LayoutTitle>
         <div>
-          <Button
-            as="a"
-            href={routes.createGroup}
-            icon="plus"
-            color="secondary"
-            small
-          >
-            Créer un groupe
-          </Button>
-          <Button as="a" icon="map" href={routes.groupsMap} small color="white">
-            Carte
-          </Button>
+          {routes.createGroup ? (
+            <Button
+              as="a"
+              href={routes.createGroup}
+              icon="plus"
+              color="secondary"
+              small
+            >
+              Créer un groupe
+            </Button>
+          ) : null}
+          {routes.groupsMap ? (
+            <Button as="a" icon="map" href={routes.groupsMap} small>
+              Carte
+            </Button>
+          ) : null}
         </div>
       </TopBar>
       <GroupList>

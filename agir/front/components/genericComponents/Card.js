@@ -27,7 +27,18 @@ const Card = styled.div`
       : cardTypes.default.borderRadius};
   font-weight: 500;
   cursor: ${({ onClick }) => (onClick ? "pointer" : "default")};
-  border: 1px solid ${style.black100};
+  border: 1px solid;
+  border-color: ${style.black100};
+  transition: border-color 300ms;
+
+  &:hover {
+    ${({ onClick }) =>
+      onClick
+        ? `
+      border-color: ${style.black200};
+    `
+        : ""}
+  }
 
   @media (max-width: ${style.collapse}px) {
     border: none;
