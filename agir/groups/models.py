@@ -63,7 +63,7 @@ class SupportGroup(
     ContactMixin,
 ):
     """
-    Model that represents a support group 
+    Model that represents a support group
     """
 
     TYPE_LOCAL_GROUP = "L"
@@ -108,7 +108,7 @@ class SupportGroup(
     objects = SupportGroupQuerySet.as_manager()
 
     name = models.CharField(
-        _("nom"), max_length=255, blank=False, help_text=_("Le nom du groupe d'action")
+        _("nom"), max_length=255, blank=False, help_text=_("Le nom du groupe")
     )
 
     type = models.CharField(
@@ -163,6 +163,10 @@ class SupportGroup(
         subtype = self.subtypes.filter(allow_external=True).first()
         return subtype.external_help_text or ""
 
+    @property
+    def is_2022(self):
+        return self.type == self.TYPE_2022
+
     class Meta:
         verbose_name = _("groupe d'action")
         verbose_name_plural = _("groupes d'action")
@@ -203,7 +207,7 @@ class SupportGroupSubtype(BaseSubtype):
 class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
     """
     Model that represents the membership of a person in a support group
-    
+
     This model also indicates if the person is referent for this support group
     """
 

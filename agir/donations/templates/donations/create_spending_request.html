@@ -46,16 +46,14 @@
             pour votre dépense.</p>
           <p>
             Vous pourrez joindre d'autres documents après la validation de ce formulaire et avant la soumission de votre
-            demande à l'équipe de suivi des questions financières de la France insoumise.
+            demande à l'équipe de suivi des questions financières{% if not supportgroup.is_2022 %} de la France insoumise{% endif %}.
           </p>
           <p>
-            <small>Les documents textuels peuvent être au format PDF, Word, Excel ou OpenOffice/LibreOffice. Les images
-              peuvent être au format JPG ou PNG.
-            </small>
+            <small>Les documents textuels peuvent être au format PDF, Word, Excel ou OpenOffice/LibreOffice. Les images peuvent être au format JPG ou PNG.</small>
           </p>
           {% crispy document_formset document_helper %}
         </fieldset>
-        <div class="row padtopmore">
+        <div class="row padtopmore padbottom">
           <div class="col-xs-12 col-sm-6 col-md-4">
             <input
               type="submit"
