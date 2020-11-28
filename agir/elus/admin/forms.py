@@ -163,13 +163,9 @@ class CreerMandatMunicipalForm(CreerMandatForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if hasattr(self.instance, "conseil"):
-            if self.instance.conseil is None:
+        if "communautaire" in self.fields:
+            if self.instance.conseil is None or self.instance.conseil.epci is None:
                 self.fields["communautaire"].disabled = True
-                return
-            commune = self.instance.conseil
-            epci = commune.epci
-            if epci:
-                self.fields["communautaire"].label = f"Mandat auprès de la {epci.nom}"
             else:
-                self.fields["communautaire"].disabled = True
+                epci = self.instance.conseil.epci
+                self.fields["communautaire"].label = f"Mandat auprès de la {epci.nom}"
