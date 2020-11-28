@@ -31,6 +31,7 @@ from agir.people.admin.views import (
     FormSubmissionViewsMixin,
     AddPersonEmailView,
     MergePersonsView,
+    StatisticsView,
 )
 from agir.people.models import Person, PersonTag
 from agir.people.person_forms.display import default_person_form_display
@@ -289,6 +290,13 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     partial(MergePersonsView.as_view(), model_admin=self)
                 ),
                 name="people_person_merge",
+            ),
+            path(
+                "statistiques/",
+                self.admin_site.admin_view(
+                    partial(StatisticsView.as_view(), model_admin=self)
+                ),
+                name="people_person_statistics",
             ),
         ] + super().get_urls()
 
