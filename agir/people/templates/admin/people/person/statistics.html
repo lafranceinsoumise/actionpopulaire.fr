@@ -27,6 +27,10 @@ document.addEventListener('DOMContentLoaded', () => {
   chartData.forEach((d) => {
     d.x = new Date(d.subscription_date);
   });
+  cumChartData = chartData.reduce((cum, d, i) => {
+    cum.push({x: d.x, y: (i > 0 ? (cum[i-1].y + d.y) : d.y)})
+    return cum;
+  }, []);
 
   // Render the chart
   const chart = new Chart(ctx, {
@@ -34,10 +38,17 @@ document.addEventListener('DOMContentLoaded', () => {
     data: {
       datasets: [
         {
-          label: 'Inscriptions NSP',
+          label: 'Inscriptions NSP par jour (gauche)',
           data: chartData,
           backgroundColor: 'rgba(220,20,20,0.5)',
+          yAxisID: 'day-axis',
         },
+        {
+          label: 'Total inscriptions NSP (droite)',
+          data: cumChartData,
+          type: 'line',
+          yAxisID: 'cum-axis',
+        }
       ],
     },
     options: {
@@ -57,10 +68,18 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
         yAxes: [
           {
+            id: 'day-axis',
             ticks: {
               beginAtZero: true,
             },
           },
+          {
+            id: 'cum-axis',
+            ticks: {
+              beginAtZero: true,
+            },
+            position: 'right',
+          }
         ],
       },
     },

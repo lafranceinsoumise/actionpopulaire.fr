@@ -214,7 +214,7 @@ class StatisticsView(AdminViewMixin, TemplateView):
             )
             .values("subscription_date")
             .annotate(y=Count("id"))
-            .order_by("-subscription_date")
+            .order_by("subscription_date")
         )
         as_json = json.dumps(list(chart_data), cls=DjangoJSONEncoder)
         kwargs["chart_data"] = as_json
