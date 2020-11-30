@@ -87,7 +87,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         self.fields["description"].help_text = _(
             """
         Cette description doit permettre de comprendre rapidement sur quoi porte et comment se passera votre événement.
-        Incluez toutes les informations pratiques qui pourraient être utiles aux insoumis⋅es qui souhaiteraient
+        Incluez toutes les informations pratiques qui pourraient être utiles aux personnes qui souhaiteraient
         participer (matériel à amener, précisions sur le lieu ou contraintes particulières, par exemple).
         """
         )
@@ -99,7 +99,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                 published=True,
             ),
             empty_label="Ne pas créer au nom d'un groupe",
-            label=_("Créer l'événement au nom d'un groupe d'action"),
+            label=_("Créer l'événement au nom d'un groupe"),
             required=False,
         )
 

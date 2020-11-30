@@ -48,9 +48,11 @@
     <div role="tabpanel" class="tab-pane{% if active == "certification" %} active{% endif %}" id="certification">
       {% include "groups/includes/certification_panel.html" %}
     </div>
+  {% if not supportgroup.is_2022 %}
     <div role="tabpanel" class="tab-pane{% if active == "invitation" %} active{% endif %}" id="invitation">
       {% include "groups/includes/invitation_panel.html" %}
     </div>
+  {% endif %}
   </div>
 </div>
 {% endblock %}

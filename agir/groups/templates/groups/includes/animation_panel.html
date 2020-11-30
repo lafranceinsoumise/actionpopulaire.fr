@@ -24,20 +24,21 @@
   {% if referents|length == 1 and supportgroup in perms.groups.add_referent_to_supportgroup %}
     <div>
       <p class="alert alert-warning">
-        Vous êtes à l'heure actuelle l'unique animatrice ou animateur enregistré de ce groupe d'action.
+        Vous êtes à l'heure actuelle l'unique animatrice ou animateur enregistré de ce groupe.
       </p>
+      {% if not supportgroup.is_2022 %}
+        <p>
+          La charte des groupes d'action de la France insoumise prévoit que les groupes d'action
+        </p>
+        <blockquote>
+          sont animés par deux personnes de genres différents, n’appartenant pas, le cas échéant, toutes les deux
+          à une
+          même formation politique qui soutient la France insoumise.
+        </blockquote>
+      {% endif %}
       <p>
-        La charte des groupes d'action de la France insoumise prévoit que les groupes d'action
+        Si vous souhaitez ne plus être animatrice ou animateur de ce groupe, il vous faut d'abord indiquer une autre personne, car un groupe ne peut se trouver sans animation.
       </p>
-      <blockquote>
-        sont animés par deux personnes de genres différents, n’appartenant pas, le cas échéant, toutes les deux
-        à une
-        même formation politique qui soutient la France insoumise.
-      </blockquote>
-      <p>
-        Si vous souhaitez ne plus être animatrice ou animateur de ce groupe d'action, il vous faut d'abord
-        indiquer une
-        autre personne, car un groupe d'action ne peut se trouver sans animation. </p>
       <p>
         Vous pouvez nous indiquer ici qui est l'autre animatrice ou animateur au sein du groupe. </p>
       {% crispy add_referent_form %}

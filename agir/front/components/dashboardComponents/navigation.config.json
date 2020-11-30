@@ -38,7 +38,7 @@
       "id": "materiel",
       "icon": "shopping-bag",
       "title": "Matériel",
-      "href": "https://materiel.lafranceinsoumise.fr/",
+      "route": "materiel",
       "desktop": true,
       "mobile": false,
       "external": true
@@ -47,7 +47,7 @@
       "id": "help",
       "icon": "help-circle",
       "title": "Aide & Ressources",
-      "href": "https://lafranceinsoumise.fr/fiches_pour_agir/",
+      "route": "help",
       "desktop": true,
       "mobile": false,
       "external": true
@@ -65,17 +65,17 @@
     {
       "id": "news",
       "title": "Actualité de la France Insoumise",
-      "href": "https://lafranceinsoumise.fr/actualites/"
+      "route": "news"
     },
     {
       "id": "eventMap",
       "title": "Carte des évènements",
-      "href": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/"
+      "route": "eventsMap"
     },
     {
       "id": "groupMap",
       "title": "Carte des groupes",
-      "href": "https://lafranceinsoumise.fr/groupes-action/carte-groupes/"
+      "route": "groupsMap"
     },
     {
       "id": "thematicTeams",
@@ -85,7 +85,7 @@
     {
       "id": "contact",
       "title": "Contact",
-      "href": "https://lafranceinsoumise.fr/contact/"
+      "route": "contact"
     },
     {
       "id": "signOut",

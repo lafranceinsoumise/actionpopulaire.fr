@@ -1,7 +1,13 @@
 {% extends "front/layout.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %}Vous avez été invité⋅e à rejoindre la France insoumise{% endblock %}
+{% block title %}
+{% if group.is_2022 %}
+  Vous avez été invité⋅e à rejoindre le groupe {{ group.name }}
+{% else %}
+  Vous avez été invité⋅e à rejoindre la France insoumise
+{% endif %}
+{% endblock %}
 
 {% block main %}
 <div class="row">
@@ -29,11 +35,15 @@
   </div>
   <div class="col-xs-12 col-md-9 tab-content">
     <h2 class="headline">
-      Vous avez été invité⋅e à rejoindre la France insoumise
+      {% if group.is_2022 %}
+        Vous avez été invité⋅e à rejoindre le groupe {{ group.name }}
+      {% else %}
+        Vous avez été invité⋅e à rejoindre la France insoumise
+      {% endif %}
     </h2>
     {% if group %}
       <p>
-        Un des animateurs du groupe d'action <a target="_blank" rel="nooepener noreferrer" href="{% url "view_group" group.pk %}">{{ group.name }}</a> vous a invité à rejoindre la France insoumise et son groupe d'action.
+        Un des animateurs du groupe <a target="_blank" rel="nooepener noreferrer" href="{% url "view_group" group.pk %}">{{ group.name }}</a> vous a invité à rejoindre {% if not group.is_2022 %}la France insoumise et {% endif %}son groupe d'action.
       </p>
       <p>
         Pour valider votre inscription, merci de remplir le formulaire ci-dessous.
