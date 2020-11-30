@@ -10,8 +10,6 @@ import Button from "@agir/front/genericComponents/Button";
 import LogoAP from "@agir/front/genericComponents/LogoAP";
 
 import footerBanner from "./images/footer-banner.png";
-import googlePlayBadge from "./images/google-play-badge.png";
-import appStoreBadge from "./images/app-store-badge.svg";
 
 const FooterBanner = styled.div`
   position: relative;
@@ -57,11 +55,32 @@ const FooterBanner = styled.div`
     font-weight: 800;
   }
 
-  & > ${Button} {
-    background-color: ${style.white};
-    color: ${style.primary500};
-    font-size: 16px;
-    font-weight: 700;
+  & > div {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    line-height: 2rem;
+
+    & > span {
+      font-size: 14px;
+    }
+
+    & > ${Button} {
+      color: ${style.black1000};
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    @media (max-width: ${style.collapse}px) {
+      flex-flow: column nowrap;
+      align-items: flex-start;
+
+      & span {
+        color: transparent;
+        line-height: 0.5rem;
+      }
+    }
   }
 
   & > p {
@@ -112,45 +131,6 @@ const StyledFooter = styled.div`
         }
       }
 
-      &:last-child {
-        margin-left: auto;
-
-        @media (max-width: ${style.collapse}px) {
-          display: flex;
-          flex-flow: row nowrap;
-          justify-content: flex-start;
-          width: 100%;
-        }
-
-        a {
-          display: block;
-          width: 153px;
-          height: 45px;
-          margin-bottom: 0.75rem;
-          font-size: 0;
-          background-repeat: no-repeat;
-          background-size: cover;
-          background-position: center center;
-          border-radius: 8px;
-
-          @media (max-width: ${style.collapse}px) {
-            margin-bottom: 0;
-            margin-right: 0.75rem;
-          }
-
-          :nth-child(1) {
-            display: none;
-            background-image: url(${googlePlayBadge});
-            background-size: 115%;
-          }
-
-          :nth-child(2) {
-            display: none;
-            background-image: url(${appStoreBadge});
-          }
-        }
-      }
-
       img {
         width: 125px;
         height: 62px;
@@ -182,22 +162,53 @@ const StyledFooter = styled.div`
 `;
 
 export const Footer = (props) => {
-  const { isSignedIn } = props;
+  const { isSignedIn, is2022, routes } = props;
   return (
     <footer>
       {isSignedIn === false ? (
         <FooterBanner>
           <h3>Agissez dans votre ville!</h3>
+          {is2022 ? (
+            <p>
+              <strong>Action Populaire</strong> est la plate-forme d’action de
+              la campagne de Jean-Luc Mélenchon pour 2022. Parrainez la
+              candidature pour vous connecter :
+            </p>
+          ) : (
+            <p>
+              <strong>Action Populaire</strong> est la plate-forme d’action de
+              la campagne de Jean-Luc Mélenchon pour 2022 et de la France
+              insoumise. Inscrivez-vous d’une de ces façons :
+            </p>
+          )}
+          <div>
+            <Button
+              as="a"
+              color="secondary"
+              href={routes.noussommespour && routes.noussommespour.home}
+            >
+              Parrainez la candidature
+            </Button>
+            <span>{!is2022 ? <>&nbsp;ou&nbsp;</> : "&nbsp;"}</span>
+            {is2022 ? (
+              <Button as="a" color="white" href={routes.logIn}>
+                J'ai déjà parrainé
+              </Button>
+            ) : (
+              <Button
+                as="a"
+                color="white"
+                href={routes.lafranceinsoumise && routes.lafranceinsoumise.home}
+              >
+                Rejoindre la France insoumise
+              </Button>
+            )}
+          </div>
           <p>
-            <strong>Action Populaire</strong> est la plate-forme d’action
-            communautaire de la France Insoumise et des mouvements soutenants la
-            candidature de Jean-Luc Mélenchon pour 2022.
-          </p>
-          <Button as="a" href="#">
-            Je crée mon compte
-          </Button>
-          <p>
-            Vous avez déjà un compte ? <a href="#">Je me connecte</a>
+            {is2022
+              ? "Vous avez déjà un compte ? "
+              : "Vous avez déjà rejoins la France Insoumise ? "}
+            <a href={routes.logIn}>Je me connecte</a>
           </p>
         </FooterBanner>
       ) : null}
@@ -209,30 +220,96 @@ export const Footer = (props) => {
           <div>
             <h3>Action populaire</h3>
             <p>
-              <a href="#">Créer un compte</a>
-              <a href="#">Se connecter</a>
-              <a href="#">Contact</a>
+              {isSignedIn
+                ? routes.signOut && <a href={routes.signOut}>Se déconnecter</a>
+                : routes.logIn && <a href={routes.logIn}>Se connecter</a>}
+              {routes.donations && <a href={routes.donations}>Faire un don</a>}
+              {routes.contact && <a href={routes.contact}>Contact</a>}
             </p>
           </div>
-          <div>
-            <h3>Explorer</h3>
-            <p>
-              <a href="#">Evénements proches de chez moi</a>
-              <a href="#">Carte des évènements</a>
-              <a href="#">Carte des groupes d’actions</a>
-              <a href="#">Les livrets thématiques</a>
-            </p>
-          </div>
+          {isSignedIn ? (
+            <div>
+              <h3>Explorer</h3>
+              <p>
+                {routes.eventsMap && (
+                  <a href={routes.eventsMap}>Evénements proches de chez moi</a>
+                )}
+                {routes.events && (
+                  <a href={routes.events}>Carte des évènements</a>
+                )}
+                {routes.groupsMap && (
+                  <a href={routes.groupsMap}>Carte des groupes d’actions</a>
+                )}
+                {routes.thematicTeams && (
+                  <a href={routes.thematicTeams}>Les livrets thématiques</a>
+                )}
+              </p>
+            </div>
+          ) : (
+            <>
+              {routes.noussommespour ? (
+                <div>
+                  <h3>Nous sommes pour</h3>
+                  <p>
+                    {routes.noussommespour.home && (
+                      <a href={routes.noussommespour.home}>Signer</a>
+                    )}
+                    {routes.noussommespour.eventsMap && (
+                      <a href={routes.noussommespour.eventsMap}>
+                        Carte des évènements
+                      </a>
+                    )}
+                    {routes.noussommespour.groupsMap && (
+                      <a href={routes.noussommespour.groupsMap}>
+                        Carte des groupes
+                      </a>
+                    )}
+                  </p>
+                </div>
+              ) : null}
+              {routes.lafranceinsoumise ? (
+                <div>
+                  <h3>La France insoumise</h3>
+                  <p>
+                    {routes.lafranceinsoumise.home && (
+                      <a href={routes.lafranceinsoumise.home}>Rejoindre</a>
+                    )}
+                    {routes.lafranceinsoumise.eventsMap && (
+                      <a href={routes.lafranceinsoumise.eventsMap}>
+                        Carte des évènements
+                      </a>
+                    )}
+                    {routes.lafranceinsoumise.groupsMap && (
+                      <a href={routes.lafranceinsoumise.groupsMap}>
+                        Carte des groupes d’actions
+                      </a>
+                    )}
+                    {routes.lafranceinsoumise.thematicTeams && (
+                      <a href={routes.lafranceinsoumise.thematicTeams}>
+                        Les livrets thématiques
+                      </a>
+                    )}
+                  </p>
+                </div>
+              ) : null}
+            </>
+          )}
           <div>
             <h3>Les autres sites</h3>
             <p>
-              <a href="#">Nous Sommes Pour !</a>
-              <a href="#">La France Insoumise</a>
+              {routes.noussommespour && (
+                <a href={routes.noussommespour.home}>Nous Sommes Pour !</a>
+              )}
+              {routes.lafranceinsoumise && (
+                <a href={routes.lafranceinsoumise.home}>La France Insoumise</a>
+              )}
+              {routes.jlmBlog && (
+                <a href={routes.jlmBlog}>Le blog de Jean-Luc Mélenchon</a>
+              )}
+              {routes.linsoumission && (
+                <a href={routes.linsoumission}>L'insoumission</a>
+              )}
             </p>
-          </div>
-          <div>
-            <a href="#">Play store</a>
-            <a href="#">Apple store</a>
           </div>
         </article>
       </StyledFooter>
@@ -241,13 +318,15 @@ export const Footer = (props) => {
 };
 Footer.propTypes = {
   isSignedIn: PropTypes.bool,
+  is2022: PropTypes.bool,
   routes: PropTypes.object,
 };
 Footer.defaultProps = {
   isSignedIn: false,
+  is2022: false,
 };
 const ConnectedFooter = () => {
-  const { routes, user } = useGlobalContext();
-  return <Footer routes={routes} isSignedIn={!!user} />;
+  const { routes, user, is2022 } = useGlobalContext();
+  return <Footer routes={routes} isSignedIn={!!user} is2022={is2022} />;
 };
 export default ConnectedFooter;
