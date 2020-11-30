@@ -19,8 +19,8 @@
     },
     {
       "id": "required-activity",
-      "icon": "inbox",
-      "title": "À traiter",
+      "icon": "bell",
+      "title": "À faire",
       "route": "required-activity",
       "counter": true,
       "desktop": true,
@@ -28,8 +28,9 @@
     },
     {
       "id": "activity",
-      "icon": "bell",
-      "title": "Notifications",
+      "icon": "align-left",
+      "title": "Fil d'actualité",
+      "shortTitle": "Fil d'actu",
       "route": "activity",
       "desktop": true,
       "mobile": true

@@ -81,7 +81,7 @@ const EventDescription = ({
         ) : (
           <p>Il n'y a pas encore de compte-rendu de cet évènement.</p>
         )}
-        {isOrganizer && (
+        {isOrganizer && endTime < DateTime.local() && (
           <div>
             <Button
               as="a"
@@ -120,7 +120,7 @@ const EventDescription = ({
       </DescriptionSection>
     ) : null}
 
-    {!description && isOrganizer && (
+    {!description && isOrganizer && endTime > DateTime.local() && (
       <DescriptionSection>
         <h2>Ajoutez une description !</h2>
         <p>

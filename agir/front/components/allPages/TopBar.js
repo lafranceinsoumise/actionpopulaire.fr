@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import FeatherIcon from "../genericComponents/FeatherIcon";
+import FeatherIcon, { RawFeatherIcon } from "../genericComponents/FeatherIcon";
 import Button from "../genericComponents/Button";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -78,6 +78,13 @@ const MenuLink = styled.a`
 
   :hover > * {
     text-decoration: underline;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    & ${RawFeatherIcon} svg {
+      width: 30px;
+      height: 30px;
+    }
   }
 `;
 
