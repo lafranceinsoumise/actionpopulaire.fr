@@ -122,11 +122,13 @@ const StyledFooter = styled.div`
 
     & > div {
       flex: 0 0 auto;
-      padding: 20px;
+      padding: 20px 40px;
       color: inherit;
 
-      &:first-child {
-        @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${style.collapse}px) {
+        padding: 20px 0;
+
+        &:first-child {
           display: none;
         }
       }
@@ -189,7 +191,7 @@ export const Footer = (props) => {
             >
               Parrainez la candidature
             </Button>
-            <span>{!is2022 ? <>&nbsp;ou&nbsp;</> : "&nbsp;"}</span>
+            <span>{!is2022 ? <>&nbsp;ou&nbsp;</> : <>&emsp;</>}</span>
             {is2022 ? (
               <Button as="a" color="white" href={routes.logIn}>
                 J'ai déjà parrainé

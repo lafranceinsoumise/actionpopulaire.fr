@@ -94,6 +94,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     distance = serializers.SerializerMethodField()
 
+    is2022 = serializers.SerializerMethodField()
+
     def to_representation(self, instance):
         user = self.context["request"].user
         self.organizer_config = self.rsvp = None
@@ -131,3 +133,6 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_distance(self, obj):
         if hasattr(obj, "distance"):
             return obj.distance.m
+
+    def get_is2022(self, obj):
+        return obj.is_2022

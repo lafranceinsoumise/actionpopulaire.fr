@@ -19,6 +19,7 @@ const routes = new Proxy(
 );
 
 const defaultGlobalContextState = {
+  is2022: false,
   activities: [],
   requiredActionActivities: [],
   user: null,
@@ -38,6 +39,18 @@ export const updateGlobalContext = (
     return {
       ...state,
       requiredActionActivities: required,
+    };
+  }
+  if (action.type === "@@INIT" && action.user && action.user.is2022) {
+    return {
+      ...state,
+      is2022: true,
+    };
+  }
+  if (action.type === "setIs2022") {
+    return {
+      ...state,
+      is2022: true,
     };
   }
   if (
