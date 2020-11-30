@@ -40,14 +40,11 @@ def generate_plain_text(html_message):
 ------------------------------------------------------------------
 Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
 
->> Voir cet email dans votre navigateur
-{{ LINK_BROWSER }}
-
 >> Choisir les emails que vous recevez
-{{ PREFERENCES_LINK }}
+{{ preferences_link }}
 
 >> Arrêter complètement de recevoir des emails
-{{ UNSUBSCRIBE_LINK }}
+{{ unsubscribe_link }}
 """
     )
 
@@ -124,8 +121,12 @@ def send_mosaico_email(
         connection = get_connection(backend, fail_silently)
 
     if preferences_link:
-        bindings["PREFERENCES_LINK"] = front_url("contact")
-        bindings["UNSUBSCRIBE_LINK"] = front_url("unsubscribe")
+        bindings["preferences_link"] = bindings["PREFERENCES_LINK"] = front_url(
+            "contact"
+        )
+        bindings["unsubscribe_link"] = bindings["UNSUBSCRIBE_LINK"] = front_url(
+            "unsubscribe"
+        )
 
     link_bindings = {
         key: value for key, value in bindings.items() if is_front_url(value)

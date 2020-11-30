@@ -1,27 +1,23 @@
-Les organisateurs de l'événement {{ EVENT_NAME }} ont changé les informations de l'événement.
+Les organisateurs de l'événement {{ EVENT_NAME }} ont changé des informations de l'événement.
 
-Les éléments suivants ont été modifiés :  
+Les éléments suivants ont été modifiés :
 
-{{ EVENT_CHANGES }}  
+{{ EVENT_CHANGES }}
 
 >> voir les informations mises à jour de cet événement :
 {{ EVENT_LINK }}
 
 >> Vous ne souhaitez ou ne pouvez plus participer à cet événement :
-{{ EVENT_QUIT_LINK }}  
+{{ EVENT_QUIT_LINK }}
 
-Amitiés insoumises,  
-L'équipe nationale de la France insoumise  
-  
+Amitiés,  
+L’équipe d’Action Populaire  
 
------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}.
-
->> Voir cet email dans votre navigateur
-{{ LINK_BROWSER }}
+------------------------------------------------------------------
+Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.
 
 >> Choisir les emails que vous recevez
-{{ PREFERENCES_LINK }}
+{{ preferences_link }}
 
 >> Arrêter complètement de recevoir des emails
-{{ UNSUBSCRIBE_LINK }}
+{{ unsubscribe_link }}

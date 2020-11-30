@@ -2,7 +2,6 @@ Nous sommes heureux que vous souhaitiez nous rejoindre...
 
 ...mais vous êtes déjà avec nous ! Nous pouvons même vous dire que vous nous avez rejoint {{ AGO }}.
 
-
 Si vous souhaitiez simplement accéder à votre compte, utilisez le bouton ci-dessous :  
   
 >> J'accède à mon tableau de bord

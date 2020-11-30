@@ -1,7 +1,11 @@
-Bonjour Marie-Pierre et Maxime,
+  
+  
+[Voir dans le navigateur]({{ LINK_BROWSER }})  
+  
+Bonjour Marie-Pierre et Maxime,  
 
 
-Une nouvelle demande de dépense ou de remboursement à traiter est en ligne. Elle s'intitule "{{ SPENDING_REQUEST_NAME }}", et a été créée par le groupe "{{ GROUP_NAME }}".
+Une nouvelle demande de dépense ou de remboursement est en ligne. Elle s'intitule « {{ SPENDING_REQUEST_NAME }} », et a été créée par le groupe « {{ GROUP_NAME }} ».  
   
   
 [Traiter la dépense]({{ SPENDING_REQUEST_ADMIN_LINK }})  
@@ -9,4 +13,16 @@ Une nouvelle demande de dépense ou de remboursement à traiter est en ligne. El
 Bises !  
 
 
-Jill et Arthur
+Jill et Arthur  
+  
+  
+
+
+------------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
+
+>> Choisir les emails que vous recevez
+{{ preferences_link }}
+
+>> Arrêter complètement de recevoir des emails
+{{ unsubscribe_link }}

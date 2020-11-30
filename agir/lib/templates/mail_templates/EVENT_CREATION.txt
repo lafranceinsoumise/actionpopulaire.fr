@@ -1,40 +1,32 @@
-Cher·e insoumis·e,
+Bonjour  
 
-Merci d’organiser un événement. Chacune des actions que vous menez participe à la construction de notre mouvement. Un long travail de terrain nous attend encore. Ensemble, nous pouvons faire triompher nos idées et construire l’Avenir en commun. 
+Votre événement a été mis en ligne ! Voici un résumé de ses informations :
 
+Nom de l'événement : {{ EVENT_NAME }}
+Horaires : {{ EVENT_SCHEDULE }}
+Nom du contact : {{ CONTACT_NAME }}  
+Email de contact : {{ CONTACT_EMAIL }}  
+Téléphone de contact : {{ CONTACT_PHONE }} ({{ CONTACT_PHONE_VISIBILITY }})  
+Nom du lieu de RDV : {{ LOCATION_NAME }}
+Adresse de RDV : {{ LOCATION_ADDRESS }}
 
-**Voici les informations relatives à votre événement**
-
-Nom de l'événement : **{{ EVENT_NAME }}**
-Horaires : **{{ EVENT_SCHEDULE }}**
-Nom du contact : **{{ CONTACT_NAME }}**  
-Email de contact : **{{ CONTACT_EMAIL }}**  
-Téléphone de contact : **{{ CONTACT_PHONE }}** ({{ CONTACT_PHONE_VISIBILITY }})  
-
-
-Nom du lieu de RDV : **{{ LOCATION_NAME }}**  
-Adresse de RDV : **{{ LOCATION_ADDRESS }}**  
-
+>> Pour encourager les gens à s'inscrire à votre événement, ajoutez une description et une image à votre événement :
+{{ MANAGE_EVENT_LINK }}
 
 >> Invitez vos amis à participer à cet événement avec ce lien :
 {{ EVENT_LINK }}
 
->> Modifier ces informations en accédant à la page d'administration de votre groupe
-{{ MANAGE_EVENT_LINK }}
+Merci d’organiser un événement. Chacune des actions que vous menez participe à la construction de notre mouvement. Un long travail de terrain nous attend encore. Ensemble, nous pouvons faire triompher nos idées et construire l’Avenir en commun.  
 
 
-Amitiés insoumises,  
-L'équipe de la plateforme France insoumise  
-  
-  
------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}.
+Amitiés,  
+L’équipe d’Action Populaire  
 
->> Voir cet email dans votre navigateur
-{{ LINK_BROWSER }}
+------------------------------------------------------------------
+Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.
 
 >> Choisir les emails que vous recevez
-{{ PREFERENCES_LINK }}
+{{ preferences_link }}
 
 >> Arrêter complètement de recevoir des emails
-{{ UNSUBSCRIBE_LINK }}
+{{ unsubscribe_link }}

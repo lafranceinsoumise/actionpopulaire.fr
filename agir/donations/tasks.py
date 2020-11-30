@@ -92,10 +92,10 @@ def send_expiration_email_reminder(sp_subscription_pk):
         subject="Mettez à jour votre carte bancaire !",
         from_email=settings.EMAIL_FROM,
         bindings={
-            "SUBSCRIPTION_DESCRIPTION": sp_subscription.subscription.description,
-            "RENEW_SUBSCRIPTION_LINK": front_url("view_payments"),
-            "EXPIRY_DATE": sp_subscription.alias.expiry_date,
-            "GREETINGS": sp_subscription.subscription.person.get_greeting(),
+            "subscription_description": sp_subscription.subscription.description,
+            "renew_subscription_link": front_url("view_payments"),
+            "expiry_date": sp_subscription.alias.expiry_date,
+            "greetings": sp_subscription.subscription.person.get_greeting(),
         },
         recipients=[sp_subscription.subscription.person],
     )

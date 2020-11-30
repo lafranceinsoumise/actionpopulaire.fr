@@ -1,30 +1,27 @@
-Votre carte va bientôt expirer
-  
-{{ GREETINGS }}  
+{{ greetings }},
 
 
-Vous apportez chaque mois votre appui financier à la France Insoumise, et nous vous en remercions.
-La carte bancaire que vous avez utilisé va cependant expirer le {{ EXPIRY_DATE }}.
-
+Vous apportez chaque mois votre appui financier à la France insoumise, et nous vous en remercions.
+La carte bancaire que vous avez utilisé va cependant expirer le {{ expiry_date }}.
 
 Si vous voulez continuer à nous soutenir, vous devez mettre à jour votre carte bancaire.
   
+>> Enregistrer ma nouvelle carte
+https://mosaico.lafranceinsoumise.fr/emails/{{ renew_subscription_link }}
   
-Enregistrer ma nouvelle carte :
-{{ RENEW_SUBSCRIPTION_LINK }}
-  
+Pour rappel, voici les détails de votre don mensuel :
+
+{{ subscription_description }}  
+
 Merci encore pour votre soutien.
 
-Amitiés insoumises  
+Amitiés insoumises
 
 ------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
-
->> Voir cet email dans votre navigateur
-{{ LINK_BROWSER }}
+Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.
 
 >> Choisir les emails que vous recevez
-{{ PREFERENCES_LINK }}
+{{ preferences_link }}
 
 >> Arrêter complètement de recevoir des emails
-{{ UNSUBSCRIBE_LINK }}
+{{ unsubscribe_link }}

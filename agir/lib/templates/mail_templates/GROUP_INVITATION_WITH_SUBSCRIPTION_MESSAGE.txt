@@ -2,10 +2,8 @@ Bonjour,
 
 Vous avez été invité⋅e à rejoindre la France insoumise et le groupe d'action « {{ GROUP_NAME }} » par un de ses animateurs.
   
-  
 >> Je rejoins la France insoumise
 {{ CONFIRMATION_URL }}
-  
 
 Vous n'avez pas sollicité ce mail ?  Vous n'auriez pas dû le recevoir : nous vous serions reconnaissants de bien vouloir nous le signaler.
 
@@ -17,7 +15,10 @@ Si vous ne souhaitez pas nous faire de signalement, vous pouvez tout simplement 
   
   
 ------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
+Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.
 
->> Voir cet email dans votre navigateur
-{{ LINK_BROWSER }}
+>> Choisir les emails que vous recevez
+{{ preferences_link }}
+
+>> Arrêter complètement de recevoir des emails
+{{ unsubscribe_link }}
