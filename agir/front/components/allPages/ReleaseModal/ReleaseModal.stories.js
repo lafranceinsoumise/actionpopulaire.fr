@@ -1,4 +1,3 @@
-import React from "react";
 import { ReleaseModal } from "./ReleaseModal";
 
 export default {
