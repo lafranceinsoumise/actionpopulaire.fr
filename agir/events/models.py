@@ -458,8 +458,7 @@ class Event(
 
     @property
     def is_2022(self):
-        # TODO: Use the new "for_user" property value once available
-        return "NSP" in self.name
+        return self.for_users == self.FOR_USERS_2022
 
     def get_price(self, submission_data: dict = None):
         price = self.payment_parameters.get("price", 0)
