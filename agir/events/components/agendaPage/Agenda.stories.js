@@ -2,10 +2,22 @@ import React from "react";
 
 import Agenda from "./Agenda";
 import { Container } from "@agir/front/genericComponents/grid";
+import { TestGlobalContextProvider } from "@agir/front/genericComponents/GlobalContext";
+
+const testGlobalRoutes = { logIn: "#login", signIn: "#signin" };
 
 export default {
   component: Agenda,
   title: "Dashboard/Agenda",
+  decorators: [
+    (story, { args }) => (
+      <TestGlobalContextProvider
+        value={{ user: args.logged ? {} : null, routes: testGlobalRoutes }}
+      >
+        {story()}
+      </TestGlobalContextProvider>
+    ),
+  ],
 };
 
 const Template = (args) => (
@@ -22,6 +34,7 @@ Empty.args = {
 
 export const Default = Template.bind({});
 Default.args = {
+  logged: true,
   rsvped: [
     {
       id: "6d7684d9-8abf-45e8-b385-57a77fe63ba0",
@@ -112,7 +125,7 @@ Default.args = {
       contact: null,
     },
   ],
-  suggested: [
+  others: [
     {
       id: "e419f6e8-7431-43c9-ae9a-b82362a6bc81",
       url:

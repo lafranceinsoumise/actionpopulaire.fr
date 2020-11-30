@@ -7,6 +7,8 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { Row } from "@agir/donations/donationForm/AllocationsWidget/Styles";
 import { Column } from "@agir/front/genericComponents/grid";
+import Card from "@agir/front/genericComponents/Card";
+import { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
 import Button from "@agir/front/genericComponents/Button";
 import EventCard from "@agir/front/genericComponents/EventCard";
 
@@ -16,16 +18,21 @@ import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 
 const TopBar = styled.div`
   display: flex;
-  flex-direction: row;
-  margin-bottom: 24px;
+  flex-flow: row wrap;
   justify-content: space-between;
+  margin: 0 0 25px;
 
-  & > h1 {
-    @media only screen and (max-width: ${style.collapse}px) {
-      display: none;
+  @media (max-width: ${style.collapse}px) {
+    margin: 0 0 2rem;
+  }
+
+  & > ${LayoutTitle} {
+    margin: 0;
+
+    @media (max-width: ${style.collapse}px) {
+      flex: 0 0 100%;
+      margin-bottom: 1rem;
     }
-    margin: 0 1.5rem 0 0;
-    font-size: 28px;
   }
 
   & > div {
@@ -35,6 +42,8 @@ const TopBar = styled.div`
 
     @media only screen and (max-width: ${style.collapse}px) {
       flex-direction: row;
+      margin-left: 1.5rem;
+      margin-right: 1.5rem;
     }
   }
 
@@ -69,7 +78,7 @@ const EmptyAgenda = styled.div`
 
 const StyledAgenda = styled.div`
   & header {
-    margin-bottom: 32px;
+    margin-bottom: 0;
   }
 
   & h2 {
@@ -79,18 +88,15 @@ const StyledAgenda = styled.div`
 
   & h2,
   & ${Day}, & ${EmptyAgenda} {
-    margin: 20px 0;
+    margin: 2rem 0 1rem;
 
     @media (max-width: ${style.collapse}px) {
-      margin: 20px 25px;
+      margin: 2rem 25px 1rem;
     }
   }
-  & ${TopBar} {
-    margin: 0;
 
-    @media (max-width: ${style.collapse}px) {
-      margin: 20px 25px;
-    }
+  & ${Card} + ${Card} {
+    margin-top: 1rem;
   }
 `;
 
@@ -207,20 +213,24 @@ const Agenda = ({ rsvped, others }) => {
     <StyledAgenda>
       <header>
         <TopBar>
-          <h1>Événements</h1>
+          <LayoutTitle>Événements</LayoutTitle>
           <div>
-            <Button
-              small
-              as="a"
-              color="secondary"
-              href={routes.createEvent}
-              icon="plus"
-            >
-              Créer un évenement
-            </Button>
-            <Button small as="a" href={routes.eventMap} icon="map">
-              Carte
-            </Button>
+            {routes.createEvent ? (
+              <Button
+                small
+                as="a"
+                color="secondary"
+                href={routes.createEvent}
+                icon="plus"
+              >
+                Créer un évenement
+              </Button>
+            ) : null}
+            {routes.eventMap ? (
+              <Button small as="a" href={routes.eventMap} icon="map">
+                Carte
+              </Button>
+            ) : null}
           </div>
         </TopBar>
       </header>
@@ -228,14 +238,16 @@ const Agenda = ({ rsvped, others }) => {
         <Column grow>
           {rsvpedEvents.length > 0 && (
             <>
-              <h2>Mes événements</h2>
+              <h2 style={{ marginTop: 0 }}>Mes événements</h2>
               {rsvpedEvents.map((event) => (
                 <EventCard key={event.id} {...event} />
               ))}
               <h2>Autres événements près de chez moi</h2>
             </>
           )}
-          <OtherEvents others={others} />
+          {Array.isArray(others) && others.length > 0 ? (
+            <OtherEvents others={others} />
+          ) : null}
         </Column>
       </Row>
     </StyledAgenda>

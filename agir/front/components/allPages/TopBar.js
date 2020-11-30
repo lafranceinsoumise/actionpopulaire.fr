@@ -5,7 +5,7 @@ import FeatherIcon from "../genericComponents/FeatherIcon";
 import Button from "../genericComponents/Button";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import LogoFI from "../genericComponents/LogoFI";
+import LogoAP from "../genericComponents/LogoAP";
 import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 
 const TopBarBar = styled.div`
@@ -189,7 +189,7 @@ export const PureTopBar = ({ user, routes }) => {
 
         <HorizontalFlex className="grow justify">
           <MenuLink href={routes.dashboard}>
-            <LogoFI height="3rem" />
+            <LogoAP height="3rem" />
           </MenuLink>
           <form className="large-only grow" method="get" action={routes.search}>
             <SearchBar>

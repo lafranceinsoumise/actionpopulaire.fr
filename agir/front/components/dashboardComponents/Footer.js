@@ -7,6 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 
 import Button from "@agir/front/genericComponents/Button";
+import LogoAP from "@agir/front/genericComponents/LogoAP";
 
 import footerBanner from "./images/footer-banner.png";
 import googlePlayBadge from "./images/google-play-badge.png";
@@ -78,13 +79,15 @@ const FooterBanner = styled.div`
 
 const StyledFooter = styled.div`
   width: 100%;
-  background-color: ${style.black1000};
+  background-color: ${style.white};
+  box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
+    0px 2px 0px rgba(0, 35, 44, 0.08);
 
   article {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    color: ${style.white};
+    color: ${style.black1000};
     margin: 0 auto;
     display: flex;
     flex-flow: row nowrap;
@@ -95,7 +98,7 @@ const StyledFooter = styled.div`
     @media (max-width: ${style.collapse}px) {
       flex-flow: column nowrap;
       width: 100%;
-      padding: 1.5rem 1.5rem 114px;
+      padding: 1.5rem 1.5rem 100px;
     }
 
     & > div {
@@ -128,7 +131,6 @@ const StyledFooter = styled.div`
           background-repeat: no-repeat;
           background-size: cover;
           background-position: center center;
-          border: 1px solid white;
           border-radius: 8px;
 
           @media (max-width: ${style.collapse}px) {
@@ -137,11 +139,13 @@ const StyledFooter = styled.div`
           }
 
           :nth-child(1) {
+            display: none;
             background-image: url(${googlePlayBadge});
             background-size: 115%;
           }
 
           :nth-child(2) {
+            display: none;
             background-image: url(${appStoreBadge});
           }
         }
@@ -200,7 +204,7 @@ export const Footer = (props) => {
       <StyledFooter>
         <article>
           <div>
-            <img />
+            <LogoAP />
           </div>
           <div>
             <h3>Action populaire</h3>

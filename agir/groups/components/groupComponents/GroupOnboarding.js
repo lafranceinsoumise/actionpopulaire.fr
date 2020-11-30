@@ -6,8 +6,8 @@ import Button from "@agir/front/genericComponents/Button";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import onboardingActionImage from "./images/onboarding__action.png";
-import onboardingThematicImage from "./images/onboarding__thematic.png";
+import onboardingActionImage from "./images/onboarding__action.jpg";
+import onboardingThematicImage from "./images/onboarding__thematic.jpg";
 
 const ONBOARDING_TYPE = {
   action: {
