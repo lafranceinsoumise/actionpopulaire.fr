@@ -1,3 +1,3 @@
-import { ReleaseModal } from "./ReleaseModal";
+import ReleaseModal from "./ReleaseModal";
 
 export default ReleaseModal;

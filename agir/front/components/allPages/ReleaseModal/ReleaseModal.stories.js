@@ -1,4 +1,4 @@
-import { ReleaseModal } from "./ReleaseModal";
+import ReleaseModal from "./ReleaseModal";
 
 export default {
   component: ReleaseModal,
@@ -8,4 +8,7 @@ export default {
 const Template = ReleaseModal;
 
 export const Default = Template.bind({});
-Default.args = {};
+Default.args = {
+  isActive: true,
+  withCookie: false,
+};

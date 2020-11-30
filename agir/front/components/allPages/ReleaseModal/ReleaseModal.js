@@ -9,11 +9,12 @@ const COOKIE_CONFIG = {
   name: "AP_relmod",
   options: {
     expires: 730,
-    secure: true,
+    secure: process.env === "production",
+    sameSite: "strict",
   },
 };
 
-export const ReleaseModal = (withCookie = false) => {
+const ReleaseModal = ({ isActive = false, withCookie = false }) => {
   const [shouldShow, setShouldShow] = React.useState(false);
   const handleClose = React.useCallback(() => {
     setShouldShow(false);
@@ -33,14 +34,15 @@ export const ReleaseModal = (withCookie = false) => {
     // eslint-disable-next-line
   }, []);
 
-  return (
+  return isActive ? (
     <Modal shouldShow={shouldShow}>
       <Steps onClose={handleClose} />
     </Modal>
-  );
+  ) : null;
 };
 ReleaseModal.propTypes = {
   withCookie: PropTypes.bool,
+  isActive: PropTypes.bool,
 };
 
 export default ReleaseModal;
