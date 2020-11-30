@@ -77,9 +77,11 @@
     </a>
   </li>
   {% endif %}
+  {% if not supportgroup.is_2022 %}
   <li role="presentation"{% if active == "invitation" %} class="active"{% endif %}>
     <a href="#invitation" role="tab" data-toggle="pill">
       Inviter
     </a>
   </li>
+  {% endif %}
 {% endif %}

@@ -96,13 +96,19 @@ class SupportGroupManagementView(BaseSupportGroupAdminView, DetailView):
         if self.request.method in ("POST", "PUT"):
             kwargs.update({"data": self.request.POST})
 
-        return {
+        forms = {
             "add_referent_form": AddReferentForm(self.object, **kwargs),
             "add_manager_form": AddManagerForm(self.object, **kwargs),
-            "invitation_form": InvitationForm(
-                group=self.object, inviter=self.request.user.person, **kwargs
-            ),
         }
+
+        if not self.object.is_2022:
+            forms["invitation_form"] = (
+                InvitationForm(
+                    group=self.object, inviter=self.request.user.person, **kwargs
+                ),
+            )
+
+        return forms
 
     def get_context_data(self, **kwargs):
         kwargs["referents"] = self.object.memberships.filter(

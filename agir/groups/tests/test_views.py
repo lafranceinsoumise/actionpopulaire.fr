@@ -414,7 +414,7 @@ class InvitationTestCase(TestCase):
     @patch("agir.groups.forms.invite_to_group")
     def test_can_invite_unsubscribed(self, invite_to_group):
         self.client.force_login(self.referent.role)
-        res = self.client.get(reverse("manage_group", args=(self.group.pk,)))
+t agi        res = self.client.get(reverse("manage_group", args=(self.group.pk,)))
 
         self.assertEqual(res.status_code, 200)
         self.assertContains(res, "invitation_form")
