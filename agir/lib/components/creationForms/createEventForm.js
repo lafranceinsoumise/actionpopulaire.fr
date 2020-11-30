@@ -368,7 +368,8 @@ class ValidateStep extends FormStep {
       location_country: fields.locationCountryCode,
       subtype: fields.subtype,
       as_group: fields.organizerGroup,
-      legal: JSON.stringify(fields.legal),
+      for_users: fields.forUsers,
+      legal: JSON.stringify(fields.legal || {}),
     });
 
     try {
