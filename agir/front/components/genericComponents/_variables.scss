@@ -37,6 +37,11 @@ $elaborate-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
 
 $default-border-radius: 0;
 
+$zindex__mainContent: 2;
+$zindex__topBar: 10;
+$zindex__navigationCounter: 10;
+$zindex__modal: 20;
+
 :export {
   white: $white;
 
@@ -74,4 +79,9 @@ $default-border-radius: 0;
 
   elaborateShadow: $elaborate-shadow;
   defaultBorderRadius: $default-border-radius;
+
+  zindexMainContent: $zindex__mainContent;
+  zindexTopBar: $zindex__topBar;
+  zindexNavigationCounter: $zindex__navigationCounter;
+  zindexModal: $zindex__modal;
 }

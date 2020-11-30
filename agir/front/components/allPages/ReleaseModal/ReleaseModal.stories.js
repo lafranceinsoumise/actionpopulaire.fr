@@ -1,0 +1,12 @@
+import React from "react";
+import { ReleaseModal } from "./ReleaseModal";
+
+export default {
+  component: ReleaseModal,
+  title: "Layout/ReleaseModal/Modal",
+};
+
+const Template = ReleaseModal;
+
+export const Default = Template.bind({});
+Default.args = {};

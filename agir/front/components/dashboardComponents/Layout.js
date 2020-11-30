@@ -32,7 +32,7 @@ export const LayoutTitle = styled.h1`
 
 const FixedColumn = styled(Column)`
   position: relative;
-  z-index: 2;
+  z-index: ${style.zindexMainContent};
 
   @media (min-width: ${style.collapse}px) {
     position: sticky;

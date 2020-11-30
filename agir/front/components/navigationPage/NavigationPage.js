@@ -92,7 +92,7 @@ const Counter = styled.span`
   height: 16px;
   width: 16px;
   border-radius: 8px;
-  z-index: 1000;
+  z-index: ${style.zindexNavigationCounter};
   line-height: 14px;
 
   @media only screen and (max-width: ${style.collapse}px) {
