@@ -9,6 +9,5 @@ const Template = ReleaseModal;
 
 export const Default = Template.bind({});
 Default.args = {
-  isActive: true,
-  withCookie: false,
+  once: false,
 };

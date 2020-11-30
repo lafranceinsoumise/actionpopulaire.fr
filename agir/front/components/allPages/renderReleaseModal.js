@@ -13,10 +13,7 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
 
   const showHeader = () => {
     renderReactComponent(
-      <ReleaseModal
-        isActive={process.env.NODE_ENV === "production"}
-        withCookie
-      />,
+      <ReleaseModal once />,
       document.getElementById("release-modal")
     );
   };

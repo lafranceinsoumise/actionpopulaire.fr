@@ -1,48 +1,40 @@
-import Cookies from "js-cookie";
 import PropTypes from "prop-types";
 import React from "react";
 
 import Modal from "@agir/front/genericComponents/Modal";
 import Steps from "./Steps";
 
-const COOKIE_CONFIG = {
-  name: "AP_relmod",
-  options: {
-    expires: 730,
-    secure: process.env === "production",
-    sameSite: "strict",
-  },
-};
-
-const ReleaseModal = ({ isActive = false, withCookie = false }) => {
+const ReleaseModal = ({ once = false }) => {
   const [shouldShow, setShouldShow] = React.useState(false);
   const handleClose = React.useCallback(() => {
     setShouldShow(false);
   }, []);
 
   React.useEffect(() => {
-    if (!withCookie) {
+    if (!once) {
       setShouldShow(true);
       return;
     }
-    const cookie = Cookies.get("AP_release");
-    if (cookie) {
+    if (!window.localStorage) {
       return;
     }
-    Cookies.set(COOKIE_CONFIG.name, "1", COOKIE_CONFIG.options);
+    const shouldShow = window.localStorage.getItem("AP_relmod");
+    if (shouldShow) {
+      return;
+    }
+    window.localStorage.setItem("AP_relmod", "1");
     setShouldShow(true);
     // eslint-disable-next-line
   }, []);
 
-  return isActive ? (
+  return (
     <Modal shouldShow={shouldShow}>
       <Steps onClose={handleClose} />
     </Modal>
-  ) : null;
+  );
 };
 ReleaseModal.propTypes = {
-  withCookie: PropTypes.bool,
-  isActive: PropTypes.bool,
+  once: PropTypes.bool,
 };
 
 export default ReleaseModal;
