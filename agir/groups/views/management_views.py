@@ -102,10 +102,8 @@ class SupportGroupManagementView(BaseSupportGroupAdminView, DetailView):
         }
 
         if not self.object.is_2022:
-            forms["invitation_form"] = (
-                InvitationForm(
-                    group=self.object, inviter=self.request.user.person, **kwargs
-                ),
+            forms["invitation_form"] = InvitationForm(
+                group=self.object, inviter=self.request.user.person, **kwargs
             )
 
         return forms
