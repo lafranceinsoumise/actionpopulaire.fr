@@ -4,13 +4,19 @@ import React from "react";
 import Modal from "@agir/front/genericComponents/Modal";
 import Steps from "./Steps";
 
-const ReleaseModal = ({ once = false }) => {
+import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+
+export const ReleaseModal = ({ once = false, isActive = true }) => {
   const [shouldShow, setShouldShow] = React.useState(false);
   const handleClose = React.useCallback(() => {
     setShouldShow(false);
   }, []);
 
   React.useEffect(() => {
+    if (!isActive) {
+      setShouldShow(false);
+      return;
+    }
     if (!once) {
       setShouldShow(true);
       return;
@@ -24,8 +30,7 @@ const ReleaseModal = ({ once = false }) => {
     }
     window.localStorage.setItem("AP_relmod", "1");
     setShouldShow(true);
-    // eslint-disable-next-line
-  }, []);
+  }, [isActive, once]);
 
   return (
     <Modal shouldShow={shouldShow}>
@@ -35,6 +40,12 @@ const ReleaseModal = ({ once = false }) => {
 };
 ReleaseModal.propTypes = {
   once: PropTypes.bool,
+  isActive: PropTypes.bool,
 };
 
-export default ReleaseModal;
+const ConnectedReleaseModal = (props) => {
+  const { user } = useGlobalContext();
+  return <ReleaseModal {...props} isActive={!!user} />;
+};
+
+export default ConnectedReleaseModal;

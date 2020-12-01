@@ -5,15 +5,19 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
     { default: React },
     { renderReactComponent },
     { default: ReleaseModal },
+    { GlobalContextProvider },
   ] = await Promise.all([
     import("react"),
     import("@agir/lib/utils/react"),
     import("./ReleaseModal"),
+    import("@agir/front/genericComponents/GlobalContext"),
   ]);
 
   const showHeader = () => {
     renderReactComponent(
-      <ReleaseModal once />,
+      <GlobalContextProvider>
+        <ReleaseModal once />
+      </GlobalContextProvider>,
       document.getElementById("release-modal")
     );
   };
