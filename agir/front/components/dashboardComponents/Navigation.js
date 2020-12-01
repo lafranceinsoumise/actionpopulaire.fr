@@ -141,7 +141,7 @@ const Counter = styled.span`
   height: 16px;
   width: 16px;
   border-radius: 8px;
-  z-index: 1000;
+  z-index: ${style.zindexNavigationCounter};
   display: flex;
   align-items: center;
   justify-content: center;

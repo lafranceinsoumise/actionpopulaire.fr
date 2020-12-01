@@ -13,7 +13,7 @@ const TopBarBar = styled.div`
   top: 0;
   left: 0;
 
-  z-index: 10;
+  z-index: ${style.zindexTopBar};
 
   width: 100%;
   padding: 0.75rem 2rem;
