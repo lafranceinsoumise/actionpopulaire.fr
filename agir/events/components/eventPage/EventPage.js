@@ -15,6 +15,7 @@ import {
   ResponsiveLayout,
   Row,
 } from "@agir/front/genericComponents/grid";
+import Footer from "@agir/front/dashboardComponents/Footer";
 import ContactCard from "@agir/front/genericComponents/ContactCard";
 import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
@@ -253,8 +254,23 @@ MobileLayout.propTypes = DesktopLayout.propTypes = {
 
 export const ConnectedEventPage = (props) => {
   const context = useGlobalContext();
-  const { user, routes } = context;
-  return <EventPage {...props} logged={!!user} appRoutes={routes} />;
+  const { user, routes, dispatch } = context;
+  React.useEffect(() => {
+    props.is2022 === true &&
+      dispatch &&
+      dispatch({
+        type: "setIs2022",
+      });
+    //eslint-disable-next-line
+  }, []);
+  return (
+    <>
+      <EventPage {...props} logged={!!user} appRoutes={routes} />
+      <Footer />
+    </>
+  );
 };
-
+ConnectedEventPage.propTypes = {
+  is2022: PropTypes.bool,
+};
 export default ConnectedEventPage;

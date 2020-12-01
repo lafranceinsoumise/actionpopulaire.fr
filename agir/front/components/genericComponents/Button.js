@@ -13,8 +13,7 @@ const buttonColors = {
   white: {
     background: style.white,
     hoverBackground: style.black50,
-    labelColor: style.black1000,
-    borderColor: style.black100,
+    labelColor: style.primary500,
   },
   primary: {
     background: style.primary500,
@@ -59,7 +58,7 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
       : "1.5rem"}; /* pour s'assurer que les liens sont correctement centrés */
   margin: 0;
   border-radius: ${style.defaultBorderRadius};
-  
+
   text-align: center;
   font-weight: 700;
   font-size: ${({ small }) => (small ? "0.875rem" : "1rem")};

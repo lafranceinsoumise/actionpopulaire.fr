@@ -28,11 +28,26 @@ def basic_information(request):
         "activity": reverse("list_activities"),
         "required-activity": reverse("list_required_activities"),
         "menu": reverse("navigation_menu"),
+        "donations": reverse("donation_amount"),
+        "lafranceinsoumise": {
+            "home": "https://lafranceinsoumise.fr",
+            "groupsMap": "https://lafranceinsoumise.fr/groupes-action/carte-groupes/",
+            "eventsMap": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
+            "thematicTeams": reverse("thematic_teams_list"),
+        },
+        "noussommespour": {
+            "home": "https://noussommespour.fr",
+            # "groupsMap": "https://lafranceinsoumise.fr/groupes-action/carte-groupes/",
+            # "eventsMap": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
+        },
+        "jlmBlog": "https://melenchon.fr",
+        "linsoumission": "https://linsoumission.fr",
     }
 
     routes_2022 = {
         "materiel": "https://noussommespour.fr/boutique/",
         "help": "https://noussommespour.fr/sinformer/",
+        "donations": "https://noussommespour.fr/don/",
     }
 
     routes_insoumis = {
