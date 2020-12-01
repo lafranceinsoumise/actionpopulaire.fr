@@ -96,19 +96,26 @@ const Wrapper = styled(animated.div)`
 `;
 
 export const FeedbackButton = (props) => {
-  const { isActive, href } = props;
+  const { isActive, shouldPushTooltip, href } = props;
+
   const [hasTooltip, setHasTooltip] = useState(false);
-  const handleCloseTooltip = useCallback(() => {
+
+  const hideTooltip = useCallback(() => {
     setHasTooltip(false);
   }, []);
-  const handleOpenTooltip = useCallback(() => {
+
+  const showTooltip = useCallback(() => {
     setHasTooltip(true);
   }, []);
+
+  const pushTooltip = useCallback(() => {
+    shouldPushTooltip && showTooltip();
+  }, [shouldPushTooltip, showTooltip]);
 
   const tooltipTransition = useTransition(hasTooltip, null, fadeInTransition);
   const wrapperTransition = useTransition(isActive, null, {
     ...slideInTransition,
-    onRest: handleOpenTooltip,
+    onRest: pushTooltip,
   });
 
   return wrapperTransition.map(({ item, key, props }) =>
@@ -119,23 +126,25 @@ export const FeedbackButton = (props) => {
             <Tooltip key={key} style={props}>
               <strong>Aidez-nous !</strong>
               <span>Donnez votre avis sur le nouveau site →</span>
-              <button
-                title={
-                  hasTooltip ? "" : "Donnez votre avis sur le nouveau site"
-                }
-                aria-label="Cacher"
-                onClick={handleCloseTooltip}
-              />
+              {shouldPushTooltip ? (
+                <button aria-label="Cacher" onClick={hideTooltip} />
+              ) : null}
             </Tooltip>
           ) : null
         )}
-        <Button href={href} aria-label="Je donne mon avis" />
+        <Button
+          href={href}
+          aria-label="Je donne mon avis"
+          onMouseOver={shouldPushTooltip ? undefined : showTooltip}
+          onMouseLeave={shouldPushTooltip ? undefined : hideTooltip}
+        />
       </Wrapper>
     ) : null
   );
 };
 FeedbackButton.propTypes = {
   isActive: PropTypes.bool,
+  shouldPushTooltip: PropTypes.bool,
   href: PropTypes.string.isRequired,
 };
 const ConnectedFeedbackButton = (props) => {
@@ -143,6 +152,7 @@ const ConnectedFeedbackButton = (props) => {
   const href = routes && routes.feedbackForm;
 
   const [isActive, setIsActive] = useState(false);
+  const [shouldPushTooltip, setShouldPushTooltip] = useState(false);
 
   useEffect(() => {
     if (!window.localStorage) {
@@ -150,10 +160,19 @@ const ConnectedFeedbackButton = (props) => {
     }
     let visitCount = window.localStorage.getItem("AP_vcount");
     visitCount = !isNaN(parseInt(visitCount)) ? parseInt(visitCount) : 0;
-    window.localStorage.setItem("AP_vcount", visitCount + 1);
-    visitCount > 3 && setIsActive(true);
+    visitCount += 1;
+    visitCount % 20 === 3 && setShouldPushTooltip(true);
+    setIsActive(true);
+    window.localStorage.setItem("AP_vcount", visitCount);
   }, []);
 
-  return <FeedbackButton {...props} href={href} isActive={isActive} />;
+  return (
+    <FeedbackButton
+      {...props}
+      href={href}
+      isActive={isActive}
+      shouldPushTooltip={shouldPushTooltip}
+    />
+  );
 };
 export default ConnectedFeedbackButton;
