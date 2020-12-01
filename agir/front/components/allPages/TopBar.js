@@ -137,13 +137,15 @@ const SearchBarInput = styled.input.attrs(() => ({ type: "text", name: "q" }))`
 const ConnectionInfo = ({ user, routes }) =>
   user === null ? (
     <>
-      <MenuLink href={routes.logIn}>
+      <MenuLink href={routes.logIn} className="small-only">
         <FeatherIcon name="user" />
-        <span className="large-only">Connexion</span>
       </MenuLink>
-      <Button color="secondary" href={routes.signIn} className="large-only">
-        Créer mon compte
-      </Button>
+      <MenuLink href={routes.logIn} className="large-only">
+        <span>Connexion</span>
+      </MenuLink>
+      <MenuLink href={routes.signIn} className="large-only">
+        <span>Inscription</span>
+      </MenuLink>
     </>
   ) : (
     <MenuLink
