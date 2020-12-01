@@ -16,6 +16,7 @@ from django.views.generic.base import ContextMixin, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
 from django.views.generic.list import MultipleObjectMixin
+from django.templatetags.static import static
 
 
 class SimpleOpengraphMixin(ContextMixin):
@@ -45,17 +46,29 @@ class SimpleOpengraphMixin(ContextMixin):
 
 
 class ObjectOpengraphMixin(SimpleOpengraphMixin):
-    title_prefix = "La France insoumise"
+    title_prefix = "Action Populaire"
+
+    image_lfi = static("front/assets/og_image_LFI.jpg")
+    image_nsp = static("front/assets/og_image_NSP.jpg")
 
     # noinspection PyUnresolvedReferences
     def get_meta_title(self):
         return "{} - {}".format(self.title_prefix, self.object.name)
 
+    def is_2022_object(self):
+        return hasattr(self.object, "is_2022") and self.object.is_2022 == True
+
     # noinspection PyUnresolvedReferences
     def get_meta_image(self):
-        if hasattr(self.object, "image") and self.object.image:
-            return urljoin(settings.FRONT_DOMAIN, self.object.image.url)
-        return None
+        if self.is_2022_object():
+            return self.image_nsp
+        return self.image_lfi
+
+    # noinspection PyUnresolvedReferences
+    def get_meta_description(self):
+        if self.is_2022_object() and hasattr(self, "meta_description_2022"):
+            return self.meta_description_2022
+        return self.meta_description
 
 
 class ChangeLocationBaseView(UpdateView):
