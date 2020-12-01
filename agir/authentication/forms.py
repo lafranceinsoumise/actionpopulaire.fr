@@ -25,20 +25,9 @@ class EmailForm(forms.Form):
     def __init__(self, has_bookmarked_emails=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields[
-            "email"
-        ].label = f"ou se connecter avec une {'autre ' if has_bookmarked_emails else ''}adresse email"
-
+        self.fields["email"].label = ""
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Row(Div("email", css_class="col-xs-12",)),
-            Row(
-                Div(
-                    Submit("submit", "Se connecter", css_class="btn-block"),
-                    css_class="col-xs-12",
-                )
-            ),
-        )
+        self.helper.add_input(Submit("submit", "Se connecter"))
 
     def clean_email(self):
         # normalisation des emails
