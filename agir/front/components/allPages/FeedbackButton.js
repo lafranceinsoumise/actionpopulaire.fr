@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTransition, animated } from "react-spring";
 import styled from "styled-components";
 
@@ -11,9 +11,9 @@ import background from "./feedback-form-button.svg";
 import closeButton from "./close-btn.svg";
 
 const slideInTransition = {
-  from: { opacity: 0, bottom: "-15rem" },
-  enter: { opacity: 1, bottom: "1rem" },
-  leave: { opacity: 0, bottom: "-15rem" },
+  from: { opacity: 0, marginBottom: "-3rem" },
+  enter: { opacity: 1, marginBottom: "0" },
+  leave: { opacity: 0, marginBottom: "-3rem" },
 };
 
 const fadeInTransition = {
@@ -89,15 +89,19 @@ const Wrapper = styled(animated.div)`
   width: 53px;
   height: 53px;
   z-index: ${style.zindexFeedbackButton};
+
+  @media (max-width: ${style.collapse}px) {
+    bottom: 75px;
+  }
 `;
 
 export const FeedbackButton = (props) => {
   const { isActive, href } = props;
-  const [hasTooltip, setHasTooltip] = React.useState(false);
-  const handleCloseTooltip = React.useCallback(() => {
+  const [hasTooltip, setHasTooltip] = useState(false);
+  const handleCloseTooltip = useCallback(() => {
     setHasTooltip(false);
   }, []);
-  const handleOpenTooltip = React.useCallback(() => {
+  const handleOpenTooltip = useCallback(() => {
     setHasTooltip(true);
   }, []);
 
@@ -115,7 +119,13 @@ export const FeedbackButton = (props) => {
             <Tooltip key={key} style={props}>
               <strong>Aidez-nous !</strong>
               <span>Donnez votre avis sur le nouveau site →</span>
-              <button aria-label="Cacher" onClick={handleCloseTooltip} />
+              <button
+                title={
+                  hasTooltip ? "" : "Donnez votre avis sur le nouveau site"
+                }
+                aria-label="Cacher"
+                onClick={handleCloseTooltip}
+              />
             </Tooltip>
           ) : null
         )}
@@ -132,6 +142,18 @@ const ConnectedFeedbackButton = (props) => {
   const { routes } = useGlobalContext();
   const href = routes && routes.feedbackForm;
 
-  return <FeedbackButton {...props} href={href} isActive />;
+  const [isActive, setIsActive] = useState(false);
+
+  useEffect(() => {
+    if (!window.localStorage) {
+      return;
+    }
+    let visitCount = window.localStorage.getItem("AP_vcount");
+    visitCount = !isNaN(parseInt(visitCount)) ? parseInt(visitCount) : 0;
+    window.localStorage.setItem("AP_vcount", visitCount + 1);
+    visitCount > 3 && setIsActive(true);
+  }, []);
+
+  return <FeedbackButton {...props} href={href} isActive={isActive} />;
 };
 export default ConnectedFeedbackButton;

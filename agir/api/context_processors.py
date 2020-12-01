@@ -42,6 +42,7 @@ def basic_information(request):
         },
         "jlmBlog": "https://melenchon.fr",
         "linsoumission": "https://linsoumission.fr",
+        "feedbackForm": "/formulaires/feedback",
     }
 
     routes_2022 = {
