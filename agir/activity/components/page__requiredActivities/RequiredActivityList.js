@@ -60,8 +60,7 @@ const RequiredActivityList = () => {
     <Layout active="required-activity">
       <Page>
         <LayoutTitle>
-          {required.length ? <Counter>{required.length}</Counter> : null}À
-          traiter
+          {required.length ? <Counter>{required.length}</Counter> : null}À faire
         </LayoutTitle>
         <LayoutSubtitle>
           L’actualité de vos groupes et de la France Insoumise

@@ -50,7 +50,6 @@ const MainColumn = styled(Column)`
 `;
 
 const MainContainer = styled(Container)`
-  min-height: calc(100vh - 72px);
   padding-bottom: 72px;
 
   @media (max-width: ${style.collapse}px) {

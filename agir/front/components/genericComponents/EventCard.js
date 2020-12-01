@@ -1,8 +1,10 @@
 import PropTypes from "prop-types";
-import Card from "./Card";
 import React from "react";
+
+import { DateTime, Interval } from "luxon";
+
+import Card from "./Card";
 import FeatherIcon from "./FeatherIcon";
-import { Interval } from "luxon";
 import { displayIntervalStart } from "@agir/lib/utils/time";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -10,7 +12,11 @@ import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
 import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 
-const RSVPButton = ({ hasSubscriptionForm, rsvp, routes }) => {
+const RSVPButton = ({ hasSubscriptionForm, rsvp, routes, schedule }) => {
+  if (schedule.isBefore(DateTime.local())) {
+    return null;
+  }
+
   if (rsvp) {
     return (
       <Button as="a" small color="confirmed" icon="check" href={routes.details}>
@@ -47,10 +53,15 @@ RSVPButton.propTypes = {
     details: PropTypes.string,
     join: PropTypes.string,
   }),
+  schedule: PropTypes.instanceOf(Interval),
 };
 
 const Buttons = styled.div`
   display: flex;
+
+  & ${Button} + ${Button} {
+    margin-left: 0.5rem;
+  }
 `;
 const Illustration = styled.div`
   margin: -1.5rem -1.5rem 1.5rem;
@@ -137,14 +148,9 @@ const EventCard = (props) => {
               hasSubscriptionForm={hasSubscriptionForm}
               rsvp={!!rsvp}
               routes={routes}
+              schedule={schedule}
             />
-            <Button
-              small
-              as="a"
-              href={routes.details}
-              style={{ marginLeft: "8px" }}
-              ref={mainLink}
-            >
+            <Button small as="a" href={routes.details} ref={mainLink}>
               Détails
             </Button>
           </Buttons>

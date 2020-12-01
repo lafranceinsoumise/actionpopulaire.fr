@@ -88,6 +88,10 @@ const MenuItem = styled.li`
     border-top: 2px solid
       ${(props) => (props.active ? style.primary500 : "transparent")};
 
+    & .large-only {
+      display: none;
+    }
+
     & ${RawFeatherIcon} {
       display: block;
       margin-bottom: 5px;
@@ -105,6 +109,10 @@ const MenuItem = styled.li`
     margin-bottom: 1rem;
     flex-flow: column nowrap;
     align-items: flex-start;
+
+    & .small-only {
+      display: none;
+    }
 
     & ${RawFeatherIcon} {
       color: ${(props) => (props.active ? style.primary500 : style.black500)};
@@ -164,6 +172,7 @@ const MenuLink = (props) => {
     href,
     icon,
     title,
+    shortTitle,
     active,
     counter,
     external,
@@ -177,7 +186,8 @@ const MenuLink = (props) => {
       <a href={href}>
         {counter > 0 && <Counter>{counter}</Counter>}
         <FeatherIcon name={icon} inline />
-        <span>{title}</span>
+        <span className="small-only">{shortTitle || title}</span>
+        <span className="large-only">{title}</span>
         {external && <FeatherIcon name="external-link" inline small />}
       </a>
       {Array.isArray(secondaryLinks) && secondaryLinks.length > 0 ? (
@@ -196,6 +206,7 @@ MenuLink.propTypes = {
   href: PropTypes.string,
   icon: PropTypes.string,
   title: PropTypes.string,
+  shortTitle: PropTypes.string,
   active: PropTypes.bool,
   counter: PropTypes.number,
   external: PropTypes.bool,
