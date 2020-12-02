@@ -205,7 +205,6 @@ const OtherEvents = ({ others }) => {
       <FilterTabs tabs={tabs} onTabChange={updateFilter} />
       {activeTypeEvents.length === 0 ? (
         <EmptyAgenda>
-          <p>Il n'y a aucun événement à afficher.</p>
           {activeType === "NEAR_TYPE" && routes.personalInformation ? (
             <p>
               Zut ! Il n'y a pas d'événement prévu à proximité ?{" "}
