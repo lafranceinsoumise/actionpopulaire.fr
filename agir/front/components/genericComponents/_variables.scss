@@ -40,6 +40,7 @@ $default-border-radius: 0;
 $zindex__mainContent: 2;
 $zindex__topBar: 10;
 $zindex__navigationCounter: 10;
+$zindex__feedback-button: 15;
 $zindex__modal: 20;
 
 :export {
@@ -84,4 +85,5 @@ $zindex__modal: 20;
   zindexTopBar: $zindex__topBar;
   zindexNavigationCounter: $zindex__navigationCounter;
   zindexModal: $zindex__modal;
+  zindexFeedbackButton: $zindex__feedback-button;
 }
