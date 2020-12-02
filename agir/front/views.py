@@ -109,27 +109,28 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
 
     def get_export_data(self):
         person = self.request.user.person
+        queryset = Event.objects
+        if person.is_2022_only:
+            queryset = queryset.is_2022()
 
         rsvped_events = (
-            Event.objects.upcoming()
+            queryset.upcoming()
             .filter(Q(attendees=person) | Q(organizers=person))
             .order_by("start_time", "end_time")
         )
 
         groups_events = (
-            Event.objects.upcoming()
+            queryset.upcoming()
             .filter(organizers_groups__in=person.supportgroups.all())
             .order_by("start_time")
         )
 
         organized_events = (
-            Event.objects.past().filter(organizers=person).order_by("-start_time")[:10]
+            queryset.past().filter(organizers=person).order_by("-start_time")[:10]
         )
 
         past_events = (
-            Event.objects.past()
-            .filter(rsvps__person=person)
-            .order_by("-start_time")[:10]
+            queryset.past().filter(rsvps__person=person).order_by("-start_time")[:10]
         )
 
         query = (
@@ -138,7 +139,7 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
 
         if person.coordinates is not None:
             near_events = (
-                Event.objects.upcoming()
+                queryset.upcoming()
                 .filter(
                     start_time__lt=timezone.now() + timedelta(days=30),
                     do_not_list=False,
@@ -149,12 +150,12 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
             )
 
             other_events = (
-                Event.objects.filter(query | Q(pk__in=near_events))
+                queryset.filter(query | Q(pk__in=near_events))
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("start_time")
             )
         else:
-            other_events = Event.objects.filter(query).order_by("start_time")
+            other_events = queryset.filter(query).order_by("start_time")
 
         return {
             "rsvped": self.serializer_class(

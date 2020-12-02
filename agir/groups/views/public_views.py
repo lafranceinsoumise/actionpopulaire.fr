@@ -51,6 +51,16 @@ class SupportGroupListView(FilterView):
     queryset = SupportGroup.objects.filter(published=True)
     filter_class = GroupFilterSet
 
+    def dispatch(self, request, *args, **kwargs):
+        if (
+            self.request.user.is_authenticated
+            and hasattr(self.request.user, "person")
+            and request.user.person.is_2022_only
+        ):
+            self.queryset = self.queryset.is_2022()
+
+        return super().dispatch(request, *args, **kwargs)
+
 
 class SupportGroupDetailView(
     ObjectOpengraphMixin, GlobalOrObjectPermissionRequiredMixin, DetailView

@@ -417,6 +417,14 @@ class Person(
     def email(self):
         return self.primary_email.address if self.primary_email else ""
 
+    @property
+    def is_2022_only(self):
+        return self.is_2022 and not self.is_insoumise
+
+    @property
+    def is_insoumise_only(self):
+        return self.is_insoumise and not self.is_2022
+
     @cached_property
     def primary_email(self):
         return self.emails.filter(_bounced=False).first() or self.emails.first()
