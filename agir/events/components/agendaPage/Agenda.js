@@ -100,10 +100,47 @@ const StyledAgenda = styled.div`
   }
 `;
 
-const NEAR_TYPE = "À proximité";
-const GROUPS_TYPE = "Dans mes groupes";
-const PAST_TYPE = "Passés";
-const ORGANIZED_TYPE = "Organisés";
+const otherEventConfig = {
+  NEAR_TYPE: {
+    label: "À proximité",
+    allowEmpty: true,
+    filter: (events) =>
+      events.filter(
+        (event) =>
+          event.distance &&
+          event.distance < 100 * 1000 &&
+          !event.rsvp &&
+          dateFromISOString(event.endTime) < DateTime.local()
+      ),
+  },
+  GROUPS_TYPE: {
+    label: "Dans mes groupes",
+    allowEmpty: true,
+    filter: (events, groups) =>
+      events.filter(
+        (event) =>
+          Array.isArray(event.groups) &&
+          Array.isArray(groups) &&
+          dateFromISOString(event.endTime) < DateTime.local() &&
+          event.groups.some((group) => groups.includes(group.id).length > 0)
+      ),
+  },
+  PAST_TYPE: {
+    label: "Passés",
+    allowEmpty: false,
+    filter: (events) =>
+      events
+        .filter(
+          (event) => dateFromISOString(event.startTime) < DateTime.local()
+        )
+        .reverse(),
+  },
+  ORGANIZED_TYPE: {
+    label: "Organisés",
+    allowEmpty: false,
+    filter: (events) => events.filter((event) => event.isOrganizer).reverse(),
+  },
+};
 
 const OtherEvents = ({ others }) => {
   const { routes, user } = useGlobalContext();
@@ -119,74 +156,81 @@ const OtherEvents = ({ others }) => {
     [others]
   );
   const byType = React.useMemo(
-    () => ({
-      [NEAR_TYPE]: events.filter(
-        (event) =>
-          event.distance &&
-          event.distance < 100 * 1000 &&
-          !event.rsvp &&
-          dateFromISOString(event.endTime) < DateTime.local()
+    () =>
+      Object.entries(otherEventConfig).reduce(
+        (result, [typeKey, typeConfig]) => ({
+          ...result,
+          [typeKey]: typeConfig.filter(events, user.groups),
+        }),
+        {}
       ),
-      [GROUPS_TYPE]: events.filter(
-        (event) =>
-          Array.isArray(event.groups) &&
-          Array.isArray(user.groups) &&
-          dateFromISOString(event.endTime) < DateTime.local() &&
-          event.groups.some(
-            (group) => user.groups.includes(group.id).length > 0
-          )
-      ),
-      [PAST_TYPE]: events
-        .filter(
-          (event) => dateFromISOString(event.startTime) < DateTime.local()
-        )
-        .reverse(),
-      [ORGANIZED_TYPE]: events.filter((event) => event.isOrganizer).reverse(),
-    }),
     [events, user.groups]
   );
   const types = React.useMemo(
-    () => Object.keys(byType).filter((type) => byType[type].length > 0),
+    () =>
+      Object.keys(byType).filter(
+        (type) => byType[type].length > 0 || otherEventConfig[type].allowEmpty
+      ),
     [byType]
   );
-  const [typeFilter, setTypeFilter] = React.useState(0);
+  const tabs = React.useMemo(
+    () => types.map((type) => otherEventConfig[type].label),
+    [types]
+  );
+
+  const [activeType, setActiveType] = React.useState(types[0]);
+  const updateFilter = React.useCallback(
+    (i) => {
+      setActiveType(types[i] || types[0]);
+    },
+    [types]
+  );
+
   const activeTypeEvents = React.useMemo(
     () =>
       Object.entries(
-        byType[types[typeFilter]]
-          ? byType[types[typeFilter]].reduce((days, event) => {
+        byType[activeType]
+          ? byType[activeType].reduce((days, event) => {
               const day = displayHumanDay(dateFromISOString(event.startTime));
               (days[day] = days[day] || []).push(event);
               return days;
             }, {})
           : {}
       ),
-    [byType, types, typeFilter]
+    [byType, activeType]
   );
-  if (activeTypeEvents.length === 0) {
-    return (
-      <EmptyAgenda>
-        <p>Il n'y a aucun événement à afficher.</p>
-        <p>
-          Pas d'événement prévu dans votre ville ?{" "}
-          <a href={routes.createEvent}>Commencez par en créer un</a>.
-        </p>
-      </EmptyAgenda>
-    );
-  }
+
   return (
     <>
-      {types.length > 1 ? (
-        <FilterTabs tabs={types} onTabChange={setTypeFilter} />
-      ) : null}
-      {activeTypeEvents.map(([date, events]) => (
-        <div key={date}>
-          <Day>{date}</Day>
-          {events.map((event) => (
-            <EventCard key={event.id} {...event} />
-          ))}
-        </div>
-      ))}
+      <FilterTabs tabs={tabs} onTabChange={updateFilter} />
+      {activeTypeEvents.length === 0 ? (
+        <EmptyAgenda>
+          <p>Il n'y a aucun événement à afficher.</p>
+          {activeType === "NEAR_TYPE" && routes.personalInformation ? (
+            <p>
+              Zut ! Il n'y a pas d'événement prévu à proximité ?{" "}
+              <a href={routes.personalInformation}>
+                Vérifiez votre adresse et code postal
+              </a>
+              .
+            </p>
+          ) : (
+            <p>
+              Pas d'événement prévu dans votre ville ?{" "}
+              <a href={routes.createEvent}>Commencez par en créer un</a>.
+            </p>
+          )}
+        </EmptyAgenda>
+      ) : (
+        activeTypeEvents.map(([date, events]) => (
+          <div key={date}>
+            <Day>{date}</Day>
+            {events.map((event) => (
+              <EventCard key={event.id} {...event} />
+            ))}
+          </div>
+        ))
+      )}
     </>
   );
 };
