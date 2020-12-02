@@ -212,7 +212,7 @@ class CheckCodeView(RedirectToMixin, FormView):
 
 
 class DisconnectView(RedirectToMixin, RedirectView):
-    url = settings.MAIN_DOMAIN
+    url = reverse_lazy("short_code_login")
 
     def get(self, request, *args, **kwargs):
         logout(request)
