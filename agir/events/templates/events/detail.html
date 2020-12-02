@@ -240,6 +240,9 @@
           {% endif %}
         </div>
       {% endif %}
+
+      <a href="https://www.facebook.com/sharer.php?u={% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}{{ request.get_full_path }}" class="btn btn-default">Partager sur Facebook</a> <a href="http://www.twitter.com/share?url={% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}{{ request.get_full_path }}" class="btn btn-default">Partager sur Twitter</a>
+
     </div>
     <div class="col-md-6">
       {% if event.is_past %}
