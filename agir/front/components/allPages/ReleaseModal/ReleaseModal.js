@@ -45,7 +45,7 @@ ReleaseModal.propTypes = {
 
 const ConnectedReleaseModal = (props) => {
   const { user } = useGlobalContext();
-  return <ReleaseModal {...props} isActive={!!user} />;
+  return <ReleaseModal {...props} isActive={!!user && user.isAgir} />;
 };
 
 export default ConnectedReleaseModal;

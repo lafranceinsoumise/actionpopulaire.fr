@@ -3,6 +3,8 @@ from operator import or_
 
 import phonenumbers
 import warnings
+
+from datetime import datetime
 from django.conf import settings
 from django.db.models import JSONField
 from django.contrib.postgres.indexes import GinIndex
@@ -412,6 +414,12 @@ class Person(
 
     def __repr__(self):
         return f"{self.__class__.__name__}(pk={self.pk!r}, email={self.email})"
+
+    @property
+    def is_agir(self):
+        return self.is_insoumise and self.created <= datetime(
+            2020, 12, 6, tzinfo=timezone.get_default_timezone()
+        )
 
     @property
     def email(self):

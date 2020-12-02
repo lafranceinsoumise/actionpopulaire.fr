@@ -78,6 +78,7 @@ def basic_information(request):
             "displayName": request.user.get_full_name(),
             "isInsoumise": person.is_insoumise,
             "is2022": person.is_2022,
+            "isAgir": person.is_agir,
         }
         userActivities = Activity.objects.filter(recipient=person).exclude(
             status=Activity.STATUS_INTERACTED
