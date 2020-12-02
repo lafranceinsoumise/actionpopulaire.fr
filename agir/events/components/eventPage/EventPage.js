@@ -119,9 +119,7 @@ const MobileLayout = (props) => {
             <EventHeader {...props} />
           </Card>
           <EventLocationCard {...props} />
-          {(props.participantCount > 1 || props.groups.length > 0) && (
-            <EventInfoCard {...props} />
-          )}
+          <EventInfoCard {...props} />
           <Card>
             <EventDescription {...props} illustration={null} />
           </Card>

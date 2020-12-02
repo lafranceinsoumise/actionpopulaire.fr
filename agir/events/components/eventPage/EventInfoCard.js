@@ -6,7 +6,7 @@ import {
 } from "@agir/front/genericComponents/FeatherIcon";
 import Card from "@agir/front/genericComponents/Card";
 
-const EventInfoCard = ({ groups, participantCount }) => (
+const EventInfoCard = ({ groups, participantCount, is2022 }) => (
   <Card>
     <IconList>
       {groups.length > 0 && (
@@ -24,6 +24,9 @@ const EventInfoCard = ({ groups, participantCount }) => (
           ))}
         </IconListItem>
       )}
+      <IconListItem name="flag">
+        {is2022 ? "Évènement Nous sommes pour !" : "Évènement France insoumise"}
+      </IconListItem>
       {participantCount > 1 && (
         <IconListItem name="user-check">
           {participantCount} participant⋅es
@@ -38,6 +41,7 @@ EventInfoCard.propTypes = {
     PropTypes.shape({ name: PropTypes.string, url: PropTypes.string })
   ),
   participantCount: PropTypes.number.isRequired,
+  is2022: PropTypes.bool,
 };
 
 export default EventInfoCard;

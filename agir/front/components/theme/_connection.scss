@@ -5,7 +5,7 @@
   #login-widget {
     background-color: white;
     padding: 50px 32px;
-    border: 1px solid #DFDFDF;
+    border: 1px solid #dfdfdf;
     margin: 30px 20px;
     display: flex;
     flex-flow: column nowrap;
@@ -62,7 +62,7 @@
 
       .btn {
         background-color: white;
-        border-color: #C4C4C4;
+        border-color: #c4c4c4;
         color: $brand-black;
         margin-bottom: 20px;
         display: inline-flex;
@@ -74,7 +74,7 @@
         white-space: normal;
 
         .fa-facebook-square {
-          color: #1778F2;
+          color: #1778f2;
           border-radius: 100%;
           margin-right: 8px;
         }
@@ -83,23 +83,27 @@
 
     #email-login {
       form {
+        width: 100%;
+        justify-content: center;
         display: flex;
 
         @media (max-width: 992px) {
           flex-flow: column nowrap;
           align-items: stretch;
-
-          input {
-            width: 100%;
-          }
         }
 
         & > * {
           margin: 8px;
+          flex: 0 0 auto;
+
+          &:first-child {
+            flex: 1 1 auto;
+          }
         }
 
         input {
           height: 48px;
+          width: 100%;
         }
       }
     }
