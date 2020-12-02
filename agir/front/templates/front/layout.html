@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Plateforme d'action{% endblock %} - La France insoumise</title>
+  <title>{% block title %}Plateforme d'action{% endblock %} - Action populaire</title>
 
   {% block opengraph %}
     {% if show_opengraph %}
@@ -19,7 +19,7 @@
       <meta property="og:description"
             content="{{ meta_description }}"/>
       <meta property="og:url" content="https://agir.lafranceinsoumise.fr{{ request.path }}"/>
-      <meta property="og:site_name" content="La France Insoumise - Agir"/>
+      <meta property="og:site_name" content="Action populaire - La plateforme"/>
       <meta property="fb:app" content="399717914004198"/>
       {% if meta_image %}
         <meta property="og:image" content="{{ meta_image }}">
@@ -27,19 +27,22 @@
         <meta name="twitter:image"
               content="{{ meta_image }}"/>
       {% else %}
-        <meta property="og:image"
-              content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
-        <meta property="og:image:secure_url"
-              content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
-        <meta name="twitter:image"
-              content="https://lafranceinsoumise.fr/app/uploads/2017/03/33542054765_ce59381e72_k.jpg"/>
+        <meta
+          property="og:image"
+          content="{% static "front/assets/og_image_LFI.png" %}"
+        />
+        <meta
+          property="og:image:secure_url"
+          content="{% static "front/assets/og_image_LFI.png" %}"
+        />
+        <meta
+          name="twitter:image"
+          content="{% static "front/assets/og_image_LFI.png" %}"
+        />
       {% endif %}
       <meta name="twitter:card" content="summary_large_image"/>
-      <meta name="twitter:description"
-            content="{{ meta_description }}"/>
+      <meta name="twitter:description" content="{{ meta_description }}"/>
       <meta name="twitter:title" content="{{ meta_title }}"/>
-      <meta name="twitter:site" content="@FranceInsoumise"/>
-      <meta name="twitter:creator" content="@FranceInsoumise"/>
     {% endif %}
   {% endblock %}
   {% render_bundle 'theme' 'css' attrs='data-turbolinks-track="reload"' %}

@@ -59,8 +59,9 @@ class SupportGroupDetailView(
     template_name = "groups/detail.html"
     model = SupportGroup
 
-    title_prefix = "Groupe d'action"
+    title_prefix = "Groupe"
     meta_description = "Rejoignez les groupes d'action de la France insoumise."
+    meta_description_2022 = "Rejoignez les groupes de soutien de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
 
     def handle_no_permission(self):
         return HttpResponseGone()
