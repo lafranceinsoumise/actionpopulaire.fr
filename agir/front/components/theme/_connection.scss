@@ -2,6 +2,11 @@
   background: linear-gradient(175deg, #f4ed0f 25%, white 25%, white);
   padding-top: 47px;
 
+  p {
+    max-width: 450px;
+    margin: 0 auto 11px;
+  }
+
   #login-widget {
     background-color: white;
     padding: 50px 32px;
@@ -41,10 +46,10 @@
       font-weight: 700;
     }
 
+
     .btn-secondary {
       background-color: $brand-primary;
       color: white;
-      margin-bottom: 8px;
     }
 
     .or {

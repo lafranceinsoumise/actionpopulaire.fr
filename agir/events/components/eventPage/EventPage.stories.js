@@ -52,7 +52,7 @@ const testAppRoutes = [
 testAppRoutes.map =
   "https://agir.lafranceinsoumise.fr/carte/evenements/00673c7f-1183-4504-85d4-bbf4c190e71f/";
 
-const testGlobalRoutes = { logIn: "#login", signIn: "#signin" };
+const testGlobalRoutes = { login: "#login", join: "#signin" };
 
 const defaultStartTime = DateTime.local().plus({ days: 2 });
 const defaultEndTime = defaultStartTime.plus({ hours: 2 });

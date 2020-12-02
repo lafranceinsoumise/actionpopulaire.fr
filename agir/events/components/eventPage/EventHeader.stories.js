@@ -8,7 +8,7 @@ import {
   decorateArgs,
 } from "@agir/lib/utils/storyUtils";
 
-const routes = { logIn: "#login", signIn: "#signin" };
+const routes = { login: "#login", join: "#signin" };
 
 const defaultStartTime = DateTime.local().plus({ days: 2 });
 

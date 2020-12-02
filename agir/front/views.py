@@ -6,11 +6,9 @@ from django.db.models import Q
 from django.http import HttpResponsePermanentRedirect, Http404
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.views.generic import View, RedirectView
+from django.views.generic import View, RedirectView, TemplateView
 
 from .view_mixins import ReactListView, ReactSerializerBaseView, ReactBaseView
-from ..activity.models import Activity
-from ..activity.serializers import ActivitySerializer
 from ..authentication.view_mixins import SoftLoginRequiredMixin
 from ..events.models import Event
 from ..events.serializers import EventSerializer
@@ -204,3 +202,10 @@ class NSPView(RedirectView):
             )
 
         return url
+
+
+class JoinView(TemplateView):
+    template_name = "front/join.html"
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs, type=self.request.GET.get("type"))

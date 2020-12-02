@@ -4,7 +4,7 @@ import Agenda from "./Agenda";
 import { Container } from "@agir/front/genericComponents/grid";
 import { TestGlobalContextProvider } from "@agir/front/genericComponents/GlobalContext";
 
-const testGlobalRoutes = { logIn: "#login", signIn: "#signin" };
+const testGlobalRoutes = { login: "#login", join: "#signin" };
 
 export default {
   component: Agenda,

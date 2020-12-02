@@ -3,14 +3,12 @@ from django.contrib.sitemaps.views import sitemap, index as sitemap_index
 from django.urls import reverse_lazy, path, re_path
 from django.views.generic import RedirectView
 
-from .views import ActivityView, RequiredActivityView
-from .views import AgendaView
-from .views import NSPView
-from ..front.sitemaps import sitemaps
 from . import views
+from ..front.sitemaps import sitemaps
 
 urlpatterns = [
-    path("nsp/", NSPView.as_view(), name="nsp"),
+    path("rejoindre/", views.JoinView.as_view(), name="join"),
+    path("nsp/", views.NSPView.as_view(), name="nsp"),
     # https://lafranceinsoumise.fr/
     path("homepage/", RedirectView.as_view(url=settings.MAIN_DOMAIN), name="homepage"),
     # sitemap
@@ -28,11 +26,13 @@ urlpatterns = [
         name="list_groups",
     ),
     path("groupes/carte", views.GroupMapView.as_view(), name="group_map_page"),
-    path("activite/", ActivityView.as_view(), name="list_activities",),
+    path("activite/", views.ActivityView.as_view(), name="list_activities",),
     path(
-        "a-traiter/", RequiredActivityView.as_view(), name="list_required_activities",
+        "a-traiter/",
+        views.RequiredActivityView.as_view(),
+        name="list_required_activities",
     ),
-    path("", AgendaView.as_view(), name="dashboard",),
+    path("", views.AgendaView.as_view(), name="dashboard",),
     path(
         "evenements/",
         RedirectView.as_view(pattern_name="dashboard"),

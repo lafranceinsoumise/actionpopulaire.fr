@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import FeatherIcon, { RawFeatherIcon } from "../genericComponents/FeatherIcon";
-import Button from "../genericComponents/Button";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import LogoAP from "../genericComponents/LogoAP";
@@ -144,13 +143,13 @@ const SearchBarInput = styled.input.attrs(() => ({ type: "text", name: "q" }))`
 const ConnectionInfo = ({ user, routes }) =>
   user === null ? (
     <>
-      <MenuLink href={routes.logIn} className="small-only">
+      <MenuLink href={routes.login} className="small-only">
         <FeatherIcon name="user" />
       </MenuLink>
-      <MenuLink href={routes.logIn} className="large-only">
+      <MenuLink href={routes.login} className="large-only">
         <span>Connexion</span>
       </MenuLink>
-      <MenuLink href={routes.signIn} className="large-only">
+      <MenuLink href={routes.join} className="large-only">
         <span>Inscription</span>
       </MenuLink>
     </>
@@ -267,8 +266,8 @@ PureTopBar.defaultProps = {
     help: "#help",
     personalInformation: "#personalInformation",
     contactConfiguration: "#contactConfiguration",
-    signIn: "#signIn",
-    logIn: "#logIn",
+    join: "#join",
+    login: "#login",
   },
 };
 

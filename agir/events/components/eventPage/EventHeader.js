@@ -70,6 +70,7 @@ const ActionButtons = (props) => {
     logged,
     isOrganizer,
     routes,
+    is2022,
   } = props;
 
   if (past) {
@@ -101,7 +102,11 @@ const ActionButtons = (props) => {
 
   if (hasSubscriptionForm) {
     return (
-      <ActionButton as="a" color="secondary" href={routes.join}>
+      <ActionButton
+        as="a"
+        color="secondary"
+        href={`${routes.join}${is2022 ? "type=NSP" : ""}`}
+      >
         Participer à l'événement
       </ActionButton>
     );
@@ -128,9 +133,9 @@ const AdditionalMessage = ({ logged, rsvped, price, routes }) => {
   if (!logged) {
     return (
       <div>
-        <ActionLink href={routes.logIn}>Je me connecte</ActionLink> ou{" "}
-        <ActionLink href={routes.signIn}>je m'inscris</ActionLink> pour
-        participer à l'événement
+        <ActionLink href={routes.login}>Je me connecte</ActionLink> ou{" "}
+        <ActionLink href={routes.join}>je m'inscris</ActionLink> pour participer
+        à l'événement
       </div>
     );
   }
@@ -220,6 +225,7 @@ EventHeader.propTypes = {
   }),
   rsvp: PropTypes.string,
   routes: PropTypes.object,
+  is2022: PropTypes.bool,
 };
 
 export default EventHeader;

@@ -1,0 +1,52 @@
+{% extends "front/layout.html" %}
+{% load crispy_forms_tags %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}Connexion à la plateforme{% endblock %}
+
+{% block full_width %}
+  <div id="login-page" class="wrap container-fluid" role="document">
+    <main class="row">
+      <div class="col-xs-12 col-md-6 col-md-offset-3 text-center">
+        <div id="login-widget">
+          <h2>Rejoindre Action Populaire</h2>
+
+          <p>
+            <strong>Action Populaire</strong> est la plateforme d'action de la campagne de Jean-Luc Mélenchon pour 2022
+            et de la France insoumise.
+          </p>
+
+          {% if type == "NSP" %}
+            <div><strong>
+              Vous devez parrainer la candidature sur «&nbsp;<strong>Nous sommes pour !</strong>&nbsp;» pour rejoindre la campagne 2022
+              sur
+              Action Populaire
+            </strong>
+            </div>
+
+            <p>
+              <a class="btn btn-primary btn-block" href="https://noussommespour.fr/">Parrainer la candidature</a>
+              <a class="btn btn-default btn-block" href="{% url "short_code_login" %}">J'ai déjà parrainé</a>
+            </p>
+
+          {% else %}
+
+            <p>Inscrivez-vous d'une de ces façons :</p>
+
+            <div>
+              <a class="btn btn-primary" href="https://noussommespour.fr/">Parrainer la candidature</a>
+              <span class="or">ou</span>
+              <a class="btn btn-default" href="https://lafranceinsoumise.fr">Rejoindre la France insoumise</a>
+            </div>
+          {% endif %}
+
+        <p>
+          Vous pourrez ensuite vous connecter à <strong>Action Populaire</strong> en utilisant la même adresse email.
+        </p>
+
+        </div><!-- login-widget -->
+
+      </div>
+    </main>
+  </div>
+{% endblock %}
