@@ -128,6 +128,7 @@ Default.args = {
   others: [
     {
       id: "e419f6e8-7431-43c9-ae9a-b82362a6bc81",
+      distance: 15,
       url:
         "http://agir.local:8000/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/",
       name: "Consulter moitié inspirer se taire.",
@@ -153,8 +154,8 @@ Default.args = {
           coordinates: [43.32393, 5.4584],
         },
       },
-      isOrganizer: false,
-      rsvp: null,
+      isOrganizer: true,
+      rsvp: false,
       participantCount: 9,
       options: {
         price: null,

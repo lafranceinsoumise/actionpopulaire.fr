@@ -22,7 +22,9 @@ def basic_information(request):
         "createGroup": reverse("create_group"),
         "createEvent": reverse("create_event"),
         "groupsMap": reverse("carte:groups_map"),
+        "groupMapPage": reverse("group_map_page"),
         "eventsMap": reverse("carte:events_map"),
+        "eventMapPage": reverse("event_map_page"),
         "events": reverse("list_events"),
         "groups": reverse("list_my_groups"),
         "activity": reverse("list_activities"),
@@ -56,9 +58,8 @@ def basic_information(request):
         "help": "https://lafranceinsoumise.fr/fiches_pour_agir/",
         "news": "https://lafranceinsoumise.fr/actualites/",
         "contact": "https://lafranceinsoumise.fr/contact/",
-        "eventsMap": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
-        "groupsMap": "https://lafranceinsoumise.fr/groupes-action/carte-groupes/",
-        "eventMap": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
+        "groupMapPage": "https://lafranceinsoumise.fr/groupes-action/carte-groupes/",
+        "eventMapPage": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
         "thematicTeams": reverse("thematic_teams_list"),
     }
 

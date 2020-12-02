@@ -68,6 +68,10 @@ const TabListWrapper = styled.div`
 const FilterTabs = ({ tabs, onTabChange }) => {
   const [tab, setTab] = useState(0);
 
+  if (tabs.length === 0) {
+    return null;
+  }
+
   return (
     <TabListWrapper>
       <TabList>

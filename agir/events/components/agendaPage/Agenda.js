@@ -100,74 +100,129 @@ const StyledAgenda = styled.div`
   }
 `;
 
+const otherEventConfig = {
+  NEAR_TYPE: {
+    label: "À proximité",
+    allowEmpty: true,
+    filter: (events) =>
+      events.filter(
+        (event) =>
+          event.distance &&
+          event.distance < 100 * 1000 &&
+          !event.rsvp &&
+          dateFromISOString(event.endTime) < DateTime.local()
+      ),
+  },
+  GROUPS_TYPE: {
+    label: "Dans mes groupes",
+    allowEmpty: true,
+    filter: (events, groups) =>
+      events.filter(
+        (event) =>
+          Array.isArray(event.groups) &&
+          Array.isArray(groups) &&
+          dateFromISOString(event.endTime) < DateTime.local() &&
+          event.groups.some((group) => groups.includes(group.id).length > 0)
+      ),
+  },
+  PAST_TYPE: {
+    label: "Passés",
+    allowEmpty: false,
+    filter: (events) =>
+      events
+        .filter(
+          (event) => dateFromISOString(event.startTime) < DateTime.local()
+        )
+        .reverse(),
+  },
+  ORGANIZED_TYPE: {
+    label: "Organisés",
+    allowEmpty: false,
+    filter: (events) => events.filter((event) => event.isOrganizer).reverse(),
+  },
+};
+
 const OtherEvents = ({ others }) => {
   const { routes, user } = useGlobalContext();
-  const NEAR_TYPE = "À proximité";
-  const GROUPS_TYPE = "Dans mes groupes";
-  const PAST_TYPE = "Passés";
-  const ORGANIZED_TYPE = "Organisés";
-
-  const types = React.useMemo(
+  const events = React.useMemo(
     () =>
-      others[0].distance !== null
-        ? [NEAR_TYPE, GROUPS_TYPE, PAST_TYPE, ORGANIZED_TYPE]
-        : [GROUPS_TYPE, PAST_TYPE, ORGANIZED_TYPE],
+      others.map((event) => ({
+        ...event,
+        schedule: Interval.fromDateTimes(
+          dateFromISOString(event.startTime),
+          dateFromISOString(event.endTime)
+        ),
+      })),
     [others]
   );
-
-  const [typeFilter, setTypeFilter] = React.useState(0);
-  let otherEventDates = React.useMemo(
+  const byType = React.useMemo(
     () =>
-      Object.entries(
-        others
-          .filter((event) => {
-            switch (types[typeFilter]) {
-              case NEAR_TYPE:
-                return (
-                  event.distance < 100 * 1000 &&
-                  !event.rsvp &&
-                  dateFromISOString(event.endTime) < DateTime.local()
-                );
-              case GROUPS_TYPE:
-                return (
-                  event.groups.filter((group) => user.groups.includes(group.id))
-                    .length > 0 &&
-                  dateFromISOString(event.endTime) < DateTime.local()
-                );
-              case PAST_TYPE:
-                return dateFromISOString(event.startTime) < DateTime.local();
-              case ORGANIZED_TYPE:
-                return event.isOrganizer;
-            }
-          })
-          .map((event) => ({
-            ...event,
-            schedule: Interval.fromDateTimes(
-              dateFromISOString(event.startTime),
-              dateFromISOString(event.endTime)
-            ),
-          }))
-          .reduce((days, event) => {
-            const day = displayHumanDay(dateFromISOString(event.startTime));
-            (days[day] = days[day] || []).push(event);
-            return days;
-          }, {})
+      Object.entries(otherEventConfig).reduce(
+        (result, [typeKey, typeConfig]) => ({
+          ...result,
+          [typeKey]: typeConfig.filter(events, user.groups),
+        }),
+        {}
       ),
-    [others, types, typeFilter, user.groups]
+    [events, user.groups]
+  );
+  const types = React.useMemo(
+    () =>
+      Object.keys(byType).filter(
+        (type) => byType[type].length > 0 || otherEventConfig[type].allowEmpty
+      ),
+    [byType]
+  );
+  const tabs = React.useMemo(
+    () => types.map((type) => otherEventConfig[type].label),
+    [types]
   );
 
-  if ([ORGANIZED_TYPE, PAST_TYPE].includes(types[typeFilter])) {
-    otherEventDates = otherEventDates
-      .map(([date, events]) => [date, events.reverse()])
-      .reverse();
-  }
+  const [activeType, setActiveType] = React.useState(types[0]);
+  const updateFilter = React.useCallback(
+    (i) => {
+      setActiveType(types[i] || types[0]);
+    },
+    [types]
+  );
+
+  const activeTypeEvents = React.useMemo(
+    () =>
+      Object.entries(
+        byType[activeType]
+          ? byType[activeType].reduce((days, event) => {
+              const day = displayHumanDay(dateFromISOString(event.startTime));
+              (days[day] = days[day] || []).push(event);
+              return days;
+            }, {})
+          : {}
+      ),
+    [byType, activeType]
+  );
 
   return (
     <>
-      <FilterTabs tabs={types} onTabChange={setTypeFilter} />
-
-      {otherEventDates.length > 0 ? (
-        otherEventDates.map(([date, events]) => (
+      <FilterTabs tabs={tabs} onTabChange={updateFilter} />
+      {activeTypeEvents.length === 0 ? (
+        <EmptyAgenda>
+          <p>Il n'y a aucun événement à afficher.</p>
+          {activeType === "NEAR_TYPE" && routes.personalInformation ? (
+            <p>
+              Zut ! Il n'y a pas d'événement prévu à proximité ?{" "}
+              <a href={routes.personalInformation}>
+                Vérifiez votre adresse et code postal
+              </a>
+              .
+            </p>
+          ) : (
+            <p>
+              Pas d'événement prévu dans votre ville ?{" "}
+              <a href={routes.createEvent}>Commencez par en créer un</a>.
+            </p>
+          )}
+        </EmptyAgenda>
+      ) : (
+        activeTypeEvents.map(([date, events]) => (
           <div key={date}>
             <Day>{date}</Day>
             {events.map((event) => (
@@ -175,16 +230,6 @@ const OtherEvents = ({ others }) => {
             ))}
           </div>
         ))
-      ) : (
-        <EmptyAgenda>
-          <p>
-            Il n'y a aucun événement à afficher avec les filtres sélectionnés.
-          </p>
-          <p>
-            Pas d'événement prévu dans votre ville ?{" "}
-            <a href={routes.createEvent}>Commencez par en créer un</a>.
-          </p>
-        </EmptyAgenda>
       )}
     </>
   );
@@ -226,8 +271,8 @@ const Agenda = ({ rsvped, others }) => {
                 Créer un évenement
               </Button>
             ) : null}
-            {routes.eventMap ? (
-              <Button small as="a" href={routes.eventMap} icon="map">
+            {routes.eventMapPage ? (
+              <Button small as="a" href={routes.eventMapPage} icon="map">
                 Carte
               </Button>
             ) : null}
