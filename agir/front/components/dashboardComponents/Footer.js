@@ -11,39 +11,27 @@ import LogoAP from "@agir/front/genericComponents/LogoAP";
 
 import footerBanner from "./images/footer-banner.png";
 
-const FooterBanner = styled.div`
-  position: relative;
-  top: 40px;
-  width: calc(100% - 60px);
-  max-width: 1400px;
-  margin: 0 auto;
-  background-color: ${style.primary500};
-  border-radius: 8px;
-  height: 360px;
+const FooterForm = styled.div`
   display: flex;
   flex-flow: column nowrap;
   align-items: flex-start;
   justify-content: center;
   color: ${style.white};
   padding: 0 144px;
-  background-repeat: no-repeat;
-  background-size: auto 100%;
-  background-position: top right;
-  background-image: url(${footerBanner});
+  width: 100%;
 
   @media (max-width: ${style.collapse}px) {
-    position: static;
-    width: 100%;
-    background-image: none;
-    border-radius: 0;
-    padding: 0 1.5rem;
-    height: 328px;
+    padding: 1.5rem;
   }
 
   & > * {
     color: inherit;
     max-width: 557px;
     margin: 0;
+
+    @media (max-width: ${style.collapse}px) {
+      max-width: 100%;
+    }
   }
 
   & > * + * {
@@ -51,8 +39,12 @@ const FooterBanner = styled.div`
   }
 
   & > h3 {
-    font-size: 30px;
+    font-size: 1.875rem;
     font-weight: 800;
+
+    @media (max-width: ${style.collapse}px) {
+      font-size: 1.25rem;
+    }
   }
 
   & > div {
@@ -62,24 +54,43 @@ const FooterBanner = styled.div`
     align-items: center;
     line-height: 2rem;
 
+    &.small-only {
+      @media (min-width: ${style.collapse}px) {
+        display: none;
+      }
+    }
+
+    &.large-only {
+      @media (max-width: ${style.collapse}px) {
+        display: none;
+      }
+    }
+
     & > span {
       font-size: 14px;
+      margin: 0 0.5rem;
+
+      @media (max-width: ${style.collapse}px) {
+        margin: 0;
+      }
     }
 
     & > ${Button} {
       color: ${style.black1000};
-      font-size: 16px;
-      font-weight: 700;
+
+      & + ${Button} {
+        margin-left: 0.5rem;
+
+        @media (max-width: ${style.collapse}px) {
+          margin-left: 0;
+          margin-top: 0.5rem;
+        }
+      }
     }
 
     @media (max-width: ${style.collapse}px) {
       flex-flow: column nowrap;
       align-items: flex-start;
-
-      & span {
-        color: transparent;
-        line-height: 0.5rem;
-      }
     }
   }
 
@@ -92,6 +103,43 @@ const FooterBanner = styled.div`
       color: inherit;
       text-decoration: underline;
       font-weight: 700;
+    }
+  }
+`;
+const FooterBanner = styled.div`
+  width: calc(100% - 60px);
+  max-width: 1400px;
+  margin: 0 auto 1rem;
+  background-color: ${style.primary500};
+  border-radius: 8px;
+  height: 360px;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: stretch;
+  overflow: hidden;
+
+  @media (max-width: ${style.collapse}px) {
+    width: 100%;
+    border-radius: 0;
+    height: auto;
+    margin-bottom: 0;
+  }
+
+  ${FooterForm} {
+    flex: 1 1 800px;
+  }
+
+  &::after {
+    content: "";
+    display: block;
+    flex: 1 1 600px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-image: url(${footerBanner});
+
+    @media (max-width: ${style.collapse}px) {
+      display: none;
     }
   }
 `;
@@ -169,49 +217,86 @@ export const Footer = (props) => {
     <footer>
       {isSignedIn === false ? (
         <FooterBanner>
-          <h3>Agissez dans votre ville!</h3>
-          {is2022 ? (
-            <p>
-              <strong>Action Populaire</strong> est la plate-forme d’action de
-              la campagne de Jean-Luc Mélenchon pour 2022. Parrainez la
-              candidature pour vous connecter :
-            </p>
-          ) : (
-            <p>
-              <strong>Action Populaire</strong> est la plate-forme d’action de
-              la campagne de Jean-Luc Mélenchon pour 2022 et de la France
-              insoumise. Inscrivez-vous d’une de ces façons :
-            </p>
-          )}
-          <div>
-            <Button
-              as="a"
-              color="secondary"
-              href={routes.noussommespour && routes.noussommespour.home}
-            >
-              Parrainez la candidature
-            </Button>
-            <span>{!is2022 ? <>&nbsp;ou&nbsp;</> : <>&emsp;</>}</span>
-            {is2022 ? (
-              <Button as="a" color="white" href={routes.logIn}>
-                J'ai déjà parrainé
-              </Button>
-            ) : (
+          <FooterForm>
+            <h3>Agissez dans votre ville!</h3>
+            <article>
+              {is2022 ? (
+                <p>
+                  <strong>Action Populaire</strong> est la plate-forme d’action
+                  de la campagne de Jean-Luc Mélenchon pour 2022.
+                </p>
+              ) : (
+                <p>
+                  <strong>Action Populaire</strong> est la plate-forme d’action
+                  de la campagne de Jean-Luc Mélenchon pour 2022 et de la France
+                  insoumise.
+                </p>
+              )}
+              {is2022 ? (
+                <p>Parrainez la candidature pour vous connecter :</p>
+              ) : (
+                <p>Inscrivez-vous d’une de ces façons :</p>
+              )}
+            </article>
+            <div className="small-only">
               <Button
                 as="a"
-                color="white"
-                href={routes.lafranceinsoumise && routes.lafranceinsoumise.home}
+                color="secondary"
+                small
+                href={routes.noussommespour && routes.noussommespour.home}
               >
-                Rejoindre la France insoumise
+                Parrainer la candidature
               </Button>
-            )}
-          </div>
-          <p>
-            {is2022
-              ? "Vous avez déjà un compte ? "
-              : "Vous avez déjà rejoins la France Insoumise ? "}
-            <a href={routes.logIn}>Je me connecte</a>
-          </p>
+              {!is2022 ? <span>&nbsp;ou&nbsp;</span> : null}
+              {is2022 ? (
+                <Button small as="a" color="white" href={routes.logIn}>
+                  J'ai déjà parrainé
+                </Button>
+              ) : (
+                <Button
+                  as="a"
+                  color="white"
+                  small
+                  href={
+                    routes.lafranceinsoumise && routes.lafranceinsoumise.home
+                  }
+                >
+                  Rejoindre la France insoumise
+                </Button>
+              )}
+            </div>
+            <div className="large-only">
+              <Button
+                as="a"
+                color="secondary"
+                href={routes.noussommespour && routes.noussommespour.home}
+              >
+                Parrainer la candidature
+              </Button>
+              {!is2022 ? <span>&nbsp;ou&nbsp;</span> : null}
+              {is2022 ? (
+                <Button as="a" color="white" href={routes.logIn}>
+                  J'ai déjà parrainé
+                </Button>
+              ) : (
+                <Button
+                  as="a"
+                  color="white"
+                  href={
+                    routes.lafranceinsoumise && routes.lafranceinsoumise.home
+                  }
+                >
+                  Rejoindre la France insoumise
+                </Button>
+              )}
+            </div>
+            <p>
+              {is2022
+                ? "Vous avez déjà un compte ? "
+                : "Vous avez déjà rejoint la France Insoumise ? "}
+              <a href={routes.logIn}>Je me connecte</a>
+            </p>
+          </FooterForm>
         </FooterBanner>
       ) : null}
       <StyledFooter>
