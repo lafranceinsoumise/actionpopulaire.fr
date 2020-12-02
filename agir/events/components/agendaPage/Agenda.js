@@ -271,8 +271,8 @@ const Agenda = ({ rsvped, others }) => {
                 Créer un évenement
               </Button>
             ) : null}
-            {routes.eventMap ? (
-              <Button small as="a" href={routes.eventMap} icon="map">
+            {routes.eventMapPage ? (
+              <Button small as="a" href={routes.eventMapPage} icon="map">
                 Carte
               </Button>
             ) : null}

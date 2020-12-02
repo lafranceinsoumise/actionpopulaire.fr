@@ -105,8 +105,8 @@ const GroupsPage = ({ data }) => {
               Créer un groupe
             </Button>
           ) : null}
-          {routes.groupsMap ? (
-            <Button as="a" icon="map" href={routes.groupsMap} small>
+          {routes.groupMapPage ? (
+            <Button as="a" icon="map" href={routes.groupMapPage} small>
               Carte
             </Button>
           ) : null}

@@ -233,14 +233,14 @@ export const Footer = (props) => {
             <div>
               <h3>Explorer</h3>
               <p>
-                {routes.eventsMap && (
-                  <a href={routes.eventsMap}>Evénements proches de chez moi</a>
+                {routes.eventMapPage && (
+                  <a href={routes.events}>Evénements proches de chez moi</a>
                 )}
                 {routes.events && (
-                  <a href={routes.events}>Carte des évènements</a>
+                  <a href={routes.eventMapPage}>Carte des évènements</a>
                 )}
-                {routes.groupsMap && (
-                  <a href={routes.groupsMap}>Carte des groupes d’actions</a>
+                {routes.groupMapPage && (
+                  <a href={routes.groupMapPage}>Carte des groupes d’actions</a>
                 )}
                 {routes.thematicTeams && (
                   <a href={routes.thematicTeams}>Les livrets thématiques</a>
@@ -256,8 +256,8 @@ export const Footer = (props) => {
                     {routes.noussommespour.home && (
                       <a href={routes.noussommespour.home}>Signer</a>
                     )}
-                    {routes.noussommespour.eventsMap && (
-                      <a href={routes.noussommespour.eventsMap}>
+                    {routes.noussommespour.eventMapPage && (
+                      <a href={routes.noussommespour.eventMapPage}>
                         Carte des évènements
                       </a>
                     )}
@@ -276,8 +276,8 @@ export const Footer = (props) => {
                     {routes.lafranceinsoumise.home && (
                       <a href={routes.lafranceinsoumise.home}>Rejoindre</a>
                     )}
-                    {routes.lafranceinsoumise.eventsMap && (
-                      <a href={routes.lafranceinsoumise.eventsMap}>
+                    {routes.lafranceinsoumise.eventMapPage && (
+                      <a href={routes.lafranceinsoumise.eventMapPage}>
                         Carte des évènements
                       </a>
                     )}
