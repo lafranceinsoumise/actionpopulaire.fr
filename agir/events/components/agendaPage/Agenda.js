@@ -110,7 +110,7 @@ const otherEventConfig = {
           event.distance &&
           event.distance < 100 * 1000 &&
           !event.rsvp &&
-          dateFromISOString(event.endTime) < DateTime.local()
+          dateFromISOString(event.endTime) > DateTime.local()
       ),
   },
   GROUPS_TYPE: {
@@ -121,7 +121,7 @@ const otherEventConfig = {
         (event) =>
           Array.isArray(event.groups) &&
           Array.isArray(groups) &&
-          dateFromISOString(event.endTime) < DateTime.local() &&
+          dateFromISOString(event.endTime) > DateTime.local() &&
           event.groups.some((group) => groups.includes(group.id).length > 0)
       ),
   },
