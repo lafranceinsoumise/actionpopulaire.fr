@@ -174,6 +174,7 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
             "isOrganizer",
             "rsvp",
             "canRSVP",
+            "is2022",
             "routes",
             "groups",
             "distance",
