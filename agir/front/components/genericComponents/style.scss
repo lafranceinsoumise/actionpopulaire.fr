@@ -233,3 +233,7 @@ output {
   line-height: $line-height-base;
   color: $black500;
 }
+
+p {
+  overflow-wrap: anywhere;
+}
