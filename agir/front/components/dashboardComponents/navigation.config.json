@@ -55,7 +55,7 @@
     },
     {
       "id": "menu",
-      "icon": "menu",
+      "icon": "more-horizontal",
       "title": "Plus",
       "route": "menu",
       "desktop": false,
@@ -71,12 +71,12 @@
     {
       "id": "eventMap",
       "title": "Carte des évènements",
-      "route": "eventsMap"
+      "route": "eventMapPage"
     },
     {
       "id": "groupMap",
       "title": "Carte des groupes",
-      "route": "groupsMap"
+      "route": "groupMapPage"
     },
     {
       "id": "thematicTeams",
