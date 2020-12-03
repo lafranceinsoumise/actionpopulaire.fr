@@ -16,14 +16,14 @@ const ONBOARDING_TYPE = {
       "Rejoignez un groupe d’action de votre ville pour militer localement",
     body:
       "Les groupes d’actions permettent aux militants de s’organiser dans leur quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain et organisez des moments de réflexions politiques !",
-    href: "https://lafranceinsoumise.fr/groupes-action/carte-groupes/",
+    route: "groupMapPage",
   },
   thematic: {
     img: onboardingThematicImage,
     title: "Rejoignez un groupe thématique local",
     body:
       "Les groupes thématiques locaux font vivre des thèmes du programme <a href='' rel='noopener noreferrer' target='_blank'>l’Avenir en Commun</a> dans un quartier ou une ville. Rejoignez un groupe proche de chez vous sur un thème qui vous tient à coeur !",
-    href: "http://agir.local:8000/equipes-thematiques/",
+    route: "thematicTeams",
   },
 };
 
@@ -94,7 +94,7 @@ const GroupOnboarding = (props) => {
   if (!type || !ONBOARDING_TYPE[type]) {
     return null;
   }
-  const { img, title, body, href } = ONBOARDING_TYPE[type];
+  const { img, title, body, route } = ONBOARDING_TYPE[type];
   return (
     <StyledBlock>
       <header>
@@ -105,9 +105,11 @@ const GroupOnboarding = (props) => {
         <p dangerouslySetInnerHTML={{ __html: body }} />
       </article>
       <footer>
-        <Button as="a" href={href} color="primary">
-          Voir les groupes dans ma ville
-        </Button>
+        {routes[route] ? (
+          <Button as="a" href={routes[route]} color="primary">
+            Voir les groupes dans ma ville
+          </Button>
+        ) : null}
         <Button as="a" href={routes.createGroup}>
           Créer un groupe
         </Button>

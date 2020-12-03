@@ -21,6 +21,8 @@ export const Default = Template.bind({});
 Default.args = {
   type: "thematic",
   routes: {
-    createGroup: "#",
+    createGroup: "#createGroup",
+    groupMapPage: "#groupMapPage",
+    thematicTeams: "#thematicTeams",
   },
 };
