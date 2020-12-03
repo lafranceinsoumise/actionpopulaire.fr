@@ -40,7 +40,7 @@ def basic_information(request):
         "noussommespour": {"home": "https://noussommespour.fr",},
         "jlmBlog": "https://melenchon.fr",
         "linsoumission": "https://linsoumission.fr",
-        "feedbackForm": "/formulaires/feedback",
+        "feedbackForm": "https://actionpopulaire.fr/formulaires/votre-avis/",
     }
 
     routes_2022 = {
