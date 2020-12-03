@@ -54,7 +54,6 @@ const MainContainer = styled(Container)`
 
   @media (max-width: ${style.collapse}px) {
     padding-top: 24px;
-    padding-bottom: 24px;
     background-color: ${({ smallBackgroundColor }) =>
       smallBackgroundColor || "transparent"};
   }
@@ -80,7 +79,7 @@ const Layout = (props) => (
         </MainColumn>
       </Row>
     </MainContainer>
-    <Footer />
+    <Footer desktopOnly={props.desktopOnlyFooter} />
   </>
 );
 
@@ -109,6 +108,7 @@ Layout.propTypes = {
   title: PropTypes.string,
   subtitle: PropTypes.string,
   children: PropTypes.node,
+  desktopOnlyFooter: PropTypes.bool,
 };
 Layout.defaultProps = {
   routes: {
@@ -116,4 +116,5 @@ Layout.defaultProps = {
     groups: "/mes-groupes",
     activity: "/activite",
   },
+  desktopOnlyFooter: true,
 };

@@ -58,31 +58,6 @@ const MenuItem = styled.li`
     `}
 `;
 
-const SecondaryMenu = styled.ul`
-  display: flex;
-  flex-flow: column nowrap;
-  list-style: none;
-`;
-
-const SecondaryMenuItem = styled.li`
-  font-size: 12px;
-  line-height: 15px;
-  color: ${style.black500};
-  margin-bottom: 16px;
-  font-weight: bold;
-
-  & a,
-  & a:hover,
-  & a:focus,
-  & a:active {
-    font-size: 13px;
-    font-weight: normal;
-    line-height: 1.1;
-    color: ${style.black700};
-    margin-bottom: 12px;
-  }
-`;
-
 const Counter = styled.span`
   text-align: center;
   position: absolute;
@@ -131,7 +106,7 @@ MenuLink.propTypes = {
 const NavigationPage = ({ active }) => {
   const { requiredActionActivities = [], routes } = useGlobalContext();
   return (
-    <Layout active="menu">
+    <Layout active="menu" desktopOnlyFooter={false}>
       <Navigation>
         <Menu>
           {MAIN_LINKS.map((link) =>
@@ -146,16 +121,6 @@ const NavigationPage = ({ active }) => {
             ) : null
           )}
         </Menu>
-        <SecondaryMenu>
-          <SecondaryMenuItem key="title">LIENS</SecondaryMenuItem>
-          {CONFIG.secondaryLinks.map((link) =>
-            link.href || routes[link.route] ? (
-              <SecondaryMenuItem key={link.id}>
-                <a href={link.href || routes[link.route]}>{link.title}</a>
-              </SecondaryMenuItem>
-            ) : null
-          )}
-        </SecondaryMenu>
       </Navigation>
     </Layout>
   );

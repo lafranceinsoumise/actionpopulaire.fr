@@ -148,7 +148,7 @@ FeedbackButton.propTypes = {
   href: PropTypes.string.isRequired,
 };
 const ConnectedFeedbackButton = (props) => {
-  const { routes } = useGlobalContext();
+  const { user, hasFeedbackButton = false, routes } = useGlobalContext();
   const href = routes && routes.feedbackForm;
 
   const [isActive, setIsActive] = useState(false);
@@ -170,7 +170,7 @@ const ConnectedFeedbackButton = (props) => {
     <FeedbackButton
       {...props}
       href={href}
-      isActive={isActive}
+      isActive={!!user && hasFeedbackButton && isActive}
       shouldPushTooltip={shouldPushTooltip}
     />
   );

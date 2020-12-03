@@ -34,22 +34,23 @@ export const updateGlobalContext = (
   state = defaultGlobalContextState,
   action
 ) => {
+  let newState = state;
   if (action.type === "@@INIT" && Array.isArray(action.activities)) {
     const { required } = parseActivities(action.activities);
-    return {
-      ...state,
+    newState = {
+      ...newState,
       requiredActionActivities: required,
     };
   }
   if (action.type === "@@INIT" && action.user && action.user.is2022) {
-    return {
-      ...state,
+    newState = {
+      ...newState,
       is2022: true,
     };
   }
   if (action.type === "setIs2022") {
-    return {
-      ...state,
+    newState = {
+      ...newState,
       is2022: true,
     };
   }
@@ -57,22 +58,31 @@ export const updateGlobalContext = (
     action.type === "update-required-action-activities" &&
     Array.isArray(action.requiredActionActivities)
   ) {
-    return {
-      ...state,
+    newState = {
+      ...newState,
       requiredActionActivities: action.requiredActionActivities,
     };
   }
-  return state;
+  return newState;
 };
 
 export const GlobalContextProvider = ({ children }) => {
   const globalContextScript = document.getElementById("globalContext");
-  const globalContextData = globalContextScript
-    ? {
-        ...defaultGlobalContextState,
-        ...JSON.parse(globalContextScript.textContent),
-      }
-    : defaultGlobalContextState;
+  const extraContextScript = document.getElementById("extraContext");
+
+  let globalContextData = defaultGlobalContextState;
+  if (globalContextScript) {
+    globalContextData = {
+      ...globalContextData,
+      ...JSON.parse(globalContextScript.textContent),
+    };
+  }
+  if (extraContextScript) {
+    globalContextData = {
+      ...globalContextData,
+      ...JSON.parse(extraContextScript.textContent),
+    };
+  }
 
   const [state, dispatch] = useReducer(updateGlobalContext, globalContextData);
 

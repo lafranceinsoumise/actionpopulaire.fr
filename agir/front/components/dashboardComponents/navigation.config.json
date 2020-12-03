@@ -29,8 +29,7 @@
     {
       "id": "activity",
       "icon": "align-left",
-      "title": "Fil d'actualité",
-      "shortTitle": "Fil d'actu",
+      "title": "Actualités",
       "route": "activity",
       "desktop": true,
       "mobile": true
