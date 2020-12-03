@@ -25,6 +25,9 @@ class SupportGroupQuerySet(models.QuerySet):
     def certified(self):
         return self.filter(subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES)
 
+    def is_2022(self):
+        return self.filter(type=SupportGroup.TYPE_2022)
+
     def search(self, query):
         vector = (
             SearchVector(models.F("name"), config="french_unaccented", weight="A")

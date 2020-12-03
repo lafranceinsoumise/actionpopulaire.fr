@@ -92,6 +92,14 @@ class EventsView(ListAPIView):
             "view_hidden_event"
         ):
             qs = qs.listed()
+
+        if (
+            self.request.user.is_authenticated
+            and hasattr(self.request.user, "person")
+            and self.request.user.person.is_2022_only
+        ):
+            qs = qs.is_2022()
+
         return qs.filter(coordinates__isnull=False).select_related("subtype")
 
     @cache.cache_control(max_age=300, public=True)
@@ -121,16 +129,22 @@ class GroupsView(ListAPIView):
         .filter(coordinates__isnull=False)
         .prefetch_related("subtypes")
     )
-    authentication_classes = []
 
     @cache.cache_control(max_age=300, public=True)
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
+        qs = SupportGroup.objects.active()
+        if (
+            self.request.user.is_authenticated
+            and hasattr(self.request.user, "person")
+            and self.request.user.person.is_2022_only
+        ):
+            qs = qs.is_2022()
+
         return (
-            SupportGroup.objects.active()
-            .filter(coordinates__isnull=False)
+            qs.filter(coordinates__isnull=False)
             .prefetch_related("subtypes")
             .annotate(
                 current_events_count=Count("organized_events", filter=is_active_group())

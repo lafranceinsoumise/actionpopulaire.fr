@@ -189,21 +189,26 @@ class DashboardSearchView(TemplateView):
         if q is None:
             q = ""
 
-        support_groups = (
-            self.querysets["support_groups"].search(q).order_by("name")[:20]
-        )
+        support_groups = self.querysets["support_groups"]
+        upcoming_events = self.querysets["upcoming_events"]
+        past_events = self.querysets["past_events"]
 
-        upcoming_events = (
-            self.querysets["upcoming_events"]
-            .search(q)
-            .order_by("-start_time", "-end_time")[:20]
-        )
+        if (
+            self.request.user.is_authenticated
+            and hasattr(self.request.user, "person")
+            and self.request.user.person.is_2022_only
+        ):
+            upcoming_events = upcoming_events.is_2022()
+            past_events = past_events.is_2022()
+            support_groups = support_groups.is_2022()
 
-        past_events = (
-            self.querysets["past_events"]
-            .search(q)
-            .order_by("-start_time", "-end_time")[:10]
-        )
+        support_groups = support_groups.search(q).order_by("name")[:20]
+
+        upcoming_events = upcoming_events.search(q).order_by(
+            "-start_time", "-end_time"
+        )[:20]
+
+        past_events = past_events.search(q).order_by("-start_time", "-end_time")[:10]
 
         result_count = (
             int(support_groups.count())

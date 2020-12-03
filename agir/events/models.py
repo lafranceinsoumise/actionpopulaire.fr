@@ -48,6 +48,9 @@ class EventQuerySet(models.QuerySet):
     def listed(self):
         return self.public().filter(do_not_list=False)
 
+    def is_2022(self):
+        return self.filter(for_users=Event.FOR_USERS_2022)
+
     def upcoming(self, as_of=None, published_only=True):
         if as_of is None:
             as_of = timezone.now()
