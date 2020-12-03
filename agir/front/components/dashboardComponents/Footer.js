@@ -388,7 +388,7 @@ export const Footer = (props) => {
                 <a href={routes.noussommespour.home}>Nous Sommes Pour !</a>
               )}
               {routes.lafranceinsoumise && (
-                <a href={routes.lafranceinsoumise.home}>La France Insoumise</a>
+                <a href={routes.lafranceinsoumise.home}>La France insoumise</a>
               )}
               {routes.jlmBlog && (
                 <a href={routes.jlmBlog}>Le blog de Jean-Luc Mélenchon</a>

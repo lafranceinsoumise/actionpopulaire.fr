@@ -65,7 +65,7 @@
   "secondaryLinks": [
     {
       "id": "news",
-      "title": "Actualité de la France Insoumise",
+      "title": "Actualité de la France insoumise",
       "route": "news"
     },
     {
