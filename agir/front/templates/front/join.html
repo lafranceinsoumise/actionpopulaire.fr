@@ -9,14 +9,23 @@
     <main class="row">
       <div class="col-xs-12 col-md-6 col-md-offset-3 text-center">
         <div id="login-widget">
-          <h2>Rejoindre Action Populaire</h2>
+          {% if type == "I" %}
+            <h2>Vous n'êtes pas membre de la France insoumise</h2>
+            <div>
+              <strong>
+                Vous devez être membre de la France insoumise pour participer à cet événement.
+              </strong>
+            </div>
 
-          <p>
-            <strong>Action Populaire</strong> est la plateforme d'action de la campagne de Jean-Luc Mélenchon pour 2022
-            et de la France insoumise.
-          </p>
+            <p>
+              <a class="btn btn-primary btn-block" href="https://noussommespour.fr/">Rejoindre la France insoumise</a>
+              {% if not user.is_authenticated %}
+                <a class="btn btn-default btn-block" href="{% url "short_code_login" %}">Je suis déjà membre</a>
+              {% endif %}
+            </p>
+          {% elif type == "2" %}
+            <h2>Vous n'avez pas parrainé la candidature de Jean-Luc Mélenchon pour 2022</h2>
 
-          {% if type == "2" %}
             <div>
               <strong>
                 Vous devez parrainer la candidature sur «&nbsp;<strong>Nous sommes pour !</strong>&nbsp;» pour rejoindre
@@ -31,22 +40,15 @@
               {% endif %}
             </p>
 
-          {% elif type == "I" %}
-            <div>
-              <strong>
-                Vous devez être membre de la France insoumise pour participer à cet événement.
-              </strong>
-            </div>
-
-            <p>
-              <a class="btn btn-primary btn-block" href="https://noussommespour.fr/">Rejoindre la France inousmise</a>
-              {% if not user.is_authenticated %}
-                <a class="btn btn-default btn-block" href="{% url "short_code_login" %}">Je suis déjà membre</a>
-              {% endif %}
-            </p>
-
           {% else %}
 
+            <h2>Rejoindre Action Populaire</h2>
+
+            <p>
+              <strong>Action Populaire</strong> est la plateforme d'action de la campagne de Jean-Luc Mélenchon pour
+              2022
+              et de la France insoumise.
+            </p>
             <p>Inscrivez-vous d'une de ces façons :</p>
 
             <div>
@@ -54,11 +56,15 @@
               <span class="or">ou</span>
               <a class="btn btn-default" href="https://lafranceinsoumise.fr">Rejoindre la France insoumise</a>
             </div>
+
           {% endif %}
 
-          <p>
-            Vous pourrez ensuite vous connecter à <strong>Action Populaire</strong> en utilisant la même adresse email.
-          </p>
+          {% if not user.is_authenticated %}
+            <p>
+              Vous pourrez ensuite vous connecter à <strong>Action Populaire</strong> en utilisant la même adresse
+              email.
+            </p>
+          {% endif %}
 
         </div><!-- login-widget -->
 
