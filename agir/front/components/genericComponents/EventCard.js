@@ -59,7 +59,7 @@ RSVPButton.propTypes = {
 const Buttons = styled.div`
   display: flex;
 
-  & ${Button} + ${Button} {
+  * + ${Button} {
     margin-left: 0.5rem;
   }
 `;

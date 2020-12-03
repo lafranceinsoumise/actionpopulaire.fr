@@ -60,8 +60,8 @@ class ConfirmationMailSentView(TemplateView):
 
 class BaseSubscriptionView(SimpleOpengraphMixin, FormView):
     success_url = reverse_lazy("subscription_mail_sent")
-    meta_title = "Rejoignez la France insoumise"
-    meta_description = "Rejoignez la France insoumise sur lafranceinsoumise.fr"
+    meta_title = "Rejoignez Action Populaire"
+    meta_description = "Rejoignez Action Populaire"
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
