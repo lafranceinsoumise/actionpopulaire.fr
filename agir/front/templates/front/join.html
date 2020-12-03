@@ -26,10 +26,7 @@
 
             <p>
               <a class="btn btn-primary btn-block" href="https://noussommespour.fr/">Parrainer la candidature</a>
-              {% if user.is_authenticated %}
-                <a class="btn btn-default btn-block" href="{% url "short_code_login" %}">J'ai parrainé avec une autre
-                  adresse email</a>
-              {% else %}
+              {% if not user.is_authenticated %}
                 <a class="btn btn-default btn-block" href="{% url "short_code_login" %}">J'ai déjà parrainé</a>
               {% endif %}
             </p>
@@ -43,11 +40,7 @@
 
             <p>
               <a class="btn btn-primary btn-block" href="https://noussommespour.fr/">Rejoindre la France inousmise</a>
-              {% if user.is_authenticated %}
-                <a class="btn btn-default btn-block" href="{% url "short_code_login" %}">
-                  Je suis déjà membre avec une autre adresse email
-                </a>
-              {% else %}
+              {% if not user.is_authenticated %}
                 <a class="btn btn-default btn-block" href="{% url "short_code_login" %}">Je suis déjà membre</a>
               {% endif %}
             </p>
