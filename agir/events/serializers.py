@@ -141,7 +141,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return routes
 
     def get_distance(self, obj):
-        if hasattr(obj, "distance"):
+        if hasattr(obj, "distance") and obj.distance is not None:
             return obj.distance.m
 
     def get_is2022(self, obj):
