@@ -16,7 +16,7 @@
       <a class="btn btn-sm btn-primary" href="{% url "create_event" %}">
         <i class="fa fa-plus"></i>&ensp;Créer un événement
       </a>
-      <a class="btn btn-sm btn-default" href="https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/">
+      <a class="btn btn-sm btn-default" href="{% url "event_map_page" %}">
         <i class="fa fa-map"></i>&ensp;Accéder à la carte des événements
       </a>
     </div>
@@ -33,7 +33,7 @@
       <p>Si aucun événement n'est organisé près de chez vous, vous pouvez en créer un vous-même.</p>
 
       <p>Vous pouvez aussi rechercher des événements en utilisant
-        <a href="https://lafranceinsoumise.fr/groupes-appui/carte/">la carte.</a>
+        <a href="{% url "event_map_page" %}">la carte.</a>
       </p>
     </div>
   </div>

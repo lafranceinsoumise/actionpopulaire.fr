@@ -16,7 +16,7 @@
       <a class="btn btn-sm btn-primary" href="{% url "create_group" %}">
         <i class="fa fa-plus"></i>&ensp;Créer un groupe
       </a>
-      <a class="btn btn-sm btn-default" href="https://lafranceinsoumise.fr/groupes-appui/carte/">
+      <a class="btn btn-sm btn-default" href="{% url "group_map_page" %}">
         <i class="fa fa-map"></i>&ensp;Accéder à la carte des groupes
       </a>
     </div>
@@ -31,7 +31,7 @@
       <p>Sur cette page, vous trouverez l'ensemble des groupes d'action de la France insoumise.</p>
       <p>Si aucun groupes d'action ne se trouve près de chez vous, vous pouvez en créer un vous-même.</p>
       <p>Vous pouvez aussi rechercher des groupes d'action en utilisant
-        <a href="https://lafranceinsoumise.fr/groupes-appui/carte/">
+        <a href="{% url "group_map_page" %}">
           la carte.
         </a>
       </p>
