@@ -62,9 +62,7 @@ const RequiredActivityList = () => {
         <LayoutTitle>
           {required.length ? <Counter>{required.length}</Counter> : null}À faire
         </LayoutTitle>
-        <LayoutSubtitle>
-          L’actualité de vos groupes et de la France Insoumise
-        </LayoutSubtitle>
+        <LayoutSubtitle>L’actualité de vos groupes</LayoutSubtitle>
         <Activities
           CardComponent={RequiredActionCard}
           activities={required}
