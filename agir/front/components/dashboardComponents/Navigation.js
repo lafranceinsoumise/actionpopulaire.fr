@@ -28,6 +28,7 @@ const SecondaryMenu = styled.ul`
   display: flex;
   flex-flow: column nowrap;
   list-style: none;
+  max-width: 215px;
 
   @media only screen and (max-width: ${style.collapse}px) {
     display: none;
@@ -40,6 +41,7 @@ const SecondaryMenuItem = styled.li`
   color: ${style.black500};
   margin-bottom: 16px;
   font-weight: bold;
+  overflow-wrap: break-word;
 
   & a,
   & a:hover,
