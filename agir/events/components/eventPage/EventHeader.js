@@ -70,7 +70,6 @@ const ActionButtons = (props) => {
     logged,
     isOrganizer,
     routes,
-    forUsers,
   } = props;
 
   if (past) {
@@ -128,15 +127,8 @@ ActionButtons.propTypes = {
   }),
 };
 
-const AdditionalMessage = ({
-  logged,
-  rsvped,
-  price,
-  routes,
-  forUsers,
-  canRSVP,
-}) => {
-  if (!logged || !canRSVP) {
+const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
+  if (!logged) {
     return (
       <div>
         <ActionLink href={routes.login}>Je me connecte</ActionLink> ou{" "}
@@ -178,7 +170,6 @@ AdditionalMessage.propTypes = {
   price: PropTypes.string,
   routes: PropTypes.object,
   forUsers: PropTypes.string,
-  canRSVP: PropTypes.string,
 };
 
 const EventHeader = ({
@@ -190,7 +181,6 @@ const EventHeader = ({
   isOrganizer,
   hasSubscriptionForm,
   forUsers,
-  canRSVP,
 }) => {
   const config = useGlobalContext();
   const logged = config.user !== null;
@@ -223,7 +213,6 @@ const EventHeader = ({
           price={options.price}
           routes={{ ...routes, ...config.routes }}
           forUsers={forUsers}
-          canRSVP={canRSVP}
         />
       )}
     </EventHeaderContainer>
