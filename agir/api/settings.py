@@ -330,7 +330,7 @@ EMAIL_TEMPLATES = {
 }
 
 EMAIL_FROM = os.environ.get(
-    "EMAIL_FROM", "La France insoumise <noreply@lafranceinsoumise.fr>"
+    "EMAIL_FROM", "Action populaire <noreply@actionpopulaire.fr>"
 )
 EMAIL_SECRETARIAT = os.environ.get("EMAIL_SECRETARIAT", "nospam@lafranceinsoumise.fr")
 EMAIL_EQUIPE_FINANCE = os.environ.get(
