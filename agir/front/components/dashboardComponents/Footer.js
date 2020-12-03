@@ -211,10 +211,16 @@ const StyledFooter = styled.div`
   }
 `;
 
+const FooterWrapper = styled.footer`
+  @media (max-width: ${style.collapse}px) {
+    display: ${({ desktopOnly }) => (desktopOnly ? "none" : "block")};
+  }
+`;
+
 export const Footer = (props) => {
-  const { isSignedIn, is2022, routes } = props;
+  const { isSignedIn, is2022, routes, desktopOnly } = props;
   return (
-    <footer>
+    <FooterWrapper desktopOnly={desktopOnly}>
       {isSignedIn === false ? (
         <FooterBanner>
           <FooterForm>
@@ -400,20 +406,24 @@ export const Footer = (props) => {
           </div>
         </article>
       </StyledFooter>
-    </footer>
+    </FooterWrapper>
   );
 };
 Footer.propTypes = {
   isSignedIn: PropTypes.bool,
   is2022: PropTypes.bool,
   routes: PropTypes.object,
+  desktopOnly: PropTypes.bool,
 };
 Footer.defaultProps = {
   isSignedIn: false,
   is2022: false,
+  desktopOnly: false,
 };
-const ConnectedFooter = () => {
+const ConnectedFooter = (props) => {
   const { routes, user, is2022 } = useGlobalContext();
-  return <Footer routes={routes} isSignedIn={!!user} is2022={is2022} />;
+  return (
+    <Footer {...props} routes={routes} isSignedIn={!!user} is2022={is2022} />
+  );
 };
 export default ConnectedFooter;
