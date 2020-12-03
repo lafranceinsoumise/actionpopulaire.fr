@@ -64,6 +64,11 @@
               Vous pourrez ensuite vous connecter à <strong>Action Populaire</strong> en utilisant la même adresse
               email.
             </p>
+          {% else %}
+            <p>
+              Inscrivez-vous avec la même adresse email (<em>{{ user.person.email }}</em>) pour être automatiquement connecté.
+            </p>
+
           {% endif %}
 
         </div><!-- login-widget -->
