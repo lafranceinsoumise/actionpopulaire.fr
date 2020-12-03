@@ -60,6 +60,8 @@ class ObjectOpengraphMixin(SimpleOpengraphMixin):
 
     # noinspection PyUnresolvedReferences
     def get_meta_image(self):
+        if hasattr(self.object, "image") and self.object.image:
+            return urljoin(settings.FRONT_DOMAIN, self.object.image.url)
         if self.is_2022_object():
             return self.image_nsp
         return self.image_lfi

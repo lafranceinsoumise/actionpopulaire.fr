@@ -18,11 +18,10 @@ const FadingOverflowWrapper = styled.div`
     collapsed && maxHeight ? `${maxHeight}px` : "unset"};
   overflow: hidden;
   position: relative;
-  font-size: 0.875rem;
-  line-height: 1.6;
 
   @media (max-width: ${style.collapse}px) {
-    font-size: 14px;
+    font-size: 0.875rem;
+    line-height: 1.6;
   }
 
   &::after {
@@ -105,8 +104,10 @@ FadingOverflowCollapsible.defaultProps = {
 };
 
 const StyledWrapper = styled.div`
-  font-size: 0.875rem;
-  line-height: 1.6;
+  @media (max-width: ${style.collapse}px) {
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
 
   & > .hidden {
     ${({ collapsed }) => (collapsed ? "display: none" : "")};

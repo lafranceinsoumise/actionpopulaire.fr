@@ -7,7 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 const Tab = styled.li`
   text-transform: uppercase;
   display: block;
-  padding: 0 5px 12px;
+  padding: 0;
   margin: 0 16px -1px 0;
   font-size: 11px;
   font-weight: 600;
@@ -42,7 +42,7 @@ const TabList = styled.ul`
 const TabListWrapper = styled.div`
   position: relative;
   width: 100%;
-  height: 22px;
+  height: 24px;
   padding: 0;
   border-bottom: 1px solid ${style.black100};
 

@@ -147,8 +147,7 @@ const FooterBanner = styled.div`
 const StyledFooter = styled.div`
   width: 100%;
   background-color: ${style.white};
-  box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
-    0px 2px 0px rgba(0, 35, 44, 0.08);
+  border-top: 1px solid ${style.black100};
 
   article {
     width: 100%;

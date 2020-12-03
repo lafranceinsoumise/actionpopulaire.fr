@@ -27,7 +27,7 @@ class EmailForm(forms.Form):
 
         self.fields["email"].label = ""
         self.helper = FormHelper()
-        self.helper.add_input(Submit("submit", "Se connecter"))
+        self.helper.add_input(Submit("submit", "SE CONNECTER", css_class="btn-default"))
 
     def clean_email(self):
         # normalisation des emails

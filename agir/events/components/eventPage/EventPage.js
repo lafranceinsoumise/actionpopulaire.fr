@@ -130,7 +130,7 @@ const MobileLayout = (props) => {
             <CardLikeSection>
               <h3>Organisé par</h3>
               {props.groups.map((group, key) => (
-                <GroupCard key={key} {...group} />
+                <GroupCard key={key} {...group} isEmbedded />
               ))}
             </CardLikeSection>
           )}
@@ -158,7 +158,7 @@ const DesktopLayout = (props) => {
                 </h3>
 
                 {props.groups.map((group, key) => (
-                  <GroupCard key={key} {...group} />
+                  <GroupCard key={key} {...group} isEmbedded />
                 ))}
               </div>
             )}

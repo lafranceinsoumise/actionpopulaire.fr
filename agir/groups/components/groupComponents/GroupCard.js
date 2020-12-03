@@ -80,6 +80,7 @@ const GroupCard = ({
   displayType,
   displayDescription,
   displayMembership,
+  isEmbedded = false,
 }) => {
   const mainLink = React.useRef(null);
   const handleClick = React.useCallback(
@@ -95,7 +96,7 @@ const GroupCard = ({
     [routes]
   );
   return (
-    <Card onClick={handleClick}>
+    <Card onClick={isEmbedded ? undefined : handleClick}>
       <Row gutter={6}>
         {displayGroupLogo && (
           <Column collapse={0}>
@@ -125,6 +126,7 @@ const GroupCard = ({
             maxHeight={100}
             expanderLabel="Lire la suite"
             dangerouslySetInnerHTML={{ __html: description }}
+            fadingOverflow
           />
         </div>
       )}
@@ -162,7 +164,7 @@ const GroupCard = ({
             Financer
           </GroupButton>
         )}
-        {isManager && (
+        {isManager && routes.manage && (
           <GroupButton href={routes.manage} icon="settings">
             Gestion
           </GroupButton>
@@ -196,6 +198,7 @@ GroupCard.propTypes = {
   displayDescription: PropTypes.bool,
   displayMembership: PropTypes.bool,
   ...DiscountCodesSection.propTypes,
+  isEmbedded: PropTypes.bool,
 };
 
 GroupCard.defaultProps = {
@@ -203,6 +206,7 @@ GroupCard.defaultProps = {
   displayType: true,
   displayDescription: true,
   displayMembership: true,
+  isManager: false,
 };
 
 export default GroupCard;

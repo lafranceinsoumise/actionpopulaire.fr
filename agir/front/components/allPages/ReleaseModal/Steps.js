@@ -9,6 +9,7 @@ import imgStep1 from "./images/step_1.png";
 import imgStep2 from "./images/step_2.png";
 import imgStep3 from "./images/step_3.png";
 import imgStep4 from "./images/step_4.png";
+import imgStep5 from "./images/step_5.png";
 
 const StyledStep = styled.div`
   text-align: center;
@@ -16,19 +17,23 @@ const StyledStep = styled.div`
   flex-flow: column nowrap;
   align-items: center;
   justify-content: center;
+  justify-content: ${({ fixedToTop }) =>
+    fixedToTop ? "flex-start" : "center"};
   max-width: 600px;
   min-height: 441px;
   padding: 36px 40px;
+  padding-top: ${({ fixedToTop }) => (fixedToTop ? "0" : "36px")};
   margin: 60px auto 0;
   box-shadow: ${style.elaborateShadow};
   border-radius: 8px;
   background-color: ${style.white};
 
   @media (max-width: ${style.collapse}px) {
-    margin: 20px auto 0;
+    margin-top: 20px;
     min-height: 510px;
     max-width: calc(100% - 40px);
     padding: 36px 25px;
+    padding-top: ${({ fixedToTop }) => (fixedToTop ? "0" : "36px")};
   }
 
   img {
@@ -37,7 +42,6 @@ const StyledStep = styled.div`
     max-width: 100%;
     max-height: ${({ imgHeight }) => imgHeight || 126}px;
     margin-bottom: 25px;
-    margin-top: 0;
 
     @media (max-width: ${style.collapse}px) {
       margin-bottom: 16px;
@@ -69,9 +73,17 @@ const StyledStep = styled.div`
 `;
 
 export const Step = (props) => {
-  const { img, imgHeight, title, body, onClick, hasNext = false } = props;
+  const {
+    img,
+    imgHeight,
+    title,
+    body,
+    onClick,
+    hasNext = false,
+    fixedToTop = false,
+  } = props;
   return (
-    <StyledStep imgHeight={imgHeight}>
+    <StyledStep imgHeight={imgHeight} fixedToTop={fixedToTop}>
       {img ? <img src={img} /> : null}
       <h2>{title}</h2>
       {body}
@@ -84,6 +96,7 @@ export const Step = (props) => {
 Step.propTypes = {
   img: PropTypes.string,
   imgHeight: PropTypes.number,
+  fixedToTop: PropTypes.bool,
   title: PropTypes.node.isRequired,
   body: PropTypes.node.isRequired,
   onClick: PropTypes.func.isRequired,
@@ -126,7 +139,7 @@ export const steps = [
   {
     img: imgStep3,
     imgHeight: 110,
-    title: <>Vos groupes, vos évènement et vos notifications au même endroit</>,
+    title: "Vos groupes, vos évènement et vos notifications au même endroit",
     body: (
       <p>
         Le menu vous permet d’accéder d’un coup d’oeil à toute votre vie
@@ -136,18 +149,30 @@ export const steps = [
   },
   {
     img: imgStep4,
-    title: <>Un espace pour toutes vos tâches militantes à traiter 👍</>,
+    imgHeight: 179,
+    fixedToTop: true,
+    title: "Action Populaire sur votre téléphone",
     body: (
       <p>
-        En cas de problème, ou bien lorsque des nouveaux membre rejoignent votre
-        groupe, recevez l’information en priorité.
+        Visitez le site sur votre téléphone ou votre tablette pour accéder à une
+        version très simple à utiliser !
+      </p>
+    ),
+  },
+  {
+    img: imgStep5,
+    title: "Un espace pour toutes vos tâches militantes à traiter 👍",
+    body: (
+      <p>
+        En cas de problème, ou bien lorsque des nouveaux membres rejoignent
+        votre groupe, recevez l’information en priorité.
       </p>
     ),
   },
   {
     img: null,
     imgHeight: 120,
-    title: <>Et ce n'est pas fini !</>,
+    title: "Et ce n'est pas fini !",
     body: (
       <p>
         Nos équipes vont travailler avec vous pour améliorer la plateforme. Nous

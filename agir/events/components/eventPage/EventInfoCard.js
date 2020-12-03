@@ -12,9 +12,9 @@ const EventInfoCard = ({ groups, participantCount, is2022 }) => (
       {groups.length > 0 && (
         <IconListItem name="users">
           Organisé par{" "}
-          {groups.map(({ name, url }, key) => (
+          {groups.map(({ name, routes }, key) => (
             <React.Fragment key={key}>
-              <a href={url}>{name}</a>
+              {routes && routes.page ? <a href={routes.page}>{name}</a> : name}
               {key < groups.length - 2
                 ? ", "
                 : key === groups.length - 2
