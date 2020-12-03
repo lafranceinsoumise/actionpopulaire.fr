@@ -97,6 +97,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             "eventCount",
             "membersCount",
             "isMember",
+            "isManager",
             "typeLabel",
             "labels",
             "routes",

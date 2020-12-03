@@ -71,6 +71,7 @@ const GroupCard = ({
   eventCount,
   membersCount,
   isMember,
+  isManager,
   typeLabel,
   labels,
   routes,
@@ -161,7 +162,7 @@ const GroupCard = ({
             Financer
           </GroupButton>
         )}
-        {routes.manage && (
+        {isManager && (
           <GroupButton href={routes.manage} icon="settings">
             Gestion
           </GroupButton>
@@ -182,6 +183,7 @@ GroupCard.propTypes = {
   eventCount: PropTypes.number.isRequired,
   membersCount: PropTypes.number.isRequired,
   isMember: PropTypes.bool,
+  isManager: PropTypes.bool,
   typeLabel: PropTypes.string,
   labels: PropTypes.arrayOf(PropTypes.string),
   routes: PropTypes.shape({
