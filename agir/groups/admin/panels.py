@@ -199,7 +199,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     def promo_code(self, object):
         if object.pk and object.tags.filter(label=settings.PROMO_CODE_TAG).exists():
-            return ", ".join(get_promo_codes(object))
+            return ", ".join(code for code, _ in get_promo_codes(object))
         else:
             return "-"
 

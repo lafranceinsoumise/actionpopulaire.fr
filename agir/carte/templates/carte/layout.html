@@ -13,11 +13,13 @@
   <title>{% block title %}{% endblock %}</title>
 
   {% render_bundle 'theme' 'css' %}
+  {% render_bundle 'runtime' %}
 
   <style>
     html, body {
       width: 100%;
       margin: 0;
+      padding: 0;
       height: 100%;
     }
 

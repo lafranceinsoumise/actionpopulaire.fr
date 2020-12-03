@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% load render_bundle from webpack_loader %}
 
-{% block title %}Créer un événement{% endblock %}
+{% block title %}Créer un évènement{% endblock %}
 
 {% block extra_scripts %}
   {% render_bundle 'lib/creationForms' attrs='defer data-turbolinks-track="reload"' %}
@@ -10,10 +10,15 @@
 {% endblock %}
 
 {% block main %}
-  <h3 class="text-center">Créer un événement</h3>
-  <div id="create-event-react-app" data-turbolinks="false">
-    <div class="text-center"><i class="fa fa-refresh fa-spin fa-3x fa-fw"></i></div>
+<div class="row">
+  <div class="col-xs-12 margintopmore">
+    <h2 class="headline text-center">
+      Créer un évènement
+    </h2>
+    <div id="create-event-react-app" data-turbolinks="false">
+      <div class="text-center"><i class="fa fa-refresh fa-spin fa-3x fa-fw"></i></div>
+    </div>
+    {{ props | json_script:"react-json-script" }}
   </div>
-
-  {{ props | json_script:"react-json-script" }}
+</div>
 {% endblock %}

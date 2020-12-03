@@ -1,6 +1,5 @@
 import React from "react";
 import Datetime from "react-datetime";
-import moment from "moment";
 import "moment/locale/fr";
 
 import "react-datetime/css/react-datetime.css";
@@ -26,7 +25,7 @@ export default class ScheduleStep extends FormStep {
     } else if (startTime && startTime.isAfter(endTime)) {
       this.setError(
         "endTime",
-        "Votre événement ferait mieux de finir après avoir commencé !"
+        "Votre évènement ferait mieux de finir après avoir commencé !"
       );
     }
 
@@ -36,12 +35,12 @@ export default class ScheduleStep extends FormStep {
   render() {
     const { fields } = this.props;
     return (
-      <div className="row padtopmore">
+      <div className="row padtopmore padbottommore">
         <div className="col-md-6">
           <h4>Calendrier</h4>
           <p>
             Merci de nous indiquer quand aura lieu et combien de temps durera
-            votre événement.
+            votre évènement.
           </p>
         </div>
         <div className="col-md-6">
@@ -51,7 +50,7 @@ export default class ScheduleStep extends FormStep {
                 "form-group" + (this.hasError("startTime") ? " has-error" : "")
               }
             >
-              <label className="control-label">Début de l'événement</label>
+              <label className="control-label">Début de l'évènement</label>
               <Datetime
                 locale="fr"
                 onChange={this.setField("startTime")}
@@ -64,7 +63,7 @@ export default class ScheduleStep extends FormStep {
                 "form-group" + (this.hasError("endTime") ? " has-error" : "")
               }
             >
-              <label className="control-label">Fin de l'événement</label>
+              <label className="control-label">Fin de l'évènement</label>
               <Datetime
                 locale="fr"
                 onChange={this.setField("endTime")}

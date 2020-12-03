@@ -7,17 +7,27 @@
 
 {% block main %}
   <div class="row">
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+      <div class="pull-left">
+        <a class="menu-back-link" href="{% url "list_events" %}">
+          <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+        </a>
+      </div>
+      <div class="pull-right">
+      </div>
+      <div class="clearfix"></div>
+      <hr />
+    </div>
     {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="CONTACT" %} {% endblock %}
-    <div class="col-xs-12 col-md-10">
-
+    <div class="col-xs-12 col-md-9 margintopmore">
+      {% include "people/profile/profile_title.html" with tab_code="CONTACT" %}
       <p>Ce champ vous permet d'ajouter une adresse e-mail à votre compte.</p>
-
       <ul>
         <li>
           Après confirmation, il sera possible d'utiliser cette adresse pour se connecter à votre compte.
         </li>
         <li>
-          Si l'adresse e-mail correspond à un autre compte sur la plate-forme, une demande de fusion de compte
+          Si l'adresse e-mail correspond à un autre compte sur la plateforme, une demande de fusion de compte
           sera envoyée.
         </li>
       </ul>

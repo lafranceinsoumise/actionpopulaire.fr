@@ -1,12 +1,18 @@
-import "core-js/stable";
-import "regenerator-runtime/runtime";
-import React from "react";
-import ReactDOM from "react-dom";
+export const setUpNotificationsCenter = async function (
+  element,
+  notifications
+) {
+  const [
+    { default: React },
+    { renderReactComponent },
+    { default: NotificationsCenter },
+  ] = await Promise.all([
+    import("react"),
+    import("@agir/lib/utils/react"),
+    import("./NotificationsCenter"),
+  ]);
 
-import NotificationsCenter from "./NotificationsCenter";
-
-export const setUpNotificationsCenter = function (element, notifications) {
-  ReactDOM.render(
+  renderReactComponent(
     <NotificationsCenter notifications={notifications} />,
     element
   );

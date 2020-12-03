@@ -51,6 +51,16 @@ class SupportGroupListView(FilterView):
     queryset = SupportGroup.objects.filter(published=True)
     filter_class = GroupFilterSet
 
+    def dispatch(self, request, *args, **kwargs):
+        if (
+            self.request.user.is_authenticated
+            and hasattr(self.request.user, "person")
+            and request.user.person.is_2022_only
+        ):
+            self.queryset = self.queryset.is_2022()
+
+        return super().dispatch(request, *args, **kwargs)
+
 
 class SupportGroupDetailView(
     ObjectOpengraphMixin, GlobalOrObjectPermissionRequiredMixin, DetailView
@@ -59,8 +69,9 @@ class SupportGroupDetailView(
     template_name = "groups/detail.html"
     model = SupportGroup
 
-    title_prefix = "Groupe d'action"
+    title_prefix = "Groupe"
     meta_description = "Rejoignez les groupes d'action de la France insoumise."
+    meta_description_2022 = "Rejoignez les groupes de soutien de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
 
     def handle_no_permission(self):
         return HttpResponseGone()

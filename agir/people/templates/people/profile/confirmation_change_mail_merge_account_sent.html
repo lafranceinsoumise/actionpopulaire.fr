@@ -3,26 +3,44 @@
 {% block title %}Confirmation de l'adresse e-mail{% endblock %}
 
 {% block main %}
-  {% if is_merging %}
-    <h1 class="headline">Veuillez confirmer la fusion de compte</h1>
-  {% else %}
-    <h1 class="headline">Veuillez confirmer votre nouvelle adresse</h1>
-  {% endif %}
-  <div id="content">
-    <div class="text-content">
-      <p>
-        {% if is_merging %}
-          Pour confirmer la fusion du compte associé à l'adresse <b>{{ email_from }}</b>
-          et du compte associé à l'adresse <b>{{ email_to }}</b>>,
-        {% else %}
-          Pour confirmer votre nouvelle adresse
-        {% endif %}
-        vérifiez votre boîte email <b>{{ email_to }}</b> et cliquez sur le bouton de validation.
-      </p>
-      <p>
-        Cette procédure est utilisée pour vérifier que vous êtes bien propriétaire de l'adresse email {{ email_to }}
-        inscrite.
-      </p>
+  <div class="row">
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+      <div class="pull-left">
+        <a class="menu-back-link" href="{% url "list_events" %}">
+          <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+        </a>
+      </div>
+      <div class="pull-right">
+      </div>
+      <div class="clearfix"></div>
+      <hr />
+    </div>
+    {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="CONTACT" %} {% endblock %}
+    <div class="col-xs-12 col-md-9 margintopmore">
+      {% include "people/profile/profile_title.html" with tab_code="CONTACT" %}
+      {% if is_merging %}
+        <h3>
+          Veuillez confirmer la fusion de compte
+        </h3>
+      {% else %}
+        <h3>
+          Veuillez confirmer votre nouvelle adresse
+        </h3>
+      {% endif %}
+        <p>
+          {% if is_merging %}
+            Pour confirmer la fusion du compte associé à l'adresse <b>{{ email_from }}</b>
+            et du compte associé à l'adresse <b>{{ email_to }}</b>>,
+          {% else %}
+            Pour confirmer votre nouvelle adresse
+          {% endif %}
+          vérifiez votre boîte email <b>{{ email_to }}</b> et cliquez sur le bouton de validation.
+        </p>
+        <p>
+          Cette procédure est utilisée pour vérifier que vous êtes bien propriétaire de l'adresse email {{ email_to }}
+          inscrite.
+        </p>
+      </div>
     </div>
   </div>
 {% endblock %}

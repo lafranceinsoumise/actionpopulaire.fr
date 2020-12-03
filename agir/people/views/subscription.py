@@ -30,6 +30,7 @@ from agir.people.forms import (
 )
 from agir.people.models import Person
 from agir.people.token_buckets import is_rate_limited_for_subscription
+from agir.lib.tasks import geocode_person
 
 
 class UnsubscribeView(SimpleOpengraphMixin, FormView):
@@ -59,8 +60,8 @@ class ConfirmationMailSentView(TemplateView):
 
 class BaseSubscriptionView(SimpleOpengraphMixin, FormView):
     success_url = reverse_lazy("subscription_mail_sent")
-    meta_title = "Rejoignez la France insoumise"
-    meta_description = "Rejoignez la France insoumise sur lafranceinsoumise.fr"
+    meta_title = "Rejoignez Action Populaire"
+    meta_description = "Rejoignez Action Populaire"
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -174,6 +175,9 @@ class ConfirmSubscriptionView(View):
             send_welcome_mail.delay(self.person.pk, type=self.type)
 
         hard_login(self.request, self.person)
+
+        if self.person.coordinates_type is None:
+            geocode_person.delay(self.person.pk)
 
     def render(self, template, context=None, **kwargs):
         if context is None:

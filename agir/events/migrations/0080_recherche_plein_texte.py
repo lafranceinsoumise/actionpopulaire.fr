@@ -96,7 +96,7 @@ DECLARE
     og RECORD;
 BEGIN
     -- 
-    -- Se charge de mettre a jour le champ search des événement lorsaue le nom d'un groupe est modifier
+    -- Se charge de mettre a jour le champ search des évènement lorsaue le nom d'un groupe est modifier
     -- ou lorsque le groupe est supprimer
     -- 
     IF (tg_op = 'UPDATE') AND OLD.name <> NEW.name THEN

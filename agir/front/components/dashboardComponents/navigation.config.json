@@ -1,0 +1,96 @@
+{
+  "menuLinks": [
+    {
+      "id": "events",
+      "icon": "calendar",
+      "title": "Évènements",
+      "route": "events",
+      "desktop": true,
+      "mobile": true
+    },
+    {
+      "id": "groups",
+      "icon": "users",
+      "title": "Groupes",
+      "route": "groups",
+      "desktop": true,
+      "mobile": true,
+      "secondaryLinks": "groups__personGroups"
+    },
+    {
+      "id": "required-activity",
+      "icon": "bell",
+      "title": "À faire",
+      "route": "required-activity",
+      "counter": true,
+      "desktop": true,
+      "mobile": true
+    },
+    {
+      "id": "activity",
+      "icon": "align-left",
+      "title": "Actualités",
+      "route": "activity",
+      "desktop": true,
+      "mobile": true
+    },
+    {
+      "id": "materiel",
+      "icon": "shopping-bag",
+      "title": "Matériel",
+      "route": "materiel",
+      "desktop": true,
+      "mobile": false,
+      "external": true
+    },
+    {
+      "id": "help",
+      "icon": "help-circle",
+      "title": "Aide & Ressources",
+      "route": "help",
+      "desktop": true,
+      "mobile": false,
+      "external": true
+    },
+    {
+      "id": "menu",
+      "icon": "more-horizontal",
+      "title": "Plus",
+      "route": "menu",
+      "desktop": false,
+      "mobile": true
+    }
+  ],
+  "secondaryLinks": [
+    {
+      "id": "news",
+      "title": "Actualité de la France insoumise",
+      "route": "news"
+    },
+    {
+      "id": "eventMap",
+      "title": "Carte des évènements",
+      "route": "eventMapPage"
+    },
+    {
+      "id": "groupMap",
+      "title": "Carte des groupes",
+      "route": "groupMapPage"
+    },
+    {
+      "id": "thematicTeams",
+      "title": "Les livrets thématiques",
+      "route": "thematicTeams"
+    },
+    {
+      "id": "contact",
+      "title": "Contact",
+      "route": "contact"
+    },
+    {
+      "id": "signOut",
+      "title": "Déconnexion",
+      "route": "signOut"
+    }
+  ]
+}

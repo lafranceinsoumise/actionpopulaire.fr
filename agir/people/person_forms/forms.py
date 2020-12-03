@@ -98,7 +98,12 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         self.helper.form_method = "POST"
         if self.person_form_instance.campaign_template is not None:
             self.helper.add_input(
-                Submit("preview", "Prévisualiser l'email", formtarget="_blank")
+                Submit(
+                    "preview",
+                    "Prévisualiser l'email",
+                    formtarget="_blank",
+                    css_class="btn btn-primary btn-block margintopmore",
+                )
             )
 
         self.helper.add_input(
@@ -106,6 +111,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                 "submit",
                 self.person_form_instance.submit_label,
                 disabled=self.person_form_instance.campaign_template is not None,
+                css_class="btn btn-primary btn-block margintopmore",
             )
         )
         self.helper.layout = Layout()

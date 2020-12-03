@@ -4,52 +4,65 @@
 {% block title %}{{ person_form.title }} &mdash; Réponses page {{ page_obj.number }}{% endblock %}
 
 {% block main %}
-  {% if page_obj %}
-    <h1 class="headline">{{ person_form.title }} <a href="{% url "view_person_form" person_form.slug %}"
-                                                    class="btn btn-default">Revenir au formulaire</a>
-      <br>
-      <small>Réponses {{ page_obj.start_index }} à {{ page_obj.end_index }} sur {{ paginator.count }}</small>
-    </h1>
-    <div>
-    </div>
-    <div>
-      <hr>
-      {% for submission in submissions %}
-        <div>{{ submission.date }}</div>
-        {% for field in submission.values %}
-          <div class="row" style="margin-top: 10px;">
-            <div class="col-md-3"><strong>{{ field.label }}</strong></div>
-            <div class="col-md-9">{{ field.value }}</div>
+  <div class="row">
+    <div class="col-xs-12 col-md-9 col-md-offset-3">
+      <p class="col-sm-offset-8 col-sm-4 margintopmore marginbottom">
+        <a href="{% url "view_person_form" person_form.slug %}" class="btn btn-default btn-block">
+          {% if page_obj %}
+            Revenir au formulaire
+          {% else %}
+            Ajoutez votre réponse !
+          {% endif %}
+        </a>
+      </p>
+      <h2 class="headline">
+        {{ person_form.title }}
+      </h2>
+      <h4 class="text-muted">
+        {% if page_obj %}
+          Réponses {{ page_obj.start_index }} — {{ page_obj.end_index }} sur {{ paginator.count }}
+        {% else %}
+          Résultats
+        {% endif %}
+      </h4>
+      <div class="row">
+        {% if page_obj %}
+          <div class="col-xs-12">
+            {% for submission in submissions %}
+              <hr>
+              <h5 class="marginbottommore text-right">{{ submission.date }}</h5>
+              {% for field in submission.values %}
+                <div class="row" style="margin-bottom: 10px;">
+                  <div class="col-sm-3"><strong>{{ field.label }}</strong></div>
+                  <div class="col-sm-9">{{ field.value }}</div>
+                </div>
+              {% endfor %}
+            {% endfor %}
           </div>
-        {% endfor %}
-        <hr>
-      {% endfor %}
+          <nav class="col-xs-12">
+            <ul class="pager">
+              {% if page_obj.has_previous %}
+                <li class="previous">
+                  <a href="?page={{ page_obj.previous_page_number }}">&lt;&lt;</a>
+                </li>
+              {% endif %}
+              <li>Page {{ page_obj.number }} / {{ paginator.num_pages }}</li>
+              {% if page_obj.has_next %}
+                <li class="next">
+                  <a href="?page={{ page_obj.next_page_number }}">&gt;&gt;</a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% else %}
+          <p class="col-xs-12">
+            Pas encore de résultats pour ce formulaire. <a href="{% url "view_person_form" person_form.slug %}">
+              Ajoutez votre
+          réponse !
+            </a>
+          </p>
+        {% endif %}
+      </div>
     </div>
-
-
-    <nav>
-      <ul class="pager">
-        {% if page_obj.has_previous %}
-          <li class="previous">
-            <a href="?page={{ page_obj.previous_page_number }}">&lt;&lt;</a>
-          </li>
-        {% endif %}
-        <li>Page {{ page_obj.number }} / {{ paginator.num_pages }}</li>
-        {% if page_obj.has_next %}
-          <li class="next">
-            <a href="?page={{ page_obj.next_page_number }}">&gt;&gt;</a>
-          </li>
-        {% endif %}
-      </ul>
-    </nav>
-
-
-  {% else %}
-    <h1>{{ person_form.title }}<br>
-      <small>Résultats</small>
-    </h1>
-
-    <p>Pas encore de résultats pour ce formulaire. <a href="{% url "view_person_form" person_form.slug %}">Ajoutez votre
-      réponse !</a></p>
-  {% endif %}
+  </div>
 {% endblock %}

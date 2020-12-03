@@ -8,12 +8,15 @@ from django.contrib.gis.db.models.functions import (
 )
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance as DistanceMeasure
+from django.core.paginator import Paginator
 from django.db.models import Value, FloatField
 from django.shortcuts import reverse
 from django.views.generic import UpdateView, ListView
-from django.views.generic.base import ContextMixin
+from django.views.generic.base import ContextMixin, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
+from django.views.generic.list import MultipleObjectMixin
+from django.templatetags.static import static
 
 
 class SimpleOpengraphMixin(ContextMixin):
@@ -43,17 +46,29 @@ class SimpleOpengraphMixin(ContextMixin):
 
 
 class ObjectOpengraphMixin(SimpleOpengraphMixin):
-    title_prefix = "La France insoumise"
+    title_prefix = "Action Populaire"
+
+    image_lfi = static("front/assets/og_image_LFI.jpg")
+    image_nsp = static("front/assets/og_image_NSP.jpg")
 
     # noinspection PyUnresolvedReferences
     def get_meta_title(self):
         return "{} - {}".format(self.title_prefix, self.object.name)
 
+    def is_2022_object(self):
+        return hasattr(self.object, "is_2022") and self.object.is_2022 == True
+
     # noinspection PyUnresolvedReferences
     def get_meta_image(self):
-        if hasattr(self.object, "image") and self.object.image:
-            return urljoin(settings.FRONT_DOMAIN, self.object.image.url)
-        return None
+        if self.is_2022_object():
+            return self.image_nsp
+        return self.image_lfi
+
+    # noinspection PyUnresolvedReferences
+    def get_meta_description(self):
+        if self.is_2022_object() and hasattr(self, "meta_description_2022"):
+            return self.meta_description_2022
+        return self.meta_description
 
 
 class ChangeLocationBaseView(UpdateView):
@@ -164,3 +179,96 @@ class FilterView(FormMixin, ListView):
 
     def get_form(self, form_class=None):
         return self.get_filter().form
+
+
+class ReactBaseView(TemplateView):
+    bundle_name = None
+    data_script_id = "exportedContent"
+    app_mount_id = "mainApp"
+    template_name = "front/react_view.html"
+
+    def get_context_data(self, **kwargs):
+        kwargs.setdefault("bundle_name", self.bundle_name)
+        kwargs.setdefault("app_mount_id", self.app_mount_id)
+        kwargs.setdefault("data_script_id", self.data_script_id)
+        extra_context = {"hasFeedbackButton": True}
+        kwargs.setdefault("extra_context", extra_context)
+        return super().get_context_data(**kwargs)
+
+
+class ReactSerializerBaseView(ReactBaseView):
+    serializer_class = None
+
+    def get_serializer(self):
+        raise NotImplementedError("Should be implemented in concrete classes")
+
+    def get_export_data(self):
+        return self.get_serializer().data
+
+    def get_context_data(self, **kwargs):
+        kwargs.setdefault("export_data", self.get_export_data())
+        return super().get_context_data(**kwargs)
+
+
+class ReactSingleObjectView(SingleObjectMixin, ReactSerializerBaseView):
+
+    template_name = "front/react_view.html"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
+
+    def get_serializer(self):
+        return self.serializer_class(
+            instance=self.object, context={"request": self.request}
+        )
+
+
+class ReactListView(MultipleObjectMixin, ReactSerializerBaseView):
+    bundle_name = None
+    serializer_class = None
+
+    data_script_id = "exportedContent"
+    app_mount_id = "mainApp"
+
+    template_name = "front/react_view.html"
+
+    page_size = None
+    paginator_class = Paginator
+    ordering = None
+
+    def get_serializer(self):
+        return self.serializer_class(
+            instance=self.queryset, context={"request": self.request}, many=True
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.queryset = self.get_queryset()
+        self.is_paginated = False
+        page_size = self.get_paginate_by(self.queryset)
+        if page_size:
+            (
+                self.paginator,
+                self.page,
+                self.queryset,
+                self.is_paginated,
+            ) = self.paginate_queryset(self.queryset, page_size)
+
+        return super().get(request, *args, **kwargs)
+
+    def get_export_data(self):
+        export = {"data": self.get_serializer().data, "links": {}}
+
+        if self.is_paginated:
+            if self.page.has_previous():
+                export["links"]["previous"] = self.page.previous_page_number()
+            if self.page.has_next():
+                export["links"]["next"] = self.page.next_page_number()
+            export["links"]["last"] = self.paginator.num_pages
+
+        return export
+
+    def get_context_data(self, **kwargs):
+        # le get_context_data de MultipleObjectMixin recalculerait la pagination,
+        # on préfère donc le skipper
+        return super(MultipleObjectMixin, self).get_context_data(**kwargs)

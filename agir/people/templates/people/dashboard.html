@@ -12,15 +12,15 @@
   <div class="row masonry">
     <div class="col-md-6 gblock">
       <div class="help-dialog" data-hint="Mon agenda">
-        Vous trouverez ici tous les événements auxquels vous avez indiqué participer.
-        Attention&nbsp;! Le fait que vous organisiez un événement ne veut pas nécessairement
+        Vous trouverez ici tous les évènements auxquels vous avez indiqué participer.
+        Attention&nbsp;! Le fait que vous organisiez un évènement ne veut pas nécessairement
         dire que vous y participez, même si c'est souvent le cas.
       </div>
       <h3 class="clearfix">Mon agenda</h3>
       <div class="btn-group">
         <button class="btn btn-default btn-sm dropdown-toggle" id="rechercher-evenement" data-toggle="dropdown"
                 aria-expanded="true">
-          <i class="fa fa-search"></i> Rechercher un événement
+          <i class="fa fa-search"></i> Rechercher un évènement
         </button>
         <ul class="dropdown-menu">
           <li class="menu-item">
@@ -35,9 +35,9 @@
           </li>
         </ul>
         <a class="btn btn-default btn-sm" href="{% url 'create_event' %}">
-          <i class="fa fa-plus"></i> Créer un événement
-          <div class="help-dialog" data-hint="Les informations de votre événement">
-            Vous pouvez créer un nouvel événement et y inviter d'autres personnes en cliquant sur ce bouton.
+          <i class="fa fa-plus"></i> Créer un évènement
+          <div class="help-dialog" data-hint="Les informations de votre évènement">
+            Vous pouvez créer un nouvel évènement et y inviter d'autres personnes en cliquant sur ce bouton.
           </div>
         </a>
       </div>
@@ -100,28 +100,28 @@
     </div>
     <div class="col-md-6 gblock">
       <div class="help-dialog" data-hint="Événements suggérés">
-        Ces événements pourraient vous intéresser. Passer votre souris sur <span
+        Ces évènements pourraient vous intéresser. Passer votre souris sur <span
               class="text-muted">Pourquoi ?</span>
-        pour savoir pourquoi chaque événement vous a été suggéré.
+        pour savoir pourquoi chaque évènement vous a été suggéré.
       </div>
       <h3>Événements suggérés</h3>
-      {% include "events/includes/events_by_day.html" with events=suggested_events empty_message="Aucun événement suggéré ! Rejoignez un groupe d'action pour voir des événements." %}
+      {% include "events/includes/events_by_day.html" with events=suggested_events empty_message="Aucun évènement suggéré ! Rejoignez un groupe d'action pour voir des évènements." %}
     </div>
     <div class="col-md-6 gblock">
       <h3>Événements passés</h3>
       <div class="help-dialog" data-hint="Événements passés">
-        Ce sont les derniers événements auxquels vous avez participé. En retournant sur ces pages,
-        vous pouvez par exemple poser des photos sur les événements auxquels vous avez participé
+        Ce sont les derniers évènements auxquels vous avez participé. En retournant sur ces pages,
+        vous pouvez par exemple poser des photos sur les évènements auxquels vous avez participé
         et des comptes rendus sur ceux que vous avez organisé.
       </div>
       <div class="list-group">
-        {% include "events/includes/events_list.html" with events=last_events page_param="last_events_page" empty_message="Aucun événement récent&nbsp;! Participez à des événements pour contribuer à leur compte-rendu." %}
+        {% include "events/includes/events_list.html" with events=last_events page_param="last_events_page" empty_message="Aucun évènement récent&nbsp;! Participez à des évènements pour contribuer à leur compte-rendu." %}
       </div>
     </div>
     <div class="col-md-6 gblock">
       <h3>Derniers comptes-rendus publics</h3>
       <div class="help-dialog" data-hint="Comptes-rendu publiés">
-        Ce sont les derniers compte-rendus d'événement écrits par les insoumis⋅es sur la plateforme. Écrivez le
+        Ce sont les derniers compte-rendus d'évènement écrits par les insoumis⋅es sur la plateforme. Écrivez le
         votre pour apparaître ici !
       </div>
       <div class="list-group">
@@ -145,7 +145,7 @@
           </div>
         {% empty %}
           <div class="list-group-item">
-            Aucun événement récent dans la région.
+            Aucun évènement récent dans la région.
           </div>
         {% endfor %}
       </div>
@@ -154,14 +154,14 @@
   <hr/>
   <div class="row">
     <div class="help-dialog" data-hint="Administration">
-      Ceci est votre espace d'administration. Vous pouvez y gérer les événements que vous organisez, qu'ils soient
+      Ceci est votre espace d'administration. Vous pouvez y gérer les évènements que vous organisez, qu'ils soient
       passés ou à venir.
     </div>
     <div class="col-md-6 gblock">
       <h3>Événements que j'organise</h3>
       <div class="button-group">
         <a class="btn btn-default btn-sm" href="{% url 'create_event' %}">
-          <i class="fa fa-plus"></i> Créer un événement
+          <i class="fa fa-plus"></i> Créer un évènement
         </a>
       </div>
       <div class="list-group">
@@ -181,7 +181,7 @@
           </div>
         {% empty %}
           <div class="list-group-item">
-            Vous n'organisez aucun événement futur. Voulez-vous <a href="{% url 'create_event' %}">en créer
+            Vous n'organisez aucun évènement futur. Voulez-vous <a href="{% url 'create_event' %}">en créer
             un</a>&nbsp;?
           </div>
         {% endfor %}
@@ -190,7 +190,7 @@
     <div class="col-md-6 gblock">
       <h3>Événements que j'ai organisé</h3>
       <div class="list-group">
-        {% include "events/includes/events_list.html" with events=past_organized_events page_param="past_organized_events_page" empty_message="Vous n'avez organisé aucun événement terminé." %}
+        {% include "events/includes/events_list.html" with events=past_organized_events page_param="past_organized_events_page" empty_message="Vous n'avez organisé aucun évènement terminé." %}
       </div>
     </div>
   </div>

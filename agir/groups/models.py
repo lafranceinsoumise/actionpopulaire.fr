@@ -25,6 +25,9 @@ class SupportGroupQuerySet(models.QuerySet):
     def certified(self):
         return self.filter(subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES)
 
+    def is_2022(self):
+        return self.filter(type=SupportGroup.TYPE_2022)
+
     def search(self, query):
         vector = (
             SearchVector(models.F("name"), config="french_unaccented", weight="A")
@@ -63,19 +66,21 @@ class SupportGroup(
     ContactMixin,
 ):
     """
-    Model that represents a support group 
+    Model that represents a support group
     """
 
     TYPE_LOCAL_GROUP = "L"
     TYPE_THEMATIC = "B"
     TYPE_FUNCTIONAL = "F"
     TYPE_PROFESSIONAL = "P"
+    TYPE_2022 = "2"
 
     TYPE_CHOICES = (
-        (TYPE_LOCAL_GROUP, _("Groupe local")),
-        (TYPE_THEMATIC, _("Groupe thématique")),
-        (TYPE_FUNCTIONAL, _("Groupe fonctionnel")),
-        (TYPE_PROFESSIONAL, _("Groupe professionel")),
+        (TYPE_LOCAL_GROUP, "Groupe local"),
+        (TYPE_THEMATIC, "Groupe thématique"),
+        (TYPE_FUNCTIONAL, "Groupe fonctionnel"),
+        (TYPE_PROFESSIONAL, "Groupe professionel"),
+        (TYPE_2022, "Groupe de soutien « Nous Sommes Pour ! »"),
     )
 
     TYPE_PARAMETERS = {
@@ -83,29 +88,30 @@ class SupportGroup(
         TYPE_THEMATIC: {"color": "#49b37d", "icon_name": "book"},
         TYPE_FUNCTIONAL: {"color": "#e14b35", "icon_name": "cog"},
         TYPE_PROFESSIONAL: {"color": "#f4981e", "icon_name": "industry"},
+        TYPE_2022: {"color": "#571aff", "icon_name": "users"},
     }
 
     TYPE_DESCRIPTION = {
-        TYPE_LOCAL_GROUP: "Les groupes d’action géographiques sont constitués sur la base d’un"
-        " territoire réduit (quartier, villages ou petites villes, cantons) et non"
-        " à l’échelle d’une région, d’un département, d’une circonscription"
-        " électorale ou d’une grande ville. Chaque insoumis⋅e ne peut assurer"
-        " l’animation que d’un seul groupe d’action géographique.",
-        TYPE_PROFESSIONAL: "Les groupes d’action professionnels rassemblent des insoumis⋅es qui"
-        " souhaitent agir au sein de leur entreprise ou de leur lieu d’étude.",
-        TYPE_FUNCTIONAL: "Les groupes d’action fonctionnels sont des groupes d’action transversaux"
-        " autour de fonctions précises (mise en place de formation, organisation"
-        " des apparitions publiques, rédaction de tracts, chorale insoumise,"
-        " journaux locaux, auto-organisation, etc…).",
+        TYPE_LOCAL_GROUP: "Les groupes d’action géographiques de la France insoumise sont constitués sur la base d’un"
+        " territoire réduit (quartier, villages ou petites villes, cantons). Chaque insoumis⋅e peut assurer"
+        " l’animation d’un seul groupe d’action géographique.",
         TYPE_THEMATIC: "Les groupes d’action thématiques réunissent des insoumis⋅es qui"
         " souhaitent agir de concert sur un thème donné en lien avec les livrets"
         " thématiques correspondant.",
+        TYPE_FUNCTIONAL: "Les groupes d’action fonctionnels remplissent"
+        " des fonctions précises (formations, organisation"
+        " des apparitions publiques, rédaction de tracts, chorale insoumise,"
+        " journaux locaux, auto-organisation, etc…).",
+        TYPE_PROFESSIONAL: "Les groupes d’action professionnels rassemblent des insoumis⋅es qui"
+        " souhaitent agir au sein de leur entreprise ou de leur lieu d’étude.",
+        TYPE_2022: "Les groupes de soutien « Nous Sommes Pour ! » peuvent être rejoints par toutes les personnes "
+        "ayant parainné la candidature de Jean-Luc Mélenchon.",
     }
 
     objects = SupportGroupQuerySet.as_manager()
 
     name = models.CharField(
-        _("nom"), max_length=255, blank=False, help_text=_("Le nom du groupe d'action")
+        _("nom"), max_length=255, blank=False, help_text=_("Le nom du groupe")
     )
 
     type = models.CharField(
@@ -136,6 +142,16 @@ class SupportGroup(
     )
 
     @property
+    def events_count(self):
+        from agir.events.models import Event
+
+        return self.organized_events.filter(visibility=Event.VISIBILITY_PUBLIC).count()
+
+    @property
+    def members_count(self):
+        return Membership.objects.filter(supportgroup=self).count()
+
+    @property
     def is_certified(self):
         return self.subtypes.filter(
             label__in=settings.CERTIFIED_GROUP_SUBTYPES
@@ -149,6 +165,10 @@ class SupportGroup(
     def external_help_text(self):
         subtype = self.subtypes.filter(allow_external=True).first()
         return subtype.external_help_text or ""
+
+    @property
+    def is_2022(self):
+        return self.type == self.TYPE_2022
 
     class Meta:
         verbose_name = _("groupe d'action")
@@ -190,7 +210,7 @@ class SupportGroupSubtype(BaseSubtype):
 class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
     """
     Model that represents the membership of a person in a support group
-    
+
     This model also indicates if the person is referent for this support group
     """
 

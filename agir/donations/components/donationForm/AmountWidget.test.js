@@ -11,10 +11,10 @@ test("AmountWidget dans son état initial", () => {
   const buttons = component.getAllByRole("button");
   for (let button of buttons) {
     expect(button.textContent).toMatch(/[0-9]+\s*€/);
-    expect(button.classList).toContain("btn-default");
+    expect(button.classList).toContain("btn-unselected");
   }
 
-  expect(component.getByPlaceholderText("autre montant")).toBeDefined();
+  expect(component.getByPlaceholderText("Autre montant")).toBeDefined();
 });
 
 test("AmountWidget avec un montant sélectionné", () => {
@@ -26,7 +26,7 @@ test("AmountWidget avec un montant sélectionné", () => {
     if (+/([0-9]+)\s*€/.exec(button.textContent)[1] === 50) {
       expect(button.classList).toContain("btn-primary");
     } else {
-      expect(button.classList).toContain("btn-default");
+      expect(button.classList).toContain("btn-unselected");
     }
   }
 });
@@ -46,7 +46,7 @@ test("Sélectionner des valeurs dans le AmountWidget", () => {
   fireEvent.click(button50);
   expect(currentValue).toEqual(50 * 100);
 
-  const input = component.getByPlaceholderText("autre montant");
+  const input = component.getByPlaceholderText("Autre montant");
   fireEvent.change(input, { target: { value: "23" } });
   expect(currentValue).toEqual(23 * 100);
 });

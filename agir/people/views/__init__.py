@@ -17,4 +17,5 @@ __all__ = [
     "PeopleFormNewSubmissionView",
     "PeopleFormConfirmationView",
     "DashboardView",
+    "DashboardSearchView",
 ]

@@ -183,7 +183,6 @@ class GeocodingBaseForm(forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.form_method = "POST"
-        self.helper.add_input(Submit("submit", "Sauvegarder"))
 
         form_elements = []
 
@@ -213,6 +212,16 @@ class GeocodingBaseForm(forms.ModelForm):
             )
             form_elements.append(Row(FullCol("use_geocoding")))
 
+        form_elements.append(
+            Row(
+                ThirdCol(
+                    Submit(
+                        "submit", "Sauvegarder", css_class="btn btn-default btn-block"
+                    ),
+                    css_class="padtopmore",
+                )
+            )
+        )
         self.helper.layout = Layout(*form_elements)
 
     def save(self, commit=True):

@@ -1,32 +1,23 @@
-Fusion de compte
-
-
 Bonjour,
 
-Vous êtes sur le point d'accepter une fusion du compte {{ EMAIL }} avec {{ REQUESTER_EMAIL }}.  
+Vous êtes sur le point d'accepter une fusion du compte {{ EMAIL }} avec {{ REQUESTER_EMAIL }}.
 
+Une fois effectuée, les droits de gestions et d'administrations des groupes et des évènements seront partagées.
 
-Une fois effectuée, les droits de gestions et d'administrations des groupes et des événements seront partagées.
 Les adresses e-mail permettant de se connecter à chacun des comptes seront toujours disponibles pour se connecter.
   
-  
-Je confirme la fusion de mes comptes
+>> Je confirme ma nouvelle adresse e-mail
 {{ CONFIRMATION_URL }}
 
+Cette étape nous permet de vérifier que vous êtes bien que vous êtes bien propriétaire de l'adresse e-mail dont la fusion de compte est demandée.
 
-**Pourquoi cette confirmation ?** Cette étape nous permet de vérifier que vous êtes bien que vous êtes
-bien propriétaire de l'adresse e-mail dont la fusion de compte est demandée.
+Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer ce message.
 
-Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer ce message.  
-  
+------------------------------------------------------------------
+Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.
 
+>> Choisir les emails que vous recevez
+{{ preferences_link }}
 
-Cet email a été envoyé à {{ EMAIL }}.
-
-Pour choisir les emails que vous recevez
-{{ PREFERENCES_LINK }})
-
-Pour arrêter complètement de recevoir des emails
-{{ UNSUBSCRIBE_LINK }}).
-  
----
+>> Arrêter complètement de recevoir des emails
+{{ unsubscribe_link }}

@@ -18,7 +18,7 @@ def jitsi_reservation_view(request):
         if meeting.event is not None and not meeting.event.is_current():
             return JsonResponse(
                 {
-                    "message": "L'événement n'est pas encore commencé ou est déjà terminé."
+                    "message": "L'évènement n'est pas encore commencé ou est déjà terminé."
                 },
                 status=403,
             )

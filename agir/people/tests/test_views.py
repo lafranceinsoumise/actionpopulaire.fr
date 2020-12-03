@@ -21,6 +21,83 @@ from agir.people.tasks import (
     send_confirmation_change_email,
     send_confirmation_merge_account,
 )
+from agir.events.models import Event, EventSubtype
+from agir.groups.models import SupportGroup
+
+
+class DashboardSearchTestCase(TestCase):
+    def setUp(self):
+        self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+
+        self.person_insoumise = Person.objects.create_insoumise(
+            "person@lfi.com", create_role=True
+        )
+        self.person_2022 = Person.objects.create_person(
+            "person@nsp.com", create_role=True, is_2022=True, is_insoumise=False
+        )
+
+        self.group_insoumis = SupportGroup.objects.create(
+            name="Groupe Insoumis",
+            type=SupportGroup.TYPE_LOCAL_GROUP,
+            location_name="location",
+            location_address1="somewhere",
+            location_city="Over",
+            location_country="DE",
+        )
+        self.group_2022 = SupportGroup.objects.create(
+            name="Groupe NSP",
+            type=SupportGroup.TYPE_2022,
+            location_name="location",
+            location_address1="somewhere",
+            location_city="Over",
+            location_country="DE",
+        )
+
+        self.subtype = EventSubtype.objects.create(
+            label="sous-type",
+            visibility=EventSubtype.VISIBILITY_ALL,
+            type=EventSubtype.TYPE_PUBLIC_ACTION,
+        )
+        self.event_insoumis = Event.objects.create(
+            name="Event Insoumis",
+            subtype=self.subtype,
+            start_time=now + day,
+            end_time=now + day + 4 * hour,
+            for_users=Event.FOR_USERS_INSOUMIS,
+        )
+        self.event_2022 = Event.objects.create(
+            name="Event NSP",
+            subtype=self.subtype,
+            start_time=now + day,
+            end_time=now + day + 4 * hour,
+            for_users=Event.FOR_USERS_2022,
+        )
+
+    def test_insoumise_persone_can_search_through_all_groups(self):
+        self.client.force_login(self.person_insoumise.role)
+        res = self.client.get(reverse("dashboard_search") + "?q=g")
+        self.assertContains(res, self.group_insoumis.name)
+        self.assertContains(res, self.group_2022.name)
+
+    def test_2022_only_person_can_search_through_2022_groups_only(self):
+        self.client.force_login(self.person_2022.role)
+        res = self.client.get(reverse("dashboard_search") + "?q=g")
+        self.assertNotContains(res, self.group_insoumis.name)
+        self.assertContains(res, self.group_2022.name)
+
+    def test_insoumise_persone_can_search_through_all_events(self):
+        self.client.force_login(self.person_insoumise.role)
+        res = self.client.get(reverse("dashboard_search") + "?q=e")
+        self.assertContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_2022.name)
+
+    def test_2022_only_person_can_search_through_2022_events_only(self):
+        self.client.force_login(self.person_2022.role)
+        res = self.client.get(reverse("dashboard_search") + "?q=e")
+        self.assertNotContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_2022.name)
 
 
 class DashboardTestCase(FakeDataMixin, TestCase):
@@ -57,13 +134,13 @@ class DashboardTestCase(FakeDataMixin, TestCase):
 
     def test_same_event_is_not_suggested_multiple_times(self):
         self.client.force_login(self.person1.role)
-        response = self.client.get(reverse("dashboard"))
+        response = self.client.get(reverse("dashboard_old"))
         self.assertContains(response, self.event.name, count=1)
 
     @mock.patch("agir.people.views.dashboard.geocode_person")
     def test_contains_everything(self, geocode_person):
         self.client.force_login(self.data["people"]["user2"].role)
-        response = self.client.get(reverse("dashboard"))
+        response = self.client.get(reverse("dashboard_old"))
 
         geocode_person.delay.assert_called_once()
         self.assertEqual(
@@ -468,38 +545,6 @@ class VolunteerFormTestCases(TestCase):
         self.assertContains(response, "N’attendez pas les consignes pour agir.")
 
 
-class ExternalPersonPreferencesFormTestCases(TestCase):
-    def setUp(self):
-        self.person = Person.objects.create_insoumise(
-            "test@test.com",
-            is_insoumise=False,
-            subscribed=False,
-            subscribed_sms=False,
-            group_notifications=False,
-            event_notifications=False,
-            create_role=True,
-        )
-
-    def test_form_is_displayed(self):
-        self.client.force_login(self.person.role)
-        url_form = reverse("become_insoumise")
-
-        response = self.client.post(url_form, data={"is_insoumise": "on"}, follow=True)
-
-        self.assertContains(
-            response, "Ces informations nous permettrons de s'adresser à vous plus"
-        )
-
-        self.person = Person.objects.get(pk=self.person.pk)
-        self.assertTrue(self.person.is_insoumise)
-
-        # Inscription aux e-mail+sms d'informations
-        self.assertTrue(self.person.subscribed)
-        self.assertTrue(self.person.subscribed_sms)
-        self.assertTrue(self.person.group_notifications)
-        self.assertTrue(self.person.event_notifications)
-
-
 class InformationContactFormTestCases(TestCase):
     def setUp(self):
         self.person = Person.objects.create_insoumise(
@@ -535,8 +580,7 @@ class InformationContactFormTestCases(TestCase):
         self.assertTrue(self.person.event_notifications)
 
         self.assertContains(
-            response,
-            "Vous recevrez des SMS de la France insoumise comme des meeting près de chez vous ou des appels à volontaire...",
+            response, "Nous envoyons parfois des SMS plutôt que des",
         )
 
         person = Person.objects.get(pk=self.person.pk)

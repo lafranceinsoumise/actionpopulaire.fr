@@ -18,7 +18,6 @@ import { Spring } from "react-spring/renderprops";
 
 import styled from "styled-components";
 import moment from "moment";
-import Datetime from "react-datetime";
 
 class CreateEventForm extends React.Component {
   constructor(props) {
@@ -31,12 +30,20 @@ class CreateEventForm extends React.Component {
     this.setState({ fields: Object.assign({}, this.state.fields, fields) });
   }
 
-  hasGroupStep() {
-    return this.props.groups && this.props.groups.length > 0;
-  }
-
   render() {
     let steps = [
+      {
+        name: "Qui organise ?",
+        component: (
+          <OrganizerStep
+            setFields={this.setFields}
+            fields={this.state.fields}
+            groups={this.props.groups}
+            is2022={this.props.is2022}
+            isInsoumise={this.props.isInsoumise}
+          />
+        ),
+      },
       {
         name: "Quel type ?",
         component: (
@@ -45,18 +52,6 @@ class CreateEventForm extends React.Component {
             fields={this.state.fields}
             types={this.props.types}
             subtypes={this.props.subtypes}
-          />
-        ),
-      },
-      {
-        name: "Questions légales",
-        component: (
-          <LegalQuestionsStep
-            setFields={this.setFields}
-            fields={this.state.fields}
-            subtypes={this.props.subtypes}
-            questions={this.props.questions}
-            nextStep={this.hasGroupStep() ? 3 : 2}
           />
         ),
       },
@@ -89,19 +84,6 @@ class CreateEventForm extends React.Component {
       },
     ];
 
-    if (this.hasGroupStep()) {
-      steps.splice(1, 0, {
-        name: "Qui organise ?",
-        component: (
-          <OrganizerStep
-            setFields={this.setFields}
-            fields={this.state.fields}
-            groups={this.props.groups}
-          />
-        ),
-      });
-    }
-
     return (
       <MultiStepForm
         steps={steps}
@@ -116,7 +98,8 @@ CreateEventForm.propTypes = {
   initial: PropTypes.object,
   types: PropTypes.array,
   subtypes: PropTypes.array,
-  questions: PropTypes.array,
+  is2022: PropTypes.bool,
+  isInsoumise: PropTypes.bool,
 };
 
 function SubtypeSelector({ children }) {
@@ -138,13 +121,21 @@ const Icon = styled.i`
   box-sizing: content-box;
   ${(props) =>
     props.active
-      ? "border: 1px solid transparent;"
-      : "border: 1px solid rgba(10, 10, 10, 0.3);"}
+      ? "border: 1px solid rgba(10, 10, 10, 0.3);"
+      : "border: 1px solid transparent;"}
 `;
 
-function CheckBox({ label, active, onClick, icon, iconName, color }) {
+function CheckBox({
+  label,
+  active,
+  onClick,
+  icon,
+  iconName,
+  color,
+  className,
+}) {
   return (
-    <li className={active ? "active" : ""}>
+    <li className={`${className} ${active ? "active" : ""}`.trim()}>
       <a
         href="#"
         onClick={(e) => {
@@ -175,6 +166,7 @@ CheckBox.propTypes = {
   icon: PropTypes.string,
   iconName: PropTypes.string,
   color: PropTypes.string,
+  className: PropTypes.string,
 };
 
 class EventTypeStep extends FormStep {
@@ -203,26 +195,13 @@ class EventTypeStep extends FormStep {
     }, {});
 
     return (
-      <div className="row padtopmore">
+      <div className="row padtopmore padbottommore">
         <div className="col-sm-6">
-          <h2>Quel type d'événement voulez-vous créer ?</h2>
+          <h3>Quel type d'évènement voulez-vous créer ?</h3>
           <p>
-            Chaque insoumis·e peut créer un événement sur la plateforme dès lors
-            qu’il respecte le cadre et la démarche de la France insoumise dans
-            un esprit d’ouverture, de bienveillance et de volonté de se projeter
-            dans l’action.
-          </p>
-          <p>
-            Afin de mieux identifier les événements que vous créez, et de
-            pouvoir mieux les recommander aux autres insoumis⋅es, indiquez le
-            type d'événement que vous organisez.
-          </p>
-          <p>
-            Vous souhaitez inviter un⋅e député⋅e, candidat⋅e, ou animateur⋅ice
-            de livret&nbsp;?{" "}
-            <a href="https://lafranceinsoumise.fr/groupes-appui/inviter-des-intervenants/">
-              Suivez le mode d'emploi.
-            </a>
+            Afin de mieux identifier les évènements que vous créez, et de
+            pouvoir mieux les recommander aux autres membres de la plateforme,
+            indiquez le type d'évènement que vous organisez.
           </p>
         </div>
         <div className="col-sm-6 padbottom">
@@ -240,85 +219,12 @@ class EventTypeStep extends FormStep {
                     icon={subtype.icon}
                     iconName={subtype.iconName}
                     color={subtype.color}
+                    className="subtype-selector-choice"
                   />
                 ))}
               </SubtypeSelector>
             </div>
           ))}
-        </div>
-      </div>
-    );
-  }
-}
-
-class LegalQuestionsStep extends FormStep {
-  constructor(props) {
-    super(props);
-    this.state = { question: 0 };
-  }
-
-  getAnswer(id) {
-    const legal = this.props.fields.legal || {};
-    if (Object.prototype.hasOwnProperty.call(legal, id)) {
-      return legal[id];
-    }
-    return null;
-  }
-
-  getQuestions() {
-    const subtype = this.props.subtypes.find(
-      (s) => s.label === this.props.fields.subtype
-    );
-    return this.props.questions.filter(
-      (q) =>
-        (!q.type || q.type.includes(subtype.type)) &&
-        (!q.when || this.getAnswer(q.when)) &&
-        (!q.notWhen || !this.getAnswer(q.notWhen))
-    );
-  }
-
-  setAnswer(id, value) {
-    this.props.setFields({
-      legal: Object.assign({}, this.props.fields.legal || {}, {
-        [id]: value,
-      }),
-    });
-
-    if (this.state.question >= this.getQuestions().length - 1) {
-      return this.props.jumpToStep(this.props.nextStep);
-    }
-    this.setState({ question: this.state.question + 1 });
-  }
-
-  isValidated() {
-    return this.getQuestions().every((q) => this.getAnswer(q.id) !== null);
-  }
-
-  render() {
-    let q = this.getQuestions()[this.state.question];
-    return (
-      <div className="row padtopmore">
-        <div className="col-sm-6 padbottom">
-          <div className="alert alert-danger">
-            Attention&nbsp;! Vous ne pouvez engager de frais sans la validation
-            de l'équipe de suivi des questions financières de La France
-            insoumise. Pour bien identifier la situation légale dans laquelle
-            vous vous trouvez, merci de bien vouloir répondre à ces quelques
-            questions.
-          </div>
-        </div>
-        <div className="col-sm-6 padbottom">
-          <Spring key={q.id} from={{ opacity: 0 }} to={{ opacity: 1 }}>
-            {(props) => (
-              <Question
-                style={props}
-                key={q.id}
-                question={q}
-                value={this.getAnswer(q.id)}
-                setValue={(v) => this.setAnswer(q.id, v)}
-              />
-            )}
-          </Spring>
         </div>
       </div>
     );
@@ -331,57 +237,103 @@ class OrganizerStep extends FormStep {
     this.setIndividual = this.setIndividual.bind(this);
   }
 
-  setIndividual() {
-    this.props.setFields({ organizerGroup: null });
+  setIndividual(forUsers) {
+    this.props.setFields({ organizerGroup: null, forUsers });
   }
 
   setGroup(group) {
-    this.props.setFields({ organizerGroup: group.id });
+    this.props.setFields({
+      organizerGroup: group.id,
+      forUsers: group.forUsers,
+    });
   }
 
   render() {
-    const { organizerGroup } = this.props.fields;
+    const { organizerGroup, forUsers } = this.props.fields;
+
+    let defaultForUsers;
+    if (this.props.isInsoumise && !this.props.is2022) {
+      defaultForUsers = "I";
+    } else if (this.props.is2022 && !this.props.isInsoumise) {
+      defaultForUsers = "2";
+    }
+
+    if (this.props.groups.length === 0 && defaultForUsers === "2") {
+      this.setIndividual(defaultForUsers);
+      this.props.jumpToStep(1);
+    }
 
     return (
-      <div className="row padtopmore">
+      <div className="row padtopmore padbottommore">
         <div className="col-sm-6">
-          <h2>Qui organise l'événement ?</h2>
+          <h2>Qui organise l'évènement ?</h2>
           <p>
-            Un événement peut être organisé à titre individuel par une personne.
-            Mais comme vous êtes aussi gestionnaire d'un groupe d'action, il est
-            aussi possible d'indiquer que cet événement est organisé par votre
-            groupe.
+            Un évènement peut être organisé à titre individuel. Mais comme vous
+            êtes aussi gestionnaire d'un groupe, il est aussi possible
+            d'indiquer que cet évènement est organisé par votre groupe.
           </p>
         </div>
         <div className="col-md-6">
-          <h3>L'événement est organisé...</h3>
-          <div>
-            <h4>...à titre individuel</h4>
-            <SubtypeSelector>
-              <CheckBox
-                iconName="user"
-                color="#0098b6"
-                active={!organizerGroup}
-                label="J'en suis l'organisateur"
-                onClick={this.setIndividual}
-              />
-            </SubtypeSelector>
-          </div>
-          <div>
-            <h4>...par un groupe d'action</h4>
-            <SubtypeSelector>
-              {this.props.groups.map((group) => (
+          <h3>L'évènement est organisé</h3>
+          {this.props.groups.length > 0 && (
+            <>
+              <h4>par un groupe d'action</h4>
+              <SubtypeSelector>
+                {this.props.groups.map((group) => (
+                  <CheckBox
+                    iconName={group.iconName}
+                    color={group.color}
+                    key={group.id}
+                    active={group.id === organizerGroup}
+                    label={group.name}
+                    onClick={() => this.setGroup(group)}
+                  />
+                ))}
+              </SubtypeSelector>
+              <h4>à titre individuel</h4>
+            </>
+          )}
+          <SubtypeSelector>
+            {this.props.is2022 && this.props.isInsoumise ? (
+              <>
                 <CheckBox
-                  iconName="users"
+                  iconName="user"
                   color="#0098b6"
-                  key={group.id}
-                  active={group.id === organizerGroup}
-                  label={group.name}
-                  onClick={() => this.setGroup(group)}
+                  active={!organizerGroup && forUsers === "I"}
+                  label="pour la France insoumise"
+                  onClick={() => this.setIndividual("I")}
                 />
-              ))}
-            </SubtypeSelector>
-          </div>
+                <CheckBox
+                  iconName="user"
+                  color="#571AFF"
+                  active={!organizerGroup && forUsers === "2"}
+                  label="pour la campagne « Nous Sommes Pour ! »"
+                  onClick={() => this.setIndividual("2")}
+                />
+              </>
+            ) : (
+              <>
+                <CheckBox
+                  iconName="user"
+                  color="#0098b6"
+                  active={!organizerGroup}
+                  label={
+                    defaultForUsers === "I"
+                      ? "pour la France insoumise"
+                      : "pour la campagne « Nous Sommes Pour ! »"
+                  }
+                  onClick={() => this.setIndividual(defaultForUsers)}
+                />
+              </>
+            )}
+          </SubtypeSelector>
+          {defaultForUsers === "I" && (
+            <p>
+              Pour organiser des évènements « Nous Sommes Pour ! », vous devez
+              d'abord parrainer la candidature sur{" "}
+              <a href="https://noussommespour.fr">noussommespour.fr</a>.
+            </p>
+          )}
         </div>
       </div>
     );
@@ -416,7 +368,8 @@ class ValidateStep extends FormStep {
       location_country: fields.locationCountryCode,
       subtype: fields.subtype,
       as_group: fields.organizerGroup,
-      legal: JSON.stringify(fields.legal),
+      for_users: fields.forUsers,
+      legal: JSON.stringify(fields.legal || {}),
     });
 
     try {
@@ -436,61 +389,51 @@ class ValidateStep extends FormStep {
   render() {
     const { fields } = this.props;
     return (
-      <div className="row padtopmore">
+      <div className="row padtopmore padbottommore">
         <div className="col-md-6">
           <p>Voici les informations que vous avez entrées.</p>
-          <ul>
-            <li>
-              <strong>Type d'événement&nbsp;:</strong>{" "}
-              {this.getSubtypeDescription()}
-            </li>
-            <li>
-              <strong>Numéro de téléphone&nbsp;:</strong> {fields.phone} (
-              {fields.hidePhone ? "caché" : "public"})
-            </li>
+          <dl className="well confirmation-data-list">
+            <dt>Type d'évènement&nbsp;:</dt>
+            <dd>{this.getSubtypeDescription()}</dd>
+            <dt>Numéro de téléphone&nbsp;:</dt>
+            <dd>
+              {fields.phone}&ensp;
+              <small>({fields.hidePhone ? "caché" : "public"})</small>
+            </dd>
             {fields.name && (
-              <li>
-                <strong>Nom du contact pour l'événement&nbsp;:</strong>{" "}
-                {fields.name}
-              </li>
+              <>
+                <dt>Nom du contact pour l'évènement&nbsp;:</dt>{" "}
+                <dd>{fields.name}</dd>
+              </>
             )}
-            <li>
-              <strong>Adresse email de contact pour l'événement&nbsp;:</strong>{" "}
-              {fields.email}
-            </li>
-            <li>
-              <strong>Horaires&nbsp;:</strong> Du{" "}
-              {fields.startTime.format("LLL")} au {fields.endTime.format("LLL")}
-              {fields.startTime.isBefore(moment()) && (
-                <p className="alert alert-warning margintop">
-                  Attention&nbsp;! Vous avez indiqué une date dans le passé pour
-                  votre événement. Cela est possible pour rencenser des
-                  événements passés sur la plateforme, mais personne ne pourra
-                  le rejoindre.
-                </p>
-              )}
-            </li>
-            <li>
-              <strong>Lieu&nbsp;:</strong>
-              <br />
-              {fields.locationAddress1}
-              <br />
-              {fields.locationAddress2 ? (
-                <span>
-                  {fields.locationAddress2}
-                  <br />
-                </span>
-              ) : (
-                ""
-              )}
+            <dt>Adresse email de contact pour l'évènement&nbsp;:</dt>{" "}
+            <dd>{fields.email}</dd>
+            <dt>Horaires&nbsp;:</dt>
+            <dd>
+              du {fields.startTime.format("LLL")} au{" "}
+              {fields.endTime.format("LLL")}
+            </dd>
+            {fields.startTime.isBefore(moment()) && (
+              <p className="alert alert-w*arning margintop">
+                Attention&nbsp;! Vous avez indiqué une date dans le passé pour
+                votre évènement. Cela est possible pour rencenser des évènements
+                passés sur la plateforme, mais personne ne pourra le rejoindre.
+              </p>
+            )}
+            <dt>Lieu&nbsp;:</dt>
+            <dd>{fields.locationAddress1}</dd>
+            {fields.locationAddress2 ? (
+              <dd>{fields.locationAddress2}</dd>
+            ) : null}
+            <dd>
               {fields.locationZip}, {fields.locationCity}
-            </li>
-          </ul>
+            </dd>
+          </dl>
         </div>
         <div className="col-md-6">
           <p>
             Pour finir, il vous reste juste à choisir un nom pour votre
-            événement&nbsp;! Choisissez un nom simple et descriptif (par exemple
+            évènement&nbsp;! Choisissez un nom simple et descriptif (par exemple
             : &laquo;&nbsp;Porte à porte près du café de la gare&nbsp;&raquo;).
           </p>
           <form onSubmit={this.post}>
@@ -499,16 +442,16 @@ class ValidateStep extends FormStep {
                 className="form-control"
                 ref={(i) => (this.eventName = i)}
                 type="text"
-                placeholder="Nom de l'événement"
+                placeholder="Nom de l'évènement"
                 required
               />
             </div>
             <button
-              className="btn btn-primary"
+              className="btn btn-primary btn-lg btn-block"
               type="submit"
               disabled={this.state.processing}
             >
-              Créer mon événement
+              Créer mon évènement
             </button>
           </form>
           {this.state.error && (

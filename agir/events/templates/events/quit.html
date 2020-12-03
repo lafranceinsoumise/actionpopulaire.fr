@@ -1,17 +1,49 @@
 {% extends "front/layout.html" %}
 
-{% block title %}Ne plus participer à l'événement {{ event.name }}{% endblock %}
+{% block title %}Ne plus participer à l'évènement {{ event.name }}{% endblock %}
 
 {% block main %}
-  <h3 class="text-center">Ne plus participer à l'événement <em>{{ event.name }}</em></h3>
-  <div class="row">
-    <div class="col-sm-12 form-group">
-      Souhaitez vous réellement ne plus participer à l'événement <em>{{ event.name }}</em> ?
+<div class="row">
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+    <div class="pull-left">
+      <a class="menu-back-link" href="{% url "list_events" %}">
+        <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+      </a>
     </div>
-    <form method="POST">
+    <div class="pull-right">
+      <a
+        class="btn btn-sm btn-default"
+        href="{% url "view_event" event.pk %}">
+        Page publique de l'évènement
+      </a>
+    </div>
+    <div class="clearfix"></div>
+    <hr />
+  </div>
+  <div class="col-xs-12">
+    <h2 class="headline">
+      {{ event.name }}
+    </h2>
+    <hr />
+    <h3>
+      Annuler ma participation à un évènement
+    </h3>
+    <p>
+      Souhaitez vous réellement ne plus participer à l'évènement <strong>{{ event.name }}</strong> &nbsp;?
+    </p>
+    <form method="POST" class="row padtop">
       {% csrf_token %}
-      <a href="{{ success_url }}" class="btn btn-info">Retour</a>
-      <button type="submit" class="btn btn-danger">Quitter l'événement</button>
+      <div class="col-sm-3">
+        <a href="{% url "view_event" event.pk %}" class="marginbottomless btn btn-block btn-default">
+          Retour
+        </a>
+      </div>
+      <div class="col-sm-4">
+        <button type="submit" class="marginbottomless btn btn-block btn-danger">
+          Quitter l'évènement
+        </button>
+      </div>
     </form>
   </div>
+</div>
 {% endblock %}

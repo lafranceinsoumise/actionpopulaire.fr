@@ -1,9 +1,6 @@
-{% if request.user.person.is_insoumise %}
-  <li role="presentation"
-      class="{% if tab_code == "IDENTITY" %} active {% endif %}">
-    <a href="{% url "personal_information" %}">Identité</a>
-  </li>
-{% endif %}
+<li role="presentation" class="{% if tab_code == "IDENTITY" %} active {% endif %}">
+  <a href="{% url "personal_information" %}">Identité</a>
+</li>
 <li role="presentation" class="{% if tab_code == "CONTACT" %} active {% endif %}">
   <a href="{% url "contact" %}">Contacts</a>
 </li>
@@ -16,12 +13,6 @@
   </li>
   <li role="presentation" class="{% if tab_code == "ACT" %} active {% endif %}">
     <a href="{% url "volunteer" %}">Engagement</a>
-  </li>
-{% endif %}
-{% if not request.user.person.is_insoumise %}
-  <li role="presentation"
-      class="{% if tab_code == "BECOME_INSOUMISE" %} active {% endif %}">
-    <a href="{% url "become_insoumise" %}">Devenir insoumis⋅e</a>
   </li>
 {% endif %}
 <li role="presentation"

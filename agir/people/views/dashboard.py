@@ -72,13 +72,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
             )
         )
 
-        if is_promo_code_delayed():
-            promo_code_delay = next_promo_code_date()
-        else:
-            for group in members_groups:
-                if group.user_is_manager and group.has_promo_code:
-                    group.promo_codes = get_promo_codes(group)
-            promo_code_delay = None
+        promo_code_delay = None
 
         suggested_events = (
             Event.objects.upcoming()
@@ -115,7 +109,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
                 .exclude(rsvps__person=person)
                 .annotate(
                     reason=Value(
-                        "Cet événement se déroule près de chez vous.", TextField()
+                        "Cet évènement se déroule près de chez vous.", TextField()
                     )
                 )
                 .annotate(distance=Distance("coordinates", person.coordinates))
@@ -171,4 +165,68 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
                 "payments": payments,
             }
         )
+        return super().get_context_data(**kwargs)
+
+
+class DashboardSearchView(TemplateView):
+    """Vue pour rechercher et lister des groupes et des événéments
+    """
+
+    template_name = "people/dashboard_search.html"
+    querysets = {
+        "upcoming_events": Event.objects.upcoming().filter(
+            visibility=Event.VISIBILITY_PUBLIC, do_not_list=False
+        ),
+        "past_events": Event.objects.past().filter(
+            visibility=Event.VISIBILITY_PUBLIC, do_not_list=False
+        ),
+        "support_groups": SupportGroup.objects.filter(published=True),
+    }
+
+    def get_context_data(self, **kwargs):
+        q = self.request.GET.get("q")
+
+        if q is None:
+            q = ""
+
+        support_groups = self.querysets["support_groups"]
+        upcoming_events = self.querysets["upcoming_events"]
+        past_events = self.querysets["past_events"]
+
+        if (
+            self.request.user.is_authenticated
+            and hasattr(self.request.user, "person")
+            and self.request.user.person.is_2022_only
+        ):
+            upcoming_events = upcoming_events.is_2022()
+            past_events = past_events.is_2022()
+            support_groups = support_groups.is_2022()
+
+        support_groups = support_groups.search(q).order_by("name")[:20]
+
+        upcoming_events = upcoming_events.search(q).order_by(
+            "-start_time", "-end_time"
+        )[:20]
+
+        past_events = past_events.search(q).order_by("-start_time", "-end_time")[:10]
+
+        result_count = (
+            int(support_groups.count())
+            + int(upcoming_events.count())
+            + int(past_events.count())
+        )
+
+        event_count = int(upcoming_events.count()) + int(past_events.count())
+
+        kwargs.update(
+            {
+                "query": q,
+                "result_count": result_count,
+                "event_count": event_count,
+                "support_groups": support_groups,
+                "upcoming_events": upcoming_events,
+                "past_events": past_events,
+            }
+        )
+
         return super().get_context_data(**kwargs)

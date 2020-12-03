@@ -96,13 +96,17 @@ class SupportGroupManagementView(BaseSupportGroupAdminView, DetailView):
         if self.request.method in ("POST", "PUT"):
             kwargs.update({"data": self.request.POST})
 
-        return {
+        forms = {
             "add_referent_form": AddReferentForm(self.object, **kwargs),
             "add_manager_form": AddManagerForm(self.object, **kwargs),
-            "invitation_form": InvitationForm(
-                group=self.object, inviter=self.request.user.person, **kwargs
-            ),
         }
+
+        if not self.object.is_2022:
+            forms["invitation_form"] = InvitationForm(
+                group=self.object, inviter=self.request.user.person, **kwargs
+            )
+
+        return forms
 
     def get_context_data(self, **kwargs):
         kwargs["referents"] = self.object.memberships.filter(
@@ -134,7 +138,10 @@ class SupportGroupManagementView(BaseSupportGroupAdminView, DetailView):
         ).exclude(status=SpendingRequest.STATUS_PAID)
         kwargs["is_pressero_enabled"] = is_pressero_enabled()
 
-        kwargs["active"] = self.active_panel.get(self.request.POST.get("form"))
+        if self.active_panel.get(self.request.POST.get("form")):
+            kwargs["active"] = self.active_panel.get(self.request.POST.get("form"))
+        else:
+            kwargs["active"] = self.request.GET.get("active")
 
         forms = self.get_forms()
         for form_name, form in forms.items():
@@ -190,13 +197,20 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
             visibility=SupportGroupSubtype.VISIBILITY_ALL
         )
 
+        types = []
+        if person.is_insoumise:
+            types.extend(SupportGroup.TYPE_CHOICES[:4])
+
+        if person.is_2022:
+            types.extend(SupportGroup.TYPE_CHOICES[4:])
+
         types = [
             {
-                "id": elem["type"],
-                "label": dict(SupportGroup.TYPE_CHOICES)[elem["type"]],
-                "description": str(SupportGroup.TYPE_DESCRIPTION[elem["type"]]),
+                "id": elem[0],
+                "label": elem[1],
+                "description": SupportGroup.TYPE_DESCRIPTION[elem[0]],
             }
-            for elem in subtypes_qs.values("type").distinct()
+            for elem in types
         ]
 
         subtypes = [dict_to_camelcase(s.get_subtype_information()) for s in subtypes_qs]
@@ -268,7 +282,7 @@ class ModifySupportGroupView(BaseSupportGroupAdminView, UpdateView):
 
 
 class RemoveManagerView(BaseSupportGroupAdminView, DetailView):
-    template_name = "front/confirm.html"
+    template_name = "groups/manager_removal_confirm.html"
     queryset = (
         Membership.objects.active()
         .all()
@@ -287,15 +301,7 @@ class RemoveManagerView(BaseSupportGroupAdminView, DetailView):
         else:
             name = person.email
 
-        return super().get_context_data(
-            title=_("Confirmer le retrait du gestionnaire ?"),
-            message=_(
-                f"""
-            Voulez-vous vraiment retirer {name} de la liste des gestionnaires de ce groupe ?
-            """
-            ),
-            button_text="Confirmer le retrait",
-        )
+        return super().get_context_data(manager_name=name)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()

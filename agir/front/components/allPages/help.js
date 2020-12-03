@@ -1,5 +1,6 @@
 import introJs from "intro.js";
 import "intro.js/introjs.css";
+import onDOMReady from "@agir/lib/utils/onDOMReady";
 
 const onLoad = function () {
   const steps = [];
@@ -41,4 +42,4 @@ const onLoad = function () {
   }
 };
 
-document.addEventListener("turbolinks:load", onLoad);
+onDOMReady(onLoad);

@@ -4,10 +4,13 @@
 {% block title %}{{ person_form.title }}{% endblock %}
 
 {% block main %}
-  <h2 class="headline">{{ person_form.title }}</h2>
-  <div>
-    <div class="intro">
+<div class="row">
+  <div class="col-xs-12 col-md-9 col-md-offset-3 margintopmore">
+    <h2 class="headline">
+      {{ person_form.title }}
+    </h2>
+    <p class="intro">
       {{ person_form.html_confirmation_note }}
-    </div>
+    </p>
   </div>
 {% endblock %}

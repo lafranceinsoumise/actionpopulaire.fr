@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 blank=True,
                 default=False,
-                help_text="Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des événements comme la Convention.Vous aurez la possibilité d'accepter ou de refuser cette participation.",
+                help_text="Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des évènements comme la Convention.Vous aurez la possibilité d'accepter ou de refuser cette participation.",
                 verbose_name="Participer aux tirages au sort",
             ),
         ),
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 default=True,
                 help_text="Vous recevrez des messages quand les informations des évènements auxquels vous souhaitez participer sont mis à jour ou annulés.",
-                verbose_name="Recevoir les notifications des événements",
+                verbose_name="Recevoir les notifications des évènements",
             ),
         ),
         migrations.AlterField(
@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 blank=True,
                 default=True,
-                help_text="Vous recevrez des messages quand les informations du groupe change, ou quand le groupe organise des événements.",
+                help_text="Vous recevrez des messages quand les informations du groupe change, ou quand le groupe organise des évènements.",
                 verbose_name="Recevoir les notifications de mes groupes",
             ),
         ),
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 blank=True,
                 default=True,
-                help_text="Vous recevrez les lettres de la France insoumise, notamment : les lettres d'information, les appels à volontaires, les annonces d'émissions ou d'événements...",
+                help_text="Vous recevrez les lettres de la France insoumise, notamment : les lettres d'information, les appels à volontaires, les annonces d'émissions ou d'évènements...",
                 verbose_name="Recevoir les lettres d'information",
             ),
         ),

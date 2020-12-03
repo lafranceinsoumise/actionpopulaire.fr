@@ -4,12 +4,24 @@
 {% block title %}Signaler un email sollicité{% endblock %}
 
 {% block main %}
-  <h2>Signaler un email non sollicité</h2>
-
-  <p>Confirmez-vous que le mail reçu n'était pas sollicité ?</p>
-
-  <form method="POST">
-    <input type="submit" value="Confirmer">
-  </form>
-
+<div class="row">
+  <div class="col-xs-12 col-md-9 margintopmore">
+    <h2 class="headline">
+      Signaler un email non sollicité
+    </h2>
+    <p>
+      Confirmez-vous que le mail reçu n'était pas sollicité ?
+    </p>
+    <form method="POST" class="row margintopmore">
+      {% csrf_token %}
+      <div class="col-xs-12 col-sm-6 col-md-4">
+        <input
+          type="submit"
+          value="Confirmer"
+          class="btn btn-lg btn-block btn-primary"
+        />
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

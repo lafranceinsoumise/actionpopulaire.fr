@@ -60,7 +60,7 @@ DONATION_SESSION_NAMESPACE = "_donation_"
 class AskAmountView(SimpleOpengraphMixin, BaseAskAmountView):
     meta_title = "Je donne à la France insoumise"
     meta_description = (
-        "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
+        "Pour financer les dépenses liées à l’organisation d’évènements, à l’achat de matériel, au"
         "fonctionnement du site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous !"
     )
     meta_type = "website"

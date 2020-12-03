@@ -9,74 +9,24 @@
   <title>{% block title %}{{ meta_title }}{% endblock %}</title>
 
   {% render_bundle 'theme' 'css' %}
-  <link rel="icon" href="{% static "front/images/favicon-32x32.png" %}" sizes="32x32"/>
-  <link rel="icon" href="{% static "front/images/favicon-192x192.png" %}" sizes="192x192"/>
-  <link rel="apple-touch-icon-precomposed" href="{% static "front/images/facivon-180x180.png" %}"/>
-  <meta name="msapplication-TileImage" content="{% static "front/images/favicon-270x270.png" %}"/>
+
+  {% include "front/includes/favicon.html" %}
+
   {% block additional_headers %}{% endblock %}
 
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
           integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
           crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  {% render_bundle 'runtime' %}
+  {% render_bundle 'front/allPages' attrs='data-turbolinks-track="reload"' %}
 </head>
-<body class="home archive">
+<body class="home archive" style="padding-top: 4.5em;">
 <!--[if IE]>
       <div class="alert alert-warning">
         Vous utilisez une version obsolète de votre navigateur. Veuillez le  <a href="http://browsehappy.com/">mettre à jour</a> pour visionner votre site correctement.      </div>
     <![endif]-->
-<header class="banner">
-  <nav class="nav-primary navbar navbar-default navbar-static-top">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                data-target="#main-navbar-collapse" aria-expanded="false">
-          Menu <span class="caret"></span>
-        </button>
-        <a href="https://lafranceinsoumise.fr" class="custom-logo-link navbar-brand" rel="home" itemprop="url"><img
-          src="{% static "front/images/logo_300.png" %}"
-          class="custom-logo" alt="La France insoumise" itemprop="logo"
-        /></a></div>
-      <div class="collapse navbar-collapse" id="main-navbar-collapse">
-        <div id="menu-export"></div>
-        <script>
-          (function () {
-            /** SETTINGS **/
-            var themeLocation = 'primary';
-            var addBootstrapCSS = true;
-            var menu_class = 'nav%20navbar-nav%20navbar-right';
-            var container = '';
-
-            var r = new XMLHttpRequest();
-            r.open('GET', 'https://lafranceinsoumise.fr/?menu_export=1&theme_location=' + themeLocation +
-              '&menu_class=' + menu_class + '&container=' + container +
-              (addBootstrapCSS ? '&bootstrap=1' : ''), true);
-            r.onreadystatechange = function () {
-              if (r.readyState != 4 || r.status != 200) return;
-              document.getElementById('menu-export').innerHTML = r.responseText;
-            };
-            r.send();
-          })();
-        </script>
-      </div>
-    </div>
-  </nav>
-  <nav class="navbar navbar-secondary">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                data-target="#supporter-nav-collapse">
-          <span class="sr-only">Activer la navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-      </div>
-    </div>
-  </nav>
-</header>
-<div class="wrap container" role="document">
+<div id="top-bar" data-turbolinks-permanent></div>
+<div class="wrap container" role="document" style="padding-top: 4.5em;">
   <div class="content row">
     <main class="main">
       {% if messages %}

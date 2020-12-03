@@ -2,58 +2,70 @@
 {% load render_bundle from webpack_loader %}
 {% load crispy_forms_tags l10n pagination %}
 
-{% block title %}Rechercher des événements{% endblock %}
+{% block title %}Rechercher des évènements{% endblock %}
 
 {% block main %}
-  <h1>Rechercher des événements</h1>
-
-  <div>
-    <div>
-      <p>Sur cette page, vous trouverez l'ensemble des événements locaux organisés par les groupes d'action de la
-        France insoumise.</p>
-
-      <p>Si aucun événement n'est organisé près de chez vous, vous pouvez en créer un vous-même.</p>
-
-      <p>Vous pouvez aussi rechercher des événements en utilisant
-        <a href="https://lafranceinsoumise.fr/groupes-appui/carte/">la carte.</a></p>
+<div class="row">
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+    <div class="pull-left">
+      <a class="menu-back-link" href="{% url "list_events" %}">
+        <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+      </a>
     </div>
-
-    <p class="text-center">
-      <a class="btn btn-info" href="{% url "create_event" %}"><i class="fa fa-plus"></i> Créer un événement</a>
-      <a class="btn btn-default" href="https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/">Accéder à la
-        carte des
-        événements</a>
-    </p>
+    <div class="pull-right">
+      <a class="btn btn-sm btn-primary" href="{% url "create_event" %}">
+        <i class="fa fa-plus"></i>&ensp;Créer un évènement
+      </a>
+      <a class="btn btn-sm btn-default" href="{% url "event_map_page" %}">
+        <i class="fa fa-map"></i>&ensp;Accéder à la carte des évènements
+      </a>
+    </div>
+    <div class="clearfix"></div>
+    <hr />
   </div>
+  <div class="col-xs-12">
+    <div class="padtop padbottom marginbottommore">
+      <h2 class="headline">
+        Rechercher des évènements
+      </h2>
+      <p>Sur cette page, vous trouverez l'ensemble des évènements locaux organisés par les groupes de la plateforme.</p>
 
-  <div>
-  {% crispy form %}
+      <p>Si aucun évènement n'est organisé près de chez vous, vous pouvez en créer un vous-même.</p>
 
-  {% pagination page_obj %}
-
-  {% for event in object_list %}
-    <div class="list-group-item">
-      <div class="media">
-        <div class="media-left media-middle" style="min-width:64px">
+      <p>Vous pouvez aussi rechercher des évènements en utilisant
+        <a href="{% url "event_map_page" %}">la carte.</a>
+      </p>
+    </div>
+  </div>
+  <div class="col-xs-12 col-md-5 padtop">
+    <div class="well ">
+      {% crispy form %}
+    </div>
+  </div>
+  <div class="col-xs-12 col-md-7 padtop">
+    {% for event in object_list %}
+      <div class="list-group-item marginbottomless" style="border-radius: 8px;">
+        <div class="media">
           {% if event.image %}
-            <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+            <div class="media-left media-middle" style="min-width:64px">
+              <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+            </div>
           {% endif %}
-        </div>
-        <div class="media-body" data-ranking-score="{{ event.rank }}">
-          <i class="fa fa-calendar" aria-hidden="true"></i>
-          <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
-          <br>
-          {{ event.start_time|date:"l d F o à H:i" }} - {{ event.short_location }}
-          {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+          <div class="media-body" data-ranking-score="{{ event.rank }}">
+            <i class="fa fa-calendar" aria-hidden="true"></i>
+            <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
+            <br>
+            {{ event.start_time|date:"l d F o à H:i" }} - {{ event.short_location }}
+            {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
+          </div>
         </div>
       </div>
-    </div>
-  {% empty %}
-    <p>Aucun événement ne correspond à votre recherche.</p>
-  {% endfor %}
-
-  {% pagination page_obj %}
-
+    {% empty %}
+      <p class="alert alert-warning">
+        Aucun évènement ne correspond à votre recherche.
+      </p>
+    {% endfor %}
+    {% pagination page_obj %}
   </div>
-
+</div>
 {% endblock %}

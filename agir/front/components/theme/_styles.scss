@@ -1,73 +1,67 @@
 // Change default display for images
 img {
-	max-width: 100%;
-	height: auto;
+  max-width: 100%;
+  height: auto;
+}
+
+hr {
+  border-top-color: #dfdfdf !important;
 }
 
 // Utils
 .padtop {
-	padding-top: $line-height-computed * .5;
+  padding-top: $line-height-computed * 0.5;
 }
 
 .padbottom {
-	padding-bottom: $line-height-computed * .5;
+  padding-bottom: $line-height-computed * 0.5;
 }
 
 .padtopless {
-	padding-top: $line-height-computed * .25;
+  padding-top: $line-height-computed * 0.25;
 }
 
 .padbottomless {
-	padding-bottom: $line-height-computed * .25;
+  padding-bottom: $line-height-computed * 0.25;
 }
 
 .padtopmore {
-	padding-top: $line-height-computed * .75;
+  padding-top: $line-height-computed * 0.75;
 }
 
 .padbottommore {
-	padding-bottom: $line-height-computed * .75;
+  padding-bottom: $line-height-computed * 0.75;
 }
 
 .margintopless {
-	margin-top: $line-height-computed * .5;
+  margin-top: $line-height-computed * 0.5;
 }
 
 .margintop {
-	margin-top: $line-height-computed * .75;
+  margin-top: $line-height-computed * 0.75;
 }
 
 .margintopmore {
-	margin-top: $line-height-computed;
+  margin-top: $line-height-computed;
 }
 
 .marginbottomless {
-	margin-bottom: $line-height-computed * .5;
+  margin-bottom: $line-height-computed * 0.5;
 }
 
 .marginbottom {
-	margin-bottom: $line-height-computed * .75;
+  margin-bottom: $line-height-computed * 0.75;
 }
 
 .marginbottommore {
-	margin-bottom: $line-height-computed;
+  margin-bottom: $line-height-computed;
 }
 
 .center {
-	text-align: center;
+  text-align: center;
 }
 
 // Theme
 .navbar-brand {
-	height: auto;
-}
-
-// Forms
-.form-group  {
-	label {
-		display: block;
-	}
-	input + input {
-		@extend .margintopless;
-	}
+  height: auto;
 }

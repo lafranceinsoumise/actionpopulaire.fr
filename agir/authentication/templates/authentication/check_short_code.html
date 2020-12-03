@@ -10,14 +10,17 @@
     {% if is_soft_logged %}
       <p>
         Vous cherchez à accéder à une page contenant des données personnelles.
-        Pour vous authentifier, un e-mail vous a été envoyé à {{ email }}. (ce n'est pas vous ?
-        <a href="{% url "disconnect" %}?next={% url "short_code_login" %}">Cliquez-ici pour vous reconnecter
-        </a> avec votre compte.)
+        Pour vous authentifier, un e-mail vous a été envoyé à l'adresse <strong>{{ email }}</strong>.
+      </p>
+      <p>
+        <em>Ce n'est pas vous ?</em>
+        <br />
+        <a href="{% url "disconnect" %}?next={% url "short_code_login" %}">Cliquez ici pour vous reconnecter
+        </a> avec votre compte.
       </p>
     {% endif %}
     <p>
-      Vérifiez votre boîte email. Vous devez entrer le code de
-      connexion à 5 chiffres et lettres qui se trouve dans l'e-mail.
+      Vérifiez votre boîte email. Si nous avons reconnu votre adresse, entrez le code de connexion à 5 chiffres et lettres qui se trouve dans l'e-mail. Sinon, il vous sera proposé de vous inscrire.
     </p>
     {% crispy form %}
   </div>

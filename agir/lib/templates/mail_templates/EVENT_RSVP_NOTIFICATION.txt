@@ -1,27 +1,18 @@
 Bonjour,
 
-Une nouvelle personne s'est inscrite à un événement dont vous êtes l'organisateur :  
+Bonne nouvelle,  {{ PERSON_INFORMATION }} s'est inscrit·e à votre évènement « {{ EVENT_NAME }} » !
 
-
- **{{ PERSON_INFORMATION }}**  
-Evénement : **{{ EVENT_NAME }}**  
-
-
->> Accéder à la page d'administration de votre événement
+>> Voir la liste de toutes les personnes inscrites à votre évènement
 {{ MANAGE_EVENT_LINK }}
 
-Amitiés insoumises,  
-L'équipe de la plateforme France insoumise  
+Amitiés,  
+L’équipe d’Action Populaire  
   
-  
------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}.
-
->> Voir cet email dans votre navigateur
-{{ LINK_BROWSER }}
+------------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
 
 >> Choisir les emails que vous recevez
-{{ PREFERENCES_LINK }}
+{{ preferences_link }}
 
 >> Arrêter complètement de recevoir des emails
-{{ UNSUBSCRIBE_LINK }}
+{{ unsubscribe_link }}

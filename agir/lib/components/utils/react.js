@@ -1,6 +1,7 @@
 import ReactDOM from "@hot-loader/react-dom";
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import onDOMReady from "@agir/lib/utils/onDOMReady";
 
 const defaultGetInitial = (field) => field.value || null;
 const defaultGetProps = () => ({});
@@ -31,7 +32,7 @@ export function getStatefulRenderer(
         fieldProps: getProps(field),
       };
       insertingNode.removeChild(field);
-      ReactDOM.render(
+      renderReactComponent(
         <RootComponent
           Field={Field}
           valueToString={valueToString}
@@ -70,4 +71,45 @@ RootComponent.propTypes = {
   Field: PropTypes.elementType,
   valueToString: PropTypes.func,
   fieldProps: PropTypes.object,
+};
+
+export const renderReactComponent = (component, node) => {
+  ReactDOM.render(component, node);
+};
+
+export const renderWithContext = async (
+  ComponentOrPromise,
+  dataId,
+  renderId
+) => {
+  const [
+    { default: React },
+    { renderReactComponent },
+    { GlobalContextProvider },
+    Component,
+  ] = await Promise.all([
+    import("react"),
+    import("@agir/lib/utils/react"),
+    import("@agir/front/genericComponents/GlobalContext"),
+    ComponentOrPromise,
+  ]);
+
+  const render = () => {
+    const dataElement = document.getElementById(dataId);
+    const renderElement = document.getElementById(renderId);
+
+    if (!dataElement || !renderElement) {
+      return;
+    }
+
+    const data = JSON.parse(dataElement.textContent);
+    renderReactComponent(
+      <GlobalContextProvider>
+        <Component {...data} />
+      </GlobalContextProvider>,
+      renderElement
+    );
+  };
+
+  onDOMReady(render);
 };

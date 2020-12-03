@@ -11,6 +11,9 @@ common.module.rules.find(
 ).options.publicPath = path.join(STATIC_URL, "components", "files");
 
 module.exports = merge.merge(common, {
+  output: {
+    publicPath: path.join(STATIC_URL, "components/"),
+  },
   mode: "production",
   plugins: [
     new webpack.DefinePlugin({

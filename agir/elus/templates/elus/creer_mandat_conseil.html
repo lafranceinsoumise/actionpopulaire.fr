@@ -10,18 +10,28 @@
 
 {% block main %}
   <div class="row">
-    {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="MANDATS" %} {% endblock %}
-    <div class="col-xs-12 col-md-10">
-      <div class="col-xs-12 col-md-12 ">
-        <h1>Je signale un mandat {% genrer mandat_adjectif "M" %} dont je suis {% genrer "investi⋅e" %}</h1>
-
-        <p>Vous avez été {% genrer "élu⋅e" %} lors des dernières élections {% genrer mandat_adjectif "F" %}, ou à une
-          date antérieure, et  souhaitez être {% genrer "intégré⋅e" %} au réseau des élus de la France insoumise ?
-          Signalez-le nous via ce
-          formulaire.</p>
-
-        {% crispy form %}
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+      <div class="pull-left">
+        <a class="menu-back-link" href="{% url "list_events" %}">
+          <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+        </a>
       </div>
+      <div class="pull-right">
+      </div>
+      <div class="clearfix"></div>
+      <hr />
+    </div>
+    {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="MANDATS" %} {% endblock %}
+    <div class="col-xs-12 col-md-9 margintopmore">
+    {% include "people/profile/profile_title.html" with tab_code="MANDATS" %}
+      <h3>Je signale un mandat {% genrer mandat_adjectif "M" %} dont je suis {% genrer "investi⋅e" %}</h3>
+
+      <p>Vous avez été {% genrer "élu⋅e" %} lors des dernières élections {% genrer mandat_adjectif "F" %}, ou à une
+        date antérieure, et  souhaitez être {% genrer "intégré⋅e" %} au réseau des élus de la France insoumise ?
+        Signalez-le nous via ce
+        formulaire.</p>
+
+      {% crispy form %}
     </div>
   </div>
 {% endblock %}

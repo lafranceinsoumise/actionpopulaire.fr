@@ -75,6 +75,52 @@ class OrganizerAsGroupTestCase(TestCase):
             self.organizer_config.full_clean()
 
 
+class EventSearchViewTestCase(TestCase):
+    def setUp(self):
+        self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+
+        self.person_insoumise = Person.objects.create_insoumise(
+            "person@lfi.com", create_role=True
+        )
+        self.person_2022 = Person.objects.create_person(
+            "person@nsp.com", create_role=True, is_2022=True, is_insoumise=False
+        )
+
+        self.subtype = EventSubtype.objects.create(
+            label="sous-type",
+            visibility=EventSubtype.VISIBILITY_ALL,
+            type=EventSubtype.TYPE_PUBLIC_ACTION,
+        )
+        self.event_insoumis = Event.objects.create(
+            name="Event Insoumis",
+            subtype=self.subtype,
+            start_time=now + day,
+            end_time=now + day + 4 * hour,
+            for_users=Event.FOR_USERS_INSOUMIS,
+        )
+        self.event_2022 = Event.objects.create(
+            name="Event NSP",
+            subtype=self.subtype,
+            start_time=now + day,
+            end_time=now + day + 4 * hour,
+            for_users=Event.FOR_USERS_2022,
+        )
+
+    def test_insoumise_persone_can_search_through_all_events(self):
+        self.client.force_login(self.person_insoumise.role)
+        res = self.client.get(reverse("search_event") + "?q=e")
+        self.assertContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_2022.name)
+
+    def test_2022_only_person_can_search_through_2022_events_only(self):
+        self.client.force_login(self.person_2022.role)
+        res = self.client.get(reverse("search_event") + "?q=e")
+        self.assertNotContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_2022.name)
+
+
 class EventPagesTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_insoumise("test@test.com", create_role=True)
@@ -282,7 +328,23 @@ class EventPagesTestCase(TestCase):
         args = patched_send_notification.delay.call_args[0]
 
         self.assertEqual(args[0], self.organized_event.pk)
-        self.assertCountEqual(args[1], ["contact", "location", "timing", "information"])
+        self.assertCountEqual(
+            args[1],
+            [
+                "name",
+                "start_time",
+                "end_time",
+                "contact_name",
+                "contact_email",
+                "contact_phone",
+                "location_name",
+                "location_address1",
+                "location_zip",
+                "location_city",
+                "description",
+                "as_group",
+            ],
+        )
 
         patched_geocode.delay.assert_called_once()
         args = patched_geocode.delay.call_args[0]
@@ -393,7 +455,7 @@ class EventPagesTestCase(TestCase):
         res = self.client.post(
             path=reverse("perform_create_event"),
             data={
-                "name": "Mon événement",
+                "name": "Mon évènement",
                 "subtype": self.subtype.label,
                 "start_time": formats.localize_input(
                     self.now + timezone.timedelta(days=1), "%d/%m/%Y %H:%M"
@@ -401,6 +463,7 @@ class EventPagesTestCase(TestCase):
                 "end_time": formats.localize_input(
                     self.now + timezone.timedelta(days=1, hours=1), "%d/%m/%Y %H:%M"
                 ),
+                "for_users": "I",
                 "contact_name": "Moi",
                 "contact_email": "moi@moi.fr",
                 "contact_phone": "01 23 45 67 89",
@@ -422,7 +485,7 @@ class EventPagesTestCase(TestCase):
         res = self.client.post(
             path=reverse("perform_create_event"),
             data={
-                "name": "Mon événement",
+                "name": "Mon évènement",
                 "subtype": self.subtype.label,
                 "start_time": formats.localize_input(
                     self.now + timezone.timedelta(days=1), "%d/%m/%Y %H:%M"
@@ -478,7 +541,7 @@ class EventPagesTestCase(TestCase):
             reverse("edit_event", kwargs={"pk": self.organized_event.pk})
         )
 
-        self.assertNotContains(response, "Nom de l'événement")
+        self.assertNotContains(response, "Nom de l'évènement")
 
         response = self.client.post(
             reverse("edit_event", kwargs={"pk": self.organized_event.pk}),
@@ -516,7 +579,7 @@ class EventPagesTestCase(TestCase):
     def test_can_send_event_report_if_its_possible(self, send_event_report):
         """ Si les conditions sont réunies, on peut envoyer le résumé par mail.
 
-        Les conditions sont : le mail n'a jamais été envoyé, l'événement est passé, le compte-rendu n'est pas vide."""
+        Les conditions sont : le mail n'a jamais été envoyé, l'évènement est passé, le compte-rendu n'est pas vide."""
         self.client.force_login(self.person.role)
         session = self.client.session
 
@@ -563,7 +626,7 @@ class EventPagesTestCase(TestCase):
     def test_can_not_send_event_report_when_nocondition(self, send_event_report):
         """ Si une des conditions manque, l'envoi du mail ne se fait pas.
 
-        Les conditions sont : le mail n'a jamais été envoyé, l'événement est passé,
+        Les conditions sont : le mail n'a jamais été envoyé, l'évènement est passé,
         le compte-rendu n'est pas vide."""
         self.client.force_login(self.person.role)
         response = self.client.post(
@@ -624,7 +687,7 @@ class RSVPTestCase(TestCase):
         )
 
         person_form_kwargs = {
-            "title": "Formulaire événement",
+            "title": "Formulaire évènement",
             "slug": "formulaire-evenement",
             "description": "Ma description complexe",
             "confirmation_note": "Ma note de fin",
@@ -715,7 +778,7 @@ class RSVPTestCase(TestCase):
 
         # can see the form
         response = self.client.get(url)
-        self.assertIn("Participer à cet événement", response.content.decode())
+        self.assertFalse(response.context["export_data"]["rsvp"])
 
         # can actually post the form
         response = self.client.post(
@@ -742,7 +805,7 @@ class RSVPTestCase(TestCase):
 
         url = reverse("view_event", kwargs={"pk": self.simple_event.pk})
         response = self.client.get(url)
-        self.assertIn("Inscription confirmée", response.content.decode())
+        self.assertEqual("CO", response.context["export_data"]["rsvp"])
         self.assertEqual(1, self.simple_event.participants)
 
     def test_cannot_rsvp_if_max_participants_reached(self):
@@ -755,7 +818,7 @@ class RSVPTestCase(TestCase):
 
         # cannot view the RSVP button
         response = self.client.get(url)
-        self.assertNotContains(response, "Participer à cet événement")
+        self.assertNotContains(response, "Participer à cet évènement")
 
         # cannot rsvp even when posting the form
         response = self.client.post(
@@ -1235,7 +1298,7 @@ class RSVPTestCase(TestCase):
 
         # cannot see the form
         response = self.client.get(url)
-        self.assertNotIn("Participer à cet événement", response.content.decode())
+        self.assertNotIn("Participer à cet évènement", response.content.decode())
 
         # cannot actually post the form
         self.client.post(reverse("rsvp_event", kwargs={"pk": self.simple_event.pk}))
@@ -1424,8 +1487,6 @@ class ExternalRSVPTestCase(TestCase):
 
     def test_can_rsvp(self):
         res = self.client.get(reverse("view_event", args=[self.event.pk]))
-        self.assertNotContains(res, "Se connecter pour")
-        self.assertContains(res, "Participer à cet événement")
 
         self.client.post(
             reverse("external_rsvp_event", args=[self.event.pk]),
@@ -1519,7 +1580,7 @@ class JitsiViewTestCase(FakeDataMixin, TestCase):
 class DoNotListEventTestCase(TestCase):
     def setUp(self):
         self.event = Event.objects.create(
-            name="Un événement qui sera non listé",
+            name="Un évènement qui sera non listé",
             start_time=timezone.now(),
             end_time=timezone.now() + timezone.timedelta(hours=4),
             do_not_list=False,
@@ -1534,14 +1595,14 @@ class DoNotListEventTestCase(TestCase):
         self.client.force_login(self.person.role)
 
     def test_unlisted_events_are_not_in_dashboard_calendar(self):
-        response = self.client.get(reverse("dashboard"))
-        self.assertContains(response, "Un événement qui sera non listé")
+        response = self.client.get(reverse("dashboard_old"))
+        self.assertContains(response, "Un évènement qui sera non listé")
 
         self.event.do_not_list = True
         self.event.save()
 
-        response = self.client.get(reverse("dashboard"))
-        self.assertNotContains(response, "Un événement qui sera non listé")
+        response = self.client.get(reverse("dashboard_old"))
+        self.assertNotContains(response, "Un évènement qui sera non listé")
         pass
 
     def test_unlisted_events_are_not_in_sitemap(self):
@@ -1576,7 +1637,7 @@ class DoNotListEventTestCase(TestCase):
         response = self.client.get(
             reverse("search_event"), data={"text_query": "sera non listé"}
         )
-        self.assertContains(response, "Un événement qui sera non listé")
+        self.assertContains(response, "Un évènement qui sera non listé")
 
         self.event.do_not_list = True
         self.event.save()
@@ -1584,7 +1645,7 @@ class DoNotListEventTestCase(TestCase):
         response = self.client.get(
             reverse("search_event"), data={"text_query": "sera non listé"}
         )
-        self.assertNotContains(response, "Un événement qui sera non listé")
+        self.assertNotContains(response, "Un évènement qui sera non listé")
 
 
 def get_search_url(search):
@@ -1616,7 +1677,7 @@ class SearchEventTestCase(TestCase):
             name="Événement simple",
             start_time=now - 3 * day,
             end_time=now + 3 * day + 4 * hour,
-            report_content="Il est essentiel d'écrire la légende des événements passés. Les mots s'envolent, les écrits restes. ## CommonWord ##",
+            report_content="Il est essentiel d'écrire la légende des évènements passés. Les mots s'envolent, les écrits restes. ## CommonWord ##",
             coordinates=Point(4.804_881, 43.953_847),  # Avignon, le fameux pont
         )
 
@@ -1672,7 +1733,7 @@ class SearchEventTestCase(TestCase):
 
     def test_event_are_indexed_after_created(self):
         response = self.client.get(get_search_url("incroyables"))
-        self.assertContains(response, "Aucun événement ne correspond à votre recherche")
+        self.assertContains(response, "Aucun évènement ne correspond à votre recherche")
         event = Event.objects.create(
             name="Incroyable happening",
             start_time=self.now + self.day,
@@ -1682,7 +1743,7 @@ class SearchEventTestCase(TestCase):
         )
         response = self.client.get(get_search_url("incroyables"))
         self.assertContains(response, "Incroyable happening")
-        self.assertNotContains(response, "Aucun événement ne correspond à votre")
+        self.assertNotContains(response, "Aucun évènement ne correspond à votre")
 
     def test_event_update_content(self):
         self.event.name = "nouveau nom, nouvelle vie"

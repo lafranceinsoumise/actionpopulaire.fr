@@ -1,0 +1,202 @@
+{% extends "front/layout.html" %}
+
+{% block title %}Rechercher des évènements ou groupes d'actions{% endblock %}
+
+{% block main %}
+  <div class="row">
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+      <div class="text-left">
+        <a class="menu-back-link" href="{% url "list_events" %}">
+          <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+        </a>
+      </div>
+      <hr />
+    </div>
+    <div class="col-xs-12">
+      <h2>Rechercher des évènements et groupes d'actions</h2>
+    </div>
+    <div class="col-xs-12 padtop padbottom">
+      <form class="form-inline padtop padbottom" action="" method="GET">
+        <div class="row">
+          <div class="form-group col-sm-9 col-md-10">
+            <label class="sr-only" for="q">
+              Nom de l'évènement ou du groupe
+            </label>
+            <input class="form-control" style="border-radius: 8px; width: 100%; height: 43px;" type="text" name="q" value="{{query}}" placeholder="Rechercher un groupe ou un évènement" autofocus />
+          </div>
+          <div class="col-sm-3 col-md-2">
+            <button type="submit" class="btn btn-lg btn-block btn-primary">
+              <i class="fa fa-search"></i> Chercher
+            </button>
+          </div>
+          <p class="col-xs-12 help-block padtop">
+            Recherchez des évènements et des groupes d'actions par nom, ville, code postal...
+          </p>
+        </div>
+      </form>
+    </div>
+    {% if query != "" %}
+      {% if result_count > 0 %}
+        <div class="col-xs-12">
+          <p class="alert alert-info">
+            {% if event_count > 0 and support_groups.count > 0 %}
+              <strong>{{ event_count }} évènement{% if event_count > 1 %}s{% endif %}</strong>
+              et
+              <strong>{{ support_groups.count }} groupe{% if support_groups.count > 1 %}s{% endif %} d'actions</strong>
+            {% else %}
+              <strong>{{ result_count }} résultat{% if result_count > 1 %}s{% endif %}</strong>
+            {% endif %}
+            trouvé{% if result_count > 1 %}s{% endif %}
+          </p>
+        </div>
+        {% if event_count > 0 %}
+          <div class="col-md-7 padtop padbottom" style="clear: both;">
+            <h3>
+              Événements
+              <small class="badge">
+                {{ event_count }}
+              </small>
+            </h3>
+            {% if upcoming_events.count > 0 and past_events.count > 0 %}
+              <h4 class="text-right">Événements à venir</h4>
+            {% endif %}
+            {% if upcoming_events.count > 0 %}
+              <div class="list-group">
+                {% for event in upcoming_events %}
+                  <a
+                    href="{% url "view_event" event.pk %}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="list-group-item">
+                    <div class="media">
+                      {% if event.image %}
+                        <div class="media-left media-middle" style="min-width:64px;">
+                          <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                        </div>
+                      {% endif %}
+                      <div class="media-body media-right" data-ranking-score="{{ event.rank }}">
+                        <h5>
+                          {{ event.name }}
+                        </h5>
+                        <p class="help-block">
+                          <i class="fa fa-calendar"></i>
+                          &nbsp;{{ event.start_time|date:"l j M. Y" }}
+                          à&nbsp;{{ event.start_time|time:"H\hi" }}
+                        </p>
+                        <p class="help-block">
+                          <i class="fa fa-map-marker"></i>
+                          &nbsp;{{ event.short_location }}
+                        </p>
+                      </div>
+                    </div>
+                  </a>
+                {% endfor %}
+                <a href="{% url "search_event" %}?q={{ query }}" class="list-group-item text-right">
+                  Recherche avancée
+                  &ensp;<i class="fa fa-arrow-right"></i>
+                </a>
+              </div>
+            {% endif %}
+            {% if upcoming_events.count > 0 and past_events.count > 0 %}
+              <h4 class="text-right padtop">Événements passés</h4>
+            {% endif %}
+            {% if past_events.count > 0 %}
+              <div class="list-group">
+                {% for event in past_events %}
+                  <a
+                    href="{% url "view_event" event.pk %}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="list-group-item">
+                    <div class="media">
+                      {% if event.image %}
+                        <div class="media-left media-middle" style="min-width:64px;">
+                          <img src="{{ event.image.thumbnail.url }}" class="media-object img-responsive">
+                        </div>
+                      {% endif %}
+                      <div class="media-body media-right" data-ranking-score="{{ event.rank }}">
+                        <h5>
+                          {{ event.name }}
+                        </h5>
+                        <p class="help-block">
+                          <i class="fa fa-calendar"></i>
+                          &nbsp;{{ event.start_time|date:"l j M. Y" }}
+                          à&nbsp;{{ event.start_time|time:"H\hi" }}
+                        </p>
+                        <p class="help-block">
+                          <i class="fa fa-map-marker"></i>
+                          &nbsp;{{ event.short_location }}
+                        </p>
+                      </div>
+                    </div>
+                  </a>
+                {% endfor %}
+                <a href="{% url "search_event" %}?q={{ query }}&?past=on" class="list-group-item text-right">
+                  Recherche avancée
+                  &ensp;<i class="fa fa-arrow-right"></i>
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+        {% if support_groups.count > 0 %}
+          <div class="col-md-5 padtop padbottom">
+            <h3>
+              Groupes d'actions
+              <small class="badge">
+                {{ support_groups.count }}
+              </small>
+            </h3>
+            {% if upcoming_events.count > 0 and past_events.count > 0 %}
+              <h4>&nbsp;</h4>
+            {% endif %}
+            <div class="list-group">
+              {% for support_group in support_groups %}
+                <a
+                  href="{% url "view_group" support_group.pk %}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="list-group-item ">
+
+                  <div class="media">
+                    {% if support_group.image %}
+                      <div class="media-left media-middle" style="min-width:64px;">
+                        <img src="{{ support_group.image.thumbnail.url }}" class="media-object img-responsive">
+                      </div>
+                    {% endif %}
+                    <div class="media-body media-right">
+                      <h5>
+                        {{ support_group.name }}
+                      </h5>
+                      <p class="help-block">
+                        {{ support_group.get_type_display }}
+                      </p>
+                      <p class="help-block">
+                        <i class="fa fa-map-marker"></i>&nbsp;
+                        {% if support_group.location_name %}
+                          {{ support_group.location_name }}&nbsp;{% if support_group.location_city %}({{ support_group.location_city }}){% endif %}
+                        {% else %}
+                          <em>Localisation inconnue</em>
+                        {% endif %}
+                      </p>
+                    </div>
+                  </div>
+                </a>
+              {% endfor %}
+              <a href="{% url "search_group" %}?q={{ query }}" class="list-group-item text-right">
+                Recherche avancée
+                &ensp;<i class="fa fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      {% else %}
+        <div class="col-xs-12 padtop padbottom">
+          <p class="alert alert-warning">
+            Aucun résultat ne correspond à votre recherche.
+          </p>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+{% endblock %}

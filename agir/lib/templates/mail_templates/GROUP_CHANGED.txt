@@ -1,31 +1,22 @@
 Bonjour,
 
+Les animateurs du groupe {{ GROUP_NAME }} ont changé ses informations.
 
-Les animateurs du groupe d'action {{ GROUP_NAME }} ont changé ses informations.  
+Les informations suivantes ont été changées :
 
-
-Les informations suivantes ont été changées :  
-
-
-{{ GROUP_CHANGES }}  
-
+{{ GROUP_CHANGES }}
 
 >> Voir les informations mises à jour de ce groupe d'action
-{{ GROUP_LINK }}  
+{{ GROUP_LINK }}
 
+Amitiés,  
+L’équipe d’Action Populaire
 
-Amitiés insoumises,  
-L'équipe nationale de la France insoumise  
-  
-
------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}.
-
->> Voir cet email dans votre navigateur
-{{ LINK_BROWSER }}
+------------------------------------------------------------------
+Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.
 
 >> Choisir les emails que vous recevez
-{{ PREFERENCES_LINK }}
+{{ preferences_link }}
 
 >> Arrêter complètement de recevoir des emails
-{{ UNSUBSCRIBE_LINK }}
+{{ unsubscribe_link }}

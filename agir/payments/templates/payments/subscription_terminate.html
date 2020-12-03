@@ -6,20 +6,43 @@
 {% endblock %}
 
 {% block main %}
-  <div class="col-responsive">
-    <h1>Mettre fin au paiement automatique</h1>
-
-    <div>
-      <p>Voulez-vous vraiment mettre fin à ce paiement automatique&nbsp;?</p>
-      <div class="panel panel-default"><div class="panel-body">
-      {{ subscription.description }}
-      </div></div>
-      <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary">Mettre fin au paiement</button>
-        <a class="btn btn-default" href="{% url 'view_payments' %}">Retour à la liste de mes paiements</a>
-      </form>
-
+<div class="row">
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+    <div class="pull-left">
+      <a class="menu-back-link" href="{% url "list_events" %}">
+        <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+      </a>
+    </div>
+    <div class="pull-right">
+    </div>
+    <div class="clearfix"></div>
+    <hr />
+  </div>
+  {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="PAYMENTS" %} {% endblock %}
+  <div class="col-xs-12 col-md-9 margintopmore">
+    {% include "people/profile/profile_title.html" with tab_code="PAYMENTS" %}
+    <div class="padtop padbottom">
+      <p>
+        Voulez-vous vraiment mettre fin à ce paiement automatique&nbsp;?
+      </p>
+      <p>
+        {{ subscription.description }}
+      </p>
+    </div>
+    <form method="post" class=" row padtop padbottom">
+      {% csrf_token %}
+      <div class="col-xs-12 col-sm-5 marginbottom">
+        <a class="btn btn-block btn-default" href="{% url 'view_payments' %}">
+          Retour à la liste de mes paiements
+        </a>
+      </div>
+      <div class="col-xs-12 col-sm-4 marginbottom">
+        <button type="submit" class="btn btn-block btn-primary">
+          Mettre fin au paiement
+        </button>
+      </div>
+    </form>
     </div>
   </div>
+</div>
 {% endblock %}

@@ -1,21 +1,14 @@
-[Voir dans le navigateur]({{ LINK_BROWSER }})  
-  
-Finalisez votre don mensuel  
-===========================
-
 >> Je finalise mon don mensuel
 {{ CONFIRM_SUBSCRIPTION_LINK }}
 
-*Pourquoi ce message ?*
-
-Dans le cadre d'un don mensuel, nous pouvons avoir besoin de vous contacter, notamment pour vous transmettre votre reçu fiscal, ou si la Commission nationale des comptes de campagne et des financements politiques nous demande des informations supplémentaires. Nous devons donc nous assurer que vous avez bien accès à cette adresse email.
-
-
-Cet email a été envoyé à {{ EMAIL }}.
-
+>> Pourquoi ce message ?
+Dans le cadre d'un don mensuel, nous pouvons avoir besoin de vous contacter, notamment pour vous transmettre votre reçu fiscal, ou si la  Commission nationale des comptes de campagne et des financements politiques nous demande des informations supplémentaires. Nous devons donc nous assurer que vous avez bien accès à cette adresse email.
 
 ------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
+Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.
 
->> Voir cet email dans votre navigateur
-{{ LINK_BROWSER }}
+>> Choisir les emails que vous recevez
+{{ preferences_link }}
+
+>> Arrêter complètement de recevoir des emails
+{{ unsubscribe_link }}

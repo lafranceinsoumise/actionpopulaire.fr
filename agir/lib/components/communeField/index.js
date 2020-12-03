@@ -1,7 +1,4 @@
-import onDOMReady from "@agir/lib/onDOMReady";
-
-import CommuneField from "./CommuneField";
-import { getStatefulRenderer } from "@agir/lib/utils/react";
+import onDOMReady from "@agir/lib/utils/onDOMReady";
 
 const getInitial = (field) =>
   field.value
@@ -27,9 +24,19 @@ const getProps = (field) => {
   return props;
 };
 
-const renderer = getStatefulRenderer(CommuneField, selector, {
-  getInitial,
-  getProps,
-});
+(async function () {
+  const [
+    { default: CommuneField },
+    { getStatefulRenderer },
+  ] = await Promise.all([
+    import("./CommuneField"),
+    import("@agir/lib/utils/react"),
+  ]);
 
-onDOMReady(renderer);
+  const renderer = getStatefulRenderer(CommuneField, selector, {
+    getInitial,
+    getProps,
+  });
+
+  onDOMReady(renderer);
+})();

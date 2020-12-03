@@ -1,14 +1,21 @@
-{% extends "front/simple_layout.html" %}
+{% extends "front/layout.html" %}
 {% load static %}
 
 {% block main %}
-  <p>
-    Un problème d'interfaçage avec l'application de notre imprimeur a été rencontré.
-  </p>
-  <p>
-    <a href="https://au43.fr/">Au 43</a>, on fait de notre mieux pour corriger
-    ça. Ce serait sympa si vous nous donniez des détails sur l'erreur
-    <a href="https://lafranceinsoumise.fr/formulaire-de-contact/formulaire-de-signalement-derreurs/">par ce
-      formulaire</a>.
-  </p>
+  <div class="row">
+    <div class="col-xs-12 margintopmore">
+      <h2 class="headline">
+        Une erreur est survenue
+      </h2>
+      <p>
+        Un problème d'interfaçage avec l'application de notre imprimeur a été rencontré.
+      </p>
+      <p>
+        <a href="https://au43.fr/">Au 43</a>, on fait de notre mieux pour corriger ça.
+      </p>
+      <p>
+        Ce serait sympa si vous nous donniez des détails sur l'erreur <a href="https://lafranceinsoumise.fr/formulaire-de-contact/formulaire-de-signalement-derreurs/">par ce formulaire</a>.
+      </p>
+    </div>
+  </div>
 {% endblock %}

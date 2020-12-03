@@ -435,7 +435,7 @@
                         <td width="100%" valign="top" align="left" style="font-weight: normal; text-align:left; font-size: 13px;
                           font-family: Arial, Helvetica, sans-serif; color: #919191;
                           -ko-font-size: @[linkStyle.size]px; -ko-color: @linkStyle.color; -ko-font-family: @linkStyle.face">
-                          <a data-ko-editable="profileText" href="https://noussommespour.fr/preferences/?agir_id={{ user_pk }}"
+                          <a data-ko-editable="profileText" href="https://noussommespour.fr/preferences/?_{{ login_query }}"
                              style="text-decoration: underline; color: #919191; -ko-attr-href: @preheaderProfileLinkOption;
                              -ko-color: @linkStyle.color; -ko-text-decoration: @linkStyle.decoration">Préférences de contact</a>
                           <span style="font-size: 16px;color: #919191; font-weight: normal; text-align:center;
@@ -454,7 +454,7 @@
                       -ko-font-size: @[linkStyle.size]px; -ko-color: @linkStyle.color; -ko-font-family: @linkStyle.face">
                       <span style="color: #919191; text-decoration: underline;
                         -ko-color: @linkStyle.color; -ko-text-decoration: @linkStyle.decoration">
-                          <a data-ko-editable="webversionText" href="https://noussommespour.fr/preferences/?agir_id={{ user_pk }}"
+                          <a data-ko-editable="webversionText" href="https://noussommespour.fr/preferences/?_{{ login_query }}"
                           style="text-decoration: underline; color: #919191; -ko-attr-href: @preheaderUnsubscribeLinkOption;
                            -ko-color: @linkStyle.color; -ko-text-decoration: @linkStyle.decoration">Ne plus recevoir de mails</a>
                          </span>
@@ -1543,7 +1543,7 @@
                     -ko-font-size: @[longTextStyle.size]px; -ko-color: @longTextStyle.color; -ko-font-family: @longTextStyle.face"
                   class="long-text links-color" data-ko-editable="longText">
                 <p>
-                    Vous souhaitez recevoir moins de mails de notre part : <a href="https://noussommespour.fr/preferences/?agir_id={{ user_pk }}">modifier ses préférences ou se désinscrire</a>.
+                    Vous souhaitez recevoir moins de mails de notre part : <a href="https://noussommespour.fr/preferences/?_{{ login_query }}">modifier ses préférences ou se désinscrire</a>.
                 </p>
                 <p>Mai envoyé à {{ email }}</p>
               </td>

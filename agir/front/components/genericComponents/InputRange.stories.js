@@ -4,7 +4,7 @@ import InputRange from "./InputRange";
 
 export default {
   component: InputRange,
-  title: "InputRange",
+  title: "Generic/InputRange",
   argTypes: { onChange: { action: "changed" } },
 };
 

@@ -51,11 +51,6 @@ profile_urls = [
     ),
     path("profil/competences", views.SkillsView.as_view(), name="skills"),
     path("profil/engagement/", views.VolunteerView.as_view(), name="volunteer"),
-    path(
-        "profil/rejoindre/",
-        views.BecomeInsoumiseView.as_view(),
-        name="become_insoumise",
-    ),
     path("profil/contact/", views.ContactView.as_view(), name="contact"),
     path(
         "profil/contact/adresses/",
@@ -154,7 +149,8 @@ form_urls = [
 
 
 dashboard_urls = [  # dashboard
-    path("", views.DashboardView.as_view(), name="dashboard")
+    path("legacy/dashboard", views.DashboardView.as_view(), name="dashboard_old"),
+    path("recherche", views.DashboardSearchView.as_view(), name="dashboard_search"),
 ]
 
 

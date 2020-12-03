@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             field=models.DateTimeField(
                 blank=True,
                 null=True,
-                verbose_name="Limiter aux participant⋅e⋅s à des événements terminant avant cette date",
+                verbose_name="Limiter aux participant⋅e⋅s à des évènements terminant avant cette date",
             ),
         ),
         migrations.AddField(
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
             field=models.DateTimeField(
                 blank=True,
                 null=True,
-                verbose_name="Limiter aux participant⋅e⋅s à des événements commençant après cette date",
+                verbose_name="Limiter aux participant⋅e⋅s à des évènements commençant après cette date",
             ),
         ),
         migrations.AddField(
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(
                 blank=True,
                 to="events.EventSubtype",
-                verbose_name="Limiter aux participant⋅e⋅s à un événements de ce type",
+                verbose_name="Limiter aux participant⋅e⋅s à un évènements de ce type",
             ),
         ),
     ]

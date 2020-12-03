@@ -95,7 +95,8 @@ class LoginView(RedirectToMixin, FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        if is_soft_logged(request):
+        auto = not request.GET.get("no_auto")
+        if is_soft_logged(request) and auto:
             form = self.form_class(data={"email": request.user.person.email})
 
             if form.is_valid():
@@ -110,19 +111,28 @@ class LoginView(RedirectToMixin, FormView):
         }
 
     def form_valid(self, form):
-        if not form.send_email():
+        if not form.send_email(request_ip=self.request.META["REMOTE_ADDR"]):
             return self.form_invalid(form)
 
         local_expiration_time = timezone.localtime(form.expiration).strftime("%H:%M")
 
-        messages.add_message(
-            self.request,
-            messages.DEBUG,
-            f"Le code de connexion est {form.short_code} (expiration à {local_expiration_time}).",
-        )
+        if form.person is None:
+            messages.add_message(
+                self.request,
+                messages.DEBUG,
+                f"Pas de compte correspondant à cette l'adresse {form.cleaned_data['email']}.",
+            )
+        else:
+            messages.add_message(
+                self.request,
+                messages.DEBUG,
+                f"Le code de connexion est {form.short_code} (expiration à {local_expiration_time}).",
+            )
 
         redirect_to = self.get_redirect_url()
-        success_url = reverse("check_short_code", kwargs={"user_pk": form.person.pk})
+
+        self.request.session["login_email"] = form.cleaned_data["email"]
+        success_url = reverse("check_short_code")
 
         if redirect_to:
             success_url += f"?{self.redirect_field_name}={urlquote(redirect_to)}"
@@ -145,23 +155,25 @@ class CheckCodeView(RedirectToMixin, FormView):
     redirect_field_name = REDIRECT_FIELD_NAME
 
     def dispatch(self, request, *args, **kwargs):
-        try:
-            self.person = Person.objects.get(pk=self.kwargs["user_pk"])
-            return super().dispatch(request, *args, **kwargs)
-        except Person.DoesNotExist:
-            return HttpResponseRedirect(reverse("short_code_login"))
+        self.login_email = request.session.get("login_email")
+        if not self.login_email:
+            return self.redirect_to_login_page()
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def redirect_to_login_page(self):
+        return HttpResponseRedirect(reverse("short_code_login"))
 
     def get_success_url(self):
         return self.get_redirect_url() or "/"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["person"] = self.person
+        kwargs["email"] = self.login_email
         return kwargs
 
     def form_valid(self, form):
         login(self.request, form.role)
-        validated_email = form.role.login_meta.get("email")
 
         if not form.role.social_auth.filter(provider="facebook").exists():
             messages.add_message(
@@ -174,12 +186,13 @@ class CheckCodeView(RedirectToMixin, FormView):
                 ),
             )
 
-        if validated_email and form.role.person.primary_email.bounced:
+        if form.role.person.primary_email.bounced:
             try:
                 validated_email_instance = form.role.person.emails.get_by_natural_key(
-                    validated_email
+                    self.login_email
                 )
             except PersonEmail.DoesNotExist:
+                # en cas de connexion pile au moment de la suppression d'une adresse email...
                 pass
             else:
                 if validated_email_instance.bounced:
@@ -194,13 +207,13 @@ class CheckCodeView(RedirectToMixin, FormView):
 
     def get_context_data(self, **kwargs):
         kwargs.update(
-            {"is_soft_logged": is_soft_logged(self.request), "email": self.person.email}
+            {"is_soft_logged": is_soft_logged(self.request), "email": self.login_email}
         )
         return super().get_context_data(**kwargs)
 
 
 class DisconnectView(RedirectToMixin, RedirectView):
-    url = settings.MAIN_DOMAIN
+    url = reverse_lazy("short_code_login")
 
     def get(self, request, *args, **kwargs):
         logout(request)

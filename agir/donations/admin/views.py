@@ -34,7 +34,7 @@ class HandleRequestView(AdminViewMixin, DetailView):
             kwargs["form"] = self.get_form()
 
         return super().get_context_data(
-            title="Résumé des événements",
+            title="Résumé des évènements",
             spending_request=self.object,
             documents=self.object.documents.all(),
             fields=admin_summary(self.object),

@@ -4,21 +4,30 @@
 {% block title %}{{ person_form.title }} &mdash; Réponses page {{ page_obj.number }}{% endblock %}
 
 {% block main %}
-  <h1 class="headline">{{ person_form.title }} &mdash; résultats</h1>
-  <div>
-    <table class="table">
-      <tr>
-        {% for header in headers %}
-          <th>{{ header }}</th>
-        {% endfor %}
-      </tr>
-      {% for submission in submissions %}
-        <tr>
-          {% for value in submission %}
-              <td>{{ value }}</td>
+  <div class="row">
+    <div class="col-xs-12">
+      <h2 class="headline">
+        {{ person_form.title }}
+      </h2>
+      <h4 class="text-muted">
+        Résultats
+      </h4>
+      <div class="table-responsive">
+        <table class="table table-condensed">
+          <tr>
+            {% for header in headers %}
+              <th>{{ header }}</th>
+            {% endfor %}
+          </tr>
+          {% for submission in submissions %}
+            <tr>
+              {% for value in submission %}
+                <td>{{ value }}</td>
+              {% endfor %}
+            </tr>
           {% endfor %}
-        </tr>
-      {% endfor %}
-    </table>
+        </table>
+      </div>
+    </div>
   </div>
 {% endblock %}

@@ -1,119 +1,162 @@
 {% extends 'front/layout.html' %}{% load static %}{% load render_bundle from webpack_loader %}
 
+{% block extra_scripts %}
+  {% render_bundle "donations/spendingRequestLib" %}
+{% endblock %}
 
 {% block title %}
   Gérer l'avancement de votre demande de dépense ou de remboursement
 {% endblock %}
 
 {% block main %}
-  <h2>Gérer ma demande de dépense ou de remboursement</h2>
-  <ol class="breadcrumb">
-    <li><a href="{% url "view_group" supportgroup.pk %}">Page publique du groupe</a></li>
-    <li><a href="{% url "manage_group" supportgroup.pk %}">Gestion du groupe</a></li>
-  </ol>
-
-  <div class="container">
-    <div class="row">
-      <div class="col-md-8">
-        <h3>Les détails de ma demande</h3>
-        <table class="table">
-          {% for field in summary %}
-            <tr>
-              <th>{{ field.label }}</th>
-              <td>{{ field.value }}</td>
-            </tr>
-          {% endfor %}
-        </table>
-
-        <h4>Mes pièces justificatives</h4>
-
-        {% if documents %}
-
-          <table class="table">
-            <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Type</th>
-              <th>Modifier</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for document in documents %}
-              <tr>
-                <td><a href="{{ document.file.url }}">{{ document.title }} <span
-                  class="fa fa-download"></span></a></td>
-                <td>{{ document.get_type_display }}</td>
-                <td>
-                  <a href="{% url "edit_document" spendingrequest.pk document.pk %}"
-                     class="btn btn-default">
-                    <span class="fa fa-edit" title="Modifier {{ document.title }}"></span>
-                  </a>
-                  <div style="display: inline-block" class="delete-document"
-                       data-document-name="{{ document.title }}"
-                       data-delete-url="{% url "delete_document" spendingrequest.pk document.pk %}"></div>
-                </td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-          {% render_bundle "donations/spendingRequestLib" %}
-        {% else %}
-          <p>Vous n'avez pas encore joint de pièce justificative à votre demande. Vous devez joindre au moins
-            une
-            facture, ainsi que l'ensemble des pièces nécessaires pour évaluer votre demane.</p>
-        {% endif %}
-
+  <div class="row">
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+      <div class="pull-left">
+        <a class="menu-back-link" href="{% url "list_events" %}">
+          <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+        </a>
       </div>
-      <div class="col-md-4">
-        <div class="panel-body">
-          <h4>Statut de la demande</h4>
+      <div class="pull-right">
+        {% if can_edit %}
+          <a
+            class="btn btn-sm btn-default"
+            href="{% url "edit_spending_request" spendingrequest.pk %}">
+            <i class="fa fa-pencil"></i> Modifier la demande
+          </a>
+          <a
+            class="btn btn-sm btn-default"
+            href="{% url "create_document" spendingrequest.pk %}">
+            <i class="fa fa-plus"></i> Ajouter une pièce justificative
+          </a>
+        {% endif %}
+        <a
+          class="btn btn-sm btn-default"
+          href="{% url "view_group" supportgroup.pk %}">
+          Page publique du groupe
+        </a>
+      </div>
+      <div class="clearfix"></div>
+      <hr />
+    </div>
+    <div class="col-xs-12 col-md-3 margintopmore">
+      {% include "groups/includes/manage_nav.html" with has_static_menu=True active="financement" %}
+    </div>
+    <div class="col-xs-12 col-md-9 tab-content">
+      <h2 class="headline">
+        {{ supportgroup.name }}
+      </h2>
+      <hr />
+      <h4 class="padbottom">
+        Gérer ma demande de dépense ou de remboursement
+      </h4>
+      <div class="row">
+        <div class="col-md-6">
 
-          <p>{{ action.explanation }}</p>
-
-          {% if action.button %}
-            <form method="post" style="display: inline;">
-              {% csrf_token %} <input type="hidden" name="validate" value="{{ spendingrequest.status }}">
-              <input
-                type="submit" value="{{ action.button }}" class="btn btn-primary">
-            </form>
-          {% endif %}
-
-          <h4>Historique de ma demande</h4>
-
-          <div class="list-group">
-            {% for step in history %}
-              <div class="list-group-item">
-                <h5>{{ step.title }}{% if step.user %}
-                  <small>({{ step.user }})</small>{% endif %}</h5>
-                <div><em>Le {{ step.modified }}</em></div>
-                {% if step.comment %}
-                  <blockquote>{{ step.comment }}</blockquote>
-                {% endif %}
-                {% if step.diff %}
-                  <div>
-                    Ont été modifiés :
-                    <ul class="list-inline">
-                      {% for field in step.diff %}
-                        <li>{{ field }}</li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                {% endif %}
-              </div>
-            {% endfor %}
+          <div class="padtop padbottommore">
+            <h4>Les détails de ma demande</h4>
+            <div class="table-responsive">
+              <table class="table table-condensed">
+                {% for field in summary %}
+                <tr>
+                  <th>{{ field.label }}</th>
+                  <td>{{ field.value }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </div>
+          <div class="padtop padbottommore">
+            <h4>Mes pièces justificatives</h4>
+            {% if documents %}
+            <div class="table-responsive">
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Type</th>
+                    <th>Modifier</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for document in documents %}
+                  <tr>
+                    <td>
+                      <a href="{{ document.file.url }}">
+                        {{ document.title }} <span class="fa fa-download"></span>
+                      </a>
+                    </td>
+                    <td>{{ document.get_type_display }}</td>
+                    <td>
+                      <a href="{% url "edit_document" spendingrequest.pk document.pk %}" class="btn btn-default">
+                        <span class="fa fa-edit" title="Modifier {{ document.title }}"></span>
+                      </a>
+                      <span style="display: inline-block" class="delete-document"
+                           data-document-name="{{ document.title }}"
+                           data-delete-url="{% url "delete_document" spendingrequest.pk document.pk %}"></span>
+                    </td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+              <p>
+                Vous n'avez pas encore joint de pièce justificative à votre demande. Vous devez joindre au moins une facture, ainsi que l'ensemble des pièces nécessaires pour évaluer votre demane.
+              </p>
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-md-5 col-md-offset-1">
+          <div class="padtop padbottommore">
+            <h4>Statut de la demande</h4>
+            <p class="padbottom">{{ action.explanation }}</p>
+            {% if action.button %}
+              <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <input
+                  type="hidden"
+                  name="validate"
+                  value="{{ spendingrequest.status }}"
+                />
+                <input
+                  type="submit"
+                  value="{{ action.button }}"
+                  class="btn btn-block btn-primary"
+                />
+              </form>
+            {% endif %}
+          </div>
+          <div class="padtop padbottommore">
+            <h4>Historique de ma demande</h4>
+            <div class="list-group">
+              {% for step in history %}
+                <div class="list-group-item marginbottom" style="border-radius: 8px;">
+                  <p>
+                    <small>Le {{ step.modified }}</small>
+                    <br />
+                    <strong>{{ step.title }}</strong>
+                    {% if step.user %}
+                      <br/><small>({{ step.user }})</small>
+                    {% endif %}
+                  </p>
+                  {% if step.comment %}
+                    <div class="well" style="font-size: 14px;">{{ step.comment }}</div>
+                  {% endif %}
+                  {% if step.diff %}
+                    <p style="font-size: 12px;">
+                      <em>Ont été modifiés&nbsp;:</em>
+                      <br/>
+                      <strong>
+                        {{ step.diff|join:"</strong>, <strong>" }}
+                      </strong>
+                    </p>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  {% if can_edit %}
-    <div class="container" style="margin-bottom: 1em;">
-      <div class="btn-toolbar" role="toolbar">
-        <a class="btn btn-default" href="{% url "edit_spending_request" spendingrequest.pk %}">Modifier la
-          demande</a> <a
-        class="btn btn-default" href="{% url "create_document" spendingrequest.pk %}">Ajouter une pièce
-        justificative</a>
-      </div>
-    </div>
-  {% endif %}
 {% endblock %}

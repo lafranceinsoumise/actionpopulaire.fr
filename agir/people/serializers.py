@@ -11,6 +11,7 @@ from agir.lib.serializers import (
     LegacyBaseAPISerializer,
     LegacyLocationMixin,
     RelatedLabelField,
+    FlexibleFieldsMixin,
 )
 from . import models
 from .actions.subscription import (
@@ -275,15 +276,19 @@ class RetrievePersonRequestSerializer(serializers.Serializer):
             raise Http404("Aucune personne trouvée")
 
 
-class PersonSerializer(serializers.Serializer):
+class PersonSerializer(FlexibleFieldsMixin, serializers.Serializer):
     id = serializers.UUIDField()
     email = serializers.EmailField()
 
     firstName = serializers.CharField(source="first_name")
     lastName = serializers.CharField(source="last_name")
+    fullName = serializers.SerializerMethodField()
     contactPhone = PhoneNumberField(source="contact_phone")
 
     isInsoumise = serializers.BooleanField(source="is_insoumise")
     is2022 = serializers.BooleanField(source="is_2022")
 
     newsletters = serializers.ListField()
+
+    def get_fullName(self, obj: Person):
+        return obj.get_full_name()

@@ -6,29 +6,44 @@
 
 {% block main %}
   <div class="row">
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+      <div class="pull-left">
+        <a class="menu-back-link" href="{% url "list_events" %}">
+          <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+        </a>
+      </div>
+      <div class="pull-right">
+      </div>
+      <div class="clearfix"></div>
+      <hr />
+    </div>
     {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="MANDATS" %} {% endblock %}
-    <div class="col-xs-12 col-md-10">
-      <div class="col-xs-12 col-md-12 ">
-        <p>
-          Nous vous avons {% genrer "identifié" %} par erreur comme {% genrer "élu⋅e" %} {{ conseil_avec_charniere }} ?
-          Nous vous somme reconnaissants de bien vouloir nous le signaler via ce formulaire.
-        </p>
-        <div class="alert alert-info">
-          Généralement, vous avez incorrectement été {% genrer "identifié⋅e" %} car une personne homonyme a
-          été élue près de chez vous.
-        </div>
+    <div class="col-xs-12 col-md-9 margintopmore">
+      {% include "people/profile/profile_title.html" with tab_code="MANDATS" %}
+      <h3>Suppression d'un mandat</h3>
+      <p>
+        Nous vous avons {% genrer "identifié" %} par erreur comme <strong>{% genrer "élu⋅e" %} {{ conseil_avec_charniere }}</strong> ?
+        Nous vous somme reconnaissants de bien vouloir nous le signaler via ce formulaire.
+      </p>
+      <div class="alert alert-info">
+        Généralement, vous avez incorrectement été {% genrer "identifié⋅e" %} car une personne homonyme a
+        été élue près de chez vous.
+      </div>
 
-        <form method="post">
-          {% csrf_token %}
-          <div class="form-group">
+      <form method="post" class="row">
+        {% csrf_token %}
+        <div class="form-group col-xs-12">
           <label>
             <input name="confirmation" type="checkbox" required>
             Je ne suis pas {% genrer "élu⋅e" %} {{ conseil_avec_charniere }}
           </label>
-            </div>
-          <button type="submit" class="btn btn-default">Supprimer ce mandat</button>
-        </form>
-      </div>
+        </div>
+        <div class="form-group col-xs-12 col-md-4">
+          <button type="submit" class="btn btn-danger btn-block">
+            Supprimer ce mandat
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 {% endblock %}

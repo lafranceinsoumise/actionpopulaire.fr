@@ -37,9 +37,11 @@ from agir.front.view_mixins import (
     ObjectOpengraphMixin,
     ChangeLocationBaseView,
     FilterView,
+    ReactSingleObjectView,
 )
 from agir.lib.export import dict_to_camelcase
 from agir.lib.views import ImageSizeWarningMixin
+from .. import serializers
 from ..filters import EventFilter
 from ..forms import (
     EventForm,
@@ -56,7 +58,7 @@ from ..tasks import (
     send_event_report,
     send_secretariat_notification,
 )
-from ...groups.models import Membership
+from ...groups.models import Membership, SupportGroup
 
 __all__ = [
     "CreateEventView",
@@ -82,7 +84,7 @@ __all__ = [
 
 
 class EventSearchView(FilterView):
-    """Vue pour lister les événements et les rechercher
+    """Vue pour lister les évènements et les rechercher
     """
 
     template_name = "events/event_search.html"
@@ -94,12 +96,22 @@ class EventSearchView(FilterView):
     )
     filter_class = EventFilter
 
+    def dispatch(self, request, *args, **kwargs):
+        if (
+            self.request.user.is_authenticated
+            and hasattr(self.request.user, "person")
+            and request.user.person.is_2022_only
+        ):
+            self.queryset = self.queryset.is_2022()
 
-class BaseEventDetailView(GlobalOrObjectPermissionRequiredMixin, DetailView):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class EventDetailMixin(GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("events.view_event",)
     queryset = (
         Event.objects.all()
-    )  # y compris les événements cachés, pour pouvoir montrer des pages GONE
+    )  # y compris les évènements cachés, pour pouvoir montrer des pages GONE
 
     title_prefix = _("Evénement local")
 
@@ -120,20 +132,23 @@ class BaseEventDetailView(GlobalOrObjectPermissionRequiredMixin, DetailView):
         )
 
 
-class EventDetailView(ObjectOpengraphMixin, BaseEventDetailView):
+class EventDetailView(ObjectOpengraphMixin, EventDetailMixin, ReactSingleObjectView):
+    permission_required = ("events.view_event",)
     meta_description = (
-        "Participez aux événements organisés par les membres de la France insoumise."
+        "Participez aux évènements organisés par les membres de la France insoumise."
     )
-    template_name = "events/detail.html"
+    meta_description_2022 = "Participez et organisez des évènements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
+    serializer_class = serializers.EventSerializer
+    queryset = Event.objects.all()
+    bundle_name = "events/eventPage"
+    data_script_id = "exportedEvent"
 
 
-class EventParticipationView(
-    SoftLoginRequiredMixin, BaseEventDetailView,
-):
+class EventParticipationView(SoftLoginRequiredMixin, EventDetailMixin, DetailView):
     template_name = "events/participation.html"
     permission_required = ("events.view_event", "events.participate_online")
     permission_denied_message = _(
-        "Vous devez être inscrit⋅e à l'événement pour accéder à cette page."
+        "Vous devez être inscrit⋅e à l'évènement pour accéder à cette page."
     )
     custom_template_engine = DjangoTemplates(
         {
@@ -146,9 +161,9 @@ class EventParticipationView(
 
     def get_context_data(self, **kwargs):
         if self.object.is_past():
-            raise PermissionDenied("L'événement est terminé !")
+            raise PermissionDenied("L'évènement est terminé !")
         if not self.object.is_current():
-            raise PermissionDenied("L'événement n'est pas encore commencé !")
+            raise PermissionDenied("L'évènement n'est pas encore commencé !")
 
         context_data = super().get_context_data(**kwargs)
 
@@ -214,7 +229,7 @@ class QuitEventView(
             request,
             messages.SUCCESS,
             format_html(
-                _("Vous ne participez plus à l'événement <em>{}</em>"),
+                _("Vous ne participez plus à l'évènement <em>{}</em>"),
                 self.object.event.name,
             ),
         )
@@ -260,7 +275,7 @@ class UploadEventImageView(
 
         if not self.event.rsvps.filter(person=request.user.person).exists():
             raise PermissionDenied(
-                _("Seuls les participants à l'événement peuvent poster des images")
+                _("Seuls les participants à l'évènement peuvent poster des images")
             )
 
         return super().get(request, *args, **kwargs)
@@ -271,7 +286,7 @@ class UploadEventImageView(
 
         if not self.event.rsvps.filter(person=request.user.person).exists():
             raise PermissionDenied(
-                _("Seuls les participants à l'événement peuvent poster des images")
+                _("Seuls les participants à l'évènement peuvent poster des images")
             )
 
         form = self.get_form()
@@ -302,7 +317,7 @@ class UploadEventImageView(
         return HttpResponseRedirect(self.get_success_url())
 
 
-class EventIcsView(BaseEventDetailView):
+class EventIcsView(EventDetailMixin, DetailView):
     model = Event
 
     def render_to_response(self, context, **response_kwargs):
@@ -322,7 +337,17 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
         person = self.request.user.person
 
         groups = [
-            {"id": str(m.supportgroup.pk), "name": m.supportgroup.name}
+            {
+                "id": str(m.supportgroup.pk),
+                "name": m.supportgroup.name,
+                "iconName": SupportGroup.TYPE_PARAMETERS[m.supportgroup.type][
+                    "icon_name"
+                ],
+                "color": SupportGroup.TYPE_PARAMETERS[m.supportgroup.type]["color"],
+                "forUsers": Event.FOR_USERS_2022
+                if (m.supportgroup.type == SupportGroup.TYPE_2022)
+                else Event.FOR_USERS_INSOUMIS,
+            }
             for m in person.memberships.filter(
                 supportgroup__published=True,
                 membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
@@ -365,15 +390,14 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
             dict_to_camelcase(s.get_subtype_information()) for s in subtype_queryset
         ]
 
-        questions = ASKED_QUESTIONS
-
         return super().get_context_data(
             props={
+                "isInsoumise": person.is_insoumise,
+                "is2022": person.is_2022,
                 "initial": initial,
                 "groups": groups,
                 "types": types,
                 "subtypes": subtypes,
-                "questions": questions,
             },
             **kwargs,
         )
@@ -399,7 +423,7 @@ class PerformCreateEventView(SoftLoginRequiredMixin, FormMixin, ProcessFormView)
         messages.add_message(
             request=self.request,
             level=messages.SUCCESS,
-            message="Votre événement a été correctement créé.",
+            message="Votre évènement a été correctement créé.",
         )
 
         form.save()
@@ -428,7 +452,7 @@ class ManageEventView(BaseEventAdminView, DetailView):
 
     error_messages = {
         "denied": _(
-            "Vous ne pouvez pas accéder à cette page sans être organisateur de l'événement."
+            "Vous ne pouvez pas accéder à cette page sans être organisateur de l'évènement."
         )
     }
 
@@ -470,7 +494,7 @@ class ManageEventView(BaseEventAdminView, DetailView):
 
         if self.object.is_past():
             raise PermissionDenied(
-                _("Vous ne pouvez pas ajouter d'organisateur à un événement terminé.")
+                _("Vous ne pouvez pas ajouter d'organisateur à un évènement terminé.")
             )
 
         form = self.get_form()
@@ -499,7 +523,7 @@ class ModifyEventView(ImageSizeWarningMixin, BaseEventAdminView, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = _("Modifiez votre événement")
+        context["title"] = _("Modifiez votre évènement")
         return context
 
     def form_valid(self, form):
@@ -510,7 +534,7 @@ class ModifyEventView(ImageSizeWarningMixin, BaseEventAdminView, UpdateView):
             request=self.request,
             level=messages.SUCCESS,
             message=format_html(
-                _("Les modifications de l'événement <em>{}</em> ont été enregistrées."),
+                _("Les modifications de l'évènement <em>{}</em> ont été enregistrées."),
                 self.object.name,
             ),
         )
@@ -536,7 +560,7 @@ class CancelEventView(BaseEventAdminView, DetailView):
         messages.add_message(
             request,
             messages.WARNING,
-            _("L'événement « {} » a bien été annulé.").format(self.object.name),
+            _("L'évènement « {} » a bien été annulé.").format(self.object.name),
         )
 
         return HttpResponseRedirect(self.success_url)

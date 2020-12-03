@@ -1,33 +1,33 @@
-Bonjour,
+Bonne nouvelle !
 
+Vous êtes bien inscrit⋅e à l'évènement suivant :
 
-Vous êtes bien inscrit⋅e à l'événement « {{ EVENT_NAME }} ».
+Nom de l'évènement : {{ EVENT_NAME }}
+Horaires : {{ EVENT_SCHEDULE }}
+Lieu : {{ LOCATION_NAME }}
+Adresse : {{ LOCATION_ADDRESS }}
 
+>> Partager l'évènement
+{{ EVENT_LINK }}
 
-Pour rappel, voici les informations relatives à cet événement :  
+Pour toute demande ou information, vous pouvez contacter {{ CONTACT_NAME }} par e-mail à l'adresse : {{ CONTACT_EMAIL }}
 
+Si l'inscription ne comportait pas de participation financière, vous pouvez à tout moment annuler votre participation en vous rendant sur la page de l'évènement : [{{ EVENT_LINK }}]({{ EVENT_LINK }})
 
-Nom de l'événement : **{{ EVENT_NAME }}**
-Horaires : **{{ EVENT_SCHEDULE }}
-Nom du contact : **{{ CONTACT_NAME }}**  
-Email de contact : **{{ CONTACT_EMAIL }}**  
+Amitiés,  
+L’équipe d’Action Populaire  
   
-Nom du lieu de RDV : **{{ LOCATION_NAME }}**  
-Adresse de RDV : **{{ LOCATION_ADDRESS }}**
+   
+  
+Vous souhaitez recevoir moins de mails de notre part : [modifier ses préférences ou se désinscrire](\[preferences_link\]). 
 
-Si l'inscription ne comportait pas de participation financière, vous pouvez à tout moment annuler votre participation en vous rendant sur la page de l'événement : {{ EVENT_LINK }}
-
-Amitiés insoumises,  
-L'équipe de la plateforme France insoumise  
+Ce mail a été adressé à {{ email }}.
 
 ------------------------------------------------------------------
 Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
 
->> Voir cet email dans votre navigateur
-{{ LINK_BROWSER }}
-
 >> Choisir les emails que vous recevez
-{{ PREFERENCES_LINK }}
+{{ preferences_link }}
 
 >> Arrêter complètement de recevoir des emails
-{{ UNSUBSCRIBE_LINK }}
+{{ unsubscribe_link }}

@@ -1,39 +1,35 @@
-Cher·e insoumis·e,
+Bonjour,
 
-Merci d’organiser un groupe d'action. Chacune des actions que vous menez participe à la construction de notre mouvement. Un long travail de terrain nous attend encore. Ensemble, nous pouvons faire triompher nos idées et construire l’Avenir en commun. 
+Votre groupe d'action est en ligne !  {{ GROUP_NAME }}
 
+En tant qu'animateur-ice, vous pouvez gérer votre groupe à tout moment depuis le bouton "Gestion" sur le site ou bien en cliquant sur ce lien : **  {{ MANAGE_GROUP_LINK }}**
 
-**Voici les informations relatives à votre groupe d'action**  
+Voici les informations relatives à votre groupe d'action :
 
-Nom du groupe : **{{ GROUP_NAME }}**  
-Nom du contact : **{{ CONTACT_NAME }}**  
-Email de contact : **{{ CONTACT_EMAIL }}**  
-Téléphone de contact : **{{ CONTACT_PHONE }}** ({{ CONTACT_PHONE_VISIBILITY }})  
+Informations de contact
+-----------------------
+{{ CONTACT_NAME }}
+{{ CONTACT_EMAIL }}  
+{{ CONTACT_PHONE }} ({{ CONTACT_PHONE_VISIBILITY }})  
 
+Adresse du groupe
+-----------------
+{{ LOCATION_NAME }}  
+{{ LOCATION_ADDRESS }}
 
-Nom du lieu de RDV : **{{ LOCATION_NAME }}**  
-Adresse de RDV : **{{ LOCATION_ADDRESS }}**  
-
-
->> Inviter vos amis à rejoindre ce groupe avec ce lien
+>> Vous pouvez inviter vos amis à rejoindre ce groupe avec ce lien :
 {{ GROUP_LINK }}
-
->> Accéder à la page d'administration de votre groupe
-{{ MANAGE_GROUP_LINK }}
-
-
-Amitiés insoumises,  
-L'équipe de la plateforme France insoumise  
   
-  
------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}.
+Merci d’organiser un groupe d'action. Chacune des actions que vous menez participe à la construction de notre mouvement. Un long travail de terrain nous attend encore. Ensemble, nous pouvons faire triompher nos idées et construire l’Avenir en commun.
 
->> Voir cet email dans votre navigateur
-{{ LINK_BROWSER }}
+Amitiés,  
+L’équipe d’Action Populaire  
+  
+------------------------------------------------------------------
+Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.
 
 >> Choisir les emails que vous recevez
-{{ PREFERENCES_LINK }}
+{{ preferences_link }}
 
 >> Arrêter complètement de recevoir des emails
-{{ UNSUBSCRIBE_LINK }}
+{{ unsubscribe_link }}

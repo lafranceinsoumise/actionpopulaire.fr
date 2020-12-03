@@ -24,7 +24,11 @@ export function setUpMap(elementId, layers) {
     target: elementId,
     layers: [
       new TileLayer({
-        source: new OSM(),
+        source: new OSM({
+          attributions: [
+            '&#169; les contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
+          ],
+        }),
       }),
       ...layers,
     ],

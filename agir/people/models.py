@@ -3,6 +3,8 @@ from operator import or_
 
 import phonenumbers
 import warnings
+
+from datetime import datetime
 from django.conf import settings
 from django.db.models import JSONField
 from django.contrib.postgres.indexes import GinIndex
@@ -289,12 +291,13 @@ class Person(
         default=True,
         blank=True,
         help_text=_(
-            "Vous recevrez des SMS de la France insoumise comme des meeting près de chez vous ou des appels à volontaire..."
+            "Nous envoyons parfois des SMS plutôt que des emails lors des grands évènements&nbsp;! Vous ne recevrez que "
+            "les informations auxquelles vous êtes abonné⋅e."
         ),
     )
 
     event_notifications = models.BooleanField(
-        _("Recevoir les notifications des événements"),
+        _("Recevoir les notifications des évènements"),
         default=True,
         blank=True,
         help_text=_(
@@ -309,7 +312,7 @@ class Person(
         blank=True,
         help_text=_(
             "Vous recevrez des messages quand les informations du groupe change, ou quand le groupe organise des"
-            " événements."
+            " évènements."
         ),
     )
 
@@ -318,7 +321,7 @@ class Person(
         default=False,
         blank=True,
         help_text=_(
-            "Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des événements comme la Convention."
+            "Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des évènements comme la Convention."
             "Vous aurez la possibilité d'accepter ou de refuser cette participation."
         ),
     )
@@ -413,8 +416,22 @@ class Person(
         return f"{self.__class__.__name__}(pk={self.pk!r}, email={self.email})"
 
     @property
+    def is_agir(self):
+        return self.is_insoumise and self.created <= datetime(
+            2020, 12, 6, tzinfo=timezone.get_default_timezone()
+        )
+
+    @property
     def email(self):
         return self.primary_email.address if self.primary_email else ""
+
+    @property
+    def is_2022_only(self):
+        return self.is_2022 and not self.is_insoumise
+
+    @property
+    def is_insoumise_only(self):
+        return self.is_insoumise and not self.is_2022
 
     @cached_property
     def primary_email(self):
@@ -454,7 +471,7 @@ class Person(
         Returns the first_name plus the last_name, with a space in between.
         """
         full_name = "%s %s" % (self.first_name, self.last_name)
-        return full_name.strip()
+        return full_name.strip() or self.email
 
     def get_short_name(self):
         "Returns the short name for the user."

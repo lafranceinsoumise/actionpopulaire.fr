@@ -12,14 +12,26 @@ from agir.events.models import Event, OrganizerConfig
 from agir.lib.celery import emailing_task
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
-from agir.notifications.actions import add_notification
 from agir.people.actions.subscription import make_subscription_token
 from agir.people.models import Person
-from .actions.invitation import (
-    make_abusive_invitation_report_link,
-    make_invitation_link,
-)
+from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
+from ..activity.models import Activity
+
+NOTIFIED_CHANGES = {
+    "name": "information",
+    "contact_name": "contact",
+    "contact_email": "contact",
+    "contact_phone": "contact",
+    "contact_hide_phone": "contact",
+    "location_name": "location",
+    "location_address1": "location",
+    "location_address2": "location",
+    "location_city": "location",
+    "location_zip": "location",
+    "location_country": "location",
+    "description": "information",
+}
 
 CHANGE_DESCRIPTION = OrderedDict(
     (
@@ -68,14 +80,29 @@ def send_support_group_creation_notification(membership_pk):
 
 
 @emailing_task
-def send_support_group_changed_notification(support_group_pk, changes):
+def send_support_group_changed_notification(support_group_pk, changed_data):
     try:
         group = SupportGroup.objects.get(pk=support_group_pk, published=True)
     except SupportGroup.DoesNotExist:
         return
 
+    changed_categories = {
+        NOTIFIED_CHANGES[f] for f in changed_data if f in NOTIFIED_CHANGES
+    }
+
+    if not changed_categories:
+        return
+
+    for r in group.members.all():
+        Activity.objects.create(
+            type=Activity.TYPE_GROUP_INFO_UPDATE,
+            recipient=r,
+            supportgroup=group,
+            meta={"changed_data": [f for f in changed_data if f in NOTIFIED_CHANGES]},
+        )
+
     change_descriptions = [
-        desc for label, desc in CHANGE_DESCRIPTION.items() if label in changes
+        desc for id, desc in CHANGE_DESCRIPTION.items() if id in changed_categories
     ]
     change_fragment = render_to_string(
         template_name="lib/list_fragment.html", context={"items": change_descriptions}
@@ -97,14 +124,6 @@ def send_support_group_changed_notification(support_group_pk, changes):
             notifications_enabled
         ).prefetch_related("person__emails")
     ]
-
-    for r in recipients:
-        add_notification(
-            person=r,
-            content=f"Votre groupe « {group.name} » a été modifié par ses organisateurs. Vérifiez les changements !",
-            link=front_url("view_group", kwargs={"pk": group.pk}),
-            icon="users",
-        )
 
     send_mosaico_email(
         code="GROUP_CHANGED",
@@ -135,6 +154,18 @@ def send_someone_joined_notification(membership_pk):
         .prefetch_related("person__emails")
     )
     recipients = [membership.person for membership in managing_membership]
+
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_NEW_MEMBER,
+                recipient=r,
+                supportgroup=membership.supportgroup,
+                individual=membership.person,
+            )
+            for r in recipients
+        ]
+    )
 
     bindings = {
         "GROUP_NAME": membership.supportgroup.name,
@@ -197,18 +228,8 @@ def invite_to_group(group_id, invited_email, inviter_id):
     report_url = make_abusive_invitation_report_link(group_id, inviter_id)
 
     if person:
-        join_url = make_invitation_link(person.id, group_id)
-
-        send_mosaico_email(
-            code="GROUP_INVITATION_MESSAGE",
-            subject="Vous avez été invité à rejoindre un groupe de la FI",
-            from_email=settings.EMAIL_FROM,
-            recipients=[person],
-            bindings={
-                "GROUP_NAME": group_name,
-                "CONFIRMATION_URL": join_url,
-                "REPORT_URL": report_url,
-            },
+        Activity.objects.create(
+            type=Activity.TYPE_GROUP_INVITATION, recipient=person, supportgroup=group,
         )
     else:
         invitation_token = make_subscription_token(
@@ -225,7 +246,7 @@ def invite_to_group(group_id, invited_email, inviter_id):
 
         send_mosaico_email(
             code="GROUP_INVITATION_WITH_SUBSCRIPTION_MESSAGE",
-            subject="Vous avez été invité à rejoindre la France insoumise",
+            subject="Vous avez été invité⋅e à rejoindre la France insoumise",
             from_email=settings.EMAIL_FROM,
             recipients=[invited_email],
             bindings={
@@ -267,10 +288,14 @@ def notify_new_group_event(group_pk, event_pk):
 
     recipients = group.members.all()
 
-    for r in recipients:
-        add_notification(
-            content=f"Votre groupe « {group.name} » organise un nouvel événement : « {event.name} »",
-            link=front_url("view_event", kwargs={"pk": event_pk}),
-            icon="users",
-            person=r,
-        )
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_NEW_EVENT_MYGROUPS,
+                recipient=r,
+                supportgroup=group,
+                event=event,
+            )
+            for r in recipients
+        ]
+    )

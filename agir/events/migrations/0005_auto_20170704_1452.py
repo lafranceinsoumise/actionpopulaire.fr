@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             model_name="event",
             name="name",
             field=models.CharField(
-                help_text="Le nom de l'événement", max_length=255, verbose_name="nom"
+                help_text="Le nom de l'évènement", max_length=255, verbose_name="nom"
             ),
         )
     ]

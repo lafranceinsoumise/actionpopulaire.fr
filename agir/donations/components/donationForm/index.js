@@ -1,13 +1,4 @@
-import "core-js/stable";
-import "regenerator-runtime/runtime";
-import React from "react";
-import ReactDOM from "react-dom";
-
-import DonationForm from "./DonationForm";
-
-const render = (widget, element) => {
-  ReactDOM.render(widget, element);
-};
+import onDOMReady from "@agir/lib/utils/onDOMReady";
 
 function getChoices(select) {
   const options = select.options;
@@ -36,63 +27,77 @@ function getChoices(select) {
   return choices;
 }
 
-const replaceForm = (selector) => {
-  const form = document.querySelector(selector);
-  const props = { initial: {} };
+(async function () {
+  const [
+    { default: React },
+    { renderReactComponent },
+    { default: DonationForm },
+  ] = await Promise.all([
+    import("react"),
+    import("@agir/lib/utils/react"),
+    import("./DonationForm"),
+  ]);
 
-  const typeSelect = form.querySelector('select[name="type"]');
-  if (typeSelect) {
-    props.typeChoices = getChoices(typeSelect);
-    typeSelect.parentNode.removeChild(typeSelect);
-  }
+  const render = (widget, element) => {
+    renderReactComponent(widget, element);
+  };
 
-  props.enableAllocations = false;
-  const allocationsInput = form.querySelector('input[name="allocations"]');
-  if (allocationsInput) {
-    props.enableAllocations = true;
-    props.groupChoices = allocationsInput.dataset.choices
-      ? JSON.parse(allocationsInput.dataset.choices)
-      : [];
-    props.initial.allocations = allocationsInput.value
-      ? JSON.parse(allocationsInput.value)
-      : [];
+  const replaceForm = (selector) => {
+    const form = document.querySelector(selector);
+    const props = { initial: {} };
 
-    allocationsInput.parentNode.removeChild(allocationsInput);
-  }
+    const typeSelect = form.querySelector('select[name="type"]');
+    if (typeSelect) {
+      props.typeChoices = getChoices(typeSelect);
+      typeSelect.parentNode.removeChild(typeSelect);
+    }
 
-  const amountLabel = form.querySelector('label[for="id_amount"]');
-  if (amountLabel && amountLabel.textContent.includes("prêt")) {
-    props.typeActe = "mon prêt";
-  }
+    props.enableAllocations = false;
+    const allocationsInput = form.querySelector('input[name="allocations"]');
+    if (allocationsInput) {
+      props.enableAllocations = true;
+      props.groupChoices = allocationsInput.dataset.choices
+        ? JSON.parse(allocationsInput.dataset.choices)
+        : [];
+      props.initial.allocations = allocationsInput.value
+        ? JSON.parse(allocationsInput.value)
+        : [];
 
-  const amountInput = form.querySelector('input[name="amount"]');
-  props.minAmount = parseFloat(amountInput.min);
-  props.maxAmount = parseFloat(amountInput.max);
-  props.minAmountError = amountInput.dataset.minAmountError;
-  props.maxAmountError = amountInput.dataset.maxAmountError;
-  props.amountChoices = amountInput.dataset.amountChoices
-    ? JSON.parse(amountInput.dataset.amountChoices)
-    : null;
-  props.showTaxCredit = !amountInput.dataset.hideTaxCredit;
-  props.initial.amount = +amountInput.value || null;
-  amountInput.parentNode.removeChild(amountInput);
+      allocationsInput.parentNode.removeChild(allocationsInput);
+    }
 
-  // pour tous les champs hidden restant, on les transmet tels quels
-  props.hiddenFields = {};
-  Array.from(form.querySelectorAll('input[type="hidden"]')).forEach((input) => {
-    props.hiddenFields[input.name] = input.value;
-  });
+    const amountLabel = form.querySelector('label[for="id_amount"]');
+    if (amountLabel && amountLabel.textContent.includes("prêt")) {
+      props.typeActe = "mon prêt";
+    }
 
-  const reactDiv = document.createElement("div");
-  form.parentNode.insertBefore(reactDiv, form);
-  form.parentNode.removeChild(form);
-  // remove all children of the form
+    const amountInput = form.querySelector('input[name="amount"]');
+    props.minAmount = parseFloat(amountInput.min);
+    props.maxAmount = parseFloat(amountInput.max);
+    props.minAmountError = amountInput.dataset.minAmountError;
+    props.maxAmountError = amountInput.dataset.maxAmountError;
+    props.amountChoices = amountInput.dataset.amountChoices
+      ? JSON.parse(amountInput.dataset.amountChoices)
+      : null;
+    props.showTaxCredit = !amountInput.dataset.hideTaxCredit;
+    props.initial.amount = +amountInput.value || null;
+    amountInput.parentNode.removeChild(amountInput);
 
-  render(<DonationForm {...props} />, reactDiv);
-};
+    // pour tous les champs hidden restant, on les transmet tels quels
+    props.hiddenFields = {};
+    Array.from(form.querySelectorAll('input[type="hidden"]')).forEach(
+      (input) => {
+        props.hiddenFields[input.name] = input.value;
+      }
+    );
 
-const onLoad = function () {
-  replaceForm("form.donation-form");
-};
+    const reactDiv = document.createElement("div");
+    form.parentNode.insertBefore(reactDiv, form);
+    form.parentNode.removeChild(form);
+    // remove all children of the form
 
-document.addEventListener("turbolinks:load", onLoad);
+    render(<DonationForm {...props} />, reactDiv);
+  };
+
+  onDOMReady(() => replaceForm("form.donation-form"));
+})();

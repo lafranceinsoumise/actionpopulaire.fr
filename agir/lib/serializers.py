@@ -3,6 +3,8 @@ from rest_framework import serializers, exceptions, validators
 from rest_framework.fields import empty
 from django_countries.serializer_fields import CountryField
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.serializers import BaseSerializer
+from rest_framework_gis.fields import GeometryField
 
 
 class NullAsBlankMixin:
@@ -35,6 +37,41 @@ class NullableCountryField(NullAsBlankMixin, CountryField):
     """CharField that interprets a `null` input as the empty string."""
 
     pass
+
+
+class LocationSerializer(serializers.Serializer):
+    name = serializers.CharField(source="location_name")
+    address1 = serializers.CharField(source="location_address1")
+    address2 = serializers.CharField(source="location_address2")
+    zip = serializers.CharField(source="location_zip")
+    city = serializers.CharField(source="location_city")
+    country = CountryField(source="location_country")
+
+    address = serializers.SerializerMethodField()
+
+    shortAddress = serializers.CharField(source="short_address")
+
+    shortLocation = serializers.CharField(source="short_location")
+
+    coordinates = GeometryField()
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance=instance)
+        if not ["name"] and not data["zip"] and not data["city"]:
+            return None
+        return data
+
+    def get_address(self, obj):
+        parts = [
+            obj.location_address1,
+            obj.location_address2,
+            f"{obj.location_zip} {obj.location_city}".strip(),
+        ]
+
+        if obj.location_country and obj.location_country != "FR":
+            parts.append(obj.location_country.name)
+
+        return "\n".join(p for p in parts if p)
 
 
 class LegacyBaseAPISerializer(serializers.ModelSerializer):
@@ -293,3 +330,29 @@ class UpdatableListSerializer(serializers.ListSerializer):
                 instance.delete()
 
         return ret
+
+
+class ContactMixinSerializer(serializers.Serializer):
+    name = serializers.CharField(source="contact_name")
+    email = serializers.CharField(source="contact_email")
+    phone = serializers.SerializerMethodField(source="contact_phone")
+
+    def get_phone(self, obj):
+        if obj.contact_hide_phone:
+            return None
+        return obj.contact_phone
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance=instance)
+        if all(not v for v in data.values()):
+            return None
+        return data
+
+
+class FlexibleFieldsMixin(BaseSerializer):
+    def __init__(self, instance=None, data=empty, fields=None, **kwargs):
+        super().__init__(instance=instance, data=data, **kwargs)
+
+        if fields is not None:
+            for f in set(self.fields).difference(fields):
+                del self.fields[f]

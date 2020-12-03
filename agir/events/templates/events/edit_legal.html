@@ -2,61 +2,96 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Remplir les informations légales pour l'événement «&nbsp;{{ event.name }}&nbsp;»{% endblock %}
+{% block title %}Remplir les informations légales pour l'évènement «&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
 {% block main %}
-  <h2><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h2>
-  <ol class="breadcrumb">
-    <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
-    <li><a href="{% url "manage_event" event.pk %}">Gestion de l'événement</a></li>
-    <li>Informations légales</li>
-  </ol>
-  <div class="row">
-    <div class="col-responsive">
+<div class="row">
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+    <div class="pull-left">
+      <a class="menu-back-link" href="{% url "list_events" %}">
+        <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+      </a>
+    </div>
+    <div class="pull-right">
+      <a
+        class="btn btn-sm btn-default"
+        href="{% url "manage_event" event.pk %}">
+        <i class="fa fa-cog"></i> Gestion de l'évènement
+      </a>
+      <a
+        class="btn btn-sm btn-default"
+        href="{% url "view_event" event.pk %}">
+        Page publique de l'évènement
+      </a>
+    </div>
+    <div class="clearfix"></div>
+    <hr />
+  </div>
+  <div class="col-xs-12">
+    <h2 class="headline">
+      {{ event.name }}
+    </h2>
+    <hr />
+    <h3>Informations légales</h3>
+    <div class="padtop padbottom">
       {% if event.legal.frais %}
-        <p>Tous les événements de campagne qui entraînent une dépense doivent être payés directement et
-          uniquement par le mandataire financier.</p>
-        <p>Si l'événement remplit certains critères indiqués ci-dessous, il peut être financé. <strong>Sinon, il
-          doit être financé par des dons.</strong></p>
-        <p>Votre événement peut être pris en charge par l'Association de Financement de la campagne si :</p>
+        <p>
+          Tous les évènements de campagne qui entraînent une dépense doivent être payés directement et uniquement par le mandataire financier.
+        </p>
+        <p>
+          Si l'évènement remplit certains critères indiqués ci-dessous, il peut être financé. <strong>Sinon, il doit être financé par des dons.</strong>
+        </p>
+        <p>
+          Votre évènement peut être pris en charge par l'Association de Financement de la campagne si :
+        </p>
         <ul>
-          <li>Il a lieu dans une ville Préfecture ou Sous-Préfecture de son département (ou un Chef-lieu de Canton
-            pour l’Ile de France)
+          <li>
+            Il a lieu dans une ville Préfecture ou Sous-Préfecture de son département (ou un Chef-lieu de Canton pour l’Ile de France)
           </li>
-          <li>Il a lieu en présence (annoncée à l’avance) d’au moins un.e candidat.e de la liste pour les
-            élections européennes
+          <li>
+            Il a lieu en présence (annoncée à l’avance) d’au moins un.e candidat.e de la liste pour les élections européennes
           </li>
-          <li>Votre comité d’appui est en mesure de proposer des hébergements militants sur place pour toute
-            personne devant se déplacer pour animer, intervenir ou aider à l’organisation de l’événement et désigne une
-            personne pour coordonner cette tâche
+          <li>
+            Votre comité d’appui est en mesure de proposer des hébergements militants sur place pour toute personne devant se déplacer pour animer, intervenir ou aider à l’organisation de l’évènement et désigne une personne pour coordonner cette tâche
           </li>
         </ul>
-        <p>Dans tous les cas, même s'il est financé par des dons, votre événement doit <strong>impérativement
-        </strong>remplir les conditions suivantes :</p>
+        <p>
+          Dans tous les cas, même s'il est financé par des dons, votre évènement doit <strong>impérativement</strong> remplir les conditions suivantes :
+        </p>
         <ul>
-          <li>Il est organisé par un comité d’appui ou groupe d’action certifié</li>
-          <li>Il respecte l’esprit du déroulé proposé pour les réunions publiques de campagne (donc un format favorisant
-            une réelle implication du plus grand nombre et non pas la forme classique d’intervention et débat dans la
-            salle) (une documentation précise vous sera rapidement envoyé pour vous aider dans cette organisation)
+          <li>
+            Il est organisé par un comité d’appui ou groupe d’action certifié
           </li>
-          <li>Il a pour thème un ou plusieurs aspects du programme de la France insoumise pour les élections
-            européennes
+          <li>
+            Il respecte l’esprit du déroulé proposé pour les réunions publiques de campagne (donc un format favorisant une réelle implication du plus grand nombre et non pas la forme classique d’intervention et débat dans la salle) (une documentation précise vous sera rapidement envoyé pour vous aider dans cette organisation)
           </li>
-          <li>Il est annoncé en utilisant les modèles-types de matériel militant mis à votre disposition</li>
-          <li>Votre comité d’appui ou groupe d’action désigne une personne référente pour l’élaboration, la commande et
-            réception du matériel
+          <li>
+            Il a pour thème un ou plusieurs aspects du programme de la France insoumise pour les élections européennes
           </li>
-          <li>Le comité ou groupe s’engage à nous faire parvenir après l’événement photos, vidéos et articles de presse
-            le concernant
+          <li>
+            Il est annoncé en utilisant les modèles-types de matériel militant mis à votre disposition
           </li>
-          <li>Le comité doit être en mesure de présenter un budget équilibré pour l’organisation de l’événement.</li>
+          <li>
+            Votre comité d’appui ou groupe d’action désigne une personne référente pour l’élaboration, la commande et réception du matériel
+          </li>
+          <li>
+            Le comité ou groupe s’engage à nous faire parvenir après l’évènement photos, vidéos et articles de presse le concernant
+          </li>
+          <li>
+            Le comité doit être en mesure de présenter un budget équilibré pour l’organisation de l’évènement.
+          </li>
         </ul>
       {% endif %}
-      <p>Vous pouvez enregistrer certaines informations et revenir plus tard.</p>
-      <p>Lorsque tous les documents sont remplis, le secrétariat général de la campagne peut valider votre
-        événement. Ceci ne nécesssite pas d'action de votre part et prend habituellement deux à trois jours
-        ouvrés. </p>
+      <p>
+        Vous pouvez enregistrer certaines informations et revenir plus tard.
+      </p>
+      <p>
+        Lorsque tous les documents sont remplis, le secrétariat général de la campagne peut valider votre évènement. Ceci ne nécesssite pas d'action de votre part et prend habituellement deux à trois jours ouvrés.
+      </p>
+    </div>
+    <div class="padtop padbottom">
       {% crispy form %}
     </div>
   </div>
+</div>
 {% endblock %}

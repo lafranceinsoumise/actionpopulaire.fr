@@ -25,7 +25,6 @@ from agir.people.forms import (
     AddEmailMergeAccountForm,
     VolunteerForm,
     InformationConfidentialityForm,
-    BecomeInsoumiseForm,
 )
 from agir.people.forms.profile import (
     PersonalInformationsForm,
@@ -66,30 +65,7 @@ class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
         return response
 
 
-class BecomeInsoumiseView(ProfileViewMixin, UpdateView):
-    template_name = "people/profile/profile_default.html"
-    form_class = BecomeInsoumiseForm
-    success_url = reverse_lazy("personal_information")
-    tab_code = "BECOME_INSOUMISE"
-
-    def form_valid(self, form):
-        self.object.subscribed = True
-        self.object.subscribed_sms = True
-        self.object.group_notifications = True
-        self.object.event_notifications = True
-        return super().form_valid(form)
-
-    def get(self, request, *args, **kwargs):
-        if request.user.person.is_insoumise == True:
-            return HttpResponseRedirect(reverse("personal_information"))
-        return super().get(request, *args, **kwargs)
-
-    def get_object(self, queryset=None):
-        """Get the current user as the view object"""
-        return self.request.user.person
-
-
-class PersonalInformationsView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
+class PersonalInformationsView(ProfileViewMixin, UpdateView):
     template_name = "people/profile/profile_default.html"
     form_class = PersonalInformationsForm
     success_url = reverse_lazy("personal_information")

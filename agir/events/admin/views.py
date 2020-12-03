@@ -33,7 +33,7 @@ def add_organizer(model_admin, request, pk):
     event = model_admin.get_object(request, pk)
 
     if event is None:
-        raise Http404(_("Pas d'événement avec cet identifiant."))
+        raise Http404(_("Pas d'évènement avec cet identifiant."))
 
     if request.method == "POST":
         form = AddOrganizerForm(event, model_admin, data=request.POST)
@@ -43,7 +43,7 @@ def add_organizer(model_admin, request, pk):
             messages.success(
                 request,
                 _(
-                    "{email} a bien été enregistré comme participant à l'événement"
+                    "{email} a bien été enregistré comme participant à l'évènement"
                 ).format(email=organizer_config.person.email),
             )
 
@@ -65,7 +65,7 @@ def add_organizer(model_admin, request, pk):
     admin_form = admin.helpers.AdminForm(form, fieldsets, {})
 
     context = {
-        "title": _("Ajouter un organisateur à l'événement: %s") % escape(event.name),
+        "title": _("Ajouter un organisateur à l'évènement: %s") % escape(event.name),
         "adminform": admin_form,
         "form": form,
         "is_popup": True,
@@ -142,7 +142,7 @@ class EventSummaryView(AdminViewMixin, FilterView):
         )
 
         return super().get_context_data(
-            title="Résumé des événements",
+            title="Résumé des évènements",
             opts=self.kwargs["model_admin"].model._meta,
             add=False,
             change=False,
@@ -248,7 +248,7 @@ class AddParticipantView(SingleObjectMixin, FormView):
 
         kwargs.update(
             {
-                "title": _("Ajouter un participant à l'événement: %s")
+                "title": _("Ajouter un participant à l'évènement: %s")
                 % escape(self.event.name),
                 "adminform": admin_form,
                 "form": form,
@@ -282,7 +282,7 @@ class AddParticipantView(SingleObjectMixin, FormView):
             form.free_rsvp()
             self.model_admin.message_user(
                 self.request,
-                "La personne a bien été inscrite à l'événement.",
+                "La personne a bien été inscrite à l'évènement.",
                 messages.SUCCESS,
             )
             return HttpResponseRedirect(self.request.path)

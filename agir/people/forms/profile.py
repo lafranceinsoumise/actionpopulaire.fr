@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Field, Div
 from crispy_forms.layout import Fieldset
@@ -13,6 +15,7 @@ from agir.lib.form_mixins import TagMixin, MetaFieldsMixin
 from agir.lib.forms import MediaInHead
 from agir.lib.models import RE_FRENCH_ZIPCODE
 from agir.lib.tasks import geocode_person
+from agir.lib.utils import generate_token_params
 from agir.people.form_mixins import ContactPhoneNumberMixin
 from agir.people.forms import FormActions
 from agir.people.forms.mixins import LegacySubscribedMixin
@@ -51,14 +54,14 @@ class PersonalInformationsForm(forms.ModelForm):
         description_gender = HTML(
             format_html(
                 """<p class="help-block">{help_text}</p>""",
-                help_text="Utilisé pour la parité des tirages au sort et de l'animation des groupes d'action.",
+                help_text="Pour nous adresser à vous correctement, et pour mesurer la parité.",
             )
         )
 
         description_address = HTML(
             format_html(
                 """<p class="help-block">{help_text}</p>""",
-                help_text="Permet de vous informer d'événements se déroulant près de chez vous.",
+                help_text="Permet de vous informer d'évènements se déroulant près de chez vous.",
             )
         )
 
@@ -70,7 +73,7 @@ class PersonalInformationsForm(forms.ModelForm):
         )
 
         description = HTML(
-            """<p>Ces informations nous permettrons de s'adresser à vous plus correctement et 
+            """<p>Ces informations nous permettrons de s'adresser à vous plus correctement et
             en fonction de votre situation géographique.</p>"""
         )
 
@@ -221,7 +224,7 @@ class InformationConfidentialityForm(Form):
                 """
 
         delete_account_link = format_html(
-            '<a href="{url}" class="btn btn-default">{label}</a>',
+            '<a href="{url}" class="btn btn-wrap btn-danger margintop marginbottom">{label}</a>',
             url=reverse("delete_account"),
             label="Je veux supprimer mon compte définitivement",
         )
@@ -267,9 +270,9 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
 
         if not self.instance.is_insoumise:
             del self.fields["subscribed_lfi"]
+
+        if not self.instance.is_2022 and not self.instance.is_insoumise:
             del self.fields["subscribed_sms"]
-            del self.fields["event_notifications"]
-            del self.fields["group_notifications"]
 
     def get_fields(self, fields=None):
         fields = fields or []
@@ -282,7 +285,7 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
                     </div>
                 """
         validation_link = format_html(
-            '<a href="{url}" class="btn btn-default">{label}</a>',
+            '<a href="{url}" class="btn btn-default btn-block">{label}</a>',
             url=reverse("send_validation_sms"),
             label=_("Valider mon numéro de téléphone"),
         )
@@ -300,7 +303,7 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
                 else f"Compte {self.instance.get_contact_phone_status_display().lower()}",
                 help_text=_(
                     "Faites vérifiez votre numéro de téléphone (cette certification "
-                    "facultative n'est possible que pour les numéros français."
+                    "facultative n'est possible que pour les numéros français)."
                 )
                 if unverified
                 else "",
@@ -308,40 +311,53 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
         )
 
         btn_no_mails = (
-            FormActions(
-                Submit(
-                    "no_mail",
-                    "Ne plus recevoir d'emails ou de SMS",
-                    css_class="btn-danger",
-                ),
-                css_class="text-right",
+            Submit(
+                "no_mail",
+                "Ne plus recevoir d'emails ou de SMS",
+                css_class="btn-danger btn-block marginbottom",
             )
             if self.instance.is_insoumise
             else Div()
         )
 
+        btn_submit = Submit(
+            "submit", "Sauvegarder", css_class="btn-danger btn-block marginbottom",
+        )
+
+        newsletter_fieldset = []
+
         if self.instance.is_insoumise:
-            fields.extend(
-                [
-                    "subscribed_lfi",
-                    "group_notifications",
-                    "event_notifications",
-                    Fieldset(
-                        "Téléphone",
-                        Row(ThirdCol("contact_phone"), ThirdCol(validation_block)),
-                        "subscribed_sms",
-                    ),
-                ]
-            )
-        else:
-            fields.append(
-                Fieldset(
-                    "Téléphone",
-                    Row(ThirdCol("contact_phone"), ThirdCol(validation_block)),
+            newsletter_fieldset.append("subscribed_lfi")
+        if self.instance.is_2022:
+            newsletter_fieldset.append(
+                HTML(
+                    format_html(
+                        '<a href="{url}" class="btn btn-primary">{label}</a>',
+                        url=f"https://noussommespour.fr/preferences/?_{urlencode(generate_token_params(self.instance))}",
+                        label="Paramétrer les emails de « Nous Sommes Pour ! »",
+                    )
                 )
             )
+        if len(newsletter_fieldset) > 0:
+            fields.append(Fieldset("Lettres d'informations", *newsletter_fieldset))
 
-        fields.extend([FormActions(Submit("submit", "Sauvegarder")), btn_no_mails])
+        fields.extend(
+            [
+                Fieldset(
+                    "Notifications", "group_notifications", "event_notifications",
+                ),
+                Fieldset(
+                    "Téléphone",
+                    Row(ThirdCol("contact_phone"), HalfCol(validation_block)),
+                    "subscribed_sms",
+                ),
+                Row(
+                    ThirdCol(btn_submit),
+                    HalfCol(btn_no_mails, css_class="col-md-offset-2"),
+                    css_class="padtop",
+                ),
+            ]
+        )
         return fields
 
     def clean(self):
@@ -405,7 +421,7 @@ class ActivityAndSkillsForm(MetaFieldsMixin, TagMixin, forms.ModelForm):
             Row(
                 FullCol(
                     HTML(
-                        """<p>Lorsque nous cherchons des membres du mouvement avec des compétences particulières, 
+                        """<p>Lorsque nous cherchons des membres du mouvement avec des compétences particulières,
                         nous utilisons les informations saisies dans ce formulaire.</p>"""
                     )
                 ),

@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.utils import timezone
 from rest_framework import status
 
-from ..events.models import Event, OrganizerConfig
+from ..events.models import Event, OrganizerConfig, EventSubtype
 from ..groups.models import SupportGroup, Membership
 from ..people.models import Person, PersonTag
 from ..polls.models import Poll, PollOption, PollChoice
@@ -14,7 +14,9 @@ from ..polls.models import Poll, PollOption, PollChoice
 
 class NavbarTestCase(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_insoumise("test@test.com", create_role=True)
+        self.person = Person.objects.create_insoumise(
+            "test@test.com", first_name="Arthur", last_name="Machin", create_role=True
+        )
 
         self.group = SupportGroup.objects.create(name="group")
         Membership.objects.create(
@@ -28,7 +30,7 @@ class NavbarTestCase(TestCase):
         response = self.client.get("/groupes/" + str(self.group.id) + "/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn(b"Tableau de bord", response.content)
+        self.assertIn(b"Arthur Machin", response.content)
 
     def test_navbar_unauthenticated(self):
         response = self.client.get("/groupes/" + str(self.group.id) + "/")
@@ -62,13 +64,7 @@ class PagesLoadingTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
 
-    @mock.patch("agir.people.views.dashboard.geocode_person")
-    def test_see_event_list(self, geocode_person):
-        response = self.client.get("/evenements/")
-        self.assertRedirects(response, reverse("dashboard"))
-        geocode_person.delay.assert_called_once()
-
-    @mock.patch("agir.people.views.dashboard.geocode_person")
+    @mock.patch("agir.front.views.geocode_person")
     def test_see_group_list(self, geocode_person):
         response = self.client.get("/groupes/")
         self.assertRedirects(response, reverse("dashboard"))
@@ -262,3 +258,62 @@ class PollTestCase(TestCase):
             },
         )
         self.assertEqual(res.status_code, 403)
+
+
+class AgendaViewTestCase(TestCase):
+    def setUp(self):
+        self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+
+        self.person_insoumise = Person.objects.create_insoumise(
+            "person@lfi.com", create_role=True
+        )
+        self.person_2022 = Person.objects.create_person(
+            "person@nsp.com", create_role=True, is_2022=True, is_insoumise=False
+        )
+
+        self.subtype = EventSubtype.objects.create(
+            label="sous-type",
+            visibility=EventSubtype.VISIBILITY_ALL,
+            type=EventSubtype.TYPE_PUBLIC_ACTION,
+        )
+        self.event_insoumis = Event.objects.create(
+            name="Event Insoumis",
+            subtype=self.subtype,
+            start_time=now + day,
+            end_time=now + day + 4 * hour,
+            for_users=Event.FOR_USERS_INSOUMIS,
+        )
+        self.event_2022 = Event.objects.create(
+            name="Event NSP",
+            subtype=self.subtype,
+            start_time=now + day,
+            end_time=now + day + 4 * hour,
+            for_users=Event.FOR_USERS_2022,
+        )
+
+        OrganizerConfig.objects.create(
+            event=self.event_insoumis, person=self.person_insoumise, is_creator=True
+        )
+        OrganizerConfig.objects.create(
+            event=self.event_2022, person=self.person_insoumise, is_creator=True
+        )
+        OrganizerConfig.objects.create(
+            event=self.event_insoumis, person=self.person_2022, is_creator=True
+        )
+        OrganizerConfig.objects.create(
+            event=self.event_2022, person=self.person_2022, is_creator=True
+        )
+
+    def test_insoumise_persone_can_search_through_all_events(self):
+        self.client.force_login(self.person_insoumise.role)
+        res = self.client.get(reverse("dashboard") + "?q=e")
+        self.assertContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_2022.name)
+
+    def test_2022_only_person_can_search_through_2022_events_only(self):
+        self.client.force_login(self.person_2022.role)
+        res = self.client.get(reverse("dashboard") + "?q=e")
+        self.assertNotContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_2022.name)

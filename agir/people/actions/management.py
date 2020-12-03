@@ -4,139 +4,245 @@ from django.db import transaction, IntegrityError
 
 __all__ = ["merge_persons"]
 
-text_attrs = [
-    "first_name",
-    "last_name",
-    "gender",
-    "contact_phone",
-    "location_address1",
-    "location_address2",
-    "location_city",
-    "location_citycode",
-    "location_zip",
-    "location_country",
-]
-
-boolean_attrs = [
-    "is_insoumise",
-    "subscribed",
-    "membre_reseau_elus",
-    "subscribed_sms",
-    "draw_participation",
-]
+from agir.people.models import Person
 
 
-def merge_attr_or(e1, e2, attrs, default=None):
-    if isinstance(attrs, str):
-        attrs = [attrs]
-    for attr in attrs:
-        setattr(e1, attr, getattr(e1, attr) or getattr(e2, attr, default))
+def _set_or_fields(o1, o2, attr, default=None):
+    return setattr(o1, attr, getattr(o1, attr, None) or getattr(o2, attr, default))
+
+
+# GENERIC MERGING STRATEGIES
+def merge_nullable(p1, p2, field):
+    # gère le cas particulier des valeurs « falsy » mais non `None`
+    if getattr(p1, field.name, None) is not None:
+        return
+    setattr(p1, field.name, getattr(p2, field.name, None))
+
+
+def merge_text_fields(p1, p2, field):
+    _set_or_fields(p1, p2, field.name, default="")
+
+
+def merge_boolean_field(p1, p2, field):
+    _set_or_fields(p1, p2, field.name, default=False)
+
+
+def merge_dicts(p1, p2, field):
+    setattr(
+        p1, field.name, {**getattr(p2, field.name, {}), **getattr(p1, field.name, {})}
+    )
+
+
+def merge_reassign_related(p1, p2, field):
+    for rel_obj in getattr(p2, field.get_accessor_name()).all():
+        try:
+            setattr(rel_obj, field.remote_field.name, p1)
+            rel_obj.save(update_fields=[field.remote_field.name])
+        except IntegrityError:
+            # It means the related object exists, in a sense, on p1 already
+            # we don't need to do anything for this related object
+            continue
+
+
+def merge_with_priority_ordering(order):
+    order = list(order)
+
+    def merge_func(p1, p2, field):
+        setattr(
+            p1,
+            field.name,
+            min([getattr(p1, field.name), getattr(p2, field.name)], key=order.index),
+        )
+
+    return merge_func
+
+
+# SPECIFIC MERGING STRATEGIES
+def merge_newsletters(p1, p2, _field):
+    p1.newsletters = list(set(p1.newsletters).union(p2.newsletters))
+
+
+def merge_tags(p1, p2, _field):
+    # copying person tags
+    missing_tags = p2.tags.all().difference(p1.tags.all())
+    p1.tags.add(*missing_tags)
+
+
+def merge_email_addresses(p1, p2, _field):
+    # we reassign email addresses as well
+    # use list to make sure the querysets are evaluated now, before modifying the addresses
+    email_order_1 = list(p1.get_personemail_order())
+    email_order_2 = list(p2.get_personemail_order())
+    for e2 in p2.emails.all():
+        e2.person = p1
+        e2.save()
+    # and set back the order
+    p1.set_personemail_order(email_order_1 + email_order_2)
+
+
+def merge_memberships(p1, p2, _field):
+    # for memberships, we want to carefully copy the properties in case there is a duplicate
+    current_memberships = p1.memberships.select_for_update()
+    groups = {m.supportgroup_id: m for m in current_memberships}
+
+    for m2 in p2.memberships.all():
+        if m2.supportgroup_id in groups:
+            m1 = groups[m2.supportgroup_id]
+            m1.created = min(m1.created, m2.created)
+            m1.membership_type = max(m1.membership_type, m2.membership_type)
+            _set_or_fields(m1, m2, "notifications_enabled", default=False)
+
+            m1.save()
+            m2.delete()
+        else:
+            m2.person = p1
+            m2.save()
+
+
+def merge_rsvps(p1, p2, _field):
+    # we don't care as much for rsvps: reassign or delete is enough
+    current_rsvps = p1.rsvps.select_for_update()
+    rsvped_events = {r.event_id: r for r in current_rsvps}
+
+    for r2 in p2.rsvps.all():
+        if r2.event_id in rsvped_events:
+            r2.delete()
+        else:
+            r2.person = p1
+            r2.save()
+
+
+def merge_organizer_configs(p1, p2, _field):
+    # for organizer configs, we are as careful as we were for memberships
+    current_organizer_configs = p1.organizer_configs.select_for_update()
+    organized_events = {o.event_id: o for o in current_organizer_configs}
+
+    for o2 in p2.organizer_configs.select_for_update():
+        if o2.event_id in organized_events:
+            o1 = organized_events[o2.event_id]
+            _set_or_fields(o1, o2, "is_creator", default=False)
+            _set_or_fields(o1, o2, "notifications_enabled", default=False)
+            _set_or_fields(o1, o2, "as_group", default=False)
+
+            o1.save()
+            o2.delete()
+        else:
+            o2.person = p1
+            o2.save()
+
+
+def merge_poll_choices(p1, p2, _field):
+    # we reassign poll choices only if p1 has not voted yet
+    p1_votes = set(pc.poll_id for pc in p1.poll_choices.all())
+    p2.poll_choices.exclude(poll_id__in=p1_votes).update(person=p1)
+
+
+def merge_comments(p1, p2, _field):
+    p1.commentaires = f"{p1.commentaires}\n\n{p2.commentaires}".strip()
+
+
+MERGE_STRATEGIES = {
+    # Many2one
+    "form_submissions": merge_reassign_related,
+    "emails": merge_email_addresses,
+    "personvalidationsms": None,
+    "events": None,
+    "organized_events": None,
+    "rsvps": merge_rsvps,
+    "organizer_configs": merge_organizer_configs,
+    "event_images": merge_reassign_related,
+    "supportgroups": None,
+    "memberships": merge_memberships,
+    "poll_choices": merge_reassign_related,
+    "payments": merge_reassign_related,
+    "subscriptions": merge_reassign_related,
+    "received_notification": merge_reassign_related,
+    "notification": None,
+    "municipales2020_commune": None,
+    "mandat_municipal": merge_reassign_related,
+    "mandat_departemental": merge_reassign_related,
+    "mandat_regional": merge_reassign_related,
+    "campaignsentevent": None,
+    # Simple fields
+    "created": None,
+    "modified": None,
+    "id": None,
+    "nb_id": None,
+    "coordinates": merge_nullable,
+    "coordinates_type": merge_text_fields,
+    "location_name": merge_text_fields,
+    "location_address1": merge_text_fields,
+    "location_address2": merge_text_fields,
+    "location_citycode": merge_nullable,
+    "location_city": merge_text_fields,
+    "location_zip": merge_text_fields,
+    "location_state": merge_text_fields,
+    "location_country": merge_text_fields,
+    "location_address": None,
+    "role": None,
+    "auto_login_salt": None,
+    "is_insoumise": merge_boolean_field,
+    "is_2022": merge_boolean_field,
+    "membre_reseau_elus": merge_with_priority_ordering(
+        [
+            Person.MEMBRE_RESEAU_EXCLUS,
+            Person.MEMBRE_RESEAU_OUI,
+            Person.MEMBRE_RESEAU_NON,
+            Person.MEMBRE_RESEAU_SOUHAITE,
+            Person.MEMBRE_RESEAU_INCONNU,
+        ]
+    ),
+    "newsletters": merge_newsletters,
+    "subscribed_sms": merge_boolean_field,
+    "event_notifications": merge_boolean_field,
+    "group_notifications": merge_boolean_field,
+    "draw_participation": merge_boolean_field,
+    "first_name": merge_text_fields,
+    "last_name": merge_text_fields,
+    "contact_phone": merge_text_fields,
+    "contact_phone_status": merge_with_priority_ordering(
+        [
+            Person.CONTACT_PHONE_VERIFIED,
+            Person.CONTACT_PHONE_PENDING,
+            Person.CONTACT_PHONE_UNVERIFIED,
+        ]
+    ),
+    "gender": merge_text_fields,
+    "date_of_birth": merge_nullable,
+    "mandates": None,
+    "meta": merge_dicts,
+    "commentaires": merge_comments,
+    "search": None,
+    "tags": merge_tags,
+}
 
 
 def merge_persons(p1, p2):
     """Merge the two persons together, keeping p1 and deleting p2, associating all information linked to p2 to p1"""
+    fields = Person._meta.get_fields()
+    missing_fields = {f.name for f in fields}.difference(MERGE_STRATEGIES)
+    unknown_fields = set(MERGE_STRATEGIES).difference({f.name for f in fields})
+
+    if missing_fields or unknown_fields:
+        message = []
+        if missing_fields:
+            message.append(f"Fields without strategy: {missing_fields!r}")
+        if unknown_fields:
+            message.append(f"Unknown fields' name: {unknown_fields!r}")
+
+        raise AssertionError("\n".join(message))
+
+    # check if it's not the same user
+    if p1.pk == p2.pk:
+        raise ValueError("Cannot merge a person instance with itself")
 
     with transaction.atomic():
-        # check if it's not the same user
-        if p1.pk == p2.pk:
-            raise ValueError
+        for f in fields:
+            func = MERGE_STRATEGIES.get(f.name)
+            if func is not None:
+                func(p1, p2, f)
 
-        # simply copy any text attribute that is missing on p1
-        merge_attr_or(p1, p2, text_attrs, default="")
-
-        # simply take the OR of boolean fields
-        merge_attr_or(p1, p2, boolean_attrs, default=False)
-
-        # for commentaries, we juxtapose them
-        p1.commentaires = f"{p1.commentaires}\n\n{p2.commentaires}".strip()
-
-        # for la date de naissance :
-        merge_attr_or(p1, p2, "date_of_birth", default=None)
-
-        # for memberships, we want to carefully copy the properties in case there is a duplicate
-        current_memberships = p1.memberships.select_for_update()
-        groups = {m.supportgroup_id: m for m in current_memberships}
-
-        # copying person tags
-        missing_tags = p2.tags.all().difference(p1.tags.all())
-        p1.tags.add(*missing_tags)
-
-        for m2 in p2.memberships.all():
-            if m2.supportgroup_id in groups:
-                m1 = groups[m2.supportgroup_id]
-                m1.created = min(m1.created, m2.created)
-                m1.membership_type = max(m1.membership_type, m2.membership_type)
-                merge_attr_or(m1, m2, "notifications_enabled", default=False)
-
-                m1.save()
-                m2.delete()
-            else:
-                m2.person = p1
-                m2.save()
-
-        # for organizer configs, we are as careful as we were for memberships
-        current_organizer_configs = p1.organizer_configs.select_for_update()
-        organized_events = {o.event_id: o for o in current_organizer_configs}
-
-        for o2 in p2.organizer_configs.select_for_update():
-            if o2.event_id in organized_events:
-                o1 = organized_events[o2.event_id]
-                merge_attr_or(o1, o2, "is_creator", default=False)
-                merge_attr_or(o1, o2, "notifications_enabled", default=False)
-                merge_attr_or(o1, o2, "as_group", default=False)
-
-                o1.save()
-                o2.delete()
-            else:
-                o2.person = p1
-                o2.save()
-
-        # we don't care as much for rsvps: reassign or delete is enough
-        current_rsvps = p1.rsvps.select_for_update()
-        rsvped_events = {r.event_id: r for r in current_rsvps}
-
-        for r2 in p2.rsvps.all():
-            if r2.event_id in rsvped_events:
-                r2.delete()
-            else:
-                r2.person = p1
-                r2.save()
-
-        # we reassign email addresses as well
-        # use list to make sure the querysets are evaluated now, before modifying the addresses
-        email_order_1 = list(p1.get_personemail_order())
-        email_order_2 = list(p2.get_personemail_order())
-        for e2 in p2.emails.all():
-            e2.person = p1
-            e2.save()
-        # and set back the order
-        p1.set_personemail_order(email_order_1 + email_order_2)
-
-        # We reassign simply for these categories
-        p2.form_submissions.update(person=p1)
-        p2.payments.update(person=p1)
-        p2.subscriptions.update(person=p2)
-        p2.event_images.update(author=p1)
-
-        # we reassign poll choices only if p1 has not voted yet
-        p1_votes = set(pc.poll_id for pc in p1.poll_choices.all())
-        p2.poll_choices.exclude(poll_id__in=p1_votes).update(person=p1)
-
-        # we reassign mandates as long as we don't get any integrity error:
-        # in that case it most likely means the mandate is already registered
-        # the first object
-        all_mandates = chain(
-            p2.mandats_municipaux.all(),
-            p2.mandats_departementaux.all(),
-            p2.mandats_regionaux.all(),
-        )
-        for m in all_mandates:
-            try:
-                with transaction.atomic():
-                    m.person = p1
-                    m.save()
-            except IntegrityError:
-                pass
+        p1.save()
 
         # finally we need to delete the second person
         p2.delete()

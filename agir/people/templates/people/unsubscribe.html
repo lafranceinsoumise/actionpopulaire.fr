@@ -7,26 +7,47 @@
 
 {% block main %}
   <div class="row">
-    <div class="col-responsive">
-      <h2 class="headline">Désabonnement</h2>
-      <div>
-        {% if email %}
-          <div class="intro">
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+      <div class="pull-left">
+        <a class="menu-back-link" href="{% url "list_events" %}">
+          <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+        </a>
+      </div>
+      <div class="pull-right">
+      </div>
+      <div class="clearfix"></div>
+      <hr />
+    </div>
+    {% if email %}
+      {% block navbar %}
+        {% include "people/profile/profile_nav.html" with tab_code="CONTACT" %}
+      {% endblock %}
+      <div class="col-xs-12 col-md-9 margintopmore">
+        <h2 class="headline">Désabonnement</h2>
+        <div class="row">
+          <div class="col-xs-12 intro">
             Pour confirmer votre désinscription de nos lettres d'information avec l'adresse
             <strong>{{ email }}</strong>, cliquez sur le bouton ci-dessous.
           </div>
-          <form method="post" action="{% url "contact" %}">
+          <form method="post" action="{% url "contact" %}" class="col-xs-12 col-md-4">
             {% csrf_token %}
-            <button name="no_mail" type="submit" class="btn btn-primary">Je me désinscris</button>
+            <button name="no_mail" type="submit" class="btn btn-primary btn-block margintopmore">Je me désinscris</button>
           </form>
-        {% else %}
-          <div class="intro">
-            <p>Vous pouvez vous désabonner des emails de la France insoumise en indiquant votre adresse email
-              ci-dessous.</p>
-          </div>
-          {% crispy form %}
-        {% endif %}
+        </div>
       </div>
-    </div>
+    {% else %}
+      <div class="col-responsive">
+        <h2 class="headline">Désabonnement</h2>
+        <div class="row">
+          <div class="col-xs-12 intro">
+            <p>Vous pouvez vous désabonner des emails de la France insoumise en indiquant votre adresse email ci-dessous.
+            </p>
+          </div>
+          <div class="col-xs-12">
+            {% crispy form %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
   </div>
 {% endblock %}

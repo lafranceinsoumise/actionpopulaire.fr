@@ -1,31 +1,66 @@
-.progtrckr {
-    text-align: center;
+.step-progress ol.progtrckr {
+  text-align: center;
+}
+.step-progress ol.progtrckr li span {
+  padding: 0;
+}
+
+.type-selectors {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .type-selector {
-    border: 1px solid #CCC;
+  flex-basis: calc(50% - 8px);
+  flex-shrink: 0;
+  flex-grow: 1;
+  border: 1px solid #ccc;
+  margin: 0 4px 10px;
+  border-radius: 8px;
 }
 
 .type-selector button {
-    border-radius: 0;
-    border: none;
-    background: none;
+  border-radius: 0;
+  border: none;
+  background: none;
+  padding: 20px;
+  font-weight: normal;
+  height: 100%;
 }
 
 .type-selector button:hover {
-    background: #EEE;
+  background: #eee;
 }
 
-.type-selector button.active, .typer-selector button.active:hover {
-    background: #DDD;
+.type-selector button.active,
+.typer-selector button.active:hover {
+  background: #ddd;
+}
+
+.type-selector button strong {
+  font-size: 16px;
+  line-height: 1.2;
+  display: block;
+  font-weight: 700;
+  margin: 0 0 0.7em;
 }
 
 .subtype-selector {
-    overflow: hidden;
-    transition: all 500ms ease-in-out;
-    margin: 0; padding: 0;
+  overflow: hidden;
+  transition: all 500ms ease-in-out;
+  margin: 0;
+  padding: 0;
 }
 
 .subtype-selector div {
-    padding: 15px 15px 10px 15px;
+  padding: 15px 15px 10px 15px;
+}
+
+.subtype-selector-choice a {
+  font-weight: 400 !important;
+}
+
+.confirmation-data-list dt + dd {
+  margin-bottom: 1em;
 }

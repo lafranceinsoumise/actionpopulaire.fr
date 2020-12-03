@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
             name="subscribed",
             field=models.BooleanField(
                 default=True,
-                help_text="Vous recevrez les lettres de la France insoumise, notamment : les lettres d'information, les appels à volontaires, les annonces d'émissions ou d'événements...",
+                help_text="Vous recevrez les lettres de la France insoumise, notamment : les lettres d'information, les appels à volontaires, les annonces d'émissions ou d'évènements...",
                 verbose_name="Recevoir les lettres d'information",
             ),
         ),

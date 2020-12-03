@@ -101,8 +101,14 @@ def get_promo_codes(group):
         previous_expiration_date = date(today.year, today.month + 1, 1)
 
     return (
-        generate_code_for_group(group, current_expiration_date),
-        generate_code_for_group(group, previous_expiration_date),
+        (
+            generate_code_for_group(group, current_expiration_date),
+            current_expiration_date,
+        ),
+        (
+            generate_code_for_group(group, previous_expiration_date),
+            previous_expiration_date,
+        ),
     )
 
 

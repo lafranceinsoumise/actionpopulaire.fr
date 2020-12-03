@@ -1,11 +1,21 @@
-from django.conf import settings
-from django.urls import reverse, reverse_lazy
-from django.http import HttpResponsePermanentRedirect, HttpResponse, Http404
-from django.views.generic import View, RedirectView
+from datetime import timedelta
 
+from django.conf import settings
+from django.contrib.gis.db.models.functions import Distance
+from django.db.models import Q
+from django.http import HttpResponsePermanentRedirect, Http404
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
+from django.views.generic import View, RedirectView, TemplateView
+
+from .view_mixins import ReactListView, ReactSerializerBaseView, ReactBaseView
+from ..authentication.view_mixins import SoftLoginRequiredMixin
 from ..events.models import Event
+from ..events.serializers import EventSerializer
 from ..groups.models import SupportGroup
+from ..groups.serializers import SupportGroupSerializer
 from ..lib.http import add_query_params_to_url
+from agir.lib.tasks import geocode_person
 
 
 class NBUrlsView(View):
@@ -73,6 +83,107 @@ class NBUrlsView(View):
         raise Http404()
 
 
+class NavigationMenuView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "front/navigationPage"
+
+
+class ActivityView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "activity/page__activities"
+
+
+class RequiredActivityView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "activity/page__requiredActivities"
+
+
+class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
+    bundle_name = "events/agendaPage"
+    serializer_class = EventSerializer
+
+    def get(self, request, *args, **kwargs):
+        person = request.user.person
+
+        if person.coordinates_type is None:
+            geocode_person.delay(person.pk)
+
+        return super().get(request, *args, **kwargs)
+
+    def get_export_data(self):
+        person = self.request.user.person
+        queryset = Event.objects
+        if person.is_2022_only:
+            queryset = queryset.is_2022()
+
+        rsvped_events = (
+            queryset.upcoming()
+            .filter(Q(attendees=person) | Q(organizers=person))
+            .order_by("start_time", "end_time")
+        )
+
+        groups_events = (
+            queryset.upcoming()
+            .filter(organizers_groups__in=person.supportgroups.all())
+            .order_by("start_time")
+        )
+
+        organized_events = (
+            queryset.past().filter(organizers=person).order_by("-start_time")[:10]
+        )
+
+        past_events = (
+            queryset.past().filter(rsvps__person=person).order_by("-start_time")[:10]
+        )
+
+        query = (
+            Q(pk__in=groups_events) | Q(pk__in=organized_events) | Q(pk__in=past_events)
+        )
+
+        if person.coordinates is not None:
+            near_events = (
+                queryset.upcoming()
+                .filter(
+                    start_time__lt=timezone.now() + timedelta(days=30),
+                    do_not_list=False,
+                )
+                .exclude(pk__in=groups_events)
+                .annotate(distance=Distance("coordinates", person.coordinates))
+                .order_by("distance")[:10]
+            )
+
+            other_events = (
+                queryset.filter(query | Q(pk__in=near_events))
+                .annotate(distance=Distance("coordinates", person.coordinates))
+                .order_by("start_time")
+            )
+        else:
+            other_events = queryset.filter(query).order_by("start_time")
+
+        return {
+            "rsvped": self.serializer_class(
+                instance=rsvped_events, many=True, context={"request": self.request}
+            ).data,
+            "others": self.serializer_class(
+                instance=other_events, many=True, context={"request": self.request}
+            ).data,
+        }
+
+
+class MyGroupsView(SoftLoginRequiredMixin, ReactListView):
+    serializer_class = SupportGroupSerializer
+    bundle_name = "groups/groupsPage"
+    data_script_id = "mes-groupes"
+
+    def get_queryset(self):
+        return SupportGroup.objects.filter(memberships__person=self.request.user.person)
+
+
+class EventMapView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "carte/page__eventMap"
+
+
+class GroupMapView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "carte/page__groupMap"
+
+
 class NSPView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         url = settings.NSP_DOMAIN
@@ -92,3 +203,10 @@ class NSPView(RedirectView):
             )
 
         return url
+
+
+class JoinView(TemplateView):
+    template_name = "front/join.html"
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs, type=self.request.GET.get("type"))

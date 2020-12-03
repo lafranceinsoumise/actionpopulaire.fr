@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name="user_contributed",
             field=models.BooleanField(
                 default=False,
-                verbose_name="Les utilisateurs peuvent ajouter des événements",
+                verbose_name="Les utilisateurs peuvent ajouter des évènements",
             ),
         )
     ]

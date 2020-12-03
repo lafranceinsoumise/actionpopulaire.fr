@@ -3,27 +3,50 @@
 {% block main %}
 
   <div class="row">
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+      <div class="pull-left">
+        <a class="menu-back-link" href="{% url "list_events" %}">
+          <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+        </a>
+      </div>
+      <div class="pull-right">
+      </div>
+      <div class="clearfix"></div>
+      <hr />
+    </div>
     {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="PERSONAL_DATA" %} {% endblock %}
-    <div class="col-xs-12 col-md-10">
+    <div class="col-xs-12 col-md-9 margintopmore">
+      {% include "people/profile/profile_title.html" with tab_code="PERSONAL_DATA" %}
       <form action="" method="post">{% csrf_token %}
         <div class="alert alert-danger">
-          <p>Voulez-vous vraiment effacer le compte {{ object.email }} ?</p>
+          <p>Voulez-vous vraiment effacer le compte <strong>{{ object.email }}</strong> ?</p>
 
           <p>Toute votre activité sur la plateforme de la France insoumise sera perdue. Vos participations aux
-            événements
+            évènements
             et aux groupes d'action seront définitivement effacée.</p>
 
-          <p>Les groupes et événements publics dont vous êtes gestionnaire ne seront pas supprimés mais vous perdrez
+          <p>Les groupes et évènements publics dont vous êtes gestionnaire ne seront pas supprimés mais vous perdrez
             toutes les autorisations dont vous disposez dessus.</p>
 
           <p><strong>Cette action est irréversible.</strong></p>
         </div>
-        <div class="control-group marginbottom">
-          <label><input type="checkbox" required> J'ai bien compris que cette action est irréversible et je veux effacer
-            mon compte {{ object.email }}.</label>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" class="checkboxinput" required>
+            J'ai bien compris que cette action est irréversible et je veux effacer
+            mon compte <strong>{{ object.email }}</strong>.
+          </label>
         </div>
-        <input type="submit" class="btn btn-danger btn-lg" value="Effacer mon compte"/>
-        {#                <a class="btn btn-default btn-lg" href="{% url 'message_preferences' %}">Retour à mes préférences</a>#}
+        <div class="row">
+          <div class="col-xs-12 col-md-4 margintop">
+            <input
+            type="submit"
+            class="btn btn-primary btn-lg btn-block" value="Effacer  mon compte"/>
+          </div>
+          <div class="col-xs-12 col-md-4 margintop">
+            {#<a class="btn btn-default btn-lg btn-block" href="{% url 'message_preferences' %}">Retour à mes préférences</a>#}
+          </div>
+        </div>
       </form>
     </div>
   </div>

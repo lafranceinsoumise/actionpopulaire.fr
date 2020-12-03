@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                             ("I", "Facture"),
                             (
                                 "P",
-                                "Photo ou illustration de l'événement, de la salle, du matériel",
+                                "Photo ou illustration de l'évènement, de la salle, du matériel",
                             ),
                             ("O", "Autre type de justificatif"),
                         ],
@@ -184,7 +184,7 @@ class Migration(migrations.Migration):
                     "event",
                     models.ForeignKey(
                         blank=True,
-                        help_text="Si c'est pertinent, l'événement concerné par la dépense. Il doit être organisé par le groupe pour pouvoir être sélectionné.",
+                        help_text="Si c'est pertinent, l'évènement concerné par la dépense. Il doit être organisé par le groupe pour pouvoir être sélectionné.",
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
                         related_name="spending_requests",

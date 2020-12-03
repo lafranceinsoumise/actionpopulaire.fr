@@ -7,8 +7,36 @@
 {% endblock %}
 
 {% block main %}
-  <h1>Modifier ma demande de dépense ou de remboursement</h1>
-  <div>
-    {% crispy form %}
+<div class="row">
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+    <div class="pull-left">
+      <a class="menu-back-link" href="{% url "list_events" %}">
+        <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+      </a>
+    </div>
+    <div class="pull-right">
+      <a
+        class="btn btn-sm btn-default"
+        href="{% url "view_group" supportgroup.pk %}">
+        Page publique du groupe
+      </a>
+    </div>
+    <div class="clearfix"></div>
+    <hr />
   </div>
+  <div class="col-xs-12 col-md-3 margintopmore">
+    {% include "groups/includes/manage_nav.html" with has_static_menu=True %}
+  </div>
+  <div class="col-xs-12 col-md-9 tab-content">
+    <h2 class="headline">
+      {{ supportgroup.name }}
+    </h2>
+    <hr />
+    <h4 class="padbottom">
+      Modifier ma demande de dépense ou de remboursement
+    </h4>
+    {% crispy form %}
+
+  </div>
+</div>
 {% endblock %}

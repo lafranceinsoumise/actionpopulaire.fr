@@ -4,53 +4,108 @@
 {% block title %}{{ calendar.name }}{% endblock %}
 
 {% block main %}
-  {% if calendar.image %}
-    <img src="{{ calendar.image.url }}" class="img-responsive center-block">
-  {% endif %}
-
-  {% url 'ics_calendar' calendar.slug as calendar_url %}
-  <h2>{{ calendar.name }}
-    <small>S'abonner {% include 'events/calendar_subscribe_modal.html' with url=calendar_url %}</small>
-  </h2>
-
-  {% if calendar.description %}
-    <div class="intro">
-      {{ calendar.description | safe }}
+{% include 'events/calendar_subscribe_modal.html' with url=calendar_url no_trigger=True %}
+<div class="row">
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+    <div class="pull-left">
+      <a class="menu-back-link" href="{% url "list_events" %}">
+        <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+      </a>
     </div>
-  {% endif %}
+    <div class="pull-right">
+      <a
+        class="btn btn-sm btn-primary"
+        data-toggle="modal"
+        data-target="#calendar-modal">
+        <i class="fa fa-calendar"></i> S'abonner
+      </a>
+    </div>
+    <div class="clearfix"></div>
+    <hr />
+  </div>
+  <div class="col-xs-12">
+    {% url 'ics_calendar' calendar.slug as calendar_url %}
 
-  {% if events %}
-    <div>
-      <hr>
+    {% if calendar.image %}
+      <img src="{{ calendar.image.url }}" class="img-responsive center-block">
+    {% endif %}
+
+    <h2 class="headline">
+      {{ calendar.name }}
+    </h2>
+    <hr />
+    {% if calendar.description %}
+      <p class="intro">
+        {{ calendar.description | safe }}
+      </p>
+    {% endif %}
+    {% if events %}
       {% for event in events %}
-        <div class="row">
-          <div class="col-md-4">
-            {% if event.image %}
-              <img src="{{ event.image.thumbnail.url }}" class="img-responsive">
-            {% elif calendar.image %}
-              <img src="{{ calendar.image.url }}" class="img-responsive">
-            {% else %}
-              <img src="{% static default_event_image %}" class="img-responsive">
-            {% endif %}
+        <div class="panel panel-default margintop marginbottom" style="border-radius: 8px;">
+          <div class="panel-body row">
+            <p class="col-xs-12 marginbottom text-right hidden-xs hidden-sm">
+              <a
+                href="{% url "view_event" event.pk %}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-sm btn-default">
+                Page publique de l'évènement&nbsp;
+                <i class="fa fa-external-link"></i>
+              </a>
+            </p>
+            <div class="col-md-4 marginbottom">
+              {% if event.image %}
+                <img src="{{ event.image.thumbnail.url }}" class="img-responsive">
+              {% elif calendar.image %}
+                <img src="{{ calendar.image.url }}" class="img-responsive">
+              {% else %}
+                <img src="{% static default_event_image %}" class="img-responsive">
+              {% endif %}
+            </div>
+
+            <div class="col-md-8 marginbottom">
+              <p class="marginbottom text-right hidden-md hidden-lg">
+                <a
+                  href="{% url "view_event" event.pk %}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-sm btn-default">
+                  Page publique de l'évènement&nbsp;
+                  <i class="fa fa-external-link"></i>
+                </a>
+              </p>
+              <h4>
+                {{ event.name }}
+              </h4>
+              <p class="date help-block">
+                <i class="fa fa-calendar"></i>
+                <br>
+                {{ event.get_display_date }}
+              </p>
+              <p class="help-block">
+                <i class="fa fa-map-marker"></i>
+                <br>
+                {{ event.html_full_address }}
+              </p>
+
+            </div>
           </div>
-          <div class="col-md-8">
-            <h4><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h4>
-            <div class="date">{{ event.get_display_date }}</div>
-            <div>{{ event.html_full_address }}</div>
-            <h6>Ajouter à mon agenda&ensp;
+          <div class="panel-footer">
+            <h6>
+              Ajouter à mon agenda&ensp;
               {% include 'events/event_ics.html' with event=event %}
             </h6>
           </div>
         </div>
-        <hr/>
       {% endfor %}
-    </div>
 
-    {% pagination page_obj %}
+      {% pagination page_obj %}
 
-  {% else %}
-    <div class="lead text-center">
-      Pas d'événement prévu pour le moment
-    </div>
-  {% endif %}
+    {% else %}
+      <div class="lead text-center">
+        Pas d'évènement prévu pour le moment
+      </div>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

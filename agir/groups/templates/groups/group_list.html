@@ -5,30 +5,43 @@
 {% block title %}Rechercher des groupes d'action{% endblock %}
 
 {% block main %}
-  <h1>Rechercher des groupes d'action</h1>
-
-  <div>
-    <div>
-      <p>Vous pouvez aussi rechercher des groupes d'action en utilisant
-        <a href="https://lafranceinsoumise.fr/groupes-appui/carte/">la carte.</a></p>
+<div class="row">
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+    <div class="pull-left">
+      <a class="menu-back-link" href="{% url "list_events" %}">
+        <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+      </a>
     </div>
-
-    <p class="text-center">
-      <a class="btn btn-info" href="{% url "create_group" %}"><i class="fa fa-plus"></i> Créer un groupe</a>
-      <a class="btn btn-default" href="https://lafranceinsoumise.fr/groupes-appui/carte/">Accéder à la carte des
-        groupes d'action</a>
-    </p>
+    <div class="pull-right">
+      <a class="btn btn-sm btn-primary" href="{% url "create_group" %}">
+        <i class="fa fa-plus"></i>&ensp;Créer un groupe
+      </a>
+      <a class="btn btn-sm btn-default" href="{% url "group_map_page" %}">
+        <i class="fa fa-map"></i>&ensp;Accéder à la carte des groupes
+      </a>
+    </div>
+    <div class="clearfix"></div>
+    <hr />
   </div>
-
-  <div>
-    {% crispy form %}
-  </div>
-
-  <div>
-
-    {% pagination page_obj %}
-
-    <div class="list-group">
+  <div class="col-xs-12">
+    <div class="padtop padbottom marginbottommore">
+      <h2 class="headline">
+        Rechercher des groupes d'action
+      </h2>
+      <p>Sur cette page, vous trouverez l'ensemble des groupes de la plateforme.</p>
+      <p>Si aucun groupes ne se trouve près de chez vous, vous pouvez en créer un vous-même.</p>
+      <p>Vous pouvez aussi rechercher des groupes en utilisant
+        <a href="{% url "group_map_page" %}">
+          la carte.
+        </a>
+      </p>
+    </div>
+    <div class="col-xs-12 padtop">
+      <div class="well ">
+        {% crispy form %}
+      </div>
+    </div>
+    <div class="col-xs-12 padtop">
       {% for group in groups %}
         <div class="list-group-item ">
           <i class="fa fa-calendar" aria-hidden="true"></i>
@@ -48,9 +61,13 @@
             {% endif %}
           </ul>
         </div>
-      {% endfor %}
+        {% empty %}
+          <p class="alert alert-warning">
+            Aucun groupe d'action ne correspond à votre recherche.
+          </p>
+        {% endfor %}
+        {{  page_obj.pagination_nav }}
     </div>
-    {{  page_obj.pagination_nav }}
-
   </div>
+</div>
 {% endblock %}

@@ -49,7 +49,6 @@ if os.environ.get("GDAL_LIBRARY_PATH"):
 ENABLE_API = os.environ.get("ENABLE_API", "n").lower() in YES_VALUES or DEBUG
 ENABLE_ADMIN = os.environ.get("ENABLE_ADMIN", "n").lower() in YES_VALUES or DEBUG
 ENABLE_FRONT = os.environ.get("ENABLE_FRONT", "n").lower() in YES_VALUES or DEBUG
-ENABLE_MAP = os.environ.get("ENABLE_MAP", "n").lower() in YES_VALUES or DEBUG
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -119,6 +118,7 @@ INSTALLED_APPS = [
     "agir.checks",
     "agir.loans",
     "agir.mailing",
+    "agir.activity.apps.ActivityConfig",
     "agir.notifications.apps.NotificationsConfig",
     "agir.municipales.apps.MunicipalesConfig",
     "agir.legacy",
@@ -212,12 +212,18 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "agir.authentication.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "agir.api.context_processors.domain_names",
-                "agir.notifications.context_processors.notifications",
             ]
         },
     }
 ]
+
+if ENABLE_FRONT:
+    TEMPLATES[0]["OPTIONS"]["context_processors"].extend(
+        [
+            "agir.api.context_processors.basic_information",
+            "agir.notifications.context_processors.notifications",
+        ]
+    )
 
 MESSAGE_TAGS = {ERROR: "danger"}
 MESSAGE_LEVEL = messages.DEBUG if DEBUG else messages.INFO
@@ -247,50 +253,54 @@ EMAIL_USE_SSL = email_config["EMAIL_USE_SSL"]
 
 # fixed for now ==> maybe more flexible?
 EMAIL_TEMPLATES = {
+    ################
+    ## TEMPLATE LFI
+    ################
     # WELCOME_MESSAGE variables: [PROFILE_LINK]
     "WELCOME_LFI_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/ac205f71-61a3-465b-8161-cec5729ecdbb.html",
     # CONFIRM_SUBSCRIPTION_MESSAGE variables: [CONFIRMATION_URL]
     "SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/cd878308-6fd7-4088-b525-a020c5bb3fe0.html",
     # ALREADY_SUBSCRIBED_MESSAGE: [AGO], [PANEL_LINK]
     "ALREADY_SUBSCRIBED_LFI_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/d7040d22-703f-4ac7-883c-d2f04c13be1a.html",
-    # [CONFIRMATION_URL]
-    "SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/7dd4eeb2-c7ce-40f6-a6c7-8207594b64f1.html",
-    # INVITATION_SUBSCRIPTION_MESSAGE: [GROUP_NAME], [CONFIRMATION_URL] [SIGNAL_URL]
-    "GROUP_INVITATION_WITH_SUBSCRIPTION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/1db59e8e-0ebd-4dab-8b2d-e7a2d679d6aa.html",
-    # INVITATION_CONFIRMATION_MESSAGE: [GROUP_NAME], [CONFIRMATION_URL] [SIGNAL_URL]
-    "GROUP_INVITATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/4a704705-9b5d-4356-b799-285741e558c6.html",
-    # GROUP_INVITATION_ABUSE_MESSAGE
-    "GROUP_INVITATION_ABUSE_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/b70f5728-c2fb-490e-aa25-1a678b6a5864.html",
     # DONATION_MESSAGE variables : [PROFILE_LINK]
     "DONATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/cab3c2ee-9444-4c70-b16e-9f7dce7929b1.html",
+    # INVITATION_SUBSCRIPTION_MESSAGE: [GROUP_NAME], [CONFIRMATION_URL] [SIGNAL_URL]
+    "GROUP_INVITATION_WITH_SUBSCRIPTION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/1db59e8e-0ebd-4dab-8b2d-e7a2d679d6aa.html",
+    ################
+    ## TEMPLATE NSP
+    ################
+    "SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/7dd4eeb2-c7ce-40f6-a6c7-8207594b64f1.html",
+    ################
+    ## TEMPLATE AP
+    ################
+    # GROUP_INVITATION_ABUSE_MESSAGE
+    "GROUP_INVITATION_ABUSE_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/5e8059a7-339a-40ff-8741-b5f742f2f63c.html",
     # DONATION_MESSAGE_EUROPEENNES variables : [PROFILE_LINK]
-    "DONATION_MESSAGE_EUROPEENNES": "https://mosaico.lafranceinsoumise.fr/emails/4b0f0d0d-e0a9-4264-8e69-143e9ba9fd48.html",
-    # CARD_EXPIRATION variables : [SUBSCRIPTION_DESCRIPTION], [RENEW_SUBSCRIPTION_LINK], [EXPIRY_DATE] [GREETINGS]
-    "CARD_EXPIRATION": "https://mosaico.lafranceinsoumise.fr/emails/aaac07c2-6cbf-4ef4-a279-e77058fd8cfa.html",
+    "CARD_EXPIRATION": "https://mosaico.lafranceinsoumise.fr/emails/d571cda0-9227-4333-b4bd-fc067beb3ec8.html",
     # UNSUBSCRIBE_CONFIRMATION variables [MANAGE_SUBSCRIPTIONS_LINK]
-    "UNSUBSCRIBE_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/51cbadd7-2226-482d-85d4-6dc758d2eb3a.html",
+    "UNSUBSCRIBE_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/232528e5-af31-45cc-bdc6-7ef4c2ecf789.html",
     # GROUP_CREATION variables: [GROUP_NAME], [CONTACT_{NAME,EMAIL,PHONE,PHONE_VISIBILITY], [LOCATION_{NAME,LOCATION}], [GROUP_LINK], [MANAGE_GROUP_LINK]
-    "GROUP_CREATION": "https://mosaico.lafranceinsoumise.fr/emails/bc07d593-ff8f-470e-a8cb-9ba679fc5f59.html",
+    "GROUP_CREATION": "https://mosaico.lafranceinsoumise.fr/emails/d852c994-f46d-41ce-89a5-05cfa553476d.html",
     # GROUP_CHANGED variables: GROUP_NAME, GROUP_CHANGES, GROUP_LINK
-    "GROUP_CHANGED": "https://mosaico.lafranceinsoumise.fr/emails/3724b7ba-2a48-4954-9496-fc4c970a56b8.html",
+    "GROUP_CHANGED": "https://mosaico.lafranceinsoumise.fr/emails/e3932ae5-3648-4686-b607-4b744d15dfe8.html",
     # GROUP_SOMEONE_JOINED_NOTIFICATION variables: GROUP_NAME, PERSON_INFORMATION, MANAGE_GROUP_LINK
-    "GROUP_SOMEONE_JOINED_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/e25c5123-6a7d-428f-89c6-3ddca4a65096.html",
+    "GROUP_SOMEONE_JOINED_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/d19f4012-40e5-44d9-87b6-e49ada121bed.html",
     # GROUP_EXTERNAL_JOIN_OPTION variables: [GROUP_NAME], [JOIN_LINK]
     "GROUP_EXTERNAL_JOIN_OPTIN": "https://mosaico.lafranceinsoumise.fr/emails/5c106c1d-a46f-4072-9c4e-2e3bfbfea069.html",
     # EVENT_CREATION variables: [EVENT_NAME], [CONTACT_{NAME,EMAIL,PHONE,PHONE_VISIBILITY], [LOCATION_{NAME,LOCATION}], [EVENT_LINK], [MANAGE_EVENT_LINK]
-    "EVENT_CREATION": "https://mosaico.lafranceinsoumise.fr/emails/f44ff2c1-1050-41c4-8973-15573eba2741.html",
+    "EVENT_CREATION": "https://mosaico.lafranceinsoumise.fr/emails/0add6793-5c29-406a-ac04-757ad77d5d33.html",
     # EVENT_CHANGED variables: EVENT_NAME, EVENT_CHANGES, EVENT_LINK, EVENT_QUIT_LINK
-    "EVENT_CHANGED": "https://mosaico.lafranceinsoumise.fr/emails/f8dfc882-4e7e-4ff2-bd8c-473fd41e54bf.html",
+    "EVENT_CHANGED": "https://mosaico.lafranceinsoumise.fr/emails/7352ea4b-7766-46a9-9dc1-2e98bcd4c96e.html",
     # EVENT_RSVP_NOTIFICATION variables EVENT_NAME, PERSON_INFORMATION, MANAGE_EVENT_LINK
-    "EVENT_RSVP_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/6f2eb6f0-cf59-4e2e-ab62-a8d204c6166b.html",
+    "EVENT_RSVP_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/2bde68d8-58dc-48d3-94c0-0469c4f468eb.html",
     # EVENT_RSVP_CONFIRMATION variables EVENT_NAME  EVENT_SCHEDULE CONTACT_NAME CONTACT_EMAIL LOCATION_NAME LOCATION_ADDRESS EVENT_LINK
-    "EVENT_RSVP_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/71fa1bc8-1b94-4d88-98dc-27c5502b83f8.html",
+    "EVENT_RSVP_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/2413fa73-d309-4bcd-be24-3a42d4b6ece2.html",
     # EVENT_EXTERNAL_RSVP_OPTIN variables EVENT_NAME RSVP_LINK
     "EVENT_EXTERNAL_RSVP_OPTIN": "https://mosaico.lafranceinsoumise.fr/emails/e7c3e2f6-1089-4f49-82a7-608ab038e6d3.html",
     # EVENT_GUEST_CONFIRMATION variables EVENT_NAME  EVENT_SCHEDULE CONTACT_NAME CONTACT_EMAIL LOCATION_NAME LOCATION_ADDRESS EVENT_LINK
-    "EVENT_GUEST_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/eded7af1-8ded-4150-a33c-b4902b34d54c.html",
+    "EVENT_GUEST_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/e07087c1-60f3-42e9-896a-497e9f589c55.html",
     # EVENT_CANCELLATION variables: EVENT_NAME
-    "EVENT_CANCELLATION": "https://mosaico.lafranceinsoumise.fr/emails/94c7cbb3-afdc-4d14-a07a-cf9503db5b5f.html",
+    "EVENT_CANCELLATION": "https://mosaico.lafranceinsoumise.fr/emails/40d5812b-aacc-4ab2-b7b6-d944bf90e9d6.html",
     # EVENT_SECRETARIAT_NOTIFICATION variables : EVENT_NAME EVENT_SCHEDULE CONTACT_NAME CONTACT_EMAIL LOCATION_NAME LOCATION_ADDRESS EVENT_LINK LEGAL_INFORMATIONS
     "EVENT_SECRETARIAT_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/d7ebb6a3-f693-4c33-934f-df4335b23621.html",
     # EVENT_ORGANIZER_VALIDATION_NOTIFICATION variables : EVENT_NAME EVENT_SCHEDULE LOCATION_NAME LOCATION_ADDRESS EVENT_LINK MANAGE_EVENT_LINK
@@ -298,27 +308,29 @@ EMAIL_TEMPLATES = {
     # SPENDING_REQUEST_TO_REVIEW_NOTIFICATION variables : SPENDING_REQUEST_NAME GROUP_NAME SPENDING_REQUEST_ADMIN_LINK
     "SPENDING_REQUEST_TO_REVIEW_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/12070f61-6aeb-4d2d-abe0-6ec347adf380.html",
     # FORM_CONFIRMATION variables : CONFIRMATION_NOTE
-    "FORM_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/6172a755-0459-4f01-b3e4-fcfa835224b0.html",
+    "FORM_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/28866993-acf3-45a7-aefd-e75c58e8b52a.html",
     # FORM_NOTIFICATION variables : PERSON_EMAIL, INFORMATIONS
-    "FORM_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/45cd8bc1-8fb6-4ab6-bb67-739fd7e2e68e.html",
-    # LOGIN_MESSAGE variables: CODE, EXPIRY_TIME
-    "LOGIN_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/65cb8867-9d14-4448-bae8-8cf40c5fee78.html",
+    "FORM_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/8ac7b301-07dd-457f-8de7-7414f171858e.html",
+    # LOGIN_MESSAGE variables: code, expiry_time, name
+    "LOGIN_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/b3958815-c3c2-4f93-8b24-47a6c1dd36e2.html",
+    # LOGIN_NO_ACCOUNT variables:
+    "LOGIN_SIGN_UP_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/83367020-bfd1-409f-84f2-30df33790db5.html",
     # EVENT_REPORT variables: EVENT_NAME,EVENT_REPORT_SUMMARY, EVENT_REPORT_LINK, PREFERENCES_LINK, EMAIL
-    "EVENT_REPORT": "https://mosaico.lafranceinsoumise.fr/emails/7b39830d-8cf5-4d01-abbd-ab41e77c444e.html",
+    "EVENT_REPORT": "https://mosaico.lafranceinsoumise.fr/emails/6bea2d8b-4c03-4f1d-8b97-5e7cecff0c5b.html",
     # CHANGE_MAIL_CONFIRMATION variables: CONFIRMATION_URL
-    "CHANGE_MAIL_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/55429415-6611-45a9-8667-929e445ff7c4.html",
+    "CHANGE_MAIL_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/7a2c3dfb-adb5-41dc-baa0-74afba42551f.html",
     # MERGE_ACCOUNT_CONFIRMATION variables: CONFIRMATION_URL, REQUESTER_EMAIL
-    "MERGE_ACCOUNT_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/4d727c1c-5319-416d-a747-37117d957aa1.html",
+    "MERGE_ACCOUNT_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/ad6ea640-22fb-4280-9e32-71bb191f1678.html",
     # CONTRACT_CONFIRMATION
     "CONTRACT_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/c63e76d7-d8a1-434c-bdd6-75337312ca28.html",
     # CHECK INFORMATION
-    "CHECK_INFORMATION": "https://mosaico.lafranceinsoumise.fr/emails/fbf5b074-5ffd-479c-bb2a-76cf6cbcee10.html",
+    "CHECK_INFORMATION": "https://mosaico.lafranceinsoumise.fr/emails/b0850152-bf53-4979-b5d3-86f231fd98a8.html",
     # CONFIRM SUBSCRIPTION
-    "CONFIRM_SUBSCRIPTION": "https://mosaico.lafranceinsoumise.fr/emails/5c677075-755c-43b1-8de2-ee93bdc001f0.html",
+    "CONFIRM_SUBSCRIPTION": "https://mosaico.lafranceinsoumise.fr/emails/eb8e6712-32d5-40bb-a69c-cdc1207e12dc.html",
 }
 
 EMAIL_FROM = os.environ.get(
-    "EMAIL_FROM", "La France insoumise <noreply@lafranceinsoumise.fr>"
+    "EMAIL_FROM", "Action populaire <noreply@actionpopulaire.fr>"
 )
 EMAIL_SECRETARIAT = os.environ.get("EMAIL_SECRETARIAT", "nospam@lafranceinsoumise.fr")
 EMAIL_EQUIPE_FINANCE = os.environ.get(

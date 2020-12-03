@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 default=True,
                 help_text="Vous recevrez des messages quand les informations des évènements auxquels vous souhaitez participer sont mis à jour ou annulés.",
-                verbose_name="Recevoir les notifications des événements",
+                verbose_name="Recevoir les notifications des évènements",
             ),
         ),
         migrations.AddField(
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
             name="group_notifications",
             field=models.BooleanField(
                 default=True,
-                help_text="Vous recevrez des messages quand les informations du groupe change, ou quand le groupe organise des événements.",
+                help_text="Vous recevrez des messages quand les informations du groupe change, ou quand le groupe organise des évènements.",
                 verbose_name="Recevoir les notifications de mes groupes",
             ),
         ),

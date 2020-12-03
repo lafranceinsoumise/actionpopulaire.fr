@@ -89,7 +89,7 @@ class SpendingRequestAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        (_("Groupe et événement"), {"fields": ("group", "event")}),
+        (_("Groupe et évènement"), {"fields": ("group", "event")}),
         (
             _("Détails de la demande"),
             {

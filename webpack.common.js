@@ -1,6 +1,10 @@
 const path = require("path");
 const fs = require("fs");
 
+require("dotenv").config({
+  path: path.join(__dirname, ".env"),
+});
+
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const BundleTracker = require("webpack-bundle-tracker");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
@@ -74,7 +78,13 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        exclude: [/node_modules(?!(\/react-spring))/, /bower_components/],
+        include: [
+          path.resolve(__dirname, "agir"),
+          path.resolve(__dirname, "node_modules/react-spring"),
+        ],
+        exclude: [
+          path.resolve(__dirname, "node_modules/react-spring/renderprops.js"),
+        ],
         use: {
           loader: "babel-loader",
           options: {
@@ -83,16 +93,21 @@ module.exports = {
         },
       },
       {
-        test: /\.(scss)$/,
+        test: /theme\.scss$/,
         use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
       },
       {
+        test: /\.scss$/,
+        exclude: [/theme\/theme.scss/],
+        use: ["style-loader", "css-loader", "sass-loader"],
+      },
+      {
         test: /\.css$/,
-        exclude: [/node_modules\/tinymce/, /node_modules\/@fi\/theme/],
+        exclude: [/node_modules\/tinymce/],
         use: ["style-loader", "css-loader"],
       },
       {
-        test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+        test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg)$/,
         exclude: [/node_modules\/tinymce/],
         loader: "file-loader",
         options: {
@@ -101,6 +116,9 @@ module.exports = {
         },
       },
     ],
+  },
+  optimization: {
+    runtimeChunk: "single",
   },
   target: "web",
   resolve: {

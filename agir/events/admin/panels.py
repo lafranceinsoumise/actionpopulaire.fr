@@ -269,6 +269,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             _("Informations"),
             {
                 "fields": (
+                    "for_users",
                     "subtype",
                     "description",
                     "allow_html",
@@ -519,7 +520,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         return super().view_results(
             request,
             self.instance.subscription_form.id,
-            title="Inscriptions à l'événement %s" % self.instance.name,
+            title="Inscriptions à l'évènement %s" % self.instance.name,
         )
 
     def download_results(self, request, pk):

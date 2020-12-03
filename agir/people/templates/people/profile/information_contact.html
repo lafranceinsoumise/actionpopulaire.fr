@@ -7,24 +7,46 @@
 
 {% block main %}
   <div class="row">
+    <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+      <div class="pull-left">
+        <a class="menu-back-link" href="{% url "list_events" %}">
+          <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+        </a>
+      </div>
+      <div class="pull-right">
+      </div>
+      <div class="clearfix"></div>
+      <hr />
+    </div>
     {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="CONTACT" %} {% endblock %}
-    <div class="col-xs-12 col-md-10">
-      <div class="col-xs-12 col-md-12 ">
+    <div class="col-xs-12 col-md-9 margintopmore">
+      {% include "people/profile/profile_title.html" with tab_code="CONTACT" %}
+      <div>
         <fieldset>
           <legend>Adresses e-mail</legend>
         </fieldset>
+        <div class="row">
         {% if emails|length > 1 %}
-          <table class="table table-responsive">
+          <div class="table-responsive padbottommore">
+            <table class="table">
             <tbody>
             {% for email in emails %}
               <tr {% if email.address == person.email %} class="active" {% endif %}>
-                <td class="col-xs-5 text-center"> {{ email.address }}</td>
-                <td class="col-xs-5" style="text-align: left">
+                <td><strong class="small">{{ email.address }}</strong></td>
+                <td>
                   {% if email.address == person.email %}
-                    L'adresse utilisée pour me contacter
+                    <span class="hidden-xs hidden-sm label label-info">
+                      L'adresse utilisée pour me contacter
+                    </span>
+                    <span class="hidden-md hidden-lg label label-info">
+                      Adresse utilisée
+                    </span>
                   {% elif not email.bounced %}
-                    <a class="btn btn-sm btn-default " href="{% url "change_primary_mail" email.pk %}">
+                    <a class="hidden-xs hidden-sm btn btn-sm btn-default " href="{% url "change_primary_mail" email.pk %}">
                       Utiliser cette adresse pour me contacter
+                    </a>
+                    <a class="hidden-md hidden-lg btn btn-sm btn-default " href="{% url "change_primary_mail" email.pk %}">
+                      Utiliser cette adresse
                     </a>
                   {% elif email.bounced %}
                     <p class="text-danger small">
@@ -35,23 +57,33 @@
                     </p>
                   {% endif %}
                 </td>
-                <td class="col-xs-2"> {% if can_delete %}<a class="btn btn-sm btn-default"
-                                                            href="{% url "delete_email" email.pk %}">Supprimer</a>{% endif %}
+                <td>
+                  {% if can_delete %}
+                    <a class="btn btn-sm btn-primary" href="{% url "delete_email" email.pk %}">
+                      Supprimer
+                    </a>
+                  {% endif %}
                 </td>
               </tr>
             {% endfor %}
+              <tr>
+                <td class="hidden-xs hidden-sm"></td>
+                <td class="hidden-xs hidden-sm"></td>
+                <td class="text-right" colspan="3">
+                  <a class="btn btn-sm btn-default btn-block" href="{% url "manage_account" %}">Ajouter ou changer d'adresse email</a>
+                </td>
+              </tr>
             </tbody>
           </table>
-          <a class="btn btn-sm btn-default alignright" href="{% url "manage_account" %}"
-             style="font-size: medium;">Ajouter ou changer d'adresse email.</a>
-          <br>
+          </div>
         {% else %}
-          {{ person.email }}
-          <a class="btn btn-sm btn-default alignright" href="{% url "manage_account" %}"
-             style="font-size: medium;">Ajouter ou changer d'adresse email.</a>
-          <br><br>
+          <p class="col-xs-12 col-md-8">{{ person.email }}</p>
+          <p class="col-xs-12 col-md-4"><a class="btn btn-sm btn-default" href="{% url "manage_account" %}">Ajouter ou changer d'adresse email</a></p>
         {% endif %}
-        {% crispy form %}
+        </div>
+        <div class="row">
+          {% crispy form %}
+        </div>
       </div>
     </div>
   </div>

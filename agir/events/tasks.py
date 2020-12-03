@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
@@ -16,16 +17,34 @@ from agir.lib.display import str_summary
 from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
-from agir.notifications.actions import add_notification
 from agir.people.models import Person
 from .models import Event, RSVP, OrganizerConfig
 
 # encodes the preferred order when showing the messages
+from agir.activity.models import Activity
+
+NOTIFIED_CHANGES = {
+    "name": "information",
+    "start_time": "timing",
+    "end_time": "timing",
+    "contact_name": "contact",
+    "contact_email": "contact",
+    "contact_phone": "contact",
+    "location_name": "location",
+    "location_address1": "location",
+    "location_address2": "location",
+    "location_city": "location",
+    "location_zip": "location",
+    "location_country": "location",
+    "description": "information",
+    "facebook": "information",
+}
+
 CHANGE_DESCRIPTION = OrderedDict(
     (
-        ("information", _("les informations générales de l'événement")),
-        ("location", _("le lieu de l'événement")),
-        ("timing", _("les horaires de l'événement")),
+        ("information", _("les informations générales de l'évènement")),
+        ("location", _("le lieu de l'évènement")),
+        ("timing", _("les horaires de l'évènement")),
         ("contact", _("les informations de contact des organisateurs")),
     )
 )
@@ -62,7 +81,7 @@ def send_event_creation_notification(organizer_config_pk):
 
     send_mosaico_email(
         code="EVENT_CREATION",
-        subject=_("Les informations de votre nouvel événement"),
+        subject=_("Les informations de votre nouvel évènement"),
         from_email=settings.EMAIL_FROM,
         recipients=[organizer],
         bindings=bindings,
@@ -77,15 +96,21 @@ def send_event_creation_notification(organizer_config_pk):
 
 
 @emailing_task
-def send_event_changed_notification(event_pk, changes):
+def send_event_changed_notification(event_pk, changed_data):
     try:
         event = Event.objects.get(pk=event_pk)
     except Event.DoesNotExist:
         # event does not exist anymore ?! nothing to do
         return
 
+    changed_data = [f for f in changed_data if f in NOTIFIED_CHANGES]
+
+    if not changed_data:
+        return
+
+    changed_categories = {NOTIFIED_CHANGES[f] for f in changed_data}
     change_descriptions = [
-        desc for label, desc in CHANGE_DESCRIPTION.items() if label in changes
+        desc for id, desc in CHANGE_DESCRIPTION.items() if id in changed_categories
     ]
     change_fragment = render_to_string(
         template_name="lib/list_fragment.html", context={"items": change_descriptions}
@@ -94,20 +119,34 @@ def send_event_changed_notification(event_pk, changes):
     notifications_enabled = Q(notifications_enabled=True) & Q(
         person__event_notifications=True
     )
+
+    for r in event.attendees.all():
+        activity = Activity.objects.filter(
+            type=Activity.TYPE_EVENT_UPDATE,
+            recipient=r,
+            event=event,
+            status=Activity.STATUS_UNDISPLAYED,
+        ).first()
+        if activity is not None:
+            activity.meta["changed_data"] = list(
+                set(changed_data).union(activity.meta["changed_data"])
+            )
+            activity.timestamp = timezone.now()
+            activity.save()
+        else:
+            Activity.objects.create(
+                type=Activity.TYPE_EVENT_UPDATE,
+                recipient=r,
+                event=event,
+                meta={"changed_data": changed_data},
+            )
+
     recipients = [
         rsvp.person
         for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
             "person__emails"
         )
     ]
-
-    for r in recipients:
-        add_notification(
-            person=r,
-            content=f"L'événement « {event.name} » a été modifié par ses organisateurs. Vérifiez que vous pouvez toujours y participer ! ",
-            link=front_url("view_event", kwargs={"pk": event_pk}),
-            icon="calendar",
-        )
 
     bindings = {
         "EVENT_NAME": event.name,
@@ -118,7 +157,7 @@ def send_event_changed_notification(event_pk, changes):
     send_mosaico_email(
         code="EVENT_CHANGED",
         subject=_(
-            "Les informations d'un événement auquel vous participez ont été changées"
+            "Les informations d'un évènement auquel vous participez ont été changées"
         ),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
@@ -163,7 +202,7 @@ def send_rsvp_notification(rsvp_pk):
 
     send_mosaico_email(
         code="EVENT_RSVP_CONFIRMATION",
-        subject=_("Confirmation de votre participation à l'événement"),
+        subject=_("Confirmation de votre participation à l'évènement"),
         from_email=settings.EMAIL_FROM,
         recipients=[rsvp.person],
         bindings=attendee_bindings,
@@ -187,11 +226,20 @@ def send_rsvp_notification(rsvp_pk):
 
     send_mosaico_email(
         code="EVENT_RSVP_NOTIFICATION",
-        subject=_("Un nouveau participant à l'un de vos événements"),
+        subject=_("Un nouveau participant à l'un de vos évènements"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=organizer_bindings,
     )
+
+    for r in recipients:
+        # can merge activity with previous one if not displayed yet
+        Activity.objects.create(
+            recipient=r,
+            type=Activity.TYPE_NEW_ATTENDEE,
+            event=rsvp.event,
+            individual=rsvp.person,
+        )
 
 
 @emailing_task
@@ -214,7 +262,7 @@ def send_guest_confirmation(rsvp_pk):
 
     send_mosaico_email(
         code="EVENT_GUEST_CONFIRMATION",
-        subject=_("Confirmation pour votre invité à l'événement"),
+        subject=_("Confirmation pour votre invité à l'évènement"),
         from_email=settings.EMAIL_FROM,
         recipients=[rsvp.person],
         bindings=attendee_bindings,
@@ -249,10 +297,15 @@ def send_cancellation_notification(event_pk):
 
     send_mosaico_email(
         code="EVENT_CANCELLATION",
-        subject=_("Un événement auquel vous participiez a été annulé"),
+        subject=_("Un évènement auquel vous participiez a été annulé"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
+    )
+
+    Activity.objects.bulk_create(
+        Activity(type=Activity.TYPE_CANCELLED_EVENT, recipient=r, event=event,)
+        for r in recipients
     )
 
 
@@ -276,7 +329,7 @@ def send_external_rsvp_confirmation(event_pk, email, **kwargs):
 
     send_mosaico_email(
         code="EVENT_EXTERNAL_RSVP_OPTIN",
-        subject=_("Merci de confirmer votre participation à l'événement"),
+        subject=_("Merci de confirmer votre participation à l'évènement"),
         from_email=settings.EMAIL_FROM,
         recipients=[email],
         bindings=bindings,
@@ -313,7 +366,7 @@ def send_event_report(event_pk):
 
     send_mosaico_email(
         code="EVENT_REPORT",
-        subject=f"Compte-rendu de l'événement {event.name}",
+        subject=f"Compte-rendu de l'évènement {event.name}",
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
@@ -415,7 +468,7 @@ def send_organizer_validation_notification(event_pk):
 
     send_mosaico_email(
         code="EVENT_ORGANIZER_VALIDATION_NOTIFICATION",
-        subject=_(f'Votre événement "{event.name}" a été publié'),
+        subject=_(f'Votre évènement "{event.name}" a été publié'),
         from_email=settings.EMAIL_FROM,
         recipients=event.organizers.all(),
         bindings=bindings,
@@ -429,10 +482,7 @@ def notify_on_event_report(event_pk):
     except (Event.DoesNotExist):
         return
 
-    for r in event.attendees.all():
-        add_notification(
-            content=f"Un compte-rendu a été posté pour l'événement « {event.name} »",
-            link=front_url("view_event", args=(event_pk,)),
-            icon="calendar",
-            person=r,
-        )
+    Activity.objects.bulk_create(
+        Activity(type=Activity.TYPE_NEW_REPORT, recipient=r, event=event)
+        for r in event.attendees.all()
+    )

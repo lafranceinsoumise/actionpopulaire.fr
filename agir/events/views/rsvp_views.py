@@ -29,8 +29,6 @@ from ..actions.rsvps import (
     add_paid_identified_guest_and_get_payment,
     validate_payment_for_guest,
     is_participant,
-    cancel_payment_for_guest,
-    cancel_payment_for_rsvp,
     RSVPException,
 )
 from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
@@ -142,11 +140,10 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
     def post(self, request, *args, **kwargs):
         self.event = self.object = self.get_object()
 
-        if (
-            not request.user.person.is_insoumise
-            and not self.event.subtype.allow_external
-        ):
-            return HttpResponseForbidden()
+        if not self.event.can_rsvp(request.user.person):
+            return HttpResponseRedirect(
+                f'{reverse("join")}?type={self.event.for_users}'
+            )
 
         if not self.can_post_form():
             context = self.get_context_data(object=self.event, can_post_form=False)
@@ -166,7 +163,7 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
                     rsvp_to_free_event(self.event, self.request.user.person)
                     return self.redirect_to_event(
                         message=_(
-                            "Merci de nous avoir signalé votre participation à cet événement."
+                            "Merci de nous avoir signalé votre participation à cet évènement."
                         ),
                         level=messages.SUCCESS,
                     )
@@ -409,7 +406,7 @@ class EventPaidView(RedirectView):
         messages.add_message(
             request=self.request,
             level=messages.SUCCESS,
-            message=f"Votre inscription {payment.get_price_display()} pour l'événement « {event.name} » a bien été enregistré. "
+            message=f"Votre inscription {payment.get_price_display()} pour l'évènement « {event.name} » a bien été enregistré. "
             f"Votre inscription sera confirmée dès validation du paiement.",
         )
         return reverse("view_event", args=[self.kwargs["payment"].meta["event_id"]])
@@ -450,7 +447,7 @@ class ExternalRSVPView(ConfirmSubscriptionView, FormView, DetailView):
             messages.add_message(
                 request=self.request,
                 level=messages.INFO,
-                message=_("Vous êtes déjà inscrit⋅e à l'événement."),
+                message=_("Vous êtes déjà inscrit⋅e à l'évènement."),
             )
             return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))
 
@@ -459,7 +456,7 @@ class ExternalRSVPView(ConfirmSubscriptionView, FormView, DetailView):
             messages.add_message(
                 request=self.request,
                 level=messages.INFO,
-                message=_("Vous avez bien été inscrit⋅e à l'événement."),
+                message=_("Vous avez bien été inscrit⋅e à l'évènement."),
             )
 
         return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))

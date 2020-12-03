@@ -10,7 +10,7 @@ def add_other_subtype(apps, schema):
     EventSubtype.objects.get_or_create(
         label="autre evenement",
         defaults={
-            "description": "Tout autre type d'événement",
+            "description": "Tout autre type d'évènement",
             "hide_text_label": True,
             "type": "O",
             "privileged_only": False,
@@ -31,10 +31,10 @@ class Migration(migrations.Migration):
                     ("G", "Réunion de groupe"),
                     ("M", "Réunion publique"),
                     ("A", "Action publique"),
-                    ("O", "Autres type d'événements"),
+                    ("O", "Autres type d'évènements"),
                 ],
                 max_length=1,
-                verbose_name="Type d'événement",
+                verbose_name="Type d'évènement",
             ),
         ),
         migrations.RunPython(

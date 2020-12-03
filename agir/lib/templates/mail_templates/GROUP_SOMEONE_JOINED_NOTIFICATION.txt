@@ -1,10 +1,9 @@
 Cher·e insoumis·e,
 
-Une nouvelle personne a rejoint le groupe d'action dont vous êtes gestionnaire :  
+Une nouvelle personne a rejoint le groupe d'action dont vous êtes gestionnaire :
 
-
- **{{ PERSON_INFORMATION }}**  
-Groupe d'action : **{{ GROUP_NAME }}**  
+{{ PERSON_INFORMATION }}  
+Groupe d'action : {{ GROUP_NAME }}
 
 
 >> Accéder à la page d'administration de ce groupe
@@ -13,19 +12,12 @@ Groupe d'action : **{{ GROUP_NAME }}**
 
 Amitiés insoumises,  
 L'équipe de la plateforme France insoumise  
-  
-  
-Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.  
 
-
------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}.
-
->> Voir cet email dans votre navigateur
-{{ LINK_BROWSER }}
+------------------------------------------------------------------
+Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.
 
 >> Choisir les emails que vous recevez
-{{ PREFERENCES_LINK }}
+{{ preferences_link }}
 
 >> Arrêter complètement de recevoir des emails
-{{ UNSUBSCRIBE_LINK }}
+{{ unsubscribe_link }}
