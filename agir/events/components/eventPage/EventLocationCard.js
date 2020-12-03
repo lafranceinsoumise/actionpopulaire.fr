@@ -24,7 +24,6 @@ const WithLinebreak = styled.span`
 `;
 
 const MapContainer = styled.div`
-  border-radius: 0.5rem 0.5rem 0 0;
   margin: -1.5rem -1.5rem 1.5rem;
 `;
 
@@ -34,7 +33,6 @@ const MapIframe = styled.iframe.attrs((props) => ({
 }))`
   display: block;
   border: 0;
-  border-radius: 0.5rem 0.5rem 0 0;
 
   width: 100%;
   min-height: 216px;

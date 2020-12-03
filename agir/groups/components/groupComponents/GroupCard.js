@@ -164,7 +164,7 @@ const GroupCard = ({
             Financer
           </GroupButton>
         )}
-        {isManager && (
+        {isManager && routes.manage && (
           <GroupButton href={routes.manage} icon="settings">
             Gestion
           </GroupButton>
@@ -206,6 +206,7 @@ GroupCard.defaultProps = {
   displayType: true,
   displayDescription: true,
   displayMembership: true,
+  isManager: false,
 };
 
 export default GroupCard;
