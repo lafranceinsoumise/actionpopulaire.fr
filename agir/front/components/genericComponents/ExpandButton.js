@@ -10,7 +10,7 @@ const StyledButton = styled.button`
   background-color: transparent;
   border: none;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.4;
   cursor: pointer;
   padding: 0;
