@@ -1,9 +1,11 @@
 from django.conf import settings
+from django.db.models import Prefetch
 from django.middleware.csrf import get_token
 from django.urls import reverse
 
 from ..activity.models import Activity
 from ..activity.serializers import ActivitySerializer
+from ..events.models import Event
 
 from ..groups.models import SupportGroup
 
@@ -76,8 +78,12 @@ def basic_information(request):
             "is2022": person.is_2022,
             "isAgir": person.is_agir,
         }
-        userActivities = Activity.objects.filter(recipient=person).exclude(
-            status=Activity.STATUS_INTERACTED
+        userActivities = (
+            Activity.objects.filter(recipient=person)
+            .exclude(status=Activity.STATUS_INTERACTED)
+            .prefetch_related(
+                Prefetch("event", Event.objects.with_serializer_prefetch(person),)
+            )
         )
         if userActivities.count() > 0:
             activitySerializer = ActivitySerializer(

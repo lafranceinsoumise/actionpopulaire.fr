@@ -8,8 +8,8 @@ const ActivityPage = (props) => (
   <Layout
     active="activity"
     smallBackgroundColor={style.black25}
-    title="Fil d'actualité"
-    subtitle="L'actualité de vos groupes et de la France Insoumise"
+    title="Actualités"
+    subtitle="L'actualité de vos groupes et de votre engagement"
   >
     <ActivityList {...props} />
   </Layout>

@@ -53,7 +53,10 @@ export const Activities = (props) => {
         </StyledList>
       ) : (
         <EmptyList>
-          <strong>Vous n'avez pas de notifications !</strong>
+          <strong>
+            Vous n'avez pas encore d'actualités ! Cela va arriver
+            progressivement.
+          </strong>
         </EmptyList>
       )}
     </article>
