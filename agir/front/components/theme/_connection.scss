@@ -3,7 +3,7 @@
   padding-top: 47px;
 
   p {
-    max-width: 450px;
+    max-width: 500px;
     margin: 0 auto 11px;
   }
 
@@ -18,8 +18,8 @@
     justify-content: space-between;
 
     @media (max-width: 992px) {
-      padding: 50px 16px;
-      margin: 30px 8px;
+      padding: 30px 16px;
+      margin: 0;
     }
 
     & > * {
@@ -45,7 +45,6 @@
       font-size: 16px;
       font-weight: 700;
     }
-
 
     .btn-secondary {
       background-color: $brand-primary;
@@ -110,7 +109,32 @@
           height: 48px;
           width: 100%;
         }
+
+        .btn-primary {
+          &,
+          &:hover,
+          &:focus,
+          &:active {
+            background-color: $brand-secondary;
+            color: $brand-black;
+            border: none;
+          }
+
+          &:hover,
+          &:focus,
+          &:active {
+            background-color: rgb(245, 227, 15)
+          }
+        }
       }
+    }
+
+  }
+
+  #sign-in-link {
+    a {
+      text-decoration: underline;
+      font-weight: 600;
     }
   }
 }
