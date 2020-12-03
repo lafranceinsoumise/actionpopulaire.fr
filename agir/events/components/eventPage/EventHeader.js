@@ -190,6 +190,7 @@ const EventHeader = ({
   isOrganizer,
   hasSubscriptionForm,
   forUsers,
+  canRSVP,
 }) => {
   const config = useGlobalContext();
   const logged = config.user !== null;
@@ -222,6 +223,7 @@ const EventHeader = ({
           price={options.price}
           routes={{ ...routes, ...config.routes }}
           forUsers={forUsers}
+          canRSVP={canRSVP}
         />
       )}
     </EventHeaderContainer>

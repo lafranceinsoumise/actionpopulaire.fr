@@ -124,7 +124,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_canRSVP(self, obj):
         user = self.context["request"].user
         if hasattr(user, "person"):
-            return obj.can_rsvp(self.context["request"].user.person)
+            return obj.can_rsvp(user.person)
         return None
 
     def get_compteRenduPhotos(self, obj):
