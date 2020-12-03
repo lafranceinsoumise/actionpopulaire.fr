@@ -1,4 +1,5 @@
 import { DateTime, Interval } from "luxon";
+import { instanceOf } from "prop-types";
 
 const HOUR_ONLY_FORMAT = {
   hour: "numeric",
@@ -26,6 +27,10 @@ export function dateFromISOString(s) {
 }
 
 export function displayHumanDay(datetime, relativeTo, interval) {
+  if (!instanceOf(datetime, DateTime)) {
+    return datetime;
+  }
+
   if (relativeTo === undefined) {
     relativeTo = DateTime.local();
   }
@@ -59,6 +64,10 @@ export function displayHumanDay(datetime, relativeTo, interval) {
 }
 
 export function displayHumanDate(datetime, relativeTo) {
+  if (!instanceOf(datetime, DateTime)) {
+    return datetime;
+  }
+
   if (relativeTo === undefined) {
     relativeTo = DateTime.local();
   }

@@ -88,7 +88,20 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     routes = RoutesField(routes=EVENT_ROUTES)
 
-    groups = SupportGroupSerializer(many=True, source="organizers_groups")
+    groups = SupportGroupSerializer(
+        many=True,
+        source="organizers_groups",
+        fields=[
+            "name",
+            "description",
+            "eventCount",
+            "membersCount",
+            "isMember",
+            "typeLabel",
+            "labels",
+            "routes",
+        ],
+    )
 
     contact = ContactMixinSerializer(source="*")
 
