@@ -5,14 +5,11 @@
 {% block main %}
   <div class="row">
     <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
-      <div class="pull-left">
+      <div class="text-left">
         <a class="menu-back-link" href="{% url "list_events" %}">
           <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
         </a>
       </div>
-      <div class="pull-right">
-      </div>
-      <div class="clearfix"></div>
       <hr />
     </div>
     <div class="col-xs-12">
@@ -53,7 +50,7 @@
           </p>
         </div>
         {% if event_count > 0 %}
-          <div class="col-md-7 padtop padbottom">
+          <div class="col-md-7 padtop padbottom" style="clear: both;">
             <h3>
               Événements
               <small class="badge">
