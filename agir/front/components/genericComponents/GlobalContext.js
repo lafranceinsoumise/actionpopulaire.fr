@@ -68,12 +68,21 @@ export const updateGlobalContext = (
 
 export const GlobalContextProvider = ({ children }) => {
   const globalContextScript = document.getElementById("globalContext");
-  const globalContextData = globalContextScript
-    ? {
-        ...defaultGlobalContextState,
-        ...JSON.parse(globalContextScript.textContent),
-      }
-    : defaultGlobalContextState;
+  const extraContextScript = document.getElementById("extraContext");
+
+  let globalContextData = defaultGlobalContextState;
+  if (globalContextScript) {
+    globalContextData = {
+      ...globalContextData,
+      ...JSON.parse(globalContextScript.textContent),
+    };
+  }
+  if (extraContextScript) {
+    globalContextData = {
+      ...globalContextData,
+      ...JSON.parse(extraContextScript.textContent),
+    };
+  }
 
   const [state, dispatch] = useReducer(updateGlobalContext, globalContextData);
 
