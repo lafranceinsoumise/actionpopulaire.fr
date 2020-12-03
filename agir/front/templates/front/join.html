@@ -16,17 +16,40 @@
             et de la France insoumise.
           </p>
 
-          {% if type == "NSP" %}
-            <div><strong>
-              Vous devez parrainer la candidature sur «&nbsp;<strong>Nous sommes pour !</strong>&nbsp;» pour rejoindre la campagne 2022
-              sur
-              Action Populaire
-            </strong>
+          {% if type == "2" %}
+            <div>
+              <strong>
+                Vous devez parrainer la candidature sur «&nbsp;<strong>Nous sommes pour !</strong>&nbsp;» pour rejoindre
+                la campagne 2022 sur Action Populaire
+              </strong>
             </div>
 
             <p>
               <a class="btn btn-primary btn-block" href="https://noussommespour.fr/">Parrainer la candidature</a>
-              <a class="btn btn-default btn-block" href="{% url "short_code_login" %}">J'ai déjà parrainé</a>
+              {% if user.is_authenticated %}
+                <a class="btn btn-default btn-block" href="{% url "short_code_login" %}">J'ai parrainé avec une autre
+                  adresse email</a>
+              {% else %}
+                <a class="btn btn-default btn-block" href="{% url "short_code_login" %}">J'ai déjà parrainé</a>
+              {% endif %}
+            </p>
+
+          {% elif type == "I" %}
+            <div>
+              <strong>
+                Vous devez être membre de la France insoumise pour participer à cet événement.
+              </strong>
+            </div>
+
+            <p>
+              <a class="btn btn-primary btn-block" href="https://noussommespour.fr/">Rejoindre la France inousmise</a>
+              {% if user.is_authenticated %}
+                <a class="btn btn-default btn-block" href="{% url "short_code_login" %}">
+                  Je suis déjà membre avec une autre adresse email
+                </a>
+              {% else %}
+                <a class="btn btn-default btn-block" href="{% url "short_code_login" %}">Je suis déjà membre</a>
+              {% endif %}
             </p>
 
           {% else %}
@@ -40,9 +63,9 @@
             </div>
           {% endif %}
 
-        <p>
-          Vous pourrez ensuite vous connecter à <strong>Action Populaire</strong> en utilisant la même adresse email.
-        </p>
+          <p>
+            Vous pourrez ensuite vous connecter à <strong>Action Populaire</strong> en utilisant la même adresse email.
+          </p>
 
         </div><!-- login-widget -->
 

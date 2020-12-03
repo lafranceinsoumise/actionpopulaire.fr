@@ -27,7 +27,7 @@ const RSVPButton = ({ hasSubscriptionForm, rsvp, routes, schedule }) => {
 
   if (hasSubscriptionForm) {
     return (
-      <Button small as="a" color="primary" href={routes.join}>
+      <Button small as="a" color="primary" href={routes.rsvp}>
         Participer
       </Button>
     );
@@ -36,7 +36,7 @@ const RSVPButton = ({ hasSubscriptionForm, rsvp, routes, schedule }) => {
   return (
     <CSRFProtectedForm
       method="post"
-      action={routes.join}
+      action={routes.rsvp}
       style={{ display: "inline-block" }}
     >
       <Button small type="submit" color="primary" icon="calendar">
@@ -51,7 +51,7 @@ RSVPButton.propTypes = {
   rsvp: PropTypes.bool,
   routes: PropTypes.shape({
     details: PropTypes.string,
-    join: PropTypes.string,
+    rsvp: PropTypes.string,
   }),
   schedule: PropTypes.instanceOf(Interval),
 };

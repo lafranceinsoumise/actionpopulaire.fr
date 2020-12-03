@@ -95,7 +95,8 @@ class LoginView(RedirectToMixin, FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        if is_soft_logged(request):
+        auto = not request.GET.get("no_auto")
+        if is_soft_logged(request) and auto:
             form = self.form_class(data={"email": request.user.person.email})
 
             if form.is_valid():

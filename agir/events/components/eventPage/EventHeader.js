@@ -70,7 +70,7 @@ const ActionButtons = (props) => {
     logged,
     isOrganizer,
     routes,
-    is2022,
+    forUsers,
   } = props;
 
   if (past) {
@@ -102,18 +102,14 @@ const ActionButtons = (props) => {
 
   if (hasSubscriptionForm) {
     return (
-      <ActionButton
-        as="a"
-        color="secondary"
-        href={`${routes.join}${is2022 ? "type=NSP" : ""}`}
-      >
+      <ActionButton as="a" color="secondary" href={`${routes.rsvp}`}>
         Participer à l'événement
       </ActionButton>
     );
   }
 
   return (
-    <CSRFProtectedForm method="post" action={routes.join}>
+    <CSRFProtectedForm method="post" action={routes.rsvp}>
       <ActionButton type="submit" color="secondary">
         Participer à l'événement
       </ActionButton>
@@ -126,16 +122,28 @@ ActionButtons.propTypes = {
   rsvped: PropTypes.bool,
   logged: PropTypes.bool,
   isOrganizer: PropTypes.bool,
-  routes: PropTypes.object,
+  routes: PropTypes.shape({
+    manage: PropTypes.string,
+    rsvp: PropTypes.string,
+  }),
 };
 
-const AdditionalMessage = ({ logged, rsvped, price, routes }) => {
-  if (!logged) {
+const AdditionalMessage = ({
+  logged,
+  rsvped,
+  price,
+  routes,
+  forUsers,
+  canRSVP,
+}) => {
+  if (!logged || !canRSVP) {
     return (
       <div>
         <ActionLink href={routes.login}>Je me connecte</ActionLink> ou{" "}
-        <ActionLink href={routes.join}>je m'inscris</ActionLink> pour participer
-        à l'événement
+        <ActionLink href={`${routes.join}?type=${forUsers}`}>
+          je m'inscris
+        </ActionLink>{" "}
+        pour participer à l'événement
       </div>
     );
   }
@@ -169,6 +177,8 @@ AdditionalMessage.propTypes = {
   isOrganizer: PropTypes.bool,
   price: PropTypes.string,
   routes: PropTypes.object,
+  forUsers: PropTypes.string,
+  canRSVP: PropTypes.string,
 };
 
 const EventHeader = ({
@@ -179,6 +189,7 @@ const EventHeader = ({
   routes,
   isOrganizer,
   hasSubscriptionForm,
+  forUsers,
 }) => {
   const config = useGlobalContext();
   const logged = config.user !== null;
@@ -201,6 +212,7 @@ const EventHeader = ({
         rsvped={rsvped}
         routes={routes}
         isOrganizer={isOrganizer}
+        forUsers={forUsers}
       />
       {!past && (
         <AdditionalMessage
@@ -209,6 +221,7 @@ const EventHeader = ({
           rsvped={rsvped}
           price={options.price}
           routes={{ ...routes, ...config.routes }}
+          forUsers={forUsers}
         />
       )}
     </EventHeaderContainer>
@@ -225,7 +238,8 @@ EventHeader.propTypes = {
   }),
   rsvp: PropTypes.string,
   routes: PropTypes.object,
-  is2022: PropTypes.bool,
+  forUsers: PropTypes.string,
+  canRSVP: PropTypes.bool,
 };
 
 export default EventHeader;

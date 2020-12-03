@@ -47,7 +47,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
 EVENT_ROUTES = {
     "details": "view_event",
     "map": "carte:single_event_map",
-    "join": "rsvp_event",
+    "rsvp": "rsvp_event",
     "cancel": "quit_event",
     "manage": "manage_event",
     "calendarExport": "ics_event",
@@ -96,6 +96,10 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     is2022 = serializers.SerializerMethodField()
 
+    forUsers = serializers.CharField(source="for_users")
+
+    canRSVP = serializers.SerializerMethodField()
+
     def to_representation(self, instance):
         user = self.context["request"].user
         self.organizer_config = self.rsvp = None
@@ -116,6 +120,12 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_rsvp(self, obj):
         return self.rsvp and self.rsvp.status
+
+    def get_canRSVP(self, obj):
+        user = self.context["request"].user
+        if hasattr(user, "person"):
+            return obj.can_rsvp(self.context["request"].user.person)
+        return None
 
     def get_compteRenduPhotos(self, obj):
         return [instance.image.thumbnail.url for instance in obj.images.all()]

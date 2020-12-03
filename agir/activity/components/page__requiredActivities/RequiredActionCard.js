@@ -29,7 +29,7 @@ const RequiredActionCard = (props) => {
           iconName="alert-circle"
           confirmLabel="Payer"
           dismissLabel="Voir l'événement"
-          onConfirm={event.routes.join}
+          onConfirm={event.routes.rsvp}
           onDismiss={event.routes.details}
           text={
             <>
@@ -142,7 +142,7 @@ RequiredActionCard.propTypes = {
       compteRendu: PropTypes.string,
       details: PropTypes.string,
       googleExport: PropTypes.string,
-      join: PropTypes.string,
+      rsvp: PropTypes.string,
       manage: PropTypes.string,
       map: PropTypes.string,
     }).isRequired,

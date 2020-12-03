@@ -140,11 +140,10 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
     def post(self, request, *args, **kwargs):
         self.event = self.object = self.get_object()
 
-        if (
-            not request.user.person.is_insoumise
-            and not self.event.subtype.allow_external
-        ):
-            return HttpResponseForbidden()
+        if not self.event.can_rsvp(request.user.person):
+            return HttpResponseRedirect(
+                f'{reverse("join")}?type={self.event.for_users}'
+            )
 
         if not self.can_post_form():
             context = self.get_context_data(object=self.event, can_post_form=False)

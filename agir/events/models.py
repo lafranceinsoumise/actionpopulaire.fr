@@ -312,6 +312,7 @@ class Event(
 
     for_users = models.CharField(
         "Utilisateur⋅ices de la plateforme concerné⋅es par l'événement",
+        default=FOR_USERS_INSOUMIS,
         max_length=1,
         blank=False,
         choices=FOR_USERS_CHOICES,
@@ -496,6 +497,11 @@ class Event(
         }
 
         return f"https://calendar.google.com/calendar/r/eventedit?{urlencode(query)}"
+
+    def can_rsvp(self, person):
+        return (self.for_users == Event.FOR_USERS_2022 and person.is_2022) or (
+            self.for_users == Event.FOR_USERS_INSOUMIS and person.is_insoumise
+        )
 
 
 class EventSubtype(BaseSubtype):
