@@ -4,7 +4,7 @@ import ics
 import random
 import re
 from django.conf import settings
-from django.db.models import JSONField
+from django.db.models import JSONField, Prefetch
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -20,7 +20,7 @@ from dynamic_filenames import FilePattern
 from slugify import slugify
 from stdimage.models import StdImageField
 
-from agir.groups.models import Membership
+from agir.groups.models import Membership, SupportGroup
 from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.form_fields import DateTimePickerWidget
 from agir.lib.model_fields import FacebookEventField
@@ -69,6 +69,31 @@ class EventQuerySet(models.QuerySet):
         if published_only:
             condition &= models.Q(visibility=Event.VISIBILITY_PUBLIC)
         return self.filter(condition)
+
+    def with_person_organizer_configs(self, person):
+        return self.prefetch_related(
+            Prefetch(
+                "organizer_configs",
+                queryset=OrganizerConfig.objects.filter(person=person),
+                to_attr="_pf_person_organizer_configs",
+            )
+        )
+
+    def with_person_rsvps(self, person):
+        return self.prefetch_related(
+            Prefetch(
+                "rsvps",
+                queryset=RSVP.objects.filter(person=person),
+                to_attr="_pf_person_rsvps",
+            )
+        )
+
+    def with_serializer_prefetch(self, person):
+        return (
+            self.with_participants()
+            .with_person_rsvps(person)
+            .with_person_organizer_configs(person)
+        )
 
     def with_participants(self):
         confirmed_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CONFIRMED)

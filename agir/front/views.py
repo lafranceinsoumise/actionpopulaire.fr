@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.http import HttpResponsePermanentRedirect, Http404
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -10,7 +10,7 @@ from django.views.generic import View, RedirectView, TemplateView
 
 from .view_mixins import ReactListView, ReactSerializerBaseView, ReactBaseView
 from ..authentication.view_mixins import SoftLoginRequiredMixin
-from ..events.models import Event
+from ..events.models import Event, OrganizerConfig
 from ..events.serializers import EventSerializer
 from ..groups.models import SupportGroup
 from ..groups.serializers import SupportGroupSerializer
@@ -109,7 +109,7 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
 
     def get_export_data(self):
         person = self.request.user.person
-        queryset = Event.objects
+        queryset = Event.objects.with_serializer_prefetch(person)
         if person.is_2022_only:
             queryset = queryset.is_2022()
 
@@ -130,7 +130,12 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
         )
 
         past_events = (
-            queryset.past().filter(rsvps__person=person).order_by("-start_time")[:10]
+            queryset.past()
+            .filter(
+                Q(rsvps__person=person)
+                | Q(organizers_groups__in=person.supportgroups.all())
+            )
+            .order_by("-start_time")[:10]
         )
 
         query = (
@@ -157,12 +162,34 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
         else:
             other_events = queryset.filter(query).order_by("start_time")
 
+        fields = [
+            "id",
+            "name",
+            "participantCount",
+            "illustration",
+            "hasSubscriptionForm",
+            "startTime",
+            "endTime",
+            "location",
+            "isOrganizer",
+            "rsvps",
+            "routes",
+            "groups",
+            "distance",
+        ]
+
         return {
             "rsvped": self.serializer_class(
-                instance=rsvped_events, many=True, context={"request": self.request}
+                instance=rsvped_events,
+                many=True,
+                context={"request": self.request},
+                fields=fields,
             ).data,
             "others": self.serializer_class(
-                instance=other_events, many=True, context={"request": self.request}
+                instance=other_events,
+                many=True,
+                context={"request": self.request},
+                fields=fields,
             ).data,
         }
 
