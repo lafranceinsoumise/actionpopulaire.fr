@@ -37,11 +37,7 @@ def basic_information(request):
             "eventsMap": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
             "thematicTeams": reverse("thematic_teams_list"),
         },
-        "noussommespour": {
-            "home": "https://noussommespour.fr",
-            # "groupsMap": "https://lafranceinsoumise.fr/groupes-action/carte-groupes/",
-            # "eventsMap": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
-        },
+        "noussommespour": {"home": "https://noussommespour.fr",},
         "jlmBlog": "https://melenchon.fr",
         "linsoumission": "https://linsoumission.fr",
         "feedbackForm": "/formulaires/feedback",
