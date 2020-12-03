@@ -175,7 +175,7 @@ class CheckCodeView(RedirectToMixin, FormView):
     def form_valid(self, form):
         login(self.request, form.role)
 
-        if not form.role.social_auth.filter(provider="facebook").exists():
+        if False or not form.role.social_auth.filter(provider="facebook").exists():
             messages.add_message(
                 request=self.request,
                 level=messages.SUCCESS,
