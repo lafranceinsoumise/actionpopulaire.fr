@@ -31,7 +31,7 @@ def send_login_email(email, short_code, expiry_time):
 @emailing_task
 def send_no_account_email(email):
     send_mosaico_email(
-        code="LOGIN_NO_ACCOUNT",
+        code="LOGIN_SIGN_UP_MESSAGE",
         subject="Vous n'avez pas encore de compte sur la plateforme",
         from_email=settings.EMAIL_FROM,
         recipients=[email],
