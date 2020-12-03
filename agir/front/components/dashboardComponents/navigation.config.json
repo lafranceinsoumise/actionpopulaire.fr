@@ -55,7 +55,7 @@
     },
     {
       "id": "menu",
-      "icon": "menu",
+      "icon": "more-horizontal",
       "title": "Plus",
       "route": "menu",
       "desktop": false,
