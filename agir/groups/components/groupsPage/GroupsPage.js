@@ -124,9 +124,6 @@ const GroupsPage = ({ data }) => {
           />
         ))}
       </GroupList>
-      {groups.every(({ type }) => type !== "B") ? (
-        <GroupOnboarding type="thematic" routes={routes} />
-      ) : null}
     </Layout>
   );
 };
