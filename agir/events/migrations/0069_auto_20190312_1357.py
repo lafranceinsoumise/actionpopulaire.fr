@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name="default_description",
             field=agir.lib.models.DescriptionField(
                 blank=True,
-                help_text="La description par défaut pour les événements de ce sous-type.",
+                help_text="La description par défaut pour les évènements de ce sous-type.",
                 verbose_name="description par défaut",
             ),
         ),
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
             name="default_image",
             field=stdimage.models.StdImageField(
                 blank=True,
-                help_text="L'image associée par défaut à un événement de ce sous-type.",
+                help_text="L'image associée par défaut à un évènement de ce sous-type.",
                 upload_to=dynamic_filenames.FilePattern(
                     filename_pattern="{app_label}/{model_name}/{instance.id}/banner{ext}"
                 ),

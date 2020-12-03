@@ -59,7 +59,7 @@ class SupportGroupMixin:
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
         self.event = Event.objects.create(
-            name="événement test pour groupe",
+            name="évènement test pour groupe",
             nb_path="/pseudo/test",
             start_time=now + 3 * day,
             end_time=now + 3 * day + 4 * hour,
@@ -284,7 +284,7 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
     def test_can_see_groups_events(self):
         response = self.client.get(reverse("view_group", args=[self.referent_group.pk]))
 
-        self.assertContains(response, "événement test pour groupe")
+        self.assertContains(response, "évènement test pour groupe")
 
     def test_cannot_join_group_if_external(self):
         self.other_person.is_insoumise = False

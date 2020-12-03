@@ -1,6 +1,6 @@
 {% extends "front/layout.html" %}
 
-{% block title %}Rechercher des événements ou groupes d'actions{% endblock %}
+{% block title %}Rechercher des évènements ou groupes d'actions{% endblock %}
 
 {% block main %}
   <div class="row">
@@ -13,16 +13,16 @@
       <hr />
     </div>
     <div class="col-xs-12">
-      <h2>Rechercher des événements et groupes d'actions</h2>
+      <h2>Rechercher des évènements et groupes d'actions</h2>
     </div>
     <div class="col-xs-12 padtop padbottom">
       <form class="form-inline padtop padbottom" action="" method="GET">
         <div class="row">
           <div class="form-group col-sm-9 col-md-10">
             <label class="sr-only" for="q">
-              Nom de l'événement ou du groupe
+              Nom de l'évènement ou du groupe
             </label>
-            <input class="form-control" style="border-radius: 8px; width: 100%; height: 43px;" type="text" name="q" value="{{query}}" placeholder="Rechercher un groupe ou un événement" autofocus />
+            <input class="form-control" style="border-radius: 8px; width: 100%; height: 43px;" type="text" name="q" value="{{query}}" placeholder="Rechercher un groupe ou un évènement" autofocus />
           </div>
           <div class="col-sm-3 col-md-2">
             <button type="submit" class="btn btn-lg btn-block btn-primary">
@@ -30,7 +30,7 @@
             </button>
           </div>
           <p class="col-xs-12 help-block padtop">
-            Recherchez des événements et des groupes d'actions par nom, ville, code postal...
+            Recherchez des évènements et des groupes d'actions par nom, ville, code postal...
           </p>
         </div>
       </form>
@@ -40,7 +40,7 @@
         <div class="col-xs-12">
           <p class="alert alert-info">
             {% if event_count > 0 and support_groups.count > 0 %}
-              <strong>{{ event_count }} événement{% if event_count > 1 %}s{% endif %}</strong>
+              <strong>{{ event_count }} évènement{% if event_count > 1 %}s{% endif %}</strong>
               et
               <strong>{{ support_groups.count }} groupe{% if support_groups.count > 1 %}s{% endif %} d'actions</strong>
             {% else %}

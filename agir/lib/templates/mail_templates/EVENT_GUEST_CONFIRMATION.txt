@@ -1,15 +1,15 @@
 Bonne nouvelle !
 
-Vous avez correctement inscrit⋅e un invité à l'événement suivant :
+Vous avez correctement inscrit⋅e un invité à l'évènement suivant :
 
-Nom de l'événement : {{ EVENT_NAME }}
+Nom de l'évènement : {{ EVENT_NAME }}
 Horaires : {{ EVENT_SCHEDULE }}
 Lieu : {{ LOCATION_NAME }}
 Adresse : {{ LOCATION_ADDRESS }}
 
 Pour toute demande ou information, vous pouvez contacter {{ CONTACT_NAME }} par e-mail à l'adresse : {{ CONTACT_EMAIL }}
 
->> Si l'inscription ne comportait pas de participation financière, vous pouvez à tout moment annuler votre participation en vous rendant sur la page de l'événement
+>> Si l'inscription ne comportait pas de participation financière, vous pouvez à tout moment annuler votre participation en vous rendant sur la page de l'évènement
 {{ EVENT_LINK }}
 
 Amitiés,  

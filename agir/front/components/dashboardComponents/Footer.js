@@ -228,12 +228,12 @@ export const Footer = (props) => {
             <article>
               {is2022 ? (
                 <p>
-                  <strong>Action Populaire</strong> est la plate-forme d’action
+                  <strong>Action Populaire</strong> est la plateforme d’action
                   de la campagne de Jean-Luc Mélenchon pour 2022.
                 </p>
               ) : (
                 <p>
-                  <strong>Action Populaire</strong> est la plate-forme d’action
+                  <strong>Action Populaire</strong> est la plateforme d’action
                   de la campagne de Jean-Luc Mélenchon pour 2022 et de la France
                   insoumise.
                 </p>

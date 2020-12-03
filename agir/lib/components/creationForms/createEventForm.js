@@ -197,11 +197,11 @@ class EventTypeStep extends FormStep {
     return (
       <div className="row padtopmore padbottommore">
         <div className="col-sm-6">
-          <h3>Quel type d'événement voulez-vous créer ?</h3>
+          <h3>Quel type d'évènement voulez-vous créer ?</h3>
           <p>
-            Afin de mieux identifier les événements que vous créez, et de
+            Afin de mieux identifier les évènements que vous créez, et de
             pouvoir mieux les recommander aux autres membres de la plateforme,
-            indiquez le type d'événement que vous organisez.
+            indiquez le type d'évènement que vous organisez.
           </p>
         </div>
         <div className="col-sm-6 padbottom">
@@ -266,15 +266,15 @@ class OrganizerStep extends FormStep {
     return (
       <div className="row padtopmore padbottommore">
         <div className="col-sm-6">
-          <h2>Qui organise l'événement ?</h2>
+          <h2>Qui organise l'évènement ?</h2>
           <p>
-            Un événement peut être organisé à titre individuel. Mais comme vous
+            Un évènement peut être organisé à titre individuel. Mais comme vous
             êtes aussi gestionnaire d'un groupe, il est aussi possible
-            d'indiquer que cet événement est organisé par votre groupe.
+            d'indiquer que cet évènement est organisé par votre groupe.
           </p>
         </div>
         <div className="col-md-6">
-          <h3>L'événement est organisé</h3>
+          <h3>L'évènement est organisé</h3>
           {this.props.groups.length > 0 && (
             <>
               <h4>par un groupe d'action</h4>
@@ -329,7 +329,7 @@ class OrganizerStep extends FormStep {
           </SubtypeSelector>
           {defaultForUsers === "I" && (
             <p>
-              Pour organiser des événements « Nous Sommes Pour ! », vous devez
+              Pour organiser des évènements « Nous Sommes Pour ! », vous devez
               d'abord parrainer la candidature sur{" "}
               <a href="https://noussommespour.fr">noussommespour.fr</a>.
             </p>
@@ -393,7 +393,7 @@ class ValidateStep extends FormStep {
         <div className="col-md-6">
           <p>Voici les informations que vous avez entrées.</p>
           <dl className="well confirmation-data-list">
-            <dt>Type d'événement&nbsp;:</dt>
+            <dt>Type d'évènement&nbsp;:</dt>
             <dd>{this.getSubtypeDescription()}</dd>
             <dt>Numéro de téléphone&nbsp;:</dt>
             <dd>
@@ -402,11 +402,11 @@ class ValidateStep extends FormStep {
             </dd>
             {fields.name && (
               <>
-                <dt>Nom du contact pour l'événement&nbsp;:</dt>{" "}
+                <dt>Nom du contact pour l'évènement&nbsp;:</dt>{" "}
                 <dd>{fields.name}</dd>
               </>
             )}
-            <dt>Adresse email de contact pour l'événement&nbsp;:</dt>{" "}
+            <dt>Adresse email de contact pour l'évènement&nbsp;:</dt>{" "}
             <dd>{fields.email}</dd>
             <dt>Horaires&nbsp;:</dt>
             <dd>
@@ -416,7 +416,7 @@ class ValidateStep extends FormStep {
             {fields.startTime.isBefore(moment()) && (
               <p className="alert alert-w*arning margintop">
                 Attention&nbsp;! Vous avez indiqué une date dans le passé pour
-                votre événement. Cela est possible pour rencenser des événements
+                votre évènement. Cela est possible pour rencenser des évènements
                 passés sur la plateforme, mais personne ne pourra le rejoindre.
               </p>
             )}
@@ -433,7 +433,7 @@ class ValidateStep extends FormStep {
         <div className="col-md-6">
           <p>
             Pour finir, il vous reste juste à choisir un nom pour votre
-            événement&nbsp;! Choisissez un nom simple et descriptif (par exemple
+            évènement&nbsp;! Choisissez un nom simple et descriptif (par exemple
             : &laquo;&nbsp;Porte à porte près du café de la gare&nbsp;&raquo;).
           </p>
           <form onSubmit={this.post}>
@@ -442,7 +442,7 @@ class ValidateStep extends FormStep {
                 className="form-control"
                 ref={(i) => (this.eventName = i)}
                 type="text"
-                placeholder="Nom de l'événement"
+                placeholder="Nom de l'évènement"
                 required
               />
             </div>
@@ -451,7 +451,7 @@ class ValidateStep extends FormStep {
               type="submit"
               disabled={this.state.processing}
             >
-              Créer mon événement
+              Créer mon évènement
             </button>
           </form>
           {this.state.error && (

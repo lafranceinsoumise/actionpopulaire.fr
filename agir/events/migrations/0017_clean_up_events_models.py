@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 null=True,
                 upload_to="events/banners/",
-                verbose_name="bannière de l'événement",
+                verbose_name="bannière de l'évènement",
             ),
         ),
     ]

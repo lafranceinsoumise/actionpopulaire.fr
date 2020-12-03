@@ -430,7 +430,7 @@ def update_fake_data():
     events = {
         "user1_event1": Event.objects.get(name="Événement créé par user1"),
         "user1_event2": Event.objects.get(
-            name="Autre événement créé par user1 sans personne dedans"
+            name="Autre évènement créé par user1 sans personne dedans"
         ),
         "user1_past_event": Event.objects.get(name="Événement passé créé par user1"),
         "user1_unpublished_event": Event.objects.get(
@@ -548,7 +548,7 @@ def load_fake_data():
             coordinates=Point(5.36472, 43.30028),  # Saint-Marie-Majeure de Marseille
         ),
         "user1_event2": Event.objects.create(
-            name="Autre événement créé par user1 sans personne dedans",
+            name="Autre évènement créé par user1 sans personne dedans",
             start_time=timezone.now() + timedelta(days=1),
             end_time=timezone.now() + timedelta(days=1, hours=1),
             coordinates=Point(2.301944, 49.8944),  # ND d'Amiens

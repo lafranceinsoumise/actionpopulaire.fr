@@ -204,7 +204,7 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         blank=True,
         null=True,
         help_text=_(
-            "Si c'est pertinent, l'événement concerné par la dépense. Il doit être organisé par le groupe pour"
+            "Si c'est pertinent, l'évènement concerné par la dépense. Il doit être organisé par le groupe pour"
             " pouvoir être sélectionné."
         ),
     )
@@ -334,7 +334,7 @@ class Document(models.Model):
         (TYPE_INVOICE, _("Facture")),
         (
             TYPE_PICTURE,
-            _("Photo ou illustration de l'événement, de la salle, du matériel"),
+            _("Photo ou illustration de l'évènement, de la salle, du matériel"),
         ),
         (TYPE_OTHER, _("Autre type de justificatif")),
     )

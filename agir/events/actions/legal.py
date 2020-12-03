@@ -10,7 +10,7 @@ QUESTION_FRAIS = "frais"
 LEGACY_QUESTIONS = [
     {
         "id": QUESTION_CANDIDAT,
-        "question": "Votre événement fait-il intervenir un candidat aux élections européennes ?",
+        "question": "Votre évènement fait-il intervenir un candidat aux élections européennes ?",
         "type": [
             EventSubtype.TYPE_PUBLIC_ACTION,
             EventSubtype.TYPE_PUBLIC_MEETING,
@@ -19,7 +19,7 @@ LEGACY_QUESTIONS = [
     },
     {
         "id": QUESTION_MATERIEL_CAMPAGNE,
-        "question": "Utiliserez-vous du matériel siglé campagne européenne pendant votre événement ?",
+        "question": "Utiliserez-vous du matériel siglé campagne européenne pendant votre évènement ?",
         "type": [
             EventSubtype.TYPE_PUBLIC_ACTION,
             EventSubtype.TYPE_PUBLIC_MEETING,
@@ -44,13 +44,13 @@ LEGACY_QUESTIONS = [
 ASKED_QUESTIONS = [
     {
         "id": QUESTION_SALLE,
-        "question": "L'événement aura-t-il lieu en intérieur (autre qu'un domicile personnel) ?",
-        "helpText": "Répondez oui si l'événement sera organisé dans une salle, dans un bar ou dans un autre lieu privé.",
+        "question": "L'évènement aura-t-il lieu en intérieur (autre qu'un domicile personnel) ?",
+        "helpText": "Répondez oui si l'évènement sera organisé dans une salle, dans un bar ou dans un autre lieu privé.",
         "type": [EventSubtype.TYPE_PUBLIC_MEETING, EventSubtype.TYPE_OTHER_EVENTS],
     },
     {
         "id": QUESTION_INSTALLATION_TECHNIQUE,
-        "question": "Cet événement nécessite-t-il une installation technique (sono, barnum, praticable...) ?",
+        "question": "Cet évènement nécessite-t-il une installation technique (sono, barnum, praticable...) ?",
         "type": [
             EventSubtype.TYPE_PUBLIC_MEETING,
             EventSubtype.TYPE_PUBLIC_ACTION,

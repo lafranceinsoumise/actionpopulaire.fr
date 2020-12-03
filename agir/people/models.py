@@ -291,13 +291,13 @@ class Person(
         default=True,
         blank=True,
         help_text=_(
-            "Nous envoyons parfois des SMS plutôt que des emails lors des grands événements&nbsp;! Vous ne recevrez que "
+            "Nous envoyons parfois des SMS plutôt que des emails lors des grands évènements&nbsp;! Vous ne recevrez que "
             "les informations auxquelles vous êtes abonné⋅e."
         ),
     )
 
     event_notifications = models.BooleanField(
-        _("Recevoir les notifications des événements"),
+        _("Recevoir les notifications des évènements"),
         default=True,
         blank=True,
         help_text=_(
@@ -312,7 +312,7 @@ class Person(
         blank=True,
         help_text=_(
             "Vous recevrez des messages quand les informations du groupe change, ou quand le groupe organise des"
-            " événements."
+            " évènements."
         ),
     )
 
@@ -321,7 +321,7 @@ class Person(
         default=False,
         blank=True,
         help_text=_(
-            "Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des événements comme la Convention."
+            "Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des évènements comme la Convention."
             "Vous aurez la possibilité d'accepter ou de refuser cette participation."
         ),
     )

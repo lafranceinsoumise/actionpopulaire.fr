@@ -207,7 +207,7 @@ class AddOrganizerForm(forms.Form):
             person=person, event=self.event
         ).exists():
             raise forms.ValidationError(
-                _("Cette personne organise déjà à cet événement")
+                _("Cette personne organise déjà à cet évènement")
             )
 
         return person
@@ -283,14 +283,14 @@ class NewParticipantForm(BasePersonForm):
                     raise Payment.DoesNotExist()
                 message = format_html(
                     '{error_text} (<a href="{payment_link_url}">{payment_link_text}</a>)',
-                    error_text="Cette personne participe déjà à l'événement",
+                    error_text="Cette personne participe déjà à l'évènement",
                     payment_link_url=reverse(
                         "admin:payments_payment_change", args=[payment.pk]
                     ),
                     payment_link_text="voir son paiement",
                 )
             except Payment.DoesNotExist:
-                message = "Cette personne participe déjà à l'événement."
+                message = "Cette personne participe déjà à l'évènement."
 
             raise ValidationError(message, code="already_rsvp")
 

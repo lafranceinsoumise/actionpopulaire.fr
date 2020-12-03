@@ -191,7 +191,7 @@ class Event(
     objects = EventQuerySet.as_manager()
 
     name = models.CharField(
-        _("nom"), max_length=255, blank=False, help_text=_("Le nom de l'événement")
+        _("nom"), max_length=255, blank=False, help_text=_("Le nom de l'évènement")
     )
 
     VISIBILITY_ADMIN = "A"
@@ -257,11 +257,11 @@ class Event(
     )
 
     report_content = DescriptionField(
-        verbose_name=_("compte-rendu de l'événement"),
+        verbose_name=_("compte-rendu de l'évènement"),
         blank=True,
         allowed_tags="allowed_tags",
         help_text=_(
-            "Ajoutez un compte-rendu de votre événement. N'hésitez pas à inclure des photos."
+            "Ajoutez un compte-rendu de votre évènement. N'hésitez pas à inclure des photos."
         ),
     )
 
@@ -277,7 +277,7 @@ class Event(
     )
 
     scanner_event = models.IntegerField(
-        "L'ID de l'événement sur le logiciel de tickets", blank=True, null=True
+        "L'ID de l'évènement sur le logiciel de tickets", blank=True, null=True
     )
     scanner_category = models.IntegerField(
         "La catégorie que doivent avoir les tickets sur scanner", blank=True, null=True
@@ -290,9 +290,9 @@ class Event(
     )
 
     do_not_list = models.BooleanField(
-        "Ne pas lister l'événement",
+        "Ne pas lister l'évènement",
         default=False,
-        help_text="L'événement n'apparaîtra pas sur la carte, ni sur le calendrier "
+        help_text="L'évènement n'apparaîtra pas sur la carte, ni sur le calendrier "
         "et ne sera pas cherchable via la recherche interne ou les moteurs de recherche.",
     )
 
@@ -311,7 +311,7 @@ class Event(
     )
 
     for_users = models.CharField(
-        "Utilisateur⋅ices de la plateforme concerné⋅es par l'événement",
+        "Utilisateur⋅ices de la plateforme concerné⋅es par l'évènement",
         default=FOR_USERS_INSOUMIS,
         max_length=1,
         blank=False,
@@ -319,15 +319,15 @@ class Event(
     )
 
     class Meta:
-        verbose_name = _("événement")
-        verbose_name_plural = _("événements")
+        verbose_name = _("évènement")
+        verbose_name_plural = _("évènements")
         ordering = ("-start_time", "-end_time")
         permissions = (
             # DEPRECIATED: every_event was set up as a potential solution to Rest Framework django permissions
             # Permission class default behaviour of requiring both global permissions and object permissions before
             # allowing users. Was not used in the end.s
-            ("every_event", _("Peut éditer tous les événements")),
-            ("view_hidden_event", _("Peut voir les événements non publiés")),
+            ("every_event", _("Peut éditer tous les évènements")),
+            ("view_hidden_event", _("Peut voir les évènements non publiés")),
         )
         indexes = (
             models.Index(
@@ -420,7 +420,7 @@ class Event(
             raise ValidationError(
                 {
                     "end_time": _(
-                        "La date de fin de l'événement doit être postérieure à sa date de début."
+                        "La date de fin de l'évènement doit être postérieure à sa date de début."
                     )
                 }
             )
@@ -514,7 +514,7 @@ class EventSubtype(BaseSubtype):
         (TYPE_GROUP_MEETING, _("Réunion de groupe")),
         (TYPE_PUBLIC_MEETING, _("Réunion publique")),
         (TYPE_PUBLIC_ACTION, _("Action publique")),
-        (TYPE_OTHER_EVENTS, _("Autres type d'événements")),
+        (TYPE_OTHER_EVENTS, _("Autres type d'évènements")),
     )
 
     TYPES_PARAMETERS = {
@@ -540,16 +540,16 @@ class EventSubtype(BaseSubtype):
             " d'aller à la rencontre ou d'atteindre des personnes extérieures à la FI"
         ),
         TYPE_OTHER_EVENTS: _(
-            "Tout autre type d'événement qui ne rentre pas dans les catégories ci-dessus."
+            "Tout autre type d'évènement qui ne rentre pas dans les catégories ci-dessus."
         ),
     }
 
-    type = models.CharField(_("Type d'événement"), max_length=1, choices=TYPE_CHOICES)
+    type = models.CharField(_("Type d'évènement"), max_length=1, choices=TYPE_CHOICES)
 
     default_description = DescriptionField(
         verbose_name=_("description par défaut"),
         blank=True,
-        help_text="La description par défaut pour les événements de ce sous-type.",
+        help_text="La description par défaut pour les évènements de ce sous-type.",
         allowed_tags=settings.ADMIN_ALLOWED_TAGS,
     )
 
@@ -558,12 +558,12 @@ class EventSubtype(BaseSubtype):
         upload_to=banner_path,
         variations=settings.BANNER_CONFIG,
         blank=True,
-        help_text=_("L'image associée par défaut à un événement de ce sous-type."),
+        help_text=_("L'image associée par défaut à un évènement de ce sous-type."),
     )
 
     class Meta:
-        verbose_name = _("Sous-type d'événement")
-        verbose_name_plural = _("Sous-types d'événement")
+        verbose_name = _("Sous-type d'évènement")
+        verbose_name_plural = _("Sous-types d'évènement")
 
     def __str__(self):
         return self.description
@@ -602,7 +602,7 @@ class Calendar(NationBuilderResource, ImageMixin):
     )
 
     user_contributed = models.BooleanField(
-        _("Les utilisateurs peuvent ajouter des événements"), default=False
+        _("Les utilisateurs peuvent ajouter des évènements"), default=False
     )
 
     description = models.TextField(
@@ -796,7 +796,7 @@ class OrganizerConfig(ExportModelOperationsMixin("organizer_config"), models.Mod
         editable=False,
     )
 
-    is_creator = models.BooleanField(_("Créateur de l'événement"), default=False)
+    is_creator = models.BooleanField(_("Créateur de l'évènement"), default=False)
     as_group = models.ForeignKey(
         "groups.SupportGroup",
         related_name="organizer_configs",

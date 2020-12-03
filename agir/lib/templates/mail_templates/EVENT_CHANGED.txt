@@ -1,13 +1,13 @@
-Les organisateurs de l'événement {{ EVENT_NAME }} ont changé des informations de l'événement.
+Les organisateurs de l'évènement {{ EVENT_NAME }} ont changé des informations de l'évènement.
 
 Les éléments suivants ont été modifiés :
 
 {{ EVENT_CHANGES }}
 
->> voir les informations mises à jour de cet événement :
+>> voir les informations mises à jour de cet évènement :
 {{ EVENT_LINK }}
 
->> Vous ne souhaitez ou ne pouvez plus participer à cet événement :
+>> Vous ne souhaitez ou ne pouvez plus participer à cet évènement :
 {{ EVENT_QUIT_LINK }}
 
 Amitiés,  

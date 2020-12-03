@@ -15,7 +15,7 @@ class NotificationTasksTestCase(TestCase):
 
         self.creator = Person.objects.create_insoumise("moi@moi.fr")
         self.group = SupportGroup.objects.create(
-            name="Mon événement",
+            name="Mon évènement",
             contact_name="Moi",
             contact_email="monevenement@moi.fr",
             contact_phone="06 06 06 06 06",

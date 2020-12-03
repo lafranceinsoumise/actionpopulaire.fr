@@ -72,12 +72,12 @@ const ActivityText = ({ type, event, supportGroup, individual }) => {
     ),
     "waiting-location-event": (
       <StyledParagraph>
-        Précisez la localisation de votre événement&nbsp;: {event}
+        Précisez la localisation de votre évènement&nbsp;: {event}
       </StyledParagraph>
     ),
     "group-coorganization-accepted": (
       <StyledParagraph>
-        {supportGroup} a accepté de co-organiser votre événement {event}
+        {supportGroup} a accepté de co-organiser votre évènement {event}
       </StyledParagraph>
     ),
     "group-info-update": (
@@ -92,40 +92,40 @@ const ActivityText = ({ type, event, supportGroup, individual }) => {
     ),
     "new-attendee": (
       <StyledParagraph>
-        {individual} s'est inscrit à votre événement {event}
+        {individual} s'est inscrit à votre évènement {event}
       </StyledParagraph>
     ),
     "event-update": (
       <StyledParagraph>
-        Mise à jour : l'événement {event} auquel vous participez a changé de
+        Mise à jour : l'évènement {event} auquel vous participez a changé de
         date.
       </StyledParagraph>
     ),
     "new-event-mygroups": (
       <StyledParagraph>
-        {supportGroup || individual} a publié un nouvel événement
+        {supportGroup || individual} a publié un nouvel évènement
       </StyledParagraph>
     ),
     "new-report": (
       <StyledParagraph>
-        Le compte-rendu de l'événement {event} a été ajouté par les
+        Le compte-rendu de l'évènement {event} a été ajouté par les
         organisateurs
       </StyledParagraph>
     ),
     "new-event-aroundme": (
       <StyledParagraph>
-        Un nouvel événement a été publié près de chez vous par{" "}
+        Un nouvel évènement a été publié près de chez vous par{" "}
         {supportGroup || individual}
       </StyledParagraph>
     ),
     "group-coorganization-info": (
       <StyledParagraph>
-        Votre groupe {supportGroup} a rejoint l'organisation de l'événement{" "}
+        Votre groupe {supportGroup} a rejoint l'organisation de l'évènement{" "}
         {event}
       </StyledParagraph>
     ),
     "cancelled-event": (
-      <StyledParagraph>L'événement {event} a été annulé.</StyledParagraph>
+      <StyledParagraph>L'évènement {event} a été annulé.</StyledParagraph>
     ),
   }[type];
 };

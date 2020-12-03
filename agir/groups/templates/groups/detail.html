@@ -32,7 +32,7 @@
               <a
                 class="btn btn-sm btn-default"
                 href="{% url "create_event" %}?as_group={{ supportgroup.pk }}">
-                <i class="fa fa-plus"></i> Créer un événement organisé par ce groupe
+                <i class="fa fa-plus"></i> Créer un évènement organisé par ce groupe
               </a>
             {% endif %}
             <a
@@ -211,7 +211,7 @@
                 S'abonner {% include 'events/calendar_subscribe_modal.html' with url=calendar_url %}
               </small>
             </h4>
-            {% include "events/includes/events_list.html" with events=events_future page_param="events_future_page" empty_message="Ce groupe n'a aucun événement à venir." %}
+            {% include "events/includes/events_list.html" with events=events_future page_param="events_future_page" empty_message="Ce groupe n'a aucun évènement à venir." %}
           </div>
           <div class="col-sm-6 marginbottommore">
             {% if supportgroup.coordinates %}
@@ -227,7 +227,7 @@
             <h4>
               Événements passés
             </h4>
-            {% include "events/includes/events_list.html" with events=events_past page_param="events_past_page" empty_message="Ce groupe n'a organisé aucun événement." %}
+            {% include "events/includes/events_list.html" with events=events_past page_param="events_past_page" empty_message="Ce groupe n'a organisé aucun évènement." %}
           </div>
         </div>
       </div>

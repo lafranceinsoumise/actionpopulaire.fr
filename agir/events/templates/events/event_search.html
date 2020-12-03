@@ -2,7 +2,7 @@
 {% load render_bundle from webpack_loader %}
 {% load crispy_forms_tags l10n pagination %}
 
-{% block title %}Rechercher des événements{% endblock %}
+{% block title %}Rechercher des évènements{% endblock %}
 
 {% block main %}
 <div class="row">
@@ -14,10 +14,10 @@
     </div>
     <div class="pull-right">
       <a class="btn btn-sm btn-primary" href="{% url "create_event" %}">
-        <i class="fa fa-plus"></i>&ensp;Créer un événement
+        <i class="fa fa-plus"></i>&ensp;Créer un évènement
       </a>
       <a class="btn btn-sm btn-default" href="{% url "event_map_page" %}">
-        <i class="fa fa-map"></i>&ensp;Accéder à la carte des événements
+        <i class="fa fa-map"></i>&ensp;Accéder à la carte des évènements
       </a>
     </div>
     <div class="clearfix"></div>
@@ -26,13 +26,13 @@
   <div class="col-xs-12">
     <div class="padtop padbottom marginbottommore">
       <h2 class="headline">
-        Rechercher des événements
+        Rechercher des évènements
       </h2>
-      <p>Sur cette page, vous trouverez l'ensemble des événements locaux organisés par les groupes de la plateforme.</p>
+      <p>Sur cette page, vous trouverez l'ensemble des évènements locaux organisés par les groupes de la plateforme.</p>
 
-      <p>Si aucun événement n'est organisé près de chez vous, vous pouvez en créer un vous-même.</p>
+      <p>Si aucun évènement n'est organisé près de chez vous, vous pouvez en créer un vous-même.</p>
 
-      <p>Vous pouvez aussi rechercher des événements en utilisant
+      <p>Vous pouvez aussi rechercher des évènements en utilisant
         <a href="{% url "event_map_page" %}">la carte.</a>
       </p>
     </div>
@@ -62,7 +62,7 @@
       </div>
     {% empty %}
       <p class="alert alert-warning">
-        Aucun événement ne correspond à votre recherche.
+        Aucun évènement ne correspond à votre recherche.
       </p>
     {% endfor %}
     {% pagination page_obj %}

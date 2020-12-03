@@ -48,7 +48,7 @@ const NotificationsCenter = ({ notifications: initialNotifications }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  // ajoute gestionnaire d'événements sur l'intégralité du document pour permettre
+  // ajoute gestionnaire d'évènements sur l'intégralité du document pour permettre
   // de fermer le menu en cliquant n'importe où ailleurs
   // dans le cas où l'élément a disparu, c'est dû à un update entretemps,
   // il ne faut pas fermer le menu

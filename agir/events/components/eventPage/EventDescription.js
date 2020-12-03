@@ -46,14 +46,14 @@ const EventDescription = ({
       {isPast ? (
         compteRenduPhotos.length > 0 || rsvp ? (
           <DescriptionSection>
-            <h2>Photos de l'événement</h2>
+            <h2>Photos de l'évènement</h2>
             {compteRenduPhotos.length > 0 ? (
               <Row gutter={12}>
                 {compteRenduPhotos.map((url, key) => (
                   <Column collapse={500} key={key} width={["50%", "content"]}>
                     <img
                       src={url}
-                      alt="Photo de l'événement postée par l'utilisateur"
+                      alt="Photo de l'évènement postée par l'utilisateur"
                     />
                   </Column>
                 ))}
@@ -103,7 +103,7 @@ const EventDescription = ({
         <DescriptionSection>
           <img
             src={illustration}
-            alt="Image d'illustration de l'événement postée par l'utilisateur"
+            alt="Image d'illustration de l'évènement postée par l'utilisateur"
             style={{
               maxWidth: "100%",
               height: "auto",
@@ -115,7 +115,7 @@ const EventDescription = ({
 
       {description ? (
         <DescriptionSection>
-          <h2>L'événement</h2>
+          <h2>L'évènement</h2>
           <Collapsible
             dangerouslySetInnerHTML={{ __html: description }}
             fadingOverflow
@@ -128,7 +128,7 @@ const EventDescription = ({
           <h2>Ajoutez une description !</h2>
           <p>
             Donner tous les informations nécessaires aux participants de votre
-            événement. Comment accéder au lieu, quel est le programme, les liens
+            évènement. Comment accéder au lieu, quel est le programme, les liens
             pour être tenu au courant... Et ajoutez une image !
           </p>
           <div>

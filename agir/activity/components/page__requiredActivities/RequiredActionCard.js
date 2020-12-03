@@ -28,7 +28,7 @@ const RequiredActionCard = (props) => {
         <ActionCard
           iconName="alert-circle"
           confirmLabel="Payer"
-          dismissLabel="Voir l'événement"
+          dismissLabel="Voir l'évènement"
           onConfirm={event.routes.rsvp}
           onDismiss={event.routes.details}
           text={
@@ -119,7 +119,7 @@ const RequiredActionCard = (props) => {
           onDismiss={handleDismiss}
           text={
             <>
-              Précisez la localisation de votre événement :{" "}
+              Précisez la localisation de votre évènement :{" "}
               <a href={event.routes.details}>{event.name}</a>
             </>
           }

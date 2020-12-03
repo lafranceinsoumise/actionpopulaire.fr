@@ -1,6 +1,6 @@
 {% extends "front/layout.html" %}
 
-{% block title %}Ne plus participer à l'événement {{ event.name }}{% endblock %}
+{% block title %}Ne plus participer à l'évènement {{ event.name }}{% endblock %}
 
 {% block main %}
 <div class="row">
@@ -14,7 +14,7 @@
       <a
         class="btn btn-sm btn-default"
         href="{% url "view_event" event.pk %}">
-        Page publique de l'événement
+        Page publique de l'évènement
       </a>
     </div>
     <div class="clearfix"></div>
@@ -26,10 +26,10 @@
     </h2>
     <hr />
     <h3>
-      Annuler ma participation à un événement
+      Annuler ma participation à un évènement
     </h3>
     <p>
-      Souhaitez vous réellement ne plus participer à l'événement <strong>{{ event.name }}</strong> &nbsp;?
+      Souhaitez vous réellement ne plus participer à l'évènement <strong>{{ event.name }}</strong> &nbsp;?
     </p>
     <form method="POST" class="row padtop">
       {% csrf_token %}
@@ -40,7 +40,7 @@
       </div>
       <div class="col-sm-4">
         <button type="submit" class="marginbottomless btn btn-block btn-danger">
-          Quitter l'événement
+          Quitter l'évènement
         </button>
       </div>
     </form>

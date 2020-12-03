@@ -62,7 +62,7 @@ const Template = decorateArgs(
 
 export const Default = Template.bind({});
 Default.args = {
-  name: "Mon événement",
+  name: "Mon évènement",
   startTime: defaultStartTime.toMillis(),
   duration: 2,
   logged: true,

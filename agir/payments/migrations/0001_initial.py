@@ -132,7 +132,7 @@ class Migration(migrations.Migration):
                     models.CharField(
                         choices=[
                             ("don", "don"),
-                            ("inscription à un événement", "événement"),
+                            ("inscription à un évènement", "évènement"),
                         ],
                         max_length=255,
                         verbose_name="type",

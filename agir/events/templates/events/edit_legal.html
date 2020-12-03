@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Remplir les informations légales pour l'événement «&nbsp;{{ event.name }}&nbsp;»{% endblock %}
+{% block title %}Remplir les informations légales pour l'évènement «&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
 {% block main %}
 <div class="row">
@@ -16,12 +16,12 @@
       <a
         class="btn btn-sm btn-default"
         href="{% url "manage_event" event.pk %}">
-        <i class="fa fa-cog"></i> Gestion de l'événement
+        <i class="fa fa-cog"></i> Gestion de l'évènement
       </a>
       <a
         class="btn btn-sm btn-default"
         href="{% url "view_event" event.pk %}">
-        Page publique de l'événement
+        Page publique de l'évènement
       </a>
     </div>
     <div class="clearfix"></div>
@@ -36,13 +36,13 @@
     <div class="padtop padbottom">
       {% if event.legal.frais %}
         <p>
-          Tous les événements de campagne qui entraînent une dépense doivent être payés directement et uniquement par le mandataire financier.
+          Tous les évènements de campagne qui entraînent une dépense doivent être payés directement et uniquement par le mandataire financier.
         </p>
         <p>
-          Si l'événement remplit certains critères indiqués ci-dessous, il peut être financé. <strong>Sinon, il doit être financé par des dons.</strong>
+          Si l'évènement remplit certains critères indiqués ci-dessous, il peut être financé. <strong>Sinon, il doit être financé par des dons.</strong>
         </p>
         <p>
-          Votre événement peut être pris en charge par l'Association de Financement de la campagne si :
+          Votre évènement peut être pris en charge par l'Association de Financement de la campagne si :
         </p>
         <ul>
           <li>
@@ -52,11 +52,11 @@
             Il a lieu en présence (annoncée à l’avance) d’au moins un.e candidat.e de la liste pour les élections européennes
           </li>
           <li>
-            Votre comité d’appui est en mesure de proposer des hébergements militants sur place pour toute personne devant se déplacer pour animer, intervenir ou aider à l’organisation de l’événement et désigne une personne pour coordonner cette tâche
+            Votre comité d’appui est en mesure de proposer des hébergements militants sur place pour toute personne devant se déplacer pour animer, intervenir ou aider à l’organisation de l’évènement et désigne une personne pour coordonner cette tâche
           </li>
         </ul>
         <p>
-          Dans tous les cas, même s'il est financé par des dons, votre événement doit <strong>impérativement</strong> remplir les conditions suivantes :
+          Dans tous les cas, même s'il est financé par des dons, votre évènement doit <strong>impérativement</strong> remplir les conditions suivantes :
         </p>
         <ul>
           <li>
@@ -75,10 +75,10 @@
             Votre comité d’appui ou groupe d’action désigne une personne référente pour l’élaboration, la commande et réception du matériel
           </li>
           <li>
-            Le comité ou groupe s’engage à nous faire parvenir après l’événement photos, vidéos et articles de presse le concernant
+            Le comité ou groupe s’engage à nous faire parvenir après l’évènement photos, vidéos et articles de presse le concernant
           </li>
           <li>
-            Le comité doit être en mesure de présenter un budget équilibré pour l’organisation de l’événement.
+            Le comité doit être en mesure de présenter un budget équilibré pour l’organisation de l’évènement.
           </li>
         </ul>
       {% endif %}
@@ -86,7 +86,7 @@
         Vous pouvez enregistrer certaines informations et revenir plus tard.
       </p>
       <p>
-        Lorsque tous les documents sont remplis, le secrétariat général de la campagne peut valider votre événement. Ceci ne nécesssite pas d'action de votre part et prend habituellement deux à trois jours ouvrés.
+        Lorsque tous les documents sont remplis, le secrétariat général de la campagne peut valider votre évènement. Ceci ne nécesssite pas d'action de votre part et prend habituellement deux à trois jours ouvrés.
       </p>
     </div>
     <div class="padtop padbottom">

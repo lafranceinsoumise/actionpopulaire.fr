@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 blank=True,
                 default=False,
-                verbose_name="Limiter aux organisateurices (sans effet si pas d'autres filtres événements)",
+                verbose_name="Limiter aux organisateurices (sans effet si pas d'autres filtres évènements)",
             ),
         )
     ]

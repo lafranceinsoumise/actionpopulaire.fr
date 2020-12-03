@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
             name="external_help_text",
             field=models.TextField(
                 blank=True,
-                verbose_name="Phrase d'explication pour rejoindre le groupe ou l'événement",
+                verbose_name="Phrase d'explication pour rejoindre le groupe ou l'évènement",
             ),
         )
     ]

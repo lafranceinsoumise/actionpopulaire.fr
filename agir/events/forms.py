@@ -78,15 +78,15 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         self.is_creation = self.instance._state.adding
         self.fields["image"].help_text = _(
             """
-        Vous pouvez ajouter une image de bannière à votre événement : elle apparaîtra alors sur la page de votre
-        événement, et comme illustration si vous le partagez sur les réseaux sociaux. Pour cela, choisissez une image
+        Vous pouvez ajouter une image de bannière à votre évènement : elle apparaîtra alors sur la page de votre
+        évènement, et comme illustration si vous le partagez sur les réseaux sociaux. Pour cela, choisissez une image
         à peu près deux fois plus large que haute, et de dimensions supérieures à 1200 par 630 pixels.
         """
         )
 
         self.fields["description"].help_text = _(
             """
-        Cette description doit permettre de comprendre rapidement sur quoi porte et comment se passera votre événement.
+        Cette description doit permettre de comprendre rapidement sur quoi porte et comment se passera votre évènement.
         Incluez toutes les informations pratiques qui pourraient être utiles aux personnes qui souhaiteraient
         participer (matériel à amener, précisions sur le lieu ou contraintes particulières, par exemple).
         """
@@ -99,11 +99,11 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                 published=True,
             ),
             empty_label="Ne pas créer au nom d'un groupe",
-            label=_("Créer l'événement au nom d'un groupe"),
+            label=_("Créer l'évènement au nom d'un groupe"),
             required=False,
         )
 
-        self.fields["name"].label = "Nom de l'événement"
+        self.fields["name"].label = "Nom de l'évènement"
         self.fields["name"].help_text = None
 
         if not self.is_creation:
@@ -114,7 +114,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                 )
             except OrganizerConfig.DoesNotExist:
                 raise PermissionDenied(
-                    "Vous ne pouvez pas modifier un événement que vous n'organisez pas."
+                    "Vous ne pouvez pas modifier un évènement que vous n'organisez pas."
                 )
             self.fields["as_group"].initial = self.organizer_config.as_group
             del self.fields["subtype"]
@@ -158,7 +158,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                         Row(
                             FullCol(
                                 HTML(
-                                    "<p><b>Merci d'indiquer une adresse précise avec numéro de rue, sans quoi l'événement n'apparaîtra"
+                                    "<p><b>Merci d'indiquer une adresse précise avec numéro de rue, sans quoi l'évènement n'apparaîtra"
                                     " pas sur la carte.</b>"
                                     " Si les réunions se déroulent chez vous et que vous ne souhaitez pas rendre cette adresse"
                                     " publique, vous pouvez indiquer un endroit à proximité, comme un café, ou votre mairie."
@@ -201,7 +201,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
             > timedelta(days=7)
         ):
             raise ValidationError(
-                {"end_time": _("L'événement ne peut pas durer plus de 7 jours.")}
+                {"end_time": _("L'évènement ne peut pas durer plus de 7 jours.")}
             )
 
         return cleaned_data
@@ -326,11 +326,11 @@ class EventGeocodingForm(GeocodingBaseForm):
     geocoding_task = geocode_event
     messages = {
         "use_geocoding": _(
-            "La localisation de votre événement sur la carte va être réinitialisée à partir de son adresse."
+            "La localisation de votre évènement sur la carte va être réinitialisée à partir de son adresse."
             " Patientez quelques minutes pour voir la nouvelle localisation apparaître."
         ),
         "coordinates_updated": _(
-            "La localisation de votre événement a été correctement mise à jour. Patientez quelques"
+            "La localisation de votre évènement a été correctement mise à jour. Patientez quelques"
             " minutes pour la voir apparaître sur la carte."
         ),
     }
@@ -448,7 +448,7 @@ class EventLegalForm(MetaFieldsMixin, forms.Form):
         return self.instance
 
     financing = forms.ChoiceField(
-        label="Mon événement...",
+        label="Mon évènement...",
         choices=(
             ("dons", "...sera financé par des dons"),
             ("financé", "...rempli les critères, je demande donc son financement"),
@@ -559,12 +559,12 @@ class BillingForm(forms.ModelForm):
         self.fields["event"].initial = event
         self.fields["is_guest"].initial = is_guest
 
-        # si l'événement est dans moins d'une semaine, on refuse le paiement par chèque
+        # si l'évènement est dans moins d'une semaine, on refuse le paiement par chèque
         if event.start_time - timezone.now() < timezone.timedelta(days=7):
             self.fields["payment_mode"].payment_modes = ["system_pay"]
             self.fields[
                 "payment_mode"
-            ].help_text = "Il n'est plus possible de payer en ligne par chèque à moins d'une semaine de l'événement."
+            ].help_text = "Il n'est plus possible de payer en ligne par chèque à moins d'une semaine de l'évènement."
 
         for f in [
             "first_name",

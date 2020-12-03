@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ],
                 default="I",
                 max_length=1,
-                verbose_name="Utilisateur⋅ices de la plateforme concerné⋅es par l'événement",
+                verbose_name="Utilisateur⋅ices de la plateforme concerné⋅es par l'évènement",
             ),
             preserve_default=False,
         ),

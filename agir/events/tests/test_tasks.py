@@ -18,7 +18,7 @@ class EventTasksTestCase(TestCase):
 
         self.creator = Person.objects.create_insoumise("moi@moi.fr")
         self.event = Event.objects.create(
-            name="Mon événement",
+            name="Mon évènement",
             start_time=now + timezone.timedelta(hours=2),
             end_time=now + timezone.timedelta(hours=3),
             contact_name="Moi",

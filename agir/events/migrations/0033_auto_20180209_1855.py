@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
         migrations.AlterModelOptions(
             name="eventsubtype",
             options={
-                "verbose_name": "Sous-type d'événement",
-                "verbose_name_plural": "Sous-types d'événement",
+                "verbose_name": "Sous-type d'évènement",
+                "verbose_name_plural": "Sous-types d'évènement",
             },
         ),
         migrations.RemoveField(model_name="eventsubtype", name="popup_anchor_x"),

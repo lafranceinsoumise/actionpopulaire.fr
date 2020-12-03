@@ -17,10 +17,10 @@ class Migration(migrations.Migration):
                     choices=[
                         ("view_profile", "Voir votre profil"),
                         ("edit_profile", "Changer votre profil"),
-                        ("edit_event", "Éditer vos événements"),
+                        ("edit_event", "Éditer vos évènements"),
                         (
                             "edit_rsvp",
-                            "Voir et éditer vos participations aux événements",
+                            "Voir et éditer vos participations aux évènements",
                         ),
                         ("edit_supportgroup", "Éditer vos groupes d'action"),
                         (

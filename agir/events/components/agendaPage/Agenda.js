@@ -207,7 +207,7 @@ const OtherEvents = ({ others }) => {
         <EmptyAgenda>
           {activeType === "NEAR_TYPE" && routes.personalInformation ? (
             <p>
-              Zut ! Il n'y a pas d'événement prévu à proximité ?{" "}
+              Zut ! Il n'y a pas d'évènement prévu à proximité ?{" "}
               <a href={routes.personalInformation}>
                 Vérifiez votre adresse et code postal
               </a>
@@ -215,7 +215,7 @@ const OtherEvents = ({ others }) => {
             </p>
           ) : (
             <p>
-              Pas d'événement prévu dans votre ville ?{" "}
+              Pas d'évènement prévu dans votre ville ?{" "}
               <a href={routes.createEvent}>Commencez par en créer un</a>.
             </p>
           )}
@@ -282,11 +282,11 @@ const Agenda = ({ rsvped, others }) => {
         <Column grow>
           {rsvpedEvents.length > 0 && (
             <>
-              <h2 style={{ marginTop: 0 }}>Mes événements</h2>
+              <h2 style={{ marginTop: 0 }}>Mes évènements</h2>
               {rsvpedEvents.map((event) => (
                 <EventCard key={event.id} {...event} />
               ))}
-              <h2>Autres événements près de chez moi</h2>
+              <h2>Autres évènements près de chez moi</h2>
             </>
           )}
           {Array.isArray(others) && others.length > 0 ? (
