@@ -23,7 +23,7 @@ urlpatterns = [
     path(
         "o/introspect/", oauth2_views.IntrospectTokenView.as_view(), name="introspect"
     ),
-    path("connexion/social/", include("social_django.urls", namespace="social")),
+    # path("connexion/social/", include("social_django.urls", namespace="social")),
     path(
         "connexion/social/erreur/",
         SocialLoginError.as_view(),
