@@ -174,6 +174,7 @@ ConnectionInfo.propTypes = {
   routes: PropTypes.objectOf(
     PropTypes.oneOfType([
       PropTypes.string,
+      PropTypes.object,
       PropTypes.arrayOf(
         PropTypes.shape({
           id: PropTypes.string,
@@ -248,6 +249,7 @@ PureTopBar.propTypes = {
   routes: PropTypes.objectOf(
     PropTypes.oneOfType([
       PropTypes.string,
+      PropTypes.object,
       PropTypes.arrayOf(
         PropTypes.shape({
           id: PropTypes.string,
