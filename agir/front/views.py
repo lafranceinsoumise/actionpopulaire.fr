@@ -202,7 +202,9 @@ class MyGroupsView(SoftLoginRequiredMixin, ReactListView):
     data_script_id = "mes-groupes"
 
     def get_queryset(self):
-        return SupportGroup.objects.filter(memberships__person=self.request.user.person)
+        return SupportGroup.objects.filter(
+            memberships__person=self.request.user.person
+        ).active()
 
 
 class EventMapView(SoftLoginRequiredMixin, ReactBaseView):

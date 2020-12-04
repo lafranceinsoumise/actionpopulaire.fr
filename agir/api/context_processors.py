@@ -89,9 +89,11 @@ def basic_information(request):
             )
             activities = activitySerializer.data
 
-        personGroups = SupportGroup.objects.filter(
-            memberships__person=person, published=True
-        ).order_by("name")
+        personGroups = (
+            SupportGroup.objects.filter(memberships__person=person)
+            .active()
+            .order_by("name")
+        )
         if personGroups.count() > 0:
             routes["groups__personGroups"] = []
             user["groups"] = []
