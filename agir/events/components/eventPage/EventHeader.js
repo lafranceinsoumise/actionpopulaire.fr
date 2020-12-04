@@ -186,7 +186,7 @@ const EventHeader = ({
   const logged = config.user !== null;
   const rsvped = !!rsvp;
   const now = DateTime.local();
-  const past = now > schedule.start;
+  const past = now > schedule.end;
   let eventString = displayHumanDate(schedule.start);
   eventString = eventString.slice(0, 1).toUpperCase() + eventString.slice(1);
 
