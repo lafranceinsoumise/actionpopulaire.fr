@@ -89,11 +89,7 @@ class EventQuerySet(models.QuerySet):
         )
 
     def with_serializer_prefetch(self, person):
-        return (
-            self.with_participants()
-            .with_person_rsvps(person)
-            .with_person_organizer_configs(person)
-        )
+        return self.with_person_rsvps(person).with_person_organizer_configs(person)
 
     def with_participants(self):
         confirmed_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CONFIRMED)
