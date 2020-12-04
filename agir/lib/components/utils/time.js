@@ -56,11 +56,14 @@ export function displayHumanDay(datetime, relativeTo, interval) {
     return `${datetime.weekdayLong} ${qualifier}`.trim();
   }
 
-  return datetime.toLocaleString({
+  const format = {
     weekday: "long",
     month: "long",
     day: "numeric",
-  });
+    year: datetime < relativeTo ? "numeric" : undefined,
+  };
+
+  return datetime.toLocaleString(format);
 }
 
 export function displayHumanDate(datetime, relativeTo) {
@@ -135,17 +138,12 @@ export function displayIntervalStart(interval, relativeTo) {
     relativeTo = DateTime.local().setLocale("fr");
   }
   const startDate = interval.start.setLocale("fr-FR");
+  const endDate = interval.end.setLocale("fr-FR");
 
-  const fromNowInterval =
-    relativeTo < startDate
-      ? Interval.fromDateTimes(relativeTo, startDate)
-      : Interval.fromDateTimes(startDate, relativeTo);
-
-  const showYear = fromNowInterval.count("months") > 4;
   const scheduleCalendarDays = interval.count("days");
 
   const dayPartFormat = {
-    year: showYear ? "numeric" : undefined,
+    year: endDate < relativeTo ? "numeric" : undefined,
     month: "long",
     day: "numeric",
   };

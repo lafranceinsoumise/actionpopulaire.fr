@@ -135,9 +135,7 @@ const otherEventConfig = {
     allowEmpty: false,
     filter: (events) =>
       events
-        .filter(
-          (event) => dateFromISOString(event.startTime) < DateTime.local()
-        )
+        .filter((event) => dateFromISOString(event.endTime) < DateTime.local())
         .reverse(),
   },
   ORGANIZED_TYPE: {
