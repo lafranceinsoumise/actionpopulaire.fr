@@ -21,7 +21,7 @@ Default.args = {
       type: "event-update",
       event: {
         id: "12343432423",
-        name: "Super évènement",
+        name: "Super événement",
         rsvp: "CO",
         participantCount: 6,
         duration: 1,

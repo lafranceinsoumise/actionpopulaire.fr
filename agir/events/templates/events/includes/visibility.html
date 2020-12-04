@@ -1,9 +1,9 @@
 {% if event.visibility == 'A' %}
-  <div class="alert alert-danger">Cet évènement n'est visible que par les administrateurices.</div>
+  <div class="alert alert-danger">Cet événement n'est visible que par les administrateurices.</div>
 {% endif %}
 {% if event.visibility == 'O' %}
   <div class="alert alert-danger">
-    Cet évènement n'est visible que par ses organisateur⋅ice⋅s.
+    Cet événement n'est visible que par ses organisateur⋅ice⋅s.
     {% if is_organizer %}
       Vous devez <a href="{% url 'manage_event' event.pk %}#section-legal">remplir les formulaires légaux</a> avant
       qu'il

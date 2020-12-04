@@ -15,11 +15,11 @@ class Migration(migrations.Migration):
             options={
                 "ordering": ("-start_time", "-end_time"),
                 "permissions": (
-                    ("every_event", "Peut éditer tous les évènements"),
-                    ("view_hidden_event", "Peut voir les évènements non publiés"),
+                    ("every_event", "Peut éditer tous les événements"),
+                    ("view_hidden_event", "Peut voir les événements non publiés"),
                 ),
-                "verbose_name": "évènement",
-                "verbose_name_plural": "évènements",
+                "verbose_name": "événement",
+                "verbose_name_plural": "événements",
             },
         )
     ]

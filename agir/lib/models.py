@@ -379,7 +379,7 @@ class BaseSubtype(TimeStampedModel, AbstractLabel):
         _("Les non-insoumis⋅es peuvent rejoindre"), default=False
     )
     external_help_text = models.TextField(
-        _("Phrase d'explication pour rejoindre le groupe ou l'évènement"), blank=True
+        _("Phrase d'explication pour rejoindre le groupe ou l'événement"), blank=True
     )
 
     def get_subtype_information(self):

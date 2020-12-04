@@ -7,14 +7,14 @@
   <div class="col-responsive">
     <h2><a href="{% url "view_event" event.pk %}">{{ event.name }}</a></h2>
     <ol class="breadcrumb">
-      <li><a href="{% url "view_event" event.pk %}">Page publique de l'évènement</a></li>
-      <li><a href="{% url "rsvp_event" event.pk %}">Inscription à l'évènement</a></li>
+      <li><a href="{% url "view_event" event.pk %}">Page publique de l'événement</a></li>
+      <li><a href="{% url "rsvp_event" event.pk %}">Inscription à l'événement</a></li>
       <li>Paiement</li>
     </ol>
     {% if event.subscription_form is not None %}
       <h2 class="headline">Récapitulatif et paiement</h2>
       <div class="alert alert-info">
-        Les paiements relatifs aux évènements ne constituent <strong>pas</strong> des dons,
+        Les paiements relatifs aux événements ne constituent <strong>pas</strong> des dons,
         et n'ouvrent donc <strong>pas</strong> droit à la réduction d'impôt de 66 %.
       </div>
       <div>
@@ -34,7 +34,7 @@
     {% else %}
       <h2 class="headline">Informations de facturation</h2>
       <div class="alert alert-info">
-        Les paiements relatifs aux évènements ne constituent <strong>pas</strong> des dons,
+        Les paiements relatifs aux événements ne constituent <strong>pas</strong> des dons,
         et n'ouvrent donc <strong>pas</strong> droit à la réduction d'impôt de 66 %.
       </div>
 

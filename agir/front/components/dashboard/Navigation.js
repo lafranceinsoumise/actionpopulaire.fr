@@ -114,7 +114,7 @@ const Navigation = ({ active, routes }) => (
       <MenuLink
         active={active === "events"}
         icon="calendar"
-        title="Évènements"
+        title="Événements"
         href={routes.events}
       />
       <MenuLink

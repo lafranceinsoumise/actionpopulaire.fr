@@ -1,8 +1,8 @@
 Bonjour,
 
-Les organisateurs de l'évènement « {{ EVENT_NAME }} » viennent de signaler son annulation.
+Les organisateurs de l'événement « {{ EVENT_NAME }} » viennent de signaler son annulation.
 
-Vous recevez ce message automatique car vous aviez signalé votre souhait de participer à cet évènement.
+Vous recevez ce message automatique car vous aviez signalé votre souhait de participer à cet événement.
 
 Amitiés,  
 L’équipe d’Action Populaire  

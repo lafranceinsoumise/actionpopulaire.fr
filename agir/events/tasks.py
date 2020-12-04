@@ -42,9 +42,9 @@ NOTIFIED_CHANGES = {
 
 CHANGE_DESCRIPTION = OrderedDict(
     (
-        ("information", _("les informations générales de l'évènement")),
-        ("location", _("le lieu de l'évènement")),
-        ("timing", _("les horaires de l'évènement")),
+        ("information", _("les informations générales de l'événement")),
+        ("location", _("le lieu de l'événement")),
+        ("timing", _("les horaires de l'événement")),
         ("contact", _("les informations de contact des organisateurs")),
     )
 )
@@ -81,7 +81,7 @@ def send_event_creation_notification(organizer_config_pk):
 
     send_mosaico_email(
         code="EVENT_CREATION",
-        subject=_("Les informations de votre nouvel évènement"),
+        subject=_("Les informations de votre nouvel événement"),
         from_email=settings.EMAIL_FROM,
         recipients=[organizer],
         bindings=bindings,
@@ -157,7 +157,7 @@ def send_event_changed_notification(event_pk, changed_data):
     send_mosaico_email(
         code="EVENT_CHANGED",
         subject=_(
-            "Les informations d'un évènement auquel vous participez ont été changées"
+            "Les informations d'un événement auquel vous participez ont été changées"
         ),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
@@ -202,7 +202,7 @@ def send_rsvp_notification(rsvp_pk):
 
     send_mosaico_email(
         code="EVENT_RSVP_CONFIRMATION",
-        subject=_("Confirmation de votre participation à l'évènement"),
+        subject=_("Confirmation de votre participation à l'événement"),
         from_email=settings.EMAIL_FROM,
         recipients=[rsvp.person],
         bindings=attendee_bindings,
@@ -226,7 +226,7 @@ def send_rsvp_notification(rsvp_pk):
 
     send_mosaico_email(
         code="EVENT_RSVP_NOTIFICATION",
-        subject=_("Un nouveau participant à l'un de vos évènements"),
+        subject=_("Un nouveau participant à l'un de vos événements"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=organizer_bindings,
@@ -262,7 +262,7 @@ def send_guest_confirmation(rsvp_pk):
 
     send_mosaico_email(
         code="EVENT_GUEST_CONFIRMATION",
-        subject=_("Confirmation pour votre invité à l'évènement"),
+        subject=_("Confirmation pour votre invité à l'événement"),
         from_email=settings.EMAIL_FROM,
         recipients=[rsvp.person],
         bindings=attendee_bindings,
@@ -297,7 +297,7 @@ def send_cancellation_notification(event_pk):
 
     send_mosaico_email(
         code="EVENT_CANCELLATION",
-        subject=_("Un évènement auquel vous participiez a été annulé"),
+        subject=_("Un événement auquel vous participiez a été annulé"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
@@ -329,7 +329,7 @@ def send_external_rsvp_confirmation(event_pk, email, **kwargs):
 
     send_mosaico_email(
         code="EVENT_EXTERNAL_RSVP_OPTIN",
-        subject=_("Merci de confirmer votre participation à l'évènement"),
+        subject=_("Merci de confirmer votre participation à l'événement"),
         from_email=settings.EMAIL_FROM,
         recipients=[email],
         bindings=bindings,
@@ -366,7 +366,7 @@ def send_event_report(event_pk):
 
     send_mosaico_email(
         code="EVENT_REPORT",
-        subject=f"Compte-rendu de l'évènement {event.name}",
+        subject=f"Compte-rendu de l'événement {event.name}",
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
@@ -468,7 +468,7 @@ def send_organizer_validation_notification(event_pk):
 
     send_mosaico_email(
         code="EVENT_ORGANIZER_VALIDATION_NOTIFICATION",
-        subject=_(f'Votre évènement "{event.name}" a été publié'),
+        subject=_(f'Votre événement "{event.name}" a été publié'),
         from_email=settings.EMAIL_FROM,
         recipients=event.organizers.all(),
         bindings=bindings,

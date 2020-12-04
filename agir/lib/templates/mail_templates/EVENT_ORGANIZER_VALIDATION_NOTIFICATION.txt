@@ -1,20 +1,20 @@
 Bonjour,
 
-Votre évènement **«  {{ EVENT_NAME }} »** a été validé. Il est maintenant public et visible par l'ensemble des insoumis⋅es sur la plateforme.
+Votre événement **«  {{ EVENT_NAME }} »** a été validé. Il est maintenant public et visible par l'ensemble des insoumis⋅es sur la plateforme.
 
 
-Pour rappel, voici les informations de votre évènement :
+Pour rappel, voici les informations de votre événement :
 
  **Horaires :** {{ EVENT_SCHEDULE }}  
  **Nom du lieu de RDV :** {{ LOCATION_NAME }}  
  **Adresse de RDV :** {{ LOCATION_ADDRESS }}  
 
 
->> J'accède à la page publique de mon évènement
+>> J'accède à la page publique de mon événement
 {{ EVENT_LINK }}
 
 
->> J'accède à la page de gestion de mon évènement
+>> J'accède à la page de gestion de mon événement
 {{ MANAGE_EVENT_LINK }}
 
 

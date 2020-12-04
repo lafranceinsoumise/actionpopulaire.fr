@@ -1,8 +1,8 @@
 Bonjour  
 
-Votre évènement a été mis en ligne ! Voici un résumé de ses informations :
+Votre événement a été mis en ligne ! Voici un résumé de ses informations :
 
-Nom de l'évènement : {{ EVENT_NAME }}
+Nom de l'événement : {{ EVENT_NAME }}
 Horaires : {{ EVENT_SCHEDULE }}
 Nom du contact : {{ CONTACT_NAME }}  
 Email de contact : {{ CONTACT_EMAIL }}  
@@ -10,13 +10,13 @@ Téléphone de contact : {{ CONTACT_PHONE }} ({{ CONTACT_PHONE_VISIBILITY }})
 Nom du lieu de RDV : {{ LOCATION_NAME }}
 Adresse de RDV : {{ LOCATION_ADDRESS }}
 
->> Pour encourager les gens à s'inscrire à votre évènement, ajoutez une description et une image à votre évènement :
+>> Pour encourager les gens à s'inscrire à votre événement, ajoutez une description et une image à votre événement :
 {{ MANAGE_EVENT_LINK }}
 
->> Invitez vos amis à participer à cet évènement avec ce lien :
+>> Invitez vos amis à participer à cet événement avec ce lien :
 {{ EVENT_LINK }}
 
-Merci d’organiser un évènement. Chacune des actions que vous menez participe à la construction de notre mouvement. Un long travail de terrain nous attend encore. Ensemble, nous pouvons faire triompher nos idées et construire l’Avenir en commun.
+Merci d’organiser un événement. Chacune des actions que vous menez participe à la construction de notre mouvement. Un long travail de terrain nous attend encore. Ensemble, nous pouvons faire triompher nos idées et construire l’Avenir en commun.
 
 
 Amitiés,  

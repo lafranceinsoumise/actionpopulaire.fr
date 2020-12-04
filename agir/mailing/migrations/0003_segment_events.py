@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(
                 blank=True,
                 to="events.Event",
-                verbose_name="Limiter aux participant⋅e⋅s à un des évènements",
+                verbose_name="Limiter aux participant⋅e⋅s à un des événements",
             ),
         )
     ]

@@ -13,8 +13,8 @@ class Migration(migrations.Migration):
             name="do_not_list",
             field=models.BooleanField(
                 default=False,
-                help_text="L'évènement n'apparaîtra pas sur la carte, ni sur le calendrier et ne sera pas cherchable via la recherche interne ou les moteurs de recherche.",
-                verbose_name="Ne pas lister l'évènement",
+                help_text="L'événement n'apparaîtra pas sur la carte, ni sur le calendrier et ne sera pas cherchable via la recherche interne ou les moteurs de recherche.",
+                verbose_name="Ne pas lister l'événement",
             ),
         )
     ]

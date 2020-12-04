@@ -13,7 +13,7 @@ const EventFacebookLinkCard = ({ routes: { facebook } }) => (
       style={{ marginRight: "16px" }}
     />
     <a href={facebook} style={{ fontWeight: 500 }}>
-      L'évènement sur Facebook
+      L'événement sur Facebook
       <span style={{ marginLeft: "8px" }}>
         <FeatherIcon name="external-link" inline small />
       </span>

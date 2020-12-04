@@ -253,7 +253,7 @@ def create_event():
 
 def create_calendar(events):
     calendar = {
-        "name": "Évènements automatiques",
+        "name": "Événements automatiques",
         "slug": "calendar-%s" % fake.slug(),
         "image": create_image_url(nullable=True),
         "user_contributed": fake.boolean(),
@@ -430,7 +430,7 @@ def update_fake_data():
     events = {
         "user1_event1": Event.objects.get(name="Événement créé par user1"),
         "user1_event2": Event.objects.get(
-            name="Autre évènement créé par user1 sans personne dedans"
+            name="Autre événement créé par user1 sans personne dedans"
         ),
         "user1_past_event": Event.objects.get(name="Événement passé créé par user1"),
         "user1_unpublished_event": Event.objects.get(
@@ -535,7 +535,7 @@ def load_fake_data():
     # Events
     calendars = {
         "evenements_locaux": Calendar.objects.create_calendar(
-            "Évènements locaux", slug="calendar", user_contributed=True
+            "Événements locaux", slug="calendar", user_contributed=True
         ),
         "national": Calendar.objects.create_calendar("National", slug="national"),
     }
@@ -548,7 +548,7 @@ def load_fake_data():
             coordinates=Point(5.36472, 43.30028),  # Saint-Marie-Majeure de Marseille
         ),
         "user1_event2": Event.objects.create(
-            name="Autre évènement créé par user1 sans personne dedans",
+            name="Autre événement créé par user1 sans personne dedans",
             start_time=timezone.now() + timedelta(days=1),
             end_time=timezone.now() + timedelta(days=1, hours=1),
             coordinates=Point(2.301944, 49.8944),  # ND d'Amiens

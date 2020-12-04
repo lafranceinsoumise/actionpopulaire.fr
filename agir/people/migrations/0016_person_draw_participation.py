@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name="draw_participation",
             field=models.BooleanField(
                 default=False,
-                help_text="Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des évènements comme la Convention.Vous aurez la possibilité d'accepter ou de refuser cette participation.",
+                help_text="Vous pourrez être tiré⋅e au sort parmis les Insoumis⋅es pour participer à des événements comme la Convention.Vous aurez la possibilité d'accepter ou de refuser cette participation.",
                 verbose_name="Participer aux tirages au sort",
             ),
         )

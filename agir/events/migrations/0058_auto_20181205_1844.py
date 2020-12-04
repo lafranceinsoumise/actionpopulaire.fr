@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
             field=models.IntegerField(
                 blank=True,
                 null=True,
-                verbose_name="L'ID de l'évènement sur le logiciel de tickets",
+                verbose_name="L'ID de l'événement sur le logiciel de tickets",
             ),
         ),
     ]

@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             model_name="organizerconfig",
             name="is_creator",
             field=models.BooleanField(
-                default=False, verbose_name="Créateur de l'évènement"
+                default=False, verbose_name="Créateur de l'événement"
             ),
         ),
         migrations.AddField(

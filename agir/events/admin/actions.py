@@ -19,14 +19,14 @@ def export_events(modeladmin, request, queryset):
     return response
 
 
-export_events.short_description = _("Exporter les évènements en CSV")
+export_events.short_description = _("Exporter les événements en CSV")
 
 
 def make_published(modeladmin, request, queryset):
     queryset.update(visibility=Event.VISIBILITY_PUBLIC)
 
 
-make_published.short_description = _("Passer les évènements en visibilité publique")
+make_published.short_description = _("Passer les événements en visibilité publique")
 
 
 def make_private(modeladmin, request, queryset):
@@ -34,7 +34,7 @@ def make_private(modeladmin, request, queryset):
 
 
 make_private.short_description = _(
-    "Passer les évènements en visibilité organisateurices"
+    "Passer les événements en visibilité organisateurices"
 )
 
 
@@ -43,5 +43,5 @@ def unpublish(modeladmin, request, queryset):
 
 
 unpublish.short_description = _(
-    "Passer les évènements en visibilité administrateurices"
+    "Passer les événements en visibilité administrateurices"
 )

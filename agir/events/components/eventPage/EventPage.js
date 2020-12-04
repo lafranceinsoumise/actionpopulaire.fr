@@ -85,7 +85,7 @@ const IndexLink = ({ href }) =>
       <Column grow>
         <IndexLinkAnchor href={href}>
           <span>&#10140;</span>
-          &ensp; Liste des évènements
+          &ensp; Liste des événements
         </IndexLinkAnchor>
       </Column>
     </Row>
@@ -107,7 +107,7 @@ const MobileLayout = (props) => {
             >
               <img
                 src={props.illustration}
-                alt="Image d'illustration de l'évènement postée par l'utilisateur"
+                alt="Image d'illustration de l'événement postée par l'utilisateur"
                 style={{
                   width: "100%",
                   height: "auto",

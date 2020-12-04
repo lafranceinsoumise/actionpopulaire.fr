@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
             field=models.ImageField(
                 null=True,
                 upload_to="events/banners/",
-                verbose_name="bannière de l'évènement",
+                verbose_name="bannière de l'événement",
             ),
         ),
         migrations.AlterField(

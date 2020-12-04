@@ -47,7 +47,7 @@ Default.args = {};
 
 Default.args = {
   id: "12343432423",
-  name: "Super évènement",
+  name: "Super événement",
   rsvp: "CO",
   participantCount: 6,
   startTime: defaultStartTime.toMillis(),

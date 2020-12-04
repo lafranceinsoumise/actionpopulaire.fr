@@ -109,7 +109,7 @@ class DashboardView(SoftLoginRequiredMixin, TemplateView):
                 .exclude(rsvps__person=person)
                 .annotate(
                     reason=Value(
-                        "Cet évènement se déroule près de chez vous.", TextField()
+                        "Cet événement se déroule près de chez vous.", TextField()
                     )
                 )
                 .annotate(distance=Distance("coordinates", person.coordinates))

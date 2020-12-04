@@ -28,7 +28,7 @@ WaitingPayment.args = {
   type: "waiting-payment",
   id: String(Date.now()),
   event: {
-    name: "L'évènement",
+    name: "L'événement",
     routes: {
       details: "/",
     },

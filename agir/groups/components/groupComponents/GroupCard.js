@@ -106,7 +106,7 @@ const GroupCard = ({
         <Column collapse={0} grow>
           <h3 style={{ marginTop: 2, marginBottom: 2 }}>{name}</h3>
           <small style={{ color: style.black500 }}>
-            {eventCount} évènement{eventCount > 1 ? "s" : ""} &bull;{" "}
+            {eventCount} événement{eventCount > 1 ? "s" : ""} &bull;{" "}
             {membersCount} membre{membersCount > 1 ? "s" : ""}
           </small>
         </Column>

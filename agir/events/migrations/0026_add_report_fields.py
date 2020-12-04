@@ -17,8 +17,8 @@ class Migration(migrations.Migration):
             name="report_content",
             field=lib_models.DescriptionField(
                 blank=True,
-                help_text="Ajoutez un compte-rendu de votre évènement. N'hésitez pas à inclure des photos.",
-                verbose_name="compte-rendu de l'évènement",
+                help_text="Ajoutez un compte-rendu de votre événement. N'hésitez pas à inclure des photos.",
+                verbose_name="compte-rendu de l'événement",
             ),
         ),
         migrations.AddField(

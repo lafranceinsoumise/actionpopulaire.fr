@@ -46,19 +46,19 @@ agir_tags = [
         "peuvent pas voter. Agissez pour changer cela.",
     ),
     (
-        "accueil évènements",
-        "Accueillir de petits évènements chez vous",
+        "accueil événements",
+        "Accueillir de petits événements chez vous",
         "Organiser une soirée, un apéro, une écoute collective d'une émission télé...",
     ),
     (
-        "participation évènements",
-        "Participer à des évènements près de chez vous",
-        "Être informé·e sur les évènements organisés près de chez vous.",
+        "participation événements",
+        "Participer à des événements près de chez vous",
+        "Être informé·e sur les événements organisés près de chez vous.",
     ),
     (
         "JRI",
         "Prendre des photos ou des vidéos près de chez vous",
-        "Filmer ou photographier des évènements locaux d'appui à la candidature.",
+        "Filmer ou photographier des événements locaux d'appui à la candidature.",
     ),
     (
         "appels",

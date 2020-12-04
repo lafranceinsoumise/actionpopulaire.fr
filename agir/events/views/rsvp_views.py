@@ -163,7 +163,7 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
                     rsvp_to_free_event(self.event, self.request.user.person)
                     return self.redirect_to_event(
                         message=_(
-                            "Merci de nous avoir signalé votre participation à cet évènement."
+                            "Merci de nous avoir signalé votre participation à cet événement."
                         ),
                         level=messages.SUCCESS,
                     )
@@ -406,7 +406,7 @@ class EventPaidView(RedirectView):
         messages.add_message(
             request=self.request,
             level=messages.SUCCESS,
-            message=f"Votre inscription {payment.get_price_display()} pour l'évènement « {event.name} » a bien été enregistré. "
+            message=f"Votre inscription {payment.get_price_display()} pour l'événement « {event.name} » a bien été enregistré. "
             f"Votre inscription sera confirmée dès validation du paiement.",
         )
         return reverse("view_event", args=[self.kwargs["payment"].meta["event_id"]])
@@ -447,7 +447,7 @@ class ExternalRSVPView(ConfirmSubscriptionView, FormView, DetailView):
             messages.add_message(
                 request=self.request,
                 level=messages.INFO,
-                message=_("Vous êtes déjà inscrit⋅e à l'évènement."),
+                message=_("Vous êtes déjà inscrit⋅e à l'événement."),
             )
             return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))
 
@@ -456,7 +456,7 @@ class ExternalRSVPView(ConfirmSubscriptionView, FormView, DetailView):
             messages.add_message(
                 request=self.request,
                 level=messages.INFO,
-                message=_("Vous avez bien été inscrit⋅e à l'évènement."),
+                message=_("Vous avez bien été inscrit⋅e à l'événement."),
             )
 
         return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))

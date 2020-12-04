@@ -1,8 +1,8 @@
 Bonjour,
 
-Bonne nouvelle,  {{ PERSON_INFORMATION }} s'est inscrit·e à votre évènement « {{ EVENT_NAME }} » !
+Bonne nouvelle,  {{ PERSON_INFORMATION }} s'est inscrit·e à votre événement « {{ EVENT_NAME }} » !
 
->> Voir la liste de toutes les personnes inscrites à votre évènement
+>> Voir la liste de toutes les personnes inscrites à votre événement
 {{ MANAGE_EVENT_LINK }}
 
 Amitiés,  

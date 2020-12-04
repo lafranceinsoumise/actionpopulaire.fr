@@ -1,9 +1,9 @@
 {% load display_lib %}
 <div>
-  <h4>Participation à un évènement payant</h4>
+  <h4>Participation à un événement payant</h4>
   <div>Vous avez payé <strong>{{ payment.price | display_price }}</strong> le {{ payment.created | date }} pour
     {% if guest %}emmener un invité{% else %}participer{% endif %}
-    à {% if event %}l'évènement payant <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>{% else %}
-    un évènement{% endif %}.
+    à {% if event %}l'événement payant <a href="{% url "view_event" event.pk %}">{{ event.name }}</a>{% else %}
+    un événement{% endif %}.
   </div>
 </div>

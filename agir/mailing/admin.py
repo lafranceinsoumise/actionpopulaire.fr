@@ -33,7 +33,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             {"fields": ("name", "newsletters", "tags", "is_2022", "is_insoumise",)},
         ),
         (
-            "GA, évènements, tirage au sort et formulaires",
+            "GA, événements, tirage au sort et formulaires",
             {
                 "fields": (
                     "draw_status",

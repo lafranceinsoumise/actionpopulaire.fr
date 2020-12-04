@@ -40,7 +40,7 @@ class Command(BaseCommand):
             str.strip,
             """
         Permet d'envoyer un SMS à un certain nombre de personnes. Pour envoyer un SMS, vous devez sélectionner :
-            - L'option -e pour indiquer l'ID d'un évènement, puis -n ou -d pour le nombre de personnes, ou la distance
+            - L'option -e pour indiquer l'ID d'un événement, puis -n ou -d pour le nombre de personnes, ou la distance
             - l'option -D puis le code à deux chiffres du département
             - l'option -R puis le code à deux chiffres ou le nom de la région
             - l'option -c puis les coordonnées géographiques lon,lat avec -n ou -d pour indiquer nombre ou distance
@@ -110,12 +110,12 @@ class Command(BaseCommand):
         if event:  # we generate coordinates from event
             if event.coordinates is None:
                 raise CommandError(
-                    "Cet évènement n'a pas de coordonnées géographiques."
+                    "Cet événement n'a pas de coordonnées géographiques."
                 )
 
             coordinates = event.coordinates
 
-            self.stdout.write(f"Évènement : {event.name}")
+            self.stdout.write(f"Événement : {event.name}")
             self.stdout.write(event.short_location())
             self.stdout.write(
                 event.start_time.astimezone(timezone.get_default_timezone()).strftime(
