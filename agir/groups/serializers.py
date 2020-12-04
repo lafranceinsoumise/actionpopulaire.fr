@@ -104,7 +104,11 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return {}
 
     def get_discountCodes(self, obj):
-        if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
+        if (
+            self.membership is not None
+            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+            and obj.tags.filter(label=settings.PROMO_CODE_TAG).exists()
+        ):
             return [
                 {"code": code, "expirationDate": date}
                 for code, date in get_promo_codes(obj)

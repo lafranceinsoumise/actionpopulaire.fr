@@ -128,7 +128,7 @@ const EventCard = (props) => {
         {Array.isArray(groups) && groups.length > 0
           ? groups.map((group) => (
               <p
-                key={group.id}
+                key={group.name}
                 style={{
                   fontWeight: "500",
                   fontSize: "14px",
