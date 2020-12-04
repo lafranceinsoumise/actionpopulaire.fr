@@ -7,7 +7,7 @@ from ..activity.models import Activity
 from ..activity.serializers import ActivitySerializer
 from ..events.models import Event
 
-from ..groups.models import SupportGroup
+from ..groups.models import SupportGroup, Membership
 
 
 def basic_information(request):
@@ -75,6 +75,7 @@ def basic_information(request):
             "isInsoumise": person.is_insoumise,
             "is2022": person.is_2022,
             "isAgir": person.is_agir,
+            "isGroupManager": False,
         }
         userActivities = (
             Activity.objects.filter(recipient=person)
@@ -95,6 +96,9 @@ def basic_information(request):
             .order_by("name")
         )
         if personGroups.count() > 0:
+            user["isGroupManager"] = Membership.objects.filter(
+                person=person, membership_type=Membership.MEMBERSHIP_TYPE_MANAGER
+            ).exists()
             routes["groups__personGroups"] = []
             user["groups"] = []
             for group in personGroups:

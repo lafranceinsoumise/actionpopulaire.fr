@@ -6,69 +6,15 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+import Tooltip from "@agir/front/genericComponents/Tooltip";
 
 import background from "./feedback-form-button.svg";
-import closeButton from "./close-btn.svg";
 
 const slideInTransition = {
   from: { opacity: 0, marginBottom: "-3rem" },
   enter: { opacity: 1, marginBottom: "0" },
   leave: { opacity: 0, marginBottom: "-3rem" },
 };
-
-const fadeInTransition = {
-  from: { opacity: 0 },
-  enter: { opacity: 1 },
-  leave: { opacity: 0 },
-  delay: 200,
-};
-
-const Tooltip = styled(animated.p)`
-  position: absolute;
-  top: -10px;
-  right: 0;
-  transform: translate(-26px, -100%);
-  right: 0;
-  width: 175px;
-  background-color: ${style.black1000};
-  color: white;
-  padding: 1rem;
-  display: flex;
-  flex-flow: column nowrap;
-  font-size: 13px;
-  line-height: 1.3;
-
-  strong {
-    font-size: 14px;
-  }
-
-  button {
-    position: absolute;
-    top: 0;
-    right: 0;
-    transform: translate(50%, -50%);
-    width: 24px;
-    height: 24px;
-    background-color: transparent;
-    border: none;
-    background-image: url(${closeButton});
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
-    cursor: pointer;
-  }
-
-  :after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-left: -4px;
-    border-width: 4px;
-    border-style: solid;
-    border-color: black black transparent transparent;
-  }
-`;
 
 const Button = styled.a`
   display: block;
@@ -112,7 +58,6 @@ export const FeedbackButton = (props) => {
     shouldPushTooltip && showTooltip();
   }, [shouldPushTooltip, showTooltip]);
 
-  const tooltipTransition = useTransition(hasTooltip, null, fadeInTransition);
   const wrapperTransition = useTransition(isActive, null, {
     ...slideInTransition,
     onRest: pushTooltip,
@@ -121,17 +66,14 @@ export const FeedbackButton = (props) => {
   return wrapperTransition.map(({ item, key, props }) =>
     item ? (
       <Wrapper key={key} style={props}>
-        {tooltipTransition.map(({ item, key, props }) =>
-          item ? (
-            <Tooltip key={key} style={props}>
-              <strong>Aidez-nous !</strong>
-              <span>Donnez votre avis sur le nouveau site →</span>
-              {shouldPushTooltip ? (
-                <button aria-label="Cacher" onClick={hideTooltip} />
-              ) : null}
-            </Tooltip>
-          ) : null
-        )}
+        <Tooltip
+          position="top-left"
+          shouldShow={hasTooltip}
+          onClose={shouldPushTooltip ? hideTooltip : undefined}
+        >
+          <strong>Aidez-nous !</strong>
+          <span>Donnez votre avis sur le nouveau site →</span>
+        </Tooltip>
         <Button
           href={href}
           aria-label="Je donne mon avis"
