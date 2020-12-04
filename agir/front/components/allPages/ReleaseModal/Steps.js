@@ -126,7 +126,7 @@ export const steps = [
     title: (
       <>
         Retrouvez les actualités de la FI sur{" "}
-        <a href="httsp://lafranceinsomuise.fr">lafranceinsoumise.fr</a>
+        <a href="https://lafranceinsoumise.fr">lafranceinsoumise.fr</a>
       </>
     ),
     body: (
