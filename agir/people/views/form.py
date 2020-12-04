@@ -208,7 +208,9 @@ class PeopleFormSubmissionsPrivateView(DetailView):
 
     def get_context_data(self, **kwargs):
         headers, submissions = default_person_form_display.get_formatted_submissions(
-            self.object, html=True, include_admin_fields=False
+            self.object,
+            html=True,
+            include_admin_fields=self.object.config.get("link_private_fields", False),
         )
 
         return {
@@ -228,7 +230,7 @@ class PeopleFormSubmissionsPrivateView(DetailView):
         headers, submissions = default_person_form_display.get_formatted_submissions(
             form,
             html=False,
-            include_admin_fields=False,
+            include_admin_fields=self.object.config.get("link_private_fields", False),
             resolve_labels=bool(request.GET.get("resolve_labels")),
             resolve_values=bool(request.GET.get("resolve_values")),
         )
