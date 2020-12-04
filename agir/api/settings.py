@@ -169,6 +169,8 @@ INSTALLED_APPS = [
     "reversion",
     "social_django",
     "data_france",
+    # profiling
+    "silk",
 ]
 
 MIDDLEWARE = [
@@ -187,6 +189,7 @@ MIDDLEWARE = [
     "agir.authentication.middleware.MailLinkMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
+    "silk.middleware.SilkyMiddleware",
 ]
 
 if ENABLE_DEBUG_TOOLBAR:
@@ -194,10 +197,12 @@ if ENABLE_DEBUG_TOOLBAR:
     MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
     INTERNAL_IPS = ["127.0.0.1", "192.168.33.1"]
 
-if ENABLE_SILK:
-    INSTALLED_APPS += ["silk"]
-    MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
-
+SILKY_INTERCEPT_FUNC = lambda request: request.user.is_superuser and request.GET.get(
+    "silk", False
+)
+SILKY_AUTHENTICATION = True
+SILKY_AUTHORISATION = True
+SILKY_PERMISSIONS = lambda user: user.is_superuser
 
 ROOT_URLCONF = "agir.api.urls"
 
