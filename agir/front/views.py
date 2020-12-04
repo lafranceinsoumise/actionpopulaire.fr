@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
-from django.db.models import Q, Prefetch
+from django.db.models import F, Q, Prefetch
 from django.http import HttpResponsePermanentRedirect, Http404
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -202,9 +202,12 @@ class MyGroupsView(SoftLoginRequiredMixin, ReactListView):
     data_script_id = "mes-groupes"
 
     def get_queryset(self):
-        return SupportGroup.objects.filter(
-            memberships__person=self.request.user.person
-        ).active()
+        return (
+            SupportGroup.objects.filter(memberships__person=self.request.user.person)
+            .active()
+            .annotate(membership_type=F("memberships__membership_type"))
+            .order_by("-membership_type", "name")
+        )
 
 
 class EventMapView(SoftLoginRequiredMixin, ReactBaseView):

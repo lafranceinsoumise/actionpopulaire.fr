@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db.models import Prefetch
+from django.db.models import Prefetch, F
 from django.middleware.csrf import get_token
 from django.urls import reverse
 
@@ -7,7 +7,7 @@ from ..activity.models import Activity
 from ..activity.serializers import ActivitySerializer
 from ..events.models import Event
 
-from ..groups.models import SupportGroup
+from ..groups.models import SupportGroup, Membership
 
 
 def basic_information(request):
@@ -92,7 +92,8 @@ def basic_information(request):
         personGroups = (
             SupportGroup.objects.filter(memberships__person=person)
             .active()
-            .order_by("name")
+            .annotate(membership_type=F("memberships__membership_type"))
+            .order_by("-membership_type", "name")
         )
         if personGroups.count() > 0:
             routes["groups__personGroups"] = []
