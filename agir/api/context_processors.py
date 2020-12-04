@@ -35,8 +35,8 @@ def basic_information(request):
         "donations": reverse("donation_amount"),
         "lafranceinsoumise": {
             "home": "https://lafranceinsoumise.fr",
-            "groupsMap": "https://lafranceinsoumise.fr/groupes-action/carte-groupes/",
-            "eventsMap": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
+            "groupMapPage": "https://lafranceinsoumise.fr/groupes-action/carte-groupes/",
+            "eventMapPage": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
             "thematicTeams": reverse("thematic_teams_list"),
         },
         "noussommespour": {"home": "https://noussommespour.fr",},
@@ -56,8 +56,6 @@ def basic_information(request):
         "help": "https://lafranceinsoumise.fr/fiches_pour_agir/",
         "news": "https://lafranceinsoumise.fr/actualites/",
         "contact": "https://lafranceinsoumise.fr/contact/",
-        "groupMapPage": "https://lafranceinsoumise.fr/groupes-action/carte-groupes/",
-        "eventMapPage": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
         "thematicTeams": reverse("thematic_teams_list"),
     }
 

@@ -371,8 +371,8 @@ export const Footer = (props) => {
                         Carte des évènements
                       </a>
                     )}
-                    {routes.lafranceinsoumise.groupsMap && (
-                      <a href={routes.lafranceinsoumise.groupsMap}>
+                    {routes.lafranceinsoumise.groupMapPage && (
+                      <a href={routes.lafranceinsoumise.groupMapPage}>
                         Carte des groupes d’actions
                       </a>
                     )}
