@@ -14,9 +14,25 @@ const fadeInTransition = {
   delay: 200,
 };
 
+const CloseButton = styled.button`
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  border: none;
+  background-image: url(${closeButton});
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  cursor: pointer;
+`;
+
 const BaseTooltip = styled(animated.p)`
   position: absolute;
-  width: 175px;
+  width: 224px;
   background-color: ${style.black1000};
   color: white;
   padding: 1rem;
@@ -24,25 +40,10 @@ const BaseTooltip = styled(animated.p)`
   flex-flow: column nowrap;
   font-size: 13px;
   line-height: 1.3;
+  text-align: left;
 
   strong {
     font-size: 14px;
-  }
-
-  button {
-    position: absolute;
-    top: 0;
-    right: 0;
-    transform: translate(50%, -50%);
-    width: 24px;
-    height: 24px;
-    background-color: transparent;
-    border: none;
-    background-image: url(${closeButton});
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
-    cursor: pointer;
   }
 
   :after {
@@ -101,7 +102,7 @@ export const TooltipContainer = (props) => {
     item ? (
       <Tooltip key={key} style={props} position={position}>
         {children}
-        {onClose ? <button aria-label="Cacher" onClick={onClose} /> : null}
+        {onClose ? <CloseButton aria-label="Cacher" onClick={onClose} /> : null}
       </Tooltip>
     ) : null
   );
