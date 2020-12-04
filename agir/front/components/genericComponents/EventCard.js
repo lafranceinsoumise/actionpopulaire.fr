@@ -86,6 +86,7 @@ const EventCard = (props) => {
     rsvp,
     routes,
     groups,
+    compteRendu,
   } = props;
   const mainLink = React.useRef(null);
   const handleClick = React.useCallback(
@@ -150,13 +151,27 @@ const EventCard = (props) => {
               routes={routes}
               schedule={schedule}
             />
+            {compteRendu && routes && routes.details ? (
+              <Button
+                small
+                color="tertiary"
+                icon="file-text"
+                as="a"
+                href={routes.details}
+              >
+                Voir le compte-rendu
+              </Button>
+            ) : null}
             <Button small as="a" href={routes.details} ref={mainLink}>
               Détails
             </Button>
           </Buttons>
         </Column>
         {participantCount > 1 && (
-          <Column collapse={0} style={{ alignSelf: "flex-end" }}>
+          <Column
+            collapse={0}
+            style={{ paddingTop: "0.5rem", alignSelf: "flex-end" }}
+          >
             {participantCount}{" "}
             <Hide as="span" under={400}>
               participant⋅es
@@ -196,6 +211,7 @@ EventCard.propTypes = {
       name: PropTypes.string,
     })
   ),
+  compteRendu: PropTypes.string,
 };
 
 export default EventCard;

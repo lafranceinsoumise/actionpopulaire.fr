@@ -178,6 +178,7 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
             "routes",
             "groups",
             "distance",
+            "compteRendu",
         ]
 
         return {

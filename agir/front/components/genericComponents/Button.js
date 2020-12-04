@@ -25,6 +25,13 @@ const buttonColors = {
     labelColor: style.black1000,
     hoverBackground: style.secondary600,
   },
+  tertiary: {
+    background: style.white,
+    labelColor: style.primary500,
+    hoverLabelColor: style.primary600,
+    borderColor: style.primary500,
+    hoverBorderColor: style.primary600,
+  },
   confirmed: {
     background: style.primary100,
     hoverBackground: style.primary150,
@@ -74,6 +81,7 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
     if (disabled) return transparentize(0.7, background);
     return background;
   }}}
+  cursor: pointer;
 
   &:hover,
   &:focus,
@@ -83,8 +91,22 @@ const Button = styled.button.attrs(({ color }) => buttonColors[color])`
         ? ""
         : `background-color: ${hoverBackground};`} // disabled buttons must not change color on hover
     text-decoration: none;
-    color: ${({ labelColor }) =>
-      labelColor}; // we need to overwrite link hover colors
+    color: ${({ hoverLabelColor, labelColor, disabled }) =>
+      disabled
+        ? transparentize(0.3, labelColor)
+        : hoverLabelColor || labelColor};
+    border-color: ${({
+      hoverBorderColor,
+      borderColor,
+      background,
+      disabled,
+    }) => {
+      if (!borderColor || !background) return "transparent";
+      if (hoverBorderColor) return hoverBorderColor;
+      if (borderColor) return borderColor;
+      if (disabled) return transparentize(0.7, background);
+      return background;
+    }}}
   }
 
   ${({ disabled }) => disabled && "cursor: not-allowed;"}
