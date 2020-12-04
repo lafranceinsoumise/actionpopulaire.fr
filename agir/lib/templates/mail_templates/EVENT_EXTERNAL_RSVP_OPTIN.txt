@@ -1,6 +1,6 @@
  Bonjour,
 
-Vous avez demandé à vous inscrire à l'évènement « {{ EVENT_NAME }} ».
+Vous avez demandé à vous inscrire à l'événement « {{ EVENT_NAME }} ».
   
 >> Je confirme mon inscription :
 {{ RSVP_LINK }}

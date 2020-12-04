@@ -27,7 +27,7 @@ const Template = (args) => {
 export const Default = Template.bind({});
 Default.args = {
   name: "waiting-location-event",
-  text: "Précisez la localisation de votre évènement : {évènement}",
+  text: "Précisez la localisation de votre événement : {événement}",
   iconName: "alert-circle",
   confirmLabel: "Mettre à jour",
   dismissLabel: "Cacher",

@@ -147,7 +147,7 @@ class FacebookEventField(models.CharField):
             return value.group(1)
         else:
             raise exceptions.ValidationError(
-                "Vous devez indiquez soit l'identifiant de l'évènement Facebook, soit son URL",
+                "Vous devez indiquez soit l'identifiant de l'événement Facebook, soit son URL",
                 params={"value": value},
             )
 

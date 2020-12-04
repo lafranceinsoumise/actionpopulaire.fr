@@ -61,7 +61,7 @@ class PersonalInformationsForm(forms.ModelForm):
         description_address = HTML(
             format_html(
                 """<p class="help-block">{help_text}</p>""",
-                help_text="Permet de vous informer d'évènements se déroulant près de chez vous.",
+                help_text="Permet de vous informer d'événements se déroulant près de chez vous.",
             )
         )
 

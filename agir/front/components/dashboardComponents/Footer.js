@@ -327,7 +327,7 @@ export const Footer = (props) => {
                   <a href={routes.events}>Evénements proches de chez moi</a>
                 )}
                 {routes.events && (
-                  <a href={routes.eventMapPage}>Carte des évènements</a>
+                  <a href={routes.eventMapPage}>Carte des événements</a>
                 )}
                 {routes.groupMapPage && (
                   <a href={routes.groupMapPage}>Carte des groupes d’actions</a>
@@ -348,7 +348,7 @@ export const Footer = (props) => {
                     )}
                     {routes.noussommespour.eventMapPage && (
                       <a href={routes.noussommespour.eventMapPage}>
-                        Carte des évènements
+                        Carte des événements
                       </a>
                     )}
                     {routes.noussommespour.groupsMap && (
@@ -368,7 +368,7 @@ export const Footer = (props) => {
                     )}
                     {routes.lafranceinsoumise.eventMapPage && (
                       <a href={routes.lafranceinsoumise.eventMapPage}>
-                        Carte des évènements
+                        Carte des événements
                       </a>
                     )}
                     {routes.lafranceinsoumise.groupMapPage && (

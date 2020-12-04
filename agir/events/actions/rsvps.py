@@ -20,17 +20,17 @@ class RSVPException(Exception):
 
 
 MESSAGES = {
-    "full": _("Cet évènement est complet."),
-    "finished": _("Cet évènement est déjà terminé !"),
-    "already_rsvped": _("Vous avez déjà indiqué votre participation à cet évènement."),
+    "full": _("Cet événement est complet."),
+    "finished": _("Cet événement est déjà terminé !"),
+    "already_rsvped": _("Vous avez déjà indiqué votre participation à cet événement."),
     "forbidden_to_add_guest": _(
-        "Il n'est pas possible d'ajouter des invités à cet évènement."
+        "Il n'est pas possible d'ajouter des invités à cet événement."
     ),
     "indiviual_guests": _(
-        "Cet évènement nécessite d'inscrire les invités individuellement"
+        "Cet événement nécessite d'inscrire les invités individuellement"
     ),
     "not_rsvped_cannot_add_guest": _(
-        "Vous n'êtes pas inscrit⋅e⋅s à cet évènement et ne pouvez donc ajouter un invité."
+        "Vous n'êtes pas inscrit⋅e⋅s à cet événement et ne pouvez donc ajouter un invité."
     ),
     "submission_issue": _(
         "Il y a eu un problème sur le remplissage du formulaire. Merci de retenter de vous inscrire."
@@ -103,7 +103,7 @@ def rsvp_to_paid_event_and_create_payment(
 ):
     if event.is_free:
         raise RSVPException(
-            "Cet évènement est gratuit : aucun paiement n'est donc nécessaire."
+            "Cet événement est gratuit : aucun paiement n'est donc nécessaire."
         )
 
     price = event.get_price(form_submission and form_submission.data)

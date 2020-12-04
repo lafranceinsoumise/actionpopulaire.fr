@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 blank=True,
                 default=True,
-                help_text="Nous envoyons parfois des SMS plutôt que des emails lors des grands évènements&nbsp;! Vous ne recevrez que les informations auxquelles vous êtes abonné⋅e.",
+                help_text="Nous envoyons parfois des SMS plutôt que des emails lors des grands événements&nbsp;! Vous ne recevrez que les informations auxquelles vous êtes abonné⋅e.",
                 verbose_name="Recevoir les SMS d'information",
             ),
         ),

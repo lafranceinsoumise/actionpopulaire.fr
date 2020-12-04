@@ -25,7 +25,7 @@ const EventInfoCard = ({ groups, participantCount, is2022 }) => (
         </IconListItem>
       )}
       <IconListItem name="flag">
-        {is2022 ? "Évènement Nous sommes pour !" : "Évènement France insoumise"}
+        {is2022 ? "Événement Nous sommes pour !" : "Événement France insoumise"}
       </IconListItem>
       {participantCount > 1 && (
         <IconListItem name="user-check">

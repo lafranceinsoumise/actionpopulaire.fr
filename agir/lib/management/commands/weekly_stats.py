@@ -89,7 +89,7 @@ class Command(BaseCommand):
         )
 
         print(
-            "{} évènements survenus ({:+d})".format(
+            "{} événements survenus ({:+d})".format(
                 main_week_stats["events_happened"],
                 main_week_stats["events_happened"]
                 - previous_week_stats["events_happened"],

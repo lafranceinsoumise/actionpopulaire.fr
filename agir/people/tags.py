@@ -56,16 +56,16 @@ action_tags = {
             ),
         ),
         (
-            "agir accueil évènements",
-            _("Accueillir de petits évènements chez vous "),
+            "agir accueil événements",
+            _("Accueillir de petits événements chez vous "),
             _(
                 "Organiser une soirée, un apéro, une écoute collective d'une émission télé..."
             ),
         ),
         (
-            "agir participation évènements",
-            _("Participer à des évènements près de chez vous"),
-            _("Être informé.e sur les évènements organisés près de chez vous."),
+            "agir participation événements",
+            _("Participer à des événements près de chez vous"),
+            _("Être informé.e sur les événements organisés près de chez vous."),
         ),
         (
             "agir groupe d'appui",
@@ -75,7 +75,7 @@ action_tags = {
         (
             "agir JRI",
             _("Prendre des photos ou vidéos près de chez vous"),
-            _("Filmer ou photographier des évènements locaux de la France insoumise."),
+            _("Filmer ou photographier des événements locaux de la France insoumise."),
         ),
         (
             "volontaire_procurations",

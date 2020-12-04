@@ -110,7 +110,7 @@ def event_argument(event_id):
     try:
         return Event.objects.get(pk=event_id)
     except Event.DoesNotExist:
-        raise ArgumentTypeError("Cet évènement n'existe pas.")
+        raise ArgumentTypeError("Cet événement n'existe pas.")
 
 
 def coordinates_argument(coords):

@@ -70,26 +70,26 @@ class Segment(BaseSegment, models.Model):
     )
     events = models.ManyToManyField(
         "events.Event",
-        verbose_name="Limiter aux participant⋅e⋅s à un des évènements",
+        verbose_name="Limiter aux participant⋅e⋅s à un des événements",
         blank=True,
     )
     events_subtypes = models.ManyToManyField(
         "events.EventSubtype",
-        verbose_name="Limiter aux participant⋅e⋅s à un évènements de ce type",
+        verbose_name="Limiter aux participant⋅e⋅s à un événements de ce type",
         blank=True,
     )
     events_start_date = models.DateTimeField(
-        "Limiter aux participant⋅e⋅s à des évènements commençant après cette date",
+        "Limiter aux participant⋅e⋅s à des événements commençant après cette date",
         blank=True,
         null=True,
     )
     events_end_date = models.DateTimeField(
-        "Limiter aux participant⋅e⋅s à des évènements terminant avant cette date",
+        "Limiter aux participant⋅e⋅s à des événements terminant avant cette date",
         blank=True,
         null=True,
     )
     events_organizer = models.BooleanField(
-        "Limiter aux organisateurices (sans effet si pas d'autres filtres évènements)",
+        "Limiter aux organisateurices (sans effet si pas d'autres filtres événements)",
         blank=True,
         default=False,
     )

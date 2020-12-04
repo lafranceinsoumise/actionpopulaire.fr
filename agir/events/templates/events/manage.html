@@ -1,7 +1,7 @@
 {% extends "front/layout.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %}Gérer l'évènement «&nbsp;{{ event.name }}&nbsp;»{% endblock %}
+{% block title %}Gérer l'événement «&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
 {% block main %}
 <div class="row">
@@ -15,7 +15,7 @@
       <a
         class="btn btn-sm btn-default"
         href="{% url "view_event" event.pk %}">
-        Page publique de l'évènement
+        Page publique de l'événement
       </a>
     </div>
     <div class="clearfix"></div>
@@ -29,13 +29,13 @@
     <h3>Gestion de l'événément</h3>
     {% include "events/includes/visibility.html" %}
     <div class="padtop padbottom">
-      <h4>Les informations de mon évènement</h4>
+      <h4>Les informations de mon événement</h4>
       <div class="panel panel-default">
-        <div class="help-dialog" data-hint="Les informations de votre évènement">
-          Vous trouverez ici le rappel des informations de votre évènement.
+        <div class="help-dialog" data-hint="Les informations de votre événement">
+          Vous trouverez ici le rappel des informations de votre événement.
         </div>
         <div class="panel-heading">
-          <strong>{{ event.name }}</strong>{% if event.is_past %} (cet évènement est
+          <strong>{{ event.name }}</strong>{% if event.is_past %} (cet événement est
           terminé){% endif %}
           <br />
           {% if organizing_groups %}
@@ -64,7 +64,7 @@
                 </p>
               {% elif event.coordinates_type == event.COORDINATES_NO_POSITION %}
                 <p class="alert alert-info">
-                  Ce évènement n'a pas d'adresse, ni de positionnement manuel sur le carte.
+                  Ce événement n'a pas d'adresse, ni de positionnement manuel sur le carte.
                 </p>
               {% elif event.coordinates_type == event.COORDINATES_NOT_FOUND %}
                 <p class="alert alert-danger">
@@ -72,7 +72,7 @@
                 </p>
               {% elif event.coordinates == None %}
                 <p class="alert alert-danger">
-                  Il semble y avoir un problème avec les coordonnées de votre évènement. Essayez <a href="{% url "change_event_location" event.pk %}">d'indiquer manuellement la position</a>.
+                  Il semble y avoir un problème avec les coordonnées de votre événement. Essayez <a href="{% url "change_event_location" event.pk %}">d'indiquer manuellement la position</a>.
                 </p>
               {% else %}
                 <iframe
@@ -100,24 +100,24 @@
               </div>
               <div class="col-md-4 margintop marginbottomless">
                 <div class="help-dialog">
-                  Vous pouvez aussi changer l'endroit où votre évènement apparaît sur la carte si celui-ci n'était pas correct.
+                  Vous pouvez aussi changer l'endroit où votre événement apparaît sur la carte si celui-ci n'était pas correct.
                 </div>
                 <a class="btn btn-block btn-wrap btn-default" href="{% url "change_event_location" event.pk %}">
-                  Corriger la localisation de l'évènement
+                  Corriger la localisation de l'événement
                 </a>
               </div>
               <div class="col-md-4 margintop marginbottomless">
                 <div class="help-dialog">
-                  Vous pouvez enfin annuler votre évènement. Un message sera envoyé à tous les participants pour leur signaler.
+                  Vous pouvez enfin annuler votre événement. Un message sera envoyé à tous les participants pour leur signaler.
                 </div>
                 <a class="btn btn-block btn-wrap btn-default" href="{% url "cancel_event" event.pk %}">
-                  Annuler l'évènement
+                  Annuler l'événement
                 </a>
               </div>
             {% else %}
               <div class="col-md-6 margintop marginbottomless">
                 <div class="help-dialog">
-                  Une fois l'évènement terminé, vous pouvez seulement rédiger ou modifier son compte-rendu.
+                  Une fois l'événement terminé, vous pouvez seulement rédiger ou modifier son compte-rendu.
                 </div>
                 <a class="btn btn-block btn-default" href="{% url "edit_event_report" event.pk %}">
                   {% if event.report_content %}Modifier{% else %}Rédiger{% endif %} le compte-rendu
@@ -136,7 +136,7 @@
                         {% csrf_token %}
                         <input class="btn btn-block btn-default" type="submit" value="Envoyer le compte-rendu">
                         <p class="col-xs-12 help-block text-center" style="font-size: 11px;">
-                          Attention : l'envoi de mail ne peut être effectué qu'une seule fois par évènement.
+                          Attention : l'envoi de mail ne peut être effectué qu'une seule fois par événement.
                         </p>
                       </form>
                     </div>
@@ -167,7 +167,7 @@
           <div class="col-md-6">
             <p>
               {% if event.legal.candidat or event.legal.materiel_campagne %}
-                Lorsque tous les documents sont remplis, le secrétariat général de la campagne peut valider votre évènement. Ceci ne nécesssite pas d'action de votre part et prend habituellement deux à trois jours ouvrés.
+                Lorsque tous les documents sont remplis, le secrétariat général de la campagne peut valider votre événement. Ceci ne nécesssite pas d'action de votre part et prend habituellement deux à trois jours ouvrés.
                 <a href="{% url "event_legal_form" event.pk %}" class="btn btn-block btn-default margintopmore">
                   Mettre à jour les informations légales
                 </a>
@@ -179,9 +179,9 @@
     {% endif %}
     <div class="padtop padbottom">
       <div class="help-dialog">
-        Apparaissent ici la liste des organisateur de votre évènement.
+        Apparaissent ici la liste des organisateur de votre événement.
       </div>
-      <h4>Les organisateurs de l'évènement</h4>
+      <h4>Les organisateurs de l'événement</h4>
       <div class="row">
         <div class="col-md-6">
           <ul class="list-group">
@@ -201,7 +201,7 @@
             Utilisez ce formulaire pour sélectionner d'autres organisateurs. Pour pouvoir les sélectionner, elles doivent s'êtres inscrites comme participants.
           </div>
           <p>
-            Vous pouvez sélectionner d'autres personnes pour co-organiser l'évènement avec vous parmi celles qui ont indiqué participer à l'évènement.
+            Vous pouvez sélectionner d'autres personnes pour co-organiser l'événement avec vous parmi celles qui ont indiqué participer à l'événement.
           </p>
           {% crispy add_organizer_form %}
         </div>
@@ -219,13 +219,13 @@
         </p>
 
         <p>
-          <strong>{{ rsvps|length }} personne{% if rsvps|length > 1 %}s{% endif %}</strong> {% if rsvps|length > 1 %}ont{% else %}a{% endif %} indiqué souhaiter participer à votre évènement pour le moment.
+          <strong>{{ rsvps|length }} personne{% if rsvps|length > 1 %}s{% endif %}</strong> {% if rsvps|length > 1 %}ont{% else %}a{% endif %} indiqué souhaiter participer à votre événement pour le moment.
         </p>
 
         <ul class="list-group">
           <div class="help-dialog">
             Copiez/collez simplement cette section dans votre logiciel de messagerie pour envoyer un message à tous
-            les participants à votre évènement.
+            les participants à votre événement.
           </div>
           {% for rsvp in rsvps %}
             {% with person=rsvp.person %}

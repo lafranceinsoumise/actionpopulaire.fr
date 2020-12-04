@@ -67,7 +67,7 @@ const Template = decorateArgs(
 export const Default = Template.bind({});
 Default.args = {
   id: "12343432423",
-  name: "Super évènement",
+  name: "Super événement",
   ...DescriptionStory.args,
   ...EventInfoStory.args,
   isOrganizer: false,

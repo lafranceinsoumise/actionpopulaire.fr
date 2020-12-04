@@ -26,7 +26,7 @@ class EventFilter(django_filters.rest_framework.FilterSet):
     type = django_filters.ChoiceFilter(
         field_name="subtype__type",
         lookup_expr="exact",
-        label="Type d'évènement",
+        label="Type d'événement",
         choices=EventSubtype.TYPE_CHOICES,
     )
 
@@ -37,7 +37,7 @@ class EventFilter(django_filters.rest_framework.FilterSet):
     )
 
     past = django_filters.BooleanFilter(
-        label="Inclure les évènements passés",
+        label="Inclure les événements passés",
         method="filter_include_past",
         widget=forms.CheckboxInput(),
     )

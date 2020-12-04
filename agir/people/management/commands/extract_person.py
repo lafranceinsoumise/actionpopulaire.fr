@@ -72,8 +72,8 @@ class Command(BaseCommand):
             **get_all_fields(Person),
             "pays": ("location_country", str),
             "Rôle": ("role", spec_role),
-            "évènements organisés": ("organized_events", T.all(), [spec_event]),
-            "participations aux évènements": (
+            "événements organisés": ("organized_events", T.all(), [spec_event]),
+            "participations aux événements": (
                 "rsvps",
                 T.all(),
                 [("event", spec_event)],
@@ -83,7 +83,7 @@ class Command(BaseCommand):
             "souscription au don mensuel": Coalesce(
                 ("subscription", spec_subscription), default=None
             ),
-            "images d'évènements": ("event_images", T.all(), [spec_event_images]),
+            "images d'événements": ("event_images", T.all(), [spec_event_images]),
             "réponses à des formulaires": (
                 "form_submissions",
                 T.all(),

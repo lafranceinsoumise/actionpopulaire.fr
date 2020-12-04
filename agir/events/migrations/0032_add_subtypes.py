@@ -149,7 +149,7 @@ class Migration(migrations.Migration):
                             ("A", "Action publique"),
                         ],
                         max_length=1,
-                        verbose_name="Type d'évènement",
+                        verbose_name="Type d'événement",
                     ),
                 ),
             ],

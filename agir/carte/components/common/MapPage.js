@@ -7,9 +7,9 @@ import Button from "@agir/front/genericComponents/Button";
 
 const CONFIG = {
   events: {
-    title: "Carte des évènements",
-    backLabel: "Liste des évènements",
-    createLabel: "Créer un évènement dans mon quartier",
+    title: "Carte des événements",
+    backLabel: "Liste des événements",
+    createLabel: "Créer un événement dans mon quartier",
   },
   groups: {
     title: "Carte des groupes",

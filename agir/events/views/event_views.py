@@ -84,7 +84,7 @@ __all__ = [
 
 
 class EventSearchView(FilterView):
-    """Vue pour lister les évènements et les rechercher
+    """Vue pour lister les événements et les rechercher
     """
 
     template_name = "events/event_search.html"
@@ -111,7 +111,7 @@ class EventDetailMixin(GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("events.view_event",)
     queryset = (
         Event.objects.all()
-    )  # y compris les évènements cachés, pour pouvoir montrer des pages GONE
+    )  # y compris les événements cachés, pour pouvoir montrer des pages GONE
 
     title_prefix = _("Evénement local")
 
@@ -135,9 +135,9 @@ class EventDetailMixin(GlobalOrObjectPermissionRequiredMixin):
 class EventDetailView(ObjectOpengraphMixin, EventDetailMixin, ReactSingleObjectView):
     permission_required = ("events.view_event",)
     meta_description = (
-        "Participez aux évènements organisés par les membres de la France insoumise."
+        "Participez aux événements organisés par les membres de la France insoumise."
     )
-    meta_description_2022 = "Participez et organisez des évènements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
+    meta_description_2022 = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
     serializer_class = serializers.EventSerializer
     queryset = Event.objects.all()
     bundle_name = "events/eventPage"
@@ -148,7 +148,7 @@ class EventParticipationView(SoftLoginRequiredMixin, EventDetailMixin, DetailVie
     template_name = "events/participation.html"
     permission_required = ("events.view_event", "events.participate_online")
     permission_denied_message = _(
-        "Vous devez être inscrit⋅e à l'évènement pour accéder à cette page."
+        "Vous devez être inscrit⋅e à l'événement pour accéder à cette page."
     )
     custom_template_engine = DjangoTemplates(
         {
@@ -161,9 +161,9 @@ class EventParticipationView(SoftLoginRequiredMixin, EventDetailMixin, DetailVie
 
     def get_context_data(self, **kwargs):
         if self.object.is_past():
-            raise PermissionDenied("L'évènement est terminé !")
+            raise PermissionDenied("L'événement est terminé !")
         if not self.object.is_current():
-            raise PermissionDenied("L'évènement n'est pas encore commencé !")
+            raise PermissionDenied("L'événement n'est pas encore commencé !")
 
         context_data = super().get_context_data(**kwargs)
 
@@ -229,7 +229,7 @@ class QuitEventView(
             request,
             messages.SUCCESS,
             format_html(
-                _("Vous ne participez plus à l'évènement <em>{}</em>"),
+                _("Vous ne participez plus à l'événement <em>{}</em>"),
                 self.object.event.name,
             ),
         )
@@ -275,7 +275,7 @@ class UploadEventImageView(
 
         if not self.event.rsvps.filter(person=request.user.person).exists():
             raise PermissionDenied(
-                _("Seuls les participants à l'évènement peuvent poster des images")
+                _("Seuls les participants à l'événement peuvent poster des images")
             )
 
         return super().get(request, *args, **kwargs)
@@ -286,7 +286,7 @@ class UploadEventImageView(
 
         if not self.event.rsvps.filter(person=request.user.person).exists():
             raise PermissionDenied(
-                _("Seuls les participants à l'évènement peuvent poster des images")
+                _("Seuls les participants à l'événement peuvent poster des images")
             )
 
         form = self.get_form()
@@ -423,7 +423,7 @@ class PerformCreateEventView(SoftLoginRequiredMixin, FormMixin, ProcessFormView)
         messages.add_message(
             request=self.request,
             level=messages.SUCCESS,
-            message="Votre évènement a été correctement créé.",
+            message="Votre événement a été correctement créé.",
         )
 
         form.save()
@@ -452,7 +452,7 @@ class ManageEventView(BaseEventAdminView, DetailView):
 
     error_messages = {
         "denied": _(
-            "Vous ne pouvez pas accéder à cette page sans être organisateur de l'évènement."
+            "Vous ne pouvez pas accéder à cette page sans être organisateur de l'événement."
         )
     }
 
@@ -494,7 +494,7 @@ class ManageEventView(BaseEventAdminView, DetailView):
 
         if self.object.is_past():
             raise PermissionDenied(
-                _("Vous ne pouvez pas ajouter d'organisateur à un évènement terminé.")
+                _("Vous ne pouvez pas ajouter d'organisateur à un événement terminé.")
             )
 
         form = self.get_form()
@@ -523,7 +523,7 @@ class ModifyEventView(ImageSizeWarningMixin, BaseEventAdminView, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = _("Modifiez votre évènement")
+        context["title"] = _("Modifiez votre événement")
         return context
 
     def form_valid(self, form):
@@ -534,7 +534,7 @@ class ModifyEventView(ImageSizeWarningMixin, BaseEventAdminView, UpdateView):
             request=self.request,
             level=messages.SUCCESS,
             message=format_html(
-                _("Les modifications de l'évènement <em>{}</em> ont été enregistrées."),
+                _("Les modifications de l'événement <em>{}</em> ont été enregistrées."),
                 self.object.name,
             ),
         )
@@ -560,7 +560,7 @@ class CancelEventView(BaseEventAdminView, DetailView):
         messages.add_message(
             request,
             messages.WARNING,
-            _("L'évènement « {} » a bien été annulé.").format(self.object.name),
+            _("L'événement « {} » a bien été annulé.").format(self.object.name),
         )
 
         return HttpResponseRedirect(self.success_url)

@@ -167,7 +167,7 @@ class Migration(migrations.Migration):
                 (
                     "name",
                     models.CharField(
-                        help_text="Le nom du groupe de l'évènement",
+                        help_text="Le nom du groupe de l'événement",
                         max_length=255,
                         verbose_name="nom",
                     ),
@@ -176,7 +176,7 @@ class Migration(migrations.Migration):
                     "description",
                     models.TextField(
                         blank=True,
-                        help_text="Une description de l'évènement, en MarkDown",
+                        help_text="Une description de l'événement, en MarkDown",
                         verbose_name="description",
                     ),
                 ),
@@ -193,10 +193,10 @@ class Migration(migrations.Migration):
                 ("end_time", models.DateTimeField(verbose_name="date et heure de fin")),
             ],
             options={
-                "verbose_name": "évènement",
-                "verbose_name_plural": "évènements",
+                "verbose_name": "événement",
+                "verbose_name_plural": "événements",
                 "ordering": ("-start_time", "-end_time"),
-                "permissions": (("every_event", "Peut éditer tous les évènements"),),
+                "permissions": (("every_event", "Peut éditer tous les événements"),),
             },
         ),
         migrations.CreateModel(

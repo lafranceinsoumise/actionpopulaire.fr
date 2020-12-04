@@ -79,7 +79,7 @@ const ActionButtons = (props) => {
   if (!logged) {
     return (
       <ActionButton color="secondary" disabled={true}>
-        Participer à l'évènement
+        Participer à l'événement
       </ActionButton>
     );
   }
@@ -92,7 +92,7 @@ const ActionButtons = (props) => {
         </ActionButton>
         {isOrganizer && (
           <ActionButton icon="settings" as="a" href={routes.manage}>
-            Gérer l'évènement
+            Gérer l'événement
           </ActionButton>
         )}
       </>
@@ -102,7 +102,7 @@ const ActionButtons = (props) => {
   if (hasSubscriptionForm) {
     return (
       <ActionButton as="a" color="secondary" href={`${routes.rsvp}`}>
-        Participer à l'évènement
+        Participer à l'événement
       </ActionButton>
     );
   }
@@ -110,7 +110,7 @@ const ActionButtons = (props) => {
   return (
     <CSRFProtectedForm method="post" action={routes.rsvp}>
       <ActionButton type="submit" color="secondary">
-        Participer à l'évènement
+        Participer à l'événement
       </ActionButton>
     </CSRFProtectedForm>
   );
@@ -135,7 +135,7 @@ const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
         <ActionLink href={`${routes.join}?type=${forUsers}`}>
           je m'inscris
         </ActionLink>{" "}
-        pour participer à l'évènement
+        pour participer à l'événement
       </div>
     );
   }

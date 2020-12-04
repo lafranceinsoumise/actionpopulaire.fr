@@ -20,10 +20,10 @@ class Migration(migrations.Migration):
                     choices=[
                         ("view_profile", "Voir mon profil"),
                         ("edit_profile", "Changer mon profil"),
-                        ("edit_event", "Éditer mes évènements"),
+                        ("edit_event", "Éditer mes événements"),
                         (
                             "edit_rsvp",
-                            "Voir et éditer mes participations aux évènements",
+                            "Voir et éditer mes participations aux événements",
                         ),
                         ("edit_supportgroup", "Éditer mes groupes d'appui"),
                         (
@@ -49,10 +49,10 @@ class Migration(migrations.Migration):
                     choices=[
                         ("view_profile", "Voir mon profil"),
                         ("edit_profile", "Changer mon profil"),
-                        ("edit_event", "Éditer mes évènements"),
+                        ("edit_event", "Éditer mes événements"),
                         (
                             "edit_rsvp",
-                            "Voir et éditer mes participations aux évènements",
+                            "Voir et éditer mes participations aux événements",
                         ),
                         ("edit_supportgroup", "Éditer mes groupes d'appui"),
                         (

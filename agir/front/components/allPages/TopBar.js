@@ -211,7 +211,7 @@ export const PureTopBar = ({ user, routes }) => {
               </SearchBarIndicator>
               <SearchBarInput
                 ref={inputRef}
-                placeholder="Rechercher un groupe ou un évènement"
+                placeholder="Rechercher un groupe ou un événement"
               />
               <SearchBarButton
                 onClick={(e) => {

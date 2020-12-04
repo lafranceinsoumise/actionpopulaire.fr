@@ -1,6 +1,6 @@
 Bonjour,
 
-L'organisateur⋅ice de l'évènement « {{ EVENT_NAME }} » a posté un compte rendu de celui-ci.
+L'organisateur⋅ice de l'événement « {{ EVENT_NAME }} » a posté un compte rendu de celui-ci.
 
 {{ EVENT_REPORT_SUMMARY }}
 

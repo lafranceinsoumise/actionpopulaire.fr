@@ -39,14 +39,14 @@
         <span class="badge">{{ event.subtype.description }}</span>
       {% endif %}
       {% if event.is_past %}
-        <small>(évènement terminé)</small>{% endif %}</h1>
+        <small>(événement terminé)</small>{% endif %}</h1>
     <div class="text-right">
       {% if user.is_authenticated %}
         {% if user.is_staff %}
           <a class="btn btn-default" href="{% admin_url "admin:events_event_change" event.pk %}">Administration</a>
         {% endif %}
         {% if is_organizer %}
-          <a class="btn btn-default" href="{% url "manage_event" event.pk %}">Gérer l'évènement</a>
+          <a class="btn btn-default" href="{% url "manage_event" event.pk %}">Gérer l'événement</a>
         {% endif %}
         {% if not event.is_past %}
           {% if rsvp %}
@@ -97,17 +97,17 @@
             </div>
             {% if event.is_current and event.enable_jitsi %}
               <a class="btn btn-default" href="{% url "view_event_participation" event.pk %}" data-turbolinks="false">Lancer
-                l'évènement en ligne&nbsp;!</a>
+                l'événement en ligne&nbsp;!</a>
             {% endif %}
           {% elif user.person.is_insoumise or event.subtype.allow_external %}
             {% if event.max_participants and event.participants >= event.max_participants %}
-              <span class="btn btn-primary">Évènement complet</span>
+              <span class="btn btn-primary">Événement complet</span>
             {% else %}
               <form style="display:inline;" action="{% url "rsvp_event" event.pk %}"
                     method="{% if event.subscription_form is None %}post{% else %}get{% endif %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary">
-                  Participer à cet évènement{% if event.get_price_display %} ({{ event.get_price_display }}){% endif %}
+                  Participer à cet événement{% if event.get_price_display %} ({{ event.get_price_display }}){% endif %}
                 </button>
               </form>
               <p class="help-block">
@@ -115,7 +115,7 @@
               </p>
             {% endif %}
           {% else %}
-            <span class="btn btn-primary">Évènement réservé aux insoumis⋅es</span>
+            <span class="btn btn-primary">Événement réservé aux insoumis⋅es</span>
           {% endif %}
         {% endif %}
       {% elif event.subtype.allow_external %}
@@ -125,7 +125,7 @@
           <div class="input-group">
             <input type="email" name="email" class="form-control" placeholder="email@exemple.fr">
             <span class="input-group-btn">
-                        <button class="btn btn-primary" type="submit">Participer à cet évènement <i
+                        <button class="btn btn-primary" type="submit">Participer à cet événement <i
                             class="fa fa-check"></i></button>
                       </span>
           </div>
@@ -136,7 +136,7 @@
       {% else %}
         <a class="btn btn-primary" title="Connexion"
            href="{% url "short_code_login" %}?next={{ request.get_full_path|urlencode }}">Se connecter pour
-          participer à l'évènement</a>
+          participer à l'événement</a>
       {% endif %}
     </div>
   </header>
@@ -183,7 +183,7 @@
       {% spaceless %}
         {% if organizers_groups|length > 0 %}
           <p>
-            L'évènement {% if event.is_past %}était organisé{% else %}est organisé{% endif %}
+            L'événement {% if event.is_past %}était organisé{% else %}est organisé{% endif %}
             {% if organizers_group|length > 1 %}par les groupes d'action{% else %}par le groupe
               d'action{% endif %}
             {% for supportgroup in event.organizers_groups.all.distinct %}
@@ -212,7 +212,7 @@
         {% if event.description %}
           {{ event.html_description }}
         {% else %}
-          <i>Cet évènement n'a pas encore de description.</i>
+          <i>Cet événement n'a pas encore de description.</i>
           {% if is_organizer %}
             &nbsp;
             <a href="{% url "edit_event" event.pk %}#div_id_description"><span class="fa fa-edit"></span> Ajouter</a>
@@ -235,7 +235,7 @@
             {{ event.html_report_content }}
           {% else %}
             <p>
-              <em>Les organisateurs de cet évènement n'ont pas encore posté de compte-rendu.</em>
+              <em>Les organisateurs de cet événement n'ont pas encore posté de compte-rendu.</em>
             </p>
           {% endif %}
         </div>
@@ -257,7 +257,7 @@
           </div>
         {% else %}
           <p>
-            Aucun participant n'a encore ajouté de photo de cet évènement&nbsp;!
+            Aucun participant n'a encore ajouté de photo de cet événement&nbsp;!
           </p>
         {% endif %}
         {% if rsvp %}

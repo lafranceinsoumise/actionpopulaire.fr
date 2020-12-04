@@ -139,7 +139,7 @@ export const steps = [
   {
     img: imgStep3,
     imgHeight: 110,
-    title: "Vos groupes, vos évènement et vos notifications au même endroit",
+    title: "Vos groupes, vos événement et vos notifications au même endroit",
     body: (
       <p>
         Le menu vous permet d’accéder d’un coup d’oeil à toute votre vie

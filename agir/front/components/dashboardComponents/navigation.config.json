@@ -3,7 +3,7 @@
     {
       "id": "events",
       "icon": "calendar",
-      "title": "Évènements",
+      "title": "Événements",
       "route": "events",
       "desktop": true,
       "mobile": true
@@ -69,7 +69,7 @@
     },
     {
       "id": "eventMap",
-      "title": "Carte des évènements",
+      "title": "Carte des événements",
       "route": "eventMapPage"
     },
     {
