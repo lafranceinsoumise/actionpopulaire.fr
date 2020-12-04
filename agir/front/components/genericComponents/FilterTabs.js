@@ -8,7 +8,7 @@ const Tab = styled.li`
   text-transform: uppercase;
   display: block;
   padding: 0;
-  margin: 0 16px -1px 0;
+  margin: 0 0 -1px 16px;
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -19,8 +19,8 @@ const Tab = styled.li`
   border-bottom: ${({ active }) =>
     active ? `3px solid ${style.primary500}` : "3px solid transparent"};
 
-  &:last-child {
-    margin-right: 0;
+  &:first-child {
+    margin-left: 0;
   }
 
   @media (max-width: ${style.collapse}px) {
@@ -37,6 +37,13 @@ const TabList = styled.ul`
   align-items: center;
   overflow-x: auto;
   overflow-y: hidden;
+
+  &:after {
+    content: "";
+    display: block;
+    padding-right: 1.5rem;
+    height: 100%;
+  }
 `;
 
 const TabListWrapper = styled.div`
@@ -47,7 +54,6 @@ const TabListWrapper = styled.div`
   border-bottom: 1px solid ${style.black100};
 
   @media (max-width: ${style.collapse}px) {
-    padding-right: 5%;
     width: calc(100% - 50px);
     margin: 0 auto;
   }
@@ -60,7 +66,17 @@ const TabListWrapper = styled.div`
     right: 0;
     top: 0;
     bottom: 0;
-    background: linear-gradient(90deg, transparent 90%, white);
+    background: rgba(250, 250, 250, 0.001);
+    background-image: -webkit-linear-gradient(
+      left,
+      rgba(250, 250, 250, 0.001) calc(100% - 2rem),
+      rgba(250, 250, 250, 1)
+    );
+    background-image: linear-gradient(
+      to right,
+      rgba(250, 250, 250, 0.001) calc(100% - 2rem),
+      rgba(250, 250, 250, 1)
+    );
     pointer-events: none;
   }
 `;
