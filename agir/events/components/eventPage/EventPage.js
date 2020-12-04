@@ -69,14 +69,20 @@ const IndexLinkAnchor = styled.a`
 
   &,
   &:hover,
+  &:focus,
   &:active {
     text-decoration: none;
     color: #585858;
   }
 
   span {
-    transform: rotate(180deg);
+    transform: rotate(180deg) translateY(-1.5px);
     transform-origin: center center;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    padding: 0.5rem 1.375rem 0;
+    margin-bottom: -1rem;
   }
 `;
 const IndexLink = ({ href }) =>
@@ -115,6 +121,9 @@ const MobileLayout = (props) => {
               />
             </div>
           )}
+          {props.logged && props.appRoutes && props.appRoutes.events ? (
+            <IndexLink href={props.appRoutes.events} />
+          ) : null}
           <Card>
             <EventHeader {...props} />
           </Card>
