@@ -504,7 +504,7 @@ class InformationPersonalFormTestCases(TestCase):
 
         self.assertContains(
             response,
-            "Ces informations nous permettrons de s'adresser à vous plus correctement",
+            "Ces informations nous permettront de nous adresser à vous plus correctement",
         )
 
         self.person = Person.objects.get(pk=self.person.pk)

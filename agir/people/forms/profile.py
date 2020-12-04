@@ -73,7 +73,7 @@ class PersonalInformationsForm(forms.ModelForm):
         )
 
         description = HTML(
-            """<p>Ces informations nous permettrons de s'adresser à vous plus correctement et
+            """<p>Ces informations nous permettront de nous adresser à vous plus correctement et
             en fonction de votre situation géographique.</p>"""
         )
 
