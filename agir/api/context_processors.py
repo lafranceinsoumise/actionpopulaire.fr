@@ -1,18 +1,13 @@
 from django.conf import settings
-from django.db.models import Prefetch
 from django.middleware.csrf import get_token
 from django.urls import reverse
 
-from ..activity.models import Activity
-from ..activity.serializers import ActivitySerializer
-from ..events.models import Event
-
-from ..groups.models import SupportGroup, Membership
+from ..activity.actions import get_serialized_activity, get_serialized_announcements
+from ..groups.models import SupportGroup
 
 
 def basic_information(request):
     user = None
-    activities = []
 
     routes = {
         "dashboard": reverse("dashboard"),
@@ -77,31 +72,17 @@ def basic_information(request):
             "isAgir": person.is_agir,
             "isGroupManager": False,
         }
-        userActivities = (
-            Activity.objects.filter(recipient=person)
-            .exclude(status=Activity.STATUS_INTERACTED)
-            .prefetch_related(
-                Prefetch("event", Event.objects.with_serializer_prefetch(person),)
-            )
-        )
-        if userActivities.count() > 0:
-            activitySerializer = ActivitySerializer(
-                instance=userActivities, many=True, context={"request": request}
-            )
-            activities = activitySerializer.data
 
-        personGroups = (
+        person_groups = (
             SupportGroup.objects.filter(memberships__person=person)
             .active()
             .order_by("name")
         )
-        if personGroups.count() > 0:
-            user["isGroupManager"] = Membership.objects.filter(
-                person=person, membership_type=Membership.MEMBERSHIP_TYPE_MANAGER
-            ).exists()
+
+        if person_groups.count() > 0:
             routes["groups__personGroups"] = []
             user["groups"] = []
-            for group in personGroups:
+            for group in person_groups:
                 link = {
                     "id": group.id,
                     "label": group.name,
@@ -120,6 +101,7 @@ def basic_information(request):
             "routes": routes,
             "csrfToken": get_token(request),
             "domain": settings.MAIN_DOMAIN,
-            "activities": activities,
+            "activities": get_serialized_activity(request),
+            "announcements": get_serialized_announcements(request),
         },
     }

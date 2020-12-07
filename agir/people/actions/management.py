@@ -157,7 +157,6 @@ MERGE_STRATEGIES = {
     "payments": merge_reassign_related,
     "subscriptions": merge_reassign_related,
     "received_notification": merge_reassign_related,
-    "notification": None,
     "municipales2020_commune": None,
     "mandat_municipal": merge_reassign_related,
     "mandat_departemental": merge_reassign_related,

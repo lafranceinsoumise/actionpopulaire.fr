@@ -2,10 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from agir.lib.tests.mixins import FakeDataMixin
-from agir.lib.utils import front_url
-from agir.notifications.models import Notification
-
-from ..models import OrganizerConfig, EventSubtype, Event
+from ..models import OrganizerConfig
 
 
 class SmokeTestCase(FakeDataMixin, TestCase):

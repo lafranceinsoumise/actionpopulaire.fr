@@ -1,7 +1,10 @@
+import dynamic_filenames
 from django.db import models
 from django.utils import timezone
+from stdimage import StdImageField
+from stdimage.validators import MinSizeValidator
 
-from agir.lib.models import TimeStampedModel
+from agir.lib.models import TimeStampedModel, DescriptionField
 
 
 class Activity(TimeStampedModel):
@@ -108,3 +111,78 @@ class Activity(TimeStampedModel):
                 fields=("recipient", "timestamp"), name="notifications_by_recipient"
             ),
         )
+
+
+class AnnouncementQuerySet(models.QuerySet):
+    def active(self):
+        now = timezone.now()
+
+        return self.filter(
+            (models.Q(start_date__lt=now))
+            & (models.Q(end_date__isnull=True) | models.Q(end_date__gt=now))
+        )
+
+
+class Announcement(models.Model):
+    objects = AnnouncementQuerySet.as_manager()
+
+    title = models.CharField(
+        verbose_name="Titre de l'annonce",
+        max_length=200,
+        help_text="Ce texte sera utilisé comme titre et texte du lien de l'annonce",
+        blank=False,
+    )
+
+    link = models.URLField(verbose_name="Lien", blank=False)
+
+    content = DescriptionField(verbose_name="Contenu", blank=False)
+
+    image = StdImageField(
+        verbose_name="Bannière",
+        validators=[MinSizeValidator(255, 160)],
+        variations={
+            "desktop": {"width": 255, "height": 130, "crop": True},
+            "mobile": {"width": 160, "height": 160, "crop": True},
+        },
+        upload_to=dynamic_filenames.FilePattern(
+            filename_pattern="activity/announcements/{uuid:2base32}/{uuid:s}{ext}"
+        ),
+        null=True,
+        blank=True,
+    )
+
+    start_date = models.DateTimeField(
+        verbose_name="Date de début", default=timezone.now
+    )
+    end_date = models.DateTimeField(verbose_name="Date de fin", null=True, blank=True)
+
+    segment = models.ForeignKey(
+        to="mailing.Segment",
+        on_delete=models.CASCADE,
+        related_name="notifications",
+        related_query_name="notification",
+        null=True,
+        blank=True,
+        help_text=(
+            "Segment des personnes auquel ce message sera montré (laisser vide pour montrer à tout le monde)"
+        ),
+    )
+
+    priority = models.IntegerField(
+        verbose_name="Priorité",
+        default=0,
+        help_text="Permet de modifier l'ordre d'affichage des annonces. Les valeurs plus élevées sont affichées avant."
+        " Deux annonces de même priorité sont affichées dans l'ordre anti-chronologique (par date de début)",
+    )
+
+    def __str__(self):
+        return f"« {self.title} »"
+
+    class Meta:
+        verbose_name = "Annonce"
+        indexes = (
+            models.Index(
+                fields=("start_date", "end_date"), name="announcement_date_index",
+            ),
+        )
+        ordering = ("start_date", "end_date")

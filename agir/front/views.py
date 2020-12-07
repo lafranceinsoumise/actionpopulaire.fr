@@ -2,20 +2,20 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
-from django.db.models import Q, Prefetch
+from django.db.models import Q
 from django.http import HttpResponsePermanentRedirect, Http404
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import View, RedirectView, TemplateView
 
-from .view_mixins import ReactListView, ReactSerializerBaseView, ReactBaseView
-from ..authentication.view_mixins import SoftLoginRequiredMixin
-from ..events.models import Event, OrganizerConfig
-from ..events.serializers import EventSerializer
-from ..groups.models import SupportGroup
-from ..groups.serializers import SupportGroupSerializer
-from ..lib.http import add_query_params_to_url
+from agir.authentication.view_mixins import SoftLoginRequiredMixin
+from agir.events.models import Event
+from agir.events.serializers import EventSerializer
+from agir.groups.models import SupportGroup
+from agir.groups.serializers import SupportGroupSerializer
+from agir.lib.http import add_query_params_to_url
 from agir.lib.tasks import geocode_person
+from .view_mixins import ReactListView, ReactSerializerBaseView, ReactBaseView
 
 
 class NBUrlsView(View):

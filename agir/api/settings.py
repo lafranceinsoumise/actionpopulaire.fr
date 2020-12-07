@@ -119,7 +119,6 @@ INSTALLED_APPS = [
     "agir.loans",
     "agir.mailing",
     "agir.activity.apps.ActivityConfig",
-    "agir.notifications.apps.NotificationsConfig",
     "agir.municipales.apps.MunicipalesConfig",
     "agir.legacy",
     "agir.telegram",
@@ -219,10 +218,7 @@ TEMPLATES = [
 
 if ENABLE_FRONT:
     TEMPLATES[0]["OPTIONS"]["context_processors"].extend(
-        [
-            "agir.api.context_processors.basic_information",
-            "agir.notifications.context_processors.notifications",
-        ]
+        ["agir.api.context_processors.basic_information",]
     )
 
 MESSAGE_TAGS = {ERROR: "danger"}

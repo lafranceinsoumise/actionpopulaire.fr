@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import throttle from "lodash/throttle";
 import debounce from "lodash/debounce";
 
@@ -62,4 +62,35 @@ export const useDebounce = (func, wait) => {
     }),
     [wait]
   );
+};
+
+/**
+ * Permet de mettre en place l'exécution d'un callback tous les `delay` secondes
+ *
+ * @param {Function} callback le callback à appeler régulièrement
+ * @param {number} delay le nombre de millisecondes d'attente entre deux invocation du callback
+ *
+ * En cas de changement du delay, l'intervalle actuel est supprimé et un nouvel intervalle est créé.
+ * Par exemple, si on était à 10 ms de la prochaine exécution, même si on réduit la longueur de l'intervalle
+ * de 1000 à 500, la prochaine exécution aura lieu dans 500 ms (et non dans 10).
+ */
+export const useInterval = function useInterval(callback, delay) {
+  const savedCallback = useRef();
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
 };
