@@ -38,8 +38,8 @@ def basic_information(request):
         "jlmBlog": "https://melenchon.fr",
         "linsoumission": "https://linsoumission.fr",
         "feedbackForm": "https://actionpopulaire.fr/formulaires/votre-avis/",
-        "help": "https://info.actionpopulaire.fr",
-        "contact": "https://info.actionpopulaire.fr/contact/",
+        "help": "https://infos.actionpopulaire.fr",
+        "contact": "https://infos.actionpopulaire.fr/contact/",
     }
 
     routes_2022 = {
