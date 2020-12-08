@@ -153,7 +153,7 @@ $screen-md: 992px !default;
 $screen-md-min: $screen-md !default;
 //** Deprecated `$screen-desktop` as of v3.0.1
 $screen-desktop: $screen-md-min !default;
-
+$collapse: $screen-md;
 // Large screen / wide desktop
 //** Deprecated `$screen-lg` as of v3.0.1
 $screen-lg: 1200px !default;
