@@ -198,7 +198,7 @@ export const PureTopBar = ({ user, routes }) => {
 
         <HorizontalFlex className="grow justify">
           <MenuLink href={routes.dashboard}>
-            <LogoAP height="3rem" />
+            <LogoAP height="3.5rem" />
           </MenuLink>
           <form className="large-only grow" method="get" action={routes.search}>
             <SearchBar>

@@ -9,14 +9,12 @@ import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 import Announcement from "@agir/front/genericComponents/Announcement";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import "swiper/swiper.scss";
-import "swiper/components/navigation/navigation.scss";
-import "swiper/components/pagination/pagination.scss";
+import "./Announcements.scss";
 
 SwiperCore.use([Pagination, A11y]);
 
 export const SingleSlide = styled(animated.div)`
-  margin: 0 1.5rem;
+  margin: 0 1rem;
 `;
 
 export const Carousel = styled(animated.div)`

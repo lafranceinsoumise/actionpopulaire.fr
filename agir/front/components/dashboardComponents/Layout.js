@@ -46,7 +46,7 @@ const FixedColumn = styled(Column)`
 
 const Banner = styled.div`
   width: 100%;
-  padding: 1rem 0 2.5rem;
+  padding: 1rem 0 0;
   background-color: ${({ smallBackgroundColor }) =>
     smallBackgroundColor || "transparent"};
 

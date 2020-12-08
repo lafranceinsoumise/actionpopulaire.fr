@@ -40,13 +40,13 @@ const Container = styled.article`
   p {
     line-height: 1.45;
     overflow: hidden;
+    font-size: 0.875rem;
   }
 
   h3 {
     display: block;
     margin: 0;
     margin-bottom: 0.125rem;
-    font-size: 0.875rem;
     font-weight: 700;
     color: ${style.primary500};
 
@@ -54,10 +54,6 @@ const Container = styled.article`
     span {
       color: inherit;
     }
-  }
-
-  p {
-    font-size: 0.75rem;
   }
 
   @media (max-width: ${style.collapse}px) {
@@ -85,6 +81,10 @@ const Container = styled.article`
     h3,
     p {
       color: white;
+    }
+
+    p {
+      font-size: 0.75rem;
     }
   }
 `;
