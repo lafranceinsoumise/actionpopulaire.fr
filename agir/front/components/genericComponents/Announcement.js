@@ -115,7 +115,7 @@ const Announcement = (props) => {
             <span>{title}</span>
           )}
         </h3>
-        <p>{content}</p>
+        <p dangerouslySetInnerHTML={{ __html: content }} />
       </div>
     </Container>
   );
