@@ -59,6 +59,14 @@
       "route": "menu",
       "desktop": false,
       "mobile": true
+    },
+    {
+      "id": "settings",
+      "icon": "settings",
+      "title": "Paramètres",
+      "route": "personalInformation",
+      "desktop": true,
+      "mobile": false
     }
   ],
   "secondaryLinks": [
