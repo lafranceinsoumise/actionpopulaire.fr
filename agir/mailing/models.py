@@ -55,7 +55,8 @@ class Segment(BaseSegment, models.Model):
     newsletters = ChoiceArrayField(
         models.CharField(choices=Person.NEWSLETTERS_CHOICES, max_length=255),
         default=default_newsletters,
-        help_text="Inclure les personnes abonnées aux newsletters suivantes",
+        help_text="Inclure les personnes abonnées aux newsletters suivantes.",
+        blank=True,
     )
     supportgroup_status = models.CharField(
         "Limiter aux membres de groupes ayant ce statut",
@@ -254,7 +255,12 @@ class Segment(BaseSegment, models.Model):
     )
 
     def get_subscribers_q(self):
-        q = Q(newsletters__overlap=self.newsletters, emails___bounced=False)
+        # ne pas inclure les rôles inactifs dans les envois de mail
+        q = ~Q(role__is_active=False)
+
+        # permettre de créer des segments capables d'inclure des personnes inscrites à aucune des newsletters
+        if self.newsletters:
+            q &= Q(newsletters__overlap=self.newsletters)
 
         if self.is_insoumise is not None:
             q = q & Q(is_insoumise=self.is_insoumise)
