@@ -36,10 +36,11 @@ export const updateGlobalContext = (
 ) => {
   let newState = state;
   if (action.type === "@@INIT" && Array.isArray(action.activities)) {
-    const { required } = parseActivities(action.activities);
+    const { unrequired, required } = parseActivities(action.activities);
     newState = {
       ...newState,
       requiredActionActivities: required,
+      unrequiredActivities: unrequired,
     };
   }
   if (action.type === "@@INIT" && action.user && action.user.is2022) {
@@ -61,6 +62,16 @@ export const updateGlobalContext = (
     newState = {
       ...newState,
       requiredActionActivities: action.requiredActionActivities,
+    };
+  }
+  if (action.type === "mark-activity-as-read" && action.id && action.status) {
+    newState = {
+      ...newState,
+      unrequiredActivities: newState.unrequiredActivities.map((activity) =>
+        activity.id === action.id
+          ? { ...activity, status: action.status }
+          : activity
+      ),
     };
   }
   return newState;

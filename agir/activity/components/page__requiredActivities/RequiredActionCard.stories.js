@@ -26,7 +26,7 @@ const Template = (args) => {
 export const WaitingPayment = Template.bind({});
 WaitingPayment.args = {
   type: "waiting-payment",
-  id: String(Date.now()),
+  id: 1,
   event: {
     name: "L'événement",
     routes: {

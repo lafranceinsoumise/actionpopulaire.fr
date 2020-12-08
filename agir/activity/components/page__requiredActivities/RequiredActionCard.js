@@ -132,7 +132,7 @@ const RequiredActionCard = (props) => {
   }
 };
 RequiredActionCard.propTypes = {
-  id: PropTypes.string.isRequired,
+  id: PropTypes.number.isRequired,
   type: PropTypes.string.isRequired,
   event: PropTypes.shape({
     name: PropTypes.string.isRequired,

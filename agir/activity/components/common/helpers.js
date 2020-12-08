@@ -1,8 +1,8 @@
 import axios from "@agir/lib/utils/axios";
 
-const activityEndpoint = "/api/activity/:id";
+const activityEndpoint = "/api/activity/:id/";
 
-const activityStatus = {
+export const activityStatus = {
   STATUS_UNDISPLAYED: "U",
   STATUS_DISPLAYED: "S",
   STATUS_INTERACTED: "I",
@@ -37,14 +37,17 @@ export const parseActivities = (data, dismissed = []) => {
   return parsedActivities;
 };
 
-export const dismissActivity = async (id) => {
+export const dismissActivity = async (
+  id,
+  status = activityStatus.STATUS_INTERACTED
+) => {
   let result = false;
   if (!id) {
     return result;
   }
   const url = activityEndpoint.replace(":id", id);
   const data = {
-    status: activityStatus.STATUS_INTERACTED,
+    status,
   };
   let res = null;
   try {

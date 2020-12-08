@@ -62,6 +62,7 @@ const Template = decorateArgs(
 
 export const Default = Template.bind({});
 Default.args = {
+  id: 1,
   type: "group-coorganization-accepted",
   event: EventCardStory.args,
   supportGroup: {

@@ -1,16 +1,33 @@
-import React, { useMemo } from "react";
+import React, { useCallback } from "react";
 
-import { parseActivities } from "@agir/activity/common/helpers";
+import { dismissActivity } from "@agir/activity/common/helpers";
 import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+
 import Activities from "@agir/activity/common/Activities";
 import ActivityCard from "./ActivityCard";
 
 const ActivityList = () => {
-  const { activities } = useGlobalContext();
-  const { unrequired } = useMemo(() => parseActivities(activities), [
-    activities,
-  ]);
+  const { unrequiredActivities, dispatch } = useGlobalContext();
 
-  return <Activities CardComponent={ActivityCard} activities={unrequired} />;
+  const handleVisible = useCallback(
+    async (id, status) => {
+      const success = await dismissActivity(id, status);
+      success &&
+        dispatch({
+          type: "mark-activity-as-read",
+          id,
+          status,
+        });
+    },
+    [dispatch]
+  );
+
+  return (
+    <Activities
+      CardComponent={ActivityCard}
+      activities={unrequiredActivities}
+      onVisible={handleVisible}
+    />
+  );
 };
 export default ActivityList;
