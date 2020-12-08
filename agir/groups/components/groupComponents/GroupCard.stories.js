@@ -67,6 +67,7 @@ Default.args = {
   displayDescription: true,
   displayMembership: true,
   isMember: false,
+  is2022: false,
   routes: {
     page: "#groupe",
   },

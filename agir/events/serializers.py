@@ -101,6 +101,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             "typeLabel",
             "labels",
             "routes",
+            "is2022",
         ],
     )
 
