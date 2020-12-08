@@ -145,7 +145,7 @@ class Announcement(models.Model):
             "mobile": {"width": 160, "height": 160, "crop": True},
         },
         upload_to=dynamic_filenames.FilePattern(
-            filename_pattern="activity/announcements/{uuid:2base32}/{uuid:s}{ext}"
+            filename_pattern="activity/announcements/{uuid:.2base32}/{uuid:s}{ext}"
         ),
         null=True,
         blank=True,

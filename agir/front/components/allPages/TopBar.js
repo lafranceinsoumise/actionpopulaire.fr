@@ -26,7 +26,7 @@ const TopBarContainer = styled.div`
   display: flex;
   justify-content: space-between;
 
-  max-width: 1400px;
+  max-width: 1320px;
   margin: 0 auto;
 
   & .large-only {

@@ -27,11 +27,15 @@ const BottomBar = styled.nav`
 `;
 
 const SecondaryMenu = styled.ul`
-  margin-top: 40px;
+  margin-top: 1.5rem;
   display: flex;
   flex-flow: column nowrap;
   list-style: none;
-  max-width: 215px;
+  max-width: 100%;
+
+  &:first-child {
+    margin-top: 0;
+  }
 
   @media only screen and (max-width: ${style.collapse}px) {
     display: none;
@@ -42,7 +46,7 @@ const SecondaryMenuItem = styled.li`
   font-size: 12px;
   line-height: 15px;
   color: ${style.black500};
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   font-weight: bold;
   overflow-wrap: break-word;
 
@@ -320,17 +324,23 @@ const Navigation = ({ active }) => {
           ) : null
         )}
       </Menu>
-      <SecondaryMenu style={{ padding: 0 }}>
-        <SecondaryMenuItem key="title">LIENS</SecondaryMenuItem>
-        {CONFIG.secondaryLinks.map((link) =>
-          link.href || routes[link.route] ? (
-            <SecondaryMenuItem key={link.id}>
-              <a href={link.href || routes[link.route]}>{link.title}</a>
-            </SecondaryMenuItem>
-          ) : null
-        )}
-      </SecondaryMenu>
     </BottomBar>
+  );
+};
+
+export const SecondaryNavigation = () => {
+  const { routes } = useGlobalContext();
+  return (
+    <SecondaryMenu style={{ padding: 0 }}>
+      <SecondaryMenuItem key="title">LIENS</SecondaryMenuItem>
+      {CONFIG.secondaryLinks.map((link) =>
+        link.href || routes[link.route] ? (
+          <SecondaryMenuItem key={link.id}>
+            <a href={link.href || routes[link.route]}>{link.title}</a>
+          </SecondaryMenuItem>
+        ) : null
+      )}
+    </SecondaryMenu>
   );
 };
 

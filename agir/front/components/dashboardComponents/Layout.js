@@ -4,7 +4,10 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
-import Navigation from "@agir/front/dashboardComponents/Navigation";
+import Navigation, {
+  SecondaryNavigation,
+} from "@agir/front/dashboardComponents/Navigation";
+import Announcements from "@agir/front/dashboardComponents/Announcements";
 import Footer from "@agir/front/dashboardComponents/Footer";
 
 export const LayoutSubtitle = styled.h2`
@@ -41,6 +44,28 @@ const FixedColumn = styled(Column)`
   }
 `;
 
+const Banner = styled.div`
+  width: 100%;
+  padding: 1rem 0 2.5rem;
+  background-color: ${({ smallBackgroundColor }) =>
+    smallBackgroundColor || "transparent"};
+
+  &:empty {
+    display: none;
+  }
+
+  @media (min-width: ${style.collapse}px) {
+    display: none;
+  }
+`;
+
+const SidebarColumn = styled(Column)`
+  padding-top: 72px;
+  @media (max-width: ${style.collapse}px) {
+    display: none;
+  }
+`;
+
 const MainColumn = styled(Column)`
   padding-top: 72px;
 
@@ -51,7 +76,11 @@ const MainColumn = styled(Column)`
 
 const MainContainer = styled(Container)`
   padding-bottom: 72px;
-
+  @media (min-width: ${style.collapse}px) {
+    & > ${Row} {
+      flex-wrap: nowrap;
+    }
+  }
   @media (max-width: ${style.collapse}px) {
     padding-top: 24px;
     background-color: ${({ smallBackgroundColor }) =>
@@ -61,6 +90,11 @@ const MainContainer = styled(Container)`
 
 const Layout = (props) => (
   <>
+    {props.hasBanner ? (
+      <Banner {...props}>
+        <Announcements displayType="banner" />
+      </Banner>
+    ) : null}
     <MainContainer {...props}>
       <Row gutter={72} align="flex-start">
         <FixedColumn>
@@ -77,6 +111,10 @@ const Layout = (props) => (
             {props.children}
           </section>
         </MainColumn>
+        <SidebarColumn>
+          <Announcements displayType="sidebar" />
+          <SecondaryNavigation />
+        </SidebarColumn>
       </Row>
     </MainContainer>
     <Footer desktopOnly={props.desktopOnlyFooter} />
@@ -109,6 +147,7 @@ Layout.propTypes = {
   subtitle: PropTypes.string,
   children: PropTypes.node,
   desktopOnlyFooter: PropTypes.bool,
+  hasBanner: PropTypes.bool,
 };
 Layout.defaultProps = {
   routes: {
@@ -117,4 +156,5 @@ Layout.defaultProps = {
     activity: "/activite",
   },
   desktopOnlyFooter: true,
+  hasBanner: false,
 };
