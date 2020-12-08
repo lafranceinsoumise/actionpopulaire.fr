@@ -204,6 +204,7 @@ class SubscriptionRequestSerializer(serializers.Serializer):
             send_confirmation_email.delay(
                 location_country=location_country, **self.validated_data
             )
+            self.result_data = {"status": "new"}
             return
 
         try:
