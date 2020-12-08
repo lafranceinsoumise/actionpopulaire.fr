@@ -19,6 +19,7 @@ from .actions.subscription import (
     SUBSCRIPTION_TYPE_CHOICES,
     nsp_confirmed_url,
     save_subscription_information,
+    SUBSCRIPTION_TYPE_NSP,
 )
 from .models import Person
 from .tasks import send_confirmation_email
@@ -195,13 +196,19 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         email = self.validated_data["email"]
         type = self.validated_data["type"]
 
+        location_country = french_zipcode_to_country_code(
+            self.validated_data["location_zip"]
+        )
+
+        if type == SUBSCRIPTION_TYPE_LFI:
+            send_confirmation_email.delay(
+                location_country=location_country, **self.validated_data
+            )
+            return
+
         try:
             person = Person.objects.get_by_natural_key(email)
         except Person.DoesNotExist:
-            location_country = french_zipcode_to_country_code(
-                self.validated_data["location_zip"]
-            )
-
             send_confirmation_email.delay(
                 location_country=location_country, **self.validated_data
             )
