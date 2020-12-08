@@ -2,7 +2,9 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 
-from agir.activity.models import Activity
+from agir.activity.actions import get_announcements
+from agir.activity.models import Activity, Announcement
+from agir.mailing.models import Segment
 from agir.people.models import Person
 
 
@@ -64,3 +66,37 @@ class ActivityAPIViewTestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class AnnouncementTestCase(TestCase):
+    def setUp(self) -> None:
+        self.insoumise = Person.objects.create_insoumise("a@a.a",)
+
+        self.nsp = Person.objects.create_person("b@b.b", is_2022=True)
+
+    def test_can_get_all_announcements(self):
+        a1 = Announcement.objects.create(
+            title="1ère annonce", link="https://lafranceinsoumise.fr", content="SUPER",
+        )
+
+        a2 = Announcement.objects.create(
+            title="2ème annonce", link="https://noussommespour.fr", content="GO SIGNEZ"
+        )
+
+        announcements = get_announcements(self.insoumise)
+        self.assertCountEqual(announcements, [a2, a1])
+
+    def test_can_limit_announcement_with_segment(self):
+        segment_insoumis = Segment.objects.create(is_insoumise=True)
+        a1 = Announcement.objects.create(
+            title="1ère annonce",
+            link="https://lafranceinsoumise.fr",
+            content="SUPER",
+            segment=segment_insoumis,
+        )
+
+        announcements = get_announcements(self.insoumise)
+        self.assertCountEqual(announcements, [a1])
+
+        announcements = get_announcements(self.nsp)
+        self.assertCountEqual(announcements, [])

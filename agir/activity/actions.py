@@ -39,7 +39,8 @@ def get_announcements(person=None):
         return [
             a
             for a in announcements
-            if a.segment is None or person in a.segment.get_subscribers_q()
+            if a.segment is None
+            or a.segment.get_subscribers_queryset().filter(pk=person.id).exists()
         ]
     else:
         return announcements.filter(segment__isnull=True)
