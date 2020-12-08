@@ -97,7 +97,7 @@ const Announcement = (props) => {
   }, []);
   return (
     <Container isClickable={!!link} onClick={handleClick}>
-      {image ? (
+      {image && image.mobile && image.desktop ? (
         <Image
           aria-label={title}
           style={{
