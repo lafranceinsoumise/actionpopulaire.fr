@@ -10,7 +10,7 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
     import("react"),
     import("@agir/lib/utils/react"),
     import("./ActivityPage"),
-    import("@agir/front/genericComponents/GlobalContext"),
+    import("@agir/front/globalContext/GlobalContext"),
   ]);
 
   const showActivities = () => {

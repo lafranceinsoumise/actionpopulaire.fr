@@ -9,7 +9,12 @@ import Button from "@agir/front/genericComponents/Button";
 import Tooltip from "@agir/front/genericComponents/Tooltip";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import {
+  getRoutes,
+  getRequiredActionActivityCount,
+  getUser,
+} from "@agir/front/globalContext/reducers";
 
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
 
@@ -215,7 +220,7 @@ const Counter = styled.span`
 `;
 
 const TooltipGroups = () => {
-  const { user } = useGlobalContext();
+  const user = useSelector(getUser);
   const [shouldShow, setShouldShow] = React.useState(false);
   const handleClose = React.useCallback(() => setShouldShow(false), []);
 
@@ -305,7 +310,11 @@ MenuLink.propTypes = {
 };
 
 const Navigation = ({ active }) => {
-  const { requiredActionActivities = [], routes } = useGlobalContext();
+  const requiredActionActivityCount = useSelector(
+    getRequiredActionActivityCount
+  );
+  const routes = useSelector(getRoutes);
+
   return (
     <BottomBar>
       <Menu>
@@ -316,7 +325,7 @@ const Navigation = ({ active }) => {
               key={link.id}
               active={active === link.id}
               href={link.href || routes[link.route]}
-              counter={link.counter && requiredActionActivities.length}
+              counter={link.counter && requiredActionActivityCount}
               secondaryLinks={
                 link.secondaryLinks && routes[link.secondaryLinks]
               }
@@ -329,7 +338,7 @@ const Navigation = ({ active }) => {
 };
 
 export const SecondaryNavigation = () => {
-  const { routes } = useGlobalContext();
+  const routes = useSelector(getRoutes);
   return (
     <SecondaryMenu style={{ padding: 0 }}>
       <SecondaryMenuItem key="title">LIENS</SecondaryMenuItem>

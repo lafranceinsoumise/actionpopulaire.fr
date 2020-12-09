@@ -8,7 +8,11 @@ import FeatherIcon, {
 } from "@agir/front/genericComponents/FeatherIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import {
+  getRequiredActionActivityCount,
+  getRoutes,
+} from "@agir/front/globalContext/reducers";
 
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
 
@@ -104,7 +108,10 @@ MenuLink.propTypes = {
 };
 
 const NavigationPage = ({ active }) => {
-  const { requiredActionActivities = [], routes } = useGlobalContext();
+  const requiredActionActivityCount = useSelector(
+    getRequiredActionActivityCount
+  );
+  const routes = useSelector(getRoutes);
   return (
     <Layout active="menu" desktopOnlyFooter={false}>
       <Navigation>
@@ -116,7 +123,7 @@ const NavigationPage = ({ active }) => {
                 key={link.id}
                 active={active === link.id}
                 href={link.href || routes[link.route]}
-                counter={link.counter && requiredActionActivities.length}
+                counter={link.counter && requiredActionActivityCount}
               />
             ) : null
           )}

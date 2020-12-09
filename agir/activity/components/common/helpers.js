@@ -37,6 +37,14 @@ export const parseActivities = (data, dismissed = []) => {
   return parsedActivities;
 };
 
+export const getUnreadCount = (data) => {
+  return data.reduce(
+    (count, activity) =>
+      count + (activity.status === activityStatus.STATUS_UNDISPLAYED ? 1 : 0),
+    0
+  );
+};
+
 export const dismissActivity = async (
   id,
   status = activityStatus.STATUS_INTERACTED

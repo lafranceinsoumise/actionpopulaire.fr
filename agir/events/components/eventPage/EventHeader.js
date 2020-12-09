@@ -3,8 +3,10 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 import { Interval, DateTime } from "luxon";
 
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getRoutes, getIsConnected } from "@agir/front/globalContext/reducers";
+
 import Button from "@agir/front/genericComponents/Button";
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
 import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
@@ -182,8 +184,9 @@ const EventHeader = ({
   hasSubscriptionForm,
   forUsers,
 }) => {
-  const config = useGlobalContext();
-  const logged = config.user !== null;
+  const globalRoutes = useSelector(getRoutes);
+  const logged = useSelector(getIsConnected);
+
   const rsvped = !!rsvp;
   const now = DateTime.local();
   const past = now > schedule.end;
@@ -211,7 +214,7 @@ const EventHeader = ({
           logged={logged}
           rsvped={rsvped}
           price={options.price}
-          routes={{ ...routes, ...config.routes }}
+          routes={{ ...routes, ...globalRoutes }}
           forUsers={forUsers}
         />
       )}

@@ -148,8 +148,6 @@ const ActivityText = ({
 };
 
 const LowMarginCard = styled(Card)`
-  background-color: ${({ isUnread }) => (isUnread ? "crimson" : "transparent")};
-
   @media only screen and (min-width: ${style.collapse}px) {
     padding: 0;
     border: none;

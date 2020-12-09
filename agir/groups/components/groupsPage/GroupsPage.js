@@ -10,7 +10,8 @@ import Layout, { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
 import Button from "@agir/front/genericComponents/Button";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getRoutes } from "@agir/front/globalContext/reducers";
 
 const TopBar = styled.div`
   display: flex;
@@ -62,7 +63,8 @@ const GroupList = styled.article`
 `;
 
 const GroupsPage = ({ data }) => {
-  const { routes } = useGlobalContext();
+  const routes = useSelector(getRoutes);
+
   const groups = React.useMemo(
     () =>
       data.map(({ discountCodes, ...group }) => ({

@@ -1,10 +1,15 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { parseActivities } from "@agir/activity/common/helpers";
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
-import { dismissActivity } from "@agir/activity/common/helpers";
+
+import {
+  useDispatch,
+  useSelector,
+} from "@agir/front/globalContext/GlobalContext";
+import { getRequiredActionActivities } from "@agir/front/globalContext/reducers";
+import { dismissRequiredActionActivity } from "@agir/front/globalContext/actions";
+
 import Activities from "@agir/activity/common/Activities";
 
 import Layout, {
@@ -36,38 +41,29 @@ const Counter = styled.span`
 `;
 
 const RequiredActivityList = () => {
-  const { activities, dispatch } = useGlobalContext();
+  const activities = useSelector(getRequiredActionActivities);
+  const dispatch = useDispatch();
 
-  const [dismissed, setDismissed] = useState([]);
-  const handleDismiss = useCallback(async (id) => {
-    const success = await dismissActivity(id);
-    success && setDismissed((state) => [...state, id]);
-  }, []);
-
-  const { required } = useMemo(() => parseActivities(activities, dismissed), [
-    activities,
-    dismissed,
-  ]);
-
-  useEffect(() => {
-    dispatch({
-      type: "update-required-action-activities",
-      requiredActionActivities: required,
-    });
-  }, [dispatch, required]);
+  const handleDismiss = useCallback(
+    async (id) => {
+      dispatch(dismissRequiredActionActivity(id));
+    },
+    [dispatch]
+  );
 
   return (
     <Layout active="required-activity">
       <Page>
         <LayoutTitle>
-          {required.length ? <Counter>{required.length}</Counter> : null}À faire
+          {activities.length ? <Counter>{activities.length}</Counter> : null}À
+          faire
         </LayoutTitle>
         <LayoutSubtitle>
           Vos actions à traiter en priorité, pour ne rien oublier !
         </LayoutSubtitle>
         <Activities
           CardComponent={RequiredActionCard}
-          activities={required}
+          activities={activities}
           onDismiss={handleDismiss}
         />
       </Page>

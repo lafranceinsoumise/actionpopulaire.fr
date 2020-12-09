@@ -12,7 +12,13 @@ import { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
 import Button from "@agir/front/genericComponents/Button";
 import EventCard from "@agir/front/genericComponents/EventCard";
 
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import {
+  getRoutes,
+  getUser,
+  getIs2022,
+} from "@agir/front/globalContext/reducers";
+
 import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import Onboarding from "@agir/front/genericComponents/Onboarding";
@@ -146,7 +152,9 @@ const otherEventConfig = {
 };
 
 const OtherEvents = ({ others }) => {
-  const { routes, user } = useGlobalContext();
+  const routes = useSelector(getRoutes);
+  const user = useSelector(getUser);
+
   const events = React.useMemo(
     () =>
       others.map((event) => ({
@@ -248,7 +256,8 @@ OtherEvents.propTypes = {
 };
 
 const Agenda = ({ rsvped, others }) => {
-  const { is2022, routes } = useGlobalContext();
+  const routes = useSelector(getRoutes);
+  const is2022 = useSelector(getIs2022);
 
   const rsvpedEvents = React.useMemo(
     () =>

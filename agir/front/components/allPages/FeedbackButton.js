@@ -5,7 +5,13 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import {
+  getHasFeedbackButton,
+  getUser,
+  getRoutes,
+} from "@agir/front/globalContext/reducers";
+
 import Tooltip from "@agir/front/genericComponents/Tooltip";
 
 import background from "./feedback-form-button.svg";
@@ -87,10 +93,13 @@ export const FeedbackButton = (props) => {
 FeedbackButton.propTypes = {
   isActive: PropTypes.bool,
   shouldPushTooltip: PropTypes.bool,
-  href: PropTypes.string.isRequired,
+  href: PropTypes.string,
 };
 const ConnectedFeedbackButton = (props) => {
-  const { user, hasFeedbackButton = false, routes } = useGlobalContext();
+  const hasFeedbackButton = useSelector(getHasFeedbackButton);
+  const user = useSelector(getUser);
+  const routes = useSelector(getRoutes);
+
   const href = routes && routes.feedbackForm;
 
   const [isActive, setIsActive] = useState(false);

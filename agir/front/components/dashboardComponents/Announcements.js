@@ -5,7 +5,9 @@ import SwiperCore, { Pagination, A11y } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 import styled from "styled-components";
 
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getAnnouncements } from "@agir/front/globalContext/reducers";
+
 import Announcement from "@agir/front/genericComponents/Announcement";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -106,7 +108,7 @@ BannerAnnouncements.propTypes = SidebarAnnouncements.propTypes = {
 
 const Announcements = (props) => {
   const { displayType } = props;
-  const { announcements = [] } = useGlobalContext();
+  const announcements = useSelector(getAnnouncements);
 
   return displayType === "sidebar" ? (
     <SidebarAnnouncements announcements={announcements} />

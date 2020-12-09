@@ -2,7 +2,7 @@ import React from "react";
 
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
 import Navigation from "./Navigation";
-import { TestGlobalContextProvider } from "@agir/front/genericComponents/GlobalContext";
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 
 const mockRoutes = [
   ...CONFIG.menuLinks.map((link) => link.route),
