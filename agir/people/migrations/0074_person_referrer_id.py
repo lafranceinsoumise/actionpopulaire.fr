@@ -6,7 +6,7 @@ from django.db import migrations, models
 
 GENERATE_INITIAL_IDS = """
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
-UPDATE people_person SET referrer_id = encode(gen_random_bytes(9), 'base64');
+UPDATE people_person SET referrer_id = translate(encode(gen_random_bytes(9), 'base64'), '+/', '-_');
 """
 
 
