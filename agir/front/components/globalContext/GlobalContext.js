@@ -36,8 +36,21 @@ export const useDispatch = () => {
 };
 
 export const TestGlobalContextProvider = ({ children, value }) => {
+  const [state] = useReducer(rootReducer, rootReducer({}, init()));
+  const doDispatch = useMemo(() => () => {}, []);
+  const currentState = useMemo(
+    () => ({
+      state: {
+        ...state,
+        ...value,
+      },
+      dispatch: doDispatch,
+    }),
+    [state, value, doDispatch]
+  );
+
   return (
-    <GlobalContext.Provider value={{ state: value, dispatch: () => {} }}>
+    <GlobalContext.Provider value={currentState}>
       {children}
     </GlobalContext.Provider>
   );

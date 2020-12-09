@@ -38,7 +38,7 @@ const Template = (args) => (
   <TestGlobalContextProvider
     value={{
       routes: mockRoutes,
-      activities: Object.keys([...Array(args.requiredActionActivityCount)]).map(
+      activities: Object.keys([...Array(args.unreadActivityCount)]).map(
         (i) => ({
           id: i,
           status: activityStatus.STATUS_UNDISPLAYED,

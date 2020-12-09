@@ -39,9 +39,11 @@ export const parseActivities = (data, dismissed = []) => {
 };
 
 export const getUnread = (data) => {
-  return data.filter(
-    (activity) => activity.status === activityStatus.STATUS_UNDISPLAYED
-  );
+  return Array.isArray(data)
+    ? data.filter(
+        (activity) => activity.status === activityStatus.STATUS_UNDISPLAYED
+      )
+    : [];
 };
 
 export const getUnreadCount = (data) => {

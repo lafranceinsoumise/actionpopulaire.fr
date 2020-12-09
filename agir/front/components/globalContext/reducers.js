@@ -86,21 +86,21 @@ const requiredActionActivities = (state = [], action) => {
 
 const user = (state = null, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
-    return action.user || null;
+    return action.user || state;
   }
   return state;
 };
 
 const csrfToken = (state = null, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
-    return action.csrfToken || null;
+    return action.csrfToken || state;
   }
   return state;
 };
 
 const routes = (state = {}, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
-    return action.routes || null;
+    return action.routes || state;
   }
   return state;
 };
@@ -121,7 +121,7 @@ export const getUnreadActivitiesCount = (state) =>
 export const getRequiredActionActivities = (state) =>
   state.requiredActionActivities;
 export const getRequiredActionActivityCount = (state) =>
-  state.requiredActionActivities.length;
+  state.requiredActionActivities ? state.requiredActionActivities.length : 0;
 
 export const getUser = (state) => state.user;
 export const getIsConnected = (state) => !!state.user;
