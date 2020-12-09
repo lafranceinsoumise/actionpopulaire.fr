@@ -1,6 +1,6 @@
 import axios from "@agir/lib/utils/axios";
 
-const bulkUpdateActivityStatusEndpoint = "/api/activities/update/";
+const bulkUpdateActivityStatusEndpoint = "/api/activity/update-status/";
 const activityEndpoint = "/api/activity/:id/";
 
 export const activityStatus = {
