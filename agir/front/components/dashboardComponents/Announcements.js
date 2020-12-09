@@ -53,11 +53,11 @@ export const BannerAnnouncements = (props) => {
   const style = useSpring({
     from: {
       opacity: 0,
-      transform: "translateX(24px)",
+      paddingLeft: 24,
     },
     to: {
       opacity: 1,
-      transform: "translateX(0)",
+      paddingLeft: 0,
     },
   });
 

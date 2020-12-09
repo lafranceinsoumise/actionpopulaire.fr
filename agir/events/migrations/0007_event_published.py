@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name="published",
             field=models.BooleanField(
                 default=True,
-                help_text="L'évenement doit-il être visible publiquement.",
+                help_text="L'événement doit-il être visible publiquement.",
                 verbose_name="publié",
             ),
         )

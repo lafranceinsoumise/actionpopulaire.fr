@@ -434,7 +434,7 @@ def update_fake_data():
         ),
         "user1_past_event": Event.objects.get(name="Événement passé créé par user1"),
         "user1_unpublished_event": Event.objects.get(
-            name="Évenement non publié créé par user1"
+            name="Événement non publié créé par user1"
         ),
     }
 
@@ -561,7 +561,7 @@ def load_fake_data():
             report_content=LOREM_IPSUM,
         ),
         "user1_unpublished_event": Event.objects.create(
-            name="Évenement non publié créé par user1",
+            name="Événement non publié créé par user1",
             visibility=Event.VISIBILITY_ADMIN,
             start_time=timezone.now() + timedelta(days=1),
             end_time=timezone.now() + timedelta(days=1, hours=1),

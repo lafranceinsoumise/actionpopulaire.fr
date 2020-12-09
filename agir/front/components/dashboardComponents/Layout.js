@@ -96,8 +96,8 @@ const Layout = (props) => (
       </Banner>
     ) : null}
     <MainContainer {...props}>
-      <Row gutter={72} align="flex-start">
-        <FixedColumn>
+      <Row gutter={50} align="flex-start">
+        <FixedColumn width="320px">
           <Navigation {...props} />
         </FixedColumn>
         <MainColumn grow>
