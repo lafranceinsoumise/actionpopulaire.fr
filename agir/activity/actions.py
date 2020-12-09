@@ -33,12 +33,18 @@ def get_announcements(person=None):
     today = timezone.now()
     cond = Q(start_date__lt=today) & (Q(end_date__isnull=True) | Q(end_date__gt=today))
 
-    announcements = Announcement.objects.filter(cond).select_related("segment")
+    # Les annonces sont affichés :
+    # - avec les plus grandes priorités d'abord
+    # - à priorité égale, les plus récentes d'abord
+    # - à priorité et date de début égales, celles qui disparaitront les premières d'abord
+    announcements = Announcement.objects.filter(cond).order_by(
+        "-priority", "-start_date", "end_date"
+    )
 
     if person:
         return [
             a
-            for a in announcements
+            for a in announcements.select_related("segment")
             if a.segment is None
             or a.segment.get_subscribers_queryset().filter(pk=person.id).exists()
         ]
