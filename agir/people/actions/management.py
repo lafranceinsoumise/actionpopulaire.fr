@@ -213,6 +213,7 @@ MERGE_STRATEGIES = {
     "commentaires": merge_comments,
     "search": None,
     "tags": merge_tags,
+    "referrer_id": None,
 }
 
 
