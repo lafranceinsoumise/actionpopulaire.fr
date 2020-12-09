@@ -4,6 +4,12 @@ import agir.people.models
 from django.db import migrations, models
 
 
+GENERATE_INITIAL_IDS = """
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+UPDATE people_person SET referrer_id = encode(gen_random_bytes(9), 'base64');
+"""
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -15,10 +21,19 @@ class Migration(migrations.Migration):
             model_name="person",
             name="referrer_id",
             field=models.CharField(
+                max_length=13, verbose_name="Identifiant d'invitation", default="",
+            ),
+            preserve_default=False,
+        ),
+        migrations.RunSQL(sql=GENERATE_INITIAL_IDS, reverse_sql=migrations.RunSQL.noop),
+        migrations.AlterField(
+            model_name="person",
+            name="referrer_id",
+            field=models.CharField(
                 default=agir.people.models.generate_referrer_id,
                 max_length=13,
-                unique=True,
                 verbose_name="Identifiant d'invitation",
+                unique=True,
             ),
         ),
     ]
