@@ -12,6 +12,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getRoutes,
+  getUnreadActivitiesCount,
   getRequiredActionActivityCount,
   getUser,
 } from "@agir/front/globalContext/reducers";
@@ -125,6 +126,31 @@ const MenuItem = styled.li`
     &::after {
       opacity: 1;
       transform: scale3d(1.65, 1.65, 1);
+    }
+  }
+
+  & ${RawFeatherIcon} {
+    position: relative;
+
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 100%;
+      background-color: ${({ hasUnreadBadge }) =>
+        hasUnreadBadge ? "crimson" : "transparent"};
+
+      @media only screen and (max-width: ${style.collapse}px) {
+        top: 3px;
+        right: 16px;
+      }
+
+      @media only screen and (min-width: ${style.collapse}px) {
+        top: 3px;
+        right: -6px;
+      }
     }
   }
 
@@ -262,6 +288,7 @@ const MenuLink = (props) => {
     shortTitle,
     active,
     counter,
+    hasUnreadBadge,
     external,
     secondaryLinks,
   } = props;
@@ -270,7 +297,7 @@ const MenuLink = (props) => {
     return null;
   }
   return (
-    <MenuItem {...props} active={active}>
+    <MenuItem {...props} active={active} hasUnreadBadge={hasUnreadBadge}>
       {ItemTooltip ? <ItemTooltip /> : null}
       <a href={href}>
         {counter > 0 && <Counter>{counter}</Counter>}
@@ -299,6 +326,7 @@ MenuLink.propTypes = {
   shortTitle: PropTypes.string,
   active: PropTypes.bool,
   counter: PropTypes.number,
+  hasUnreadBadge: PropTypes.bool,
   external: PropTypes.bool,
   secondaryLinks: PropTypes.arrayOf(
     PropTypes.shape({
@@ -313,6 +341,7 @@ const Navigation = ({ active }) => {
   const requiredActionActivityCount = useSelector(
     getRequiredActionActivityCount
   );
+  const unreadActivityCount = useSelector(getUnreadActivitiesCount);
   const routes = useSelector(getRoutes);
 
   return (
@@ -325,7 +354,12 @@ const Navigation = ({ active }) => {
               key={link.id}
               active={active === link.id}
               href={link.href || routes[link.route]}
-              counter={link.counter && requiredActionActivityCount}
+              counter={
+                link.requiredActivityCounter && requiredActionActivityCount
+              }
+              hasUnreadBadge={
+                !!link.unreadActivityBadge && unreadActivityCount > 0
+              }
               secondaryLinks={
                 link.secondaryLinks && routes[link.secondaryLinks]
               }

@@ -37,7 +37,9 @@ export const useDispatch = () => {
 
 export const TestGlobalContextProvider = ({ children, value }) => {
   return (
-    <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>
+    <GlobalContext.Provider value={{ state: value, dispatch: () => {} }}>
+      {children}
+    </GlobalContext.Provider>
   );
 };
 TestGlobalContextProvider.propTypes = {

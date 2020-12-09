@@ -3,6 +3,7 @@ import React from "react";
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
 import Navigation from "./Navigation";
 import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
+import { activityStatus } from "@agir/activity/common/helpers";
 
 const mockRoutes = [
   ...CONFIG.menuLinks.map((link) => link.route),
@@ -37,6 +38,12 @@ const Template = (args) => (
   <TestGlobalContextProvider
     value={{
       routes: mockRoutes,
+      activities: Object.keys([...Array(args.requiredActionActivityCount)]).map(
+        (i) => ({
+          id: i,
+          status: activityStatus.STATUS_UNDISPLAYED,
+        })
+      ),
       requiredActionActivities: Object.keys([
         ...Array(args.requiredActionActivityCount),
       ]),
@@ -50,7 +57,9 @@ export const Default = Template.bind({});
 Default.args = {
   active: "events",
   requiredActionActivityCount: 1,
+  unreadActivityCount: 10,
 };
 Default.argTypes = {
   requiredActionActivityCount: { type: "number", min: 0 },
+  unreadActivityCount: { type: "number", min: 0 },
 };
