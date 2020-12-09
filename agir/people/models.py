@@ -212,6 +212,10 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
                 p.save()
 
 
+def generate_referrer_id():
+    return secrets.token_urlsafe(9)
+
+
 class Person(
     AbstractSubscriber,
     ExportModelOperationsMixin("person"),
@@ -382,6 +386,13 @@ class Person(
     )
 
     search = SearchVectorField("Données de recherche", editable=False, null=True)
+
+    referrer_id = models.CharField(
+        "Identifiant d'invitation",
+        default=generate_referrer_id,
+        max_length=13,
+        unique=True,
+    )
 
     class Meta:
         verbose_name = _("personne")
