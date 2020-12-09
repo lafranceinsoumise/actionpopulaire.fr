@@ -70,4 +70,5 @@ Default.args = {
   },
   individual: "Clara Zetkin",
   timestamp: DateTime.local().minus({ hours: 5 }).toISO(),
+  sponsorshipCount: 10,
 };

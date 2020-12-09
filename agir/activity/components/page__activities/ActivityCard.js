@@ -36,12 +36,19 @@ export const activityCardIcons = {
   "new-event-aroundme": "calendar",
   "group-coorganization-info": "calendar",
   "cancelled-event": "x-circle",
+  "2022-sponsorship-accepted": "share-2",
 };
 
 const StyledParagraph = styled.p`
   margin-bottom: 0;
 `;
-const ActivityText = ({ type, event, supportGroup, individual }) => {
+const ActivityText = ({
+  type,
+  event,
+  supportGroup,
+  individual,
+  sponsorshipCount = 0,
+}) => {
   return {
     "waiting-payment": (
       <StyledParagraph>
@@ -127,6 +134,17 @@ const ActivityText = ({ type, event, supportGroup, individual }) => {
     "cancelled-event": (
       <StyledParagraph>L'événement {event} a été annulé.</StyledParagraph>
     ),
+    "2022-sponsorship-accepted": (
+      <StyledParagraph>
+        Grâce à vous, {individual} a parrainé la candidature de Jean-Luc
+        Mélenchon.
+        <br />
+        {sponsorshipCount
+          ? `Vous avez déjà fait parrainer ${sponsorshipCount} personnes. `
+          : ""}
+        Merci beaucoup, continuez à partager ! 👍
+      </StyledParagraph>
+    ),
   }[type];
 };
 
@@ -172,6 +190,7 @@ const ActivityCard = (props) => {
     individual: props.individual && (
       <strong>{props.individual.fullName}</strong>
     ),
+    sponsorshipCount: props.sponsorshipCount,
   };
 
   const event = props.event && {
@@ -224,6 +243,7 @@ ActivityCard.propTypes = {
     url: PropTypes.string,
   }),
   individual: PropTypes.shape({ fullName: PropTypes.string }),
+  sponsorshipCount: PropTypes.number,
   timestamp: PropTypes.string.isRequired,
 };
 
