@@ -1,6 +1,9 @@
 import ACTION_TYPE from "./actionTypes";
 
-import { dismissActivity } from "@agir/activity/common/helpers";
+import {
+  dismissActivity,
+  setActivitiesAsRead,
+} from "@agir/activity/common/helpers";
 
 export const init = () => {
   const globalContextScript = document.getElementById("globalContext");
@@ -35,9 +38,20 @@ export const setActivityAsRead = (id) => ({
   id,
 });
 
-export const setAllActivitiesAsRead = () => ({
-  type: ACTION_TYPE.SET_ALL_ACTIVITIES_AS_READ_ACTION,
-});
+export const setAllActivitiesAsRead = (ids = [], updateState = false) => async (
+  dispatch
+) => {
+  try {
+    const success = await setActivitiesAsRead(ids);
+    updateState &&
+      success &&
+      dispatch({
+        type: ACTION_TYPE.SET_ALL_ACTIVITIES_AS_READ_ACTION,
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 export const dismissRequiredActionActivity = (id) => async (dispatch) => {
   try {

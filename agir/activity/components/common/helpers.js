@@ -1,5 +1,6 @@
 import axios from "@agir/lib/utils/axios";
 
+const bulkUpdateActivityStatusEndpoint = "/api/activities/update/";
 const activityEndpoint = "/api/activity/:id/";
 
 export const activityStatus = {
@@ -37,12 +38,14 @@ export const parseActivities = (data, dismissed = []) => {
   return parsedActivities;
 };
 
-export const getUnreadCount = (data) => {
-  return data.reduce(
-    (count, activity) =>
-      count + (activity.status === activityStatus.STATUS_UNDISPLAYED ? 1 : 0),
-    0
+export const getUnread = (data) => {
+  return data.filter(
+    (activity) => activity.status === activityStatus.STATUS_UNDISPLAYED
   );
+};
+
+export const getUnreadCount = (data) => {
+  return getUnread(data).length;
 };
 
 export const dismissActivity = async (
@@ -60,6 +63,28 @@ export const dismissActivity = async (
   let res = null;
   try {
     res = await axios.put(url, data);
+    result = !!res && res.status === 200;
+  } catch (e) {
+    console.log(e);
+    result = false;
+  }
+
+  return result;
+};
+
+export const setActivitiesAsRead = async (ids = []) => {
+  let result = false;
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return result;
+  }
+  const url = bulkUpdateActivityStatusEndpoint;
+  const data = {
+    status: activityStatus.STATUS_DISPLAYED,
+    ids,
+  };
+  let res = null;
+  try {
+    res = await axios.post(url, data);
     result = !!res && res.status === 200;
   } catch (e) {
     console.log(e);
