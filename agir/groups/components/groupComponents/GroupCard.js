@@ -2,7 +2,8 @@ import React from "react";
 import Card from "@agir/front/genericComponents/Card";
 import PropTypes from "prop-types";
 
-import Svg from "@agir/events/eventPage/group.svg";
+import GroupIconLfi from "./images/group-icon__lfi.svg";
+import GroupIconNsp from "./images/group-icon__nsp.svg";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
@@ -81,6 +82,7 @@ const GroupCard = ({
   displayDescription,
   displayMembership,
   isEmbedded = false,
+  is2022 = false,
 }) => {
   const mainLink = React.useRef(null);
   const handleClick = React.useCallback(
@@ -95,6 +97,9 @@ const GroupCard = ({
     },
     [routes]
   );
+  const Svg = React.useMemo(() => (is2022 ? GroupIconNsp : GroupIconLfi), [
+    is2022,
+  ]);
   return (
     <Card onClick={isEmbedded ? undefined : handleClick}>
       <Row gutter={6}>
@@ -199,6 +204,7 @@ GroupCard.propTypes = {
   displayMembership: PropTypes.bool,
   ...DiscountCodesSection.propTypes,
   isEmbedded: PropTypes.bool,
+  is2022: PropTypes.bool,
 };
 
 GroupCard.defaultProps = {
@@ -207,6 +213,7 @@ GroupCard.defaultProps = {
   displayDescription: true,
   displayMembership: true,
   isManager: false,
+  is2022: false,
 };
 
 export default GroupCard;

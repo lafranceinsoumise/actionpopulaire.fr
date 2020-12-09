@@ -61,6 +61,7 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     labels = serializers.SerializerMethodField()
 
     discountCodes = serializers.SerializerMethodField()
+    is2022 = serializers.SerializerMethodField()
 
     routes = RoutesField(routes=GROUP_ROUTES)
 
@@ -114,3 +115,6 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 for code, date in get_promo_codes(obj)
             ]
         return []
+
+    def get_is2022(self, obj):
+        return obj.is_2022

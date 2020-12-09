@@ -38,19 +38,20 @@ def basic_information(request):
         "jlmBlog": "https://melenchon.fr",
         "linsoumission": "https://linsoumission.fr",
         "feedbackForm": "https://actionpopulaire.fr/formulaires/votre-avis/",
+        "help": "https://infos.actionpopulaire.fr",
+        "contact": "https://infos.actionpopulaire.fr/contact/",
     }
 
     routes_2022 = {
         "materiel": "https://noussommespour.fr/boutique/",
-        "help": "https://noussommespour.fr/sinformer/",
+        "resources": "https://noussommespour.fr/sinformer/",
         "donations": "https://noussommespour.fr/don/",
     }
 
     routes_insoumis = {
         "materiel": "https://materiel.lafranceinsoumise.fr/",
-        "help": "https://lafranceinsoumise.fr/fiches_pour_agir/",
+        "resources": "https://lafranceinsoumise.fr/fiches_pour_agir/",
         "news": "https://lafranceinsoumise.fr/actualites/",
-        "contact": "https://lafranceinsoumise.fr/contact/",
         "thematicTeams": reverse("thematic_teams_list"),
     }
 

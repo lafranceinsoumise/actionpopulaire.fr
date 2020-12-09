@@ -312,11 +312,15 @@ export const Footer = (props) => {
           <div>
             <h3>Action populaire</h3>
             <p>
-              {isSignedIn
-                ? routes.signOut && <a href={routes.signOut}>Se déconnecter</a>
-                : routes.logIn && <a href={routes.logIn}>Se connecter</a>}
+              {!isSignedIn && routes.logIn && (
+                <a href={routes.logIn}>Se connecter</a>
+              )}
               {routes.donations && <a href={routes.donations}>Faire un don</a>}
+              {routes.help && <a href={routes.help}>Besoin d'aide ?</a>}
               {routes.contact && <a href={routes.contact}>Contact</a>}
+              {isSignedIn && routes.signOut && (
+                <a href={routes.signOut}>Se déconnecter</a>
+              )}
             </p>
           </div>
           {isSignedIn ? (
