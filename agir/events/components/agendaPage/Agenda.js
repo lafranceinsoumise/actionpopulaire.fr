@@ -270,7 +270,7 @@ const Agenda = ({ rsvped, others }) => {
                 href={routes.createEvent}
                 icon="plus"
               >
-                Créer un évenement
+                Créer un événement
               </Button>
             ) : null}
             {routes.eventMapPage ? (
