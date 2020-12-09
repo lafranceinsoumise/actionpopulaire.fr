@@ -182,7 +182,7 @@ class Announcement(models.Model):
         verbose_name = "Annonce"
         indexes = (
             models.Index(
-                fields=("start_date", "end_date"), name="announcement_date_index",
+                fields=("-start_date", "end_date"), name="announcement_date_index",
             ),
         )
-        ordering = ("start_date", "end_date")
+        ordering = ("-start_date", "end_date")
