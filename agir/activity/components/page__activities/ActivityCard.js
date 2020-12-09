@@ -36,7 +36,7 @@ export const activityCardIcons = {
   "new-event-aroundme": "calendar",
   "group-coorganization-info": "calendar",
   "cancelled-event": "x-circle",
-  "2022-sponsorship-accepted": "share-2",
+  referral_accepted: "share-2",
 };
 
 const StyledParagraph = styled.p`
@@ -47,7 +47,7 @@ const ActivityText = ({
   event,
   supportGroup,
   individual,
-  sponsorshipCount = 0,
+  totalReferrals = 0,
 }) => {
   return {
     "waiting-payment": (
@@ -134,13 +134,13 @@ const ActivityText = ({
     "cancelled-event": (
       <StyledParagraph>L'événement {event} a été annulé.</StyledParagraph>
     ),
-    "2022-sponsorship-accepted": (
+    referal_accepted: (
       <StyledParagraph>
         Grâce à vous, {individual} a parrainé la candidature de Jean-Luc
         Mélenchon.
         <br />
-        {sponsorshipCount
-          ? `Vous avez déjà fait parrainer ${sponsorshipCount} personnes. `
+        {totalReferrals
+          ? `Vous avez déjà fait parrainer ${totalReferrals} personnes. `
           : ""}
         Merci beaucoup, continuez à partager ! 👍
       </StyledParagraph>
@@ -190,7 +190,7 @@ const ActivityCard = (props) => {
     individual: props.individual && (
       <strong>{props.individual.fullName}</strong>
     ),
-    sponsorshipCount: props.sponsorshipCount,
+    totalReferrals: props.meta && props.meta.totalReferrals,
   };
 
   const event = props.event && {
@@ -243,7 +243,9 @@ ActivityCard.propTypes = {
     url: PropTypes.string,
   }),
   individual: PropTypes.shape({ fullName: PropTypes.string }),
-  sponsorshipCount: PropTypes.number,
+  meta: PropTypes.shape({
+    totalReferrals: PropTypes.number,
+  }),
   timestamp: PropTypes.string.isRequired,
 };
 
