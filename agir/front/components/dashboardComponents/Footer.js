@@ -317,6 +317,7 @@ export const Footer = (props) => {
               )}
               {routes.donations && <a href={routes.donations}>Faire un don</a>}
               {routes.help && <a href={routes.help}>Besoin d'aide ?</a>}
+              {routes.legal && <a href={routes.legal}>Mentions légales</a>}
               {routes.contact && <a href={routes.contact}>Contact</a>}
               {isSignedIn && routes.signOut && (
                 <a href={routes.signOut}>Se déconnecter</a>

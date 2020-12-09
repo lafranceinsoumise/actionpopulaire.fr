@@ -40,6 +40,7 @@ def basic_information(request):
         "feedbackForm": "https://actionpopulaire.fr/formulaires/votre-avis/",
         "help": "https://infos.actionpopulaire.fr",
         "contact": "https://infos.actionpopulaire.fr/contact/",
+        "legal": "https://infos.actionpopulaire.fr/mentions-legales/",
     }
 
     routes_2022 = {
