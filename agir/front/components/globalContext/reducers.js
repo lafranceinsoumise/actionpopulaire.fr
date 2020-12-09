@@ -6,7 +6,12 @@ import {
 } from "@agir/activity/common/helpers";
 
 // Reducers
-const domain = "https://actionpopulaire.fr";
+const domain = (state = "https://actionpopulaire.fr", action) => {
+  if (action.type === ACTION_TYPE.INIT_ACTION) {
+    return action.domain || state;
+  }
+  return state;
+};
 
 const hasFeedbackButton = (state = false, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
