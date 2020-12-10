@@ -80,7 +80,7 @@ class SupportGroup(
         (TYPE_THEMATIC, "Groupe thématique"),
         (TYPE_FUNCTIONAL, "Groupe fonctionnel"),
         (TYPE_PROFESSIONAL, "Groupe professionel"),
-        (TYPE_2022, "Groupe de soutien « Nous Sommes Pour ! »"),
+        (TYPE_2022, "Équipe de soutien « Nous Sommes Pour ! »"),
     )
 
     TYPE_PARAMETERS = {
@@ -104,7 +104,7 @@ class SupportGroup(
         " journaux locaux, auto-organisation, etc…).",
         TYPE_PROFESSIONAL: "Les groupes d’action professionnels rassemblent des insoumis⋅es qui"
         " souhaitent agir au sein de leur entreprise ou de leur lieu d’étude.",
-        TYPE_2022: "Les groupes de soutien « Nous Sommes Pour ! » peuvent être rejoints par toutes les personnes "
+        TYPE_2022: "Les équipes de soutien « Nous Sommes Pour ! » peuvent être rejoints par toutes les personnes "
         "ayant parainné la candidature de Jean-Luc Mélenchon.",
     }
 
