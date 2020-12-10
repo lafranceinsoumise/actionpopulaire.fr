@@ -8,7 +8,6 @@ from django.utils.html import format_html
 
 from agir.lib.form_fields import AdminRichEditorWidget, AdminJsonWidget
 from agir.lib.forms import CoordinatesFormMixin
-from agir.people.forms import LegacySubscribedMixin
 from agir.people.models import Person
 from agir.people.person_forms.actions import (
     validate_custom_fields,
@@ -25,8 +24,22 @@ class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
         required=False,
     )
 
+    disabled_account = forms.BooleanField(
+        label="Compte désactivé",
+        required=False,
+        help_text="Une personne dont le compte est désactivé ne pourra plus se connecter avec ses adresses email.",
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if "disabled_account" in self.fields:
+            if self.instance.role:
+                self.fields[
+                    "disabled_account"
+                ].initial = not self.instance.role.is_active
+            else:
+                self.fields["disabled_account"].disabled = True
 
         self.fields["primary_email"] = forms.ModelChoiceField(
             self.instance.emails.all(),
@@ -40,6 +53,11 @@ class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
 
         if self.cleaned_data["primary_email"] != self.instance.primary_email:
             self.instance.set_primary_email(self.cleaned_data["primary_email"])
+
+        if "disabled_account" in self.fields and self.instance.role:
+            role = self.instance.role
+            role.is_active = not self.cleaned_data["disabled_account"]
+            role.save()
 
     class Meta:
         fields = "__all__"

@@ -1,9 +1,11 @@
+from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
 from rest_framework import status
-from rest_framework.generics import GenericAPIView, RetrieveAPIView
+from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
@@ -69,3 +71,15 @@ class RetrievePersonView(RetrieveAPIView):
         obj = serializer.retrieve()
         self.check_object_permissions(self.request, obj)
         return obj
+
+
+class ReferrerInformationView(APIView):
+    # accessible à tous
+    permission_classes = ()
+
+    def get(self, request, *args, referrer_id, **kwargs):
+        person = get_object_or_404(Person, referrer_id=referrer_id)
+        nom = f"{person.first_name} {person.last_name}".strip()
+        if not nom:
+            raise Http404
+        return Response(nom, status.HTTP_200_OK)

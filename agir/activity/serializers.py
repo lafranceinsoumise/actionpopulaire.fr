@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from agir.activity.models import Activity
+from agir.activity.models import Activity, Announcement
 from agir.events.serializers import EventSerializer
 from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.serializers import FlexibleFieldsMixin
@@ -47,4 +47,29 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             "supportGroup",
             "individual",
             "status",
+        ]
+
+
+class AnnouncementSerializer(serializers.ModelSerializer):
+    startDate = serializers.DateTimeField(source="start_date")
+    endDate = serializers.DateTimeField(source="end_date")
+
+    image = serializers.SerializerMethodField()
+
+    def get_image(self, obj):
+        if obj.image:
+            return {"desktop": obj.image.desktop.url, "mobile": obj.image.mobile.url}
+        return {}
+
+    class Meta:
+        model = Announcement
+        fields = [
+            "id",
+            "title",
+            "link",
+            "content",
+            "image",
+            "startDate",
+            "endDate",
+            "priority",
         ]

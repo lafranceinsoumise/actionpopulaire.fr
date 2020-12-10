@@ -22,3 +22,11 @@ body {
 .col-responsive {
   @include make-one-main-column();
 }
+
+
+@media (max-width: 992px) {
+  .mobile-vertical {
+    display: flex;
+    flex-direction: column;
+  }
+}

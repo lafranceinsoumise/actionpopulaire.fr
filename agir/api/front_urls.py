@@ -10,7 +10,6 @@ urlpatterns = [
     path("", include("agir.donations.urls")),
     path("", include("agir.polls.urls")),
     path("", include("agir.authentication.urls")),
-    path("", include("agir.notifications.urls")),
     path("", include("agir.loans.urls")),
     path("", include("agir.municipales.urls")),
     path("", include("agir.activity.urls")),

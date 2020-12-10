@@ -44,10 +44,10 @@
       "external": true
     },
     {
-      "id": "help",
-      "icon": "help-circle",
-      "title": "Aide & Ressources",
-      "route": "help",
+      "id": "resources",
+      "icon": "book-open",
+      "title": "Ressources",
+      "route": "resources",
       "desktop": true,
       "mobile": false,
       "external": true
@@ -59,6 +59,14 @@
       "route": "menu",
       "desktop": false,
       "mobile": true
+    },
+    {
+      "id": "settings",
+      "icon": "settings",
+      "title": "Paramètres",
+      "route": "personalInformation",
+      "desktop": true,
+      "mobile": false
     }
   ],
   "secondaryLinks": [
@@ -78,9 +86,14 @@
       "route": "groupMapPage"
     },
     {
-      "id": "thematicTeams",
-      "title": "Les livrets thématiques",
-      "route": "thematicTeams"
+      "id": "donations",
+      "title": "Faire un don",
+      "route": "donations"
+    },
+    {
+      "id": "help",
+      "title": "Besoin d'aide ?",
+      "route": "help"
     },
     {
       "id": "contact",

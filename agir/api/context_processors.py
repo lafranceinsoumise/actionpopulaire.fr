@@ -1,18 +1,14 @@
 from django.conf import settings
-from django.db.models import Prefetch, F
+from django.db.models import F
 from django.middleware.csrf import get_token
 from django.urls import reverse
 
-from ..activity.models import Activity
-from ..activity.serializers import ActivitySerializer
-from ..events.models import Event
-
-from ..groups.models import SupportGroup, Membership
+from ..activity.actions import get_serialized_activity, get_serialized_announcements
+from ..groups.models import SupportGroup
 
 
 def basic_information(request):
     user = None
-    activities = []
 
     routes = {
         "dashboard": reverse("dashboard"),
@@ -43,19 +39,21 @@ def basic_information(request):
         "jlmBlog": "https://melenchon.fr",
         "linsoumission": "https://linsoumission.fr",
         "feedbackForm": "https://actionpopulaire.fr/formulaires/votre-avis/",
+        "help": "https://infos.actionpopulaire.fr",
+        "contact": "https://infos.actionpopulaire.fr/contact/",
+        "legal": "https://infos.actionpopulaire.fr/mentions-legales/",
     }
 
     routes_2022 = {
         "materiel": "https://noussommespour.fr/boutique/",
-        "help": "https://noussommespour.fr/sinformer/",
+        "resources": "https://noussommespour.fr/sinformer/",
         "donations": "https://noussommespour.fr/don/",
     }
 
     routes_insoumis = {
         "materiel": "https://materiel.lafranceinsoumise.fr/",
-        "help": "https://lafranceinsoumise.fr/fiches_pour_agir/",
+        "resources": "https://lafranceinsoumise.fr/fiches_pour_agir/",
         "news": "https://lafranceinsoumise.fr/actualites/",
-        "contact": "https://lafranceinsoumise.fr/contact/",
         "thematicTeams": reverse("thematic_teams_list"),
     }
 
@@ -75,30 +73,20 @@ def basic_information(request):
             "isInsoumise": person.is_insoumise,
             "is2022": person.is_2022,
             "isAgir": person.is_agir,
+            "isGroupManager": False,
         }
-        userActivities = (
-            Activity.objects.filter(recipient=person)
-            .exclude(status=Activity.STATUS_INTERACTED)
-            .prefetch_related(
-                Prefetch("event", Event.objects.with_serializer_prefetch(person),)
-            )
-        )
-        if userActivities.count() > 0:
-            activitySerializer = ActivitySerializer(
-                instance=userActivities, many=True, context={"request": request}
-            )
-            activities = activitySerializer.data
 
-        personGroups = (
+        person_groups = (
             SupportGroup.objects.filter(memberships__person=person)
             .active()
             .annotate(membership_type=F("memberships__membership_type"))
             .order_by("-membership_type", "name")
         )
-        if personGroups.count() > 0:
+
+        if person_groups.count() > 0:
             routes["groups__personGroups"] = []
             user["groups"] = []
-            for group in personGroups:
+            for group in person_groups:
                 link = {
                     "id": group.id,
                     "label": group.name,
@@ -117,6 +105,7 @@ def basic_information(request):
             "routes": routes,
             "csrfToken": get_token(request),
             "domain": settings.MAIN_DOMAIN,
-            "activities": activities,
+            "activities": get_serialized_activity(request),
+            "announcements": get_serialized_announcements(request),
         },
     }

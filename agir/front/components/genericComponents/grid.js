@@ -148,7 +148,7 @@ Row.propTypes = {
 };
 
 export const Container = styled.section`
-  width: ${1100 + gutter * 2}px;
+  width: ${1400 + gutter * 2}px;
   max-width: 100%;
   margin: 0 auto;
   padding-left: ${gutter}px;

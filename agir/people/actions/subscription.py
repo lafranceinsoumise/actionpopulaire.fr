@@ -1,5 +1,6 @@
 import urllib.parse
 from dataclasses import dataclass
+from functools import partial
 
 from django.conf import settings
 from django.db import transaction
@@ -79,8 +80,25 @@ def save_subscription_information(person, type, data):
     subscriptions = person.meta.setdefault("subscriptions", {})
     if type not in subscriptions:
         subscriptions[type] = {"date": timezone.now().isoformat()}
-        if data.get("referer"):
-            subscriptions[type]["referer"] = data["referer"]
+        if referrer_id := data.get("referrer", data.get("referer")):
+            try:
+                referrer = Person.objects.get(referrer_id=referrer_id)
+            except Person.DoesNotExist:
+                pass
+            else:
+                subscriptions[type]["referrer"] = str(referrer.pk)
+
+                # l'import se fait ici pour éviter les imports circulaires
+                from ..tasks import notify_referrer
+
+                transaction.on_commit(
+                    partial(
+                        notify_referrer.delay,
+                        referrer_id=str(referrer.id),
+                        referred_id=str(person.id),
+                        referral_type=type,
+                    )
+                )
 
     if data.get("mandat"):
         subscriptions[type]["mandat"] = data["mandat"]

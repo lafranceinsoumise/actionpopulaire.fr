@@ -5,23 +5,24 @@ from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
+from agir.activity.models import Activity
 from agir.authentication.tokens import (
     subscription_confirmation_token_generator,
     add_email_confirmation_token_generator,
     merge_account_token_generator,
 )
+from agir.lib.celery import emailing_task
 from agir.lib.display import pretty_time_since
 from agir.lib.mailing import send_mosaico_email
+from agir.lib.sms import send_sms
 from agir.lib.utils import front_url
-from .models import Person, PersonFormSubmission, PersonEmail, PersonValidationSMS
-from .person_forms.display import default_person_form_display
 from .actions.subscription import (
     SUBSCRIPTIONS_EMAILS,
     SUBSCRIPTION_TYPE_LFI,
     SUBSCRIPTION_TYPE_NSP,
 )
-from ..lib.celery import emailing_task
-from ..lib.sms import send_sms
+from .models import Person, PersonFormSubmission, PersonEmail, PersonValidationSMS
+from .person_forms.display import default_person_form_display
 
 
 @emailing_task
@@ -240,3 +241,29 @@ def send_validation_sms(sms_id):
     message = f"Votre code de validation pour votre compte France insoumise est {formatted_code}"
 
     send_sms(message, sms.phone_number)
+
+
+@shared_task
+def notify_referrer(referrer_id, referred_id, referral_type):
+    try:
+        referrer = Person.objects.get(pk=referrer_id)
+        referred = Person.objects.get(pk=referred_id)
+    except (Person.DoesNotExist, TypeError, ValueError):
+        # Ne pas oublier d'attraper les erreurs pour mauvais type ou mauvaise valeur
+        return
+
+    Activity.objects.create(
+        recipient=referrer,
+        type=Activity.TYPE_REFERRAL,
+        status=Activity.STATUS_UNDISPLAYED,
+        individual=referred,
+        meta={
+            "referralType": referral_type,
+            "totalReferrals": Activity.objects.filter(
+                recipient=referrer,
+                type=Activity.TYPE_REFERRAL,
+                meta__referalType=referral_type,
+            ).count()
+            + 1,
+        },
+    )

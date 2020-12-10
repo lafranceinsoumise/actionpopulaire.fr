@@ -70,6 +70,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "last_name",
                     "primary_email",
                     "connection_params",
+                    "disabled_account",
                     "role_link",
                     "role_totp_link",
                 )
@@ -170,7 +171,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 link=reverse("admin:authentication_role_change", args=[obj.role_id]),
                 text=_("Voir le rôle"),
             )
-        return "-"
+        return "Pas de compte associé à cette personne"
 
     role_link.short_description = _("Rôle")
 

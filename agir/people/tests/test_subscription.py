@@ -16,7 +16,7 @@ from agir.api.redis import using_separate_redis_server
 from agir.clients.models import Client
 from agir.lib.http import add_query_params_to_url
 from agir.lib.utils import generate_token_params
-from agir.people.models import Person
+from agir.people.models import Person, generate_referrer_id
 from agir.people.tasks import send_confirmation_email
 
 
@@ -89,7 +89,7 @@ class APISubscriptionTestCase(WordpressClientMixin, TestCase):
             "location_zip": "75001",
             "contact_phone": "06 98 45 78 45",
             "type": "NSP",
-            "referer": str(uuid4()),
+            "referrer": generate_referrer_id(),
         }
         response = self.client.post(reverse("api_people_subscription"), data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -109,7 +109,7 @@ class APISubscriptionTestCase(WordpressClientMixin, TestCase):
             "location_zip": "75001",
             "contact_phone": "06 98 45 78 45",
             "type": "NSP",
-            "referer": str(uuid4()),
+            "referrer": generate_referrer_id(),
         }
         response = self.client.post(reverse("api_people_subscription"), data=data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
