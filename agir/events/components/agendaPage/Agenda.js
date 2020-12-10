@@ -121,7 +121,7 @@ const otherEventConfig = {
   },
   GROUPS_TYPE: {
     label: "Dans mes groupes",
-    allowEmpty: true,
+    allowEmpty: (user) => Array.isArray(user.groups) && user.groups.length > 0,
     filter: (events, groups) =>
       events.filter(
         (event) =>
@@ -172,10 +172,16 @@ const OtherEvents = ({ others }) => {
   );
   const types = React.useMemo(
     () =>
-      Object.keys(byType).filter(
-        (type) => byType[type].length > 0 || otherEventConfig[type].allowEmpty
-      ),
-    [byType]
+      Object.keys(byType).filter((type) => {
+        if (byType[type].length > 0) {
+          return true;
+        }
+        if (typeof otherEventConfig[type].allowEmpty === "function") {
+          return otherEventConfig[type].allowEmpty(user);
+        }
+        return otherEventConfig[type].allowEmpty;
+      }),
+    [byType, user]
   );
   const tabs = React.useMemo(
     () => types.map((type) => otherEventConfig[type].label),
