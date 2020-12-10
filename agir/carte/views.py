@@ -209,6 +209,13 @@ class AbstractListMapView(MapViewMixin, TemplateView):
         if self.request.GET.get("include_hidden"):
             params["include_hidden"] = "1"
 
+        if (
+            self.request.user.is_authenticated
+            and hasattr(self.request.user, "person")
+            and self.request.user.person.is_2022_only
+        ):
+            params["var"] = "nsp_only"
+
         subtype_info = [
             dict_to_camelcase(st.get_subtype_information()) for st in subtypes
         ]
