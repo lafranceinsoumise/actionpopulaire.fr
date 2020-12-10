@@ -246,7 +246,7 @@ class NSPReferralView(SoftLoginRequiredMixin, RedirectView):
         params = generate_token_params(self.request.user.person)
         params["_p"] = params.pop("p")
         url = add_query_params_to_url(url, params)
-        return
+        return url
 
 
 class JoinView(TemplateView):
