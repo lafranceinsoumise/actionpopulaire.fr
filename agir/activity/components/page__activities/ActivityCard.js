@@ -57,24 +57,23 @@ const ActivityText = ({
     ),
     "group-invitation": (
       <StyledParagraph>
-        Vous avez été invité⋅e à rejoindre le groupe {supportGroup}
+        Vous avez été invité⋅e à rejoindre {supportGroup}
       </StyledParagraph>
     ),
     "new-member": (
       <StyledParagraph>
-        {individual} a rejoint votre groupe {supportGroup}. Prenez le temps de
+        {individual} a rejoint {supportGroup}. Prenez le temps de
         l’accueillir&nbsp;!
       </StyledParagraph>
     ),
     "waiting-location-group": (
       <StyledParagraph>
-        Précisez la localisation de votre groupe {supportGroup}
+        Précisez la localisation de {supportGroup}
       </StyledParagraph>
     ),
     "group-coorganization-invite": (
       <StyledParagraph>
-        {individual} a proposé à votre groupe {supportGroup} de co-organiser{" "}
-        {event}
+        {individual} a proposé à {supportGroup} de co-organiser {event}
       </StyledParagraph>
     ),
     "waiting-location-event": (
@@ -88,9 +87,7 @@ const ActivityText = ({
       </StyledParagraph>
     ),
     "group-info-update": (
-      <StyledParagraph>
-        Votre groupe {supportGroup} a été mis à jour
-      </StyledParagraph>
+      <StyledParagraph>{supportGroup} a été mis à jour</StyledParagraph>
     ),
     "accepted-invitation-member": (
       <StyledParagraph>
@@ -127,8 +124,7 @@ const ActivityText = ({
     ),
     "group-coorganization-info": (
       <StyledParagraph>
-        Votre groupe {supportGroup} a rejoint l'organisation de l'événement{" "}
-        {event}
+        {supportGroup} a rejoint l'organisation de l'événement {event}
       </StyledParagraph>
     ),
     "cancelled-event": (
