@@ -17,7 +17,7 @@ class Activity(TimeStampedModel):
     TYPE_NEW_EVENT_MYGROUPS = "new-event-mygroups"
     TYPE_NEW_REPORT = "new-report"
     TYPE_CANCELLED_EVENT = "cancelled-event"
-    TYPE_REFERRAL = "referral_accepted"
+    TYPE_REFERRAL = "referral-accepted"
     # TODO
     TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
     TYPE_NEW_EVENT_AROUNDME = "new-event-aroundme"

@@ -36,7 +36,7 @@ export const activityCardIcons = {
   "new-event-aroundme": "calendar",
   "group-coorganization-info": "calendar",
   "cancelled-event": "x-circle",
-  referral_accepted: "share-2",
+  "referral-accepted": "share-2",
 };
 
 const StyledParagraph = styled.p`
@@ -134,7 +134,7 @@ const ActivityText = ({
     "cancelled-event": (
       <StyledParagraph>L'événement {event} a été annulé.</StyledParagraph>
     ),
-    referal_accepted: (
+    "referral-accepted": (
       <StyledParagraph>
         Grâce à vous, {individual} a parrainé la candidature de Jean-Luc
         Mélenchon.
