@@ -154,7 +154,7 @@ class GroupTypeStep extends FormStep {
           </p>
         </div>
         <div className="col-sm-8 padbottom type-selectors">
-          {this.props.types.map((type, i) => (
+          {this.props.types.map((type) => (
             <div key={type.id} className="type-selector">
               <button
                 className={`btn btn-default ${
@@ -166,50 +166,60 @@ class GroupTypeStep extends FormStep {
                 <strong>{type.label}</strong>
                 {type.description}
               </button>
-              <Transition
-                in={
-                  fields.type === type.id &&
-                  this.subtypesFor(type.id).length > 1
-                }
-                timeout={1000}
-                mountOnEnter
-                unmountOnExit
-              >
-                {(state) => {
-                  const show =
-                    this.groupRefs[i].current &&
-                    ["entering", "entered"].includes(state);
-                  return (
-                    <div
-                      className="subtype-selector"
-                      ref={this.groupRefs[i]}
-                      style={{
-                        height: show
-                          ? this.groupRefs[i].current.scrollHeight + "px"
-                          : "0",
-                      }}
-                    >
-                      <div>
-                        <em>
-                          Choisissez maintenant les thèmes qui vous intéressent.
-                        </em>
-                        <NavSelect
-                          choices={this.subtypesFor(type.id).map((s) => ({
-                            value: s.label,
-                            label: s.description,
-                          }))}
-                          value={fields.subtypes}
-                          max={3}
-                          onChange={(subtypes) =>
-                            this.props.setFields({ subtypes })
-                          }
-                        />
-                      </div>
-                    </div>
-                  );
-                }}
-              </Transition>
             </div>
+          ))}
+          {this.props.types.map((type, i) => (
+            <Transition
+              key={"subtype__" + type.id}
+              in={
+                fields.type === type.id && this.subtypesFor(type.id).length > 1
+              }
+              timeout={1000}
+              mountOnEnter
+              unmountOnExit
+              onEntering={() => {
+                const subtype = document.querySelector(".subtype-selector");
+                if (subtype && subtype.scrollIntoView) {
+                  subtype.scrollIntoView({
+                    behavior: "smooth",
+                  });
+                }
+              }}
+            >
+              {(state) => {
+                const show =
+                  this.groupRefs[i].current &&
+                  ["entering", "entered"].includes(state);
+                return (
+                  <div
+                    className="subtype-selector"
+                    ref={this.groupRefs[i]}
+                    style={{
+                      height: show
+                        ? this.groupRefs[i].current.scrollHeight + "px"
+                        : "0",
+                    }}
+                  >
+                    <div>
+                      <em>
+                        Choisissez maintenant les thèmes qui vous intéressent.
+                      </em>
+                      <NavSelect
+                        choices={this.subtypesFor(type.id).map((s) => ({
+                          value: s.label,
+                          label: s.description,
+                        }))}
+                        value={fields.subtypes}
+                        max={3}
+                        onChange={(subtypes) =>
+                          this.props.setFields({ subtypes })
+                        }
+                      />
+                    </div>
+                  </div>
+                );
+              }}
+            </Transition>
           ))}
         </div>
       </div>
