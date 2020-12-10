@@ -6,21 +6,21 @@ import {
 } from "@agir/activity/common/helpers";
 
 // Reducers
-const domain = (state = "https://actionpopulaire.fr", action) => {
+export const domain = (state = "https://actionpopulaire.fr", action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
     return action.domain || state;
   }
   return state;
 };
 
-const hasFeedbackButton = (state = false, action) => {
+export const hasFeedbackButton = (state = false, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
     return !!action.hasFeedbackButton;
   }
   return state;
 };
 
-const is2022 = (state = false, action) => {
+export const is2022 = (state = false, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
     return !!action.user && action.user.is2022;
   }
@@ -30,14 +30,14 @@ const is2022 = (state = false, action) => {
   return state;
 };
 
-const announcements = (state = [], action) => {
+export const announcements = (state = [], action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
     return action.announcements || state;
   }
   return state;
 };
 
-const activities = (state = [], action) => {
+export const activities = (state = [], action) => {
   switch (action.type) {
     case ACTION_TYPE.INIT_ACTION: {
       if (!Array.isArray(action.activities)) {
@@ -71,7 +71,7 @@ const activities = (state = [], action) => {
   }
 };
 
-const requiredActionActivities = (state = [], action) => {
+export const requiredActionActivities = (state = [], action) => {
   if (
     action.type === ACTION_TYPE.INIT_ACTION &&
     Array.isArray(action.activities)
@@ -89,21 +89,21 @@ const requiredActionActivities = (state = [], action) => {
   return state;
 };
 
-const user = (state = null, action) => {
+export const user = (state = null, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
     return action.user || state;
   }
   return state;
 };
 
-const csrfToken = (state = null, action) => {
+export const csrfToken = (state = null, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
     return action.csrfToken || state;
   }
   return state;
 };
 
-const routes = (state = {}, action) => {
+export const routes = (state = {}, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
     return action.routes || state;
   }
