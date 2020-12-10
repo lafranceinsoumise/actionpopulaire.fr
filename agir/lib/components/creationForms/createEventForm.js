@@ -19,6 +19,8 @@ import { Spring } from "react-spring/renderprops";
 import styled from "styled-components";
 import moment from "moment";
 
+const EVENT_TYPE_OTHER = "O";
+
 class CreateEventForm extends React.Component {
   constructor(props) {
     super(props);
@@ -206,25 +208,27 @@ class EventTypeStep extends FormStep {
         </div>
         <div className="col-sm-6 padbottom">
           <h3>Je veux créer...</h3>
-          {this.props.types.map((type) => (
-            <div key={type.id}>
-              <h4>{type.label}</h4>
-              <SubtypeSelector>
-                {rankedSubtypes[type.id].map((subtype) => (
-                  <CheckBox
-                    key={subtype.description}
-                    active={this.isCurrentSubtype(subtype)}
-                    label={subtype.description}
-                    onClick={() => this.setSubtype(subtype)}
-                    icon={subtype.icon}
-                    iconName={subtype.iconName}
-                    color={subtype.color}
-                    className="subtype-selector-choice"
-                  />
-                ))}
-              </SubtypeSelector>
-            </div>
-          ))}
+          {this.props.types
+            .sort((type) => (type.id === EVENT_TYPE_OTHER ? 1 : 0))
+            .map((type) => (
+              <div key={type.id}>
+                <h4>{type.label}</h4>
+                <SubtypeSelector>
+                  {rankedSubtypes[type.id].map((subtype) => (
+                    <CheckBox
+                      key={subtype.description}
+                      active={this.isCurrentSubtype(subtype)}
+                      label={subtype.description}
+                      onClick={() => this.setSubtype(subtype)}
+                      icon={subtype.icon}
+                      iconName={subtype.iconName}
+                      color={subtype.color}
+                      className="subtype-selector-choice"
+                    />
+                  ))}
+                </SubtypeSelector>
+              </div>
+            ))}
         </div>
       </div>
     );
