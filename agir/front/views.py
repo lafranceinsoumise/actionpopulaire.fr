@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
-from django.db.models import Q
+from django.db.models import F, Q
 from django.http import HttpResponsePermanentRedirect, Http404
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -119,10 +119,8 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
             .order_by("start_time", "end_time")
         )
 
-        groups_events = (
-            queryset.upcoming()
-            .filter(organizers_groups__in=person.supportgroups.all())
-            .order_by("start_time")
+        groups_events = queryset.upcoming().filter(
+            organizers_groups__in=person.supportgroups.all()
         )
 
         organized_events = (
@@ -138,9 +136,7 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
             .order_by("-start_time")[:10]
         )
 
-        query = (
-            Q(pk__in=groups_events) | Q(pk__in=organized_events) | Q(pk__in=past_events)
-        )
+        other_events = groups_events.union(organized_events, past_events)
 
         if person.coordinates is not None:
             near_events = (
@@ -155,12 +151,14 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
             )
 
             other_events = (
-                queryset.filter(query | Q(pk__in=near_events))
+                queryset.filter(
+                    pk__in=[e.pk for e in near_events] + [e.pk for e in other_events]
+                )
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("start_time")
             )
         else:
-            other_events = queryset.filter(query).order_by("start_time")
+            other_events = other_events.order_by("start_time")
 
         fields = [
             "id",
@@ -203,9 +201,12 @@ class MyGroupsView(SoftLoginRequiredMixin, ReactListView):
     data_script_id = "mes-groupes"
 
     def get_queryset(self):
-        return SupportGroup.objects.filter(
-            memberships__person=self.request.user.person
-        ).active()
+        return (
+            SupportGroup.objects.filter(memberships__person=self.request.user.person)
+            .active()
+            .annotate(membership_type=F("memberships__membership_type"))
+            .order_by("-membership_type", "name")
+        )
 
 
 class EventMapView(SoftLoginRequiredMixin, ReactBaseView):

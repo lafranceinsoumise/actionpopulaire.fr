@@ -107,8 +107,12 @@ $btn-primary-bg: $brand-purple !default;
 $btn-primary-border: $btn-primary-bg !default;
 
 $btn-default-color: $brand-black !default;
-$btn-default-bg: $brand-yellow!default;
+$btn-default-bg: $brand-yellow !default;
 $btn-default-border: $btn-default-bg !default;
+
+$btn-info-color: $brand-black !default;
+$btn-info-bg: #dfdfdf !default;
+$btn-info-border: $btn-info-bg !default;
 
 // Allows for customizing button radius independently from global border radius
 $btn-border-radius-base: 0;

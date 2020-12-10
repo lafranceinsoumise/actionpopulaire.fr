@@ -131,7 +131,7 @@ export const steps = [
     ),
     body: (
       <p>
-        Ce site est maintenant consacré à l’organisation des militants et des
+        Ce site est maintenant consacré à l’organisation des militant·e·s et des
         groupes d’action FI.
       </p>
     ),
@@ -164,8 +164,8 @@ export const steps = [
     title: "Un espace pour toutes vos tâches militantes à traiter 👍",
     body: (
       <p>
-        En cas de problème, ou bien lorsque des nouveaux membres rejoignent
-        votre groupe, recevez l’information en priorité.
+        En cas de problème, ou bien lorsque des nouvelles ou nouveaux membres
+        rejoignent votre groupe, recevez l’information en priorité.
       </p>
     ),
   },

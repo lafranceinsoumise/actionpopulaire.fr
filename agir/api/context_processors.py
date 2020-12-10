@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import F
 from django.middleware.csrf import get_token
 from django.urls import reverse
 
@@ -78,7 +79,8 @@ def basic_information(request):
         person_groups = (
             SupportGroup.objects.filter(memberships__person=person)
             .active()
-            .order_by("name")
+            .annotate(membership_type=F("memberships__membership_type"))
+            .order_by("-membership_type", "name")
         )
 
         if person_groups.count() > 0:

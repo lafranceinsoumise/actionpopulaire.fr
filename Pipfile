@@ -78,12 +78,12 @@ PyYAML = "==5.*"
 xlwt = "==1.*"
 django-admin-rangefilter = "*"
 faker = "*"
+django-silk = "*"
 
 [dev-packages]
 ipython = "*"
 black = "==19.10b0"
 coverage = "*"
-django-silk = "*"
 django-debug-toolbar = "*"
 redislite = "*"  # used for testing
 click = "*"
