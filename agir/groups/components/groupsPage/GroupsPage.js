@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
-import GroupOnboarding from "@agir/groups/groupComponents/GroupOnboarding";
+import Onboarding from "@agir/front/genericComponents/Onboarding";
 import { DateTime } from "luxon";
 import Layout, { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
 import Button from "@agir/front/genericComponents/Button";
@@ -102,7 +102,7 @@ const GroupsPage = ({ data }) => {
         </div>
       </TopBar>
       {groups.length === 0 ? (
-        <GroupOnboarding type="action" routes={routes} />
+        <Onboarding type="group__action" routes={routes} />
       ) : (
         <GroupList>
           {groups.map((group) => (
