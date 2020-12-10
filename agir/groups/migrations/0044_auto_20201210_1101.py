@@ -3,6 +3,23 @@
 from django.db import migrations, models
 
 
+def add_default_2022_subtype(apps, schema):
+    SupportGroupSubtype = apps.get_model("groups", "SupportGroupSubtype")
+    SupportGroupSubtype.objects.create(
+        label="équipe de soutien",
+        description="Sous-type par défaut des équipes de soutien",
+        hide_text_label=True,
+        visibility="A",  # all
+        color="#571aff",
+        type="2",  # campagne 2022
+    )
+
+
+def remove_default_2022_subtype(apps, schema):
+    SupportGroupSubtype = apps.get_model("groups", "SupportGroupSubtype")
+    SupportGroupSubtype.objects.filter(label="équipe de soutien").delete()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -40,5 +57,8 @@ class Migration(migrations.Migration):
                 max_length=1,
                 verbose_name="type de groupe",
             ),
+        ),
+        migrations.RunPython(
+            code=add_default_2022_subtype, reverse_code=remove_default_2022_subtype
         ),
     ]

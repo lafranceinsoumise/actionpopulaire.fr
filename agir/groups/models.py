@@ -75,13 +75,15 @@ class SupportGroup(
     TYPE_PROFESSIONAL = "P"
     TYPE_2022 = "2"
 
-    TYPE_CHOICES = (
+    TYPE_LFI_CHOICES = (
         (TYPE_LOCAL_GROUP, "Groupe local"),
         (TYPE_THEMATIC, "Groupe thématique"),
         (TYPE_FUNCTIONAL, "Groupe fonctionnel"),
         (TYPE_PROFESSIONAL, "Groupe professionel"),
-        (TYPE_2022, "Équipe de soutien « Nous Sommes Pour ! »"),
     )
+    TYPE_NSP_CHOICES = ((TYPE_2022, "Équipe de soutien « Nous Sommes Pour ! »"),)
+
+    TYPE_CHOICES = TYPE_LFI_CHOICES + TYPE_NSP_CHOICES
 
     TYPE_PARAMETERS = {
         TYPE_LOCAL_GROUP: {"color": "#4a64ac", "icon_name": "users"},

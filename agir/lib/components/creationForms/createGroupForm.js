@@ -19,7 +19,7 @@ import PropTypes from "prop-types";
 class CreateGroupForm extends React.Component {
   constructor(props) {
     super(props);
-    let state = { fields: props.initial || {} };
+    let state = { fields: props.initial || {}, skipType: false };
     this.setFields = this.setFields.bind(this);
 
     if (this.props.types.length === 1) {
@@ -32,6 +32,8 @@ class CreateGroupForm extends React.Component {
           type: this.props.types[0].id,
           subtypes: subtypes.map((s) => s.label),
         });
+
+        state.skipType = true;
       }
     }
 
@@ -76,7 +78,7 @@ class CreateGroupForm extends React.Component {
       ),
     };
 
-    if (!this.state.fields.type || !this.state.fields.subtypes) {
+    if (!this.state.skipType) {
       steps.unshift(typeStep);
     }
 
