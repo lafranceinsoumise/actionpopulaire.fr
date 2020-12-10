@@ -27,28 +27,28 @@
               <a
                 class="btn btn-sm btn-default"
                 href="{% url "manage_group" supportgroup.pk %}">
-                <i class="fa fa-cog"></i> Gérer mon groupe
+                <i class="fa fa-cog"></i> Gérer mon {% if supportgroup.is_2022 %}équipe{% else %}groupe{% endif %}
               </a>
               <a
                 class="btn btn-sm btn-default"
                 href="{% url "create_event" %}?as_group={{ supportgroup.pk }}">
-                <i class="fa fa-plus"></i> Créer un événement organisé par ce groupe
+                <i class="fa fa-plus"></i> Créer un événement organisé par {% if supportgroup.is_2022 %}cette équipe{% else %}ce groupe{% endif %}
               </a>
             {% endif %}
             <a
               class="btn btn-sm btn-info"
               href="{% url "quit_group" supportgroup.pk %}">
-              Quitter le groupe
+              Quitter {% if supportgroup.is_2022 %}l'équipe{% else %}le groupe{% endif %}
             </a>
           {% elif user.person.is_insoumise or supportgroup.allow_external %}
             <form style="display:inline;" action="{% url "view_group" supportgroup.pk %}" method="post" class="padbottom">
               {% csrf_token %}
               <input type="hidden" name="action" value="join"/>
-              <input type="submit" class="btn btn-sm btn-primary" value="Rejoindre ce groupe"/>
+              <input type="submit" class="btn btn-sm btn-primary" value="Rejoindre {% if supportgroup.is_2022 %}cette équipe{% else %}ce groupe{% endif %}"/>
             </form>
             <p class="help-block">
               <small>
-                Votre adresse email sera communiquée aux gestionnaires du groupe.
+                Votre adresse email sera communiquée aux gestionnaires {% if supportgroup.is_2022 %}de l'équipe{% else %}du groupe{% endif %}.
               </small>
             </p>
           {% else %}
@@ -72,7 +72,7 @@
               class="form-control"
               placeholder="email@exemple.fr">
               <button class="btn btn-sm btn-primary" type="submit" style="height: 36px;">
-                Rejoindre ce groupe <i class="fa fa-check"></i>
+                Rejoindre {% if supportgroup.is_2022 %}cette équipe{% else %}ce groupe{% endif %} <i class="fa fa-check"></i>
               </button>
             </div>
           </form>
@@ -84,7 +84,7 @@
             class="btn btn-sm btn-primary"
             title="Connexion"
             href="{% url "short_code_login" %}?next={{ request.get_full_path|urlencode }}">
-            Se connecter pour rejoindre le groupe
+            Se connecter pour rejoindre {% if supportgroup.is_2022 %}l'équipe{% else %}le groupe{% endif %}
           </a>
         {% endif %}
       </div>
@@ -107,7 +107,7 @@
       </h2>
       {% if not supportgroup.published %}
         <div class="alert alert-warning">
-          Ce groupe a été dépublié.
+          {% if supportgroup.is_2022 %}Cette équipe{% else %}Ce groupe{% endif %} a été dépublié.
         </div>
       {% endif %}
       <hr>
@@ -128,7 +128,7 @@
                   {% if supportgroup.html_full_address|length > 0 %}
                     {{ supportgroup.html_full_address }}
                   {% else %}
-                    Ce groupe n'est pas situé géographiquement
+                    {% if supportgroup.is_2022 %}Cette équipe n'est pas située géographiquement{% else %}Ce groupe n'est pas situé géographiquement{% endif %}
                   {% endif %}
                 </p>
               </div>
@@ -205,7 +205,7 @@
           </div>
           <div class="col-sm-6 marginbottommore">
             <h4>
-              Agenda du groupe
+              Agenda {% if supportgroup.is_2022 %}de l'équipe{% else %}du groupe{% endif %}
               {% url 'ics_group' supportgroup.pk as calendar_url %}
               <small>
                 S'abonner {% include 'events/calendar_subscribe_modal.html' with url=calendar_url %}
