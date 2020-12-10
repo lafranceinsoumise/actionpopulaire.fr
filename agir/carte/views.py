@@ -34,7 +34,7 @@ def is_active_group():
                 n + timedelta(days=31),
             ),
         )
-        | Q(created__gt=n - timedelta(days=31))
+        | Q(created__lt=n - timedelta(days=31))
     ) & Q(organized_events__visibility=Event.VISIBILITY_PUBLIC,)
 
 
