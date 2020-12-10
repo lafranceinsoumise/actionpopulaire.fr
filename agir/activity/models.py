@@ -47,6 +47,7 @@ class Activity(TimeStampedModel):
         (TYPE_NEW_REPORT, "Nouveau compte-rendu d'événement"),
         (TYPE_NEW_EVENT_AROUNDME, "Nouvel événement près de chez moi"),
         (TYPE_CANCELLED_EVENT, "Événement annulé"),
+        (TYPE_REFERRAL, "Personne parrainée"),
     )
 
     STATUS_UNDISPLAYED = "U"
