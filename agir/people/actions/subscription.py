@@ -39,8 +39,9 @@ SUBSCRIPTION_FIELD = {
 SUBSCRIPTIONS_EMAILS = {
     SUBSCRIPTION_TYPE_LFI: {
         "confirmation": SubscriptionMessageInfo(
-            "SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
-            "Plus qu'un clic pour vous inscrire",
+            code="SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
+            subject="Plus qu'un clic pour vous inscrire",
+            from_email="La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
         ),
         "already_subscribed": SubscriptionMessageInfo(
             "ALREADY_SUBSCRIBED_LFI_MESSAGE", "Vous êtes déjà inscrits !",
@@ -51,9 +52,9 @@ SUBSCRIPTIONS_EMAILS = {
     },
     SUBSCRIPTION_TYPE_NSP: {
         "confirmation": SubscriptionMessageInfo(
-            "SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE",
-            "Confirmez votre e-mail pour valider votre signature !",
-            "Nous sommes pour <nepasrepondre@noussommespour.fr>",
+            code="SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE",
+            subject="Confirmez votre e-mail pour valider votre signature !",
+            from_email="Nous sommes pour <nepasrepondre@noussommespour.fr>",
         )
     },
     SUBSCRIPTION_TYPE_EXTERNAL: {},
