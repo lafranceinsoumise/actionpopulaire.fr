@@ -15,6 +15,7 @@ import EventCard from "@agir/front/genericComponents/EventCard";
 import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
+import Onboarding from "@agir/front/genericComponents/Onboarding";
 
 const TopBar = styled.div`
   display: flex;
@@ -242,7 +243,7 @@ OtherEvents.propTypes = {
 };
 
 const Agenda = ({ rsvped, others }) => {
-  const { routes } = useGlobalContext();
+  const { is2022, routes } = useGlobalContext();
 
   const rsvpedEvents = React.useMemo(
     () =>
@@ -281,20 +282,33 @@ const Agenda = ({ rsvped, others }) => {
           </div>
         </TopBar>
       </header>
+      {rsvpedEvents.length > 0 || others.length > 0 ? (
+        <Row style={{ marginBottom: "4rem" }}>
+          <Column grow>
+            {rsvpedEvents.length > 0 && (
+              <>
+                <h2 style={{ marginTop: 0 }}>Mes événements</h2>
+                {rsvpedEvents.map((event) => (
+                  <EventCard key={event.id} {...event} />
+                ))}
+                <h2>Autres événements près de chez moi</h2>
+              </>
+            )}
+            {others.length > 0 ? <OtherEvents others={others} /> : null}
+          </Column>
+        </Row>
+      ) : null}
       <Row>
         <Column grow>
-          {rsvpedEvents.length > 0 && (
-            <>
-              <h2 style={{ marginTop: 0 }}>Mes événements</h2>
-              {rsvpedEvents.map((event) => (
-                <EventCard key={event.id} {...event} />
-              ))}
-              <h2>Autres événements près de chez moi</h2>
-            </>
-          )}
-          {Array.isArray(others) && others.length > 0 ? (
-            <OtherEvents others={others} />
-          ) : null}
+          <Onboarding
+            type={is2022 ? "group__nsp" : "group__action"}
+            routes={routes}
+          />
+        </Column>
+      </Row>
+      <Row style={{ marginTop: "4rem" }}>
+        <Column grow>
+          <Onboarding type="event" routes={routes} />
         </Column>
       </Row>
     </StyledAgenda>

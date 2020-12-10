@@ -16,6 +16,8 @@ import LocationStep from "./steps/LocationStep";
 import "./style.css";
 import PropTypes from "prop-types";
 
+const NSP_GROUP_TYPE_ID = "2";
+
 class CreateGroupForm extends React.Component {
   constructor(props) {
     super(props);
@@ -154,7 +156,7 @@ class GroupTypeStep extends FormStep {
           </p>
         </div>
         <div className="col-sm-8 padbottom type-selectors">
-          {this.props.types.map((type, i) => (
+          {this.props.types.map((type) => (
             <div key={type.id} className="type-selector">
               <button
                 className={`btn btn-default ${
@@ -166,50 +168,60 @@ class GroupTypeStep extends FormStep {
                 <strong>{type.label}</strong>
                 {type.description}
               </button>
-              <Transition
-                in={
-                  fields.type === type.id &&
-                  this.subtypesFor(type.id).length > 1
-                }
-                timeout={1000}
-                mountOnEnter
-                unmountOnExit
-              >
-                {(state) => {
-                  const show =
-                    this.groupRefs[i].current &&
-                    ["entering", "entered"].includes(state);
-                  return (
-                    <div
-                      className="subtype-selector"
-                      ref={this.groupRefs[i]}
-                      style={{
-                        height: show
-                          ? this.groupRefs[i].current.scrollHeight + "px"
-                          : "0",
-                      }}
-                    >
-                      <div>
-                        <em>
-                          Choisissez maintenant les thèmes qui vous intéressent.
-                        </em>
-                        <NavSelect
-                          choices={this.subtypesFor(type.id).map((s) => ({
-                            value: s.label,
-                            label: s.description,
-                          }))}
-                          value={fields.subtypes}
-                          max={3}
-                          onChange={(subtypes) =>
-                            this.props.setFields({ subtypes })
-                          }
-                        />
-                      </div>
-                    </div>
-                  );
-                }}
-              </Transition>
             </div>
+          ))}
+          {this.props.types.map((type, i) => (
+            <Transition
+              key={"subtype__" + type.id}
+              in={
+                fields.type === type.id && this.subtypesFor(type.id).length > 1
+              }
+              timeout={1000}
+              mountOnEnter
+              unmountOnExit
+              onEntering={() => {
+                const subtype = document.querySelector(".subtype-selector");
+                if (subtype && subtype.scrollIntoView) {
+                  subtype.scrollIntoView({
+                    behavior: "smooth",
+                  });
+                }
+              }}
+            >
+              {(state) => {
+                const show =
+                  this.groupRefs[i].current &&
+                  ["entering", "entered"].includes(state);
+                return (
+                  <div
+                    className="subtype-selector"
+                    ref={this.groupRefs[i]}
+                    style={{
+                      height: show
+                        ? this.groupRefs[i].current.scrollHeight + "px"
+                        : "0",
+                    }}
+                  >
+                    <div>
+                      <em>
+                        Choisissez maintenant les thèmes qui vous intéressent.
+                      </em>
+                      <NavSelect
+                        choices={this.subtypesFor(type.id).map((s) => ({
+                          value: s.label,
+                          label: s.description,
+                        }))}
+                        value={fields.subtypes}
+                        max={3}
+                        onChange={(subtypes) =>
+                          this.props.setFields({ subtypes })
+                        }
+                      />
+                    </div>
+                  </div>
+                );
+              }}
+            </Transition>
           ))}
         </div>
       </div>
@@ -266,12 +278,14 @@ class ValidateStep extends FormStep {
   render() {
     const { fields, types } = this.props;
     const groupType = types.find((t) => t.id === fields.type) || {};
+    const is2022 = groupType.id === NSP_GROUP_TYPE_ID;
+
     return (
       <div className="row padtopmore padbottommore">
         <div className="col-md-6">
           <p>Voici les informations que vous avez entrées&nbsp;:</p>
           <dl className="well confirmation-data-list">
-            <dt>Type de groupe&nbsp;:</dt> <dd>{groupType.label}</dd>
+            <dt>Type&nbsp;:</dt> <dd>{groupType.label}</dd>
             <dt>Numéro de téléphone&nbsp;:</dt>
             <dd>
               {fields.phone}&ensp;
@@ -283,7 +297,7 @@ class ValidateStep extends FormStep {
                 <dd>{fields.name}</dd>
               </>
             )}
-            <dt>Adresse email du groupe&nbsp;:</dt>
+            <dt>Adresse email&nbsp;:</dt>
             <dd>{fields.email}</dd>
             <dt>Lieu&nbsp;:</dt>
             <dd>{fields.locationAddress1}</dd>
@@ -296,18 +310,27 @@ class ValidateStep extends FormStep {
           </dl>
         </div>
         <div className="col-md-6">
-          <p>
-            Pour finir, il vous reste juste à choisir un nom pour votre
-            groupe&nbsp;! Choisissez un nom simple et descriptif (par exemple :
-            &laquo;&nbsp;Groupe d'action de la Porte d'Arras&nbsp;&raquo;).
-          </p>
+          {is2022 ? (
+            <p>
+              Pour finir, il vous reste juste à choisir un nom pour votre
+              équipe&nbsp;! Choisissez un nom simple et descriptif (par exemple
+              : &laquo;&nbsp;Équipe de soutien de la Porte
+              d'Arras&nbsp;&raquo;).
+            </p>
+          ) : (
+            <p>
+              Pour finir, il vous reste juste à choisir un nom pour votre
+              groupe&nbsp;! Choisissez un nom simple et descriptif (par exemple
+              : &laquo;&nbsp;Groupe d'action de la Porte d'Arras&nbsp;&raquo;).
+            </p>
+          )}
           <form onSubmit={this.post}>
             <div className="form-group">
               <input
                 className="form-control"
                 ref={(i) => (this.groupName = i)}
                 type="text"
-                placeholder="Nom du groupe"
+                placeholder={`Nom ${is2022 ? "de l'équipe" : "du groupe"}`}
                 required
               />
             </div>
@@ -316,7 +339,7 @@ class ValidateStep extends FormStep {
               type="submit"
               disabled={!this.state.maySubmit || this.state.processing}
             >
-              Créer mon groupe
+              Créer mon {is2022 ? "équipe" : "groupe"}
             </button>
           </form>
           <form>
@@ -324,7 +347,7 @@ class ValidateStep extends FormStep {
               <label>
                 <input onChange={this.toggleMaySubmit} type="checkbox" />
                 Je m'engage à respecter{" "}
-                {groupType.id === "2" ? (
+                {is2022 ? (
                   <a
                     href="https://infos.actionpopulaire.fr/charte-des-equipes-de-soutien-nous-sommes-pour/"
                     target="_blank"
