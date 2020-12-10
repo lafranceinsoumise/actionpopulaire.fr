@@ -59,6 +59,7 @@
     "react-transition-group": "^4.4.1",
     "react-use-gesture": "^6.0.14",
     "regenerator-runtime": "^0.13.7",
+    "reinspect": "^1.1.0",
     "rxjs": "^6.6.3",
     "sass": "^1.26.11",
     "sass-loader": "^10.0.2",
