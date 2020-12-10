@@ -110,7 +110,7 @@ const GroupOnboarding = (props) => {
             Voir les groupes dans ma ville
           </Button>
         ) : null}
-        <Button as="a" href={routes.createGroup}>
+        <Button as="a" color="secondary" href={routes.createGroup}>
           Créer un groupe
         </Button>
       </footer>
