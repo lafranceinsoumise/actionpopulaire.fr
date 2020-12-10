@@ -178,7 +178,8 @@ def send_someone_joined_notification(membership_pk):
 
     send_mosaico_email(
         code="GROUP_SOMEONE_JOINED_NOTIFICATION",
-        subject=_("Un nouveau membre dans votre groupe d'action"),
+        subject="Un nouveau membre dans votre "
+        + ("équipe" if membership.supportgroup.is_2022 else "groupe"),
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
