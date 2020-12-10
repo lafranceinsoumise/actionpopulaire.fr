@@ -9,6 +9,7 @@ from ..front.sitemaps import sitemaps
 urlpatterns = [
     path("rejoindre/", views.JoinView.as_view(), name="join"),
     path("nsp/", views.NSPView.as_view(), name="nsp"),
+    path("nsp/referral/", views.NSPReferralView.as_view(), name="nsp_referral"),
     # https://lafranceinsoumise.fr/
     path("homepage/", RedirectView.as_view(url=settings.MAIN_DOMAIN), name="homepage"),
     # sitemap

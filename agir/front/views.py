@@ -16,6 +16,7 @@ from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.http import add_query_params_to_url
 from agir.lib.tasks import geocode_person
 from .view_mixins import ReactListView, ReactSerializerBaseView, ReactBaseView
+from ..lib.utils import generate_token_params
 
 
 class NBUrlsView(View):
@@ -232,11 +233,20 @@ class NSPView(RedirectView):
                     "email": person.email,
                     "phone": person.contact_phone,
                     "zipcode": person.location_zip,
-                    "agir_referral_id": person.referrer_id,
                 },
             )
 
         return url
+
+
+class NSPReferralView(SoftLoginRequiredMixin, RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+
+        url = f"{settings.NSP_DOMAIN}/je-partage-mon-lien/"
+        params = generate_token_params(self.request.user.person)
+        params["_p"] = params.pop("p")
+        url = add_query_params_to_url(url, params)
+        return
 
 
 class JoinView(TemplateView):
