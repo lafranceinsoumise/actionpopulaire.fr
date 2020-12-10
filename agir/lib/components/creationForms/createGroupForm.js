@@ -299,7 +299,7 @@ class ValidateStep extends FormStep {
           <p>
             Pour finir, il vous reste juste à choisir un nom pour votre
             groupe&nbsp;! Choisissez un nom simple et descriptif (par exemple :
-            &laquo;&nbsp;Groupe d'action de la Porte d'Arras&nbsp;&raquo;).
+            &laquo;&nbsp;Équipe de soutien de la Porte d'Arras&nbsp;&raquo;).
           </p>
           <form onSubmit={this.post}>
             <div className="form-group">
