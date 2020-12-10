@@ -200,6 +200,10 @@ const ActivityCard = (props) => {
     ),
   };
 
+  if (!activityCardIcons[props.type]) {
+    return null;
+  }
+
   return (
     <LowMarginCard>
       <Row gutter="8" align="flex-start">
