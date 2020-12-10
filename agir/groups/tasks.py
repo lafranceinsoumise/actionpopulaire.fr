@@ -72,7 +72,8 @@ def send_support_group_creation_notification(membership_pk):
 
     send_mosaico_email(
         code="GROUP_CREATION",
-        subject=_("Les informations de votre nouveau groupe d'action"),
+        subject="Les informations de votre "
+        + ("nouvelle équipe" if group.is_2022 else "nouveau groupe"),
         from_email=settings.EMAIL_FROM,
         recipients=[referent],
         bindings=bindings,
