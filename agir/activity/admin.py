@@ -30,6 +30,7 @@ class AnnouncementAdmin(admin.ModelAdmin):
 
     readonly_fields = ["miniatures"]
     list_display = ("__str__", "start_date", "end_date")
+    autocomplete_fields = ("segment",)
 
     def miniatures(self, obj):
         if obj is None:
