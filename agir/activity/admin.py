@@ -14,6 +14,12 @@ class ActivityAdmin(admin.ModelAdmin):
     list_display = ("type", "timestamp", "recipient", "status")
 
     readonly_fields = ("created", "modified")
+    autocomplete_fields = (
+        "recipient",
+        "event",
+        "supportgroup",
+        "individual",
+    )
 
 
 @admin.register(Announcement)
