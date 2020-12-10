@@ -171,7 +171,7 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         choices=("municipal", "departemental", "regional"), required=False
     )
 
-    referer = serializers.CharField(required=False)
+    referrer = serializers.CharField(required=False)
 
     PERSON_FIELDS = ["location_zip", "first_name", "last_name", "contact_phone"]
 

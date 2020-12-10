@@ -119,6 +119,7 @@ class ConfirmSubscriptionView(View):
         "contact_phone",
         "type",
         "referer",
+        "referrer",
         "mandat",
     ]
     show_already_created_message = True
