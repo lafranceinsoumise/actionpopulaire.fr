@@ -288,6 +288,8 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isInsoumise = serializers.BooleanField(source="is_insoumise")
     is2022 = serializers.BooleanField(source="is_2022")
 
+    referrerId = serializers.CharField(source="referrer_id")
+
     newsletters = serializers.ListField()
 
     def get_fullName(self, obj: Person):
