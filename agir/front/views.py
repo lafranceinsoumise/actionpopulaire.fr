@@ -202,13 +202,23 @@ class MyGroupsView(SoftLoginRequiredMixin, ReactListView):
     data_script_id = "mes-groupes"
 
     def get_queryset(self):
-        return (
+        person = self.request.user.person
+        person_groups = (
             SupportGroup.objects.filter(memberships__person=self.request.user.person)
             .active()
             .annotate(membership_type=F("memberships__membership_type"))
             .order_by("-membership_type", "name")
         )
+        if person_groups.count() == 0 and person.coordinates is not None:
+            person_groups = (
+                SupportGroup.objects.active()
+                .annotate(distance=Distance("coordinates", person.coordinates))
+                .order_by("distance")[:10]
+            )
+            for group in person_groups:
+                person_groups.membership = None
 
+        return person_groups
 
 class EventMapView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "carte/page__eventMap"
