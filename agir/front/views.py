@@ -231,6 +231,7 @@ class NSPView(RedirectView):
                     "email": person.email,
                     "phone": person.contact_phone,
                     "zipcode": person.location_zip,
+                    "agir_referral_id": person.referrer_id,
                 },
             )
 

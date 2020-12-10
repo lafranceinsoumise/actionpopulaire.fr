@@ -21,6 +21,11 @@ api_urls = [
         name="api_people_newsletters",
     ),
     path("api/people/counter/", api.CounterAPIView.as_view(), name="api_counter",),
+    path(
+        "api/people/referrer/<str:referrer_id>/",
+        api.ReferrerInformationView.as_view(),
+        name="api_referrer_information",
+    ),
 ]
 
 subscribe_urls = [
