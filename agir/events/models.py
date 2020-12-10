@@ -533,9 +533,9 @@ class EventSubtype(BaseSubtype):
 
     TYPE_CHOICES = (
         (TYPE_GROUP_MEETING, _("Réunion de groupe")),
-        (TYPE_PUBLIC_MEETING, _("Réunion publique")),
+        (TYPE_PUBLIC_MEETING, _("Événement public")),
         (TYPE_PUBLIC_ACTION, _("Action publique")),
-        (TYPE_OTHER_EVENTS, _("Autres type d'événements")),
+        (TYPE_OTHER_EVENTS, _("Autre")),
     )
 
     TYPES_PARAMETERS = {
@@ -552,8 +552,8 @@ class EventSubtype(BaseSubtype):
             " ou l'audition d'une association"
         ),
         TYPE_PUBLIC_MEETING: _(
-            "Une réunion ouverts à tous les publics, au-delà des membres du groupe d'action, mais"
-            " qui aura lieu dans un lieu privé. Par exemple, une réunion publique avec un orateur,"
+            "Un événement ouvert à tous les publics, au-delà des membres du groupe, mais"
+            " qui aura lieu dans un lieu privé. Par exemple, un événement public avec un orateur,"
             " une projection ou un concert."
         ),
         TYPE_PUBLIC_ACTION: _(

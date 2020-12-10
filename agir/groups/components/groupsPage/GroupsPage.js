@@ -78,17 +78,6 @@ const GroupsPage = ({ data }) => {
     [data]
   );
 
-  if (groups.length === 0) {
-    return (
-      <Layout active="groups">
-        <TopBar>
-          <LayoutTitle>Groupes</LayoutTitle>
-        </TopBar>
-        <GroupOnboarding type="action" routes={routes} />
-      </Layout>
-    );
-  }
-
   return (
     <Layout active="groups" smallBackgroundColor={style.black25}>
       <TopBar>
@@ -112,18 +101,22 @@ const GroupsPage = ({ data }) => {
           ) : null}
         </div>
       </TopBar>
-      <GroupList>
-        {groups.map((group) => (
-          <GroupCard
-            key={group.id}
-            {...group}
-            displayDescription={false}
-            displayType={false}
-            displayGroupLogo={false}
-            displayMembership={false}
-          />
-        ))}
-      </GroupList>
+      {groups.length === 0 ? (
+        <GroupOnboarding type="action" routes={routes} />
+      ) : (
+        <GroupList>
+          {groups.map((group) => (
+            <GroupCard
+              key={group.id}
+              {...group}
+              displayDescription={false}
+              displayType={false}
+              displayGroupLogo={false}
+              displayMembership={false}
+            />
+          ))}
+        </GroupList>
+      )}
     </Layout>
   );
 };
