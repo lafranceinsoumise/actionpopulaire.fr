@@ -19,7 +19,7 @@ import PropTypes from "prop-types";
 class CreateGroupForm extends React.Component {
   constructor(props) {
     super(props);
-    let state = { fields: props.initial || {} };
+    let state = { fields: props.initial || {}, skipType: false };
     this.setFields = this.setFields.bind(this);
 
     if (this.props.types.length === 1) {
@@ -32,6 +32,8 @@ class CreateGroupForm extends React.Component {
           type: this.props.types[0].id,
           subtypes: subtypes.map((s) => s.label),
         });
+
+        state.skipType = true;
       }
     }
 
@@ -76,7 +78,7 @@ class CreateGroupForm extends React.Component {
       ),
     };
 
-    if (!this.state.fields.type || !this.state.fields.subtypes) {
+    if (!this.state.skipType) {
       steps.unshift(typeStep);
     }
 
@@ -143,7 +145,7 @@ class GroupTypeStep extends FormStep {
             <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
               Charte des groupes d’action de la France insoumise
             </a>{" "}
-            définit quatres types de groupes différents.
+            définit plusieurs types de groupes différents.
           </p>
           <p>
             Ces groupes répondent à des besoins différents. Vous pouvez
@@ -219,7 +221,17 @@ class ValidateStep extends FormStep {
   constructor(props) {
     super(props);
     this.post = this.post.bind(this);
-    this.state = { processing: false };
+    this.toggleMaySubmit = this.toggleMaySubmit.bind(this);
+    this.state = {
+      maySubmit: false,
+      processing: false,
+    };
+  }
+
+  toggleMaySubmit(e) {
+    this.setState({
+      maySubmit: e.target.checked,
+    });
   }
 
   async post(e) {
@@ -253,13 +265,13 @@ class ValidateStep extends FormStep {
 
   render() {
     const { fields, types } = this.props;
+    const groupType = types.find((t) => t.id === fields.type) || {};
     return (
       <div className="row padtopmore padbottommore">
         <div className="col-md-6">
           <p>Voici les informations que vous avez entrées&nbsp;:</p>
           <dl className="well confirmation-data-list">
-            <dt>Type de groupe&nbsp;:</dt>{" "}
-            <dd>{types.find((t) => t.id === fields.type).label}</dd>
+            <dt>Type de groupe&nbsp;:</dt> <dd>{groupType.label}</dd>
             <dt>Numéro de téléphone&nbsp;:</dt>
             <dd>
               {fields.phone}&ensp;
@@ -302,10 +314,36 @@ class ValidateStep extends FormStep {
             <button
               className="btn btn-primary btn-lg btn-block"
               type="submit"
-              disabled={this.state.processing}
+              disabled={!this.state.maySubmit || this.state.processing}
             >
               Créer mon groupe
             </button>
+          </form>
+          <form>
+            <div className="checkbox">
+              <label>
+                <input onChange={this.toggleMaySubmit} type="checkbox" />
+                Je m'engage à respecter{" "}
+                {groupType.id === "2" ? (
+                  <a
+                    href="https://infos.actionpopulaire.fr/charte-des-equipes-de-soutien-nous-sommes-pour/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    la charte des équipes de soutien «&nbsp;Nous Sommes
+                    Pour&nbsp;!&nbsp;»
+                  </a>
+                ) : (
+                  <a
+                    href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    la charte des groupes de la France insoumise
+                  </a>
+                )}
+              </label>
+            </div>
           </form>
           {this.state.error && (
             <div className="alert alert-warning margintopless">

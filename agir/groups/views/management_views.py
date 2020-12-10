@@ -199,21 +199,24 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
 
         types = []
         if person.is_insoumise:
-            types.extend(SupportGroup.TYPE_CHOICES[:4])
+            types.extend(SupportGroup.TYPE_LFI_CHOICES)
 
         if person.is_2022:
-            types.extend(SupportGroup.TYPE_CHOICES[4:])
+            types.extend(SupportGroup.TYPE_NSP_CHOICES)
 
         types = [
             {
-                "id": elem[0],
-                "label": elem[1],
-                "description": SupportGroup.TYPE_DESCRIPTION[elem[0]],
+                "id": id,
+                "label": label,
+                "description": SupportGroup.TYPE_DESCRIPTION[id],
             }
-            for elem in types
+            for id, label in types
         ]
 
-        subtypes = [dict_to_camelcase(s.get_subtype_information()) for s in subtypes_qs]
+        subtypes = [
+            dict_to_camelcase(s.get_subtype_information())
+            for s in subtypes_qs.filter(type__in=[type["id"] for type in types])
+        ]
 
         return super().get_context_data(
             props={"initial": initial, "subtypes": subtypes, "types": types}, **kwargs
