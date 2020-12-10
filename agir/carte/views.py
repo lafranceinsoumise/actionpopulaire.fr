@@ -26,13 +26,16 @@ from ..lib.filters import FixedModelMultipleChoiceFilter
 
 
 def is_active_group():
-    return Q(
-        organized_events__start_time__range=(
-            now() - timedelta(days=62),
-            now() + timedelta(days=31),
-        ),
-        organized_events__visibility=Event.VISIBILITY_PUBLIC,
-    )
+    n = now()
+    return (
+        Q(
+            organized_events__start_time__range=(
+                n - timedelta(days=62),
+                n + timedelta(days=31),
+            ),
+        )
+        | Q(created__gt=n - timedelta(days=31))
+    ) & Q(organized_events__visibility=Event.VISIBILITY_PUBLIC,)
 
 
 def parse_bounds(bounds):
