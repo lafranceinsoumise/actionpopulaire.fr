@@ -5,6 +5,7 @@ import django_filters
 from django.contrib.gis.geos import Polygon
 from django.db.models import Q, Count, Case, BooleanField, When, Value
 from django.http import QueryDict, Http404
+from django.utils.decorators import method_decorator
 from django.utils.html import mark_safe
 from django.utils.timezone import now
 from django.utils.translation import ugettext as _
@@ -22,6 +23,7 @@ from . import serializers
 from ..events.filters import EventFilter
 from ..events.models import Event, EventSubtype
 from ..groups.models import SupportGroup, SupportGroupSubtype
+from ..lib.decorators import dont_vary_on_cookie
 from ..lib.filters import FixedModelMultipleChoiceFilter
 
 
@@ -85,25 +87,18 @@ class EventsView(ListAPIView):
     serializer_class = serializers.MapEventSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend)
     filterset_class = EventFilter
-    authentication_classes = [SessionAuthentication]
 
     def get_queryset(self):
-        qs = Event.objects.all()
-        if self.request.user is None or not self.request.user.has_perms(
-            "view_hidden_event"
-        ):
-            qs = qs.listed()
+        qs = Event.objects.listed()
 
-        if (
-            self.request.user.is_authenticated
-            and hasattr(self.request.user, "person")
-            and self.request.user.person.is_2022_only
-        ):
+        if self.request.GET.get("var") == "nsp_only":
             qs = qs.is_2022()
 
         return qs.filter(coordinates__isnull=False).select_related("subtype")
 
-    @cache.cache_control(max_age=300, public=True)
+    @method_decorator(cache.cache_page(300))
+    @method_decorator(dont_vary_on_cookie)
+    @cache.cache_control(public=True)
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -125,23 +120,20 @@ class GroupsView(ListAPIView):
     serializer_class = serializers.MapGroupSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend)
     filterset_class = GroupFilterSet
-    queryset = (
-        SupportGroup.objects.active()
-        .filter(coordinates__isnull=False)
-        .prefetch_related("subtypes")
-    )
 
-    @cache.cache_control(max_age=300, public=True)
+    @method_decorator(cache.cache_page(300))
+    @method_decorator(dont_vary_on_cookie)
+    @cache.cache_control(public=True)
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        qs = SupportGroup.objects.active()
-        if (
-            self.request.user.is_authenticated
-            and hasattr(self.request.user, "person")
-            and self.request.user.person.is_2022_only
-        ):
+        qs = (
+            SupportGroup.objects.active()
+            .filter(coordinates__isnull=False)
+            .prefetch_related("subtypes")
+        )
+        if self.request.GET.get("var") == "nsp_only":
             qs = qs.is_2022()
 
         return (

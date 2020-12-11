@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from agir.api.redis import using_separate_redis_server
 from agir.lib.tests.mixins import FakeDataMixin
 
 from agir.people.models import Person, PersonValidationSMS, generate_code
@@ -10,6 +11,7 @@ from agir.groups.models import SupportGroup
 from agir.lib.tests.mixins import create_location
 
 
+@using_separate_redis_server
 class CarteTestCase(FakeDataMixin, TestCase):
     def test_can_see_maps_views(self):
         for view_name in ["event_list", "group_list", "events_map", "groups_map"]:
@@ -28,6 +30,7 @@ class CarteTestCase(FakeDataMixin, TestCase):
         self.assertEqual(res.status_code, 200)
 
 
+@using_separate_redis_server
 class EventsMapTestCase(TestCase):
     def setUp(self):
         self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
@@ -73,11 +76,12 @@ class EventsMapTestCase(TestCase):
 
     def test_2022_only_person_can_search_through_2022_events_only(self):
         self.client.force_login(self.person_2022.role)
-        res = self.client.get(reverse("carte:event_list"))
+        res = self.client.get(reverse("carte:event_list") + "?var=nsp_only")
         self.assertNotContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)
 
 
+@using_separate_redis_server
 class GroupsMapTestCase(TestCase):
     def setUp(self):
         self.person_insoumise = Person.objects.create_insoumise(
@@ -102,6 +106,6 @@ class GroupsMapTestCase(TestCase):
 
     def test_2022_only_person_can_search_through_2022_groups_only(self):
         self.client.force_login(self.person_2022.role)
-        res = self.client.get(reverse("carte:group_list"))
+        res = self.client.get(reverse("carte:group_list") + "?var=nsp_only")
         self.assertNotContains(res, self.group_insoumis.name)
         self.assertContains(res, self.group_2022.name)
