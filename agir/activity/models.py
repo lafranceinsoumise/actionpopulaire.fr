@@ -8,7 +8,7 @@ from agir.lib.models import TimeStampedModel, DescriptionField
 
 
 class Activity(TimeStampedModel):
-    # DONE
+    # Avec affichage d'une notification
     TYPE_GROUP_INVITATION = "group-invitation"
     TYPE_NEW_MEMBER = "new-member"
     TYPE_GROUP_INFO_UPDATE = "group-info-update"
@@ -27,11 +27,33 @@ class Activity(TimeStampedModel):
     TYPE_GROUP_COORGANIZATION_INVITE = "group-coorganization-invite"
     TYPE_WAITING_LOCATION_GROUP = "waiting-location-group"
     TYPE_WAITING_PAYMENT = "waiting-payment"
+    # Sans affichage d'une notification
+    TYPE_ANNOUNCEMENT = "announcement"
+
+    DISPLAYED_TYPES = (
+        TYPE_GROUP_INVITATION,
+        TYPE_NEW_MEMBER,
+        TYPE_GROUP_INFO_UPDATE,
+        TYPE_NEW_ATTENDEE,
+        TYPE_EVENT_UPDATE,
+        TYPE_NEW_EVENT_MYGROUPS,
+        TYPE_NEW_REPORT,
+        TYPE_CANCELLED_EVENT,
+        TYPE_REFERRAL,
+        TYPE_GROUP_COORGANIZATION_INFO,
+        TYPE_NEW_EVENT_AROUNDME,
+        TYPE_ACCEPTED_INVITATION_MEMBER,
+        TYPE_GROUP_COORGANIZATION_ACCEPTED,
+        TYPE_WAITING_LOCATION_EVENT,
+        TYPE_GROUP_COORGANIZATION_INVITE,
+        TYPE_WAITING_LOCATION_GROUP,
+        TYPE_WAITING_PAYMENT,
+    )
 
     TYPE_CHOICES = (
         (TYPE_WAITING_PAYMENT, "Paiement en attente"),
         (TYPE_GROUP_INVITATION, "Invitation à un groupe"),
-        (TYPE_NEW_MEMBER, "Nouveau membre"),
+        (TYPE_NEW_MEMBER, "Nouveau membre dans le groupe"),
         (TYPE_WAITING_LOCATION_GROUP, "Préciser la localisation du groupe"),
         (TYPE_GROUP_COORGANIZATION_INVITE, "Invitation à coorganiser un groupe reçue"),
         (TYPE_WAITING_LOCATION_EVENT, "Préciser la localisation d'un événement"),
@@ -48,6 +70,7 @@ class Activity(TimeStampedModel):
         (TYPE_NEW_EVENT_AROUNDME, "Nouvel événement près de chez moi"),
         (TYPE_CANCELLED_EVENT, "Événement annulé"),
         (TYPE_REFERRAL, "Personne parrainée"),
+        (TYPE_ANNOUNCEMENT, "Associée à une annonce"),
     )
 
     STATUS_UNDISPLAYED = "U"
@@ -96,6 +119,14 @@ class Activity(TimeStampedModel):
         "people.Person", on_delete=models.CASCADE, related_name="+", null=True
     )
 
+    announcement = models.ForeignKey(
+        "Announcement",
+        on_delete=models.CASCADE,
+        related_name="activities",
+        related_query_name="activity",
+        null=True,
+    )
+
     meta = models.JSONField("Autres données", blank=True, default=dict)
 
     def __str__(self):
@@ -113,6 +144,7 @@ class Activity(TimeStampedModel):
                 fields=("recipient", "timestamp"), name="notifications_by_recipient"
             ),
         )
+        unique_together = ("recipient", "announcement")
 
 
 class AnnouncementQuerySet(models.QuerySet):

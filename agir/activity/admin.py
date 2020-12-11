@@ -32,9 +32,10 @@ class AnnouncementAdmin(admin.ModelAdmin):
             "Conditions d'affichage",
             {"fields": ("segment", "start_date", "end_date", "priority")},
         ),
+        ("Statistiques", {"fields": ("affichages", "clics")}),
     )
 
-    readonly_fields = ["miniatures"]
+    readonly_fields = ["miniatures", "affichages", "clics"]
     list_display = ("__str__", "start_date", "end_date")
     autocomplete_fields = ("segment",)
 
@@ -56,3 +57,18 @@ class AnnouncementAdmin(admin.ModelAdmin):
         )
 
     miniatures.short_description = "Affichage de l'image selon l'environnement"
+
+    def affichages(self, obj):
+        if obj.id:
+            return obj.activities.filter(
+                status__in=(Activity.STATUS_DISPLAYED, Activity.STATUS_INTERACTED)
+            ).count()
+        return "-"
+
+    affichages.short_description = "Nombre d'affichages uniques"
+
+    def clics(self, obj):
+        if obj.id:
+            return obj.activities.filter(status=Activity.STATUS_INTERACTED).count()
+
+    clics.short_description = "Nombre de clics uniques"
