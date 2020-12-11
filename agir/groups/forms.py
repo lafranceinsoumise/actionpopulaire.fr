@@ -2,6 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Row, Field
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models import Exists, OuterRef
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from functools import reduce
@@ -198,9 +199,23 @@ class AddReferentForm(forms.Form):
     def __init__(self, support_group, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["referent"].queryset = self.fields["referent"].queryset.filter(
+        referent_candidates = self.fields["referent"].queryset.filter(
             supportgroup=support_group
         )
+
+        if support_group.is_2022:
+            # Filter out group members that are already referent or manager of another nsp group
+            referent_candidates = referent_candidates.annotate(
+                already_referent=Exists(
+                    SupportGroup.objects.active().filter(
+                        type__in=[id for id, _ in SupportGroup.TYPE_NSP_CHOICES],
+                        memberships__person_id=OuterRef("person_id"),
+                        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                    )
+                )
+            ).filter(already_referent=False)
+
+        self.fields["referent"].queryset = referent_candidates
 
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", _("Signaler comme second animateur")))
@@ -227,10 +242,23 @@ class AddManagerForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.support_group = support_group
 
-        self.fields["manager"].queryset = self.fields["manager"].queryset.filter(
+        manager_candidates = self.fields["manager"].queryset.filter(
             supportgroup=support_group
         )
 
+        if support_group.is_2022:
+            # Filter out group members that are already referent or manager of another nsp group
+            manager_candidates = manager_candidates.annotate(
+                already_manager=Exists(
+                    SupportGroup.objects.active().filter(
+                        type__in=[id for id, _ in SupportGroup.TYPE_NSP_CHOICES],
+                        memberships__person_id=OuterRef("person_id"),
+                        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                    )
+                )
+            ).filter(already_manager=False)
+
+        self.fields["manager"].queryset = manager_candidates
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", _("Ajouter comme membre gestionnaire")))
 
