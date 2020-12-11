@@ -21,17 +21,32 @@ const NSP_GROUP_TYPE_ID = "2";
 class CreateGroupForm extends React.Component {
   constructor(props) {
     super(props);
-    let state = { fields: props.initial || {}, skipType: false };
     this.setFields = this.setFields.bind(this);
 
-    if (this.props.types.length === 1) {
+    let state = {
+      fields: props.initial || {},
+      skipType: false,
+      types: props.types.reduce((result, type) => {
+        if (type.id === NSP_GROUP_TYPE_ID) {
+          result.unshift({
+            ...type,
+            fullWidth: true,
+          });
+        } else {
+          result.push(type);
+        }
+        return result;
+      }, []),
+    };
+
+    if (state.types.length === 1) {
       const subtypes = this.props.subtypes.filter(
-        (s) => s.type === this.props.types[0].id
+        (s) => s.type === state.types[0].id
       );
 
       if (subtypes.length < 2) {
         Object.assign(state.fields, {
-          type: this.props.types[0].id,
+          type: state.types[0].id,
           subtypes: subtypes.map((s) => s.label),
         });
 
@@ -63,7 +78,7 @@ class CreateGroupForm extends React.Component {
       {
         name: "Validation et nom",
         component: (
-          <ValidateStep fields={this.state.fields} types={this.props.types} />
+          <ValidateStep fields={this.state.fields} types={this.state.types} />
         ),
       },
     ];
@@ -75,7 +90,7 @@ class CreateGroupForm extends React.Component {
           setFields={this.setFields}
           fields={this.state.fields}
           subtypes={this.props.subtypes}
-          types={this.props.types}
+          types={this.state.types}
         />
       ),
     };
@@ -157,7 +172,13 @@ class GroupTypeStep extends FormStep {
         </div>
         <div className="col-sm-8 padbottom type-selectors">
           {this.props.types.map((type) => (
-            <div key={type.id} className="type-selector">
+            <div
+              key={type.id}
+              className="type-selector"
+              style={{
+                flex: type.fullWidth ? "0 0 100%" : undefined,
+              }}
+            >
               <button
                 className={`btn btn-default ${
                   fields.type === type.id ? "active" : ""
