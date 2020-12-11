@@ -19,6 +19,19 @@ const ONBOARDING_TYPE = {
     createLabel: "Créer un événement",
     createRoute: "createEvent",
   },
+  group__suggestions: {
+    title: "Rejoignez une équipe proche de chez vous",
+    body:
+      "Les groupes de soutien permettent aux militants de s’organiser dans leur quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain et organisez des moments de réflexions politiques !",
+    mapIframe: "groupsMap",
+  },
+  group__creation: {
+    title: "Ou bien créez votre équipe !",
+    body:
+      "Créez votre équipe en quelques clics, et commencez dès aujourd’hui à organiser des actions pour soutenir la candidature de Jean-Luc Mélenchon. Besoin d’inspiration pour animer votre équipe ? Voici quelques pistes.",
+    createLabel: "Créer une équipe de soutien",
+    createRoute: "createGroup",
+  },
   group__nsp: {
     img: onboardingActionImage,
     title: "Rejoignez ou organisez une équipe de soutien",
@@ -51,6 +64,15 @@ const ONBOARDING_TYPE = {
     createRoute: "createGroup",
   },
 };
+
+const Map = styled.iframe`
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 338px;
+  border: none;
+  overflow: hidden;
+`;
 
 const StyledBlock = styled.section`
   display: flex;
@@ -125,13 +147,17 @@ const Onboarding = (props) => {
     body,
     mapLabel,
     mapRoute,
+    mapIframe,
     createLabel,
     createRoute,
   } = ONBOARDING_TYPE[type];
   return (
     <StyledBlock>
       <header>
-        <div style={{ backgroundImage: `url(${img})` }} />
+        {img ? <div style={{ backgroundImage: `url(${img})` }} /> : null}
+        {mapIframe && routes[mapIframe] ? (
+          <Map src={routes[mapIframe]} />
+        ) : null}
         <h3>{title}</h3>
       </header>
       <article>

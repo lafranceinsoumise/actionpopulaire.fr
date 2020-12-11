@@ -210,15 +210,17 @@ class MyGroupsView(SoftLoginRequiredMixin, ReactListView):
             .order_by("-membership_type", "name")
         )
         if person_groups.count() == 0 and person.coordinates is not None:
-            person_groups = (
-                SupportGroup.objects.active()
-                .annotate(distance=Distance("coordinates", person.coordinates))
-                .order_by("distance")[:10]
-            )
+            person_groups = SupportGroup.objects.active()
+            if person.is_2022_only:
+                person_groups = person_groups.is_2022()
+            person_groups = person_groups.annotate(
+                distance=Distance("coordinates", person.coordinates)
+            ).order_by("distance")[:3]
             for group in person_groups:
                 person_groups.membership = None
 
         return person_groups
+
 
 class EventMapView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "carte/page__eventMap"
