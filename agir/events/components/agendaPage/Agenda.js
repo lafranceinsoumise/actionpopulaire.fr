@@ -122,13 +122,12 @@ const otherEventConfig = {
   GROUPS_TYPE: {
     label: "Dans mes groupes",
     allowEmpty: (user) => Array.isArray(user.groups) && user.groups.length > 0,
-    filter: (events, groups) =>
+    filter: (events) =>
       events.filter(
         (event) =>
           Array.isArray(event.groups) &&
-          Array.isArray(groups) &&
           dateFromISOString(event.endTime) > DateTime.local() &&
-          event.groups.some((group) => groups.includes(group.id).length > 0)
+          event.groups.some((group) => !!group.isMember)
       ),
   },
   PAST_TYPE: {
@@ -164,11 +163,11 @@ const OtherEvents = ({ others }) => {
       Object.entries(otherEventConfig).reduce(
         (result, [typeKey, typeConfig]) => ({
           ...result,
-          [typeKey]: typeConfig.filter(events, user.groups),
+          [typeKey]: typeConfig.filter(events),
         }),
         {}
       ),
-    [events, user.groups]
+    [events]
   );
   const types = React.useMemo(
     () =>
