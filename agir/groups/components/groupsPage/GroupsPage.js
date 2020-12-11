@@ -50,7 +50,7 @@ const TopBar = styled.div`
 `;
 
 const GroupList = styled.article`
-  margin-bottom: 60px;
+  margin-bottom: 2rem;
 
   @media (max-width: ${style.collapse}px) {
     padding: 0 16px;
@@ -78,6 +78,11 @@ const GroupsPage = ({ data }) => {
     [data]
   );
 
+  const hasOwnGroups = React.useMemo(
+    () => groups.some((group) => group.isMember),
+    [groups]
+  );
+
   return (
     <Layout active="groups" smallBackgroundColor={style.black25}>
       <TopBar>
@@ -101,9 +106,10 @@ const GroupsPage = ({ data }) => {
           ) : null}
         </div>
       </TopBar>
-      {groups.length === 0 ? (
-        <Onboarding type="group__action" routes={routes} />
-      ) : (
+      {!hasOwnGroups ? (
+        <Onboarding type="group__suggestions" routes={routes} />
+      ) : null}
+      {groups.length > 0 && (
         <GroupList>
           {groups.map((group) => (
             <GroupCard
@@ -117,6 +123,9 @@ const GroupsPage = ({ data }) => {
           ))}
         </GroupList>
       )}
+      {!hasOwnGroups ? (
+        <Onboarding type="group__creation" routes={routes} />
+      ) : null}
     </Layout>
   );
 };
