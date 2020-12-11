@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import django_filters
 from django.contrib.gis.geos import Polygon
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Case, BooleanField, When, Value
 from django.http import QueryDict, Http404
 from django.utils.html import mark_safe
 from django.utils.timezone import now
@@ -27,15 +27,13 @@ from ..lib.filters import FixedModelMultipleChoiceFilter
 
 def is_active_group():
     n = now()
-    return (
-        Q(
-            organized_events__start_time__range=(
-                n - timedelta(days=62),
-                n + timedelta(days=31),
-            ),
-        )
-        | Q(created__lt=n - timedelta(days=31))
-    ) & Q(organized_events__visibility=Event.VISIBILITY_PUBLIC,)
+    return Q(
+        organized_events__start_time__range=(
+            n - timedelta(days=62),
+            n + timedelta(days=31),
+        ),
+        organized_events__visibility=Event.VISIBILITY_PUBLIC,
+    ) | Q(created__gt=n - timedelta(days=31))
 
 
 def parse_bounds(bounds):
@@ -150,7 +148,11 @@ class GroupsView(ListAPIView):
             qs.filter(coordinates__isnull=False)
             .prefetch_related("subtypes")
             .annotate(
-                current_events_count=Count("organized_events", filter=is_active_group())
+                is_active=Case(
+                    When(is_active_group(), then=Value(True)),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                )
             )
         )
 

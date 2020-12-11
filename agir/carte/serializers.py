@@ -13,7 +13,7 @@ class MapEventSerializer(serializers.ModelSerializer):
 
 class MapGroupSerializer(CountryFieldMixin, serializers.ModelSerializer):
     subtype = serializers.SerializerMethodField("get_first_subtype")
-    current_events_count = serializers.IntegerField(read_only=True)
+    is_active = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = SupportGroup
@@ -24,7 +24,7 @@ class MapGroupSerializer(CountryFieldMixin, serializers.ModelSerializer):
             "type",
             "subtype",
             "subtypes",
-            "current_events_count",
+            "is_active",
             "location_country",
         )
 
