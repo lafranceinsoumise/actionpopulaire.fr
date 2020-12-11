@@ -38,7 +38,7 @@ WaitingPayment.args = {
     url: "/",
   },
   individual: {
-    fullName: "Foo Bar",
+    firstName: "Foo Bar",
     email: "foo@bar.com",
   },
 };

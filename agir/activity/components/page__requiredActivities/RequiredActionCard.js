@@ -68,9 +68,9 @@ const RequiredActionCard = (props) => {
           disabled={isEmailCopied}
           text={
             <>
-              <strong>{individual.fullName}</strong> a rejoint votre groupe{" "}
-              <a href={supportGroup.url}>{supportGroup.name}</a>. Prenez le
-              temps de l’accueillir !
+              <strong>{individual.firstName || "Quelqu'un"}</strong> a rejoint
+              votre groupe <a href={supportGroup.url}>{supportGroup.name}</a>.
+              Prenez le temps de l’accueillir !
             </>
           }
         />
@@ -102,9 +102,10 @@ const RequiredActionCard = (props) => {
           onDismiss={handleDismiss}
           text={
             <>
-              <strong>{props.individual.fullName}</strong> a proposé à votre
-              groupe <a href={supportGroup.url}>{supportGroup.name}</a> de
-              co-organiser : <a href={event.routes.details}>{event.name}</a>
+              <strong>{props.individual.firstName || "Quelqu'un"}</strong> a
+              proposé à votre groupe{" "}
+              <a href={supportGroup.url}>{supportGroup.name}</a> de co-organiser
+              : <a href={event.routes.details}>{event.name}</a>
             </>
           }
         />
@@ -152,7 +153,7 @@ RequiredActionCard.propTypes = {
     url: PropTypes.string,
   }),
   individual: PropTypes.shape({
-    fullName: PropTypes.string,
+    firstName: PropTypes.string,
     email: PropTypes.string,
   }),
   onDismiss: PropTypes.func,

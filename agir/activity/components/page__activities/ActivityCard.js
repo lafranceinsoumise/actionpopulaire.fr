@@ -62,7 +62,7 @@ const ActivityText = ({
     ),
     "new-member": (
       <StyledParagraph>
-        {individual} a rejoint {supportGroup}. Prenez le temps de
+        {individual || "Quelqu'un"} a rejoint {supportGroup}. Prenez le temps de
         l’accueillir&nbsp;!
       </StyledParagraph>
     ),
@@ -73,7 +73,8 @@ const ActivityText = ({
     ),
     "group-coorganization-invite": (
       <StyledParagraph>
-        {individual} a proposé à {supportGroup} de co-organiser {event}
+        {individual || "Quelqu'un"} a proposé à {supportGroup} de co-organiser{" "}
+        {event}
       </StyledParagraph>
     ),
     "waiting-location-event": (
@@ -91,12 +92,13 @@ const ActivityText = ({
     ),
     "accepted-invitation-member": (
       <StyledParagraph>
-        {individual} a rejoint {supportGroup} en acceptant une invitation.
+        {individual || "Quelqu'un"} a rejoint {supportGroup} en acceptant une
+        invitation.
       </StyledParagraph>
     ),
     "new-attendee": (
       <StyledParagraph>
-        {individual} s'est inscrit à votre événement {event}
+        {individual || "Quelqu'un"} s'est inscrit à votre événement {event}
       </StyledParagraph>
     ),
     "event-update": (
@@ -107,7 +109,7 @@ const ActivityText = ({
     ),
     "new-event-mygroups": (
       <StyledParagraph>
-        {supportGroup || individual} a publié un nouvel événement
+        {supportGroup || individual || "Quelqu'un"} a publié un nouvel événement
       </StyledParagraph>
     ),
     "new-report": (
@@ -119,7 +121,7 @@ const ActivityText = ({
     "new-event-aroundme": (
       <StyledParagraph>
         Un nouvel événement a été publié près de chez vous par{" "}
-        {supportGroup || individual}
+        {supportGroup || individual || "quelqu'un"}
       </StyledParagraph>
     ),
     "group-coorganization-info": (
@@ -132,8 +134,8 @@ const ActivityText = ({
     ),
     "referral-accepted": (
       <StyledParagraph>
-        Grâce à vous, {individual} a parrainé la candidature de Jean-Luc
-        Mélenchon.
+        Grâce à vous, {individual || "quelqu'un"} a parrainé la candidature de
+        Jean-Luc Mélenchon.
         <br />
         {totalReferrals
           ? `Vous avez déjà fait parrainer ${totalReferrals} personnes. `
@@ -184,7 +186,7 @@ const ActivityCard = (props) => {
       <a href={props.supportGroup.url}>{props.supportGroup.name}</a>
     ),
     individual: props.individual && (
-      <strong>{props.individual.fullName}</strong>
+      <strong>{props.individual.firstName}</strong>
     ),
     totalReferrals: props.meta && props.meta.totalReferrals,
   };
@@ -242,7 +244,7 @@ ActivityCard.propTypes = {
     name: PropTypes.string,
     url: PropTypes.string,
   }),
-  individual: PropTypes.shape({ fullName: PropTypes.string }),
+  individual: PropTypes.shape({ firstName: PropTypes.string }),
   meta: PropTypes.shape({
     totalReferrals: PropTypes.number,
   }),

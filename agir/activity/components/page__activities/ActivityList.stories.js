@@ -42,7 +42,7 @@ Default.args = {
       },
       supportGroup: { name: "Super groupe génial", url: "#url" },
       individual: {
-        fullName: "Clara Zetkin",
+        firstName: "Clara Zetkin",
         email: "clara@zetkin.com",
       },
       timestamp: Date.now(),
