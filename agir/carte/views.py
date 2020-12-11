@@ -33,7 +33,7 @@ def is_active_group():
             n + timedelta(days=31),
         ),
         organized_events__visibility=Event.VISIBILITY_PUBLIC,
-    ) | Q(created__gt=n - timedelta(days=31))
+    )
 
 
 def parse_bounds(bounds):
@@ -150,6 +150,7 @@ class GroupsView(ListAPIView):
             .annotate(
                 is_active=Case(
                     When(is_active_group(), then=Value(True)),
+                    When(created__gt=now() - timedelta(days=31), then=Value(True)),
                     default=Value(False),
                     output_field=BooleanField(),
                 )
