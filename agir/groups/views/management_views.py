@@ -202,7 +202,17 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
             types.extend(SupportGroup.TYPE_LFI_CHOICES)
 
         if person.is_2022:
-            types.extend(SupportGroup.TYPE_NSP_CHOICES)
+            is_2022_group_manager = (
+                SupportGroup.objects.active()
+                .filter(
+                    type__in=[choice[0] for choice in SupportGroup.TYPE_NSP_CHOICES],
+                    memberships__person=person,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                )
+                .exists()
+            )
+            if not is_2022_group_manager:
+                types.extend(SupportGroup.TYPE_NSP_CHOICES)
 
         types = [
             {
