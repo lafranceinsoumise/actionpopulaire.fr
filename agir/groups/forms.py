@@ -198,9 +198,26 @@ class AddReferentForm(forms.Form):
     def __init__(self, support_group, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["referent"].queryset = self.fields["referent"].queryset.filter(
+        referent_candidates = self.fields["referent"].queryset.filter(
             supportgroup=support_group
         )
+
+        if support_group.is_2022:
+            # Filter out group members that are already referent or manager of another nsp group
+            candidates = [
+                membership.pk
+                for membership in referent_candidates
+                if not SupportGroup.objects.active()
+                .filter(
+                    type__in=[choice[0] for choice in SupportGroup.TYPE_NSP_CHOICES],
+                    memberships__person=membership.person,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                )
+                .exists()
+            ]
+            referent_candidates = referent_candidates.filter(pk__in=candidates)
+
+        self.fields["referent"].queryset = referent_candidates
 
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", _("Signaler comme second animateur")))
@@ -227,10 +244,26 @@ class AddManagerForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.support_group = support_group
 
-        self.fields["manager"].queryset = self.fields["manager"].queryset.filter(
+        manager_candidates = self.fields["manager"].queryset.filter(
             supportgroup=support_group
         )
 
+        if support_group.is_2022:
+            # Filter out group members that are already referent or manager of another nsp group
+            candidates = [
+                membership.pk
+                for membership in manager_candidates
+                if not SupportGroup.objects.active()
+                .filter(
+                    type__in=[choice[0] for choice in SupportGroup.TYPE_NSP_CHOICES],
+                    memberships__person=membership.person,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                )
+                .exists()
+            ]
+            manager_candidates = manager_candidates.filter(pk__in=candidates)
+
+        self.fields["manager"].queryset = manager_candidates
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", _("Ajouter comme membre gestionnaire")))
 
