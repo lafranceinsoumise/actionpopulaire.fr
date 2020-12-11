@@ -48,7 +48,7 @@ const Template = decorateArgs(
   convertDatetimes,
   reorganize(
     {
-      individual: { fullName: "individual" },
+      individual: { firstName: "individual" },
       "event.location": {
         name: "event.locationName",
         address: "event.locationAddress",
