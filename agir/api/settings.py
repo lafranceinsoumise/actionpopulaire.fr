@@ -175,6 +175,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "agir.lib.middleware.NoVaryCookieMiddleWare",
     "agir.lib.middleware.TurbolinksMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -548,7 +549,9 @@ if not DEBUG:
 # CACHING
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
+        "BACKEND": "django_redis.cache.RedisCache"
+        if not DEBUG
+        else "django.core.cache.backends.dummy.DummyCache",
         "LOCATION": os.environ.get("CACHING_REDIS_URL", "redis://localhost?db=0"),
         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
         "KEY_PREFIX": "caching_",
