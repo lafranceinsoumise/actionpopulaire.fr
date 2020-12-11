@@ -182,12 +182,24 @@ class GroupTypeStep extends FormStep {
               <button
                 className={`btn btn-default ${
                   fields.type === type.id ? "active" : ""
-                }`}
-                style={{ whiteSpace: "normal" }}
-                onClick={this.setType(type.id)}
+                }`.trim()}
+                style={{
+                  whiteSpace: "normal",
+                  backgroundColor: type.disabled ? "transparent" : undefined,
+                  opacity: type.disabled ? ".5" : undefined,
+                }}
+                onClick={type.disabled ? undefined : this.setType(type.id)}
+                disabled={type.disabled}
               >
                 <strong>{type.label}</strong>
                 {type.description}
+                {type.disabled ? (
+                  <>
+                    <br />
+                    <br />
+                    {type.disabledDescription}
+                  </>
+                ) : null}
               </button>
             </div>
           ))}

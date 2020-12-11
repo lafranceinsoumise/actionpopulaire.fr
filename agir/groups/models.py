@@ -106,8 +106,16 @@ class SupportGroup(
         " journaux locaux, auto-organisation, etc…).",
         TYPE_PROFESSIONAL: "Les groupes d’action professionnels rassemblent des insoumis⋅es qui"
         " souhaitent agir au sein de leur entreprise ou de leur lieu d’étude.",
-        TYPE_2022: "Les équipes de soutien « Nous Sommes Pour ! » peuvent être rejoints par toutes les personnes "
+        TYPE_2022: "Les équipes de soutien « Nous Sommes Pour ! » peuvent être rejointes par toutes les personnes "
         "ayant parainné la candidature de Jean-Luc Mélenchon.",
+    }
+
+    TYPE_DISABLED_DESCRIPTION = {
+        TYPE_LOCAL_GROUP: "",
+        TYPE_THEMATIC: "",
+        TYPE_FUNCTIONAL: "",
+        TYPE_PROFESSIONAL: "",
+        TYPE_2022: "✅ Vous animez déjà une équipe de soutien",
     }
 
     objects = SupportGroupQuerySet.as_manager()

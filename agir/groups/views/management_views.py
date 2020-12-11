@@ -198,6 +198,8 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
         )
 
         types = []
+        disabled_types = []
+
         if person.is_insoumise:
             types.extend(SupportGroup.TYPE_LFI_CHOICES)
 
@@ -211,7 +213,10 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
                 )
                 .exists()
             )
-            if not is_2022_group_manager:
+
+            if is_2022_group_manager:
+                disabled_types.extend(SupportGroup.TYPE_NSP_CHOICES)
+            else:
                 types.extend(SupportGroup.TYPE_NSP_CHOICES)
 
         types = [
@@ -219,8 +224,19 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
                 "id": id,
                 "label": label,
                 "description": SupportGroup.TYPE_DESCRIPTION[id],
+                "disabledDescription": SupportGroup.TYPE_DISABLED_DESCRIPTION[id],
+                "disabled": False,
             }
             for id, label in types
+        ] + [
+            {
+                "id": id,
+                "label": label,
+                "description": SupportGroup.TYPE_DESCRIPTION[id],
+                "disabledDescription": SupportGroup.TYPE_DISABLED_DESCRIPTION[id],
+                "disabled": True,
+            }
+            for id, label in disabled_types
         ]
 
         subtypes = [
