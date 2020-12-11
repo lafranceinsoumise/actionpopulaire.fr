@@ -1,12 +1,12 @@
 Bonjour,
 
-Les animateurs du groupe {{ GROUP_NAME }} ont changé ses informations.
+Les animateurs de {{ GROUP_NAME }} ont changé ses informations.
 
 Les informations suivantes ont été changées :
 
 {{ GROUP_CHANGES }}
 
->> Voir les informations mises à jour de ce groupe d'action
+>> Voir les informations mises à jour
 {{ GROUP_LINK }}
 
 Amitiés,  
