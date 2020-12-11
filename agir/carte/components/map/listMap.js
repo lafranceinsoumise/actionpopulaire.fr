@@ -108,11 +108,7 @@ class Display {
     for (let item of data) {
       const feature = this.getFeatureFor(item);
 
-      if (
-        hideInactive &&
-        item.location_country === "FR" &&
-        item.current_events_count === 0
-      ) {
+      if (hideInactive && item.location_country === "FR" && !item.is_active) {
         if (this.sourceForSubtype[item.subtype].hasFeature(feature)) {
           this.sourceForSubtype[item.subtype].removeFeature(
             this.sourceForSubtype[item.subtype].getFeatureById(item.id)
