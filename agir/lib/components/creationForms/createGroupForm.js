@@ -39,7 +39,7 @@ class CreateGroupForm extends React.Component {
       }, []),
     };
 
-    if (state.types.length === 1) {
+    if (state.types.length === 1 && !state.types[0].disabled) {
       const subtypes = this.props.subtypes.filter(
         (s) => s.type === state.types[0].id
       );
