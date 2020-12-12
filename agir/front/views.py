@@ -120,12 +120,17 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
             .order_by("start_time", "end_time")
         )
 
-        groups_events = queryset.upcoming().filter(
-            organizers_groups__in=person.supportgroups.all()
+        groups_events = (
+            queryset.upcoming()
+            .filter(organizers_groups__in=person.supportgroups.all())
+            .distinct()
         )
 
         organized_events = (
-            queryset.past().filter(organizers=person).order_by("-start_time")[:10]
+            queryset.past()
+            .filter(organizers=person)
+            .distinct()
+            .order_by("-start_time")[:10]
         )
 
         past_events = (
@@ -134,6 +139,7 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
                 Q(rsvps__person=person)
                 | Q(organizers_groups__in=person.supportgroups.all())
             )
+            .distinct()
             .order_by("-start_time")[:10]
         )
 
@@ -157,6 +163,7 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
                 )
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("start_time")
+                .distinct()
             )
         else:
             other_events = other_events.order_by("start_time")
