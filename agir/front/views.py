@@ -118,7 +118,7 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
             queryset.upcoming()
             .filter(Q(attendees=person) | Q(organizers=person))
             .order_by("start_time", "end_time")
-        )
+        ).distinct()
 
         groups_events = (
             queryset.upcoming()
