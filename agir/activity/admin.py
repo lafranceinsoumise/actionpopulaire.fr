@@ -12,6 +12,7 @@ class ActivityAdmin(admin.ModelAdmin):
         ("Création et modification", {"fields": ("created", "modified")}),
     )
     list_display = ("type", "timestamp", "recipient", "status")
+    list_filter = ("type", "status")
 
     readonly_fields = ("created", "modified")
     autocomplete_fields = (
