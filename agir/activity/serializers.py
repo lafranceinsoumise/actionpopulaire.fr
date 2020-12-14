@@ -63,7 +63,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
 
     def get_activityId(self, obj):
         user = self.context["request"].user
-        if getattr(obj, "activity_id"):
+        if getattr(obj, "activity_id", None):
             return obj.activity_id
         if hasattr(user, "person"):
             activity = Activity.objects.create(
