@@ -67,7 +67,6 @@ export const Activities = (props) => {
         <StyledList type="activities">
           {activities.map((activity) => (
             <li key={activity.id}>
-              s
               <CardComponent onDismiss={onDismiss} {...activity} />
             </li>
           ))}
