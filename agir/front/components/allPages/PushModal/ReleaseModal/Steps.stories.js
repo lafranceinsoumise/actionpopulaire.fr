@@ -2,7 +2,7 @@ import Steps, { Step, steps } from "./Steps";
 
 export default {
   component: Steps,
-  title: "Layout/ReleaseModal/Steps",
+  title: "Layout/PushModal/ReleaseModal/Steps",
 };
 
 const noop = () => {};

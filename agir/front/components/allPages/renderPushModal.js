@@ -4,19 +4,19 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
   const [
     { default: React },
     { renderReactComponent },
-    { default: ReleaseModal },
+    { default: PushModal },
     { GlobalContextProvider },
   ] = await Promise.all([
     import("react"),
     import("@agir/lib/utils/react"),
-    import("./ReleaseModal"),
+    import("./PushModal"),
     import("@agir/front/genericComponents/GlobalContext"),
   ]);
 
   const showHeader = () => {
     renderReactComponent(
       <GlobalContextProvider>
-        <ReleaseModal once />
+        <PushModal isActive />
       </GlobalContextProvider>,
       document.getElementById("release-modal")
     );
