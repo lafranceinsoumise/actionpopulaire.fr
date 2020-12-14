@@ -43,13 +43,42 @@ export const activityCardIcons = {
 const StyledParagraph = styled.p`
   margin-bottom: 0;
 `;
-const ActivityText = ({
-  type,
-  event,
-  supportGroup,
-  individual,
-  totalReferrals = 0,
-}) => {
+
+const ReferralUpdateActivityText = ({ individual, totalReferrals }) => {
+  if (totalReferrals < 5) {
+    return (
+      <StyledParagraph>
+        Grâce à vous, {individual || "quelqu'un"} a parrainé la candidature de
+        Jean-Luc Mélenchon.
+        <br />
+        Merci beaucoup, continuez à partager ! 👍
+      </StyledParagraph>
+    );
+  }
+  if (totalReferrals < 10) {
+    return (
+      <StyledParagraph>
+        Encore un ! {individual} a parrainé la candidature de Jean-Luc
+        Mélenchon.
+        <br />
+        C'est super, vous avez fait signer {totalReferrals} personnes !
+        Continuez comme ça ! 😀
+      </StyledParagraph>
+    );
+  }
+  return (
+    <StyledParagraph>
+      Et de {totalReferrals} ! {individual} a parrainé la candidature de
+      Jean-Luc Mélenchon. Génial ! 😍
+    </StyledParagraph>
+  );
+};
+ReferralUpdateActivityText.propTypes = {
+  individual: PropTypes.string,
+  totalReferrals: PropTypes.number,
+};
+const ActivityText = (props) => {
+  const { type, event, supportGroup, individual } = props;
   return {
     "waiting-payment": (
       <StyledParagraph>
@@ -133,17 +162,7 @@ const ActivityText = ({
     "cancelled-event": (
       <StyledParagraph>L'événement {event} a été annulé.</StyledParagraph>
     ),
-    "referral-accepted": (
-      <StyledParagraph>
-        Grâce à vous, {individual || "quelqu'un"} a parrainé la candidature de
-        Jean-Luc Mélenchon.
-        <br />
-        {totalReferrals
-          ? `Vous avez déjà fait parrainer ${totalReferrals} personnes. `
-          : ""}
-        Merci beaucoup, continuez à partager ! 👍
-      </StyledParagraph>
-    ),
+    "referral-accepted": <ReferralUpdateActivityText {...props} />,
   }[type];
 };
 
