@@ -176,16 +176,7 @@ const EventCardContainer = styled.div`
 `;
 
 const ActivityCard = (props) => {
-  const {
-    id,
-    isVisible,
-    onVisible,
-    supportGroup,
-    type,
-    individual,
-    status,
-    meta,
-  } = props;
+  const { supportGroup, type, individual, status, meta } = props;
   let { timestamp, event } = props;
 
   timestamp = dateFromISOString(timestamp);
@@ -204,13 +195,6 @@ const ActivityCard = (props) => {
     ...event,
     schedule: Interval.fromISO(`${event.startTime}/${event.endTime}`),
   };
-
-  React.useEffect(() => {
-    status === activityStatus.STATUS_UNDISPLAYED &&
-      isVisible &&
-      onVisible &&
-      onVisible(id, activityStatus.STATUS_DISPLAYED);
-  }, [id, onVisible, isVisible, status]);
 
   if (!activityCardIcons[props.type]) {
     return null;
@@ -262,8 +246,6 @@ ActivityCard.propTypes = {
     totalReferrals: PropTypes.number,
   }),
   timestamp: PropTypes.string.isRequired,
-  onVisible: PropTypes.func,
-  isVisible: PropTypes.bool,
 };
 
 export default ActivityCard;

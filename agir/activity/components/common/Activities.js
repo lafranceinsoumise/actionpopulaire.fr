@@ -1,7 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
-import TrackVisibility from "react-on-screen";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -61,20 +60,15 @@ export const StyledList = styled.ul`
 `;
 
 export const Activities = (props) => {
-  const { activities, onDismiss, onVisible, CardComponent } = props;
+  const { activities, onDismiss, CardComponent } = props;
   return (
     <article>
       {activities.length > 0 ? (
         <StyledList type="activities">
           {activities.map((activity) => (
             <li key={activity.id}>
-              <TrackVisibility once>
-                <CardComponent
-                  onDismiss={onDismiss}
-                  onVisible={onVisible}
-                  {...activity}
-                />
-              </TrackVisibility>
+              s
+              <CardComponent onDismiss={onDismiss} {...activity} />
             </li>
           ))}
         </StyledList>
@@ -99,7 +93,6 @@ Activities.propTypes = {
     })
   ),
   onDismiss: PropTypes.func,
-  onVisible: PropTypes.func,
 };
 Activities.defaultProps = {
   activities: [],
