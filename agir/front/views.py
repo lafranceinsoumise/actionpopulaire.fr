@@ -253,10 +253,16 @@ class NSPView(RedirectView):
 
 class NSPReferralView(SoftLoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
-
         url = f"{settings.NSP_DOMAIN}/je-partage-mon-lien/"
+
         params = generate_token_params(self.request.user.person)
         params["_p"] = params.pop("p")
+
+        # copier les paramètres UTM
+        params.update(
+            {k: v for k, v in self.request.GET.items() if k.startswith("utm_")}
+        )
+
         url = add_query_params_to_url(url, params)
         return url
 
