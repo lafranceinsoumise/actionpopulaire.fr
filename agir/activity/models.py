@@ -80,7 +80,7 @@ class Activity(TimeStampedModel):
         (STATUS_UNDISPLAYED, "Pas encore présentée au destinataire"),
         (STATUS_DISPLAYED, "Présentée au destinataire"),
         (STATUS_INTERACTED, "Le destinataire a interagi avec"),
-    )
+    )  # attention : l'ordre croissant par niveau d'interaction est important
 
     timestamp = models.DateTimeField(
         verbose_name="Date de la notification", null=False, default=timezone.now

@@ -45,8 +45,14 @@ class ActivityStatusUpdateView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        status_order = [s for s, _ in Activity.STATUS_CHOICES]
+        lower_statuses = status_order[
+            : status_order.index(serializer.validated_data["status"])
+        ]
+
         Activity.objects.filter(
             recipient=request.user.person,  # pour ne laisser la possibilité de modifier que ses propres activités
+            status__in=lower_statuses,
             id__in=serializer.validated_data["ids"],
         ).update(status=serializer.validated_data["status"])
 

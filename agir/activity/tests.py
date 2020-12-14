@@ -167,3 +167,20 @@ class ActivityStatusUpdateViewTestCase(TestCase):
 
         self.a3.refresh_from_db()
         self.assertEqual(self.a3.status, Activity.STATUS_UNDISPLAYED)
+
+    def test_cannot_reduce_interaction_level(self):
+        self.client.force_login(self.p1.role)
+        self.a1.status = Activity.STATUS_INTERACTED
+        self.a1.save()
+        res = self.client.post(
+            "/api/activity/bulk/update-status/",
+            data={"status": Activity.STATUS_DISPLAYED, "ids": [self.a1.id],},
+        )
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.a1.refresh_from_db()
+        self.assertEqual(
+            self.a1.status,
+            Activity.STATUS_INTERACTED,
+            "le champ `status' n'aurait pas dû changer !",
+        )
