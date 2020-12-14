@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import { addQueryStringParams } from "@agir/lib/utils/uri";
+import { addQueryStringParams } from "@agir/lib/utils/url";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";

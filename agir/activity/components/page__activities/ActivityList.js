@@ -20,7 +20,12 @@ const ActivityList = () => {
 
   useEffect(() => {
     if (unreadActivities.length > 0) {
-      dispatch(setAllActivitiesAsRead(unreadActivities.map(({ id }) => id)));
+      dispatch(
+        setAllActivitiesAsRead(
+          unreadActivities.map(({ id }) => id),
+          true
+        )
+      );
     }
   }, [dispatch, unreadActivities]);
 

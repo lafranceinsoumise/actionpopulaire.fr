@@ -87,7 +87,7 @@ export const setActivitiesAsRead = async (ids = []) => {
   let res = null;
   try {
     res = await axios.post(url, data);
-    result = !!res && res.status === 200;
+    result = !!res && res.status === 204;
   } catch (e) {
     console.log(e);
     result = false;

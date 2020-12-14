@@ -38,6 +38,7 @@ export const announcements = (state = [], action) => {
 };
 
 export const activities = (state = [], action) => {
+  console.log(action.type);
   switch (action.type) {
     case ACTION_TYPE.INIT_ACTION: {
       if (!Array.isArray(action.activities)) {
@@ -60,7 +61,7 @@ export const activities = (state = [], action) => {
         };
       });
     }
-    case ACTION_TYPE.MARK_ALL_ACTIVITIES_AS_READ_ACTION: {
+    case ACTION_TYPE.SET_ALL_ACTIVITIES_AS_READ_ACTION: {
       return state.map((activity) => ({
         ...activity,
         status: activityStatus.STATUS_DISPLAYED,
