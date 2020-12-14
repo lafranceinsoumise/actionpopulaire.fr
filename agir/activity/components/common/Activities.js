@@ -60,15 +60,18 @@ export const StyledList = styled.ul`
 `;
 
 export const Activities = (props) => {
-  const { activities, onDismiss, CardComponent } = props;
+  const { activities, routes, onDismiss, CardComponent } = props;
   return (
     <article>
       {activities.length > 0 ? (
         <StyledList type="activities">
           {activities.map((activity) => (
             <li key={activity.id}>
-              s
-              <CardComponent onDismiss={onDismiss} {...activity} />
+              <CardComponent
+                onDismiss={onDismiss}
+                routes={routes}
+                {...activity}
+              />
             </li>
           ))}
         </StyledList>
@@ -86,6 +89,7 @@ export const Activities = (props) => {
 };
 Activities.propTypes = {
   CardComponent: PropTypes.element.isRequired,
+  routes: PropTypes.object,
   activities: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.isRequired,
