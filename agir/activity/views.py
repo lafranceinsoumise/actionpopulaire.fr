@@ -24,6 +24,16 @@ class AnnouncementLinkView(DetailView):
 
     def get(self, request, *args, **kwargs):
         announcement = self.get_object()
+        user = request.user
+        if hasattr(user, "person"):
+            Activity.objects.update_or_create(
+                recipient=user.person,
+                announcement=announcement,
+                defaults={
+                    "type": Activity.TYPE_ANNOUNCEMENT,
+                    "status": Activity.STATUS_INTERACTED,
+                },
+            )
         return HttpResponseRedirect(announcement.link)
 
 
