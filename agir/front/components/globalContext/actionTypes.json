@@ -6,5 +6,7 @@
   "SET_ACTIVITY_AS_READ_ACTION": "setActivityAsRead",
   "SET_ALL_ACTIVITIES_AS_READ_ACTION": "setAllActivitiesAsRead",
 
-  "DISMISS_REQUIRED_ACTION_ACTIVITY_ACTION": "dismissRequiredActionActivity"
+  "DISMISS_REQUIRED_ACTION_ACTIVITY_ACTION": "dismissRequiredActionActivity",
+
+  "SET_ANNOUNCEMENTS_AS_READ_ACTION": "setAllActivitiesAsRead"
 }
