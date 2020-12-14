@@ -47,6 +47,7 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             "supportGroup",
             "individual",
             "status",
+            "meta",
         ]
 
 
