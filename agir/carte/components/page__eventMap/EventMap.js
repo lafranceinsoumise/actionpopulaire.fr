@@ -1,10 +1,12 @@
 import React from "react";
 
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getRoutes, getUser } from "@agir/front/globalContext/reducers";
 import MapPage from "@agir/carte/common/MapPage";
 
 const EventMap = () => {
-  const { user, routes } = useGlobalContext();
+  const routes = useSelector(getRoutes);
+  const user = useSelector(getUser);
 
   if (!routes || !routes.eventsMap) {
     return null;

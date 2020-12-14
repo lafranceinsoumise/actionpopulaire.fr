@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
+
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import sunIcon from "./sunIcon.svg";
@@ -66,6 +67,7 @@ export const Activities = (props) => {
         <StyledList type="activities">
           {activities.map((activity) => (
             <li key={activity.id}>
+              s
               <CardComponent onDismiss={onDismiss} {...activity} />
             </li>
           ))}

@@ -9,7 +9,7 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
   ] = await Promise.all([
     import("react"),
     import("@agir/lib/utils/react"),
-    import("@agir/front/genericComponents/GlobalContext"),
+    import("@agir/front/globalContext/GlobalContext"),
     import("./GroupMap.js"),
   ]);
 
@@ -20,10 +20,10 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
       return;
     }
     const payload = JSON.parse(dataElement.textContent);
-    console.log(payload);
+
     renderReactComponent(
       <GlobalContextProvider>
-        <GroupMap />
+        <GroupMap {...payload} />
       </GlobalContextProvider>,
       renderElement
     );

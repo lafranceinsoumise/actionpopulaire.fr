@@ -2,6 +2,7 @@ import React from "react";
 
 import GroupsPage from "./GroupsPage";
 import { Container } from "@agir/front/genericComponents/grid";
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 
 export default {
   component: GroupsPage,
@@ -9,9 +10,11 @@ export default {
 };
 
 const Template = (args) => (
-  <Container style={{ minHeight: "100vh" }}>
-    <GroupsPage {...args} />
-  </Container>
+  <TestGlobalContextProvider value={{ routes: {}, announcements: [] }}>
+    <Container style={{ minHeight: "100vh" }}>
+      <GroupsPage {...args} />
+    </Container>
+  </TestGlobalContextProvider>
 );
 
 export const Empty = Template.bind({});

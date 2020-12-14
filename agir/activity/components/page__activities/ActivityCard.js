@@ -9,6 +9,7 @@ import { Column, Row } from "@agir/front/genericComponents/grid";
 import style from "@agir/front/genericComponents/_variables.scss";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
+import { activityStatus } from "@agir/activity/common/helpers";
 
 const eventCardTypes = [
   "group-coorganization-accepted",
@@ -175,27 +176,24 @@ const EventCardContainer = styled.div`
 `;
 
 const ActivityCard = (props) => {
-  let timestamp = dateFromISOString(props.timestamp);
+  const { supportGroup, type, individual, status, meta } = props;
+  let { timestamp, event } = props;
+
+  timestamp = dateFromISOString(timestamp);
 
   let textProps = {
-    type: props.type,
-    event: props.event && (
-      <a href={props.event.routes.details}>{props.event.name}</a>
+    type: type,
+    event: event && <a href={event.routes.details}>{event.name}</a>,
+    supportGroup: supportGroup && (
+      <a href={supportGroup.url}>{supportGroup.name}</a>
     ),
-    supportGroup: props.supportGroup && (
-      <a href={props.supportGroup.url}>{props.supportGroup.name}</a>
-    ),
-    individual: props.individual && (
-      <strong>{props.individual.firstName}</strong>
-    ),
-    totalReferrals: props.meta && props.meta.totalReferrals,
+    individual: individual && <strong>{individual.firstName}</strong>,
+    totalReferrals: meta && meta.totalReferrals,
   };
 
-  const event = props.event && {
-    ...props.event,
-    schedule: Interval.fromISO(
-      `${props.event.startTime}/${props.event.endTime}`
-    ),
+  event = event && {
+    ...event,
+    schedule: Interval.fromISO(`${event.startTime}/${event.endTime}`),
   };
 
   if (!activityCardIcons[props.type]) {
@@ -203,13 +201,10 @@ const ActivityCard = (props) => {
   }
 
   return (
-    <LowMarginCard>
+    <LowMarginCard isUnread={status === activityStatus.STATUS_UNDISPLAYED}>
       <Row gutter="8" align="flex-start">
         <Column width="1rem" collapse={0} style={{ paddingTop: "2px" }}>
-          <FeatherIcon
-            name={activityCardIcons[props.type]}
-            color={style.black500}
-          />
+          <FeatherIcon name={activityCardIcons[type]} color={style.black500} />
         </Column>
         <Column collapse={0} grow style={{ fontSize: "15px" }}>
           <ActivityText {...textProps} />
@@ -228,7 +223,7 @@ const ActivityCard = (props) => {
           </p>
         </Column>
       </Row>
-      {eventCardTypes.includes(props.type) && (
+      {eventCardTypes.includes(type) && (
         <EventCardContainer>
           <EventCard {...event} />
         </EventCardContainer>
@@ -238,7 +233,9 @@ const ActivityCard = (props) => {
 };
 
 ActivityCard.propTypes = {
+  id: PropTypes.number.isRequired,
   type: PropTypes.string.isRequired,
+  status: PropTypes.oneOf(Object.values(activityStatus)),
   event: PropTypes.object, // see event card PropTypes
   supportGroup: PropTypes.shape({
     name: PropTypes.string,

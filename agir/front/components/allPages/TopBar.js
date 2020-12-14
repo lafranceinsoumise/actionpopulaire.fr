@@ -5,7 +5,7 @@ import FeatherIcon, { RawFeatherIcon } from "../genericComponents/FeatherIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import LogoAP from "../genericComponents/LogoAP";
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+import { useGlobalContext } from "@agir/front/globalContext/GlobalContext";
 
 const TopBarBar = styled.div`
   position: fixed;
@@ -274,8 +274,8 @@ PureTopBar.defaultProps = {
 };
 
 const TopBar = () => {
-  const config = useGlobalContext();
-  return <PureTopBar {...config} />;
+  const { state } = useGlobalContext();
+  return <PureTopBar {...state} />;
 };
 
 export default TopBar;

@@ -9,7 +9,13 @@ import Button from "@agir/front/genericComponents/Button";
 import Tooltip from "@agir/front/genericComponents/Tooltip";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import {
+  getRoutes,
+  getUnreadActivitiesCount,
+  getRequiredActionActivityCount,
+  getUser,
+} from "@agir/front/globalContext/reducers";
 
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
 
@@ -123,6 +129,31 @@ const MenuItem = styled.li`
     }
   }
 
+  & ${RawFeatherIcon} {
+    position: relative;
+
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 100%;
+      background-color: ${({ hasUnreadBadge }) =>
+        hasUnreadBadge ? "crimson" : "transparent"};
+
+      @media only screen and (max-width: ${style.collapse}px) {
+        top: 3px;
+        right: 16px;
+      }
+
+      @media only screen and (min-width: ${style.collapse}px) {
+        top: 3px;
+        right: -6px;
+      }
+    }
+  }
+
   @media only screen and (max-width: ${style.collapse}px) {
     display: ${({ mobile }) => (mobile ? "flex" : "none")};
     width: 70px;
@@ -215,7 +246,7 @@ const Counter = styled.span`
 `;
 
 const TooltipGroups = () => {
-  const { user } = useGlobalContext();
+  const user = useSelector(getUser);
   const [shouldShow, setShouldShow] = React.useState(false);
   const handleClose = React.useCallback(() => setShouldShow(false), []);
 
@@ -257,6 +288,7 @@ const MenuLink = (props) => {
     shortTitle,
     active,
     counter,
+    hasUnreadBadge,
     external,
     secondaryLinks,
   } = props;
@@ -265,7 +297,7 @@ const MenuLink = (props) => {
     return null;
   }
   return (
-    <MenuItem {...props} active={active}>
+    <MenuItem {...props} active={active} hasUnreadBadge={hasUnreadBadge}>
       {ItemTooltip ? <ItemTooltip /> : null}
       <a href={href}>
         {counter > 0 && <Counter>{counter}</Counter>}
@@ -294,6 +326,7 @@ MenuLink.propTypes = {
   shortTitle: PropTypes.string,
   active: PropTypes.bool,
   counter: PropTypes.number,
+  hasUnreadBadge: PropTypes.bool,
   external: PropTypes.bool,
   secondaryLinks: PropTypes.arrayOf(
     PropTypes.shape({
@@ -305,7 +338,12 @@ MenuLink.propTypes = {
 };
 
 const Navigation = ({ active }) => {
-  const { requiredActionActivities = [], routes } = useGlobalContext();
+  const requiredActionActivityCount = useSelector(
+    getRequiredActionActivityCount
+  );
+  const unreadActivityCount = useSelector(getUnreadActivitiesCount);
+  const routes = useSelector(getRoutes);
+
   return (
     <BottomBar>
       <Menu>
@@ -316,7 +354,12 @@ const Navigation = ({ active }) => {
               key={link.id}
               active={active === link.id}
               href={link.href || routes[link.route]}
-              counter={link.counter && requiredActionActivities.length}
+              counter={
+                link.requiredActivityCounter && requiredActionActivityCount
+              }
+              hasUnreadBadge={
+                !!link.unreadActivityBadge && unreadActivityCount > 0
+              }
               secondaryLinks={
                 link.secondaryLinks && routes[link.secondaryLinks]
               }
@@ -329,7 +372,7 @@ const Navigation = ({ active }) => {
 };
 
 export const SecondaryNavigation = () => {
-  const { routes } = useGlobalContext();
+  const routes = useSelector(getRoutes);
   return (
     <SecondaryMenu style={{ padding: 0 }}>
       <SecondaryMenuItem key="title">LIENS</SecondaryMenuItem>

@@ -125,8 +125,8 @@ Announcement.propTypes = {
   title: PropTypes.string.isRequired,
   content: PropTypes.string.isRequired,
   image: PropTypes.shape({
-    desktop: PropTypes.string.isRequired,
-    mobile: PropTypes.string.isRequired,
+    desktop: PropTypes.string,
+    mobile: PropTypes.string,
   }),
   link: PropTypes.string,
 };

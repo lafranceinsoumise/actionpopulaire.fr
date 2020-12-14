@@ -1,6 +1,6 @@
 import React from "react";
 
-import { TestGlobalContextProvider } from "@agir/front/genericComponents/GlobalContext";
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 import Announcements from "./Announcements";
 
 export default {

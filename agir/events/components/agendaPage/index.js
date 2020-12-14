@@ -1,18 +1,15 @@
 import onDOMReady from "@agir/lib/utils/onDOMReady";
-import { DateTime, Interval } from "luxon";
 import AgendaPage from "@agir/events/agendaPage/AgendaPage";
 
 (async function () {
   const [
     { default: React },
     { renderReactComponent },
-    { default: EventCard },
     { GlobalContextProvider },
   ] = await Promise.all([
     import("react"),
     import("@agir/lib/utils/react"),
-    import("@agir/front/genericComponents/EventCard"),
-    import("@agir/front/genericComponents/GlobalContext"),
+    import("@agir/front/globalContext/GlobalContext"),
   ]);
 
   const showActivities = () => {

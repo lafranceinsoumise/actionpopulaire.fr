@@ -2,7 +2,7 @@ import React from "react";
 import { DateTime } from "luxon";
 
 import EventHeader from "./EventHeader";
-import { TestGlobalContextProvider } from "@agir/front/genericComponents/GlobalContext";
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 import {
   scheduleFromStartTimeAndDuration,
   decorateArgs,
