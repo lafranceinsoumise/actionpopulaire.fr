@@ -65,6 +65,19 @@ export const dismissRequiredActionActivity = (id) => async (dispatch) => {
     console.log(e);
   }
 };
+
+export const setAnnouncementsAsRead = (ids = []) => async (dispatch) => {
+  try {
+    const success = await setActivitiesAsRead(ids);
+    success &&
+      dispatch({
+        type: ACTION_TYPE.SET_ANNOUNCEMENTS_AS_READ_ACTION,
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const createDispatch = (dispatchFunction) => (action) => {
   if (typeof action === "function") {
     return action(dispatchFunction);

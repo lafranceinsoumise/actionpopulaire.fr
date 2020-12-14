@@ -208,6 +208,53 @@ describe("GlobalContext/actions", function () {
       );
     });
   });
+  describe("setAnnouncementsAsRead action creator", function () {
+    afterEach(() => {
+      activityHelpers.setActivitiesAsRead.mockClear();
+    });
+    it("should call activity helper function 'setActivitiesAsRead'", function () {
+      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
+      const ids = [1, 2, 3];
+      dispatch(actions.setAllActivitiesAsRead(ids));
+      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
+      expect(activityHelpers.setActivitiesAsRead.mock.calls[0][0]).toEqual(ids);
+    });
+    it(`should not dispatch an action of type ${ACTION_TYPE.SET_ANNOUNCEMENTS_AS_READ_ACTION} if api calls rejects`, async function () {
+      activityHelpers.setActivitiesAsRead.mockResolvedValueOnce(false);
+      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
+      expect(mockDispatch.mock.calls).toHaveLength(0);
+      const ids = [1, 2, 3];
+      await dispatch(actions.setAllActivitiesAsRead(ids, true));
+      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
+      expect(mockDispatch.mock.calls).toHaveLength(0);
+    });
+    it(`should not dispatch an action of type ${ACTION_TYPE.SET_ANNOUNCEMENTS_AS_READ_ACTION} if api calls throws`, async function () {
+      jest.spyOn(console, "log").mockReturnValueOnce();
+      activityHelpers.setActivitiesAsRead.mockRejectedValueOnce(
+        new Error("Aïe!")
+      );
+      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
+      expect(mockDispatch.mock.calls).toHaveLength(0);
+      const ids = [1, 2, 3];
+      await dispatch(actions.setAllActivitiesAsRead(ids, true));
+      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
+      expect(mockDispatch.mock.calls).toHaveLength(0);
+      console.log.mockRestore();
+    });
+    it(`should dispatch an action of type ${ACTION_TYPE.SET_ANNOUNCEMENTS_AS_READ_ACTION} if api calls succeeds`, async function () {
+      activityHelpers.setActivitiesAsRead.mockResolvedValueOnce(true);
+      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
+      expect(mockDispatch.mock.calls).toHaveLength(0);
+      const ids = [1, 2, 3];
+      await dispatch(actions.setAllActivitiesAsRead(ids, true));
+      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
+      expect(mockDispatch.mock.calls).toHaveLength(1);
+      expect(mockDispatch.mock.calls[0][0]).toHaveProperty(
+        "type",
+        ACTION_TYPE.SET_ANNOUNCEMENTS_AS_READ_ACTION
+      );
+    });
+  });
   describe("createDispatch function factory", function () {
     it("should return a function", function () {
       const dispatch = createDispatch(() => {});
