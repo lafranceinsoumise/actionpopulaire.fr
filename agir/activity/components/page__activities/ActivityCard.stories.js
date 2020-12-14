@@ -74,4 +74,8 @@ Default.args = {
   meta: {
     totalReferrals: 10,
   },
+  routes: {
+    createEvent: "#createEvent",
+    createGroup: "#createGroup",
+  },
 };

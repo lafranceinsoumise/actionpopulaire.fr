@@ -5,7 +5,7 @@ import {
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
 import { setAllActivitiesAsRead } from "@agir/front/globalContext/actions";
-import { getActivities } from "@agir/front/globalContext/reducers";
+import { getActivities, getRoutes } from "@agir/front/globalContext/reducers";
 
 import { getUnread } from "@agir/activity/common/helpers";
 
@@ -15,6 +15,7 @@ import ActivityCard from "./ActivityCard";
 const ActivityList = () => {
   const dispatch = useDispatch();
   const activities = useSelector(getActivities);
+  const routes = useSelector(getRoutes);
   const unreadActivities = useMemo(() => getUnread(activities), [activities]);
 
   useEffect(() => {
@@ -23,6 +24,12 @@ const ActivityList = () => {
     }
   }, [dispatch, unreadActivities]);
 
-  return <Activities CardComponent={ActivityCard} activities={activities} />;
+  return (
+    <Activities
+      CardComponent={ActivityCard}
+      activities={activities}
+      routes={routes}
+    />
+  );
 };
 export default ActivityList;
