@@ -44,40 +44,43 @@ const StyledParagraph = styled.p`
   margin-bottom: 0;
 `;
 
-const ReferralUpdateActivityText = ({ individual, totalReferrals }) => {
-  if (totalReferrals < 5) {
+const ReferralUpdateActivityText = React.memo(
+  ({ individual, totalReferrals }) => {
+    if (totalReferrals < 5) {
+      return (
+        <StyledParagraph>
+          Grâce à vous, {individual || "quelqu'un"} a parrainé la candidature de
+          Jean-Luc Mélenchon.
+          <br />
+          Merci beaucoup, continuez à partager ! 👍
+        </StyledParagraph>
+      );
+    }
+    if (totalReferrals < 10) {
+      return (
+        <StyledParagraph>
+          Encore un ! {individual} a parrainé la candidature de Jean-Luc
+          Mélenchon.
+          <br />
+          C'est super, vous avez fait signer {totalReferrals} personnes !
+          Continuez comme ça ! 😀
+        </StyledParagraph>
+      );
+    }
     return (
       <StyledParagraph>
-        Grâce à vous, {individual || "quelqu'un"} a parrainé la candidature de
-        Jean-Luc Mélenchon.
-        <br />
-        Merci beaucoup, continuez à partager ! 👍
+        Et de {totalReferrals} ! {individual} a parrainé la candidature de
+        Jean-Luc Mélenchon. Génial ! 😍
       </StyledParagraph>
     );
   }
-  if (totalReferrals < 10) {
-    return (
-      <StyledParagraph>
-        Encore un ! {individual} a parrainé la candidature de Jean-Luc
-        Mélenchon.
-        <br />
-        C'est super, vous avez fait signer {totalReferrals} personnes !
-        Continuez comme ça ! 😀
-      </StyledParagraph>
-    );
-  }
-  return (
-    <StyledParagraph>
-      Et de {totalReferrals} ! {individual} a parrainé la candidature de
-      Jean-Luc Mélenchon. Génial ! 😍
-    </StyledParagraph>
-  );
-};
+);
+ReferralUpdateActivityText.displayName = "ReferralUpdateActivityText";
 ReferralUpdateActivityText.propTypes = {
-  individual: PropTypes.string,
+  individual: PropTypes.node,
   totalReferrals: PropTypes.number,
 };
-const ActivityText = (props) => {
+const ActivityText = React.memo((props) => {
   const { type, event, supportGroup, individual } = props;
   return {
     "waiting-payment": (
@@ -164,6 +167,14 @@ const ActivityText = (props) => {
     ),
     "referral-accepted": <ReferralUpdateActivityText {...props} />,
   }[type];
+});
+ActivityText.displayName = "ActivityText";
+ActivityText.propTypes = {
+  type: PropTypes.string,
+  event: PropTypes.node,
+  supportGroup: PropTypes.node,
+  individual: PropTypes.node,
+  totalReferrals: PropTypes.number,
 };
 
 const LowMarginCard = styled(Card)`
