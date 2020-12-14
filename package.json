@@ -67,8 +67,7 @@
     "swiper": "^6.3.5",
     "tinymce": "^4.9.11",
     "tinymce-i18n": "^17.12.31",
-    "turbolinks": "^5.2.0",
-    "urijs": "^1.19.2"
+    "turbolinks": "^5.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
