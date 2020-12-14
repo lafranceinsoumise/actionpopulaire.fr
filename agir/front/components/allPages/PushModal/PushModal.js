@@ -7,7 +7,7 @@ import ReferralModal from "./ReferralModal";
 import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
 
 export const PushModal = ({ isActive = false }) => {
-  const { user } = useGlobalContext();
+  const { user, routes } = useGlobalContext();
   const [shouldShow, setShouldShow] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
 
@@ -45,7 +45,13 @@ export const PushModal = ({ isActive = false }) => {
     case "release":
       return <ReleaseModal onClose={handleClose} shouldShow={shouldShow} />;
     case "referral":
-      return <ReferralModal onClose={handleClose} shouldShow={shouldShow} />;
+      return (
+        <ReferralModal
+          onClose={handleClose}
+          shouldShow={shouldShow}
+          referralURL={routes.nspReferral}
+        />
+      );
     default:
       return null;
   }

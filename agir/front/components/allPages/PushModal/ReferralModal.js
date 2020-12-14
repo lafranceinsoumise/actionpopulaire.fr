@@ -7,37 +7,72 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import Modal from "@agir/front/genericComponents/Modal";
 
+import modalImage from "./images/referral-modal.jpg";
+
+const Buttons = styled.div`
+  display: flex;
+  align-items: stretch;
+  text-align: center;
+
+  @media (max-width: ${style.collapse}px) {
+    flex-flow: column nowrap;
+  }
+
+  & ${Button} {
+    justify-content: center;
+  }
+
+  & ${Button} + ${Button} {
+    margin-left: 1rem;
+
+    @media (max-width: ${style.collapse}px) {
+      margin-left: 0;
+      margin-top: 0.5rem;
+    }
+  }
+`;
+
 const StyledModalContent = styled.div`
   text-align: center;
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   max-width: 600px;
   min-height: 441px;
-  padding: 36px 40px;
+  padding: 0 0 36px;
   margin: 60px auto 0;
   box-shadow: ${style.elaborateShadow};
   border-radius: 8px;
   background-color: ${style.white};
+  overflow-x: hidden;
+  overflow-y: auto;
 
   @media (max-width: ${style.collapse}px) {
     margin-top: 20px;
     min-height: 510px;
     max-width: calc(100% - 40px);
-    padding: 36px 25px;
+  }
+
+  & > * {
+    padding: 0 40px;
+
+    @media (max-width: ${style.collapse}px) {
+      padding: 0 25px;
+    }
   }
 
   img {
     width: auto;
     height: auto;
-    max-width: 100%;
-    max-height: ${({ imgHeight }) => imgHeight || 126}px;
-    margin-bottom: 25px;
+    min-width: 100%;
+    min-height: 126px;
+    object-fit: cover;
+    padding: 0;
+    margin-bottom: 2rem;
 
     @media (max-width: ${style.collapse}px) {
-      margin-bottom: 16px;
-      background-position: bottom center;
+      padding: 0;
     }
   }
 
@@ -46,15 +81,6 @@ const StyledModalContent = styled.div`
     line-height: 1.5;
     margin-bottom: 16px;
     margin-top: 0;
-
-    em {
-      color: ${style.primary500};
-    }
-
-    a {
-      color: inherit;
-      text-decoration: underline;
-    }
   }
 
   p {
@@ -64,20 +90,34 @@ const StyledModalContent = styled.div`
   }
 `;
 
-export const ReferralModal = ({ shouldShow = false, onClose }) => {
+export const ReferralModal = ({
+  referralURL = "",
+  shouldShow = false,
+  onClose,
+}) => {
   return (
-    <Modal shouldShow={shouldShow}>
+    <Modal shouldShow={referralURL && shouldShow}>
       <StyledModalContent>
-        <h2>Partagez !</h2>
-        <p>Partagez ! Partagez ! Partagez !</p>
-        <Button color="primary" onClick={onClose}>
-          Fermer
-        </Button>
+        <img src={modalImage} alt="Opération 300000 signatures !" />
+        <h2>
+          Récupérez votre lien d’invitation “Nous&nbsp;Sommes&nbsp;Pour&nbsp;!”
+        </h2>
+        <p>
+          Partagez votre lien sur les réseaux sociaux et collectez un maximum de
+          signatures !
+        </p>
+        <Buttons>
+          <Button color="primary" as="a" href={referralURL}>
+            Partager mon lien
+          </Button>
+          <Button onClick={onClose}>Pas maintenant</Button>
+        </Buttons>
       </StyledModalContent>
     </Modal>
   );
 };
 ReferralModal.propTypes = {
+  referralURL: PropTypes.string,
   shouldShow: PropTypes.bool,
   onClose: PropTypes.func,
 };
