@@ -1,5 +1,7 @@
 import axios from "@agir/lib/utils/axios";
 
+const debug = require("debug")("agir:helpers");
+
 const bulkUpdateActivityStatusEndpoint = "/api/activity/bulk/update-status/";
 const activityEndpoint = "/api/activity/:id/";
 
@@ -67,7 +69,7 @@ export const dismissActivity = async (
     res = await axios.put(url, data);
     result = !!res && res.status === 200;
   } catch (e) {
-    console.log(e);
+    debug.extend("dismissActivity")(e);
     result = false;
   }
 

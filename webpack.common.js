@@ -67,6 +67,9 @@ module.exports = {
     new MiniCssExtractPlugin({ filename: "[name]-[chunkhash].css" }),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new BundleAnalyzerPlugin({ analyzerMode: "static", openAnalyzer: false }),
+    new webpack.EnvironmentPlugin({
+      DEBUG: "agir:*", // default value if not defined in .env
+    }),
   ],
   output: {
     libraryTarget: "window",
