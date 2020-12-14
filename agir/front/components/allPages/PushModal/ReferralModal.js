@@ -1,7 +1,8 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { addQueryStringParams } from "@agir/lib/utils/uri";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -90,13 +91,22 @@ const StyledModalContent = styled.div`
   }
 `;
 
+const UTM_PARAMS = {
+  utm_source: "ap",
+  utm_campaign: "referral-modal",
+};
+
 export const ReferralModal = ({
   referralURL = "",
   shouldShow = false,
   onClose,
 }) => {
+  const href = useMemo(
+    () => referralURL && addQueryStringParams(referralURL, UTM_PARAMS),
+    [referralURL]
+  );
   return (
-    <Modal shouldShow={referralURL && shouldShow}>
+    <Modal shouldShow={href && shouldShow}>
       <StyledModalContent>
         <img src={modalImage} alt="Opération 300000 signatures !" />
         <h2>
@@ -107,7 +117,7 @@ export const ReferralModal = ({
           signatures !
         </p>
         <Buttons>
-          <Button color="primary" as="a" href={referralURL}>
+          <Button color="primary" as="a" href={href}>
             Partager mon lien
           </Button>
           <Button onClick={onClose}>Pas maintenant</Button>
