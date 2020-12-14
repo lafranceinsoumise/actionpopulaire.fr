@@ -74,3 +74,10 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             "endDate",
             "priority",
         ]
+
+
+class ActivityStatusUpdateRequest(serializers.Serializer):
+    status = serializers.ChoiceField(
+        choices=[Activity.STATUS_DISPLAYED, Activity.STATUS_INTERACTED]
+    )
+    ids = serializers.ListField(child=serializers.IntegerField())
