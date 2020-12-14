@@ -35,11 +35,13 @@
     </a>
   </li>
   {% endif %}
-  <li role="presentation"{% if active == "invitation" %} class="active"{% endif %}>
-    <a href="{% url "manage_group" supportgroup.pk %}?active=invitation">
-      Inviter
-    </a>
-  </li>
+  {% if not supportgroup.is_2022 %}
+    <li role="presentation"{% if active == "invitation" %} class="active"{% endif %}>
+      <a href="{% url "manage_group" supportgroup.pk %}?active=invitation">
+        Inviter
+      </a>
+    </li>
+  {% endif %}
 {% else %}
   <li role="presentation"{% if not active or active == "informations" %} class="active"{% endif %}>
     <a href="#informations" role="tab" data-toggle="pill">
