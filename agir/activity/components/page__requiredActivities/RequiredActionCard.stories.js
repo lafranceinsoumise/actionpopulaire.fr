@@ -36,6 +36,10 @@ WaitingPayment.args = {
   supportGroup: {
     name: "Le Groupe",
     url: "/",
+    routes: {
+      manage: "#group__manage",
+      help: "#group__help",
+    },
   },
   individual: {
     firstName: "Foo Bar",
@@ -66,4 +70,9 @@ export const WaitingLocationEvent = Template.bind({});
 WaitingLocationEvent.args = {
   ...WaitingPayment.args,
   type: "waiting-location-event",
+};
+export const GroupCreationConfirmation = Template.bind({});
+GroupCreationConfirmation.args = {
+  ...WaitingPayment.args,
+  type: "group-creation-confirmation",
 };

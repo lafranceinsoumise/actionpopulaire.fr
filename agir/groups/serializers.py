@@ -36,6 +36,7 @@ GROUP_ROUTES = {
     "manage": "manage_group",
     "edit": "edit_group",
     "quit": "quit_group",
+    "help": "https://infos.actionpopulaire.fr/groupes/nouvelle-equipe/",
 }
 
 
