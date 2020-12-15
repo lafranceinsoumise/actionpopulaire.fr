@@ -13,7 +13,7 @@ import makeLayerControl from "./layerControl";
 import makeSearchControl from "./searchControl";
 import getFormatPopups from "./itemPopups";
 
-const debug = require("debug")("agir:map");
+const debug = require("debug")(`agir:${__filename}`);
 
 const OFFSET = 0.00005;
 

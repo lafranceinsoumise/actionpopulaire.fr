@@ -1,6 +1,6 @@
 import axios from "@agir/lib/utils/axios";
 
-const debug = require("debug")("agir:helpers");
+const debug = require("debug")(`agir:${__filename}`);
 
 const bulkUpdateActivityStatusEndpoint = "/api/activity/bulk/update-status/";
 const activityEndpoint = "/api/activity/:id/";

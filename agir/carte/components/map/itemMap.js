@@ -9,7 +9,7 @@ import VectorLayer from "ol/layer/Vector";
 import { fontIsLoaded } from "./utils";
 import { makeStyle, setUpMap } from "./common";
 
-const debug = require("debug")("agir:map");
+const debug = require("debug")(`agir:${__filename}`);
 
 export default async function itemMap(
   htmlElementId,

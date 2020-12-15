@@ -1,6 +1,6 @@
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 
-const debug = require("debug")("agir:eventMap:init");
+const debug = require("debug")(`agir:${__filename}`);
 
 (async function () {
   const [

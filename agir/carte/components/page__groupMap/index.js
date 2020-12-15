@@ -1,6 +1,6 @@
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 
-const debug = require("debug")("agir:groupMap:init");
+const debug = require("debug")(`agir:${__filename}`);
 
 (async function () {
   const [

@@ -38,7 +38,12 @@ module.exports = merge.merge(common, {
     namedChunks: true,
     noEmitOnErrors: true,
   },
-  plugins: [new webpack.HotModuleReplacementPlugin()],
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.EnvironmentPlugin({
+      DEBUG: "agir:*", // default value if not defined in .env
+    }),
+  ],
   resolve: {
     alias: {
       "react-dom": "@hot-loader/react-dom",
