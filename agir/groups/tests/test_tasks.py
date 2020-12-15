@@ -72,6 +72,23 @@ class NotificationTasksTestCase(TestCase):
                 getattr(self.group, item) in text, "{} missing in message".format(item)
             )
 
+    def test_create_group_creation_confirmation_activity(self):
+        original_target_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_GROUP_CREATION_CONFIRMATION,
+            recipient=self.creator_membership.person,
+            supportgroup=self.creator_membership.supportgroup,
+        ).count()
+
+        tasks.create_group_creation_confirmation_activity(self.creator_membership.pk)
+
+        new_target_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_GROUP_CREATION_CONFIRMATION,
+            recipient=self.creator_membership.person,
+            supportgroup=self.creator_membership.supportgroup,
+        ).count()
+
+        self.assertEqual(new_target_activity_count, original_target_activity_count + 1)
+
     def test_someone_joined_notification_mail(self):
         tasks.send_someone_joined_notification(self.membership1.pk)
 
