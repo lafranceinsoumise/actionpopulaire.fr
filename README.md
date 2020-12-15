@@ -8,7 +8,8 @@
 ## Vagrant installation
 
 You can use Vagrant to create a virtual machine running the project out of the box.
-You need to have Vagrant and VirtualBox installed on your computer.
+You need to have Vagrant and VirtualBox installed on your computer. 
+
 
 If this is not already installed, install vagrant-hostmanager plugin :
 ```bash 
