@@ -70,7 +70,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     name = serializers.CharField()
     hasSubscriptionForm = serializers.SerializerMethodField()
 
-    description = serializers.CharField()
+    description = serializers.CharField(source="html_description")
     compteRendu = serializers.CharField(source="report_content")
     compteRenduPhotos = serializers.SerializerMethodField()
     illustration = MediaURLField(source="image")
