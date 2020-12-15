@@ -24,6 +24,10 @@ const FadingOverflowWrapper = styled.div`
     line-height: 1.6;
   }
 
+  & * {
+    width: initial !important;
+  }
+
   &::after {
     content: "";
     display: block;
@@ -107,6 +111,10 @@ const StyledWrapper = styled.div`
   @media (max-width: ${style.collapse}px) {
     font-size: 0.875rem;
     line-height: 1.6;
+  }
+
+  & * {
+    width: initial !important;
   }
 
   & > .hidden {
