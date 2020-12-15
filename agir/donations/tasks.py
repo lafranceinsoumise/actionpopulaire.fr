@@ -95,7 +95,6 @@ def send_expiration_email_reminder(sp_subscription_pk):
             "subscription_description": sp_subscription.subscription.description,
             "renew_subscription_link": front_url("view_payments"),
             "expiry_date": sp_subscription.alias.expiry_date,
-            "greetings": sp_subscription.subscription.person.get_greeting(),
         },
         recipients=[sp_subscription.subscription.person],
     )
