@@ -118,6 +118,8 @@ class SupportGroup(
         TYPE_2022: "✅ Vous animez déjà une équipe de soutien",
     }
 
+    MEMBERSHIP_LIMIT = 30
+
     objects = SupportGroupQuerySet.as_manager()
 
     name = models.CharField(
@@ -160,6 +162,10 @@ class SupportGroup(
     @property
     def members_count(self):
         return Membership.objects.filter(supportgroup=self).count()
+
+    @property
+    def is_full(self):
+        return self.members_count >= self.MEMBERSHIP_LIMIT
 
     @property
     def is_certified(self):

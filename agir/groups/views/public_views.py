@@ -105,6 +105,11 @@ class SupportGroupDetailView(
             return HttpResponseForbidden()
 
         if request.POST["action"] == "join":
+            if self.object.is_full:
+                return HttpResponseRedirect(
+                    reverse("full_group", kwargs={"pk": self.object.pk})
+                )
+
             try:
                 membership = Membership.objects.create(
                     supportgroup=self.object, person=request.user.person

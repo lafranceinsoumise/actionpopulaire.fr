@@ -62,6 +62,7 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     discountCodes = serializers.SerializerMethodField()
     is2022 = serializers.SerializerMethodField()
+    isFull = serializers.SerializerMethodField()
 
     routes = RoutesField(routes=GROUP_ROUTES)
 
@@ -118,3 +119,6 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_is2022(self, obj):
         return obj.is_2022
+
+    def get_isFull(self, obj):
+        return obj.is_full

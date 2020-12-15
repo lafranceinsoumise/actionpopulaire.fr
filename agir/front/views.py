@@ -15,7 +15,12 @@ from agir.groups.models import SupportGroup
 from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.http import add_query_params_to_url
 from agir.lib.tasks import geocode_person
-from .view_mixins import ReactListView, ReactSerializerBaseView, ReactBaseView
+from .view_mixins import (
+    ReactListView,
+    ReactSerializerBaseView,
+    ReactBaseView,
+    ReactSingleObjectView,
+)
 from ..lib.utils import generate_token_params
 
 
@@ -94,6 +99,38 @@ class ActivityView(SoftLoginRequiredMixin, ReactBaseView):
 
 class RequiredActivityView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "activity/page__requiredActivities"
+
+
+class FullSupportGroupView(SoftLoginRequiredMixin, ReactSingleObjectView):
+    bundle_name = "groups/fullGroupPage"
+    serializer_class = SupportGroupSerializer
+    queryset = SupportGroup.objects.all()
+
+    def get_export_data(self):
+        person = self.request.user.person
+        person_groups = None
+
+        if person.coordinates is not None:
+            person_groups = SupportGroup.objects.active()
+
+            if person.is_2022_only:
+                person_groups = person_groups.is_2022()
+
+            person_groups = person_groups.annotate(
+                distance=Distance("coordinates", person.coordinates)
+            ).order_by("distance")[:3]
+
+            for group in person_groups:
+                person_groups.membership = None
+
+            person_groups = self.serializer_class(
+                instance=person_groups, many=True, context={"request": self.request},
+            ).data
+
+        return {
+            "fullGroup": self.get_serializer().data,
+            "groupSuggestions": person_groups,
+        }
 
 
 class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
