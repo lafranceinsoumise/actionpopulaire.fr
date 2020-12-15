@@ -1,5 +1,7 @@
 import React from "react";
 
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
+
 import Layout from "./Layout";
 
 export default {
@@ -7,7 +9,16 @@ export default {
   title: "Dashboard/Layout",
 };
 
-const Template = (args) => <Layout {...args} />;
+const Template = (args) => (
+  <TestGlobalContextProvider
+    value={{
+      routes: args.routes,
+      announcements: [],
+    }}
+  >
+    <Layout {...args} />
+  </TestGlobalContextProvider>
+);
 
 export const Default = Template.bind({});
 Default.args = {
@@ -18,4 +29,5 @@ Default.args = {
     notifications: "#",
     menu: "#",
   },
+  announcements: [],
 };

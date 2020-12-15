@@ -6,6 +6,11 @@ app_name = "activity"
 
 urlpatterns = [
     path(
+        "api/activity/bulk/update-status/",
+        views.ActivityStatusUpdateView.as_view(),
+        name="api_activity_update_status",
+    ),
+    path(
         "api/activity/<int:pk>/", views.ActivityAPIView.as_view(), name="api_activity"
     ),
     path(

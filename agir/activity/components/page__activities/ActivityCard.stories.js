@@ -62,6 +62,7 @@ const Template = decorateArgs(
 
 export const Default = Template.bind({});
 Default.args = {
+  id: 1,
   type: "group-coorganization-accepted",
   event: EventCardStory.args,
   supportGroup: {
@@ -72,5 +73,9 @@ Default.args = {
   timestamp: DateTime.local().minus({ hours: 5 }).toISO(),
   meta: {
     totalReferrals: 10,
+  },
+  routes: {
+    createEvent: "#createEvent",
+    createGroup: "#createGroup",
   },
 };

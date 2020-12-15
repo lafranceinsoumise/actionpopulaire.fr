@@ -100,3 +100,87 @@ class AnnouncementTestCase(TestCase):
 
         announcements = get_announcements(self.nsp)
         self.assertCountEqual(announcements, [])
+
+
+class ActivityStatusUpdateViewTestCase(TestCase):
+    def setUp(self) -> None:
+        self.p1 = Person.objects.create_insoumise(email="a@a.a", create_role=True)
+        self.p2 = Person.objects.create_insoumise(email="b@b.b", create_role=True)
+
+        self.a1 = Activity.objects.create(
+            recipient=self.p1, type=Activity.TYPE_GROUP_INVITATION
+        )
+
+        self.a2 = Activity.objects.create(
+            recipient=self.p1, type=Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED
+        )
+
+        self.a3 = Activity.objects.create(
+            recipient=self.p2, type=Activity.TYPE_NEW_ATTENDEE
+        )
+
+    def test_cannot_update_status_when_unauthenticated(self):
+        res = self.client.post(
+            "/api/activity/bulk/update-status/",
+            data={"status": Activity.STATUS_DISPLAYED, "ids": [self.a1.id]},
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_can_update_own_activity(self):
+        self.client.force_login(self.p1.role)
+        res = self.client.post(
+            "/api/activity/bulk/update-status/",
+            data={"status": Activity.STATUS_DISPLAYED, "ids": [self.a1.id]},
+        )
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.assertCountEqual(
+            self.p1.received_notifications.filter(status=Activity.STATUS_DISPLAYED),
+            [self.a1],
+        )
+
+    def test_can_update_multiple_activities(self):
+        self.client.force_login(self.p1.role)
+        res = self.client.post(
+            "/api/activity/bulk/update-status/",
+            data={
+                "status": Activity.STATUS_INTERACTED,
+                "ids": [self.a1.id, self.a2.id],
+            },
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.assertCountEqual(
+            self.p1.received_notifications.filter(status=Activity.STATUS_INTERACTED),
+            [self.a1, self.a2],
+        )
+
+    def test_cannot_update_someone_else_activity(self):
+        self.client.force_login(self.p1.role)
+        res = self.client.post(
+            "/api/activity/bulk/update-status/",
+            data={"status": Activity.STATUS_INTERACTED, "ids": [self.a3.id],},
+        )
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.a3.refresh_from_db()
+        self.assertEqual(self.a3.status, Activity.STATUS_UNDISPLAYED)
+
+    def test_cannot_reduce_interaction_level(self):
+        self.client.force_login(self.p1.role)
+        self.a1.status = Activity.STATUS_INTERACTED
+        self.a1.save()
+        res = self.client.post(
+            "/api/activity/bulk/update-status/",
+            data={"status": Activity.STATUS_DISPLAYED, "ids": [self.a1.id],},
+        )
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.a1.refresh_from_db()
+        self.assertEqual(
+            self.a1.status,
+            Activity.STATUS_INTERACTED,
+            "le champ `status' n'aurait pas dû changer !",
+        )

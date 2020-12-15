@@ -9,6 +9,7 @@ import { Column, Row } from "@agir/front/genericComponents/grid";
 import style from "@agir/front/genericComponents/_variables.scss";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
+import { activityStatus } from "@agir/activity/common/helpers";
 
 const eventCardTypes = [
   "group-coorganization-accepted",
@@ -42,13 +43,83 @@ export const activityCardIcons = {
 const StyledParagraph = styled.p`
   margin-bottom: 0;
 `;
-const ActivityText = ({
-  type,
-  event,
-  supportGroup,
-  individual,
-  totalReferrals = 0,
-}) => {
+
+const ReferralUpdateActivityText = React.memo(
+  ({ individual, totalReferrals, routes }) => {
+    if (totalReferrals < 5) {
+      return (
+        <StyledParagraph>
+          Grâce à vous, {individual || "quelqu'un"} a parrainé la candidature de
+          Jean-Luc Mélenchon.
+          <br />
+          Merci beaucoup, continuez à partager ! 👍
+        </StyledParagraph>
+      );
+    }
+    if (totalReferrals === 5) {
+      return (
+        <StyledParagraph>
+          5 personnes ont parrainé la candidature de Jean-Luc Mélenchon grâce à
+          vous ! La campagne de signature continue, invitez vos amis à partager
+          leur lien personnalisé à leur tour !
+        </StyledParagraph>
+      );
+    }
+    if (totalReferrals < 10) {
+      return (
+        <StyledParagraph>
+          Encore un ! {individual} a parrainé la candidature de Jean-Luc
+          Mélenchon.
+          <br />
+          C'est super, vous avez fait signer {totalReferrals} personnes !
+          Continuez comme ça ! 😀
+        </StyledParagraph>
+      );
+    }
+    if (totalReferrals === 10) {
+      return (
+        <StyledParagraph>
+          Vous avez permis la signature de 10 personnes ! Quel est votre secret
+          ?!
+          <br />
+          Si vous n'y aviez pas encore songé, il est peut-être temps de{" "}
+          <a href={routes.createGroup}>
+            créer une équipe de soutien dans votre ville
+          </a>{" "}
+          ;)
+        </StyledParagraph>
+      );
+    }
+    if (totalReferrals === 20) {
+      return (
+        <StyledParagraph>
+          Grâce à vous, 20 personnes ont parrainé la candidature de Jean-Luc
+          Mélenchon !<br />
+          Beau travail ! Prochaine étape :{" "}
+          <a href={routes.createEvent}>organiser un événement en ligne</a> pour
+          récolter encore plus de signatures !
+        </StyledParagraph>
+      );
+    }
+    return (
+      <StyledParagraph>
+        Et de {totalReferrals} ! {individual} a parrainé la candidature de
+        Jean-Luc Mélenchon. Génial ! 😍
+      </StyledParagraph>
+    );
+  }
+);
+ReferralUpdateActivityText.displayName = "ReferralUpdateActivityText";
+ReferralUpdateActivityText.propTypes = {
+  individual: PropTypes.node,
+  totalReferrals: PropTypes.number,
+  routes: PropTypes.shape({
+    createEvent: PropTypes.string,
+    createGroup: PropTypes.string,
+  }),
+};
+const ActivityText = React.memo((props) => {
+  const { type, event, supportGroup, individual } = props;
   return {
     "waiting-payment": (
       <StyledParagraph>
@@ -132,18 +203,17 @@ const ActivityText = ({
     "cancelled-event": (
       <StyledParagraph>L'événement {event} a été annulé.</StyledParagraph>
     ),
-    "referral-accepted": (
-      <StyledParagraph>
-        Grâce à vous, {individual || "quelqu'un"} a parrainé la candidature de
-        Jean-Luc Mélenchon.
-        <br />
-        {totalReferrals
-          ? `Vous avez déjà fait parrainer ${totalReferrals} personnes. `
-          : ""}
-        Merci beaucoup, continuez à partager ! 👍
-      </StyledParagraph>
-    ),
+    "referral-accepted": <ReferralUpdateActivityText {...props} />,
   }[type];
+});
+ActivityText.displayName = "ActivityText";
+ActivityText.propTypes = {
+  type: PropTypes.string,
+  event: PropTypes.node,
+  supportGroup: PropTypes.node,
+  individual: PropTypes.node,
+  totalReferrals: PropTypes.number,
+  routes: PropTypes.object,
 };
 
 const LowMarginCard = styled(Card)`
@@ -175,27 +245,24 @@ const EventCardContainer = styled.div`
 `;
 
 const ActivityCard = (props) => {
-  let timestamp = dateFromISOString(props.timestamp);
+  const { routes, supportGroup, type, individual, status, meta } = props;
+  let { timestamp, event } = props;
+
+  timestamp = dateFromISOString(timestamp);
 
   let textProps = {
-    type: props.type,
-    event: props.event && (
-      <a href={props.event.routes.details}>{props.event.name}</a>
+    type: type,
+    event: event && <a href={event.routes.details}>{event.name}</a>,
+    supportGroup: supportGroup && (
+      <a href={supportGroup.url}>{supportGroup.name}</a>
     ),
-    supportGroup: props.supportGroup && (
-      <a href={props.supportGroup.url}>{props.supportGroup.name}</a>
-    ),
-    individual: props.individual && (
-      <strong>{props.individual.firstName}</strong>
-    ),
-    totalReferrals: props.meta && props.meta.totalReferrals,
+    individual: individual && <strong>{individual.firstName}</strong>,
+    totalReferrals: meta && meta.totalReferrals,
   };
 
-  const event = props.event && {
-    ...props.event,
-    schedule: Interval.fromISO(
-      `${props.event.startTime}/${props.event.endTime}`
-    ),
+  event = event && {
+    ...event,
+    schedule: Interval.fromISO(`${event.startTime}/${event.endTime}`),
   };
 
   if (!activityCardIcons[props.type]) {
@@ -203,16 +270,13 @@ const ActivityCard = (props) => {
   }
 
   return (
-    <LowMarginCard>
+    <LowMarginCard isUnread={status === activityStatus.STATUS_UNDISPLAYED}>
       <Row gutter="8" align="flex-start">
         <Column width="1rem" collapse={0} style={{ paddingTop: "2px" }}>
-          <FeatherIcon
-            name={activityCardIcons[props.type]}
-            color={style.black500}
-          />
+          <FeatherIcon name={activityCardIcons[type]} color={style.black500} />
         </Column>
         <Column collapse={0} grow style={{ fontSize: "15px" }}>
-          <ActivityText {...textProps} />
+          <ActivityText {...textProps} routes={routes} />
           <p
             style={{
               margin: "0.125rem 0 0",
@@ -228,7 +292,7 @@ const ActivityCard = (props) => {
           </p>
         </Column>
       </Row>
-      {eventCardTypes.includes(props.type) && (
+      {eventCardTypes.includes(type) && (
         <EventCardContainer>
           <EventCard {...event} />
         </EventCardContainer>
@@ -238,7 +302,9 @@ const ActivityCard = (props) => {
 };
 
 ActivityCard.propTypes = {
+  id: PropTypes.number.isRequired,
   type: PropTypes.string.isRequired,
+  status: PropTypes.oneOf(Object.values(activityStatus)),
   event: PropTypes.object, // see event card PropTypes
   supportGroup: PropTypes.shape({
     name: PropTypes.string,
@@ -249,6 +315,7 @@ ActivityCard.propTypes = {
     totalReferrals: PropTypes.number,
   }),
   timestamp: PropTypes.string.isRequired,
+  routes: PropTypes.object,
 };
 
 export default ActivityCard;

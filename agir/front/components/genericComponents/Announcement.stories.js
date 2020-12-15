@@ -25,7 +25,7 @@ Default.args = {
   id: "123123sdqds",
   title: "Meeting numérique ce samedi !",
   content:
-    "Participez en ligne au premier meeting numérique de campagne de Jean-Luc Mélenchon",
+    "Participez en ligne au <a href='#'>premier meeting numérique de campagne de Jean-Luc Mélenchon</a>",
   image: {
     mobile: "https://www.fillmurray.com/800/600",
     desktop: "https://www.fillmurray.com/510/260",

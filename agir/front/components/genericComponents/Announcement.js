@@ -58,11 +58,12 @@ const Container = styled.article`
 
   @media (max-width: ${style.collapse}px) {
     flex-flow: row nowrap;
-    background-color: ${style.primary500};
+    border: 1px solid ${style.primary500};
     padding: 1rem;
     border-radius: 4px;
     max-width: 100%;
     height: 112px;
+    box-shadow: 0px 3px 2px rgba(0, 35, 44, 0.05);
 
     & + & {
       margin-top: 0;
@@ -79,8 +80,8 @@ const Container = styled.article`
     }
 
     h3,
-    p {
-      color: white;
+    a {
+      color: ${style.primary500};
     }
 
     p {
@@ -125,8 +126,8 @@ Announcement.propTypes = {
   title: PropTypes.string.isRequired,
   content: PropTypes.string.isRequired,
   image: PropTypes.shape({
-    desktop: PropTypes.string.isRequired,
-    mobile: PropTypes.string.isRequired,
+    desktop: PropTypes.string,
+    mobile: PropTypes.string,
   }),
   link: PropTypes.string,
 };

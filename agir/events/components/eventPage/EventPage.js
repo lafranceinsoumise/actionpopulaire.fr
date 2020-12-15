@@ -3,7 +3,12 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+import {
+  useDispatch,
+  useSelector,
+} from "@agir/front/globalContext/GlobalContext";
+import { setIs2022 } from "@agir/front/globalContext/actions";
+import { getIsConnected, getRoutes } from "@agir/front/globalContext/reducers";
 
 import EventHeader from "./EventHeader";
 import EventLocationCard from "./EventLocationCard";
@@ -260,19 +265,18 @@ MobileLayout.propTypes = DesktopLayout.propTypes = {
 };
 
 export const ConnectedEventPage = (props) => {
-  const context = useGlobalContext();
-  const { user, routes, dispatch } = context;
+  const { is2022 } = props;
+  const isConnected = useSelector(getIsConnected);
+  const routes = useSelector(getRoutes);
+  const dispatch = useDispatch();
+
   React.useEffect(() => {
-    props.is2022 === true &&
-      dispatch &&
-      dispatch({
-        type: "setIs2022",
-      });
-    //eslint-disable-next-line
-  }, []);
+    is2022 === true && dispatch(setIs2022());
+  }, [is2022, dispatch]);
+
   return (
     <>
-      <EventPage {...props} logged={!!user} appRoutes={routes} />
+      <EventPage {...props} logged={isConnected} appRoutes={routes} />
       <Footer />
     </>
   );

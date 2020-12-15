@@ -1,4 +1,4 @@
-from django.db.models import Prefetch, Q
+from django.db.models import Prefetch, Q, Subquery, OuterRef
 from django.utils import timezone
 
 from .models import Activity, Announcement
@@ -8,7 +8,7 @@ from ..events.models import Event
 
 def get_activity(person):
     return (
-        Activity.objects.filter(recipient=person)
+        Activity.objects.filter(recipient=person, type__in=Activity.DISPLAYED_TYPES)
         .exclude(status=Activity.STATUS_INTERACTED)
         .prefetch_related(
             Prefetch("event", Event.objects.with_serializer_prefetch(person),)
@@ -44,7 +44,13 @@ def get_announcements(person=None):
     if person:
         return [
             a
-            for a in announcements.select_related("segment")
+            for a in announcements.annotate(
+                activity_id=Subquery(
+                    Activity.objects.filter(
+                        recipient_id=person.id, announcement_id=OuterRef("id")
+                    ).values("id")[:1]
+                )
+            ).select_related("segment")
             if a.segment is None
             or a.segment.get_subscribers_queryset().filter(pk=person.id).exists()
         ]

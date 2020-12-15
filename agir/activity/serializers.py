@@ -47,14 +47,29 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             "supportGroup",
             "individual",
             "status",
+            "meta",
         ]
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):
+    activityId = serializers.SerializerMethodField()
+
+    link = serializers.HyperlinkedIdentityField(view_name="activity:announcement_link")
+
     startDate = serializers.DateTimeField(source="start_date")
     endDate = serializers.DateTimeField(source="end_date")
 
     image = serializers.SerializerMethodField()
+
+    def get_activityId(self, obj):
+        user = self.context["request"].user
+        if getattr(obj, "activity_id", None):
+            return obj.activity_id
+        if hasattr(user, "person"):
+            activity = Activity.objects.create(
+                type=Activity.TYPE_ANNOUNCEMENT, recipient=user.person, announcement=obj
+            )
+            return activity.id
 
     def get_image(self, obj):
         if obj.image:
@@ -72,4 +87,12 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             "startDate",
             "endDate",
             "priority",
+            "activityId",
         ]
+
+
+class ActivityStatusUpdateRequest(serializers.Serializer):
+    status = serializers.ChoiceField(
+        choices=[Activity.STATUS_DISPLAYED, Activity.STATUS_INTERACTED]
+    )
+    ids = serializers.ListField(child=serializers.IntegerField())

@@ -17,7 +17,7 @@ export const Default = Template.bind({});
 Default.args = {
   activities: [
     {
-      id: String(Date.now() + 1),
+      id: 1,
       type: "event-update",
       event: {
         id: "12343432423",

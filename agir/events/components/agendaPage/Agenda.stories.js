@@ -2,7 +2,7 @@ import React from "react";
 
 import Agenda from "./Agenda";
 import { Container } from "@agir/front/genericComponents/grid";
-import { TestGlobalContextProvider } from "@agir/front/genericComponents/GlobalContext";
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 
 const testGlobalRoutes = { login: "#login", join: "#signin" };
 

@@ -4,10 +4,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import ReleaseModal from "./ReleaseModal";
 import ReferralModal from "./ReferralModal";
 
-import { useGlobalContext } from "@agir/front/genericComponents/GlobalContext";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser, getRoutes } from "@agir/front/globalContext/reducers";
 
 export const PushModal = ({ isActive = false }) => {
-  const { user, routes } = useGlobalContext();
+  const user = useSelector(getUser);
+  const routes = useSelector(getRoutes);
+
   const [shouldShow, setShouldShow] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
 
