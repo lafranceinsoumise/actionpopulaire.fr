@@ -80,6 +80,26 @@ def send_support_group_creation_notification(membership_pk):
     )
 
 
+@shared_task
+def create_group_creation_confirmation_activity(membership_pk):
+    try:
+        membership = Membership.objects.select_related("supportgroup", "person").get(
+            pk=membership_pk
+        )
+    except Membership.DoesNotExist:
+        return
+
+    referent = membership.person
+    group = membership.supportgroup
+
+    Activity.objects.create(
+        type=Activity.TYPE_GROUP_CREATION_CONFIRMATION,
+        recipient=referent,
+        supportgroup=group,
+        status=Activity.STATUS_UNDISPLAYED,
+    )
+
+
 @emailing_task
 def send_support_group_changed_notification(support_group_pk, changed_data):
     try:

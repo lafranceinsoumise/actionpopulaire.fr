@@ -14,6 +14,7 @@ from agir.groups.tasks import (
     send_support_group_creation_notification,
     send_external_join_confirmation,
     invite_to_group,
+    create_group_creation_confirmation_activity,
 )
 from agir.lib.form_components import *
 from agir.lib.form_mixins import (
@@ -154,6 +155,7 @@ class SupportGroupForm(
         if self.is_creation:
             # membership attribute created by _save_m2m
             send_support_group_creation_notification.delay(self.membership.pk)
+            create_group_creation_confirmation_activity.delay(self.membership.pk)
         else:
             # send changes notification
             if self.changed_data:
