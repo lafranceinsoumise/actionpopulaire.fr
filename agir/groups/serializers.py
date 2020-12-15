@@ -48,7 +48,7 @@ class SupportGroupSubtypeSerializer(serializers.ModelSerializer):
 class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     id = serializers.UUIDField()
     name = serializers.CharField()
-    description = serializers.CharField()
+    description = serializers.CharField(source="html_description")
     type = serializers.CharField()
     typeLabel = serializers.SerializerMethodField()
 
