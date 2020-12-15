@@ -38,12 +38,14 @@ WaitingPayment.args = {
     url: "/",
     routes: {
       manage: "#group__manage",
-      help: "#group__help",
     },
   },
   individual: {
     firstName: "Foo Bar",
     email: "foo@bar.com",
+  },
+  routes: {
+    newGroupHelp: "#newGroupHelp",
   },
 };
 export const GroupInvitation = Template.bind({});

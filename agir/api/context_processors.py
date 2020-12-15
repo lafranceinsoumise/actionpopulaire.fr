@@ -43,6 +43,7 @@ def basic_information(request):
         "contact": "https://infos.actionpopulaire.fr/contact/",
         "legal": "https://infos.actionpopulaire.fr/mentions-legales/",
         "nspReferral": reverse("nsp_referral"),
+        "newGroupHelp": "https://infos.actionpopulaire.fr/groupes/nouvelle-equipe/",
     }
 
     routes_2022 = {

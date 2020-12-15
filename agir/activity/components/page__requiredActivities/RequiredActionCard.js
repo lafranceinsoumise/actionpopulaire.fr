@@ -15,7 +15,15 @@ export const requiredActionTypes = [
 ];
 
 const RequiredActionCard = (props) => {
-  const { id, type, event, supportGroup, individual, onDismiss } = props;
+  const {
+    id,
+    type,
+    event,
+    supportGroup,
+    individual,
+    onDismiss,
+    routes,
+  } = props;
 
   const handleDismiss = useCallback(() => {
     onDismiss(id);
@@ -137,18 +145,17 @@ const RequiredActionCard = (props) => {
           iconName="users"
           confirmLabel="Lire l'article"
           dismissLabel="C'est fait"
-          onConfirm={supportGroup.routes && supportGroup.routes.help}
+          onConfirm={routes && routes.newGroupHelp}
           onDismiss={handleDismiss}
           text={
             <>
-              Votre groupe &laquo;&nbsp;
-              <a href={supportGroup.url}>{supportGroup.name}</a>&nbsp;&raquo;
-              est en ligne !
+              <a href={supportGroup.url}>{supportGroup.name}</a> est en ligne !
               <br />
               <br />
-              En tant qu'animateur·ice, vous pouvez gérer votre groupe à tout
-              moment depuis le bouton &laquo;&nbsp;Gestion&nbsp;&raquo; ou bien
-              en cliquant sur{" "}
+              En tant qu'animateur·ice, vous pouvez gérer{" "}
+              <a href={supportGroup.url}>{supportGroup.name}</a> à tout moment
+              depuis le bouton &laquo;&nbsp;Gestion&nbsp;&raquo; ou bien en
+              cliquant sur{" "}
               <a href={supportGroup.routes && supportGroup.routes.manage}>
                 ce lien
               </a>
@@ -156,7 +163,7 @@ const RequiredActionCard = (props) => {
               <br />
               <br />
               Nous vous conseillons de lire ces conseils à destination des
-              nouveaux animateur·ice·s de groupes.
+              nouveaux animateur·ice·s.
             </>
           }
         />
@@ -188,7 +195,6 @@ RequiredActionCard.propTypes = {
     url: PropTypes.string,
     routes: PropTypes.shape({
       manage: PropTypes.string,
-      help: PropTypes.string,
     }).isRequired,
   }),
   individual: PropTypes.shape({
@@ -196,5 +202,6 @@ RequiredActionCard.propTypes = {
     email: PropTypes.string,
   }),
   onDismiss: PropTypes.func,
+  routes: PropTypes.object,
 };
 export default RequiredActionCard;
