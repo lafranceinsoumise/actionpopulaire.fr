@@ -94,15 +94,7 @@ const ActionCard = (props) => {
 
 ActionCard.propTypes = {
   text: PropTypes.node.isRequired,
-  iconName: PropTypes.oneOf([
-    "alert-circle",
-    "calendar",
-    "file-text",
-    "info",
-    "mail",
-    "user-plus",
-    "x-circle",
-  ]).isRequired,
+  iconName: PropTypes.string.isRequired,
   confirmLabel: PropTypes.string.isRequired,
   onConfirm: PropTypes.oneOfType([PropTypes.string, PropTypes.func]).isRequired,
   dismissLabel: PropTypes.string,

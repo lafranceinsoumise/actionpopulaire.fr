@@ -12,7 +12,124 @@ export const requiredActionTypes = [
   "group-coorganization-invite",
   "waiting-location-event",
   "group-creation-confirmation",
+  "group-membership-limit-reminder",
 ];
+
+const GroupMembershipLimitReminderRequiredActionCard = (props) => {
+  const { supportGroup, meta = {}, routes, onDismiss } = props;
+  const { membershipCount, membershipLimitNotificationStep } = meta;
+
+  if (!membershipCount || typeof membershipLimitNotificationStep !== "number") {
+    return null;
+  }
+
+  switch (membershipLimitNotificationStep) {
+    case 0:
+      return (
+        <ActionCard
+          iconName="alert-circle"
+          confirmLabel="Transférer des membres"
+          dismissLabel="C'est fait !"
+          onConfirm={routes.groupTransfer}
+          onDismiss={onDismiss}
+          text={
+            <>
+              <strong>
+                Action requise&nbsp;: votre équipe est trop nombreuse
+              </strong>
+              <br />
+              <a href={supportGroup.url}>{supportGroup.name}</a> a atteint{" "}
+              {membershipCount} personnes&nbsp;! Il est maintenant impossible
+              que des nouvelles personnes la rejoignent. Transférez des membres
+              de votre équipe dans d’autres équipes plus petites.
+            </>
+          }
+        />
+      );
+    case 1:
+    case 2:
+      return (
+        <ActionCard
+          iconName="alert-circle"
+          confirmLabel="Transférer des membres"
+          dismissLabel="Cacher"
+          onConfirm={routes.groupTransfer}
+          onDismiss={onDismiss}
+          text={
+            <>
+              <strong>Pensez à diviser votre équipe</strong>
+              <br />
+              <a href={supportGroup.url}>{supportGroup.name}</a> compte plus de{" "}
+              {membershipCount - 1} personnes&nbsp;! Il est temps de vous
+              diviser en plusieurs groupes pour permettre une plus grande
+              répartition de l’action.
+            </>
+          }
+        />
+      );
+    case 3:
+      return (
+        <ActionCard
+          iconName="info"
+          confirmLabel="En savoir plus"
+          dismissLabel="Cacher"
+          onConfirm={routes.groupTransferHelp}
+          onDismiss={onDismiss}
+          text={
+            <>
+              <strong>
+                Gardez un oeil sur le nombre de membres de votre équipe
+              </strong>
+              <br />
+              <a href={supportGroup.url}>{supportGroup.name}</a> a dépassé les{" "}
+              {membershipCount - 1} personnes ! Afin que chacun·e puisse
+              s'impliquer et pour permettre une plus grande répartition de votre
+              action, nous vous invitons à diviser votre équipe.
+            </>
+          }
+        />
+      );
+    default:
+      return (
+        <ActionCard
+          iconName="thumbs-up"
+          confirmLabel="En savoir plus"
+          dismissLabel="Cacher"
+          onConfirm={routes.groupTransferHelp}
+          onDismiss={onDismiss}
+          text={
+            <>
+              <strong>
+                Bravo, vous êtes maintenant {membershipCount} dans votre
+                équipe&nbsp;!
+              </strong>
+              <br />
+              <a href={supportGroup.url}>{supportGroup.name}</a> a atteint le
+              nombre idéal de personnes. Désormais, favorisez la création
+              d'autres équipes autour de chez vous par d’autres membres, de
+              manière à renforcer le réseau d'action.
+            </>
+          }
+        />
+      );
+  }
+};
+GroupMembershipLimitReminderRequiredActionCard.propTypes = {
+  supportGroup: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    url: PropTypes.string,
+  }).isRequired,
+  meta: PropTypes.shape({
+    membershipLimit: PropTypes.number,
+    membershipCount: PropTypes.number,
+    membershipLimitNotificationStep: PropTypes.number,
+  }),
+  routes: PropTypes.shape({
+    groupTransfer: PropTypes.string.isRequired,
+    groupTransferHelp: PropTypes.string.isRequired,
+  }).isRequired,
+  onDismiss: PropTypes.func,
+};
 
 const RequiredActionCard = (props) => {
   const {
@@ -169,6 +286,9 @@ const RequiredActionCard = (props) => {
         />
       );
     }
+    case "group-membership-limit-reminder": {
+      return <GroupMembershipLimitReminderRequiredActionCard {...props} />;
+    }
     default:
       return null;
   }
@@ -202,6 +322,7 @@ RequiredActionCard.propTypes = {
     email: PropTypes.string,
   }),
   onDismiss: PropTypes.func,
+  meta: PropTypes.object,
   routes: PropTypes.object,
 };
 export default RequiredActionCard;
