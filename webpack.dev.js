@@ -11,6 +11,7 @@ const port = process.env.JS_SERVER
 
 module.exports = merge.merge(common, {
   mode: "development",
+  devtool: "eval-source-map",
   output: {
     publicPath: `http://${serverName}:${port}/static/components/`,
     devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
