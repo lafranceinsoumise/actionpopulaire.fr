@@ -121,6 +121,7 @@ def create_activity(person_email):
                 Activity.TYPE_WAITING_PAYMENT,
                 Activity.TYPE_GROUP_INVITATION,
                 Activity.TYPE_NEW_MEMBER,
+                Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
                 Activity.TYPE_WAITING_LOCATION_GROUP,
                 Activity.TYPE_GROUP_COORGANIZATION_INVITE,
                 Activity.TYPE_WAITING_LOCATION_EVENT,
