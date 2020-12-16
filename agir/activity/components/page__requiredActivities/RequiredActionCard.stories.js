@@ -46,6 +46,13 @@ WaitingPayment.args = {
   },
   routes: {
     newGroupHelp: "#newGroupHelp",
+    groupTransfer: "#groupTransfer",
+    groupTransferHelp: "#groupTransferHelp",
+  },
+  meta: {
+    membershipLimit: 30,
+    membershipCount: 30,
+    membershipLimitNotificationStep: 0,
   },
 };
 export const GroupInvitation = Template.bind({});
@@ -77,4 +84,9 @@ export const GroupCreationConfirmation = Template.bind({});
 GroupCreationConfirmation.args = {
   ...WaitingPayment.args,
   type: "group-creation-confirmation",
+};
+export const GroupMembershipLimitReminder = Template.bind({});
+GroupMembershipLimitReminder.args = {
+  ...WaitingPayment.args,
+  type: "group-membership-limit-reminder",
 };

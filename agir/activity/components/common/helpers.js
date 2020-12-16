@@ -19,6 +19,7 @@ export const requiredActivityTypes = [
   "group-coorganization-invite",
   "waiting-location-event",
   "group-creation-confirmation",
+  "group-membership-limit-reminder",
 ];
 
 export const parseActivities = (data, dismissed = []) => {
