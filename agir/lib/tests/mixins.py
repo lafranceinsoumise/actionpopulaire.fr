@@ -134,6 +134,7 @@ def create_activity(person_email):
                 Activity.TYPE_NEW_EVENT_AROUNDME,
                 Activity.TYPE_GROUP_COORGANIZATION_INFO,
                 Activity.TYPE_CANCELLED_EVENT,
+                Activity.TYPE_GROUP_CREATION_CONFIRMATION,
             ]
         ),
         "status": random.choice(

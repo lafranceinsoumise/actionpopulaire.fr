@@ -18,6 +18,7 @@ class Activity(TimeStampedModel):
     TYPE_NEW_REPORT = "new-report"
     TYPE_CANCELLED_EVENT = "cancelled-event"
     TYPE_REFERRAL = "referral-accepted"
+    TYPE_GROUP_CREATION_CONFIRMATION = "group-creation-confirmation"
     # TODO
     TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
     TYPE_NEW_EVENT_AROUNDME = "new-event-aroundme"
@@ -48,6 +49,7 @@ class Activity(TimeStampedModel):
         TYPE_GROUP_COORGANIZATION_INVITE,
         TYPE_WAITING_LOCATION_GROUP,
         TYPE_WAITING_PAYMENT,
+        TYPE_GROUP_CREATION_CONFIRMATION,
     )
 
     TYPE_CHOICES = (

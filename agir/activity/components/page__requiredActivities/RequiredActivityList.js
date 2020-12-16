@@ -7,7 +7,10 @@ import {
   useDispatch,
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
-import { getRequiredActionActivities } from "@agir/front/globalContext/reducers";
+import {
+  getRequiredActionActivities,
+  getRoutes,
+} from "@agir/front/globalContext/reducers";
 import { dismissRequiredActionActivity } from "@agir/front/globalContext/actions";
 
 import Activities from "@agir/activity/common/Activities";
@@ -42,6 +45,7 @@ const Counter = styled.span`
 
 const RequiredActivityList = () => {
   const activities = useSelector(getRequiredActionActivities);
+  const routes = useSelector(getRoutes);
   const dispatch = useDispatch();
 
   const handleDismiss = useCallback(
@@ -65,6 +69,7 @@ const RequiredActivityList = () => {
           CardComponent={RequiredActionCard}
           activities={activities}
           onDismiss={handleDismiss}
+          routes={routes}
         />
       </Page>
     </Layout>
