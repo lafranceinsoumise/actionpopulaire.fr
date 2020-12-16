@@ -52,19 +52,16 @@ const FullGroupPage = ({ fullGroup, groupSuggestions }) => {
 
   return (
     <CenteredLayout
-      title={`${fullGroup.name} est déjà au complet !`}
+      title={`${fullGroup.name} compte déjà trop de membres !`}
       icon="x-circle"
     >
       <StyledBlock>
-        <p>
-          Zut ! Vous ne pouvez pas rejoindre ce groupe parce qu’il a atteint sa
-          limite de membres.
-        </p>
+        <p>Désolé, vous ne pouvez pas rejoindre ce groupe.</p>
         <p>
           Pour favoriser l'implication de chacun·e et la répartition de l'action
-          sur tout le territoire, nous privilégions les petits groupes.
+          sur le tout le territoire, nous privilégions les petites équipes.
         </p>
-        <p>Rejoignez un autre groupe proche de chez vous :</p>
+        <p>Rejoignez une autre équipe proche de chez vous&nbsp;:</p>
       </StyledBlock>
       {routes.groupsMap ? <Map src={routes.groupsMap} /> : null}
       {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 && (
@@ -81,7 +78,7 @@ const FullGroupPage = ({ fullGroup, groupSuggestions }) => {
           ))}
         </GroupList>
       )}
-      <Onboarding type="group__creation" routes={routes} />
+      <Onboarding type="fullGroup__creation" routes={routes} />
     </CenteredLayout>
   );
 };

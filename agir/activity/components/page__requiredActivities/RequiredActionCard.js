@@ -28,20 +28,21 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
       return (
         <ActionCard
           iconName="alert-circle"
-          confirmLabel="Transférer des membres"
+          confirmLabel="Diviser mon équipe"
           dismissLabel="C'est fait !"
           onConfirm={routes.groupTransfer}
           onDismiss={onDismiss}
           text={
             <>
               <strong>
-                Action requise&nbsp;: votre équipe est trop nombreuse
+                Action requise&nbsp;: votre équipe ne respecte plus la charte
+                des équipes de soutiens
               </strong>
               <br />
               <a href={supportGroup.url}>{supportGroup.name}</a> a atteint{" "}
               {membershipCount} personnes&nbsp;! Il est maintenant impossible
-              que des nouvelles personnes la rejoignent. Transférez des membres
-              de votre équipe dans d’autres équipes plus petites.
+              que des nouvelles personnes la rejoignent. Divisez votre équipe en
+              équipes plus petites maintenant pour renforcer le réseau d’action.
             </>
           }
         />
@@ -51,17 +52,17 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
       return (
         <ActionCard
           iconName="alert-circle"
-          confirmLabel="Transférer des membres"
+          confirmLabel="Comment diviser mon équipe ?"
           dismissLabel="Cacher"
-          onConfirm={routes.groupTransfer}
+          onConfirm={routes.groupTransferHelp}
           onDismiss={onDismiss}
           text={
             <>
-              <strong>Pensez à diviser votre équipe</strong>
+              <strong>Votre équipe est trop nombreuse</strong>
               <br />
               <a href={supportGroup.url}>{supportGroup.name}</a> compte plus de{" "}
               {membershipCount - 1} personnes&nbsp;! Il est temps de vous
-              diviser en plusieurs groupes pour permettre une plus grande
+              diviser en plusieurs équipes pour permettre une plus grande
               répartition de l’action.
             </>
           }
