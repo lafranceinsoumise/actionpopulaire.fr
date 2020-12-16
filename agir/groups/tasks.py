@@ -41,6 +41,14 @@ CHANGE_DESCRIPTION = OrderedDict(
     )
 )  # encodes the preferred order when showing the messages
 
+GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS = [
+    0,  # 30 members
+    -4,  # 26 members
+    -9,  # 21 members
+    -14,  # 16 members
+    -19,  # 11 members
+]
+
 
 @emailing_task
 def send_support_group_creation_notification(membership_pk):
@@ -187,6 +195,36 @@ def send_someone_joined_notification(membership_pk):
             for r in recipients
         ]
     )
+
+    membership_limit_notication_steps = [
+        membership.supportgroup.MEMBERSHIP_LIMIT + step
+        for step in GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS
+        if membership.supportgroup.MEMBERSHIP_LIMIT + step > 0
+    ]
+    current_membership_count = membership.supportgroup.members_count
+    current_membership_limit_notification_step = (
+        membership_limit_notication_steps.index(current_membership_count)
+        if current_membership_count in membership_limit_notication_steps
+        else None
+    )
+
+    if current_membership_limit_notification_step is not None:
+        Activity.objects.bulk_create(
+            [
+                Activity(
+                    type=Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
+                    recipient=r,
+                    supportgroup=membership.supportgroup,
+                    status=Activity.STATUS_UNDISPLAYED,
+                    meta={
+                        "membershipLimit": membership.supportgroup.MEMBERSHIP_LIMIT,
+                        "membershipCount": current_membership_count,
+                        "membershipLimitNotificationStep": current_membership_limit_notification_step,
+                    },
+                )
+                for r in recipients
+            ]
+        )
 
     bindings = {
         "GROUP_NAME": membership.supportgroup.name,

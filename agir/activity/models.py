@@ -11,6 +11,7 @@ class Activity(TimeStampedModel):
     # Avec affichage d'une notification
     TYPE_GROUP_INVITATION = "group-invitation"
     TYPE_NEW_MEMBER = "new-member"
+    TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER = "group-membership-limit-reminder"
     TYPE_GROUP_INFO_UPDATE = "group-info-update"
     TYPE_NEW_ATTENDEE = "new-attendee"
     TYPE_EVENT_UPDATE = "event-update"
@@ -34,6 +35,7 @@ class Activity(TimeStampedModel):
     DISPLAYED_TYPES = (
         TYPE_GROUP_INVITATION,
         TYPE_NEW_MEMBER,
+        TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
         TYPE_GROUP_INFO_UPDATE,
         TYPE_NEW_ATTENDEE,
         TYPE_EVENT_UPDATE,
@@ -56,6 +58,10 @@ class Activity(TimeStampedModel):
         (TYPE_WAITING_PAYMENT, "Paiement en attente"),
         (TYPE_GROUP_INVITATION, "Invitation à un groupe"),
         (TYPE_NEW_MEMBER, "Nouveau membre dans le groupe"),
+        (
+            TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
+            "Les membres du groupes sont de plus en plus nombreux",
+        ),
         (TYPE_WAITING_LOCATION_GROUP, "Préciser la localisation du groupe"),
         (TYPE_GROUP_COORGANIZATION_INVITE, "Invitation à coorganiser un groupe reçue"),
         (TYPE_WAITING_LOCATION_EVENT, "Préciser la localisation d'un événement"),
