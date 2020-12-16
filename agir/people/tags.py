@@ -29,7 +29,6 @@ skills_tags = [
     ("info musicien", _("Musicien·ne")),
     ("info paysan", _("Paysan·ne, vigneron·ne")),
     ("info peintre", _("Peintre, graffeur·se")),
-    ("info pilleur de banque", _("Pilleur·se de banque")),
     ("info écrivain", _("Professeur·e, écrivain·e, universitaire")),
     (
         "info secrétariat",
