@@ -28,6 +28,9 @@ class SupportGroupQuerySet(models.QuerySet):
     def is_2022(self):
         return self.filter(type=SupportGroup.TYPE_2022)
 
+    def is_insoumise(self):
+        return self.filter(type__not=SupportGroup.TYPE_2022)
+
     def search(self, query):
         vector = (
             SearchVector(models.F("name"), config="french_unaccented", weight="A")
