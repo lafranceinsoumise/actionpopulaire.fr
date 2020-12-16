@@ -40,15 +40,13 @@ class CreateGroupForm extends React.Component {
     };
 
     if (state.types.length === 1 && !state.types[0].disabled) {
+      state.fields.type = state.types[0].id;
       const subtypes = this.props.subtypes.filter(
         (s) => s.type === state.types[0].id
       );
 
       if (subtypes.length < 2) {
-        Object.assign(state.fields, {
-          type: state.types[0].id,
-          subtypes: subtypes.map((s) => s.label),
-        });
+        state.fields.subtypes = subtypes.map((s) => s.label);
 
         state.skipType = true;
       }
@@ -142,34 +140,39 @@ class GroupTypeStep extends FormStep {
     return (
       <div className="row padtopmore padbottommore">
         <div className="col-sm-4">
-          <h3>Quel type de groupe voulez-vous créer ?</h3>
-          <blockquote>
-            <p>
-              &laquo;&nbsp;Chaque insoumis.e peut créer ou rejoindre un ou
-              plusieurs groupes d’action dès lors qu’il respecte le cadre et la
-              démarche de la France insoumise dans un esprit d’ouverture, de
-              bienveillance et de volonté de se projeter dans
-              l’action.&nbsp;&raquo;
-            </p>
-            <footer>
-              <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
-                Charte des groupes d’action de la France insoumise
-              </a>
-            </footer>
-          </blockquote>
-          <p>
-            La{" "}
-            <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
-              Charte des groupes d’action de la France insoumise
-            </a>{" "}
-            définit plusieurs types de groupes différents.
-          </p>
-          <p>
-            Ces groupes répondent à des besoins différents. Vous pouvez
-            parfaitement participer à plusieurs groupes en fonction de vos
-            intérêts.
-          </p>
+          <h3>Quel type de groupe voulez-vous créer&nbsp;?</h3>
+          {this.props.types.length > 1 && (
+            <>
+              <blockquote>
+                <p>
+                  &laquo;&nbsp;Chaque insoumis.e peut créer ou rejoindre un ou
+                  plusieurs groupes d’action dès lors qu’il respecte le cadre et
+                  la démarche de la France insoumise dans un esprit d’ouverture,
+                  de bienveillance et de volonté de se projeter dans
+                  l’action.&nbsp;&raquo;
+                </p>
+                <footer>
+                  <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
+                    Charte des groupes d’action de la France insoumise
+                  </a>
+                </footer>
+              </blockquote>
+              <p>
+                La{" "}
+                <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
+                  Charte des groupes d’action de la France insoumise
+                </a>{" "}
+                définit plusieurs types de groupes différents.
+              </p>
+              <p>
+                Ces groupes répondent à des besoins différents. Vous pouvez
+                parfaitement participer à plusieurs groupes en fonction de vos
+                intérêts.
+              </p>
+            </>
+          )}
         </div>
+
         <div className="col-sm-8 padbottom type-selectors">
           {this.props.types.map((type) => (
             <div
@@ -223,28 +226,29 @@ class GroupTypeStep extends FormStep {
             >
               {(state) => {
                 const show =
-                  this.groupRefs[i].current &&
-                  ["entering", "entered"].includes(state);
+                  this.groupRefs[i] &&
+                  fields.type === type.id &&
+                  this.subtypesFor(type.id).length > 1;
                 return (
                   <div
                     className="subtype-selector"
                     ref={this.groupRefs[i]}
                     style={{
                       height: show
-                        ? this.groupRefs[i].current.scrollHeight + "px"
-                        : "0",
+                        ? "entering" === state
+                          ? this.groupRefs[i].current.scrollHeight + "px"
+                          : "auto"
+                        : "2px",
                     }}
                   >
                     <div>
-                      <em>
-                        Choisissez maintenant les thèmes qui vous intéressent.
-                      </em>
+                      <em>Précisez le type de votre groupe</em>
                       <NavSelect
                         choices={this.subtypesFor(type.id).map((s) => ({
                           value: s.label,
                           label: s.description,
                         }))}
-                        value={fields.subtypes}
+                        value={fields.subtypes || []}
                         max={3}
                         onChange={(subtypes) =>
                           this.props.setFields({ subtypes })
