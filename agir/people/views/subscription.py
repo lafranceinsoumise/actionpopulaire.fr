@@ -20,7 +20,7 @@ from agir.people.actions.subscription import (
     SUBSCRIPTION_TYPE_NSP,
     SUBSCRIPTION_FIELD,
     SUBSCRIPTIONS_EMAILS,
-    nsp_confirmed_url,
+    subscription_success_redirect_url,
     save_subscription_information,
 )
 from agir.people.forms import (
@@ -97,7 +97,6 @@ class OverseasSubscriptionView(BaseSubscriptionView):
 
 class ConfirmSubscriptionView(View):
     response_class = TemplateResponse
-    lfi_success_template = "people/confirmation_subscription.html"
     error_template = "people/confirmation_mail_error.html"
     error_messages = {
         "invalid": _(
@@ -189,7 +188,6 @@ class ConfirmSubscriptionView(View):
         )
 
     def success_page(self, params):
-        if self.type == SUBSCRIPTION_TYPE_LFI:
-            return self.render(self.lfi_success_template)
-        elif self.type == SUBSCRIPTION_TYPE_NSP:
-            return HttpResponseRedirect(nsp_confirmed_url(self.person.id, params))
+        return HttpResponseRedirect(
+            subscription_success_redirect_url(self.type, self.person.id, params)
+        )

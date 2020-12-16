@@ -17,9 +17,10 @@ from . import models
 from .actions.subscription import (
     SUBSCRIPTION_TYPE_LFI,
     SUBSCRIPTION_TYPE_CHOICES,
-    nsp_confirmed_url,
+    subscription_success_redirect_url,
     save_subscription_information,
     SUBSCRIPTION_TYPE_NSP,
+    SUBSCRIPTION_EMAIL_SENT_REDIRECT,
 )
 from .models import Person
 from .tasks import send_confirmation_email
@@ -200,13 +201,6 @@ class SubscriptionRequestSerializer(serializers.Serializer):
             self.validated_data["location_zip"]
         )
 
-        if type == SUBSCRIPTION_TYPE_LFI:
-            send_confirmation_email.delay(
-                location_country=location_country, **self.validated_data
-            )
-            self.result_data = {"status": "new"}
-            return
-
         try:
             person = Person.objects.get_by_natural_key(email)
         except Person.DoesNotExist:
@@ -216,7 +210,7 @@ class SubscriptionRequestSerializer(serializers.Serializer):
 
             self.result_data = {
                 "status": "new",
-                "url": f"{settings.NSP_DOMAIN}/validez-votre-e-mail/",
+                "url": SUBSCRIPTION_EMAIL_SENT_REDIRECT[type],
             }
         else:
             save_subscription_information(person, type, self.validated_data)
@@ -224,7 +218,9 @@ class SubscriptionRequestSerializer(serializers.Serializer):
             self.result_data = {
                 "status": "known",
                 "id": str(person.id),
-                "url": nsp_confirmed_url(person.id, self.validated_data),
+                "url": subscription_success_redirect_url(
+                    type, person.id, self.validated_data
+                ),
             }
             return person
 

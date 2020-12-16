@@ -1,4 +1,3 @@
-import urllib.parse
 from dataclasses import dataclass
 from functools import partial
 
@@ -65,6 +64,16 @@ SUBSCRIPTION_NEWSLETTERS = {
     SUBSCRIPTION_TYPE_EXTERNAL: set(),
 }
 
+SUBSCRIPTION_EMAIL_SENT_REDIRECT = {
+    SUBSCRIPTION_TYPE_LFI: f"{settings.MAIN_DOMAIN}/consulter-vos-emails/",
+    SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/validez-votre-e-mail/",
+}
+
+SUBSCRIPTION_SUCCESS_REDIRECT = {
+    SUBSCRIPTION_TYPE_LFI: f"{settings.MAIN_DOMAIN}/bienvenue/",
+    SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/signature-confirmee/",
+}
+
 
 def save_subscription_information(person, type, data):
     person_fields = set(f.name for f in Person._meta.get_fields())
@@ -116,8 +125,8 @@ def save_subscription_information(person, type, data):
         person.save()
 
 
-def nsp_confirmed_url(id, data):
+def subscription_success_redirect_url(type, id, data):
     params = {"agir_id": str(id)}
-    params.update({"agir_{k}": v for k, v in data.items()})
-    url = urllib.parse.urljoin(settings.NSP_DOMAIN, "/signature-confirmee/")
+    params.update({f"agir_{k}": v for k, v in data.items()})
+    url = SUBSCRIPTION_SUCCESS_REDIRECT[type]
     return add_query_params_to_url(url, params, as_fragment=True)

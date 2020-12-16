@@ -164,7 +164,7 @@ class SimpleSubscriptionFormTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_france_country_is_set_by_default(self):
-        data = {"email": "my@e.mail", "location_zip": "01337"}
+        data = {"email": "my@e.mail", "location_zip": "01337", "type": "LFI"}
 
         send_confirmation_email(**data)
 
@@ -177,9 +177,10 @@ class SimpleSubscriptionFormTestCase(TestCase):
         url_with_params = match.group(0)
 
         response = self.client.get(url_with_params)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertContains(response, "Bienvenue !")
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertTrue(
+            response.url.startswith("https://lafranceinsoumise.fr/bienvenue/",)
+        )
 
         # check that the person has been created
         person = Person.objects.get_by_natural_key("my@e.mail")
@@ -222,9 +223,10 @@ class SubscriptionConfirmationTestCase(TestCase):
         url_with_params = match.group(0)
 
         response = self.client.get(url_with_params)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertContains(response, "Bienvenue !")
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertTrue(
+            response.url.startswith("https://lafranceinsoumise.fr/bienvenue/",)
+        )
 
         # check that the person has been created
         Person.objects.get_by_natural_key("guillaume@email.com")
