@@ -30,7 +30,9 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
           iconName="alert-circle"
           confirmLabel="Diviser mon équipe"
           dismissLabel="C'est fait !"
-          onConfirm={routes.groupTransfer}
+          onConfirm={
+            supportGroup.routes && supportGroup.routes.membershipTransfer
+          }
           onDismiss={onDismiss}
           text={
             <>
@@ -119,6 +121,9 @@ GroupMembershipLimitReminderRequiredActionCard.propTypes = {
   supportGroup: PropTypes.shape({
     name: PropTypes.string.isRequired,
     url: PropTypes.string,
+    routes: PropTypes.shape({
+      membershipTransfer: PropTypes.string.isRequired,
+    }).isRequired,
   }).isRequired,
   meta: PropTypes.shape({
     membershipLimit: PropTypes.number,
@@ -126,7 +131,6 @@ GroupMembershipLimitReminderRequiredActionCard.propTypes = {
     membershipLimitNotificationStep: PropTypes.number,
   }),
   routes: PropTypes.shape({
-    groupTransfer: PropTypes.string.isRequired,
     groupTransferHelp: PropTypes.string.isRequired,
   }).isRequired,
   onDismiss: PropTypes.func,
@@ -316,6 +320,7 @@ RequiredActionCard.propTypes = {
     url: PropTypes.string,
     routes: PropTypes.shape({
       manage: PropTypes.string,
+      membershipTransfer: PropTypes.string,
     }).isRequired,
   }),
   individual: PropTypes.shape({
