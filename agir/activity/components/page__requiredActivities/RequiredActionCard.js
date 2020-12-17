@@ -288,7 +288,12 @@ const RequiredActionCard = (props) => {
       );
     }
     case "group-membership-limit-reminder": {
-      return <GroupMembershipLimitReminderRequiredActionCard {...props} />;
+      return (
+        <GroupMembershipLimitReminderRequiredActionCard
+          {...props}
+          onDismiss={handleDismiss}
+        />
+      );
     }
     default:
       return null;
