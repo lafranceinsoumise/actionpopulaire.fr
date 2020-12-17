@@ -46,14 +46,14 @@ class SimpleOpengraphMixin(ContextMixin):
 
 
 class ObjectOpengraphMixin(SimpleOpengraphMixin):
-    title_prefix = "Action Populaire"
+    title_suffix = "Action Populaire"
 
     image_lfi = static("front/assets/og_image_LFI.jpg")
     image_nsp = static("front/assets/og_image_NSP.jpg")
 
     # noinspection PyUnresolvedReferences
     def get_meta_title(self):
-        return "{} - {}".format(self.title_prefix, self.object.name)
+        return "{} — {}".format(self.object.name, self.title_suffix)
 
     def is_2022_object(self):
         return hasattr(self.object, "is_2022") and self.object.is_2022 == True

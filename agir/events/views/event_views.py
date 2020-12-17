@@ -113,8 +113,6 @@ class EventDetailMixin(GlobalOrObjectPermissionRequiredMixin):
         Event.objects.all()
     )  # y compris les événements cachés, pour pouvoir montrer des pages GONE
 
-    title_prefix = _("Evénement local")
-
     def handle_no_permission(self):
         if self.get_object().visibility == Event.VISIBILITY_ADMIN:
             return HttpResponseGone()
