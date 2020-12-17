@@ -13,6 +13,8 @@ import makeLayerControl from "./layerControl";
 import makeSearchControl from "./searchControl";
 import getFormatPopups from "./itemPopups";
 
+const debug = require("debug")(`agir:${__filename}`);
+
 const OFFSET = 0.00005;
 
 function disambiguate(points) {
@@ -191,7 +193,7 @@ export default async function listMap(
   try {
     await fontIsLoaded("FontAwesome");
   } catch (e) {
-    console.log("Error loading fonts."); // eslint-disable-line no-console
+    debug("Error loading fonts."); // eslint-disable-line no-console
   }
 
   disambiguate(res.data);

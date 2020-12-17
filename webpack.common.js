@@ -125,6 +125,9 @@ module.exports = {
     alias: aliases,
     modules: ["node_modules"],
   },
+  node: {
+    __filename: true,
+  },
   watchOptions: {
     ignored: /node_modules/,
   },

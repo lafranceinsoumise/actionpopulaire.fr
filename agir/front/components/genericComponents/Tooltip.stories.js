@@ -20,10 +20,7 @@ const Template = (args) => (
       borderRadius: "100%",
     }}
   >
-    <Tooltip
-      {...args}
-      onClose={args.hasCloseButton ? console.log : undefined}
-    />
+    <Tooltip {...args} onClose={args.hasCloseButton ? debug : undefined} />
   </div>
 );
 

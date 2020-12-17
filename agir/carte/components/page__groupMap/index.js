@@ -1,5 +1,7 @@
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 
+const debug = require("debug")(`agir:${__filename}`);
+
 (async function () {
   const [
     { default: React },
@@ -20,7 +22,7 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
       return;
     }
     const payload = JSON.parse(dataElement.textContent);
-
+    debug(payload);
     renderReactComponent(
       <GlobalContextProvider>
         <GroupMap {...payload} />
