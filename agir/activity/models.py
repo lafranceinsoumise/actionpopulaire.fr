@@ -20,6 +20,8 @@ class Activity(TimeStampedModel):
     TYPE_CANCELLED_EVENT = "cancelled-event"
     TYPE_REFERRAL = "referral-accepted"
     TYPE_GROUP_CREATION_CONFIRMATION = "group-creation-confirmation"
+    TYPE_TRANSFERRED_GROUP_MEMBER = "transferred-group-member"
+    TYPE_NEW_MEMBERS_THROUGH_TRANSFER = "new-members-through-transfer"
     # TODO
     TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
     TYPE_NEW_EVENT_AROUNDME = "new-event-aroundme"
@@ -52,6 +54,8 @@ class Activity(TimeStampedModel):
         TYPE_WAITING_LOCATION_GROUP,
         TYPE_WAITING_PAYMENT,
         TYPE_GROUP_CREATION_CONFIRMATION,
+        TYPE_TRANSFERRED_GROUP_MEMBER,
+        TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
     )
 
     TYPE_CHOICES = (
@@ -79,6 +83,14 @@ class Activity(TimeStampedModel):
         (TYPE_CANCELLED_EVENT, "Événement annulé"),
         (TYPE_REFERRAL, "Personne parrainée"),
         (TYPE_ANNOUNCEMENT, "Associée à une annonce"),
+        (
+            TYPE_TRANSFERRED_GROUP_MEMBER,
+            "Un membre d'un groupe a été transferé vers un autre groupe",
+        ),
+        (
+            TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+            "De nouveaux membres ont été transferés vers le groupe",
+        ),
     )
 
     STATUS_UNDISPLAYED = "U"
