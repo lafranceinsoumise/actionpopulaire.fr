@@ -29,7 +29,7 @@ class SupportGroupQuerySet(models.QuerySet):
         return self.filter(type=SupportGroup.TYPE_2022)
 
     def is_insoumise(self):
-        return self.filter(type__not=SupportGroup.TYPE_2022)
+        return self.exclude(type=SupportGroup.TYPE_2022)
 
     def search(self, query):
         vector = (

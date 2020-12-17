@@ -1,4 +1,4 @@
-from django.contrib.admin.widgets import AutocompleteSelect
+from django.urls import reverse_lazy
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Row, Field
 from django import forms
@@ -19,7 +19,7 @@ from agir.groups.tasks import (
     create_group_creation_confirmation_activity,
 )
 from agir.lib.form_components import *
-from agir.lib.form_fields import SelectizeWidget
+from agir.lib.form_fields import RemoteSelectizeWidget
 from agir.lib.form_mixins import (
     LocationFormMixin,
     ContactFormMixin,
@@ -408,7 +408,6 @@ class TransferGroupMembersForm(forms.Form):
         queryset=SupportGroup.objects.active(),
         label=_("Groupe de destination"),
         required=True,
-        widget=SelectizeWidget,
         help_text="Le nouveau groupe doit avoir déjà été créé pour pouvoir y transférer une partie de vos membres.",
     )
     members = MembershipMultipleChoiceField(
@@ -430,24 +429,25 @@ class TransferGroupMembersForm(forms.Form):
             "members"
         ].queryset = supportgroup_members
 
+        base_query = [
+            "exclude=%s" % supportgroup.pk,
+        ]
+
         if supportgroup.is_2022:
-            self.fields["target_group"].queryset = (
-                self.fields["target_group"]
-                .queryset.is_2022()
-                .exclude(memberships__person=person)
-            )
+            base_query.append("is_2022=1")
             self.fields[
                 "target_group"
             ].help_text = "Le nouveau groupe doit avoir déjà été créé par quelqu'un d'autre pour pouvoir y transférer une partie de vos membres."
         else:
-            self.fields["target_group"].queryset = self.fields[
-                "target_group"
-            ].queryset.is_insoumise()
+            base_query.append("is_insoumise=1")
 
-        self.fields["target_group"].queryset = (
-            self.fields["target_group"]
-            .queryset.exclude(pk=supportgroup.pk)
-            .order_by("-created")
+        base_query = "&".join(base_query)
+
+        self.fields["target_group"].widget = RemoteSelectizeWidget(
+            api_url=reverse_lazy("api_search_group"),
+            label_field="name",
+            value_field="id",
+            base_query=base_query,
         )
 
         self.helper = FormHelper()

@@ -53,7 +53,7 @@ urlpatterns = [
         name="edit_group",
     ),
     path(
-        "groupes/<uuid:pk>/gestion/transfer-de-membres/",
+        "groupes/<uuid:pk>/gestion/transfert-de-membres/",
         views.TransferSupportGroupMembersView.as_view(),
         name="transfer_group_members",
     ),
