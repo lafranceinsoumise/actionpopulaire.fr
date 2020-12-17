@@ -146,7 +146,7 @@ class NotificationTasksTestCase(TestCase):
             membership = Membership.objects.create(
                 supportgroup=supportgroup, person=member
             )
-            tasks.send_someone_joined_notification(membership.pk)
+            tasks.send_someone_joined_notification(membership.pk, membership_count=i)
             new_target_activity_count = Activity.objects.filter(
                 type=Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
                 recipient=creator_membership.person,
