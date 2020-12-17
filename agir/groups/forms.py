@@ -429,19 +429,15 @@ class TransferGroupMembersForm(forms.Form):
             "members"
         ].queryset = supportgroup_members
 
-        base_query = [
-            "exclude=%s" % supportgroup.pk,
-        ]
+        base_query = {"exclude": supportgroup.pk}
 
         if supportgroup.is_2022:
-            base_query.append("is_2022=1")
+            base_query["is_2022"] = 1
             self.fields[
                 "target_group"
             ].help_text = "Le nouveau groupe doit avoir déjà été créé par quelqu'un d'autre pour pouvoir y transférer une partie de vos membres."
         else:
-            base_query.append("is_insoumise=1")
-
-        base_query = "&".join(base_query)
+            base_query["is_insoumise"] = 1
 
         self.fields["target_group"].widget = RemoteSelectizeWidget(
             api_url=reverse_lazy("api_search_group"),

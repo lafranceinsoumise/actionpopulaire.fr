@@ -8,6 +8,7 @@
     var sortField = '{{ widget.sort_field }}';
     var create = {{ widget.create|yesno:"true,false" }};
     var maxItems = {{ widget.max_items|default:"null" }};
+    var url = "{{ widget.api_url|default:"" }}"
 
     $("#{{ widget.attrs.id }}").selectize({
       valueField: valueField,
@@ -26,8 +27,12 @@
       load: function (query, callback) {
         var self = this;
         $.ajax({
-            url: "{{ widget.api_url|default:""|safe }}" + encodeURIComponent(query),
+            url: url,
             type: 'GET',
+            dataType: 'json',
+            data: {
+              q: encodeURIComponent(query),
+            },
             error: function() {
                 callback();
             },

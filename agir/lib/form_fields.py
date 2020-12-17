@@ -131,7 +131,7 @@ class RemoteSelectizeMixin(SelectizeMixin):
         value_field="value",
         search_field="",
         sort_field="",
-        base_query="",
+        base_query={},
         **kwargs,
     ):
         self.label_field = label_field
@@ -140,10 +140,9 @@ class RemoteSelectizeMixin(SelectizeMixin):
         self.sort_field = sort_field
 
         self.api_url = api_url + "?"
-        if not base_query == "":
-            self.api_url += base_query
-            self.api_url += "&"
-        self.api_url += "q="
+        self.api_url += "&".join(
+            ["%s=%s" % (key, str(value)) for key, value in base_query.items()]
+        )
 
         super().__init__(*args, **kwargs)
 
