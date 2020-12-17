@@ -13,7 +13,8 @@ import makeLayerControl from "./layerControl";
 import makeSearchControl from "./searchControl";
 import getFormatPopups from "./itemPopups";
 
-const debug = require("debug")(`agir:${__filename}`);
+import logger from "@agir/lib/utils/log";
+const log = logger(__filename);
 
 const OFFSET = 0.00005;
 
@@ -193,7 +194,7 @@ export default async function listMap(
   try {
     await fontIsLoaded("FontAwesome");
   } catch (e) {
-    debug("Error loading fonts."); // eslint-disable-line no-console
+    log.debug("Error loading fonts."); // eslint-disable-line no-console
   }
 
   disambiguate(res.data);

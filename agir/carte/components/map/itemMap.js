@@ -9,7 +9,8 @@ import VectorLayer from "ol/layer/Vector";
 import { fontIsLoaded } from "./utils";
 import { makeStyle, setUpMap } from "./common";
 
-const debug = require("debug")(`agir:${__filename}`);
+import logger from "@agir/lib/utils/log";
+const log = logger(__filename);
 
 export default async function itemMap(
   htmlElementId,
@@ -28,7 +29,7 @@ export default async function itemMap(
   try {
     await fontIsLoaded("FontAwesome");
   } catch (e) {
-    debug("Error loading fonts."); // eslint-disable-line no-console
+    log.debug("Error loading fonts."); // eslint-disable-line no-console
   }
 
   const map = setUpMap(htmlElementId, [layer]);
