@@ -164,7 +164,7 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
 
 
 @emailing_task
-def send_someone_joined_notification(membership_pk):
+def send_someone_joined_notification(membership_pk, membership_count=1):
     try:
         membership = Membership.objects.select_related("person", "supportgroup").get(
             pk=membership_pk
@@ -201,14 +201,11 @@ def send_someone_joined_notification(membership_pk):
         for step in GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS
         if membership.supportgroup.MEMBERSHIP_LIMIT + step > 0
     ]
-    current_membership_count = membership.supportgroup.members_count
-    current_membership_limit_notification_step = (
-        membership_limit_notication_steps.index(current_membership_count)
-        if current_membership_count in membership_limit_notication_steps
-        else None
-    )
 
-    if current_membership_limit_notification_step is not None:
+    if membership_count in membership_limit_notication_steps:
+        current_membership_limit_notification_step = membership_limit_notication_steps.index(
+            membership_count
+        )
         Activity.objects.bulk_create(
             [
                 Activity(
@@ -218,7 +215,7 @@ def send_someone_joined_notification(membership_pk):
                     status=Activity.STATUS_UNDISPLAYED,
                     meta={
                         "membershipLimit": membership.supportgroup.MEMBERSHIP_LIMIT,
-                        "membershipCount": current_membership_count,
+                        "membershipCount": membership_count,
                         "membershipLimitNotificationStep": current_membership_limit_notification_step,
                     },
                 )

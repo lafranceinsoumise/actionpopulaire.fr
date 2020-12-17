@@ -2,7 +2,7 @@ import ics
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import (
     HttpResponseGone,
     HttpResponseForbidden,
@@ -109,12 +109,14 @@ class SupportGroupDetailView(
                 return HttpResponseRedirect(
                     reverse("full_group", kwargs={"pk": self.object.pk})
                 )
-
             try:
-                membership = Membership.objects.create(
-                    supportgroup=self.object, person=request.user.person
-                )
-                send_someone_joined_notification.delay(membership.pk)
+                with transaction.atomic():
+                    membership = Membership.objects.create(
+                        supportgroup=self.object, person=request.user.person
+                    )
+                    send_someone_joined_notification.delay(
+                        membership.pk, membership_count=self.object.members_count
+                    )
             except IntegrityError:
                 pass  # the person is already a member of the group
             return HttpResponseRedirect(
