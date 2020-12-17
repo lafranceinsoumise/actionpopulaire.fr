@@ -7,6 +7,7 @@ from agir.people.models import Person
 from .. import tasks
 from ..models import SupportGroup, Membership
 from ...activity.models import Activity
+from agir.lib.tests.mixins import create_group
 
 
 class NotificationTasksTestCase(TestCase):
@@ -210,3 +211,103 @@ class NotificationTasksTestCase(TestCase):
             self.assertCountEqual(
                 a.meta["changed_data"], ["name", "contact_name", "description"]
             )
+
+    def test_send_membership_transfer_notifications_to_transferred_members(self):
+        original_group = SupportGroup.objects.create(
+            name="Mon événement",
+            contact_name="Moi",
+            contact_email="monevenement@moi.fr",
+            contact_phone="06 06 06 06 06",
+            contact_hide_phone=False,
+            location_name="ma maison",
+            location_address1="Place denfert-rochereau",
+            location_zip="75014",
+            location_city="Paris",
+            location_country="FR",
+        )
+        target_group = SupportGroup.objects.create(
+            name="Mon événement",
+            contact_name="Moi",
+            contact_email="monevenement@moi.fr",
+            contact_phone="06 06 06 06 06",
+            contact_hide_phone=False,
+            location_name="ma maison",
+            location_address1="Place denfert-rochereau",
+            location_zip="75014",
+            location_city="Paris",
+            location_country="FR",
+        )
+        target_group_manager = Membership.objects.create(
+            person=self.creator,
+            supportgroup=target_group,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        transferred_member = Membership.objects.create(
+            person=self.member1,
+            supportgroup=target_group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        old_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+            recipient=transferred_member.person,
+            supportgroup=target_group,
+        ).count()
+        tasks.send_membership_transfer_notifications(
+            original_group.pk, target_group.pk, [transferred_member.person.pk]
+        )
+        new_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+            recipient=transferred_member.person,
+            supportgroup=target_group,
+        ).count()
+        self.assertEqual(old_activity_count + 1, new_activity_count)
+
+    def test_send_membership_transfer_notifications_to_target_group_managers(self):
+        original_group = SupportGroup.objects.create(
+            name="Mon événement",
+            contact_name="Moi",
+            contact_email="monevenement@moi.fr",
+            contact_phone="06 06 06 06 06",
+            contact_hide_phone=False,
+            location_name="ma maison",
+            location_address1="Place denfert-rochereau",
+            location_zip="75014",
+            location_city="Paris",
+            location_country="FR",
+        )
+        target_group = SupportGroup.objects.create(
+            name="Mon événement",
+            contact_name="Moi",
+            contact_email="monevenement@moi.fr",
+            contact_phone="06 06 06 06 06",
+            contact_hide_phone=False,
+            location_name="ma maison",
+            location_address1="Place denfert-rochereau",
+            location_zip="75014",
+            location_city="Paris",
+            location_country="FR",
+        )
+        target_group_manager = Membership.objects.create(
+            person=self.creator,
+            supportgroup=target_group,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        transferred_member = Membership.objects.create(
+            person=self.member1,
+            supportgroup=target_group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        old_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+            recipient=transferred_member.person,
+            supportgroup=target_group,
+        ).count()
+        tasks.send_membership_transfer_notifications(
+            original_group.pk, target_group.pk, [transferred_member.person.pk]
+        )
+        new_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+            recipient=target_group_manager.person,
+            supportgroup=target_group,
+        ).count()
+        self.assertEqual(old_activity_count + 1, new_activity_count)

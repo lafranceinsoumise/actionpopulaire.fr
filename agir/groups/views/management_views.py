@@ -38,6 +38,7 @@ from agir.groups.forms import (
     SupportGroupForm,
     GroupGeocodingForm,
     InvitationWithSubscriptionConfirmationForm,
+    TransferGroupMembersForm,
 )
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.groups.tasks import send_abuse_report_message
@@ -57,6 +58,7 @@ __all__ = [
     "InvitationConfirmationView",
     "InvitationWithSubscriptionView",
     "InvitationAbuseReportingView",
+    "TransferSupportGroupMembersView",
 ]
 
 
@@ -308,6 +310,47 @@ class ModifySupportGroupView(BaseSupportGroupAdminView, UpdateView):
         )
 
         return res
+
+
+class TransferSupportGroupMembersView(BaseSupportGroupAdminView, FormView):
+    form_class = TransferGroupMembersForm
+    template_name = "groups/transfer_group_members.html"
+    permission_required = ("groups.change_membership",)
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        self.supportgroup = SupportGroup.objects.get(pk=pk)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(supportgroup=self.supportgroup)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        kwargs["person"] = self.request.user.person
+        kwargs["supportgroup"] = self.supportgroup
+
+        return kwargs
+
+    def get_success_url(self):
+        return "%s?active=membership" % reverse(
+            "manage_group", kwargs={"pk": self.supportgroup.pk}
+        )
+
+    def form_valid(self, form):
+        p = form.save()
+
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            _(
+                "Le transfert de %d membre(s) vers « %s » a été effectué. Ces dernier·ère·s ainsi que les animateur·ices de leur nouveau groupe ont été prévenu·es par e-mail."
+                % (p["transferred_memberships"].count(), p["target_group"].name)
+            ),
+        )
+
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class RemoveManagerView(BaseSupportGroupAdminView, DetailView):

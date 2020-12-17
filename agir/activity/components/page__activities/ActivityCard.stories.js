@@ -68,11 +68,16 @@ Default.args = {
   supportGroup: {
     name: "Super groupe génial",
     url: "#url",
+    routes: {
+      manage: "#group-manage",
+    },
   },
   individual: "Clara Zetkin",
   timestamp: DateTime.local().minus({ hours: 5 }).toISO(),
   meta: {
     totalReferrals: 10,
+    oldGroup: "An old group",
+    transferredMemberships: 1000,
   },
   routes: {
     createEvent: "#createEvent",

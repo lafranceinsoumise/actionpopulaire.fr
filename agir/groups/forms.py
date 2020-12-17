@@ -1,7 +1,9 @@
+from django.urls import reverse_lazy
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Row, Field
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Exists, OuterRef
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
@@ -15,8 +17,10 @@ from agir.groups.tasks import (
     send_external_join_confirmation,
     invite_to_group,
     create_group_creation_confirmation_activity,
+    send_membership_transfer_notifications,
 )
 from agir.lib.form_components import *
+from agir.lib.form_fields import RemoteSelectizeWidget
 from agir.lib.form_mixins import (
     LocationFormMixin,
     ContactFormMixin,
@@ -34,6 +38,7 @@ __all__ = [
     "InvitationForm",
     "GroupGeocodingForm",
     "SearchGroupForm",
+    "TransferGroupMembersForm",
 ]
 
 
@@ -187,6 +192,16 @@ class SupportGroupForm(
 class MembershipChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return str(obj.person)
+
+
+class MembershipMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return str(obj.person)
+
+
+class SupportGroupChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return str(obj)
 
 
 class AddReferentForm(forms.Form):
@@ -387,3 +402,75 @@ class InvitationWithSubscriptionConfirmationForm(forms.Form):
             Membership.objects.create(person=p, supportgroup=self.group)
 
         return p
+
+
+class TransferGroupMembersForm(forms.Form):
+    target_group = SupportGroupChoiceField(
+        queryset=SupportGroup.objects.active(),
+        label=_("Groupe de destination"),
+        required=True,
+        help_text="Le nouveau groupe doit avoir déjà été créé pour pouvoir y transférer une partie de vos membres.",
+    )
+    members = MembershipMultipleChoiceField(
+        queryset=Membership.objects.all(),
+        label=_("Membres à transferer"),
+        required=True,
+        widget=forms.CheckboxSelectMultiple,
+        help_text="Les membres sélectionnés seront transférés dans le groupe de destination. Ses animateur·ices et les membres transférés recevront alors un e-mail de confirmation. Cette action est irréversible.",
+    )
+
+    def __init__(self, person, supportgroup, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.supportgroup = supportgroup
+
+        supportgroup_members = Membership.objects.filter(
+            supportgroup=supportgroup
+        ).exclude(person=person)
+
+        self.fields["members"].queryset = self.fields[
+            "members"
+        ].queryset = supportgroup_members
+
+        base_query = {"exclude": supportgroup.pk}
+
+        if supportgroup.is_2022:
+            base_query["is_2022"] = 1
+            self.fields[
+                "target_group"
+            ].help_text = "Le nouveau groupe doit avoir déjà été créé par quelqu'un d'autre pour pouvoir y transférer une partie de vos membres."
+        else:
+            base_query["is_insoumise"] = 1
+
+        self.fields["target_group"].widget = RemoteSelectizeWidget(
+            api_url=reverse_lazy("api_search_group"),
+            label_field="name",
+            value_field="id",
+            base_query=base_query,
+        )
+
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("submit", _("Valider le transfert")))
+
+    def save(self):
+        cleaned_data = self.cleaned_data
+        target_group = cleaned_data["target_group"]
+        memberships = cleaned_data["members"]
+
+        with transaction.atomic():
+            for membership in memberships:
+                Membership.objects.get_or_create(
+                    person=membership.person, supportgroup=target_group
+                )
+                membership.delete()
+
+        send_membership_transfer_notifications.delay(
+            self.supportgroup.pk,
+            target_group.pk,
+            [membership.person.pk for membership in memberships],
+        )
+
+        return {
+            "target_group": target_group,
+            "transferred_memberships": memberships,
+        }

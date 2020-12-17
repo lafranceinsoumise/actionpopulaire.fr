@@ -44,8 +44,7 @@ def basic_information(request):
         "legal": "https://infos.actionpopulaire.fr/mentions-legales/",
         "nspReferral": reverse("nsp_referral"),
         "newGroupHelp": "https://infos.actionpopulaire.fr/groupes/nouvelle-equipe/",
-        # TODO: add real URLs once available
-        "groupTransfer": "#groupTransfer",
+        # TODO: add real URL once available
         "groupTransferHelp": "#groupTransferHelp",
     }
 

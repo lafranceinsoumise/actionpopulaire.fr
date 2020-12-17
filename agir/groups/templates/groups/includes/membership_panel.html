@@ -12,7 +12,7 @@
   Votre groupe comprend à l'heure actuelle <strong>{{ members|length }} membre{% if members|length > 1 %}s{% endif %}</strong>.
 </p>
 
-<ul class="list-group">
+<ul class="list-group row">
   {% for membership in members %}
     {% with person=membership.person %}
       <li class="list-group-item col-sm-6">
@@ -26,3 +26,11 @@
     {% endwith %}
   {% endfor %}
 </ul>
+
+{% if members|length > 1 %}
+  <p class="margintopmore text-center" style="clear: both;">
+    <a class="btn btn-primary btn-wrap" href={% url "transfer_group_members" supportgroup.pk %}>
+      Transférer des membres vers un autre groupe
+    </a>
+  </p>
+{% endif %}

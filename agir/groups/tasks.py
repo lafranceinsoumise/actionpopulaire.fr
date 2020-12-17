@@ -356,3 +356,56 @@ def notify_new_group_event(group_pk, event_pk):
             for r in recipients
         ]
     )
+
+
+@emailing_task
+def send_membership_transfer_notifications(
+    original_group_pk, target_group_pk, transferred_people_pks
+):
+    try:
+        original_group = SupportGroup.objects.get(pk=original_group_pk)
+        target_group = SupportGroup.objects.get(pk=target_group_pk)
+    except SupportGroup.DoesNotExist:
+        return
+
+    # Create activities for transferred members
+    transferred_people = Person.objects.filter(pk__in=transferred_people_pks)
+
+    if transferred_people.count() == 0:
+        return
+
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+                status=Activity.STATUS_UNDISPLAYED,
+                recipient=r,
+                supportgroup=target_group,
+                meta={"oldGroup": original_group.name},
+            )
+            for r in transferred_people
+        ]
+    )
+
+    # Create activities for target group managers
+    managers_filter = (Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)) & Q(
+        notifications_enabled=True
+    )
+    managing_membership = target_group.memberships.filter(managers_filter)
+    managing_membership_recipients = [
+        membership.person for membership in managing_membership
+    ]
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+                recipient=r,
+                supportgroup=target_group,
+                meta={
+                    "oldGroup": original_group.name,
+                    "transferredMemberships": transferred_people.count(),
+                },
+            )
+            for r in managing_membership_recipients
+        ]
+    )

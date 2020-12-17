@@ -36,6 +36,7 @@ GROUP_ROUTES = {
     "manage": "manage_group",
     "edit": "edit_group",
     "quit": "quit_group",
+    "membershipTransfer": "transfer_group_members",
 }
 
 
