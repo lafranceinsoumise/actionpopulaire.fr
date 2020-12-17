@@ -38,6 +38,8 @@ export const activityCardIcons = {
   "group-coorganization-info": "calendar",
   "cancelled-event": "x-circle",
   "referral-accepted": "share-2",
+  "transferred-group-member": "info",
+  "new-members-through-transfer": "user-plus",
 };
 
 const StyledParagraph = styled.p`
@@ -45,7 +47,7 @@ const StyledParagraph = styled.p`
 `;
 
 const ReferralUpdateActivityText = React.memo(
-  ({ individual, totalReferrals, routes }) => {
+  ({ individual, meta: { totalReferrals }, routes }) => {
     if (totalReferrals < 5) {
       return (
         <StyledParagraph>
@@ -112,108 +114,153 @@ const ReferralUpdateActivityText = React.memo(
 ReferralUpdateActivityText.displayName = "ReferralUpdateActivityText";
 ReferralUpdateActivityText.propTypes = {
   individual: PropTypes.node,
-  totalReferrals: PropTypes.number,
+  meta: PropTypes.shape({
+    totalReferrals: PropTypes.number.isRequired,
+  }).isRequired,
   routes: PropTypes.shape({
     createEvent: PropTypes.string,
     createGroup: PropTypes.string,
   }),
 };
 const ActivityText = React.memo((props) => {
-  const { type, event, supportGroup, individual } = props;
-  return {
-    "waiting-payment": (
-      <StyledParagraph>
-        Vous n'avez pas encore réglé votre place pour l'événément {event}
-      </StyledParagraph>
-    ),
-    "group-invitation": (
-      <StyledParagraph>
-        Vous avez été invité⋅e à rejoindre {supportGroup}
-      </StyledParagraph>
-    ),
-    "new-member": (
-      <StyledParagraph>
-        {individual || "Quelqu'un"} a rejoint {supportGroup}. Prenez le temps de
-        l’accueillir&nbsp;!
-      </StyledParagraph>
-    ),
-    "waiting-location-group": (
-      <StyledParagraph>
-        Précisez la localisation de {supportGroup}
-      </StyledParagraph>
-    ),
-    "group-coorganization-invite": (
-      <StyledParagraph>
-        {individual || "Quelqu'un"} a proposé à {supportGroup} de co-organiser{" "}
-        {event}
-      </StyledParagraph>
-    ),
-    "waiting-location-event": (
-      <StyledParagraph>
-        Précisez la localisation de votre événement&nbsp;: {event}
-      </StyledParagraph>
-    ),
-    "group-coorganization-accepted": (
-      <StyledParagraph>
-        {supportGroup} a accepté de co-organiser votre événement {event}
-      </StyledParagraph>
-    ),
-    "group-info-update": (
-      <StyledParagraph>{supportGroup} a été mis à jour</StyledParagraph>
-    ),
-    "accepted-invitation-member": (
-      <StyledParagraph>
-        {individual || "Quelqu'un"} a rejoint {supportGroup} en acceptant une
-        invitation.
-      </StyledParagraph>
-    ),
-    "new-attendee": (
-      <StyledParagraph>
-        {individual || "Quelqu'un"} s'est inscrit à votre événement {event}
-      </StyledParagraph>
-    ),
-    "event-update": (
-      <StyledParagraph>
-        Mise à jour : l'événement {event} auquel vous participez a changé de
-        date.
-      </StyledParagraph>
-    ),
-    "new-event-mygroups": (
-      <StyledParagraph>
-        {supportGroup || individual || "Quelqu'un"} a publié un nouvel événement
-      </StyledParagraph>
-    ),
-    "new-report": (
-      <StyledParagraph>
-        Le compte-rendu de l'événement {event} a été ajouté par les
-        organisateurs
-      </StyledParagraph>
-    ),
-    "new-event-aroundme": (
-      <StyledParagraph>
-        Un nouvel événement a été publié près de chez vous par{" "}
-        {supportGroup || individual || "quelqu'un"}
-      </StyledParagraph>
-    ),
-    "group-coorganization-info": (
-      <StyledParagraph>
-        {supportGroup} a rejoint l'organisation de l'événement {event}
-      </StyledParagraph>
-    ),
-    "cancelled-event": (
-      <StyledParagraph>L'événement {event} a été annulé.</StyledParagraph>
-    ),
-    "referral-accepted": <ReferralUpdateActivityText {...props} />,
-  }[type];
+  const {
+    type,
+    event,
+    supportGroup,
+    supportGroupManage,
+    individual,
+    meta,
+  } = props;
+  switch (type) {
+    case "waiting-payment":
+      return (
+        <StyledParagraph>
+          Vous n'avez pas encore réglé votre place pour l'événément {event}
+        </StyledParagraph>
+      );
+    case "group-invitation":
+      return (
+        <StyledParagraph>
+          Vous avez été invité⋅e à rejoindre {supportGroup}
+        </StyledParagraph>
+      );
+    case "new-member":
+      return (
+        <StyledParagraph>
+          {individual || "Quelqu'un"} a rejoint {supportGroup}. Prenez le temps
+          de l’accueillir&nbsp;!
+        </StyledParagraph>
+      );
+    case "waiting-location-group":
+      return (
+        <StyledParagraph>
+          Précisez la localisation de {supportGroup}
+        </StyledParagraph>
+      );
+    case "group-coorganization-invite":
+      return (
+        <StyledParagraph>
+          {individual || "Quelqu'un"} a proposé à {supportGroup} de co-organiser{" "}
+          {event}
+        </StyledParagraph>
+      );
+    case "waiting-location-event":
+      return (
+        <StyledParagraph>
+          Précisez la localisation de votre événement&nbsp;: {event}
+        </StyledParagraph>
+      );
+    case "group-coorganization-accepted":
+      return (
+        <StyledParagraph>
+          {supportGroup} a accepté de co-organiser votre événement {event}
+        </StyledParagraph>
+      );
+    case "group-info-update":
+      return <StyledParagraph>{supportGroup} a été mis à jour</StyledParagraph>;
+    case "accepted-invitation-member":
+      return (
+        <StyledParagraph>
+          {individual || "Quelqu'un"} a rejoint {supportGroup} en acceptant une
+          invitation.
+        </StyledParagraph>
+      );
+    case "new-attendee":
+      return (
+        <StyledParagraph>
+          {individual || "Quelqu'un"} s'est inscrit à votre événement {event}
+        </StyledParagraph>
+      );
+    case "event-update":
+      return (
+        <StyledParagraph>
+          Mise à jour : l'événement {event} auquel vous participez a changé de
+          date.
+        </StyledParagraph>
+      );
+    case "new-event-mygroups":
+      return (
+        <StyledParagraph>
+          {supportGroup || individual || "Quelqu'un"} a publié un nouvel
+          événement
+        </StyledParagraph>
+      );
+    case "new-report":
+      return (
+        <StyledParagraph>
+          Le compte-rendu de l'événement {event} a été ajouté par les
+          organisateurs
+        </StyledParagraph>
+      );
+    case "new-event-aroundme":
+      return (
+        <StyledParagraph>
+          Un nouvel événement a été publié près de chez vous par{" "}
+          {supportGroup || individual || "quelqu'un"}
+        </StyledParagraph>
+      );
+    case "group-coorganization-info":
+      return (
+        <StyledParagraph>
+          {supportGroup} a rejoint l'organisation de l'événement {event}
+        </StyledParagraph>
+      );
+    case "cancelled-event":
+      return (
+        <StyledParagraph>L'événement {event} a été annulé.</StyledParagraph>
+      );
+    case "referral-accepted":
+      return <ReferralUpdateActivityText {...props} />;
+    case "transferred-group-member":
+      return (
+        <StyledParagraph>
+          Vous avez été transféré·e de &laquo;&nbsp;{meta && meta.oldGroup}
+          &nbsp;&raquo; et avez rejoint {supportGroup}.<br />
+          Votre nouvelle équipe vous attend !
+        </StyledParagraph>
+      );
+    case "new-members-through-transfer":
+      return (
+        <StyledParagraph>
+          {meta && meta.transferredMemberships} membre
+          {meta && meta.transferredMemberships > 0 ? "s" : ""} ont rejoint{" "}
+          {supportGroupManage} suite à un transfert depuis &laquo;&nbsp;
+          {meta && meta.oldGroup}&nbsp;&raquo;.
+        </StyledParagraph>
+      );
+    default:
+      return null;
+  }
 });
 ActivityText.displayName = "ActivityText";
 ActivityText.propTypes = {
   type: PropTypes.string,
   event: PropTypes.node,
   supportGroup: PropTypes.node,
+  supportGroupManage: PropTypes.node,
   individual: PropTypes.node,
-  totalReferrals: PropTypes.number,
   routes: PropTypes.object,
+  meta: PropTypes.object,
 };
 
 const LowMarginCard = styled(Card)`
@@ -256,8 +303,10 @@ const ActivityCard = (props) => {
     supportGroup: supportGroup && (
       <a href={supportGroup.url}>{supportGroup.name}</a>
     ),
+    supportGroupManage: supportGroup && supportGroup.routes && (
+      <a href={supportGroup.routes.manage}>{supportGroup.name}</a>
+    ),
     individual: individual && <strong>{individual.firstName}</strong>,
-    totalReferrals: meta && meta.totalReferrals,
   };
 
   event = event && {
@@ -276,7 +325,7 @@ const ActivityCard = (props) => {
           <FeatherIcon name={activityCardIcons[type]} color={style.black500} />
         </Column>
         <Column collapse={0} grow style={{ fontSize: "15px" }}>
-          <ActivityText {...textProps} routes={routes} />
+          <ActivityText {...textProps} routes={routes} meta={meta} />
           <p
             style={{
               margin: "0.125rem 0 0",
@@ -309,10 +358,13 @@ ActivityCard.propTypes = {
   supportGroup: PropTypes.shape({
     name: PropTypes.string,
     url: PropTypes.string,
+    routes: PropTypes.object,
   }),
   individual: PropTypes.shape({ firstName: PropTypes.string }),
   meta: PropTypes.shape({
     totalReferrals: PropTypes.number,
+    oldGroup: PropTypes.string,
+    transferredMemberships: PropTypes.number,
   }),
   timestamp: PropTypes.string.isRequired,
   routes: PropTypes.object,
