@@ -1,26 +1,24 @@
 {{ greetings }},
 
-Votre groupe « {{ group_name }} » est en ligne !
+« {{ group_name }} » est en ligne !
 
-En tant qu'animateur-ice, vous pouvez gérer votre groupe à tout moment depuis le bouton « Gestion » sur le site ou via le lien ci-dessous. N'oubliez pas également d'ajouter une description à votre groupe. Vous aurez ainsi plus de chance d'intéresser d'autres membres d'Action Populaire.
+En tant qu'animateur-ice, vous pouvez gérer « {{ group_name }} » à tout moment depuis le bouton « Gestion » sur le site ou via le lien ci-dessous. N'oubliez pas également d'ajouter une description à votre groupe. Vous aurez ainsi plus de chance d'intéresser d'autres membres d'Action Populaire.
 
 >> Gérer votre groupe
 {{ MANAGE_GROUP_LINK }}
 
-Nous vous conseillons de lire ces idées et conseils à destination des nouveaux animateur-ices de groupes.
+Nous vous conseillons de lire ces idées et conseils à destination des nouveaux animateur-ices.
 
 >> Que faire après avoir créé mon équipe de soutien ?
 https://infos.actionpopulaire.fr/groupes/nouvelle-equipe/
 
-Vous pouvez inviter vos amis à rejoindre ce groupe avec ce lien :
-
->> Je partage le groupe
+>> Vous pouvez inviter vos amis à vous rejoindre avec ce lien :
 {{ GROUP_LINK }}
 
-Merci d’organiser un groupe. Chacune des actions que vous menez participe à la construction de notre mouvement. Un long travail de terrain nous attend encore. Ensemble, nous pouvons faire triompher nos idées et construire l’Avenir en commun.
+Chacune des actions que vous menez participe à la construction de notre mouvement. Un long travail de terrain nous attend encore. Ensemble, nous pouvons faire triompher nos idées et construire l’Avenir en commun.
 
 Amitiés,  
-L’équipe d’Action Populaire  
+L’équipe d’Action Populaire
 
 ------------------------------------------------------------------
 Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
