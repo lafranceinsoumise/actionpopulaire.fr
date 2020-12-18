@@ -498,3 +498,14 @@ def geocode_event(event_pk):
 
     geocode_element(event)
     event.save()
+
+    if (
+        event.coordinates_type is not None
+        and event.coordinates_type >= Event.COORDINATES_NO_POSITION
+    ):
+        Activity.objects.bulk_create(
+            Activity(
+                type=Activity.TYPE_WAITING_LOCATION_EVENT, recipient=r, event=event
+            )
+            for r in event.organizers.all()
+        )
