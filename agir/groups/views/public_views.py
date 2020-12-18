@@ -72,6 +72,12 @@ class SupportGroupDetailView(
     meta_description = "Rejoignez les groupes d'action de la France insoumise."
     meta_description_2022 = "Rejoignez les équipes de soutien de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
 
+    def can_join(self):
+        return self.request.user.is_authenticated and (
+            (self.request.user.person.is_insoumise and not self.object.is_2022)
+            or (self.request.user.person.is_2022 and self.object.is_2022)
+        )
+
     def handle_no_permission(self):
         return HttpResponseGone()
 
@@ -93,6 +99,7 @@ class SupportGroupDetailView(
             and self.object.memberships.filter(
                 person=self.request.user.person
             ).exists(),
+            can_join=self.can_join(),
             **kwargs,
         )
 
@@ -100,7 +107,7 @@ class SupportGroupDetailView(
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if not request.user.person.is_insoumise and not self.object.allow_external:
+        if not self.can_join():
             return HttpResponseForbidden()
 
         if request.POST["action"] == "join":
