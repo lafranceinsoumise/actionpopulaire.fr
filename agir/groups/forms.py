@@ -22,7 +22,10 @@ from agir.groups.tasks import (
     send_external_join_confirmation,
     invite_to_group,
     create_group_creation_confirmation_activity,
-    send_membership_transfer_notifications,
+)
+from agir.groups.actions.transfer import (
+    send_membership_transfer_email_notifications,
+    create_transfer_membership_activities,
 )
 from agir.lib.form_components import *
 from agir.lib.form_fields import RemoteSelectizeWidget
@@ -426,7 +429,6 @@ class TransferGroupMembersForm(forms.Form):
 
     def __init__(self, manager, former_group, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.former_group = former_group
         self.manager = manager
 
@@ -477,10 +479,16 @@ class TransferGroupMembersForm(forms.Form):
                 )
                 membership.delete()
 
-        send_membership_transfer_notifications.delay(
+        send_membership_transfer_email_notifications(
+            self.manager.pk,
             self.former_group.pk,
             target_group.pk,
             [membership.person.pk for membership in memberships],
+        )
+        create_transfer_membership_activities(
+            self.former_group,
+            target_group,
+            [membership.person for membership in memberships],
         )
 
         return {

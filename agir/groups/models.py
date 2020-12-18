@@ -157,6 +157,24 @@ class SupportGroup(
     )
 
     @property
+    def managers(self):
+        return [
+            m.person
+            for m in self.memberships.filter(
+                membership_type__gt=Membership.MEMBERSHIP_TYPE_MANAGER
+            )
+        ]
+
+    @property
+    def referents(self):
+        return [
+            m.person
+            for m in self.memberships.filter(
+                membership_type__gt=Membership.MEMBERSHIP_TYPE_REFERENT
+            )
+        ]
+
+    @property
     def events_count(self):
         from agir.events.models import Event
 
