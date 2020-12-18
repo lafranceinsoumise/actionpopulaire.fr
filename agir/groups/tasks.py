@@ -392,11 +392,33 @@ def send_membership_transfer_alert(bindings, recipient_pk):
 
 
 @http_task
-def geocode_support_group(support_group_pk):
+def geocode_support_group(supportgroup_pk):
     try:
-        support_group = SupportGroup.objects.get(pk=support_group_pk)
+        supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
     except SupportGroup.DoesNotExist:
         return
 
-    geocode_element(support_group)
-    support_group.save()
+    geocode_element(supportgroup)
+    supportgroup.save()
+
+    if (
+        supportgroup.coordinates_type is not None
+        and supportgroup.coordinates_type >= SupportGroup.COORDINATES_NO_POSITION
+    ):
+        managers_filter = (
+            Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
+        ) & Q(notifications_enabled=True)
+        managing_membership = supportgroup.memberships.filter(managers_filter)
+        managing_membership_recipients = [
+            membership.person for membership in managing_membership
+        ]
+        Activity.objects.bulk_create(
+            [
+                Activity(
+                    type=Activity.TYPE_WAITING_LOCATION_GROUP,
+                    recipient=r,
+                    supportgroup=supportgroup,
+                )
+                for r in managing_membership_recipients
+            ]
+        )

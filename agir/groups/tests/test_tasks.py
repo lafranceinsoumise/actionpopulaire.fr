@@ -1,11 +1,13 @@
 from faker import Faker
 from unittest.mock import patch
 
+from django.db.models import Q
 from django.core import mail
 from django.shortcuts import reverse as dj_reverse
 from django.test import TestCase
 from django.utils import timezone
 
+from agir.lib.tests.mixins import create_group, create_location
 from agir.people.models import Person
 from .. import tasks
 from ..actions.notifications import someone_joined_notification
@@ -15,6 +17,17 @@ from ..tasks import send_joined_notification_email
 from ...activity.models import Activity
 
 fake = Faker("fr_FR")
+
+
+def mock_geocode_element_no_position(supportgroup):
+    supportgroup.coordinates = None
+    supportgroup.coordinates_type = SupportGroup.COORDINATES_NO_POSITION
+
+
+def mock_geocode_element_with_position(event):
+    location = create_location()
+    event.coordinates = location["coordinates"]
+    event.coordinates_type = location["coordinates_type"]
 
 
 class NotificationTasksTestCase(TestCase):
@@ -334,3 +347,75 @@ class NotificationTasksTestCase(TestCase):
         geocode_element.assert_not_called()
         tasks.geocode_support_group(fake.uuid4())
         geocode_element.assert_not_called()
+
+    @patch(
+        "agir.groups.tasks.geocode_element",
+        side_effect=mock_geocode_element_no_position,
+    )
+    def test_geocode_support_group_creates_activity_if_no_geolocation_is_found(
+        self, geocode_element
+    ):
+        supportgroup = self.group
+        managers_filter = (
+            Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
+        ) & Q(notifications_enabled=True)
+        managing_membership = supportgroup.memberships.filter(managers_filter)
+        managing_membership_recipients = [
+            membership.person for membership in managing_membership
+        ]
+        old_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_WAITING_LOCATION_GROUP,
+            recipient__in=managing_membership_recipients,
+            supportgroup=supportgroup,
+        ).count()
+        tasks.geocode_support_group(supportgroup.pk)
+        geocode_element.assert_called_once_with(supportgroup)
+        supportgroup.refresh_from_db()
+        self.assertEqual(
+            supportgroup.coordinates_type, SupportGroup.COORDINATES_NO_POSITION
+        )
+
+        new_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_WAITING_LOCATION_GROUP,
+            recipient__in=managing_membership_recipients,
+            supportgroup=supportgroup,
+        ).count()
+
+        self.assertEqual(
+            new_activity_count, old_activity_count + managing_membership.count()
+        )
+
+    @patch(
+        "agir.groups.tasks.geocode_element",
+        side_effect=mock_geocode_element_with_position,
+    )
+    def test_geocode_support_group_does_not_create_activity_if_geolocation_is_found(
+        self, geocode_element
+    ):
+        supportgroup = self.group
+        managers_filter = (
+            Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
+        ) & Q(notifications_enabled=True)
+        managing_membership = supportgroup.memberships.filter(managers_filter)
+        managing_membership_recipients = [
+            membership.person for membership in managing_membership
+        ]
+        old_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_WAITING_LOCATION_GROUP,
+            recipient__in=managing_membership_recipients,
+            supportgroup=supportgroup,
+        ).count()
+        tasks.geocode_support_group(supportgroup.pk)
+        geocode_element.assert_called_once_with(supportgroup)
+        supportgroup.refresh_from_db()
+        self.assertLess(
+            supportgroup.coordinates_type, SupportGroup.COORDINATES_NO_POSITION
+        )
+
+        new_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_WAITING_LOCATION_GROUP,
+            recipient__in=managing_membership_recipients,
+            supportgroup=supportgroup,
+        ).count()
+
+        self.assertEqual(new_activity_count, old_activity_count)
