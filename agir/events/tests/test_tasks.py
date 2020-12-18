@@ -1,3 +1,6 @@
+from faker import Faker
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.utils import timezone
 from django.core import mail
@@ -8,6 +11,8 @@ from agir.people.models import Person
 from .. import tasks
 from ..models import Event, Calendar, RSVP, OrganizerConfig
 from ...activity.models import Activity
+
+fake = Faker("fr_FR")
 
 
 class EventTasksTestCase(TestCase):
@@ -160,3 +165,17 @@ class EventTasksTestCase(TestCase):
         tasks.send_event_report(self.event.pk)
         # on verifie qu'il n'y a pas de mail suplémentaire
         self.assertEqual(len(mail.outbox), 2)
+
+    @patch("agir.events.tasks.geocode_element")
+    def test_geocode_event_calls_geocode_element_if_event_exists(self, geocode_element):
+        geocode_element.assert_not_called()
+        tasks.geocode_event(self.event.pk)
+        geocode_element.assert_called_once_with(self.event)
+
+    @patch("agir.events.tasks.geocode_element")
+    def test_geocode_event_does_not_call_geocode_element_if_event_does_not_exist(
+        self, geocode_element
+    ):
+        geocode_element.assert_not_called()
+        tasks.geocode_event(fake.uuid4())
+        geocode_element.assert_not_called()

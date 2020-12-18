@@ -1,3 +1,6 @@
+from faker import Faker
+from unittest.mock import patch
+
 from django.core import mail
 from django.shortcuts import reverse as dj_reverse
 from django.test import TestCase
@@ -8,6 +11,8 @@ from .. import tasks
 from ..models import SupportGroup, Membership
 from ...activity.models import Activity
 from agir.lib.tests.mixins import create_group
+
+fake = Faker("fr_FR")
 
 
 class NotificationTasksTestCase(TestCase):
@@ -311,3 +316,19 @@ class NotificationTasksTestCase(TestCase):
             supportgroup=target_group,
         ).count()
         self.assertEqual(old_activity_count + 1, new_activity_count)
+
+    @patch("agir.groups.tasks.geocode_element")
+    def test_geocode_support_group_calls_geocode_element_if_group_exists(
+        self, geocode_element
+    ):
+        geocode_element.assert_not_called()
+        tasks.geocode_support_group(self.group.pk)
+        geocode_element.assert_called_once_with(self.group)
+
+    @patch("agir.groups.tasks.geocode_element")
+    def test_geocode_support_group_does_not_call_geocode_element_if_group_does_not_exist(
+        self, geocode_element
+    ):
+        geocode_element.assert_not_called()
+        tasks.geocode_support_group(fake.uuid4())
+        geocode_element.assert_not_called()

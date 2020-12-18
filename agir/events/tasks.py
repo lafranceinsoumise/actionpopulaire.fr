@@ -15,6 +15,7 @@ from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.lib.celery import emailing_task, http_task
 from agir.lib.display import str_summary
 from agir.lib.html import sanitize_html
+from agir.lib.geo import geocode_element
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from agir.people.models import Person
@@ -486,3 +487,14 @@ def notify_on_event_report(event_pk):
         Activity(type=Activity.TYPE_NEW_REPORT, recipient=r, event=event)
         for r in event.attendees.all()
     )
+
+
+@http_task
+def geocode_event(event_pk):
+    try:
+        event = Event.objects.get(pk=event_pk)
+    except Event.DoesNotExist:
+        return
+
+    geocode_element(event)
+    event.save()

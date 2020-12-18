@@ -22,6 +22,4 @@ def create_geocoder(model):
     return http_task(geocode_model)
 
 
-geocode_event = create_geocoder(Event)
-geocode_support_group = create_geocoder(SupportGroup)
 geocode_person = create_geocoder(Person)

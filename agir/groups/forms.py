@@ -18,6 +18,7 @@ from agir.groups.tasks import (
     invite_to_group,
     create_group_creation_confirmation_activity,
     send_membership_transfer_notifications,
+    geocode_support_group,
 )
 from agir.lib.form_components import *
 from agir.lib.form_fields import RemoteSelectizeWidget
@@ -28,7 +29,6 @@ from agir.lib.form_mixins import (
     SearchByZipCodeFormBase,
     ImageFormMixin,
 )
-from agir.lib.tasks import geocode_support_group
 from agir.people.models import Person
 
 __all__ = [
