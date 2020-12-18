@@ -22,6 +22,7 @@ from agir.groups.tasks import (
     send_external_join_confirmation,
     invite_to_group,
     create_group_creation_confirmation_activity,
+    geocode_support_group,
 )
 from agir.groups.actions.transfer import (
     send_membership_transfer_email_notifications,
@@ -36,7 +37,6 @@ from agir.lib.form_mixins import (
     SearchByZipCodeFormBase,
     ImageFormMixin,
 )
-from agir.lib.tasks import geocode_support_group
 from agir.people.models import Person
 
 __all__ = [

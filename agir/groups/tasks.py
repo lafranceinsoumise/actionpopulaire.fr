@@ -9,7 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.events.models import Event, OrganizerConfig
-from agir.lib.celery import emailing_task
+from agir.lib.celery import emailing_task, http_task
+from agir.lib.geo import geocode_element
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from agir.people.actions.subscription import make_subscription_token
@@ -388,3 +389,14 @@ def send_membership_transfer_alert(bindings, recipient_pk):
         recipients=[recipient],
         bindings=bindings,
     )
+
+
+@http_task
+def geocode_support_group(support_group_pk):
+    try:
+        support_group = SupportGroup.objects.get(pk=support_group_pk)
+    except SupportGroup.DoesNotExist:
+        return
+
+    geocode_element(support_group)
+    support_group.save()

@@ -33,9 +33,9 @@ from .tasks import (
     send_external_rsvp_confirmation,
     send_secretariat_notification,
     notify_on_event_report,
+    geocode_event,
 )
 from ..lib.form_fields import AcceptCreativeCommonsLicenceField
-from ..lib.tasks import geocode_event
 from ..people.models import Person, PersonFormSubmission
 
 __all__ = [
