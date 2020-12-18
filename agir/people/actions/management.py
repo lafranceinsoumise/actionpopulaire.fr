@@ -214,6 +214,7 @@ MERGE_STRATEGIES = {
     "search": None,
     "tags": merge_tags,
     "referrer_id": None,
+    "transferoperation": None,
 }
 
 
