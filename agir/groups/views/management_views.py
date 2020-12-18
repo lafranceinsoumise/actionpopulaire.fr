@@ -40,7 +40,10 @@ from agir.groups.forms import (
     InvitationWithSubscriptionConfirmationForm,
 )
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
-from agir.groups.tasks import send_abuse_report_message
+from agir.groups.tasks import (
+    send_abuse_report_message,
+    create_accepted_invitation_member_activity,
+)
 from agir.lib.export import dict_to_camelcase
 from agir.lib.http import add_query_params_to_url
 from agir.people.models import Person
@@ -411,6 +414,7 @@ class InvitationConfirmationView(VerifyLinkSignatureMixin, View):
         )
 
         if created:
+            create_accepted_invitation_member_activity.delay(membership.pk)
             messages.add_message(
                 request,
                 messages.SUCCESS,
