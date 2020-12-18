@@ -10,7 +10,12 @@ from django.utils.translation import ugettext_lazy as _
 from functools import reduce
 from operator import or_
 
-from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
+from agir.groups.models import (
+    SupportGroup,
+    Membership,
+    SupportGroupSubtype,
+    TranferOperation,
+)
 from agir.groups.tasks import (
     send_support_group_changed_notification,
     send_support_group_creation_notification,
@@ -413,7 +418,7 @@ class TransferGroupMembersForm(forms.Form):
     )
     members = MembershipMultipleChoiceField(
         queryset=Membership.objects.all(),
-        label=_("Membres à transferer"),
+        label=_("Membres à transférer"),
         required=True,
         widget=forms.CheckboxSelectMultiple,
         help_text="Les membres sélectionnés seront transférés dans le groupe de destination. Ses animateur·ices et les membres transférés recevront alors un e-mail de confirmation. Cette action est irréversible.",
@@ -458,8 +463,13 @@ class TransferGroupMembersForm(forms.Form):
         memberships = cleaned_data["members"]
 
         with transaction.atomic():
+            transfer_operation = TranferOperation.objects.create(
+                previous_group=self.supportgroup, new_group=target_group
+            )
+            transfer_operation.members.add(*(m.person for m in memberships))
+
             for membership in memberships:
-                Membership.objects.get_or_create(
+                Membership.objects.update_or_create(
                     person=membership.person, supportgroup=target_group
                 )
                 membership.delete()
