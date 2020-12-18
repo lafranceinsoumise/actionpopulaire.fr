@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from django.test import TestCase
 from rest_framework.test import APITestCase
 
-from agir.groups.tasks import send_someone_joined_notification
+from ..actions.notifications import someone_joined_notification
 from agir.lib.tests.mixins import FakeDataMixin
 from agir.people.models import Person
 from ..models import SupportGroup, Membership, SupportGroupSubtype

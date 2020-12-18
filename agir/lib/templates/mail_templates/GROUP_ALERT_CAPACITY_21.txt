@@ -1,0 +1,35 @@
+  
+  
+Votre groupe compte plus de 20 membres !  
+  
+[{{ GROUP_NAME }}]({{ GROUP_NAME_URL }}) compte plus de 20 membres.
+
+Afin de favoriser l'implication de chacun·e et la répartition de l'action dans tous les quartiers de votre ville, nous privilégions les petites équipes.
+
+La taille idéale d'une équipe est de **11 personnes**.
+
+Vous pouvez diviser votre équipe en transférant une partie de vos membres dans une équipe plus petite. Proposez à vos membres de **créer une équipe voisine** dans votre ville et transférez-y une partie de vos membres.
+
+ ****  
+  
+[Transférer mes membres]({{ TRANSFER_LINK }})  
+  
+**Attention :** quand elle atteindra 30 personnes, il ne sera plus possible pour les personnes de le rejoindre. **  
+**
+
+Pour en savoir plus, visitez[le centre d'aide](https://infos.actionpopulaire.fr/groupes/).
+
+Amitiés,
+
+L'équipe d'Action Populaire  
+  
+ 
+
+------------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
+
+>> Choisir les emails que vous recevez
+{{ preferences_link }}
+
+>> Arrêter complètement de recevoir des emails
+{{ unsubscribe_link }}

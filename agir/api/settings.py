@@ -329,6 +329,16 @@ EMAIL_TEMPLATES = {
     "CHECK_INFORMATION": "https://mosaico.lafranceinsoumise.fr/emails/b0850152-bf53-4979-b5d3-86f231fd98a8.html",
     # CONFIRM SUBSCRIPTION
     "CONFIRM_SUBSCRIPTION": "https://mosaico.lafranceinsoumise.fr/emails/eb8e6712-32d5-40bb-a69c-cdc1207e12dc.html",
+    # TRANSFER_SENDER variables : TRANSFERER_NAME, GROUP_DESTINATION, MEMBER_LIST, MEMBER_COUNT
+    "TRANSFER_SENDER": "https://mosaico.lafranceinsoumise.fr/emails/13cecf70-acd6-46a8-9bd8-63cf1bbb79ec.html",
+    # TRANSFER_RECEIVER variables : GREETINGS, GROUP_SENDER, GROUP_SENDER_URL, MEMBERS_COUNT, GROUP_NAME, MEMBER_LIST
+    "TRANSFER_RECEIVER": "https://mosaico.lafranceinsoumise.fr/emails/53046516-d961-4190-8302-4f239fd30caa.html",
+    # YOU_HAVE_BEEN_TRANSFERED variables : GREETINGS, GROUP_SENDER, GROUP_SENDER_URL, GROUP_RECEIVER, GROUP_RECEIVER_URL
+    "TRANSFER_ALERT": "https://mosaico.lafranceinsoumise.fr/emails/8eca0332-bcb0-4e1d-816f-9da8bfcb570b.html",
+    # GROUP_ALERT_CAPACITY variables : GROUP_NAME, GROUP_NAME_URL, TRANSFER_LINK
+    "GROUP_ALERT_CAPACITY_21": "https://mosaico.lafranceinsoumise.fr/emails/8add9bc8-ef7a-4fc6-8591-d4bc0c8ec226.html",
+    # GROUP_MAX_CAPACITY variables : GROUP_NAME, TRANSFER_LINK
+    "GROUP_ALERT_CAPACITY_30": "https://mosaico.lafranceinsoumise.fr/emails/a4cb42b0-1417-446a-af66-5d8e67b2047e.html",
 }
 
 EMAIL_FROM = os.environ.get(

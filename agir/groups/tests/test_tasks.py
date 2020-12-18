@@ -5,9 +5,11 @@ from django.utils import timezone
 
 from agir.people.models import Person
 from .. import tasks
+from ..actions.notifications import someone_joined_notification
+from ..actions.transfer import create_transfer_membership_activities
 from ..models import SupportGroup, Membership
+from ..tasks import send_joined_notification_email
 from ...activity.models import Activity
-from agir.lib.tests.mixins import create_group
 
 
 class NotificationTasksTestCase(TestCase):
@@ -91,7 +93,7 @@ class NotificationTasksTestCase(TestCase):
         self.assertEqual(new_target_activity_count, original_target_activity_count + 1)
 
     def test_someone_joined_notification_mail(self):
-        tasks.send_someone_joined_notification(self.membership1.pk)
+        send_joined_notification_email(self.membership1.pk)
 
         self.assertEqual(len(mail.outbox), 1)
 
@@ -147,7 +149,7 @@ class NotificationTasksTestCase(TestCase):
             membership = Membership.objects.create(
                 supportgroup=supportgroup, person=member
             )
-            tasks.send_someone_joined_notification(membership.pk, membership_count=i)
+            someone_joined_notification(membership, membership_count=i)
             new_target_activity_count = Activity.objects.filter(
                 type=Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
                 recipient=creator_membership.person,
@@ -252,8 +254,8 @@ class NotificationTasksTestCase(TestCase):
             recipient=transferred_member.person,
             supportgroup=target_group,
         ).count()
-        tasks.send_membership_transfer_notifications(
-            original_group.pk, target_group.pk, [transferred_member.person.pk]
+        create_transfer_membership_activities(
+            original_group, target_group, [transferred_member.person]
         )
         new_activity_count = Activity.objects.filter(
             type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
@@ -302,8 +304,8 @@ class NotificationTasksTestCase(TestCase):
             recipient=transferred_member.person,
             supportgroup=target_group,
         ).count()
-        tasks.send_membership_transfer_notifications(
-            original_group.pk, target_group.pk, [transferred_member.person.pk]
+        create_transfer_membership_activities(
+            original_group, target_group, [transferred_member.person]
         )
         new_activity_count = Activity.objects.filter(
             type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,

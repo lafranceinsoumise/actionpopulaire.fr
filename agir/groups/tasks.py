@@ -164,7 +164,7 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
 
 
 @emailing_task
-def send_someone_joined_notification(membership_pk, membership_count=1):
+def send_joined_notification_email(membership_pk):
     try:
         membership = Membership.objects.select_related("person", "supportgroup").get(
             pk=membership_pk
@@ -174,55 +174,6 @@ def send_someone_joined_notification(membership_pk, membership_count=1):
 
     person_information = str(membership.person)
 
-    managers_filter = (Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)) & Q(
-        notifications_enabled=True
-    )
-    managing_membership = (
-        membership.supportgroup.memberships.filter(managers_filter)
-        .select_related("person")
-        .prefetch_related("person__emails")
-    )
-    recipients = [membership.person for membership in managing_membership]
-
-    Activity.objects.bulk_create(
-        [
-            Activity(
-                type=Activity.TYPE_NEW_MEMBER,
-                recipient=r,
-                supportgroup=membership.supportgroup,
-                individual=membership.person,
-            )
-            for r in recipients
-        ]
-    )
-
-    membership_limit_notication_steps = [
-        membership.supportgroup.MEMBERSHIP_LIMIT + step
-        for step in GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS
-        if membership.supportgroup.MEMBERSHIP_LIMIT + step > 0
-    ]
-
-    if membership_count in membership_limit_notication_steps:
-        current_membership_limit_notification_step = membership_limit_notication_steps.index(
-            membership_count
-        )
-        Activity.objects.bulk_create(
-            [
-                Activity(
-                    type=Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
-                    recipient=r,
-                    supportgroup=membership.supportgroup,
-                    status=Activity.STATUS_UNDISPLAYED,
-                    meta={
-                        "membershipLimit": membership.supportgroup.MEMBERSHIP_LIMIT,
-                        "membershipCount": membership_count,
-                        "membershipLimitNotificationStep": current_membership_limit_notification_step,
-                    },
-                )
-                for r in recipients
-            ]
-        )
-
     bindings = {
         "GROUP_NAME": membership.supportgroup.name,
         "PERSON_INFORMATION": person_information,
@@ -230,13 +181,47 @@ def send_someone_joined_notification(membership_pk, membership_count=1):
             "manage_group", kwargs={"pk": membership.supportgroup.pk}
         ),
     }
-
     send_mosaico_email(
         code="GROUP_SOMEONE_JOINED_NOTIFICATION",
         subject="Un nouveau membre dans votre "
         + ("équipe" if membership.supportgroup.is_2022 else "groupe"),
         from_email=settings.EMAIL_FROM,
-        recipients=recipients,
+        recipients=membership.supportgroup.managers,
+        bindings=bindings,
+    )
+
+
+ALERT_CAPACITY_SUBJECTS = {
+    21: "Votre équipe compte plus de 20 membres !",
+    30: "Action requise : votre équipe ne respecte plus la charte des équipes de soutien",
+}
+
+
+@emailing_task
+def send_alert_capacity_email(membership_pk, count):
+    assert count in [21, 30]
+
+    try:
+        membership = Membership.objects.select_related("person", "supportgroup").get(
+            pk=membership_pk
+        )
+    except Membership.DoesNotExist:
+        return
+
+    bindings = {
+        "GROUP_NAME": membership.supportgroup.name,
+        "GROUP_NAME_URL": front_url(
+            "view_group", kwargs={"pk": membership.supportgroup.pk}
+        ),
+        "TRANSFER_LINK": front_url(
+            "transfer_group_members", args=(membership.supportgroup.pk,)
+        ),
+    }
+    send_mosaico_email(
+        code=f"GROUP_ALERT_CAPACITY_{str(count)}",
+        subject=ALERT_CAPACITY_SUBJECTS[count],
+        from_email=settings.EMAIL_FROM,
+        recipients=membership.supportgroup.referents,
         bindings=bindings,
     )
 
@@ -359,53 +344,47 @@ def notify_new_group_event(group_pk, event_pk):
 
 
 @emailing_task
-def send_membership_transfer_notifications(
-    original_group_pk, target_group_pk, transferred_people_pks
-):
+def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
     try:
-        original_group = SupportGroup.objects.get(pk=original_group_pk)
-        target_group = SupportGroup.objects.get(pk=target_group_pk)
-    except SupportGroup.DoesNotExist:
+        recipients = Person.objects.filter(pk=recipients_pks)
+    except Person.DoesNotExist:
         return
 
-    # Create activities for transferred members
-    transferred_people = Person.objects.filter(pk__in=transferred_people_pks)
+    send_mosaico_email(
+        code="TRANSFER_SENDER",
+        subject=f"{bindings['MEMBER_COUNT']} membres ont bien été transférés",
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
+        bindings=bindings,
+    )
 
-    if transferred_people.count() == 0:
+
+@emailing_task
+def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
+    try:
+        recipients = Person.objects.filter(pk=recipients_pks)
+    except Person.DoesNotExist:
         return
 
-    Activity.objects.bulk_create(
-        [
-            Activity(
-                type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
-                status=Activity.STATUS_UNDISPLAYED,
-                recipient=r,
-                supportgroup=target_group,
-                meta={"oldGroup": original_group.name},
-            )
-            for r in transferred_people
-        ]
+    send_mosaico_email(
+        code="TRANSFER_RECEIVER",
+        subject=f"De nouveaux membres ont été transferés dans {bindings['GROUP_DESTINATION']}",
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
+        bindings=bindings,
     )
 
-    # Create activities for target group managers
-    managers_filter = (Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)) & Q(
-        notifications_enabled=True
-    )
-    managing_membership = target_group.memberships.filter(managers_filter)
-    managing_membership_recipients = [
-        membership.person for membership in managing_membership
-    ]
-    Activity.objects.bulk_create(
-        [
-            Activity(
-                type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
-                recipient=r,
-                supportgroup=target_group,
-                meta={
-                    "oldGroup": original_group.name,
-                    "transferredMemberships": transferred_people.count(),
-                },
-            )
-            for r in managing_membership_recipients
-        ]
+
+@emailing_task
+def send_membership_transfer_alert(bindings, recipient_pk):
+    try:
+        recipient = Person.objects.get(pk=recipient_pk)
+    except Person.DoesNotExist:
+        return
+
+    send_mosaico_email(
+        code="TRANSFER_ALERT",
+        subject=f"Notification de changement de groupe",
+        recipients=[recipient],
+        bindings=bindings,
     )
