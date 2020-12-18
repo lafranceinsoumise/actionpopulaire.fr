@@ -291,7 +291,7 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
         return self.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
 
 
-class TranferOperation(models.Model):
+class TransferOperation(models.Model):
     timestamp = models.DateTimeField(
         "Heure de l'opération", auto_now_add=True, editable=False
     )

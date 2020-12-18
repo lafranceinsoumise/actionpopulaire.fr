@@ -14,7 +14,7 @@ from agir.groups.models import (
     SupportGroup,
     Membership,
     SupportGroupSubtype,
-    TranferOperation,
+    TransferOperation,
 )
 from agir.groups.tasks import (
     send_support_group_changed_notification,
@@ -424,22 +424,23 @@ class TransferGroupMembersForm(forms.Form):
         help_text="Les membres sélectionnés seront transférés dans le groupe de destination. Ses animateur·ices et les membres transférés recevront alors un e-mail de confirmation. Cette action est irréversible.",
     )
 
-    def __init__(self, person, supportgroup, *args, **kwargs):
+    def __init__(self, manager, former_group, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.supportgroup = supportgroup
+        self.former_group = former_group
+        self.manager = manager
 
         supportgroup_members = Membership.objects.filter(
-            supportgroup=supportgroup
-        ).exclude(person=person)
+            supportgroup=former_group
+        ).exclude(person=manager)
 
         self.fields["members"].queryset = self.fields[
             "members"
         ].queryset = supportgroup_members
 
-        base_query = {"exclude": supportgroup.pk}
+        base_query = {"exclude": former_group.pk}
 
-        if supportgroup.is_2022:
+        if former_group.is_2022:
             base_query["is_2022"] = 1
             self.fields[
                 "target_group"
@@ -463,8 +464,10 @@ class TransferGroupMembersForm(forms.Form):
         memberships = cleaned_data["members"]
 
         with transaction.atomic():
-            transfer_operation = TranferOperation.objects.create(
-                previous_group=self.supportgroup, new_group=target_group
+            transfer_operation = TransferOperation.objects.create(
+                former_group=self.former_group,
+                new_group=target_group,
+                manager=self.manager,
             )
             transfer_operation.members.add(*(m.person for m in memberships))
 
@@ -475,7 +478,7 @@ class TransferGroupMembersForm(forms.Form):
                 membership.delete()
 
         send_membership_transfer_notifications.delay(
-            self.supportgroup.pk,
+            self.former_group.pk,
             target_group.pk,
             [membership.person.pk for membership in memberships],
         )

@@ -353,7 +353,7 @@ class SupportGroupSubtypeAdmin(admin.ModelAdmin):
     list_filter = ("type", "visibility")
 
 
-@admin.register(models.TranferOperation)
+@admin.register(models.TransferOperation)
 class TransfertOperationAdmin(admin.ModelAdmin):
     search_fields = ("former_group", "new_group")
     list_display = ("timestamp", "former_group", "new_group", "members_count")

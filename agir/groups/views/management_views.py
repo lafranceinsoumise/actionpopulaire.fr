@@ -317,25 +317,26 @@ class TransferSupportGroupMembersView(BaseSupportGroupAdminView, FormView):
     template_name = "groups/transfer_group_members.html"
     permission_required = ("groups.change_membership",)
 
-    def dispatch(self, request, pk, *args, **kwargs):
-        self.supportgroup = SupportGroup.objects.get(pk=pk)
+    def dispatch(self, request, *args, **kwargs):
+        pk = kwargs["pk"]
+        self.group = SupportGroup.objects.get(pk=pk)
 
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(supportgroup=self.supportgroup)
+        return super().get_context_data(supportgroup=self.group)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
-        kwargs["person"] = self.request.user.person
-        kwargs["supportgroup"] = self.supportgroup
+        kwargs["manager"] = self.request.user.person
+        kwargs["former_group"] = self.group
 
         return kwargs
 
     def get_success_url(self):
         return "%s?active=membership" % reverse(
-            "manage_group", kwargs={"pk": self.supportgroup.pk}
+            "manage_group", kwargs={"pk": self.group.pk}
         )
 
     def form_valid(self, form):
@@ -346,8 +347,8 @@ class TransferSupportGroupMembersView(BaseSupportGroupAdminView, FormView):
             messages.SUCCESS,
             _(
                 "Le transfert de %d membre(s) vers « %s » a été effectué. Ces dernier·ère·s ainsi que les animateur·ices de leur nouveau groupe ont été prévenu·es par e-mail."
-                % (p["transferred_memberships"].count(), p["target_group"].name)
-            ),
+            )
+            % (p["transferred_memberships"].count(), p["target_group"].name),
         )
 
         return HttpResponseRedirect(self.get_success_url())
