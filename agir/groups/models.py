@@ -289,3 +289,28 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
     @property
     def is_manager(self):
         return self.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+
+
+class TransferOperation(models.Model):
+    timestamp = models.DateTimeField(
+        "Heure de l'opération", auto_now_add=True, editable=False
+    )
+    manager = models.ForeignKey("people.Person", on_delete=models.SET_NULL, null=True)
+
+    former_group = models.ForeignKey(
+        SupportGroup, on_delete=models.CASCADE, related_name="+", editable=False
+    )
+    new_group = models.ForeignKey(
+        SupportGroup,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        null=True,
+        editable=False,
+    )
+
+    members = models.ManyToManyField("people.Person", related_name="+", editable=False)
+
+    class Meta:
+        verbose_name = "Transfert de membres"
+        verbose_name_plural = "Transferts de membres"
+        ordering = ("timestamp", "former_group")
