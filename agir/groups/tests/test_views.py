@@ -91,7 +91,7 @@ class SupportGroupPageTestCase(SupportGroupMixin, TestCase):
             self.member_group.memberships.filter(person=self.person).exists()
         )
 
-    @mock.patch("agir.groups.views.public_views.send_someone_joined_notification")
+    @mock.patch("agir.groups.views.public_views.someone_joined_notification")
     def test_can_join(self, someone_joined):
         url = reverse("view_group", kwargs={"pk": self.manager_group.pk})
         self.client.force_login(self.other_person.role)
@@ -105,11 +105,11 @@ class SupportGroupPageTestCase(SupportGroupMixin, TestCase):
         self.assertIn(self.other_person, self.manager_group.members.all())
         self.assertIn("Quitter le groupe", response.content.decode())
 
-        someone_joined.delay.assert_called_once()
+        someone_joined.assert_called_once()
         membership = Membership.objects.get(
             person=self.other_person, supportgroup=self.manager_group
         )
-        self.assertEqual(someone_joined.delay.call_args[0][0], membership.pk)
+        self.assertEqual(someone_joined.call_args[0][0], membership)
 
 
 class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):

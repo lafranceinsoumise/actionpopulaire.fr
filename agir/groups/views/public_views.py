@@ -25,7 +25,7 @@ from agir.front.view_mixins import ObjectOpengraphMixin, FilterView
 from agir.groups.filters import GroupFilterSet
 from agir.groups.forms import ExternalJoinForm
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
-from agir.groups.tasks import send_someone_joined_notification
+from agir.groups.actions.notifications import someone_joined_notification
 from agir.lib.utils import front_url
 from agir.people.actions.subscription import SUBSCRIPTION_TYPE_EXTERNAL
 from agir.people.views import ConfirmSubscriptionView
@@ -114,8 +114,8 @@ class SupportGroupDetailView(
                     membership = Membership.objects.create(
                         supportgroup=self.object, person=request.user.person
                     )
-                    send_someone_joined_notification.delay(
-                        membership.pk, membership_count=self.object.members_count
+                    someone_joined_notification(
+                        membership, membership_count=self.object.members_count
                     )
             except IntegrityError:
                 pass  # the person is already a member of the group
