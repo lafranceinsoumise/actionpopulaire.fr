@@ -8,5 +8,9 @@
 
   "DISMISS_REQUIRED_ACTION_ACTIVITY_ACTION": "dismissRequiredActionActivity",
 
-  "SET_ANNOUNCEMENTS_AS_READ_ACTION": "setAllActivitiesAsRead"
+  "SET_ANNOUNCEMENTS_AS_READ_ACTION": "setAllActivitiesAsRead",
+
+  "ADD_TOASTS": "add-toasts",
+  "CLEAR_TOAST": "clear-toast",
+  "CLEAR_ALL_TOASTS": "clear-all-toasts"
 }

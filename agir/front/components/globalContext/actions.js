@@ -33,6 +33,7 @@ export const setIs2022 = () => ({
   type: ACTION_TYPE.SET_IS_2022_ACTION,
 });
 
+// ACTIVITIES
 export const setActivityAsRead = (id) => ({
   type: ACTION_TYPE.SET_ACTIVITY_AS_READ_ACTION,
   id,
@@ -53,6 +54,7 @@ export const setAllActivitiesAsRead = (ids = [], updateState = false) => async (
   }
 };
 
+// REQUIRED ACTION ACTIVITIES
 export const dismissRequiredActionActivity = (id) => async (dispatch) => {
   try {
     const success = await dismissActivity(id);
@@ -66,6 +68,7 @@ export const dismissRequiredActionActivity = (id) => async (dispatch) => {
   }
 };
 
+// ANNOUNCEMENTS
 export const setAnnouncementsAsRead = (ids = []) => async (dispatch) => {
   try {
     const success = await setActivitiesAsRead(ids);
@@ -77,6 +80,19 @@ export const setAnnouncementsAsRead = (ids = []) => async (dispatch) => {
     console.log(e);
   }
 };
+
+// TOASTS
+export const addToasts = (toasts = []) => ({
+  type: ACTION_TYPE.ADD_TOASTS,
+  toasts: Array.isArray(toasts) ? toasts : [toasts],
+});
+export const clearToast = (toastId) => ({
+  type: ACTION_TYPE.CLEAR_TOAST,
+  toastId,
+});
+export const clearAllToasts = () => ({
+  type: ACTION_TYPE.CLEAR_ALL_TOASTS,
+});
 
 const createDispatch = (dispatchFunction) => (action) => {
   if (typeof action === "function") {

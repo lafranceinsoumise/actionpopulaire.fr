@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import F, Q
 from django.http import HttpResponsePermanentRedirect, Http404
@@ -102,6 +103,22 @@ class AgendaView(SoftLoginRequiredMixin, ReactSerializerBaseView):
 
     def get(self, request, *args, **kwargs):
         person = request.user.person
+
+        messages.add_message(
+            request=request,
+            level=messages.WARNING,
+            message="Boo!",
+        )
+        messages.add_message(
+            request=request,
+            level=messages.WARNING,
+            message="Boo!",
+        )
+        messages.add_message(
+            request=request,
+            level=messages.WARNING,
+            message="Boo!",
+        )
 
         if person.coordinates_type is None:
             geocode_person.delay(person.pk)
