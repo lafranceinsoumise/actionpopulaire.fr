@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib import messages
 from django.db.models import F
 from django.middleware.csrf import get_token
 from django.urls import reverse
@@ -109,5 +110,9 @@ def basic_information(request):
             "domain": settings.MAIN_DOMAIN,
             "activities": get_serialized_activity(request),
             "announcements": get_serialized_announcements(request),
+            "toasts": [
+                {"message": m.message, "type": m.level_tag.upper()}
+                for m in messages.get_messages(request)
+            ],
         },
     }

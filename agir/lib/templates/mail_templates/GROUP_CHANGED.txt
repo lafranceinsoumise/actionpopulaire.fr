@@ -1,6 +1,6 @@
 Bonjour,
 
-Les animateurs de {{ GROUP_NAME }} ont changé ses informations.
+Les animateurs du groupe {{ GROUP_NAME }} ont changé ses informations.
 
 Les informations suivantes ont été changées :
 

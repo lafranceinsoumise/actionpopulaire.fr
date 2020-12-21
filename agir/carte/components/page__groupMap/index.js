@@ -22,9 +22,9 @@ import logger from "@agir/lib/utils/log";
       return;
     }
     const payload = JSON.parse(dataElement.textContent);
-    log.debug(payload);
+
     renderReactComponent(
-      <GlobalContextProvider>
+      <GlobalContextProvider hasToasts>
         <GroupMap {...payload} />
       </GlobalContextProvider>,
       renderElement

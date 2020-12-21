@@ -15,6 +15,7 @@ from agir.groups.tasks import (
     send_external_join_confirmation,
     invite_to_group,
     create_group_creation_confirmation_activity,
+    create_accepted_invitation_member_activity,
 )
 from agir.lib.form_components import *
 from agir.lib.form_mixins import (
@@ -384,6 +385,10 @@ class InvitationWithSubscriptionConfirmationForm(forms.Form):
         )
 
         if cleaned_data.get("join_support_group"):
-            Membership.objects.create(person=p, supportgroup=self.group)
+            membership, created = Membership.objects.get_or_create(
+                supportgroup=self.group, person=p
+            )
+            if created:
+                create_accepted_invitation_member_activity.delay(membership.pk)
 
         return p

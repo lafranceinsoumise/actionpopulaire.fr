@@ -101,24 +101,49 @@ def genrer_mot_inclusif(mot, genre):
     if "⋅" not in mot or genre not in ["M", "F"]:
         return mot
 
+    # on sépare la racine de la partie féminine
     racine, ext = mot.split("⋅", 1)
 
+    # seules peuvent être déclinées automatiquement les mots dont la forme féminine finit par "e", éventuellement
+    # au pluriel.
     if ext[-1] != "e" and ext[-2:] != "es":
         raise ValueError(
             "Seules les terminaisons en e ou es peuvent utiliser la forme à 2 arguments."
         )
 
-    pluriel = "s" if ext[-1:] == "s" and racine[-1] not in "sx" else ""
-    if pluriel:
+    pluriel_commun = "s" if ext[-1:] == "s" and racine[-1] not in "sx" else ""
+    if pluriel_commun:
         ext = ext[:-1]
+
+    # l'heuristique utilisée part du principe que la terminaison féminine a généralement un caractère de plus que la
+    # terminaison masculine. Surprenamment, ça marche dans un très grand nombre de cas.
     tronque = len(racine) - len(ext) + 1
 
     if genre == "M":
-        return f"{racine}{pluriel}"
-    return f"{racine[:tronque]}{ext}{pluriel}"
+        return f"{racine}{pluriel_commun}"
+    return f"{racine[:tronque]}{ext}{pluriel_commun}"
 
 
 def genrer(genre, *args):
+    """Genrer correctement une expression
+
+    Il y a deux façons d'appeler cette fonction : avec 2 arguments, et avec 4.
+
+    Le premier argument est toujours le genre de destination.
+
+    Dans la version à deux arguments, le deuxième argument doit être un mot sous forme inclusive, écrit avec un
+    point médian (par exemple "insoumis⋅e"), et il doit s'agir d'un mot dont la version féminine est en "e".
+    Dans ces cas, la fonction est généralement capable de décliner le mot correspondant, mais peut échouer avec certains
+    mots.
+
+    Dans la version à 4 arguments, les 3 derniers arguments doivent être la forme masculine, féminine, et épicène, dans
+    cet ordre.
+
+    :param genre: le genre dans lequel il faut décliner le mot
+    :param args: soit un unique argument sous forme inclusive (avec point médian), soit les formes masculine, féminine,
+    et épicène, dans cet ordre
+    :return: le mot décliné selon le bon genre
+    """
     if len(args) not in (1, 3):
         raise TypeError
 
