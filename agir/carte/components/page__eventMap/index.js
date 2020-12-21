@@ -25,7 +25,7 @@ const log = logger(__filename);
     const payload = JSON.parse(dataElement.textContent);
     log.debug(payload);
     renderReactComponent(
-      <GlobalContextProvider>
+      <GlobalContextProvider hasToasts>
         <EventMap {...payload} />
       </GlobalContextProvider>,
       renderElement

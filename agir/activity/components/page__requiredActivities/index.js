@@ -21,7 +21,7 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
     }
     const payload = JSON.parse(dataElement.textContent);
     renderReactComponent(
-      <GlobalContextProvider>
+      <GlobalContextProvider hasToasts>
         <RequiredActivityList {...payload} />
       </GlobalContextProvider>,
       renderElement
