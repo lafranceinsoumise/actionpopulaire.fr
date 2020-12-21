@@ -98,4 +98,12 @@ urlpatterns = [
     path(
         "conference/<int:pk>", views.jitsi_delete_conference_view, name="jitsi_delete"
     ),
+    path(
+        "api/evenements/rsvped", views.EventRsvpedAPIView.as_view(), name="api_rsvped"
+    ),
+    path(
+        "api/evenements/suggestions",
+        views.EventSuggestionsAPIView.as_view(),
+        name="api_suggestions",
+    ),
 ]
