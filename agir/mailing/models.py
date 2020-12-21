@@ -461,15 +461,13 @@ class Segment(BaseSegment, models.Model):
     def get_subscribers_queryset(self):
         qs = self._get_own_filters_queryset()
 
-        if self.add_segments.all().count() > 0:
-            qs = qs.union(
-                *(s.get_subscribers_queryset() for s in self.add_segments.all())
+        for s in self.add_segments.all():
+            qs = Person.objects.filter(
+                Q(pk__in=qs) | Q(pk__in=s.get_subscribers_queryset())
             )
 
-        if self.exclude_segments.all().count() > 0:
-            qs = qs.difference(
-                *(s.get_subscribers_queryset() for s in self.exclude_segments.all())
-            )
+        for s in self.exclude_segments.all():
+            qs = qs.exclude(pk__in=s.get_subscribers_queryset())
 
         return qs
 
