@@ -105,11 +105,23 @@ const GroupCard = ({
       <Row gutter={6}>
         {displayGroupLogo && (
           <Column collapse={0}>
-            <img src={Svg} alt="Groupe" />
+            <a href={routes.page}>
+              <img src={Svg} alt="Groupe" />
+            </a>
           </Column>
         )}
         <Column collapse={0} grow>
-          <h3 style={{ marginTop: 2, marginBottom: 2 }}>{name}</h3>
+          <h3 style={{ marginTop: 2, marginBottom: 2 }}>
+            <a
+              style={{
+                color: "inherit",
+                textDecoration: "none",
+              }}
+              href={routes.page}
+            >
+              {name}
+            </a>
+          </h3>
           <small style={{ color: style.black500 }}>
             {eventCount} événement{eventCount > 1 ? "s" : ""} &bull;{" "}
             {membersCount} membre{membersCount > 1 ? "s" : ""}
@@ -152,17 +164,16 @@ const GroupCard = ({
         </DiscountCodesSection>
       )}
       <Row gutter={6} style={{ marginTop: "1.5rem" }}>
-        <GroupButton ref={mainLink} color="primary" href={routes.page}>
-          {isMember ? (
-            "Voir le groupe"
-          ) : (
-            <>
-              Rejoindre
-              <Hide as="span" under={800}>
-                &nbsp;le groupe
-              </Hide>
-            </>
-          )}
+        {!isMember ? (
+          <GroupButton ref={mainLink} color="primary" href={routes.page}>
+            Rejoindre
+            <Hide as="span" under={800}>
+              &nbsp;le groupe
+            </Hide>
+          </GroupButton>
+        ) : null}
+        <GroupButton ref={mainLink} href={routes.page}>
+          Voir le groupe
         </GroupButton>
         {routes.fund && (
           <GroupButton href={routes.fund} icon="fast-forward">
