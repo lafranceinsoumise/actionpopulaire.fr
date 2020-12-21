@@ -65,6 +65,7 @@
     "rxjs": "^6.6.3",
     "sass": "^1.26.11",
     "sass-loader": "^10.0.2",
+    "short-uuid": "^4.1.0",
     "styled-components": "^5.2.0",
     "swiper": "^6.3.5",
     "tinymce": "^4.9.11",

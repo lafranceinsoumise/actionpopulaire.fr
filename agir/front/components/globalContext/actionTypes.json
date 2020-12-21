@@ -10,7 +10,7 @@
 
   "SET_ANNOUNCEMENTS_AS_READ_ACTION": "setAllActivitiesAsRead",
 
-  "ADD_TOASTS": "add-toasts",
-  "CLEAR_TOAST": "clear-toast",
-  "CLEAR_ALL_TOASTS": "clear-all-toasts"
+  "ADD_TOASTS": "addToasts",
+  "CLEAR_TOAST": "clearToast",
+  "CLEAR_ALL_TOASTS": "clearAllToasts"
 }

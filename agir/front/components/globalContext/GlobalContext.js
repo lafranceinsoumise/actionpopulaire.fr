@@ -7,10 +7,11 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import rootReducer from "@agir/front/globalContext/reducers";
 import createDispatch, { init } from "@agir/front/globalContext/actions";
+import Toasts from "@agir/front/globalContext/Toast";
 
 const GlobalContext = React.createContext({});
 
-const ProdProvider = ({ children }) => {
+const ProdProvider = ({ hasToasts = false, children }) => {
   const [state, dispatch] = useReducer(
     rootReducer,
     rootReducer({}, init()),
@@ -21,19 +22,23 @@ const ProdProvider = ({ children }) => {
 
   return (
     <GlobalContext.Provider value={{ state, dispatch: doDispatch }}>
-      <ThemeProvider theme={style}>{children}</ThemeProvider>
+      <ThemeProvider theme={style}>
+        {children}
+        {hasToasts ? <Toasts /> : null}
+      </ThemeProvider>
     </GlobalContext.Provider>
   );
 };
-const DevProvider = ({ children }) => {
+const DevProvider = (props) => {
   return (
     <StateInspector name="actionpopulaire">
-      <ProdProvider>{children}</ProdProvider>
+      <ProdProvider {...props} />
     </StateInspector>
   );
 };
 DevProvider.propTypes = ProdProvider.propTypes = {
   children: PropTypes.element,
+  hasToasts: PropTypes.bool,
 };
 
 export const GlobalContextProvider =

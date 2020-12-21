@@ -1,4 +1,6 @@
+import shortUUID from "short-uuid";
 import ACTION_TYPE from "./actionTypes";
+
 import {
   activityStatus,
   getUnreadCount,
@@ -117,11 +119,14 @@ export const toasts = (state = [], action) => {
     action.type === ACTION_TYPE.ADD_TOASTS
   ) {
     return Array.isArray(action.toasts)
-      ? action.toasts.map((toast, i) => ({ toastId: Date.now() + i, ...toast }))
+      ? action.toasts.map((toast) => ({
+          toastId: shortUUID.generate(),
+          ...toast,
+        }))
       : state;
   }
   if (action.type === ACTION_TYPE.CLEAR_TOAST) {
-    return state.filter((id) => id !== action.toastId);
+    return state.filter(({ toastId }) => toastId !== action.toastId);
   }
   if (action.type === ACTION_TYPE.CLEAR_ALL_TOASTS) {
     return [];

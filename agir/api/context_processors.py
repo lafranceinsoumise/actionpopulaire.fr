@@ -111,7 +111,7 @@ def basic_information(request):
             "activities": get_serialized_activity(request),
             "announcements": get_serialized_announcements(request),
             "toasts": [
-                {"message": m.message, "type": m.level_tag}
+                {"message": m.message, "type": m.level_tag.upper()}
                 for m in messages.get_messages(request)
             ],
         },
