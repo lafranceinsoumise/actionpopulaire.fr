@@ -53,6 +53,8 @@ def someone_joined_notification(membership, membership_count=1):
             ]
         )
         if membership_count in [21, 30]:
-            transaction.on_commit(partial(send_alert_capacity_email.delay, membership))
+            transaction.on_commit(
+                partial(send_alert_capacity_email.delay, membership.pk)
+            )
 
-    transaction.on_commit(partial(send_joined_notification_email.delay, membership))
+    transaction.on_commit(partial(send_joined_notification_email.delay, membership.pk))
