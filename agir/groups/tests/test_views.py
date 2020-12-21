@@ -301,6 +301,12 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
         self.client.post(url, data={"action": "join"}, follow=True)
         self.assertNotIn(self.other_person, self.manager_group.members.all())
 
+    def test_transfer_allowed_for_managers(self):
+        res = self.client.post(
+            reverse("transfer_group_members", kwargs={"pk": self.manager_group.pk})
+        )
+        self.assertNotEqual(res.status_code, 403)
+
 
 class ExternalJoinSupportGroupTestCase(TestCase):
     def setUp(self):

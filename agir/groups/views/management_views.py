@@ -12,6 +12,7 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy, ugettext as _
 from django.views import View
 from django.views.generic import DetailView, TemplateView, UpdateView, FormView
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin, ProcessFormView
 
 from agir.authentication.tokens import (
@@ -312,31 +313,32 @@ class ModifySupportGroupView(BaseSupportGroupAdminView, UpdateView):
         return res
 
 
-class TransferSupportGroupMembersView(BaseSupportGroupAdminView, FormView):
+class TransferSupportGroupMembersView(
+    BaseSupportGroupAdminView, SingleObjectMixin, FormView
+):
     form_class = TransferGroupMembersForm
     template_name = "groups/transfer_group_members.html"
-    permission_required = ("groups.change_membership",)
+    permission_required = ("groups.transfer_members",)
 
     def dispatch(self, request, *args, **kwargs):
-        pk = kwargs["pk"]
-        self.group = SupportGroup.objects.get(pk=pk)
+        self.object = self.get_object()
 
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(supportgroup=self.group)
+        return super().get_context_data(supportgroup=self.object)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
         kwargs["manager"] = self.request.user.person
-        kwargs["former_group"] = self.group
+        kwargs["former_group"] = self.object
 
         return kwargs
 
     def get_success_url(self):
         return "%s?active=membership" % reverse(
-            "manage_group", kwargs={"pk": self.group.pk}
+            "manage_group", kwargs={"pk": self.object.pk}
         )
 
     def form_valid(self, form):
