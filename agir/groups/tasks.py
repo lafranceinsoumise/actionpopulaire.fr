@@ -55,15 +55,7 @@ def send_support_group_creation_notification(membership_pk):
     referent = membership.person
 
     bindings = {
-        "GROUP_NAME": group.name,
-        "CONTACT_NAME": group.contact_name,
-        "CONTACT_EMAIL": group.contact_email,
-        "CONTACT_PHONE": group.contact_phone,
-        "CONTACT_PHONE_VISIBILITY": _("caché")
-        if group.contact_hide_phone
-        else _("public"),
-        "LOCATION_NAME": group.location_name,
-        "LOCATION_ADDRESS": group.short_address,
+        "group_name": group.name,
         "GROUP_LINK": front_url(
             "view_group", auto_login=False, kwargs={"pk": group.pk}
         ),

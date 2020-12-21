@@ -62,16 +62,7 @@ class NotificationTasksTestCase(TestCase):
 
         text = message.body.replace("\n", "")
 
-        for item in [
-            "name",
-            "location_name",
-            "short_address",
-            "contact_name",
-            "contact_phone",
-        ]:
-            self.assert_(
-                getattr(self.group, item) in text, "{} missing in message".format(item)
-            )
+        self.assertIn(self.group.name, text)
 
     def test_create_group_creation_confirmation_activity(self):
         original_target_activity_count = Activity.objects.filter(

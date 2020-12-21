@@ -58,7 +58,7 @@ def add_params_to_urls(url, params):
     )
 
 
-def get_context_from_bindings(code, recipient, bindings):
+def get_context_from_bindings(code, recipient: Person, bindings):
     """Finalizes the bindings and create a Context for templating
     """
     if code not in settings.EMAIL_TEMPLATES:
@@ -67,7 +67,12 @@ def get_context_from_bindings(code, recipient, bindings):
     url = settings.EMAIL_TEMPLATES[code]
 
     res = dict(bindings)
-    res["email"] = res["EMAIL"] = recipient
+    res["email"] = res["EMAIL"] = recipient.email
+
+    res["greetings"] = res["formule_adresse"] = recipient.formule_adresse
+    res["greetings_insoumise"] = res[
+        "formule_adresse_insoumise"
+    ] = recipient.formule_adresse_insoumise
 
     qs = QueryDict(mutable=True)
     qs.update(res)

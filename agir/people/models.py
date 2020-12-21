@@ -34,6 +34,7 @@ from agir.lib.utils import generate_token_params
 from . import metrics
 from .model_fields import MandatesField, ValidatedPhoneNumberField
 from .person_forms.models import *
+from ..lib.display import genrer
 from ..lib.model_fields import ChoiceArrayField
 
 
@@ -488,24 +489,26 @@ class Person(
         "Returns the short name for the user."
         return self.first_name or self.email
 
-    def get_greeting(self):
-        if self.gender == self.GENDER_FEMALE:
-            cher = "Chère"
-        elif self.gender == self.GENDER_MALE:
-            cher = "Cher"
-        else:
-            cher = "Chèr⋅e"
+    @property
+    def formule_adresse(self):
+        nom = self.first_name
+
+        if nom:
+            cher = genrer(self.gender, "Cher", "Chère", "Chèr⋅e")
+            return f"{cher} {nom}"
+
+        return "Bonjour"
+
+    @property
+    def formule_adresse_insoumise(self):
+        cher = genrer(self.gender, "Cher", "Chère", "Chèr⋅e")
 
         if self.first_name and self.last_name:
-            machin = self.get_full_name()
-        elif self.gender == self.GENDER_FEMALE:
-            machin = "insoumise"
-        elif self.gender == self.GENDER_MALE:
-            machin = "insoumis"
+            designation = self.get_full_name()
         else:
-            machin = "insoumis⋅e"
+            designation = genrer(self.gender, "insoumis⋅e")
 
-        return f"{cher} {machin}"
+        return f"{cher} {designation}"
 
     def add_email(self, email_address, primary=False, **kwargs):
         try:
@@ -554,7 +557,7 @@ class Person(
         return {
             **data,
             "login_query": urlencode(generate_token_params(self)),
-            "greeting": self.get_greeting(),
+            "greeting": self.formule_adresse,
             "full_name": self.get_full_name(),
             "short_name": self.get_short_name(),
             "ancienne_region": self.ancienne_region,
