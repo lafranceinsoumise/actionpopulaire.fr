@@ -450,13 +450,16 @@ class Segment(BaseSegment, models.Model):
 
         return q
 
-    def get_subscribers_queryset(self):
+    def _get_own_filters_queryset(self):
         qs = Person.objects.all()
 
         if self.elu:
             qs = qs.annotate_elus()
 
-        qs = qs.filter(self.get_subscribers_q()).order_by("id").distinct("id")
+        return qs.filter(self.get_subscribers_q()).order_by("id").distinct("id")
+
+    def get_subscribers_queryset(self):
+        qs = self._get_own_filters_queryset()
 
         if self.add_segments.all().count() > 0:
             qs = qs.union(
@@ -471,7 +474,11 @@ class Segment(BaseSegment, models.Model):
         return qs
 
     def get_subscribers_count(self):
-        return self.get_subscribers_queryset().count()
+        return (
+            self._get_own_filters_queryset().count
+            + sum(s.get_subscribers_count() for s in self.add_segments.all())
+            - sum(s.get_subscribers_count() for s in self.exclude_segments.all())
+        )
 
     get_subscribers_count.short_description = "Personnes"
     get_subscribers_count.help_text = "Estimation du nombre d'inscrits"
