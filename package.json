@@ -66,6 +66,7 @@
     "sass-loader": "^10.0.2",
     "styled-components": "^5.2.0",
     "swiper": "^6.3.5",
+    "swr": "^0.3.10",
     "tinymce": "^4.9.11",
     "tinymce-i18n": "^17.12.31",
     "turbolinks": "^5.2.0"
