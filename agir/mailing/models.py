@@ -473,7 +473,7 @@ class Segment(BaseSegment, models.Model):
 
     def get_subscribers_count(self):
         return (
-            self._get_own_filters_queryset().count
+            self._get_own_filters_queryset().count()
             + sum(s.get_subscribers_count() for s in self.add_segments.all())
             - sum(s.get_subscribers_count() for s in self.exclude_segments.all())
         )
