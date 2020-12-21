@@ -114,8 +114,6 @@ const GroupCard = ({
           <h3 style={{ marginTop: 2, marginBottom: 2 }}>
             <a
               style={{
-                marginTop: 2,
-                marginBottom: 2,
                 color: "inherit",
                 textDecoration: "none",
               }}
