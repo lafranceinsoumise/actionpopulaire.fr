@@ -453,10 +453,7 @@ class Segment(BaseSegment, models.Model):
     def _get_own_filters_queryset(self):
         qs = Person.objects.all()
 
-        if self.elu:
-            qs = qs.annotate_elus()
-
-        return qs.filter(self.get_subscribers_q()).order_by("id").distinct("id")
+        return qs.filter(self.get_subscribers_q())
 
     def get_subscribers_queryset(self):
         qs = self._get_own_filters_queryset()
@@ -469,11 +466,14 @@ class Segment(BaseSegment, models.Model):
         for s in self.exclude_segments.all():
             qs = qs.exclude(pk__in=s.get_subscribers_queryset())
 
-        return qs
+        if self.elu:
+            qs = qs.annotate_elus()
+
+        return qs.order_by("id").distinct("id")
 
     def get_subscribers_count(self):
         return (
-            self._get_own_filters_queryset().count()
+            self._get_own_filters_queryset().distinct("id").count()
             + sum(s.get_subscribers_count() for s in self.add_segments.all())
             - sum(s.get_subscribers_count() for s in self.exclude_segments.all())
         )
