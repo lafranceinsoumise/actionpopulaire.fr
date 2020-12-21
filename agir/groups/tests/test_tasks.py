@@ -1,4 +1,5 @@
 from django.core import mail
+from django.db.models import Q
 from django.shortcuts import reverse as dj_reverse
 from django.test import TestCase
 from django.utils import timezone
@@ -154,3 +155,39 @@ class NotificationTasksTestCase(TestCase):
             self.assertCountEqual(
                 a.meta["changed_data"], ["name", "contact_name", "description"]
             )
+
+    def test_create_accepted_invitation_member_activity(self):
+        supportgroup = self.group
+
+        new_member = Person.objects.create_insoumise("invited@group.member")
+        new_membership = Membership.objects.create(
+            supportgroup=supportgroup, person=new_member
+        )
+
+        managers_filter = (
+            Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
+        ) & Q(notifications_enabled=True)
+        managing_membership = supportgroup.memberships.filter(managers_filter)
+        managing_membership_recipients = [
+            membership.person for membership in managing_membership
+        ]
+
+        old_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
+            recipient__in=managing_membership_recipients,
+            supportgroup=supportgroup,
+            individual=new_member,
+        ).count()
+
+        tasks.create_accepted_invitation_member_activity(new_membership.pk)
+
+        new_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
+            recipient__in=managing_membership_recipients,
+            supportgroup=supportgroup,
+            individual=new_member,
+        ).count()
+
+        self.assertEqual(
+            new_activity_count, old_activity_count + managing_membership.count()
+        )

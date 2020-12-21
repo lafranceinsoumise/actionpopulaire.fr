@@ -228,7 +228,7 @@ class ExternalJoinSupportGroupView(ConfirmSubscriptionView, FormView, DetailView
             request=self.request,
             level=messages.INFO,
             message=_(
-                "Un email vous a été envoyé. Merrci de cliquer sur le "
+                "Un email vous a été envoyé. Merci de cliquer sur le "
                 "lien qu'il contient pour confirmer."
             ),
         )

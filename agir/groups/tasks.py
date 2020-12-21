@@ -248,10 +248,22 @@ def invite_to_group(group_id, invited_email, inviter_id):
     group_name = group.name
 
     report_url = make_abusive_invitation_report_link(group_id, inviter_id)
+    invitation_token = make_subscription_token(email=invited_email, group_id=group_id)
+    join_url = front_url(
+        "invitation_with_subscription_confirmation",
+        query={
+            "email": invited_email,
+            "group_id": group_id,
+            "token": invitation_token,
+        },
+    )
 
     if person:
         Activity.objects.create(
-            type=Activity.TYPE_GROUP_INVITATION, recipient=person, supportgroup=group,
+            type=Activity.TYPE_GROUP_INVITATION,
+            recipient=person,
+            supportgroup=group,
+            meta={"joinUrl": join_url},
         )
     else:
         invitation_token = make_subscription_token(
@@ -317,6 +329,34 @@ def notify_new_group_event(group_pk, event_pk):
                 recipient=r,
                 supportgroup=group,
                 event=event,
+            )
+            for r in recipients
+        ]
+    )
+
+
+@shared_task
+def create_accepted_invitation_member_activity(new_membership_pk):
+    try:
+        new_membership = Membership.objects.get(pk=new_membership_pk)
+    except Membership.DoesNotExist:
+        return
+
+    managers_filter = (Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)) & Q(
+        notifications_enabled=True
+    )
+    managing_membership = new_membership.supportgroup.memberships.filter(
+        managers_filter
+    )
+    recipients = [membership.person for membership in managing_membership]
+
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
+                recipient=r,
+                supportgroup=new_membership.supportgroup,
+                individual=new_membership.person,
             )
             for r in recipients
         ]
