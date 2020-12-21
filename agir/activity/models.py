@@ -19,9 +19,9 @@ class Activity(TimeStampedModel):
     TYPE_CANCELLED_EVENT = "cancelled-event"
     TYPE_REFERRAL = "referral-accepted"
     TYPE_GROUP_CREATION_CONFIRMATION = "group-creation-confirmation"
+    TYPE_NEW_EVENT_AROUNDME = "new-event-aroundme"
     # TODO
     TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
-    TYPE_NEW_EVENT_AROUNDME = "new-event-aroundme"
     TYPE_ACCEPTED_INVITATION_MEMBER = "accepted-invitation-member"
     TYPE_GROUP_COORGANIZATION_ACCEPTED = "group-coorganization-accepted"
     TYPE_WAITING_LOCATION_EVENT = "waiting-location-event"
