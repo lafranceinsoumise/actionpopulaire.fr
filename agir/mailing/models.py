@@ -448,20 +448,6 @@ class Segment(BaseSegment, models.Model):
                     q_mandats |= Q(**{t: True})
             q &= q_mandats
 
-        if self.add_segments.all().count() > 0:
-            q = reduce(
-                lambda q1, q2: q1 | q2,
-                (s.get_subscribers_q() for s in self.add_segments.all()),
-                q,
-            )
-
-        if self.exclude_segments.all().count() > 0:
-            q = reduce(
-                lambda q1, q2: q1 & ~q2,
-                (s.get_subscribers_q() for s in self.exclude_segments.all()),
-                q,
-            )
-
         return q
 
     def get_subscribers_queryset(self):
@@ -470,7 +456,19 @@ class Segment(BaseSegment, models.Model):
         if self.elu:
             qs = qs.annotate_elus()
 
-        return qs.filter(self.get_subscribers_q()).order_by("id").distinct("id")
+        qs = qs.filter(self.get_subscribers_q()).order_by("id").distinct("id")
+
+        if self.add_segments.all().count() > 0:
+            qs = qs.union(
+                *(s.get_subscribers_queryset() for s in self.add_segments.all())
+            )
+
+        if self.exclude_segments.all().count() > 0:
+            qs = qs.difference(
+                *(s.get_subscribers_queryset() for s in self.exclude_segments.all())
+            )
+
+        return qs
 
     def get_subscribers_count(self):
         return self.get_subscribers_queryset().count()
