@@ -545,7 +545,9 @@ class Person(
     def get_subscriber_status(self):
         if self.bounced:
             return AbstractSubscriber.STATUS_BOUNCED
-        return AbstractSubscriber.STATUS_SUBSCRIBED
+        if self.primary_email is not None:
+            return AbstractSubscriber.STATUS_SUBSCRIBED
+        return AbstractSubscriber.STATUS_UNSUBSCRIBED
 
     def get_subscriber_email(self):
         return self.email
