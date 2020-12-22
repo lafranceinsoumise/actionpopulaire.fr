@@ -1,5 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect } from "react";
+import styled from "styled-components";
+
 import { ToastContainer, toast } from "react-toastify";
 import {
   useSelector,
@@ -8,6 +10,7 @@ import {
 import { getToasts } from "@agir/front/globalContext/reducers";
 import { clearToast } from "@agir/front/globalContext/actions";
 
+import style from "@agir/front/genericComponents/_variables.scss";
 import "react-toastify/dist/ReactToastify.min.css";
 
 export const TOAST_TYPES = {
@@ -20,6 +23,35 @@ export const TOAST_TYPES = {
   DANGER: toast.TYPE.ERROR,
 };
 
+const StyledContainer = styled(ToastContainer)`
+  .Toastify__toast-container {
+  }
+  .Toastify__toast {
+    box-sizing: border-box;
+    padding: 1rem 1.5rem;
+    background-color: ${style.black1000};
+    color: white;
+    font-family: ${style.fontFamilyBase};
+    font-weight: 500;
+    line-height: 1.12;
+  }
+  .Toastify__toast--error {
+    background-color: ${style.redNSP};
+  }
+  .Toastify__toast--success {
+    background-color: ${style.green500};
+  }
+  .Toastify__toast-body,
+  .Toastify__close-button {
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+    opacity: 1;
+  }
+  .Toastify__progress-bar {
+  }
+`;
+
 export const Toast = (props) => {
   const { toasts = [], onClear } = props;
 
@@ -27,13 +59,14 @@ export const Toast = (props) => {
     toasts.forEach((t) => {
       toast(t.message, {
         toastId: t.toastId,
+        position: toast.POSITION.TOP_CENTER,
         type: TOAST_TYPES[t.type.toUpperCase()],
         onClose: () => onClear(t),
       });
     });
   }, [toasts, onClear]);
 
-  return <ToastContainer />;
+  return <StyledContainer />;
 };
 
 const ConnectedToast = (props) => {
