@@ -98,33 +98,10 @@ class RequiredActivityView(SoftLoginRequiredMixin, ReactBaseView):
 
 class AgendaView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "events/agendaPage"
-    serializer_class = EventSerializer
 
 
-class MyGroupsView(SoftLoginRequiredMixin, ReactListView):
-    serializer_class = SupportGroupSerializer
+class MyGroupsView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "groups/groupsPage"
-    data_script_id = "mes-groupes"
-
-    def get_queryset(self):
-        person = self.request.user.person
-        person_groups = (
-            SupportGroup.objects.filter(memberships__person=self.request.user.person)
-            .active()
-            .annotate(membership_type=F("memberships__membership_type"))
-            .order_by("-membership_type", "name")
-        )
-        if person_groups.count() == 0 and person.coordinates is not None:
-            person_groups = SupportGroup.objects.active()
-            if person.is_2022_only:
-                person_groups = person_groups.is_2022()
-            person_groups = person_groups.annotate(
-                distance=Distance("coordinates", person.coordinates)
-            ).order_by("distance")[:3]
-            for group in person_groups:
-                person_groups.membership = None
-
-        return person_groups
 
 
 class EventMapView(SoftLoginRequiredMixin, ReactBaseView):
