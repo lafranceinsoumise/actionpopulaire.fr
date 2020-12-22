@@ -37,8 +37,8 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
           text={
             <>
               <strong>
-                Action requise&nbsp;: votre équipe ne respecte plus la charte
-                des équipes de soutiens
+                Action requise&nbsp;: votre équipe ne respecte plus la{" "}
+                <a href={routes.charteEquipes}>charte des équipes de soutien</a>
               </strong>
               <br />
               <a href={supportGroup.url}>{supportGroup.name}</a> a atteint{" "}
@@ -54,9 +54,11 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
       return (
         <ActionCard
           iconName="alert-circle"
-          confirmLabel="Comment diviser mon équipe ?"
+          confirmLabel="Diviser mon équipe"
           dismissLabel="Cacher"
-          onConfirm={routes.groupTransferHelp}
+          onConfirm={
+            supportGroup.routes && supportGroup.routes.membershipTransfer
+          }
           onDismiss={onDismiss}
           text={
             <>
@@ -65,7 +67,10 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
               <a href={supportGroup.url}>{supportGroup.name}</a> compte plus de{" "}
               {membershipCount - 1} personnes&nbsp;! Il est temps de vous
               diviser en plusieurs équipes pour permettre une plus grande
-              répartition de l’action.
+              répartition de l’action.{" "}
+              <a href={routes.groupTransferHelp}>
+                En savoir plus sur la division des équipes
+              </a>
             </>
           }
         />
@@ -74,9 +79,11 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
       return (
         <ActionCard
           iconName="info"
-          confirmLabel="En savoir plus"
+          confirmLabel="Diviser mon équipe"
           dismissLabel="Cacher"
-          onConfirm={routes.groupTransferHelp}
+          onConfirm={
+            supportGroup.routes && supportGroup.routes.membershipTransfer
+          }
           onDismiss={onDismiss}
           text={
             <>
@@ -87,7 +94,10 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
               <a href={supportGroup.url}>{supportGroup.name}</a> a dépassé les{" "}
               {membershipCount - 1} personnes ! Afin que chacun·e puisse
               s'impliquer et pour permettre une plus grande répartition de votre
-              action, nous vous invitons à diviser votre équipe.
+              action, nous vous invitons à diviser votre équipe.{" "}
+              <a href={routes.groupTransferHelp}>
+                En savoir plus sur la division des équipes
+              </a>
             </>
           }
         />
@@ -132,6 +142,7 @@ GroupMembershipLimitReminderRequiredActionCard.propTypes = {
   }),
   routes: PropTypes.shape({
     groupTransferHelp: PropTypes.string.isRequired,
+    charteEquipes: PropTypes.string.isRequired,
   }).isRequired,
   onDismiss: PropTypes.func,
 };
