@@ -450,6 +450,8 @@ class Person(
 
     @property
     def bounced(self):
+        if self.primary_email is None:
+            return None
         return self.primary_email.bounced
 
     @bounced.setter
