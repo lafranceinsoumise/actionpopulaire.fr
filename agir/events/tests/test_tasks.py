@@ -1,13 +1,30 @@
+from faker import Faker
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.utils import timezone
 from django.core import mail
 
+from agir.lib.tests.mixins import create_location
 from agir.lib.utils import front_url
 from agir.people.models import Person
 
 from .. import tasks
 from ..models import Event, Calendar, RSVP, OrganizerConfig
 from ...activity.models import Activity
+
+fake = Faker("fr_FR")
+
+
+def mock_geocode_element_no_position(event):
+    event.coordinates = None
+    event.coordinates_type = Event.COORDINATES_NO_POSITION
+
+
+def mock_geocode_element_with_position(event):
+    location = create_location()
+    event.coordinates = location["coordinates"]
+    event.coordinates_type = location["coordinates_type"]
 
 
 class EventTasksTestCase(TestCase):
@@ -160,3 +177,71 @@ class EventTasksTestCase(TestCase):
         tasks.send_event_report(self.event.pk)
         # on verifie qu'il n'y a pas de mail suplémentaire
         self.assertEqual(len(mail.outbox), 2)
+
+    @patch("agir.events.tasks.geocode_element")
+    def test_geocode_event_calls_geocode_element_if_event_exists(self, geocode_element):
+        geocode_element.assert_not_called()
+        tasks.geocode_event(self.event.pk)
+        geocode_element.assert_called_once_with(self.event)
+
+    @patch("agir.events.tasks.geocode_element")
+    def test_geocode_event_does_not_call_geocode_element_if_event_does_not_exist(
+        self, geocode_element
+    ):
+        geocode_element.assert_not_called()
+        tasks.geocode_event(fake.uuid4())
+        geocode_element.assert_not_called()
+
+    @patch(
+        "agir.events.tasks.geocode_element",
+        side_effect=mock_geocode_element_no_position,
+    )
+    def test_geocode_event_creates_activity_if_no_geolocation_is_found(
+        self, geocode_element
+    ):
+        event = self.event
+        organizers = event.organizers.all()
+        old_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_WAITING_LOCATION_EVENT,
+            recipient__in=organizers,
+            event=event,
+        ).count()
+        tasks.geocode_event(event.pk)
+        geocode_element.assert_called_once_with(event)
+        event.refresh_from_db()
+        self.assertEqual(event.coordinates_type, Event.COORDINATES_NO_POSITION)
+
+        new_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_WAITING_LOCATION_EVENT,
+            recipient__in=organizers,
+            event=event,
+        ).count()
+
+        self.assertEqual(new_activity_count, old_activity_count + organizers.count())
+
+    @patch(
+        "agir.events.tasks.geocode_element",
+        side_effect=mock_geocode_element_with_position,
+    )
+    def test_geocode_event_does_not_create_activity_if_geolocation_is_found(
+        self, geocode_element
+    ):
+        event = self.event
+        organizers = event.organizers.all()
+        old_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_WAITING_LOCATION_EVENT,
+            recipient__in=organizers,
+            event=event,
+        ).count()
+        tasks.geocode_event(event.pk)
+        geocode_element.assert_called_once_with(event)
+        event.refresh_from_db()
+        self.assertLess(event.coordinates_type, Event.COORDINATES_NO_POSITION)
+
+        new_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_WAITING_LOCATION_EVENT,
+            recipient__in=organizers,
+            event=event,
+        ).count()
+
+        self.assertEqual(new_activity_count, old_activity_count)

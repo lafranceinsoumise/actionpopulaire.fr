@@ -9,6 +9,7 @@ from django.utils import timezone
 from data_france.models import Commune
 from faker import Faker
 
+from agir.lib.models import LocationMixin
 from agir.events.models import Calendar, Event, OrganizerConfig, RSVP
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.people.models import Person, PersonForm, PersonFormSubmission
@@ -54,6 +55,7 @@ def create_location():
     address = fake.street_address()
     coords = fake.local_latlng(country_code="FR", coords_only=True)
     return {
+        "coordinates_type": LocationMixin.COORDINATES_EXACT,
         "coordinates": Point(float(coords[1]), float(coords[0])),
         "location_name": address,
         "location_address": address,
