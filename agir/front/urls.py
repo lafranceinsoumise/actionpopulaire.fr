@@ -40,6 +40,7 @@ urlpatterns = [
         name="list_events",
     ),
     path("evenements/carte", views.EventMapView.as_view(), name="event_map_page"),
+    path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
     path("mes-groupes/", views.MyGroupsView.as_view(), name="list_my_groups"),
     path(
         "groupes/<uuid:pk>/complet/",

@@ -1,26 +1,20 @@
-from datetime import timedelta
-
 from django.conf import settings
-from django.contrib.gis.db.models.functions import Distance
-from django.db.models import F, Q
 from django.http import HttpResponsePermanentRedirect, Http404
 from django.urls import reverse, reverse_lazy
-from django.utils import timezone
 from django.views.generic import View, RedirectView, TemplateView
+from django.views.generic.detail import BaseDetailView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.events.models import Event
-from agir.events.serializers import EventSerializer
 from agir.groups.models import SupportGroup
-from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.http import add_query_params_to_url
-from agir.lib.tasks import geocode_person
+from .view_mixins import ObjectOpengraphMixin
 from .view_mixins import (
-    ReactListView,
-    ReactSerializerBaseView,
     ReactBaseView,
     ReactSingleObjectView,
 )
+from ..events.views.event_views import EventDetailMixin
+from ..groups.serializers import SupportGroupSerializer
 from ..lib.utils import generate_token_params
 
 
@@ -132,6 +126,7 @@ class FullSupportGroupView(SoftLoginRequiredMixin, ReactSingleObjectView):
             "groupSuggestions": person_groups,
         }
 
+
 class AgendaView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "events/agendaPage"
 
@@ -190,3 +185,18 @@ class JoinView(TemplateView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs, type=self.request.GET.get("type"))
+
+
+class EventDetailView(
+    ObjectOpengraphMixin, EventDetailMixin, BaseDetailView, ReactBaseView
+):
+    meta_description = (
+        "Participez aux événements organisés par les membres de la France insoumise."
+    )
+    meta_description_2022 = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
+    bundle_name = "events/eventPage"
+
+    def get_context_data(self, **kwargs):
+        kwargs["export_data"] = {"pk": self.object.pk}
+
+        return super().get_context_data(**kwargs)

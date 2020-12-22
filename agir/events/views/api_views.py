@@ -4,14 +4,19 @@ from django.contrib.gis.db.models.functions import Distance
 from django.db.models import Q
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 from agir.events.filters import EventAPIFilter
 from agir.events.models import Event
 from agir.events.serializers import EventLegacySerializer, EventSerializer
 from agir.lib.pagination import APIPaginator
 
-__all__ = ["EventSearchAPIView", "EventRsvpedAPIView", "EventSuggestionsAPIView"]
+__all__ = [
+    "EventSearchAPIView",
+    "EventDetailAPIView",
+    "EventRsvpedAPIView",
+    "EventSuggestionsAPIView",
+]
 
 from agir.lib.tasks import geocode_person
 
@@ -70,6 +75,12 @@ class EventRsvpedAPIView(ListAPIView):
             .filter(Q(attendees=person) | Q(organizers=person))
             .order_by("start_time", "end_time")
         ).distinct()
+
+
+class EventDetailAPIView(RetrieveAPIView):
+    permission_required = ("events.view_event",)
+    serializer_class = EventSerializer
+    queryset = Event.objects.all()
 
 
 class EventSuggestionsAPIView(ListAPIView):
