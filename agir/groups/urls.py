@@ -107,4 +107,5 @@ urlpatterns = [
         views.InvitationAbuseReportingView.as_view(),
         name="report_invitation_abuse",
     ),
+    path("api/groupes/", views.UserGroupsView.as_view(), name="api_user_groups"),
 ]
