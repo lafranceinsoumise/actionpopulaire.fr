@@ -79,8 +79,8 @@ export const renderReactComponent = (component, node) => {
 
 export const renderWithContext = async (
   ComponentOrPromise,
-  dataId,
-  renderId
+  dataId = "exportedContent",
+  renderId = "mainApp"
 ) => {
   const [
     { default: React },

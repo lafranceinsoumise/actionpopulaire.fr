@@ -28,6 +28,7 @@ import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import useSWR from "swr";
 
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
@@ -265,10 +266,15 @@ MobileLayout.propTypes = DesktopLayout.propTypes = {
 };
 
 export const ConnectedEventPage = (props) => {
-  const { is2022 } = props;
+  // À remplacer pour l'obtenir du router front
+  const { pk } = props;
   const isConnected = useSelector(getIsConnected);
   const routes = useSelector(getRoutes);
   const dispatch = useDispatch();
+
+  const { data: eventData } = useSWR(`/api/evenements/${pk}`);
+
+  let { is2022 } = eventData || {};
 
   React.useEffect(() => {
     is2022 === true && dispatch(setIs2022());
@@ -276,12 +282,18 @@ export const ConnectedEventPage = (props) => {
 
   return (
     <>
-      <EventPage {...props} logged={isConnected} appRoutes={routes} />
+      {eventData ? (
+        <EventPage {...eventData} logged={isConnected} appRoutes={routes} />
+      ) : (
+        <div style={{ height: "100vh" }} />
+      )}
       <Footer />
     </>
   );
 };
+
 ConnectedEventPage.propTypes = {
-  is2022: PropTypes.bool,
+  pk: PropTypes.string,
 };
+
 export default ConnectedEventPage;

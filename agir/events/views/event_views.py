@@ -31,17 +31,13 @@ from agir.authentication.view_mixins import (
     GlobalOrObjectPermissionRequiredMixin,
     SoftLoginRequiredMixin,
 )
-from agir.events.actions.legal import ASKED_QUESTIONS
 from agir.events.actions.rsvps import assign_jitsi_meeting
 from agir.front.view_mixins import (
-    ObjectOpengraphMixin,
     ChangeLocationBaseView,
     FilterView,
-    ReactSingleObjectView,
 )
 from agir.lib.export import dict_to_camelcase
 from agir.lib.views import ImageSizeWarningMixin
-from .. import serializers
 from ..filters import EventFilter
 from ..forms import (
     EventForm,
@@ -66,7 +62,6 @@ __all__ = [
     "ModifyEventView",
     "QuitEventView",
     "CancelEventView",
-    "EventDetailView",
     "EventParticipationView",
     "EventIcsView",
     "ChangeEventLocationView",
@@ -76,6 +71,7 @@ __all__ = [
     "UploadEventImageView",
     "EventSearchView",
     "PerformCreateEventView",
+    "EventDetailMixin",
 ]
 
 
@@ -107,17 +103,7 @@ class EventSearchView(FilterView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class EventDetailMixin(GlobalOrObjectPermissionRequiredMixin):
-    permission_required = ("events.view_event",)
-    queryset = (
-        Event.objects.all()
-    )  # y compris les événements cachés, pour pouvoir montrer des pages GONE
-
-    def handle_no_permission(self):
-        if self.get_object().visibility == Event.VISIBILITY_ADMIN:
-            return HttpResponseGone()
-        return redirect_to_login(self.request.get_full_path())
-
+class EventContextMixin:
     def get_context_data(self, **kwargs):
         return super().get_context_data(
             rsvp=self.request.user.is_authenticated
@@ -130,19 +116,21 @@ class EventDetailMixin(GlobalOrObjectPermissionRequiredMixin):
         )
 
 
-class EventDetailView(ObjectOpengraphMixin, EventDetailMixin, ReactSingleObjectView):
+class EventDetailMixin(GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("events.view_event",)
-    meta_description = (
-        "Participez aux événements organisés par les membres de la France insoumise."
-    )
-    meta_description_2022 = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
-    serializer_class = serializers.EventSerializer
-    queryset = Event.objects.all()
-    bundle_name = "events/eventPage"
-    data_script_id = "exportedEvent"
+    queryset = (
+        Event.objects.all()
+    )  # y compris les événements cachés, pour pouvoir montrer des pages GONE
+
+    def handle_no_permission(self):
+        if self.get_object().visibility == Event.VISIBILITY_ADMIN:
+            return HttpResponseGone()
+        return redirect_to_login(self.request.get_full_path())
 
 
-class EventParticipationView(SoftLoginRequiredMixin, EventDetailMixin, DetailView):
+class EventParticipationView(
+    SoftLoginRequiredMixin, EventContextMixin, EventDetailMixin, DetailView
+):
     template_name = "events/participation.html"
     permission_required = ("events.view_event", "events.participate_online")
     permission_denied_message = _(
