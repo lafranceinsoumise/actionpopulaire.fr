@@ -418,11 +418,5 @@ export const SecondaryNavigation = () => {
 export default Navigation;
 
 Navigation.propTypes = {
-  active: PropTypes.oneOf([
-    "events",
-    "groups",
-    "activity",
-    "required-activity",
-    "menu",
-  ]),
+  active: PropTypes.string,
 };

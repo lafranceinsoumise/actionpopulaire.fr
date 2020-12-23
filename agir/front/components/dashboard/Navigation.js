@@ -143,7 +143,7 @@ const Navigation = ({ active, routes }) => (
 export default Navigation;
 
 Navigation.propTypes = {
-  active: PropTypes.oneOf(["events", "groups", "notifications", "menu"]),
+  active: PropTypes.string,
   routes: PropTypes.shape({
     events: PropTypes.string.isRequired,
     groups: PropTypes.string.isRequired,
