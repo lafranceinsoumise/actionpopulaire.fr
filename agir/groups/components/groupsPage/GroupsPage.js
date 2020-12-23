@@ -7,7 +7,7 @@ import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import Onboarding from "@agir/front/genericComponents/Onboarding";
 import { DateTime } from "luxon";
-import Layout, { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
+import { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
 import Button from "@agir/front/genericComponents/Button";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -93,7 +93,7 @@ const GroupsPage = () => {
   );
 
   return (
-    <Layout active="groups" smallBackgroundColor={style.black25}>
+    <>
       <Helmet>
         <title>Mes groupes - Action populaire</title>
       </Helmet>
@@ -122,10 +122,10 @@ const GroupsPage = () => {
         {/* Si l'utilisateurice n'a pas de groupes,
         groups contient la liste des groupes suggérés,
          on place donc avant le texte introductif */}
-        {groups && !hasOwnGroups ? (
+        {!hasOwnGroups ? (
           <Onboarding type="group__suggestions" routes={routes} />
         ) : null}
-        {groups && groups.length > 0 && (
+        {groups.length > 0 && (
           <GroupList>
             {groups.map((group) => (
               <GroupCard
@@ -139,11 +139,11 @@ const GroupsPage = () => {
             ))}
           </GroupList>
         )}
-        {groups && !hasOwnGroups ? (
+        {!hasOwnGroups ? (
           <Onboarding type="group__creation" routes={routes} />
         ) : null}
       </PageFadeIn>
-    </Layout>
+    </>
   );
 };
 

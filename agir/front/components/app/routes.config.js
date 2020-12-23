@@ -1,6 +1,8 @@
 import pathToRegexp from "path-to-regexp-es";
 import { lazy } from "react";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 const AgendaPage = lazy(() => import("@agir/events/agendaPage/AgendaPage"));
 const EventMap = lazy(() => import("@agir/carte/page__eventMap/EventMap"));
 const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
@@ -63,6 +65,11 @@ export const routeConfig = {
     exact: true,
     label: "Événements",
     Component: AgendaPage,
+    hasLayout: true,
+    layoutProps: {
+      smallBackgroundColor: style.black25,
+      hasBanner: true,
+    },
   }),
   eventMap: new RouteConfig({
     id: "eventMap",
@@ -84,6 +91,10 @@ export const routeConfig = {
     exact: true,
     label: "Groupes",
     Component: GroupsPage,
+    hasLayout: true,
+    layoutProps: {
+      smallBackgroundColor: style.black25,
+    },
   }),
   groupMap: new RouteConfig({
     id: "groupMap",
@@ -98,6 +109,12 @@ export const routeConfig = {
     exact: true,
     label: "Actualités",
     Component: ActivityPage,
+    hasLayout: true,
+    layoutProps: {
+      smallBackgroundColor: style.black25,
+      title: "Actualités",
+      subtitle: "L'actualité de vos groupes et de votre engagement",
+    },
   }),
   requiredActivities: new RouteConfig({
     id: "requiredActivities",
@@ -105,6 +122,7 @@ export const routeConfig = {
     exact: true,
     label: "À traiter",
     Component: RequiredActivityPage,
+    hasLayout: true,
   }),
   menu: new RouteConfig({
     id: "menu",
@@ -112,6 +130,10 @@ export const routeConfig = {
     exact: true,
     label: "Menu",
     Component: NavigationPage,
+    hasLayout: true,
+    layoutProps: {
+      desktopOnlyFooter: false,
+    },
   }),
 };
 

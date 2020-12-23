@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import Layout from "@agir/front/dashboardComponents/Layout";
 import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
@@ -118,31 +117,29 @@ const NavigationPage = ({ active }) => {
   );
   const routes = useSelector(getRoutes);
   return (
-    <Layout active="menu" desktopOnlyFooter={false}>
+    <Navigation>
       <Helmet>
         <title>Menu - Action populaire</title>
       </Helmet>
-      <Navigation>
-        <Menu>
-          {MAIN_LINKS.map((link) =>
-            link.href || routes[link.route] ? (
-              <MenuLink
-                {...link}
-                key={link.id}
-                active={active === link.id}
-                href={link.href || routes[link.route]}
-                to={
-                  link.to && routeConfig[link.to]
-                    ? routeConfig[link.to].pathname
-                    : undefined
-                }
-                counter={link.counter && requiredActionActivityCount}
-              />
-            ) : null
-          )}
-        </Menu>
-      </Navigation>
-    </Layout>
+      <Menu>
+        {MAIN_LINKS.map((link) =>
+          link.href || routes[link.route] ? (
+            <MenuLink
+              {...link}
+              key={link.id}
+              active={active === link.id}
+              href={link.href || routes[link.route]}
+              to={
+                link.to && routeConfig[link.to]
+                  ? routeConfig[link.to].pathname
+                  : undefined
+              }
+              counter={link.counter && requiredActionActivityCount}
+            />
+          ) : null
+        )}
+      </Menu>
+    </Navigation>
   );
 };
 

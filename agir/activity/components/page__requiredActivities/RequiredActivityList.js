@@ -16,7 +16,7 @@ import { dismissRequiredActionActivity } from "@agir/front/globalContext/actions
 
 import Activities from "@agir/activity/common/Activities";
 
-import Layout, {
+import {
   LayoutTitle,
   LayoutSubtitle,
 } from "@agir/front/dashboardComponents/Layout";
@@ -57,7 +57,7 @@ const RequiredActivityList = () => {
   );
 
   return (
-    <Layout active="required-activity">
+    <>
       <Helmet>
         <title>À faire - Action populaire</title>
       </Helmet>
@@ -76,7 +76,7 @@ const RequiredActivityList = () => {
           routes={routes}
         />
       </Page>
-    </Layout>
+    </>
   );
 };
 export default RequiredActivityList;
