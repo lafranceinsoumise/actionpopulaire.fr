@@ -24,37 +24,74 @@ export const TOAST_TYPES = {
 };
 
 const StyledContainer = styled(ToastContainer)`
-  .Toastify__toast-container {
-  }
+  width: calc(0.3 * 100vw);
+  max-width: 800px;
+
   .Toastify__toast {
     box-sizing: border-box;
     padding: 1rem 1.5rem;
-    background-color: ${style.black1000};
-    color: white;
+    background-color: white;
     font-family: ${style.fontFamilyBase};
-    font-weight: 500;
     line-height: 1.12;
-    & a {
-      text-decoration: underline;
-      color: white;
-    }
+    color: ${style.black1000};
+    border-left: 6px solid ${style.black1000};
   }
+
   .Toastify__toast--error {
-    background-color: ${style.redNSP};
+    border-left: 6px solid ${style.redNSP};
   }
+
   .Toastify__toast--success {
-    background-color: ${style.green500};
+    border-left: 6px solid ${style.green500};
   }
-  .Toastify__toast-body,
-  .Toastify__close-button {
+
+  .Toastify__toast-body {
+    padding-right: 14px;
     font-size: inherit;
     line-height: inherit;
     color: inherit;
     opacity: 1;
   }
-  .Toastify__progress-bar {
+
+  .Toastify__close-button {
+    border: 1px solid ${style.black1000};
+    border-radius: 100px;
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    & > * {
+      position: absolute;
+      top: 3px;
+      left: 5px;
+    }
   }
 `;
+
+const CloseButton = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M16.4702 7.52977C16.7299 7.78946 16.7299 8.21052 16.4702 8.47022L8.47019 16.4702C8.21049 16.7299 7.78943 16.7299 7.52973 16.4702C7.27004 16.2105 7.27004 15.7895 7.52973 15.5298L15.5297 7.52977C15.7894 7.27007 16.2105 7.27007 16.4702 7.52977Z"
+      fill="#000A2C"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M7.52973 7.52977C7.78943 7.27007 8.21049 7.27007 8.47019 7.52977L16.4702 15.5298C16.7299 15.7895 16.7299 16.2105 16.4702 16.4702C16.2105 16.7299 15.7894 16.7299 15.5297 16.4702L7.52973 8.47022C7.27004 8.21052 7.27004 7.78946 7.52973 7.52977Z"
+      fill="#000A2C"
+    />
+    <rect x="0.5" y="0.5" width="23" height="23" rx="11.5" stroke="#000A2C" />
+  </svg>
+);
 
 export const Toast = (props) => {
   const { toasts = [], onClear } = props;
@@ -69,15 +106,16 @@ export const Toast = (props) => {
         ),
         {
           toastId: t.toastId,
-          position: toast.POSITION.TOP_CENTER,
+          position: toast.POSITION.BOTTOM_LEFT,
           type: TOAST_TYPES[t.type.toUpperCase()],
           onClose: () => onClear(t),
+          autoClose: false,
         }
       );
     });
   }, [toasts, onClear]);
 
-  return <StyledContainer />;
+  return <StyledContainer closeButton={CloseButton} />;
 };
 
 const ConnectedToast = (props) => {

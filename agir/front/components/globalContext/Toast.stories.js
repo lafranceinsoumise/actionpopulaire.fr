@@ -41,7 +41,7 @@ const Template = ({ message, html, type }) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  message: 'Toast ! <a href="#">Avec un lien</a>.',
+  message: 'Toast ! <a href="#"><b>Avec</b> un lien</a>.',
   html: true,
   type: Object.keys(TOAST_TYPES)[0],
 };
