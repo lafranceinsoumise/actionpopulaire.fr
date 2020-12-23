@@ -29,6 +29,7 @@ import GroupCard from "@agir/groups/groupComponents/GroupCard";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import useSWR from "swr";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
@@ -265,6 +266,29 @@ MobileLayout.propTypes = DesktopLayout.propTypes = {
   schedule: PropTypes.instanceOf(Interval),
 };
 
+const DesktopSkeleton = () => (
+  <Container style={{ margin: "4rem auto", padding: "0 4rem" }}>
+    <Row gutter={32}>
+      <Column grow>
+        <Skeleton />
+      </Column>
+      <Column width="380px">
+        <Skeleton />
+      </Column>
+    </Row>
+  </Container>
+);
+
+const MobileSkeleton = () => (
+  <Container style={{ margin: "2rem auto", padding: "0 1rem" }}>
+    <Row>
+      <Column>
+        <Skeleton />
+      </Column>
+    </Row>
+  </Container>
+);
+
 export const ConnectedEventPage = (props) => {
   // À remplacer pour l'obtenir du router front
   const { pk } = props;
@@ -285,7 +309,10 @@ export const ConnectedEventPage = (props) => {
       {eventData ? (
         <EventPage {...eventData} logged={isConnected} appRoutes={routes} />
       ) : (
-        <div style={{ height: "100vh" }} />
+        <ResponsiveLayout
+          DesktopLayout={DesktopSkeleton}
+          MobileLayout={MobileSkeleton}
+        />
       )}
       <Footer />
     </>

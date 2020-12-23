@@ -14,15 +14,16 @@ import EventCard from "@agir/front/genericComponents/EventCard";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
+  getIs2022,
   getRoutes,
   getUser,
-  getIs2022,
 } from "@agir/front/globalContext/reducers";
 
 import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import Onboarding from "@agir/front/genericComponents/Onboarding";
 import useSWR from "swr";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 const TopBar = styled.div`
   display: flex;
@@ -301,8 +302,7 @@ const Agenda = () => {
           </div>
         </TopBar>
       </header>
-      {(rsvpedEvents && rsvpedEvents.length > 0) ||
-      (suggestions && suggestions.length > 0) ? (
+      {rsvpedEvents ? (
         <Row style={{ marginBottom: "4rem" }}>
           <Column grow>
             {rsvpedEvents && rsvpedEvents.length > 0 && (
@@ -314,25 +314,34 @@ const Agenda = () => {
                 <h2>Autres événements près de chez moi</h2>
               </>
             )}
-            {suggestions && suggestions.length > 0 ? (
-              <SuggestionsEvents suggestions={suggestions} />
-            ) : null}
+            {suggestions ? (
+              <>
+                <SuggestionsEvents suggestions={suggestions} />
+                <Row>
+                  <Column grow>
+                    <Onboarding
+                      type={is2022 ? "group__nsp" : "group__action"}
+                      routes={routes}
+                    />
+                  </Column>
+                </Row>
+                <Row style={{ marginTop: "4rem" }}>
+                  <Column grow>
+                    <Onboarding type="event" routes={routes} />
+                  </Column>
+                </Row>
+              </>
+            ) : (
+              <Skeleton />
+              // Suggested events are longer to load than rsvped,
+              // so when only rsvpedEvents is loaded we display skeleton
+              // only on this part
+            )}
           </Column>
         </Row>
-      ) : null}
-      <Row>
-        <Column grow>
-          <Onboarding
-            type={is2022 ? "group__nsp" : "group__action"}
-            routes={routes}
-          />
-        </Column>
-      </Row>
-      <Row style={{ marginTop: "4rem" }}>
-        <Column grow>
-          <Onboarding type="event" routes={routes} />
-        </Column>
-      </Row>
+      ) : (
+        <Skeleton />
+      )}
     </StyledAgenda>
   );
 };

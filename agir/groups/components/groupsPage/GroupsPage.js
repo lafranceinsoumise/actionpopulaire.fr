@@ -13,6 +13,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 import useSWR from "swr";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 const TopBar = styled.div`
   display: flex;
@@ -115,19 +116,23 @@ const GroupsPage = () => {
       {groups && !hasOwnGroups ? (
         <Onboarding type="group__suggestions" routes={routes} />
       ) : null}
-      {groups && groups.length > 0 && (
-        <GroupList>
-          {groups.map((group) => (
-            <GroupCard
-              key={group.id}
-              {...group}
-              displayDescription={false}
-              displayType={false}
-              displayGroupLogo={false}
-              displayMembership={false}
-            />
-          ))}
-        </GroupList>
+      {groups ? (
+        groups.length > 0 && (
+          <GroupList>
+            {groups.map((group) => (
+              <GroupCard
+                key={group.id}
+                {...group}
+                displayDescription={false}
+                displayType={false}
+                displayGroupLogo={false}
+                displayMembership={false}
+              />
+            ))}
+          </GroupList>
+        )
+      ) : (
+        <Skeleton boxes={2} />
       )}
       {groups && !hasOwnGroups ? (
         <Onboarding type="group__creation" routes={routes} />
