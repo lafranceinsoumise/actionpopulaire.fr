@@ -13,11 +13,12 @@ class MailLinkMiddleware:
     def get_just_connected_message(user):
         return format_html(
             _(
-                '<p class="padbottom">Vous avez été connecté automatiquement comme <em>{person}</em> car vous avez suivi un lien qui lui a'
-                ' été envoyé par email.</p> <div><a href="{logout_url}?next={login_url}" class="btn btn-warning">'
-                "<strong>Je ne suis pas <em>{person}</em></strong></a></div>"
+                '<p class="padbottom">Vous avez été connecté automatiquement comme <b>{person}</b> car vous avez suivi un lien qui lui a'
+                ' été envoyé par email.</p> <a href="{logout_url}?next={login_url}">'
+                "<strong>Je ne suis pas <b>{full_name}</b></strong></a>"
             ),
             person=str(user.person),
+            full_name=user.person.get_full_name(),
             logout_url=reverse("disconnect"),
             login_url=reverse("short_code_login"),
         )

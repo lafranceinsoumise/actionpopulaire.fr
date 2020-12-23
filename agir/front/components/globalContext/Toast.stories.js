@@ -18,7 +18,7 @@ export default {
   },
 };
 
-const Template = ({ message, type }) => {
+const Template = ({ message, html, type }) => {
   const [toasts, setToasts] = React.useState([]);
   const onClear = React.useCallback((t) => {
     setToasts((state) => state.filter(({ toastId }) => t.toastId !== toastId));
@@ -30,6 +30,7 @@ const Template = ({ message, type }) => {
         {
           toastId: shortUUID.generate(),
           message,
+          html,
           type,
         },
       ]),
@@ -40,6 +41,7 @@ const Template = ({ message, type }) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  message: "Toast !",
+  message: 'Toast ! <a href="#"><b>Avec</b> un lien</a>.',
+  html: true,
   type: Object.keys(TOAST_TYPES)[0],
 };
