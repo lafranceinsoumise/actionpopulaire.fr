@@ -29,6 +29,10 @@ const StyledContainer = styled(ToastContainer)`
   left: 16px;
   right: 16px;
 
+  @media only screen and (max-width: ${style.collapse}px) {
+    bottom: 144px;
+  }
+
   .Toastify__toast {
     cursor: auto;
     box-sizing: border-box;
