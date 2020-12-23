@@ -24,8 +24,10 @@ export const TOAST_TYPES = {
 };
 
 const StyledContainer = styled(ToastContainer)`
-  width: calc(0.3 * 100vw);
-  max-width: 800px;
+  max-width: calc(100vw - 32px);
+  width: 650px;
+  left: 16px;
+  right: 16px;
 
   .Toastify__toast {
     cursor: auto;
