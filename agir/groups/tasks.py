@@ -344,10 +344,7 @@ def notify_new_group_event(group_pk, event_pk):
 
 @emailing_task
 def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
-    try:
-        recipients = Person.objects.filter(pk=recipients_pks)
-    except Person.DoesNotExist:
-        return
+    recipients = Person.objects.filter(pk__in=recipients_pks)
 
     send_mosaico_email(
         code="TRANSFER_SENDER",
@@ -360,10 +357,7 @@ def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
 
 @emailing_task
 def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
-    try:
-        recipients = Person.objects.filter(pk=recipients_pks)
-    except Person.DoesNotExist:
-        return
+    recipients = Person.objects.filter(pk__in=recipients_pks)
 
     send_mosaico_email(
         code="TRANSFER_RECEIVER",
@@ -384,6 +378,7 @@ def send_membership_transfer_alert(bindings, recipient_pk):
     send_mosaico_email(
         code="TRANSFER_ALERT",
         subject=f"Notification de changement de groupe",
+        from_email=settings.EMAIL_FROM,
         recipients=[recipient],
         bindings=bindings,
     )

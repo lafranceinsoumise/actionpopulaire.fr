@@ -8,7 +8,7 @@ from django.db.models.expressions import RawSQL
 from django.urls import path
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html, escape
+from django.utils.html import format_html, escape, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from functools import partial, update_wrapper
@@ -378,7 +378,7 @@ class TransfertOperationAdmin(admin.ModelAdmin):
     members_count.short_description = "Nombre de membres concernés"
 
     def members_list(self, obj):
-        return format_html(
+        return format_html_join(
             mark_safe("<br>"),
             '<a href="{}">{}</a>',
             (

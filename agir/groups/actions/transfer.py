@@ -27,19 +27,17 @@ def send_membership_transfer_email_notifications(
     except SupportGroup.DoesNotExist:
         return
 
-    bindings = (
-        {
-            "TRANSFERER_NAME": transferer.get_full_name(),
-            "GROUP_SENDER": original_group.name,
-            "GROUP_SENDER_URL": front_url("view_group", args=(original_group_pk,)),
-            "GROUP_DESTINATION": target_group.name,
-            "GROUP_DESTINATION_URL": front_url("view_group", args=(target_group_pk,)),
-            "MEMBER_LIST": format_html_join(
-                mark_safe("<br>"), "{}", [p.get_full_name() for p in transferred_people]
-            ),
-            "MEMBER_COUNT": len(transferred_people_pks),
-        },
-    )
+    bindings = {
+        "TRANSFERER_NAME": transferer.get_full_name(),
+        "GROUP_SENDER": original_group.name,
+        "GROUP_SENDER_URL": front_url("view_group", args=(original_group_pk,)),
+        "GROUP_DESTINATION": target_group.name,
+        "GROUP_DESTINATION_URL": front_url("view_group", args=(target_group_pk,)),
+        "MEMBER_LIST": format_html_join(
+            mark_safe("<br>"), "{}", [p.get_full_name() for p in transferred_people]
+        ),
+        "MEMBER_COUNT": len(transferred_people_pks),
+    }
 
     send_membership_transfer_sender_confirmation.delay(
         bindings, [m.pk for m in original_group.managers]

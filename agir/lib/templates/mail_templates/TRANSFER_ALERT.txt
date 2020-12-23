@@ -6,23 +6,14 @@ Notification de changement de groupe
 
 [{{ GROUP_SENDER }}]({{ GROUP_SENDER_URL }}) dont vous faites partie dépassait le nombre idéal de membre. Les animateur·ices l'ont donc divisée en plusieurs équipes.
 
-Vous recevez ce mail parce que les animateur·ices de {{ GROUP_SENDER }} vous ont transféré·e : vous avez rejoint [{{ GROUP_RECEIVER }}]({{ GROUP_SENDER_URL }}) et avez quitté {{ GROUP_SENDER }}.  
+Vous recevez ce mail parce que les animateur·ices de {{ GROUP_SENDER }} vous ont transféré·e : vous avez rejoint [{{ GROUP_DESTINATION }}]({{ GROUP_DESTINATION_URL }}) et avez quitté {{ GROUP_SENDER }}.
   
-[Découvrir mon nouveau groupe]({{ GROUP_RECEIVER_URL }})  
+[Découvrir mon nouveau groupe]({{ GROUP_DESTINATION_URL }})
   
-Les animateur·ices de [{{ GROUP_RECEIVER }}]({{ GROUP_RECEIVER_URL }}) ont reçu un e-mail leur notifiant de votre arrivée et prendront contact avec vous.
+Les animateur·ices de {{ GROUP_DESTINATION }} ont reçu un e-mail leur notifiant de votre arrivée et prendront contact avec vous.
 
-Vous pouvez également les contacter depuis les e-mails présents sur [la page de {{ GROUP_RECEIVER }}]({{ GROUP_RECEIVER_URL }}).  
+Vous pouvez également les contacter depuis les e-mails présents sur [la page de {{ GROUP_DESTINATION }}]({{ GROUP_DESTINATION_URL }}).
   
 Amitiés,
 
 L'équipe d'Action Populaire
-
-------------------------------------------------------------------
-Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
-
->> Choisir les emails que vous recevez
-{{ preferences_link }}
-
->> Arrêter complètement de recevoir des emails
-{{ unsubscribe_link }}

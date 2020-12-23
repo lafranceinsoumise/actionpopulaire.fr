@@ -69,7 +69,9 @@ def get_context_from_bindings(code, recipient: Person, bindings):
     res = dict(bindings)
     res["email"] = res["EMAIL"] = recipient.email
 
-    res["greetings"] = res["formule_adresse"] = recipient.formule_adresse
+    res["greetings"] = res["formule_adresse"] = res[
+        "GREETINGS"
+    ] = recipient.formule_adresse
     res["greetings_insoumise"] = res[
         "formule_adresse_insoumise"
     ] = recipient.formule_adresse_insoumise
