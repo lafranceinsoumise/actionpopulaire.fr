@@ -30,7 +30,13 @@ const Router = ({ children }) => (
         <ul>
           {routes.map((route) => (
             <li key={route.id}>
-              <Link to={route}>{route.label}</Link>
+              <Link
+                to={route.getLink({
+                  eventPk: "54e7f6e2-f816-4630-9277-1317ff52b1db/",
+                })}
+              >
+                {route.label}
+              </Link>
             </li>
           ))}
           <li key="etc">

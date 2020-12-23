@@ -47,6 +47,7 @@
     "moment": "^2.27.0",
     "normalize.css": "^8.0.1",
     "ol": "^6.4.3",
+    "path-to-regexp-es": "^3.0.0",
     "polished": "^4.0.1",
     "promise": "^8.1.0",
     "prop-types": "^15.7.2",

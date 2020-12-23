@@ -6,7 +6,7 @@ module.exports = {
     "^@agir/([a-zA-Z0-9_]+)/(.*)$": "<rootDir>/agir/$1/components/$2",
   },
   transformIgnorePatterns: [
-    "/node_modules/(?!@babel/runtime-corejs3/helpers/esm/)",
+    "/node_modules/(?!@babel/runtime-corejs3/helpers/esm/|path-to-regexp-es)",
     "\\.pnp\\.[^\\/]+$",
   ],
   // Automatically clear mock calls and instances between every test
