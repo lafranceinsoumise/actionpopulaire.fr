@@ -28,6 +28,9 @@ class SupportGroupQuerySet(models.QuerySet):
     def is_2022(self):
         return self.filter(type=SupportGroup.TYPE_2022)
 
+    def is_insoumise(self):
+        return self.exclude(type=SupportGroup.TYPE_2022)
+
     def search(self, query):
         vector = (
             SearchVector(models.F("name"), config="french_unaccented", weight="A")
@@ -118,6 +121,8 @@ class SupportGroup(
         TYPE_2022: "✅ Vous animez déjà une équipe de soutien",
     }
 
+    MEMBERSHIP_LIMIT = 30
+
     objects = SupportGroupQuerySet.as_manager()
 
     name = models.CharField(
@@ -152,6 +157,24 @@ class SupportGroup(
     )
 
     @property
+    def managers(self):
+        return [
+            m.person
+            for m in self.memberships.filter(
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
+            )
+        ]
+
+    @property
+    def referents(self):
+        return [
+            m.person
+            for m in self.memberships.filter(
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT
+            )
+        ]
+
+    @property
     def events_count(self):
         from agir.events.models import Event
 
@@ -160,6 +183,10 @@ class SupportGroup(
     @property
     def members_count(self):
         return Membership.objects.filter(supportgroup=self).count()
+
+    @property
+    def is_full(self):
+        return self.is_2022 and self.members_count >= self.MEMBERSHIP_LIMIT
 
     @property
     def is_certified(self):
@@ -280,3 +307,28 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
     @property
     def is_manager(self):
         return self.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+
+
+class TransferOperation(models.Model):
+    timestamp = models.DateTimeField(
+        "Heure de l'opération", auto_now_add=True, editable=False
+    )
+    manager = models.ForeignKey("people.Person", on_delete=models.SET_NULL, null=True)
+
+    former_group = models.ForeignKey(
+        SupportGroup, on_delete=models.CASCADE, related_name="+", editable=False
+    )
+    new_group = models.ForeignKey(
+        SupportGroup,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        null=True,
+        editable=False,
+    )
+
+    members = models.ManyToManyField("people.Person", related_name="+", editable=False)
+
+    class Meta:
+        verbose_name = "Transfert de membres"
+        verbose_name_plural = "Transferts de membres"
+        ordering = ("timestamp", "former_group")

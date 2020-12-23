@@ -11,6 +11,7 @@ class Activity(TimeStampedModel):
     # Avec affichage d'une notification
     TYPE_GROUP_INVITATION = "group-invitation"
     TYPE_NEW_MEMBER = "new-member"
+    TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER = "group-membership-limit-reminder"
     TYPE_GROUP_INFO_UPDATE = "group-info-update"
     TYPE_NEW_ATTENDEE = "new-attendee"
     TYPE_EVENT_UPDATE = "event-update"
@@ -19,14 +20,16 @@ class Activity(TimeStampedModel):
     TYPE_CANCELLED_EVENT = "cancelled-event"
     TYPE_REFERRAL = "referral-accepted"
     TYPE_GROUP_CREATION_CONFIRMATION = "group-creation-confirmation"
-    TYPE_NEW_EVENT_AROUNDME = "new-event-aroundme"
     TYPE_ACCEPTED_INVITATION_MEMBER = "accepted-invitation-member"
+    TYPE_NEW_EVENT_AROUNDME = "new-event-aroundme"
+    TYPE_TRANSFERRED_GROUP_MEMBER = "transferred-group-member"
+    TYPE_NEW_MEMBERS_THROUGH_TRANSFER = "new-members-through-transfer"
+    TYPE_WAITING_LOCATION_EVENT = "waiting-location-event"
+    TYPE_WAITING_LOCATION_GROUP = "waiting-location-group"
     # TODO
     TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
     TYPE_GROUP_COORGANIZATION_ACCEPTED = "group-coorganization-accepted"
-    TYPE_WAITING_LOCATION_EVENT = "waiting-location-event"
     TYPE_GROUP_COORGANIZATION_INVITE = "group-coorganization-invite"
-    TYPE_WAITING_LOCATION_GROUP = "waiting-location-group"
     TYPE_WAITING_PAYMENT = "waiting-payment"
     # Sans affichage d'une notification
     TYPE_ANNOUNCEMENT = "announcement"
@@ -34,6 +37,7 @@ class Activity(TimeStampedModel):
     DISPLAYED_TYPES = (
         TYPE_GROUP_INVITATION,
         TYPE_NEW_MEMBER,
+        TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
         TYPE_GROUP_INFO_UPDATE,
         TYPE_NEW_ATTENDEE,
         TYPE_EVENT_UPDATE,
@@ -50,12 +54,18 @@ class Activity(TimeStampedModel):
         TYPE_WAITING_LOCATION_GROUP,
         TYPE_WAITING_PAYMENT,
         TYPE_GROUP_CREATION_CONFIRMATION,
+        TYPE_TRANSFERRED_GROUP_MEMBER,
+        TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
     )
 
     TYPE_CHOICES = (
         (TYPE_WAITING_PAYMENT, "Paiement en attente"),
         (TYPE_GROUP_INVITATION, "Invitation à un groupe"),
         (TYPE_NEW_MEMBER, "Nouveau membre dans le groupe"),
+        (
+            TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
+            "Les membres du groupes sont de plus en plus nombreux",
+        ),
         (TYPE_WAITING_LOCATION_GROUP, "Préciser la localisation du groupe"),
         (TYPE_GROUP_COORGANIZATION_INVITE, "Invitation à coorganiser un groupe reçue"),
         (TYPE_WAITING_LOCATION_EVENT, "Préciser la localisation d'un événement"),
@@ -73,6 +83,14 @@ class Activity(TimeStampedModel):
         (TYPE_CANCELLED_EVENT, "Événement annulé"),
         (TYPE_REFERRAL, "Personne parrainée"),
         (TYPE_ANNOUNCEMENT, "Associée à une annonce"),
+        (
+            TYPE_TRANSFERRED_GROUP_MEMBER,
+            "Un membre d'un groupe a été transferé vers un autre groupe",
+        ),
+        (
+            TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+            "De nouveaux membres ont été transferés vers le groupe",
+        ),
     )
 
     STATUS_UNDISPLAYED = "U"

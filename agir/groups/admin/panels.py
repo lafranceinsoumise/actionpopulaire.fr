@@ -29,6 +29,7 @@ from .forms import SupportGroupAdminForm
 from .. import models
 from ..actions.promo_codes import get_promo_codes
 from ..models import Membership
+from ...people.models import Person
 
 
 class MembershipInline(admin.TabularInline):
@@ -350,3 +351,40 @@ class SupportGroupSubtypeAdmin(admin.ModelAdmin):
     search_fields = ("label", "description")
     list_display = ("label", "description", "type", "visibility")
     list_filter = ("type", "visibility")
+
+
+@admin.register(models.TransferOperation)
+class TransfertOperationAdmin(admin.ModelAdmin):
+    search_fields = ("former_group", "new_group")
+    list_display = ("timestamp", "former_group", "new_group", "members_count")
+
+    fieldsets = (
+        (None, {"fields": ("timestamp", "former_group", "new_group", "manager")}),
+        ("Personnes concernées", {"fields": ("members_count", "members_list")}),
+    )
+
+    readonly_fields = (
+        "timestamp",
+        "former_group",
+        "new_group",
+        "manager",
+        "members_count",
+        "members_list",
+    )
+
+    def members_count(self, obj):
+        return obj.members.count()
+
+    members_count.short_description = "Nombre de membres concernés"
+
+    def members_list(self, obj):
+        return format_html(
+            mark_safe("<br>"),
+            '<a href="{}">{}</a>',
+            (
+                (reverse("admin:people_person_change", args=(p.id,)), str(p))
+                for p in obj.members.all()
+            ),
+        )
+
+    members_list.short_description = "Liste des membres concernés"

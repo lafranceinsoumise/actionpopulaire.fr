@@ -1,14 +1,21 @@
+from django.urls import reverse_lazy
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Row, Field
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Exists, OuterRef
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from functools import reduce
 from operator import or_
 
-from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
+from agir.groups.models import (
+    SupportGroup,
+    Membership,
+    SupportGroupSubtype,
+    TransferOperation,
+)
 from agir.groups.tasks import (
     send_support_group_changed_notification,
     send_support_group_creation_notification,
@@ -16,8 +23,14 @@ from agir.groups.tasks import (
     invite_to_group,
     create_group_creation_confirmation_activity,
     create_accepted_invitation_member_activity,
+    geocode_support_group,
+)
+from agir.groups.actions.transfer import (
+    send_membership_transfer_email_notifications,
+    create_transfer_membership_activities,
 )
 from agir.lib.form_components import *
+from agir.lib.form_fields import RemoteSelectizeWidget
 from agir.lib.form_mixins import (
     LocationFormMixin,
     ContactFormMixin,
@@ -25,7 +38,6 @@ from agir.lib.form_mixins import (
     SearchByZipCodeFormBase,
     ImageFormMixin,
 )
-from agir.lib.tasks import geocode_support_group
 from agir.people.models import Person
 
 __all__ = [
@@ -35,6 +47,7 @@ __all__ = [
     "InvitationForm",
     "GroupGeocodingForm",
     "SearchGroupForm",
+    "TransferGroupMembersForm",
 ]
 
 
@@ -188,6 +201,16 @@ class SupportGroupForm(
 class MembershipChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return str(obj.person)
+
+
+class MembershipMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return str(obj.person)
+
+
+class SupportGroupChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return str(obj)
 
 
 class AddReferentForm(forms.Form):
@@ -392,3 +415,88 @@ class InvitationWithSubscriptionConfirmationForm(forms.Form):
                 create_accepted_invitation_member_activity.delay(membership.pk)
 
         return p
+
+
+class TransferGroupMembersForm(forms.Form):
+    target_group = SupportGroupChoiceField(
+        queryset=SupportGroup.objects.active(),
+        label=_("Groupe de destination"),
+        required=True,
+        help_text="Le nouveau groupe doit avoir déjà été créé pour pouvoir y transférer une partie de vos membres.",
+    )
+    members = MembershipMultipleChoiceField(
+        queryset=Membership.objects.all(),
+        label=_("Membres à transférer"),
+        required=True,
+        widget=forms.CheckboxSelectMultiple,
+        help_text="Les membres sélectionnés seront transférés dans le groupe de destination. Ses animateur·ices et les membres transférés recevront alors un e-mail de confirmation. Cette action est irréversible.",
+    )
+
+    def __init__(self, manager, former_group, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.former_group = former_group
+        self.manager = manager
+
+        supportgroup_members = Membership.objects.filter(
+            supportgroup=former_group
+        ).exclude(person=manager)
+
+        self.fields["members"].queryset = self.fields[
+            "members"
+        ].queryset = supportgroup_members
+
+        base_query = {"exclude": former_group.pk}
+
+        if former_group.is_2022:
+            base_query["is_2022"] = 1
+            self.fields[
+                "target_group"
+            ].help_text = "Le nouveau groupe doit avoir déjà été créé par quelqu'un d'autre pour pouvoir y transférer une partie de vos membres."
+        else:
+            base_query["is_insoumise"] = 1
+
+        self.fields["target_group"].widget = RemoteSelectizeWidget(
+            api_url=reverse_lazy("api_search_group"),
+            label_field="name",
+            value_field="id",
+            base_query=base_query,
+        )
+
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("submit", _("Valider le transfert")))
+
+    def save(self):
+        cleaned_data = self.cleaned_data
+        target_group = cleaned_data["target_group"]
+        memberships = cleaned_data["members"]
+
+        with transaction.atomic():
+            transfer_operation = TransferOperation.objects.create(
+                former_group=self.former_group,
+                new_group=target_group,
+                manager=self.manager,
+            )
+            transfer_operation.members.add(*(m.person for m in memberships))
+
+            for membership in memberships:
+                Membership.objects.update_or_create(
+                    person=membership.person, supportgroup=target_group
+                )
+                membership.delete()
+
+        send_membership_transfer_email_notifications(
+            self.manager.pk,
+            self.former_group.pk,
+            target_group.pk,
+            [membership.person.pk for membership in memberships],
+        )
+        create_transfer_membership_activities(
+            self.former_group,
+            target_group,
+            [membership.person for membership in memberships],
+        )
+
+        return {
+            "target_group": target_group,
+            "transferred_memberships": memberships,
+        }

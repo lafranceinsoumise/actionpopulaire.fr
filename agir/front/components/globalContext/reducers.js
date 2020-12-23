@@ -40,7 +40,6 @@ export const announcements = (state = [], action) => {
 };
 
 export const activities = (state = [], action) => {
-  console.log(action.type);
   switch (action.type) {
     case ACTION_TYPE.INIT_ACTION: {
       if (!Array.isArray(action.activities)) {

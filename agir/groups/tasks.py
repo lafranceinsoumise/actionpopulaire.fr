@@ -9,7 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.events.models import Event, OrganizerConfig
-from agir.lib.celery import emailing_task
+from agir.lib.celery import emailing_task, http_task
+from agir.lib.geo import geocode_element
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from agir.people.actions.subscription import make_subscription_token
@@ -40,6 +41,14 @@ CHANGE_DESCRIPTION = OrderedDict(
         ("contact", _("les informations de contact des animateurs du groupe")),
     )
 )  # encodes the preferred order when showing the messages
+
+GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS = [
+    0,  # 30 members
+    -4,  # 26 members
+    -9,  # 21 members
+    -14,  # 16 members
+    -19,  # 11 members
+]
 
 
 @emailing_task
@@ -148,7 +157,7 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
 
 
 @emailing_task
-def send_someone_joined_notification(membership_pk):
+def send_joined_notification_email(membership_pk):
     try:
         membership = Membership.objects.select_related("person", "supportgroup").get(
             pk=membership_pk
@@ -158,28 +167,6 @@ def send_someone_joined_notification(membership_pk):
 
     person_information = str(membership.person)
 
-    managers_filter = (Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)) & Q(
-        notifications_enabled=True
-    )
-    managing_membership = (
-        membership.supportgroup.memberships.filter(managers_filter)
-        .select_related("person")
-        .prefetch_related("person__emails")
-    )
-    recipients = [membership.person for membership in managing_membership]
-
-    Activity.objects.bulk_create(
-        [
-            Activity(
-                type=Activity.TYPE_NEW_MEMBER,
-                recipient=r,
-                supportgroup=membership.supportgroup,
-                individual=membership.person,
-            )
-            for r in recipients
-        ]
-    )
-
     bindings = {
         "GROUP_NAME": membership.supportgroup.name,
         "PERSON_INFORMATION": person_information,
@@ -187,13 +174,41 @@ def send_someone_joined_notification(membership_pk):
             "manage_group", kwargs={"pk": membership.supportgroup.pk}
         ),
     }
-
     send_mosaico_email(
         code="GROUP_SOMEONE_JOINED_NOTIFICATION",
         subject="Un nouveau membre dans votre "
         + ("équipe" if membership.supportgroup.is_2022 else "groupe"),
         from_email=settings.EMAIL_FROM,
-        recipients=recipients,
+        recipients=membership.supportgroup.managers,
+        bindings=bindings,
+    )
+
+
+ALERT_CAPACITY_SUBJECTS = {
+    21: "Votre équipe compte plus de 20 membres !",
+    30: "Action requise : votre équipe ne respecte plus la charte des équipes de soutien",
+}
+
+
+@emailing_task
+def send_alert_capacity_email(supportgroup_pk, count):
+    assert count in [21, 30]
+
+    try:
+        supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
+    except Membership.DoesNotExist:
+        return
+
+    bindings = {
+        "GROUP_NAME": supportgroup.name,
+        "GROUP_NAME_URL": front_url("view_group", kwargs={"pk": supportgroup.pk}),
+        "TRANSFER_LINK": front_url("transfer_group_members", args=(supportgroup.pk,)),
+    }
+    send_mosaico_email(
+        code=f"GROUP_ALERT_CAPACITY_{str(count)}",
+        subject=ALERT_CAPACITY_SUBJECTS[count],
+        from_email=settings.EMAIL_FROM,
+        recipients=supportgroup.referents,
         bindings=bindings,
     )
 
@@ -325,6 +340,86 @@ def notify_new_group_event(group_pk, event_pk):
             for r in recipients
         ]
     )
+
+
+@emailing_task
+def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
+    try:
+        recipients = Person.objects.filter(pk=recipients_pks)
+    except Person.DoesNotExist:
+        return
+
+    send_mosaico_email(
+        code="TRANSFER_SENDER",
+        subject=f"{bindings['MEMBER_COUNT']} membres ont bien été transférés",
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
+        bindings=bindings,
+    )
+
+
+@emailing_task
+def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
+    try:
+        recipients = Person.objects.filter(pk=recipients_pks)
+    except Person.DoesNotExist:
+        return
+
+    send_mosaico_email(
+        code="TRANSFER_RECEIVER",
+        subject=f"De nouveaux membres ont été transferés dans {bindings['GROUP_DESTINATION']}",
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
+        bindings=bindings,
+    )
+
+
+@emailing_task
+def send_membership_transfer_alert(bindings, recipient_pk):
+    try:
+        recipient = Person.objects.get(pk=recipient_pk)
+    except Person.DoesNotExist:
+        return
+
+    send_mosaico_email(
+        code="TRANSFER_ALERT",
+        subject=f"Notification de changement de groupe",
+        recipients=[recipient],
+        bindings=bindings,
+    )
+
+
+@http_task
+def geocode_support_group(supportgroup_pk):
+    try:
+        supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
+    except SupportGroup.DoesNotExist:
+        return
+
+    geocode_element(supportgroup)
+    supportgroup.save()
+
+    if (
+        supportgroup.coordinates_type is not None
+        and supportgroup.coordinates_type >= SupportGroup.COORDINATES_NO_POSITION
+    ):
+        managers_filter = (
+            Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
+        ) & Q(notifications_enabled=True)
+        managing_membership = supportgroup.memberships.filter(managers_filter)
+        managing_membership_recipients = [
+            membership.person for membership in managing_membership
+        ]
+        Activity.objects.bulk_create(
+            [
+                Activity(
+                    type=Activity.TYPE_WAITING_LOCATION_GROUP,
+                    recipient=r,
+                    supportgroup=supportgroup,
+                )
+                for r in managing_membership_recipients
+            ]
+        )
 
 
 @shared_task

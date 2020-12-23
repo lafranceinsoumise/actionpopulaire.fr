@@ -1,0 +1,26 @@
+  
+  
+De nouveaux membres ont rejoint votre groupe suite à un transfert  
+  
+{{ GREETINGS }},  
+
+
+ **[{{ GROUP_SENDER }}]({{ GROUP_SENDER_URL }}) **a transféré {{ MEMBERS_COUNT }} membres vers {{ GROUP_NAME }} :  
+
+
+{{ MEMBERS_LIST }}
+
+[Cliquez-ici]({{ MANAGE_GROUP_LINK }}) pour accéder à la page d'administration de {{ GROUP_NAME }}.  
+
+
+Amitiés,  
+L'équipe d'Action Populaire
+
+------------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
+
+>> Choisir les emails que vous recevez
+{{ preferences_link }}
+
+>> Arrêter complètement de recevoir des emails
+{{ unsubscribe_link }}

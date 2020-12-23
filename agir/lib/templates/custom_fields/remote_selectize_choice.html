@@ -1,0 +1,47 @@
+{% include "django/forms/widgets/select.html" %}
+
+<script>
+  $(function () {
+    var valueField = '{{ widget.value_field|default:"value" }}';
+    var labelField = '{{ widget.label_field|default:"text" }}';
+    var searchField = '{{ widget.search_field }}';
+    var sortField = '{{ widget.sort_field }}';
+    var create = {{ widget.create|yesno:"true,false" }};
+    var maxItems = {{ widget.max_items|default:"null" }};
+    var url = "{{ widget.api_url|default:"" }}"
+
+    $("#{{ widget.attrs.id }}").selectize({
+      valueField: valueField,
+      labelField: labelField,
+      searchField: searchField || labelField,
+      sortField: sortField || labelField,
+      create: create,
+      maxItems: maxItems,
+      preload: true,
+      // Avoid filtering results client-side
+      score: function() {
+        return function() {
+            return 1;
+        };
+      },
+      load: function (query, callback) {
+        var self = this;
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            data: {
+              q: encodeURIComponent(query),
+            },
+            error: function() {
+                callback();
+            },
+            success: function(res) {
+              self.clearOptions();
+              callback(res.results.slice(0, 10));
+            }
+        });
+      },
+    });
+  })
+</script>

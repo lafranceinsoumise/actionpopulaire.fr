@@ -1,7 +1,7 @@
 import { Default as EventCardStory } from "@agir/front/genericComponents/EventCard.stories";
 
 import ActivityCard from "./ActivityCard";
-import { activityCardIcons } from "./ActivityCard";
+import CONFIG from "./activity.config.json";
 import { DateTime } from "luxon";
 import { decorateArgs, reorganize } from "@agir/lib/utils/storyUtils";
 
@@ -13,7 +13,7 @@ export default {
       name: "Type de carte",
       control: {
         type: "select",
-        options: Object.keys(activityCardIcons),
+        options: Object.keys(CONFIG),
       },
     },
     event: {
@@ -68,11 +68,16 @@ Default.args = {
   supportGroup: {
     name: "Super groupe génial",
     url: "#url",
+    routes: {
+      manage: "#group-manage",
+    },
   },
   individual: "Clara Zetkin",
   timestamp: DateTime.local().minus({ hours: 5 }).toISO(),
   meta: {
     totalReferrals: 10,
+    oldGroup: "An old group",
+    transferredMemberships: 1000,
   },
   routes: {
     createEvent: "#createEvent",

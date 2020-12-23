@@ -26,5 +26,6 @@ Default.args = {
     groupMapPage: "#groupMapPage",
     eventMapPage: "#eventMapPage",
     thematicTeams: "#thematicTeams",
+    newGroupHelp: "#newGroupHelp",
   },
 };

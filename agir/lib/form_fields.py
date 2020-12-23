@@ -119,11 +119,54 @@ class SelectizeMixin:
         )
 
 
+class RemoteSelectizeMixin(SelectizeMixin):
+    template_name = "custom_fields/remote_selectize_choice.html"
+    create = False
+
+    def __init__(
+        self,
+        *args,
+        api_url="",
+        label_field="label",
+        value_field="value",
+        search_field="",
+        sort_field="",
+        base_query={},
+        **kwargs,
+    ):
+        self.label_field = label_field
+        self.value_field = value_field
+        self.search_field = search_field
+        self.sort_field = sort_field
+
+        self.api_url = api_url + "?"
+        self.api_url += "&".join(
+            ["%s=%s" % (key, str(value)) for key, value in base_query.items()]
+        )
+
+        super().__init__(*args, **kwargs)
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+
+        context["widget"]["api_url"] = self.api_url
+        context["widget"]["label_field"] = self.label_field
+        context["widget"]["value_field"] = self.value_field
+        context["widget"]["search_field"] = self.search_field
+        context["widget"]["sort_field"] = self.sort_field
+
+        return context
+
+
 class SelectizeWidget(SelectizeMixin, Select):
     pass
 
 
 class SelectizeMultipleWidget(SelectizeMixin, SelectMultiple):
+    pass
+
+
+class RemoteSelectizeWidget(RemoteSelectizeMixin, Select):
     pass
 
 

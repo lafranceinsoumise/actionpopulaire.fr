@@ -2,7 +2,7 @@ import ics
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import (
     HttpResponseGone,
     HttpResponseForbidden,
@@ -25,7 +25,7 @@ from agir.front.view_mixins import ObjectOpengraphMixin, FilterView
 from agir.groups.filters import GroupFilterSet
 from agir.groups.forms import ExternalJoinForm
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
-from agir.groups.tasks import send_someone_joined_notification
+from agir.groups.actions.notifications import someone_joined_notification
 from agir.lib.utils import front_url
 from agir.people.actions.subscription import SUBSCRIPTION_TYPE_EXTERNAL
 from agir.people.views import ConfirmSubscriptionView
@@ -111,11 +111,18 @@ class SupportGroupDetailView(
             return HttpResponseForbidden()
 
         if request.POST["action"] == "join":
-            try:
-                membership = Membership.objects.create(
-                    supportgroup=self.object, person=request.user.person
+            if self.object.is_full:
+                return HttpResponseRedirect(
+                    reverse("full_group", kwargs={"pk": self.object.pk})
                 )
-                send_someone_joined_notification.delay(membership.pk)
+            try:
+                with transaction.atomic():
+                    membership = Membership.objects.create(
+                        supportgroup=self.object, person=request.user.person
+                    )
+                    someone_joined_notification(
+                        membership, membership_count=self.object.members_count
+                    )
             except IntegrityError:
                 pass  # the person is already a member of the group
             return HttpResponseRedirect(

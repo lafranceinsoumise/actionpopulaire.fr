@@ -32,6 +32,23 @@ const ONBOARDING_TYPE = {
     createLabel: "Créer une équipe de soutien",
     createRoute: "createGroup",
   },
+  fullGroup__creation: {
+    title: "Ou bien animez votre propre équipe et invitez-y vos amis !",
+    body: ({ routes }) => [
+      <span key="text">
+        Créez votre équipe en quelques clics, et commencez dès aujourd’hui à
+        organiser des actions pour soutenir la candidature de Jean-Luc
+        Mélenchon. Besoin d’inspiration pour animer votre équipe ?{" "}
+      </span>,
+      routes.newGroupHelp ? (
+        <a key="link" href={routes.newGroupHelp}>
+          Voici quelques pistes.
+        </a>
+      ) : null,
+    ],
+    createLabel: "Créer une équipe de soutien",
+    createRoute: "createGroup",
+  },
   group__nsp: {
     img: onboardingActionImage,
     title: "Rejoignez ou organisez une équipe de soutien",
@@ -56,8 +73,14 @@ const ONBOARDING_TYPE = {
   group__thematic: {
     img: onboardingThematicImage,
     title: "Rejoignez un groupe thématique local",
-    body:
-      "Les groupes thématiques locaux font vivre des thèmes du programme <a href='' rel='noopener noreferrer' target='_blank'>l’Avenir en Commun</a> dans un quartier ou une ville. Rejoignez un groupe proche de chez vous sur un thème qui vous tient à coeur !",
+    body: (
+      <>
+        Les groupes thématiques locaux font vivre des thèmes du programme{" "}
+        <strong>l’Avenir en Commun</strong> dans un quartier ou une ville.
+        Rejoignez un groupe proche de chez vous sur un thème qui vous tient à
+        coeur !
+      </>
+    ),
     createLabel: "Créer un groupe",
     mapLabel: "Voir les groupes dans ma ville",
     mapRoute: "thematicTeams",
@@ -161,7 +184,7 @@ const Onboarding = (props) => {
         <h3>{title}</h3>
       </header>
       <article>
-        <p dangerouslySetInnerHTML={{ __html: body }} />
+        <p>{typeof body === "function" ? body(props) : body}</p>
       </article>
       <footer>
         {routes[createRoute] ? (
@@ -183,6 +206,7 @@ Onboarding.propTypes = {
   type: PropTypes.oneOf(Object.keys(ONBOARDING_TYPE)),
   routes: PropTypes.shape({
     createGroup: PropTypes.string,
+    newGroupHelp: PropTypes.string,
   }),
 };
 
