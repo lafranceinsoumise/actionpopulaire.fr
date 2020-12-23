@@ -14,6 +14,9 @@ import {
   getRoutes,
 } from "@agir/front/globalContext/reducers";
 
+import Link from "@agir/front/app/Link";
+
+import { routeConfig } from "@agir/front/app/routes.config";
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
 
 const MAIN_LINKS = CONFIG.menuLinks.filter(({ mobile }) => mobile === false);
@@ -86,20 +89,21 @@ const Counter = styled.span`
 `;
 
 const MenuLink = (props) => {
-  const { href, icon, title, active, counter, external } = props;
+  const { href, to, icon, title, active, counter, external } = props;
   return (
     <MenuItem {...props} active={active}>
-      <a href={href}>
+      <Link href={href} to={to}>
         {counter > 0 && <Counter>{counter}</Counter>}
         <FeatherIcon name={icon} inline />
         <span>{title}</span>
         {external && <FeatherIcon name="external-link" inline small />}
-      </a>
+      </Link>
     </MenuItem>
   );
 };
 MenuLink.propTypes = {
   href: PropTypes.string,
+  to: PropTypes.string,
   icon: PropTypes.string,
   title: PropTypes.string,
   active: PropTypes.bool,
@@ -123,6 +127,11 @@ const NavigationPage = ({ active }) => {
                 key={link.id}
                 active={active === link.id}
                 href={link.href || routes[link.route]}
+                to={
+                  link.to && routeConfig[link.to]
+                    ? routeConfig[link.to].pathname
+                    : undefined
+                }
                 counter={link.counter && requiredActionActivityCount}
               />
             ) : null
