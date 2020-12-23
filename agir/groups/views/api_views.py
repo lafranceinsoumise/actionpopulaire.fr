@@ -1,5 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
 
 from agir.groups.filters import GroupAPIFilterSet
 from agir.groups.models import SupportGroup, SupportGroupSubtype
@@ -18,6 +19,7 @@ class GroupSearchAPIView(ListAPIView):
     filterset_class = GroupAPIFilterSet
     serializer_class = SupportGroupLegacySerializer
     pagination_class = APIPaginator
+    permission_classes = (IsAuthenticated,)
 
 
 class GroupSubtypesView(ListAPIView):
