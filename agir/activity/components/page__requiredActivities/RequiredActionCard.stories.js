@@ -28,9 +28,10 @@ WaitingPayment.args = {
   type: "waiting-payment",
   id: 1,
   event: {
+    id: "abc",
     name: "L'événement",
     routes: {
-      details: "/",
+      details: "#event_details",
     },
   },
   supportGroup: {
