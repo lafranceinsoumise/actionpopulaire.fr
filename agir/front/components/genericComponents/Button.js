@@ -168,24 +168,10 @@ Button.defaultProps = {
 };
 
 export const ButtonElement = React.forwardRef((props, ref) => {
-  const {
-    as,
-    onClick,
-    color,
-    small,
-    disabled,
-    href,
-    block,
-    icon,
-    ...rest
-  } = props;
+  const { color, small, block, icon, ...rest } = props;
   const Btn = (
     <Button
       ref={ref}
-      onClick={onClick}
-      href={href}
-      disabled={disabled}
-      as={as}
       $color={color}
       $small={small}
       $block={block}

@@ -1,5 +1,6 @@
 import React from "react";
 
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 import Onboarding from "./Onboarding";
 
 export default {
@@ -15,7 +16,11 @@ export default {
   ],
 };
 
-const Template = Onboarding;
+const Template = (args) => (
+  <TestGlobalContextProvider value={{ routes: args.routes }}>
+    <Onboarding {...args} />
+  </TestGlobalContextProvider>
+);
 
 export const Default = Template.bind({});
 Default.args = {
