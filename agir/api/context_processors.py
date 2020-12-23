@@ -24,7 +24,7 @@ def basic_information(request):
         "groupMapPage": reverse("group_map_page"),
         "eventsMap": reverse("carte:events_map"),
         "eventMapPage": reverse("event_map_page"),
-        "events": reverse("list_events"),
+        "events": reverse("dashboard"),
         "groups": reverse("list_my_groups"),
         "activity": reverse("list_activities"),
         "required-activity": reverse("list_required_activities"),

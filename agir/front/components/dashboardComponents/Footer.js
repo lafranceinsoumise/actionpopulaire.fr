@@ -11,6 +11,7 @@ import {
   getUser,
 } from "@agir/front/globalContext/reducers";
 
+import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import LogoAP from "@agir/front/genericComponents/LogoAP";
 
@@ -257,7 +258,9 @@ export const Footer = (props) => {
               >
                 Parrainer la candidature
               </Button>
-              {!is2022 ? <span>&nbsp;ou&nbsp;</span> : null}
+              {!is2022 ? (
+                <span style={{ overflowWrap: "normal" }}>&nbsp;ou&nbsp;</span>
+              ) : null}
               {is2022 ? (
                 <Button small as="a" color="white" href={routes.logIn}>
                   J'ai déjà parrainé
@@ -304,7 +307,7 @@ export const Footer = (props) => {
               {is2022
                 ? "Vous avez déjà un compte ? "
                 : "Vous avez déjà rejoint la France Insoumise ? "}
-              <a href={routes.logIn}>Je me connecte</a>
+              <Link href={routes.logIn}>Je me connecte</Link>
             </p>
           </FooterForm>
         </FooterBanner>
@@ -318,14 +321,14 @@ export const Footer = (props) => {
             <h3>Action populaire</h3>
             <p>
               {!isSignedIn && routes.logIn && (
-                <a href={routes.logIn}>Se connecter</a>
+                <Link href={routes.logIn}>Se connecter</Link>
               )}
-              {routes.donations && <a href={routes.donations}>Faire un don</a>}
-              {routes.help && <a href={routes.help}>Besoin d'aide ?</a>}
-              {routes.legal && <a href={routes.legal}>Mentions légales</a>}
-              {routes.contact && <a href={routes.contact}>Contact</a>}
+              {routes.donations && <Link route="donations">Faire un don</Link>}
+              {routes.help && <Link route="help">Besoin d'aide ?</Link>}
+              {routes.legal && <Link route="legal">Mentions légales</Link>}
+              {routes.contact && <Link route="contact">Contact</Link>}
               {isSignedIn && routes.signOut && (
-                <a href={routes.signOut}>Se déconnecter</a>
+                <Link route="signOut">Se déconnecter</Link>
               )}
             </p>
           </div>
@@ -333,17 +336,17 @@ export const Footer = (props) => {
             <div>
               <h3>Explorer</h3>
               <p>
-                {routes.eventMapPage && (
-                  <a href={routes.events}>Evénements proches de chez moi</a>
-                )}
                 {routes.events && (
-                  <a href={routes.eventMapPage}>Carte des événements</a>
+                  <Link route="events">Evénements proches de chez moi</Link>
+                )}
+                {routes.eventMapPage && (
+                  <Link route="eventMapPage">Carte des événements</Link>
                 )}
                 {routes.groupMapPage && (
-                  <a href={routes.groupMapPage}>Carte des groupes d’actions</a>
+                  <Link route="groupMapPage">Carte des groupes d’actions</Link>
                 )}
                 {routes.thematicTeams && (
-                  <a href={routes.thematicTeams}>Les livrets thématiques</a>
+                  <Link route="thematicTeams">Les livrets thématiques</Link>
                 )}
               </p>
             </div>
@@ -354,17 +357,17 @@ export const Footer = (props) => {
                   <h3>Nous sommes pour</h3>
                   <p>
                     {routes.noussommespour.home && (
-                      <a href={routes.noussommespour.home}>Signer</a>
+                      <Link href={routes.noussommespour.home}>Signer</Link>
                     )}
                     {routes.noussommespour.eventMapPage && (
-                      <a href={routes.noussommespour.eventMapPage}>
+                      <Link href={routes.noussommespour.eventMapPage}>
                         Carte des événements
-                      </a>
+                      </Link>
                     )}
                     {routes.noussommespour.groupsMap && (
-                      <a href={routes.noussommespour.groupsMap}>
+                      <Link href={routes.noussommespour.groupsMap}>
                         Carte des groupes
-                      </a>
+                      </Link>
                     )}
                   </p>
                 </div>
@@ -374,22 +377,24 @@ export const Footer = (props) => {
                   <h3>La France insoumise</h3>
                   <p>
                     {routes.lafranceinsoumise.home && (
-                      <a href={routes.lafranceinsoumise.home}>Rejoindre</a>
+                      <Link href={routes.lafranceinsoumise.home}>
+                        Rejoindre
+                      </Link>
                     )}
                     {routes.lafranceinsoumise.eventMapPage && (
-                      <a href={routes.lafranceinsoumise.eventMapPage}>
+                      <Link href={routes.lafranceinsoumise.eventMapPage}>
                         Carte des événements
-                      </a>
+                      </Link>
                     )}
                     {routes.lafranceinsoumise.groupMapPage && (
-                      <a href={routes.lafranceinsoumise.groupMapPage}>
+                      <Link href={routes.lafranceinsoumise.groupMapPage}>
                         Carte des groupes d’actions
-                      </a>
+                      </Link>
                     )}
                     {routes.lafranceinsoumise.thematicTeams && (
-                      <a href={routes.lafranceinsoumise.thematicTeams}>
+                      <Link href={routes.lafranceinsoumise.thematicTeams}>
                         Les livrets thématiques
-                      </a>
+                      </Link>
                     )}
                   </p>
                 </div>
@@ -400,16 +405,20 @@ export const Footer = (props) => {
             <h3>Les autres sites</h3>
             <p>
               {routes.noussommespour && (
-                <a href={routes.noussommespour.home}>Nous Sommes Pour !</a>
+                <Link href={routes.noussommespour.home}>
+                  Nous Sommes Pour !
+                </Link>
               )}
               {routes.lafranceinsoumise && (
-                <a href={routes.lafranceinsoumise.home}>La France insoumise</a>
+                <Link href={routes.lafranceinsoumise.home}>
+                  La France insoumise
+                </Link>
               )}
               {routes.jlmBlog && (
-                <a href={routes.jlmBlog}>Le blog de Jean-Luc Mélenchon</a>
+                <Link href={routes.jlmBlog}>Le blog de Jean-Luc Mélenchon</Link>
               )}
               {routes.linsoumission && (
-                <a href={routes.linsoumission}>L'insoumission</a>
+                <Link href={routes.linsoumission}>L'insoumission</Link>
               )}
             </p>
           </div>

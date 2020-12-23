@@ -1,11 +1,20 @@
-import { Footer } from "./Footer";
+import React from "react";
+
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
+import Footer from "./Footer";
 
 export default {
   component: Footer,
   title: "Dashboard/Footer",
 };
 
-const Template = Footer;
+const Template = (args) => (
+  <TestGlobalContextProvider
+    value={{ user: args.isSigned, routes: args.routes }}
+  >
+    <Footer />
+  </TestGlobalContextProvider>
+);
 
 const routes = {
   dashboard: "#dashboard",
