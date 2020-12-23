@@ -34,6 +34,10 @@ const StyledContainer = styled(ToastContainer)`
     font-family: ${style.fontFamilyBase};
     font-weight: 500;
     line-height: 1.12;
+    & a {
+      text-decoration: underline;
+      color: white;
+    }
   }
   .Toastify__toast--error {
     background-color: ${style.redNSP};
@@ -57,12 +61,19 @@ export const Toast = (props) => {
 
   useEffect(() => {
     toasts.forEach((t) => {
-      toast(t.message, {
-        toastId: t.toastId,
-        position: toast.POSITION.TOP_CENTER,
-        type: TOAST_TYPES[t.type.toUpperCase()],
-        onClose: () => onClear(t),
-      });
+      toast(
+        t.html ? (
+          <div dangerouslySetInnerHTML={{ __html: t.message }} />
+        ) : (
+          t.message
+        ),
+        {
+          toastId: t.toastId,
+          position: toast.POSITION.TOP_CENTER,
+          type: TOAST_TYPES[t.type.toUpperCase()],
+          onClose: () => onClear(t),
+        }
+      );
     });
   }, [toasts, onClear]);
 
@@ -86,6 +97,7 @@ Toast.propTypes = {
     PropTypes.shape({
       toastId: PropTypes.string.isRequired,
       message: PropTypes.string.isRequired,
+      html: PropTypes.bool,
       type: PropTypes.oneOf(Object.keys(TOAST_TYPES)),
     })
   ),
