@@ -22,7 +22,7 @@ import AgendaPage from "@agir/events/agendaPage/AgendaPage";
 
     const payload = JSON.parse(dataElement.textContent);
     renderReactComponent(
-      <GlobalContextProvider>
+      <GlobalContextProvider hasToasts>
         <AgendaPage {...payload} />
       </GlobalContextProvider>,
       renderElement

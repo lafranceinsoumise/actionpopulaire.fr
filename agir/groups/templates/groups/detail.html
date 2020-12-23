@@ -40,7 +40,7 @@
               href="{% url "quit_group" supportgroup.pk %}">
               Quitter {% if supportgroup.is_2022 %}l'équipe{% else %}le groupe{% endif %}
             </a>
-          {% elif user.person.is_insoumise or supportgroup.allow_external %}
+          {% elif can_join %}
             <form style="display:inline;" action="{% url "view_group" supportgroup.pk %}" method="post" class="padbottom">
               {% csrf_token %}
               <input type="hidden" name="action" value="join"/>
@@ -53,7 +53,7 @@
             </p>
           {% else %}
             <button class="btn btn-sm btn-primary" disabled>
-              Groupe réservé aux insoumis⋅es
+              Vous ne pouvez pas rejoindre ce groupe
             </button>
           {% endif %}
         {% elif supportgroup.allow_external %}

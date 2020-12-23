@@ -1,6 +1,7 @@
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 
-const debug = require("debug")(`agir:${__filename}`);
+import logger from "@agir/lib/utils/log";
+const log = logger(__filename);
 
 (async function () {
   const [
@@ -22,9 +23,9 @@ const debug = require("debug")(`agir:${__filename}`);
       return;
     }
     const payload = JSON.parse(dataElement.textContent);
-    debug(payload);
+    log.debug(payload);
     renderReactComponent(
-      <GlobalContextProvider>
+      <GlobalContextProvider hasToasts>
         <EventMap {...payload} />
       </GlobalContextProvider>,
       renderElement

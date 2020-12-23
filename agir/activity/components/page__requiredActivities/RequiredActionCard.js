@@ -154,6 +154,7 @@ const RequiredActionCard = (props) => {
     event,
     supportGroup,
     individual,
+    meta,
     onDismiss,
     routes,
   } = props;
@@ -191,7 +192,7 @@ const RequiredActionCard = (props) => {
           iconName="mail"
           confirmLabel="Rejoindre"
           dismissLabel="Décliner"
-          onConfirm={supportGroup.url}
+          onConfirm={(meta && meta.joinUrl) || supportGroup.url}
           onDismiss={handleDismiss}
           text={
             <>
@@ -342,6 +343,9 @@ RequiredActionCard.propTypes = {
   individual: PropTypes.shape({
     firstName: PropTypes.string,
     email: PropTypes.string,
+  }),
+  meta: PropTypes.shape({
+    joinUrl: PropTypes.string,
   }),
   onDismiss: PropTypes.func,
   meta: PropTypes.object,

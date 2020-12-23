@@ -295,7 +295,6 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
         url = reverse("view_group", kwargs={"pk": self.manager_group.pk})
         response = self.client.get(url)
         self.assertNotIn("Rejoindre ce groupe", response.content.decode())
-        self.assertIn("Groupe réservé aux insoumis⋅es", response.content.decode())
 
         # cannot join
         self.client.post(url, data={"action": "join"}, follow=True)

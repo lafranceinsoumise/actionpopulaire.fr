@@ -1,4 +1,6 @@
+import shortUUID from "short-uuid";
 import ACTION_TYPE from "./actionTypes";
+
 import {
   activityStatus,
   getUnreadCount,
@@ -110,6 +112,27 @@ export const routes = (state = {}, action) => {
   return state;
 };
 
+export const toasts = (state = [], action) => {
+  if (
+    action.type === ACTION_TYPE.INIT_ACTION ||
+    action.type === ACTION_TYPE.ADD_TOASTS
+  ) {
+    return Array.isArray(action.toasts)
+      ? action.toasts.map((toast) => ({
+          toastId: shortUUID.generate(),
+          ...toast,
+        }))
+      : state;
+  }
+  if (action.type === ACTION_TYPE.CLEAR_TOAST) {
+    return state.filter(({ toastId }) => toastId !== action.toastId);
+  }
+  if (action.type === ACTION_TYPE.CLEAR_ALL_TOASTS) {
+    return [];
+  }
+  return state;
+};
+
 // Selectors
 export const getDomain = (state) => state.domain;
 
@@ -136,6 +159,8 @@ export const getCsrfToken = (state) => state.csrfToken;
 export const getRoutes = (state) => state.routes;
 export const getRouteById = (state, id) => state.routes[id] || null;
 
+export const getToasts = (state) => state.toasts;
+
 // Root reducer
 const reducers = {
   hasFeedbackButton,
@@ -147,6 +172,7 @@ const reducers = {
   domain,
   csrfToken,
   routes,
+  toasts,
 };
 const rootReducer = (state, action) => {
   let newState = state;

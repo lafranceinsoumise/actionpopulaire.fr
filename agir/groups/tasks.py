@@ -64,15 +64,7 @@ def send_support_group_creation_notification(membership_pk):
     referent = membership.person
 
     bindings = {
-        "GROUP_NAME": group.name,
-        "CONTACT_NAME": group.contact_name,
-        "CONTACT_EMAIL": group.contact_email,
-        "CONTACT_PHONE": group.contact_phone,
-        "CONTACT_PHONE_VISIBILITY": _("caché")
-        if group.contact_hide_phone
-        else _("public"),
-        "LOCATION_NAME": group.location_name,
-        "LOCATION_ADDRESS": group.short_address,
+        "group_name": group.name,
         "GROUP_LINK": front_url(
             "view_group", auto_login=False, kwargs={"pk": group.pk}
         ),
@@ -263,10 +255,22 @@ def invite_to_group(group_id, invited_email, inviter_id):
     group_name = group.name
 
     report_url = make_abusive_invitation_report_link(group_id, inviter_id)
+    invitation_token = make_subscription_token(email=invited_email, group_id=group_id)
+    join_url = front_url(
+        "invitation_with_subscription_confirmation",
+        query={
+            "email": invited_email,
+            "group_id": group_id,
+            "token": invitation_token,
+        },
+    )
 
     if person:
         Activity.objects.create(
-            type=Activity.TYPE_GROUP_INVITATION, recipient=person, supportgroup=group,
+            type=Activity.TYPE_GROUP_INVITATION,
+            recipient=person,
+            supportgroup=group,
+            meta={"joinUrl": join_url},
         )
     else:
         invitation_token = make_subscription_token(
@@ -416,3 +420,31 @@ def geocode_support_group(supportgroup_pk):
                 for r in managing_membership_recipients
             ]
         )
+
+
+@shared_task
+def create_accepted_invitation_member_activity(new_membership_pk):
+    try:
+        new_membership = Membership.objects.get(pk=new_membership_pk)
+    except Membership.DoesNotExist:
+        return
+
+    managers_filter = (Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)) & Q(
+        notifications_enabled=True
+    )
+    managing_membership = new_membership.supportgroup.memberships.filter(
+        managers_filter
+    )
+    recipients = [membership.person for membership in managing_membership]
+
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
+                recipient=r,
+                supportgroup=new_membership.supportgroup,
+                individual=new_membership.person,
+            )
+            for r in recipients
+        ]
+    )

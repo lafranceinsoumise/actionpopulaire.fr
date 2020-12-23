@@ -281,7 +281,7 @@ EMAIL_TEMPLATES = {
     "CARD_EXPIRATION": "https://mosaico.lafranceinsoumise.fr/emails/d571cda0-9227-4333-b4bd-fc067beb3ec8.html",
     # UNSUBSCRIBE_CONFIRMATION variables [MANAGE_SUBSCRIPTIONS_LINK]
     "UNSUBSCRIBE_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/232528e5-af31-45cc-bdc6-7ef4c2ecf789.html",
-    # GROUP_CREATION variables: [GROUP_NAME], [CONTACT_{NAME,EMAIL,PHONE,PHONE_VISIBILITY], [LOCATION_{NAME,LOCATION}], [GROUP_LINK], [MANAGE_GROUP_LINK]
+    # GROUP_CREATION variables: greetings, group_name,  MANAGE_GROUP_LINK
     "GROUP_CREATION": "https://mosaico.lafranceinsoumise.fr/emails/d852c994-f46d-41ce-89a5-05cfa553476d.html",
     # GROUP_CHANGED variables: GROUP_NAME, GROUP_CHANGES, GROUP_LINK
     "GROUP_CHANGED": "https://mosaico.lafranceinsoumise.fr/emails/e3932ae5-3648-4686-b607-4b744d15dfe8.html",
