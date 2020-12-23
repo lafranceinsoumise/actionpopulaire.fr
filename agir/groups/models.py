@@ -161,7 +161,7 @@ class SupportGroup(
         return [
             m.person
             for m in self.memberships.filter(
-                membership_type__gt=Membership.MEMBERSHIP_TYPE_MANAGER
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
             )
         ]
 
@@ -170,7 +170,7 @@ class SupportGroup(
         return [
             m.person
             for m in self.memberships.filter(
-                membership_type__gt=Membership.MEMBERSHIP_TYPE_REFERENT
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT
             )
         ]
 
