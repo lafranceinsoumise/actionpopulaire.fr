@@ -2,6 +2,7 @@ import { lazy } from "react";
 
 const AgendaPage = lazy(() => import("@agir/events/agendaPage/AgendaPage"));
 const EventMap = lazy(() => import("@agir/carte/page__eventMap/EventMap"));
+const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
 
 const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
 const GroupMap = lazy(() => import("@agir/carte/page__groupMap/GroupMap"));
@@ -32,6 +33,13 @@ export const routeConfig = {
     exact: true,
     label: "Carte des événements",
     Component: EventMap,
+  },
+  eventDetails: {
+    id: "eventDetails",
+    pathname: "/evenements/:eventPk",
+    exact: true,
+    label: "Details de l'événement",
+    Component: EventPage,
   },
   groups: {
     id: "groups",
