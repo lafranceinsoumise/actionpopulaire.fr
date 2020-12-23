@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import React from "react";
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -11,6 +12,9 @@ const ActivityPage = (props) => (
     title="Actualités"
     subtitle="L'actualité de vos groupes et de votre engagement"
   >
+    <Helmet>
+      <title>Actualités - Action populaire</title>
+    </Helmet>
     <ActivityList {...props} />
   </Layout>
 );

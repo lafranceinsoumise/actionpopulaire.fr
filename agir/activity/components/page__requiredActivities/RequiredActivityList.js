@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 
@@ -57,6 +58,9 @@ const RequiredActivityList = () => {
 
   return (
     <Layout active="required-activity">
+      <Helmet>
+        <title>À faire - Action populaire</title>
+      </Helmet>
       <Page>
         <LayoutTitle>
           {activities.length ? <Counter>{activities.length}</Counter> : null}À

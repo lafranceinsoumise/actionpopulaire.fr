@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
@@ -69,6 +70,9 @@ const MapPage = (props) => {
 
   return (
     <main>
+      <Helmet>
+        <title>{title} - Action populaire</title>
+      </Helmet>
       <Header>
         {user && back && (
           <Button as="a" href={back} icon="arrow-left">

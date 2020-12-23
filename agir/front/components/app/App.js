@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import React from "react";
 
 import { GlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
@@ -10,6 +11,9 @@ export default function App() {
   return (
     <GlobalContextProvider>
       <Router>
+        <Helmet>
+          <title>Plateforme d'action - Action populaire</title>
+        </Helmet>
         <TopBar />
         <PushModal isActive />
         <FeedbackButton />

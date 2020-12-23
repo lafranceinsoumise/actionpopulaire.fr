@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
@@ -93,6 +94,9 @@ const GroupsPage = () => {
 
   return (
     <Layout active="groups" smallBackgroundColor={style.black25}>
+      <Helmet>
+        <title>Mes groupes - Action populaire</title>
+      </Helmet>
       <TopBar>
         <LayoutTitle>Mes groupes</LayoutTitle>
         <div>
