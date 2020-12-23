@@ -74,7 +74,7 @@ RootComponent.propTypes = {
 };
 
 export const renderReactComponent = (component, node) => {
-  ReactDOM.render(component, node);
+  node && ReactDOM.render(component, node);
 };
 
 export const renderWithContext = async (

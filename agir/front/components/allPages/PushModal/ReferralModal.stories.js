@@ -9,7 +9,7 @@ const Template = ReferralModal;
 
 export const Default = Template.bind({});
 Default.args = {
-  referralURL: "#referral",
+  referralURL: "https://referral.url",
   shouldShow: true,
   onClose: () => {},
 };
