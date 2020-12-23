@@ -72,4 +72,8 @@ export const routeConfig = {
 
 const routes = Object.values(routeConfig);
 
+export const getRouteByPathname = (pathname) => {
+  return routes.find((route) => route.pathname === pathname);
+};
+
 export default routes;

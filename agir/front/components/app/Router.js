@@ -32,6 +32,9 @@ const Router = ({ children }) => (
             <Button to={routes[0]} as="Link" color="primary">
               Une route
             </Button>
+            <Button route="dashboard" as="Link" color="primary">
+              Une route backend
+            </Button>
           </li>
         </ul>
       </nav>

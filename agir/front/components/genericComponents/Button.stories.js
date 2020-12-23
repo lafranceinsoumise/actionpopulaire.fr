@@ -64,6 +64,7 @@ export const LinkButton = Template.bind({});
 LinkButton.args = {
   ...Default.args,
   as: "a",
+  href: "#some.link",
 };
 
 export const IconButton = Template.bind({});
@@ -78,7 +79,7 @@ export const ButtonAndLink = (args) => (
       <Button {...args}>Bouton</Button>
     </Column>
     <Column>
-      <Button as="a" {...args}>
+      <Button as="a" href="#some.link" {...args}>
         Lien
       </Button>
     </Column>
