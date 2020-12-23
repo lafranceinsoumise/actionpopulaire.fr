@@ -42,50 +42,17 @@ Page.propTypes = {
 
 const Router = ({ children }) => (
   <BrowserRouter basename={BASE_PATH}>
-    <div>
-      <nav>
-        <ul>
-          {routes.map((route) => (
-            <li key={route.id}>
-              <Link
-                to={route.getLink({
-                  eventPk: "54e7f6e2-f816-4630-9277-1317ff52b1db/",
-                })}
-              >
-                {route.label}
-              </Link>
-            </li>
-          ))}
-          <li key="etc">
-            <Link href="https://actionpopulaire.fr">Une page externe</Link>
-            <Button
-              href="https://actionpopulaire.fr"
-              as="Link"
-              color="secondary"
-            >
-              Bouton
-            </Button>
-            <Button to={routes[0]} as="Link" color="primary">
-              Une route
-            </Button>
-            <Button route="dashboard" as="Link" color="primary">
-              Une route backend
-            </Button>
-          </li>
-        </ul>
-      </nav>
-      <Switch>
-        {routes.map((route) => (
-          <Route key={route.id} path={route.pathname} exact={!!route.exact}>
-            <Page Component={route.Component} routeConfig={route} />
-          </Route>
-        ))}
-        <Route key="not-found">
-          <NotFound />
+    <Switch>
+      {routes.map((route) => (
+        <Route key={route.id} path={route.pathname} exact={!!route.exact}>
+          <Page Component={route.Component} routeConfig={route} />
         </Route>
-      </Switch>
-      {children}
-    </div>
+      ))}
+      <Route key="not-found">
+        <NotFound />
+      </Route>
+    </Switch>
+    {children}
   </BrowserRouter>
 );
 Router.propTypes = {
