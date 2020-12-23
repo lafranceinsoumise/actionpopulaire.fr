@@ -199,30 +199,24 @@ ALERT_CAPACITY_SUBJECTS = {
 
 
 @emailing_task
-def send_alert_capacity_email(membership_pk, count):
+def send_alert_capacity_email(supportgroup_pk, count):
     assert count in [21, 30]
 
     try:
-        membership = Membership.objects.select_related("person", "supportgroup").get(
-            pk=membership_pk
-        )
+        supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
     except Membership.DoesNotExist:
         return
 
     bindings = {
-        "GROUP_NAME": membership.supportgroup.name,
-        "GROUP_NAME_URL": front_url(
-            "view_group", kwargs={"pk": membership.supportgroup.pk}
-        ),
-        "TRANSFER_LINK": front_url(
-            "transfer_group_members", args=(membership.supportgroup.pk,)
-        ),
+        "GROUP_NAME": supportgroup.name,
+        "GROUP_NAME_URL": front_url("view_group", kwargs={"pk": supportgroup.pk}),
+        "TRANSFER_LINK": front_url("transfer_group_members", args=(supportgroup.pk,)),
     }
     send_mosaico_email(
         code=f"GROUP_ALERT_CAPACITY_{str(count)}",
         subject=ALERT_CAPACITY_SUBJECTS[count],
         from_email=settings.EMAIL_FROM,
-        recipients=membership.supportgroup.referents,
+        recipients=supportgroup.referents,
         bindings=bindings,
     )
 
