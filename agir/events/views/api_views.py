@@ -78,7 +78,7 @@ class EventRsvpedAPIView(ListAPIView):
 
 
 class EventDetailAPIView(RetrieveAPIView):
-    permission_required = ("events.view_event",)
+    permission_ = ("events.view_event",)
     serializer_class = EventSerializer
     queryset = Event.objects.all()
 

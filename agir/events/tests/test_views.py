@@ -774,17 +774,20 @@ class RSVPTestCase(TestCase):
     def test_can_rsvp_to_simple_event_and_quit(self, rsvp_notification):
         self.client.force_login(self.person.role)
 
-        url = reverse("view_event", kwargs={"pk": self.simple_event.pk})
-
         # can see the form
-        response = self.client.get(url)
-        self.assertFalse(response.context["export_data"]["rsvp"])
+        response = self.client.get(
+            reverse("api_event_view", kwargs={"pk": self.simple_event.pk})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()["rsvp"])
 
         # can actually post the form
         response = self.client.post(
             reverse("rsvp_event", kwargs={"pk": self.simple_event.pk})
         )
-        self.assertRedirects(response, url)
+        self.assertRedirects(
+            response, reverse("view_event", kwargs={"pk": self.simple_event.pk})
+        )
         self.assertIn(self.person, self.simple_event.attendees.all())
         self.assertEqual(2, self.simple_event.participants)
 
@@ -803,9 +806,10 @@ class RSVPTestCase(TestCase):
     def test_can_view_rsvp(self):
         self.client.force_login(self.already_rsvped.role)
 
-        url = reverse("view_event", kwargs={"pk": self.simple_event.pk})
+        url = reverse("api_event_view", kwargs={"pk": self.simple_event.pk})
         response = self.client.get(url)
-        self.assertEqual("CO", response.context["export_data"]["rsvp"])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual("CO", response.json()["rsvp"])
         self.assertEqual(1, self.simple_event.participants)
 
     def test_cannot_rsvp_if_max_participants_reached(self):
