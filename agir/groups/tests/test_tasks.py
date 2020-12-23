@@ -137,6 +137,7 @@ class NotificationTasksTestCase(TestCase):
             location_zip="75014",
             location_city="Paris",
             location_country="FR",
+            type=SupportGroup.TYPE_2022,
         )
 
         creator_membership = Membership.objects.create(
