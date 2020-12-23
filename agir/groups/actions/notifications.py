@@ -32,7 +32,10 @@ def someone_joined_notification(membership, membership_count=1):
         if membership.supportgroup.MEMBERSHIP_LIMIT + step > 0
     ]
 
-    if membership_count in membership_limit_notication_steps:
+    if (
+        membership.supportgroup.is_2022
+        and membership_count in membership_limit_notication_steps
+    ):
         current_membership_limit_notification_step = membership_limit_notication_steps.index(
             membership_count
         )
@@ -52,7 +55,7 @@ def someone_joined_notification(membership, membership_count=1):
                 for r in recipients
             ]
         )
-    if membership_count in [21, 30]:
+    if membership.supportgroup.is_2022 and membership_count in [21, 30]:
         transaction.on_commit(
             partial(
                 send_alert_capacity_email.delay,
