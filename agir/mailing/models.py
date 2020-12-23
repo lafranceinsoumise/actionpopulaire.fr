@@ -448,32 +448,35 @@ class Segment(BaseSegment, models.Model):
                     q_mandats |= Q(**{t: True})
             q &= q_mandats
 
-        if self.add_segments.all().count() > 0:
-            q = reduce(
-                lambda q1, q2: q1 | q2,
-                (s.get_subscribers_q() for s in self.add_segments.all()),
-                q,
-            )
-
-        if self.exclude_segments.all().count() > 0:
-            q = reduce(
-                lambda q1, q2: q1 & ~q2,
-                (s.get_subscribers_q() for s in self.exclude_segments.all()),
-                q,
-            )
-
         return q
 
-    def get_subscribers_queryset(self):
+    def _get_own_filters_queryset(self):
         qs = Person.objects.all()
+
+        return qs.filter(self.get_subscribers_q())
+
+    def get_subscribers_queryset(self):
+        qs = self._get_own_filters_queryset()
+
+        for s in self.add_segments.all():
+            qs = Person.objects.filter(
+                Q(pk__in=qs) | Q(pk__in=s.get_subscribers_queryset())
+            )
+
+        for s in self.exclude_segments.all():
+            qs = qs.exclude(pk__in=s.get_subscribers_queryset())
 
         if self.elu:
             qs = qs.annotate_elus()
 
-        return qs.filter(self.get_subscribers_q()).order_by("id").distinct("id")
+        return qs.order_by("id").distinct("id")
 
     def get_subscribers_count(self):
-        return self.get_subscribers_queryset().count()
+        return (
+            self._get_own_filters_queryset().order_by("id").distinct("id").count()
+            + sum(s.get_subscribers_count() for s in self.add_segments.all())
+            - sum(s.get_subscribers_count() for s in self.exclude_segments.all())
+        )
 
     get_subscribers_count.short_description = "Personnes"
     get_subscribers_count.help_text = "Estimation du nombre d'inscrits"
