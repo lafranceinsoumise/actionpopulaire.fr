@@ -4,6 +4,7 @@ import React from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 
 const CONFIG = {
@@ -65,7 +66,7 @@ const Map = styled.iframe`
 `;
 
 const MapPage = (props) => {
-  const { user, type, back, create, map } = props;
+  const { user, type, backRoute, createRoute, mapURL } = props;
   const { title, backLabel, createLabel } = CONFIG[type];
 
   return (
@@ -74,15 +75,15 @@ const MapPage = (props) => {
         <title>{title} - Action populaire</title>
       </Helmet>
       <Header>
-        {user && back && (
-          <Button as="a" href={back} icon="arrow-left">
+        {user && (
+          <Button as="Link" route={backRoute} icon="arrow-left">
             <span>{backLabel}</span>
           </Button>
         )}
         <h1>{title}</h1>
-        {user && create && <a href={create}>{createLabel}</a>}
+        {user && <Link route={createRoute}>{createLabel}</Link>}
       </Header>
-      <Map src={map}></Map>
+      <Map src={mapURL}></Map>
     </main>
   );
 };
@@ -90,8 +91,8 @@ const MapPage = (props) => {
 MapPage.propTypes = {
   user: PropTypes.object,
   type: PropTypes.oneOf(["events", "groups"]),
-  back: PropTypes.string,
-  create: PropTypes.string,
-  map: PropTypes.string,
+  backRoute: PropTypes.string,
+  createRoute: PropTypes.string,
+  mapURL: PropTypes.string,
 };
 export default MapPage;

@@ -15,9 +15,9 @@ const EventMap = () => {
   return (
     <MapPage
       type="events"
-      back={routes.events}
-      create={routes.createEvent}
-      map={routes.eventsMap}
+      backRoute="events"
+      createRoute="createEvent"
+      mapURL={routes.eventsMap}
       user={user}
     />
   );
