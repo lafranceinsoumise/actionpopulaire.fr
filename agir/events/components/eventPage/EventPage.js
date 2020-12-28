@@ -32,7 +32,7 @@ import useSWR from "swr";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
-import logger from "@agir/lib/utils/log";
+import logger from "@agir/lib/utils/logger";
 const log = logger(__filename);
 
 const CardLikeSection = styled.section``;

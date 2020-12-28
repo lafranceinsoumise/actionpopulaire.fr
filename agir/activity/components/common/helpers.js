@@ -1,6 +1,6 @@
 import axios from "@agir/lib/utils/axios";
 
-import logger from "@agir/lib/utils/log";
+import logger from "@agir/lib/utils/logger";
 const log = logger(__filename);
 
 const bulkUpdateActivityStatusEndpoint = "/api/activity/bulk/update-status/";

@@ -9,7 +9,7 @@ import VectorLayer from "ol/layer/Vector";
 import { fontIsLoaded } from "./utils";
 import { makeStyle, setUpMap } from "./common";
 
-import logger from "@agir/lib/utils/log";
+import logger from "@agir/lib/utils/logger";
 const log = logger(__filename);
 
 export default async function itemMap(

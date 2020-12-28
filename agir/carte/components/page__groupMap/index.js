@@ -1,6 +1,6 @@
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 
-import logger from "@agir/lib/utils/log";
+import logger from "@agir/lib/utils/logger";
 
 (async function () {
   const [

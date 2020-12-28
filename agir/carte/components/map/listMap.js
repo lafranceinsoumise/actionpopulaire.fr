@@ -13,7 +13,7 @@ import makeLayerControl from "./layerControl";
 import makeSearchControl from "./searchControl";
 import getFormatPopups from "./itemPopups";
 
-import logger from "@agir/lib/utils/log";
+import logger from "@agir/lib/utils/logger";
 const log = logger(__filename);
 
 const OFFSET = 0.00005;
