@@ -64,6 +64,15 @@ class EventOptionsSerializer(serializers.Serializer):
         return obj.get_price_display()
 
 
+class EventListSerializer(serializers.ListSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.child.fields["groups"] = SupportGroupSerializer(
+            many=True, source="organizers_groups", fields=["name", "isMember"],
+        )
+
+
 class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     id = serializers.UUIDField()
     url = serializers.HyperlinkedIdentityField(view_name="view_event")
@@ -179,3 +188,6 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_is2022(self, obj):
         return obj.is_2022
+
+    class Meta:
+        list_serializer_class = EventListSerializer
