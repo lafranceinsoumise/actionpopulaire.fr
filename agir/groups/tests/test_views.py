@@ -73,8 +73,7 @@ class SupportGroupMixin:
 
 
 class SupportGroupPageTestCase(SupportGroupMixin, TestCase):
-    @mock.patch("agir.front.views.geocode_person")
-    def test_basic_membr_can_quit_group(self, geocode_person):
+    def test_basic_membr_can_quit_group(self):
         response = self.client.get(
             reverse("quit_group", kwargs={"pk": self.member_group.pk})
         )
@@ -84,8 +83,6 @@ class SupportGroupPageTestCase(SupportGroupMixin, TestCase):
             reverse("quit_group", kwargs={"pk": self.member_group.pk})
         )
         self.assertRedirects(response, reverse("dashboard"))
-
-        geocode_person.delay.assert_called_once()
 
         self.assertFalse(
             self.member_group.memberships.filter(person=self.person).exists()

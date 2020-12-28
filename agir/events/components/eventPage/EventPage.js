@@ -28,6 +28,9 @@ import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import useSWR from "swr";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
@@ -264,11 +267,39 @@ MobileLayout.propTypes = DesktopLayout.propTypes = {
   schedule: PropTypes.instanceOf(Interval),
 };
 
+const DesktopSkeleton = () => (
+  <Container style={{ margin: "4rem auto", padding: "0 4rem" }}>
+    <Row gutter={32}>
+      <Column grow>
+        <Skeleton />
+      </Column>
+      <Column width="380px">
+        <Skeleton />
+      </Column>
+    </Row>
+  </Container>
+);
+
+const MobileSkeleton = () => (
+  <Container style={{ margin: "2rem auto", padding: "0 1rem" }}>
+    <Row>
+      <Column>
+        <Skeleton />
+      </Column>
+    </Row>
+  </Container>
+);
+
 export const ConnectedEventPage = (props) => {
-  const { is2022 } = props;
+  // À remplacer pour l'obtenir du router front
+  const { pk } = props;
   const isConnected = useSelector(getIsConnected);
   const routes = useSelector(getRoutes);
   const dispatch = useDispatch();
+
+  const { data: eventData } = useSWR(`/api/evenements/${pk}`);
+
+  let { is2022 } = eventData || {};
 
   React.useEffect(() => {
     is2022 === true && dispatch(setIs2022());
@@ -276,12 +307,24 @@ export const ConnectedEventPage = (props) => {
 
   return (
     <>
-      <EventPage {...props} logged={isConnected} appRoutes={routes} />
+      <PageFadeIn
+        ready={eventData}
+        wait={
+          <ResponsiveLayout
+            DesktopLayout={DesktopSkeleton}
+            MobileLayout={MobileSkeleton}
+          />
+        }
+      >
+        <EventPage {...eventData} logged={isConnected} appRoutes={routes} />
+      </PageFadeIn>
       <Footer />
     </>
   );
 };
+
 ConnectedEventPage.propTypes = {
-  is2022: PropTypes.bool,
+  pk: PropTypes.string,
 };
+
 export default ConnectedEventPage;
