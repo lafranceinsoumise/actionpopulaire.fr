@@ -30,6 +30,7 @@ import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import style from "@agir/front/genericComponents/_variables.scss";
 import useSWR from "swr";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
@@ -306,14 +307,17 @@ export const ConnectedEventPage = (props) => {
 
   return (
     <>
-      {eventData ? (
+      <PageFadeIn
+        ready={eventData}
+        wait={
+          <ResponsiveLayout
+            DesktopLayout={DesktopSkeleton}
+            MobileLayout={MobileSkeleton}
+          />
+        }
+      >
         <EventPage {...eventData} logged={isConnected} appRoutes={routes} />
-      ) : (
-        <ResponsiveLayout
-          DesktopLayout={DesktopSkeleton}
-          MobileLayout={MobileSkeleton}
-        />
-      )}
+      </PageFadeIn>
       <Footer />
     </>
   );

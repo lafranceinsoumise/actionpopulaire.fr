@@ -14,6 +14,7 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 import useSWR from "swr";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 const TopBar = styled.div`
   display: flex;
@@ -113,11 +114,14 @@ const GroupsPage = () => {
           ) : null}
         </div>
       </TopBar>
-      {groups && !hasOwnGroups ? (
-        <Onboarding type="group__suggestions" routes={routes} />
-      ) : null}
-      {groups ? (
-        groups.length > 0 && (
+      <PageFadeIn ready={groups} wait={<Skeleton boxes={2} />}>
+        {/* Si l'utilisateurice n'a pas de groupes,
+        groups contient la liste des groupes suggérés,
+         on place donc avant le texte introductif */}
+        {groups && !hasOwnGroups ? (
+          <Onboarding type="group__suggestions" routes={routes} />
+        ) : null}
+        {groups && groups.length > 0 && (
           <GroupList>
             {groups.map((group) => (
               <GroupCard
@@ -130,13 +134,11 @@ const GroupsPage = () => {
               />
             ))}
           </GroupList>
-        )
-      ) : (
-        <Skeleton boxes={2} />
-      )}
-      {groups && !hasOwnGroups ? (
-        <Onboarding type="group__creation" routes={routes} />
-      ) : null}
+        )}
+        {groups && !hasOwnGroups ? (
+          <Onboarding type="group__creation" routes={routes} />
+        ) : null}
+      </PageFadeIn>
     </Layout>
   );
 };

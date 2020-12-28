@@ -24,6 +24,7 @@ import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import Onboarding from "@agir/front/genericComponents/Onboarding";
 import useSWR from "swr";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 const TopBar = styled.div`
   display: flex;
@@ -302,7 +303,7 @@ const Agenda = () => {
           </div>
         </TopBar>
       </header>
-      {rsvpedEvents ? (
+      <PageFadeIn ready={rsvpedEvents && suggestions} wait={<Skeleton />}>
         <Row style={{ marginBottom: "4rem" }}>
           <Column grow>
             {rsvpedEvents && rsvpedEvents.length > 0 && (
@@ -314,7 +315,10 @@ const Agenda = () => {
                 <h2>Autres événements près de chez moi</h2>
               </>
             )}
-            {suggestions ? (
+            <PageFadeIn ready={suggestions} wait={<Skeleton />}>
+              {/* Suggested events are longer to load than rsvped,
+              so when rsvpedEvents is loaded we still display skeleton
+              only on this part */}
               <>
                 <SuggestionsEvents suggestions={suggestions} />
                 <Row>
@@ -331,17 +335,10 @@ const Agenda = () => {
                   </Column>
                 </Row>
               </>
-            ) : (
-              <Skeleton />
-              // Suggested events are longer to load than rsvped,
-              // so when only rsvpedEvents is loaded we display skeleton
-              // only on this part
-            )}
+            </PageFadeIn>
           </Column>
         </Row>
-      ) : (
-        <Skeleton />
-      )}
+      </PageFadeIn>
     </StyledAgenda>
   );
 };
