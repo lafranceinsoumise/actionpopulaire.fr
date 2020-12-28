@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated
 
 from agir.events.filters import EventAPIFilter
 from agir.events.models import Event
@@ -84,6 +85,7 @@ class EventDetailAPIView(RetrieveAPIView):
 
 
 class EventSuggestionsAPIView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = EventSerializer
 
     def get_serializer(self, *args, **kwargs):
@@ -146,7 +148,6 @@ class EventSuggestionsAPIView(ListAPIView):
                     start_time__lt=timezone.now() + timedelta(days=30),
                     do_not_list=False,
                 )
-                .exclude(pk__in=groups_events)
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")[:10]
             )
