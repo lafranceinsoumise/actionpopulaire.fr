@@ -321,7 +321,7 @@ const Agenda = () => {
               only on this part */}
               <>
                 <SuggestionsEvents suggestions={suggestions} />
-                <Row>
+                <Row style={{ marginTop: "4rem" }}>
                   <Column grow>
                     <Onboarding
                       type={is2022 ? "group__nsp" : "group__action"}
