@@ -32,6 +32,9 @@ import useSWR from "swr";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
+import logger from "@agir/lib/utils/log";
+const log = logger(__filename);
+
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
   & > ${Card}, & > ${CardLikeSection} {
@@ -298,6 +301,7 @@ export const ConnectedEventPage = (props) => {
   const dispatch = useDispatch();
 
   const { data: eventData } = useSWR(`/api/evenements/${pk}`);
+  log.debug("Event data", eventData);
 
   let { is2022 } = eventData || {};
 
@@ -316,7 +320,9 @@ export const ConnectedEventPage = (props) => {
           />
         }
       >
-        <EventPage {...eventData} logged={isConnected} appRoutes={routes} />
+        {eventData && (
+          <EventPage {...eventData} logged={isConnected} appRoutes={routes} />
+        )}
       </PageFadeIn>
       <Footer />
     </>

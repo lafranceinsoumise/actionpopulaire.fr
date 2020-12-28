@@ -13,7 +13,7 @@ export const PageFadeIn = ({ ready, wait, children }) => {
 };
 
 PageFadeIn.propTypes = {
-  ready: PropTypes.bool,
+  ready: PropTypes.any,
   wait: PropTypes.node,
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
 };

@@ -90,7 +90,7 @@ class GlobalOnlyPermissions(ScopePermissionsMixin, DjangoModelPermissions):
 class GlobalOrObjectPermissions(
     ScopePermissionsMixin, GlobalOrObjectPermissionsMixin, DjangoModelPermissions
 ):
-    authenticated_users_only = True
+    authenticated_users_only = False
 
     perms_map = {
         "GET": [],
