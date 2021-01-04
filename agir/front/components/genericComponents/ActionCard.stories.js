@@ -31,4 +31,5 @@ Default.args = {
   iconName: "alert-circle",
   confirmLabel: "Mettre à jour",
   dismissLabel: "Cacher",
+  dismissed: false,
 };

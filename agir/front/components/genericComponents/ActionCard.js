@@ -19,6 +19,21 @@ const StyledFooter = styled.footer`
   display: flex;
   flex-flow: row nowrap;
 `;
+const StyledButton = styled(Button)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-align: left;
+
+  &[disabled] {
+    cursor: default;
+  }
+
+  & + & {
+    margin-left: 0.5rem;
+  }
+`;
 
 const ActionCard = (props) => {
   const {
@@ -29,9 +44,10 @@ const ActionCard = (props) => {
     dismissLabel,
     onDismiss,
     disabled,
+    dismissed,
   } = props;
   return (
-    <Card type="alert">
+    <Card type={dismissed ? "alert_dismissed" : "alert"}>
       <Container style={{ width: "auto" }}>
         <Row justify="flex-start">
           <Column width="auto" collapse={0} style={{ padding: 0 }}>
@@ -61,13 +77,28 @@ const ActionCard = (props) => {
                 </Button>
               ) : null}
               {typeof onDismiss === "function" ? (
-                <Button onClick={onDismiss} small disabled={disabled}>
+                <StyledButton
+                  onClick={onDismiss}
+                  small
+                  disabled={disabled}
+                  color={dismissed ? "success" : "default"}
+                  icon={dismissed ? "x" : undefined}
+                  $hasTransition
+                >
                   {dismissLabel}
-                </Button>
+                </StyledButton>
               ) : typeof onDismiss === "string" ? (
-                <Button small as="a" href={onDismiss} disabled={disabled}>
+                <StyledButton
+                  small
+                  as="a"
+                  href={onDismiss}
+                  disabled={disabled}
+                  color={dismissed ? "success" : "default"}
+                  icon={dismissed ? "x" : undefined}
+                  $hasTransition
+                >
                   {dismissLabel}
-                </Button>
+                </StyledButton>
               ) : null}
             </StyledFooter>
           </Column>
@@ -85,10 +116,12 @@ ActionCard.propTypes = {
   dismissLabel: PropTypes.string,
   onDismiss: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   disabled: PropTypes.bool,
+  dismissed: PropTypes.bool,
 };
 ActionCard.defaultProps = {
   dismissLabel: "Cacher",
   disabled: false,
+  dismissed: false,
 };
 
 export default ActionCard;

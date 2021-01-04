@@ -11,7 +11,12 @@ const cardTypes = {
     background: style.primary100,
   },
   alert: {
-    background: `linear-gradient(90deg, ${style.black1000} 0, ${style.black1000} 3px, ${style.white} 3px)`,
+    backgroundImage: `linear-gradient(90deg, transparent 0, transparent 3px, ${style.white} 3px)`,
+    backgroundColor: style.black1000,
+  },
+  alert_dismissed: {
+    backgroundImage: `linear-gradient(90deg, transparent 0, transparent 3px, ${style.white} 3px)`,
+    backgroundColor: style.white,
   },
 };
 
@@ -19,6 +24,14 @@ const Card = styled.div`
   background: ${({ type }) =>
     type && cardTypes[type] && cardTypes[type].background
       ? cardTypes[type].background
+      : cardTypes.default.background};
+  background-image: ${({ type }) =>
+    type && cardTypes[type] && cardTypes[type].backgroundImage
+      ? cardTypes[type].backgroundImage
+      : "none"};
+  background-color: ${({ type }) =>
+    type && cardTypes[type] && cardTypes[type].backgroundColor
+      ? cardTypes[type].backgroundColor
       : cardTypes.default.background};
   padding: 1.5rem;
   border-radius: ${({ type }) =>
@@ -29,7 +42,7 @@ const Card = styled.div`
   cursor: ${({ onClick }) => (onClick ? "pointer" : "default")};
   border: 1px solid;
   border-color: ${style.black100};
-  transition: border-color 300ms;
+  transition: border-color, background-color 300ms;
 
   &:hover {
     ${({ onClick }) =>
