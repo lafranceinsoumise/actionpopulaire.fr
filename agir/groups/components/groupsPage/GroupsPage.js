@@ -73,17 +73,18 @@ const GroupsPage = () => {
 
   const groups = React.useMemo(
     () =>
-      groupList &&
-      groupList.map(({ discountCodes, ...group }) => ({
-        ...group,
-        discountCodes: discountCodes.map(({ code, expirationDate }) => ({
-          code,
-          expirationDate: DateTime.fromISO(expirationDate, {
-            zone: "Europe/Paris",
-            locale: "fr",
-          }),
-        })),
-      })),
+      groupList
+        ? groupList.map(({ discountCodes, ...group }) => ({
+            ...group,
+            discountCodes: discountCodes.map(({ code, expirationDate }) => ({
+              code,
+              expirationDate: DateTime.fromISO(expirationDate, {
+                zone: "Europe/Paris",
+                locale: "fr",
+              }),
+            })),
+          }))
+        : [],
     [groupList]
   );
 

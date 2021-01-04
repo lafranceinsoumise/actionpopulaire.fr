@@ -288,12 +288,11 @@ const MobileSkeleton = () => (
 );
 
 export const ConnectedEventPage = (props) => {
-  // À remplacer pour l'obtenir du router front
-  const { pk } = props;
+  const { eventPk } = props;
   const isConnected = useSelector(getIsConnected);
   const dispatch = useDispatch();
 
-  const { data: eventData } = useSWR(`/api/evenements/${pk}`);
+  const { data: eventData } = useSWR(`/api/evenements/${eventPk}`);
   log.debug("Event data", eventData);
 
   let { is2022 } = eventData || {};
@@ -321,7 +320,7 @@ export const ConnectedEventPage = (props) => {
 };
 
 ConnectedEventPage.propTypes = {
-  pk: PropTypes.string,
+  eventPk: PropTypes.string,
 };
 
 export default ConnectedEventPage;

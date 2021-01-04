@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import generateLogger from "@agir/lib/utils/log";
+import generateLogger from "@agir/lib/utils/logger";
 
 const logger = generateLogger(__filename);
 
