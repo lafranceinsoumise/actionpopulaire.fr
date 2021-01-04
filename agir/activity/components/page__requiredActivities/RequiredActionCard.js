@@ -10,7 +10,14 @@ import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard
 import { activityStatus } from "@agir/activity/common/helpers";
 
 const GroupMembershipLimitReminderRequiredActionCard = (props) => {
-  const { supportGroup, meta = {}, routes, onDismiss, dismissed } = props;
+  const {
+    supportGroup,
+    meta = {},
+    routes,
+    onDismiss,
+    dismissed,
+    timestamp,
+  } = props;
   const { membershipCount, membershipLimitNotificationStep } = meta;
 
   if (!membershipCount || typeof membershipLimitNotificationStep !== "number") {
@@ -29,6 +36,7 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
           }
           onDismiss={onDismiss}
           dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               <strong>
@@ -56,6 +64,7 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
           }
           onDismiss={onDismiss}
           dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               <strong>Votre équipe est trop nombreuse</strong>
@@ -82,6 +91,7 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
           }
           onDismiss={onDismiss}
           dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               <strong>
@@ -108,6 +118,7 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
           onConfirm={routes.groupTransferHelp}
           onDismiss={onDismiss}
           dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               <strong>
@@ -144,6 +155,7 @@ GroupMembershipLimitReminderRequiredActionCard.propTypes = {
   }).isRequired,
   onDismiss: PropTypes.func,
   dismissed: PropTypes.bool,
+  timestamp: PropTypes.string,
 };
 
 const RequiredActionCard = (props) => {
@@ -157,6 +169,7 @@ const RequiredActionCard = (props) => {
     onDismiss,
     status,
     routes,
+    timestamp,
   } = props;
 
   const handleDismiss = useCallback(() => {
@@ -205,6 +218,7 @@ const RequiredActionCard = (props) => {
           onConfirm={event.routes.rsvp}
           onDismiss={goToEventDetails}
           dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               Vous n'avez pas encore réglé votre place pour l'événément :{" "}
@@ -223,6 +237,7 @@ const RequiredActionCard = (props) => {
           onConfirm={(meta && meta.joinUrl) || supportGroup.url}
           onDismiss={handleDismiss}
           dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               Vous avez été invité-e à rejoindre le groupe :{" "}
@@ -241,6 +256,7 @@ const RequiredActionCard = (props) => {
           onConfirm={copyEmail}
           onDismiss={handleDismiss}
           dismissed={dismissed}
+          timestamp={timestamp}
           disabled={isEmailCopied}
           text={
             <>
@@ -260,6 +276,7 @@ const RequiredActionCard = (props) => {
           onConfirm={supportGroup.url}
           onDismiss={handleDismiss}
           dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               Précisez la localisation de votre groupe{" "}
@@ -278,6 +295,7 @@ const RequiredActionCard = (props) => {
           onConfirm={goToEventDetails}
           onDismiss={handleDismiss}
           dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               <strong>{props.individual.firstName || "Quelqu'un"}</strong> a
@@ -297,6 +315,7 @@ const RequiredActionCard = (props) => {
           onConfirm={event.routes.manage}
           onDismiss={handleDismiss}
           dismissed={dismissed}
+          timestamp={timestamp}
           text={<>Précisez la localisation de votre événement :{Event}</>}
         />
       );
@@ -310,6 +329,7 @@ const RequiredActionCard = (props) => {
           onConfirm={routes && routes.newGroupHelp}
           onDismiss={handleDismiss}
           dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               <a href={supportGroup.url}>{supportGroup.name}</a> est en ligne !
@@ -338,6 +358,7 @@ const RequiredActionCard = (props) => {
           {...props}
           onDismiss={handleDismiss}
           dismissed={dismissed}
+          timestamp={timestamp}
         />
       );
     }
@@ -379,5 +400,6 @@ RequiredActionCard.propTypes = {
   status: PropTypes.oneOf(Object.values(activityStatus)),
   meta: PropTypes.object,
   routes: PropTypes.object,
+  timestamp: PropTypes.string,
 };
 export default RequiredActionCard;

@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
+
+import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 
 import { Container, Row, Column } from "@agir/front/genericComponents/grid";
 import Card from "@agir/front/genericComponents/Card";
@@ -45,7 +47,19 @@ const ActionCard = (props) => {
     onDismiss,
     disabled,
     dismissed,
+    timestamp,
   } = props;
+
+  const date = useMemo(
+    () =>
+      timestamp &&
+      displayHumanDate(dateFromISOString(timestamp))
+        .split("")
+        .map((ch, i) => (i ? ch : ch.toUpperCase()))
+        .join(""),
+    [timestamp]
+  );
+
   return (
     <Card type={dismissed ? "alert_dismissed" : "alert"}>
       <Container style={{ width: "auto" }}>
@@ -54,7 +68,11 @@ const ActionCard = (props) => {
             <FeatherIcon name={iconName} />
           </Column>
           <Column grow collapse={0}>
-            <StyledText>{text}</StyledText>
+            <StyledText>
+              {text}
+              <br />
+              <em>{date ? date : null}</em>
+            </StyledText>
             <StyledFooter>
               {typeof onConfirm === "function" ? (
                 <Button
@@ -117,6 +135,7 @@ ActionCard.propTypes = {
   onDismiss: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   disabled: PropTypes.bool,
   dismissed: PropTypes.bool,
+  timestamp: PropTypes.string,
 };
 ActionCard.defaultProps = {
   dismissLabel: "Cacher",

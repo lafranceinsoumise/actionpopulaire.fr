@@ -32,4 +32,5 @@ Default.args = {
   confirmLabel: "Mettre à jour",
   dismissLabel: "Cacher",
   dismissed: false,
+  timestamp: new Date().toISOString(),
 };
