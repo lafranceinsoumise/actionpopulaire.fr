@@ -81,7 +81,7 @@ const TabListWrapper = styled.div`
   }
 `;
 
-const FilterTabs = ({ tabs, onTabChange }) => {
+const FilterTabs = ({ tabs, onTabChange, style }) => {
   const [tab, setTab] = useState(0);
 
   if (tabs.length === 0) {
@@ -89,7 +89,7 @@ const FilterTabs = ({ tabs, onTabChange }) => {
   }
 
   return (
-    <TabListWrapper>
+    <TabListWrapper style={style}>
       <TabList>
         {tabs.map((label, index) => (
           <Tab
@@ -110,4 +110,5 @@ export default FilterTabs;
 FilterTabs.propTypes = {
   tabs: PropTypes.arrayOf(PropTypes.string).isRequired,
   onTabChange: PropTypes.func.isRequired,
+  style: PropTypes.object,
 };

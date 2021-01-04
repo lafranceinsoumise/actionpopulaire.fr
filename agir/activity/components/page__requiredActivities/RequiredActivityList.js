@@ -1,5 +1,5 @@
+import React, { useCallback, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
-import React, { useCallback } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -14,7 +14,9 @@ import {
   getRoutes,
 } from "@agir/front/globalContext/reducers";
 import { dismissRequiredActionActivity } from "@agir/front/globalContext/actions";
+import { activityStatus } from "@agir/activity/common/helpers";
 
+import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import Activities from "@agir/activity/common/Activities";
 
 import {
@@ -53,12 +55,28 @@ const RequiredActivityList = () => {
   const routes = useSelector(getRoutes);
   const dispatch = useDispatch();
 
+  const [displayAll, setDisplayAll] = useState(false);
+  const toggleDisplayAll = useCallback((shouldDisplayAll) => {
+    setDisplayAll(Boolean(shouldDisplayAll));
+  }, []);
+
   const handleDismiss = useCallback(
     async (id) => {
       dispatch(dismissRequiredActionActivity(id));
     },
     [dispatch]
   );
+
+  const visibleActivities = useMemo(
+    () =>
+      activities.filter(
+        ({ status }) =>
+          displayAll || status !== activityStatus.STATUS_INTERACTED
+      ),
+    [displayAll, activities]
+  );
+
+  const tabs = useMemo(() => ["non traité", "voir tout"], []);
 
   return (
     <>
@@ -81,9 +99,14 @@ const RequiredActivityList = () => {
             </div>
           }
         >
+          <FilterTabs
+            style={{ marginTop: "2rem", marginBottom: "1rem" }}
+            tabs={tabs}
+            onTabChange={toggleDisplayAll}
+          />
           <Activities
             CardComponent={RequiredActionCard}
-            activities={activities}
+            activities={visibleActivities}
             onDismiss={handleDismiss}
             routes={routes}
           />
