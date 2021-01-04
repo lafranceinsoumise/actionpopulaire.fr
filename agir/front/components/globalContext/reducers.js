@@ -93,7 +93,14 @@ export const requiredActionActivities = (state = [], action) => {
     action.type === ACTION_TYPE.DISMISS_REQUIRED_ACTION_ACTIVITY_ACTION &&
     action.id
   ) {
-    return state.filter((activity) => activity.id !== action.id);
+    return state.map((activity) =>
+      activity.id === action.id
+        ? {
+            ...activity,
+            status: activityStatus.STATUS_INTERACTED,
+          }
+        : activity
+    );
   }
   return state;
 };
