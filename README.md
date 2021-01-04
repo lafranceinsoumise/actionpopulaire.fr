@@ -1,4 +1,4 @@
-# agir.lafranceinsoumise.fr
+# actionpopulaire.fr
 
 1. [Vagrant installation](#vagrant)
 2. [Useful commands](#frontend-pages)
