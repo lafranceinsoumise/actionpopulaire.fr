@@ -83,7 +83,7 @@ class LegacyPersonEndpointTestCase(APITestCase):
         request = self.factory.get("")
         response = self.list_view(request)
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_can_only_view_self_while_unprivileged(self):
         request = self.factory.get("")
@@ -104,7 +104,7 @@ class LegacyPersonEndpointTestCase(APITestCase):
     def test_cannot_see_self_while_unauthenticated(self):
         response = self.client.get("/legacy/people/me/")
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_view_details_while_unauthenticated(self):
         request = self.factory.get("")

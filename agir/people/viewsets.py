@@ -37,6 +37,8 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
 
     @action(detail=False)
     def me(self, request):
+        if self.request.user.is_anonymous:
+            raise PermissionDenied
         self.kwargs["pk"] = self.request.user.person.pk
         return self.retrieve(request)
 
@@ -67,7 +69,7 @@ class LegacyPersonViewSet(NationBuilderViewMixin, ModelViewSet):
             ):
                 return self.queryset.filter(pk=self.request.user.person.pk)
             else:
-                return self.queryset.none()
+                raise PermissionDenied()
         return super(LegacyPersonViewSet, self).get_queryset()
 
     def get_serializer_class(self):
