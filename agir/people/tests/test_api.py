@@ -182,7 +182,7 @@ class LegacyPersonEndpointTestCase(APITestCase):
         )
         response = self.list_view(request)
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_can_post_new_person(self):
         request = self.factory.post(
