@@ -25,9 +25,9 @@ class NavbarTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
 
-    def test_navbar_authenticated(self):
+    def test_session_info_authenticated(self):
         self.client.force_login(self.person.role)
-        response = self.client.get("/groupes/" + str(self.group.id) + "/")
+        response = self.client.get("/api/session" + str(self.group.id) + "/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(b"Arthur Machin", response.content)

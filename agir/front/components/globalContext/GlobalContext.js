@@ -1,24 +1,39 @@
 import PropTypes from "prop-types";
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useLayoutEffect, useMemo } from "react";
 import { StateInspector, useReducer } from "reinspect";
 import { ThemeProvider } from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import rootReducer from "@agir/front/globalContext/reducers";
-import createDispatch, { init } from "@agir/front/globalContext/actions";
+import createDispatch, {
+  initFromScriptTag,
+  setSessionContext,
+} from "@agir/front/globalContext/actions";
 import Toasts from "@agir/front/globalContext/Toast";
+import useSWR from "swr";
+
+import logger from "@agir/lib/utils/logger";
+const log = logger(__filename);
 
 const GlobalContext = React.createContext({});
 
 const ProdProvider = ({ hasToasts = false, children }) => {
   const [state, dispatch] = useReducer(
     rootReducer,
-    rootReducer({}, init()),
+    rootReducer({}, initFromScriptTag()),
     (state) => state,
     "GC"
   );
+
   const doDispatch = useMemo(() => createDispatch(dispatch), [dispatch]);
+
+  const { data: sessionContext } = useSWR("/api/session");
+
+  useMemo(() => {
+    doDispatch(setSessionContext(sessionContext));
+    log.debug("Update session context", sessionContext);
+  }, [doDispatch, sessionContext]);
 
   return (
     <GlobalContext.Provider value={{ state, dispatch: doDispatch }}>
@@ -45,7 +60,7 @@ export const GlobalContextProvider =
   process.env.NODE_ENV === "production" ? ProdProvider : DevProvider;
 
 export const TestGlobalContextProvider = ({ children, value }) => {
-  const [state] = useReducer(rootReducer, rootReducer({}, init()));
+  const [state] = useReducer(rootReducer, rootReducer({}, initFromScriptTag()));
   const doDispatch = useMemo(() => () => {}, []);
   const currentState = useMemo(
     () => ({

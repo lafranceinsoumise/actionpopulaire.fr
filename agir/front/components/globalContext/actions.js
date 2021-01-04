@@ -5,7 +5,7 @@ import {
   setActivitiesAsRead,
 } from "@agir/activity/common/helpers";
 
-export const init = () => {
+export const initFromScriptTag = () => {
   const globalContextScript = document.getElementById("globalContext");
   const extraContextScript = document.getElementById("extraContext");
 
@@ -28,6 +28,11 @@ export const init = () => {
     ...globalContextData,
   };
 };
+
+export const setSessionContext = (data) => ({
+  type: ACTION_TYPE.SET_SESSION_CONTEXT_ACTION,
+  ...data,
+});
 
 export const setIs2022 = () => ({
   type: ACTION_TYPE.SET_IS_2022_ACTION,

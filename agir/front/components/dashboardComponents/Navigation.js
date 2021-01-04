@@ -293,9 +293,6 @@ const MenuLink = (props) => {
     secondaryLinks,
   } = props;
   const ItemTooltip = React.useMemo(() => Tooltips[id], [id]);
-  if (counter === 0) {
-    return null;
-  }
   return (
     <MenuItem {...props} active={active} hasUnreadBadge={hasUnreadBadge}>
       {ItemTooltip ? <ItemTooltip /> : null}

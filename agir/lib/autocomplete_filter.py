@@ -69,7 +69,7 @@ class AutocompleteFilter(SelectModelFilter):
 
     class Media:
         js = (
-            "admin/js/jquery.init.js",
+            "admin/js/jquery.initFromScriptTag.js",
             "lib/autocomplete-filter.js",
         )
         css = {

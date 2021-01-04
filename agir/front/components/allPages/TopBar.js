@@ -5,7 +5,15 @@ import FeatherIcon, { RawFeatherIcon } from "../genericComponents/FeatherIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import LogoAP from "../genericComponents/LogoAP";
-import { useGlobalContext } from "@agir/front/globalContext/GlobalContext";
+import {
+  useGlobalContext,
+  useSelector,
+} from "@agir/front/globalContext/GlobalContext";
+import { getRoutes, getUser } from "@agir/front/globalContext/reducers";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
+
+import logger from "@agir/lib/utils/logger";
+const log = logger(__filename);
 
 const TopBarBar = styled.div`
   position: fixed;
@@ -141,7 +149,7 @@ const SearchBarInput = styled.input.attrs(() => ({ type: "text", name: "q" }))`
 `;
 
 const ConnectionInfo = ({ user, routes }) =>
-  user === null ? (
+  !user ? (
     <>
       <MenuLink href={routes.login} className="small-only">
         <FeatherIcon name="user" />
@@ -186,8 +194,11 @@ ConnectionInfo.propTypes = {
   ),
 };
 
-export const PureTopBar = ({ user, routes }) => {
+export const PureTopBar = () => {
   const inputRef = React.useRef();
+
+  const routes = useSelector(getRoutes);
+  const user = useSelector(getUser);
 
   return (
     <TopBarBar>
@@ -230,13 +241,15 @@ export const PureTopBar = ({ user, routes }) => {
             </SearchBar>
           </form>
         </HorizontalFlex>
-        <HorizontalFlex>
-          <MenuLink href={routes.help} className="large-only">
-            <FeatherIcon name="help-circle" />
-            <span>Aide</span>
-          </MenuLink>
-          <ConnectionInfo user={user} routes={routes} />
-        </HorizontalFlex>
+        <PageFadeIn ready={user !== null}>
+          <HorizontalFlex>
+            <MenuLink href={routes.help} className="large-only">
+              <FeatherIcon name="help-circle" />
+              <span>Aide</span>
+            </MenuLink>
+            <ConnectionInfo routes={routes} user={user} />
+          </HorizontalFlex>
+        </PageFadeIn>
       </TopBarContainer>
     </TopBarBar>
   );
@@ -274,8 +287,7 @@ PureTopBar.defaultProps = {
 };
 
 const TopBar = () => {
-  const { state } = useGlobalContext();
-  return <PureTopBar {...state} />;
+  return <PureTopBar />;
 };
 
 export default TopBar;

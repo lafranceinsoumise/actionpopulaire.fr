@@ -15,6 +15,13 @@ export const domain = (state = "https://actionpopulaire.fr", action) => {
   return state;
 };
 
+export const isSessionLoaded = (state = false, action) => {
+  if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
+    return true;
+  }
+  return state;
+};
+
 export const hasFeedbackButton = (state = false, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
     return !!action.hasFeedbackButton;
@@ -23,7 +30,7 @@ export const hasFeedbackButton = (state = false, action) => {
 };
 
 export const is2022 = (state = false, action) => {
-  if (action.type === ACTION_TYPE.INIT_ACTION) {
+  if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
     return !!action.user && action.user.is2022;
   }
   if (action.type === ACTION_TYPE.SET_IS_2022_ACTION) {
@@ -33,7 +40,7 @@ export const is2022 = (state = false, action) => {
 };
 
 export const announcements = (state = [], action) => {
-  if (action.type === ACTION_TYPE.INIT_ACTION) {
+  if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
     return action.announcements || state;
   }
   return state;
@@ -41,7 +48,7 @@ export const announcements = (state = [], action) => {
 
 export const activities = (state = [], action) => {
   switch (action.type) {
-    case ACTION_TYPE.INIT_ACTION: {
+    case ACTION_TYPE.SET_SESSION_CONTEXT_ACTION: {
       if (!Array.isArray(action.activities)) {
         return state;
       }
@@ -75,7 +82,7 @@ export const activities = (state = [], action) => {
 
 export const requiredActionActivities = (state = [], action) => {
   if (
-    action.type === ACTION_TYPE.INIT_ACTION &&
+    action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION &&
     Array.isArray(action.activities)
   ) {
     const { required } = parseActivities(action.activities);
@@ -92,14 +99,14 @@ export const requiredActionActivities = (state = [], action) => {
 };
 
 export const user = (state = null, action) => {
-  if (action.type === ACTION_TYPE.INIT_ACTION) {
+  if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
     return action.user || state;
   }
   return state;
 };
 
 export const csrfToken = (state = null, action) => {
-  if (action.type === ACTION_TYPE.INIT_ACTION) {
+  if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
     return action.csrfToken || state;
   }
   return state;
@@ -114,7 +121,7 @@ export const routes = (state = {}, action) => {
 
 export const toasts = (state = [], action) => {
   if (
-    action.type === ACTION_TYPE.INIT_ACTION ||
+    action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION ||
     action.type === ACTION_TYPE.ADD_TOASTS
   ) {
     return Array.isArray(action.toasts)
@@ -137,6 +144,8 @@ export const toasts = (state = [], action) => {
 export const getDomain = (state) => state.domain;
 
 export const getHasFeedbackButton = (state) => state.hasFeedbackButton;
+
+export const getIsSessionLoaded = (state) => state.isSessionLoaded;
 
 export const getIs2022 = (state) => state.is2022;
 
@@ -164,6 +173,7 @@ export const getToasts = (state) => state.toasts;
 // Root reducer
 const reducers = {
   hasFeedbackButton,
+  isSessionLoaded,
   is2022,
   announcements,
   activities,
