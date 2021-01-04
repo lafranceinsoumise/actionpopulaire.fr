@@ -90,19 +90,19 @@ describe("GlobalContext/reducers", function () {
       const result = reducers.is2022(state, action);
       expect(result).toEqual(state);
     });
-    it(`should return false if action.user is not defined and action.type equals ${ACTION_TYPE.INIT_ACTION}`, function () {
+    it(`should return false if action.user is not defined and action.type equals ${ACTION_TYPE.SET_SESSION_CONTEXT_ACTION}`, function () {
       const state = true;
       const action = {
-        type: ACTION_TYPE.INIT_ACTION,
+        type: ACTION_TYPE.SET_SESSION_CONTEXT_ACTION,
         user: null,
       };
       const result = reducers.is2022(state, action);
       expect(result).toEqual(false);
     });
-    it(`should return action.user.is2022 if defined and action.type equals ${ACTION_TYPE.INIT_ACTION}`, function () {
+    it(`should return action.user.is2022 if defined and action.type equals ${ACTION_TYPE.SET_SESSION_CONTEXT_ACTION}`, function () {
       const state = false;
       const action = {
-        type: ACTION_TYPE.INIT_ACTION,
+        type: ACTION_TYPE.SET_SESSION_CONTEXT_ACTION,
         user: { is2022: true },
       };
       const result = reducers.is2022(state, action);

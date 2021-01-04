@@ -8,6 +8,7 @@ from .views import (
     DisconnectView,
     Oauth2AuthorizationView,
     SocialLoginError,
+    SessionContextAPIView,
 )
 
 
@@ -29,4 +30,5 @@ urlpatterns = [
         SocialLoginError.as_view(),
         name="social_login_error",
     ),
+    path("api/session/", SessionContextAPIView.as_view(), name="api_session"),
 ]

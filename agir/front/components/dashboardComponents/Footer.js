@@ -7,6 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getIs2022,
+  getIsSessionLoaded,
   getRoutes,
   getUser,
 } from "@agir/front/globalContext/reducers";
@@ -15,6 +16,7 @@ import Button from "@agir/front/genericComponents/Button";
 import LogoAP from "@agir/front/genericComponents/LogoAP";
 
 import footerBanner from "./images/footer-banner.png";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 const FooterForm = styled.div`
   display: flex;
@@ -430,12 +432,20 @@ Footer.defaultProps = {
   desktopOnly: false,
 };
 const ConnectedFooter = (props) => {
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
   const is2022 = useSelector(getIs2022);
   const routes = useSelector(getRoutes);
   const user = useSelector(getUser);
 
   return (
-    <Footer {...props} routes={routes} isSignedIn={!!user} is2022={is2022} />
+    <PageFadeIn ready={isSessionLoaded}>
+      <Footer
+        {...props}
+        routes={routes}
+        isSignedIn={user !== null}
+        is2022={is2022}
+      />
+    </PageFadeIn>
   );
 };
 export default ConnectedFooter;

@@ -78,7 +78,7 @@ export const Activities = (props) => {
       ) : (
         <EmptyList>
           <span>
-            Vous n’avez pas encore reçu d’actualités.
+            Vous n’avez rien reçu ici.
             <br />
             Revenez plus tard !
           </span>

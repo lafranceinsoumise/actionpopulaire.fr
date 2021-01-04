@@ -1598,17 +1598,6 @@ class DoNotListEventTestCase(TestCase):
         )
         self.client.force_login(self.person.role)
 
-    def test_unlisted_events_are_not_in_dashboard_calendar(self):
-        response = self.client.get(reverse("dashboard_old"))
-        self.assertContains(response, "Un événement qui sera non listé")
-
-        self.event.do_not_list = True
-        self.event.save()
-
-        response = self.client.get(reverse("dashboard_old"))
-        self.assertNotContains(response, "Un événement qui sera non listé")
-        pass
-
     def test_unlisted_events_are_not_in_sitemap(self):
         response = self.client.get(
             reverse(

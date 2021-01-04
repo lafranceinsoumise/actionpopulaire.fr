@@ -100,65 +100,6 @@ class DashboardSearchTestCase(TestCase):
         self.assertContains(res, self.event_2022.name)
 
 
-class DashboardTestCase(FakeDataMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-        paris_nd = Point(2.349_722, 48.853_056)  # ND de Paris
-
-        self.person1 = Person.objects.create_insoumise(
-            "test@test.com", coordinates=paris_nd, create_role=True
-        )
-        self.person2 = Person.objects.create_insoumise("test2@test.com")
-        self.person3 = Person.objects.create_insoumise("test3@test.com")
-        now = timezone.now()
-        day = timezone.timedelta(days=1)
-        hour = timezone.timedelta(hours=1)
-        self.event = Event.objects.create(
-            name="__== test name ==__",
-            start_time=now + 3 * day,
-            end_time=now + 3 * day + 4 * hour,
-            coordinates=paris_nd,
-        )
-
-        self.group1 = SupportGroup.objects.create(name="group1")
-        Membership.objects.create(person=self.person1, supportgroup=self.group1)
-        OrganizerConfig.objects.create(
-            event=self.event, person=self.person2, as_group=self.group1
-        )
-
-        self.group2 = SupportGroup.objects.create(name="group2")
-        Membership.objects.create(person=self.person1, supportgroup=self.group2)
-        OrganizerConfig.objects.create(
-            event=self.event, person=self.person3, as_group=self.group2
-        )
-
-    def test_same_event_is_not_suggested_multiple_times(self):
-        self.client.force_login(self.person1.role)
-        response = self.client.get(reverse("dashboard_old"))
-        self.assertContains(response, self.event.name, count=1)
-
-    @mock.patch("agir.people.views.dashboard.geocode_person")
-    def test_contains_everything(self, geocode_person):
-        self.client.force_login(self.data["people"]["user2"].role)
-        response = self.client.get(reverse("dashboard_old"))
-
-        geocode_person.delay.assert_called_once()
-        self.assertEqual(
-            geocode_person.delay.call_args[0], (self.data["people"]["user2"].pk,)
-        )
-
-        # own email
-        self.assertContains(response, "user2@example.com")
-        # managed group
-        self.assertContains(response, self.data["groups"]["user2_group"].name)
-        # member groups
-        self.assertContains(response, self.data["groups"]["user1_group"].name)
-        # next events
-        self.assertContains(response, self.data["events"]["user1_event1"].name)
-        # events of group
-        self.assertContains(response, self.data["events"]["user1_event2"].name)
-
-
 class ProfileTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person(

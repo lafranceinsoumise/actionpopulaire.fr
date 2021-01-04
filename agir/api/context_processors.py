@@ -1,16 +1,11 @@
 from django.conf import settings
-from django.contrib import messages
 from django.db.models import F
-from django.middleware.csrf import get_token
 from django.urls import reverse
 
-from ..activity.actions import get_serialized_activity, get_serialized_announcements
 from ..groups.models import SupportGroup
 
 
 def basic_information(request):
-    user = None
-
     routes = {
         "dashboard": reverse("dashboard"),
         "search": reverse("dashboard_search"),
@@ -18,6 +13,7 @@ def basic_information(request):
         "contactConfiguration": reverse("contact"),
         "join": reverse("join"),
         "login": reverse("short_code_login"),
+        "signOut": reverse("disconnect"),
         "createGroup": reverse("create_group"),
         "createEvent": reverse("create_event"),
         "groupsMap": reverse("carte:groups_map"),
@@ -63,23 +59,12 @@ def basic_information(request):
     }
 
     if request.user.is_authenticated:
-        routes["signOut"] = reverse("disconnect")
         person = request.user.person
 
         if person.is_insoumise:
             routes = {**routes, **routes_insoumis}
         elif person.is_2022:
             routes = {**routes, **routes_2022}
-
-        user = {
-            "id": person.pk,
-            "firstName": person.first_name,
-            "displayName": request.user.get_full_name(),
-            "isInsoumise": person.is_insoumise,
-            "is2022": person.is_2022,
-            "isAgir": person.is_agir,
-            "isGroupManager": False,
-        }
 
         person_groups = (
             SupportGroup.objects.filter(memberships__person=person)
@@ -90,7 +75,6 @@ def basic_information(request):
 
         if person_groups.count() > 0:
             routes["groups__personGroups"] = []
-            user["groups"] = []
             for group in person_groups:
                 link = {
                     "id": group.id,
@@ -98,23 +82,11 @@ def basic_information(request):
                     "href": reverse("view_group", kwargs={"pk": group.pk}),
                 }
                 routes["groups__personGroups"].append(link)
-                user["groups"].append(group.id)
 
     return {
         "MAIN_DOMAIN": settings.MAIN_DOMAIN,
         "API_DOMAIN": settings.API_DOMAIN,
         "FRONT_DOMAIN": settings.FRONT_DOMAIN,
         "MAP_DOMAIN": settings.MAP_DOMAIN,
-        "global_context": {
-            "user": user,
-            "routes": routes,
-            "csrfToken": get_token(request),
-            "domain": settings.MAIN_DOMAIN,
-            "activities": get_serialized_activity(request),
-            "announcements": get_serialized_announcements(request),
-            "toasts": [
-                {"message": m.message, "html": True, "type": m.level_tag.upper()}
-                for m in messages.get_messages(request)
-            ],
-        },
+        "global_context": {"routes": routes, "domain": settings.MAIN_DOMAIN,},
     }

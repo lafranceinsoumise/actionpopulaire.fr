@@ -1,5 +1,6 @@
 {
   "INIT_ACTION": "@@INIT",
+  "SET_SESSION_CONTEXT_ACTION": "@@USER",
 
   "SET_IS_2022_ACTION": "setIs2022",
 

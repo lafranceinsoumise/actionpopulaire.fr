@@ -8,6 +8,7 @@ import {
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
 import {
+  getIsSessionLoaded,
   getRequiredActionActivities,
   getRoutes,
 } from "@agir/front/globalContext/reducers";
@@ -20,6 +21,8 @@ import Layout, {
   LayoutSubtitle,
 } from "@agir/front/dashboardComponents/Layout";
 import RequiredActionCard from "./RequiredActionCard";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 const Page = styled.article`
   margin: 0;
@@ -44,6 +47,7 @@ const Counter = styled.span`
 `;
 
 const RequiredActivityList = () => {
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
   const activities = useSelector(getRequiredActionActivities);
   const routes = useSelector(getRoutes);
   const dispatch = useDispatch();
@@ -65,12 +69,21 @@ const RequiredActivityList = () => {
         <LayoutSubtitle>
           Vos actions à traiter en priorité, pour ne rien oublier !
         </LayoutSubtitle>
-        <Activities
-          CardComponent={RequiredActionCard}
-          activities={activities}
-          onDismiss={handleDismiss}
-          routes={routes}
-        />
+        <PageFadeIn
+          ready={isSessionLoaded}
+          wait={
+            <div style={{ marginTop: "32px" }}>
+              <Skeleton />
+            </div>
+          }
+        >
+          <Activities
+            CardComponent={RequiredActionCard}
+            activities={activities}
+            onDismiss={handleDismiss}
+            routes={routes}
+          />
+        </PageFadeIn>
       </Page>
     </Layout>
   );
