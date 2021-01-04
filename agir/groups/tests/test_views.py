@@ -257,10 +257,6 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
         self.referent_group.published = False
         self.referent_group.save()
 
-        res = self.client.get(reverse("dashboard_old"))
-        self.assertNotContains(res, self.referent_group.pk)
-        geocode_person.delay.assert_called_once()
-
         res = self.client.get("/groupes/{}/".format(self.referent_group.pk))
         self.assertEqual(res.status_code, status.HTTP_410_GONE)
 

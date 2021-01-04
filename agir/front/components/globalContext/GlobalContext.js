@@ -28,7 +28,7 @@ const ProdProvider = ({ hasToasts = false, children }) => {
 
   const doDispatch = useMemo(() => createDispatch(dispatch), [dispatch]);
 
-  const { data: sessionContext } = useSWR("/api/session");
+  const { data: sessionContext } = useSWR("/api/session/");
 
   useMemo(() => {
     doDispatch(setSessionContext(sessionContext));

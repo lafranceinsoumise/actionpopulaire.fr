@@ -27,7 +27,7 @@ class NavbarTestCase(TestCase):
 
     def test_session_info_authenticated(self):
         self.client.force_login(self.person.role)
-        response = self.client.get("/api/session" + str(self.group.id) + "/")
+        response = self.client.get("/api/session/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(b"Arthur Machin", response.content)
