@@ -1,7 +1,11 @@
 import shortUUID from "short-uuid";
 import ACTION_TYPE from "./actionTypes";
 
-import { activityStatus, getUnreadCount } from "@agir/activity/common/helpers";
+import {
+  activityStatus,
+  getUnreadCount,
+  getUninteractedCount,
+} from "@agir/activity/common/helpers";
 
 // Reducers
 export const domain = (state = "https://actionpopulaire.fr", action) => {
@@ -172,7 +176,7 @@ export const getUnreadActivitiesCount = (state) =>
 export const getRequiredActionActivities = (state) =>
   state.requiredActionActivities;
 export const getRequiredActionActivityCount = (state) =>
-  state.requiredActionActivities ? state.requiredActionActivities.length : 0;
+  getUninteractedCount(state.requiredActionActivities);
 
 export const getUser = (state) => state.user;
 export const getIsConnected = (state) => !!state.user;

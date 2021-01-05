@@ -20,10 +20,6 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
   } = props;
   const { membershipCount, membershipLimitNotificationStep } = meta;
 
-  if (!membershipCount || typeof membershipLimitNotificationStep !== "number") {
-    return null;
-  }
-
   switch (membershipLimitNotificationStep) {
     case 0:
       return (
@@ -122,8 +118,8 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
           text={
             <>
               <strong>
-                Bravo, vous êtes maintenant {membershipCount} dans votre
-                équipe&nbsp;!
+                Bravo, vous êtes maintenant {membershipCount || "nombreux·ses"}{" "}
+                dans votre équipe&nbsp;!
               </strong>
               <br />
               <a href={supportGroup.url}>{supportGroup.name}</a> a atteint le

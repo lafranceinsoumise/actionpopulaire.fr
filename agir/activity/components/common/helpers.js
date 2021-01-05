@@ -24,6 +24,18 @@ export const getUnreadCount = (data) => {
   return getUnread(data).length;
 };
 
+export const getUninteracted = (data) => {
+  return Array.isArray(data)
+    ? data.filter(
+        (activity) => activity.status !== activityStatus.STATUS_INTERACTED
+      )
+    : [];
+};
+
+export const getUninteractedCount = (data) => {
+  return getUninteracted(data).length;
+};
+
 export const updateActivityStatus = async (
   id,
   status = activityStatus.STATUS_INTERACTED

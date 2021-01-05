@@ -21,34 +21,26 @@ const StyledText = styled.p`
 const StyledFooter = styled.footer`
   display: flex;
   flex-flow: row nowrap;
-`;
 
-const StyledButton = styled.div`
   & > * {
     display: inline-flex;
-    ${({ active }) =>
-      !active
-        ? `
-        font-size: 0;
-        color: transparent;
-        padding: 0;
-        border-width: 0;
-        margin-left: -0.5rem;
-      `
-        : ""}
     align-items: center;
     justify-content: center;
     cursor: pointer;
     text-align: left;
-    transition: all 200ms ease-in-out;
+    transition: all 250ms ease-in-out;
 
     &[disabled] {
       cursor: default;
     }
-  }
 
-  & + & {
-    margin-left: 0.5rem;
+    &.inactive {
+      font-size: 0;
+      color: transparent;
+      padding: 0;
+      border-width: 0;
+      margin-left: -0.5rem;
+    }
   }
 `;
 
@@ -95,39 +87,34 @@ const ActionCard = (props) => {
             <StyledFooter>
               {(typeof onConfirm === "string" ||
                 typeof onConfirm === "function") && (
-                <StyledButton active={!dismissed}>
-                  <Button
-                    small
-                    as={typeof onConfirm === "string" ? "a" : undefined}
-                    onClick={
-                      typeof onConfirm === "function" ? onConfirm : undefined
-                    }
-                    href={typeof onConfirm === "string" ? onConfirm : undefined}
-                    disabled={disabled}
-                    color="secondary"
-                    $hasTransition
-                  >
-                    {confirmLabel}
-                  </Button>
-                </StyledButton>
+                <Button
+                  small
+                  as={typeof onConfirm === "string" ? "a" : undefined}
+                  onClick={
+                    typeof onConfirm === "function" ? onConfirm : undefined
+                  }
+                  href={typeof onConfirm === "string" ? onConfirm : undefined}
+                  disabled={disabled}
+                  className={dismissed ? "inactive" : ""}
+                  color="secondary"
+                >
+                  {confirmLabel}
+                </Button>
               )}
               {(typeof onDismiss === "string" ||
                 typeof onDismiss === "function") && (
-                <StyledButton active>
-                  <Button
-                    small
-                    as={typeof onDismiss === "string" ? "a" : undefined}
-                    onClick={
-                      typeof onDismiss === "function" ? onDismiss : undefined
-                    }
-                    href={typeof onDismiss === "string" ? onDismiss : undefined}
-                    disabled={disabled}
-                    color="default"
-                    $hasTransition
-                  >
-                    {dismissed ? "Marquer comme non traité" : dismissLabel}
-                  </Button>
-                </StyledButton>
+                <Button
+                  small
+                  as={typeof onDismiss === "string" ? "a" : undefined}
+                  onClick={
+                    typeof onDismiss === "function" ? onDismiss : undefined
+                  }
+                  href={typeof onDismiss === "string" ? onDismiss : undefined}
+                  disabled={disabled}
+                  color="default"
+                >
+                  {dismissed ? "Marquer comme non traité" : dismissLabel}
+                </Button>
               )}
             </StyledFooter>
           </Column>

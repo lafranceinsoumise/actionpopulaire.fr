@@ -11,13 +11,14 @@ import {
 import {
   getIsSessionLoaded,
   getRequiredActionActivities,
+  getRequiredActionActivityCount,
   getRoutes,
 } from "@agir/front/globalContext/reducers";
 import {
   dismissRequiredActionActivity,
   undoRequiredActionActivityDismissal,
 } from "@agir/front/globalContext/actions";
-import { activityStatus } from "@agir/activity/common/helpers";
+import { activityStatus, getUninteracted } from "@agir/activity/common/helpers";
 
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import Activities from "@agir/activity/common/Activities";
@@ -55,6 +56,7 @@ const Counter = styled.span`
 const RequiredActivityList = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const activities = useSelector(getRequiredActionActivities);
+  const uninteractedCount = useSelector(getRequiredActionActivityCount);
   const routes = useSelector(getRoutes);
   const dispatch = useDispatch();
 
@@ -75,15 +77,13 @@ const RequiredActivityList = () => {
   );
 
   const visibleActivities = useMemo(
-    () =>
-      activities.filter(
-        ({ status }) =>
-          displayAll || status !== activityStatus.STATUS_INTERACTED
-      ),
+    () => (displayAll ? activities : getUninteracted(activities)),
     [displayAll, activities]
   );
 
   const tabs = useMemo(() => ["non traité", "voir tout"], []);
+
+  visibleActivities.forEach((a) => console.log(a.id, a.type, a.status));
 
   return (
     <>
@@ -92,7 +92,7 @@ const RequiredActivityList = () => {
       </Helmet>
       <Page>
         <LayoutTitle>
-          {activities.length ? <Counter>{activities.length}</Counter> : null}À
+          {uninteractedCount ? <Counter>{uninteractedCount}</Counter> : null}À
           faire
         </LayoutTitle>
         <LayoutSubtitle>
