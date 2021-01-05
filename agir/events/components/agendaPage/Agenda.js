@@ -15,8 +15,10 @@ import EventCard from "@agir/front/genericComponents/EventCard";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getIs2022,
+  getIsSessionLoaded,
   getRoutes,
   getUser,
+  isSessionLoaded,
 } from "@agir/front/globalContext/reducers";
 
 import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
@@ -25,6 +27,9 @@ import Onboarding from "@agir/front/genericComponents/Onboarding";
 import useSWR from "swr";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
+import logger from "@agir/lib/utils/logger";
+
+const log = logger(__filename);
 
 const TopBar = styled.div`
   display: flex;
@@ -155,6 +160,7 @@ const otherEventConfig = {
 };
 
 const SuggestionsEvents = ({ suggestions }) => {
+  log.debug("Suggested events ", suggestions);
   const routes = useSelector(getRoutes);
   const user = useSelector(getUser);
 
@@ -261,6 +267,7 @@ SuggestionsEvents.propTypes = {
 const Agenda = () => {
   const routes = useSelector(getRoutes);
   const is2022 = useSelector(getIs2022);
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
 
   const { data: rsvped } = useSWR("/api/evenements/rsvped");
   const { data: suggestions } = useSWR("/api/evenements/suggestions");
@@ -316,7 +323,10 @@ const Agenda = () => {
                 <h2>Autres événements près de chez moi</h2>
               </>
             )}
-            <PageFadeIn ready={suggestions} wait={<Skeleton />}>
+            <PageFadeIn
+              ready={isSessionLoaded && suggestions}
+              wait={<Skeleton />}
+            >
               {/* Suggested events are longer to load than rsvped,
               so when rsvpedEvents is loaded we still display skeleton
               only on this part */}
