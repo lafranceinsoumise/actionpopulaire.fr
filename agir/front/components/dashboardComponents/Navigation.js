@@ -17,6 +17,9 @@ import {
   getUser,
 } from "@agir/front/globalContext/reducers";
 
+import Link from "@agir/front/app/Link";
+
+import { routeConfig } from "@agir/front/app/routes.config";
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
 
 const BottomBar = styled.nav`
@@ -283,6 +286,7 @@ const MenuLink = (props) => {
   const {
     id,
     href,
+    to,
     icon,
     title,
     shortTitle,
@@ -296,18 +300,27 @@ const MenuLink = (props) => {
   return (
     <MenuItem {...props} active={active} hasUnreadBadge={hasUnreadBadge}>
       {ItemTooltip ? <ItemTooltip /> : null}
-      <a href={href}>
+      <Link href={href} to={to}>
         {counter > 0 && <Counter>{counter}</Counter>}
         <FeatherIcon name={icon} inline />
         <span className="small-only">{shortTitle || title}</span>
         <span className="large-only">{title}</span>
         {external && <FeatherIcon name="external-link" inline small />}
-      </a>
+      </Link>
       {Array.isArray(secondaryLinks) && secondaryLinks.length > 0 ? (
         <SecondaryMenu>
           {secondaryLinks.map((link) => (
             <SecondaryMenuItem key={link.id}>
-              <a href={link.href}>{link.label}</a>
+              <Link
+                href={link.href}
+                to={
+                  link.to && routeConfig[link.to]
+                    ? routeConfig[link.to].pathname
+                    : undefined
+                }
+              >
+                {link.label}
+              </Link>
             </SecondaryMenuItem>
           ))}
         </SecondaryMenu>
@@ -318,6 +331,7 @@ const MenuLink = (props) => {
 MenuLink.propTypes = {
   id: PropTypes.string,
   href: PropTypes.string,
+  to: PropTypes.string,
   icon: PropTypes.string,
   title: PropTypes.string,
   shortTitle: PropTypes.string,
@@ -345,12 +359,17 @@ const Navigation = ({ active }) => {
     <BottomBar>
       <Menu>
         {CONFIG.menuLinks.map((link) =>
-          link.href || routes[link.route] ? (
+          link.href || routes[link.route] || link.to ? (
             <MenuLink
               {...link}
               key={link.id}
               active={active === link.id}
               href={link.href || routes[link.route]}
+              to={
+                link.to && routeConfig[link.to]
+                  ? routeConfig[link.to].pathname
+                  : undefined
+              }
               counter={
                 link.requiredActivityCounter && requiredActionActivityCount
               }
@@ -376,7 +395,16 @@ export const SecondaryNavigation = () => {
       {CONFIG.secondaryLinks.map((link) =>
         link.href || routes[link.route] ? (
           <SecondaryMenuItem key={link.id}>
-            <a href={link.href || routes[link.route]}>{link.title}</a>
+            <Link
+              href={link.href || routes[link.route]}
+              to={
+                link.to && routeConfig[link.to]
+                  ? routeConfig[link.to].pathname
+                  : undefined
+              }
+            >
+              {link.title}
+            </Link>
           </SecondaryMenuItem>
         ) : null
       )}
@@ -387,11 +415,5 @@ export const SecondaryNavigation = () => {
 export default Navigation;
 
 Navigation.propTypes = {
-  active: PropTypes.oneOf([
-    "events",
-    "groups",
-    "activity",
-    "required-activity",
-    "menu",
-  ]),
+  active: PropTypes.string,
 };

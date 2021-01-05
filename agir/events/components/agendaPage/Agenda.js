@@ -267,14 +267,15 @@ const Agenda = () => {
 
   const rsvpedEvents = React.useMemo(
     () =>
-      rsvped &&
-      rsvped.map((event) => ({
-        ...event,
-        schedule: Interval.fromDateTimes(
-          DateTime.fromISO(event.startTime).setLocale("fr"),
-          DateTime.fromISO(event.endTime).setLocale("fr")
-        ),
-      })),
+      Array.isArray(rsvped)
+        ? rsvped.map((event) => ({
+            ...event,
+            schedule: Interval.fromDateTimes(
+              DateTime.fromISO(event.startTime).setLocale("fr"),
+              DateTime.fromISO(event.endTime).setLocale("fr")
+            ),
+          }))
+        : [],
     [rsvped]
   );
 
@@ -287,16 +288,16 @@ const Agenda = () => {
             {routes.createEvent ? (
               <Button
                 small
-                as="a"
+                as="Link"
                 color="secondary"
-                href={routes.createEvent}
+                route="createEvent"
                 icon="plus"
               >
                 Créer un événement
               </Button>
             ) : null}
             {routes.eventMapPage ? (
-              <Button small as="a" href={routes.eventMapPage} icon="map">
+              <Button small as="Link" route="eventMapPage" icon="map">
                 Carte
               </Button>
             ) : null}

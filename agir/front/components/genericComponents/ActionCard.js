@@ -19,21 +19,6 @@ const StyledFooter = styled.footer`
   display: flex;
   flex-flow: row nowrap;
 `;
-const StyledButton = styled(Button)`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  text-align: left;
-
-  &[disabled] {
-    cursor: default;
-  }
-
-  & + & {
-    margin-left: 0.5rem;
-  }
-`;
 
 const ActionCard = (props) => {
   const {
@@ -56,16 +41,16 @@ const ActionCard = (props) => {
             <StyledText>{text}</StyledText>
             <StyledFooter>
               {typeof onConfirm === "function" ? (
-                <StyledButton
+                <Button
                   onClick={onConfirm}
                   small
                   color="secondary"
                   disabled={disabled}
                 >
                   {confirmLabel}
-                </StyledButton>
+                </Button>
               ) : typeof onConfirm === "string" ? (
-                <StyledButton
+                <Button
                   small
                   color="secondary"
                   as="a"
@@ -73,16 +58,16 @@ const ActionCard = (props) => {
                   disabled={disabled}
                 >
                   {confirmLabel}
-                </StyledButton>
+                </Button>
               ) : null}
               {typeof onDismiss === "function" ? (
-                <StyledButton onClick={onDismiss} small disabled={disabled}>
+                <Button onClick={onDismiss} small disabled={disabled}>
                   {dismissLabel}
-                </StyledButton>
+                </Button>
               ) : typeof onDismiss === "string" ? (
-                <StyledButton small as="a" href={onDismiss} disabled={disabled}>
+                <Button small as="a" href={onDismiss} disabled={disabled}>
                   {dismissLabel}
-                </StyledButton>
+                </Button>
               ) : null}
             </StyledFooter>
           </Column>

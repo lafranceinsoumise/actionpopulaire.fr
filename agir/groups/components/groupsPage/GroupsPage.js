@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
@@ -6,7 +7,7 @@ import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import Onboarding from "@agir/front/genericComponents/Onboarding";
 import { DateTime } from "luxon";
-import Layout, { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
+import { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
 import Button from "@agir/front/genericComponents/Button";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -72,17 +73,18 @@ const GroupsPage = () => {
 
   const groups = React.useMemo(
     () =>
-      groupList &&
-      groupList.map(({ discountCodes, ...group }) => ({
-        ...group,
-        discountCodes: discountCodes.map(({ code, expirationDate }) => ({
-          code,
-          expirationDate: DateTime.fromISO(expirationDate, {
-            zone: "Europe/Paris",
-            locale: "fr",
-          }),
-        })),
-      })),
+      groupList
+        ? groupList.map(({ discountCodes, ...group }) => ({
+            ...group,
+            discountCodes: discountCodes.map(({ code, expirationDate }) => ({
+              code,
+              expirationDate: DateTime.fromISO(expirationDate, {
+                zone: "Europe/Paris",
+                locale: "fr",
+              }),
+            })),
+          }))
+        : [],
     [groupList]
   );
 
@@ -92,14 +94,17 @@ const GroupsPage = () => {
   );
 
   return (
-    <Layout active="groups" smallBackgroundColor={style.black25}>
+    <>
+      <Helmet>
+        <title>Mes groupes - Action populaire</title>
+      </Helmet>
       <TopBar>
         <LayoutTitle>Mes groupes</LayoutTitle>
         <div>
           {routes.createGroup ? (
             <Button
-              as="a"
-              href={routes.createGroup}
+              as="Link"
+              route="createGroup"
               icon="plus"
               color="secondary"
               small
@@ -108,7 +113,7 @@ const GroupsPage = () => {
             </Button>
           ) : null}
           {routes.groupMapPage ? (
-            <Button as="a" icon="map" href={routes.groupMapPage} small>
+            <Button as="Link" icon="map" route="groupMapPage" small>
               Carte
             </Button>
           ) : null}
@@ -118,10 +123,10 @@ const GroupsPage = () => {
         {/* Si l'utilisateurice n'a pas de groupes,
         groups contient la liste des groupes suggérés,
          on place donc avant le texte introductif */}
-        {groups && !hasOwnGroups ? (
+        {!hasOwnGroups ? (
           <Onboarding type="group__suggestions" routes={routes} />
         ) : null}
-        {groups && groups.length > 0 && (
+        {groups.length > 0 && (
           <GroupList>
             {groups.map((group) => (
               <GroupCard
@@ -135,11 +140,11 @@ const GroupsPage = () => {
             ))}
           </GroupList>
         )}
-        {groups && !hasOwnGroups ? (
+        {!hasOwnGroups ? (
           <Onboarding type="group__creation" routes={routes} />
         ) : null}
       </PageFadeIn>
-    </Layout>
+    </>
   );
 };
 

@@ -188,12 +188,12 @@ const Onboarding = (props) => {
       </article>
       <footer>
         {routes[createRoute] ? (
-          <Button as="a" color="secondary" href={routes[createRoute]}>
+          <Button as="Link" color="secondary" route={createRoute}>
             {createLabel || "Créer"}
           </Button>
         ) : null}
         {routes[mapRoute] ? (
-          <Button as="a" href={routes[mapRoute]}>
+          <Button as="Link" route={mapRoute}>
             {mapLabel || "Voir la carte"}
           </Button>
         ) : null}

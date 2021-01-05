@@ -88,7 +88,7 @@ export const Activities = (props) => {
   );
 };
 Activities.propTypes = {
-  CardComponent: PropTypes.element.isRequired,
+  CardComponent: PropTypes.elementType.isRequired,
   routes: PropTypes.object,
   activities: PropTypes.arrayOf(
     PropTypes.shape({

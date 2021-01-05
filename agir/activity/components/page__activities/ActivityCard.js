@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 import { Interval } from "luxon";
 
+import { routeConfig } from "@agir/front/app/routes.config";
+import Link from "@agir/front/app/Link";
+
 import EventCard from "@agir/front/genericComponents/EventCard";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -188,7 +191,17 @@ const ActivityCard = (props) => {
 
   const { Event, SupportGroup, Individual } = useMemo(
     () => ({
-      Event: event && <a href={event.routes.details}>{event.name}</a>,
+      Event: event && (
+        <Link
+          to={
+            routeConfig.eventDetails
+              ? routeConfig.eventDetails.getLink({ eventPk: event.id })
+              : event.routes.details
+          }
+        >
+          {event.name}
+        </Link>
+      ),
       SupportGroup: supportGroup && (
         <a href={supportGroup.url}>{supportGroup.name}</a>
       ),

@@ -118,9 +118,13 @@ class EventContextMixin:
 
 class EventDetailMixin(GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("events.view_event",)
-    queryset = (
-        Event.objects.all()
-    )  # y compris les événements cachés, pour pouvoir montrer des pages GONE
+    meta_description = (
+        "Participez aux événements organisés par les membres de la France insoumise."
+    )
+    meta_description_2022 = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
+    queryset = Event.objects.all()
+    bundle_name = "front/app"
+    data_script_id = "exportedEvent"
 
     def handle_no_permission(self):
         if self.get_object().visibility == Event.VISIBILITY_ADMIN:

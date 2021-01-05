@@ -15,9 +15,9 @@ const GroupMap = () => {
   return (
     <MapPage
       type="groups"
-      back={routes.groups}
-      create={routes.createGroup}
-      map={routes.groupsMap}
+      backRoute="groups"
+      createRoute="createGroup"
+      mapURL={routes.groupsMap}
       user={user}
     />
   );

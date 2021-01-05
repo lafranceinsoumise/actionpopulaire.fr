@@ -4,7 +4,7 @@
       "id": "events",
       "icon": "calendar",
       "title": "Événements",
-      "route": "events",
+      "to": "events",
       "desktop": true,
       "mobile": true
     },
@@ -12,25 +12,25 @@
       "id": "groups",
       "icon": "users",
       "title": "Groupes",
-      "route": "groups",
+      "to": "groups",
       "desktop": true,
       "mobile": true,
       "secondaryLinks": "groups__personGroups"
     },
     {
-      "id": "required-activity",
+      "id": "requiredActivities",
       "icon": "bell",
       "title": "À faire",
-      "route": "required-activity",
+      "to": "requiredActivities",
       "requiredActivityCounter": true,
       "desktop": true,
       "mobile": true
     },
     {
-      "id": "activity",
+      "id": "activities",
       "icon": "align-left",
       "title": "Actualités",
-      "route": "activity",
+      "to": "activities",
       "unreadActivityBadge": true,
       "desktop": true,
       "mobile": true
@@ -57,7 +57,7 @@
       "id": "menu",
       "icon": "more-horizontal",
       "title": "Plus",
-      "route": "menu",
+      "to": "menu",
       "desktop": false,
       "mobile": true
     },
@@ -79,12 +79,12 @@
     {
       "id": "eventMap",
       "title": "Carte des événements",
-      "route": "eventMapPage"
+      "to": "eventMapPage"
     },
     {
       "id": "groupMap",
       "title": "Carte des groupes",
-      "route": "groupMapPage"
+      "to": "groupMapPage"
     },
     {
       "id": "donations",

@@ -70,32 +70,34 @@
       <div class="alert alert-warning">
         Vous utilisez une version obsolète de votre navigateur. Veuillez le  <a href="http://browsehappy.com/">mettre à jour</a> pour visionner votre site correctement.      </div>
     <![endif]-->
-<div id="top-bar" data-turbolinks-permanent></div>
-<div id="release-modal" data-turbolinks-permanent></div>
-<div id="feedback-button" data-turbolinks-permanent></div>
-
-{% block full_width %}
-  <div class="wrap container" role="document">
-    <main class="main marginbottommore">
-      {% if messages %}
-        <div style="margin-top: 1em;">
-          {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-              {{ message }}
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
-      {% block main %}
-        <div class="row">
-          <div class="col-responsive">
-            {% block main_column %}{% endblock %}
+{% block whole_page %}
+  <div id="top-bar" data-turbolinks-permanent></div>
+  <div id="release-modal" data-turbolinks-permanent></div>
+  <div id="feedback-button" data-turbolinks-permanent></div>
+  {% block full_width %}
+    <div class="wrap container" role="document">
+      <main class="main marginbottommore">
+        {% if messages %}
+          <div style="margin-top: 1em;">
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+              </div>
+            {% endfor %}
           </div>
-        </div>
-      {% endblock %}
-    </main>
-  </div>
+        {% endif %}
+        {% block main %}
+          <div class="row">
+            <div class="col-responsive">
+              {% block main_column %}{% endblock %}
+            </div>
+          </div>
+        {% endblock %}
+      </main>
+    </div>
+  {% endblock %}
 {% endblock %}
+
 <!-- Matomo -->
 <script type="text/javascript">
   var _paq = window._paq = window._paq || [];

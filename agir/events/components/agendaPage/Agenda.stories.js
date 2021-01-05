@@ -29,7 +29,7 @@ const Template = (args) => (
 export const Empty = Template.bind({});
 Empty.args = {
   rsvped: [],
-  suggested: [],
+  others: [],
 };
 
 export const Default = Template.bind({});

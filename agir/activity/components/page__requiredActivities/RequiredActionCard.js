@@ -1,8 +1,12 @@
 import PropTypes from "prop-types";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 
+import { routeConfig } from "@agir/front/app/routes.config";
+import Link from "@agir/front/app/Link";
 import ActionCard from "@agir/front/genericComponents/ActionCard";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
+
+import { useHistory } from "react-router-dom";
 
 export const requiredActionTypes = [
   "waiting-payment",
@@ -168,6 +172,29 @@ const RequiredActionCard = (props) => {
     1000
   );
 
+  const history = useHistory();
+  const Event = useMemo(
+    () =>
+      event ? (
+        <Link
+          to={
+            routeConfig.eventDetails &&
+            routeConfig.eventDetails.getLink({ eventPk: event.id })
+          }
+        >
+          {event.name}
+        </Link>
+      ) : null,
+    [event]
+  );
+
+  const goToEventDetails = useCallback(() => {
+    event &&
+      event.id &&
+      routeConfig.eventDetails &&
+      history.push(routeConfig.eventDetails.getLink({ eventPk: event.id }));
+  }, [event, history]);
+
   switch (type) {
     case "waiting-payment": {
       return (
@@ -176,11 +203,11 @@ const RequiredActionCard = (props) => {
           confirmLabel="Payer"
           dismissLabel="Voir l'événement"
           onConfirm={event.routes.rsvp}
-          onDismiss={event.routes.details}
+          onDismiss={goToEventDetails}
           text={
             <>
               Vous n'avez pas encore réglé votre place pour l'événément :{" "}
-              <a href={event.routes.details}>{event.name}</a>
+              {Event}
             </>
           }
         />
@@ -244,14 +271,14 @@ const RequiredActionCard = (props) => {
           iconName="mail"
           confirmLabel="Voir"
           dismissLabel="Décliner"
-          onConfirm={event.routes.details}
+          onConfirm={goToEventDetails}
           onDismiss={handleDismiss}
           text={
             <>
               <strong>{props.individual.firstName || "Quelqu'un"}</strong> a
               proposé à votre groupe{" "}
               <a href={supportGroup.url}>{supportGroup.name}</a> de co-organiser
-              : <a href={event.routes.details}>{event.name}</a>
+              : {Event}
             </>
           }
         />
@@ -264,12 +291,7 @@ const RequiredActionCard = (props) => {
           confirmLabel="Mettre à jour"
           onConfirm={event.routes.manage}
           onDismiss={handleDismiss}
-          text={
-            <>
-              Précisez la localisation de votre événement :{" "}
-              <a href={event.routes.details}>{event.name}</a>
-            </>
-          }
+          text={<>Précisez la localisation de votre événement :{Event}</>}
         />
       );
     }
@@ -319,6 +341,7 @@ RequiredActionCard.propTypes = {
   id: PropTypes.number.isRequired,
   type: PropTypes.string.isRequired,
   event: PropTypes.shape({
+    id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     routes: PropTypes.shape({
       addPhoto: PropTypes.string,
@@ -343,9 +366,6 @@ RequiredActionCard.propTypes = {
   individual: PropTypes.shape({
     firstName: PropTypes.string,
     email: PropTypes.string,
-  }),
-  meta: PropTypes.shape({
-    joinUrl: PropTypes.string,
   }),
   onDismiss: PropTypes.func,
   meta: PropTypes.object,

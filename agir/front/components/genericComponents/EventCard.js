@@ -3,6 +3,8 @@ import React from "react";
 
 import { DateTime, Interval } from "luxon";
 
+import { routeConfig } from "@agir/front/app/routes.config";
+
 import Card from "./Card";
 import FeatherIcon from "./FeatherIcon";
 import { displayIntervalStart } from "@agir/lib/utils/time";
@@ -12,14 +14,24 @@ import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
 import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 
-const RSVPButton = ({ hasSubscriptionForm, rsvp, routes, schedule }) => {
+const RSVPButton = ({ id, hasSubscriptionForm, rsvp, routes, schedule }) => {
   if (schedule.isBefore(DateTime.local())) {
     return null;
   }
 
   if (rsvp) {
     return (
-      <Button as="a" small color="confirmed" icon="check" href={routes.details}>
+      <Button
+        as="Link"
+        small
+        color="confirmed"
+        icon="check"
+        to={
+          routeConfig.eventDetails
+            ? routeConfig.eventDetails.getLink({ eventPk: id })
+            : routes.details
+        }
+      >
         Je participe
       </Button>
     );
@@ -47,6 +59,7 @@ const RSVPButton = ({ hasSubscriptionForm, rsvp, routes, schedule }) => {
 };
 
 RSVPButton.propTypes = {
+  id: PropTypes.string,
   hasSubscriptionForm: PropTypes.bool,
   rsvp: PropTypes.bool,
   routes: PropTypes.shape({
@@ -77,6 +90,7 @@ const Illustration = styled.div`
 
 const EventCard = (props) => {
   const {
+    id,
     illustration,
     hasSubscriptionForm,
     schedule,
@@ -89,18 +103,12 @@ const EventCard = (props) => {
     compteRendu,
   } = props;
   const mainLink = React.useRef(null);
-  const handleClick = React.useCallback(
-    (e) => {
-      if (
-        ["A", "BUTTON"].includes(e.target.tagName.toUpperCase()) ||
-        !routes.details
-      ) {
-        return;
-      }
-      mainLink.current && mainLink.current.click();
-    },
-    [routes]
-  );
+  const handleClick = React.useCallback((e) => {
+    if (["A", "BUTTON"].includes(e.target.tagName.toUpperCase())) {
+      return;
+    }
+    mainLink.current && mainLink.current.click();
+  }, []);
 
   return (
     <Card onClick={handleClick}>
@@ -146,23 +154,37 @@ const EventCard = (props) => {
         <Column grow collapse={0}>
           <Buttons>
             <RSVPButton
+              id={id}
               hasSubscriptionForm={hasSubscriptionForm}
               rsvp={!!rsvp}
               routes={routes}
               schedule={schedule}
             />
-            {compteRendu && routes && routes.details ? (
+            {compteRendu ? (
               <Button
                 small
                 color="tertiary"
                 icon="file-text"
-                as="a"
-                href={routes.details}
+                as="Link"
+                to={
+                  routeConfig.eventDetails
+                    ? routeConfig.eventDetails.getLink({ eventPk: id })
+                    : routes.details
+                }
               >
                 Voir le compte-rendu
               </Button>
             ) : null}
-            <Button small as="a" href={routes.details} ref={mainLink}>
+            <Button
+              small
+              as="Link"
+              to={
+                routeConfig.eventDetails
+                  ? routeConfig.eventDetails.getLink({ eventPk: id })
+                  : routes.details
+              }
+              ref={mainLink}
+            >
               Détails
             </Button>
           </Buttons>

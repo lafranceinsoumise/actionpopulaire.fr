@@ -8,7 +8,9 @@ import {
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
 import { setIs2022 } from "@agir/front/globalContext/actions";
-import { getIsConnected, getRoutes } from "@agir/front/globalContext/reducers";
+import { getIsConnected } from "@agir/front/globalContext/reducers";
+
+import Link from "@agir/front/app/Link";
 
 import EventHeader from "./EventHeader";
 import EventLocationCard from "./EventLocationCard";
@@ -69,7 +71,7 @@ const StyledColumn = styled(Column)`
   }
 `;
 
-const IndexLinkAnchor = styled.a`
+const IndexLinkAnchor = styled(Link)`
   font-weight: 600;
   font-size: 12px;
   line-height: 1.4;
@@ -96,20 +98,16 @@ const IndexLinkAnchor = styled.a`
     margin-bottom: -1rem;
   }
 `;
-const IndexLink = ({ href }) =>
-  href ? (
-    <Row>
-      <Column grow>
-        <IndexLinkAnchor href={href}>
-          <span>&#10140;</span>
-          &ensp; Liste des événements
-        </IndexLinkAnchor>
-      </Column>
-    </Row>
-  ) : null;
-IndexLink.propTypes = {
-  href: PropTypes.string,
-};
+const IndexLink = () => (
+  <Row>
+    <Column grow>
+      <IndexLinkAnchor to="events">
+        <span>&#10140;</span>
+        &ensp; Liste des événements
+      </IndexLinkAnchor>
+    </Column>
+  </Row>
+);
 
 const MobileLayout = (props) => {
   return (
@@ -132,9 +130,7 @@ const MobileLayout = (props) => {
               />
             </div>
           )}
-          {props.logged && props.appRoutes && props.appRoutes.events ? (
-            <IndexLink href={props.appRoutes.events} />
-          ) : null}
+          {props.logged ? <IndexLink /> : null}
           <Card>
             <EventHeader {...props} />
           </Card>
@@ -163,9 +159,7 @@ const MobileLayout = (props) => {
 const DesktopLayout = (props) => {
   return (
     <Container style={{ margin: "4rem auto", padding: "0 4rem" }}>
-      {props.logged && props.appRoutes && props.appRoutes.events ? (
-        <IndexLink href={props.appRoutes.events} />
-      ) : null}
+      {props.logged ? <IndexLink /> : null}
       <Row gutter={32}>
         <Column grow>
           <div>
@@ -294,13 +288,11 @@ const MobileSkeleton = () => (
 );
 
 export const ConnectedEventPage = (props) => {
-  // À remplacer pour l'obtenir du router front
-  const { pk } = props;
+  const { eventPk } = props;
   const isConnected = useSelector(getIsConnected);
-  const routes = useSelector(getRoutes);
   const dispatch = useDispatch();
 
-  const { data: eventData } = useSWR(`/api/evenements/${pk}`);
+  const { data: eventData } = useSWR(`/api/evenements/${eventPk}`);
   log.debug("Event data", eventData);
 
   let { is2022 } = eventData || {};
@@ -320,9 +312,7 @@ export const ConnectedEventPage = (props) => {
           />
         }
       >
-        {eventData && (
-          <EventPage {...eventData} logged={isConnected} appRoutes={routes} />
-        )}
+        {eventData && <EventPage {...eventData} logged={isConnected} />}
       </PageFadeIn>
       <Footer />
     </>
@@ -330,7 +320,7 @@ export const ConnectedEventPage = (props) => {
 };
 
 ConnectedEventPage.propTypes = {
-  pk: PropTypes.string,
+  eventPk: PropTypes.string,
 };
 
 export default ConnectedEventPage;

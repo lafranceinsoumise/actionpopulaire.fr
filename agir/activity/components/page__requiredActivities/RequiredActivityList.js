@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 
@@ -16,7 +17,7 @@ import { dismissRequiredActionActivity } from "@agir/front/globalContext/actions
 
 import Activities from "@agir/activity/common/Activities";
 
-import Layout, {
+import {
   LayoutTitle,
   LayoutSubtitle,
 } from "@agir/front/dashboardComponents/Layout";
@@ -60,7 +61,10 @@ const RequiredActivityList = () => {
   );
 
   return (
-    <Layout active="required-activity">
+    <>
+      <Helmet>
+        <title>À faire - Action populaire</title>
+      </Helmet>
       <Page>
         <LayoutTitle>
           {activities.length ? <Counter>{activities.length}</Counter> : null}À
@@ -85,7 +89,7 @@ const RequiredActivityList = () => {
           />
         </PageFadeIn>
       </Page>
-    </Layout>
+    </>
   );
 };
 export default RequiredActivityList;
