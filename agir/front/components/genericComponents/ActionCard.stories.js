@@ -15,7 +15,7 @@ const Template = (args) => {
   return (
     <div
       style={{
-        maxWidth: 396,
+        maxWidth: 500,
         margin: "10px auto",
       }}
     >

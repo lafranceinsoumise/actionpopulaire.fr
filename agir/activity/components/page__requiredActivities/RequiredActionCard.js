@@ -215,7 +215,7 @@ const RequiredActionCard = (props) => {
           iconName="alert-circle"
           confirmLabel="Payer"
           dismissLabel="Voir l'événement"
-          onConfirm={event.routes.rsvp}
+          onConfirm={dismissed ? null : event.routes.rsvp}
           dismissed={dismissed}
           timestamp={timestamp}
           text={
