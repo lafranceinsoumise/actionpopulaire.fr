@@ -19,7 +19,6 @@ const ShareCard = () => {
   }, []);
 
   const inputEl = useRef(null);
-  const buttonEl = useRef(null);
   let encodedLocation = encodeURIComponent(window.location.href);
   return (
     <Card>
@@ -68,12 +67,7 @@ const ShareCard = () => {
           />
         </Column>
         <Column collapse={false}>
-          <Button
-            small
-            icon={copied ? "check" : "copy"}
-            onClick={copyUrl}
-            ref={buttonEl}
-          >
+          <Button small icon={copied ? "check" : "copy"} onClick={copyUrl}>
             Copier le lien
           </Button>
         </Column>

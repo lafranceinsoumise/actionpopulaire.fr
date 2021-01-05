@@ -169,9 +169,8 @@ Button.defaultProps = {
 
 export const ButtonElement = React.forwardRef((props, ref) => {
   const { color, small, block, icon, ...rest } = props;
-  const Btn = (
+  return (
     <Button
-      ref={ref}
       $color={color}
       $small={small}
       $block={block}
@@ -179,8 +178,6 @@ export const ButtonElement = React.forwardRef((props, ref) => {
       {...rest}
     />
   );
-
-  return Btn;
 });
 
 ButtonElement.propTypes = {
@@ -192,6 +189,7 @@ ButtonElement.propTypes = {
   small: PropTypes.bool,
   block: PropTypes.bool,
   icon: PropTypes.string,
+  linkRef: PropTypes.any,
 };
 ButtonElement.displayName = "ButtonElement";
 
@@ -201,7 +199,6 @@ const RouterButton = ({ as, ...props }) =>
   ) : (
     <ButtonElement as={as} {...props} />
   );
-
 RouterButton.propTypes = {
   as: PropTypes.elementType,
 };

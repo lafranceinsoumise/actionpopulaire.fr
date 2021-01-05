@@ -80,7 +80,7 @@ export const routeConfig = {
   }),
   eventDetails: new RouteConfig({
     id: "eventDetails",
-    pathname: "/evenements/:eventPk",
+    pathname: "/evenements/:eventPk/",
     exact: true,
     label: "Details de l'événement",
     Component: EventPage,

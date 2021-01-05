@@ -10,6 +10,7 @@ import Button from "@agir/front/genericComponents/Button";
 import styled from "styled-components";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Collapsible from "@agir/front/genericComponents/Collapsible.js";
+import { useHistory } from "react-router-dom";
 
 const Label = styled.span`
   font-size: 13px;
@@ -51,9 +52,9 @@ const DiscountCodesSection = styled.section`
   }
 `;
 
-let GroupButton = ({ href, children, color = "default", icon }, ref) => (
+let GroupButton = ({ href, children, color = "default", icon }) => (
   <Column width={["33%", "content"]} collapse={500}>
-    <Button ref={ref} as="a" href={href} color={color} icon={icon} small>
+    <Button as="a" href={href} color={color} icon={icon} small>
       {children}
     </Button>
   </Column>
@@ -64,7 +65,6 @@ GroupButton.propTypes = {
   color: PropTypes.string,
   icon: PropTypes.string,
 };
-GroupButton = React.forwardRef(GroupButton);
 
 const GroupCard = ({
   name,
@@ -84,7 +84,7 @@ const GroupCard = ({
   isEmbedded = false,
   is2022 = false,
 }) => {
-  const mainLink = React.useRef(null);
+  const history = useHistory();
   const handleClick = React.useCallback(
     (e) => {
       if (
@@ -93,9 +93,9 @@ const GroupCard = ({
       ) {
         return;
       }
-      mainLink.current && mainLink.current.click();
+      location.href = routes.page;
     },
-    [routes]
+    [history, routes.page]
   );
   const Svg = React.useMemo(() => (is2022 ? GroupIconNsp : GroupIconLfi), [
     is2022,
@@ -165,16 +165,14 @@ const GroupCard = ({
       )}
       <Row gutter={6} style={{ marginTop: "1.5rem" }}>
         {!isMember ? (
-          <GroupButton ref={mainLink} color="primary" href={routes.page}>
+          <GroupButton color="primary" href={routes.page}>
             Rejoindre
             <Hide as="span" under={800}>
               &nbsp;le groupe
             </Hide>
           </GroupButton>
         ) : null}
-        <GroupButton ref={mainLink} href={routes.page}>
-          Voir le groupe
-        </GroupButton>
+        <GroupButton href={routes.page}>Voir le groupe</GroupButton>
         {routes.fund && (
           <GroupButton href={routes.fund} icon="fast-forward">
             Financer

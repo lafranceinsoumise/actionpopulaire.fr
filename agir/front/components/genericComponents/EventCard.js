@@ -13,6 +13,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
 import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
+import { useHistory } from "react-router-dom";
 
 const RSVPButton = ({ id, hasSubscriptionForm, rsvp, routes, schedule }) => {
   if (schedule.isBefore(DateTime.local())) {
@@ -102,13 +103,18 @@ const EventCard = (props) => {
     groups,
     compteRendu,
   } = props;
-  const mainLink = React.useRef(null);
-  const handleClick = React.useCallback((e) => {
-    if (["A", "BUTTON"].includes(e.target.tagName.toUpperCase())) {
-      return;
-    }
-    mainLink.current && mainLink.current.click();
-  }, []);
+  const history = useHistory();
+  const handleClick = React.useCallback(
+    (e) => {
+      if (["A", "BUTTON"].includes(e.target.tagName.toUpperCase())) {
+        return;
+      }
+      id &&
+        routeConfig.eventDetails &&
+        history.push(routeConfig.eventDetails.getLink({ eventPk: id }));
+    },
+    [id]
+  );
 
   return (
     <Card onClick={handleClick}>
@@ -183,7 +189,6 @@ const EventCard = (props) => {
                   ? routeConfig.eventDetails.getLink({ eventPk: id })
                   : routes.details
               }
-              ref={mainLink}
             >
               Détails
             </Button>

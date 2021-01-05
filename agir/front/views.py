@@ -198,7 +198,7 @@ class EventDetailView(
         "Participez aux événements organisés par les membres de la France insoumise."
     )
     meta_description_2022 = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
-    bundle_name = "events/eventPage"
+    bundle_name = "front/app"
 
     def get_context_data(self, **kwargs):
         kwargs["export_data"] = {"pk": self.object.pk}

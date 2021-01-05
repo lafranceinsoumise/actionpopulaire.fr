@@ -101,7 +101,7 @@ const IndexLinkAnchor = styled(Link)`
 const IndexLink = () => (
   <Row>
     <Column grow>
-      <IndexLinkAnchor to="events">
+      <IndexLinkAnchor route="events">
         <span>&#10140;</span>
         &ensp; Liste des événements
       </IndexLinkAnchor>
