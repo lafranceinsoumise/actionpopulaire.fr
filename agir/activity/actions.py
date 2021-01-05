@@ -8,11 +8,11 @@ from ..events.models import Event
 
 def get_activity(person):
     return (
-        Activity.objects.filter(recipient=person, type__in=Activity.DISPLAYED_TYPES)
-        .exclude(status=Activity.STATUS_INTERACTED)
+        Activity.objects.unrequired_action()
+        .filter(recipient=person)
         .prefetch_related(
             Prefetch("event", Event.objects.with_serializer_prefetch(person),)
-        )
+        )[:40]
     )
 
 
@@ -20,6 +20,42 @@ def get_serialized_activity(request):
     if hasattr(request.user, "person"):
         person = request.user.person
         activities = get_activity(person)
+
+        activity_serializer = ActivitySerializer(
+            instance=activities, many=True, context={"request": request}
+        )
+        return activity_serializer.data
+
+    return []
+
+
+def get_required_action_activity(person):
+    required_action_activities = (
+        Activity.objects.required_action()
+        .filter(recipient=person)
+        .prefetch_related(
+            Prefetch("event", Event.objects.with_serializer_prefetch(person),)
+        )
+    )
+    # On affiche toutes les activités avec action requise non traitées
+    unread_required_action_activities = required_action_activities.exclude(
+        status=Activity.STATUS_INTERACTED
+    )
+    # On affiche les 20 dernières activités avec action requise déjà traitées
+    read_required_action_activities = required_action_activities.filter(
+        status=Activity.STATUS_INTERACTED
+    ).order_by("-created")[:20]
+
+    return required_action_activities.filter(
+        pk__in=[a.pk for a in unread_required_action_activities]
+        + [a.pk for a in read_required_action_activities]
+    ).order_by("-created")
+
+
+def get_serialized_required_action_activity(request):
+    if hasattr(request.user, "person"):
+        person = request.user.person
+        activities = get_required_action_activity(person)
 
         activity_serializer = ActivitySerializer(
             instance=activities, many=True, context={"request": request}

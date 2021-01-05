@@ -13,7 +13,10 @@ import {
   getRequiredActionActivities,
   getRoutes,
 } from "@agir/front/globalContext/reducers";
-import { dismissRequiredActionActivity } from "@agir/front/globalContext/actions";
+import {
+  dismissRequiredActionActivity,
+  undoRequiredActionActivityDismissal,
+} from "@agir/front/globalContext/actions";
 import { activityStatus } from "@agir/activity/common/helpers";
 
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
@@ -61,8 +64,12 @@ const RequiredActivityList = () => {
   }, []);
 
   const handleDismiss = useCallback(
-    async (id) => {
-      dispatch(dismissRequiredActionActivity(id));
+    async (id, status) => {
+      dispatch(
+        status !== activityStatus.STATUS_INTERACTED
+          ? dismissRequiredActionActivity(id)
+          : undoRequiredActionActivityDismissal(id)
+      );
     },
     [dispatch]
   );

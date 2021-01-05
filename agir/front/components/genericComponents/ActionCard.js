@@ -21,6 +21,7 @@ const StyledFooter = styled.footer`
   display: flex;
   flex-flow: row nowrap;
 `;
+
 const StyledButton = styled(Button)`
   display: inline-flex;
   align-items: center;

@@ -173,8 +173,8 @@ const RequiredActionCard = (props) => {
   } = props;
 
   const handleDismiss = useCallback(() => {
-    onDismiss(id);
-  }, [id, onDismiss]);
+    onDismiss(id, status);
+  }, [id, status, onDismiss]);
 
   const [isEmailCopied, copyEmail] = useCopyToClipboard(
     (individual && individual.email) || "",
@@ -216,7 +216,6 @@ const RequiredActionCard = (props) => {
           confirmLabel="Payer"
           dismissLabel="Voir l'événement"
           onConfirm={event.routes.rsvp}
-          onDismiss={goToEventDetails}
           dismissed={dismissed}
           timestamp={timestamp}
           text={

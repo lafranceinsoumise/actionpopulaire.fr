@@ -1,8 +1,9 @@
 import ACTION_TYPE from "./actionTypes";
 
 import {
-  dismissActivity,
-  setActivitiesAsRead,
+  setActivityAsInteracted,
+  setActivityAsDisplayed,
+  setActivitiesAsDisplayed,
 } from "@agir/activity/common/helpers";
 
 export const initFromScriptTag = () => {
@@ -48,7 +49,7 @@ export const setAllActivitiesAsRead = (ids = [], updateState = false) => async (
   dispatch
 ) => {
   try {
-    const success = await setActivitiesAsRead(ids);
+    const success = await setActivitiesAsDisplayed(ids);
     updateState &&
       success &&
       dispatch({
@@ -62,7 +63,7 @@ export const setAllActivitiesAsRead = (ids = [], updateState = false) => async (
 // REQUIRED ACTION ACTIVITIES
 export const dismissRequiredActionActivity = (id) => async (dispatch) => {
   try {
-    const success = await dismissActivity(id);
+    const success = await setActivityAsInteracted(id);
     success &&
       dispatch({
         type: ACTION_TYPE.DISMISS_REQUIRED_ACTION_ACTIVITY_ACTION,
@@ -73,10 +74,23 @@ export const dismissRequiredActionActivity = (id) => async (dispatch) => {
   }
 };
 
+export const undoRequiredActionActivityDismissal = (id) => async (dispatch) => {
+  try {
+    const success = await setActivityAsDisplayed(id);
+    success &&
+      dispatch({
+        type: ACTION_TYPE.UNDO_REQUIRED_ACTION_ACTIVITY_DISMISSAL_ACTION,
+        id,
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // ANNOUNCEMENTS
 export const setAnnouncementsAsRead = (ids = []) => async (dispatch) => {
   try {
-    const success = await setActivitiesAsRead(ids);
+    const success = await setActivitiesAsDisplayed(ids);
     success &&
       dispatch({
         type: ACTION_TYPE.SET_ANNOUNCEMENTS_AS_READ_ACTION,

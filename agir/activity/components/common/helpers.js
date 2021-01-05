@@ -12,37 +12,6 @@ export const activityStatus = {
   STATUS_INTERACTED: "I",
 };
 
-export const requiredActivityTypes = [
-  "waiting-payment",
-  "group-invitation",
-  "new-member",
-  "waiting-location-group",
-  "group-coorganization-invite",
-  "waiting-location-event",
-  "group-creation-confirmation",
-  "group-membership-limit-reminder",
-];
-
-export const parseActivities = (data, dismissed = []) => {
-  const parsedActivities = {
-    required: [],
-    unrequired: [],
-  };
-  if (Array.isArray(data) && data.length > 0) {
-    data.forEach((activity) => {
-      if (dismissed.includes(activity.id)) {
-        return;
-      }
-      if (requiredActivityTypes.includes(activity.type)) {
-        parsedActivities.required.push(activity);
-      } else {
-        parsedActivities.unrequired.push(activity);
-      }
-    });
-  }
-  return parsedActivities;
-};
-
 export const getUnread = (data) => {
   return Array.isArray(data)
     ? data.filter(
@@ -55,7 +24,7 @@ export const getUnreadCount = (data) => {
   return getUnread(data).length;
 };
 
-export const dismissActivity = async (
+export const updateActivityStatus = async (
   id,
   status = activityStatus.STATUS_INTERACTED
 ) => {
@@ -79,7 +48,13 @@ export const dismissActivity = async (
   return result;
 };
 
-export const setActivitiesAsRead = async (ids = []) => {
+export const setActivityAsInteracted = (id) =>
+  updateActivityStatus(id, activityStatus.STATUS_INTERACTED);
+
+export const setActivityAsDisplayed = (id) =>
+  updateActivityStatus(id, activityStatus.STATUS_DISPLAYED);
+
+export const setActivitiesAsDisplayed = async (ids = []) => {
   let result = false;
   if (!Array.isArray(ids) || ids.length === 0) {
     return result;

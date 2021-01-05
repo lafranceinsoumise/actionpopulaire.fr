@@ -1,11 +1,7 @@
 import shortUUID from "short-uuid";
 import ACTION_TYPE from "./actionTypes";
 
-import {
-  activityStatus,
-  getUnreadCount,
-  parseActivities,
-} from "@agir/activity/common/helpers";
+import { activityStatus, getUnreadCount } from "@agir/activity/common/helpers";
 
 // Reducers
 export const domain = (state = "https://actionpopulaire.fr", action) => {
@@ -52,8 +48,7 @@ export const activities = (state = [], action) => {
       if (!Array.isArray(action.activities)) {
         return state;
       }
-      const { unrequired } = parseActivities(action.activities);
-      return unrequired;
+      return action.activities;
     }
     case ACTION_TYPE.MARK_ACTIVITY_AS_READ_ACTION: {
       if (!action.id) {
@@ -83,11 +78,9 @@ export const activities = (state = [], action) => {
 export const requiredActionActivities = (state = [], action) => {
   if (
     action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION &&
-    Array.isArray(action.activities)
+    Array.isArray(action.requiredActionActivities)
   ) {
-    const { required } = parseActivities(action.activities);
-
-    return required;
+    return action.requiredActionActivities;
   }
   if (
     action.type === ACTION_TYPE.DISMISS_REQUIRED_ACTION_ACTIVITY_ACTION &&
@@ -98,6 +91,20 @@ export const requiredActionActivities = (state = [], action) => {
         ? {
             ...activity,
             status: activityStatus.STATUS_INTERACTED,
+          }
+        : activity
+    );
+  }
+  if (
+    action.type ===
+      ACTION_TYPE.UNDO_REQUIRED_ACTION_ACTIVITY_DISMISSAL_ACTION &&
+    action.id
+  ) {
+    return state.map((activity) =>
+      activity.id === action.id
+        ? {
+            ...activity,
+            status: activityStatus.STATUS_DISPLAYED,
           }
         : activity
     );
