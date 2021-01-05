@@ -73,7 +73,7 @@ export const routeConfig = {
   }),
   eventMap: new RouteConfig({
     id: "eventMap",
-    pathname: "/evenements/carte",
+    pathname: "/evenements/carte/",
     exact: true,
     label: "Carte des événements",
     Component: EventMap,
@@ -98,7 +98,7 @@ export const routeConfig = {
   }),
   groupMap: new RouteConfig({
     id: "groupMap",
-    pathname: "/groupes/carte",
+    pathname: "/groupes/carte/",
     exact: true,
     label: "Carte des groupes",
     Component: GroupMap,
