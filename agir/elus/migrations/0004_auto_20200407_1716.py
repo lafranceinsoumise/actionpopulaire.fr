@@ -8,7 +8,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("data_france", "0006_search"),
-        ("people", "0062_auto_20200330_1252"),
         ("elus", "0003_auto_20200406_1222"),
     ]
 

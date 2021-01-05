@@ -24,7 +24,6 @@ def create_system_pay_subscription(apps, schema):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("payments", "0017_auto_20191008_1742"),
         ("system_pay", "0007_remove_sensitive_info"),
     ]
 

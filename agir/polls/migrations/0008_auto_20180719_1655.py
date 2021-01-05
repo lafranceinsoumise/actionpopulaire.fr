@@ -7,7 +7,6 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("people", "0035_auto_20180719_1655"),
         ("polls", "0007_auto_20180601_1535"),
     ]
 

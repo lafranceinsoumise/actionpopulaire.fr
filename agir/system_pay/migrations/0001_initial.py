@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [("payments", "0006_auto_20180628_1503")]
+    dependencies = [("payments", "0001_creer_modeles")]
 
     operations = [
         migrations.CreateModel(

@@ -6,7 +6,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("people", "0061_personform_campaign_template"),
         ("mailing", "0023_segment_campaigns_feedback"),
     ]
 

@@ -10,7 +10,6 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("groups", "0034_auto_20190419_1153"),
         ("donations", "0012_auto_20190215_1902"),
     ]
 
