@@ -26,7 +26,7 @@ urlpatterns = [
         RedirectView.as_view(url=reverse_lazy("dashboard")),
         name="list_groups",
     ),
-    path("groupes/carte", views.GroupMapView.as_view(), name="group_map_page"),
+    path("groupes/carte/", views.GroupMapView.as_view(), name="group_map_page"),
     path("activite/", views.ActivityView.as_view(), name="list_activities",),
     path(
         "a-traiter/",
@@ -39,7 +39,7 @@ urlpatterns = [
         RedirectView.as_view(pattern_name="dashboard"),
         name="list_events",
     ),
-    path("evenements/carte", views.EventMapView.as_view(), name="event_map_page"),
+    path("evenements/carte/", views.EventMapView.as_view(), name="event_map_page"),
     path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
     path("mes-groupes/", views.MyGroupsView.as_view(), name="list_my_groups"),
     path(
