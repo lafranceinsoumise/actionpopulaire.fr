@@ -331,7 +331,9 @@ const Agenda = () => {
               so when rsvpedEvents is loaded we still display skeleton
               only on this part */}
               <>
-                <SuggestionsEvents suggestions={suggestions} />
+                {isSessionLoaded && suggestions && (
+                  <SuggestionsEvents suggestions={suggestions} />
+                )}
                 <Row style={{ marginTop: "4rem" }}>
                   <Column grow>
                     <Onboarding
