@@ -295,9 +295,9 @@ const Agenda = () => {
             {routes.createEvent ? (
               <Button
                 small
-                as="Link"
+                as="a"
                 color="secondary"
-                route="createEvent"
+                href={routes["createEvent"]}
                 icon="plus"
               >
                 Créer un événement
