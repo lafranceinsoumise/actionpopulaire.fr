@@ -30,7 +30,9 @@ const ProdProvider = ({ hasToasts = false, children }) => {
 
   const { data: sessionContext } = useSWR("/api/session/");
 
-  useMemo(() => {
+  useEffect(() => {
+    if (!sessionContext) return;
+
     doDispatch(setSessionContext(sessionContext));
     log.debug("Update session context", sessionContext);
   }, [doDispatch, sessionContext]);
