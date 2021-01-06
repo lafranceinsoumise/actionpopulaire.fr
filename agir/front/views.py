@@ -56,16 +56,6 @@ class NBUrlsView(View):
     }
 
     def get(self, request, nb_path):
-        event = Event.objects.filter(
-            nb_path=nb_path, visibility=Event.VISIBILITY_PUBLIC
-        ).first()
-        if event:
-            return HttpResponsePermanentRedirect(reverse("view_event", args=[event.id]))
-
-        group = SupportGroup.objects.filter(nb_path=nb_path, published=True).first()
-        if group:
-            return HttpResponsePermanentRedirect(reverse("view_group", args=[group.id]))
-
         try:
             nb_url = nb_path
             if request.META["QUERY_STRING"]:

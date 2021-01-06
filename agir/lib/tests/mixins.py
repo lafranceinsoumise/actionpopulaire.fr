@@ -58,7 +58,6 @@ def create_location():
         "coordinates_type": LocationMixin.COORDINATES_EXACT,
         "coordinates": Point(float(coords[1]), float(coords[0])),
         "location_name": address,
-        "location_address": address,
         "location_address1": address,
         "location_address2": "App. %s" % fake.building_number(),
         "location_city": fake.city(),

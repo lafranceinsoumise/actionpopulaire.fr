@@ -51,25 +51,6 @@ class UUIDIdentified(models.Model):
         abstract = True
 
 
-class NationBuilderResource(models.Model):
-    """
-    Mixin that add a `nb_id` field that can store the id of the corresponding resource on NationBuilder
-    """
-
-    nb_id = models.IntegerField(
-        _("ID sur NationBuilder"),
-        null=True,
-        blank=True,
-        unique=True,
-        help_text=_(
-            "L'identifiant de la ressource correspondante sur NationBuilder, si importé."
-        ),
-    )
-
-    class Meta:
-        abstract = True
-
-
 class BaseAPIResource(UUIDIdentified, TimeStampedModel):
     """
     Abstract base class for APIResource
@@ -145,16 +126,6 @@ class LocationMixin(models.Model):
     location_state = models.CharField(_("état"), max_length=40, blank=True)
     location_country = CountryField(
         _("pays"), blank=True, blank_label=_("(sélectionner un pays)"), default="FR"
-    )
-
-    # legacy fields --> copied from NationBuilder
-    location_address = models.CharField(
-        _("adresse complète"),
-        max_length=255,
-        blank=True,
-        help_text=_(
-            "L'adresse telle qu'elle a éventuellement été copiée depuis NationBuilder. Ne plus utiliser."
-        ),
     )
 
     def html_full_address(self):

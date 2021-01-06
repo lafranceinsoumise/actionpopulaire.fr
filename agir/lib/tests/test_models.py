@@ -27,21 +27,6 @@ class UUIDIdentifiedMixinTestCase(TestCase):
         self.assertNotEqual(instance1.pk, instance2.pk)
 
 
-class NationBuilderIdTestCase(TestCase):
-    def test_can_create_no_nb_id(self):
-        instance1 = models.NBModel.objects.create()
-        instance2 = models.NBModel.objects.create()
-
-        self.assertIsNone(instance1.nb_id)
-        self.assertIsNone(instance2.nb_id)
-
-    def test_nb_id_enforced_unique(self):
-        models.NBModel.objects.create(nb_id=1)
-
-        with self.assertRaises(IntegrityError):
-            models.NBModel.objects.create(nb_id=1)
-
-
 class APIResourceTestCase(TestCase):
     def test_has_uuid(self):
         instance = models.APIResource.objects.create()

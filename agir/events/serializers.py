@@ -1,41 +1,14 @@
-from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
+from agir.front.serializer_utils import MediaURLField, RoutesField
 from agir.lib.serializers import (
-    ExistingRelatedLabelField,
     LocationSerializer,
     ContactMixinSerializer,
     FlexibleFieldsMixin,
 )
-from agir.front.serializer_utils import MediaURLField, RoutesField
 from . import models
 from .models import OrganizerConfig, RSVP
 from ..groups.serializers import SupportGroupSerializer
-
-
-class EventLegacySerializer(CountryFieldMixin, serializers.ModelSerializer):
-    subtype = ExistingRelatedLabelField(
-        queryset=models.EventSubtype.objects.all(), required=False
-    )
-
-    class Meta:
-        model = models.Event
-        fields = (
-            "id",
-            "name",
-            "description",
-            "start_time",
-            "end_time",
-            "contact_name",
-            "contact_email",
-            "location_address1",
-            "location_address2",
-            "location_city",
-            "location_zip",
-            "location_country",
-            "coordinates",
-            "subtype",
-        )
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):

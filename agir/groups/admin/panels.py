@@ -157,7 +157,6 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 )
             },
         ),
-        (_("NationBuilder"), {"fields": ("nb_id", "nb_path", "location_address")}),
     )
     inlines = (MembershipInline,)
     readonly_fields = (

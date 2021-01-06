@@ -1,8 +1,6 @@
 from django.urls import path
 
-import agir.front.views
 from . import views
-
 
 urlpatterns = [
     path("evenements/creer/", views.CreateEventView.as_view(), name="create_event"),
@@ -12,11 +10,6 @@ urlpatterns = [
         name="perform_create_event",
     ),
     path("evenements/liste/", views.EventSearchView.as_view(), name="search_event"),
-    path(
-        "evenements/liste/api/",
-        views.EventSearchAPIView.as_view(),
-        name="search_event_api",
-    ),
     path(
         "evenements/<uuid:pk>/participer/",
         views.EventParticipationView.as_view(),

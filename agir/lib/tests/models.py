@@ -8,10 +8,6 @@ class UUIDModel(models.UUIDIdentified):
     pass
 
 
-class NBModel(models.NationBuilderResource):
-    pass
-
-
 class LocationModel(models.LocationMixin):
     pass
 

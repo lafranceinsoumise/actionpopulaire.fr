@@ -333,12 +333,8 @@ class LegacyEndpointFieldsTestCase(TestCase):
         self.tag = PersonTag.objects.create(label="tag1")
 
         self.person1 = Person.objects.create_insoumise("person1@domain.fr")
-        self.person2 = Person.objects.create_insoumise(
-            email="person2@domain.fr", nb_id=12345
-        )
-        self.person3 = Person.objects.create_insoumise(
-            email="person3@domain.fr", nb_id=67890
-        )
+        self.person2 = Person.objects.create_insoumise(email="person2@domain.fr")
+        self.person3 = Person.objects.create_insoumise(email="person3@domain.fr")
 
         self.detail_view = LegacyPersonViewSet.as_view(
             {
@@ -378,7 +374,6 @@ class LegacyEndpointFieldsTestCase(TestCase):
         request = self.patch_request(
             data={
                 "location": {
-                    "address": "40 boulevard Auguste Blanqui, 75013 Paris, France",
                     "address1": "40 boulevard Auguste Blanqui",
                     "city": "Paris",
                     "country_code": "FR",
@@ -392,10 +387,6 @@ class LegacyEndpointFieldsTestCase(TestCase):
 
         self.person1.refresh_from_db()
 
-        self.assertEqual(
-            self.person1.location_address,
-            "40 boulevard Auguste Blanqui, 75013 Paris, France",
-        )
         self.assertEqual(self.person1.location_address1, "40 boulevard Auguste Blanqui")
         self.assertEqual(self.person1.location_city, "Paris")
         self.assertEqual(self.person1.location_country.code, "FR")
@@ -413,12 +404,8 @@ class LegacyEndpointLookupFilterTestCase(TestCase):
     def setUp(self):
         self.superuser = Person.objects.create_superperson("super@user.fr", None)
         self.person1 = Person.objects.create_insoumise("person1@domain.fr")
-        self.person2 = Person.objects.create_insoumise(
-            email="person2@domain.fr", nb_id=12345
-        )
-        self.person3 = Person.objects.create_insoumise(
-            email="person3@domain.fr", nb_id=67890
-        )
+        self.person2 = Person.objects.create_insoumise(email="person2@domain.fr")
+        self.person3 = Person.objects.create_insoumise(email="person3@domain.fr")
 
         self.detail_view = LegacyPersonViewSet.as_view(
             {
@@ -440,14 +427,6 @@ class LegacyEndpointLookupFilterTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["email"], self.person1.email)
-
-    def test_can_query_by_nb_id(self):
-        request = self.get_request()
-
-        response = self.detail_view(request, pk=self.person2.nb_id)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["email"], self.person2.email)
 
     def test_can_filter_by_email(self):
         request = self.get_request(data={"email": "person1@domain.fr"})
