@@ -57,7 +57,20 @@ const buttonColors = {
 /**
  * Pour une raison obscure, lorsque la taille dédiée au contenu (telle que déterminée par min-height)
  */
-export const Button = styled.button.attrs(({ $color }) => buttonColors[$color])`
+export const Button = styled.button.attrs(
+  ({ color, small, block, icon, as }) => ({
+    $color: color,
+    $small: small,
+    $block: block,
+    $icon: icon,
+    color: null,
+    small: null,
+    block: null,
+    icon: null,
+    ...buttonColors[color],
+    as: as === "Link" ? Link : as,
+  })
+)`
   display: ${({ $block }) => ($block ? "flex" : "inline-flex")};;
   align-items: center;
   white-space: nowrap;
@@ -155,52 +168,16 @@ Button.propTypes = {
   onClick: PropTypes.func,
   href: PropTypes.string,
   disabled: PropTypes.bool,
-  $color: PropTypes.oneOf(Button.colors),
-  $small: PropTypes.bool,
-  $block: PropTypes.bool,
-  $icon: PropTypes.string,
-};
-
-Button.defaultProps = {
-  $color: "default",
-  $small: false,
-  $block: false,
-};
-
-export const ButtonElement = React.forwardRef((props, ref) => {
-  const { color, small, block, icon, ...rest } = props;
-  return (
-    <Button
-      $color={color}
-      $small={small}
-      $block={block}
-      $icon={icon}
-      {...rest}
-    />
-  );
-});
-
-ButtonElement.propTypes = {
-  as: PropTypes.elementType,
-  onClick: PropTypes.func,
-  href: PropTypes.string,
-  disabled: PropTypes.bool,
   color: PropTypes.oneOf(Button.colors),
   small: PropTypes.bool,
   block: PropTypes.bool,
   icon: PropTypes.string,
-  linkRef: PropTypes.any,
-};
-ButtonElement.displayName = "ButtonElement";
-
-const RouterButton = ({ as, ...props }) =>
-  as === "Link" ? (
-    <ButtonElement as={Link} {...props} />
-  ) : (
-    <ButtonElement as={as} {...props} />
-  );
-RouterButton.propTypes = {
-  as: PropTypes.elementType,
 };
 
-export default RouterButton;
+Button.defaultProps = {
+  color: "default",
+  small: false,
+  block: false,
+};
+
+export default Button;
