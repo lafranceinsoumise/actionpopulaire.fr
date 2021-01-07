@@ -90,35 +90,6 @@ class PagesLoadingTestCase(TestCase):
 
 
 class NBUrlsTestCase(TestCase):
-    def setUp(self):
-        now = timezone.now()
-        day = timezone.timedelta(days=1)
-        hour = timezone.timedelta(hours=1)
-        self.event = Event.objects.create(
-            name="Test",
-            nb_path="/pseudo/test",
-            start_time=now + 3 * day,
-            end_time=now + 3 * day + 4 * hour,
-        )
-
-        self.group = SupportGroup.objects.create(name="Test", nb_path="/12/grouptest")
-
-    def test_event_url_redirect(self):
-        response = self.client.get("/old/pseudo/test")
-
-        self.assertEqual(response.status_code, 301)
-        self.assertEqual(
-            response.url, reverse("view_event", kwargs={"pk": self.event.id})
-        )
-
-    def test_group_url_redirect(self):
-        response = self.client.get("/old/12/grouptest")
-
-        self.assertEqual(response.status_code, 301)
-        self.assertEqual(
-            response.url, reverse("view_group", kwargs={"pk": self.group.id})
-        )
-
     def test_create_group_redirect(self):
         # new event page
         response = self.client.get("/old/users/event_pages/new?parent_id=103")

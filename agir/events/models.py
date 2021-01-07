@@ -27,7 +27,6 @@ from agir.lib.model_fields import FacebookEventField
 from agir.lib.models import (
     BaseAPIResource,
     AbstractLabel,
-    NationBuilderResource,
     ContactMixin,
     LocationMixin,
     ImageMixin,
@@ -199,7 +198,6 @@ report_image_path = FilePattern(
 class Event(
     ExportModelOperationsMixin("event"),
     BaseAPIResource,
-    NationBuilderResource,
     LocationMixin,
     ImageMixin,
     DescriptionMixin,
@@ -238,8 +236,6 @@ class Event(
         on_delete=models.PROTECT,
         default=get_default_subtype,
     )
-
-    nb_path = models.CharField(_("NationBuilder path"), max_length=255, blank=True)
 
     tags = models.ManyToManyField("EventTag", related_name="events", blank=True)
 
@@ -355,7 +351,6 @@ class Event(
                 fields=["start_time", "end_time"], name="events_datetime_index"
             ),
             models.Index(fields=["end_time"], name="events_end_time_index"),
-            models.Index(fields=["nb_path"], name="events_nb_path_index"),
         )
 
     def __str__(self):
@@ -603,7 +598,7 @@ class CalendarManager(models.Manager):
         return super().create(name=name, slug=slug, **kwargs)
 
 
-class Calendar(NationBuilderResource, ImageMixin):
+class Calendar(ImageMixin):
     objects = CalendarManager()
 
     name = models.CharField(_("titre"), max_length=255)

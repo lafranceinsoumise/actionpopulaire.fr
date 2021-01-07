@@ -7,7 +7,6 @@ from django_prometheus.models import ExportModelOperationsMixin
 from agir.lib.models import (
     BaseAPIResource,
     AbstractLabel,
-    NationBuilderResource,
     ContactMixin,
     LocationMixin,
     ImageMixin,
@@ -62,7 +61,6 @@ class MembershipQuerySet(models.QuerySet):
 class SupportGroup(
     ExportModelOperationsMixin("support_group"),
     BaseAPIResource,
-    NationBuilderResource,
     LocationMixin,
     ImageMixin,
     DescriptionMixin,
@@ -148,8 +146,6 @@ class SupportGroup(
         help_text=_("Le groupe doit-il être visible publiquement."),
     )
 
-    nb_path = models.CharField(_("NationBuilder path"), max_length=255, blank=True)
-
     tags = models.ManyToManyField("SupportGroupTag", related_name="groups", blank=True)
 
     members = models.ManyToManyField(
@@ -210,7 +206,6 @@ class SupportGroup(
     class Meta:
         verbose_name = _("groupe d'action")
         verbose_name_plural = _("groupes d'action")
-        indexes = (models.Index(fields=["nb_path"], name="groups_nb_path_index"),)
         ordering = ("-created",)
         permissions = (
             ("view_hidden_supportgroup", _("Peut afficher les groupes non publiés")),

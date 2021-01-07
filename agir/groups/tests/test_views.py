@@ -60,7 +60,6 @@ class SupportGroupMixin:
         hour = timezone.timedelta(hours=1)
         self.event = Event.objects.create(
             name="événement test pour groupe",
-            nb_path="/pseudo/test",
             start_time=now + 3 * day,
             end_time=now + 3 * day + 4 * hour,
         )

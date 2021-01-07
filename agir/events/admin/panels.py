@@ -332,7 +332,6 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             _("Compte-rendu"),
             {"fields": ("report_content", "report_image", "report_summary_sent")},
         ),
-        (_("NationBuilder"), {"fields": ("nb_id", "nb_path", "location_address")}),
     )
 
     inlines = (OrganizerConfigInline, EventImageInline)

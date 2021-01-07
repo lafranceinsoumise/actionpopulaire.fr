@@ -17,9 +17,6 @@ def display_address(object):
         parts.append(object.location_address1)
         if object.location_address2:
             parts.append(object.location_address2)
-    elif object.location_address:
-        # use full address (copied from NationBuilder) only when we have no address1 field
-        parts.append(object.location_address)
 
     if object.location_state:
         parts.append(object.location_state)

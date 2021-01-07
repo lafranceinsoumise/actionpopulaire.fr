@@ -26,7 +26,6 @@ from agir.lib.models import (
     BaseAPIResource,
     LocationMixin,
     AbstractLabel,
-    NationBuilderResource,
     TimeStampedModel,
 )
 from agir.lib.search import PrefixSearchQuery
@@ -221,7 +220,6 @@ class Person(
     AbstractSubscriber,
     ExportModelOperationsMixin("person"),
     BaseAPIResource,
-    NationBuilderResource,
     LocationMixin,
 ):
     """

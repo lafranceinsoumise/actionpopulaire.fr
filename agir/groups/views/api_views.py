@@ -17,6 +17,8 @@ __all__ = ["GroupSearchAPIView", "GroupSubtypesView", "UserGroupsView"]
 
 
 class GroupSearchAPIView(ListAPIView):
+    "Vieille API encore utilisée par le composant js groupSelector du formulaire de dons"
+
     queryset = SupportGroup.objects.active()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = GroupAPIFilterSet
