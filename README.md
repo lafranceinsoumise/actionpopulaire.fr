@@ -69,7 +69,7 @@ $ pipenv run ./manage.py test
 Si vous avez un environnement de développement déjà en place avant le 7 janvier,
 vous devez réaliser les opérations suivantes pour qu'il reste fonctionnel.
 
-Assurez-vous de d'abord réaliser toutes les migrations à partir du commit c5e16d4be173.
+Assurez-vous de d'abord réaliser toutes les migrations jusqu'au commit c5e16d4be173.
 Ensuite, dans une console django, exécutez le script suivant :
 
 ```python
