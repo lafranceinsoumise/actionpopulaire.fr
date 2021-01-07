@@ -1,5 +1,5 @@
+import React, { useCallback, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
-import React, { useCallback } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -11,10 +11,16 @@ import {
 import {
   getIsSessionLoaded,
   getRequiredActionActivities,
+  getRequiredActionActivityCount,
   getRoutes,
 } from "@agir/front/globalContext/reducers";
-import { dismissRequiredActionActivity } from "@agir/front/globalContext/actions";
+import {
+  dismissRequiredActionActivity,
+  undoRequiredActionActivityDismissal,
+} from "@agir/front/globalContext/actions";
+import { activityStatus, getUninteracted } from "@agir/activity/common/helpers";
 
+import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import Activities from "@agir/activity/common/Activities";
 
 import {
@@ -50,15 +56,34 @@ const Counter = styled.span`
 const RequiredActivityList = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const activities = useSelector(getRequiredActionActivities);
+  const uninteractedCount = useSelector(getRequiredActionActivityCount);
   const routes = useSelector(getRoutes);
   const dispatch = useDispatch();
 
+  const [displayAll, setDisplayAll] = useState(false);
+  const toggleDisplayAll = useCallback((shouldDisplayAll) => {
+    setDisplayAll(Boolean(shouldDisplayAll));
+  }, []);
+
   const handleDismiss = useCallback(
-    async (id) => {
-      dispatch(dismissRequiredActionActivity(id));
+    async (id, status) => {
+      dispatch(
+        status !== activityStatus.STATUS_INTERACTED
+          ? dismissRequiredActionActivity(id)
+          : undoRequiredActionActivityDismissal(id)
+      );
     },
     [dispatch]
   );
+
+  const visibleActivities = useMemo(
+    () => (displayAll ? activities : getUninteracted(activities)),
+    [displayAll, activities]
+  );
+
+  const tabs = useMemo(() => ["non traité", "voir tout"], []);
+
+  visibleActivities.forEach((a) => console.log(a.id, a.type, a.status));
 
   return (
     <>
@@ -67,7 +92,7 @@ const RequiredActivityList = () => {
       </Helmet>
       <Page>
         <LayoutTitle>
-          {activities.length ? <Counter>{activities.length}</Counter> : null}À
+          {uninteractedCount ? <Counter>{uninteractedCount}</Counter> : null}À
           faire
         </LayoutTitle>
         <LayoutSubtitle>
@@ -81,9 +106,14 @@ const RequiredActivityList = () => {
             </div>
           }
         >
+          <FilterTabs
+            style={{ marginTop: "2rem", marginBottom: "1rem" }}
+            tabs={tabs}
+            onTabChange={toggleDisplayAll}
+          />
           <Activities
             CardComponent={RequiredActionCard}
-            activities={activities}
+            activities={visibleActivities}
             onDismiss={handleDismiss}
             routes={routes}
           />

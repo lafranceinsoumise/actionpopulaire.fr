@@ -6,27 +6,37 @@ from .serializers import ActivitySerializer, AnnouncementSerializer
 from ..events.models import Event
 
 
-def get_activity(person):
+def get_activities(person):
     return (
-        Activity.objects.filter(recipient=person, type__in=Activity.DISPLAYED_TYPES)
-        .exclude(status=Activity.STATUS_INTERACTED)
+        Activity.objects.without_required_action()
+        .filter(recipient=person)
+        .prefetch_related(
+            Prefetch("event", Event.objects.with_serializer_prefetch(person),)
+        )[:40]
+    )
+
+
+def get_required_action_activities(person):
+    required_action_activities = (
+        Activity.objects.with_required_action()
+        .filter(recipient=person)
         .prefetch_related(
             Prefetch("event", Event.objects.with_serializer_prefetch(person),)
         )
     )
+    # On affiche toutes les activités avec action requise non traitées
+    unread_required_action_activities = required_action_activities.exclude(
+        status=Activity.STATUS_INTERACTED
+    )
+    # On affiche les 20 dernières activités avec action requise déjà traitées
+    read_required_action_activities = required_action_activities.filter(
+        status=Activity.STATUS_INTERACTED
+    ).order_by("-created")[:20]
 
-
-def get_serialized_activity(request):
-    if hasattr(request.user, "person"):
-        person = request.user.person
-        activities = get_activity(person)
-
-        activity_serializer = ActivitySerializer(
-            instance=activities, many=True, context={"request": request}
-        )
-        return activity_serializer.data
-
-    return []
+    return required_action_activities.filter(
+        pk__in=[a.pk for a in unread_required_action_activities]
+        + [a.pk for a in read_required_action_activities]
+    ).order_by("-created")
 
 
 def get_announcements(person=None):
@@ -56,13 +66,3 @@ def get_announcements(person=None):
         ]
     else:
         return announcements.filter(segment__isnull=True)
-
-
-def get_serialized_announcements(request):
-    person = getattr(request.user, "person", None)
-    announcements = get_announcements(person)
-
-    serializer = AnnouncementSerializer(
-        instance=announcements, many=True, context={"request": request}
-    )
-    return serializer.data

@@ -109,53 +109,75 @@ describe("GlobalContext/actions", function () {
   });
   describe("setAllActivitiesAsRead action creator", function () {
     afterEach(() => {
-      activityHelpers.setActivitiesAsRead.mockClear();
+      activityHelpers.setActivitiesAsDisplayed.mockClear();
     });
-    it("should call activity helper function 'setActivitiesAsRead'", function () {
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
+    it("should call activity helper function 'setActivitiesAsDisplayed'", function () {
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        0
+      );
       const ids = [1, 2, 3];
       dispatch(actions.setAllActivitiesAsRead(ids));
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
-      expect(activityHelpers.setActivitiesAsRead.mock.calls[0][0]).toEqual(ids);
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        1
+      );
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls[0][0]).toEqual(
+        ids
+      );
     });
     it(`should not dispatch an action of type ${ACTION_TYPE.SET_ALL_ACTIVITIES_AS_READ_ACTION} if api calls rejects`, async function () {
-      activityHelpers.setActivitiesAsRead.mockResolvedValueOnce(false);
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
+      activityHelpers.setActivitiesAsDisplayed.mockResolvedValueOnce(false);
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        0
+      );
       expect(mockDispatch.mock.calls).toHaveLength(0);
       const ids = [1, 2, 3];
       await dispatch(actions.setAllActivitiesAsRead(ids, true));
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        1
+      );
       expect(mockDispatch.mock.calls).toHaveLength(0);
     });
     it(`should not dispatch an action of type ${ACTION_TYPE.SET_ALL_ACTIVITIES_AS_READ_ACTION} if api calls throws`, async function () {
       jest.spyOn(console, "log").mockReturnValueOnce();
-      activityHelpers.setActivitiesAsRead.mockRejectedValueOnce(
+      activityHelpers.setActivitiesAsDisplayed.mockRejectedValueOnce(
         new Error("Aïe!")
       );
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        0
+      );
       expect(mockDispatch.mock.calls).toHaveLength(0);
       const ids = [1, 2, 3];
       await dispatch(actions.setAllActivitiesAsRead(ids, true));
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        1
+      );
       expect(mockDispatch.mock.calls).toHaveLength(0);
       console.log.mockRestore();
     });
     it(`should not dispatch an action of type ${ACTION_TYPE.SET_ALL_ACTIVITIES_AS_READ_ACTION} if api calls succeeds but argument updateState is false`, async function () {
-      activityHelpers.setActivitiesAsRead.mockResolvedValueOnce(true);
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
+      activityHelpers.setActivitiesAsDisplayed.mockResolvedValueOnce(true);
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        0
+      );
       expect(mockDispatch.mock.calls).toHaveLength(0);
       const ids = [1, 2, 3];
       await dispatch(actions.setAllActivitiesAsRead(ids, false));
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        1
+      );
       expect(mockDispatch.mock.calls).toHaveLength(0);
     });
     it(`should dispatch an action of type ${ACTION_TYPE.SET_ALL_ACTIVITIES_AS_READ_ACTION} if api calls succeeds and argument updateState is true`, async function () {
-      activityHelpers.setActivitiesAsRead.mockResolvedValueOnce(true);
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
+      activityHelpers.setActivitiesAsDisplayed.mockResolvedValueOnce(true);
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        0
+      );
       expect(mockDispatch.mock.calls).toHaveLength(0);
       const ids = [1, 2, 3];
       await dispatch(actions.setAllActivitiesAsRead(ids, true));
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        1
+      );
       expect(mockDispatch.mock.calls).toHaveLength(1);
       expect(mockDispatch.mock.calls[0][0]).toHaveProperty(
         "type",
@@ -165,42 +187,62 @@ describe("GlobalContext/actions", function () {
   });
   describe("dismissRequiredActionActivity action creator", function () {
     afterEach(() => {
-      activityHelpers.dismissActivity.mockClear();
+      activityHelpers.setActivityAsInteracted.mockClear();
     });
-    it("should call activity helper function 'dismissActivity'", function () {
-      expect(activityHelpers.dismissActivity.mock.calls).toHaveLength(0);
+    it("should call activity helper function 'setActivityAsInteracted'", function () {
+      expect(activityHelpers.setActivityAsInteracted.mock.calls).toHaveLength(
+        0
+      );
       const id = 10;
       dispatch(actions.dismissRequiredActionActivity(id));
-      expect(activityHelpers.dismissActivity.mock.calls).toHaveLength(1);
-      expect(activityHelpers.dismissActivity.mock.calls[0][0]).toEqual(id);
+      expect(activityHelpers.setActivityAsInteracted.mock.calls).toHaveLength(
+        1
+      );
+      expect(activityHelpers.setActivityAsInteracted.mock.calls[0][0]).toEqual(
+        id
+      );
     });
     it(`should not dispatch an action of type ${ACTION_TYPE.DISMISS_REQUIRED_ACTION_ACTIVITY_ACTION} if api calls rejects`, async function () {
-      activityHelpers.dismissActivity.mockResolvedValueOnce(false);
-      expect(activityHelpers.dismissActivity.mock.calls).toHaveLength(0);
+      activityHelpers.setActivityAsInteracted.mockResolvedValueOnce(false);
+      expect(activityHelpers.setActivityAsInteracted.mock.calls).toHaveLength(
+        0
+      );
       expect(mockDispatch.mock.calls).toHaveLength(0);
       const id = 10;
       await dispatch(actions.dismissRequiredActionActivity(id));
-      expect(activityHelpers.dismissActivity.mock.calls).toHaveLength(1);
+      expect(activityHelpers.setActivityAsInteracted.mock.calls).toHaveLength(
+        1
+      );
       expect(mockDispatch.mock.calls).toHaveLength(0);
     });
     it(`should not dispatch an action of type ${ACTION_TYPE.DISMISS_REQUIRED_ACTION_ACTIVITY_ACTION} if api calls throws`, async function () {
       jest.spyOn(console, "log").mockReturnValueOnce();
-      activityHelpers.dismissActivity.mockRejectedValueOnce(new Error("Aïe!"));
-      expect(activityHelpers.dismissActivity.mock.calls).toHaveLength(0);
+      activityHelpers.setActivityAsInteracted.mockRejectedValueOnce(
+        new Error("Aïe!")
+      );
+      expect(activityHelpers.setActivityAsInteracted.mock.calls).toHaveLength(
+        0
+      );
       expect(mockDispatch.mock.calls).toHaveLength(0);
       const id = 10;
       await dispatch(actions.dismissRequiredActionActivity(id));
-      expect(activityHelpers.dismissActivity.mock.calls).toHaveLength(1);
+      expect(activityHelpers.setActivityAsInteracted.mock.calls).toHaveLength(
+        1
+      );
       expect(mockDispatch.mock.calls).toHaveLength(0);
       console.log.mockRestore();
     });
     it(`should dispatch an action of type ${ACTION_TYPE.DISMISS_REQUIRED_ACTION_ACTIVITY_ACTION} if api calls succeeds`, async function () {
-      activityHelpers.dismissActivity.mockResolvedValueOnce(true);
-      expect(activityHelpers.dismissActivity.mock.calls).toHaveLength(0);
+      activityHelpers.setActivityAsInteracted.mockResolvedValueOnce(true);
+      expect(activityHelpers.setActivityAsInteracted.mock.calls).toHaveLength(
+        0
+      );
       expect(mockDispatch.mock.calls).toHaveLength(0);
       const id = 10;
       await dispatch(actions.dismissRequiredActionActivity(id));
-      expect(activityHelpers.dismissActivity.mock.calls).toHaveLength(1);
+      expect(activityHelpers.setActivityAsInteracted.mock.calls).toHaveLength(
+        1
+      );
       expect(mockDispatch.mock.calls).toHaveLength(1);
       expect(mockDispatch.mock.calls[0][0]).toHaveProperty(
         "type",
@@ -208,50 +250,117 @@ describe("GlobalContext/actions", function () {
       );
     });
   });
-  describe("setAnnouncementsAsRead action creator", function () {
+  describe("undoRequiredActionActivityDismissal action creator", function () {
     afterEach(() => {
-      activityHelpers.setActivitiesAsRead.mockClear();
+      activityHelpers.setActivityAsDisplayed.mockClear();
     });
-    it("should call activity helper function 'setActivitiesAsRead'", function () {
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
-      const ids = [1, 2, 3];
-      dispatch(actions.setAllActivitiesAsRead(ids));
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
-      expect(activityHelpers.setActivitiesAsRead.mock.calls[0][0]).toEqual(ids);
+    it("should call activity helper function 'setActivityAsDisplayed'", function () {
+      expect(activityHelpers.setActivityAsDisplayed.mock.calls).toHaveLength(0);
+      const id = 10;
+      dispatch(actions.undoRequiredActionActivityDismissal(id));
+      expect(activityHelpers.setActivityAsDisplayed.mock.calls).toHaveLength(1);
+      expect(activityHelpers.setActivityAsDisplayed.mock.calls[0][0]).toEqual(
+        id
+      );
     });
-    it(`should not dispatch an action of type ${ACTION_TYPE.SET_ANNOUNCEMENTS_AS_READ_ACTION} if api calls rejects`, async function () {
-      activityHelpers.setActivitiesAsRead.mockResolvedValueOnce(false);
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
+    it(`should not dispatch an action of type ${ACTION_TYPE.UNDO_REQUIRED_ACTION_ACTIVITY_DISMISSAL_ACTION} if api calls rejects`, async function () {
+      activityHelpers.setActivityAsDisplayed.mockResolvedValueOnce(false);
+      expect(activityHelpers.setActivityAsDisplayed.mock.calls).toHaveLength(0);
       expect(mockDispatch.mock.calls).toHaveLength(0);
-      const ids = [1, 2, 3];
-      await dispatch(actions.setAllActivitiesAsRead(ids, true));
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
+      const id = 10;
+      await dispatch(actions.undoRequiredActionActivityDismissal(id));
+      expect(activityHelpers.setActivityAsDisplayed.mock.calls).toHaveLength(1);
       expect(mockDispatch.mock.calls).toHaveLength(0);
     });
-    it(`should not dispatch an action of type ${ACTION_TYPE.SET_ANNOUNCEMENTS_AS_READ_ACTION} if api calls throws`, async function () {
+    it(`should not dispatch an action of type ${ACTION_TYPE.UNDO_REQUIRED_ACTION_ACTIVITY_DISMISSAL_ACTION} if api calls throws`, async function () {
       jest.spyOn(console, "log").mockReturnValueOnce();
-      activityHelpers.setActivitiesAsRead.mockRejectedValueOnce(
+      activityHelpers.setActivityAsDisplayed.mockRejectedValueOnce(
         new Error("Aïe!")
       );
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
+      expect(activityHelpers.setActivityAsDisplayed.mock.calls).toHaveLength(0);
       expect(mockDispatch.mock.calls).toHaveLength(0);
-      const ids = [1, 2, 3];
-      await dispatch(actions.setAllActivitiesAsRead(ids, true));
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
+      const id = 10;
+      await dispatch(actions.undoRequiredActionActivityDismissal(id));
+      expect(activityHelpers.setActivityAsDisplayed.mock.calls).toHaveLength(1);
       expect(mockDispatch.mock.calls).toHaveLength(0);
       console.log.mockRestore();
     });
-    it(`should dispatch an action of type ${ACTION_TYPE.SET_ANNOUNCEMENTS_AS_READ_ACTION} if api calls succeeds`, async function () {
-      activityHelpers.setActivitiesAsRead.mockResolvedValueOnce(true);
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(0);
+    it(`should dispatch an action of type ${ACTION_TYPE.UNDO_REQUIRED_ACTION_ACTIVITY_DISMISSAL_ACTION} if api calls succeeds`, async function () {
+      activityHelpers.setActivityAsDisplayed.mockResolvedValueOnce(true);
+      expect(activityHelpers.setActivityAsDisplayed.mock.calls).toHaveLength(0);
       expect(mockDispatch.mock.calls).toHaveLength(0);
-      const ids = [1, 2, 3];
-      await dispatch(actions.setAllActivitiesAsRead(ids, true));
-      expect(activityHelpers.setActivitiesAsRead.mock.calls).toHaveLength(1);
+      const id = 10;
+      await dispatch(actions.undoRequiredActionActivityDismissal(id));
+      expect(activityHelpers.setActivityAsDisplayed.mock.calls).toHaveLength(1);
       expect(mockDispatch.mock.calls).toHaveLength(1);
       expect(mockDispatch.mock.calls[0][0]).toHaveProperty(
         "type",
-        ACTION_TYPE.SET_ANNOUNCEMENTS_AS_READ_ACTION
+        ACTION_TYPE.UNDO_REQUIRED_ACTION_ACTIVITY_DISMISSAL_ACTION
+      );
+    });
+  });
+  describe("setAnnouncementsAsRead action creator", function () {
+    afterEach(() => {
+      activityHelpers.setActivitiesAsDisplayed.mockClear();
+    });
+    it("should call activity helper function 'setActivitiesAsDisplayed'", function () {
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        0
+      );
+      const ids = [1, 2, 3];
+      dispatch(actions.setAllActivitiesAsRead(ids));
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        1
+      );
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls[0][0]).toEqual(
+        ids
+      );
+    });
+    it(`should not dispatch an action of type ${ACTION_TYPE.SET_ANNOUNCEMENTS_AS_READ_ACTION} if api calls rejects`, async function () {
+      activityHelpers.setActivitiesAsDisplayed.mockResolvedValueOnce(false);
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        0
+      );
+      expect(mockDispatch.mock.calls).toHaveLength(0);
+      const ids = [1, 2, 3];
+      await dispatch(actions.setAllActivitiesAsRead(ids, true));
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        1
+      );
+      expect(mockDispatch.mock.calls).toHaveLength(0);
+    });
+    it(`should not dispatch an action of type ${ACTION_TYPE.SET_ALL_ACTIVITIES_AS_READ_ACTION} if api calls throws`, async function () {
+      jest.spyOn(console, "log").mockReturnValueOnce();
+      activityHelpers.setActivitiesAsDisplayed.mockRejectedValueOnce(
+        new Error("Aïe!")
+      );
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        0
+      );
+      expect(mockDispatch.mock.calls).toHaveLength(0);
+      const ids = [1, 2, 3];
+      await dispatch(actions.setAllActivitiesAsRead(ids, true));
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        1
+      );
+      expect(mockDispatch.mock.calls).toHaveLength(0);
+      console.log.mockRestore();
+    });
+    it(`should dispatch an action of type ${ACTION_TYPE.SET_ALL_ACTIVITIES_AS_READ_ACTION} if api calls succeeds`, async function () {
+      activityHelpers.setActivitiesAsDisplayed.mockResolvedValueOnce(true);
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        0
+      );
+      expect(mockDispatch.mock.calls).toHaveLength(0);
+      const ids = [1, 2, 3];
+      await dispatch(actions.setAllActivitiesAsRead(ids, true));
+      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
+        1
+      );
+      expect(mockDispatch.mock.calls).toHaveLength(1);
+      expect(mockDispatch.mock.calls[0][0]).toHaveProperty(
+        "type",
+        ACTION_TYPE.SET_ALL_ACTIVITIES_AS_READ_ACTION
       );
     });
   });

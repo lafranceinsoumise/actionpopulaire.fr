@@ -58,7 +58,8 @@ const buttonColors = {
  * Pour une raison obscure, lorsque la taille dédiée au contenu (telle que déterminée par min-height)
  */
 export const Button = styled.button.attrs(
-  ({ color, small, block, icon, as }) => ({
+  ({ color, small, block, icon, as, $hasTransition }) => ({
+    $hasTransition,
     $color: color,
     $small: small,
     $block: block,
@@ -98,6 +99,8 @@ export const Button = styled.button.attrs(
     return $background;
   }}}
   cursor: pointer;
+  ${({ $hasTransition }) =>
+    $hasTransition ? "transition: all 250ms ease-in;" : ""}
 
   & + & {
     margin-left: ${({ $block }) => ($block ? "0" : "0.5rem")};
@@ -172,6 +175,7 @@ Button.propTypes = {
   small: PropTypes.bool,
   block: PropTypes.bool,
   icon: PropTypes.string,
+  $hasTransition: PropTypes.bool,
 };
 
 Button.defaultProps = {

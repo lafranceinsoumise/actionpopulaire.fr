@@ -7,6 +7,19 @@ from stdimage.validators import MinSizeValidator
 from agir.lib.models import TimeStampedModel, DescriptionField
 
 
+class ActivityQuerySet(models.QuerySet):
+    def displayed(self):
+        return self.filter(type__in=Activity.DISPLAYED_TYPES)
+
+    def with_required_action(self):
+        return self.displayed().filter(type__in=Activity.REQUIRED_ACTION_ACTIVITY_TYPES)
+
+    def without_required_action(self):
+        return self.displayed().exclude(
+            type__in=Activity.REQUIRED_ACTION_ACTIVITY_TYPES
+        )
+
+
 class Activity(TimeStampedModel):
     # Avec affichage d'une notification
     TYPE_GROUP_INVITATION = "group-invitation"
@@ -58,6 +71,17 @@ class Activity(TimeStampedModel):
         TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
     )
 
+    REQUIRED_ACTION_ACTIVITY_TYPES = (
+        TYPE_WAITING_PAYMENT,
+        TYPE_GROUP_INVITATION,
+        TYPE_NEW_MEMBER,
+        TYPE_WAITING_LOCATION_GROUP,
+        TYPE_GROUP_COORGANIZATION_INVITE,
+        TYPE_WAITING_LOCATION_EVENT,
+        TYPE_GROUP_CREATION_CONFIRMATION,
+        TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
+    )
+
     TYPE_CHOICES = (
         (TYPE_WAITING_PAYMENT, "Paiement en attente"),
         (TYPE_GROUP_INVITATION, "Invitation à un groupe"),
@@ -101,6 +125,8 @@ class Activity(TimeStampedModel):
         (STATUS_DISPLAYED, "Présentée au destinataire"),
         (STATUS_INTERACTED, "Le destinataire a interagi avec"),
     )  # attention : l'ordre croissant par niveau d'interaction est important
+
+    objects = ActivityQuerySet.as_manager()
 
     timestamp = models.DateTimeField(
         verbose_name="Date de la notification", null=False, default=timezone.now

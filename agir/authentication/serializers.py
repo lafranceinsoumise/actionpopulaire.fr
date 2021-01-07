@@ -2,7 +2,11 @@ from django.contrib import messages
 from django.middleware.csrf import get_token
 from rest_framework import serializers
 
-from agir.activity.actions import get_activity, get_announcements
+from agir.activity.actions import (
+    get_activities,
+    get_required_action_activities,
+    get_announcements,
+)
 from agir.activity.serializers import ActivitySerializer, AnnouncementSerializer
 
 
@@ -26,6 +30,9 @@ class SessionSerializer(serializers.Serializer):
     user = serializers.SerializerMethodField(method_name="get_user")
     toasts = serializers.SerializerMethodField(method_name="get_toasts")
     activities = serializers.SerializerMethodField(method_name="get_activities")
+    requiredActionActivities = serializers.SerializerMethodField(
+        method_name="get_required_action_activities"
+    )
     announcements = serializers.SerializerMethodField(method_name="get_announcements")
 
     def get_csrf_token(self, request):
@@ -46,7 +53,15 @@ class SessionSerializer(serializers.Serializer):
         if request.user.is_authenticated and request.user.person is not None:
             return ActivitySerializer(
                 many=True,
-                instance=get_activity(request.user.person),
+                instance=get_activities(request.user.person),
+                context={"request": request},
+            ).data
+
+    def get_required_action_activities(self, request):
+        if request.user.is_authenticated and request.user.person is not None:
+            return ActivitySerializer(
+                many=True,
+                instance=get_required_action_activities(request.user.person),
                 context={"request": request},
             ).data
 
