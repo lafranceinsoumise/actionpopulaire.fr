@@ -18,10 +18,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("municipales", "0005_communepage_municipales2020_admins"),
-        (
-            "people",
-            "0021_full_text_search",
-        ),  # dépendance à la création de la config 'simple_unaccented'
     ]
 
     operations = [migrations.RunSQL(sql=create_index, reverse_sql=remove_index)]

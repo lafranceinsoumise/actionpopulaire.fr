@@ -182,12 +182,14 @@ class CustomDateTimeField(models.DateTimeField):
 
 
 def get_default_subtype():
-    return (
+    subtype = (
         EventSubtype.objects.filter(type=EventSubtype.TYPE_PUBLIC_ACTION)
         .order_by("created")
         .values("id")
-        .first()["id"]
+        .first()
     )
+
+    return subtype and subtype["id"]
 
 
 report_image_path = FilePattern(
@@ -602,7 +604,7 @@ class Calendar(ImageMixin):
     objects = CalendarManager()
 
     name = models.CharField(_("titre"), max_length=255)
-    slug = models.SlugField(_("slug"))
+    slug = models.SlugField(_("slug"), unique=True)
     archived = models.BooleanField("Calendrier archivé", default=False)
 
     parent = models.ForeignKey(

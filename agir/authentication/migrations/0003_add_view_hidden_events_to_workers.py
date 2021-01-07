@@ -45,8 +45,6 @@ def remove_view_hidden_event_permission_from_worker(apps, schema):
 class Migration(migrations.Migration):
     dependencies = [
         ("authentication", "0002_create_basic_groups"),
-        ("events", "0006_auto_20170915_1510"),
-        ("groups", "0004_auto_20170915_1458"),
     ]
 
     operations = [

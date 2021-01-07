@@ -10,9 +10,9 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("people", "0068_auto_20201021_1525"),
-        ("groups", "0041_auto_20201021_1525"),
-        ("events", "0085_auto_20201021_1525"),
+        ("people", "0001_creer_modeles"),
+        ("groups", "0001_creer_modeles"),
+        ("events", "0001_creer_modeles"),
     ]
 
     operations = [

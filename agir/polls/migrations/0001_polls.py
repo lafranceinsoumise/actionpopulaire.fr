@@ -18,7 +18,9 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [("people", "0019_auto_20171107_1641")]
+    dependencies = [
+        ("people", "0001_creer_modeles"),
+    ]
 
     operations = [
         migrations.CreateModel(

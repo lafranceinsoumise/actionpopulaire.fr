@@ -8,7 +8,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("activity", "0008_auto_20201210_1524"),
-        ("people", "0074_person_referrer_id"),
     ]
 
     operations = [

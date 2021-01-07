@@ -49,8 +49,8 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("groups", "0028_auto_20181024_1757"),
-        ("payments", "0007_auto_20180724_2040"),
+        ("groups", "0001_creer_modeles"),
+        ("payments", "0001_creer_modeles"),
     ]
 
     operations = [
