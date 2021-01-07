@@ -15,20 +15,6 @@ def get_activity(person):
         )[:40]
     )
 
-
-def get_serialized_activity(request):
-    if hasattr(request.user, "person"):
-        person = request.user.person
-        activities = get_activity(person)
-
-        activity_serializer = ActivitySerializer(
-            instance=activities, many=True, context={"request": request}
-        )
-        return activity_serializer.data
-
-    return []
-
-
 def get_required_action_activity(person):
     required_action_activities = (
         Activity.objects.required_action()
@@ -50,20 +36,6 @@ def get_required_action_activity(person):
         pk__in=[a.pk for a in unread_required_action_activities]
         + [a.pk for a in read_required_action_activities]
     ).order_by("-created")
-
-
-def get_serialized_required_action_activity(request):
-    if hasattr(request.user, "person"):
-        person = request.user.person
-        activities = get_required_action_activity(person)
-
-        activity_serializer = ActivitySerializer(
-            instance=activities, many=True, context={"request": request}
-        )
-        return activity_serializer.data
-
-    return []
-
 
 def get_announcements(person=None):
     today = timezone.now()
@@ -92,13 +64,3 @@ def get_announcements(person=None):
         ]
     else:
         return announcements.filter(segment__isnull=True)
-
-
-def get_serialized_announcements(request):
-    person = getattr(request.user, "person", None)
-    announcements = get_announcements(person)
-
-    serializer = AnnouncementSerializer(
-        instance=announcements, many=True, context={"request": request}
-    )
-    return serializer.data
