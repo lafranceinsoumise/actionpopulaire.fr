@@ -6,7 +6,7 @@ from .serializers import ActivitySerializer, AnnouncementSerializer
 from ..events.models import Event
 
 
-def get_activity(person):
+def get_activities(person):
     return (
         Activity.objects.unrequired_action()
         .filter(recipient=person)
@@ -15,7 +15,7 @@ def get_activity(person):
         )[:40]
     )
 
-def get_required_action_activity(person):
+def get_required_action_activities(person):
     required_action_activities = (
         Activity.objects.required_action()
         .filter(recipient=person)

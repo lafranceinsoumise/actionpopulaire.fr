@@ -3,8 +3,8 @@ from django.middleware.csrf import get_token
 from rest_framework import serializers
 
 from agir.activity.actions import (
-    get_activity,
-    get_required_action_activity,
+    get_activities,
+    get_required_action_activities,
     get_announcements,
 )
 from agir.activity.serializers import ActivitySerializer, AnnouncementSerializer
@@ -53,7 +53,7 @@ class SessionSerializer(serializers.Serializer):
         if request.user.is_authenticated and request.user.person is not None:
             return ActivitySerializer(
                 many=True,
-                instance=get_activity(request.user.person),
+                instance=get_activities(request.user.person),
                 context={"request": request},
             ).data
 
@@ -61,7 +61,7 @@ class SessionSerializer(serializers.Serializer):
         if request.user.is_authenticated and request.user.person is not None:
             return ActivitySerializer(
                 many=True,
-                instance=get_required_action_activity(request.user.person),
+                instance=get_required_action_activities(request.user.person),
                 context={"request": request},
             ).data
 
