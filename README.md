@@ -64,6 +64,36 @@ $ node_modules/.bin/esling --fix agir/
 $ pipenv run ./manage.py test
 ``` 
 
+# Mise à jour suite au squashing des migrations du 7 janvier 2021
+
+Si vous avez un environnement de développement déjà en place avant le 7 janvier,
+vous devez réaliser les opérations suivantes pour qu'il reste fonctionnel.
+
+Assurez-vous de d'abord réaliser toutes les migrations à partir du commit c5e16d4be173.
+Ensuite, dans une console django, exécutez le script suivant :
+
+```python
+from django.db import connection
+
+QUERY = """
+INSERT INTO django_migrations (app, name, applied)
+VALUES 
+('people', '0001_creer_modeles', NOW()),
+('people', '0002_objets_initiaux', NOW()),
+('people', '0003_segments', NOW()),
+('payments', '0001_creer_modeles', NOW()),
+('groups', '0001_creer_modeles', NOW()),
+('groups', '0002_creer_sous_types', NOW()),
+('events', '0001_creer_modeles', NOW()),
+('events', '0002_objets_initiaux_et_recherche', NOW());
+"""
+
+with connection.cursor() as cursor:
+    cursor.execute(QUERY)
+```
+
+Les nouvelles migrations seront ainsi considérées comme déjà exécutées.
+
 
 [django-server]: http://agir.local:8000/
 [mailhog]: http://agir.local:8025/
