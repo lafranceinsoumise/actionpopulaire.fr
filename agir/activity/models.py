@@ -11,10 +11,10 @@ class ActivityQuerySet(models.QuerySet):
     def displayed(self):
         return self.filter(type__in=Activity.DISPLAYED_TYPES)
 
-    def required_action(self):
+    def with_required_action(self):
         return self.displayed().filter(type__in=Activity.REQUIRED_ACTION_ACTIVITY_TYPES)
 
-    def unrequired_action(self):
+    def without_required_action(self):
         return self.displayed().exclude(
             type__in=Activity.REQUIRED_ACTION_ACTIVITY_TYPES
         )

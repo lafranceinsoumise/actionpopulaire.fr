@@ -8,16 +8,17 @@ from ..events.models import Event
 
 def get_activities(person):
     return (
-        Activity.objects.unrequired_action()
+        Activity.objects.without_required_action()
         .filter(recipient=person)
         .prefetch_related(
             Prefetch("event", Event.objects.with_serializer_prefetch(person),)
         )[:40]
     )
 
+
 def get_required_action_activities(person):
     required_action_activities = (
-        Activity.objects.required_action()
+        Activity.objects.with_required_action()
         .filter(recipient=person)
         .prefetch_related(
             Prefetch("event", Event.objects.with_serializer_prefetch(person),)
@@ -36,6 +37,7 @@ def get_required_action_activities(person):
         pk__in=[a.pk for a in unread_required_action_activities]
         + [a.pk for a in read_required_action_activities]
     ).order_by("-created")
+
 
 def get_announcements(person=None):
     today = timezone.now()
