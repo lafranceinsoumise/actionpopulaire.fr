@@ -38,12 +38,13 @@ class EventOptionsSerializer(serializers.Serializer):
 
 
 class EventListSerializer(serializers.ListSerializer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.child.fields["groups"] = SupportGroupSerializer(
-            many=True, source="organizers_groups", fields=["name", "isMember"],
-        )
+    def get_groups(self, obj):
+        return SupportGroupSerializer(
+            obj.organizers_groups.distinct(),
+            context=self.context,
+            many=True,
+            fields=["name", "isMember"],
+        ).data
 
 
 class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
@@ -70,22 +71,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     routes = RoutesField(routes=EVENT_ROUTES)
 
-    groups = SupportGroupSerializer(
-        many=True,
-        source="organizers_groups",
-        fields=[
-            "name",
-            "description",
-            "eventCount",
-            "membersCount",
-            "isMember",
-            "isManager",
-            "typeLabel",
-            "labels",
-            "routes",
-            "is2022",
-        ],
-    )
+    groups = serializers.SerializerMethodField()
 
     contact = ContactMixinSerializer(source="*")
 
@@ -161,6 +147,25 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_is2022(self, obj):
         return obj.is_2022
+
+    def get_groups(self, obj):
+        return SupportGroupSerializer(
+            obj.organizers_groups.distinct(),
+            context=self.context,
+            many=True,
+            fields=[
+                "name",
+                "description",
+                "eventCount",
+                "membersCount",
+                "isMember",
+                "isManager",
+                "typeLabel",
+                "labels",
+                "routes",
+                "is2022",
+            ],
+        ).data
 
     class Meta:
         list_serializer_class = EventListSerializer
