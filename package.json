@@ -72,7 +72,7 @@
     "styled-components": "^5.2.1",
     "swiper": "^6.4.5",
     "swr": "^0.3.11",
-    "tinymce": "^4.9.11",
+    "tinymce": "^5.6.0",
     "tinymce-i18n": "^17.12.31",
     "turbolinks": "^5.2.0"
   },
