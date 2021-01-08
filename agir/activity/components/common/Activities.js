@@ -46,17 +46,14 @@ export const StyledList = styled.ul`
   padding: 1.5rem 0;
 
   @media (max-width: ${style.collapse}px) {
-    padding: 0.5rem 0;
+    padding: 1.5rem 0 0.5rem;
     margin: 0 auto;
     max-width: 100%;
   }
 
   li {
-    margin: 0 0 16px;
-
-    @media (max-width: ${style.collapse}px) {
-      margin: 16px 0;
-    }
+    margin: 0;
+    margin-bottom: 16px;
   }
 `;
 
@@ -65,8 +62,8 @@ export const Activities = (props) => {
 
   const transitions = useTransition(activities, ({ id }) => id, {
     initial: { transform: "translate3d(0,0,0)" },
-    enter: { opacity: 1, maxHeight: "300px" },
-    leave: { opacity: 0, maxHeight: "0px" },
+    enter: { opacity: 1, marginBottom: 16, maxHeight: "300px" },
+    leave: { opacity: 0, marginBottom: 0, maxHeight: "0px" },
   });
 
   return (
