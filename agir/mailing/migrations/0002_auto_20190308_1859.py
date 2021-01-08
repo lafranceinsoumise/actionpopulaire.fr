@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [("groups", "0032_auto_20190128_1550"), ("mailing", "0001_initial")]
+    dependencies = [("groups", "0001_creer_modeles"), ("mailing", "0001_initial")]
 
     operations = [
         migrations.RenameField(

@@ -135,7 +135,8 @@ const otherEventConfig = {
   },
   GROUPS_TYPE: {
     label: "Dans mes groupes",
-    allowEmpty: (user) => Array.isArray(user.groups) && user.groups.length > 0,
+    allowEmpty: (user) =>
+      user && Array.isArray(user.groups) && user.groups.length > 0,
     filter: (events) =>
       events.filter(
         (event) =>

@@ -15,7 +15,7 @@ const Template = (args) => {
   return (
     <div
       style={{
-        maxWidth: 396,
+        maxWidth: 500,
         margin: "10px auto",
       }}
     >
@@ -31,4 +31,6 @@ Default.args = {
   iconName: "alert-circle",
   confirmLabel: "Mettre à jour",
   dismissLabel: "Cacher",
+  dismissed: false,
+  timestamp: new Date().toISOString(),
 };

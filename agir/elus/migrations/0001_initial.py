@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("people", "0062_auto_20200330_1252"),
+        ("people", "0001_creer_modeles"),
         ("data_france", "0005_auto_20200330_0827"),
     ]
 

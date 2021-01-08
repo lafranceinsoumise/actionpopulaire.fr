@@ -1,6 +1,6 @@
 import React from "react";
 
-import Button from "./Button";
+import Button, { buttonColors } from "./Button";
 import { allIcons } from "./FeatherIcon";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 
@@ -11,7 +11,7 @@ export default {
     color: {
       control: {
         type: "select",
-        options: Button.colors,
+        options: Object.keys(buttonColors),
       },
     },
     icon: {
@@ -31,7 +31,12 @@ export default {
 const Template = (args) => <Button {...args} />;
 
 export const Default = Template.bind({});
-Default.args = { small: false, disabled: false, children: "Texte du bouton" };
+Default.args = {
+  small: false,
+  disabled: false,
+  children: "Texte du bouton",
+  $hasTransition: false,
+};
 
 export const PrimaryColor = Template.bind({});
 PrimaryColor.args = {
@@ -87,4 +92,26 @@ export const ButtonAndLink = (args) => (
 );
 ButtonAndLink.args = {
   ...Default.args,
+};
+
+export const WithTransition = (args) => {
+  const [state, setState] = React.useState(0);
+  const colors = React.useMemo(() => Object.keys(buttonColors), []);
+  const updateState = React.useCallback(() => {
+    setState((state) => state + 1);
+  }, []);
+  const color = React.useMemo(() => colors[state % colors.length], [
+    state,
+    colors,
+  ]);
+  const small = React.useMemo(
+    () => Boolean(Math.floor(state / colors.length) % 2),
+    [state, colors]
+  );
+
+  return <Button {...args} color={color} small={small} onClick={updateState} />;
+};
+WithTransition.args = {
+  ...Default.args,
+  $hasTransition: true,
 };

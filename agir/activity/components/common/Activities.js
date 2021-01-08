@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
+import { useTransition, animated } from "react-spring";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -45,34 +46,34 @@ export const StyledList = styled.ul`
   padding: 1.5rem 0;
 
   @media (max-width: ${style.collapse}px) {
-    padding: 0.5rem 0;
+    padding: 1.5rem 0 0.5rem;
     margin: 0 auto;
     max-width: 100%;
   }
 
   li {
-    margin: 0 0 16px;
-
-    @media (max-width: ${style.collapse}px) {
-      margin: 16px 0;
-    }
+    margin: 0;
+    margin-bottom: 16px;
   }
 `;
 
 export const Activities = (props) => {
   const { activities, routes, onDismiss, CardComponent } = props;
+
+  const transitions = useTransition(activities, ({ id }) => id, {
+    initial: { transform: "translate3d(0,0,0)" },
+    enter: { opacity: 1, marginBottom: 16, maxHeight: "300px" },
+    leave: { opacity: 0, marginBottom: 0, maxHeight: "0px" },
+  });
+
   return (
     <article>
       {activities.length > 0 ? (
         <StyledList type="activities">
-          {activities.map((activity) => (
-            <li key={activity.id}>
-              <CardComponent
-                onDismiss={onDismiss}
-                routes={routes}
-                {...activity}
-              />
-            </li>
+          {transitions.map(({ item, key, props }) => (
+            <animated.li key={key} style={props}>
+              <CardComponent onDismiss={onDismiss} routes={routes} {...item} />
+            </animated.li>
           ))}
         </StyledList>
       ) : (

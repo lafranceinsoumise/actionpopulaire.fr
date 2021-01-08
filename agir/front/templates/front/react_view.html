@@ -5,6 +5,10 @@
   {% render_bundle bundle_name %}
 {% endblock %}
 
+{% block additional_headers %}
+<link rel="preload" href="{% url "api_session" %}" as="fetch" crossorigin="anonymous">
+{% endblock %}
+
 {% block whole_page %}
   <div id="{{ app_mount_id }}"></div>
   {% if messages %}

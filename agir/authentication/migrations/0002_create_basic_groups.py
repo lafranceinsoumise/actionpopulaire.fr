@@ -76,12 +76,9 @@ def delete_basic_groups(apps, schema):
 class Migration(migrations.Migration):
     dependencies = [
         ("authentication", "0001_initial"),
-        # depends on auth models to be created
-        ("auth", "0008_alter_user_username_max_length"),
         # depends on needed permissions actually existing
-        ("events", "0001_initial"),
-        ("groups", "0001_initial"),
-        ("people", "0001_initial"),
+        ("groups", "0001_creer_modeles"),
+        ("events", "0001_creer_modeles"),
         ("clients", "0001_initial"),
     ]
 

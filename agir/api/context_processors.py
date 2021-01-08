@@ -1,8 +1,5 @@
 from django.conf import settings
-from django.db.models import F
 from django.urls import reverse
-
-from ..groups.models import SupportGroup
 
 
 def basic_information(request):
@@ -44,44 +41,6 @@ def basic_information(request):
         "groupTransferHelp": "https://infos.actionpopulaire.fr/nombre-ideal-division/",
         "charteEquipes": "https://infos.actionpopulaire.fr/charte-des-equipes-de-soutien-nous-sommes-pour/",
     }
-
-    routes_2022 = {
-        "materiel": "https://noussommespour.fr/boutique/",
-        "resources": "https://noussommespour.fr/sinformer/",
-        "donations": "https://noussommespour.fr/don/",
-    }
-
-    routes_insoumis = {
-        "materiel": "https://materiel.lafranceinsoumise.fr/",
-        "resources": "https://lafranceinsoumise.fr/fiches_pour_agir/",
-        "news": "https://lafranceinsoumise.fr/actualites/",
-        "thematicTeams": reverse("thematic_teams_list"),
-    }
-
-    if request.user.is_authenticated:
-        person = request.user.person
-
-        if person.is_insoumise:
-            routes = {**routes, **routes_insoumis}
-        elif person.is_2022:
-            routes = {**routes, **routes_2022}
-
-        person_groups = (
-            SupportGroup.objects.filter(memberships__person=person)
-            .active()
-            .annotate(membership_type=F("memberships__membership_type"))
-            .order_by("-membership_type", "name")
-        )
-
-        if person_groups.count() > 0:
-            routes["groups__personGroups"] = []
-            for group in person_groups:
-                link = {
-                    "id": group.id,
-                    "label": group.name,
-                    "href": reverse("view_group", kwargs={"pk": group.pk}),
-                }
-                routes["groups__personGroups"].append(link)
 
     return {
         "MAIN_DOMAIN": settings.MAIN_DOMAIN,

@@ -1,6 +1,9 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
+
+import style from "@agir/front/genericComponents/_variables.scss";
+import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 
 import { Container, Row, Column } from "@agir/front/genericComponents/grid";
 import Card from "@agir/front/genericComponents/Card";
@@ -18,6 +21,27 @@ const StyledText = styled.p`
 const StyledFooter = styled.footer`
   display: flex;
   flex-flow: row nowrap;
+
+  & > * {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-align: left;
+    transition: all 250ms ease-in-out;
+
+    &[disabled] {
+      cursor: default;
+    }
+
+    &.inactive {
+      font-size: 0;
+      color: transparent;
+      padding: 0;
+      border-width: 0;
+      margin-left: -0.5rem;
+    }
+  }
 `;
 
 const ActionCard = (props) => {
@@ -29,46 +53,69 @@ const ActionCard = (props) => {
     dismissLabel,
     onDismiss,
     disabled,
+    dismissed,
+    timestamp,
   } = props;
+
+  const date = useMemo(
+    () =>
+      timestamp &&
+      displayHumanDate(dateFromISOString(timestamp))
+        .split("")
+        .map((ch, i) => (i ? ch : ch.toUpperCase()))
+        .join(""),
+    [timestamp]
+  );
+
   return (
-    <Card type="alert">
+    <Card type={dismissed ? "alert_dismissed" : "alert"}>
       <Container style={{ width: "auto" }}>
         <Row justify="flex-start">
           <Column width="auto" collapse={0} style={{ padding: 0 }}>
-            <FeatherIcon name={iconName} />
+            {dismissed ? (
+              <FeatherIcon name="check-circle" color={style.green500} />
+            ) : (
+              <FeatherIcon name={iconName} />
+            )}
           </Column>
           <Column grow collapse={0}>
-            <StyledText>{text}</StyledText>
+            <StyledText>
+              {text}
+              <br />
+              <em>{date ? date : null}</em>
+            </StyledText>
             <StyledFooter>
-              {typeof onConfirm === "function" ? (
+              {(typeof onConfirm === "string" ||
+                typeof onConfirm === "function") && (
                 <Button
-                  onClick={onConfirm}
                   small
-                  color="secondary"
+                  as={typeof onConfirm === "string" ? "a" : undefined}
+                  onClick={
+                    typeof onConfirm === "function" ? onConfirm : undefined
+                  }
+                  href={typeof onConfirm === "string" ? onConfirm : undefined}
                   disabled={disabled}
+                  className={dismissed ? "inactive" : ""}
+                  color="secondary"
                 >
                   {confirmLabel}
                 </Button>
-              ) : typeof onConfirm === "string" ? (
+              )}
+              {(typeof onDismiss === "string" ||
+                typeof onDismiss === "function") && (
                 <Button
                   small
-                  color="secondary"
-                  as="a"
-                  href={onConfirm}
+                  as={typeof onDismiss === "string" ? "a" : undefined}
+                  onClick={
+                    typeof onDismiss === "function" ? onDismiss : undefined
+                  }
+                  href={typeof onDismiss === "string" ? onDismiss : undefined}
                   disabled={disabled}
+                  color="default"
                 >
-                  {confirmLabel}
+                  {dismissed ? "Marquer comme non traité" : dismissLabel}
                 </Button>
-              ) : null}
-              {typeof onDismiss === "function" ? (
-                <Button onClick={onDismiss} small disabled={disabled}>
-                  {dismissLabel}
-                </Button>
-              ) : typeof onDismiss === "string" ? (
-                <Button small as="a" href={onDismiss} disabled={disabled}>
-                  {dismissLabel}
-                </Button>
-              ) : null}
+              )}
             </StyledFooter>
           </Column>
         </Row>
@@ -85,10 +132,13 @@ ActionCard.propTypes = {
   dismissLabel: PropTypes.string,
   onDismiss: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   disabled: PropTypes.bool,
+  dismissed: PropTypes.bool,
+  timestamp: PropTypes.string,
 };
 ActionCard.defaultProps = {
   dismissLabel: "Cacher",
   disabled: false,
+  dismissed: false,
 };
 
 export default ActionCard;

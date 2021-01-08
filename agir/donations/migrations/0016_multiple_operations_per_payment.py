@@ -7,8 +7,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("groups", "0035_thematicgroup"),
-        ("payments", "0017_auto_20191008_1742"),
         ("donations", "0015_auto_20190804_1831"),
     ]
 

@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("donations", "0013_monthlyallocation"),
-        ("payments", "0013_auto_20190724_1628"),
+        ("payments", "0001_creer_modeles" ""),
     ]
 
     operations = [

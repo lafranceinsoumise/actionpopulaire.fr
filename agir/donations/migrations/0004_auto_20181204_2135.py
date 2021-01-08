@@ -13,8 +13,7 @@ import agir.payments.model_fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("groups", "0028_auto_20181024_1757"),
-        ("events", "0057_auto_20181024_1757"),
+        ("events", "0001_creer_modeles"),
         ("donations", "0003_auto_20181203_1538"),
     ]
 

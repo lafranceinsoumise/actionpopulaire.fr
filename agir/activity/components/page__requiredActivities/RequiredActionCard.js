@@ -1,31 +1,24 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo } from "react";
+import { useHistory } from "react-router-dom";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import Link from "@agir/front/app/Link";
 import ActionCard from "@agir/front/genericComponents/ActionCard";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
-import { useHistory } from "react-router-dom";
-
-export const requiredActionTypes = [
-  "waiting-payment",
-  "group-invitation",
-  "new-member",
-  "waiting-location-group",
-  "group-coorganization-invite",
-  "waiting-location-event",
-  "group-creation-confirmation",
-  "group-membership-limit-reminder",
-];
+import { activityStatus } from "@agir/activity/common/helpers";
 
 const GroupMembershipLimitReminderRequiredActionCard = (props) => {
-  const { supportGroup, meta = {}, routes, onDismiss } = props;
+  const {
+    supportGroup,
+    meta = {},
+    routes,
+    onDismiss,
+    dismissed,
+    timestamp,
+  } = props;
   const { membershipCount, membershipLimitNotificationStep } = meta;
-
-  if (!membershipCount || typeof membershipLimitNotificationStep !== "number") {
-    return null;
-  }
 
   switch (membershipLimitNotificationStep) {
     case 0:
@@ -38,6 +31,8 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
             supportGroup.routes && supportGroup.routes.membershipTransfer
           }
           onDismiss={onDismiss}
+          dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               <strong>
@@ -64,6 +59,8 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
             supportGroup.routes && supportGroup.routes.membershipTransfer
           }
           onDismiss={onDismiss}
+          dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               <strong>Votre équipe est trop nombreuse</strong>
@@ -89,6 +86,8 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
             supportGroup.routes && supportGroup.routes.membershipTransfer
           }
           onDismiss={onDismiss}
+          dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               <strong>
@@ -114,11 +113,13 @@ const GroupMembershipLimitReminderRequiredActionCard = (props) => {
           dismissLabel="Cacher"
           onConfirm={routes.groupTransferHelp}
           onDismiss={onDismiss}
+          dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               <strong>
-                Bravo, vous êtes maintenant {membershipCount} dans votre
-                équipe&nbsp;!
+                Bravo, vous êtes maintenant {membershipCount || "nombreux·ses"}{" "}
+                dans votre équipe&nbsp;!
               </strong>
               <br />
               <a href={supportGroup.url}>{supportGroup.name}</a> a atteint le
@@ -149,6 +150,8 @@ GroupMembershipLimitReminderRequiredActionCard.propTypes = {
     charteEquipes: PropTypes.string.isRequired,
   }).isRequired,
   onDismiss: PropTypes.func,
+  dismissed: PropTypes.bool,
+  timestamp: PropTypes.string,
 };
 
 const RequiredActionCard = (props) => {
@@ -160,12 +163,14 @@ const RequiredActionCard = (props) => {
     individual,
     meta,
     onDismiss,
+    status,
     routes,
+    timestamp,
   } = props;
 
   const handleDismiss = useCallback(() => {
-    onDismiss(id);
-  }, [id, onDismiss]);
+    onDismiss(id, status);
+  }, [id, status, onDismiss]);
 
   const [isEmailCopied, copyEmail] = useCopyToClipboard(
     (individual && individual.email) || "",
@@ -195,6 +200,10 @@ const RequiredActionCard = (props) => {
       history.push(routeConfig.eventDetails.getLink({ eventPk: event.id }));
   }, [event, history]);
 
+  const dismissed = useMemo(() => status === activityStatus.STATUS_INTERACTED, [
+    status,
+  ]);
+
   switch (type) {
     case "waiting-payment": {
       return (
@@ -202,8 +211,9 @@ const RequiredActionCard = (props) => {
           iconName="alert-circle"
           confirmLabel="Payer"
           dismissLabel="Voir l'événement"
-          onConfirm={event.routes.rsvp}
-          onDismiss={goToEventDetails}
+          onConfirm={dismissed ? null : event.routes.rsvp}
+          dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               Vous n'avez pas encore réglé votre place pour l'événément :{" "}
@@ -221,6 +231,8 @@ const RequiredActionCard = (props) => {
           dismissLabel="Décliner"
           onConfirm={(meta && meta.joinUrl) || supportGroup.url}
           onDismiss={handleDismiss}
+          dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               Vous avez été invité-e à rejoindre le groupe :{" "}
@@ -238,6 +250,8 @@ const RequiredActionCard = (props) => {
           dismissLabel="C'est fait"
           onConfirm={copyEmail}
           onDismiss={handleDismiss}
+          dismissed={dismissed}
+          timestamp={timestamp}
           disabled={isEmailCopied}
           text={
             <>
@@ -256,6 +270,8 @@ const RequiredActionCard = (props) => {
           confirmLabel="Mettre à jour"
           onConfirm={supportGroup.url}
           onDismiss={handleDismiss}
+          dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               Précisez la localisation de votre groupe{" "}
@@ -273,6 +289,8 @@ const RequiredActionCard = (props) => {
           dismissLabel="Décliner"
           onConfirm={goToEventDetails}
           onDismiss={handleDismiss}
+          dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               <strong>{props.individual.firstName || "Quelqu'un"}</strong> a
@@ -291,6 +309,8 @@ const RequiredActionCard = (props) => {
           confirmLabel="Mettre à jour"
           onConfirm={event.routes.manage}
           onDismiss={handleDismiss}
+          dismissed={dismissed}
+          timestamp={timestamp}
           text={<>Précisez la localisation de votre événement :{Event}</>}
         />
       );
@@ -303,6 +323,8 @@ const RequiredActionCard = (props) => {
           dismissLabel="C'est fait"
           onConfirm={routes && routes.newGroupHelp}
           onDismiss={handleDismiss}
+          dismissed={dismissed}
+          timestamp={timestamp}
           text={
             <>
               <a href={supportGroup.url}>{supportGroup.name}</a> est en ligne !
@@ -330,6 +352,8 @@ const RequiredActionCard = (props) => {
         <GroupMembershipLimitReminderRequiredActionCard
           {...props}
           onDismiss={handleDismiss}
+          dismissed={dismissed}
+          timestamp={timestamp}
         />
       );
     }
@@ -368,7 +392,9 @@ RequiredActionCard.propTypes = {
     email: PropTypes.string,
   }),
   onDismiss: PropTypes.func,
+  status: PropTypes.oneOf(Object.values(activityStatus)),
   meta: PropTypes.object,
   routes: PropTypes.object,
+  timestamp: PropTypes.string,
 };
 export default RequiredActionCard;
