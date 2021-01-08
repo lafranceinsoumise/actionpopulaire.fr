@@ -88,3 +88,5 @@ django-debug-toolbar = "*"
 redislite = "*"  # used for testing
 click = "*"
 pympler = "*"
+
+jedi = "==0.17.*"  # version 0.18.* fait crasher IPython (08/01/2021)
