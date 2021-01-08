@@ -25,6 +25,7 @@ const StyledField = styled.label`
   input {
     position: absolute;
     z-index: -1;
+    opacity: 0;
   }
 
   ${StyledBox} {
