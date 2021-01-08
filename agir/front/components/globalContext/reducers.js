@@ -131,7 +131,10 @@ export const csrfToken = (state = null, action) => {
 };
 
 export const routes = (state = {}, action) => {
-  if (action.type === ACTION_TYPE.INIT_ACTION) {
+  if (
+    action.type === ACTION_TYPE.INIT_ACTION ||
+    action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION
+  ) {
     return action.routes || state;
   }
   return state;

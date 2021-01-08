@@ -21,6 +21,7 @@ import Link from "@agir/front/app/Link";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
+import { useSpring, animated } from "react-spring";
 
 const BottomBar = styled.nav`
   @media only screen and (max-width: ${style.collapse}px) {

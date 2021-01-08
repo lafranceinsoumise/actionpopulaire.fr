@@ -1,5 +1,7 @@
 from django.contrib import messages
+from django.db.models import F
 from django.middleware.csrf import get_token
+from django.urls import reverse
 from rest_framework import serializers
 
 from agir.activity.actions import (
@@ -8,6 +10,7 @@ from agir.activity.actions import (
     get_announcements,
 )
 from agir.activity.serializers import ActivitySerializer, AnnouncementSerializer
+from agir.groups.models import SupportGroup
 
 
 class UserContextSerializer(serializers.Serializer):
@@ -34,6 +37,44 @@ class SessionSerializer(serializers.Serializer):
         method_name="get_required_action_activities"
     )
     announcements = serializers.SerializerMethodField(method_name="get_announcements")
+    routes = serializers.SerializerMethodField(method_name="get_user_routes")
+
+    def get_user_routes(self, request):
+        if request.user.is_authenticated:
+            person = request.user.person
+
+            if person.is_insoumise:
+                routes = {
+                    "materiel": "https://materiel.lafranceinsoumise.fr/",
+                    "resources": "https://lafranceinsoumise.fr/fiches_pour_agir/",
+                    "news": "https://lafranceinsoumise.fr/actualites/",
+                    "thematicTeams": reverse("thematic_teams_list"),
+                }
+            else:
+                routes = {
+                    "materiel": "https://noussommespour.fr/boutique/",
+                    "resources": "https://noussommespour.fr/sinformer/",
+                    "donations": "https://noussommespour.fr/don/",
+                }
+
+            person_groups = (
+                SupportGroup.objects.filter(memberships__person=person)
+                .active()
+                .annotate(membership_type=F("memberships__membership_type"))
+                .order_by("-membership_type", "name")
+            )
+
+            if person_groups.count() > 0:
+                routes["groups__personGroups"] = []
+                for group in person_groups:
+                    link = {
+                        "id": group.id,
+                        "label": group.name,
+                        "href": reverse("view_group", kwargs={"pk": group.pk}),
+                    }
+                    routes["groups__personGroups"].append(link)
+
+            return routes
 
     def get_csrf_token(self, request):
         return get_token(request)
