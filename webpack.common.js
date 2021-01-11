@@ -14,7 +14,6 @@ const webpack = require("webpack");
 
 const DISTPATH = path.resolve(__dirname, "assets/components");
 
-const flatten = (array) => array.reduce((acc, curr) => acc.concat(curr));
 const isDirectory = (f) => fs.statSync(f).isDirectory();
 const directoryHasFile = (f) => (d) => fs.readdirSync(d).includes(f);
 
@@ -31,13 +30,12 @@ const applications = fs
 // that are directly found in a `components` folder of one of the django apps.
 //
 // The bundle name will be `<django app name>/<name of directory / .js file>`
-const components = flatten(
-  applications.map((dir) =>
+const components = applications
+  .flatMap((dir) =>
     fs
       .readdirSync(path.resolve(dir, "components"))
       .map((f) => [path.basename(dir), path.resolve(dir, "components", f)])
   )
-)
   .filter(([_app, f]) =>
     isDirectory(f) ? directoryHasFile("index.js")(f) : f.endsWith(".js")
   )
