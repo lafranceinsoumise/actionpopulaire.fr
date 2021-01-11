@@ -162,3 +162,20 @@ export function displayIntervalStart(interval, relativeTo) {
 
   return `${start}`;
 }
+
+const units = ["year", "month", "week", "day", "hour", "minute", "second"];
+
+export const timeAgo = (date) => {
+  try {
+    let dateTime = new Date(date);
+    dateTime = DateTime.fromJSDate(dateTime);
+    const diff = dateTime.diffNow().shiftTo(...units);
+    const unit = units.find((unit) => diff.get(unit) !== 0) || "second";
+    const relativeFormatter = new Intl.RelativeTimeFormat("fr", {
+      numeric: "auto",
+    });
+    return relativeFormatter.format(Math.trunc(diff.as(unit)), unit);
+  } catch (e) {
+    return date;
+  }
+};
