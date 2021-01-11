@@ -1,5 +1,4 @@
 import PropTypes from "prop-types";
-import React from "react";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
@@ -7,7 +6,7 @@ import { transparentize } from "polished";
 import { icons } from "feather-icons";
 import Link from "@agir/front/app/Link";
 
-const buttonColors = {
+export const buttonColors = {
   default: {
     $background: style.black50,
     $hoverBackground: style.black100,

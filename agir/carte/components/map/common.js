@@ -9,7 +9,13 @@ import Fill from "ol/style/Fill";
 import Icon from "ol/style/Icon";
 import Overlay from "ol/Overlay";
 import * as proj from "ol/proj";
+import Feature from "ol/Feature";
+import VectorSource from "ol/source/Vector";
+import Point from "ol/geom/Point";
+import VectorLayer from "ol/layer/Vector";
 import fontawesome from "fontawesome";
+
+import style from "@agir/front/genericComponents/_variables.scss";
 
 import { element } from "./utils";
 
@@ -120,4 +126,46 @@ export function makeStyle(style, options = {}) {
   }
 
   return null;
+}
+
+export function createStaticMap(center, zoom, target, iconConfiguration) {
+  const styles = iconConfiguration
+    ? makeStyle(iconConfiguration)
+    : [
+        new Style({
+          image: new Circle({
+            radius: 12,
+            fill: new Fill({
+              color: style.primary500,
+            }),
+          }),
+        }),
+      ];
+  const feature = new Feature({
+    geometry: new Point(proj.fromLonLat(center)),
+  });
+  feature.setStyle(styles);
+  const map = new Map({
+    target,
+    controls: [],
+    interactions: [],
+    layers: [
+      new TileLayer({
+        source: new OSM({
+          attributions: [
+            '&#169; les contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
+          ],
+        }),
+      }),
+      new VectorLayer({
+        source: new VectorSource({ features: [feature] }),
+      }),
+    ],
+    view: new View({
+      center: proj.fromLonLat(center),
+      zoom,
+    }),
+  });
+
+  return map;
 }
