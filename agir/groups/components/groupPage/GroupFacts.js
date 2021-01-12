@@ -30,7 +30,7 @@ const StyledCard = styled(Card)`
     padding: 0;
     font-size: 14px;
     font-weight: 400;
-    max-height: 78px;
+    max-height: 6rem;
 
     @media (max-width: 352px) {
       flex-wrap: nowrap;
