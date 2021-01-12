@@ -1,11 +1,17 @@
 import tinymce from "tinymce/tinymce";
-import "tinymce/themes/modern/theme";
+
+// Thème et icônes
+import "tinymce/themes/silver";
+import "tinymce/icons/default";
+
+// Localisation française
+import "tinymce-i18n/langs/fr_FR";
+
+// Plugins
 import "tinymce/plugins/link";
 import "tinymce/plugins/autolink";
 import "tinymce/plugins/image";
 import "tinymce/plugins/lists";
-
-import "tinymce-i18n/langs/fr_FR";
 
 /**
  * Indique à webpack comment copier les fichiers de skins de tinymce dans
