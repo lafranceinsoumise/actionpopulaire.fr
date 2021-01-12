@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import StaticMap from "@agir/carte/common/StaticMap";
+import Map from "@agir/carte/common/Map";
 
 const StyledMap = styled.div``;
 const StyledBanner = styled.div`
@@ -89,9 +89,10 @@ const GroupBanner = (props) => {
     <StyledBanner>
       {Array.isArray(location.coordinates) ? (
         <StyledMap>
-          <StaticMap
+          <Map
             center={location.coordinates}
             iconConfiguration={iconConfiguration}
+            isStatic
           />
         </StyledMap>
       ) : null}
