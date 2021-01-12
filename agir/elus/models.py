@@ -523,6 +523,7 @@ class MandatRegional(MandatAbstrait):
 
 
 types_elus = {
+    "maire": MandatMunicipal,
     "municipal": MandatMunicipal,
     "departemental": MandatDepartemental,
     "regional": MandatRegional,
