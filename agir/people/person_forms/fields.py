@@ -278,12 +278,10 @@ class MultipleGroupField(forms.ModelMultipleChoiceField):
         queryset = get_group_queryset_from_choices(choices, instance)
         super().__init__(queryset, **kwargs)
 
-    def to_python(self, value):
+    def clean(self, value):
         """S'assure que les valeurs enregistrées sont des chaînes de caractères"""
-        value = super().to_python(value)
-        if value is None:
-            return None
-        return [str(v.pk) for v in value]
+        qs = super().clean(value)
+        return [str(g.pk) for g in qs]
 
 
 FIELDS = {
