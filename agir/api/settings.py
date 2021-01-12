@@ -228,7 +228,9 @@ if ENABLE_FRONT:
     )
 
 MESSAGE_TAGS = {ERROR: "danger"}
-MESSAGE_LEVEL = messages.DEBUG if DEBUG else messages.INFO
+MESSAGE_LEVEL = messages.DEFAULT_LEVELS[
+    os.environ.get("MESSAGE_LEVEL", "DEBUG" if DEBUG else "INFO")
+]
 
 WSGI_APPLICATION = "agir.api.wsgi.application"
 
