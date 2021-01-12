@@ -6,7 +6,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
-from agir.elus.models import types_elus, STATUT_A_VERIFIER_INSCRIPTION
+from agir.elus.models import types_elus, STATUT_A_VERIFIER_INSCRIPTION, MandatMunicipal
 from agir.lib.http import add_query_params_to_url
 from agir.people.models import Person
 
@@ -116,8 +116,11 @@ def save_subscription_information(person, type, data):
     with transaction.atomic():
         if data.get("mandat"):
             try:
+                defaults = {"statut": STATUT_A_VERIFIER_INSCRIPTION}
+                if data["mandat"] == "maire":
+                    defaults["mandat"] = MandatMunicipal.MANDAT_MAIRE
                 types_elus[data["mandat"]].objects.get_or_create(
-                    person=person, defaults={"statut": STATUT_A_VERIFIER_INSCRIPTION}
+                    person=person, defaults=defaults
                 )
             except types_elus[data["mandat"]].MultipleObjectsReturned:
                 pass
