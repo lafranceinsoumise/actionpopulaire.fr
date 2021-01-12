@@ -1,18 +1,14 @@
 import csv
-import json
 from uuid import uuid4
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
-from django.db.models import Count, F, Func, Value
-from django.db.models.functions import TruncDay, Substr, Concat
 from django.http import HttpResponse, HttpResponseRedirect, Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView
 from django.views.generic.detail import SingleObjectMixin
 
 from agir.lib.admin import AdminViewMixin
@@ -190,33 +186,3 @@ class MergePersonsView(AdminViewMixin, FormView):
         return HttpResponseRedirect(
             reverse("admin:people_person_change", args=[primary_account.pk])
         )
-
-
-class StatisticsView(AdminViewMixin, TemplateView):
-    template_name = "admin/people/person/statistics.html"
-
-    def get_context_data(self, **kwargs):
-        chart_data = (
-            Person.objects.exclude(meta__subscriptions__NSP__date__isnull=True)
-            .annotate(
-                subscription_datetime=Func(
-                    "meta",
-                    Value("subscriptions"),
-                    Value("NSP"),
-                    Value("date"),
-                    function="jsonb_extract_path_text",
-                )
-            )
-            .annotate(
-                subscription_date=Concat(
-                    Substr("subscription_datetime", 1, 10), Value("T00:00:00Z")
-                )
-            )
-            .values("subscription_date")
-            .annotate(y=Count("id"))
-            .order_by("subscription_date")
-        )
-        as_json = json.dumps(list(chart_data), cls=DjangoJSONEncoder)
-        kwargs["chart_data"] = as_json
-
-        return super().get_context_data(**kwargs)
