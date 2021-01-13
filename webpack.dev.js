@@ -15,7 +15,7 @@ module.exports = merge.merge(common, {
   output: {
     publicPath: `http://${serverName}:${port}/static/components/`,
     devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
-    filename: "[name]-[hash].js",
+    filename: "[name]-[fullhash].js",
   },
   watchOptions: {
     poll: 1000,
@@ -35,9 +35,9 @@ module.exports = merge.merge(common, {
     allowedHosts: ["agir.local"], // l'appli Django est toujours sur agir.local
   },
   optimization: {
-    namedModules: true,
-    namedChunks: true,
-    noEmitOnErrors: true,
+    moduleIds: "named",
+    chunkIds: "named",
+    emitOnErrors: false,
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),

@@ -5,7 +5,7 @@ require("dotenv").config({
   path: path.join(__dirname, ".env"),
 });
 
-const CleanWebpackPlugin = require("clean-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const BundleTracker = require("webpack-bundle-tracker");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
@@ -77,14 +77,12 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.m?js$/,
         include: [
           path.resolve(__dirname, "agir"),
           path.resolve(__dirname, "node_modules/react-spring"),
         ],
-        exclude: [
-          path.resolve(__dirname, "node_modules/react-spring/renderprops.js"),
-        ],
+        exclude: [/node_modules\//],
         use: {
           loader: "babel-loader",
           options: {
@@ -99,7 +97,16 @@ module.exports = {
       {
         test: /\.scss$/,
         exclude: [/theme\/theme.scss/],
-        use: ["style-loader", "css-loader", "sass-loader"],
+        use: [
+          "style-loader",
+          {
+            loader: "css-loader",
+            options: {
+              modules: { compileType: "icss", auto: /\.scss$/i },
+            },
+          },
+          "sass-loader",
+        ],
       },
       {
         test: /\.css$/,
@@ -109,11 +116,7 @@ module.exports = {
       {
         test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg)$/,
         exclude: [/node_modules\/tinymce/],
-        loader: "file-loader",
-        options: {
-          name: "[name]-[hash].[ext]",
-          outputPath: "files",
-        },
+        type: "asset/resource",
       },
     ],
   },

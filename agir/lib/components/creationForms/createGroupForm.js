@@ -4,7 +4,7 @@ import axios from "../utils/axios";
 import React from "react";
 import "react-stepzilla/src/css/main.css";
 import { Transition } from "react-transition-group";
-import qs from "querystring";
+import qs from "querystring-es3";
 
 import NavSelect from "../utils/navSelect";
 

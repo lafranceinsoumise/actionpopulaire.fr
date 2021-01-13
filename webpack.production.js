@@ -6,13 +6,10 @@ const common = require("./webpack.common.js");
 
 const STATIC_URL = "/static";
 
-common.module.rules.find(
-  (r) => r.loader === "file-loader"
-).options.publicPath = path.join(STATIC_URL, "components", "files");
-
 module.exports = merge.merge(common, {
   output: {
     publicPath: path.join(STATIC_URL, "components/"),
+    assetModuleFilename: "files/[hash][ext][query]",
   },
   mode: "production",
   plugins: [
