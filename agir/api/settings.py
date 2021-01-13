@@ -33,6 +33,10 @@ DEBUG = os.environ.get("DEBUG", "true").lower() == "true"
 ENABLE_DEBUG_TOOLBAR = os.environ.get("ENABLE_DEBUG_TOOLBAR", "false").lower() == "true"
 ENABLE_SILK = os.environ.get("ENABLE_SILK", "false").lower() == "true"
 
+# Risque de sécurité important ! Principalement utilisé pour le load testing
+TRUST_X_FORWARDED_FOR = (
+    os.environ.get("TRUST_X_FORWARDED_FOR", "false").lower() == "true"
+)
 
 # Rendre certains warnings silencieux
 SILENCED_SYSTEM_CHECKS = [
