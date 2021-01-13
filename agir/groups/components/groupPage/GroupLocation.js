@@ -4,68 +4,48 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import Card from "@agir/front/genericComponents/Card";
+import Card from "./GroupPageCard";
 import Map from "@agir/carte/common/Map";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
-const StyledMap = styled.div``;
-const StyledAddress = styled.div``;
-const StyledCard = styled(Card)`
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
+const StyledMap = styled.div`
+  height: 308px;
 
-  & > * {
+  @media (max-width: ${style.collapse}px) {
+    height: 155px;
+  }
+`;
+const StyledAddress = styled.div`
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+
+  p {
     margin-left: 0.5rem;
-    margin-right: 0.5rem;
-  }
-
-  h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
-  }
-
-  ${StyledMap} {
-    height: 308px;
-
-    @media (max-width: ${style.collapse}px) {
-      height: 155px;
-    }
-  }
-
-  ${StyledAddress} {
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
     display: flex;
-    flex-flow: row nowrap;
-    align-items: flex-start;
+    flex-flow: column nowrap;
+    font-size: 0.875rem;
+    color: ${style.black500};
+    line-height: 1.5;
+    font-weight: 400;
 
-    p {
-      margin-left: 0.5rem;
-      display: flex;
-      flex-flow: column nowrap;
-      font-size: 0.875rem;
-      color: ${style.black500};
-      line-height: 1.5;
-      font-weight: 400;
-
-      span {
-        &:first-child {
-          font-weight: 500;
-          color: ${style.black1000};
-        }
-      }
-
-      &:last-child {
-        margin-left: auto;
-      }
-
-      a {
+    span {
+      &:first-child {
         font-weight: 500;
-        text-decoration: none;
-        color: ${style.primary500};
+        color: ${style.black1000};
       }
+    }
+
+    &:last-child {
+      margin-left: auto;
+    }
+
+    a {
+      font-weight: 500;
+      text-decoration: none;
+      color: ${style.primary500};
     }
   }
 `;
@@ -89,8 +69,7 @@ const GroupLocation = (props) => {
   } = location;
 
   return (
-    <StyledCard>
-      <h4>Accès</h4>
+    <Card title="Accès">
       {Array.isArray(coordinates) ? (
         <StyledMap>
           <Map center={coordinates} iconConfiguration={iconConfiguration} />
@@ -121,7 +100,7 @@ const GroupLocation = (props) => {
           ) : null}
         </p>
       </StyledAddress>
-    </StyledCard>
+    </Card>
   );
 };
 

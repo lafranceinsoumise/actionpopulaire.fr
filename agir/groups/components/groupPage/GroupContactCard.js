@@ -5,7 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
-import Card from "@agir/front/genericComponents/Card";
+import Card from "./GroupPageCard";
 
 const StyledReferentSection = styled.section`
   margin-bottom: 1.5rem;

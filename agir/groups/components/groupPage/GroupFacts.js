@@ -4,38 +4,23 @@ import styled from "styled-components";
 
 import { timeAgo } from "@agir/lib/utils/time";
 
-import Card from "@agir/front/genericComponents/Card";
+import Card from "./GroupPageCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
-const StyledCard = styled(Card)`
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
+const StyledList = styled.ul`
+  display: inline-flex;
+  flex-flow: column wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  list-style: none;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 400;
+  max-height: 6rem;
 
-  & > * {
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-  }
-  h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-  }
-
-  ul {
-    display: inline-flex;
-    flex-flow: column wrap;
-    align-items: flex-start;
-    justify-content: flex-start;
-    list-style: none;
-    padding: 0;
-    font-size: 14px;
-    font-weight: 400;
-    max-height: 6rem;
-
-    @media (max-width: 352px) {
-      flex-wrap: nowrap;
-      max-height: none;
-    }
+  @media (max-width: 352px) {
+    flex-wrap: nowrap;
+    max-height: none;
   }
 
   li {
@@ -65,9 +50,8 @@ const GroupFacts = (props) => {
   } = facts;
 
   return (
-    <StyledCard>
-      <h4>À propos</h4>
-      <ul>
+    <Card title="À propos">
+      <StyledList>
         {eventCount && (
           <li>
             <FeatherIcon name="calendar" small inline />
@@ -102,8 +86,8 @@ const GroupFacts = (props) => {
             <span>Dernière activité&nbsp;: {timeAgo(lastActivityDate)}</span>
           </li>
         )}
-      </ul>
-    </StyledCard>
+      </StyledList>
+    </Card>
   );
 };
 

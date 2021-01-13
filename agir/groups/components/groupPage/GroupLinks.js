@@ -4,32 +4,16 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import Card from "@agir/front/genericComponents/Card";
+import Card from "./GroupPageCard";
 
 import { FaFacebook, FaTwitter, FaYoutube, FaInstagram } from "react-icons/fa";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
-const StyledCard = styled(Card)`
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-
-  & > * {
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-  }
-
-  h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    font-size: 14px;
-    font-weight: 400;
-  }
+const StyledList = styled.ul`
+  list-style: none;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 400;
 
   li {
     color: ${style.primary500};
@@ -70,9 +54,8 @@ const GroupLinks = (props) => {
   }
 
   return (
-    <StyledCard>
-      <h4>Nos liens</h4>
-      <ul>
+    <Card title="Nos liens">
+      <StyledList>
         {links.map((link) => (
           <li key={link.url}>
             <LinkIcon url={link.url} />
@@ -80,8 +63,8 @@ const GroupLinks = (props) => {
             <a href={link.url}>{link.name}</a>
           </li>
         ))}
-      </ul>
-    </StyledCard>
+      </StyledList>
+    </Card>
   );
 };
 
