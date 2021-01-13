@@ -37,6 +37,11 @@ import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import logger from "@agir/lib/utils/logger";
 const log = logger(__filename);
 
+const GroupCards = styled.div`
+  & > * {
+    margin-bottom: 1rem;
+  }
+`;
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
   & > ${Card}, & > ${CardLikeSection} {
@@ -166,15 +171,12 @@ const DesktopLayout = (props) => {
             <EventHeader {...props} />
             <EventDescription {...props} />
             {props.groups.length > 0 && (
-              <div>
-                <h3 style={{ marginBottom: "1rem", marginTop: "2.5rem" }}>
-                  Organisé par
-                </h3>
-
+              <GroupCards>
+                <h3 style={{ marginTop: "2.5rem" }}>Organisé par</h3>
                 {props.groups.map((group, key) => (
                   <GroupCard key={key} {...group} isEmbedded />
                 ))}
-              </div>
+              </GroupCards>
             )}
           </div>
         </Column>
