@@ -264,7 +264,7 @@ export const Footer = (props) => {
                 <span style={{ overflowWrap: "normal" }}>&nbsp;ou&nbsp;</span>
               ) : null}
               {is2022 ? (
-                <Button small as="a" color="white" href={routes.logIn}>
+                <Button small as="a" color="white" href={routes.login}>
                   J'ai déjà parrainé
                 </Button>
               ) : (
@@ -288,9 +288,11 @@ export const Footer = (props) => {
               >
                 Parrainer la candidature
               </Button>
-              {!is2022 ? <span>&nbsp;ou&nbsp;</span> : null}
+              {!is2022 ? (
+                <span style={{ overflowWrap: "normal" }}>&nbsp;ou&nbsp;</span>
+              ) : null}
               {is2022 ? (
-                <Button as="a" color="white" href={routes.logIn}>
+                <Button as="a" color="white" href={routes.login}>
                   J'ai déjà parrainé
                 </Button>
               ) : (
@@ -309,7 +311,7 @@ export const Footer = (props) => {
               {is2022
                 ? "Vous avez déjà un compte ? "
                 : "Vous avez déjà rejoint la France Insoumise ? "}
-              <Link href={routes.logIn}>Je me connecte</Link>
+              <Link href={routes.login}>Je me connecte</Link>
             </p>
           </FooterForm>
         </FooterBanner>
@@ -322,8 +324,8 @@ export const Footer = (props) => {
           <div>
             <h3>Action populaire</h3>
             <p>
-              {!isSignedIn && routes.logIn && (
-                <Link href={routes.logIn}>Se connecter</Link>
+              {!isSignedIn && routes.login && (
+                <Link href={routes.login}>Se connecter</Link>
               )}
               {routes.donations && <Link route="donations">Faire un don</Link>}
               {routes.help && <Link route="help">Besoin d'aide ?</Link>}
