@@ -18,7 +18,7 @@ const StyledList = styled.ul`
   font-weight: 400;
   max-height: 6rem;
 
-  @media (max-width: 352px) {
+  @media (max-width: 360px) {
     flex-wrap: nowrap;
     max-height: none;
   }

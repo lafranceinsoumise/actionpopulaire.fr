@@ -11,13 +11,12 @@ const StyledBanner = styled.div`
   display: flex;
   flex-flow: row-reverse nowrap;
   background-color: ${style.secondary500};
-  max-width: 1090px;
   margin: 0 auto;
 
   @media (max-width: ${style.collapse}px) {
     max-width: 100%;
     flex-flow: column nowrap;
-    background-color: transparent;
+    background-color: white;
   }
 
   header {

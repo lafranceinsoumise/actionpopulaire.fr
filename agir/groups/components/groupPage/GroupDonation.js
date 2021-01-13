@@ -7,9 +7,9 @@ import Card from "./GroupPageCard";
 import Button from "@agir/front/genericComponents/Button";
 
 const GroupFacts = (props) => {
-  const { donationLink } = props;
+  const { url } = props;
 
-  return donationLink ? (
+  return url ? (
     <Card title="Financez les actions du groupe" highlight={style.primary500}>
       <p>
         Pour que ce groupe puisse financer ses frais de fonctionnement et
@@ -17,7 +17,7 @@ const GroupFacts = (props) => {
       </p>
       <p>Chaque euro compte.</p>
       <Button
-        href={donationLink}
+        href={url}
         as="a"
         color="secondary"
         style={{ marginTop: "0.5rem" }}
@@ -29,6 +29,6 @@ const GroupFacts = (props) => {
 };
 
 GroupFacts.propTypes = {
-  donationLink: PropTypes.string,
+  url: PropTypes.string,
 };
 export default GroupFacts;

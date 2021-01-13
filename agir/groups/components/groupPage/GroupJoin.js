@@ -5,21 +5,18 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
-import Card from "@agir/front/genericComponents/Card";
 
-const StyledCard = styled(Card)`
-  padding-top: 0;
+const StyledContent = styled.div`
+  padding: 0;
   display: flex;
   align-items: flex-start;
   flex-flow: column nowrap;
 
   @media (max-width: ${style.collapse}px) {
+    background-color: white;
+    width: 100%;
+    padding: 0 1rem;
     align-items: stretch;
-  }
-
-  & > * {
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
   }
 
   ${Button} {
@@ -49,12 +46,12 @@ const GroupLinks = (props) => {
   }
 
   return (
-    <StyledCard>
+    <StyledContent>
       <Button as="a" href={url} color="primary">
         Rejoindre {is2022 ? "l'équipe" : "le groupe"}
       </Button>
       <p>Votre email sera communiquée aux animateur-ices</p>
-    </StyledCard>
+    </StyledContent>
   );
 };
 

@@ -31,6 +31,8 @@ const InlineMenuList = styled.ul`
 const StyledBar = styled.nav`
   display: flex;
   flex-flow: row nowrap;
+  height: 82px;
+  align-items: center;
 
   @media (max-width: ${style.collapse}px) {
     display: none;

@@ -21,7 +21,7 @@ const ShareCard = () => {
   const inputEl = useRef(null);
   let encodedLocation = encodeURIComponent(window.location.href);
   return (
-    <Card>
+    <Card style={{ padding: "1.5rem" }}>
       <Row gutter={2} style={{ marginBottom: "1rem" }}>
         <Column grow collapse={false}>
           <b>Partager</b>
