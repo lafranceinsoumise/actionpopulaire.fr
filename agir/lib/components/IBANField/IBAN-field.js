@@ -1,4 +1,3 @@
-import { hot } from "react-hot-loader/root"; // doit être importé avant React
 import React, { useEffect, useRef, useState } from "react";
 
 import PropTypes from "prop-types";

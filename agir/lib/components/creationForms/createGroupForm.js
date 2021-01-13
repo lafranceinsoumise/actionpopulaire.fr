@@ -1,5 +1,3 @@
-import { hot } from "react-hot-loader/root"; // doit être importé avant React
-
 import axios from "../utils/axios";
 import React from "react";
 import "react-stepzilla/src/css/main.css";
