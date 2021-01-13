@@ -215,6 +215,25 @@ class ModelDefaultChoiceIterator(ModelChoiceIterator):
         self.queryset = field.default_queryset
 
 
+def get_group_queryset_from_choices(choices, instance):
+    base_qs = SupportGroup.objects.active()
+
+    if choices in ["animateur", "animator", "referent"]:
+        return base_qs.filter(
+            memberships__person_id=instance.id,
+            memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+    elif choices in ["manager", "gestionnaire"]:
+        return base_qs.filter(
+            memberships__person_id=instance.id,
+            memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+    elif choices in ["membre", "member"]:
+        return base_qs.filter(memberships__person_id=instance.id)
+    elif choices:
+        return base_qs.filter(pk__in=choices)
+
+
 class GroupField(forms.ModelChoiceField):
     instance_in_kwargs = True
     widget = GroupWidget
@@ -223,25 +242,11 @@ class GroupField(forms.ModelChoiceField):
     def __init__(
         self, *, instance, choices=None, default_options_label="Mes groupes", **kwargs
     ):
-        queryset = SupportGroup.objects.active()
-        self.default_queryset = queryset.filter(memberships__person_id=instance.id)
+        self.default_queryset = SupportGroup.objects.active().filter(
+            memberships__person_id=instance.id
+        )
+        queryset = get_group_queryset_from_choices(choices, instance)
 
-        if choices in ["animateur", "animator", "referent"]:
-            queryset = self.default_queryset = queryset.filter(
-                memberships__person_id=instance.id,
-                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
-            )
-        elif choices in ["manager", "gestionnaire"]:
-            queryset = self.default_queryset = queryset.filter(
-                memberships__person_id=instance.id,
-                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-            )
-        elif choices in ["membre", "member"]:
-            queryset = self.default_queryset
-        elif choices:
-            raise ValueError(
-                f"Valeur '{choices}' du paramètres choices incorrect: laissez vide ou indiquez 'member' ou 'referent'"
-            )
         self.choice_constraint = choices
         self.default_options_label = default_options_label
 
@@ -265,6 +270,20 @@ class GroupField(forms.ModelChoiceField):
         return str(value.pk)
 
 
+class MultipleGroupField(forms.ModelMultipleChoiceField):
+    instance_in_kwargs = True
+    widget = forms.CheckboxSelectMultiple
+
+    def __init__(self, *, instance, choices, **kwargs):
+        queryset = get_group_queryset_from_choices(choices, instance)
+        super().__init__(queryset, **kwargs)
+
+    def clean(self, value):
+        """S'assure que les valeurs enregistrées sont des chaînes de caractères"""
+        qs = super().clean(value)
+        return [str(g.pk) for g in qs]
+
+
 FIELDS = {
     "short_text": ShortTextField,
     "long_text": LongTextField,
@@ -285,6 +304,7 @@ FIELDS = {
     "iban": IBANField,
     "commune": CommuneField,
     "group": GroupField,
+    "multiple_groups": MultipleGroupField,
 }
 
 PREDEFINED_CHOICES = {

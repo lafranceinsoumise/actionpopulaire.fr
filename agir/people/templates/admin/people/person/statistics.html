@@ -1,4 +1,4 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/change_list.html" %}
 {% load i18n crispy_forms_tags %}
 
 {% if not is_popup %}
@@ -88,9 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 {% endblock %}
 
-{% block content %}
+{% block search %}{% endblock %}
+{% block result_list %}
 <div>
   <canvas style="margin-bottom: 30px; width: 60%; height: 50%;" id="myChart"></canvas>
 </div>
 {% endblock %}
-
+{% block pagination %}{% endblock %}

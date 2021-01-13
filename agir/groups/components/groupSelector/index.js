@@ -23,7 +23,10 @@ const valueToString = (value) => (value ? value.id : "");
 const selector = 'select[data-group-selector="Y"]';
 
 (async function () {
-  const [{ default: GroupSelector }, { getStatefulRenderer }] = Promise.all([
+  const [
+    { default: GroupSelector },
+    { getStatefulRenderer },
+  ] = await Promise.all([
     import("./GroupSelector"),
     import("@agir/lib/utils/react"),
   ]);

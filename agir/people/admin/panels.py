@@ -1,16 +1,23 @@
+import json
 import secrets
 from functools import partial
 from urllib.parse import urlencode
 
 import django_otp
 from django.contrib import admin, messages
+from django.contrib.admin.options import IncorrectLookupParameters
 from django.contrib.admin.utils import display_for_value, unquote
+from django.contrib.admin.views.main import ERROR_FLAG
+from django.contrib.admin.widgets import AutocompleteSelect
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count, Max
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db import models
+from django.db.models import Count, Max, Func, Value
+from django.db.models.functions import Concat, Substr
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
-from django.template.response import TemplateResponse
+from django.template.response import TemplateResponse, SimpleTemplateResponse
 from django.urls import reverse, path
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
@@ -24,14 +31,15 @@ from agir.lib.admin import (
     DepartementListFilter,
     RegionListFilter,
 )
+from agir.lib.autocomplete_filter import AutocompleteFilter
 from agir.lib.utils import generate_token_params, front_url
+from agir.mailing.models import Segment
 from agir.people.admin.forms import PersonAdminForm, PersonFormForm
 from agir.people.admin.inlines import RSVPInline, MembershipInline, EmailInline
 from agir.people.admin.views import (
     FormSubmissionViewsMixin,
     AddPersonEmailView,
     MergePersonsView,
-    StatisticsView,
 )
 from agir.people.models import Person, PersonTag
 from agir.people.person_forms.display import default_person_form_display
@@ -43,6 +51,52 @@ __all__ = [
     "PersonFormAdmin",
     "PersonFormSubmissionAdmin",
 ]
+
+
+class SegmentFilter(AutocompleteFilter):
+    title = "segment"
+
+    def get_rendered_widget(self):
+        rel = models.ForeignKey(to=Segment, on_delete=models.CASCADE)
+        rel.model = Segment
+        widget = AutocompleteSelect(rel, self.model_admin.admin_site,)
+        FieldClass = self.get_form_field()
+        field = FieldClass(
+            queryset=self.get_queryset_for_field(), widget=widget, required=False,
+        )
+
+        self._add_media(self.model_admin, widget)
+
+        attrs = self.widget_attrs.copy()
+        attrs["id"] = "id-%s-autocomplete-filter" % self.field_name
+        attrs["class"] = f'{attrs.get("class", "")} select-filter'.strip()
+
+        return field.widget.render(
+            name=self.parameter_name,
+            value=self.used_parameters.get(self.parameter_name, ""),
+            attrs=attrs,
+        ) + format_html(
+            '<a style="margin-top: 5px" href="{}">Gérer les segments</a>',
+            reverse("admin:mailing_segment_changelist"),
+        )
+
+    def get_queryset_for_field(self):
+        return Segment.objects.all()
+
+    def queryset(self, request, queryset):
+        if self.value():
+            try:
+                s = Segment.objects.get(pk=self.value())
+            except Segment.DoesNotExist:
+                return queryset
+            return queryset.filter(pk__in=s.get_subscribers_queryset())
+        else:
+            return queryset
+
+
+class TagListFilter(AutocompleteFilter):
+    field_name = "tags"
+    title = "Tags"
 
 
 @admin.register(Person)
@@ -133,6 +187,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     )
 
     list_filter = (
+        SegmentFilter,
         DepartementListFilter,
         RegionListFilter,
         "is_insoumise",
@@ -140,7 +195,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "subscribed_sms",
         "draw_participation",
         "gender",
-        "tags",
+        TagListFilter,
     )
 
     inlines = (RSVPInline, MembershipInline, EmailInline)
@@ -292,11 +347,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 name="people_person_merge",
             ),
             path(
-                "statistiques/",
-                self.admin_site.admin_view(
-                    partial(StatisticsView.as_view(), model_admin=self)
-                ),
-                name="people_person_statistics",
+                "statistiques/", self.statistics_view, name="people_person_statistics",
             ),
         ] + super().get_urls()
 
@@ -314,11 +365,60 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
         return HttpResponseRedirect(reverse("admin:people_person_change", args=(pk,)))
 
+    def statistics_view(self, request):
+        try:
+            cl = self.get_changelist_instance(request)
+        except IncorrectLookupParameters:
+            if ERROR_FLAG in request.GET:
+                return SimpleTemplateResponse(
+                    "admin/invalid_setup.html", {"title": _("Database error"),}
+                )
+            return HttpResponseRedirect(request.path + "?" + ERROR_FLAG + "=1")
+
+        chart_data = (
+            cl.get_queryset(request)
+            .exclude(meta__subscriptions__NSP__date__isnull=True)
+            .annotate(
+                subscription_datetime=Func(
+                    "meta",
+                    Value("subscriptions"),
+                    Value("NSP"),
+                    Value("date"),
+                    function="jsonb_extract_path_text",
+                )
+            )
+            .annotate(
+                subscription_date=Concat(
+                    Substr("subscription_datetime", 1, 10), Value("T00:00:00Z")
+                )
+            )
+            .values("subscription_date")
+            .annotate(y=Count("id"))
+            .order_by("subscription_date")
+        )
+
+        context = {
+            **self.admin_site.each_context(request),
+            "title": "Statistiques",
+            "opts": self.model._meta,
+            "cl": cl,
+            "media": self.media,
+            "preserved_filters": self.get_preserved_filters(request),
+            "chart_data": json.dumps(list(chart_data), cls=DjangoJSONEncoder),
+        }
+
+        return TemplateResponse(
+            request, "admin/people/person/statistics.html", context,
+        )
+
     def has_view_permission(self, request, obj=None):
         return super().has_view_permission(request, obj) or (
             request.resolver_match.url_name == "people_person_autocomplete"
             and request.user.has_perm("people.select_person")
         )
+
+    class Media:
+        pass
 
 
 @admin.register(PersonTag)
