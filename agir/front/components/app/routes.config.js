@@ -8,6 +8,7 @@ const EventMap = lazy(() => import("@agir/carte/page__eventMap/EventMap"));
 const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
 
 const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
+const GroupPage = lazy(() => import("@agir/groups/groupPage/GroupPage"));
 const GroupMap = lazy(() => import("@agir/carte/page__groupMap/GroupMap"));
 
 const ActivityPage = lazy(() =>
@@ -95,6 +96,13 @@ export const routeConfig = {
     layoutProps: {
       smallBackgroundColor: style.black25,
     },
+  }),
+  groupDetails: new RouteConfig({
+    id: "groupDetails",
+    pathname: "/groupes/:groupPk/",
+    exact: true,
+    label: "Details du groupe",
+    Component: GroupPage,
   }),
   groupMap: new RouteConfig({
     id: "groupMap",
