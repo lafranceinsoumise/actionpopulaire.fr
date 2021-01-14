@@ -14,6 +14,7 @@ from .view_mixins import (
     ReactSingleObjectView,
 )
 from ..events.views.event_views import EventDetailMixin
+from ..groups.views.public_views import SupportGroupDetailMixin
 from ..groups.serializers import SupportGroupSerializer
 from ..lib.utils import generate_token_params
 
@@ -188,6 +189,19 @@ class EventDetailView(
         "Participez aux événements organisés par les membres de la France insoumise."
     )
     meta_description_2022 = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
+    bundle_name = "front/app"
+
+    def get_context_data(self, **kwargs):
+        kwargs["export_data"] = {"pk": self.object.pk}
+
+        return super().get_context_data(**kwargs)
+
+
+class SupportGroupDetailView(
+    ObjectOpengraphMixin, SupportGroupDetailMixin, BaseDetailView, ReactBaseView
+):
+    meta_description = "Rejoignez les groupes d'action de la France insoumise."
+    meta_description_2022 = "Rejoignez les équipes de soutien de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
     bundle_name = "front/app"
 
     def get_context_data(self, **kwargs):
