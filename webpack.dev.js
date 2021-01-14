@@ -1,8 +1,13 @@
 const path = require("path");
 const merge = require("webpack-merge");
 const webpack = require("webpack");
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
 const common = require("./webpack.common.js");
+
+common.module.rules[0].use.options.plugins = [
+  require.resolve("react-refresh/babel"),
+];
 
 const serverName = process.env.JS_SERVER || "agir.local";
 const port = process.env.JS_SERVER
@@ -15,7 +20,7 @@ module.exports = merge.merge(common, {
   output: {
     publicPath: `http://${serverName}:${port}/static/components/`,
     devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
-    filename: "[name]-[hash].js",
+    filename: "[name]-[fullhash].js",
   },
   watchOptions: {
     poll: 1000,
@@ -35,19 +40,15 @@ module.exports = merge.merge(common, {
     allowedHosts: ["agir.local"], // l'appli Django est toujours sur agir.local
   },
   optimization: {
-    namedModules: true,
-    namedChunks: true,
-    noEmitOnErrors: true,
+    moduleIds: "named",
+    chunkIds: "named",
+    emitOnErrors: false,
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
+    new ReactRefreshWebpackPlugin(),
     new webpack.EnvironmentPlugin({
       DEBUG: "agir:*", // default value if not defined in .env
     }),
   ],
-  resolve: {
-    alias: {
-      "react-dom": "@hot-loader/react-dom",
-    },
-  },
 });

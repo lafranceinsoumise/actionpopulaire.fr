@@ -1,4 +1,3 @@
-import { hot } from "react-hot-loader/root"; // doit être importé avant React
 import React, { useEffect, useRef, useState } from "react";
 
 import PropTypes from "prop-types";
@@ -88,4 +87,4 @@ HelpBlock.propTypes = {
   children: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
 };
 
-export default hot(IBANField);
+export default IBANField;

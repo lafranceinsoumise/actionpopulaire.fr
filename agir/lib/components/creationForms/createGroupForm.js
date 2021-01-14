@@ -1,10 +1,8 @@
-import { hot } from "react-hot-loader/root"; // doit être importé avant React
-
 import axios from "../utils/axios";
 import React from "react";
 import "react-stepzilla/src/css/main.css";
 import { Transition } from "react-transition-group";
-import qs from "querystring";
+import qs from "querystring-es3";
 
 import NavSelect from "../utils/navSelect";
 
@@ -427,4 +425,4 @@ class ValidateStep extends FormStep {
   }
 }
 
-export default hot(CreateGroupForm);
+export default CreateGroupForm;

@@ -1,4 +1,3 @@
-import { hot } from "react-hot-loader/root"; // doit être importé avant React
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
@@ -184,4 +183,4 @@ DonationForm.defaultProps = {
   enableAllocations: true,
 };
 
-export default hot(DonationForm);
+export default DonationForm;

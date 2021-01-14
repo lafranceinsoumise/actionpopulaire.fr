@@ -1,4 +1,4 @@
-import ReactDOM from "@hot-loader/react-dom";
+import ReactDOM from "react-dom";
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import onDOMReady from "@agir/lib/utils/onDOMReady";
