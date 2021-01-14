@@ -62,7 +62,7 @@ const MobileGroupPage = (props) => {
       }}
     >
       <GroupBanner {...group} />
-      <GroupJoin url={group.isMember ? "#join" : ""} />
+      <GroupJoin url={!group.isMember ? "#join" : ""} />
       <Tabs tabs={tabs}>
         <Tab id="info">
           <h3
@@ -80,7 +80,9 @@ const MobileGroupPage = (props) => {
           <GroupLinks {...group} />
           <GroupFacts {...group} />
           <GroupLocation {...group} />
-          <GroupDonation url="#donation" />
+          {group.routes && group.routes.donations && (
+            <GroupDonation url={group.routes.donations} />
+          )}
           <ShareCard />
 
           {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
@@ -119,6 +121,9 @@ MobileGroupPage.propTypes = {
   group: PropTypes.shape({
     isMember: PropTypes.bool,
     isManager: PropTypes.bool,
+    routes: PropTypes.shape({
+      donations: PropTypes.string,
+    }),
   }),
   groupSuggestions: PropTypes.arrayOf(PropTypes.object),
 };
