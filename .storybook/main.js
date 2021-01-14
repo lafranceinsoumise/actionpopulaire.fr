@@ -7,7 +7,16 @@ module.exports = {
     config.module.rules.push({
       test: /\.scss$/,
       exclude: [/theme\/theme.scss/],
-      use: ["style-loader", "css-loader", "sass-loader"],
+      use: [
+        "style-loader",
+        {
+          loader: "css-loader",
+          options: {
+            modules: { compileType: "icss", auto: /\.scss$/i },
+          },
+        },
+        "sass-loader",
+      ],
     });
 
     config.resolve = {
