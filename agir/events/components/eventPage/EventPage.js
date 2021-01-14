@@ -8,7 +8,10 @@ import {
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
 import { setIs2022 } from "@agir/front/globalContext/actions";
-import { getIsConnected } from "@agir/front/globalContext/reducers";
+import {
+  getIsConnected,
+  getIsSessionLoaded,
+} from "@agir/front/globalContext/reducers";
 
 import Link from "@agir/front/app/Link";
 
@@ -37,6 +40,11 @@ import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import logger from "@agir/lib/utils/logger";
 const log = logger(__filename);
 
+const GroupCards = styled.div`
+  & > * {
+    margin-bottom: 1rem;
+  }
+`;
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
   & > ${Card}, & > ${CardLikeSection} {
@@ -166,15 +174,12 @@ const DesktopLayout = (props) => {
             <EventHeader {...props} />
             <EventDescription {...props} />
             {props.groups.length > 0 && (
-              <div>
-                <h3 style={{ marginBottom: "1rem", marginTop: "2.5rem" }}>
-                  Organisé par
-                </h3>
-
+              <GroupCards>
+                <h3 style={{ marginTop: "2.5rem" }}>Organisé par</h3>
                 {props.groups.map((group, key) => (
                   <GroupCard key={key} {...group} isEmbedded />
                 ))}
-              </div>
+              </GroupCards>
             )}
           </div>
         </Column>
@@ -290,6 +295,7 @@ const MobileSkeleton = () => (
 export const ConnectedEventPage = (props) => {
   const { eventPk } = props;
   const isConnected = useSelector(getIsConnected);
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
   const dispatch = useDispatch();
 
   const { data: eventData } = useSWR(`/api/evenements/${eventPk}`);
@@ -304,7 +310,7 @@ export const ConnectedEventPage = (props) => {
   return (
     <>
       <PageFadeIn
-        ready={eventData}
+        ready={isSessionLoaded && eventData}
         wait={
           <ResponsiveLayout
             DesktopLayout={DesktopSkeleton}

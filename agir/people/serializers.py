@@ -170,7 +170,7 @@ class SubscriptionRequestSerializer(serializers.Serializer):
     )
     contact_phone = PhoneNumberField(required=False)
     mandat = serializers.ChoiceField(
-        choices=("municipal", "departemental", "regional"), required=False
+        choices=("municipal", "maire", "departemental", "regional"), required=False
     )
 
     referrer = serializers.CharField(required=False)
