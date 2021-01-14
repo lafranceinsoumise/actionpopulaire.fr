@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from prometheus_client import Counter
 
+from agir.lib.utils import get_client_ip
 from agir.people.models import PersonValidationSMS
 
 from agir.lib.token_bucket import TokenBucket
@@ -70,7 +71,7 @@ def send_new_code(person, request):
         sms_counter.labels("number_limited").inc()
         raise RateLimitedException(RATE_LIMITED_MESSAGE)
 
-    if not IPBucket.has_tokens(request.META["REMOTE_ADDR"]):
+    if not IPBucket.has_tokens(get_client_ip(request)):
         sms_counter.labels("ip_limited").inc()
         raise RateLimitedException(RATE_LIMITED_MESSAGE)
 

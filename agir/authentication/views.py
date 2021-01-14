@@ -11,14 +11,14 @@ from django.utils.safestring import mark_safe
 from django.views.generic import FormView, RedirectView
 from oauth2_provider.views import AuthorizationView
 from rest_framework.generics import RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 
 from agir.authentication.utils import is_soft_logged, is_hard_logged
 from agir.authentication.view_mixins import HardLoginRequiredMixin
-from agir.people.models import Person, PersonEmail
+from agir.people.models import PersonEmail
 from .forms import EmailForm, CodeForm
 from .serializers import SessionSerializer
+from ..lib.utils import get_client_ip
 
 
 def valid_emails(candidate_emails):
@@ -115,7 +115,7 @@ class LoginView(RedirectToMixin, FormView):
         }
 
     def form_valid(self, form):
-        if not form.send_email(request_ip=self.request.META["REMOTE_ADDR"]):
+        if not form.send_email(request_ip=get_client_ip(self.request)):
             return self.form_invalid(form)
 
         local_expiration_time = timezone.localtime(form.expiration).strftime("%H:%M")
@@ -124,13 +124,15 @@ class LoginView(RedirectToMixin, FormView):
             messages.add_message(
                 self.request,
                 messages.DEBUG,
-                f"Pas de compte correspondant à cette l'adresse {form.cleaned_data['email']}.",
+                f"Pas de compte correspondant à l'adresse {form.cleaned_data['email']}.",
             )
         else:
             messages.add_message(
                 self.request,
                 messages.DEBUG,
-                f"Le code de connexion est {form.short_code} (expiration à {local_expiration_time}).",
+                mark_safe(
+                    f'Le code de connexion est <span class="logincode">{form.short_code}</span> (expiration à {local_expiration_time}).'
+                ),
             )
 
         redirect_to = self.get_redirect_url()

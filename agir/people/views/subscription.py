@@ -15,6 +15,7 @@ from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.authentication.utils import hard_login
 from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.lib.http import add_query_params_to_url
+from agir.lib.utils import get_client_ip
 from agir.people.actions.subscription import (
     SUBSCRIPTION_TYPE_LFI,
     SUBSCRIPTION_TYPE_NSP,
@@ -71,7 +72,7 @@ class BaseSubscriptionView(SimpleOpengraphMixin, FormView):
 
     def form_valid(self, form):
         if is_rate_limited_for_subscription(
-            ip=self.request.META["REMOTE_ADDR"], email=form.cleaned_data["email"]
+            ip=get_client_ip(self.request), email=form.cleaned_data["email"]
         ):
             form.add_error(
                 field=None,
