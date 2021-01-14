@@ -19,10 +19,13 @@ const Template = (args) => {
         zip: args.locationZip,
         state: args.locationState,
         country: args.locationCountry,
-        coordinates:
-          args.latitude && args.longitude
-            ? [args.latitude, args.longitude]
-            : null,
+        coordinates: {
+          type: "Point",
+          coordinates:
+            args.latitude && args.longitude
+              ? [args.latitude, args.longitude]
+              : null,
+        },
       }}
     />
   );

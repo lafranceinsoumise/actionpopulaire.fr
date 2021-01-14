@@ -13,7 +13,10 @@
     "zip": "86000",
     "state": "Île-de-France",
     "country": "France",
-    "coordinates": [-97.14704, 49.8844]
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [-97.14704, 49.8844]
+    }
   },
   "contact": {
     "name": "Isabelle Guérini",
@@ -22,10 +25,10 @@
   },
   "referents": [
     {
-      "name": "Isabelle Guérini"
+      "fullName": "Isabelle Guérini"
     },
     {
-      "name": "Bill Murray",
+      "fullName": "Bill Murray",
       "avatar": "https://www.fillmurray.com/180/180"
     }
   ],

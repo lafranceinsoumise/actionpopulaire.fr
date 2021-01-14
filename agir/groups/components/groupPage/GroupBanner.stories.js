@@ -32,10 +32,13 @@ const Template = (args) => {
       location={{
         city: args.city,
         zip: args.zip,
-        coordinates:
-          args.latitude && args.longitude
-            ? [args.latitude, args.longitude]
-            : null,
+        coordinates: {
+          type: "Point",
+          coordinates:
+            args.latitude && args.longitude
+              ? [args.latitude, args.longitude]
+              : null,
+        },
       }}
     />
   );

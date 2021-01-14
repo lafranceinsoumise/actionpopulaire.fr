@@ -105,4 +105,9 @@ urlpatterns = [
         name="report_invitation_abuse",
     ),
     path("api/groupes/", views.UserGroupsView.as_view(), name="api_user_groups"),
+    path(
+        "api/groupes/<uuid:pk>",
+        views.GroupDetailAPIView.as_view(),
+        name="api_group_view",
+    ),
 ]

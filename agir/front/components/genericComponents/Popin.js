@@ -12,7 +12,7 @@ const fadeInTransition = {
   delay: 200,
 };
 
-const BasePopin = styled(animated.p)`
+const BasePopin = styled(animated.div)`
   position: absolute;
   width: 250px;
   padding: 1rem;

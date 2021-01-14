@@ -7,8 +7,6 @@ import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import DesktopGroupPage, { DesktopGroupPageSkeleton } from "./DesktopGroupPage";
 import MobileGroupPage, { MobileGroupPageSkeleton } from "./MobileGroupPage";
 
-import group from "./group.json";
-
 export const GroupPage = (props) => {
   const { isLoading } = props;
   return (
@@ -23,8 +21,7 @@ export const GroupPage = (props) => {
     >
       <ResponsiveLayout
         {...props}
-        group={group}
-        groupSuggestions={[group, group, group]}
+        groupSuggestions={[]}
         MobileLayout={MobileGroupPage}
         DesktopLayout={DesktopGroupPage}
       />

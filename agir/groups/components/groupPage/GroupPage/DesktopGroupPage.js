@@ -76,12 +76,14 @@ const DesktopGroupPage = (props) => {
         </Column>
 
         <Column width="460px">
-          <GroupJoin url={group.isMember ? "#join" : ""} />
+          <GroupJoin url={!group.isMember ? "#join" : ""} />
           <GroupContactCard {...group} />
           <GroupDescription {...group} />
           <GroupLinks {...group} />
           <GroupFacts {...group} />
-          <GroupDonation url="#donation" />
+          {group.routes && group.routes.donations && (
+            <GroupDonation url={group.routes.donations} />
+          )}
         </Column>
       </Row>
 
@@ -99,6 +101,9 @@ DesktopGroupPage.propTypes = {
   group: PropTypes.shape({
     isMember: PropTypes.bool,
     isManager: PropTypes.bool,
+    routes: PropTypes.shape({
+      donations: PropTypes.string,
+    }),
   }),
   groupSuggestions: PropTypes.arrayOf(PropTypes.object),
 };
