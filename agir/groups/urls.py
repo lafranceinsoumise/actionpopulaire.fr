@@ -25,9 +25,6 @@ urlpatterns = [
         name="api_group_subtypes",
     ),
     path(
-        "groupes/<uuid:pk>/", views.SupportGroupDetailView.as_view(), name="view_group"
-    ),
-    path(
         "groupes/<uuid:pk>/icalendar/",
         views.SupportGroupIcsView.as_view(),
         name="ics_group",
