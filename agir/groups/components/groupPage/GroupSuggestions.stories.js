@@ -22,7 +22,7 @@ Default.args = {
       location: {
         city: "Poitiers",
         zip: "86000",
-        coordinates: [-97.14704, 49.8844],
+        coordinates: { coordinates: [-97.14704, 49.8844] },
       },
     },
     {
@@ -33,7 +33,7 @@ Default.args = {
       location: {
         city: "Poitiers",
         zip: "86000",
-        coordinates: [-97.14704, 49.8844],
+        coordinates: { coordinates: [-97.14704, 49.8844] },
       },
     },
     {
@@ -44,7 +44,7 @@ Default.args = {
       location: {
         city: "Poitiers",
         zip: "86000",
-        coordinates: [-97.14704, 49.8844],
+        coordinates: { coordinates: [-97.14704, 49.8844] },
       },
     },
   ],

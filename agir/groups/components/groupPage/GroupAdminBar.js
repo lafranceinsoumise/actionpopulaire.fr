@@ -54,30 +54,40 @@ const GroupAdminBar = (props) => {
         </Button>
       </LeftSection>
       <RightSection>
-        <Button as="a" href={routes.settings} icon="settings">
-          Paramètres
-        </Button>
-        <Button as="a" href={routes.members} icon="users">
-          Membres
-        </Button>
+        {routes.settings && (
+          <Button as="a" href={routes.settings} icon="settings">
+            Paramètres
+          </Button>
+        )}
+        {routes.members && (
+          <Button as="a" href={routes.members} icon="users">
+            Membres
+          </Button>
+        )}
       </RightSection>
       <InlineMenu>
         <InlineMenuList>
-          <li>
-            <FeatherIcon inline small name="settings" color={style.primary} />
-            &ensp;
-            <a href={routes.admin}>Administration</a>
-          </li>
-          <li>
-            <FeatherIcon inline small name="settings" color={style.primary} />
-            &ensp;
-            <a href={routes.admin}>Administration</a>
-          </li>
-          <li>
-            <FeatherIcon inline small name="settings" color={style.primary} />
-            &ensp;
-            <a href={routes.admin}>Administration</a>
-          </li>
+          {routes.animation && (
+            <li>
+              <FeatherIcon inline small name="settings" color={style.primary} />
+              &ensp;
+              <a href={routes.animation}>Animation</a>
+            </li>
+          )}
+          {routes.membershipTransfer && (
+            <li>
+              <FeatherIcon inline small name="settings" color={style.primary} />
+              &ensp;
+              <a href={routes.membershipTransfer}>Transfer de membres</a>
+            </li>
+          )}
+          {routes.admin && (
+            <li>
+              <FeatherIcon inline small name="settings" color={style.primary} />
+              &ensp;
+              <a href={routes.admin}>Administration</a>
+            </li>
+          )}
         </InlineMenuList>
       </InlineMenu>
     </StyledBar>
@@ -85,11 +95,11 @@ const GroupAdminBar = (props) => {
 };
 
 GroupAdminBar.propTypes = {
-  routes: {
+  routes: PropTypes.shape({
     createEvent: PropTypes.string,
     settings: PropTypes.string,
     members: PropTypes.string,
     admin: PropTypes.string,
-  },
+  }),
 };
 export default GroupAdminBar;

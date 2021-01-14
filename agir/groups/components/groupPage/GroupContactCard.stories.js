@@ -16,8 +16,8 @@ const Template = (args) => {
     contactEmail,
   } = args;
   const referents = [
-    { name: "Isabelle Guérini" },
-    { name: referentName, avatar: referentAvatar },
+    { fullName: "Isabelle Guérini" },
+    { fullName: referentName, avatar: referentAvatar },
   ];
   const contact =
     contactName || contactEmail || contactPhone

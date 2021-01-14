@@ -70,7 +70,11 @@ const GroupSuggestionCard = (props) => {
     <StyledCard>
       <StyledMap>
         <Map
-          center={coordinates}
+          center={
+            coordinates && Array.isArray(coordinates.coordinates)
+              ? coordinates.coordinates
+              : [0, 0]
+          }
           iconConfiguration={iconConfiguration}
           isStatic
         />
@@ -104,7 +108,9 @@ GroupSuggestionCard.propTypes = {
   location: PropTypes.shape({
     city: PropTypes.string.isRequired,
     zip: PropTypes.string.isRequired,
-    coordinates: PropTypes.arrayOf(PropTypes.number).isRequired,
+    coordinates: PropTypes.shape({
+      coordinates: PropTypes.arrayOf(PropTypes.number),
+    }).isRequired,
   }).isRequired,
 };
 export default GroupSuggestionCard;
