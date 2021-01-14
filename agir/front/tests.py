@@ -32,13 +32,6 @@ class NavbarTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(b"Arthur Machin", response.content)
 
-    def test_navbar_unauthenticated(self):
-        response = self.client.get("/groupes/" + str(self.group.id) + "/")
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotIn(b"Mes groupes", response.content)
-        self.assertIn(b"Connexion", response.content)
-
 
 class PagesLoadingTestCase(TestCase):
     def setUp(self):
