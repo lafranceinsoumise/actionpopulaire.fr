@@ -110,4 +110,9 @@ urlpatterns = [
         views.GroupDetailAPIView.as_view(),
         name="api_group_view",
     ),
+    path(
+        "api/groupes/<uuid:pk>/suggestions",
+        views.NearGroupsAPIView.as_view(),
+        name="api_near_groups_view",
+    ),
 ]
