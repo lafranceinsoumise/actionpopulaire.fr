@@ -154,6 +154,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             context=self.context,
             many=True,
             fields=[
+                "id",
                 "name",
                 "description",
                 "eventCount",

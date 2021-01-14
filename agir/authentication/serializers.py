@@ -73,7 +73,7 @@ class SessionSerializer(serializers.Serializer):
                     link = {
                         "id": group.id,
                         "label": group.name,
-                        "href": reverse("view_group", kwargs={"pk": group.pk}),
+                        "to": reverse("view_group", kwargs={"pk": group.pk}),
                     }
                     routes["groups__personGroups"].append(link)
 

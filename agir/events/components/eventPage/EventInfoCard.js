@@ -1,10 +1,14 @@
 import PropTypes from "prop-types";
 import React from "react";
+
+import { routeConfig } from "@agir/front/app/routes.config";
+
+import Card from "@agir/front/genericComponents/Card";
 import {
   IconList,
   IconListItem,
 } from "@agir/front/genericComponents/FeatherIcon";
-import Card from "@agir/front/genericComponents/Card";
+import Link from "@agir/front/app/Link";
 
 const EventInfoCard = ({ groups, participantCount, is2022 }) => (
   <Card>
@@ -12,9 +16,15 @@ const EventInfoCard = ({ groups, participantCount, is2022 }) => (
       {groups.length > 0 && (
         <IconListItem name="users">
           Organisé par{" "}
-          {groups.map(({ name, routes }, key) => (
+          {groups.map(({ name, id }, key) => (
             <React.Fragment key={key}>
-              {routes && routes.page ? <a href={routes.page}>{name}</a> : name}
+              {id ? (
+                <Link to={routeConfig.groupDetails.getLink({ groupPk: id })}>
+                  {name}
+                </Link>
+              ) : (
+                name
+              )}
               {key < groups.length - 2
                 ? ", "
                 : key === groups.length - 2
