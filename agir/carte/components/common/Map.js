@@ -3,7 +3,9 @@ import PropTypes from "prop-types";
 import React, { useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
 
-import { createStaticMap } from "../map/common";
+import { createMap } from "../map/common";
+
+import "../map/style.css";
 
 const skeleton = keyframes`
   to {
@@ -35,8 +37,8 @@ const StyledMapWrapper = styled.div`
   }
 `;
 
-const StaticMap = (props) => {
-  const { center, zoom = 14, iconConfiguration, ...rest } = props;
+const Map = (props) => {
+  const { center, zoom = 14, iconConfiguration, isStatic, ...rest } = props;
 
   const [isLoaded, setIsLoaded] = useState(0);
   const mapElement = useRef();
@@ -47,21 +49,23 @@ const StaticMap = (props) => {
       map.current.getView().setCenter(proj.fromLonLat(center));
       map.current.getView().setZoom(zoom);
     } else if (mapElement.current) {
-      map.current = createStaticMap(
+      map.current = createMap(
         center,
         zoom,
         mapElement.current,
-        iconConfiguration
+        iconConfiguration,
+        isStatic
       );
       map.current.once("postrender", () => {
         setIsLoaded(true);
       });
     }
-  }, [center, zoom, iconConfiguration]);
+  }, [center, zoom, iconConfiguration, isStatic]);
 
   return <StyledMapWrapper ref={mapElement} $isLoaded={isLoaded} {...rest} />;
 };
-StaticMap.propTypes = {
+Map.propTypes = {
+  isStatic: PropTypes.bool,
   center: PropTypes.arrayOf(PropTypes.number).isRequired,
   zoom: PropTypes.number,
   iconConfiguration: PropTypes.shape({
@@ -71,4 +75,4 @@ StaticMap.propTypes = {
     iconAnchor: PropTypes.string,
   }),
 };
-export default StaticMap;
+export default Map;

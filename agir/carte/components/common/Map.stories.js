@@ -1,10 +1,10 @@
 import React from "react";
 
-import StaticMap from "./StaticMap";
+import Map from "./Map";
 
 export default {
-  component: StaticMap,
-  title: "Map/StaticMap",
+  component: Map,
+  title: "Map/Map",
 };
 
 const Template = (args) => {
@@ -16,7 +16,7 @@ const Template = (args) => {
         padding: "20vh 20vw",
       }}
     >
-      <StaticMap {...args} />
+      <Map {...args} />
     </div>
   );
 };
@@ -24,6 +24,12 @@ const Template = (args) => {
 export const Default = Template.bind({});
 Default.args = {
   center: [-97.14704, 49.8844],
+};
+
+export const Static = Template.bind({});
+Static.args = {
+  ...Default.args,
+  isStatic: true,
 };
 
 export const WithIcon = Template.bind({});

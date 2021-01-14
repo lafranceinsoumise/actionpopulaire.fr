@@ -128,7 +128,7 @@ export function makeStyle(style, options = {}) {
   return null;
 }
 
-export function createStaticMap(center, zoom, target, iconConfiguration) {
+export function createMap(center, zoom, target, iconConfiguration, isStatic) {
   const styles = iconConfiguration
     ? makeStyle(iconConfiguration)
     : [
@@ -148,7 +148,7 @@ export function createStaticMap(center, zoom, target, iconConfiguration) {
   const map = new Map({
     target,
     controls: [],
-    interactions: [],
+    interactions: isStatic ? [] : undefined,
     layers: [
       new TileLayer({
         source: new OSM({
