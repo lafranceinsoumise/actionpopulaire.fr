@@ -1,21 +1,25 @@
-import { Helmet } from "react-helmet";
+import { DateTime } from "luxon";
 import PropTypes from "prop-types";
 import React from "react";
+import { Helmet } from "react-helmet";
 import styled from "styled-components";
+import useSWR from "swr";
+
+import style from "@agir/front/genericComponents/_variables.scss";
 
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import Onboarding from "@agir/front/genericComponents/Onboarding";
-import { DateTime } from "luxon";
 import { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
 import Button from "@agir/front/genericComponents/Button";
-
-import style from "@agir/front/genericComponents/_variables.scss";
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getRoutes } from "@agir/front/globalContext/reducers";
-import useSWR from "swr";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
+
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import {
+  getRoutes,
+  getIsSessionLoaded,
+} from "@agir/front/globalContext/reducers";
 
 const TopBar = styled.div`
   display: flex;
@@ -68,6 +72,7 @@ const GroupList = styled.article`
 
 const GroupsPage = () => {
   const routes = useSelector(getRoutes);
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
 
   const { data: groupList } = useSWR("/api/groupes");
 
@@ -119,7 +124,10 @@ const GroupsPage = () => {
           ) : null}
         </div>
       </TopBar>
-      <PageFadeIn ready={groups} wait={<Skeleton boxes={2} />}>
+      <PageFadeIn
+        ready={isSessionLoaded && groupList}
+        wait={<Skeleton boxes={2} />}
+      >
         {/* Si l'utilisateurice n'a pas de groupes,
         groups contient la liste des groupes suggérés,
          on place donc avant le texte introductif */}
