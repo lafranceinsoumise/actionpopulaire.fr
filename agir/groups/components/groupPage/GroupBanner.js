@@ -86,10 +86,11 @@ const GroupBanner = (props) => {
 
   return (
     <StyledBanner>
-      {Array.isArray(location.coordinates) ? (
+      {location.coordinates &&
+      Array.isArray(location.coordinates.coordinates) ? (
         <StyledMap>
           <Map
-            center={location.coordinates}
+            center={location.coordinates.coordinates}
             iconConfiguration={iconConfiguration}
             isStatic
           />
@@ -109,7 +110,9 @@ GroupBanner.propTypes = {
   location: PropTypes.shape({
     city: PropTypes.string,
     zip: PropTypes.string,
-    coordinates: PropTypes.arrayOf(PropTypes.number),
+    coordinates: PropTypes.shape({
+      coordinates: PropTypes.arrayOf(PropTypes.number),
+    }),
   }).isRequired,
 };
 export default GroupBanner;

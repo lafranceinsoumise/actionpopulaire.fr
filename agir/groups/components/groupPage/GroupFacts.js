@@ -52,7 +52,7 @@ const GroupFacts = (props) => {
   return (
     <Card title="À propos">
       <StyledList>
-        {eventCount && (
+        {!!eventCount && (
           <li>
             <FeatherIcon name="calendar" small inline />
             <span>
@@ -60,7 +60,7 @@ const GroupFacts = (props) => {
             </span>
           </li>
         )}
-        {memberCount && (
+        {!!memberCount && (
           <li>
             <FeatherIcon name="users" small inline />
             <span>
@@ -68,19 +68,19 @@ const GroupFacts = (props) => {
             </span>
           </li>
         )}
-        {isCertified && (
+        {!!isCertified && (
           <li>
             <FeatherIcon name="check-circle" small inline />
             <span>Groupe certifié</span>
           </li>
         )}
-        {creationDate && (
+        {!!creationDate && (
           <li>
             <FeatherIcon name="clock" small inline />
             <span>Créé {timeAgo(creationDate)}</span>
           </li>
         )}
-        {lastActivityDate && (
+        {!!lastActivityDate && (
           <li>
             <FeatherIcon name="rss" small inline />
             <span>Dernière activité&nbsp;: {timeAgo(lastActivityDate)}</span>

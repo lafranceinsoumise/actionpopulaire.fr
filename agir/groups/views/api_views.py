@@ -1,7 +1,7 @@
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from agir.groups.filters import GroupAPIFilterSet
@@ -10,10 +10,16 @@ from agir.groups.serializers import (
     SupportGroupLegacySerializer,
     SupportGroupSubtypeSerializer,
     SupportGroupSerializer,
+    SupportGroupDetailSerializer,
 )
 from agir.lib.pagination import APIPaginator
 
-__all__ = ["GroupSearchAPIView", "GroupSubtypesView", "UserGroupsView"]
+__all__ = [
+    "GroupSearchAPIView",
+    "GroupSubtypesView",
+    "UserGroupsView",
+    "GroupDetailAPIView",
+]
 
 
 class GroupSearchAPIView(ListAPIView):
@@ -57,3 +63,9 @@ class UserGroupsView(ListAPIView):
                 group.membership = None
 
         return person_groups
+
+
+class GroupDetailAPIView(RetrieveAPIView):
+    permission_ = ("groups.view_supportgroup",)
+    serializer_class = SupportGroupDetailSerializer
+    queryset = SupportGroup.objects.all()
