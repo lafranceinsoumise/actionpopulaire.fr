@@ -93,13 +93,11 @@ class SupportGroupPageTestCase(SupportGroupMixin, TestCase):
         self.client.force_login(self.other_person.role)
         response = self.client.get(url)
         self.assertNotIn(self.other_person, self.manager_group.members.all())
-        self.assertIn("Rejoindre ce groupe", response.content.decode())
 
         response = self.client.post(url, data={"action": "join"}, follow=True)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.other_person, self.manager_group.members.all())
-        self.assertIn("Quitter le groupe", response.content.decode())
 
         someone_joined.assert_called_once()
         membership = Membership.objects.get(
@@ -273,20 +271,12 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
                 '"{}" did not return 404'.format(page),
             )
 
-    def test_can_see_groups_events(self):
-        response = self.client.get(reverse("view_group", args=[self.referent_group.pk]))
-
-        self.assertContains(response, "événement test pour groupe")
-
     def test_cannot_join_group_if_external(self):
         self.other_person.is_insoumise = False
         self.other_person.save()
         self.client.force_login(self.other_person.role)
 
-        # cannot see button
         url = reverse("view_group", kwargs={"pk": self.manager_group.pk})
-        response = self.client.get(url)
-        self.assertNotIn("Rejoindre ce groupe", response.content.decode())
 
         # cannot join
         self.client.post(url, data={"action": "join"}, follow=True)
@@ -327,7 +317,6 @@ class ExternalJoinSupportGroupTestCase(TestCase):
     def test_can_join(self):
         res = self.client.get(reverse("view_group", args=[self.group.pk]))
         self.assertNotContains(res, "Se connecter pour")
-        self.assertContains(res, "Rejoindre ce groupe")
 
         self.client.post(
             reverse("external_join_group", args=[self.group.pk]),
