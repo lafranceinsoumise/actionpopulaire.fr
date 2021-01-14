@@ -54,6 +54,7 @@ const today = DateTime.local();
 
 export const Default = Template.bind({});
 Default.args = {
+  id: "12345",
   name: "Prout",
   description: DEFAULT_DESCRIPTION,
   eventCount: 7,
