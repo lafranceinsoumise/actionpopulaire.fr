@@ -17,11 +17,15 @@ const log = logger(__filename);
 const GroupPage = (props) => {
   const { groupPk } = props;
   const { data: group } = useSWR(`/api/groupes/${groupPk}`);
+  const { data: groupSuggestions } = useSWR(
+    `/api/groupes/${groupPk}/suggestions`
+  );
   const isSessionLoaded = useSelector(getIsSessionLoaded);
 
   const dispatch = useDispatch();
 
   log.debug("Group data", group);
+  log.debug("Group suggestions", groupSuggestions);
 
   const { is2022 } = group || {};
 
@@ -30,7 +34,11 @@ const GroupPage = (props) => {
   }, [is2022, dispatch]);
 
   return (
-    <GroupPageComponent isLoading={!isSessionLoaded || !group} group={group} />
+    <GroupPageComponent
+      isLoading={!isSessionLoaded || !group}
+      group={group}
+      groupSuggestions={Array.isArray(groupSuggestions) ? groupSuggestions : []}
+    />
   );
 };
 GroupPage.propTypes = {

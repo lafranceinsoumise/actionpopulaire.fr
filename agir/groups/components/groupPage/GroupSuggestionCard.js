@@ -19,7 +19,7 @@ const StyledCard = styled(Card)`
   box-shadow: none;
 
   @media (max-width: ${style.collapse}px) {
-    max-width: 294px;
+    width: 294px;
   }
 
   ${StyledMap} {
