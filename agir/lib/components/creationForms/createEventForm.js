@@ -476,4 +476,4 @@ class ValidateStep extends FormStep {
   }
 }
 
-export default hot(CreateEventForm);
+export default CreateEventForm;

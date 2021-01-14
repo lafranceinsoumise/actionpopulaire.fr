@@ -183,4 +183,4 @@ DonationForm.defaultProps = {
   enableAllocations: true,
 };
 
-export default hot(DonationForm);
+export default DonationForm;

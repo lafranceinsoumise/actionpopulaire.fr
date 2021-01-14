@@ -87,4 +87,4 @@ HelpBlock.propTypes = {
   children: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
 };
 
-export default hot(IBANField);
+export default IBANField;

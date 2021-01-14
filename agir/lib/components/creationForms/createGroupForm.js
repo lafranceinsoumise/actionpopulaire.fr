@@ -425,4 +425,4 @@ class ValidateStep extends FormStep {
   }
 }
 
-export default hot(CreateGroupForm);
+export default CreateGroupForm;
