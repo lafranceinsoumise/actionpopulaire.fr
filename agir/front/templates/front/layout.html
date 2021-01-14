@@ -1,127 +1,19 @@
-{% load static %}
+{% extends "front/base_layout.html" %}
 {% load render_bundle from webpack_loader %}
-<!doctype html>
-<html lang="fr-FR" prefix="og: http://ogp.me/ns#">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Plateforme d'action{% endblock %} - Action populaire</title>
 
-  {% block opengraph %}
-    {% if show_opengraph %}
-      <meta name="title" content="{{ meta_title }}"/>
-      <meta name="description" content="{{ meta_description }}">
-      <link rel="canonical" href="https://actionpopulaire.fr{{ request.path }}"/>
-      <meta property="og:locale" content="fr_FR"/>
-      <meta property="og:type" content="{{ meta_type }}"/>
-      <meta property="og:title" content="{{ meta_title }}"/>
-      <meta property="og:description"
-            content="{{ meta_description }}"/>
-      <meta property="og:url" content="https://actionpopulaire.fr{{ request.path }}"/>
-      <meta property="og:site_name" content="Action populaire - La plateforme"/>
-      <meta property="fb:app" content="399717914004198"/>
-      {% if meta_image %}
-        <meta property="og:image" content="{{ meta_image }}">
-        <meta property="og:image:secure_url" content="{{ meta_image }}">
-        <meta name="twitter:image"
-              content="{{ meta_image }}"/>
-      {% else %}
-        <meta
-          property="og:image"
-          content="{% static "front/assets/og_image_LFI.png" %}"
-        />
-        <meta
-          property="og:image:secure_url"
-          content="{% static "front/assets/og_image_LFI.png" %}"
-        />
-        <meta
-          name="twitter:image"
-          content="{% static "front/assets/og_image_LFI.png" %}"
-        />
-      {% endif %}
-      <meta name="twitter:card" content="summary_large_image"/>
-      <meta name="twitter:description" content="{{ meta_description }}"/>
-      <meta name="twitter:title" content="{{ meta_title }}"/>
-    {% endif %}
-  {% endblock %}
+{% block css %}
   {% render_bundle 'theme' 'css' attrs='data-turbolinks-track="reload"' %}
   <style>
   .help-dialog {
     display: none;
   }
   </style>
+{% endblock %}
 
-  {% include "front/includes/favicon.html" %}
-
-  {% block additional_headers %}{% endblock %}
-
+{% block cdn_assets %}
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
           integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
           crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-  {% render_bundle 'runtime' %}
-  {% render_bundle 'front/allPages' attrs='data-turbolinks-track="reload"' %}
-  {% block extra_scripts %}{% endblock %}
-</head>
-<body class="home archive" style="padding-top: 4.5em;">
-<!--[if IE]>
-      <div class="alert alert-warning">
-        Vous utilisez une version obsolète de votre navigateur. Veuillez le  <a href="http://browsehappy.com/">mettre à jour</a> pour visionner votre site correctement.      </div>
-    <![endif]-->
-{% block whole_page %}
-  <div id="top-bar" data-turbolinks-permanent></div>
-  <div id="release-modal" data-turbolinks-permanent></div>
-  <div id="feedback-button" data-turbolinks-permanent></div>
-  {% block full_width %}
-    <div class="wrap container" role="document">
-      <main class="main marginbottommore">
-        {% if messages %}
-          <div style="margin-top: 1em;">
-            {% for message in messages %}
-              <div class="alert alert-{{ message.tags }}">
-                {{ message }}
-              </div>
-            {% endfor %}
-          </div>
-        {% endif %}
-        {% block main %}
-          <div class="row">
-            <div class="col-responsive">
-              {% block main_column %}{% endblock %}
-            </div>
-          </div>
-        {% endblock %}
-      </main>
-    </div>
-  {% endblock %}
 {% endblock %}
-
-<!-- Matomo -->
-<script type="text/javascript">
-  var _paq = window._paq = window._paq || [];
-  {% if user.is_authenticated %}
-  _paq.push(['setUserId', '{{ user.person.id }}']);
-  {% else %}
-  _paq.push(['resetUserId']);
-  {% endif %}
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  {% block matomo_extra_tracking %}{% endblock %}
-  (function() {
-    var u="https://matomo.lafranceinsoumise.fr/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '10']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-<noscript><p><img src="https://matomo.lafranceinsoumise.fr/matomo.php?idsite=10&amp;rec=1" style="border:0;" alt="" /></p></noscript>
-<!-- End Matomo Code -->
-{{ global_context|json_script:"globalContext" }}
-{% if extra_context %}
-  {{ extra_context|json_script:"extraContext" }}
-{% endif %}
-</body>
-</html>
