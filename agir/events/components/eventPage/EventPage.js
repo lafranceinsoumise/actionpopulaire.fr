@@ -8,7 +8,10 @@ import {
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
 import { setIs2022 } from "@agir/front/globalContext/actions";
-import { getIsConnected } from "@agir/front/globalContext/reducers";
+import {
+  getIsConnected,
+  getIsSessionLoaded,
+} from "@agir/front/globalContext/reducers";
 
 import Link from "@agir/front/app/Link";
 
@@ -292,6 +295,7 @@ const MobileSkeleton = () => (
 export const ConnectedEventPage = (props) => {
   const { eventPk } = props;
   const isConnected = useSelector(getIsConnected);
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
   const dispatch = useDispatch();
 
   const { data: eventData } = useSWR(`/api/evenements/${eventPk}`);
@@ -306,7 +310,7 @@ export const ConnectedEventPage = (props) => {
   return (
     <>
       <PageFadeIn
-        ready={eventData}
+        ready={isSessionLoaded && eventData}
         wait={
           <ResponsiveLayout
             DesktopLayout={DesktopSkeleton}
