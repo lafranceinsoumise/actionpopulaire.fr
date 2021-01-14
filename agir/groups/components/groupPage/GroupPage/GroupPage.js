@@ -21,7 +21,6 @@ export const GroupPage = (props) => {
     >
       <ResponsiveLayout
         {...props}
-        groupSuggestions={[]}
         MobileLayout={MobileGroupPage}
         DesktopLayout={DesktopGroupPage}
       />
