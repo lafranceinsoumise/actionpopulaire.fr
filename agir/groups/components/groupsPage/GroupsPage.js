@@ -108,8 +108,8 @@ const GroupsPage = () => {
         <div>
           {routes.createGroup ? (
             <Button
-              as="Link"
-              route="createGroup"
+              as="a"
+              href={routes.createGroup}
               icon="plus"
               color="secondary"
               small
