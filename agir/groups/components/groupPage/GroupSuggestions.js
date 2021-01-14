@@ -8,6 +8,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import GroupSuggestionCard from "./GroupSuggestionCard";
 
 SwiperCore.use([A11y]);
@@ -108,18 +109,18 @@ export const GroupSuggestionBlock = (props) => {
 
 export const GroupSuggestions = (props) => {
   const { groups } = props;
-  if (groups.length === 0) {
-    return null;
-  }
+
   return (
-    <StyledWrapper>
-      <h4>Autres groupes qui peuvent vous intéresser</h4>
-      <ResponsiveLayout
-        MobileLayout={GroupSuggestionCarousel}
-        DesktopLayout={GroupSuggestionBlock}
-        {...props}
-      />
-    </StyledWrapper>
+    <PageFadeIn ready={Array.isArray(groups) && groups.length > 0}>
+      <StyledWrapper>
+        <h4>Autres groupes qui peuvent vous intéresser</h4>
+        <ResponsiveLayout
+          MobileLayout={GroupSuggestionCarousel}
+          DesktopLayout={GroupSuggestionBlock}
+          {...props}
+        />
+      </StyledWrapper>
+    </PageFadeIn>
   );
 };
 
