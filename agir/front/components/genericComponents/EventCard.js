@@ -113,7 +113,7 @@ const EventCard = (props) => {
         routeConfig.eventDetails &&
         history.push(routeConfig.eventDetails.getLink({ eventPk: id }));
     },
-    [id]
+    [history, id]
   );
 
   return (

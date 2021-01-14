@@ -18,7 +18,6 @@ import {
   getIsSessionLoaded,
   getRoutes,
   getUser,
-  isSessionLoaded,
 } from "@agir/front/globalContext/reducers";
 
 import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
