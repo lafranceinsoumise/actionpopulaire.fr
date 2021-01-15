@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
-import React from "react";
-import useSWR from "swr";
+import React, { useCallback, useMemo } from "react";
+import useSWR, { useSWRInfinite } from "swr";
 import GroupPageComponent from "./GroupPage";
 
 import logger from "@agir/lib/utils/logger";
@@ -17,15 +17,47 @@ const log = logger(__filename);
 const GroupPage = (props) => {
   const { groupPk } = props;
   const { data: group } = useSWR(`/api/groupes/${groupPk}`);
+  log.debug("Group data", group);
   const { data: groupSuggestions } = useSWR(
     `/api/groupes/${groupPk}/suggestions`
   );
-  const isSessionLoaded = useSelector(getIsSessionLoaded);
-
-  const dispatch = useDispatch();
-
-  log.debug("Group data", group);
   log.debug("Group suggestions", groupSuggestions);
+  const { data: upcomingEvents } = useSWR(
+    `/api/groupes/${groupPk}/evenements/a-venir`
+  );
+  log.debug("Group upcoming events", upcomingEvents);
+  const { data: pastEventData, size, setSize, isValidating } = useSWRInfinite(
+    (pageIndex) =>
+      `/api/groupes/${groupPk}/evenements/passes?page=${
+        pageIndex + 1
+      }&page_size=3`
+  );
+  const pastEvents = useMemo(() => {
+    let events = [];
+    if (!Array.isArray(pastEventData)) {
+      return events;
+    }
+    pastEventData.forEach(({ results }) => {
+      if (Array.isArray(results)) {
+        events = events.concat(results);
+      }
+    });
+    return events;
+  }, [pastEventData]);
+  log.debug("Group past events", pastEvents);
+  const pastEventCount = useMemo(() => {
+    if (!Array.isArray(pastEventData) || !pastEventData[0]) {
+      return 0;
+    }
+    return pastEventData[0].count;
+  }, [pastEventData]);
+  const loadMorePastEvents = useCallback(() => {
+    setSize(size + 1);
+  }, [setSize, size]);
+  const isLoadingPastEvents = !pastEventData || isValidating;
+
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
+  const dispatch = useDispatch();
 
   const { is2022 } = group || {};
 
@@ -37,6 +69,12 @@ const GroupPage = (props) => {
     <GroupPageComponent
       isLoading={!isSessionLoaded || !group}
       group={group}
+      upcomingEvents={upcomingEvents}
+      pastEvents={pastEvents}
+      isLoadingPastEvents={isLoadingPastEvents}
+      loadMorePastEvents={
+        pastEventCount > pastEvents.length ? loadMorePastEvents : undefined
+      }
       groupSuggestions={Array.isArray(groupSuggestions) ? groupSuggestions : []}
     />
   );

@@ -1,6 +1,7 @@
 import React from "react";
 
 import group from "./group.json";
+import events from "./events.json";
 import GroupPage from "./GroupPage";
 
 export default {
@@ -9,5 +10,12 @@ export default {
 };
 
 export const Default = () => {
-  return <GroupPage group={group} groupSuggestions={[group, group, group]} />;
+  return (
+    <GroupPage
+      group={group}
+      groupSuggestions={[group, group, group]}
+      upcomingEvents={events}
+      pastEvents={events}
+    />
+  );
 };
