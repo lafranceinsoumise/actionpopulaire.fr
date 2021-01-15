@@ -120,4 +120,10 @@ const createDispatch = (dispatchFunction) => (action) => {
   return dispatchFunction(action);
 };
 
+// BACK LINK
+export const setBackLink = (backLink) => ({
+  type: ACTION_TYPE.SET_BACK_LINK_ACTION,
+  backLink,
+});
+
 export default createDispatch;

@@ -135,6 +135,6 @@ Tabs.propTypes = {
       label: PropTypes.string,
     })
   ).isRequired,
-  children: PropTypes.node,
+  children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 };
 export default Tabs;
