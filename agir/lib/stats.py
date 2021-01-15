@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.db.models import Count
 
@@ -7,27 +9,51 @@ from agir.events.models import Event, EventSubtype
 
 
 def get_general_stats(start, end):
+    week = timedelta(days=7)
+    nouveaux_soutiens = Person.objects.filter(
+        meta__subscriptions__NSP__date__gt=start.isoformat(),
+        meta__subscriptions__NSP__date__lt=end.isoformat(),
+    )
+
+    membres_equipes = Person.objects.filter(
+        memberships__supportgroup__type=SupportGroup.TYPE_2022,
+        memberships__supportgroup__published=True,
+    )
+
     return {
-        "new_supporters": Person.objects.filter(created__range=(start, end)).count(),
-        "new_groups": SupportGroup.objects.filter(
-            published=True, created__range=(start, end)
+        "Nouveaux soutiens NSP (total)": nouveaux_soutiens.count(),
+        "Nouveaux soutiens NSP (insoumis)": nouveaux_soutiens.filter(
+            is_insoumise=True
         ).count(),
-        "new_events": Event.objects.filter(
-            visibility=Event.VISIBILITY_PUBLIC, created__range=(start, end)
+        "Utilisateurs d'actionpopulaire.fr": Person.objects.filter(
+            role__last_login__range=(start, end)
         ).count(),
-        "events_happened": Event.objects.filter(
+        "Événements ayant eu lieu": Event.objects.filter(
             visibility=Event.VISIBILITY_PUBLIC, start_time__range=(start, end)
         ).count(),
-        "new_memberships": Person.objects.filter(
-            memberships__created__range=(start, end),
+        "Nouveaux groupes d'actions": SupportGroup.objects.active()
+        .filter(type=SupportGroup.TYPE_LOCAL_GROUP, created__range=(start, end))
+        .count(),
+        "Nouveaux membres de groupes d'actions": Person.objects.filter(
             memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
             memberships__supportgroup__published=True,
         )
-        .exclude(
-            memberships__in=Membership.objects.filter(
-                created__lt=start, supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP
-            )
+        .filter(memberships__created__range=(start, end))
+        .distinct()
+        .count(),
+        "Nouvelles équipes de soutiens": SupportGroup.objects.active()
+        .filter(type=SupportGroup.TYPE_2022, created__range=(start, end))
+        .count(),
+        "Nouveaux membres d'équipes de soutiens": membres_equipes.filter(
+            memberships__created__range=(start, end)
         )
+        .distinct()
+        .count(),
+        "Nouveaux membres d'équipes de soutiens (non insoumis)": membres_equipes.filter(
+            memberships__created__range=(start, end)
+        )
+        .filter(is_insoumise=False)
+        .distinct()
         .count(),
     }
 
@@ -42,29 +68,35 @@ def get_events_by_subtype(start, end):
 
 def get_instant_stats():
     return {
-        "subscribers": Person.objects.filter(
-            newsletters__contains=[Person.NEWSLETTER_LFI], emails___bounced=False
-        ).count(),
-        "groups": SupportGroup.objects.filter(
+        "Groupes d'action": SupportGroup.objects.filter(
             type=SupportGroup.TYPE_LOCAL_GROUP, published=True
         ).count(),
-        "group_members": Person.objects.filter(
+        "Membres de groupes d'action": Person.objects.filter(
             supportgroups__type=SupportGroup.TYPE_LOCAL_GROUP,
             supportgroups__published=True,
-        ).count(),
-        "certified_groups": SupportGroup.objects.certified().count(),
-        "certified_group_members": Person.objects.filter(
+        )
+        .distinct()
+        .count(),
+        "Groupes d'action certifiés": SupportGroup.objects.certified().count(),
+        "Membres de groupes d'action certifiés": Person.objects.filter(
             supportgroups__type=SupportGroup.TYPE_LOCAL_GROUP,
             supportgroups__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
             supportgroups__published=True,
-        ).count(),
-        "thematic_groups": SupportGroup.objects.filter(
-            type=SupportGroup.TYPE_THEMATIC, published=True
-        ).count(),
-        "func_groups": SupportGroup.objects.filter(
-            type=SupportGroup.TYPE_FUNCTIONAL, published=True
-        ).count(),
-        "pro_groups": SupportGroup.objects.filter(
-            type=SupportGroup.TYPE_PROFESSIONAL, published=True
-        ).count(),
+        )
+        .distinct()
+        .count(),
+        "Équipes de soutien": SupportGroup.objects.active()
+        .filter(type=SupportGroup.TYPE_2022)
+        .count(),
+        "Membres d'équipes de soutien": Person.objects.filter(
+            supportgroups__type=SupportGroup.TYPE_2022, supportgroups__published=True,
+        )
+        .distinct()
+        .count(),
+        "Membres d'équipes de soutien (non insoumis)": Person.objects.filter(
+            supportgroups__type=SupportGroup.TYPE_2022, supportgroups__published=True,
+        )
+        .filter(is_insoumise=False)
+        .distinct()
+        .count(),
     }
