@@ -19,6 +19,7 @@ import GroupLinks from "../GroupLinks";
 import GroupFacts from "../GroupFacts";
 import GroupDonation from "../GroupDonation";
 import GroupSuggestions from "../GroupSuggestions";
+import GroupEventList from "../GroupEventList";
 
 export const MobileGroupPageSkeleton = () => (
   <Container style={{ margin: "2rem auto", padding: "0 1rem" }}>
@@ -47,8 +48,27 @@ const Tab = styled.div`
   padding: 0;
 `;
 
+const Agenda = styled.div`
+  margin: 0;
+  padding: 1.5rem 1rem;
+  height: 316px;
+  background: ${style.black25};
+
+  & > h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+`;
+
 const MobileGroupPage = (props) => {
-  const { group, groupSuggestions } = props;
+  const {
+    group,
+    groupSuggestions,
+    upcomingEvents,
+    pastEvents,
+    isLoadingPastEvents,
+    loadMorePastEvents,
+  } = props;
 
   if (!group) {
     return null;
@@ -64,54 +84,44 @@ const MobileGroupPage = (props) => {
       <GroupBanner {...group} />
       <GroupJoin url={!group.isMember ? "#join" : ""} />
       <Tabs tabs={tabs}>
-        <Tab id="info">
-          <h3
-            style={{
-              margin: 0,
-              padding: "1.5rem 1rem",
-              height: 316,
-              background: style.black25,
-            }}
-          >
-            Agenda
-          </h3>
-          <GroupContactCard {...group} />
-          <GroupDescription {...group} />
-          <GroupLinks {...group} />
-          <GroupFacts {...group} />
-          <GroupLocation {...group} />
-          {group.routes && group.routes.donations && (
-            <GroupDonation url={group.routes.donations} />
-          )}
-          <ShareCard />
+        {({ handleNext }) => (
+          <Tab>
+            {Array.isArray(upcomingEvents) && upcomingEvents.length > 0 ? (
+              <Agenda>
+                <h3>Agenda</h3>
+                <GroupEventList
+                  events={[upcomingEvents[0]]}
+                  loadMore={handleNext}
+                  loadMoreLabel="Voir tout l'agenda"
+                />
+              </Agenda>
+            ) : null}
 
-          {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
-            <div style={{ marginTop: 71, marginBottom: 71 }}>
-              <GroupSuggestions groups={groupSuggestions} />
-            </div>
-          ) : null}
-        </Tab>
-        <Tab id="agenda">
-          <h3
-            style={{
-              margin: 0,
-              padding: "1.5rem 1rem",
-              height: 316,
-              background: style.black25,
-            }}
-          >
-            Événements à venir
-          </h3>
-          <h3
-            style={{
-              margin: 0,
-              padding: "1.5rem 1rem",
-              height: 316,
-              background: style.black25,
-            }}
-          >
-            Événements passés
-          </h3>
+            <GroupContactCard {...group} />
+            <GroupDescription {...group} />
+            <GroupLinks {...group} />
+            <GroupFacts {...group} />
+            <GroupLocation {...group} />
+            {group.routes && group.routes.donations && (
+              <GroupDonation url={group.routes.donations} />
+            )}
+            <ShareCard />
+
+            {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
+              <div style={{ marginTop: 71, marginBottom: 71 }}>
+                <GroupSuggestions groups={groupSuggestions} />
+              </div>
+            ) : null}
+          </Tab>
+        )}
+        <Tab>
+          <GroupEventList title="Événements à venir" events={upcomingEvents} />
+          <GroupEventList
+            title="Événements passés"
+            events={pastEvents}
+            loadMore={loadMorePastEvents}
+            isLoading={isLoadingPastEvents}
+          />
         </Tab>
       </Tabs>
     </Container>
@@ -126,5 +136,9 @@ MobileGroupPage.propTypes = {
     }),
   }),
   groupSuggestions: PropTypes.arrayOf(PropTypes.object),
+  upcomingEvents: PropTypes.arrayOf(PropTypes.object),
+  pastEvents: PropTypes.arrayOf(PropTypes.object),
+  isLoadingPastEvents: PropTypes.bool,
+  loadMorePastEvents: PropTypes.func,
 };
 export default MobileGroupPage;

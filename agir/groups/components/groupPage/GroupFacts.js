@@ -10,24 +10,25 @@ import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 const StyledList = styled.ul`
   display: inline-flex;
   flex-flow: column wrap;
-  align-items: flex-start;
-  justify-content: flex-start;
   list-style: none;
   padding: 0;
   font-size: 14px;
   font-weight: 400;
-  max-height: 6rem;
+  columns: 160px 2;
 
   @media (max-width: 360px) {
-    flex-wrap: nowrap;
-    max-height: none;
+    display: block;
   }
 
   li {
-    display: inline-flex;
+    display: flex;
     width: 160px;
     align-items: baseline;
     min-height: 26px;
+
+    &:nth-child(3) {
+      break-after: always;
+    }
 
     span + span {
       padding-left: 0.5rem;

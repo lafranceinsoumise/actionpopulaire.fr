@@ -123,7 +123,13 @@ const EventCard = (props) => {
       </Illustration>
       <header style={{ marginBottom: 20 }}>
         <p
-          style={{ fontSize: "14px", color: style.primary500, fontWeight: 500 }}
+          style={{
+            fontSize: "14px",
+            color: schedule.isBefore(DateTime.local())
+              ? style.black500
+              : style.primary500,
+            fontWeight: 500,
+          }}
         >
           {displayIntervalStart(schedule)}
           {location && location.shortLocation && (
