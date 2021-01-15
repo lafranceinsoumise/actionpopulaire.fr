@@ -88,6 +88,11 @@ export const routeConfig = {
     exact: true,
     label: "Details de l'événement",
     Component: EventPage,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
   }),
   groups: new RouteConfig({
     id: "groups",
@@ -106,6 +111,11 @@ export const routeConfig = {
     exact: true,
     label: "Details du groupe",
     Component: GroupPage,
+    backLink: {
+      route: "groups",
+      label: "Retour à l'accueil",
+      isProtected: true,
+    },
   }),
   fullGroup: new RouteConfig({
     id: "fullGroup",

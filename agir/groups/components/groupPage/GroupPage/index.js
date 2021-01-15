@@ -10,7 +10,11 @@ import {
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
 import { setIs2022 } from "@agir/front/globalContext/actions";
-import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
+import {
+  getIsSessionLoaded,
+  getIsConnected,
+  getBackLink,
+} from "@agir/front/globalContext/reducers";
 
 const log = logger(__filename);
 
@@ -57,6 +61,8 @@ const GroupPage = (props) => {
   const isLoadingPastEvents = !pastEventData || isValidating;
 
   const isSessionLoaded = useSelector(getIsSessionLoaded);
+  const isConnected = useSelector(getIsConnected);
+  const backLink = useSelector(getBackLink);
   const dispatch = useDispatch();
 
   const { is2022 } = group || {};
@@ -67,6 +73,8 @@ const GroupPage = (props) => {
 
   return (
     <GroupPageComponent
+      backLink={backLink}
+      isConnected={isSessionLoaded && isConnected}
       isLoading={!isSessionLoaded || !group}
       group={group}
       upcomingEvents={upcomingEvents}

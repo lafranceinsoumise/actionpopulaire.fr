@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useContext, useEffect, useLayoutEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import { StateInspector, useReducer } from "reinspect";
 import { ThemeProvider } from "styled-components";
 
