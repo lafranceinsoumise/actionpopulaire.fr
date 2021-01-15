@@ -5,6 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
+import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 
 const StyledContent = styled.div`
   padding: 0;
@@ -47,9 +48,12 @@ const GroupLinks = (props) => {
 
   return (
     <StyledContent>
-      <Button as="a" href={url} color="primary">
-        Rejoindre {is2022 ? "l'équipe" : "le groupe"}
-      </Button>
+      <CSRFProtectedForm method="post" action={url}>
+        <input type="hidden" name="action" value="join" />
+        <Button type="submit" color="primary">
+          Rejoindre {is2022 ? "l'équipe" : "le groupe"}
+        </Button>
+      </CSRFProtectedForm>
       <p>Votre email sera communiquée aux animateur-ices</p>
     </StyledContent>
   );
