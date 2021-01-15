@@ -19,6 +19,7 @@ from agir.lib.tasks import geocode_person
 
 
 class EventRsvpedAPIView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = EventSerializer
 
     def get_serializer(self, *args, **kwargs):
@@ -55,7 +56,7 @@ class EventRsvpedAPIView(ListAPIView):
 
     def get_queryset(self):
         person = self.request.user.person
-        queryset = Event.objects.with_serializer_prefetch(person)
+        queryset = Event.objects.public().with_serializer_prefetch(person)
         if person.is_2022_only:
             queryset = queryset.is_2022()
 
