@@ -31,13 +31,29 @@ const StyledList = styled.ul`
 const LinkIcon = ({ url }) => {
   switch (true) {
     case /youtube.com/.test(url):
-      return <FaYoutube style={{ color: "#ff0000" }} />;
+      return (
+        <FaYoutube
+          style={{ color: "#ff0000", width: "1rem", height: "1rem" }}
+        />
+      );
     case /twitter.com/.test(url):
-      return <FaTwitter style={{ color: "#1da1f2" }} />;
+      return (
+        <FaTwitter
+          style={{ color: "#1da1f2", width: "1rem", height: "1rem" }}
+        />
+      );
     case /facebook.com/.test(url):
-      return <FaFacebook style={{ color: "#1778f2" }} />;
+      return (
+        <FaFacebook
+          style={{ color: "#1778f2", width: "1rem", height: "1rem" }}
+        />
+      );
     case /instagram.com/.test(url):
-      return <FaInstagram style={{ color: "#000000" }} />;
+      return (
+        <FaInstagram
+          style={{ color: "#000000", width: "1rem", height: "1rem" }}
+        />
+      );
     default:
       return <FeatherIcon name="globe" small inline />;
   }
