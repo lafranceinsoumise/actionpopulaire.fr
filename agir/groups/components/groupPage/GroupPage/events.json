@@ -1,0 +1,148 @@
+[
+  {
+    "id": "fb32fc5d-add3-472c-a119-bf2511d4008d",
+    "url": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/",
+    "name": "Front supérieur étouffer écrire.",
+    "hasSubscriptionForm": false,
+    "description": "",
+    "compteRendu": "",
+    "compteRenduPhotos": [],
+    "illustration": null,
+    "startTime": "2021-01-09T10:04:19.429049+01:00",
+    "endTime": "2021-01-09T13:04:19.429049+01:00",
+    "location": {
+      "name": "61, boulevard de Chevalier",
+      "address1": "61, boulevard de Chevalier",
+      "address2": "App. 562",
+      "zip": "62497",
+      "city": "Sainte Édouarddan",
+      "country": "FR",
+      "address": "61, boulevard de Chevalier\nApp. 562\n62497 Sainte Édouarddan",
+      "shortAddress": "61, boulevard de Chevalier, App. 562, 62497, Sainte Édouarddan",
+      "shortLocation": "61, boulevard de Chevalier (Sainte Édouarddan)",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [5.03586, 43.83125]
+      }
+    },
+    "isOrganizer": false,
+    "rsvp": null,
+    "participantCount": 3,
+    "options": {
+      "price": null
+    },
+    "routes": {
+      "details": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/",
+      "map": "http://agir.local:8000/carte/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/",
+      "rsvp": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/inscription/",
+      "cancel": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/quitter/",
+      "manage": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/manage/",
+      "calendarExport": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/icalendar/",
+      "compteRendu": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/compte-rendu/",
+      "addPhoto": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/importer-image/",
+      "edit": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/modifier/",
+      "googleExport": "https://calendar.google.com/calendar/r/eventedit?text=Front+sup%C3%A9rieur+%C3%A9touffer+%C3%A9crire.&dates=20210109T09%25i00%2F20210109T12%25i00&location=61%2C+boulevard+de+Chevalier%2C+App.+562%2C+62497%2C+Sainte+%C3%89douarddan&details="
+    },
+    "groups": [
+      {
+        "id": "432a5071-3b8c-4bbc-9501-a3f9fd48f70e",
+        "name": "Groupe de la rue Manin",
+        "description": "",
+        "typeLabel": "Groupe local",
+        "eventCount": 13,
+        "membersCount": 1,
+        "isMember": true,
+        "isManager": true,
+        "labels": [],
+        "is2022": false,
+        "routes": {
+          "page": "http://agir.local:8000/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/",
+          "map": "http://agir.local:8000/carte/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/",
+          "calendar": "http://agir.local:8000/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/icalendar/",
+          "manage": "http://agir.local:8000/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/gestion/",
+          "edit": "http://agir.local:8000/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/gestion/modifier/",
+          "quit": "http://agir.local:8000/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/quitter/",
+          "membershipTransfer": "http://agir.local:8000/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/gestion/transfert-de-membres/"
+        }
+      }
+    ],
+    "contact": null,
+    "distance": null,
+    "is2022": false,
+    "forUsers": "I",
+    "canRSVP": true
+  },
+  {
+    "id": "819cbe27-910e-4074-b50a-4ae644e8751d",
+    "url": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/",
+    "name": "Signe âge songer pont quart être as.",
+    "hasSubscriptionForm": false,
+    "description": "",
+    "compteRendu": "",
+    "compteRenduPhotos": [],
+    "illustration": null,
+    "startTime": "2021-01-09T10:04:19.393624+01:00",
+    "endTime": "2021-01-09T13:04:19.393624+01:00",
+    "location": {
+      "name": "rue Lefort",
+      "address1": "rue Lefort",
+      "address2": "App. 3",
+      "zip": "65374",
+      "city": "Fouquet-les-Bains",
+      "country": "FR",
+      "address": "rue Lefort\nApp. 3\n65374 Fouquet-les-Bains",
+      "shortAddress": "rue Lefort, App. 3, 65374, Fouquet-les-Bains",
+      "shortLocation": "rue Lefort (Fouquet-les-Bains)",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [2.45012, 48.90982]
+      }
+    },
+    "isOrganizer": false,
+    "rsvp": null,
+    "participantCount": 3,
+    "options": {
+      "price": null
+    },
+    "routes": {
+      "details": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/",
+      "map": "http://agir.local:8000/carte/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/",
+      "rsvp": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/inscription/",
+      "cancel": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/quitter/",
+      "manage": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/manage/",
+      "calendarExport": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/icalendar/",
+      "compteRendu": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/compte-rendu/",
+      "addPhoto": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/importer-image/",
+      "edit": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/modifier/",
+      "googleExport": "https://calendar.google.com/calendar/r/eventedit?text=Signe+%C3%A2ge+songer+pont+quart+%C3%AAtre+as.&dates=20210109T09%25i00%2F20210109T12%25i00&location=rue+Lefort%2C+App.+3%2C+65374%2C+Fouquet-les-Bains&details="
+    },
+    "groups": [
+      {
+        "id": "432a5071-3b8c-4bbc-9501-a3f9fd48f70e",
+        "name": "Groupe de la rue Manin",
+        "description": "",
+        "typeLabel": "Groupe local",
+        "eventCount": 13,
+        "membersCount": 1,
+        "isMember": true,
+        "isManager": true,
+        "labels": [],
+        "is2022": false,
+        "routes": {
+          "page": "http://agir.local:8000/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/",
+          "map": "http://agir.local:8000/carte/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/",
+          "calendar": "http://agir.local:8000/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/icalendar/",
+          "manage": "http://agir.local:8000/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/gestion/",
+          "edit": "http://agir.local:8000/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/gestion/modifier/",
+          "quit": "http://agir.local:8000/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/quitter/",
+          "membershipTransfer": "http://agir.local:8000/groupes/432a5071-3b8c-4bbc-9501-a3f9fd48f70e/gestion/transfert-de-membres/"
+        }
+      }
+    ],
+    "contact": null,
+    "distance": null,
+    "is2022": false,
+    "forUsers": "I",
+    "canRSVP": true
+  }
+]

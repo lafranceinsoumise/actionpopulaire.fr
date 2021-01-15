@@ -15,6 +15,7 @@ import GroupLinks from "../GroupLinks";
 import GroupFacts from "../GroupFacts";
 import GroupDonation from "../GroupDonation";
 import GroupSuggestions from "../GroupSuggestions";
+import GroupEventList from "../GroupEventList";
 
 export const DesktopGroupPageSkeleton = () => (
   <Container
@@ -46,7 +47,14 @@ export const DesktopGroupPageSkeleton = () => (
 );
 
 const DesktopGroupPage = (props) => {
-  const { group, groupSuggestions } = props;
+  const {
+    group,
+    groupSuggestions,
+    upcomingEvents,
+    pastEvents,
+    isLoadingPastEvents,
+    loadMorePastEvents,
+  } = props;
 
   if (!group) {
     return null;
@@ -69,8 +77,13 @@ const DesktopGroupPage = (props) => {
 
       <Row gutter={32}>
         <Column grow>
-          <h3 style={{ height: 300 }}>Événements à venir</h3>
-          <h3 style={{ height: 300 }}>Événements passés</h3>
+          <GroupEventList title="Événements à venir" events={upcomingEvents} />
+          <GroupEventList
+            title="Événements passés"
+            events={pastEvents}
+            loadMore={loadMorePastEvents}
+            isLoading={isLoadingPastEvents}
+          />
           <GroupLocation {...group} />
           <ShareCard />
         </Column>
@@ -106,5 +119,9 @@ DesktopGroupPage.propTypes = {
     }),
   }),
   groupSuggestions: PropTypes.arrayOf(PropTypes.object),
+  upcomingEvents: PropTypes.arrayOf(PropTypes.object),
+  pastEvents: PropTypes.arrayOf(PropTypes.object),
+  isLoadingPastEvents: PropTypes.bool,
+  loadMorePastEvents: PropTypes.func,
 };
 export default DesktopGroupPage;
