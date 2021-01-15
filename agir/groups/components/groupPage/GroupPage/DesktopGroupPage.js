@@ -1,6 +1,9 @@
 import PropTypes from "prop-types";
 import React from "react";
+import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+import Link from "@agir/front/app/Link";
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
@@ -16,6 +19,34 @@ import GroupFacts from "../GroupFacts";
 import GroupDonation from "../GroupDonation";
 import GroupSuggestions from "../GroupSuggestions";
 import GroupEventList from "../GroupEventList";
+
+const IndexLinkAnchor = styled(Link)`
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  margin: 20px 0 20px -1rem;
+
+  &,
+  &:hover,
+  &:focus,
+  &:active {
+    text-decoration: none;
+    color: #585858;
+  }
+
+  span {
+    transform: rotate(180deg) translateY(-1.5px);
+    transform-origin: center center;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    padding: 0.5rem 1.375rem 0;
+    margin-bottom: -1rem;
+  }
+`;
 
 export const DesktopGroupPageSkeleton = () => (
   <Container
@@ -48,6 +79,8 @@ export const DesktopGroupPageSkeleton = () => (
 
 const DesktopGroupPage = (props) => {
   const {
+    backLink,
+    isConnected,
     group,
     groupSuggestions,
     upcomingEvents,
@@ -68,6 +101,20 @@ const DesktopGroupPage = (props) => {
         background: "white",
       }}
     >
+      {!!backLink && (
+        <Row>
+          <Column grow>
+            <IndexLinkAnchor
+              to={backLink.to}
+              href={backLink.href}
+              route={backLink.route}
+            >
+              <span>&#10140;</span>
+              &ensp; {backLink.label || "Retour à l'accueil"}
+            </IndexLinkAnchor>
+          </Column>
+        </Row>
+      )}
       <Row gutter={32} style={{ marginBottom: "3.5rem" }}>
         <Column grow>
           <GroupBanner {...group} />
@@ -111,6 +158,8 @@ const DesktopGroupPage = (props) => {
   );
 };
 DesktopGroupPage.propTypes = {
+  backLink: PropTypes.object,
+  isConnected: PropTypes.bool,
   group: PropTypes.shape({
     isMember: PropTypes.bool,
     isManager: PropTypes.bool,

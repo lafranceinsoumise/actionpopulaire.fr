@@ -1,6 +1,13 @@
 import PropTypes from "prop-types";
-import React, { Suspense, useMemo } from "react";
+import React, { Suspense, useEffect, useMemo } from "react";
 import { BrowserRouter, Switch, Route, useParams } from "react-router-dom";
+
+import {
+  useDispatch,
+  useSelector,
+} from "@agir/front/globalContext/GlobalContext";
+import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
+import { setBackLink } from "@agir/front/globalContext/actions";
 
 import Layout from "@agir/front/dashboardComponents/Layout";
 import ErrorBoundary from "./ErrorBoundary";
@@ -11,6 +18,15 @@ const NotFound = () => <div>404 NOT FOUND !</div>;
 const Page = (props) => {
   const { Component, routeConfig, ...rest } = props;
   const routeParams = useParams();
+  const dispatch = useDispatch();
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
+
+  useEffect(() => {
+    dispatch(setBackLink(routeConfig.backLink));
+    return () => {
+      dispatch(setBackLink(null));
+    };
+  }, [isSessionLoaded, dispatch, routeConfig.backLink]);
 
   useMemo(() => {
     typeof window !== "undefined" && window.scrollTo && window.scrollTo(0, 0);
