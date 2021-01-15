@@ -22,10 +22,10 @@ const StyledList = styled.div`
 
   & > h3 {
     margin: 0;
-    padding: 0 1rem 1.5rem;
+    padding: 0 0 1.5rem 0;
 
     @media (max-width: ${style.collapse}px) {
-      padding-top: 1.5rem;
+      padding: 1.5rem 1rem;
     }
 
     &:empty {
