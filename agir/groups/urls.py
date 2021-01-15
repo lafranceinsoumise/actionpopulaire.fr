@@ -115,4 +115,19 @@ urlpatterns = [
         views.NearGroupsAPIView.as_view(),
         name="api_near_groups_view",
     ),
+    path(
+        "api/groupes/<uuid:pk>/evenements",
+        views.GroupEventsAPIView.as_view(),
+        name="api_group_events_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/evenements/passes",
+        views.GroupPastEventsAPIView.as_view(),
+        name="api_group_past_events_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/evenements/a-venir",
+        views.GroupUpcomingEventsAPIView.as_view(),
+        name="api_group_upcoming_events_view",
+    ),
 ]
