@@ -165,6 +165,16 @@ export const toasts = (state = [], action) => {
   return state;
 };
 
+export const backLink = (state = null, action) => {
+  if (action.type === ACTION_TYPE.INIT_ACTION) {
+    return action.backLink || state;
+  }
+  if (action.type === ACTION_TYPE.SET_BACK_LINK_ACTION) {
+    return action.backLink || null;
+  }
+  return state;
+};
+
 // Selectors
 export const getDomain = (state) => state.domain;
 
@@ -195,6 +205,13 @@ export const getRouteById = (state, id) => state.routes[id] || null;
 
 export const getToasts = (state) => state.toasts;
 
+export const getBackLink = (state) => {
+  if (!state.backLink) return null;
+  if (state.backLink.isProtected && state.isSessionLoaded && !state.user)
+    return null;
+  return state.backLink;
+};
+
 // Root reducer
 const reducers = {
   hasFeedbackButton,
@@ -208,6 +225,7 @@ const reducers = {
   csrfToken,
   routes,
   toasts,
+  backLink,
 };
 const rootReducer = (state, action) => {
   let newState = state;

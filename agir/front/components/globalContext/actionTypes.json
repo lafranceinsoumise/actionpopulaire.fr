@@ -14,5 +14,7 @@
 
   "ADD_TOASTS": "addToasts",
   "CLEAR_TOAST": "clearToast",
-  "CLEAR_ALL_TOASTS": "clearAllToasts"
+  "CLEAR_ALL_TOASTS": "clearAllToasts",
+
+  "SET_BACK_LINK_ACTION": "setBackLink"
 }
