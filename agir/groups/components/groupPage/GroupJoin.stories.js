@@ -1,6 +1,7 @@
 import React from "react";
 
 import GroupJoin from "./GroupJoin";
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 
 export default {
   component: GroupJoin,
@@ -8,7 +9,11 @@ export default {
 };
 
 const Template = (args) => {
-  return <GroupJoin {...args} />;
+  return (
+    <TestGlobalContextProvider>
+      <GroupJoin {...args} />
+    </TestGlobalContextProvider>
+  );
 };
 
 export const Default = Template.bind({});
