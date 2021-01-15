@@ -9,7 +9,6 @@ const UI_AVATARS_BASE_URL = "https://eu.ui-avatars.com/api/";
 const UI_AVATARS_BASE_CONFIG = {
   size: 512,
   rounded: true,
-  bold: true,
   background: style.primary100,
   color: style.primary500,
   format: "svg",
