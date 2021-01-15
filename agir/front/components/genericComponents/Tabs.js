@@ -76,11 +76,8 @@ export const Tabs = (props) => {
   ]);
 
   const ActiveStep = useMemo(() => {
-    if (Array.isArray(children)) {
-      return children.find((child) => child?.props?.id === active.id);
-    }
-    return children || null;
-  }, [active, children]);
+    return (Array.isArray(children) && children[activeIndex]) || null;
+  }, [activeIndex, children]);
 
   const [{ xy }, set] = useSpring(() => ({ xy: [0, 0] }));
 
@@ -123,7 +120,9 @@ export const Tabs = (props) => {
             transform: xy.interpolate((x) => `translate3d(${x}px, 0px, 0)`),
           }}
         >
-          {ActiveStep}
+          {typeof ActiveStep === "function"
+            ? ActiveStep({ active, handleNext, handlePrev })
+            : ActiveStep}
         </StyledContent>
       </StyledTabs>
     </>
