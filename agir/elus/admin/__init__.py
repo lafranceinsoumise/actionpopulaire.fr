@@ -412,6 +412,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                 "fields": (
                     "first_name",
                     "last_name",
+                    "gender",
                     "email_officiel",
                     "contact_phone",
                     "location_address1",
@@ -422,7 +423,10 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                 )
             },
         ),
-        ("Précisions sur le mandat", {"fields": ("dates", "delegations")},),
+        (
+            "Précisions sur le mandat",
+            {"fields": ("dates", "delegations")},
+        ),
     )
 
     list_display = (
@@ -487,6 +491,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
                 "fields": (
                     "first_name",
                     "last_name",
+                    "gender",
                     "email_officiel",
                     "contact_phone",
                     "location_address1",
@@ -497,7 +502,10 @@ class MandatDepartementAdmin(BaseMandatAdmin):
                 )
             },
         ),
-        ("Précisions sur le mandat", {"fields": ("dates", "delegations")},),
+        (
+            "Précisions sur le mandat",
+            {"fields": ("dates", "delegations")},
+        ),
     )
 
     list_display = (
@@ -554,6 +562,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
                 "fields": (
                     "first_name",
                     "last_name",
+                    "gender",
                     "email_officiel",
                     "contact_phone",
                     "location_address1",
@@ -564,7 +573,10 @@ class MandatRegionalAdmin(BaseMandatAdmin):
                 )
             },
         ),
-        ("Précisions sur le mandat", {"fields": ("dates", "delegations")},),
+        (
+            "Précisions sur le mandat",
+            {"fields": ("dates", "delegations")},
+        ),
     )
 
     list_display = (

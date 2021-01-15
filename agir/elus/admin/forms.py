@@ -7,6 +7,7 @@ from agir.people.models import PersonEmail, Person
 PERSON_FIELDS = [
     "last_name",
     "first_name",
+    "gender",
     "contact_phone",
     "location_address1",
     "location_address2",

@@ -36,8 +36,9 @@ def merge_dicts(p1, p2, field):
 def merge_reassign_related(p1, p2, field):
     for rel_obj in getattr(p2, field.get_accessor_name()).all():
         try:
-            setattr(rel_obj, field.remote_field.name, p1)
-            rel_obj.save(update_fields=[field.remote_field.name])
+            with transaction.atomic():
+                setattr(rel_obj, field.remote_field.name, p1)
+                rel_obj.save(update_fields=[field.remote_field.name])
         except IntegrityError:
             # It means the related object exists, in a sense, on p1 already
             # we don't need to do anything for this related object
