@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -31,14 +31,20 @@ export const MobileGroupPageSkeleton = () => (
   </Container>
 );
 
-const tabs = [
+const tabConfig = [
   {
     id: "info",
     label: "Présentation",
+    isActive: true,
   },
   {
     id: "agenda",
     label: "Agenda",
+    isActive: ({ pastEvents, upcomingEvents }) => {
+      pastEvents = Array.isArray(pastEvents) ? pastEvents : [];
+      upcomingEvents = Array.isArray(upcomingEvents) ? upcomingEvents : [];
+      return pastEvents.length + upcomingEvents.length > 0;
+    },
   },
 ];
 
@@ -69,6 +75,14 @@ const MobileGroupPage = (props) => {
     isLoadingPastEvents,
     loadMorePastEvents,
   } = props;
+
+  const tabs = useMemo(
+    () =>
+      tabConfig.filter((tab) =>
+        typeof tab.isActive === "function" ? tab.isActive(props) : tab.isActive
+      ),
+    [props]
+  );
 
   if (!group) {
     return null;
