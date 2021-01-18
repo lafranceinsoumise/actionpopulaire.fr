@@ -130,4 +130,9 @@ urlpatterns = [
         views.GroupUpcomingEventsAPIView.as_view(),
         name="api_group_upcoming_events_view",
     ),
+    path(
+        "api/groupes/<uuid:pk>/evenements/compte-rendus",
+        views.GroupPastEventReportsAPIView.as_view(),
+        name="api_group_past_event_reports_view",
+    ),
 ]
