@@ -194,7 +194,7 @@ const GroupLinks = (props) => {
     <StyledContent>
       <CSRFProtectedForm method="post" action={routes.join || ""}>
         <input type="hidden" name="action" value="join" />
-        <Button type="submit" color="primary">
+        <Button type="submit" color="success">
           Rejoindre {is2022 ? "l'équipe" : "le groupe"}
         </Button>
       </CSRFProtectedForm>
