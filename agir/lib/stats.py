@@ -20,6 +20,11 @@ def get_general_stats(start, end):
         memberships__supportgroup__published=True,
     )
 
+    ouvert_news = Person.objects.filter(
+        campaignsentevent__datetime__range=(start, end),
+        campaignsentevent__open_count__gt=0,
+    )
+
     return {
         "Nouveaux soutiens NSP (total)": nouveaux_soutiens.count(),
         "Nouveaux soutiens NSP (insoumis)": nouveaux_soutiens.filter(
@@ -53,6 +58,15 @@ def get_general_stats(start, end):
             memberships__created__range=(start, end)
         )
         .filter(is_insoumise=False)
+        .distinct()
+        .count(),
+        "Soutiens NSP ayant ouvert la newsletter": ouvert_news.filter(is_2022=True,)
+        .distinct()
+        .count(),
+        "Dont insoumis": ouvert_news.filter(is_2022=True, is_insoumise=True)
+        .distinct()
+        .count(),
+        "Insoumis non NSP": ouvert_news.filter(is_2022=False, is_insoumise=True)
         .distinct()
         .count(),
     }
@@ -99,4 +113,9 @@ def get_instant_stats():
         .filter(is_insoumise=False)
         .distinct()
         .count(),
+        "Insoumis non signataires NSP": Person.objects.filter(
+            is_insoumise=True,
+            is_2022=False,
+            newsletters__contains=[Person.NEWSLETTER_LFI],
+        ).count(),
     }

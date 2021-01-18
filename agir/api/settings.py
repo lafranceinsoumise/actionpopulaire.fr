@@ -201,8 +201,8 @@ if ENABLE_DEBUG_TOOLBAR:
     MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
     INTERNAL_IPS = ["127.0.0.1", "192.168.33.1"]
 
-SILKY_INTERCEPT_FUNC = lambda request: request.user.is_superuser and request.GET.get(
-    "silk", False
+SILKY_INTERCEPT_FUNC = lambda request: request.user.is_superuser and (
+    request.GET.get("silk", False) or request.COOKIES.get("silk", False)
 )
 SILKY_AUTHENTICATION = True
 SILKY_AUTHORISATION = True
