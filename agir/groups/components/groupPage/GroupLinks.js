@@ -63,14 +63,14 @@ LinkIcon.propTypes = {
 };
 
 const GroupLinks = (props) => {
-  const { links } = props;
+  const { links, routes } = props;
 
   if (!Array.isArray(links)) {
     return null;
   }
 
   return (
-    <Card title="Nos liens">
+    <Card title="Nos liens" editUrl={routes && routes.edit}>
       <StyledList>
         {links.map((link) => (
           <li key={link.url}>
@@ -91,5 +91,6 @@ GroupLinks.propTypes = {
       name: PropTypes.string.isRequired,
     })
   ),
+  routes: PropTypes.object,
 };
 export default GroupLinks;
