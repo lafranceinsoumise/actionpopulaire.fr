@@ -76,7 +76,7 @@ class UserGroupsView(ListAPIView):
 class GroupDetailAPIView(RetrieveAPIView):
     permission_ = ("groups.view_supportgroup",)
     serializer_class = SupportGroupDetailSerializer
-    queryset = SupportGroup.objects.all()
+    queryset = SupportGroup.objects.active()
 
 
 class NearGroupsAPIView(ListAPIView):
@@ -117,10 +117,14 @@ class NearGroupsAPIView(ListAPIView):
 class GroupEventsAPIView(ListAPIView):
     permission_ = ("groups.view_supportgroup",)
     serializer_class = EventSerializer
-    queryset = Event.objects.all()
+    queryset = Event.objects.listed()
 
     def get_queryset(self):
-        events = self.supportgroup.organized_events.distinct().order_by("-start_time")
+        events = (
+            self.supportgroup.organized_events.listed()
+            .distinct()
+            .order_by("-start_time")
+        )
         return events
 
     def dispatch(self, request, pk, *args, **kwargs):
@@ -135,11 +139,12 @@ class GroupEventsAPIView(ListAPIView):
 class GroupUpcomingEventsAPIView(ListAPIView):
     permission_ = ("groups.view_supportgroup",)
     serializer_class = EventSerializer
-    queryset = Event.objects.upcoming()
+    queryset = Event.objects.listed().upcoming()
 
     def get_queryset(self):
         events = (
-            self.supportgroup.organized_events.upcoming()
+            self.supportgroup.organized_events.listed()
+            .upcoming()
             .distinct()
             .order_by("start_time")
         )
@@ -157,12 +162,15 @@ class GroupUpcomingEventsAPIView(ListAPIView):
 class GroupPastEventsAPIView(ListAPIView):
     permission_ = ("groups.view_supportgroup",)
     serializer_class = EventSerializer
-    queryset = Event.objects.past()
+    queryset = Event.objects.listed().past()
     pagination_class = APIPaginator
 
     def get_queryset(self):
         events = (
-            self.supportgroup.organized_events.past().distinct().order_by("-start_time")
+            self.supportgroup.organized_events.listed()
+            .past()
+            .distinct()
+            .order_by("-start_time")
         )
         return events
 
