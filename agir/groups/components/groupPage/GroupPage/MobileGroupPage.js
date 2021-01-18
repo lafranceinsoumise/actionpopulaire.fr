@@ -12,7 +12,7 @@ import ShareCard from "@agir/front/genericComponents/ShareCard";
 import GroupBanner from "../GroupBanner";
 
 import GroupLocation from "../GroupLocation";
-import GroupJoin from "../GroupJoin";
+import GroupUserActions from "../GroupUserActions";
 import GroupContactCard from "../GroupContactCard";
 import GroupDescription from "../GroupDescription";
 import GroupLinks from "../GroupLinks";
@@ -96,7 +96,7 @@ const MobileGroupPage = (props) => {
       }}
     >
       <GroupBanner {...group} />
-      <GroupJoin url={!group.isMember ? "#join" : ""} />
+      <GroupUserActions {...group} />
       <Tabs tabs={tabs}>
         {({ handleNext }) => (
           <Tab>
