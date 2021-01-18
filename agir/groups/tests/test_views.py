@@ -18,6 +18,8 @@ from ..forms import SupportGroupForm
 from ..models import SupportGroup, Membership, SupportGroupSubtype
 from ...activity.models import Activity
 
+from agir.lib.tests.mixins import create_group
+
 
 class SupportGroupMixin:
     def setUp(self):
@@ -556,3 +558,23 @@ class SupportGroupListViewTestCase(TestCase):
         res = self.client.get(reverse("search_group") + "?q=g")
         self.assertNotContains(res, self.group_insoumis.name)
         self.assertContains(res, self.group_2022.name)
+
+
+class GroupDetailAPIViewTestCase(TestCase):
+    def test_published_groups_are_accessible(self):
+        active_group = SupportGroup.objects.create(name="Active Group", published=True)
+        self.assertEqual(active_group.published, True)
+        response = self.client.get(
+            reverse("api_group_view", kwargs={"pk": active_group.pk})
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_unpublished_groups_are_not_accessible(self):
+        inactive_group = SupportGroup.objects.create(
+            name="Active Group", published=False
+        )
+        self.assertEqual(inactive_group.published, False)
+        response = self.client.get(
+            reverse("api_group_view", kwargs={"pk": inactive_group.pk})
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
