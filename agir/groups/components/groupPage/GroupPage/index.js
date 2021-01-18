@@ -59,6 +59,10 @@ const GroupPage = (props) => {
     setSize(size + 1);
   }, [setSize, size]);
   const isLoadingPastEvents = !pastEventData || isValidating;
+  const { data: pastEventReports } = useSWR(
+    `/api/groupes/${groupPk}/evenements/compte-rendus`
+  );
+  log.debug("Group past event reports", pastEventReports);
 
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const isConnected = useSelector(getIsConnected);
@@ -83,6 +87,7 @@ const GroupPage = (props) => {
       loadMorePastEvents={
         pastEventCount > pastEvents.length ? loadMorePastEvents : undefined
       }
+      pastEventReports={pastEventReports}
       groupSuggestions={Array.isArray(groupSuggestions) ? groupSuggestions : []}
     />
   );
