@@ -34,15 +34,20 @@ class Command(BaseCommand):
         twelveweeksstats = get_general_stats(twelveweeksago, end)
 
         for key in main_week_stats.keys():
-            print(f"\n{key} :")
-            if main_week_stats[key] > twelveweeksstats[key] / 12:
+            if (
+                main_week_stats[key] > twelveweeksstats[key] / 12
+                and main_week_stats[key] > previous_week_stats[key]
+            ):
                 arrow = "↗️"
-            elif main_week_stats[key] > twelveweeksstats[key] / 12:
+            elif (
+                main_week_stats[key] < twelveweeksstats[key] / 12
+                and main_week_stats[key] < twelveweeksstats[key]
+            ):
                 arrow = "↘️"
             else:
                 arrow = "➡️"
             print(
-                f"{arrow} {main_week_stats[key]} / {previous_week_stats[key]} / {twelveweeksstats[key]/12 : > .2f}"
+                f"{key}: {arrow} {main_week_stats[key]} / {previous_week_stats[key]} / {twelveweeksstats[key]/12 : > .2f}"
             )
 
         print("\nActuellement :\n")
