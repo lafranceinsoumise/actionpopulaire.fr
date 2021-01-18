@@ -2,6 +2,9 @@ import React from "react";
 
 import group from "./group.json";
 import events from "./events.json";
+
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
+
 import GroupPage from "./GroupPage";
 
 export default {
@@ -9,7 +12,11 @@ export default {
   title: "Group/GroupPage",
 };
 
-const Template = (args) => <GroupPage {...args} />;
+const Template = (args) => (
+  <TestGlobalContextProvider value={{ csrfToken: "12345" }}>
+    <GroupPage {...args} />
+  </TestGlobalContextProvider>
+);
 
 export const Default = Template.bind({});
 Default.args = {
@@ -34,8 +41,13 @@ NoEvents.args = {
   upcomingEvents: [],
   pastEvents: [],
 };
+export const MemberView = Template.bind({});
+MemberView.args = {
+  ...Default.args,
+  group: { ...group, isManager: false, isMember: true },
+};
 export const ManagerView = Template.bind({});
 ManagerView.args = {
-  ...ManagerView.args,
-  group: { ...group, isManager: true },
+  ...Default.args,
+  group: { ...group, isManager: true, isMember: true },
 };
