@@ -5,6 +5,8 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+
 import Card from "./GroupPageCard";
 
 const StyledReferentSection = styled.section`
@@ -57,7 +59,7 @@ const StyledContactSection = styled.p`
 `;
 
 const GroupContactCard = (props) => {
-  const { referents, contact } = props;
+  const { referents, contact, routes } = props;
 
   if (!referents && !contact) {
     return null;
@@ -88,7 +90,21 @@ const GroupContactCard = (props) => {
       ) : null}
       {contact ? (
         <StyledContactSection>
-          {contact.name && <strong>Contacter {contact.name}&nbsp;:</strong>}
+          {contact.name && (
+            <strong>
+              Contacter {contact.name}&nbsp;:{" "}
+              {routes && routes.edit && (
+                <a href={routes.edit}>
+                  <FeatherIcon
+                    name="edit-2"
+                    color={style.black1000}
+                    small
+                    inline
+                  />
+                </a>
+              )}
+            </strong>
+          )}
           {contact.email && (
             <a href={`mailto:${contact.email}`}>{contact.email}</a>
           )}
@@ -111,5 +127,6 @@ GroupContactCard.propTypes = {
     email: PropTypes.string,
     phone: PropTypes.string,
   }),
+  routes: PropTypes.object,
 };
 export default GroupContactCard;
