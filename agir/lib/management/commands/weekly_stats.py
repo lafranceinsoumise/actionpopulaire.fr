@@ -27,15 +27,23 @@ class Command(BaseCommand):
             f"Plateforme - du {date_format(start)} au {date_format(end-timezone.timedelta(days=1))}"
         )
 
+        print("Cette semaine / semaine précédente / moyenne 3 mois")
+
         main_week_stats = get_general_stats(start, end)
         previous_week_stats = get_general_stats(last_week_start, start)
         twelveweeksstats = get_general_stats(twelveweeksago, end)
 
         for key in main_week_stats.keys():
             print(f"\n{key} :")
-            print(f"Cette semaine : {main_week_stats[key]}")
-            print(f"Précédente : {previous_week_stats[key]}")
-            print(f"Moyenne 12 semaines : {twelveweeksstats[key]/12}")
+            if main_week_stats[key] > twelveweeksstats[key] / 12:
+                arrow = "↗️"
+            elif main_week_stats[key] > twelveweeksstats[key] / 12:
+                arrow = "↘️"
+            else:
+                arrow = "➡️"
+            print(
+                f"{arrow} {main_week_stats[key]} / {previous_week_stats[key]} / {twelveweeksstats[key]/12 : > .2f}"
+            )
 
         print("\nActuellement :\n")
 
