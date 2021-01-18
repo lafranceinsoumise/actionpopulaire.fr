@@ -36,6 +36,7 @@ class GroupSubtypesView(ListAPIView):
 
 class UserGroupsView(ListAPIView):
     serializer_class = SupportGroupSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         person = self.request.user.person
