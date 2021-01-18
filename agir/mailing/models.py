@@ -453,7 +453,7 @@ class Segment(BaseSegment, models.Model):
     def _get_own_filters_queryset(self):
         qs = Person.objects.all()
 
-        return qs.filter(self.get_subscribers_q())
+        return qs.filter(self.get_subscribers_q()).filter(emails___bounced=False)
 
     def get_subscribers_queryset(self):
         qs = self._get_own_filters_queryset()
