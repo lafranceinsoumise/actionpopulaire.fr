@@ -96,7 +96,7 @@ FadingOverflowCollapsible.propTypes = {
   dangerouslySetInnerHTML: PropTypes.shape({
     __html: PropTypes.string,
   }),
-  maxHeight: PropTypes.number,
+  maxHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   expanderLabel: PropTypes.string,
 };
 FadingOverflowCollapsible.defaultProps = {
@@ -172,7 +172,7 @@ Collapsible.propTypes = {
   dangerouslySetInnerHTML: PropTypes.shape({
     __html: PropTypes.string,
   }),
-  maxHeight: PropTypes.number,
+  maxHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   expanderLabel: PropTypes.string,
 };
 Collapsible.defaultProps = {

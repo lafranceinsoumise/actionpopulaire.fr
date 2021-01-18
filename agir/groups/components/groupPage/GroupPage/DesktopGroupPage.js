@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -80,7 +80,6 @@ export const DesktopGroupPageSkeleton = () => (
 const DesktopGroupPage = (props) => {
   const {
     backLink,
-    isConnected,
     group,
     groupSuggestions,
     upcomingEvents,
@@ -92,6 +91,11 @@ const DesktopGroupPage = (props) => {
   if (!group) {
     return null;
   }
+
+  const hasEvents = useMemo(
+    () => upcomingEvents.length + pastEvents.length > 0,
+    [upcomingEvents, pastEvents]
+  );
 
   return (
     <Container
@@ -124,13 +128,23 @@ const DesktopGroupPage = (props) => {
 
       <Row gutter={32}>
         <Column grow>
-          <GroupEventList title="Événements à venir" events={upcomingEvents} />
-          <GroupEventList
-            title="Événements passés"
-            events={pastEvents}
-            loadMore={loadMorePastEvents}
-            isLoading={isLoadingPastEvents}
-          />
+          {hasEvents ? (
+            <>
+              <GroupEventList
+                title="Événements à venir"
+                events={upcomingEvents}
+              />
+              <GroupEventList
+                title="Événements passés"
+                events={pastEvents}
+                loadMore={loadMorePastEvents}
+                isLoading={isLoadingPastEvents}
+              />
+            </>
+          ) : (
+            <GroupDescription {...group} maxHeight="auto" />
+          )}
+
           <GroupLocation {...group} />
           <ShareCard />
         </Column>
@@ -138,7 +152,7 @@ const DesktopGroupPage = (props) => {
         <Column width="460px">
           <GroupJoin url={!group.isMember ? "#join" : ""} />
           <GroupContactCard {...group} />
-          <GroupDescription {...group} />
+          {hasEvents && <GroupDescription {...group} />}
           <GroupLinks {...group} />
           <GroupFacts {...group} />
           {group.routes && group.routes.donations && (

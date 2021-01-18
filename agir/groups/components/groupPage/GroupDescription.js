@@ -5,7 +5,7 @@ import Card from "./GroupPageCard";
 import Collapsible from "@agir/front/genericComponents/Collapsible";
 
 const GroupDescription = (props) => {
-  const { description } = props;
+  const { description, maxHeight = 92 } = props;
 
   if (!description || !String(description).trim()) {
     return null;
@@ -16,7 +16,7 @@ const GroupDescription = (props) => {
       <Collapsible
         dangerouslySetInnerHTML={{ __html: description.trim() }}
         expanderLabel="Lire la suite"
-        maxHeight={92}
+        maxHeight={maxHeight}
         fadingOverflow
       />
     </Card>
@@ -25,5 +25,6 @@ const GroupDescription = (props) => {
 
 GroupDescription.propTypes = {
   description: PropTypes.string,
+  maxHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 export default GroupDescription;
