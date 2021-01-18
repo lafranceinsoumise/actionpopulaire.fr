@@ -225,6 +225,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         ):
             routes["createEvent"] = front_url("create_event")
             routes["settings"] = front_url("manage_group", kwargs={"pk": obj.pk})
+            routes["edit"] = front_url("edit_group", kwargs={"pk": obj.pk})
             routes["members"] = front_url(
                 "manage_group", query={"active": "membership"}, kwargs={"pk": obj.pk}
             )
