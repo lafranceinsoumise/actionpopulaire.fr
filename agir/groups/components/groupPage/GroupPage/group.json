@@ -67,8 +67,14 @@
   },
   "routes": {
     "createEvent": "#createEvent",
+    "quit": "#quit",
+    "donations": "#donations",
     "settings": "#settings",
     "members": "#members",
+    "animation": "#animation",
+    "materiel": "#materiel",
+    "invitation": "#invitation",
+    "financement": "#financement",
     "admin": "#admin"
   }
 }
