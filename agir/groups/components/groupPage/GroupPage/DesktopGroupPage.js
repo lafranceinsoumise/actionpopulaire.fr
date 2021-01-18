@@ -139,13 +139,16 @@ const DesktopGroupPage = (props) => {
                 loadMore={loadMorePastEvents}
                 isLoading={isLoadingPastEvents}
               />
+              <GroupLocation {...group} />
+              <ShareCard title="Partager le lien du groupe" />
             </>
           ) : (
-            <GroupDescription {...group} maxHeight="auto" />
+            <>
+              <GroupDescription {...group} maxHeight="auto" />
+              <ShareCard title="Inviter vos ami·es à rejoindre le groupe" />
+              <GroupLocation {...group} />
+            </>
           )}
-
-          <GroupLocation {...group} />
-          <ShareCard />
         </Column>
 
         <Column width="460px">
