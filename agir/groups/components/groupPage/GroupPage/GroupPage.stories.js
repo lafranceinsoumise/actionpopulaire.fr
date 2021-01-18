@@ -41,6 +41,11 @@ NoEvents.args = {
   upcomingEvents: [],
   pastEvents: [],
 };
+export const NonMemberView = Template.bind({});
+NonMemberView.args = {
+  ...Default.args,
+  group: { ...group, isManager: false, isMember: false },
+};
 export const MemberView = Template.bind({});
 MemberView.args = {
   ...Default.args,
