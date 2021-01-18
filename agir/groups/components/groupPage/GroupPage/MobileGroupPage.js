@@ -46,6 +46,12 @@ const tabConfig = [
       return pastEvents.length + upcomingEvents.length > 0;
     },
   },
+  {
+    id: "reports",
+    label: "Comptes-rendus",
+    isActive: ({ pastEventReports }) =>
+      Array.isArray(pastEventReports) && pastEventReports.length > 0,
+  },
 ];
 
 const Tab = styled.div`
@@ -74,6 +80,7 @@ const MobileGroupPage = (props) => {
     pastEvents,
     isLoadingPastEvents,
     loadMorePastEvents,
+    pastEventReports,
   } = props;
 
   const tabs = useMemo(
@@ -137,6 +144,9 @@ const MobileGroupPage = (props) => {
             isLoading={isLoadingPastEvents}
           />
         </Tab>
+        <Tab>
+          <GroupEventList title="Comptes-rendus" events={pastEventReports} />
+        </Tab>
       </Tabs>
     </Container>
   );
@@ -154,5 +164,6 @@ MobileGroupPage.propTypes = {
   pastEvents: PropTypes.arrayOf(PropTypes.object),
   isLoadingPastEvents: PropTypes.bool,
   loadMorePastEvents: PropTypes.func,
+  pastEventReports: PropTypes.arrayOf(PropTypes.object),
 };
 export default MobileGroupPage;
