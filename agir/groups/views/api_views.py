@@ -27,6 +27,7 @@ __all__ = [
     "GroupEventsAPIView",
     "GroupPastEventsAPIView",
     "GroupUpcomingEventsAPIView",
+    "GroupPastEventReportsAPIView",
 ]
 
 
@@ -169,6 +170,30 @@ class GroupPastEventsAPIView(ListAPIView):
         events = (
             self.supportgroup.organized_events.listed()
             .past()
+            .distinct()
+            .order_by("-start_time")
+        )
+        return events
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=pk)
+        except SupportGroup.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class GroupPastEventReportsAPIView(ListAPIView):
+    permission_ = ("groups.view_supportgroup",)
+    serializer_class = EventSerializer
+    queryset = Event.objects.listed().past()
+
+    def get_queryset(self):
+        events = (
+            self.supportgroup.organized_events.listed()
+            .past()
+            .exclude(report_content="")
             .distinct()
             .order_by("-start_time")
         )
