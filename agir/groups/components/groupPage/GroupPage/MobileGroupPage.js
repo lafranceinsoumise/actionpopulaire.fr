@@ -119,7 +119,7 @@ const MobileGroupPage = (props) => {
             {group.routes && group.routes.donations && (
               <GroupDonation url={group.routes.donations} />
             )}
-            <ShareCard />
+            <ShareCard title="Partager le lien du groupe" />
 
             {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
               <div style={{ marginTop: 71, marginBottom: 71 }}>
