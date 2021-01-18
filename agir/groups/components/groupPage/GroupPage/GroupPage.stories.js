@@ -41,6 +41,11 @@ NoEvents.args = {
   upcomingEvents: [],
   pastEvents: [],
 };
+export const WithPastReports = Template.bind({});
+WithPastReports.args = {
+  ...Default.args,
+  pastEventReports: events,
+};
 export const NonMemberView = Template.bind({});
 NonMemberView.args = {
   ...Default.args,

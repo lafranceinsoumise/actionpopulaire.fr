@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -26,7 +26,7 @@ const IndexLinkAnchor = styled(Link)`
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  margin: 20px 0 20px -1rem;
+  margin: 20px 0;
 
   &,
   &:hover,
@@ -44,6 +44,47 @@ const IndexLinkAnchor = styled(Link)`
   @media (max-width: ${style.collapse}px) {
     padding: 0.5rem 1.375rem 0;
     margin-bottom: -1rem;
+  }
+`;
+
+const StyledMenu = styled.nav`
+  position: sticky;
+  z-index: 1;
+  top: -1px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  padding: 0;
+  margin: 0 1rem;
+  background-color: white;
+  box-shadow: inset 0px -1px 0px #dfdfdf;
+
+  button {
+    flex: 0 1 auto;
+    padding: 0 1rem;
+    background-color: transparent;
+    border: none;
+    height: 80px;
+    cursor: pointer;
+    transition: all 200ms ease-in-out;
+    box-shadow: none;
+    color: ${style.black1000};
+    white-space: nowrap;
+
+    &[data-active],
+    &:hover,
+    &:focus {
+      color: ${style.primary500};
+      border: none;
+      outline: none;
+    }
+
+    &[data-active] {
+      background-size: 100%;
+      box-shadow: 0 -3px 0 ${style.primary500} inset;
+    }
   }
 `;
 
@@ -94,6 +135,20 @@ const DesktopGroupPage = (props) => {
     return past.length + upcoming.length > 0;
   }, [upcomingEvents, pastEvents]);
 
+  const hasTabs = useMemo(
+    () =>
+      !!hasEvents &&
+      Array.isArray(pastEventReports) &&
+      pastEventReports.length > 0,
+    [hasEvents, pastEventReports]
+  );
+
+  const [activeTab, setActiveTab] = useState("agenda");
+
+  const handleTabClick = useCallback((e) => {
+    setActiveTab(e.target.dataset.tab);
+  }, []);
+
   if (!group) {
     return null;
   }
@@ -107,7 +162,7 @@ const DesktopGroupPage = (props) => {
       }}
     >
       {!!backLink && (
-        <Row>
+        <Row gutter={32}>
           <Column grow>
             <IndexLinkAnchor
               to={backLink.to}
@@ -120,28 +175,58 @@ const DesktopGroupPage = (props) => {
           </Column>
         </Row>
       )}
-      <Row gutter={32} style={{ marginBottom: "3.5rem" }}>
+      <Row gutter={32}>
         <Column grow>
           <GroupBanner {...group} />
         </Column>
       </Row>
+      {hasTabs ? (
+        <StyledMenu>
+          <button
+            data-tab="agenda"
+            data-active={activeTab === "agenda" || undefined}
+            disabled={activeTab === "agenda"}
+            onClick={handleTabClick}
+          >
+            Agenda
+          </button>
+          <button
+            data-tab="reports"
+            data-active={activeTab === "reports" || undefined}
+            disabled={activeTab === "reports"}
+            onClick={handleTabClick}
+          >
+            Compte-rendus
+          </button>
+        </StyledMenu>
+      ) : null}
 
-      <Row gutter={32}>
+      <Row gutter={32} style={{ marginTop: "3.5rem" }}>
         <Column grow>
           {hasEvents ? (
             <>
-              <GroupEventList
-                title="Événements à venir"
-                events={upcomingEvents}
-              />
-              <GroupEventList
-                title="Événements passés"
-                events={pastEvents}
-                loadMore={loadMorePastEvents}
-                isLoading={isLoadingPastEvents}
-              />
-              <GroupLocation {...group} />
-              <ShareCard title="Partager le lien du groupe" />
+              {activeTab === "agenda" ? (
+                <>
+                  <GroupEventList
+                    title="Événements à venir"
+                    events={upcomingEvents}
+                  />
+                  <GroupEventList
+                    title="Événements passés"
+                    events={pastEvents}
+                    loadMore={loadMorePastEvents}
+                    isLoading={isLoadingPastEvents}
+                  />
+                  <GroupLocation {...group} />
+                  <ShareCard title="Partager le lien du groupe" />
+                </>
+              ) : null}
+              {activeTab === "reports" ? (
+                <GroupEventList
+                  title="Comptes-rendus"
+                  events={pastEventReports}
+                />
+              ) : null}
             </>
           ) : (
             <>
