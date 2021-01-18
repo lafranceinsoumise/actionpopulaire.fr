@@ -85,6 +85,7 @@ const DesktopGroupPage = (props) => {
     pastEvents,
     isLoadingPastEvents,
     loadMorePastEvents,
+    pastEventReports,
   } = props;
 
   const hasEvents = useMemo(() => {
@@ -188,5 +189,6 @@ DesktopGroupPage.propTypes = {
   pastEvents: PropTypes.arrayOf(PropTypes.object),
   isLoadingPastEvents: PropTypes.bool,
   loadMorePastEvents: PropTypes.func,
+  pastEventReports: PropTypes.arrayOf(PropTypes.object),
 };
 export default DesktopGroupPage;
