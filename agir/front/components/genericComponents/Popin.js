@@ -27,6 +27,13 @@ const Popins = {
     bottom: 0;
     transform: translateY(110%);
   `,
+  bottom: styled(BasePopin)`
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    transform: translateY(100%);
+  `,
 };
 
 export const PopinContainer = (props) => {

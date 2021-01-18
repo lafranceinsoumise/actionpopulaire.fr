@@ -9,9 +9,8 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 
 import GroupBanner from "../GroupBanner";
-import GroupAdminBar from "../GroupAdminBar";
 import GroupLocation from "../GroupLocation";
-import GroupJoin from "../GroupJoin";
+import GroupUserActions from "../GroupUserActions";
 import GroupContactCard from "../GroupContactCard";
 import GroupDescription from "../GroupDescription";
 import GroupLinks from "../GroupLinks";
@@ -88,14 +87,15 @@ const DesktopGroupPage = (props) => {
     loadMorePastEvents,
   } = props;
 
+  const hasEvents = useMemo(() => {
+    const past = Array.isArray(pastEvents) ? pastEvents : [];
+    const upcoming = Array.isArray(upcomingEvents) ? upcomingEvents : [];
+    return past.length + upcoming.length > 0;
+  }, [upcomingEvents, pastEvents]);
+
   if (!group) {
     return null;
   }
-
-  const hasEvents = useMemo(
-    () => upcomingEvents.length + pastEvents.length > 0,
-    [upcomingEvents, pastEvents]
-  );
 
   return (
     <Container
@@ -122,7 +122,6 @@ const DesktopGroupPage = (props) => {
       <Row gutter={32} style={{ marginBottom: "3.5rem" }}>
         <Column grow>
           <GroupBanner {...group} />
-          {group.isManager && <GroupAdminBar {...group} />}
         </Column>
       </Row>
 
@@ -150,7 +149,7 @@ const DesktopGroupPage = (props) => {
         </Column>
 
         <Column width="460px">
-          <GroupJoin url={!group.isMember ? "#join" : ""} />
+          <GroupUserActions {...group} />
           <GroupContactCard {...group} />
           {hasEvents && <GroupDescription {...group} />}
           <GroupLinks {...group} />

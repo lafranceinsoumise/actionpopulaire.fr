@@ -214,15 +214,16 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             }
 
     def get_routes(self, obj):
-        routes = {
-            "createEvent": front_url("create_event"),
-        }
+        routes = {}
         if obj.is_certified:
             routes["donations"] = front_url("donation_amount", query={"group": obj.pk})
+        if self.membership is not None:
+            routes["quit"] = front_url("quit_group", kwargs={"pk": obj.pk})
         if (
             self.membership is not None
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
         ):
+            routes["createEvent"] = front_url("create_event")
             routes["settings"] = front_url("manage_group", kwargs={"pk": obj.pk})
             routes["members"] = front_url(
                 "manage_group", query={"active": "membership"}, kwargs={"pk": obj.pk}
@@ -233,6 +234,22 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             routes["membershipTransfer"] = front_url(
                 "transfer_group_members", kwargs={"pk": obj.pk}
             )
+            if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
+                routes["materiel"] = front_url(
+                    "manage_group", query={"active": "materiel"}, kwargs={"pk": obj.pk}
+                )
+            if not obj.is_2022:
+                routes["invitation"] = front_url(
+                    "manage_group",
+                    query={"active": "invitation"},
+                    kwargs={"pk": obj.pk},
+                )
+            if obj.is_certified:
+                routes["financement"] = front_url(
+                    "manage_group",
+                    query={"active": "financement"},
+                    kwargs={"pk": obj.pk},
+                )
         if (
             not self.user.is_anonymous
             and self.user.person
