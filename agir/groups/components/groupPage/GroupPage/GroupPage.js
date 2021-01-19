@@ -29,5 +29,6 @@ export const GroupPage = (props) => {
 };
 GroupPage.propTypes = {
   isLoading: PropTypes.bool,
+  activeTab: PropTypes.string,
 };
 export default GroupPage;
