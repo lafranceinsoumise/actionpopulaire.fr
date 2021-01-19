@@ -4,6 +4,8 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { useTabs } from "./hooks";
+
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Tabs from "@agir/front/genericComponents/Tabs";
@@ -30,29 +32,6 @@ export const MobileGroupPageSkeleton = () => (
     </Row>
   </Container>
 );
-
-const tabConfig = [
-  {
-    id: "info",
-    label: "Présentation",
-    isActive: true,
-  },
-  {
-    id: "agenda",
-    label: "Agenda",
-    isActive: ({ pastEvents, upcomingEvents }) => {
-      pastEvents = Array.isArray(pastEvents) ? pastEvents : [];
-      upcomingEvents = Array.isArray(upcomingEvents) ? upcomingEvents : [];
-      return pastEvents.length + upcomingEvents.length > 0;
-    },
-  },
-  {
-    id: "reports",
-    label: "Comptes-rendus",
-    isActive: ({ pastEventReports }) =>
-      Array.isArray(pastEventReports) && pastEventReports.length > 0,
-  },
-];
 
 const Tab = styled.div`
   max-width: 100%;
@@ -83,13 +62,7 @@ const MobileGroupPage = (props) => {
     pastEventReports,
   } = props;
 
-  const tabs = useMemo(
-    () =>
-      tabConfig.filter((tab) =>
-        typeof tab.isActive === "function" ? tab.isActive(props) : tab.isActive
-      ),
-    [props]
-  );
+  const tabProps = useTabs(props, true);
 
   if (!group) {
     return null;
@@ -104,37 +77,35 @@ const MobileGroupPage = (props) => {
     >
       <GroupBanner {...group} />
       <GroupUserActions {...group} />
-      <Tabs tabs={tabs}>
-        {({ handleNext }) => (
-          <Tab>
-            {Array.isArray(upcomingEvents) && upcomingEvents.length > 0 ? (
-              <Agenda>
-                <h3>Agenda</h3>
-                <GroupEventList
-                  events={[upcomingEvents[0]]}
-                  loadMore={handleNext}
-                  loadMoreLabel="Voir tout l'agenda"
-                />
-              </Agenda>
-            ) : null}
+      <Tabs {...tabProps} stickyOffset={72}>
+        <Tab>
+          {Array.isArray(upcomingEvents) && upcomingEvents.length > 0 ? (
+            <Agenda>
+              <h3>Agenda</h3>
+              <GroupEventList
+                events={[upcomingEvents[0]]}
+                loadMore={tabProps.onNextTab}
+                loadMoreLabel="Voir tout l'agenda"
+              />
+            </Agenda>
+          ) : null}
 
-            <GroupContactCard {...group} />
-            <GroupDescription {...group} />
-            <GroupLinks {...group} />
-            <GroupFacts {...group} />
-            <GroupLocation {...group} />
-            {group.routes && group.routes.donations && (
-              <GroupDonation url={group.routes.donations} />
-            )}
-            <ShareCard title="Partager le lien du groupe" />
+          <GroupContactCard {...group} />
+          <GroupDescription {...group} />
+          <GroupLinks {...group} />
+          <GroupFacts {...group} />
+          <GroupLocation {...group} />
+          {group.routes && group.routes.donations && (
+            <GroupDonation url={group.routes.donations} />
+          )}
+          <ShareCard title="Partager le lien du groupe" />
 
-            {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
-              <div style={{ marginTop: 71, marginBottom: 71 }}>
-                <GroupSuggestions groups={groupSuggestions} />
-              </div>
-            ) : null}
-          </Tab>
-        )}
+          {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
+            <div style={{ marginTop: 71, marginBottom: 71 }}>
+              <GroupSuggestions groups={groupSuggestions} />
+            </div>
+          ) : null}
+        </Tab>
         <Tab>
           <GroupEventList title="Événements à venir" events={upcomingEvents} />
           <GroupEventList
@@ -165,5 +136,6 @@ MobileGroupPage.propTypes = {
   isLoadingPastEvents: PropTypes.bool,
   loadMorePastEvents: PropTypes.func,
   pastEventReports: PropTypes.arrayOf(PropTypes.object),
+  tabs: PropTypes.arrayOf(PropTypes.object),
 };
 export default MobileGroupPage;

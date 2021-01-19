@@ -45,6 +45,7 @@ export const WithPastReports = Template.bind({});
 WithPastReports.args = {
   ...Default.args,
   pastEventReports: events,
+  activeTab: "comptes-rendus",
 };
 export const NonMemberView = Template.bind({});
 NonMemberView.args = {

@@ -1,10 +1,14 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+
+import { useTabs } from "./hooks";
+
 import Link from "@agir/front/app/Link";
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
+
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 
@@ -129,25 +133,15 @@ const DesktopGroupPage = (props) => {
     pastEventReports,
   } = props;
 
+  const { tabs, activeTab, activeTabIndex } = useTabs(props, false);
+
   const hasEvents = useMemo(() => {
     const past = Array.isArray(pastEvents) ? pastEvents : [];
     const upcoming = Array.isArray(upcomingEvents) ? upcomingEvents : [];
     return past.length + upcoming.length > 0;
   }, [upcomingEvents, pastEvents]);
 
-  const hasTabs = useMemo(
-    () =>
-      !!hasEvents &&
-      Array.isArray(pastEventReports) &&
-      pastEventReports.length > 0,
-    [hasEvents, pastEventReports]
-  );
-
-  const [activeTab, setActiveTab] = useState("agenda");
-
-  const handleTabClick = useCallback((e) => {
-    setActiveTab(e.target.dataset.tab);
-  }, []);
+  const hasTabs = tabs.length > 1;
 
   if (!group) {
     return null;
@@ -182,60 +176,60 @@ const DesktopGroupPage = (props) => {
       </Row>
       {hasTabs ? (
         <StyledMenu>
-          <button
-            data-tab="agenda"
-            data-active={activeTab === "agenda" || undefined}
-            disabled={activeTab === "agenda"}
-            onClick={handleTabClick}
-          >
-            Agenda
-          </button>
-          <button
-            data-tab="reports"
-            data-active={activeTab === "reports" || undefined}
-            disabled={activeTab === "reports"}
-            onClick={handleTabClick}
-          >
-            Compte-rendus
-          </button>
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              data-active={tab.isActive}
+              disabled={tab.isActive}
+              onClick={tab.goToTab}
+            >
+              {tab.label}
+            </button>
+          ))}
         </StyledMenu>
       ) : null}
 
-      <Row gutter={32} style={{ marginTop: "3.5rem" }}>
-        <Column grow>
-          {hasEvents ? (
-            <>
-              {activeTab === "agenda" ? (
-                <>
-                  <GroupEventList
-                    title="Événements à venir"
-                    events={upcomingEvents}
-                  />
-                  <GroupEventList
-                    title="Événements passés"
-                    events={pastEvents}
-                    loadMore={loadMorePastEvents}
-                    isLoading={isLoadingPastEvents}
-                  />
-                  <GroupLocation {...group} />
-                  <ShareCard title="Partager le lien du groupe" />
-                </>
-              ) : null}
-              {activeTab === "reports" ? (
+      <Row
+        gutter={32}
+        style={{
+          marginTop: "3.5rem",
+          flexDirection: activeTabIndex === 0 ? "row" : "row-reverse",
+        }}
+      >
+        {hasEvents ? (
+          <>
+            {activeTab.id === "agenda" ? (
+              <Column grow>
+                <GroupEventList
+                  title="Événements à venir"
+                  events={upcomingEvents}
+                />
+                <GroupEventList
+                  title="Événements passés"
+                  events={pastEvents}
+                  loadMore={loadMorePastEvents}
+                  isLoading={isLoadingPastEvents}
+                />
+                <GroupLocation {...group} />
+                <ShareCard title="Partager le lien du groupe" />
+              </Column>
+            ) : null}
+            {activeTab.id === "reports" ? (
+              <Column grow>
                 <GroupEventList
                   title="Comptes-rendus"
                   events={pastEventReports}
                 />
-              ) : null}
-            </>
-          ) : (
-            <>
-              <GroupDescription {...group} maxHeight="auto" />
-              <ShareCard title="Inviter vos ami·es à rejoindre le groupe" />
-              <GroupLocation {...group} />
-            </>
-          )}
-        </Column>
+              </Column>
+            ) : null}
+          </>
+        ) : (
+          <Column grow>
+            <GroupDescription {...group} maxHeight="auto" />
+            <ShareCard title="Inviter vos ami·es à rejoindre le groupe" />
+            <GroupLocation {...group} />
+          </Column>
+        )}
 
         <Column width="460px">
           <GroupUserActions {...group} />
@@ -275,5 +269,7 @@ DesktopGroupPage.propTypes = {
   isLoadingPastEvents: PropTypes.bool,
   loadMorePastEvents: PropTypes.func,
   pastEventReports: PropTypes.arrayOf(PropTypes.object),
+  tabs: PropTypes.arrayOf(PropTypes.object),
+  activeTab: PropTypes.string,
 };
 export default DesktopGroupPage;
