@@ -272,3 +272,46 @@ def geocode_internationally(item):
         item.coordinates = None
         item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
         return
+
+
+def get_commune(item):
+    commune = None
+    if item.location_citycode:
+        try:
+            commune = Commune.objects.get(code=item.location_citycode)
+        except Commune.MultipleObjectsReturned:
+            commune = Commune.objects.get(
+                code=item.location_citycode, type=Commune.TYPE_COMMUNE
+            )
+        except Commune.DoesNotExist:
+            commune = None
+    if item.location_zip:
+        try:
+            code_postal = CodePostal.objects.get(code=item.location_zip)
+        except CodePostal.DoesNotExist:
+            pass
+        else:
+            nb_communes = code_postal.communes.count()
+            if nb_communes == 1:
+                commune = code_postal.communes.get()
+            if nb_communes > 1 and item.location_city:
+                nom_normalise = normaliser_nom_ville(item.location_city)
+                try:
+                    commune = next(
+                        v
+                        for v in code_postal.communes.all()
+                        if normaliser_nom_ville(v.nom) == nom_normalise
+                    )
+                except StopIteration:
+                    pass
+    if item.location_city:
+        nom_normalise = normaliser_nom_ville(item.location_city)
+        communes = [
+            c
+            for c in Commune.objects.search(item.location_city)
+            if normaliser_nom_ville(c.nom_complet) == nom_normalise
+        ]
+        if len(communes) == 1:
+            commune = communes[0]
+
+    return commune
