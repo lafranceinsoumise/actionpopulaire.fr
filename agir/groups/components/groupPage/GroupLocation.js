@@ -51,7 +51,7 @@ const StyledAddress = styled.div`
 `;
 
 const GroupLocation = (props) => {
-  const { location, iconConfiguration } = props;
+  const { location, iconConfiguration, routes } = props;
 
   if (!location || Object.values(location).filter(Boolean).length === 0) {
     return null;
@@ -69,10 +69,13 @@ const GroupLocation = (props) => {
   } = location;
 
   return (
-    <Card title="Accès">
-      {Array.isArray(coordinates) ? (
+    <Card title="Accès" editUrl={routes && routes.edit}>
+      {coordinates && Array.isArray(coordinates.coordinates) ? (
         <StyledMap>
-          <Map center={coordinates} iconConfiguration={iconConfiguration} />
+          <Map
+            center={coordinates.coordinates}
+            iconConfiguration={iconConfiguration}
+          />
         </StyledMap>
       ) : null}
       <StyledAddress>
@@ -89,10 +92,10 @@ const GroupLocation = (props) => {
           )}
         </p>
         <p>
-          {Array.isArray(coordinates) ? (
+          {coordinates && Array.isArray(coordinates.coordinates) ? (
             <a
               href={`https://www.google.com/maps/dir/?api=1&destination=${
-                coordinates[1] + "," + coordinates[0]
+                coordinates.coordinates[1] + "," + coordinates.coordinates[0]
               }`}
             >
               Itinéraire
@@ -114,7 +117,10 @@ GroupLocation.propTypes = {
     zip: PropTypes.string,
     state: PropTypes.string,
     country: PropTypes.string,
-    coordinates: PropTypes.arrayOf(PropTypes.number),
+    coordinates: PropTypes.shape({
+      coordinates: PropTypes.arrayOf(PropTypes.number),
+    }),
   }).isRequired,
+  routes: PropTypes.object,
 };
 export default GroupLocation;

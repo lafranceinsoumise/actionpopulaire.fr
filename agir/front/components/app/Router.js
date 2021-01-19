@@ -1,11 +1,16 @@
 import PropTypes from "prop-types";
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { BrowserRouter, Switch, Route, useParams } from "react-router-dom";
+
+import {
+  useDispatch,
+  useSelector,
+} from "@agir/front/globalContext/GlobalContext";
+import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
+import { setBackLink } from "@agir/front/globalContext/actions";
 
 import Layout from "@agir/front/dashboardComponents/Layout";
 import ErrorBoundary from "./ErrorBoundary";
-import Link from "./Link";
-import Button from "@agir/front/genericComponents/Button";
 
 import routes, { BASE_PATH } from "./routes.config";
 
@@ -14,6 +19,15 @@ const NotFound = () => <div>404 NOT FOUND !</div>;
 const Page = (props) => {
   const { Component, routeConfig, ...rest } = props;
   const routeParams = useParams();
+  const dispatch = useDispatch();
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
+
+  useEffect(() => {
+    dispatch(setBackLink(routeConfig.backLink));
+    return () => {
+      dispatch(setBackLink(null));
+    };
+  }, [isSessionLoaded, dispatch, routeConfig.backLink]);
 
   if (!routeConfig.hasLayout) {
     return (

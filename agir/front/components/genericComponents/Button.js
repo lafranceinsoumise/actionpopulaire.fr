@@ -51,6 +51,11 @@ export const buttonColors = {
     $hoverBackground: "transparent",
     $borderColor: style.black1000,
   },
+  success: {
+    $background: style.green500,
+    $labelColor: style.white,
+    $hoverBackground: style.green500,
+  },
 };
 
 /**

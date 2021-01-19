@@ -25,9 +25,6 @@ urlpatterns = [
         name="api_group_subtypes",
     ),
     path(
-        "groupes/<uuid:pk>/", views.SupportGroupDetailView.as_view(), name="view_group"
-    ),
-    path(
         "groupes/<uuid:pk>/icalendar/",
         views.SupportGroupIcsView.as_view(),
         name="ics_group",
@@ -108,4 +105,34 @@ urlpatterns = [
         name="report_invitation_abuse",
     ),
     path("api/groupes/", views.UserGroupsView.as_view(), name="api_user_groups"),
+    path(
+        "api/groupes/<uuid:pk>",
+        views.GroupDetailAPIView.as_view(),
+        name="api_group_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/suggestions",
+        views.NearGroupsAPIView.as_view(),
+        name="api_near_groups_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/evenements",
+        views.GroupEventsAPIView.as_view(),
+        name="api_group_events_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/evenements/passes",
+        views.GroupPastEventsAPIView.as_view(),
+        name="api_group_past_events_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/evenements/a-venir",
+        views.GroupUpcomingEventsAPIView.as_view(),
+        name="api_group_upcoming_events_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/evenements/compte-rendus",
+        views.GroupPastEventReportsAPIView.as_view(),
+        name="api_group_past_event_reports_view",
+    ),
 ]

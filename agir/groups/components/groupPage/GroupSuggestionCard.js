@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
+import { routeConfig } from "@agir/front/app/routes.config";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -18,7 +19,7 @@ const StyledCard = styled(Card)`
   box-shadow: none;
 
   @media (max-width: ${style.collapse}px) {
-    max-width: 294px;
+    width: 294px;
   }
 
   ${StyledMap} {
@@ -59,8 +60,8 @@ const StyledCard = styled(Card)`
 
 const GroupSuggestionCard = (props) => {
   const {
+    id,
     name,
-    url,
     location: { city, zip, coordinates },
     iconConfiguration,
   } = props;
@@ -69,7 +70,11 @@ const GroupSuggestionCard = (props) => {
     <StyledCard>
       <StyledMap>
         <Map
-          center={coordinates}
+          center={
+            coordinates && Array.isArray(coordinates.coordinates)
+              ? coordinates.coordinates
+              : [0, 0]
+          }
           iconConfiguration={iconConfiguration}
           isStatic
         />
@@ -83,7 +88,12 @@ const GroupSuggestionCard = (props) => {
             <span>{[zip, city].filter(Boolean).join(" ")}</span>
           )}
         </p>
-        <Button as="a" href={url} small color="secondary">
+        <Button
+          as="Link"
+          to={routeConfig.groupDetails.getLink({ groupPk: id })}
+          small
+          color="secondary"
+        >
           Voir le groupe
         </Button>
       </StyledBody>
@@ -92,13 +102,15 @@ const GroupSuggestionCard = (props) => {
 };
 
 GroupSuggestionCard.propTypes = {
+  id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  url: PropTypes.string.isRequired,
   iconConfiguration: PropTypes.object,
   location: PropTypes.shape({
     city: PropTypes.string.isRequired,
     zip: PropTypes.string.isRequired,
-    coordinates: PropTypes.arrayOf(PropTypes.number).isRequired,
+    coordinates: PropTypes.shape({
+      coordinates: PropTypes.arrayOf(PropTypes.number),
+    }).isRequired,
   }).isRequired,
 };
 export default GroupSuggestionCard;

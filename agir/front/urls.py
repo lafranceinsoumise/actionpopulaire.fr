@@ -27,6 +27,9 @@ urlpatterns = [
         name="list_groups",
     ),
     path("groupes/carte/", views.GroupMapView.as_view(), name="group_map_page"),
+    path(
+        "groupes/<uuid:pk>/", views.SupportGroupDetailView.as_view(), name="view_group"
+    ),
     path("activite/", views.ActivityView.as_view(), name="list_activities",),
     path(
         "a-traiter/",

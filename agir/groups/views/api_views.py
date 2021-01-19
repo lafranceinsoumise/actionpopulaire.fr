@@ -1,8 +1,10 @@
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.generics import ListAPIView
+from rest_framework import status
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from agir.groups.filters import GroupAPIFilterSet
 from agir.groups.models import SupportGroup, SupportGroupSubtype
@@ -10,10 +12,23 @@ from agir.groups.serializers import (
     SupportGroupLegacySerializer,
     SupportGroupSubtypeSerializer,
     SupportGroupSerializer,
+    SupportGroupDetailSerializer,
 )
+from agir.events.models import Event
+from agir.events.serializers import EventSerializer
 from agir.lib.pagination import APIPaginator
 
-__all__ = ["GroupSearchAPIView", "GroupSubtypesView", "UserGroupsView"]
+__all__ = [
+    "GroupSearchAPIView",
+    "GroupSubtypesView",
+    "UserGroupsView",
+    "GroupDetailAPIView",
+    "NearGroupsAPIView",
+    "GroupEventsAPIView",
+    "GroupPastEventsAPIView",
+    "GroupUpcomingEventsAPIView",
+    "GroupPastEventReportsAPIView",
+]
 
 
 class GroupSearchAPIView(ListAPIView):
@@ -56,3 +71,137 @@ class UserGroupsView(ListAPIView):
                 group.membership = None
 
         return person_groups
+
+
+class GroupDetailAPIView(RetrieveAPIView):
+    permission_ = ("groups.view_supportgroup",)
+    serializer_class = SupportGroupDetailSerializer
+    queryset = SupportGroup.objects.active()
+
+
+class NearGroupsAPIView(ListAPIView):
+    serializer_class = SupportGroupDetailSerializer
+    queryset = SupportGroup.objects.active()
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=["id", "name", "iconConfiguration", "location",], **kwargs
+        )
+
+    def get_queryset(self):
+        groups = (
+            SupportGroup.objects.active()
+            .exclude(pk=self.supportgroup.pk)
+            .exclude(coordinates__isnull=True)
+        )
+
+        if self.supportgroup.is_2022:
+            groups = groups.is_2022()
+
+        groups = groups.annotate(
+            distance=Distance("coordinates", self.supportgroup.coordinates)
+        ).order_by("distance")[:3]
+
+        return groups
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        self.person = request.user.person
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=pk)
+        except SupportGroup.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class GroupEventsAPIView(ListAPIView):
+    permission_ = ("groups.view_supportgroup",)
+    serializer_class = EventSerializer
+    queryset = Event.objects.listed()
+
+    def get_queryset(self):
+        events = (
+            self.supportgroup.organized_events.listed()
+            .distinct()
+            .order_by("-start_time")
+        )
+        return events
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=pk)
+        except SupportGroup.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class GroupUpcomingEventsAPIView(ListAPIView):
+    permission_ = ("groups.view_supportgroup",)
+    serializer_class = EventSerializer
+    queryset = Event.objects.listed().upcoming()
+
+    def get_queryset(self):
+        events = (
+            self.supportgroup.organized_events.listed()
+            .upcoming()
+            .distinct()
+            .order_by("start_time")
+        )
+        return events
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=pk)
+        except SupportGroup.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class GroupPastEventsAPIView(ListAPIView):
+    permission_ = ("groups.view_supportgroup",)
+    serializer_class = EventSerializer
+    queryset = Event.objects.listed().past()
+    pagination_class = APIPaginator
+
+    def get_queryset(self):
+        events = (
+            self.supportgroup.organized_events.listed()
+            .past()
+            .distinct()
+            .order_by("-start_time")
+        )
+        return events
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=pk)
+        except SupportGroup.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class GroupPastEventReportsAPIView(ListAPIView):
+    permission_ = ("groups.view_supportgroup",)
+    serializer_class = EventSerializer
+    queryset = Event.objects.listed().past()
+
+    def get_queryset(self):
+        events = (
+            self.supportgroup.organized_events.listed()
+            .past()
+            .exclude(report_content="")
+            .distinct()
+            .order_by("-start_time")
+        )
+        return events
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=pk)
+        except SupportGroup.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return super().dispatch(request, *args, **kwargs)

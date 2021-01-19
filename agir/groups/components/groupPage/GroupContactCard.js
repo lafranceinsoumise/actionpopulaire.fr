@@ -5,6 +5,8 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+
 import Card from "./GroupPageCard";
 
 const StyledReferentSection = styled.section`
@@ -57,7 +59,7 @@ const StyledContactSection = styled.p`
 `;
 
 const GroupContactCard = (props) => {
-  const { referents, contact } = props;
+  const { referents, contact, routes } = props;
 
   if (!referents && !contact) {
     return null;
@@ -71,7 +73,7 @@ const GroupContactCard = (props) => {
             {referents.map((referent, i) => (
               <React.Fragment key={i}>
                 {i > 0 ? " " : null}
-                <Avatar {...referent} />
+                <Avatar {...referent} name={referent.fullName} />
               </React.Fragment>
             ))}
           </p>
@@ -79,7 +81,7 @@ const GroupContactCard = (props) => {
             {referents.map((referent, i) => (
               <React.Fragment key={i}>
                 {i > 0 ? " & " : null}
-                <strong>{referent.name}</strong>
+                <strong>{referent.fullName}</strong>
               </React.Fragment>
             ))}
           </p>
@@ -88,7 +90,21 @@ const GroupContactCard = (props) => {
       ) : null}
       {contact ? (
         <StyledContactSection>
-          {contact.name && <strong>Contacter {contact.name}&nbsp;:</strong>}
+          {contact.name && (
+            <strong>
+              Contacter {contact.name}&nbsp;:{" "}
+              {routes && routes.edit && (
+                <a href={routes.edit}>
+                  <FeatherIcon
+                    name="edit-2"
+                    color={style.black1000}
+                    small
+                    inline
+                  />
+                </a>
+              )}
+            </strong>
+          )}
           {contact.email && (
             <a href={`mailto:${contact.email}`}>{contact.email}</a>
           )}
@@ -102,7 +118,7 @@ const GroupContactCard = (props) => {
 GroupContactCard.propTypes = {
   referents: PropTypes.arrayOf(
     PropTypes.shape({
-      name: PropTypes.string.isRequired,
+      fullName: PropTypes.string.isRequired,
       avatar: PropTypes.string,
     })
   ),
@@ -111,5 +127,6 @@ GroupContactCard.propTypes = {
     email: PropTypes.string,
     phone: PropTypes.string,
   }),
+  routes: PropTypes.object,
 };
 export default GroupContactCard;

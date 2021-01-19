@@ -13,16 +13,16 @@ export const Default = Template.bind({});
 Default.args = {
   groups: [
     {
+      id: "a",
       name: "Groupe Serge",
-      url: "https://lafranceinsoumise.fr",
     },
     {
+      id: "b",
       name: "Groupe Mario",
-      url: "https://lafranceinsoumise.fr",
     },
     {
+      id: "c",
       name: "Groupe Daisy",
-      url: "https://lafranceinsoumise.fr",
     },
   ],
   participantCount: 6,

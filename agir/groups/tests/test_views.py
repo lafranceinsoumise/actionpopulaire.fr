@@ -18,6 +18,8 @@ from ..forms import SupportGroupForm
 from ..models import SupportGroup, Membership, SupportGroupSubtype
 from ...activity.models import Activity
 
+from agir.lib.tests.mixins import create_group
+
 
 class SupportGroupMixin:
     def setUp(self):
@@ -93,13 +95,11 @@ class SupportGroupPageTestCase(SupportGroupMixin, TestCase):
         self.client.force_login(self.other_person.role)
         response = self.client.get(url)
         self.assertNotIn(self.other_person, self.manager_group.members.all())
-        self.assertIn("Rejoindre ce groupe", response.content.decode())
 
         response = self.client.post(url, data={"action": "join"}, follow=True)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.other_person, self.manager_group.members.all())
-        self.assertIn("Quitter le groupe", response.content.decode())
 
         someone_joined.assert_called_once()
         membership = Membership.objects.get(
@@ -273,20 +273,12 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
                 '"{}" did not return 404'.format(page),
             )
 
-    def test_can_see_groups_events(self):
-        response = self.client.get(reverse("view_group", args=[self.referent_group.pk]))
-
-        self.assertContains(response, "événement test pour groupe")
-
     def test_cannot_join_group_if_external(self):
         self.other_person.is_insoumise = False
         self.other_person.save()
         self.client.force_login(self.other_person.role)
 
-        # cannot see button
         url = reverse("view_group", kwargs={"pk": self.manager_group.pk})
-        response = self.client.get(url)
-        self.assertNotIn("Rejoindre ce groupe", response.content.decode())
 
         # cannot join
         self.client.post(url, data={"action": "join"}, follow=True)
@@ -327,7 +319,6 @@ class ExternalJoinSupportGroupTestCase(TestCase):
     def test_can_join(self):
         res = self.client.get(reverse("view_group", args=[self.group.pk]))
         self.assertNotContains(res, "Se connecter pour")
-        self.assertContains(res, "Rejoindre ce groupe")
 
         self.client.post(
             reverse("external_join_group", args=[self.group.pk]),
@@ -567,3 +558,23 @@ class SupportGroupListViewTestCase(TestCase):
         res = self.client.get(reverse("search_group") + "?q=g")
         self.assertNotContains(res, self.group_insoumis.name)
         self.assertContains(res, self.group_2022.name)
+
+
+class GroupDetailAPIViewTestCase(TestCase):
+    def test_published_groups_are_accessible(self):
+        active_group = SupportGroup.objects.create(name="Active Group", published=True)
+        self.assertEqual(active_group.published, True)
+        response = self.client.get(
+            reverse("api_group_view", kwargs={"pk": active_group.pk})
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_unpublished_groups_are_not_accessible(self):
+        inactive_group = SupportGroup.objects.create(
+            name="Active Group", published=False
+        )
+        self.assertEqual(inactive_group.published, False)
+        response = self.client.get(
+            reverse("api_group_view", kwargs={"pk": inactive_group.pk})
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

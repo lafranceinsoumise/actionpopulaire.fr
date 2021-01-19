@@ -1,16 +1,20 @@
-import React from "react";
-import Card from "@agir/front/genericComponents/Card";
 import PropTypes from "prop-types";
+import React from "react";
+import { useHistory } from "react-router-dom";
+import styled from "styled-components";
+
+import { routeConfig } from "@agir/front/app/routes.config";
+import style from "@agir/front/genericComponents/_variables.scss";
+
+import Button from "@agir/front/genericComponents/Button";
+import Card from "@agir/front/genericComponents/Card";
+import Collapsible from "@agir/front/genericComponents/Collapsible.js";
+import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import Link from "@agir/front/app/Link";
 
 import GroupIconLfi from "./images/group-icon__lfi.svg";
 import GroupIconNsp from "./images/group-icon__nsp.svg";
-import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
-import style from "@agir/front/genericComponents/_variables.scss";
-import Button from "@agir/front/genericComponents/Button";
-import styled from "styled-components";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import Collapsible from "@agir/front/genericComponents/Collapsible.js";
-import { useHistory } from "react-router-dom";
 
 const Label = styled.span`
   font-size: 13px;
@@ -52,14 +56,23 @@ const DiscountCodesSection = styled.section`
   }
 `;
 
-let GroupButton = ({ href, children, color = "default", icon }) => (
+let GroupButton = ({
+  as = "a",
+  to,
+  href,
+  children,
+  color = "default",
+  icon,
+}) => (
   <Column width={["33%", "content"]} collapse={500}>
-    <Button as="a" href={href} color={color} icon={icon} small>
+    <Button as={as} to={to} href={href} color={color} icon={icon} small>
       {children}
     </Button>
   </Column>
 );
 GroupButton.propTypes = {
+  as: PropTypes.string,
+  to: PropTypes.string,
   href: PropTypes.string,
   children: PropTypes.node,
   color: PropTypes.string,
@@ -67,6 +80,7 @@ GroupButton.propTypes = {
 };
 
 const GroupCard = ({
+  id,
   name,
   description,
   eventCount,
@@ -87,15 +101,14 @@ const GroupCard = ({
   const history = useHistory();
   const handleClick = React.useCallback(
     (e) => {
-      if (
-        ["A", "BUTTON"].includes(e.target.tagName.toUpperCase()) ||
-        !routes.page
-      ) {
+      if (["A", "BUTTON"].includes(e.target.tagName.toUpperCase())) {
         return;
       }
-      location.href = routes.page;
+      id &&
+        routeConfig.groupDetails &&
+        history.push(routeConfig.groupDetails.getLink({ groupPk: id }));
     },
-    [history, routes.page]
+    [history, id]
   );
   const Svg = React.useMemo(() => (is2022 ? GroupIconNsp : GroupIconLfi), [
     is2022,
@@ -105,22 +118,22 @@ const GroupCard = ({
       <Row gutter={6}>
         {displayGroupLogo && (
           <Column collapse={0}>
-            <a href={routes.page}>
+            <Link to={routeConfig.groupDetails.getLink({ groupPk: id })}>
               <img src={Svg} alt="Groupe" />
-            </a>
+            </Link>
           </Column>
         )}
         <Column collapse={0} grow>
           <h3 style={{ marginTop: 2, marginBottom: 2 }}>
-            <a
+            <Link
               style={{
                 color: "inherit",
                 textDecoration: "none",
               }}
-              href={routes.page}
+              to={routeConfig.groupDetails.getLink({ groupPk: id })}
             >
               {name}
-            </a>
+            </Link>
           </h3>
           <small style={{ color: style.black500 }}>
             {eventCount} événement{eventCount > 1 ? "s" : ""} &bull;{" "}
@@ -165,14 +178,23 @@ const GroupCard = ({
       )}
       <Row gutter={6} style={{ marginTop: "1.5rem" }}>
         {!isMember ? (
-          <GroupButton color="primary" href={routes.page}>
+          <GroupButton
+            color="primary"
+            as="Link"
+            to={routeConfig.groupDetails.getLink({ groupPk: id })}
+          >
             Rejoindre
             <Hide as="span" under={800}>
               &nbsp;le groupe
             </Hide>
           </GroupButton>
         ) : null}
-        <GroupButton href={routes.page}>Voir le groupe</GroupButton>
+        <GroupButton
+          as="Link"
+          to={routeConfig.groupDetails.getLink({ groupPk: id })}
+        >
+          Voir le groupe
+        </GroupButton>
         {routes.fund && (
           <GroupButton href={routes.fund} icon="fast-forward">
             Financer

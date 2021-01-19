@@ -1,16 +1,22 @@
-import style from "@agir/front/genericComponents/_variables.scss";
-import Card from "./Card";
+import PropTypes from "prop-types";
 import React, { useCallback, useRef, useState } from "react";
-import Button from "./Button";
-import { Column, Row } from "./grid";
-import facebookLogo from "./logos/facebook.svg";
-import twitterLogo from "./logos/twitter.svg";
-import telegramLogo from "./logos/telegram.svg";
-import whatsappLogo from "./logos/whatsapp.svg";
+
+import style from "@agir/front/genericComponents/_variables.scss";
+
+import Button from "@agir/front/genericComponents/Button";
+import Card from "@agir/front/genericComponents/Card";
+import { Column, Row } from "@agir/front/genericComponents/grid";
+
+import facebookLogo from "@agir/front/genericComponents/logos/facebook.svg";
+import twitterLogo from "@agir/front/genericComponents/logos/twitter.svg";
+import telegramLogo from "@agir/front/genericComponents/logos/telegram.svg";
+import whatsappLogo from "@agir/front/genericComponents/logos/whatsapp.svg";
 
 let logoSpacing = { margin: "0 8px" };
 
-const ShareCard = () => {
+const ShareCard = (props) => {
+  const { title } = props;
+
   let [copied, setCopied] = useState(false);
   let copyUrl = useCallback(() => {
     inputEl.current.select();
@@ -24,7 +30,7 @@ const ShareCard = () => {
     <Card style={{ padding: "1.5rem" }}>
       <Row gutter={2} style={{ marginBottom: "1rem" }}>
         <Column grow collapse={false}>
-          <b>Partager</b>
+          <b>{title || "Partager"}</b>
         </Column>
         <Column collapse={false}>
           <a href={`https://wa.me/?text=${encodedLocation}`}>
@@ -74,5 +80,8 @@ const ShareCard = () => {
       </Row>
     </Card>
   );
+};
+ShareCard.propTypes = {
+  title: PropTypes.string,
 };
 export default ShareCard;

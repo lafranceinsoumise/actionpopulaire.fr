@@ -1,19 +1,23 @@
-import React from "react";
 import PropTypes from "prop-types";
+import React from "react";
 import styled from "styled-components";
-import FeatherIcon, { RawFeatherIcon } from "../genericComponents/FeatherIcon";
+
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import {
+  getRoutes,
+  getUser,
+  getIsSessionLoaded,
+  getBackLink,
+} from "@agir/front/globalContext/reducers";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import LogoAP from "../genericComponents/LogoAP";
-import {
-  useGlobalContext,
-  useSelector,
-} from "@agir/front/globalContext/GlobalContext";
-import { getRoutes, getUser } from "@agir/front/globalContext/reducers";
-import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
-import logger from "@agir/lib/utils/logger";
-const log = logger(__filename);
+import Link from "@agir/front/app/Link";
+import LogoAP from "@agir/front/genericComponents/LogoAP";
+import FeatherIcon, {
+  RawFeatherIcon,
+} from "@agir/front/genericComponents/FeatherIcon";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 const TopBarBar = styled.div`
   position: fixed;
@@ -67,7 +71,7 @@ const HorizontalFlex = styled.div`
   }
 `;
 
-const MenuLink = styled.a`
+const MenuLink = styled(Link)`
   display: flex;
   align-items: center;
   color: ${style.black1000};
@@ -199,14 +203,30 @@ export const PureTopBar = () => {
 
   const routes = useSelector(getRoutes);
   const user = useSelector(getUser);
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
+  const backLink = useSelector(getBackLink);
 
   return (
     <TopBarBar>
       <TopBarContainer>
-        <MenuLink href={routes.search} className="small-only">
-          <FeatherIcon name="search" />
-        </MenuLink>
-
+        {isSessionLoaded ? (
+          backLink ? (
+            <MenuLink
+              to={backLink.to}
+              href={backLink.href}
+              route={backLink.route}
+              className="small-only"
+              title={backLink.label}
+              aria-label={backLink.label}
+            >
+              <FeatherIcon name="arrow-left" />
+            </MenuLink>
+          ) : (
+            <MenuLink href={routes.search} className="small-only">
+              <FeatherIcon name="search" />
+            </MenuLink>
+          )
+        ) : null}
         <HorizontalFlex className="grow justify">
           <MenuLink href={routes.dashboard}>
             <LogoAP height="3.5rem" />
