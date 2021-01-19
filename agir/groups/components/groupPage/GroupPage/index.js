@@ -7,7 +7,10 @@ import {
   useDispatch,
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
-import { setIs2022 } from "@agir/front/globalContext/actions";
+import {
+  setIs2022,
+  setTopBarRightLink,
+} from "@agir/front/globalContext/actions";
 import {
   getIsSessionLoaded,
   getIsConnected,
@@ -34,11 +37,22 @@ const GroupPage = (props) => {
     pastEventReports,
   } = useGroupDetail(groupPk);
 
-  const { is2022 } = group || {};
+  const { is2022, isManager, routes } = group || {};
 
   useEffect(() => {
     is2022 === true && dispatch(setIs2022());
   }, [is2022, dispatch]);
+
+  useEffect(() => {
+    isManager &&
+      routes.settings &&
+      dispatch(
+        setTopBarRightLink({
+          href: routes.settings,
+          label: "Gestion du groupe",
+        })
+      );
+  }, [isManager, routes, dispatch]);
 
   return (
     <GroupPageComponent

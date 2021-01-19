@@ -16,5 +16,6 @@
   "CLEAR_TOAST": "clearToast",
   "CLEAR_ALL_TOASTS": "clearAllToasts",
 
-  "SET_BACK_LINK_ACTION": "setBackLink"
+  "SET_BACK_LINK_ACTION": "setBackLink",
+  "SET_TOP_BAR_RIGHT_LINK_ACTION": "setTopBarRightLink"
 }
