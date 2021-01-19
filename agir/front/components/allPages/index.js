@@ -6,3 +6,4 @@ import "./renderPushModal";
 import "./renderFeedbackButton";
 import "./help";
 import "./copybox";
+import "./sentry";
