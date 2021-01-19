@@ -175,6 +175,16 @@ export const backLink = (state = null, action) => {
   return state;
 };
 
+export const topBarRightLink = (state = null, action) => {
+  if (action.type === ACTION_TYPE.INIT_ACTION) {
+    return action.topBarRightLink || state;
+  }
+  if (action.type === ACTION_TYPE.SET_TOP_BAR_RIGHT_LINK_ACTION) {
+    return action.topBarRightLink || null;
+  }
+  return state;
+};
+
 // Selectors
 export const getDomain = (state) => state.domain;
 
@@ -212,6 +222,13 @@ export const getBackLink = (state) => {
   return state.backLink;
 };
 
+export const getTopBarRightLink = (state) => {
+  if (!state.topBarRightLink) return null;
+  if (state.topBarRightLink.isProtected && state.isSessionLoaded && !state.user)
+    return null;
+  return state.topBarRightLink;
+};
+
 // Root reducer
 const reducers = {
   hasFeedbackButton,
@@ -226,6 +243,7 @@ const reducers = {
   routes,
   toasts,
   backLink,
+  topBarRightLink,
 };
 const rootReducer = (state, action) => {
   let newState = state;

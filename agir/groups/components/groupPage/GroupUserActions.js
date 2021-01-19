@@ -145,7 +145,7 @@ const GroupLinks = (props) => {
                   inline
                   small
                   name="settings"
-                  color={style.primary}
+                  color={style.primary500}
                 />
                 <a href={routes.admin}>Administration</a>
               </li>
