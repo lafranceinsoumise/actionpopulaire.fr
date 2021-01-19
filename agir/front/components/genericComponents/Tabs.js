@@ -144,7 +144,6 @@ export const Tabs = (props) => {
 
   return (
     <>
-      {console.log(activeIndex)}
       <StyledMenu $stickyOffset={stickyOffset}>
         {tabs.map((tab, i) => (
           <button

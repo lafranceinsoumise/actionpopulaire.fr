@@ -7,7 +7,10 @@ import {
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
 import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
-import { setBackLink } from "@agir/front/globalContext/actions";
+import {
+  setBackLink,
+  setTopBarRightLink,
+} from "@agir/front/globalContext/actions";
 
 import Layout from "@agir/front/dashboardComponents/Layout";
 import ErrorBoundary from "./ErrorBoundary";
@@ -26,6 +29,7 @@ const Page = (props) => {
     dispatch(setBackLink(routeConfig.backLink));
     return () => {
       dispatch(setBackLink(null));
+      dispatch(setTopBarRightLink(null));
     };
   }, [isSessionLoaded, dispatch, routeConfig.backLink]);
 
