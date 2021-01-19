@@ -12,7 +12,7 @@ from functools import wraps
 
 from django.test import TestCase
 
-from agir.lib.geo import geocode_france
+from agir.lib.geo import geocode_france, get_commune
 from agir.lib.models import LocationMixin
 from agir.people.models import Person
 
@@ -207,3 +207,20 @@ class FranceGeocodingTestCase(TestCase):
         self.assertIsNotNone(self.person.coordinates)
         self.assertEqual(self.person.coordinates_type, LocationMixin.COORDINATES_CITY)
         self.assertEqual(self.person.location_city, "la Seconde")
+
+    @with_no_request
+    def test_get_commune_with_citycode(self):
+        self.person.location_citycode = "00002"
+        self.person.save()
+        commune = get_commune(self.person)
+        self.assertIsNotNone(commune)
+        self.assertEqual(commune.nom, "Seconde")
+
+    @with_no_request
+    def test_get_commune_with_no_location(self):
+        self.person.location_citycode = ""
+        self.person.location_city = ""
+        self.person.location_zip = ""
+        self.person.save()
+        commune = get_commune(self.person)
+        self.assertIsNone(commune)
