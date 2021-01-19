@@ -126,4 +126,10 @@ export const setBackLink = (backLink) => ({
   backLink,
 });
 
+// TOP BAR RIGHT LINK
+export const setTopBarRightLink = (topBarRightLink) => ({
+  type: ACTION_TYPE.SET_TOP_BAR_RIGHT_LINK_ACTION,
+  topBarRightLink,
+});
+
 export default createDispatch;
