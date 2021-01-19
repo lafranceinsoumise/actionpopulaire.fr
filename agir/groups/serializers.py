@@ -6,6 +6,7 @@ from . import models
 from .actions import get_promo_codes
 from .models import Membership
 from ..front.serializer_utils import RoutesField
+from agir.lib.geo import get_commune
 from agir.lib.serializers import (
     FlexibleFieldsMixin,
     LocationSerializer,
@@ -153,6 +154,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     routes = serializers.SerializerMethodField()
     discountCodes = serializers.SerializerMethodField()
+    commune = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -272,3 +274,12 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 for code, date in get_promo_codes(obj)
             ]
         return []
+
+    def get_commune(self, obj):
+        commune = get_commune(obj)
+        if commune is not None:
+            commune = {
+                "name": commune.nom_complet,
+                "nameOf": commune.nom_avec_charniere,
+            }
+        return commune

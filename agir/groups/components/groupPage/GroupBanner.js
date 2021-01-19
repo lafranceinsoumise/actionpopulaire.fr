@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import { getGroupTypeWithLocation } from "./utils";
 
 import Map from "@agir/carte/common/Map";
 
@@ -71,18 +72,12 @@ const StyledBanner = styled.div`
 `;
 
 const GroupBanner = (props) => {
-  const { name, type, location, iconConfiguration } = props;
+  const { name, type, location, commune, iconConfiguration } = props;
 
-  const subtitle = React.useMemo(() => {
-    const { city, zip } = location || {};
-    if (!zip) {
-      return type;
-    }
-    if (!city) {
-      return `${type} (${zip})`;
-    }
-    return `${type} à ${city} (${zip})`;
-  }, [type, location]);
+  const subtitle = useMemo(
+    () => getGroupTypeWithLocation(type, location, commune),
+    [type, location, commune]
+  );
 
   return (
     <StyledBanner>
@@ -114,5 +109,8 @@ GroupBanner.propTypes = {
       coordinates: PropTypes.arrayOf(PropTypes.number),
     }),
   }).isRequired,
+  commune: PropTypes.shape({
+    nameOf: PropTypes.string,
+  }),
 };
 export default GroupBanner;
