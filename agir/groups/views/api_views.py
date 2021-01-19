@@ -89,6 +89,9 @@ class NearGroupsAPIView(ListAPIView):
         )
 
     def get_queryset(self):
+        if self.supportgroup.coordinates is None:
+            return SupportGroup.objects.none()
+
         groups = (
             SupportGroup.objects.active()
             .exclude(pk=self.supportgroup.pk)
@@ -100,9 +103,9 @@ class NearGroupsAPIView(ListAPIView):
 
         groups = groups.annotate(
             distance=Distance("coordinates", self.supportgroup.coordinates)
-        ).order_by("distance")[:3]
+        ).order_by("distance")
 
-        return groups
+        return groups[:3]
 
     def dispatch(self, request, pk, *args, **kwargs):
         self.person = request.user.person
