@@ -4,12 +4,21 @@ import group from "./group.json";
 import events from "./events.json";
 
 import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
+import GROUP_PAGE_TABS from "./tabs.config";
 
 import GroupPage from "./GroupPage";
 
 export default {
   component: GroupPage,
   title: "Group/GroupPage",
+  argTypes: {
+    activeTab: {
+      control: {
+        type: "select",
+        options: GROUP_PAGE_TABS.map((t) => t.slug),
+      },
+    },
+  },
 };
 
 const Template = (args) => (
@@ -29,6 +38,7 @@ Default.args = {
   ],
   upcomingEvents: events,
   pastEvents: events,
+  activeTab: GROUP_PAGE_TABS[0].slug,
 };
 export const Loading = Template.bind({});
 Loading.args = {

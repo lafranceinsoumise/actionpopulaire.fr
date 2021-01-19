@@ -8,6 +8,7 @@ import {
   getUser,
   getIsSessionLoaded,
   getBackLink,
+  getTopBarRightLink,
 } from "@agir/front/globalContext/reducers";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -152,20 +153,51 @@ const SearchBarInput = styled.input.attrs(() => ({ type: "text", name: "q" }))`
   }
 `;
 
-const ConnectionInfo = ({ user, routes }) =>
-  !user ? (
-    <>
-      <MenuLink href={routes.login} className="small-only">
-        <FeatherIcon name="user" />
-      </MenuLink>
-      <MenuLink href={routes.login} className="large-only">
-        <span>Connexion</span>
-      </MenuLink>
-      <MenuLink href={routes.join} className="large-only">
-        <span>Inscription</span>
-      </MenuLink>
-    </>
-  ) : (
+const TopBarRightLink = ({ user, routes, settingsLink }) => {
+  if (!user) {
+    return (
+      <>
+        <MenuLink href={routes.login} className="small-only">
+          <FeatherIcon name="user" />
+        </MenuLink>
+        <MenuLink href={routes.login} className="large-only">
+          <span>Connexion</span>
+        </MenuLink>
+        <MenuLink href={routes.join} className="large-only">
+          <span>Inscription</span>
+        </MenuLink>
+      </>
+    );
+  }
+  if (settingsLink) {
+    return (
+      <>
+        <MenuLink
+          to={settingsLink.to}
+          href={settingsLink.href}
+          route={settingsLink.route}
+          className="small-only"
+          title={settingsLink.label}
+          aria-label={settingsLink.label}
+        >
+          <FeatherIcon name="settings" />
+        </MenuLink>
+        <MenuLink
+          className="large-only"
+          href={
+            user.isInsoumise
+              ? routes.personalInformation
+              : routes.contactConfiguration
+          }
+        >
+          <FeatherIcon name="user" />
+          <span>{user.displayName}</span>
+        </MenuLink>
+      </>
+    );
+  }
+
+  return (
     <MenuLink
       href={
         user.isInsoumise
@@ -177,8 +209,8 @@ const ConnectionInfo = ({ user, routes }) =>
       <span className="large-only">{user.displayName}</span>
     </MenuLink>
   );
-
-ConnectionInfo.propTypes = {
+};
+TopBarRightLink.propTypes = {
   user: PropTypes.shape({
     displayName: PropTypes.string,
     isInsoumise: PropTypes.bool,
@@ -196,6 +228,12 @@ ConnectionInfo.propTypes = {
       ),
     ])
   ),
+  settingsLink: PropTypes.shape({
+    to: PropTypes.string,
+    href: PropTypes.string,
+    route: PropTypes.string,
+    label: PropTypes.string,
+  }),
 };
 
 export const PureTopBar = () => {
@@ -205,6 +243,7 @@ export const PureTopBar = () => {
   const user = useSelector(getUser);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const backLink = useSelector(getBackLink);
+  const topBarRightLink = useSelector(getTopBarRightLink);
 
   return (
     <TopBarBar>
@@ -267,7 +306,11 @@ export const PureTopBar = () => {
               <FeatherIcon name="help-circle" />
               <span>Aide</span>
             </MenuLink>
-            <ConnectionInfo routes={routes} user={user} />
+            <TopBarRightLink
+              settingsLink={isSessionLoaded && topBarRightLink}
+              routes={routes}
+              user={user}
+            />
           </HorizontalFlex>
         </PageFadeIn>
       </TopBarContainer>
