@@ -104,7 +104,7 @@ export const routeConfig = {
   }),
   groupDetails: new RouteConfig({
     id: "groupDetails",
-    pathname: "/groupes/:groupPk/",
+    pathname: "/groupes/:groupPk/:activeTab?",
     exact: true,
     label: "Details du groupe",
     Component: GroupPage,
