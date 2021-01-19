@@ -30,6 +30,21 @@ urlpatterns = [
     path(
         "groupes/<uuid:pk>/", views.SupportGroupDetailView.as_view(), name="view_group"
     ),
+    path(
+        "groupes/<uuid:pk>/agenda/",
+        views.SupportGroupDetailView.as_view(),
+        name="view_group_events",
+    ),
+    path(
+        "groupes/<uuid:pk>/comptes-rendus/",
+        views.SupportGroupDetailView.as_view(),
+        name="view_group_reports",
+    ),
+    path(
+        "groupes/<uuid:pk>/presentation/",
+        views.SupportGroupDetailView.as_view(),
+        name="view_group_info",
+    ),
     path("activite/", views.ActivityView.as_view(), name="list_activities",),
     path(
         "a-traiter/",
