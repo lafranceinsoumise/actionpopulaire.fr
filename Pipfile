@@ -79,6 +79,7 @@ xlwt = "==1.*"
 django-admin-rangefilter = "*"
 faker = "*"
 django-silk = "*"
+sentry-sdk = "*"
 
 [dev-packages]
 ipython = "*"

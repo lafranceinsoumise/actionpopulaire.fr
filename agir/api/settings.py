@@ -10,18 +10,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 import json
+import os
+import re
+import warnings
 from pathlib import Path
 
 import dj_database_url
 import dj_email_url
-import os
-import re
-import warnings
+import sentry_sdk
 from django.contrib import messages
 from django.contrib.messages import ERROR
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.datetime_safe import datetime
 from django.utils.timezone import make_aware
+from sentry_sdk.integrations.django import DjangoIntegration
 
 ADMIN_RE = re.compile("^([\w -]+) <([^>]+)>$")
 YES_VALUES = ["y", "yes", "true", "t"]
@@ -561,6 +563,10 @@ if not DEBUG:
             },
         },
     }
+
+    sentry_sdk.init(
+        integrations=[DjangoIntegration()], traces_sample_rate=1.0,
+    )
 
 # CACHING
 CACHES = {
