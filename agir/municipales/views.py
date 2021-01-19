@@ -16,6 +16,7 @@ from agir.authentication.view_mixins import (
 )
 from agir.events.models import Event
 from agir.lib.token_bucket import TokenBucket
+from agir.lib.utils import get_client_ip
 from agir.lib.views import IframableMixin
 from agir.loans.views import (
     BaseLoanAskAmountView,
@@ -126,7 +127,7 @@ class CommuneProcurationView(CommunePageMixin, UpdateView):
 
     def form_valid(self, form):
         if send_procurations_bucket_by_ip.has_tokens(
-            self.request.META["REMOTE_ADDR"]
+            get_client_ip(self.request)
         ) and send_procurations_bucket_by_commune.has_tokens(self.object.id):
             return super().form_valid(form)
         else:

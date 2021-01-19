@@ -111,3 +111,12 @@ def shorten_url(url, secret=False):
         params={"token": settings.DJAN_API_KEY,},
         data={"url": url, "length": 10 if secret else 5},
     ).text
+
+
+def get_client_ip(request):
+    if settings.TRUST_X_FORWARDED_FOR:
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+        if x_forwarded_for:
+            return x_forwarded_for.split(",")[0].strip()
+
+    return request.META["REMOTE_ADDR"]
