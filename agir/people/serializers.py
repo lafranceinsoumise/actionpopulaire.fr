@@ -296,5 +296,7 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     newsletters = serializers.ListField()
 
+    gender = serializers.CharField()
+
     def get_fullName(self, obj: Person):
         return obj.get_full_name()
