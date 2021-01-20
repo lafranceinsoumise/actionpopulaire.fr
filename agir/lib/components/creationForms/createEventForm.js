@@ -68,7 +68,17 @@ class CreateEventForm extends React.Component {
       {
         name: "Où ?",
         component: (
-          <LocationStep setFields={this.setFields} fields={this.state.fields} />
+          <LocationStep
+            setFields={this.setFields}
+            fields={this.state.fields}
+            helpText={
+              <strong>
+                Pour les événements se déroulant en ligne, indiquez une adresse
+                pour que les membres à proximité puissent retrouver plus
+                facilement votre événement.
+              </strong>
+            }
+          />
         ),
       },
       {
