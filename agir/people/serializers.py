@@ -32,8 +32,7 @@ subscription_mail_bucket = TokenBucket("SubscriptionMail", 5, 600)
 
 
 class PersonEmailSerializer(serializers.ModelSerializer):
-    """Basic PersonEmail serializer used to show and edit PersonEmail
-    """
+    """Basic PersonEmail serializer used to show and edit PersonEmail"""
 
     def __init__(self, *args, **kwargs):
         serializers.ModelSerializer.__init__(self, *args, **kwargs)
