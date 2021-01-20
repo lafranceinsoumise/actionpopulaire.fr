@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/react";
 import { Integrations } from "@sentry/tracing";
 
-if (process.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "production") {
   Sentry.init({
     dsn:
       "https://208ef75bce0a46f6b20b69c2952957d7@erreurs.lafranceinsoumise.fr/4",
