@@ -48,7 +48,6 @@ const Template = decorateArgs(
   convertDatetimes,
   reorganize(
     {
-      individual: { firstName: "individual" },
       "event.location": {
         name: "event.locationName",
         address: "event.locationAddress",
@@ -72,7 +71,10 @@ Default.args = {
       manage: "#group-manage",
     },
   },
-  individual: "Clara Zetkin",
+  individual: {
+    firstName: "Clara",
+    email: "clara@example.com",
+  },
   timestamp: DateTime.local().minus({ hours: 5 }).toISO(),
   meta: {
     totalReferrals: 10,

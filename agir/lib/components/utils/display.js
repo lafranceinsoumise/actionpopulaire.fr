@@ -31,3 +31,59 @@ export function displayPrice(n, forceCents = false) {
 
   return displayNumber(n / 100, 2) + NBSP + "€";
 }
+
+export const GENDER = {
+  female: "F",
+  male: "M",
+  other: "O",
+};
+/**
+ * function getGenderedWord
+ *
+ *
+ */
+export const getGenderedWord = (
+  gender,
+  inclusiveWord,
+  feminineWord,
+  masculineWord
+) => {
+  if (typeof inclusiveWord !== "string") {
+    return "";
+  }
+  inclusiveWord = inclusiveWord.trim();
+  gender = typeof gender === "string" ? gender.toUpperCase() : null;
+  if (
+    !gender ||
+    !Object.values(GENDER).includes(gender) ||
+    gender === GENDER.other
+  ) {
+    return inclusiveWord;
+  }
+  if (gender === GENDER.female && feminineWord) {
+    return feminineWord;
+  }
+  if (gender == GENDER.male && masculineWord) {
+    return masculineWord;
+  }
+  // Automatic gendering of inclusive word only works for words whose suffix is either "e" or "es"
+  const parsedWord = inclusiveWord.match(/^(.+)[⋅|·]{1}(e{1}s?)$/i);
+  if (!Array.isArray(parsedWord)) {
+    return inclusiveWord;
+  }
+  let [, root, suffix] = parsedWord;
+  const commonPlural =
+    suffix.split("").pop().toLowerCase() === "s" &&
+    root.split("").pop().toLowerCase() !== "s" &&
+    root.split("").pop().toLowerCase() !== "x"
+      ? suffix.split("").pop()
+      : "";
+  suffix = commonPlural ? suffix.slice(0, -1) : suffix;
+  const commonRootLength = commonPlural
+    ? root.length - suffix.length + 1
+    : root.length;
+
+  return gender === GENDER.female
+    ? `${root.slice(0, commonRootLength)}${suffix}${commonPlural}`
+    : `${root}${commonPlural}`;
+};

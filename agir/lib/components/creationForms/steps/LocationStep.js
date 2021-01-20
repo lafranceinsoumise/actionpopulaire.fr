@@ -50,7 +50,7 @@ export default class LocationStep extends FormStep {
   }
 
   render() {
-    const { fields } = this.props;
+    const { fields, helpText } = this.props;
     return (
       <div className="row padtopmore padbottommore">
         <div className="col-md-6">
@@ -64,6 +64,7 @@ export default class LocationStep extends FormStep {
             la rendre publique, vous pouvez indiquer un endroit à proximité,
             comme un café, ou votre mairie.
           </p>
+          {helpText ? <p>{helpText}</p> : null}
         </div>
         <div className="col-md-6">
           <div

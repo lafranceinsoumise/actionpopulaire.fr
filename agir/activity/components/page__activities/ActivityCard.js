@@ -1,18 +1,19 @@
-import Card from "@agir/front/genericComponents/Card";
-import React, { useMemo } from "react";
-import PropTypes from "prop-types";
-import styled from "styled-components";
 import { Interval } from "luxon";
+import PropTypes from "prop-types";
+import React, { useMemo } from "react";
+import styled from "styled-components";
 
-import { routeConfig } from "@agir/front/app/routes.config";
-import Link from "@agir/front/app/Link";
-
-import EventCard from "@agir/front/genericComponents/EventCard";
-import { Column, Row } from "@agir/front/genericComponents/grid";
-import style from "@agir/front/genericComponents/_variables.scss";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 import { activityStatus } from "@agir/activity/common/helpers";
+import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
+import { getGenderedWord } from "@agir/lib/utils/display";
+import { routeConfig } from "@agir/front/app/routes.config";
+import style from "@agir/front/genericComponents/_variables.scss";
+
+import Card from "@agir/front/genericComponents/Card";
+import { Column, Row } from "@agir/front/genericComponents/grid";
+import EventCard from "@agir/front/genericComponents/EventCard";
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import Link from "@agir/front/app/Link";
 
 import CONFIG from "./activity.config.json";
 
@@ -275,7 +276,12 @@ const ActivityCard = (props) => {
     case "new-attendee":
       return (
         <ActivityCardContainer {...props}>
-          {Individual || "Quelqu'un"} s'est inscrit à votre événement {Event}
+          <strong>
+            {(individual && (individual.firstName || individual.email)) ||
+              "Quelqu'un"}
+          </strong>{" "}
+          s'est {getGenderedWord(individual && individual.gender, "inscrit·e")}{" "}
+          à votre événement {Event}
         </ActivityCardContainer>
       );
     case "event-update":
