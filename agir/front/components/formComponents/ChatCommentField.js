@@ -37,7 +37,8 @@ const StyledWrapper = styled.form`
       $disabled ? style.black50 : "#FFFFFF"};
     border: 1px solid ${style.black100};
     flex-flow: row nowrap;
-    padding: ${({ $isExpanded }) => ($isExpanded ? "0.75rem" : ".5rem 1rem")};
+    padding: ${({ $isExpanded }) =>
+      $isExpanded ? "0.75rem" : ".5rem 0.75rem"};
     transition: background-color 250ms ease-in-out;
 
     @media (max-width: ${style.collapse}px) {

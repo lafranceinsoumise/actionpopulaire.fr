@@ -57,8 +57,8 @@ const StyledTriggerIcon = styled(animated.span)`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: ${({ $size }) => $size || 24}px;
-  width: ${({ $size }) => $size || 24}px;
+  height: ${({ $size }) => $size || "1.5rem"};
+  width: ${({ $size }) => $size || "1.5rem"};
   margin: 0;
   padding: 0;
   position: relative;
@@ -178,11 +178,7 @@ const EmojiPicker = (props) => {
               width={small ? "1rem" : "1.5rem"}
               color={style.black1000}
             />
-            <Emoji
-              emoji="smile"
-              size={small ? "1rem" : "1.5rem"}
-              set="twitter"
-            />
+            <Emoji emoji="smile" size={small ? 16 : 24} set="twitter" />
           </StyledTriggerIcon>
         </StyledTrigger>
         {transition.map(

@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import Popin from "@agir/front/genericComponents/Popin";
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
@@ -11,12 +11,17 @@ const Trigger = styled.button`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: auto;
+  height: auto;
   color: inherit;
   background-color: transparent;
   border: none;
   cursor: pointer;
+
+  ${RawFeatherIcon} {
+    width: ${({ $size }) => $size};
+    height: ${({ $size }) => $size};
+  }
 `;
 
 const StyledInlineMenu = styled.div`
@@ -26,8 +31,8 @@ const StyledInlineMenu = styled.div`
 
 const MobileInlineMenu = (props) => (
   <StyledInlineMenu>
-    <Trigger onClick={props.onOpen}>
-      <FeatherIcon name="more-vertical" />
+    <Trigger type="button" onClick={props.onOpen} $size={props.triggerSize}>
+      <RawFeatherIcon name={props.triggerIconName} />
     </Trigger>
     <BottomSheet {...props}>{props.children}</BottomSheet>
   </StyledInlineMenu>
@@ -35,8 +40,8 @@ const MobileInlineMenu = (props) => (
 
 const DesktopInlineMenu = (props) => (
   <StyledInlineMenu onMouseEnter={props.onOpen} onMouseLeave={props.onDismiss}>
-    <Trigger onClick={props.onOpen}>
-      <FeatherIcon name="more-vertical" />
+    <Trigger type="button" onClick={props.onOpen} $size={props.triggerSize}>
+      <RawFeatherIcon name={props.triggerIconName} />
     </Trigger>
     <Popin {...props}>{props.children}</Popin>
   </StyledInlineMenu>
@@ -46,10 +51,12 @@ MobileInlineMenu.propTypes = DesktopInlineMenu.propTypes = {
   onOpen: PropTypes.func,
   onDismiss: PropTypes.func,
   children: PropTypes.node,
+  triggerIconName: PropTypes.string,
+  triggerSize: PropTypes.string,
 };
 
 export const InlineMenu = (props) => {
-  const { children } = props;
+  const { children, triggerIconName, triggerSize } = props;
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = React.useCallback(() => setIsOpen(true), []);
@@ -59,6 +66,8 @@ export const InlineMenu = (props) => {
     <ResponsiveLayout
       MobileLayout={MobileInlineMenu}
       DesktopLayout={DesktopInlineMenu}
+      triggerIconName={triggerIconName}
+      triggerSize={triggerSize}
       isOpen={isOpen}
       onOpen={handleOpen}
       onDismiss={handleDismiss}
@@ -69,6 +78,12 @@ export const InlineMenu = (props) => {
 };
 InlineMenu.propTypes = {
   children: PropTypes.node,
+  triggerIconName: PropTypes.string,
+  triggerSize: PropTypes.string,
+};
+InlineMenu.defaultProps = {
+  triggerIconName: "more-vertical",
+  triggerSize: "2.5rem",
 };
 
 export default InlineMenu;
