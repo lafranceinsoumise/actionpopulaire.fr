@@ -106,7 +106,7 @@ const TextField = (props) => {
 
   const textAreaRef = useRef(null);
   useLayoutEffect(() => {
-    if (textAreaRef.current) {
+    if (value && textAreaRef.current) {
       textAreaRef.current.style.height = "inherit";
       textAreaRef.current.style.height =
         textAreaRef.current.scrollHeight + 4 + "px";
@@ -130,6 +130,7 @@ const TextField = (props) => {
           type={type}
           onChange={onChange}
           value={value}
+          rows={1}
         />
       ) : (
         <StyledInput
