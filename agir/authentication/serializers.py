@@ -11,6 +11,7 @@ from agir.activity.actions import (
 )
 from agir.activity.serializers import ActivitySerializer, AnnouncementSerializer
 from agir.groups.models import SupportGroup
+from agir.lib.utils import front_url
 
 
 class UserContextSerializer(serializers.Serializer):
@@ -48,13 +49,15 @@ class SessionSerializer(serializers.Serializer):
                     "materiel": "https://materiel.lafranceinsoumise.fr/",
                     "resources": "https://lafranceinsoumise.fr/fiches_pour_agir/",
                     "news": "https://lafranceinsoumise.fr/actualites/",
-                    "thematicTeams": reverse("thematic_teams_list"),
+                    "thematicTeams": front_url("thematic_teams_list"),
+                    "nspReferral": front_url("nsp_referral"),
                 }
             else:
                 routes = {
                     "materiel": "https://noussommespour.fr/boutique/",
                     "resources": "https://noussommespour.fr/sinformer/",
                     "donations": "https://noussommespour.fr/don/",
+                    "nspReferral": front_url("nsp_referral"),
                 }
 
             person_groups = (

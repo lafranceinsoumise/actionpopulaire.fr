@@ -5,11 +5,16 @@ import ReleaseModal from "./ReleaseModal";
 import ReferralModal from "./ReferralModal";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getUser, getRoutes } from "@agir/front/globalContext/reducers";
+import {
+  getUser,
+  getRoutes,
+  getIsSessionLoaded,
+} from "@agir/front/globalContext/reducers";
 
-export const PushModal = ({ isActive = false }) => {
+export const PushModal = ({ isActive = true }) => {
   const user = useSelector(getUser);
   const routes = useSelector(getRoutes);
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
 
   const [shouldShow, setShouldShow] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
@@ -24,7 +29,7 @@ export const PushModal = ({ isActive = false }) => {
       setShouldShow(false);
       return;
     }
-    if (!!user && user.isAgir) {
+    if (isSessionLoaded && !!user && user.isAgir) {
       const shouldHide = window.localStorage.getItem("AP_relmod");
       if (!shouldHide) {
         window.localStorage.setItem("AP_relmod", "1");
@@ -33,7 +38,7 @@ export const PushModal = ({ isActive = false }) => {
         return;
       }
     }
-    if (!!user && user.is2022) {
+    if (isSessionLoaded && !!user && user.is2022) {
       const shouldHide = window.localStorage.getItem("AP_refmod");
       if (!shouldHide) {
         window.localStorage.setItem("AP_refmod", "1");
@@ -42,7 +47,7 @@ export const PushModal = ({ isActive = false }) => {
         return;
       }
     }
-  }, [user, isActive]);
+  }, [isSessionLoaded, user, isActive]);
 
   switch (activeModal) {
     case "release":
