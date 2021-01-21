@@ -30,6 +30,7 @@ from .filters import (
     RegionFilter,
     DatesFilter,
     AppelEluFilter,
+    ReferenceFilter,
 )
 from .forms import (
     PERSON_FIELDS,
@@ -381,6 +382,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         CommuneFilter,
         DepartementFilter,
         DepartementRegionFilter,
+        ReferenceFilter,
     )
 
     fieldsets = (

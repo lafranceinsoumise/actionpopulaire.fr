@@ -88,3 +88,20 @@ class AppelEluFilter(SimpleListFilter):
                 person__meta__subscriptions__NSP__mandat__isnull=True
             )
         return queryset
+
+
+class ReferenceFilter(SimpleListFilter):
+    parameter_name = "reference"
+    title = "Fiche RNE"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("O", "Avec fiche RNE"),
+            ("N", "Sans fiche RNE"),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value:
+            return queryset.filter(reference__isnull=value == "N")
+        return queryset
