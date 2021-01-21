@@ -6,7 +6,9 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import FeatherIcon, {
+  RawFeatherIcon,
+} from "@agir/front/genericComponents/FeatherIcon";
 import Popin from "@agir/front/genericComponents/Popin";
 
 const StyledPanel = styled.div`
@@ -14,6 +16,31 @@ const StyledPanel = styled.div`
   background-color: ${style.primary100};
   padding: 1.5rem;
   margin: 1rem 0;
+
+  @media (max-width: ${style.collapse}px) {
+    display: none;
+  }
+
+  && ul {
+    margin-bottom: 0;
+
+    li {
+      align-items: center;
+      font-weight: 500;
+
+      a {
+        margin-left: 0.5rem;
+      }
+
+      ${RawFeatherIcon} {
+        svg {
+          stroke-width: 2px;
+          width: 1rem;
+          height: 1rem;
+        }
+      }
+    }
+  }
 `;
 const StyledContent = styled.div`
   padding: 0;
@@ -33,10 +60,13 @@ const StyledContent = styled.div`
     margin: 0;
     width: 100%;
     justify-content: center;
+    margin-bottom: 1rem;
   }
 
   ${Button} + ${Button} {
-    margin-top: 1rem;
+    @media (max-width: ${style.collapse}px) {
+      display: none;
+    }
   }
 
   p {
@@ -44,7 +74,6 @@ const StyledContent = styled.div`
     font-size: 0.813rem;
     line-height: 1.5;
     color: ${style.black500};
-    margin-top: 1em;
 
     @media (max-width: ${style.collapse}px) {
       font-size: 0.688rem;
@@ -79,10 +108,8 @@ const GroupLinks = (props) => {
   const { isMember, isManager, is2022 = false, routes } = props;
 
   const [isPopinOpen, setIsPopinOpen] = useState(false);
-  const togglePopinOpen = useCallback(
-    () => setIsPopinOpen((state) => !state),
-    []
-  );
+  const openPopin = useCallback(() => setIsPopinOpen(true), []);
+  const closePopin = useCallback(() => setIsPopinOpen(false), []);
 
   if (isManager) {
     return (
@@ -97,7 +124,7 @@ const GroupLinks = (props) => {
           <ul>
             {routes.invitation && (
               <li>
-                <FeatherIcon
+                <RawFeatherIcon
                   small
                   inline
                   color={style.primary500}
@@ -108,7 +135,7 @@ const GroupLinks = (props) => {
             )}
             {routes.materiel && (
               <li>
-                <FeatherIcon
+                <RawFeatherIcon
                   small
                   inline
                   color={style.primary500}
@@ -119,7 +146,7 @@ const GroupLinks = (props) => {
             )}
             {routes.financement && (
               <li>
-                <FeatherIcon
+                <RawFeatherIcon
                   small
                   inline
                   color={style.primary500}
@@ -130,7 +157,7 @@ const GroupLinks = (props) => {
             )}
             {routes.members && (
               <li>
-                <FeatherIcon
+                <RawFeatherIcon
                   small
                   inline
                   color={style.primary500}
@@ -141,7 +168,7 @@ const GroupLinks = (props) => {
             )}
             {routes.admin && (
               <li>
-                <FeatherIcon
+                <RawFeatherIcon
                   inline
                   small
                   name="settings"
@@ -166,10 +193,10 @@ const GroupLinks = (props) => {
             margin: "0 0 1rem",
           }}
         >
-          <Button onClick={togglePopinOpen} color="default" icon="check">
+          <Button onClick={openPopin} color="default" icon="check">
             Vous êtes membre {is2022 ? "de l'équipe" : "du groupe"}
           </Button>
-          <Popin isOpen={isPopinOpen} position="bottom">
+          <Popin isOpen={isPopinOpen} onDismiss={closePopin} position="bottom">
             <ul>
               <li>
                 <FeatherIcon

@@ -1,6 +1,6 @@
 import React from "react";
 
-import group from "@agir/groups/groupPage/GroupPage/group.json";
+import group from "@agir/groups/groupPage/group.json";
 import GroupUserActions from "./GroupUserActions";
 import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 

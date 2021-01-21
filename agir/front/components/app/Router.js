@@ -13,6 +13,7 @@ import {
 } from "@agir/front/globalContext/actions";
 
 import Layout from "@agir/front/dashboardComponents/Layout";
+import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 import ErrorBoundary from "./ErrorBoundary";
 import routes, { BASE_PATH } from "./routes.config";
 
@@ -40,7 +41,13 @@ const Page = (props) => {
     return (
       <ErrorBoundary>
         <Suspense fallback={<div />}>
-          <Component {...routeParams} {...rest} data={[]} />
+          <Component
+            {...(routeConfig.routeProps || {})}
+            {...routeParams}
+            {...rest}
+            data={[]}
+          />
+          <FeedbackButton style={{ bottom: "1rem" }} />
         </Suspense>
       </ErrorBoundary>
     );
@@ -50,7 +57,13 @@ const Page = (props) => {
     <Layout {...(routeConfig.layoutProps || {})} active={routeConfig.id}>
       <ErrorBoundary>
         <Suspense fallback={<div />}>
-          <Component {...routeParams} {...rest} data={[]} />
+          <Component
+            {...(routeConfig.routeProps || {})}
+            {...routeParams}
+            {...rest}
+            data={[]}
+          />
+          <FeedbackButton />
         </Suspense>
       </ErrorBoundary>
     </Layout>

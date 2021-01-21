@@ -17,3 +17,5 @@ PageFadeIn.propTypes = {
   wait: PropTypes.node,
   children: PropTypes.node,
 };
+
+export default PageFadeIn;

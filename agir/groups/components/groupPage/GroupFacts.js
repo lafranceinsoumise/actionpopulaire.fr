@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
 import { timeAgo } from "@agir/lib/utils/time";
 
 import Card from "./GroupPageCard";
@@ -14,15 +15,14 @@ const StyledList = styled.ul`
   padding: 0;
   font-size: 14px;
   font-weight: 400;
-  columns: 160px 2;
 
-  @media (max-width: 360px) {
+  @media (max-width: ${style.collapse}px) {
     display: block;
   }
 
   li {
     display: flex;
-    width: 160px;
+    min-width: 160px;
     align-items: baseline;
     min-height: 26px;
 

@@ -94,6 +94,18 @@ export function displayHumanDate(datetime, relativeTo) {
   }
 }
 
+export const displayHumanDateString = (datetime, relativeTo) => {
+  datetime = new Date(datetime);
+  datetime = DateTime.fromJSDate(datetime);
+
+  if (relativeTo) {
+    relativeTo = new Date(relativeTo);
+    relativeTo = DateTime.fromJSDate(relativeTo);
+  }
+
+  return displayHumanDate(datetime, relativeTo);
+};
+
 export function displayInterval(interval, relativeTo) {
   if (relativeTo === undefined) {
     relativeTo = DateTime.local().setLocale("fr");
@@ -177,5 +189,15 @@ export const timeAgo = (date) => {
     return relativeFormatter.format(Math.trunc(diff.as(unit)), unit);
   } catch (e) {
     return date;
+  }
+};
+
+export const displayShortDate = (datetime) => {
+  try {
+    let date = new Date(datetime);
+    date = DateTime.fromJSDate(date).setLocale("fr");
+    return date.toFormat("dd/LL");
+  } catch (e) {
+    return datetime;
   }
 };

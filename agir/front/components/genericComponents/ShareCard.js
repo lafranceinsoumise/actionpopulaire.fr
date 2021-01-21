@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -15,7 +15,13 @@ import whatsappLogo from "@agir/front/genericComponents/logos/whatsapp.svg";
 let logoSpacing = { margin: "0 8px" };
 
 const ShareCard = (props) => {
-  const { title } = props;
+  const { url, title } = props;
+
+  const encodedLocation = useMemo(() => {
+    return url
+      ? encodeURIComponent(url)
+      : encodeURIComponent(window.location.href);
+  }, [url]);
 
   let [copied, setCopied] = useState(false);
   let copyUrl = useCallback(() => {
@@ -25,7 +31,6 @@ const ShareCard = (props) => {
   }, []);
 
   const inputEl = useRef(null);
-  let encodedLocation = encodeURIComponent(window.location.href);
   return (
     <Card style={{ padding: "1.5rem" }}>
       <Row gutter={2} style={{ marginBottom: "1rem" }}>
@@ -83,5 +88,6 @@ const ShareCard = (props) => {
 };
 ShareCard.propTypes = {
   title: PropTypes.string,
+  url: PropTypes.string,
 };
 export default ShareCard;
