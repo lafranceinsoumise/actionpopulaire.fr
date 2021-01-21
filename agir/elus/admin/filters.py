@@ -1,4 +1,5 @@
 from django.contrib.admin import SimpleListFilter
+from django.utils import timezone
 
 from agir.elus.models import MandatMunicipal
 from agir.lib.autocomplete_filter import AutocompleteFilter, SelectModelFilter
@@ -41,4 +42,49 @@ class CommunautaireFilter(SimpleListFilter):
             )
         elif self.value() in {v for v, l in MandatMunicipal.MANDAT_EPCI_CHOICES}:
             return queryset.filter(communautaire=self.value())
+        return queryset
+
+
+class DatesFilter(SimpleListFilter):
+    parameter_name = "dates"
+    title = "Dates du mandat"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("O", "Mandats en cours seulement"),
+            ("P", "Mandats passés seulement"),
+            ("F", "Mandats non commencés seulement"),
+        ]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "O":
+            return queryset.filter(dates__contains=timezone.now().date())
+        elif value == "P":
+            return queryset.filter(dates__fully_lt=timezone.now().date())
+        elif value == "F":
+            return queryset.filter(dates__fully_gt=timezone.now().date())
+        return queryset
+
+
+class AppelEluFilter(SimpleListFilter):
+    title = "2022 Appel élu⋅es"
+    parameter_name = "2022_appel_elus"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("O", "Signé appel élu"),
+            ("N", "Pas signé appel élu"),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "O":
+            return queryset.exclude(
+                person__meta__subscriptions__NSP__mandat__isnull=True
+            )
+        elif value == "N":
+            return queryset.filter(
+                person__meta__subscriptions__NSP__mandat__isnull=True
+            )
         return queryset

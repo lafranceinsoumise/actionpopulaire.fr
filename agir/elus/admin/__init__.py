@@ -7,7 +7,6 @@ from data_france.models import (
     CollectiviteRegionale,
 )
 from django.contrib import admin
-from django.contrib.admin import SimpleListFilter
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
@@ -29,35 +28,14 @@ from .filters import (
     DepartementFilter,
     DepartementRegionFilter,
     RegionFilter,
+    DatesFilter,
+    AppelEluFilter,
 )
 from .forms import (
     PERSON_FIELDS,
     CreerMandatForm,
     CreerMandatMunicipalForm,
 )
-
-
-class AppelEluFilter(SimpleListFilter):
-    title = "2022 Appel élu⋅es"
-    parameter_name = "2022_appel_elus"
-
-    def lookups(self, request, model_admin):
-        return (
-            ("O", "Signé appel élu"),
-            ("N", "Pas signé appel élu"),
-        )
-
-    def queryset(self, request, queryset):
-        value = self.value()
-        if value == "O":
-            return queryset.exclude(
-                person__meta__subscriptions__NSP__mandat__isnull=True
-            )
-        elif value == "N":
-            return queryset.filter(
-                person__meta__subscriptions__NSP__mandat__isnull=True
-            )
-        return queryset
 
 
 class BaseMandatAdmin(admin.ModelAdmin):
@@ -229,10 +207,11 @@ class BaseMandatAdmin(admin.ModelAdmin):
 
     def actif(self, obj):
         if obj:
-            return "Oui" if obj.actif else "Non"
+            return obj.actif()
         return "-"
 
     actif.short_description = "Mandat en cours"
+    actif.boolean = True
 
     def person_link(self, obj):
         return format_html(
@@ -383,6 +362,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
     list_filter = (
         "statut",
         "mandat",
+        DatesFilter,
         "person__is_insoumise",
         "person__is_2022",
         AppelEluFilter,
@@ -462,6 +442,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
     list_filter = (
         "statut",
         "mandat",
+        DatesFilter,
         "person__is_insoumise",
         "person__is_2022",
         AppelEluFilter,
@@ -531,6 +512,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
     list_filter = (
         "statut",
         "mandat",
+        DatesFilter,
         "person__is_insoumise",
         "person__is_2022",
         AppelEluFilter,
