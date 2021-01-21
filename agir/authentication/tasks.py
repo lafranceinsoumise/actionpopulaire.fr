@@ -18,7 +18,7 @@ def send_login_email(email, short_code, expiry_time):
 
     send_mosaico_email(
         code="LOGIN_MESSAGE",
-        subject="Connexion à la plateforme",
+        subject="Votre code de connexion",
         from_email=settings.EMAIL_FROM,
         bindings={
             "code": interleave_spaces(short_code),
