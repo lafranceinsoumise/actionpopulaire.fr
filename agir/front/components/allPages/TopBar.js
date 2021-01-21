@@ -307,7 +307,7 @@ export const PureTopBar = () => {
               <span>Aide</span>
             </MenuLink>
             <TopBarRightLink
-              settingsLink={isSessionLoaded && topBarRightLink}
+              settingsLink={(isSessionLoaded && topBarRightLink) || undefined}
               routes={routes}
               user={user}
             />

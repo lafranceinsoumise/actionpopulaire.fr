@@ -17,13 +17,14 @@ const StyledMap = styled.div`
 `;
 const StyledAddress = styled.div`
   margin-top: 1rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-start;
 
   p {
     margin-left: 0.5rem;
+    margin-bottom: 0;
     display: flex;
     flex-flow: column nowrap;
     font-size: 0.875rem;

@@ -1,27 +1,24 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { Switch, Route, useHistory } from "react-router-dom";
+import { useSpring, animated } from "react-spring";
+import { useDrag } from "react-use-gesture";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { useTabs } from "./hooks";
+import { routeConfig } from "@agir/front/app/routes.config";
+import { useTabs } from "./routes.config";
 
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
-import Tabs from "@agir/front/genericComponents/Tabs";
-import ShareCard from "@agir/front/genericComponents/ShareCard";
 
 import GroupBanner from "../GroupBanner";
 
-import GroupLocation from "../GroupLocation";
 import GroupUserActions from "../GroupUserActions";
-import GroupContactCard from "../GroupContactCard";
-import GroupDescription from "../GroupDescription";
-import GroupLinks from "../GroupLinks";
-import GroupFacts from "../GroupFacts";
-import GroupDonation from "../GroupDonation";
-import GroupSuggestions from "../GroupSuggestions";
-import GroupEventList from "../GroupEventList";
+import GroupPageMenu from "../GroupPageMenu";
+
+import Routes from "./Routes";
 
 export const MobileGroupPageSkeleton = () => (
   <Container style={{ margin: "2rem auto", padding: "0 1rem" }}>
@@ -33,36 +30,110 @@ export const MobileGroupPageSkeleton = () => (
   </Container>
 );
 
-const Tab = styled.div`
+const StyledTab = styled(animated.div)`
   max-width: 100%;
   margin: 0;
   padding: 0;
-`;
+  scroll-margin-top: 160px;
 
-const Agenda = styled.div`
-  margin: 0;
-  padding: 1.5rem 1rem;
-  height: 316px;
-  background: ${style.black25};
-
-  & > h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
+  @media (max-width: ${style.collapse}px) {
+    scroll-margin-top: 120px;
+    min-height: 100vh;
   }
 `;
 
-const MobileGroupPage = (props) => {
-  const {
-    group,
-    groupSuggestions,
-    upcomingEvents,
-    pastEvents,
-    isLoadingPastEvents,
-    loadMorePastEvents,
-    pastEventReports,
-  } = props;
+// TODO: fix swiping behavior
+const SwipeableTab = (props) => {
+  const { onNextTab, onPrevTab, children } = props;
+  const [{ xy }, set] = useSpring(() => ({ xy: [0, 0] }));
+  const bind = useDrag(
+    ({ args: [limit], down, movement: [x] }) => {
+      if (down) {
+        const newX =
+          x > 0 ? Math.min(Math.abs(limit), x) : Math.max(-Math.abs(limit), x);
+        set({ xy: [newX, 0] });
+        return;
+      }
+      set({ xy: [0, 0] });
+      if (Math.abs(x) > Math.abs(limit)) {
+        x <= 0 ? onNextTab && onNextTab() : onPrevTab && onPrevTab();
+      }
+    },
+    { axis: "x", lockDirection: true }
+  );
+  const tabRef = useRef();
 
-  const tabProps = useTabs(props, true);
+  useEffect(() => {
+    tabRef.current & tabRef.current.scrollIntoView();
+  }, []);
+
+  return (
+    <StyledTab
+      {...bind(50)}
+      style={{
+        transform:
+          xy && xy.interpolate((x) => (x ? `translate3d(${x}px, 0px, 0)` : "")),
+      }}
+      ref={tabRef}
+    >
+      {children}
+    </StyledTab>
+  );
+};
+SwipeableTab.propTypes = {
+  onNextTab: PropTypes.func,
+  onPrevTab: PropTypes.func,
+  children: PropTypes.node,
+};
+
+const Tab = (props) => {
+  const { children } = props;
+  const tabRef = useRef();
+  useEffect(() => {
+    tabRef.current & tabRef.current.scrollIntoView();
+  }, []);
+
+  return <StyledTab ref={tabRef}>{children}</StyledTab>;
+};
+Tab.propTypes = {
+  onNextTab: PropTypes.func,
+  onPrevTab: PropTypes.func,
+  children: PropTypes.node,
+};
+
+const MobileGroupPage = (props) => {
+  const { group, allEvents } = props;
+  const { hasTabs, tabs, onTabChange, onNextTab, onPrevTab } = useTabs(
+    props,
+    true
+  );
+
+  const goToAgendaTab = useMemo(() => {
+    const agendaTab = tabs.find((tab) => tab.id === "agenda");
+    if (agendaTab && onTabChange) {
+      return () => onTabChange(agendaTab);
+    }
+  }, [tabs, onTabChange]);
+
+  const history = useHistory();
+
+  const getMessageURL = useCallback(
+    (messagePk) =>
+      routeConfig.groupMessage &&
+      routeConfig.groupMessage.getLink({
+        groupPk: group.id,
+        messagePk: messagePk,
+      }),
+    [group]
+  );
+
+  const handleClickMessage = useCallback(
+    (message) => {
+      const link = getMessageURL(message.id);
+      history && history.push(link);
+    },
+    [history, getMessageURL]
+  );
 
   if (!group) {
     return null;
@@ -73,69 +144,36 @@ const MobileGroupPage = (props) => {
       style={{
         margin: 0,
         padding: "0 0 3.5rem",
+        backgroundColor: style.black25,
       }}
     >
       <GroupBanner {...group} />
       <GroupUserActions {...group} />
-      <Tabs {...tabProps} stickyOffset={72}>
-        <Tab>
-          {Array.isArray(upcomingEvents) && upcomingEvents.length > 0 ? (
-            <Agenda>
-              <h3>Agenda</h3>
-              <GroupEventList
-                events={[upcomingEvents[0]]}
-                loadMore={tabProps.onNextTab}
-                loadMoreLabel="Voir tout l'agenda"
-              />
-            </Agenda>
-          ) : null}
-
-          <GroupContactCard {...group} />
-          <GroupDescription {...group} />
-          <GroupLinks {...group} />
-          <GroupFacts {...group} />
-          <GroupLocation {...group} />
-          {group.routes && group.routes.donations && (
-            <GroupDonation url={group.routes.donations} />
-          )}
-          <ShareCard title="Partager le lien du groupe" />
-
-          {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
-            <div style={{ marginTop: 71, marginBottom: 71 }}>
-              <GroupSuggestions groups={groupSuggestions} />
-            </div>
-          ) : null}
-        </Tab>
-        <Tab>
-          <GroupEventList title="Événements à venir" events={upcomingEvents} />
-          <GroupEventList
-            title="Événements passés"
-            events={pastEvents}
-            loadMore={loadMorePastEvents}
-            isLoading={isLoadingPastEvents}
-          />
-        </Tab>
-        <Tab>
-          <GroupEventList title="Comptes-rendus" events={pastEventReports} />
-        </Tab>
-      </Tabs>
+      <GroupPageMenu tabs={tabs} hasTabs={hasTabs} stickyOffset={72} />
+      <Switch>
+        {tabs.map((tab) => {
+          const R = Routes[tab.id];
+          return (
+            <Route key={tab.id} path={tab.pathname} exact>
+              <Tab onNextTab={onNextTab} onPrevTab={onPrevTab}>
+                <R
+                  {...props}
+                  allEvents={allEvents}
+                  hasTabs={hasTabs}
+                  goToAgendaTab={goToAgendaTab}
+                  getMessageURL={getMessageURL}
+                  onClickMessage={handleClickMessage}
+                />
+              </Tab>
+            </Route>
+          );
+        })}
+      </Switch>
     </Container>
   );
 };
 MobileGroupPage.propTypes = {
-  group: PropTypes.shape({
-    isMember: PropTypes.bool,
-    isManager: PropTypes.bool,
-    routes: PropTypes.shape({
-      donations: PropTypes.string,
-    }),
-  }),
-  groupSuggestions: PropTypes.arrayOf(PropTypes.object),
-  upcomingEvents: PropTypes.arrayOf(PropTypes.object),
-  pastEvents: PropTypes.arrayOf(PropTypes.object),
-  isLoadingPastEvents: PropTypes.bool,
-  loadMorePastEvents: PropTypes.func,
-  pastEventReports: PropTypes.arrayOf(PropTypes.object),
-  tabs: PropTypes.arrayOf(PropTypes.object),
+  group: PropTypes.object,
+  allEvents: PropTypes.arrayOf(PropTypes.object),
 };
 export default MobileGroupPage;

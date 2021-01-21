@@ -49,6 +49,7 @@ const Wrapper = styled(animated.div)`
 
 export const FeedbackButton = (props) => {
   const { isActive, shouldPushTooltip, href } = props;
+  const style = props.style || {};
 
   const [hasTooltip, setHasTooltip] = useState(false);
 
@@ -71,7 +72,7 @@ export const FeedbackButton = (props) => {
 
   return wrapperTransition.map(({ item, key, props }) =>
     item ? (
-      <Wrapper key={key} style={props}>
+      <Wrapper key={key} style={{ ...style, ...props }}>
         <Tooltip
           position="top-left"
           shouldShow={hasTooltip}
@@ -121,8 +122,9 @@ const ConnectedFeedbackButton = (props) => {
     <FeedbackButton
       {...props}
       href={href}
-      isActive={!!user && hasFeedbackButton && isActive}
+      // isActive={!!user && hasFeedbackButton && isActive}
       shouldPushTooltip={shouldPushTooltip}
+      isActive
     />
   );
 };

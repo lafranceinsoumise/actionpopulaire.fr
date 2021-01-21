@@ -31,6 +31,11 @@ urlpatterns = [
         "groupes/<uuid:pk>/", views.SupportGroupDetailView.as_view(), name="view_group"
     ),
     path(
+        "groupes/<uuid:pk>/complet/",
+        views.FullSupportGroupView.as_view(),
+        name="full_group",
+    ),
+    path(
         "groupes/<uuid:pk>/agenda/",
         views.SupportGroupDetailView.as_view(),
         name="view_group_events",
@@ -46,9 +51,14 @@ urlpatterns = [
         name="view_group_info",
     ),
     path(
-        "groupes/<uuid:pk>/complet/",
-        views.FullSupportGroupView.as_view(),
-        name="full_group",
+        "groupes/<uuid:pk>/discussion/",
+        views.SupportGroupDetailView.as_view(),
+        name="view_group_messages",
+    ),
+    path(
+        "groupes/<uuid:pk>/discussion/<uuid:message_pk>/",
+        views.SupportGroupDetailView.as_view(),
+        name="view_group_message",
     ),
     path("activite/", views.ActivityView.as_view(), name="list_activities",),
     path(
