@@ -1,11 +1,13 @@
 from datetime import date
 
 import reversion
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.postgres.fields import ArrayField, DateRangeField
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
-from django.db import models
+from django.db import models, connection
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.html import format_html
 from psycopg2._range import DateRange
 
@@ -69,6 +71,15 @@ STATUT_CHOICES = (
     (STATUT_FAUX_POSITIF_IMPORT, "Faux-positif dans une opération d'import"),
     (STATUT_VERIFIE, "Mandat vérifié"),
 )
+
+
+class MandatQueryset(models.QuerySet):
+    def annotate_distance(self):
+        return self.annotate(
+            distance=Distance(
+                models.F("person__coordinates"), models.F("conseil__geometry")
+            )
+        )
 
 
 class MandatHistoryMixin(HistoryMixin):
@@ -150,6 +161,8 @@ class UniqueWithinDates:
 
 
 class MandatAbstrait(UniqueWithinDates, MandatHistoryMixin, models.Model):
+    objects = MandatQueryset.as_manager()
+
     person = models.ForeignKey(
         "people.Person", verbose_name="Élu", on_delete=models.CASCADE
     )
@@ -183,6 +196,14 @@ class MandatAbstrait(UniqueWithinDates, MandatHistoryMixin, models.Model):
 
     def actif(self):
         return timezone.now().date() in self.dates
+
+    @cached_property
+    def distance(self):
+        return (
+            self._meta.default_manager.annotate_distance()
+            .values("distance")
+            .get(pk=self.id)["distance"]
+        )
 
     @property
     def nom_conseil(self):

@@ -173,6 +173,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
             "is_insoumise",
             "is_2022",
             "is_2022_appel_elus",
+            "distance",
         )
 
         if obj is not None:
@@ -248,6 +249,17 @@ class BaseMandatAdmin(admin.ModelAdmin):
 
     is_2022_appel_elus.short_description = "Soutien 2022 via appel élus"
     is_2022_appel_elus.boolean = True
+
+    def distance(self, obj):
+        if obj.distance is None:
+            return "-"
+
+        if obj.distance == 0:
+            return "Dans le périmètre"
+
+        return f"{obj.distance.km:.0f} km"
+
+    distance.short_description = "Distance entre l'adresse et le lieu d'élection"
 
     def get_changeform_initial_data(self, request):
         """Permet de préremplir le champs `dates' en fonction de la dernière élection"""
@@ -404,6 +416,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                     "location_address2",
                     "location_zip",
                     "location_city",
+                    "distance",
                     "new_email",
                 )
             },
