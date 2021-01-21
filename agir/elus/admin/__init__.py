@@ -374,7 +374,10 @@ class BaseMandatAdmin(admin.ModelAdmin):
 @admin.register(MandatMunicipal)
 class MandatMunicipalAdmin(BaseMandatAdmin):
     form = CreerMandatMunicipalForm
-    autocomplete_fields = ("conseil",)
+    autocomplete_fields = (
+        "conseil",
+        "reference",
+    )
     default_date_range = MUNICIPAL_DEFAULT_DATE_RANGE
 
     list_filter = (
@@ -402,6 +405,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                     "is_insoumise",
                     "is_2022",
                     "is_2022_appel_elus",
+                    "reference",
                     "commentaires",
                 )
             },
@@ -412,6 +416,8 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                 "fields": (
                     "first_name",
                     "last_name",
+                    "gender",
+                    "date_of_birth",
                     "email_officiel",
                     "contact_phone",
                     "location_address1",
@@ -487,6 +493,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
                 "fields": (
                     "first_name",
                     "last_name",
+                    "gender",
                     "email_officiel",
                     "contact_phone",
                     "location_address1",
@@ -554,6 +561,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
                 "fields": (
                     "first_name",
                     "last_name",
+                    "gender",
                     "email_officiel",
                     "contact_phone",
                     "location_address1",

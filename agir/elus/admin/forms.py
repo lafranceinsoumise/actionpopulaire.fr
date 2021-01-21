@@ -1,5 +1,7 @@
 from django import forms
 from django.db import IntegrityError
+from django.utils.html import format_html
+from django.urls import reverse
 
 from agir.elus.models import DELEGATIONS_CHOICES
 from agir.people.models import PersonEmail, Person
@@ -7,6 +9,8 @@ from agir.people.models import PersonEmail, Person
 PERSON_FIELDS = [
     "last_name",
     "first_name",
+    "gender",
+    "date_of_birth",
     "contact_phone",
     "location_address1",
     "location_address2",
@@ -159,9 +163,33 @@ CreerMandatForm.base_fields = (
 ) = creer_mandat_declared_fields
 
 
+def legender_depuis_fiche_rne(form, reference):
+    form.fields["reference"].help_text = format_html(
+        '<a href="{}">{}</a>',
+        reverse("admin:data_france_elumunicipal_change", args=(reference.id,)),
+        "Voir la fiche dans le Répertoire National des élus",
+    )
+
+    form.fields["mandat"].help_text = f"Dans la fiche RNE : {reference.fonction}"
+
+    form.fields["last_name"].help_text = f"Dans la fiche RNE : {reference.nom}"
+    form.fields["first_name"].help_text = f"Dans la fiche RNE : {reference.prenom}"
+    form.fields[
+        "date_of_birth"
+    ].help_text = f"Dans la fiche RNE : {reference.date_naissance.strftime('%d/%m/%Y')}"
+    form.fields[
+        "gender"
+    ].help_text = f"Sexe à l'état civil dans la fiche RNE : {reference.sexe}"
+    form.fields[
+        "dates"
+    ].help_text = (
+        f"Dates de début du mandat dans la fiche RNE : {reference.date_debut_mandat}"
+    )
+
+
 class CreerMandatMunicipalForm(CreerMandatForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, instance=None, **kwargs):
+        super().__init__(*args, instance=instance, **kwargs)
 
         if "communautaire" in self.fields:
             if self.instance.conseil is None or self.instance.conseil.epci is None:
@@ -169,3 +197,6 @@ class CreerMandatMunicipalForm(CreerMandatForm):
             else:
                 epci = self.instance.conseil.epci
                 self.fields["communautaire"].label = f"Mandat auprès de la {epci.nom}"
+
+        if instance and instance.reference:
+            legender_depuis_fiche_rne(self, instance.reference)

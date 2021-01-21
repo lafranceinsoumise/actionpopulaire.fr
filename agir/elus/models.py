@@ -218,9 +218,18 @@ class MandatMunicipal(MandatAbstrait):
         (MANDAT_EPCI_PAS_DE_MANDAT, "Pas de mandat communautaire"),
         (MANDAT_EPCI_MANDAT_INCONNU, "Délégué⋅e, situation inconnue"),
         (MANDAT_EPCI_MAJORITE, "Délégué⋅e majoritaire"),
-        (MANDAT_EPCI_OPPOSITION, "Délégué⋅e minoritaire",),
+        (MANDAT_EPCI_OPPOSITION, "Délégué⋅e minoritaire"),
         (MANDAT_EPCI_PRESIDENT, "Président"),
         (MANDAT_EPCI_VICE_PRESIDENT, "Vice-Président"),
+    )
+
+    reference = models.OneToOneField(
+        "data_france.EluMunicipal",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Référence dans le RNE",
+        help_text="La fiche correspondant à cet élu dans le Répertoire National des Élus",
     )
 
     person = models.ForeignKey(
