@@ -63,7 +63,10 @@ const Page = ({ groupPk, messagePk }) => {
         setBackLink(
           group && group.isMember
             ? {
-                to: routeConfig.groupDetails.getLink({ groupPk: group.id }),
+                to: routeConfig.groupDetails.getLink({
+                  groupPk: group.id,
+                  activeTab: "discussion",
+                }),
                 label: "Voir le groupe",
               }
             : {
