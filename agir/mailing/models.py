@@ -1,5 +1,4 @@
 from datetime import timedelta
-from functools import reduce
 
 from django.contrib.gis.db.models import MultiPolygonField
 from django.contrib.postgres.fields import DateRangeField
@@ -453,6 +452,9 @@ class Segment(BaseSegment, models.Model):
     def _get_own_filters_queryset(self):
         qs = Person.objects.all()
 
+        if self.elu:
+            qs = qs.annotate_elus()
+
         return qs.filter(self.get_subscribers_q()).filter(emails___bounced=False)
 
     def get_subscribers_queryset(self):
@@ -465,9 +467,6 @@ class Segment(BaseSegment, models.Model):
 
         for s in self.exclude_segments.all():
             qs = qs.exclude(pk__in=s.get_subscribers_queryset())
-
-        if self.elu:
-            qs = qs.annotate_elus()
 
         return qs.order_by("id").distinct("id")
 
