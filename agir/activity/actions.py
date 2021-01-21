@@ -10,6 +10,7 @@ def get_activities(person):
     return (
         Activity.objects.without_required_action()
         .filter(recipient=person)
+        .select_related("supportgroup", "individual")
         .prefetch_related(
             Prefetch("event", Event.objects.with_serializer_prefetch(person),)
         )[:40]
