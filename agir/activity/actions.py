@@ -21,6 +21,7 @@ def get_required_action_activities(person):
     required_action_activities = (
         Activity.objects.with_required_action()
         .filter(recipient=person)
+        .select_related("supportgroup", "individual")
         .prefetch_related(
             Prefetch("event", Event.objects.with_serializer_prefetch(person),)
         )
