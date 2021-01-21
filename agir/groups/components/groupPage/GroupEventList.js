@@ -33,8 +33,8 @@ const StyledList = styled.div`
     }
   }
 
-  ${Card} {
-    margin-bottom: 1rem;
+  ${Card} + ${Card} {
+    margin-top: 1rem;
   }
 
   & > ${Button} {

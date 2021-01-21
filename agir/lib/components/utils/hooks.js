@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef } from "react";
 import throttle from "lodash/throttle";
 import debounce from "lodash/debounce";
+import {
+  disableBodyScroll,
+  enableBodyScroll,
+  clearAllBodyScrollLocks,
+} from "body-scroll-lock";
 
 export const usePrevious = (value) => {
   const ref = useRef(null);
@@ -93,4 +98,21 @@ export const useInterval = function useInterval(callback, delay) {
       return () => clearInterval(id);
     }
   }, [delay]);
+};
+
+export const useDisableBodyScroll = (isActive, shouldDisable) => {
+  const targetRef = useRef(null);
+
+  useEffect(() => {
+    if (isActive && typeof window !== "undefined" && targetRef.current) {
+      shouldDisable
+        ? disableBodyScroll(targetRef.current)
+        : enableBodyScroll(targetRef.current);
+    }
+    return () => {
+      clearAllBodyScrollLocks();
+    };
+  }, [shouldDisable, isActive]);
+
+  return targetRef;
 };

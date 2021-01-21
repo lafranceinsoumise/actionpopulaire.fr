@@ -16,6 +16,10 @@ const StyledCard = styled(Card)`
   justify-content: flex-start;
   padding: 1.5rem;
 
+  @media (max-width: ${style.collapse}px) {
+    padding: 1rem;
+  }
+
   ${({ highlight }) =>
     highlight
       ? `

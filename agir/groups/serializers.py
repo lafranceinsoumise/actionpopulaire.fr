@@ -156,6 +156,11 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     discountCodes = serializers.SerializerMethodField()
     commune = serializers.SerializerMethodField()
 
+    hasUpcomingEvents = serializers.SerializerMethodField()
+    hasPastEvents = serializers.SerializerMethodField()
+    hasPastEventReports = serializers.SerializerMethodField()
+    hasMessages = serializers.SerializerMethodField()
+
     def to_representation(self, instance):
         user = self.context["request"].user
         self.membership = None
@@ -283,3 +288,15 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 "nameOf": commune.nom_avec_charniere,
             }
         return commune
+
+    def get_hasUpcomingEvents(self, obj):
+        return obj.organized_events.upcoming().exists()
+
+    def get_hasPastEvents(self, obj):
+        return obj.organized_events.past().exists()
+
+    def get_hasPastEventReports(self, obj):
+        return obj.organized_events.past().exclude(report_content="").exists()
+
+    def get_hasMessages(self, obj):
+        return self.membership is not None

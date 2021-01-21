@@ -109,9 +109,8 @@ class NearGroupsAPIView(ListAPIView):
         return groups[:3]
 
     def dispatch(self, request, pk, *args, **kwargs):
-        self.person = request.user.person
         try:
-            self.supportgroup = SupportGroup.objects.get(pk=pk)
+            self.supportgroup = SupportGroup.objects.active().get(pk=pk)
         except SupportGroup.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 

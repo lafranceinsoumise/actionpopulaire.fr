@@ -12,6 +12,9 @@ const FullGroupPage = lazy(() =>
   import("@agir/groups/fullGroupPage/FullGroupPage")
 );
 const GroupPage = lazy(() => import("@agir/groups/groupPage/GroupPage"));
+const GroupMessagePage = lazy(() =>
+  import("@agir/groups/groupPage/GroupMessagePage")
+);
 const GroupMap = lazy(() => import("@agir/carte/page__groupMap/GroupMap"));
 
 const ActivityPage = lazy(() =>
@@ -26,13 +29,16 @@ const NavigationPage = lazy(() =>
 
 export const BASE_PATH = "/";
 
-class RouteConfig {
+export class RouteConfig {
   constructor(props) {
     Object.keys(props).forEach((key) => (this[key] = props[key]));
 
     this.__keys__ = [];
+    const pathname = Array.isArray(this.pathname)
+      ? this.pathname[0]
+      : this.pathname;
     this.__re__ = pathToRegexp(this.pathname, this.__keys__);
-    this.__toPath__ = pathToRegexp.compile(this.pathname);
+    this.__toPath__ = pathToRegexp.compile(pathname);
 
     this.match = this.match.bind(this);
     this.getLink = this.getLink.bind(this);
@@ -54,10 +60,13 @@ class RouteConfig {
    */
   getLink(params) {
     try {
-      params = params || {};
+      params = {
+        ...(this.params || {}),
+        ...(params || {}),
+      };
       return this.__toPath__(params);
     } catch (e) {
-      return this.pathname;
+      return Array.isArray(this.pathname) ? this.pathname[0] : this.pathname;
     }
   }
 }
@@ -105,9 +114,16 @@ export const routeConfig = {
       smallBackgroundColor: style.black25,
     },
   }),
+  groupMessage: new RouteConfig({
+    id: "groupMessage",
+    pathname: "/groupes/:groupPk/discussion/:messagePk/",
+    exact: true,
+    label: "Discussion du groupe",
+    Component: GroupMessagePage,
+  }),
   groupDetails: new RouteConfig({
     id: "groupDetails",
-    pathname: "/groupes/:groupPk/:activeTab?",
+    pathname: "/groupes/:groupPk/:activeTab?/",
     exact: true,
     label: "Details du groupe",
     Component: GroupPage,

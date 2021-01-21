@@ -5,7 +5,6 @@ import { GlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 import Router from "./Router";
 import TopBar from "@agir/front/allPages/TopBar";
 import PushModal from "@agir/front/allPages/PushModal";
-import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 
 export default function App() {
   return (
@@ -16,7 +15,6 @@ export default function App() {
         </Helmet>
         <TopBar />
         <PushModal isActive />
-        <FeedbackButton />
       </Router>
     </GlobalContextProvider>
   );

@@ -3,10 +3,39 @@ import React from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
+import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import Footer from "@agir/front/dashboardComponents/Footer";
+
+const IndexLinkAnchor = styled(Link)`
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  margin: 0 0 2rem;
+
+  &,
+  &:hover,
+  &:focus,
+  &:active {
+    text-decoration: none;
+    color: #585858;
+  }
+
+  span {
+    transform: rotate(180deg) translateY(-1.5px);
+    transform-origin: center center;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    display: none;
+  }
+`;
 
 export const LayoutTitle = styled.h1`
   text-align: center;
@@ -59,6 +88,18 @@ const CenteredLayout = (props) => (
     <MainContainer {...props}>
       <Row align="center">
         <MainColumn grow>
+          {!!props.backLink && (
+            <section>
+              <IndexLinkAnchor
+                to={props.backLink.to}
+                href={props.backLink.href}
+                route={props.backLink.route}
+              >
+                <span>&#10140;</span>
+                &ensp; {props.backLink.label || "Retour à l'accueil"}
+              </IndexLinkAnchor>
+            </section>
+          )}
           <section>
             <header>
               {props.icon ? (
@@ -108,6 +149,12 @@ CenteredLayout.propTypes = {
   children: PropTypes.node,
   desktopOnlyFooter: PropTypes.bool,
   hasBanner: PropTypes.bool,
+  backLink: PropTypes.shape({
+    to: PropTypes.string,
+    href: PropTypes.string,
+    route: PropTypes.string,
+    label: PropTypes.string,
+  }),
 };
 CenteredLayout.defaultProps = {
   routes: {

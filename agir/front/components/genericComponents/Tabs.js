@@ -73,6 +73,7 @@ const useTabs = (props) => {
   const handleClick = useCallback(
     (e) => {
       const index = e.target.dataset.index;
+      console.log(isControlled, onTabChange);
       if (isControlled) {
         onTabChange && onTabChange(tabs[index]);
       } else {

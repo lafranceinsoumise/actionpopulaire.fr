@@ -1,9 +1,11 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useTransition, animated } from "react-spring";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import { useDisableBodyScroll } from "@agir/lib/utils/hooks";
 
 const slideInTransition = {
   from: { opacity: 0, paddingTop: "2%" },
@@ -20,7 +22,7 @@ const fadeInTransition = {
 const Overlay = styled(animated.div)`
   width: 100%;
   height: 100%;
-  position: absolute;
+  position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
@@ -43,7 +45,6 @@ AnimatedOverlay.propTypes = {
   shouldShow: PropTypes.bool,
   onClick: PropTypes.func,
   className: PropTypes.string,
-  noScroll: PropTypes.bool,
 };
 
 const ModalContent = styled(animated.div)`
@@ -77,24 +78,109 @@ const ModalFrame = styled.div`
   z-index: ${style.zindexModal};
 `;
 
+const getFocusableElements = (parent) => {
+  if (!parent) {
+    return [];
+  }
+  return [
+    ...parent.querySelectorAll(
+      'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+    ),
+  ].filter(
+    (elem) =>
+      !elem.disabled &&
+      !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length)
+  );
+};
+
+const useFocusTrap = (shouldShow) => {
+  const modalRef = useRef(null);
+  const handleTabKey = useCallback((e) => {
+    if (!modalRef.current) {
+      return;
+    }
+    const focusableModalElements = getFocusableElements(modalRef.current);
+    const firstElement = focusableModalElements[0];
+    const lastElement =
+      focusableModalElements[focusableModalElements.length - 1];
+    if (!e.shiftKey && document.activeElement === lastElement) {
+      firstElement.focus();
+      e.preventDefault();
+    }
+    if (e.shiftKey && document.activeElement === firstElement) {
+      lastElement.focus();
+      e.preventDefault();
+    }
+  }, []);
+
+  const keyListenersMap = useMemo(() => new Map([[9, handleTabKey]]), [
+    handleTabKey,
+  ]);
+
+  useEffect(() => {
+    const keyListener = (e) => {
+      const listener = keyListenersMap.get(e.keyCode);
+      return listener && listener(e);
+    };
+    if (shouldShow && modalRef.current) {
+      document.addEventListener("keydown", keyListener);
+      const firstElement = getFocusableElements(modalRef.current)[0];
+      firstElement ? firstElement.focus() : modalRef.current.focus();
+    }
+
+    return () => document.removeEventListener("keydown", keyListener);
+  }, [shouldShow, keyListenersMap]);
+
+  return modalRef;
+};
+
 const Modal = (props) => {
-  const { shouldShow = false, children, onClose } = props;
+  const { shouldShow = false, children, onClose, noScroll } = props;
+
+  const modalRef = useDisableBodyScroll(noScroll, shouldShow);
+  const modalContentRef = useFocusTrap(shouldShow);
 
   const transitions = useTransition(shouldShow, null, slideInTransition);
 
-  return transitions.map(({ item, key, props }) =>
-    item ? (
-      <ModalFrame key={key}>
-        <AnimatedOverlay onClick={onClose} shouldShow={shouldShow} />
-        <ModalContent style={props}>{children}</ModalContent>
-      </ModalFrame>
-    ) : null
+  const modalParent = useMemo(() => {
+    const modalParent = document.createElement("div");
+    modalParent.className = "modal-root";
+    document.body.appendChild(modalParent);
+
+    return modalParent;
+  }, []);
+
+  useEffect(
+    () => () => {
+      modalParent && document.body.removeChild(modalParent);
+    },
+    [modalParent]
+  );
+
+  return createPortal(
+    transitions.map(({ item, key, props }) =>
+      item ? (
+        <ModalFrame key={key} ref={modalRef}>
+          <AnimatedOverlay onClick={onClose} shouldShow={shouldShow} />
+          <ModalContent
+            ref={modalContentRef}
+            style={props}
+            aria-modal="true"
+            role="dialog"
+          >
+            {children}
+          </ModalContent>
+        </ModalFrame>
+      ) : null
+    ),
+    modalParent
   );
 };
 Modal.propTypes = {
   shouldShow: PropTypes.bool,
   children: PropTypes.node,
   onClick: PropTypes.func,
+  noScroll: PropTypes.bool,
 };
 
 export default Modal;

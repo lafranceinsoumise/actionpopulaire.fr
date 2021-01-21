@@ -33,7 +33,13 @@ export const StyledWrapper = styled.div`
   }
 
   ${Carousel} {
+    @media (max-width: ${style.collapse}px) {
+      margin-left: 0;
+    }
     .swiper-container {
+      @media (max-width: ${style.collapse}px) {
+        padding-left: 1.5rem;
+      }
       .swiper-slide {
         width: auto;
       }
@@ -45,8 +51,10 @@ export const StyledWrapper = styled.div`
     flex-flow: row nowrap;
 
     & > * {
-      margin-right: 2rem;
       flex: 1 1 auto;
+      @media (min-width: ${style.collapse}px) {
+        margin-right: 2rem;
+      }
     }
   }
 `;
