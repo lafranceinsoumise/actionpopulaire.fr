@@ -276,10 +276,7 @@ const ActivityCard = (props) => {
     case "new-attendee":
       return (
         <ActivityCardContainer {...props}>
-          <strong>
-            {(individual && (individual.firstName || individual.email)) ||
-              "Quelqu'un"}
-          </strong>{" "}
+          <strong>{(individual && individual.firstName) || "Quelqu'un"}</strong>{" "}
           s'est {getGenderedWord(individual && individual.gender, "inscrit·e")}{" "}
           à votre événement {Event}
         </ActivityCardContainer>
