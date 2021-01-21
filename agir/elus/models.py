@@ -57,6 +57,7 @@ DELEGATIONS_CHOICES = (
 STATUT_A_VERIFIER_ADMIN = "INC"
 STATUT_A_VERIFIER_INSCRIPTION = "DEM"
 STATUT_A_VERIFIER_IMPORT = "IMP"
+STATUT_FAUX_POSITIF_IMPORT = "FXP"
 STATUT_VERIFIE = "INS"
 STATUT_CHOICES = (
     (STATUT_A_VERIFIER_ADMIN, "Mandat à vérifier (ajouté côté admin)"),
@@ -65,6 +66,7 @@ STATUT_CHOICES = (
         "Mandat à vérifier (ajouté par la personne elle-même)",
     ),
     (STATUT_A_VERIFIER_IMPORT, "Importé par une opération automatique"),
+    (STATUT_FAUX_POSITIF_IMPORT, "Faux-positif dans une opération d'import"),
     (STATUT_VERIFIE, "Mandat vérifié"),
 )
 
@@ -223,7 +225,7 @@ class MandatMunicipal(MandatAbstrait):
         (MANDAT_EPCI_VICE_PRESIDENT, "Vice-Président"),
     )
 
-    reference = models.OneToOneField(
+    reference = models.ForeignKey(
         "data_france.EluMunicipal",
         on_delete=models.SET_NULL,
         null=True,

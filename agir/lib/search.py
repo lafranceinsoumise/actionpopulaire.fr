@@ -1,9 +1,7 @@
 import re
 
-from django.contrib.postgres.search import SearchQuery, SearchConfig
-from django.db.models import Value
+from django.contrib.postgres.search import SearchQuery
 from django.utils.encoding import force_text
-
 
 # taken from django-watson: https://github.com/etianen/django-watson/blob/2226de139b6e177bfbe2824b1749478dbcce3318/watson/backends.py#L26
 RE_POSTGRES_ESCAPE_CHARS = re.compile(r"[&:(|)!><]", re.UNICODE)
