@@ -24,6 +24,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.datetime_safe import datetime
 from django.utils.timezone import make_aware
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 ADMIN_RE = re.compile("^([\w -]+) <([^>]+)>$")
 YES_VALUES = ["y", "yes", "true", "t"]
@@ -565,7 +566,7 @@ if not DEBUG:
     }
 
     sentry_sdk.init(
-        integrations=[DjangoIntegration()], traces_sample_rate=0.1,
+        integrations=[DjangoIntegration(), RedisIntegration()], traces_sample_rate=0.1,
     )
 
 # CACHING
