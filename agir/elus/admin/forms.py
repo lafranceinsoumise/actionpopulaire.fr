@@ -129,19 +129,13 @@ class CreerMandatForm(forms.ModelForm):
                 cleaned_data["new_email"],
                 **{k: v for k, v in cleaned_data.items() if k in PERSON_FIELDS},
             )
-            self.instance.newsletters = (
-                [Person.NEWSLETTER_LFI] if cleaned_data["subscribed_lfi"] else []
-            )
             self.instance.email_officiel = self.instance.person.primary_email
         else:
             # On n'assigne les champs de personne QUE dans le cas on on a pas sélectionné une personne
             if "person" not in self.fields:
-                if any(
-                    f in self.changed_data for f in [*PERSON_FIELDS, "subscribed_lfi"]
-                ):
+                if any(f in self.changed_data for f in PERSON_FIELDS):
                     for f in PERSON_FIELDS:
                         setattr(person, f, cleaned_data[f])
-                    person.subscribed = cleaned_data["subscribed_lfi"]
                     person.save()
 
             if "new_email" in self.changed_data:
