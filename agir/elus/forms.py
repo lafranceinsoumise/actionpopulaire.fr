@@ -1,22 +1,19 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
+from data_france.models import CollectiviteDepartementale, CollectiviteRegionale
 from django import forms
 from django.contrib.postgres.forms import DateRangeField
-
-from data_france.models import CollectiviteDepartementale, CollectiviteRegionale
 from django.core.exceptions import NON_FIELD_ERRORS
 
 from agir.elus.models import (
     MandatMunicipal,
-    STATUT_A_VERIFIER_INSCRIPTION,
     MUNICIPAL_DEFAULT_DATE_RANGE,
     DEPARTEMENTAL_DEFAULT_DATE_RANGE,
     REGIONAL_DEFAULT_DATE_RANGE,
     DELEGATIONS_CHOICES,
-    STATUT_A_VERIFIER_IMPORT,
-    STATUT_A_VERIFIER_ADMIN,
     MandatDepartemental,
     MandatRegional,
+    StatutMandat,
 )
 from agir.lib.form_fields import CommuneField
 from agir.people.models import Person
@@ -72,8 +69,11 @@ class BaseMandatForm(forms.ModelForm):
             self.helper.layout.fields.insert(0, "membre_reseau_elus")
 
     def save(self, commit=True):
-        if self.instance.statut in [STATUT_A_VERIFIER_ADMIN, STATUT_A_VERIFIER_IMPORT]:
-            self.instance.statut = STATUT_A_VERIFIER_INSCRIPTION
+        if self.instance.statut in [
+            StatutMandat.CONTACT_NECESSAIRE,
+            StatutMandat.IMPORT_AUTOMATIQUE,
+        ]:
+            self.instance.statut = StatutMandat.INSCRIPTION_VIA_PROFIL
 
         if "membre_reseau_elus" in self.fields:
             self.instance.person.membre_reseau_elus = self.cleaned_data[

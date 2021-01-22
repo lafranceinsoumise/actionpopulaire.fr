@@ -56,21 +56,13 @@ DELEGATIONS_CHOICES = (
     ("voirie", "Voirie"),
 )
 
-STATUT_A_VERIFIER_ADMIN = "INC"
-STATUT_A_VERIFIER_INSCRIPTION = "DEM"
-STATUT_A_VERIFIER_IMPORT = "IMP"
-STATUT_FAUX_POSITIF_IMPORT = "FXP"
-STATUT_VERIFIE = "INS"
-STATUT_CHOICES = (
-    (STATUT_A_VERIFIER_ADMIN, "Mandat à vérifier (ajouté côté admin)"),
-    (
-        STATUT_A_VERIFIER_INSCRIPTION,
-        "Mandat à vérifier (ajouté par la personne elle-même)",
-    ),
-    (STATUT_A_VERIFIER_IMPORT, "Importé par une opération automatique"),
-    (STATUT_FAUX_POSITIF_IMPORT, "Faux-positif dans une opération d'import"),
-    (STATUT_VERIFIE, "Mandat vérifié"),
-)
+
+class StatutMandat(models.TextChoices):
+    CONTACT_NECESSAIRE = "INC", "Personne à contacter"
+    INSCRIPTION_VIA_PROFIL = "DEM", "Mandat ajouté par la personne via son profil"
+    IMPORT_AUTOMATIQUE = "IMP", "Importé par une opération automatique"
+    FAUX = "FXP", "Faux-positif ou fausse déclaration"
+    CONFIRME = "INS", "Mandat vérifié et confirmé"
 
 
 class MandatQueryset(models.QuerySet):
@@ -80,6 +72,12 @@ class MandatQueryset(models.QuerySet):
                 models.F("person__coordinates"), models.F("conseil__geometry")
             )
         )
+
+    def confirmes(self):
+        return self.filter(statut=StatutMandat.CONFIRME)
+
+    def potentiels(self):
+        return self.exclude(statut=StatutMandat.FAUX)
 
 
 class MandatHistoryMixin(HistoryMixin):
@@ -184,15 +182,19 @@ class MandatAbstrait(UniqueWithinDates, MandatHistoryMixin, models.Model):
     statut = models.CharField(
         "Statut",
         max_length=3,
-        choices=STATUT_CHOICES,
-        default=STATUT_A_VERIFIER_ADMIN,
+        choices=StatutMandat.choices,
+        default=StatutMandat.CONTACT_NECESSAIRE,
         help_text="Indique la qualité de l'information sur cet⋅te élu⋅e, indépendamment des questions politiques et de"
         " son appartenance au réseau des élus. Une valeur « Vérifié » signifie que : 1) il a été vérifié que le mandat"
         " existe réellement et 2) le compte éventuellement associé appartient bien à la personne élue.",
     )
 
     def besoin_validation_personne(self):
-        return self.statut in [STATUT_A_VERIFIER_IMPORT, STATUT_A_VERIFIER_ADMIN]
+        """Indique que le mandat n'a pas été validé par la personne concernée elle-même."""
+        return self.statut in [
+            StatutMandat.IMPORT_AUTOMATIQUE,
+            StatutMandat.CONTACT_NECESSAIRE,
+        ]
 
     def actif(self):
         return timezone.now().date() in self.dates
