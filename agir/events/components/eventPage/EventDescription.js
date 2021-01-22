@@ -44,7 +44,7 @@ const EventDescription = ({
   return (
     <>
       {isPast ? (
-        compteRenduPhotos.length > 0 || rsvp ? (
+        compteRenduPhotos.length > 0 || rsvp === "CO" ? (
           <DescriptionSection>
             <h2>Photos de l'événement</h2>
             {compteRenduPhotos.length > 0 ? (
@@ -61,7 +61,7 @@ const EventDescription = ({
             ) : (
               <p>Il n'y a pas encore de photo de cet événement.</p>
             )}
-            {!!rsvp && (
+            {rsvp === "CO" && (
               <div>
                 <Button as="a" href={routes.addPhoto} color="secondary">
                   Ajouter une photo

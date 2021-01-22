@@ -15,12 +15,12 @@ import Button from "@agir/front/genericComponents/Button";
 import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 import { useHistory } from "react-router-dom";
 
-const RSVPButton = ({ id, hasSubscriptionForm, rsvp, routes, schedule }) => {
+const RSVPButton = ({ id, hasSubscriptionForm, rsvped, routes, schedule }) => {
   if (schedule.isBefore(DateTime.local())) {
     return null;
   }
 
-  if (rsvp) {
+  if (rsvped) {
     return (
       <Button
         as="Link"
@@ -162,7 +162,7 @@ const EventCard = (props) => {
             <RSVPButton
               id={id}
               hasSubscriptionForm={hasSubscriptionForm}
-              rsvp={!!rsvp}
+              rsvped={rsvp === "CO"}
               routes={routes}
               schedule={schedule}
             />

@@ -187,7 +187,7 @@ const EventHeader = ({
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
 
-  const rsvped = !!rsvp;
+  const rsvped = rsvp === "CO";
   const now = DateTime.local();
   const past = now > schedule.end;
   let eventString = displayHumanDate(schedule.start);
