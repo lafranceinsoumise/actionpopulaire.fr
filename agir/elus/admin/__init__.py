@@ -171,8 +171,8 @@ class BaseMandatAdmin(admin.ModelAdmin):
             "mandats_municipaux",
             "mandats_departementaux",
             "mandats_regionaux",
-            "is_insoumise",
-            "is_2022",
+            "is_insoumise_display",
+            "is_2022_display",
             "is_2022_appel_elus",
             "distance",
         )
@@ -224,21 +224,21 @@ class BaseMandatAdmin(admin.ModelAdmin):
 
     person_link.short_description = "Profil de l'élu"
 
-    def is_insoumise(self, obj):
+    def is_insoumise_display(self, obj):
         if obj.person:
             return obj.person.is_insoumise
         return None
 
-    is_insoumise.short_description = "Insoumis⋅e"
-    is_insoumise.boolean = True
+    is_insoumise_display.short_description = "Insoumis⋅e"
+    is_insoumise_display.boolean = True
 
-    def is_2022(self, obj):
+    def is_2022_display(self, obj):
         if obj.person:
             return obj.person.is_2022
         return None
 
-    is_2022.short_description = "Soutien 2022"
-    is_2022.boolean = True
+    is_2022_display.short_description = "Soutien 2022"
+    is_2022_display.boolean = True
 
     def is_2022_appel_elus(self, obj):
         if obj.person:
@@ -434,8 +434,8 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         "statut",
         "actif",
         "communautaire",
-        "is_insoumise",
-        "is_2022",
+        "is_insoumise_display",
+        "is_2022_display",
         "is_2022_appel_elus",
     )
 
@@ -510,8 +510,8 @@ class MandatDepartementAdmin(BaseMandatAdmin):
         "membre_reseau_elus",
         "statut",
         "actif",
-        "is_insoumise",
-        "is_2022",
+        "is_insoumise_display",
+        "is_2022_display",
         "is_2022_appel_elus",
     )
 
@@ -579,8 +579,8 @@ class MandatRegionalAdmin(BaseMandatAdmin):
         "membre_reseau_elus",
         "statut",
         "actif",
-        "is_insoumise",
-        "is_2022",
+        "is_insoumise_display",
+        "is_2022_display",
         "is_2022_appel_elus",
     )
 

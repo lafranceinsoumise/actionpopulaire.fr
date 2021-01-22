@@ -1,9 +1,11 @@
+from data_france.models import CodePostal
 from django import forms
 from django.db import IntegrityError
 from django.utils.html import format_html
 from django.urls import reverse
 
 from agir.elus.models import DELEGATIONS_CHOICES
+from agir.lib.data import FRANCE_COUNTRY_CODES
 from agir.people.models import PersonEmail, Person
 
 PERSON_FIELDS = [
@@ -11,11 +13,14 @@ PERSON_FIELDS = [
     "first_name",
     "gender",
     "date_of_birth",
+    "is_insoumise",
+    "is_2022",
     "contact_phone",
     "location_address1",
     "location_address2",
     "location_zip",
     "location_city",
+    "location_country",
     "membre_reseau_elus",
     "commentaires",
 ]
@@ -29,12 +34,6 @@ class CreerMandatForm(forms.ModelForm):
     email_officiel = forms.ModelChoiceField(
         label="Email officiel", queryset=PersonEmail.objects.none(), required=False
     )
-    subscribed_lfi = forms.BooleanField(
-        label="Inscrit à la lettre d'information de la FI",
-        required=False,
-        help_text="Assurez-vous d'avoir recueilli le consensus de la personne. Il n'est pas possible d'inscrire une"
-        " personne sans avoir recueilli son consentement EXPLICITE.",
-    )
     new_email = forms.EmailField(label="Ajouter un email officiel", required=False)
     delegations = forms.MultipleChoiceField(
         choices=DELEGATIONS_CHOICES,
@@ -43,8 +42,14 @@ class CreerMandatForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, initial=None, instance=None, **kwargs):
+        # set up initial values for person fields
+        initial = initial or {}
+        if instance and (person := getattr(instance, "person", None)):
+            for f in PERSON_FIELDS:
+                initial[f] = getattr(person, f)
+
+        super().__init__(*args, initial=initial, instance=instance, **kwargs)
 
         if "person" in self.fields:
             self.fields["person"].label = "Compte plateforme de l'élu"
@@ -52,16 +57,10 @@ class CreerMandatForm(forms.ModelForm):
             for name in PERSON_FIELDS:
                 del self.fields[name]
 
-        else:
-            person = getattr(self.instance, "person", None)
-
-            if person is not None:
-                for f in PERSON_FIELDS:
-                    self.fields[f].initial = getattr(person, f)
-                self.fields["email_officiel"].queryset = person.emails.all()
-                self.fields["subscribed_lfi"].initial = (
-                    Person.NEWSLETTER_LFI in person.newsletters
-                )
+        if person is not None:
+            for f in PERSON_FIELDS:
+                self.fields[f].initial = getattr(person, f)
+            self.fields["email_officiel"].queryset = person.emails.all()
 
         if "email_officiel" not in self._meta.fields:
             del self.fields["email_officiel"]
@@ -135,6 +134,7 @@ class CreerMandatForm(forms.ModelForm):
             )
             self.instance.email_officiel = self.instance.person.primary_email
         else:
+            # On n'assigne les champs de personne QUE dans le cas on on a pas sélectionné une personne
             if "person" not in self.fields:
                 if any(
                     f in self.changed_data for f in [*PERSON_FIELDS, "subscribed_lfi"]
@@ -185,6 +185,21 @@ def legender_depuis_fiche_rne(form, reference):
     ].help_text = (
         f"Dates de début du mandat dans la fiche RNE : {reference.date_debut_mandat}"
     )
+
+    if (
+        form.initial["location_zip"]
+        and form.initial["location_country"] in FRANCE_COUNTRY_CODES
+    ):
+        try:
+            code_postal = CodePostal.objects.get(code=form.initial["location_zip"])
+        except CodePostal.DoesNotExist:
+            form.fields["location_zip"].help_text = "Ce code postal est inconnu"
+        else:
+            form.fields["location_zip"].help_text = format_html(
+                '<a href="{}">{}</a>',
+                reverse("admin:data_france_codepostal_change", args=(code_postal.id,)),
+                "Voir la fiche pour ce code postal",
+            )
 
 
 class CreerMandatMunicipalForm(CreerMandatForm):
