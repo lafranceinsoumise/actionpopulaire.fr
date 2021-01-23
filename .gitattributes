@@ -1,0 +1,4 @@
+*.py text eol=lf diff=python
+*.md text diff=markdown
+*.css text diff=css
+*.html text diff=html
