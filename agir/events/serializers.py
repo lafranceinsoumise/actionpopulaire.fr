@@ -65,7 +65,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     isOrganizer = serializers.SerializerMethodField()
     rsvp = serializers.SerializerMethodField()
-    participantCount = serializers.IntegerField(source="participants")
+    # participantCount = serializers.IntegerField(source="participants")
 
     options = EventOptionsSerializer(source="*")
 
