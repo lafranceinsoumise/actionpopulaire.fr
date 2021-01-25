@@ -20,7 +20,7 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             "name",
             "startTime",
             "endTime",
-            "participantCount",
+            # "participantCount",
             "illustration",
             "schedule",
             "location",
