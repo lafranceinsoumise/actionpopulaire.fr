@@ -12,6 +12,8 @@ from agir.payments.model_fields import AmountField
 from .types import get_payment_choices, PAYMENT_TYPES
 from .payment_modes import PAYMENT_MODES
 
+__all__ = ["Payment", "Subscription"]
+
 
 class PaymentQueryset(models.QuerySet):
     def awaiting(self):

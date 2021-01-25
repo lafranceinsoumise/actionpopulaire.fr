@@ -17,6 +17,8 @@ from agir.lib.display import display_price
 from agir.lib.model_fields import IBANField
 from agir.lib.models import TimeStampedModel
 
+__all__ = ["Operation", "Spending", "SpendingRequest", "Document"]
+
 
 class Operation(models.Model):
     created = models.DateTimeField(auto_now_add=True)

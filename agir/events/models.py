@@ -39,6 +39,18 @@ from agir.lib.models import (
 from agir.lib.search import PrefixSearchQuery
 from agir.lib.utils import front_url, resize_and_autorotate
 
+__all__ = [
+    "Event",
+    "EventTag",
+    "EventSubtype",
+    "RSVP",
+    "Calendar",
+    "OrganizerConfig",
+    "EventImage",
+    "IdentifiedGuest",
+    "JitsiMeeting",
+]
+
 
 class EventQuerySet(models.QuerySet):
     def public(self):

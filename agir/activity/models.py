@@ -6,6 +6,8 @@ from stdimage.validators import MinSizeValidator
 
 from agir.lib.models import TimeStampedModel, DescriptionField
 
+__all__ = ["Activity", "Announcement"]
+
 
 class ActivityQuerySet(models.QuerySet):
     def displayed(self):

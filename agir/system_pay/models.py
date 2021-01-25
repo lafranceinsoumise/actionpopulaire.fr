@@ -6,6 +6,9 @@ from django_prometheus.models import ExportModelOperationsMixin
 from agir.lib.models import TimeStampedModel
 
 
+__all__ = ["SystemPayTransaction", "SystemPayAlias", "SystemPaySubscription"]
+
+
 class SystemPayTransaction(
     ExportModelOperationsMixin("system_pay_transaction"), TimeStampedModel
 ):

@@ -7,6 +7,8 @@ from ..lib.models import BaseAPIResource, AbstractLabel
 from ..authentication.models import Role
 from .scopes import scopes
 
+__all__ = ["Client"]
+
 
 class ClientManager(models.Manager):
     def get_by_natural_key(self, label):

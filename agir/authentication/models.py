@@ -8,6 +8,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django_prometheus.models import ExportModelOperationsMixin
 
 
+__all__ = ["Role"]
+
+
 class RoleManager(BaseUserManager):
     pass
 

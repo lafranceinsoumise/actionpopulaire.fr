@@ -11,6 +11,8 @@ from django_prometheus.models import ExportModelOperationsMixin
 
 from agir.lib.models import BaseAPIResource, DescriptionField
 
+__all__ = ["Poll", "PollOption", "PollChoice"]
+
 
 class Poll(BaseAPIResource):
     title = models.CharField(_("Titre de la consultation"), max_length=255)

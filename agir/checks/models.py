@@ -3,6 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 from agir.checks import AbstractCheckPaymentMode
 from agir.payments.models import Payment, PaymentManager
 
+__all__ = ["CheckPayment"]
+
 
 class CheckPaymentManager(PaymentManager):
     def get_queryset(self):

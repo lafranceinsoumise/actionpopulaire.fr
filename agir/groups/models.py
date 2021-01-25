@@ -16,6 +16,14 @@ from agir.lib.models import (
 )
 from agir.lib.search import PrefixSearchQuery
 
+__all__ = [
+    "SupportGroup",
+    "SupportGroupTag",
+    "SupportGroupSubtype",
+    "Membership",
+    "TransferOperation",
+]
+
 
 class SupportGroupQuerySet(models.QuerySet):
     def active(self):

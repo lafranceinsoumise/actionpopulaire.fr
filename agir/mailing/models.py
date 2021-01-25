@@ -16,6 +16,10 @@ from agir.payments.model_fields import AmountField
 from agir.payments.models import Subscription, Payment
 from agir.people.models import Person
 
+
+__all__ = ["Segment"]
+
+
 DATE_HELP_TEXT = (
     "Écrivez en toute lettre JJ/MM/AAAA plutôt qu'avec le widget, ça ira plus vite."
 )

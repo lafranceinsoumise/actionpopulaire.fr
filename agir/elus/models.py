@@ -15,7 +15,7 @@ from psycopg2._range import DateRange
 from agir.lib.display import genrer
 from agir.lib.history import HistoryMixin
 
-__all__ = ["MandatMunicipal", "MandatDepartemental", "MandatRegional"]
+__all__ = ["MandatMunicipal", "MandatDepartemental", "MandatRegional", "StatutMandat"]
 
 MUNICIPAL_DEFAULT_DATE_RANGE = DateRange(date(2020, 6, 28), date(2026, 3, 31))
 DEPARTEMENTAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 3, 29), date(2021, 3, 31))
