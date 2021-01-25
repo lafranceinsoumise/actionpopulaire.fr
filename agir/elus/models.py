@@ -1,10 +1,11 @@
 from datetime import date
 
 import reversion
+from data_france.models import CollectiviteDepartementale, CollectiviteRegionale
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.postgres.fields import ArrayField, DateRangeField
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
-from django.db import models, connection
+from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -13,6 +14,8 @@ from psycopg2._range import DateRange
 
 from agir.lib.display import genrer
 from agir.lib.history import HistoryMixin
+
+__all__ = ["MandatMunicipal", "MandatDepartemental", "MandatRegional"]
 
 MUNICIPAL_DEFAULT_DATE_RANGE = DateRange(date(2020, 6, 28), date(2026, 3, 31))
 DEPARTEMENTAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 3, 29), date(2021, 3, 31))
@@ -318,11 +321,11 @@ class MandatMunicipal(MandatAbstrait):
             self.MANDAT_CONSEILLER_MAJORITE,
             self.MANDAT_CONSEILLER_OPPOSITION,
         ]:
-            titre = genrer(self.person.gender, "Conseiller⋅ère municipal⋅e")
-            titre += {
-                self.MANDAT_CONSEILLER_MAJORITE: " majoritaire",
-                self.MANDAT_CONSEILLER_OPPOSITION: " minoritaire",
-            }.get(self.mandat, "")
+            if self.conseil and (self.conseil.code == "75056"):
+                # cas spécial de paris :
+                titre = genrer(self.person.gender, "conseiller⋅ère")
+            else:
+                titre = genrer(self.person.gender, "Conseiller⋅ère municipal⋅e")
         elif self.mandat == self.MANDAT_MAIRE_ADJOINT:
             titre = f"{genrer(self.person.gender, 'Adjoint⋅e')} au maire"
         else:
@@ -358,8 +361,8 @@ class MandatDepartemental(MandatAbstrait):
         (MANDAT_INCONNU, "Situation au conseil inconnue"),
         (MANDAT_CONSEILLER_MAJORITE, "Conseiller⋅e majoritaire"),
         (MANDAT_CONSEILLER_OPPOSITION, "Conseiller⋅e minoritaire"),
-        (MANDAT_PRESIDENT, "Président"),
-        (MANDAT_VICE_PRESIDENT, "Vice-Président"),
+        (MANDAT_PRESIDENT, "Président⋅e"),
+        (MANDAT_VICE_PRESIDENT, "Vice-Président⋅e"),
     )
 
     person = models.ForeignKey(
@@ -412,27 +415,33 @@ class MandatDepartemental(MandatAbstrait):
         return "Nouveau mandat départemental"
 
     def titre_complet(self, conseil_avant=False):
+        metropole = (
+            self.conseil
+            and self.conseil.type == CollectiviteDepartementale.TYPE_CONSEIL_METROPOLE
+        )
+
         if self.mandat in [
             self.MANDAT_INCONNU,
             self.MANDAT_CONSEILLER_MAJORITE,
             self.MANDAT_CONSEILLER_OPPOSITION,
         ]:
-            titre = genrer(self.person.gender, "Conseiller⋅ère")
-            titre += {
-                self.MANDAT_CONSEILLER_MAJORITE: " majoritaire",
-                self.MANDAT_CONSEILLER_OPPOSITION: " minoritaire",
-            }.get(self.mandat, "")
-        elif self.mandat == self.MANDAT_VICE_PRESIDENT:
-            titre = genrer(self.person.gender, "Vice-président⋅e")
+
+            if metropole:
+                titre = genrer(self.person.gender, "Conseiller⋅ère métropolitain⋅e")
+            else:
+                titre = genrer(self.person.gender, "Conseiller⋅ère départemental⋅e")
         else:
-            titre = self.get_mandat_display()
+            adjectif = "" if metropole else " départemental"
+            titre = genrer(
+                self.person.gender, f"{self.get_mandat_display()} du conseil{adjectif}",
+            )
 
         if self.conseil is None:
             return titre
 
         if conseil_avant:
             return f"{self.conseil.nom}, {titre}"
-        return f"{titre} au {self.conseil.nom}"
+        return f"{titre} {self.conseil.nom_avec_charniere}"
 
     def get_absolute_url(self):
         return reverse(
@@ -517,20 +526,23 @@ class MandatRegional(MandatAbstrait):
         return "Nouveau mandat régional"
 
     def titre_complet(self, conseil_avant=False):
+        ctu = (
+            self.conseil
+            and self.conseil.type == CollectiviteRegionale.TYPE_COLLECTIVITE_UNIQUE
+        )
+
         if self.mandat in [
             self.MANDAT_INCONNU,
             self.MANDAT_CONSEILLER_MAJORITE,
             self.MANDAT_CONSEILLER_OPPOSITION,
         ]:
-            titre = genrer(self.person.gender, "Conseiller⋅ère")
-            titre += {
-                self.MANDAT_CONSEILLER_MAJORITE: " majoritaire",
-                self.MANDAT_CONSEILLER_OPPOSITION: " minoritaire",
-            }.get(self.mandat, "")
-        elif self.mandat == self.MANDAT_VICE_PRESIDENT:
-            titre = genrer(self.person.gender, "Vice-président⋅e")
+            if ctu:
+                titre = genrer(self.person.gender, "Conseiller⋅ère")
+            else:
+                titre = genrer(self.person.gender, "Conseiller⋅ère régional⋅e")
         else:
-            titre = self.get_mandat_display()
+            qualif = "" if ctu else " du conseil régional"
+            titre = genrer(self.person.gender, f"{self.get_mandat_display()}{qualif}",)
 
         if self.conseil is None:
             return titre
@@ -543,7 +555,7 @@ class MandatRegional(MandatAbstrait):
         if nom_conseil.startswith("Assemblée"):
             return f"{titre} à l'{nom_conseil}"
 
-        return f"{titre} au {nom_conseil}"
+        return f"{titre} de {nom_conseil}"
 
     def get_absolute_url(self):
         return reverse(
