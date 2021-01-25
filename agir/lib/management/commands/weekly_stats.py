@@ -23,36 +23,61 @@ class Command(BaseCommand):
         last_week_start = start - timezone.timedelta(days=7)
         twelveweeksago = start - timezone.timedelta(days=7 * 12)
 
-        print(
-            f"Plateforme - du {date_format(start)} au {date_format(end-timezone.timedelta(days=1))}"
-        )
-
-        print("Cette semaine / semaine précédente / moyenne 3 mois")
-
+        instant_stats = get_instant_stats()
         main_week_stats = get_general_stats(start, end)
         previous_week_stats = get_general_stats(last_week_start, start)
         twelveweeksstats = get_general_stats(twelveweeksago, end)
 
-        for key in main_week_stats.keys():
-            if (
-                main_week_stats[key] > twelveweeksstats[key] / 12
-                and main_week_stats[key] > previous_week_stats[key]
-            ):
-                arrow = "↗️"
-            elif (
-                main_week_stats[key] < twelveweeksstats[key] / 12
-                and main_week_stats[key] < twelveweeksstats[key]
-            ):
-                arrow = "↘️"
-            else:
-                arrow = "➡️"
+        def print_stock(label, key):
             print(
-                f"{key}: {arrow} {main_week_stats[key]} / {previous_week_stats[key]} / {twelveweeksstats[key]/12 : > .2f}"
+                f"{label} : {instant_stats[key]} ({main_week_stats[key]} / {previous_week_stats[key]} / {twelveweeksstats[key]/12 : > .2f})"
             )
 
-        print("\nActuellement :\n")
+        def print_flux(label, key):
+            print(
+                f"{label} : {main_week_stats[key]} / {previous_week_stats[key]} / {twelveweeksstats[key]/12 : > .2f}"
+            )
 
-        instant_stats = get_instant_stats()
+        print(
+            f"Plateforme - du {date_format(start)} au {date_format(end-timezone.timedelta(days=1))}"
+        )
 
-        for key, value in instant_stats.items():
-            print(f"{key} : {value}")
+        print(
+            "Progression entre parenthèse : cette semaine / semaine précédente / moyenne 3 mois"
+        )
+
+        print("\nI) Signataires")
+        print_stock("Signataires NSP", "soutiens_NSP")
+        print_stock("dont insoumis", "soutiens_NSP_insoumis")
+        print_stock("dont non insoumis", "soutiens_NSP_non_insoumis")
+
+        print("\nII) Newsletters")
+        print_flux("Ouvertures LFI", "news_LFI")
+        print_flux("Ouvertures NSP", "news_NSP")
+
+        print("\nIII) Action populaire")
+        print_flux("Connexions", "ap_users")
+        print_flux("Dont insoumis", "ap_users_LFI")
+        print_flux("Dont NSP (non LFI)", "ap_users_NSP")
+        print_flux("Événements", "ap_events")
+        print_flux("de la FI", "ap_events_LFI")
+        print_flux("de la campagne", "ap_events_NSP")
+
+        print("\nIV) Groupes")
+        print_stock("Groupes d'actions LFI", "ga_LFI")
+        print(f"dont certifiés : {instant_stats['ga_LFI_certifies']}")
+        print_stock("Équipes NSP", "equipes_NSP")
+        print_stock("Membres de GA LFI", "membres_ga_LFI")
+        print(f"dont de GA certifiés : {instant_stats['membres_ga_LFI_certifies']}")
+        print_stock("Membres équipes de soutien NSP", "membres_equipes_NSP")
+        print_stock("dont insoumis", "membres_equipes_NSP_insoumis")
+        print_stock("dont non insoumis", "membres_equipes_NSP_non_insoumis")
+
+        print("\nV) Progression possible")
+        print(f"Insoumis non NSP : {instant_stats['insoumis_non_NSP']}")
+        print(
+            f"dont mails ouvert 3 derniers mois : {instant_stats['insoumis_non_NSP_newsletter']}"
+        )
+        print(
+            f"dont contactables par SMS : environ {instant_stats['insoumis_non_NSP_phone']}"
+        )
