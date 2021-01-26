@@ -61,9 +61,9 @@ class DatesFilter(SimpleListFilter):
         if value == "O":
             return queryset.filter(dates__contains=timezone.now().date())
         elif value == "P":
-            return queryset.filter(dates__fully_lt=timezone.now().date())
+            return queryset.filter(dates__endswith__lte=timezone.now().date())
         elif value == "F":
-            return queryset.filter(dates__fully_gt=timezone.now().date())
+            return queryset.filter(dates__startswith__gt=timezone.now().date())
         return queryset
 
 
