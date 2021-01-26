@@ -212,7 +212,7 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         try:
             person = Person.objects.get_by_natural_key(email)
         except Person.DoesNotExist:
-            send_confirmation_email.delay(self.validated_data)
+            send_confirmation_email.delay(**self.validated_data)
 
             self.result_data = {
                 "status": "new",
