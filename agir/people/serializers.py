@@ -7,7 +7,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
-from agir.lib.data import french_zipcode_to_country_code
+from agir.lib.data import french_zipcode_to_country_code, FRANCE_COUNTRY_CODES
 from agir.lib.serializers import (
     LegacyBaseAPISerializer,
     LegacyLocationMixin,
@@ -188,6 +188,17 @@ class SubscriptionRequestSerializer(serializers.Serializer):
     def validate_contact_phone(self, value):
         return value and str(value)
 
+    def validate(self, data):
+        if (
+            not data.get("location_country")
+            or data.get("location_country") in FRANCE_COUNTRY_CODES
+        ):
+            data["location_country"] = french_zipcode_to_country_code(
+                self.validated_data["location_zip"]
+            )
+
+        return data
+
     def save(self):
         """Saves the subscription information.
 
@@ -198,17 +209,10 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         email = self.validated_data["email"]
         type = self.validated_data["type"]
 
-        if not (location_country := self.validated_data.get("location_country")):
-            location_country = french_zipcode_to_country_code(
-                self.validated_data["location_zip"]
-            )
-
         try:
             person = Person.objects.get_by_natural_key(email)
         except Person.DoesNotExist:
-            send_confirmation_email.delay(
-                location_country=location_country, **self.validated_data
-            )
+            send_confirmation_email.delay(self.validated_data)
 
             self.result_data = {
                 "status": "new",
