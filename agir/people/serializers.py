@@ -194,7 +194,7 @@ class SubscriptionRequestSerializer(serializers.Serializer):
             or data.get("location_country") in FRANCE_COUNTRY_CODES
         ):
             data["location_country"] = french_zipcode_to_country_code(
-                self.validated_data["location_zip"]
+                data["location_zip"]
             )
 
         return data
