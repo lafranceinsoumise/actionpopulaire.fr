@@ -45,7 +45,7 @@ class CreerMandatForm(forms.ModelForm):
     def __init__(self, *args, initial=None, instance=None, **kwargs):
         # set up initial values for person fields
         initial = initial or {}
-        if instance and (person := getattr(instance, "person", None)):
+        if person := instance and getattr(instance, "person", None):
             for f in PERSON_FIELDS:
                 initial[f] = getattr(person, f)
 
