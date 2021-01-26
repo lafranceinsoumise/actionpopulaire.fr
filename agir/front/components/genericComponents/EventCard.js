@@ -216,7 +216,7 @@ const EventCard = (props) => {
 EventCard.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  participantCount: PropTypes.number.isRequired,
+  participantCount: PropTypes.number,
   hasSubscriptionForm: PropTypes.bool,
   illustration: PropTypes.string,
   schedule: PropTypes.instanceOf(Interval).isRequired,

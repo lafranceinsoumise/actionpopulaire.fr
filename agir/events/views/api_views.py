@@ -28,7 +28,7 @@ class EventRsvpedAPIView(ListAPIView):
             fields=[
                 "id",
                 "name",
-                "participantCount",
+                # "participantCount",
                 "illustration",
                 "hasSubscriptionForm",
                 "startTime",
@@ -83,7 +83,7 @@ class EventSuggestionsAPIView(ListAPIView):
             fields=[
                 "id",
                 "name",
-                "participantCount",
+                # "participantCount",
                 "illustration",
                 "hasSubscriptionForm",
                 "startTime",
