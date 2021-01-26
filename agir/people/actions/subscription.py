@@ -75,13 +75,13 @@ SUBSCRIPTION_SUCCESS_REDIRECT = {
 }
 
 
-def save_subscription_information(person, type, data):
+def save_subscription_information(person, type, data, new=False):
     person_fields = set(f.name for f in Person._meta.get_fields())
 
     # mise à jour des différents champs
     for f in person_fields.intersection(data):
-        # On ne remplace que les champs vides de la personne
-        setattr(person, f, getattr(person, f) or data[f])
+        # Si la personne n'est pas nouvelle on ne remplace que les champs vides
+        setattr(person, f, data[f] if new else getattr(person, f) or data[f])
 
     person.newsletters = list(SUBSCRIPTION_NEWSLETTERS[type].union(person.newsletters))
 

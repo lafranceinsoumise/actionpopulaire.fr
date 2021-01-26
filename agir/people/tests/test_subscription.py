@@ -1,9 +1,7 @@
 import re
 from datetime import datetime, timedelta
 from unittest import mock
-from uuid import uuid4
 
-import json
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
@@ -12,7 +10,6 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.reverse import reverse
 
-from agir.api.redis import using_separate_redis_server
 from agir.clients.models import Client
 from agir.lib.http import add_query_params_to_url
 from agir.lib.utils import generate_token_params
@@ -245,6 +242,7 @@ class SubscriptionConfirmationTestCase(TestCase):
         data = {
             "email": "personne@organisation.pays",
             "location_zip": "20322",
+            "location_country": "VE",
             "type": "NSP",
         }
         send_confirmation_email(**data)
@@ -263,6 +261,7 @@ class SubscriptionConfirmationTestCase(TestCase):
         # check that the person has been created
         p = Person.objects.get_by_natural_key("personne@organisation.pays")
         self.assertTrue(p.is_2022)
+        self.assertEqual(p.location_country, "VE")
         self.assertAlmostEqual(
             datetime.fromisoformat(p.meta["subscriptions"]["NSP"]["date"]),
             timezone.now(),

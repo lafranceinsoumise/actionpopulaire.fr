@@ -164,7 +164,7 @@ class ConfirmSubscriptionView(View):
                 self.person = Person.objects.get_by_natural_key(params["email"])
                 already_created = True
 
-            save_subscription_information(self.person, self.type, params)
+            save_subscription_information(self.person, self.type, params, new=True)
 
         if already_created and self.show_already_created_message:
             messages.add_message(
