@@ -142,6 +142,7 @@ INSTALLED_APPS = [
     "agir.legacy",
     "agir.telegram",
     "agir.elus.apps.ElusConfig",
+    "agir.gestion.apps.GestionConfig",
     # default contrib apps
     "agir.api.apps.AdminAppConfig",
     "django.contrib.auth",
