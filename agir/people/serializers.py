@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import transaction
 from django.http import Http404
+from django_countries.serializer_fields import CountryField
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -168,6 +169,7 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         max_length=person_fields["last_name"].max_length, required=False
     )
     contact_phone = PhoneNumberField(required=False)
+    location_country = CountryField(required=False)
     mandat = serializers.ChoiceField(
         choices=("municipal", "maire", "departemental", "regional"), required=False
     )
@@ -196,9 +198,10 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         email = self.validated_data["email"]
         type = self.validated_data["type"]
 
-        location_country = french_zipcode_to_country_code(
-            self.validated_data["location_zip"]
-        )
+        if not (location_country := self.validated_data.get("location_country")):
+            location_country = french_zipcode_to_country_code(
+                self.validated_data["location_zip"]
+            )
 
         try:
             person = Person.objects.get_by_natural_key(email)
