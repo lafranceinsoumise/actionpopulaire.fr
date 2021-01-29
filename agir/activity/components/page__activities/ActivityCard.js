@@ -17,6 +17,23 @@ import Link from "@agir/front/app/Link";
 
 import CONFIG from "./activity.config.json";
 
+const CHANGED_DATA_LABEL = {
+  name: "nom",
+  start_time: "date",
+  end_time: "date",
+  contact_name: "contact",
+  contact_email: "contact",
+  contact_phone: "contact",
+  location_name: "lieu",
+  location_address1: "lieu",
+  location_address2: "lieu",
+  location_city: "lieu",
+  location_zip: "lieu",
+  location_country: "lieu",
+  description: "description",
+  facebook: "lien facebook",
+};
+
 const StyledParagraph = styled.p`
   margin-bottom: 0;
 `;
@@ -210,6 +227,32 @@ const ActivityCard = (props) => {
     }),
     [event, supportGroup, individual]
   );
+  const changedDataLabel = useMemo(() => {
+    let changedDataLabel = "";
+    if (meta && Array.isArray(meta.changed_data)) {
+      const labels = [];
+      meta.changed_data.forEach((field) => {
+        if (
+          !!CHANGED_DATA_LABEL[field] &&
+          !labels.includes(CHANGED_DATA_LABEL[field])
+        ) {
+          labels.push(CHANGED_DATA_LABEL[field]);
+        }
+      });
+      changedDataLabel = labels
+        .map((label, i) => {
+          if (i === labels.length - 1) {
+            return ` et de ${label}`;
+          }
+          if (i === 0) {
+            return ` de ${label}`;
+          }
+          return `, de ${label}`;
+        })
+        .join("");
+    }
+    return changedDataLabel;
+  }, [meta]);
 
   if (!CONFIG[type]) {
     return null;
@@ -281,13 +324,14 @@ const ActivityCard = (props) => {
           à votre événement {Event}
         </ActivityCardContainer>
       );
-    case "event-update":
+    case "event-update": {
       return (
         <ActivityCardContainer {...props}>
-          Mise à jour : l'événement {Event} auquel vous participez a changé de
-          date.
+          Mise à jour : l'événement {Event} auquel vous participez a changé
+          {changedDataLabel}.
         </ActivityCardContainer>
       );
+    }
     case "new-event-mygroups":
       return (
         <ActivityCardContainer {...props}>
