@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { Suspense } from "react";
+import React, { Suspense, useMemo } from "react";
 import { BrowserRouter, Switch, Route, useParams } from "react-router-dom";
 
 import Layout from "@agir/front/dashboardComponents/Layout";
@@ -11,6 +11,10 @@ const NotFound = () => <div>404 NOT FOUND !</div>;
 const Page = (props) => {
   const { Component, routeConfig, ...rest } = props;
   const routeParams = useParams();
+
+  useMemo(() => {
+    typeof window !== "undefined" && window.scrollTo && window.scrollTo(0, 0);
+  }, []);
 
   if (!routeConfig.hasLayout) {
     return (
