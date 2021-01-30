@@ -258,6 +258,10 @@ class OrganizerStep extends FormStep {
     });
   }
 
+  isValidated() {
+    return !!this.props.fields.forUsers;
+  }
+
   render() {
     const { organizerGroup, forUsers } = this.props.fields;
 
