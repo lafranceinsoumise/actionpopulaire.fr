@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.gis.db.models.functions import Distance
 from django.http import HttpResponsePermanentRedirect, Http404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import View, RedirectView, TemplateView
@@ -90,7 +91,7 @@ class RequiredActivityView(SoftLoginRequiredMixin, ReactBaseView):
 
 
 class FullSupportGroupView(SoftLoginRequiredMixin, ReactSingleObjectView):
-    bundle_name = "groups/fullGroupPage"
+    bundle_name = "front/app"
     serializer_class = SupportGroupSerializer
     queryset = SupportGroup.objects.all()
 

@@ -27,6 +27,11 @@ urlpatterns = [
         name="list_groups",
     ),
     path("groupes/carte/", views.GroupMapView.as_view(), name="group_map_page"),
+    path(
+        "groupes/<uuid:pk>/complet/",
+        views.FullSupportGroupView.as_view(),
+        name="full_group",
+    ),
     path("activite/", views.ActivityView.as_view(), name="list_activities",),
     path(
         "a-traiter/",
@@ -42,11 +47,6 @@ urlpatterns = [
     path("evenements/carte/", views.EventMapView.as_view(), name="event_map_page"),
     path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
     path("mes-groupes/", views.MyGroupsView.as_view(), name="list_my_groups"),
-    path(
-        "groupes/<uuid:pk>/complet/",
-        views.FullSupportGroupView.as_view(),
-        name="full_group",
-    ),
     path("navigation/", views.NavigationMenuView.as_view(), name="navigation_menu"),
     # old urls
     re_path("^old(.*)$", views.NBUrlsView.as_view(), name="old_urls"),
