@@ -178,7 +178,7 @@ const ChatCommentField = (props) => {
       <StyledMessage>
         <StyledMessageContent>
           <StyledMessageHeader>
-            <strong>{author.fullName}</strong>
+            <strong>{author.displayName}</strong>
             <em>{date ? timeAgo(date) : null}</em>
           </StyledMessageHeader>
           <pre>{message}</pre>
@@ -216,7 +216,7 @@ const ChatCommentField = (props) => {
 ChatCommentField.propTypes = {
   id: PropTypes.string.isRequired,
   author: PropTypes.shape({
-    fullName: PropTypes.string.isRequired,
+    displayName: PropTypes.string.isRequired,
     avatar: PropTypes.string,
   }).isRequired,
   message: PropTypes.string.isRequired,

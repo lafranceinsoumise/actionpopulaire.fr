@@ -12,7 +12,7 @@ export default {
 };
 
 const user = {
-  fullName: "Bill Murray",
+  displayName: "Bill Murray",
   avatar: "https://www.fillmurray.com/200/200",
 };
 
@@ -50,7 +50,7 @@ export const Default = () => {
           }}
           key={message}
         >
-          <strong>{user.fullName}</strong>
+          <strong>{user.displayName}</strong>
           <br />
           {message}
           <br />
@@ -85,7 +85,7 @@ export const WithChatComments = () => {
       id: 0,
       message: "Bonjour !",
       author: {
-        fullName: "Quelqu'un",
+        displayName: "Quelqu'un",
         avatar: `https://avatars.dicebear.com/api/human/${String(
           Math.random()
         ).replace(".", "")}.svg?background=%23ffffff`,

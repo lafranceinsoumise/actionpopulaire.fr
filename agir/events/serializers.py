@@ -48,6 +48,19 @@ class EventListSerializer(serializers.ListSerializer):
 
 
 class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
+    EVENT_CARD_FIELDS = [
+        "id",
+        "name",
+        "startTime",
+        "endTime",
+        "participantCount",
+        "illustration",
+        "schedule",
+        "location",
+        "rsvp",
+        "routes",
+    ]
+
     id = serializers.UUIDField()
     url = serializers.HyperlinkedIdentityField(view_name="view_event")
     name = serializers.CharField()

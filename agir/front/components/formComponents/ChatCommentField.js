@@ -189,7 +189,7 @@ const ChatCommentField = (props) => {
       $disabled={disabled || isLoading}
       onSubmit={handleSend}
     >
-      <Avatar name={user.fullName} avatar={user.avatar} />
+      <Avatar name={user.displayName} avatar={user.avatar} />
       <StyledMessage>
         <StyledField
           ref={fieldWrapperRef}
@@ -204,7 +204,7 @@ const ChatCommentField = (props) => {
                 onChange={handleInputChange}
                 onFocus={handleFocus}
                 autoFocus={isFocused}
-                label={user.fullName}
+                label={user.displayName}
                 disabled={disabled || isLoading}
                 placeholder="Écrire un commentaire"
               />
@@ -241,7 +241,7 @@ const ChatCommentField = (props) => {
 };
 ChatCommentField.propTypes = {
   user: PropTypes.shape({
-    fullName: PropTypes.string.isRequired,
+    displayName: PropTypes.string.isRequired,
     avatar: PropTypes.string,
   }).isRequired,
   initialValue: PropTypes.string,

@@ -14,21 +14,7 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
     timestamp = serializers.DateTimeField(read_only=True)
 
-    event = EventSerializer(
-        fields=[
-            "id",
-            "name",
-            "startTime",
-            "endTime",
-            "participantCount",
-            "illustration",
-            "schedule",
-            "location",
-            "rsvp",
-            "routes",
-        ],
-        read_only=True,
-    )
+    event = EventSerializer(fields=EventSerializer.EVENT_CARD_FIELDS, read_only=True,)
     supportGroup = SupportGroupSerializer(
         source="supportgroup", fields=["name", "url", "routes"], read_only=True
     )

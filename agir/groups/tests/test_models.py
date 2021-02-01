@@ -8,6 +8,7 @@ from ..actions.notifications import someone_joined_notification
 from agir.lib.tests.mixins import FakeDataMixin
 from agir.people.models import Person
 from ..models import SupportGroup, Membership, SupportGroupSubtype
+from ...msgs.models import SupportGroupMessage
 
 
 class BasicSupportGroupTestCase(TestCase):
@@ -48,3 +49,17 @@ class GroupSubtypesTestCase(FakeDataMixin, TestCase):
         self.data["groups"]["user1_group"].subtypes.add(
             SupportGroupSubtype.objects.get(label="groupe local")
         )
+
+
+class MessageTestCase(TestCase):
+    def setUp(self):
+        self.group = SupportGroup.objects.create()
+        self.member = Person.objects.create(
+            email="member@example.com", create_role=True,
+        )
+        Membership.objects.create(
+            supportgroup=self.group, person=self.member,
+        )
+
+    def test_can_create_message(self):
+        SupportGroupMessage.objects.create(supportgroup=self.group, author=self.member)

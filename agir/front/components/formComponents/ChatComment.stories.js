@@ -13,7 +13,7 @@ export default {
 };
 
 const author = {
-  fullName: "Bill Murray",
+  displayName: "Bill Murray",
   avatar: "https://www.fillmurray.com/200/200",
 };
 const Template = ({ hasActions, onEdit, onDelete, onReport, ...args }) => {

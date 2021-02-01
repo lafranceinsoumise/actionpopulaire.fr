@@ -285,7 +285,7 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     firstName = serializers.CharField(source="first_name")
     lastName = serializers.CharField(source="last_name")
-    fullName = serializers.SerializerMethodField()
+    displayName = serializers.SerializerMethodField()
     contactPhone = PhoneNumberField(source="contact_phone")
 
     isInsoumise = serializers.BooleanField(source="is_insoumise")
@@ -297,5 +297,5 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     gender = serializers.CharField()
 
-    def get_fullName(self, obj: Person):
+    def get_displayName(self, obj: Person):
         return obj.get_full_name()

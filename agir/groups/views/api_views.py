@@ -2,10 +2,18 @@ from django.contrib.gis.db.models.functions import Distance
 from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.exceptions import NotFound
+from rest_framework.generics import (
+    ListAPIView,
+    RetrieveAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from agir.events.models import Event
+from agir.events.serializers import EventSerializer
 from agir.groups.filters import GroupAPIFilterSet
 from agir.groups.models import SupportGroup, SupportGroupSubtype
 from agir.groups.serializers import (
@@ -14,8 +22,6 @@ from agir.groups.serializers import (
     SupportGroupSerializer,
     SupportGroupDetailSerializer,
 )
-from agir.events.models import Event
-from agir.events.serializers import EventSerializer
 from agir.lib.pagination import APIPaginator
 
 __all__ = [
@@ -28,7 +34,14 @@ __all__ = [
     "GroupPastEventsAPIView",
     "GroupUpcomingEventsAPIView",
     "GroupPastEventReportsAPIView",
+    "GroupMessagesAPIView",
+    "GroupSingleMessageAPIView",
 ]
+
+from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
+from agir.msgs.models import SupportGroupMessage
+
+from agir.msgs.serializers import SupportGroupMessageSerializer
 
 
 class GroupSearchAPIView(ListAPIView):
@@ -209,3 +222,38 @@ class GroupPastEventReportsAPIView(ListAPIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         return super().dispatch(request, *args, **kwargs)
+
+
+class GroupMessagesPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "POST": []}
+    object_perms_map = {
+        "GET": ["groups.view_group_messages"],
+        "POST": ["groups.add_group_message"],
+    }
+
+
+class GroupMessagesAPIView(ListCreateAPIView):
+    serializer_class = SupportGroupMessageSerializer
+    permission_classes = (IsAuthenticated, GroupMessagesPermissions)
+
+    def initial(self, request, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=kwargs["pk"])
+        except SupportGroup.DoesNotExist:
+            raise NotFound()
+
+        self.check_object_permissions(request, self.supportgroup)
+
+        super().initial(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.supportgroup.messages.all()
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user.person, supportgroup=self.supportgroup)
+
+
+class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = SupportGroupMessage.objects.all()
+    serializer_class = SupportGroupMessageSerializer
+    permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)

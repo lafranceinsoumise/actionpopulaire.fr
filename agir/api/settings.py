@@ -113,6 +113,7 @@ INSTALLED_APPS = [
     "agir.events",
     "agir.groups",
     "agir.polls",
+    "agir.msgs",
     "oauth2_provider",  # avant clients pour pouvoir redéfinir l'admin
     "agir.clients",
     "agir.front",

@@ -13,7 +13,7 @@ export const useGroupDetail = (groupPk) => {
   log.debug("Group data", group);
 
   const { data: groupSuggestions } = useSWR(
-    `/api/groupes/${groupPk}/suggestions`
+    `/api/groupes/${groupPk}/suggestions/`
   );
   log.debug("Group suggestions", groupSuggestions);
 
