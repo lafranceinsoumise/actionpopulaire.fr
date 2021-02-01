@@ -74,6 +74,18 @@ def own_membership_has_higher_rights(role, membership=None):
     )
 
 
+@rules.predicate
+def is_group_member(role, supportgroup=None):
+    return supportgroup is not None and (
+        supportgroup.members.filter(pk=role.person.pk).exists()
+    )
+
+
+@rules.predicate
+def is_msg_author(role, msg=None):
+    return msg is not None and msg.author == role.person
+
+
 rules.add_perm(
     "groups.change_supportgroup",
     is_authenticated_person & is_at_least_manager_for_group,
@@ -109,3 +121,7 @@ rules.add_perm(
 rules.add_perm(
     "groups.transfer_members", is_authenticated_person & is_at_least_manager_for_group
 )
+rules.add_perm("groups.view_group_messages", is_group_member)
+rules.add_perm("groups.add_group_message", is_at_least_manager_for_group)
+rules.add_perm("msgs.change_supportgroupmessage", is_msg_author)
+rules.add_perm("msgs.delete_supportgroupmessage", is_msg_author)
