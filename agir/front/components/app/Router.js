@@ -4,9 +4,6 @@ import { BrowserRouter, Switch, Route, useParams } from "react-router-dom";
 
 import Layout from "@agir/front/dashboardComponents/Layout";
 import ErrorBoundary from "./ErrorBoundary";
-import Link from "./Link";
-import Button from "@agir/front/genericComponents/Button";
-
 import routes, { BASE_PATH } from "./routes.config";
 
 const NotFound = () => <div>404 NOT FOUND !</div>;
