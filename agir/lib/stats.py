@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.db.models import Count
 from django.utils.timezone import now
+from nuntius.models import CampaignSentEvent
 
 from agir.people.models import Person
 from agir.groups.models import SupportGroup, Membership
@@ -10,7 +11,6 @@ from agir.events.models import Event, EventSubtype
 
 
 def get_general_stats(start, end):
-    week = timedelta(days=7)
     nouveaux_soutiens = Person.objects.filter(
         meta__subscriptions__NSP__date__gt=start.isoformat(),
         meta__subscriptions__NSP__date__lt=end.isoformat(),
@@ -24,9 +24,14 @@ def get_general_stats(start, end):
     ouvert_news = Person.objects.filter(
         campaignsentevent__datetime__range=(start, end),
         campaignsentevent__open_count__gt=0,
+        is_2022=True,
     )
 
     ap_users = Person.objects.filter(role__last_login__range=(start, end))
+
+    sent_events = CampaignSentEvent.objects.filter(
+        subscriber__is_2022=True, datetime__range=(start, end)
+    )
 
     return {
         "soutiens_NSP": nouveaux_soutiens.count(),
@@ -34,12 +39,18 @@ def get_general_stats(start, end):
         "soutiens_NSP_non_insoumis": nouveaux_soutiens.filter(
             is_insoumise=False
         ).count(),
-        "news_LFI": ouvert_news.filter(is_2022=True, is_insoumise=True)
-        .distinct()
-        .count(),
-        "news_NSP": ouvert_news.filter(is_2022=False, is_insoumise=True)
-        .distinct()
-        .count(),
+        "news_LFI": ouvert_news.filter(is_insoumise=True).distinct().count(),
+        "taux_news_LFI": sent_events.filter(
+            subscriber__is_insoumise=True, open_count__gt=0,
+        ).count()
+        / (sent_events.filter(subscriber__is_insoumise=True).count() or 1)
+        * 100,
+        "news_NSP": ouvert_news.filter(is_insoumise=False).distinct().count(),
+        "taux_news_NSP": sent_events.filter(
+            subscriber__is_insoumise=False, open_count__gt=0,
+        ).count()
+        / (sent_events.filter(subscriber__is_insoumise=False,).count() or 1)
+        * 100,
         "ap_users": ap_users.count(),
         "ap_users_LFI": ap_users.filter(is_insoumise=True).count(),
         "ap_users_NSP": ap_users.filter(is_insoumise=False, is_2022=True).count(),

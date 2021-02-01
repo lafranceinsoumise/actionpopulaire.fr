@@ -3,6 +3,7 @@ import datetime
 from django.core.management import BaseCommand
 from django.utils import timezone
 from django.utils.formats import date_format
+from nuntius.models import Campaign
 
 from ...stats import *
 
@@ -51,9 +52,28 @@ class Command(BaseCommand):
         print_stock("dont insoumis", "soutiens_NSP_insoumis")
         print_stock("dont non insoumis", "soutiens_NSP_non_insoumis")
 
-        print("\nII) Newsletters")
-        print_flux("Ouvertures LFI", "news_LFI")
-        print_flux("Ouvertures NSP", "news_NSP")
+        print("\nII) Email")
+        print_flux("Total insoumis (signataires NSP) ayant ouvert un email", "news_LFI")
+        print(
+            f"Taux d'ouverture Insoumis : {main_week_stats['taux_news_LFI'] : > .2f} % / "
+            f"{previous_week_stats['taux_news_LFI'] : > .2f} % / {twelveweeksstats['taux_news_LFI'] : > .2f} %"
+        )
+        print_flux(
+            "Total signataires NSP (non-insoumis) ayant ouvert un email", "news_NSP"
+        )
+        print(
+            f"Taux d'ouverture NSP : {main_week_stats['taux_news_NSP'] : > .2f} % / "
+            f"{previous_week_stats['taux_news_NSP'] : > .2f} % / {twelveweeksstats['taux_news_NSP'] : > .2f} %"
+        )
+        print("Emails de la semaine")
+        for c in Campaign.objects.filter(first_sent__range=(start, end)):
+            sent = c.get_sent_count()
+            open = c.get_unique_open_count()
+            click = c.get_unique_click_count()
+            print(
+                f"{c.name} : {sent} envoyés, {open} ({open/sent * 100 : > .2f} %) "
+                f"ouvertures, {click} ({click/sent * 100 : > .2f} %) clics"
+            )
 
         print("\nIII) Action populaire")
         print_flux("Connexions", "ap_users")
