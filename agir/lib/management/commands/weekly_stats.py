@@ -66,8 +66,10 @@ class Command(BaseCommand):
             f"{previous_week_stats['taux_news_NSP'] : > .2f} % / {twelveweeksstats['taux_news_NSP'] : > .2f} %"
         )
         print("Emails de la semaine")
-        for c in Campaign.objects.filter(first_sent__range=(start, end)):
+        for c in Campaign.objects.filter(created__range=(start, end)):
             sent = c.get_sent_count()
+            if sent < 5000:
+                continue
             open = c.get_unique_open_count()
             click = c.get_unique_click_count()
             print(
