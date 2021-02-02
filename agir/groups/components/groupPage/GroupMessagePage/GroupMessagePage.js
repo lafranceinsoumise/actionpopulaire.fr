@@ -30,6 +30,7 @@ const GroupMessagePage = (props) => {
     events,
     message,
     messageURL,
+    groupURL,
     isLoading,
     loadMoreEvents,
     updateMessage,
@@ -49,6 +50,7 @@ const GroupMessagePage = (props) => {
           events={events}
           message={message}
           messageURL={messageURL}
+          groupURL={groupURL}
           isLoading={isLoading}
           loadMoreEvents={loadMoreEvents}
           updateMessage={updateMessage}
@@ -71,6 +73,7 @@ GroupMessagePage.propTypes = {
   deleteMessage: PropTypes.func,
   user: PropTypes.object,
   messageURL: PropTypes.string,
+  groupURL: PropTypes.string,
   isLoading: PropTypes.bool,
 };
 

@@ -29,4 +29,6 @@ Default.args = {
   },
   group,
   message: messages[0],
+  groupURL: "#group",
+  messageURL: "#message",
 };
