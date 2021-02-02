@@ -5,7 +5,7 @@ from agir.msgs.models import SupportGroupMessage
 from agir.people.models import Person
 
 
-class GroupMessagesAPIViewTestCase(APITestCase):
+class GroupMessagesTestAPICase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
         self.manager = Person.objects.create(
@@ -86,6 +86,34 @@ class GroupMessagesAPIViewTestCase(APITestCase):
         res = self.client.post(
             f"/api/groupes/{self.group.pk}/messages/", data={"text": "Lorem"}
         )
+        self.assertEqual(res.status_code, 403)
+
+    def test_member_can_get_single_message(self):
+        message = SupportGroupMessage.objects.create(
+            supportgroup=self.group, author=self.manager, text="Lorem"
+        )
+        self.client.force_login(self.member.role)
+        res = self.client.get(
+            f"/api/groupes/messages/{message.pk}/", data={"text": "Ipsum"}
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(
+            res.data,
+            {
+                "id": str(message.id),
+                "author": {"displayName": "Jean-Luc Mélenchon"},
+                "text": "Lorem",
+                "image": None,
+                "supportgroup": {"id": str(self.group.id), "name": self.group.name,},
+            },
+        )
+
+    def test_non_member_cannot_get_single_message(self):
+        message = SupportGroupMessage.objects.create(
+            supportgroup=self.group, author=self.manager, text="Lorem"
+        )
+        self.client.force_login(self.non_member.role)
+        res = self.client.get(f"/api/groupes/messages/{message.pk}/")
         self.assertEqual(res.status_code, 403)
 
     def test_author_can_edit_message(self):
