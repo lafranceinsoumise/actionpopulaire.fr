@@ -144,4 +144,14 @@ urlpatterns = [
         views.GroupSingleMessageAPIView.as_view(),
         name="api_group_message_detail",
     ),
+    path(
+        "api/groupes/messages/<uuid:pk>/comments/",
+        views.GroupMessageCommentsAPIView.as_view(),
+        name="api_group_message_comment_list",
+    ),
+    path(
+        "api/groupes/messages/comments/<uuid:pk>/",
+        views.GroupSingleCommentAPIView.as_view(),
+        name="api_group_message_comment_detail",
+    ),
 ]

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from agir.events.serializers import EventSerializer
 from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.serializers import FlexibleFieldsMixin
-from agir.msgs.models import SupportGroupMessage
+from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from agir.people.serializers import PersonSerializer
 
 
@@ -15,7 +15,9 @@ class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
 
 class MessageCommentSerializer(BaseMessageSerializer):
-    pass
+    class Meta:
+        model = SupportGroupMessageComment
+        fields = ("id", "author", "text", "image")
 
 
 class SupportGroupMessageSerializer(BaseMessageSerializer):
