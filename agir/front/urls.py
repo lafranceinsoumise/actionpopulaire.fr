@@ -57,7 +57,7 @@ urlpatterns = [
     ),
     path(
         "groupes/<uuid:pk>/discussion/<uuid:message_pk>/",
-        views.SupportGroupDetailView.as_view(),
+        views.SupportGroupMessageDetailView.as_view(),
         name="view_group_message",
     ),
     path("activite/", views.ActivityView.as_view(), name="list_activities",),
