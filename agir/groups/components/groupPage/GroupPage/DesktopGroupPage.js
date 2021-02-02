@@ -1,11 +1,14 @@
 import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import { Switch, Route, useHistory } from "react-router-dom";
+import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useTabs } from "./routes.config";
 
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
+import Link from "@agir/front/app/Link";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 import GroupBanner from "../GroupBanner";
@@ -49,8 +52,33 @@ export const DesktopGroupPageSkeleton = () => (
   </Container>
 );
 
+const IndexLinkAnchor = styled(Link)`
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  &,
+  &:hover,
+  &:focus,
+  &:active {
+    text-decoration: none;
+    color: #585858;
+  }
+  span {
+    transform: rotate(180deg) translateY(-1.5px);
+    transform-origin: center center;
+  }
+  @media (max-width: ${style.collapse}px) {
+    padding: 0.5rem 1.375rem 0;
+    margin-bottom: -1rem;
+  }
+`;
+
 const DesktopGroupPage = (props) => {
-  const { group, groupSuggestions, allEvents } = props;
+  const { backLink, group, groupSuggestions, allEvents } = props;
   const { hasTabs, tabs, activeTabIndex } = useTabs(props, false);
   const history = useHistory();
 
@@ -84,6 +112,20 @@ const DesktopGroupPage = (props) => {
         background: "white",
       }}
     >
+      {!!backLink && (
+        <Row gutter={32}>
+          <Column grow>
+            <IndexLinkAnchor
+              to={backLink.to}
+              href={backLink.href}
+              route={backLink.route}
+            >
+              <span>&#10140;</span>
+              &ensp; {backLink.label || "Retour à l'accueil"}
+            </IndexLinkAnchor>
+          </Column>
+        </Row>
+      )}
       <Row gutter={32}>
         <Column grow>
           <GroupBanner {...group} />
