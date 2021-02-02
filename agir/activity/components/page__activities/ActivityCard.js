@@ -30,7 +30,7 @@ const CHANGED_DATA_LABEL = {
   location_city: "lieu",
   location_zip: "lieu",
   location_country: "lieu",
-  description: "description",
+  description: "présentation",
   facebook: "lien facebook",
 };
 
@@ -241,11 +241,11 @@ const ActivityCard = (props) => {
       });
       changedDataLabel = labels
         .map((label, i) => {
-          if (i === labels.length - 1) {
-            return ` et de ${label}`;
-          }
           if (i === 0) {
             return ` de ${label}`;
+          }
+          if (i === labels.length - 1) {
+            return ` et de ${label}`;
           }
           return `, de ${label}`;
         })
