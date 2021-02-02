@@ -8,7 +8,7 @@ export default {
 };
 
 const user = {
-  fullName: "Bill Murray",
+  displayName: "Bill Murray",
   avatar: "https://www.fillmurray.com/200/200",
 };
 const events = [
@@ -116,7 +116,7 @@ export const Default = () => {
         >
           #{message.id}
           <br />
-          <strong>{user.fullName}</strong>
+          <strong>{user.displayName}</strong>
           <br />
           {message.content}
           <br />
