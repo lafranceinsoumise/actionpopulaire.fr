@@ -305,4 +305,4 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.Serializer):
     gender = serializers.CharField()
 
     def get_displayName(self, obj: Person):
-        return obj.get_full_name()
+        return obj.get_display_name()
