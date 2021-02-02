@@ -2,7 +2,8 @@ import rules
 
 from agir.authentication.models import Role
 from agir.lib.rules import is_authenticated_person
-from .models import Membership
+from .models import Membership, SupportGroup
+from ..msgs.models import SupportGroupMessage
 
 
 @rules.predicate
@@ -75,10 +76,18 @@ def own_membership_has_higher_rights(role, membership=None):
 
 
 @rules.predicate
-def is_group_member(role, supportgroup=None):
-    return supportgroup is not None and (
-        supportgroup.members.filter(pk=role.person.pk).exists()
-    )
+def is_group_member(role, supportgroup_or_message=None):
+    if supportgroup_or_message is None:
+        return False
+
+    if isinstance(supportgroup_or_message, SupportGroup):
+        supportgroup = supportgroup_or_message
+    elif isinstance(supportgroup_or_message, SupportGroupMessage):
+        supportgroup = supportgroup_or_message.supportgroup
+    else:
+        return False
+
+    return supportgroup.members.filter(pk=role.person.pk).exists()
 
 
 @rules.predicate
@@ -121,7 +130,7 @@ rules.add_perm(
 rules.add_perm(
     "groups.transfer_members", is_authenticated_person & is_at_least_manager_for_group
 )
-rules.add_perm("groups.view_group_messages", is_group_member)
-rules.add_perm("groups.add_group_message", is_at_least_manager_for_group)
+rules.add_perm("msgs.view_supportgroupmessage", is_group_member)
+rules.add_perm("msgs.add_supportgroupmessage", is_at_least_manager_for_group)
 rules.add_perm("msgs.change_supportgroupmessage", is_msg_author)
 rules.add_perm("msgs.delete_supportgroupmessage", is_msg_author)

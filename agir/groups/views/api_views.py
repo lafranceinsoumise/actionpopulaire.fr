@@ -226,8 +226,8 @@ class GroupPastEventReportsAPIView(ListAPIView):
 class GroupMessagesPermissions(GlobalOrObjectPermissions):
     perms_map = {"GET": [], "POST": []}
     object_perms_map = {
-        "GET": ["groups.view_group_messages"],
-        "POST": ["groups.add_group_message"],
+        "GET": ["msgs.view_supportgroupmessage"],
+        "POST": ["msgs.add_supportgroupmessage"],
     }
 
 
