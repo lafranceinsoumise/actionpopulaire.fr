@@ -76,6 +76,7 @@
     "materiel": "#materiel",
     "invitation": "#invitation",
     "financement": "#financement",
+    "certification": "#certification",
     "admin": "#admin"
   }
 }
