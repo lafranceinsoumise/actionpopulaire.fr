@@ -71,9 +71,13 @@ Default.args = {
     avatar: "https://www.fillmurray.com/200/200",
   },
   messageURL: "#message",
+  groupURL: "#group",
   message: {
     id: "message",
     created: "2021-01-09 12:00:00",
+    group: {
+      name: "Comités d'appui et de travail pour une Vienne Insoumise",
+    },
     author: {
       id: "Bill",
       displayName: "Bill Murray",

@@ -57,16 +57,23 @@ const Page = ({ groupPk, messagePk }) => {
     [groupPk, messagePk]
   );
 
+  const groupURL = useMemo(
+    () =>
+      routeConfig.groupDetails &&
+      routeConfig.groupDetails.getLink({
+        groupPk,
+        activeTab: "discussion",
+      }),
+    [groupPk]
+  );
+
   useEffect(() => {
     !backLink &&
       dispatch(
         setBackLink(
           group && group.isMember
             ? {
-                to: routeConfig.groupDetails.getLink({
-                  groupPk: group.id,
-                  activeTab: "discussion",
-                }),
+                to: groupURL,
                 label: "Voir le groupe",
               }
             : {
@@ -75,7 +82,7 @@ const Page = ({ groupPk, messagePk }) => {
               }
         )
       );
-  }, [backLink, group, dispatch]);
+  }, [backLink, group, groupURL, dispatch]);
 
   if (isSessionLoaded && group && group.isMember && message === null) {
     const redirectTo =
@@ -96,6 +103,7 @@ const Page = ({ groupPk, messagePk }) => {
             events={events}
             message={message}
             messageURL={messageURL}
+            groupURL={groupURL}
             loadMoreEvents={loadMoreEvents}
             updateMessage={updateMessage}
             createComment={createComment}
@@ -105,7 +113,7 @@ const Page = ({ groupPk, messagePk }) => {
           />
         </PageFadeIn>
       ) : (
-        <UnavailableMessagePage groupPk={groupPk} />
+        <UnavailableMessagePage groupURL={groupURL} />
       )}
     </PageFadeIn>
   );

@@ -123,6 +123,7 @@ const StyledAction = styled.div`
     -moz-appearance: none;
   }
 `;
+const StyledGroupLink = styled.a``;
 const StyledContent = styled.div`
   padding: 0;
   font-size: inherit;
@@ -286,6 +287,22 @@ const StyledWrapper = styled.div`
       }
     }
 
+    ${StyledGroupLink} {
+      display: block;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      font-weight: normal;
+      margin: 0;
+
+      @media (max-width: ${style.collapse}px) {
+        display: none;
+      }
+    }
+
+    ${StyledContent} {
+      margin-top: 0.5rem;
+    }
+
     ${Card} {
       @media (max-width: ${style.collapse}px) {
         box-shadow: none;
@@ -300,6 +317,7 @@ const MessageCard = (props) => {
     user,
     message,
     messageURL,
+    groupURL,
     comments,
     isLoading,
     onClick,
@@ -311,7 +329,14 @@ const MessageCard = (props) => {
     scrollIn,
   } = props;
 
-  const { author, content, created, linkedEvent, commentCount } = message;
+  const {
+    group,
+    author,
+    content,
+    created,
+    linkedEvent,
+    commentCount,
+  } = message;
 
   const messageCardRef = useRef();
 
@@ -441,6 +466,9 @@ const MessageCard = (props) => {
             ) : null}
           </StyledAction>
         </StyledHeader>
+        {groupURL && group && group.name ? (
+          <StyledGroupLink href={groupURL}>{group.name}</StyledGroupLink>
+        ) : null}
         <StyledContent>
           {content.split("\n").map((paragraph, i) => (
             <span key={i + "__" + paragraph}>{paragraph}</span>
@@ -502,6 +530,9 @@ MessageCard.propTypes = {
   }).isRequired,
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    group: PropTypes.shape({
+      name: PropTypes.string,
+    }),
     author: PropTypes.shape({
       id: PropTypes.string.isRequired,
       displayName: PropTypes.string.isRequired,
@@ -513,6 +544,7 @@ MessageCard.propTypes = {
     commentCount: PropTypes.number,
   }).isRequired,
   messageURL: PropTypes.string,
+  groupURL: PropTypes.string,
   comments: PropTypes.arrayOf(PropTypes.object),
   onClick: PropTypes.func,
   onComment: PropTypes.func,

@@ -1,7 +1,5 @@
 import React from "react";
 
-import group from "@agir/groups/groupPage/group.json";
-
 import UnavailableMessagePage from "./UnavailableMessagePage";
 import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 
@@ -22,5 +20,5 @@ const Template = (args) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  groupPk: group.id,
+  groupURL: "#group",
 };
