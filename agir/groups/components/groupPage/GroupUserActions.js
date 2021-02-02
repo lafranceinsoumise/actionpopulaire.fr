@@ -17,6 +17,10 @@ const StyledPanel = styled.div`
   padding: 1.5rem;
   margin: 1rem 0;
 
+  @media (max-width: ${style.collapse}px) {
+    display: none;
+  }
+
   h6 {
     margin: 0;
     font-size: 1rem;
@@ -51,6 +55,12 @@ const StyledPanel = styled.div`
   & > ${Button} {
     margin-top: 1rem;
   }
+
+  & ~ ${Button} {
+    @media (min-width: ${style.collapse}px) {
+      display: none;
+    }
+  }
 `;
 const StyledContent = styled.div`
   padding: 0;
@@ -61,7 +71,7 @@ const StyledContent = styled.div`
   @media (max-width: ${style.collapse}px) {
     background-color: white;
     width: 100%;
-    padding: 0 1rem;
+    padding: 0 1rem 1.5rem;
     align-items: stretch;
     display: ${({ hideOnMobile }) => (hideOnMobile ? "none" : "flex")};
   }
@@ -70,13 +80,10 @@ const StyledContent = styled.div`
     margin: 0;
     width: 100%;
     justify-content: center;
-    margin-bottom: 1rem;
   }
 
   & > ${Button} + ${Button} {
-    @media (max-width: ${style.collapse}px) {
-      display: none;
-    }
+    margin-top: 0.75rem;
   }
 
   p {
@@ -227,6 +234,18 @@ const GroupLinks = (props) => {
             Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
           </Button>
         </StyledPanel>
+        <Button
+          as="a"
+          href={routes.createEvent}
+          color="primary"
+          icon="plus"
+          small
+        >
+          Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
+        </Button>
+        <Button as="a" href={routes.settings} icon="settings" small>
+          Gestion {is2022 ? "de l'équipe" : "du groupe"}
+        </Button>
       </StyledContent>
     );
   }

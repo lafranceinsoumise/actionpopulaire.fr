@@ -1,3 +1,5 @@
+import { DateTime } from "luxon";
+
 const ARTICLES = {
   "de ": "à ",
   "d'": "à ",
@@ -26,4 +28,24 @@ export const getGroupTypeWithLocation = (type, location, commune) => {
     nameOf
   );
   return `${type} ${city_part} (${zip})`;
+};
+
+export const parseDiscountCodes = (discountCodes) => {
+  if (!Array.isArray(discountCodes)) {
+    return null;
+  }
+
+  return discountCodes.map((code) => {
+    let expiration = code.expirationDate
+      ? DateTime.fromJSDate(new Date(code.expirationDate))
+      : "";
+    expiration = expiration.diffNow ? expiration.diffNow("days").days : "";
+    expiration =
+      typeof expiration === "number" ? `${Math.ceil(expiration)} jours` : "";
+
+    return {
+      ...code,
+      expiration,
+    };
+  });
 };
