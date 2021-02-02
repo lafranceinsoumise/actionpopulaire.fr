@@ -258,6 +258,17 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
                     query={"active": "financement"},
                     kwargs={"pk": obj.pk},
                 )
+            if (
+                obj.type in settings.CERTIFIABLE_GROUP_TYPES
+                or obj.subtypes.filter(
+                    label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
+                ).exists()
+            ):
+                routes["certification"] = front_url(
+                    "manage_group",
+                    query={"active": "certification"},
+                    kwargs={"pk": obj.pk},
+                )
         if (
             not self.user.is_anonymous
             and self.user.person
