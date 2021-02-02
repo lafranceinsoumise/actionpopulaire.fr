@@ -8,6 +8,8 @@ from rest_framework.generics import (
     RetrieveAPIView,
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
+    UpdateAPIView,
+    DestroyAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -36,12 +38,17 @@ __all__ = [
     "GroupPastEventReportsAPIView",
     "GroupMessagesAPIView",
     "GroupSingleMessageAPIView",
+    "GroupMessageCommentsAPIView",
+    "GroupSingleCommentAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
-from agir.msgs.models import SupportGroupMessage
+from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 
-from agir.msgs.serializers import SupportGroupMessageSerializer
+from agir.msgs.serializers import (
+    SupportGroupMessageSerializer,
+    MessageCommentSerializer,
+)
 
 
 class GroupSearchAPIView(ListAPIView):
@@ -255,4 +262,39 @@ class GroupMessagesAPIView(ListCreateAPIView):
 class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
     queryset = SupportGroupMessage.objects.all()
     serializer_class = SupportGroupMessageSerializer
+    permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)
+
+
+class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "POST": []}
+    object_perms_map = {
+        "GET": ["msgs.view_supportgroupmessage"],
+        "POST": ["msgs.add_supportgroupmessagecomment"],
+    }
+
+
+class GroupMessageCommentsAPIView(ListCreateAPIView):
+    serializer_class = MessageCommentSerializer
+    permission_classes = (IsAuthenticated, GroupMessageCommentsPermissions)
+
+    def initial(self, request, *args, **kwargs):
+        try:
+            self.message = SupportGroupMessage.objects.get(pk=kwargs["pk"])
+        except SupportGroupMessage.DoesNotExist:
+            raise NotFound()
+
+        self.check_object_permissions(request, self.message)
+
+        super().initial(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.message.comments.all()
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user.person, message=self.message)
+
+
+class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
+    queryset = SupportGroupMessageComment.objects.all()
+    serializer_class = MessageCommentSerializer
     permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)
