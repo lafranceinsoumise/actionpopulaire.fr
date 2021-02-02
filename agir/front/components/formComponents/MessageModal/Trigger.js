@@ -62,7 +62,7 @@ const Trigger = (props) => {
       <span>
         <RawFeatherIcon name="edit-2" />
         <span>
-          {user.fullName.split(" ")[0]}, publiez un message dans votre groupe
+          {user.displayName.split(" ")[0]}, publiez un message dans votre groupe
         </span>
       </span>
     </StyledButton>
@@ -71,7 +71,7 @@ const Trigger = (props) => {
 Trigger.propTypes = {
   onClick: PropTypes.func.isRequired,
   user: PropTypes.shape({
-    fullName: PropTypes.string.isRequired,
+    displayName: PropTypes.string.isRequired,
   }).isRequired,
 };
 export default Trigger;

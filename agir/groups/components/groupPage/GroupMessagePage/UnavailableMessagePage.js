@@ -1,8 +1,7 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React from "react";
 import styled from "styled-components";
 
-import { routeConfig } from "@agir/front/app/routes.config";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -36,31 +35,24 @@ const StyledBlock = styled.div`
 `;
 
 const UnavailableMessagePage = (props) => {
-  const { groupPk } = props;
+  const { groupURL } = props;
 
   const backLink = useSelector(getBackLink);
-
-  const groupPageLink = useMemo(
-    () =>
-      groupPk && routeConfig.groupDetails
-        ? routeConfig.groupDetails.getLink({ groupPk })
-        : null,
-    [groupPk]
-  );
 
   return (
     <CenteredLayout
       backLink={backLink}
       title="Cette discussion n'est pas disponible"
       icon="lock"
+      desktopOnlyFooter={false}
     >
       <StyledBlock>
         <p>
           Vous n’avez pas les droits nécessaires pour afficher cette discussion,
           car elle est réservée aux membres du groupe.
         </p>
-        {groupPageLink ? (
-          <Button color="primary" as="Link" to={groupPageLink}>
+        {groupURL ? (
+          <Button color="primary" as="Link" to={groupURL}>
             Voir le groupe
           </Button>
         ) : null}
@@ -73,6 +65,6 @@ const UnavailableMessagePage = (props) => {
 };
 
 UnavailableMessagePage.propTypes = {
-  groupPk: PropTypes.string,
+  groupURL: PropTypes.string,
 };
 export default UnavailableMessagePage;

@@ -181,9 +181,9 @@ const MessageStep = (props) => {
   return (
     <StyledWrapper>
       <StyledLabel>
-        <Avatar name={user.fullName} avatar={user.avatar} />
+        <Avatar name={user.displayName} avatar={user.avatar} />
         <span>
-          <strong>{user.fullName}</strong>
+          <strong>{user.displayName}</strong>
           {event && event.name ? (
             <em>
               {`À propos de ${event.name}${
@@ -229,7 +229,7 @@ MessageStep.propTypes = {
   content: PropTypes.string,
   event: PropTypes.object,
   user: PropTypes.shape({
-    fullName: PropTypes.string.isRequired,
+    displayName: PropTypes.string.isRequired,
     avatar: PropTypes.string,
   }).isRequired,
   onChange: PropTypes.func.isRequired,

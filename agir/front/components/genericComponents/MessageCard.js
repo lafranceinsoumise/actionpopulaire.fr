@@ -123,6 +123,7 @@ const StyledAction = styled.div`
     -moz-appearance: none;
   }
 `;
+const StyledGroupLink = styled.a``;
 const StyledContent = styled.div`
   padding: 0;
   font-size: inherit;
@@ -286,10 +287,44 @@ const StyledWrapper = styled.div`
       }
     }
 
+    ${StyledGroupLink} {
+      display: block;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      font-weight: normal;
+      margin: 0;
+
+      @media (max-width: ${style.collapse}px) {
+        display: none;
+      }
+    }
+
+    ${StyledContent} {
+      margin-top: 0.5rem;
+    }
+
     ${Card} {
       @media (max-width: ${style.collapse}px) {
         box-shadow: none;
         border: 1px solid ${style.black100};
+      }
+    }
+
+    ${StyledComments} {
+      &::before {
+        @media (max-width: 580px) {
+          display: ${({ $withMobileCommentField }) =>
+            $withMobileCommentField ? "block" : "none"};
+          content: "";
+          padding: 0;
+          width: 100%;
+          height: 9px;
+          background-color: ${style.black50};
+          box-shadow: 0 1px 0 ${style.black200} inset;
+          margin: 0 -1rem 1rem;
+          box-sizing: content-box;
+          padding: 0 1rem;
+        }
       }
     }
   }
@@ -300,6 +335,7 @@ const MessageCard = (props) => {
     user,
     message,
     messageURL,
+    groupURL,
     comments,
     isLoading,
     onClick,
@@ -311,7 +347,14 @@ const MessageCard = (props) => {
     scrollIn,
   } = props;
 
-  const { author, content, created, linkedEvent, commentCount } = message;
+  const {
+    group,
+    author,
+    content,
+    created,
+    linkedEvent,
+    commentCount,
+  } = message;
 
   const messageCardRef = useRef();
 
@@ -377,13 +420,16 @@ const MessageCard = (props) => {
   }, [scrollIn]);
 
   return (
-    <StyledWrapper ref={messageCardRef}>
+    <StyledWrapper
+      ref={messageCardRef}
+      $withMobileCommentField={withMobileCommentField}
+    >
       <Avatar {...author} />
       <StyledMessage>
         <StyledHeader>
           <Avatar {...author} />
           <h4>
-            <strong>{author.fullName}</strong>
+            <strong>{author.displayName}</strong>
             <em onClick={handleClick} style={{ cursor: "pointer" }}>
               {created ? timeAgo(created) : null}
             </em>
@@ -441,6 +487,9 @@ const MessageCard = (props) => {
             ) : null}
           </StyledAction>
         </StyledHeader>
+        {groupURL && group && group.name ? (
+          <StyledGroupLink href={groupURL}>{group.name}</StyledGroupLink>
+        ) : null}
         <StyledContent>
           {content.split("\n").map((paragraph, i) => (
             <span key={i + "__" + paragraph}>{paragraph}</span>
@@ -502,9 +551,12 @@ MessageCard.propTypes = {
   }).isRequired,
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    group: PropTypes.shape({
+      name: PropTypes.string,
+    }),
     author: PropTypes.shape({
       id: PropTypes.string.isRequired,
-      fullName: PropTypes.string.isRequired,
+      displayName: PropTypes.string.isRequired,
       avatar: PropTypes.string,
     }).isRequired,
     created: PropTypes.string.isRequired,
@@ -513,6 +565,7 @@ MessageCard.propTypes = {
     commentCount: PropTypes.number,
   }).isRequired,
   messageURL: PropTypes.string,
+  groupURL: PropTypes.string,
   comments: PropTypes.arrayOf(PropTypes.object),
   onClick: PropTypes.func,
   onComment: PropTypes.func,

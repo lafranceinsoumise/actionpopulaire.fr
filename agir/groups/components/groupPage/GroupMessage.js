@@ -28,6 +28,7 @@ const GroupMessage = (props) => {
     events,
     isLoading,
     messageURL,
+    groupURL,
     onClick,
     updateMessage,
     createComment,
@@ -81,6 +82,7 @@ const GroupMessage = (props) => {
               onReport={reportMessage}
               onDelete={deleteMessage}
               messageURL={messageURL}
+              groupURL={groupURL}
               withMobileCommentField
             />
           )}
@@ -95,6 +97,7 @@ GroupMessage.propTypes = {
   message: PropTypes.object,
   isLoading: PropTypes.bool,
   messageURL: PropTypes.string,
+  groupURL: PropTypes.string,
   onClick: PropTypes.func,
   createMessage: PropTypes.func,
   updateMessage: PropTypes.func,

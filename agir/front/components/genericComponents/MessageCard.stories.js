@@ -67,16 +67,20 @@ export const Default = Template.bind({});
 Default.args = {
   user: {
     id: "Bill",
-    fullName: "Bill Murray",
+    displayName: "Bill Murray",
     avatar: "https://www.fillmurray.com/200/200",
   },
   messageURL: "#message",
+  groupURL: "#group",
   message: {
     id: "message",
     created: "2021-01-09 12:00:00",
+    group: {
+      name: "Comités d'appui et de travail pour une Vienne Insoumise",
+    },
     author: {
       id: "Bill",
-      fullName: "Bill Murray",
+      displayName: "Bill Murray",
       avatar: "https://www.fillmurray.com/200/200",
     },
     content:
@@ -106,7 +110,7 @@ Default.args = {
       id: "comment-1",
       author: {
         id: "Isabelle",
-        fullName: "Isabelle Guérini",
+        displayName: "Isabelle Guérini",
       },
       content:
         "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
@@ -116,7 +120,7 @@ Default.args = {
       id: "comment-2",
       author: {
         id: "Isabelle",
-        fullName: "Isabelle Guérini",
+        displayName: "Isabelle Guérini",
       },
       content:
         "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",

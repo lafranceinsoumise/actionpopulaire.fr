@@ -25,8 +25,10 @@ export const Default = Template.bind({});
 Default.args = {
   user: {
     id: "bill",
-    fullName: "Bill Murray",
+    displayName: "Bill Murray",
   },
   group,
   message: messages[0],
+  groupURL: "#group",
+  messageURL: "#message",
 };
