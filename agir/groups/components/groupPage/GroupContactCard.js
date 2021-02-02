@@ -92,7 +92,7 @@ const GroupContactCard = (props) => {
         <StyledContactSection>
           {contact.name && (
             <strong>
-              Contacter {contact.name}&nbsp;:{" "}
+              Contact
               {routes && routes.edit && (
                 <a href={routes.edit}>
                   <FeatherIcon
@@ -105,6 +105,7 @@ const GroupContactCard = (props) => {
               )}
             </strong>
           )}
+          {contact.name && <span>{contact.name}</span>}
           {contact.email && (
             <a href={`mailto:${contact.email}`}>{contact.email}</a>
           )}
