@@ -62,7 +62,7 @@ export const Activities = (props) => {
 
   const transitions = useTransition(activities, ({ id }) => id, {
     initial: { transform: "translate3d(0,0,0)" },
-    enter: { opacity: 1, marginBottom: 16, maxHeight: "300px" },
+    enter: { opacity: 1, marginBottom: 16, maxHeight: "500px" },
     leave: { opacity: 0, marginBottom: 0, maxHeight: "0px" },
   });
 

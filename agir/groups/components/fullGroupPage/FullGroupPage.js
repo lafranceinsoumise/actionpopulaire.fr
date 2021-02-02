@@ -1,11 +1,14 @@
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
+import useSWR from "swr";
 
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import Onboarding from "@agir/front/genericComponents/Onboarding";
 import CenteredLayout from "@agir/front/dashboardComponents/CenteredLayout";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
@@ -47,47 +50,84 @@ const GroupList = styled.article`
   }
 `;
 
-const FullGroupPage = ({ fullGroup, groupSuggestions }) => {
+const FullGroupPage = ({ groupPk }) => {
   const routes = useSelector(getRoutes);
 
+  const { data: fullGroup } = useSWR(
+    groupPk ? `/api/groupes/${groupPk}/` : null,
+    // TODO: remove fetcher once group detail API endpoint is available
+    () => {
+      try {
+        const dataElement = document.getElementById("exportedContent");
+        if (!dataElement) {
+          return null;
+        }
+        const { fullGroup } = JSON.parse(dataElement.textContent);
+
+        return fullGroup;
+      } catch (e) {
+        return null;
+      }
+    }
+  );
+  const { data: groupSuggestions } = useSWR(
+    groupPk ? `/api/groupes/${groupPk}/suggestions/` : null,
+    // TODO: remove fetcher once group suggestions API endpoint is available
+    () => {
+      try {
+        const dataElement = document.getElementById("exportedContent");
+        if (!dataElement) {
+          return null;
+        }
+        const { groupSuggestions } = JSON.parse(dataElement.textContent);
+
+        return groupSuggestions;
+      } catch (e) {
+        return null;
+      }
+    }
+  );
+
   return (
-    <CenteredLayout
-      title={`${fullGroup.name} compte déjà trop de membres !`}
-      icon="x-circle"
-    >
-      <StyledBlock>
-        <p>Désolé, vous ne pouvez pas rejoindre ce groupe.</p>
-        <p>
-          Pour favoriser l'implication de chacun·e et la répartition de l'action
-          sur le tout le territoire, nous privilégions les petites équipes.
-        </p>
-        <p>Rejoignez une autre équipe proche de chez vous&nbsp;:</p>
-      </StyledBlock>
-      {routes.groupsMap ? <Map src={routes.groupsMap} /> : null}
-      {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 && (
-        <GroupList>
-          {groupSuggestions.map((group) => (
-            <GroupCard
-              key={group.id}
-              {...group}
-              displayDescription={false}
-              displayType={false}
-              displayGroupLogo={false}
-              displayMembership={false}
-            />
-          ))}
-        </GroupList>
+    <PageFadeIn ready={fullGroup !== "undefined"} wait={<Skeleton />}>
+      {fullGroup && (
+        <CenteredLayout
+          title={`${fullGroup.name} compte déjà trop de membres !`}
+          icon="x-circle"
+        >
+          <StyledBlock>
+            <p>Désolé, vous ne pouvez pas rejoindre ce groupe.</p>
+            <p>
+              Pour favoriser l'implication de chacun·e et la répartition de
+              l'action sur le tout le territoire, nous privilégions les petites
+              équipes.
+            </p>
+            <p>Rejoignez une autre équipe proche de chez vous&nbsp;:</p>
+          </StyledBlock>
+          {routes.groupsMap ? <Map src={routes.groupsMap} /> : null}
+          {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 && (
+            <GroupList>
+              {groupSuggestions.map((group) => (
+                <GroupCard
+                  key={group.id}
+                  {...group}
+                  displayDescription={false}
+                  displayType={false}
+                  displayGroupLogo={false}
+                  displayMembership={false}
+                />
+              ))}
+            </GroupList>
+          )}
+          <Onboarding type="fullGroup__creation" routes={routes} />
+        </CenteredLayout>
       )}
-      <Onboarding type="fullGroup__creation" routes={routes} />
-    </CenteredLayout>
+    </PageFadeIn>
   );
 };
 
 FullGroupPage.propTypes = {
-  fullGroup: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-  }).isRequired,
-  groupSuggestions: PropTypes.arrayOf(PropTypes.shape(GroupCard.propTypes)),
+  groupPk: PropTypes.string,
 };
 
 export default FullGroupPage;
