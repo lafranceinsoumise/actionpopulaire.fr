@@ -73,7 +73,7 @@ const GroupContactCard = (props) => {
             {referents.map((referent, i) => (
               <React.Fragment key={i}>
                 {i > 0 ? " " : null}
-                <Avatar {...referent} name={referent.fullName} />
+                <Avatar {...referent} name={referent.displayName} />
               </React.Fragment>
             ))}
           </p>
@@ -81,7 +81,7 @@ const GroupContactCard = (props) => {
             {referents.map((referent, i) => (
               <React.Fragment key={i}>
                 {i > 0 ? " & " : null}
-                <strong>{referent.fullName}</strong>
+                <strong>{referent.displayName}</strong>
               </React.Fragment>
             ))}
           </p>
@@ -118,7 +118,7 @@ const GroupContactCard = (props) => {
 GroupContactCard.propTypes = {
   referents: PropTypes.arrayOf(
     PropTypes.shape({
-      fullName: PropTypes.string.isRequired,
+      displayName: PropTypes.string.isRequired,
       avatar: PropTypes.string,
     })
   ),

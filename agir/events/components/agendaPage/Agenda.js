@@ -270,7 +270,7 @@ const Agenda = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
 
   const { data: rsvped } = useSWR("/api/evenements/rsvped");
-  const { data: suggestions } = useSWR("/api/evenements/suggestions");
+  const { data: suggestions } = useSWR("/api/evenements/suggestions/");
 
   const rsvpedEvents = React.useMemo(
     () =>

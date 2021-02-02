@@ -206,7 +206,7 @@ const CommentField = (props) => {
       <StyledMessage>
         <StyledMessageContent>
           <StyledMessageHeader>
-            <strong>{author.fullName}</strong>
+            <strong>{author.displayName}</strong>
             <em>{created ? timeAgo(created) : null}</em>
           </StyledMessageHeader>
           <article>
@@ -241,9 +241,9 @@ const CommentField = (props) => {
 };
 CommentField.propTypes = {
   message: PropTypes.shape({
-    id: PropTypes.string,
+    id: PropTypes.string.isRequired,
     author: PropTypes.shape({
-      fullName: PropTypes.string.isRequired,
+      displayName: PropTypes.string.isRequired,
       avatar: PropTypes.string,
     }).isRequired,
     content: PropTypes.string.isRequired,
