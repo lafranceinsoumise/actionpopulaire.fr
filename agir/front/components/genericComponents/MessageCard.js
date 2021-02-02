@@ -309,6 +309,24 @@ const StyledWrapper = styled.div`
         border: 1px solid ${style.black100};
       }
     }
+
+    ${StyledComments} {
+      &::before {
+        @media (max-width: 580px) {
+          display: ${({ $withMobileCommentField }) =>
+            $withMobileCommentField ? "block" : "none"};
+          content: "";
+          padding: 0;
+          width: 100%;
+          height: 9px;
+          background-color: ${style.black50};
+          box-shadow: 0 1px 0 ${style.black200} inset;
+          margin: 0 -1rem 1rem;
+          box-sizing: content-box;
+          padding: 0 1rem;
+        }
+      }
+    }
   }
 `;
 
@@ -402,7 +420,10 @@ const MessageCard = (props) => {
   }, [scrollIn]);
 
   return (
-    <StyledWrapper ref={messageCardRef}>
+    <StyledWrapper
+      ref={messageCardRef}
+      $withMobileCommentField={withMobileCommentField}
+    >
       <Avatar {...author} />
       <StyledMessage>
         <StyledHeader>
