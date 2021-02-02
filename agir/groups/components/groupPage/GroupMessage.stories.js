@@ -20,7 +20,7 @@ export default {
 const args = {
   user: {
     id: "Bill",
-    fullName: "Bill Murray",
+    displayName: "Bill Murray",
     avatar: "https://www.fillmurray.com/200/200",
   },
   messages,

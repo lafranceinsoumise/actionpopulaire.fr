@@ -383,7 +383,7 @@ const MessageCard = (props) => {
         <StyledHeader>
           <Avatar {...author} />
           <h4>
-            <strong>{author.fullName}</strong>
+            <strong>{author.displayName}</strong>
             <em onClick={handleClick} style={{ cursor: "pointer" }}>
               {created ? timeAgo(created) : null}
             </em>
@@ -504,7 +504,7 @@ MessageCard.propTypes = {
     id: PropTypes.string.isRequired,
     author: PropTypes.shape({
       id: PropTypes.string.isRequired,
-      fullName: PropTypes.string.isRequired,
+      displayName: PropTypes.string.isRequired,
       avatar: PropTypes.string,
     }).isRequired,
     created: PropTypes.string.isRequired,

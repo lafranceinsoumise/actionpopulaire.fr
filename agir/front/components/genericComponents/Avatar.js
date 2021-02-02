@@ -25,8 +25,8 @@ const getAvatarImageURL = (name, image) => {
   }
   return null;
 };
-const Avatar = styled.span.attrs(({ name, fullName, avatar }) => ({
-  image: getAvatarImageURL(name || fullName, avatar),
+const Avatar = styled.span.attrs(({ name, displayName, avatar }) => ({
+  image: getAvatarImageURL(name || displayName, avatar),
   title: name,
 }))`
   border-radius: 100%;
@@ -41,7 +41,7 @@ const Avatar = styled.span.attrs(({ name, fullName, avatar }) => ({
 `;
 Avatar.propTypes = {
   name: PropTypes.string,
-  fullName: PropTypes.string,
+  displayName: PropTypes.string,
   avatar: PropTypes.string,
 };
 export default Avatar;
