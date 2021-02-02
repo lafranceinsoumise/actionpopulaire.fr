@@ -11,15 +11,16 @@ import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import Link from "@agir/front/app/Link";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
-import GroupBanner from "../GroupBanner";
-import GroupUserActions from "../GroupUserActions";
-import GroupContactCard from "../GroupContactCard";
-import GroupDescription from "../GroupDescription";
-import GroupLinks from "../GroupLinks";
-import GroupFacts from "../GroupFacts";
-import GroupDonation from "../GroupDonation";
-import GroupSuggestions from "../GroupSuggestions";
-import GroupPageMenu from "../GroupPageMenu";
+import GroupBanner from "@agir/groups/groupPage/GroupBanner";
+import GroupUserActions from "@agir/groups/groupPage/GroupUserActions";
+import GroupContactCard from "@agir/groups/groupPage/GroupContactCard";
+import GroupDescription from "@agir/groups/groupPage/GroupDescription";
+import GroupLinks from "@agir/groups/groupPage/GroupLinks";
+import GroupFacts from "@agir/groups/groupPage/GroupFacts";
+import GroupDonation from "@agir/groups/groupPage/GroupDonation";
+import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
+import GroupPageMenu from "@agir/groups/groupPage/GroupPageMenu";
+import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
 import Routes from "./Routes";
 
@@ -164,7 +165,10 @@ const DesktopGroupPage = (props) => {
         <Column width="460px">
           <GroupUserActions {...group} />
           <GroupContactCard {...group} />
-          {allEvents.length > 0 ? <GroupDescription {...group} /> : null}
+          <GroupOrders {...group} />
+          {allEvents && allEvents.length > 0 ? (
+            <GroupDescription {...group} />
+          ) : null}
           <GroupLinks {...group} />
           <GroupFacts {...group} />
           {group.routes && group.routes.donations && (

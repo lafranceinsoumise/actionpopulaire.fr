@@ -78,5 +78,15 @@
     "financement": "#financement",
     "certification": "#certification",
     "admin": "#admin"
-  }
+  },
+  "discountCodes": [
+    {
+      "code": "ZEziAujKIhjBJhjHuhguyuY",
+      "expirationDate": "2022-01-01 00:00:00"
+    },
+    {
+      "code": "ZxlOienNQWopwoZuZnAzI",
+      "expirationDate": "2022-01-01 00:00:00"
+    }
+  ]
 }

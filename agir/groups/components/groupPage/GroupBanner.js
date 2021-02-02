@@ -25,7 +25,7 @@ const StyledBanner = styled.div`
     padding: 2.25rem;
 
     @media (max-width: ${style.collapse}px) {
-      padding: 1.5rem;
+      padding: 1.5rem 1.5rem 1.25rem;
     }
   }
 

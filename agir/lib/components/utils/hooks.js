@@ -106,7 +106,7 @@ export const useDisableBodyScroll = (isActive, shouldDisable) => {
   useEffect(() => {
     if (isActive && typeof window !== "undefined" && targetRef.current) {
       shouldDisable
-        ? disableBodyScroll(targetRef.current)
+        ? clearAllBodyScrollLocks()
         : enableBodyScroll(targetRef.current);
     }
     return () => {

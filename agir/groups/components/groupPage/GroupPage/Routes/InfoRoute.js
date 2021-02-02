@@ -14,6 +14,7 @@ import GroupFacts from "@agir/groups/groupPage/GroupFacts";
 import GroupDonation from "@agir/groups/groupPage/GroupDonation";
 import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
 import GroupEventList from "@agir/groups/groupPage/GroupEventList";
+import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
 const Agenda = styled.div`
   margin: 0;
@@ -46,6 +47,7 @@ const InfoRoute = ({
     ) : null}
 
     <GroupContactCard {...group} />
+    <GroupOrders {...group} />
     <GroupDescription {...group} />
     <GroupLinks {...group} />
     <GroupFacts {...group} />
