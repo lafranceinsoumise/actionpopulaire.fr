@@ -44,6 +44,7 @@ const UnavailableMessagePage = (props) => {
       backLink={backLink}
       title="Cette discussion n'est pas disponible"
       icon="lock"
+      desktopOnlyFooter={false}
     >
       <StyledBlock>
         <p>
