@@ -140,14 +140,14 @@ const EmptyContent = (props) => {
             name={icon}
             width="40px"
             height="40px"
-            strokeWidth="0"
+            strokeWidth={0}
             svgStyle={{ fill: style.black50 }}
           />
           <RawFeatherIcon
             name={icon}
             width="40px"
             height="40px"
-            strokeWidth="2"
+            strokeWidth={2}
           />
         </StyledIcon>
       ) : null}

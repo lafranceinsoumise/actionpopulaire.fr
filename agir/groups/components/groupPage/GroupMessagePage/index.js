@@ -9,7 +9,10 @@ import {
   useDispatch,
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
-import { setBackLink } from "@agir/front/globalContext/actions";
+import {
+  setBackLink,
+  setTopBarRightLink,
+} from "@agir/front/globalContext/actions";
 import {
   getIsSessionLoaded,
   getUser,
@@ -83,6 +86,19 @@ const Page = ({ groupPk, messagePk }) => {
         )
       );
   }, [backLink, group, groupURL, dispatch]);
+
+  useEffect(() => {
+    if (group && group.isManager && group.routes && group.routes.settings) {
+      dispatch(
+        setTopBarRightLink({
+          href: group.routes.settings,
+          label: "Gestion du groupe",
+        })
+      );
+    } else {
+      dispatch(setTopBarRightLink(null));
+    }
+  }, [group, dispatch]);
 
   if (isSessionLoaded && group && group.isMember && message === null) {
     const redirectTo =

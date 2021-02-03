@@ -13,11 +13,7 @@ import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
 
 import { useMessageActions } from "@agir/groups/groupPage/hooks";
 
-const StyledMessage = styled.div`
-  @media (max-width: ${style.collapse}px) {
-    min-height: 100vh;
-  }
-`;
+const StyledMessage = styled.div``;
 const StyledWrapper = styled.div`
   @media (max-width: ${style.collapse}px) {
     padding-bottom: 2.5rem;

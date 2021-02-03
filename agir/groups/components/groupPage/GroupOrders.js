@@ -50,7 +50,12 @@ const GroupOrders = (props) => {
 };
 
 GroupOrders.propTypes = {
-  discountCodes: PropTypes.object,
+  discountCodes: PropTypes.arrayOf(
+    PropTypes.shape({
+      code: PropTypes.string,
+      expirationDate: PropTypes.string,
+    })
+  ),
   isManager: PropTypes.bool,
 };
 export default GroupOrders;

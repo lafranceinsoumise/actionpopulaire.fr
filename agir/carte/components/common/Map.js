@@ -85,6 +85,7 @@ const Map = (props) => {
     if (map.current && mapElement.current) {
       map.current.getView().setCenter(proj.fromLonLat(center));
       map.current.getView().setZoom(zoom);
+      setIsLoaded(true);
     } else if (mapElement.current) {
       map.current = createMap(
         center,

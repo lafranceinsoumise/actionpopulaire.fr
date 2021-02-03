@@ -76,7 +76,7 @@ const Trigger = (props) => {
         color="white"
         width="13px"
         height="13px"
-        strokeWidth="3"
+        strokeWidth={3}
       />
       <span>Nouvelle discussion du groupe</span>
     </StyledButton>
