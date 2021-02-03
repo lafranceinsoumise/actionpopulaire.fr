@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -12,8 +12,11 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 import MessageModalTrigger from "@agir/front/formComponents/MessageModal/Trigger";
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
+import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
 
 import { EmptyMessages } from "./EmptyContent";
+
+import { useMessageActions } from "@agir/groups/groupPage/hooks";
 
 const StyledButton = styled.div`
   text-align: center;
@@ -60,72 +63,60 @@ const GroupMessages = (props) => {
     user,
     messages,
     events,
+    isManager,
     isLoading,
     getMessageURL,
     onClick,
-    createMessage,
-    updateMessage,
-    createComment,
-    reportMessage,
-    deleteMessage,
     loadMoreEvents,
     loadMoreMessages,
   } = props;
 
-  const [editedMessage, setEditedMessage] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const {
+    selectedMessage,
+    messageAction,
+    writeNewMessage,
+    writeNewComment,
+    editMessage,
+    confirmDelete,
+    confirmReport,
+    dismissMessageAction,
+    saveMessage,
+    handleDelete,
+    handleReport,
+  } = useMessageActions(props);
 
-  const editMessage = useCallback((message) => {
-    setEditedMessage(message);
-    setIsModalOpen(true);
-  }, []);
-
-  const handleModalOpen = useCallback(() => {
-    setIsModalOpen(true);
-  }, []);
-
-  const handleModalClose = useCallback(() => {
-    setIsModalOpen(false);
-    setEditedMessage(null);
-  }, []);
-
-  useEffect(() => {
-    handleModalClose();
-  }, [handleModalClose, messages]);
-
-  const saveMessage = useCallback(
-    (message) => {
-      if (message.id) {
-        updateMessage && updateMessage(message);
-      } else {
-        createMessage && createMessage(message);
-      }
-    },
-    [createMessage, updateMessage]
-  );
+  const hasMessageModal =
+    messageAction === "edit" || messageAction === "create";
+  const hasMessageActionModal =
+    messageAction === "delete" || messageAction === "report";
 
   return (
     <StyledWrapper>
-      {Array.isArray(messages) &&
-      messages.length > 0 &&
-      user &&
-      createMessage ? (
+      {Array.isArray(messages) && messages.length > 0 && writeNewMessage ? (
         <div style={{ border: `1px solid ${style.black50}` }}>
-          <MessageModalTrigger onClick={handleModalOpen} />
+          <MessageModalTrigger onClick={writeNewMessage} />
         </div>
       ) : null}
-      {(user && createMessage) || updateMessage ? (
+      {saveMessage ? (
         <MessageModal
-          shouldShow={isModalOpen}
-          onClose={handleModalClose}
+          shouldShow={hasMessageModal}
+          onClose={dismissMessageAction}
           user={user}
           events={events}
           loadMoreEvents={loadMoreEvents}
           isLoading={isLoading}
-          message={editedMessage}
+          message={selectedMessage}
           onSend={saveMessage}
         />
       ) : null}
+      <MessageActionModal
+        action={hasMessageActionModal ? messageAction : undefined}
+        shouldShow={hasMessageActionModal}
+        onClose={dismissMessageAction}
+        onReport={handleReport}
+        onDelete={handleDelete}
+        isLoading={isLoading}
+      />
       <PageFadeIn
         ready={Array.isArray(messages)}
         wait={<Skeleton style={{ margin: "1rem 0" }} />}
@@ -139,18 +130,17 @@ const GroupMessages = (props) => {
                   user={user}
                   comments={message.comments}
                   onClick={onClick}
-                  onEdit={updateMessage ? editMessage : undefined}
-                  onComment={createComment}
-                  onReport={reportMessage}
-                  onDelete={deleteMessage}
+                  onEdit={editMessage}
+                  onComment={writeNewComment}
+                  onReport={confirmReport}
+                  onDelete={confirmDelete}
                   messageURL={getMessageURL && getMessageURL(message.id)}
+                  isManager={isManager}
                 />
               ))
             : null}
           {Array.isArray(messages) && messages.length === 0 ? (
-            <EmptyMessages
-              onClickSendMessage={createMessage ? handleModalOpen : undefined}
-            />
+            <EmptyMessages onClickSendMessage={writeNewMessage} />
           ) : null}
           {typeof loadMoreMessages === "function" ? (
             <StyledButton>
@@ -178,6 +168,7 @@ GroupMessages.propTypes = {
   events: PropTypes.arrayOf(PropTypes.object),
   messages: PropTypes.arrayOf(PropTypes.object),
   isLoading: PropTypes.bool,
+  isManager: PropTypes.bool,
   getMessageURL: PropTypes.func,
   onClick: PropTypes.func,
   createMessage: PropTypes.func,

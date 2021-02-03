@@ -337,6 +337,7 @@ const MessageCard = (props) => {
     messageURL,
     groupURL,
     comments,
+    isManager,
     isLoading,
     onClick,
     onComment,
@@ -359,7 +360,11 @@ const MessageCard = (props) => {
   const messageCardRef = useRef();
 
   const event = useMemo(() => formatEvent(linkedEvent), [linkedEvent]);
-  const isAuthor = useMemo(() => author.id === user.id, [author, user]);
+  const isAuthor = useMemo(() => isManager || author.id === user.id, [
+    isManager,
+    author,
+    user,
+  ]);
   const encodedMessageURL = useMemo(() => {
     if (messageURL) {
       const url =
@@ -512,9 +517,9 @@ const MessageCard = (props) => {
                   <Comment
                     key={comment.id}
                     message={comment}
-                    onDelete={handleDeleteComment}
+                    onDelete={onDelete ? handleDeleteComment : undefined}
                     onReport={onReport}
-                    isAuthor={comment.author.id === user.id}
+                    isAuthor={isManager || comment.author.id === user.id}
                   />
                 ))
               : null}
@@ -575,5 +580,6 @@ MessageCard.propTypes = {
   isLoading: PropTypes.bool,
   withMobileCommentField: PropTypes.bool,
   scrollIn: PropTypes.bool,
+  isManager: PropTypes.bool,
 };
 export default MessageCard;

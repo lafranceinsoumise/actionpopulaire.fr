@@ -7,6 +7,7 @@ export default {
 };
 
 const Template = (args) => {
+  const [action, setAction] = React.useState(args.action);
   const [shouldShow, setShouldShow] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
   const mockAction = React.useMemo(
@@ -31,13 +32,22 @@ const Template = (args) => {
   return (
     <>
       {!shouldShow ? (
-        <button onClick={() => setShouldShow(true)}>
+        <button
+          onClick={() => {
+            setShouldShow(true);
+            setAction(args.action);
+          }}
+        >
           {args.action.toUpperCase()}
         </button>
       ) : null}
       <MessageActionModal
         {...args}
-        onClose={() => setShouldShow(false)}
+        action={action}
+        onClose={() => {
+          setShouldShow(false);
+          setAction("");
+        }}
         shouldShow={shouldShow}
         onDelete={handleDelete}
         onReport={handleReport}

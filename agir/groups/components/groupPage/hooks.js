@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useSWR, { useSWRInfinite } from "swr";
 
 import logger from "@agir/lib/utils/logger";
@@ -257,5 +257,93 @@ export const useGroupMessage = (groupPk, messagePk) => {
     reportMessage,
     deleteMessage,
     isLoading,
+  };
+};
+
+export const useMessageActions = (props) => {
+  const {
+    user,
+    isManager,
+    isLoading,
+    createMessage,
+    updateMessage,
+    createComment,
+    reportMessage,
+    deleteMessage,
+  } = props;
+
+  const shouldDismiss = useRef(false);
+
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [messageAction, setMessageAction] = useState("");
+
+  const writeNewMessage = useCallback(() => {
+    setMessageAction("create");
+  }, []);
+  const editMessage = useCallback((message) => {
+    setSelectedMessage(message);
+    setMessageAction("edit");
+  }, []);
+  const confirmDelete = useCallback((message) => {
+    setSelectedMessage(message);
+    setMessageAction("delete");
+  }, []);
+  const confirmReport = useCallback((message) => {
+    setSelectedMessage(message);
+    setMessageAction("report");
+  }, []);
+  const dismissMessageAction = useCallback(() => {
+    setMessageAction("");
+    setSelectedMessage(null);
+    shouldDismiss.current = false;
+  }, []);
+
+  const saveMessage = useCallback(
+    (message) => {
+      if (message.id && updateMessage) {
+        shouldDismiss.current = true;
+        updateMessage(message);
+      } else if (createMessage) {
+        shouldDismiss.current = true;
+        createMessage(message);
+      }
+    },
+    [createMessage, updateMessage]
+  );
+  const handleDelete = useCallback(() => {
+    selectedMessage && deleteMessage && deleteMessage(selectedMessage);
+  }, [selectedMessage, deleteMessage]);
+  const handleReport = useCallback(() => {
+    selectedMessage && reportMessage && reportMessage(selectedMessage);
+  }, [selectedMessage, reportMessage]);
+
+  useEffect(() => {
+    !isLoading && shouldDismiss.current && dismissMessageAction();
+  }, [isLoading, dismissMessageAction]);
+
+  const isSelectedMessageAuthor =
+    user && selectedMessage && selectedMessage.author.id === user.id;
+
+  return {
+    selectedMessage,
+    messageAction,
+    dismissMessageAction,
+    writeNewMessage: user && createMessage ? writeNewMessage : undefined,
+    editMessage: user && updateMessage ? editMessage : undefined,
+    confirmDelete: deleteMessage ? confirmDelete : undefined,
+    confirmReport: reportMessage ? confirmReport : undefined,
+    saveMessage:
+      user && (createMessage || updateMessage) ? saveMessage : undefined,
+    handleDelete:
+      deleteMessage &&
+      (messageAction === "delete" || (isManager && !isSelectedMessageAuthor))
+        ? handleDelete
+        : undefined,
+    handleReport:
+      reportMessage &&
+      (messageAction === "report" || (isManager && !isSelectedMessageAuthor))
+        ? handleReport
+        : undefined,
+    writeNewComment: createComment || undefined,
   };
 };

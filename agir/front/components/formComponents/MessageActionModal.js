@@ -224,8 +224,14 @@ const MessageActionModal = (props) => {
   } = props;
   const [step, setStep] = useState(0);
   const nextStep = useRef(0);
+  const lastStep = useRef(null);
 
-  const Step = useMemo(() => Steps[action][step], [action, step]);
+  const Step = useMemo(() => {
+    const Step =
+      action && Steps[action] ? Steps[action][step] : lastStep.current;
+    lastStep.current = Step;
+    return Step;
+  }, [action, step]);
 
   const handleDelete = useMemo(
     () =>
@@ -268,17 +274,19 @@ const MessageActionModal = (props) => {
 
   return (
     <ModalWrapper
-      shouldShow={shouldShow}
+      shouldShow={shouldShow && !!Step}
       onClose={isLoading ? undefined : onClose}
       noScroll
     >
       <StyledModalContent $isLoading={isLoading}>
-        <Step
-          onClose={onClose}
-          onDelete={handleDelete}
-          onReport={handleReport}
-          isLoading={isLoading}
-        />
+        {Step ? (
+          <Step
+            onClose={onClose}
+            onDelete={handleDelete}
+            onReport={handleReport}
+            isLoading={isLoading}
+          />
+        ) : null}
       </StyledModalContent>
     </ModalWrapper>
   );
