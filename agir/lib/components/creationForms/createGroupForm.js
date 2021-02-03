@@ -13,6 +13,7 @@ import LocationStep from "./steps/LocationStep";
 
 import "./style.css";
 import PropTypes from "prop-types";
+import * as Sentry from "@sentry/react";
 
 const NSP_GROUP_TYPE_ID = "2";
 
@@ -409,9 +410,10 @@ class ValidateStep extends FormStep {
               this.state.error.response.data.errors ? (
                 <ul>
                   {Object.entries(this.state.error.response.data.errors).map(
-                    ([field, msg]) => (
-                      <li key={field}>{msg}</li>
-                    )
+                    ([field, msg]) => {
+                      Sentry.captureMessage(`ValidationError: ${field} ${msg}`);
+                      return <li key={field}>{msg}</li>;
+                    }
                   )}
                 </ul>
               ) : (
