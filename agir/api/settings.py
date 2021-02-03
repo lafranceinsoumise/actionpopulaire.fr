@@ -391,6 +391,10 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.environ.get("STATIC_ROOT")
 
 STATICFILES_DIRS = [os.path.join(os.path.dirname(BASE_DIR), "assets")]
+if not DEBUG:
+    STATICFILES_STORAGE = (
+        "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+    )
 
 WEBPACK_LOADER = {
     "DEFAULT": {
