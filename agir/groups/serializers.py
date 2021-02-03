@@ -258,7 +258,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
                     query={"active": "financement"},
                     kwargs={"pk": obj.pk},
                 )
-            if (
+            elif (
                 obj.type in settings.CERTIFIABLE_GROUP_TYPES
                 or obj.subtypes.filter(
                     label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
