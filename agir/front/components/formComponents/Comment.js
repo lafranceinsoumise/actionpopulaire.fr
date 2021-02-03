@@ -217,15 +217,18 @@ const CommentField = (props) => {
         </StyledMessageContent>
         {hasActions ? (
           <StyledAction>
-            <InlineMenu triggerIconName="more-horizontal" triggerSize="1rem">
+            <InlineMenu
+              triggerIconName="more-horizontal"
+              triggerSize="1rem"
+              shouldDismissOnClick
+            >
               <StyledInlineMenuItems>
-                {isAuthor && onDelete && (
+                {isAuthor ? (
                   <button onClick={handleDelete}>
                     <RawFeatherIcon name="x" color={style.primary500} />
                     Supprimer
                   </button>
-                )}
-                {!isAuthor && onReport && (
+                ) : (
                   <button onClick={handleReport}>
                     <RawFeatherIcon name="flag" color={style.primary500} />
                     Signaler
