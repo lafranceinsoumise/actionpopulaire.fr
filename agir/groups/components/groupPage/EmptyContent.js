@@ -5,7 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import Button from "@agir/front/genericComponents/Button";
+import MessageModalTrigger from "@agir/front/formComponents/MessageModal/Trigger";
 
 import emptyMessagesBackground from "./images/empty-messages-bg.svg";
 
@@ -127,10 +127,6 @@ const StyledEmptyContent = styled.div`
         }
       }
     }
-
-    ${Button} {
-      margin-top: 1.5rem;
-    }
   }
 `;
 
@@ -236,9 +232,9 @@ export const EmptyMessages = ({ onClickSendMessage }) => (
       </li>
     </ul>
     {onClickSendMessage ? (
-      <Button color="secondary" onClick={onClickSendMessage}>
-        Publier un message
-      </Button>
+      <div style={{ marginTop: "1.5rem" }}>
+        <MessageModalTrigger onClick={onClickSendMessage} />
+      </div>
     ) : null}
   </EmptyContent>
 );

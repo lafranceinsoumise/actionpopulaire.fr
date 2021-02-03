@@ -106,8 +106,13 @@ const GroupMessages = (props) => {
 
   return (
     <StyledWrapper>
-      {user && createMessage ? (
-        <MessageModalTrigger user={user} onClick={handleModalOpen} />
+      {Array.isArray(messages) &&
+      messages.length > 0 &&
+      user &&
+      createMessage ? (
+        <div style={{ border: `1px solid ${style.black50}` }}>
+          <MessageModalTrigger onClick={handleModalOpen} />
+        </div>
       ) : null}
       {(user && createMessage) || updateMessage ? (
         <MessageModal
