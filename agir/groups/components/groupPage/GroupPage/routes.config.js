@@ -115,6 +115,7 @@ export const useTabs = (props, isMobile = true) => {
 
   return {
     tabs: routes,
+    activeTabId: activeRoute.id,
     activeTabIndex,
     hasTabs: tabs.length > 1,
     onTabChange: handleTabChange,

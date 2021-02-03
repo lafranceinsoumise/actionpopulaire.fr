@@ -42,7 +42,7 @@ const GroupMessagePage = (props) => {
   const backLink = useSelector(getBackLink);
 
   return (
-    <CenteredLayout backLink={backLink} desktopOnlyFooter={false}>
+    <CenteredLayout backLink={backLink}>
       <StyledBlock>
         <GroupMessage
           group={group}

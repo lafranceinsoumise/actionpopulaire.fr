@@ -80,7 +80,7 @@ const IndexLinkAnchor = styled(Link)`
 
 const DesktopGroupPage = (props) => {
   const { backLink, group, groupSuggestions, allEvents } = props;
-  const { hasTabs, tabs, activeTabIndex } = useTabs(props, false);
+  const { hasTabs, tabs, activeTabIndex, activeTabId } = useTabs(props, false);
   const history = useHistory();
 
   const getMessageURL = useCallback(
@@ -177,13 +177,15 @@ const DesktopGroupPage = (props) => {
         </Column>
       </Row>
 
-      <Row gutter={32}>
-        <Column grow>
-          {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
-            <GroupSuggestions groups={groupSuggestions} />
-          ) : null}
-        </Column>
-      </Row>
+      {activeTabId !== "messages" ? (
+        <Row gutter={32}>
+          <Column grow>
+            {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
+              <GroupSuggestions groups={groupSuggestions} />
+            ) : null}
+          </Column>
+        </Row>
+      ) : null}
     </Container>
   );
 };
