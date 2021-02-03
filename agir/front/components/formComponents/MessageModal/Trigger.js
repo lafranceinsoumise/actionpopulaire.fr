@@ -10,14 +10,16 @@ const StyledButton = styled.button`
   border: none;
   margin: 0;
   text-decoration: none;
-  background-color: ${style.black50};
+  background-color: ${style.white};
   cursor: pointer;
   text-align: center;
   -webkit-appearance: none;
   -moz-appearance: none;
-  color: ${style.black1000};
+  color: ${style.primary500};
   border-radius: 3px;
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   height: 54px;
   padding: 0.5rem;
@@ -29,49 +31,58 @@ const StyledButton = styled.button`
     opacity: 0.8;
   }
 
-  & > span {
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-    background-color: white;
-    padding: 0 18px;
-    height: 100%;
-    border: 1px solid ${style.black100};
+  span {
     font-size: 0.875rem;
-    font-weight: 400;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
 
-    span {
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
+  ${RawFeatherIcon} {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: ${style.primary500};
+    width: 2rem;
+    height: 2rem;
+    margin-right: 12px;
+    position: relative;
+    border-radius: 100%;
+
+    &::before {
+      content: "+";
+      position: absolute;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      top: 11px;
+      left: 8px;
+      line-height: 0;
     }
-
-    ${RawFeatherIcon} {
-      width: 1rem;
-      height: 1rem;
-      margin-right: 12px;
+    svg {
+      margin-left: 3px;
     }
   }
 `;
 
 const Trigger = (props) => {
-  const { user, onClick } = props;
+  const { onClick } = props;
 
   return (
     <StyledButton onClick={onClick}>
-      <span>
-        <RawFeatherIcon name="edit-2" />
-        <span>
-          {user.displayName.split(" ")[0]}, publiez un message dans votre groupe
-        </span>
-      </span>
+      <RawFeatherIcon
+        name="edit-2"
+        color="white"
+        width="13px"
+        height="13px"
+        strokeWidth="3"
+      />
+      <span>Nouvelle discussion du groupe</span>
     </StyledButton>
   );
 };
 Trigger.propTypes = {
   onClick: PropTypes.func.isRequired,
-  user: PropTypes.shape({
-    displayName: PropTypes.string.isRequired,
-  }).isRequired,
 };
 export default Trigger;

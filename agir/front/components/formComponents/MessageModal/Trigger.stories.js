@@ -7,10 +7,6 @@ export default {
   title: "Form/MessageModal/Trigger",
 };
 
-const user = {
-  displayName: "Bill Murray",
-  avatar: "https://www.fillmurray.com/200/200",
-};
 const Template = (args) => {
   return (
     <div
@@ -26,7 +22,4 @@ const Template = (args) => {
 };
 
 export const Default = Template.bind({});
-Default.args = {
-  user,
-  onClick: () => {},
-};
+Default.args = {};
