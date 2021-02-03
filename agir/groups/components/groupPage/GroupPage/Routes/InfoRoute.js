@@ -79,7 +79,7 @@ const InfoRoute = ({
               name="arrow-right"
               width="1rem"
               height="1rem"
-              strokeWidth="3"
+              strokeWidth={3}
             />
           </button>
         </h3>

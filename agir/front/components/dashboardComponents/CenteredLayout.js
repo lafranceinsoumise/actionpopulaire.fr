@@ -53,10 +53,9 @@ export const LayoutTitle = styled.h1`
 const MainColumn = styled(Column)`
   padding-top: 72px;
   margin: 0 auto;
-  max-width: 580px;
+  max-width: 100%;
 
   @media (max-width: ${style.collapse}px) {
-    max-width: 100%;
     padding-top: 0;
   }
 
@@ -71,7 +70,10 @@ const MainColumn = styled(Column)`
 
 const MainContainer = styled(Container)`
   padding-bottom: 72px;
+
   @media (min-width: ${style.collapse}px) {
+    max-width: ${({ $maxWidth }) => $maxWidth || "580px"};
+
     & > ${Row} {
       flex-wrap: nowrap;
     }

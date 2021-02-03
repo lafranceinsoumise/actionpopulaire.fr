@@ -37,7 +37,9 @@ export const parseDiscountCodes = (discountCodes) => {
 
   return discountCodes.map((code) => {
     let expiration = code.expirationDate
-      ? DateTime.fromJSDate(new Date(code.expirationDate))
+      ? code.expirationDate.diffNow
+        ? code.expirationDate
+        : DateTime.fromJSDate(new Date(code.expirationDate))
       : "";
     expiration = expiration.diffNow ? expiration.diffNow("days").days : "";
     expiration =

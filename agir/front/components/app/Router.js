@@ -47,7 +47,9 @@ const Page = (props) => {
             {...rest}
             data={[]}
           />
-          <FeedbackButton style={{ bottom: "1rem" }} />
+          {routeConfig.hideFeedbackButton ? null : (
+            <FeedbackButton style={{ bottom: "1rem" }} />
+          )}
         </Suspense>
       </ErrorBoundary>
     );
@@ -63,7 +65,7 @@ const Page = (props) => {
             {...rest}
             data={[]}
           />
-          <FeedbackButton />
+          {routeConfig.hideFeedbackButton ? null : <FeedbackButton />}
         </Suspense>
       </ErrorBoundary>
     </Layout>
