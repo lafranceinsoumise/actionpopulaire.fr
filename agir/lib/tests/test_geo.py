@@ -3,6 +3,10 @@ from pathlib import Path
 from unittest.mock import patch, Mock
 
 import requests
+from data_france.models import Commune, Departement, Region, CodePostal
+from data_france.type_noms import TypeNom
+from django.contrib.gis.geos import MultiPolygon, Polygon
+from django.db import transaction
 from django.db.transaction import get_connection
 from functools import wraps
 
@@ -18,38 +22,66 @@ DATA_DIR = Path(__file__).parent / "data"
 
 
 def import_communes_test_data():
-    with get_connection().cursor() as cursor:
-        cursor.execute(
-            "ALTER TABLE data_france_commune DROP CONSTRAINT IF EXISTS commune_departement_constraint;"
+
+    with transaction.atomic():
+        reg = Region.objects.create(
+            code="01", nom="Région", type_nom=TypeNom.ARTICLE_LA, chef_lieu_id=1,
+        )
+        dep = Departement.objects.create(
+            code="01",
+            nom="Département",
+            type_nom=TypeNom.ARTICLE_LE,
+            region=reg,
+            chef_lieu_id=1,
+        )
+        c1 = Commune.objects.create(
+            id=1,
+            code="00001",
+            type=Commune.TYPE_COMMUNE,
+            nom="Première",
+            type_nom=TypeNom.ARTICLE_LA,
+            geometry=MultiPolygon(Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))),
+            departement=dep,
+        )
+        c2 = Commune.objects.create(
+            id=2,
+            code="00002",
+            type=Commune.TYPE_COMMUNE,
+            nom="Seconde",
+            type_nom=TypeNom.ARTICLE_LA,
+            geometry=MultiPolygon(Polygon(((0, 0), (0, -1), (1, -1), (1, 0), (0, 0)))),
+            departement=dep,
+        )
+        c3 = Commune.objects.create(
+            id=3,
+            code="00003",
+            type=Commune.TYPE_COMMUNE,
+            nom="Troisième",
+            type_nom=TypeNom.ARTICLE_LA,
+            geometry=MultiPolygon(
+                Polygon(((0, 0), (0, -1), (-1, -1), (-1, 0), (0, 0)))
+            ),
+            departement=dep,
+        )
+        arr1 = Commune.objects.create(
+            id=4,
+            code="10001",
+            type=Commune.TYPE_ARRONDISSEMENT_PLM,
+            nom="Arrondissement",
+            type_nom=TypeNom.VOYELLE,
+            commune_parent=c1,
+            geometry=MultiPolygon(
+                Polygon(((0, 0), (0, 0.5), (1, 0.5), (1, 0), (0, 0)))
+            ),
         )
 
-        with (DATA_DIR / "commune.csv").open() as f:
-            cursor.copy_from(
-                f,
-                "data_france_commune",
-                columns=[
-                    "id",
-                    "code",
-                    "type",
-                    "nom",
-                    "type_nom",
-                    "population_municipale",
-                    "population_cap",
-                    "geometry",
-                    "search",
-                    "commune_parent_id",
-                ],
-            )
-        with (DATA_DIR / "codepostal.csv").open() as f:
-            cursor.copy_from(
-                f, "data_france_codepostal", columns=["id", "code"],
-            )
-        with (DATA_DIR / "codepostal_communes.csv").open() as f:
-            cursor.copy_from(
-                f,
-                "data_france_codepostal_communes",
-                columns=["id", "codepostal_id", "commune_id"],
-            )
+        cp1 = CodePostal.objects.create(code="12345")
+        cp2 = CodePostal.objects.create(code="54321")
+        cp3 = CodePostal.objects.create(code="12300")
+
+        cp1.communes.set([c1])
+        cp2.communes.set([c2, c3])
+        cp3.communes.set([arr1])
 
 
 def with_json_response(file_name):
@@ -89,13 +121,13 @@ class FranceGeocodingTestCase(TestCase):
         import_communes_test_data()
 
     @with_no_request
-    def test_geocode_ban_only_zip(self):
+    def test_geocode_only_zip(self):
         """
             On a une requête avec de multiples municipalités. On ne peut pas determiner de citycode
         :return:
         """
 
-        self.person.location_zip = "21570"
+        self.person.location_zip = "54321"
         self.person.save()
 
         geocode_france(self.person)
@@ -122,18 +154,18 @@ class FranceGeocodingTestCase(TestCase):
         self.assertEqual(self.person.coordinates_type, LocationMixin.COORDINATES_EXACT)
 
     @with_no_request
-    def test_geocode_ban_only_zip_one_result(self):
+    def test_geocode_only_zip_one_result(self):
         """
             Test le fonctionement avec seulement un code postale mais un seul resultat de commune
         :return:
         """
-        self.person.location_zip = "21000"
+        self.person.location_zip = "12345"
         self.person.save()
 
         geocode_france(self.person)
-        self.assert_(self.person.location_citycode, "21231")
+        self.assert_(self.person.location_citycode, "00001")
         self.assertIsNotNone(self.person.coordinates)
-        self.assert_(self.person.coordinates_type, LocationMixin.COORDINATES_EXACT)
+        self.assert_(self.person.coordinates_type, LocationMixin.COORDINATES_CITY)
 
     @with_no_request
     def test_geocode_ban_district_post_code(self):
@@ -141,11 +173,11 @@ class FranceGeocodingTestCase(TestCase):
             Test le fonctionement avec les arrondissement des grande ville qui ont un code INSEE pour chaque arrondissement
         :return:
         """
-        self.person.location_zip = "13005"
+        self.person.location_zip = "12300"
         self.person.save()
 
         geocode_france(self.person)
-        self.assertEqual(self.person.location_citycode, "13205")
+        self.assertEqual(self.person.location_citycode, "10001")
         self.assertIsNotNone(self.person.coordinates)
         self.assertEqual(
             self.person.coordinates_type, LocationMixin.COORDINATES_DISTRICT
@@ -168,10 +200,10 @@ class FranceGeocodingTestCase(TestCase):
     @with_no_request
     def test_geocode_with_citycode(self):
 
-        self.person.location_citycode = "21058"
+        self.person.location_citycode = "00002"
         self.person.save()
         geocode_france(self.person)
 
         self.assertIsNotNone(self.person.coordinates)
         self.assertEqual(self.person.coordinates_type, LocationMixin.COORDINATES_CITY)
-        self.assertEqual(self.person.location_city, "Belan-sur-Ource")
+        self.assertEqual(self.person.location_city, "la Seconde")
