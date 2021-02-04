@@ -129,17 +129,17 @@ const Modal = (props) => {
     message,
   } = props;
 
-  const [content, setContent] = useState((message && message.content) || "");
+  const [text, setText] = useState((message && message.text) || "");
   const [hasBackButton, setHasBackButton] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(
     (message && message.linkedEvent) || null
   );
 
   const maySend =
-    !isLoading && selectedEvent && content && content.trim().length <= 2000;
+    !isLoading && selectedEvent && text && text.trim().length <= 2000;
 
-  const handleChangeContent = useCallback((content) => {
-    setContent(content);
+  const handleChangeText = useCallback((text) => {
+    setText(text);
   }, []);
 
   const handleSelectEvent = useCallback((event) => {
@@ -156,14 +156,14 @@ const Modal = (props) => {
     maySend &&
       onSend({
         ...(message || {}),
-        content: content.trim(),
+        text: text.trim(),
         linkedEvent: selectedEvent,
       });
-  }, [maySend, onSend, message, content, selectedEvent]);
+  }, [maySend, onSend, message, text, selectedEvent]);
 
   useEffect(() => {
     if (shouldShow) {
-      setContent((message && message.content) || "");
+      setText((message && message.text) || "");
       setSelectedEvent((message && message.linkedEvent) || null);
       setHasBackButton(false);
     }
@@ -212,10 +212,10 @@ const Modal = (props) => {
         <StyledModalBody onKeyDown={handleSendOnCtrlEnter}>
           {selectedEvent ? (
             <MessageStep
-              content={content}
+              text={text}
               event={selectedEvent}
               user={user}
-              onChange={handleChangeContent}
+              onChange={handleChangeText}
               onClearEvent={handleClearEvent}
               disabled={isLoading}
               maxLength={2000}
@@ -247,7 +247,7 @@ Modal.propTypes = {
   loadMoreEvents: PropTypes.func,
   message: PropTypes.shape({
     id: PropTypes.string,
-    content: PropTypes.string,
+    text: PropTypes.string,
     linkedEvent: PropTypes.object,
   }),
   onSend: PropTypes.func.isRequired,

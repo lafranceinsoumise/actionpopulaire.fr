@@ -241,6 +241,7 @@ class GroupMessagesPermissions(GlobalOrObjectPermissions):
 class GroupMessagesAPIView(ListCreateAPIView):
     serializer_class = SupportGroupMessageSerializer
     permission_classes = (IsAuthenticated, GroupMessagesPermissions)
+    pagination_class = APIPaginator
 
     def initial(self, request, *args, **kwargs):
         try:
@@ -253,7 +254,12 @@ class GroupMessagesAPIView(ListCreateAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.supportgroup.messages.all()
+        return self.supportgroup.messages.all().order_by("-created")
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=self.serializer_class.LIST_FIELDS, **kwargs
+        )
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user.person, supportgroup=self.supportgroup)
@@ -263,6 +269,11 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
     queryset = SupportGroupMessage.objects.all()
     serializer_class = SupportGroupMessageSerializer
     permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=self.serializer_class.DETAIL_FIELDS, **kwargs
+        )
 
 
 class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):

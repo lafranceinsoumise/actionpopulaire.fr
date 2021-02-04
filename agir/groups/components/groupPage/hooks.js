@@ -3,8 +3,6 @@ import useSWR, { useSWRInfinite } from "swr";
 
 import logger from "@agir/lib/utils/logger";
 
-import MESSAGES from "@agir/groups/groupPage/messages.json";
-
 const log = logger(__filename);
 
 export const useUpcomingEvents = (group) => {
@@ -92,20 +90,10 @@ export const useMessages = (group) => {
     size: messagesSize,
     setSize: setMessagesSize,
     isValidating: isValidatingMessages,
-  } = useSWRInfinite(
-    (pageIndex) =>
-      hasMessages
-        ? `/api/groupes/${group.id}/messages?page=${pageIndex + 1}&page_size=3`
-        : null,
-    // TEMP: custom fetcher to return fake data
-    async (url) =>
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(
-            url ? { count: MESSAGES.length * 2, results: MESSAGES } : undefined
-          );
-        }, 3000);
-      })
+  } = useSWRInfinite((pageIndex) =>
+    hasMessages
+      ? `/api/groupes/${group.id}/messages?page=${pageIndex + 1}&page_size=3`
+      : null
   );
 
   const messages = useMemo(() => {
@@ -150,14 +138,7 @@ export const useMessages = (group) => {
 export const useMessage = (group, messagePk) => {
   const hasMessage = group && group.isMember && messagePk;
   const { data } = useSWR(
-    hasMessage ? `/api/groupes/${group.id}/messages/${messagePk}` : null,
-    // TEMP: custom fetcher to return fake data
-    async (url) =>
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(url ? MESSAGES.find((m) => m.id === messagePk) : undefined);
-        }, 3000);
-      })
+    hasMessage ? `/api/groupes/messages/${messagePk}` : null
   );
   log.debug("Group message #" + messagePk, data);
 
