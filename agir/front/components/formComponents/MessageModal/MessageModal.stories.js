@@ -118,7 +118,7 @@ export const Default = () => {
           <br />
           <strong>{user.displayName}</strong>
           <br />
-          {message.content}
+          {message.text}
           <br />
           <small>{message.linkedEvent.name}</small>
           <br />

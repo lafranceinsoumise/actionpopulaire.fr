@@ -175,7 +175,7 @@ const StyledWrapper = styled(animated.div)`
 const CommentField = (props) => {
   const { message, onDelete, onReport, isAuthor } = props;
 
-  const { author, content, created } = message;
+  const { author, text, created } = message;
 
   const transitions = useTransition(true, null, {
     from: { opacity: 0 },
@@ -210,7 +210,7 @@ const CommentField = (props) => {
             <em>{created ? timeAgo(created) : null}</em>
           </StyledMessageHeader>
           <article>
-            {content.split("\n").map((paragraph, i) => (
+            {text.split("\n").map((paragraph, i) => (
               <span key={i + "__" + paragraph}>{paragraph}</span>
             ))}
           </article>
@@ -249,7 +249,7 @@ CommentField.propTypes = {
       displayName: PropTypes.string.isRequired,
       avatar: PropTypes.string,
     }).isRequired,
-    content: PropTypes.string.isRequired,
+    text: PropTypes.string.isRequired,
     created: PropTypes.string,
   }).isRequired,
   isAuthor: PropTypes.bool,

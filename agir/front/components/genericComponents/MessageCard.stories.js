@@ -39,7 +39,7 @@ const Template = (args) => {
           setComments((state) => [
             ...state,
             {
-              content: messageContent,
+              text: messageContent,
               author: args.user,
               id: String(Date.now()),
               created: new Date().toUTCString(),
@@ -83,7 +83,7 @@ Default.args = {
       displayName: "Bill Murray",
       avatar: "https://www.fillmurray.com/200/200",
     },
-    content:
+    text:
       "Bonjour à tous les nouveaux membres ! Pour que tout le monde puisse vous connaître, je vous propose qu’on se rejoigne ensemble sur Zoom vendredi vers 20h.\n\nEst-ce que l’horaire convient à tout le monde ?",
     linkedEvent: {
       id: "12343432423",
@@ -112,7 +112,7 @@ Default.args = {
         id: "Isabelle",
         displayName: "Isabelle Guérini",
       },
-      content:
+      text:
         "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
       created: "2021-01-09 12:30:00",
     },
@@ -122,7 +122,7 @@ Default.args = {
         id: "Isabelle",
         displayName: "Isabelle Guérini",
       },
-      content:
+      text:
         "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
       created: "2021-01-09 12:30:00",
     },

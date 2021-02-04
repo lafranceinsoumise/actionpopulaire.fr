@@ -348,14 +348,7 @@ const MessageCard = (props) => {
     scrollIn,
   } = props;
 
-  const {
-    group,
-    author,
-    content,
-    created,
-    linkedEvent,
-    commentCount,
-  } = message;
+  const { group, author, text, created, linkedEvent, commentCount } = message;
 
   const messageCardRef = useRef();
 
@@ -496,7 +489,7 @@ const MessageCard = (props) => {
           <StyledGroupLink href={groupURL}>{group.name}</StyledGroupLink>
         ) : null}
         <StyledContent>
-          {content.split("\n").map((paragraph, i) => (
+          {text.split("\n").map((paragraph, i) => (
             <span key={i + "__" + paragraph}>{paragraph}</span>
           ))}
         </StyledContent>
@@ -565,7 +558,7 @@ MessageCard.propTypes = {
       avatar: PropTypes.string,
     }).isRequired,
     created: PropTypes.string.isRequired,
-    content: PropTypes.string.isRequired,
+    text: PropTypes.string.isRequired,
     linkedEvent: PropTypes.object,
     commentCount: PropTypes.number,
   }).isRequired,

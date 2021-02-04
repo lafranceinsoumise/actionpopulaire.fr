@@ -11,9 +11,6 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getBackLink } from "@agir/front/globalContext/reducers";
 
 const StyledBlock = styled.div`
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: center;
   max-width: 780px;
   margin: 0 auto;
   padding: 0;

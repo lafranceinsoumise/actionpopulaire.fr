@@ -53,7 +53,7 @@ MessageModal.propTypes = {
   messageId: PropTypes.string,
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
-    content: PropTypes.string,
+    text: PropTypes.string,
     linkedEvent: PropTypes.object,
   }),
   onSend: PropTypes.func.isRequired,
