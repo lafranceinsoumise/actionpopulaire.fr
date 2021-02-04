@@ -1,6 +1,5 @@
 from social_django.models import DjangoStorage, UserSocialAuth
 
-from agir.authentication.models import Role
 from agir.people.models import Person
 
 
