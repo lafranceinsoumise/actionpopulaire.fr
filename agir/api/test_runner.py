@@ -23,11 +23,14 @@ class TestRunner(DiscoverRunner):
         super(TestRunner, self).setup_test_environment()
 
         self._temp_media = tempfile.mkdtemp()
-        self.media_settings_overrider = override_settings(
+        self.settings_overrider = override_settings(
             MEDIA_ROOT=self._temp_media,
             DEFAULT_FILE_STORAGE="django.core.files.storage.FileSystemStorage",
+            STATICFILES_STORAGE=(
+                "django.contrib.staticfiles.storage.StaticFilesStorage"
+            ),
         )
-        self.media_settings_overrider.enable()
+        self.settings_overrider.enable()
 
         self._redislite = using_separate_redis_server()
         self._redislite.__enter__()
@@ -40,7 +43,7 @@ class TestRunner(DiscoverRunner):
 
         self._redislite.__exit__(None, None, None)
 
-        self.media_settings_overrider.disable()
+        self.settings_overrider.disable()
         shutil.rmtree(self._temp_media, ignore_errors=True)
 
         super(TestRunner, self).teardown_test_environment()
