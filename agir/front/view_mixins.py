@@ -48,9 +48,6 @@ class SimpleOpengraphMixin(ContextMixin):
 class ObjectOpengraphMixin(SimpleOpengraphMixin):
     title_suffix = "Action Populaire"
 
-    image_lfi = static("front/assets/og_image_LFI.jpg")
-    image_nsp = static("front/assets/og_image_NSP.jpg")
-
     # noinspection PyUnresolvedReferences
     def get_meta_title(self):
         return "{} — {}".format(self.object.name, self.title_suffix)
@@ -63,8 +60,8 @@ class ObjectOpengraphMixin(SimpleOpengraphMixin):
         if hasattr(self.object, "image") and self.object.image:
             return urljoin(settings.FRONT_DOMAIN, self.object.image.url)
         if self.is_2022_object():
-            return self.image_nsp
-        return self.image_lfi
+            return static("front/assets/og_image_NSP.jpg")
+        return static("front/assets/og_image_LFI.jpg")
 
     # noinspection PyUnresolvedReferences
     def get_meta_description(self):
