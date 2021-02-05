@@ -4,7 +4,7 @@ from django.utils import timezone
 from stdimage import StdImageField
 from stdimage.validators import MinSizeValidator
 
-from agir.lib.models import TimeStampedModel, DescriptionField
+from agir.lib.models import TimeStampedModel, DescriptionField, BaseAPIResource
 
 __all__ = ["Activity", "Announcement"]
 
@@ -205,7 +205,7 @@ class AnnouncementQuerySet(models.QuerySet):
         )
 
 
-class Announcement(models.Model):
+class Announcement(BaseAPIResource):
     objects = AnnouncementQuerySet.as_manager()
 
     title = models.CharField(
@@ -213,6 +213,12 @@ class Announcement(models.Model):
         max_length=200,
         help_text="Ce texte sera utilisé comme titre et texte du lien de l'annonce",
         blank=False,
+    )
+
+    custom_display = models.SlugField(
+        verbose_name="Affichage personnalisé",
+        blank=True,
+        help_text="Ce champ sert au pôle outils numériques",
     )
 
     link = models.URLField(verbose_name="Lien", blank=False)
