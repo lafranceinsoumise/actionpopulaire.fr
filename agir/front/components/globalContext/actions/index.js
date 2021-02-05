@@ -1,4 +1,4 @@
-import ACTION_TYPE from "./actionTypes";
+import ACTION_TYPE from "@agir/front/globalContext/actionTypes";
 
 import {
   setActivityAsInteracted,
@@ -113,13 +113,6 @@ export const clearAllToasts = () => ({
   type: ACTION_TYPE.CLEAR_ALL_TOASTS,
 });
 
-const createDispatch = (dispatchFunction) => (action) => {
-  if (typeof action === "function") {
-    return action(dispatchFunction);
-  }
-  return dispatchFunction(action);
-};
-
 // BACK LINK
 export const setBackLink = (backLink) => ({
   type: ACTION_TYPE.SET_BACK_LINK_ACTION,
@@ -131,5 +124,12 @@ export const setTopBarRightLink = (topBarRightLink) => ({
   type: ACTION_TYPE.SET_TOP_BAR_RIGHT_LINK_ACTION,
   topBarRightLink,
 });
+
+const createDispatch = (dispatchFunction) => (action) => {
+  if (typeof action === "function") {
+    return action(dispatchFunction);
+  }
+  return dispatchFunction(action);
+};
 
 export default createDispatch;

@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import { animated, useTransition } from "react-spring";
 import styled from "styled-components";
 
@@ -173,9 +173,12 @@ const StyledWrapper = styled(animated.div)`
 `;
 
 const Comment = (props) => {
-  const { message, onDelete, onReport, isAuthor } = props;
+  const { comment, onDelete, onReport, isAuthor, isManager } = props;
+  const { author, text, created } = comment;
 
-  const { author, text, created } = message;
+  const canDelete = typeof onDelete === "function" && (isAuthor || isManager);
+  const canReport = typeof onReport === "function" && !isAuthor;
+  const hasActions = canDelete || canReport;
 
   const transitions = useTransition(true, null, {
     from: { opacity: 0 },
@@ -184,21 +187,13 @@ const Comment = (props) => {
     immediate: true,
   });
 
-  const hasActions = useMemo(
-    () =>
-      isAuthor
-        ? typeof onDelete === "function"
-        : typeof onReport === "function",
-    [isAuthor, onDelete, onReport]
-  );
-
   const handleDelete = useCallback(() => {
-    onDelete && onDelete(message);
-  }, [message, onDelete]);
+    onDelete && onDelete(comment);
+  }, [comment, onDelete]);
 
   const handleReport = useCallback(() => {
-    onReport && onReport(message);
-  }, [message, onReport]);
+    onReport && onReport(comment);
+  }, [comment, onReport]);
 
   return transitions.map(({ key, props }) => (
     <StyledWrapper key={key} style={props}>
@@ -223,12 +218,13 @@ const Comment = (props) => {
               shouldDismissOnClick
             >
               <StyledInlineMenuItems>
-                {isAuthor ? (
+                {canDelete && (
                   <button onClick={handleDelete}>
                     <RawFeatherIcon name="x" color={style.primary500} />
                     Supprimer
                   </button>
-                ) : (
+                )}
+                {canReport && (
                   <button onClick={handleReport}>
                     <RawFeatherIcon name="flag" color={style.primary500} />
                     Signaler
@@ -243,7 +239,7 @@ const Comment = (props) => {
   ));
 };
 Comment.propTypes = {
-  message: PropTypes.shape({
+  comment: PropTypes.shape({
     id: PropTypes.string.isRequired,
     author: PropTypes.shape({
       displayName: PropTypes.string.isRequired,

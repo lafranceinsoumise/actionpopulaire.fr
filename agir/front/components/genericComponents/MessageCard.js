@@ -334,7 +334,6 @@ const MessageCard = (props) => {
   const {
     user,
     message,
-    messageURL,
     groupURL,
     comments,
     isManager,
@@ -355,33 +354,31 @@ const MessageCard = (props) => {
   const messageCardRef = useRef();
 
   const event = useMemo(() => formatEvent(linkedEvent), [linkedEvent]);
-  const isAuthor = useMemo(() => isManager || author.id === user.id, [
-    isManager,
-    author,
-    user,
-  ]);
-  const encodedMessageURL = useMemo(() => {
-    if (messageURL) {
+
+  const isAuthor = author.id === user.id;
+  const canEdit = typeof onEdit === "function" && (isAuthor || isManager);
+  const canDelete = typeof onDelete === "function" && (isAuthor || isManager);
+  const canReport = typeof onReport === "function" && !isAuthor;
+  const hasActions = canDelete || canReport;
+
+  const messageURL = useMemo(() => {
+    if (props.messageURL) {
       const url =
         window &&
         window.location &&
         window.location.origin &&
-        !messageURL.includes("http")
-          ? window.location.origin + messageURL
-          : messageURL;
+        !props.messageURL.includes("http")
+          ? window.location.origin + props.messageURL
+          : props.messageURL;
 
-      return encodeURIComponent(url);
+      return url;
     }
-  }, [messageURL]);
-  const [isURLCopied, copyURL] = useCopyToClipboard(encodedMessageURL);
+  }, [props.messageURL]);
+  const encodedMessageURL = useMemo(() => encodeURIComponent(messageURL), [
+    messageURL,
+  ]);
+  const [isURLCopied, copyURL] = useCopyToClipboard(messageURL);
 
-  const hasActions = useMemo(
-    () =>
-      isAuthor
-        ? typeof onEdit === "function" || typeof onDelete === "function"
-        : typeof onReport === "function",
-    [isAuthor, onEdit, onDelete, onReport]
-  );
   const handleClick = useCallback(() => {
     onClick && onClick(message);
   }, [message, onClick]);
@@ -402,15 +399,15 @@ const MessageCard = (props) => {
   );
   const handleDeleteComment = useCallback(
     (comment) => {
-      onDeleteComment && onDeleteComment(comment);
+      onDeleteComment && onDeleteComment(comment, message);
     },
-    [onDeleteComment]
+    [message, onDeleteComment]
   );
   const handleReportComment = useCallback(
     (comment) => {
-      onReportComment && onReportComment(comment);
+      onReportComment && onReportComment(comment, message);
     },
-    [onReportComment]
+    [message, onReportComment]
   );
 
   useEffect(() => {
@@ -465,19 +462,19 @@ const MessageCard = (props) => {
                 shouldDismissOnClick
               >
                 <StyledInlineMenuItems>
-                  {isAuthor && onEdit && (
+                  {canEdit && (
                     <button onClick={handleEdit} disabled={isLoading}>
                       <RawFeatherIcon name="edit-2" color={style.primary500} />
                       Modifier
                     </button>
                   )}
-                  {isAuthor && onDelete && (
+                  {canDelete && (
                     <button onClick={handleDelete} disabled={isLoading}>
                       <RawFeatherIcon name="x" color={style.primary500} />
                       Supprimer
                     </button>
                   )}
-                  {!isAuthor && onReport && (
+                  {canReport && (
                     <button onClick={handleReport} disabled={isLoading}>
                       <RawFeatherIcon name="flag" color={style.primary500} />
                       Signaler
@@ -512,10 +509,11 @@ const MessageCard = (props) => {
               ? comments.map((comment) => (
                   <Comment
                     key={comment.id}
-                    message={comment}
+                    comment={comment}
                     onDelete={onDeleteComment ? handleDeleteComment : undefined}
                     onReport={onReportComment ? handleReportComment : undefined}
-                    isAuthor={isManager || comment.author.id === user.id}
+                    isAuthor={comment.author.id === user.id}
+                    isManager={isManager}
                   />
                 ))
               : null}
@@ -523,24 +521,16 @@ const MessageCard = (props) => {
           {onComment ? (
             withMobileCommentField ? (
               <CommentField
-                key={`cf__${
-                  comments[comments.length - 1]
-                    ? comments[comments.length - 1].id
-                    : 0
-                }`}
+                key={comments.length}
                 isLoading={isLoading}
                 user={user}
                 onSend={handleComment}
               />
             ) : (
               <ResponsiveLayout
+                key={comments.length}
                 MobileLayout={CommentButton}
                 DesktopLayout={CommentField}
-                key={`rcf__${
-                  comments[comments.length - 1]
-                    ? comments[comments.length - 1].id
-                    : 0
-                }`}
                 isLoading={isLoading}
                 user={user}
                 onSend={handleComment}

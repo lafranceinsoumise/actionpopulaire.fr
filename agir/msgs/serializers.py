@@ -69,7 +69,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
     comments = serializers.SerializerMethodField(read_only=True)
 
     def get_recentComments(self, obj):
-        recent_comments = obj.comments.all().order_by("-created")[:1]
+        recent_comments = obj.comments.filter(deleted=False).order_by("-created")[:1]
         if recent_comments is not None:
             recent_comments = MessageCommentSerializer(
                 recent_comments, context=self.context, many=True
@@ -77,11 +77,13 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         return recent_comments
 
     def get_commentCount(self, obj):
-        return obj.comments.all().count()
+        return obj.comments.filter(deleted=False).count()
 
     def get_comments(self, obj):
         return MessageCommentSerializer(
-            obj.comments.all().order_by("created"), context=self.context, many=True,
+            obj.comments.filter(deleted=False).order_by("created"),
+            context=self.context,
+            many=True,
         ).data
 
     class Meta:

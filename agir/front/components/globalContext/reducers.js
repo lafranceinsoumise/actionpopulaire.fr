@@ -1,5 +1,5 @@
 import shortUUID from "short-uuid";
-import ACTION_TYPE from "./actionTypes";
+import ACTION_TYPE from "@agir/front/globalContext/actionTypes";
 
 import {
   activityStatus,
@@ -185,6 +185,123 @@ export const topBarRightLink = (state = null, action) => {
   return state;
 };
 
+export const messages = (state = {}, action) => {
+  switch (action.type) {
+    case ACTION_TYPE.SET_MESSAGES_ACTION: {
+      if (!Array.isArray(action.messages)) {
+        return state;
+      }
+      const newState = { ...state };
+      action.messages.forEach((message) => {
+        newState[message.id] = message;
+      });
+      return newState;
+    }
+    case ACTION_TYPE.CREATED_MESSAGE_ACTION: {
+      return !action.error && action.message && action.message.id
+        ? { [action.message.id]: action.message, ...state }
+        : state;
+    }
+    case ACTION_TYPE.UPDATED_MESSAGE_ACTION: {
+      if (!action.error && action.message && action.message.id) {
+        const newState = { ...state };
+        newState[action.message.id] = action.message;
+        return newState;
+      }
+      return state;
+    }
+    case ACTION_TYPE.DELETED_MESSAGE_ACTION: {
+      if (!action.error && action.message && action.message.id) {
+        const newState = { ...state };
+        newState[action.message.id] = null;
+        return newState;
+      }
+      return state;
+    }
+    case ACTION_TYPE.CREATED_COMMENT_ACTION: {
+      if (
+        !action.error &&
+        action.message &&
+        action.message.id &&
+        action.comment
+      ) {
+        const newState = { ...state };
+        const newMessage = newState[action.message.id];
+        if (newMessage) {
+          newState[newMessage.id] = {
+            ...newMessage,
+            comments: Array.isArray(newMessage.comments)
+              ? [...newMessage.comments, action.comment]
+              : [action.comment],
+          };
+          if (typeof newState[newMessage.id].commentCount === "number") {
+            newState[newMessage.id].commentCount += 1;
+          }
+        }
+        return newState;
+      }
+      return state;
+    }
+    case ACTION_TYPE.DELETED_COMMENT_ACTION: {
+      if (
+        !action.error &&
+        action.message &&
+        action.message.id &&
+        action.comment
+      ) {
+        const newState = { ...state };
+        const newMessage = newState[action.message.id];
+        if (newMessage) {
+          newState[newMessage.id] = {
+            ...newMessage,
+            comments: Array.isArray(newMessage.comments)
+              ? newMessage.comments.filter((c) => c.id !== action.comment.id)
+              : [],
+          };
+          if (typeof newState[newMessage.id].commentCount === "number") {
+            newState[newMessage.id].commentCount -= 1;
+          }
+        }
+        return newState;
+      }
+      return state;
+    }
+    default:
+      return state;
+  }
+};
+
+export const isLoadingMessages = (state = false, action) => {
+  switch (action.type) {
+    case ACTION_TYPE.LOADING_MESSAGES_ACTION:
+    case ACTION_TYPE.REFRESHING_MESSAGES_ACTION:
+      return true;
+    case ACTION_TYPE.SET_MESSAGES_ACTION:
+    case ACTION_TYPE.REFRESHED_MESSAGES_ACTION:
+      return false;
+    default:
+      return state;
+  }
+};
+export const isUpdatingMessages = (state = false, action) => {
+  switch (action.type) {
+    case ACTION_TYPE.CREATING_MESSAGE_ACTION:
+    case ACTION_TYPE.UPDATING_MESSAGE_ACTION:
+    case ACTION_TYPE.DELETING_MESSAGE_ACTION:
+    case ACTION_TYPE.CREATING_COMMENT_ACTION:
+    case ACTION_TYPE.DELETING_COMMENT_ACTION:
+      return true;
+    case ACTION_TYPE.CREATED_MESSAGE_ACTION:
+    case ACTION_TYPE.UPDATED_MESSAGE_ACTION:
+    case ACTION_TYPE.DELETED_MESSAGE_ACTION:
+    case ACTION_TYPE.CREATED_COMMENT_ACTION:
+    case ACTION_TYPE.DELETED_COMMENT_ACTION:
+      return false;
+    default:
+      return state;
+  }
+};
+
 // Selectors
 export const getDomain = (state) => state.domain;
 
@@ -229,6 +346,13 @@ export const getTopBarRightLink = (state) => {
   return state.topBarRightLink;
 };
 
+export const getMessages = (state) =>
+  Object.values(state.messages).filter(Boolean);
+export const getMessageById = (state, id) =>
+  (state.messages && state.messages[id]) || null;
+export const getIsLoadingMessages = (state) => state.isLoadingMessages;
+export const getIsUpdatingMessages = (state) => state.isUpdatingMessages;
+
 // Root reducer
 const reducers = {
   hasFeedbackButton,
@@ -244,6 +368,9 @@ const reducers = {
   toasts,
   backLink,
   topBarRightLink,
+  messages,
+  isLoadingMessages,
+  isUpdatingMessages,
 };
 const rootReducer = (state, action) => {
   let newState = state;

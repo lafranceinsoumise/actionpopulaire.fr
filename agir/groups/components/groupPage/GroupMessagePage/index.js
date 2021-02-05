@@ -26,11 +26,7 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import GroupMessagePage from "./GroupMessagePage";
 import UnavailableMessagePage from "./UnavailableMessagePage";
 
-const PageSkeleton = (
-  <CenteredLayout>
-    <Skeleton />
-  </CenteredLayout>
-);
+const PageSkeleton = <Skeleton />;
 
 const Page = ({ groupPk, messagePk }) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
@@ -38,19 +34,10 @@ const Page = ({ groupPk, messagePk }) => {
   const user = useSelector(getUser);
   const dispatch = useDispatch();
 
-  const {
-    group,
-    message,
-    events,
-    loadMoreEvents,
-    updateMessage,
-    reportMessage,
-    deleteMessage,
-    createComment,
-    reportComment,
-    deleteComment,
-    isLoading,
-  } = useGroupMessage(groupPk, messagePk);
+  const { group, message, events, loadMoreEvents, isLoading } = useGroupMessage(
+    groupPk,
+    messagePk
+  );
 
   const messageURL = useMemo(
     () =>
@@ -112,30 +99,35 @@ const Page = ({ groupPk, messagePk }) => {
   }
 
   return (
-    <PageFadeIn wait={PageSkeleton} ready={isSessionLoaded && group}>
-      {group && group.isMember ? (
-        <PageFadeIn wait={PageSkeleton} ready={!!message}>
-          <GroupMessagePage
-            group={group}
-            user={user}
-            events={events}
-            message={message}
-            messageURL={messageURL}
-            groupURL={groupURL}
-            loadMoreEvents={loadMoreEvents}
-            updateMessage={updateMessage}
-            reportMessage={reportMessage}
-            deleteMessage={deleteMessage}
-            createComment={createComment}
-            reportComment={reportComment}
-            deleteComment={deleteComment}
-            isLoading={isLoading}
-          />
-        </PageFadeIn>
-      ) : (
-        <UnavailableMessagePage groupURL={groupURL} />
-      )}
-    </PageFadeIn>
+    <CenteredLayout
+      backLink={isSessionLoaded && group ? backLink : undefined}
+      $maxWidth="780px"
+      title={
+        group && !group.isMember
+          ? "Cette discussion n'est pas disponible"
+          : undefined
+      }
+      icon={group && !group.isMember ? "lock" : undefined}
+    >
+      <PageFadeIn wait={PageSkeleton} ready={isSessionLoaded && group}>
+        {group && group.isMember ? (
+          <PageFadeIn wait={PageSkeleton} ready={!isLoading}>
+            <GroupMessagePage
+              group={group}
+              user={user}
+              events={events}
+              message={message}
+              messageURL={messageURL}
+              groupURL={groupURL}
+              loadMoreEvents={loadMoreEvents}
+              isLoading={isLoading}
+            />
+          </PageFadeIn>
+        ) : (
+          <UnavailableMessagePage groupURL={groupURL} />
+        )}
+      </PageFadeIn>
+    </CenteredLayout>
   );
 };
 Page.propTypes = {
