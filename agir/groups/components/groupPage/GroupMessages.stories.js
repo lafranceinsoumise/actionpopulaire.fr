@@ -15,6 +15,8 @@ export default {
     createComment: { action: "createComment" },
     reportMessage: { action: "reportMessage" },
     deleteMessage: { action: "deleteMessage" },
+    reportComment: { action: "reportComment" },
+    deleteComment: { action: "deleteComment" },
   },
 };
 
@@ -111,16 +113,8 @@ const Template = (args) => {
   );
 
   const deleteMessage = React.useCallback(
-    (message, relatedMessage) => {
+    (message) => {
       mockAction(() => {
-        if (relatedMessage && comments[relatedMessage.id]) {
-          setComments((state) => ({
-            ...state,
-            [relatedMessage.id]: (state[relatedMessage.id] || []).filter(
-              (comment) => comment.id !== message.id
-            ),
-          }));
-        }
         if (messages[message.id]) {
           setMessages((state) => ({
             ...state,
@@ -133,10 +127,18 @@ const Template = (args) => {
         }
       });
     },
-    [mockAction, messages, comments]
+    [mockAction, messages]
   );
 
   const reportMessage = React.useCallback(() => {
+    mockAction(() => {});
+  }, [mockAction]);
+
+  const reportComment = React.useCallback(() => {
+    mockAction(() => {});
+  }, [mockAction]);
+
+  const deleteComment = React.useCallback(() => {
     mockAction(() => {});
   }, [mockAction]);
 
@@ -160,6 +162,8 @@ const Template = (args) => {
         deleteMessage={args.deleteMessage && deleteMessage}
         reportMessage={args.reportMessage && reportMessage}
         createComment={args.createComment && saveMessage}
+        deleteComment={args.deleteComment && deleteComment}
+        reportComment={args.reportComment && reportComment}
         loadMoreMessages={hasLimit ? loadMoreMessages : undefined}
       />
     </div>
@@ -198,4 +202,6 @@ ReadOnly.args = {
   deleteMessage: undefined,
   reportMessage: undefined,
   createComment: undefined,
+  deleteComment: undefined,
+  reportComment: undefined,
 };

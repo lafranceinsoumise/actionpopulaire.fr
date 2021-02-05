@@ -13,10 +13,12 @@ const MessagesRoute = ({
   loadMorePastEvents,
   createMessage,
   updateMessage,
-  createComment,
   reportMessage,
   deleteMessage,
   onClickMessage,
+  createComment,
+  reportComment,
+  deleteComment,
 }) => (
   <GroupMessages
     user={user}
@@ -29,9 +31,11 @@ const MessagesRoute = ({
     loadMoreEvents={loadMorePastEvents}
     createMessage={createMessage}
     updateMessage={updateMessage}
-    createComment={createComment}
     reportMessage={reportMessage}
     deleteMessage={deleteMessage}
+    createComment={createComment}
+    reportComment={reportComment}
+    deleteComment={deleteComment}
   />
 );
 MessagesRoute.propTypes = {
@@ -43,10 +47,12 @@ MessagesRoute.propTypes = {
   loadMoreMessages: PropTypes.func,
   createMessage: PropTypes.func,
   updateMessage: PropTypes.func,
-  createComment: PropTypes.func,
   reportMessage: PropTypes.func,
   deleteMessage: PropTypes.func,
   onClickMessage: PropTypes.func,
+  createComment: PropTypes.func,
+  reportComment: PropTypes.func,
+  deleteComment: PropTypes.func,
   user: PropTypes.object,
   getMessageURL: PropTypes.func,
 };

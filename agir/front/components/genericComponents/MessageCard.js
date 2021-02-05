@@ -341,6 +341,8 @@ const MessageCard = (props) => {
     isLoading,
     onClick,
     onComment,
+    onReportComment,
+    onDeleteComment,
     onDelete,
     onEdit,
     onReport,
@@ -380,23 +382,18 @@ const MessageCard = (props) => {
         : typeof onReport === "function",
     [isAuthor, onEdit, onDelete, onReport]
   );
-
   const handleClick = useCallback(() => {
     onClick && onClick(message);
   }, [message, onClick]);
-
   const handleEdit = useCallback(() => {
     onEdit && onEdit(message);
   }, [message, onEdit]);
-
   const handleDelete = useCallback(() => {
     onDelete && onDelete(message);
   }, [message, onDelete]);
-
   const handleReport = useCallback(() => {
     onReport && onReport(message);
   }, [message, onReport]);
-
   const handleComment = useCallback(
     (comment) => {
       onComment && onComment(comment, message);
@@ -405,9 +402,15 @@ const MessageCard = (props) => {
   );
   const handleDeleteComment = useCallback(
     (comment) => {
-      onDelete && onDelete(comment, message);
+      onDeleteComment && onDeleteComment(comment);
     },
-    [message, onDelete]
+    [onDeleteComment]
+  );
+  const handleReportComment = useCallback(
+    (comment) => {
+      onReportComment && onReportComment(comment);
+    },
+    [onReportComment]
   );
 
   useEffect(() => {
@@ -510,8 +513,8 @@ const MessageCard = (props) => {
                   <Comment
                     key={comment.id}
                     message={comment}
-                    onDelete={onDelete ? handleDeleteComment : undefined}
-                    onReport={onReport}
+                    onDelete={onDeleteComment ? handleDeleteComment : undefined}
+                    onReport={onReportComment ? handleReportComment : undefined}
                     isAuthor={isManager || comment.author.id === user.id}
                   />
                 ))
@@ -520,7 +523,11 @@ const MessageCard = (props) => {
           {onComment ? (
             withMobileCommentField ? (
               <CommentField
-                key={comments.length}
+                key={`cf__${
+                  comments[comments.length - 1]
+                    ? comments[comments.length - 1].id
+                    : 0
+                }`}
                 isLoading={isLoading}
                 user={user}
                 onSend={handleComment}
@@ -529,7 +536,11 @@ const MessageCard = (props) => {
               <ResponsiveLayout
                 MobileLayout={CommentButton}
                 DesktopLayout={CommentField}
-                key={comments.length}
+                key={`rcf__${
+                  comments[comments.length - 1]
+                    ? comments[comments.length - 1].id
+                    : 0
+                }`}
                 isLoading={isLoading}
                 user={user}
                 onSend={handleComment}
@@ -568,6 +579,8 @@ MessageCard.propTypes = {
   onClick: PropTypes.func,
   onComment: PropTypes.func,
   onDelete: PropTypes.func,
+  onDeleteComment: PropTypes.func,
+  onReportComment: PropTypes.func,
   onEdit: PropTypes.func,
   onReport: PropTypes.func,
   isLoading: PropTypes.bool,

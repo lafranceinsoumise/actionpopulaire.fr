@@ -44,9 +44,11 @@ const Page = ({ groupPk, messagePk }) => {
     events,
     loadMoreEvents,
     updateMessage,
-    createComment,
     reportMessage,
     deleteMessage,
+    createComment,
+    reportComment,
+    deleteComment,
     isLoading,
   } = useGroupMessage(groupPk, messagePk);
 
@@ -122,9 +124,11 @@ const Page = ({ groupPk, messagePk }) => {
             groupURL={groupURL}
             loadMoreEvents={loadMoreEvents}
             updateMessage={updateMessage}
-            createComment={createComment}
             reportMessage={reportMessage}
             deleteMessage={deleteMessage}
+            createComment={createComment}
+            reportComment={reportComment}
+            deleteComment={deleteComment}
             isLoading={isLoading}
           />
         </PageFadeIn>

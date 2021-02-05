@@ -36,10 +36,12 @@ const GroupMessage = (props) => {
   const {
     selectedMessage,
     messageAction,
-    writeNewComment,
     editMessage,
-    confirmDelete,
     confirmReport,
+    confirmDelete,
+    writeNewComment,
+    confirmReportComment,
+    confirmDeleteComment,
     dismissMessageAction,
     saveMessage,
     handleDelete,
@@ -88,6 +90,8 @@ const GroupMessage = (props) => {
               onComment={writeNewComment}
               onReport={confirmReport}
               onDelete={confirmDelete}
+              onReportComment={confirmReportComment}
+              onDeleteComment={confirmDeleteComment}
               messageURL={messageURL}
               isManager={isManager}
               groupURL={groupURL}
@@ -110,9 +114,11 @@ GroupMessage.propTypes = {
   onClick: PropTypes.func,
   createMessage: PropTypes.func,
   updateMessage: PropTypes.func,
-  createComment: PropTypes.func,
   reportMessage: PropTypes.func,
   deleteMessage: PropTypes.func,
+  createComment: PropTypes.func,
+  deleteComment: PropTypes.func,
+  reportComment: PropTypes.func,
   loadMoreEvents: PropTypes.func,
   loadMoreMessages: PropTypes.func,
 };

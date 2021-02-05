@@ -172,7 +172,7 @@ const StyledWrapper = styled(animated.div)`
   }
 `;
 
-const CommentField = (props) => {
+const Comment = (props) => {
   const { message, onDelete, onReport, isAuthor } = props;
 
   const { author, text, created } = message;
@@ -242,7 +242,7 @@ const CommentField = (props) => {
     </StyledWrapper>
   ));
 };
-CommentField.propTypes = {
+Comment.propTypes = {
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
     author: PropTypes.shape({
@@ -256,4 +256,4 @@ CommentField.propTypes = {
   onDelete: PropTypes.func,
   onReport: PropTypes.func,
 };
-export default CommentField;
+export default Comment;

@@ -21,11 +21,11 @@ export default {
 const Template = (args) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [comments, setComments] = React.useState(args.comments);
-  const handleDelete = React.useCallback(async (message) => {
+  const handleDeleteComment = React.useCallback(async (comment) => {
     setIsLoading(true);
     await new Promise((resolve) => {
       setTimeout(() => {
-        setComments((state) => state.filter((m) => m.id !== message.id));
+        setComments((state) => state.filter((m) => m.id !== comment.id));
         setIsLoading(false);
         resolve();
       }, 2000);
@@ -55,7 +55,7 @@ const Template = (args) => {
   return (
     <MessageCard
       {...args}
-      onDelete={handleDelete}
+      onDeleteComment={handleDeleteComment}
       onComment={handleComment}
       comments={comments}
       isLoading={isLoading}

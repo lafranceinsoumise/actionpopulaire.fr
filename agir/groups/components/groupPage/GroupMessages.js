@@ -75,10 +75,12 @@ const GroupMessages = (props) => {
     selectedMessage,
     messageAction,
     writeNewMessage,
-    writeNewComment,
     editMessage,
-    confirmDelete,
     confirmReport,
+    confirmDelete,
+    writeNewComment,
+    confirmDeleteComment,
+    confirmReportComment,
     dismissMessageAction,
     saveMessage,
     handleDelete,
@@ -134,8 +136,11 @@ const GroupMessages = (props) => {
                   onComment={writeNewComment}
                   onReport={confirmReport}
                   onDelete={confirmDelete}
+                  onDeleteComment={confirmDeleteComment}
+                  onReportComment={confirmReportComment}
                   messageURL={getMessageURL && getMessageURL(message.id)}
                   isManager={isManager}
+                  isLoading={isLoading}
                 />
               ))
             : null}
@@ -173,9 +178,11 @@ GroupMessages.propTypes = {
   onClick: PropTypes.func,
   createMessage: PropTypes.func,
   updateMessage: PropTypes.func,
-  createComment: PropTypes.func,
   reportMessage: PropTypes.func,
   deleteMessage: PropTypes.func,
+  createComment: PropTypes.func,
+  deleteComment: PropTypes.func,
+  reportComment: PropTypes.func,
   loadMoreEvents: PropTypes.func,
   loadMoreMessages: PropTypes.func,
 };

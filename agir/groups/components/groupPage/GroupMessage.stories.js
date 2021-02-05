@@ -14,6 +14,8 @@ export default {
     createComment: { action: "createComment" },
     reportMessage: { action: "reportMessage" },
     deleteMessage: { action: "deleteMessage" },
+    reportComment: { action: "reportComment" },
+    deleteComment: { action: "deleteComment" },
   },
 };
 
@@ -69,12 +71,10 @@ const Template = (args) => {
     [mockAction, args.user]
   );
 
-  const deleteMessage = React.useCallback(
-    (message) => {
+  const deleteComment = React.useCallback(
+    (comment) => {
       mockAction(() => {
-        setComments((state) =>
-          state.filter((comment) => comment.id !== message.id)
-        );
+        setComments((state) => state.filter((c) => c.id !== comment.id));
       });
     },
     [mockAction]
@@ -97,7 +97,7 @@ const Template = (args) => {
         message={msg}
         createMessage={args.createMessage && saveMessage}
         updateMessage={args.updateMessage && saveMessage}
-        deleteMessage={args.deleteMessage && deleteMessage}
+        deleteComment={args.deleteComment && deleteComment}
         reportMessage={args.reportMessage && reportMessage}
         createComment={args.createComment && saveMessage}
       />
@@ -133,4 +133,6 @@ ReadOnly.args = {
   deleteMessage: undefined,
   reportMessage: undefined,
   createComment: undefined,
+  deleteComment: undefined,
+  reportComment: undefined,
 };
