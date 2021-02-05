@@ -254,7 +254,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.supportgroup.messages.all().order_by("-created")
+        return self.supportgroup.messages.filter(deleted=False).order_by("-created")
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -266,7 +266,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
 
 
 class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = SupportGroupMessage.objects.all()
+    queryset = SupportGroupMessage.objects.filter(deleted=False)
     serializer_class = SupportGroupMessageSerializer
     permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)
 
@@ -274,6 +274,10 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
         return super().get_serializer(
             *args, fields=self.serializer_class.DETAIL_FIELDS, **kwargs
         )
+
+    def perform_destroy(self, instance):
+        instance.deleted = True
+        instance.save()
 
 
 class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
@@ -299,13 +303,17 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.message.comments.all()
+        return self.message.comments.filter(deleted=False)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user.person, message=self.message)
 
 
 class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
-    queryset = SupportGroupMessageComment.objects.all()
+    queryset = SupportGroupMessageComment.objects.filter(deleted=False)
     serializer_class = MessageCommentSerializer
     permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)
+
+    def perform_destroy(self, instance):
+        instance.deleted = True
+        instance.save()
