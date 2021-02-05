@@ -28,6 +28,7 @@ class AbstractMessage(BaseAPIResource):
     text = models.TextField("Contenu", max_length=2000)
     image = StdImageField()
     reports = GenericRelation(UserReport)
+    deleted = models.BooleanField(default=False)
 
     class Meta:
         abstract = True
