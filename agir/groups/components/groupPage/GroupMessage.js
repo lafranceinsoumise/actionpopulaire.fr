@@ -4,14 +4,14 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { withMessageActions } from "@agir/groups/groupPage/hooks/messages";
+
 import MessageCard from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
-
-import { useMessageActions } from "@agir/groups/groupPage/hooks";
 
 const StyledMessage = styled.div``;
 const StyledWrapper = styled.div`
@@ -20,22 +20,22 @@ const StyledWrapper = styled.div`
   }
 `;
 
-const GroupMessage = (props) => {
+export const GroupMessage = (props) => {
   const {
     user,
     message,
+    selectedMessage,
     events,
-    isManager,
-    isLoading,
+    messageAction,
     messageURL,
     groupURL,
-    onClick,
+    isLoading,
+    isUpdating,
+    isManager,
+    hasMessageModal,
+    hasMessageActionModal,
     loadMoreEvents,
-  } = props;
-
-  const {
-    selectedMessage,
-    messageAction,
+    onClick,
     editMessage,
     confirmReport,
     confirmDelete,
@@ -44,14 +44,9 @@ const GroupMessage = (props) => {
     confirmDeleteComment,
     dismissMessageAction,
     saveMessage,
-    handleDelete,
-    handleReport,
-  } = useMessageActions(props);
-
-  const hasMessageModal =
-    messageAction === "edit" || messageAction === "create";
-  const hasMessageActionModal =
-    messageAction === "delete" || messageAction === "report";
+    onDelete,
+    onReport,
+  } = props;
 
   return (
     <StyledWrapper>
@@ -62,7 +57,7 @@ const GroupMessage = (props) => {
           user={user}
           events={events}
           loadMoreEvents={loadMoreEvents}
-          isLoading={isLoading}
+          isLoading={isUpdating}
           message={selectedMessage}
           onSend={saveMessage}
         />
@@ -71,12 +66,12 @@ const GroupMessage = (props) => {
         action={hasMessageActionModal ? messageAction : undefined}
         shouldShow={hasMessageActionModal}
         onClose={dismissMessageAction}
-        onReport={handleReport}
-        onDelete={handleDelete}
-        isLoading={isLoading}
+        onReport={onReport}
+        onDelete={onDelete}
+        isLoading={isUpdating}
       />
       <PageFadeIn
-        ready={message !== undefined}
+        ready={!isLoading}
         wait={<Skeleton style={{ margin: "1rem 0" }} />}
       >
         <StyledMessage>
@@ -95,6 +90,7 @@ const GroupMessage = (props) => {
               messageURL={messageURL}
               isManager={isManager}
               groupURL={groupURL}
+              isLoading={isUpdating}
               withMobileCommentField
             />
           )}
@@ -105,21 +101,31 @@ const GroupMessage = (props) => {
 };
 GroupMessage.propTypes = {
   user: PropTypes.object,
-  events: PropTypes.arrayOf(PropTypes.object),
   message: PropTypes.object,
-  isLoading: PropTypes.bool,
-  isManager: PropTypes.bool,
+  selectedMessage: PropTypes.object,
+  events: PropTypes.arrayOf(PropTypes.object),
+  messageAction: PropTypes.string,
   messageURL: PropTypes.string,
   groupURL: PropTypes.string,
-  onClick: PropTypes.func,
-  createMessage: PropTypes.func,
-  updateMessage: PropTypes.func,
-  reportMessage: PropTypes.func,
-  deleteMessage: PropTypes.func,
-  createComment: PropTypes.func,
-  deleteComment: PropTypes.func,
-  reportComment: PropTypes.func,
+  isLoading: PropTypes.bool,
+  isUpdating: PropTypes.bool,
+  isManager: PropTypes.bool,
+  hasMessageModal: PropTypes.bool,
+  hasMessageActionModal: PropTypes.bool,
   loadMoreEvents: PropTypes.func,
-  loadMoreMessages: PropTypes.func,
+  onClick: PropTypes.func,
+  editMessage: PropTypes.func,
+  confirmReport: PropTypes.func,
+  confirmDelete: PropTypes.func,
+  writeNewComment: PropTypes.func,
+  confirmReportComment: PropTypes.func,
+  confirmDeleteComment: PropTypes.func,
+  dismissMessageAction: PropTypes.func,
+  saveMessage: PropTypes.func,
+  onDelete: PropTypes.func,
+  onReport: PropTypes.func,
 };
-export default GroupMessage;
+
+const ConnectedGroupMessage = withMessageActions(GroupMessage);
+
+export default ConnectedGroupMessage;

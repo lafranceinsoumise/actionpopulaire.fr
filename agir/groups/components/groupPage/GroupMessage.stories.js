@@ -1,6 +1,6 @@
 import React from "react";
 
-import GroupMessage from "./GroupMessage";
+import { GroupMessage } from "./GroupMessage";
 
 import events from "@agir/groups/groupPage/events.json";
 import messages from "@agir/groups/groupPage/messages.json";
@@ -9,81 +9,21 @@ export default {
   component: GroupMessage,
   title: "Group/GroupMessage",
   argTypes: {
-    createMessage: { action: "createMessage" },
-    updateMessage: { action: "updateMessage" },
-    createComment: { action: "createComment" },
-    reportMessage: { action: "reportMessage" },
-    deleteMessage: { action: "deleteMessage" },
-    reportComment: { action: "reportComment" },
-    deleteComment: { action: "deleteComment" },
+    onClick: { action: "onClick" },
+    editMessage: { action: "editMessage" },
+    confirmReport: { action: "confirmReport" },
+    confirmDelete: { action: "confirmDelete" },
+    writeNewComment: { action: "writeNewComment" },
+    confirmReportComment: { action: "confirmReportComment" },
+    confirmDeleteComment: { action: "confirmDeleteComment" },
+    dismissMessageAction: { action: "dismissMessageAction" },
+    saveMessage: { action: "saveMessage" },
+    onDelete: { action: "onDelete" },
+    onReport: { action: "onReport" },
   },
 };
 
 const Template = (args) => {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [comments, setComments] = React.useState();
-  const [message, setMessage] = React.useState();
-
-  const mockAction = React.useCallback(async (action) => {
-    setIsLoading(true);
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        action();
-        setIsLoading(false);
-        resolve();
-      }, 2000);
-    });
-  }, []);
-
-  React.useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-      setComments(args.message.comments);
-      setMessage(args.message);
-    }, 2000);
-  }, [args.message]);
-
-  const msg = React.useMemo(() => (message ? { ...message, comments } : null), [
-    message,
-    comments,
-  ]);
-
-  const saveMessage = React.useCallback(
-    (message, relatedMessage) => {
-      mockAction(() => {
-        if (relatedMessage) {
-          const msg = {
-            content: message,
-            id: message.id || String(Date.now()),
-            created: new Date().toUTCString(),
-            author: args.user,
-          };
-          setComments((state) => [...state, msg]);
-        } else {
-          const msg = {
-            ...message,
-            linkedEvent: message.linkedEvent.id ? message.linkedEvent : null,
-          };
-          setMessage(msg);
-        }
-      });
-    },
-    [mockAction, args.user]
-  );
-
-  const deleteComment = React.useCallback(
-    (comment) => {
-      mockAction(() => {
-        setComments((state) => state.filter((c) => c.id !== comment.id));
-      });
-    },
-    [mockAction]
-  );
-
-  const reportMessage = React.useCallback(() => {
-    mockAction(() => {});
-  }, [mockAction]);
-
   return (
     <div
       style={{
@@ -91,16 +31,7 @@ const Template = (args) => {
         margin: "0 auto",
       }}
     >
-      <GroupMessage
-        {...args}
-        isLoading={isLoading}
-        message={msg}
-        createMessage={args.createMessage && saveMessage}
-        updateMessage={args.updateMessage && saveMessage}
-        deleteComment={args.deleteComment && deleteComment}
-        reportMessage={args.reportMessage && reportMessage}
-        createComment={args.createComment && saveMessage}
-      />
+      <GroupMessage {...args} />
     </div>
   );
 };
@@ -119,6 +50,12 @@ Manager.args = {
   isManager: true,
 };
 
+export const Loading = Template.bind({});
+Loading.args = {
+  ...Default.args,
+  isLoading: true,
+};
+
 export const Empty = Template.bind({});
 Empty.args = {
   ...Default.args,
@@ -128,11 +65,14 @@ Empty.args = {
 export const ReadOnly = Template.bind({});
 ReadOnly.args = {
   ...Default.args,
-  createMessage: undefined,
-  updateMessage: undefined,
-  deleteMessage: undefined,
-  reportMessage: undefined,
-  createComment: undefined,
-  deleteComment: undefined,
-  reportComment: undefined,
+  editMessage: undefined,
+  confirmReport: undefined,
+  confirmDelete: undefined,
+  writeNewComment: undefined,
+  confirmReportComment: undefined,
+  confirmDeleteComment: undefined,
+  dismissMessageAction: undefined,
+  saveMessage: undefined,
+  onDelete: undefined,
+  onReport: undefined,
 };

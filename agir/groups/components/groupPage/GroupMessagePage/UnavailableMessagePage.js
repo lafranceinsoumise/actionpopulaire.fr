@@ -5,10 +5,6 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
-import CenteredLayout from "@agir/front/dashboardComponents/CenteredLayout";
-
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getBackLink } from "@agir/front/globalContext/reducers";
 
 const StyledBlock = styled.div`
   display: flex;
@@ -36,31 +32,21 @@ const StyledBlock = styled.div`
 
 const UnavailableMessagePage = (props) => {
   const { groupURL } = props;
-
-  const backLink = useSelector(getBackLink);
-
   return (
-    <CenteredLayout
-      backLink={backLink}
-      title="Cette discussion n'est pas disponible"
-      icon="lock"
-      desktopOnlyFooter={false}
-    >
-      <StyledBlock>
-        <p>
-          Vous n’avez pas les droits nécessaires pour afficher cette discussion,
-          car elle est réservée aux membres du groupe.
-        </p>
-        {groupURL ? (
-          <Button color="primary" as="Link" to={groupURL}>
-            Voir le groupe
-          </Button>
-        ) : null}
-        <Button color="white" as="Link" route="help">
-          Voir l'aide en ligne
+    <StyledBlock>
+      <p>
+        Vous n’avez pas les droits nécessaires pour afficher cette discussion,
+        car elle est réservée aux membres du groupe.
+      </p>
+      {groupURL ? (
+        <Button color="primary" as="Link" to={groupURL}>
+          Voir le groupe
         </Button>
-      </StyledBlock>
-    </CenteredLayout>
+      ) : null}
+      <Button color="white" as="Link" route="help">
+        Voir l'aide en ligne
+      </Button>
+    </StyledBlock>
   );
 };
 

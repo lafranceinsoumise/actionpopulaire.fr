@@ -51,7 +51,7 @@ const Template = ({ hasActions, onEdit, onDelete, onReport, ...args }) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  message: {
+  comment: {
     author,
     text: "Bonjour !\n\nBonjour !\nBonjour !",
     created: new Date().toUTCString(),
@@ -61,7 +61,7 @@ Default.args = {
 
 export const WithActions = Template.bind({});
 WithActions.args = {
-  message: {
+  comment: {
     author,
     text: "Bonjour !",
     created: new Date().toUTCString(),

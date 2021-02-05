@@ -3,11 +3,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import CenteredLayout from "@agir/front/dashboardComponents/CenteredLayout";
 import GroupMessage from "@agir/groups/groupPage/GroupMessage";
-
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getBackLink } from "@agir/front/globalContext/reducers";
 
 const StyledBlock = styled.div`
   max-width: 780px;
@@ -20,14 +16,10 @@ const StyledBlock = styled.div`
 `;
 
 const GroupMessagePage = (props) => {
-  const backLink = useSelector(getBackLink);
-
   return (
-    <CenteredLayout backLink={backLink} $maxWidth="780px">
-      <StyledBlock>
-        <GroupMessage {...props} />
-      </StyledBlock>
-    </CenteredLayout>
+    <StyledBlock>
+      <GroupMessage {...props} />
+    </StyledBlock>
   );
 };
 
