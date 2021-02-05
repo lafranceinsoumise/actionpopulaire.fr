@@ -130,7 +130,7 @@ const StyledWrapper = styled.div`
 const MessageStep = (props) => {
   const {
     disabled,
-    content,
+    text,
     event,
     user,
     onChange,
@@ -151,18 +151,18 @@ const MessageStep = (props) => {
   const handleEmojiSelect = useCallback(
     (emoji) => {
       if (!Array.isArray(textFieldCursorPosition.current)) {
-        onChange(content + emoji);
+        onChange(text + emoji);
         return;
       }
       const [start, end] = textFieldCursorPosition.current;
-      const newValue = content.slice(0, start) + emoji + content.slice(end);
+      const newValue = text.slice(0, start) + emoji + text.slice(end);
       textFieldCursorPosition.current = [
         start + emoji.length,
         start + emoji.length,
       ];
       onChange(newValue);
     },
-    [onChange, content]
+    [onChange, text]
   );
 
   const handleEmojiOpen = useCallback(() => {
@@ -204,7 +204,7 @@ const MessageStep = (props) => {
           ref={textFieldRef}
           textArea
           id="messageContent"
-          value={content}
+          value={text}
           onChange={handleInputChange}
           autoFocus
           disabled={disabled}
@@ -214,9 +214,9 @@ const MessageStep = (props) => {
         />
         <footer>
           <EmojiPicker onOpen={handleEmojiOpen} onSelect={handleEmojiSelect} />
-          {typeof maxLength === "number" && content.length >= maxLength / 2 ? (
-            <StyledCounter $invalid={content.length > maxLength}>
-              {content.length}/{maxLength}
+          {typeof maxLength === "number" && text.length >= maxLength / 2 ? (
+            <StyledCounter $invalid={text.length > maxLength}>
+              {text.length}/{maxLength}
             </StyledCounter>
           ) : null}
         </footer>
@@ -226,7 +226,7 @@ const MessageStep = (props) => {
 };
 MessageStep.propTypes = {
   disabled: PropTypes.bool,
-  content: PropTypes.string,
+  text: PropTypes.string,
   event: PropTypes.object,
   user: PropTypes.shape({
     displayName: PropTypes.string.isRequired,

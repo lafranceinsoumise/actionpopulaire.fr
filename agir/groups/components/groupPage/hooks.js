@@ -1,9 +1,7 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useSWR, { useSWRInfinite } from "swr";
 
 import logger from "@agir/lib/utils/logger";
-
-import MESSAGES from "@agir/groups/groupPage/messages.json";
 
 const log = logger(__filename);
 
@@ -92,20 +90,10 @@ export const useMessages = (group) => {
     size: messagesSize,
     setSize: setMessagesSize,
     isValidating: isValidatingMessages,
-  } = useSWRInfinite(
-    (pageIndex) =>
-      hasMessages
-        ? `/api/groupes/${group.id}/messages?page=${pageIndex + 1}&page_size=3`
-        : null,
-    // TEMP: custom fetcher to return fake data
-    async (url) =>
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(
-            url ? { count: MESSAGES.length * 2, results: MESSAGES } : undefined
-          );
-        }, 3000);
-      })
+  } = useSWRInfinite((pageIndex) =>
+    hasMessages
+      ? `/api/groupes/${group.id}/messages?page=${pageIndex + 1}&page_size=3`
+      : null
   );
 
   const messages = useMemo(() => {
@@ -150,14 +138,7 @@ export const useMessages = (group) => {
 export const useMessage = (group, messagePk) => {
   const hasMessage = group && group.isMember && messagePk;
   const { data } = useSWR(
-    hasMessage ? `/api/groupes/${group.id}/messages/${messagePk}` : null,
-    // TEMP: custom fetcher to return fake data
-    async (url) =>
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(url ? MESSAGES.find((m) => m.id === messagePk) : undefined);
-        }, 3000);
-      })
+    hasMessage ? `/api/groupes/messages/${messagePk}` : null
   );
   log.debug("Group message #" + messagePk, data);
 
@@ -257,5 +238,93 @@ export const useGroupMessage = (groupPk, messagePk) => {
     reportMessage,
     deleteMessage,
     isLoading,
+  };
+};
+
+export const useMessageActions = (props) => {
+  const {
+    user,
+    isManager,
+    isLoading,
+    createMessage,
+    updateMessage,
+    createComment,
+    reportMessage,
+    deleteMessage,
+  } = props;
+
+  const shouldDismiss = useRef(false);
+
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [messageAction, setMessageAction] = useState("");
+
+  const writeNewMessage = useCallback(() => {
+    setMessageAction("create");
+  }, []);
+  const editMessage = useCallback((message) => {
+    setSelectedMessage(message);
+    setMessageAction("edit");
+  }, []);
+  const confirmDelete = useCallback((message) => {
+    setSelectedMessage(message);
+    setMessageAction("delete");
+  }, []);
+  const confirmReport = useCallback((message) => {
+    setSelectedMessage(message);
+    setMessageAction("report");
+  }, []);
+  const dismissMessageAction = useCallback(() => {
+    setMessageAction("");
+    setSelectedMessage(null);
+    shouldDismiss.current = false;
+  }, []);
+
+  const saveMessage = useCallback(
+    (message) => {
+      if (message.id && updateMessage) {
+        shouldDismiss.current = true;
+        updateMessage(message);
+      } else if (createMessage) {
+        shouldDismiss.current = true;
+        createMessage(message);
+      }
+    },
+    [createMessage, updateMessage]
+  );
+  const handleDelete = useCallback(() => {
+    selectedMessage && deleteMessage && deleteMessage(selectedMessage);
+  }, [selectedMessage, deleteMessage]);
+  const handleReport = useCallback(() => {
+    selectedMessage && reportMessage && reportMessage(selectedMessage);
+  }, [selectedMessage, reportMessage]);
+
+  useEffect(() => {
+    !isLoading && shouldDismiss.current && dismissMessageAction();
+  }, [isLoading, dismissMessageAction]);
+
+  const isSelectedMessageAuthor =
+    user && selectedMessage && selectedMessage.author.id === user.id;
+
+  return {
+    selectedMessage,
+    messageAction,
+    dismissMessageAction,
+    writeNewMessage: user && createMessage ? writeNewMessage : undefined,
+    editMessage: user && updateMessage ? editMessage : undefined,
+    confirmDelete: deleteMessage ? confirmDelete : undefined,
+    confirmReport: reportMessage ? confirmReport : undefined,
+    saveMessage:
+      user && (createMessage || updateMessage) ? saveMessage : undefined,
+    handleDelete:
+      deleteMessage &&
+      (messageAction === "delete" || (isManager && !isSelectedMessageAuthor))
+        ? handleDelete
+        : undefined,
+    handleReport:
+      reportMessage &&
+      (messageAction === "report" || (isManager && !isSelectedMessageAuthor))
+        ? handleReport
+        : undefined,
+    writeNewComment: createComment || undefined,
   };
 };

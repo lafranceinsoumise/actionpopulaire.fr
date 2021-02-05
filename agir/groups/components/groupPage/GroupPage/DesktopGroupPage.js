@@ -1,22 +1,26 @@
 import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import { Switch, Route, useHistory } from "react-router-dom";
+import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useTabs } from "./routes.config";
 
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
+import Link from "@agir/front/app/Link";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
-import GroupBanner from "../GroupBanner";
-import GroupUserActions from "../GroupUserActions";
-import GroupContactCard from "../GroupContactCard";
-import GroupDescription from "../GroupDescription";
-import GroupLinks from "../GroupLinks";
-import GroupFacts from "../GroupFacts";
-import GroupDonation from "../GroupDonation";
-import GroupSuggestions from "../GroupSuggestions";
-import GroupPageMenu from "../GroupPageMenu";
+import GroupBanner from "@agir/groups/groupPage/GroupBanner";
+import GroupUserActions from "@agir/groups/groupPage/GroupUserActions";
+import GroupContactCard from "@agir/groups/groupPage/GroupContactCard";
+import GroupDescription from "@agir/groups/groupPage/GroupDescription";
+import GroupLinks from "@agir/groups/groupPage/GroupLinks";
+import GroupFacts from "@agir/groups/groupPage/GroupFacts";
+import GroupDonation from "@agir/groups/groupPage/GroupDonation";
+import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
+import GroupPageMenu from "@agir/groups/groupPage/GroupPageMenu";
+import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
 import Routes from "./Routes";
 
@@ -49,9 +53,34 @@ export const DesktopGroupPageSkeleton = () => (
   </Container>
 );
 
+const IndexLinkAnchor = styled(Link)`
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  &,
+  &:hover,
+  &:focus,
+  &:active {
+    text-decoration: none;
+    color: #585858;
+  }
+  span {
+    transform: rotate(180deg) translateY(-1.5px);
+    transform-origin: center center;
+  }
+  @media (max-width: ${style.collapse}px) {
+    padding: 0.5rem 1.375rem 0;
+    margin-bottom: -1rem;
+  }
+`;
+
 const DesktopGroupPage = (props) => {
-  const { group, groupSuggestions, allEvents } = props;
-  const { hasTabs, tabs, activeTabIndex } = useTabs(props, false);
+  const { backLink, group, groupSuggestions, allEvents } = props;
+  const { hasTabs, tabs, activeTabIndex, activeTabId } = useTabs(props, false);
   const history = useHistory();
 
   const getMessageURL = useCallback(
@@ -84,6 +113,20 @@ const DesktopGroupPage = (props) => {
         background: "white",
       }}
     >
+      {!!backLink && (
+        <Row gutter={32}>
+          <Column grow>
+            <IndexLinkAnchor
+              to={backLink.to}
+              href={backLink.href}
+              route={backLink.route}
+            >
+              <span>&#10140;</span>
+              &ensp; {backLink.label || "Retour à l'accueil"}
+            </IndexLinkAnchor>
+          </Column>
+        </Row>
+      )}
       <Row gutter={32}>
         <Column grow>
           <GroupBanner {...group} />
@@ -122,7 +165,10 @@ const DesktopGroupPage = (props) => {
         <Column width="460px">
           <GroupUserActions {...group} />
           <GroupContactCard {...group} />
-          {allEvents.length > 0 ? <GroupDescription {...group} /> : null}
+          <GroupOrders {...group} />
+          {allEvents && allEvents.length > 0 ? (
+            <GroupDescription {...group} />
+          ) : null}
           <GroupLinks {...group} />
           <GroupFacts {...group} />
           {group.routes && group.routes.donations && (
@@ -131,13 +177,15 @@ const DesktopGroupPage = (props) => {
         </Column>
       </Row>
 
-      <Row gutter={32}>
-        <Column grow>
-          {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
-            <GroupSuggestions groups={groupSuggestions} />
-          ) : null}
-        </Column>
-      </Row>
+      {activeTabId !== "messages" ? (
+        <Row gutter={32}>
+          <Column grow>
+            {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
+              <GroupSuggestions groups={groupSuggestions} />
+            ) : null}
+          </Column>
+        </Row>
+      ) : null}
     </Container>
   );
 };

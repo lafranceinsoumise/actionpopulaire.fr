@@ -16,6 +16,16 @@ SwiperCore.use([A11y]);
 export const Carousel = styled(animated.div)``;
 export const Block = styled(animated.div)``;
 export const StyledWrapper = styled.div`
+  padding-top: 48px;
+  padding-bottom: 56px;
+  text-align: center;
+
+  @media (max-width: ${style.collapse}px) {
+    text-align: left;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
   & > * {
     margin-left: 1.5rem;
   }
@@ -49,6 +59,11 @@ export const StyledWrapper = styled.div`
   ${Block} {
     display: flex;
     flex-flow: row nowrap;
+    justify-content: center;
+
+    @media (max-width: ${style.collapse}px) {
+      justify-content: flex-start;
+    }
 
     & > * {
       flex: 1 1 auto;

@@ -337,6 +337,7 @@ const MessageCard = (props) => {
     messageURL,
     groupURL,
     comments,
+    isManager,
     isLoading,
     onClick,
     onComment,
@@ -347,19 +348,16 @@ const MessageCard = (props) => {
     scrollIn,
   } = props;
 
-  const {
-    group,
-    author,
-    content,
-    created,
-    linkedEvent,
-    commentCount,
-  } = message;
+  const { group, author, text, created, linkedEvent, commentCount } = message;
 
   const messageCardRef = useRef();
 
   const event = useMemo(() => formatEvent(linkedEvent), [linkedEvent]);
-  const isAuthor = useMemo(() => author.id === user.id, [author, user]);
+  const isAuthor = useMemo(() => isManager || author.id === user.id, [
+    isManager,
+    author,
+    user,
+  ]);
   const encodedMessageURL = useMemo(() => {
     if (messageURL) {
       const url =
@@ -491,7 +489,7 @@ const MessageCard = (props) => {
           <StyledGroupLink href={groupURL}>{group.name}</StyledGroupLink>
         ) : null}
         <StyledContent>
-          {content.split("\n").map((paragraph, i) => (
+          {text.split("\n").map((paragraph, i) => (
             <span key={i + "__" + paragraph}>{paragraph}</span>
           ))}
         </StyledContent>
@@ -512,9 +510,9 @@ const MessageCard = (props) => {
                   <Comment
                     key={comment.id}
                     message={comment}
-                    onDelete={handleDeleteComment}
+                    onDelete={onDelete ? handleDeleteComment : undefined}
                     onReport={onReport}
-                    isAuthor={comment.author.id === user.id}
+                    isAuthor={isManager || comment.author.id === user.id}
                   />
                 ))
               : null}
@@ -560,7 +558,7 @@ MessageCard.propTypes = {
       avatar: PropTypes.string,
     }).isRequired,
     created: PropTypes.string.isRequired,
-    content: PropTypes.string.isRequired,
+    text: PropTypes.string.isRequired,
     linkedEvent: PropTypes.object,
     commentCount: PropTypes.number,
   }).isRequired,
@@ -575,5 +573,6 @@ MessageCard.propTypes = {
   isLoading: PropTypes.bool,
   withMobileCommentField: PropTypes.bool,
   scrollIn: PropTypes.bool,
+  isManager: PropTypes.bool,
 };
 export default MessageCard;

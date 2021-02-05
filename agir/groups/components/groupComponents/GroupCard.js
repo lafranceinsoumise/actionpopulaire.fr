@@ -1,10 +1,11 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import style from "@agir/front/genericComponents/_variables.scss";
+import { parseDiscountCodes } from "@agir/groups/groupPage/utils";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
@@ -99,7 +100,7 @@ const GroupCard = ({
   is2022 = false,
 }) => {
   const history = useHistory();
-  const handleClick = React.useCallback(
+  const handleClick = useCallback(
     (e) => {
       if (["A", "BUTTON"].includes(e.target.tagName.toUpperCase())) {
         return;
@@ -110,9 +111,11 @@ const GroupCard = ({
     },
     [history, id]
   );
-  const Svg = React.useMemo(() => (is2022 ? GroupIconNsp : GroupIconLfi), [
-    is2022,
+  const Svg = useMemo(() => (is2022 ? GroupIconNsp : GroupIconLfi), [is2022]);
+  const parsedDiscountCodes = useMemo(() => parseDiscountCodes(discountCodes), [
+    discountCodes,
   ]);
+
   return (
     <Card onClick={isEmbedded ? undefined : handleClick}>
       <Row gutter={6}>
@@ -161,16 +164,13 @@ const GroupCard = ({
         </div>
       )}
 
-      {discountCodes && discountCodes.length > 0 && (
+      {parsedDiscountCodes && parsedDiscountCodes.length > 0 && (
         <DiscountCodesSection>
           <h5>Codes matériels :</h5>
           <ul>
-            {discountCodes.map(({ code, expirationDate }) => (
+            {parsedDiscountCodes.map(({ code, expiration }) => (
               <li key={code}>
-                {code}{" "}
-                <span>
-                  (expire {expirationDate.toRelativeCalendar({ unit: "days" })})
-                </span>
+                {code} <span>(expire {expiration})</span>
               </li>
             ))}
           </ul>

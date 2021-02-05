@@ -56,6 +56,10 @@ export const buttonColors = {
     $labelColor: style.white,
     $hoverBackground: style.green500,
   },
+  danger: {
+    $background: style.redNSP,
+    $labelColor: style.white,
+  },
 };
 
 /**

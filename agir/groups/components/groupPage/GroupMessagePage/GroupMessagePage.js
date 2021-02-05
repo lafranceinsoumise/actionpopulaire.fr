@@ -11,10 +11,7 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getBackLink } from "@agir/front/globalContext/reducers";
 
 const StyledBlock = styled.div`
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: center;
-  max-width: 580px;
+  max-width: 780px;
   margin: 0 auto;
   padding: 0;
 
@@ -42,7 +39,7 @@ const GroupMessagePage = (props) => {
   const backLink = useSelector(getBackLink);
 
   return (
-    <CenteredLayout backLink={backLink} desktopOnlyFooter={false}>
+    <CenteredLayout backLink={backLink} $maxWidth="780px">
       <StyledBlock>
         <GroupMessage
           group={group}

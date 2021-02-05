@@ -21,12 +21,22 @@ const StyledPanel = styled.div`
     display: none;
   }
 
+  h6 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1;
+    color: ${style.primary500};
+    margin-bottom: 1rem;
+    font-weight: bold;
+  }
+
   && ul {
     margin-bottom: 0;
 
     li {
       align-items: center;
-      font-weight: 500;
+      font-weight: normal;
+      font-size: 0.875rem;
 
       a {
         margin-left: 0.5rem;
@@ -41,6 +51,16 @@ const StyledPanel = styled.div`
       }
     }
   }
+
+  & > ${Button} {
+    margin-top: 1rem;
+  }
+
+  & ~ ${Button} {
+    @media (min-width: ${style.collapse}px) {
+      display: none;
+    }
+  }
 `;
 const StyledContent = styled.div`
   padding: 0;
@@ -51,22 +71,19 @@ const StyledContent = styled.div`
   @media (max-width: ${style.collapse}px) {
     background-color: white;
     width: 100%;
-    padding: 0 1rem;
+    padding: 0 1rem 1.5rem;
     align-items: stretch;
     display: ${({ hideOnMobile }) => (hideOnMobile ? "none" : "flex")};
   }
 
-  ${Button} {
+  & > ${Button} {
     margin: 0;
     width: 100%;
     justify-content: center;
-    margin-bottom: 1rem;
   }
 
-  ${Button} + ${Button} {
-    @media (max-width: ${style.collapse}px) {
-      display: none;
-    }
+  & > ${Button} + ${Button} {
+    margin-top: 0.75rem;
   }
 
   p {
@@ -114,15 +131,10 @@ const GroupLinks = (props) => {
   if (isManager) {
     return (
       <StyledContent>
-        <Button as="a" href={routes.createEvent} color="primary" icon="plus">
-          Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
-        </Button>
-        <Button as="a" href={routes.settings} color="primary" icon="settings">
-          Gestion {is2022 ? "de l'équipe" : "du groupe"}
-        </Button>
         <StyledPanel>
+          <h6>Gestion du groupe</h6>
           <ul>
-            {routes.invitation && (
+            {routes.members && (
               <li>
                 <RawFeatherIcon
                   small
@@ -130,29 +142,7 @@ const GroupLinks = (props) => {
                   color={style.primary500}
                   name="users"
                 />
-                <a href={routes.invitation}>Inviter un membre</a>
-              </li>
-            )}
-            {routes.materiel && (
-              <li>
-                <RawFeatherIcon
-                  small
-                  inline
-                  color={style.primary500}
-                  name="shopping-bag"
-                />
-                <a href={routes.materiel}>Commander du matériel</a>
-              </li>
-            )}
-            {routes.financement && (
-              <li>
-                <RawFeatherIcon
-                  small
-                  inline
-                  color={style.primary500}
-                  name="folder"
-                />
-                <a href={routes.settings}>Demande de dépense</a>
+                <a href={routes.members}>Membres</a>
               </li>
             )}
             {routes.members && (
@@ -166,6 +156,61 @@ const GroupLinks = (props) => {
                 <a href={routes.members}>Animateur·ices et gestionnaires</a>
               </li>
             )}
+            {routes.financement && (
+              <li>
+                <RawFeatherIcon
+                  small
+                  inline
+                  color={style.primary500}
+                  name="folder"
+                />
+                <a href={routes.financement}>Remboursement et dépense</a>
+              </li>
+            )}
+            {routes.certification && (
+              <li>
+                <RawFeatherIcon
+                  small
+                  inline
+                  color={style.primary500}
+                  name="check-circle"
+                />
+                <a href={routes.certification}>Certification</a>
+              </li>
+            )}
+            {routes.financement && (
+              <li>
+                <RawFeatherIcon
+                  small
+                  inline
+                  color={style.primary500}
+                  name="loader"
+                />
+                <a href={routes.financement}>Financement</a>
+              </li>
+            )}
+            {routes.invitation && (
+              <li>
+                <RawFeatherIcon
+                  small
+                  inline
+                  color={style.primary500}
+                  name="users"
+                />
+                <a href={routes.invitation}>Inviter</a>
+              </li>
+            )}
+            <li>
+              <RawFeatherIcon
+                inline
+                small
+                name="info"
+                color={style.primary500}
+              />
+              <a href="https://info.actionpopulaires.fr">
+                Informations générales
+              </a>
+            </li>
             {routes.admin && (
               <li>
                 <RawFeatherIcon
@@ -178,7 +223,29 @@ const GroupLinks = (props) => {
               </li>
             )}
           </ul>
+          <Button
+            as="a"
+            href={routes.createEvent}
+            color="primary"
+            icon="plus"
+            small
+            inline
+          >
+            Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
+          </Button>
         </StyledPanel>
+        <Button
+          as="a"
+          href={routes.createEvent}
+          color="primary"
+          icon="plus"
+          small
+        >
+          Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
+        </Button>
+        <Button as="a" href={routes.settings} icon="settings" small>
+          Gestion {is2022 ? "de l'équipe" : "du groupe"}
+        </Button>
       </StyledContent>
     );
   }

@@ -105,32 +105,32 @@ urlpatterns = [
     ),
     path("api/groupes/", views.UserGroupsView.as_view(), name="api_user_groups"),
     path(
-        "api/groupes/<uuid:pk>",
+        "api/groupes/<uuid:pk>/",
         views.GroupDetailAPIView.as_view(),
         name="api_group_view",
     ),
     path(
-        "api/groupes/<uuid:pk>/suggestions",
+        "api/groupes/<uuid:pk>/suggestions/",
         views.NearGroupsAPIView.as_view(),
         name="api_near_groups_view",
     ),
     path(
-        "api/groupes/<uuid:pk>/evenements",
+        "api/groupes/<uuid:pk>/evenements/",
         views.GroupEventsAPIView.as_view(),
         name="api_group_events_view",
     ),
     path(
-        "api/groupes/<uuid:pk>/evenements/passes",
+        "api/groupes/<uuid:pk>/evenements/passes/",
         views.GroupPastEventsAPIView.as_view(),
         name="api_group_past_events_view",
     ),
     path(
-        "api/groupes/<uuid:pk>/evenements/a-venir",
+        "api/groupes/<uuid:pk>/evenements/a-venir/",
         views.GroupUpcomingEventsAPIView.as_view(),
         name="api_group_upcoming_events_view",
     ),
     path(
-        "api/groupes/<uuid:pk>/evenements/compte-rendus",
+        "api/groupes/<uuid:pk>/evenements/compte-rendus/",
         views.GroupPastEventReportsAPIView.as_view(),
         name="api_group_past_event_reports_view",
     ),

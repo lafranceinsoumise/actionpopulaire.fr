@@ -54,6 +54,7 @@ Default.args = {
     { ...group, id: "c" },
   ],
   upcomingEvents: events.slice(0, 1),
+  allEvents: [...events],
   // pastEvents: events,
   activeTab: GROUP_PAGE_ROUTES[0].pathname,
 };
@@ -67,6 +68,7 @@ NoEvents.args = {
   ...Default.args,
   upcomingEvents: [],
   pastEvents: [],
+  allEvents: [],
 };
 export const WithPastReports = Template.bind({});
 WithPastReports.args = {
@@ -80,7 +82,6 @@ WithMessages.args = {
   group: { ...group, isManager: true, isMember: true },
   pastEventReports: events,
   messages,
-  message: messages[0],
   activeTab: "comptes-rendus",
 };
 export const NonMemberView = Template.bind({});
@@ -104,6 +105,7 @@ EmptyMemberView.args = {
   group: { ...group, isManager: false, isMember: true },
   upcomingEvents: [],
   pastEvents: [],
+  allEvents: [],
   pastEventReports: [],
   messages: [],
 };
@@ -113,6 +115,7 @@ EmptyManagerView.args = {
   group: { ...group, isManager: true, isMember: true },
   upcomingEvents: [],
   pastEvents: [],
+  allEvents: [],
   pastEventReports: [],
   messages: [],
 };

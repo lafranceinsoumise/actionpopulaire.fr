@@ -3,13 +3,6 @@ import { useHistory, useLocation } from "react-router-dom";
 import { RouteConfig } from "@agir/front/app/routes.config";
 
 const routeConfig = {
-  info: {
-    id: "info",
-    pathname: "/groupes/:groupPk/presentation/",
-    label: "Présentation",
-    hasTab: true,
-    hasRoute: (_, isMobile) => !!isMobile,
-  },
   messages: {
     id: "messages",
     pathname: "/groupes/:groupPk/discussion/",
@@ -17,6 +10,13 @@ const routeConfig = {
     hasTab: true,
     hasRoute: (group) =>
       group.isManager || (group.isMember && group.hasMessages),
+  },
+  info: {
+    id: "info",
+    pathname: "/groupes/:groupPk/presentation/",
+    label: "Présentation",
+    hasTab: true,
+    hasRoute: (_, isMobile) => !!isMobile,
   },
   agenda: {
     id: "agenda",
@@ -115,6 +115,7 @@ export const useTabs = (props, isMobile = true) => {
 
   return {
     tabs: routes,
+    activeTabId: activeRoute.id,
     activeTabIndex,
     hasTabs: tabs.length > 1,
     onTabChange: handleTabChange,

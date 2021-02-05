@@ -1,8 +1,12 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Switch, Route, useHistory } from "react-router-dom";
-import { useSpring, animated } from "react-spring";
-import { useDrag } from "react-use-gesture";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -30,7 +34,7 @@ export const MobileGroupPageSkeleton = () => (
   </Container>
 );
 
-const StyledTab = styled(animated.div)`
+const StyledTab = styled.div`
   max-width: 100%;
   margin: 0;
   padding: 0;
@@ -42,71 +46,22 @@ const StyledTab = styled(animated.div)`
   }
 `;
 
-// TODO: fix swiping behavior
-const SwipeableTab = (props) => {
-  const { onNextTab, onPrevTab, children } = props;
-  const [{ xy }, set] = useSpring(() => ({ xy: [0, 0] }));
-  const bind = useDrag(
-    ({ args: [limit], down, movement: [x] }) => {
-      if (down) {
-        const newX =
-          x > 0 ? Math.min(Math.abs(limit), x) : Math.max(-Math.abs(limit), x);
-        set({ xy: [newX, 0] });
-        return;
-      }
-      set({ xy: [0, 0] });
-      if (Math.abs(x) > Math.abs(limit)) {
-        x <= 0 ? onNextTab && onNextTab() : onPrevTab && onPrevTab();
-      }
-    },
-    { axis: "x", lockDirection: true }
-  );
-  const tabRef = useRef();
-
-  useEffect(() => {
-    tabRef.current & tabRef.current.scrollIntoView();
-  }, []);
-
-  return (
-    <StyledTab
-      {...bind(50)}
-      style={{
-        transform:
-          xy && xy.interpolate((x) => (x ? `translate3d(${x}px, 0px, 0)` : "")),
-      }}
-      ref={tabRef}
-    >
-      {children}
-    </StyledTab>
-  );
-};
-SwipeableTab.propTypes = {
-  onNextTab: PropTypes.func,
-  onPrevTab: PropTypes.func,
-  children: PropTypes.node,
-};
-
 const Tab = (props) => {
-  const { children } = props;
+  const { scrollIntoView, children } = props;
   const tabRef = useRef();
   useEffect(() => {
-    tabRef.current & tabRef.current.scrollIntoView();
-  }, []);
-
+    scrollIntoView && tabRef.current && tabRef.current.scrollIntoView();
+  }, [scrollIntoView]);
   return <StyledTab ref={tabRef}>{children}</StyledTab>;
 };
 Tab.propTypes = {
-  onNextTab: PropTypes.func,
-  onPrevTab: PropTypes.func,
+  scrollIntoView: PropTypes.bool,
   children: PropTypes.node,
 };
 
 const MobileGroupPage = (props) => {
   const { group, allEvents } = props;
-  const { hasTabs, tabs, onTabChange, onNextTab, onPrevTab } = useTabs(
-    props,
-    true
-  );
+  const { hasTabs, tabs, activeTabIndex, onTabChange } = useTabs(props, true);
 
   const goToAgendaTab = useMemo(() => {
     const agendaTab = tabs.find((tab) => tab.id === "agenda");
@@ -135,6 +90,15 @@ const MobileGroupPage = (props) => {
     [history, getMessageURL]
   );
 
+  const [autoScroll, setAutoScroll] = useState(false);
+  const navigationCount = useRef(0);
+  useEffect(() => {
+    navigationCount.current += 1;
+    if (navigationCount.current > 1) {
+      setAutoScroll(true);
+    }
+  }, [activeTabIndex]);
+
   if (!group) {
     return null;
   }
@@ -155,7 +119,7 @@ const MobileGroupPage = (props) => {
           const R = Routes[tab.id];
           return (
             <Route key={tab.id} path={tab.pathname} exact>
-              <Tab onNextTab={onNextTab} onPrevTab={onPrevTab}>
+              <Tab scrollIntoView={hasTabs && autoScroll}>
                 <R
                   {...props}
                   allEvents={allEvents}

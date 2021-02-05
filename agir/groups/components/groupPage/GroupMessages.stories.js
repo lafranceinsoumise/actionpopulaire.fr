@@ -18,27 +18,29 @@ export default {
   },
 };
 
-const args = {
-  user: {
-    id: "Bill",
-    displayName: "Bill Murray",
-    avatar: "https://www.fillmurray.com/200/200",
-  },
-  messages,
-  events,
-  messageURLBase: "#message__:id",
-};
-
-export const Default = () => {
-  const [hasLimit, setHasLimit] = React.useState(true);
+const Template = (args) => {
+  const [hasLimit, setHasLimit] = React.useState(args.messages.length > 0);
   const [isLoading, setIsLoading] = React.useState(true);
   const [comments, setComments] = React.useState();
   const [messages, setMessages] = React.useState();
+
+  const mockAction = React.useCallback(async (action) => {
+    setIsLoading(true);
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        action();
+        setIsLoading(false);
+        resolve();
+      }, 2000);
+    });
+  }, []);
+
   React.useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
+      const messages = Array.isArray(args.messages) ? args.messages : [];
       setComments(
-        args.messages.reduce(
+        messages.reduce(
           (obj, message) => ({
             ...obj,
             [message.id]: message.comments,
@@ -47,7 +49,7 @@ export const Default = () => {
         )
       );
       setMessages(
-        args.messages.reduce(
+        messages.reduce(
           (obj, message) => ({
             ...obj,
             [message.id]: message,
@@ -56,8 +58,7 @@ export const Default = () => {
         )
       );
     }, 2000);
-    //eslint-disable-next-line
-  }, []);
+  }, [args.messages]);
 
   const msgs = React.useMemo(
     () =>
@@ -77,60 +78,71 @@ export const Default = () => {
     [hasLimit, messages, comments]
   );
 
-  const saveMessage = React.useCallback((message, relatedMessage) => {
-    if (relatedMessage) {
-      const msg = {
-        content: message,
-        id: message.id || Date.now(),
-        created: new Date().toUTCString(),
-        author: args.user,
-      };
-      setComments((state) => ({
-        ...state,
-        [relatedMessage.id]: [...(state[relatedMessage.id] || []), msg],
-      }));
-    } else {
-      const msg = {
-        ...message,
-        id: message.id || Date.now(),
-        created: new Date().toUTCString(),
-        author: args.user,
-        linkedEvent: message.linkedEvent.id ? message.linkedEvent : null,
-      };
-      setMessages((state) => ({
-        ...state,
-        [msg.id]: msg,
-      }));
-    }
-  }, []);
+  const saveMessage = React.useCallback(
+    (message, relatedMessage) => {
+      mockAction(() => {
+        if (relatedMessage) {
+          const msg = {
+            content: message,
+            id: message.id || Date.now(),
+            created: new Date().toUTCString(),
+            author: args.user,
+          };
+          setComments((state) => ({
+            ...state,
+            [relatedMessage.id]: [...(state[relatedMessage.id] || []), msg],
+          }));
+        } else {
+          const msg = {
+            ...message,
+            id: message.id || Date.now(),
+            created: new Date().toUTCString(),
+            author: args.user,
+            linkedEvent: message.linkedEvent.id ? message.linkedEvent : null,
+          };
+          setMessages((state) => ({
+            ...state,
+            [msg.id]: msg,
+          }));
+        }
+      });
+    },
+    [args.user, mockAction]
+  );
 
   const deleteMessage = React.useCallback(
     (message, relatedMessage) => {
-      if (relatedMessage && comments[relatedMessage.id]) {
-        setComments((state) => ({
-          ...state,
-          [relatedMessage.id]: (state[relatedMessage.id] || []).filter(
-            (comment) => comment.id !== message.id
-          ),
-        }));
-      }
-      if (messages[message.id]) {
-        setMessages((state) => ({
-          ...state,
-          [message.id]: null,
-        }));
-        setComments((state) => ({
-          ...state,
-          [message.id]: [],
-        }));
-      }
+      mockAction(() => {
+        if (relatedMessage && comments[relatedMessage.id]) {
+          setComments((state) => ({
+            ...state,
+            [relatedMessage.id]: (state[relatedMessage.id] || []).filter(
+              (comment) => comment.id !== message.id
+            ),
+          }));
+        }
+        if (messages[message.id]) {
+          setMessages((state) => ({
+            ...state,
+            [message.id]: null,
+          }));
+          setComments((state) => ({
+            ...state,
+            [message.id]: [],
+          }));
+        }
+      });
     },
-    [messages, comments]
+    [mockAction, messages, comments]
   );
 
+  const reportMessage = React.useCallback(() => {
+    mockAction(() => {});
+  }, [mockAction]);
+
   const loadMoreMessages = React.useCallback(() => {
-    setHasLimit(false);
-  }, []);
+    mockAction(() => setHasLimit(false));
+  }, [mockAction]);
 
   return (
     <div
@@ -143,113 +155,47 @@ export const Default = () => {
         {...args}
         isLoading={isLoading}
         messages={msgs}
-        createMessage={saveMessage}
-        updateMessage={saveMessage}
-        deleteMessage={deleteMessage}
-        createComment={saveMessage}
+        createMessage={args.createMessage && saveMessage}
+        updateMessage={args.updateMessage && saveMessage}
+        deleteMessage={args.deleteMessage && deleteMessage}
+        reportMessage={args.reportMessage && reportMessage}
+        createComment={args.createComment && saveMessage}
         loadMoreMessages={hasLimit ? loadMoreMessages : undefined}
       />
     </div>
   );
 };
 
-export const Empty = () => {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [comments, setComments] = React.useState();
-  const [messages, setMessages] = React.useState();
+export const Default = Template.bind({});
+Default.args = {
+  user: {
+    id: "Bill",
+    displayName: "Bill Murray",
+    avatar: "https://www.fillmurray.com/200/200",
+  },
+  messages,
+  events,
+  messageURLBase: "#message__:id",
+};
 
-  React.useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-      setComments({});
-      setMessages({});
-    }, 2000);
-    //eslint-disable-next-line
-  }, []);
+export const Manager = Template.bind({});
+Manager.args = {
+  ...Default.args,
+  isManager: true,
+};
 
-  const msgs = React.useMemo(
-    () =>
-      messages
-        ? _sortBy(
-            Object.values(messages)
-              .filter(Boolean)
-              .map((message) => ({
-                ...message,
-                comments: (comments && comments[message.id]) || [],
-              })),
-            ["created"]
-          ).reverse()
-        : null,
-    [messages, comments]
-  );
+export const Empty = Template.bind({});
+Empty.args = {
+  ...Default.args,
+  messages: [],
+};
 
-  const saveMessage = React.useCallback((message, relatedMessage) => {
-    if (relatedMessage) {
-      const msg = {
-        content: message,
-        id: message.id || Date.now(),
-        created: new Date().toUTCString(),
-        author: args.user,
-      };
-      setComments((state) => ({
-        ...state,
-        [relatedMessage.id]: [...(state[relatedMessage.id] || []), msg],
-      }));
-    } else {
-      const msg = {
-        ...message,
-        id: message.id || Date.now(),
-        created: new Date().toUTCString(),
-        author: args.user,
-        linkedEvent: message.linkedEvent.id ? message.linkedEvent : null,
-      };
-      setMessages((state) => ({
-        ...state,
-        [msg.id]: msg,
-      }));
-    }
-  }, []);
-
-  const deleteMessage = React.useCallback(
-    (message, relatedMessage) => {
-      if (relatedMessage && comments[relatedMessage.id]) {
-        setComments((state) => ({
-          ...state,
-          [relatedMessage.id]: (state[relatedMessage.id] || []).filter(
-            (comment) => comment.id !== message.id
-          ),
-        }));
-      }
-      if (messages[message.id]) {
-        setMessages((state) => ({
-          ...state,
-          [message.id]: null,
-        }));
-        setComments((state) => ({
-          ...state,
-          [message.id]: [],
-        }));
-      }
-    },
-    [messages, comments]
-  );
-
-  return (
-    <div
-      style={{
-        maxWidth: 640,
-        margin: "0 auto",
-      }}
-    >
-      <GroupMessages
-        {...args}
-        isLoading={isLoading}
-        messages={msgs}
-        createMessage={saveMessage}
-        updateMessage={saveMessage}
-        deleteMessage={deleteMessage}
-        createComment={saveMessage}
-      />
-    </div>
-  );
+export const ReadOnly = Template.bind({});
+ReadOnly.args = {
+  ...Default.args,
+  createMessage: undefined,
+  updateMessage: undefined,
+  deleteMessage: undefined,
+  reportMessage: undefined,
+  createComment: undefined,
 };

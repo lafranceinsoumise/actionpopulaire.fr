@@ -5,6 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import ShareCard from "@agir/front/genericComponents/ShareCard";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import GroupLocation from "@agir/groups/groupPage/GroupLocation";
 import GroupContactCard from "@agir/groups/groupPage/GroupContactCard";
@@ -14,16 +15,50 @@ import GroupFacts from "@agir/groups/groupPage/GroupFacts";
 import GroupDonation from "@agir/groups/groupPage/GroupDonation";
 import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
 import GroupEventList from "@agir/groups/groupPage/GroupEventList";
+import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
 const Agenda = styled.div`
   margin: 0;
-  padding: 1.5rem 1rem;
-  height: 316px;
+  padding: 1.5rem 1rem 0;
   background: ${style.black25};
 
   & > h3 {
     margin-top: 0;
     margin-bottom: 1rem;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 600;
+
+    button {
+      background: none;
+      border: none;
+      outline: none;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      margin-left: auto;
+      padding: 0;
+      color: ${style.primary500};
+      font-weight: inherit;
+      font-size: inherit;
+
+      &:hover,
+      &:focus {
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      & > * {
+        flex: 0 0 auto;
+      }
+
+      ${RawFeatherIcon} {
+        margin-left: 0.5rem;
+        margin-top: 1px;
+      }
+    }
   }
 `;
 
@@ -36,16 +71,24 @@ const InfoRoute = ({
   <>
     {Array.isArray(upcomingEvents) && upcomingEvents.length > 0 ? (
       <Agenda>
-        <h3>Agenda</h3>
-        <GroupEventList
-          events={[upcomingEvents[0]]}
-          loadMore={goToAgendaTab}
-          loadMoreLabel="Voir tout l'agenda"
-        />
+        <h3>
+          <span>À venir</span>
+          <button onClick={goToAgendaTab}>
+            Voir tout l'agenda{" "}
+            <RawFeatherIcon
+              name="arrow-right"
+              width="1rem"
+              height="1rem"
+              strokeWidth={3}
+            />
+          </button>
+        </h3>
+        <GroupEventList events={[upcomingEvents[0]]} />
       </Agenda>
     ) : null}
 
     <GroupContactCard {...group} />
+    <GroupOrders {...group} />
     <GroupDescription {...group} />
     <GroupLinks {...group} />
     <GroupFacts {...group} />

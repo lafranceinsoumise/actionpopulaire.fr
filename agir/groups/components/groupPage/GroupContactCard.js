@@ -5,7 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import Card from "./GroupPageCard";
 
@@ -92,19 +92,20 @@ const GroupContactCard = (props) => {
         <StyledContactSection>
           {contact.name && (
             <strong>
-              Contacter {contact.name}&nbsp;:{" "}
+              Contact&ensp;
               {routes && routes.edit && (
                 <a href={routes.edit}>
-                  <FeatherIcon
+                  <RawFeatherIcon
                     name="edit-2"
                     color={style.black1000}
-                    small
-                    inline
+                    width="0.875rem"
+                    height="0.875rem"
                   />
                 </a>
               )}
             </strong>
           )}
+          {contact.name && <span>{contact.name}</span>}
           {contact.email && (
             <a href={`mailto:${contact.email}`}>{contact.email}</a>
           )}
