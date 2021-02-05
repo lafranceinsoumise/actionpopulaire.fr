@@ -81,7 +81,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
 
     def get_comments(self, obj):
         return MessageCommentSerializer(
-            obj.comments.all().order_by("-created"), context=self.context, many=True,
+            obj.comments.all().order_by("created"), context=self.context, many=True,
         ).data
 
     class Meta:

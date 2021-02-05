@@ -43,9 +43,11 @@ const GroupPage = (props) => {
     isLoadingMessages,
     createMessage,
     updateMessage,
-    createComment,
     reportMessage,
     deleteMessage,
+    createComment,
+    reportComment,
+    deleteComment,
   } = useGroupDetail(groupPk);
 
   const { is2022, isManager, routes } = group || {};
@@ -84,9 +86,11 @@ const GroupPage = (props) => {
       loadMoreMessages={loadMoreMessages}
       createMessage={createMessage}
       updateMessage={updateMessage}
-      createComment={createComment}
       reportMessage={reportMessage}
       deleteMessage={deleteMessage}
+      createComment={createComment}
+      reportComment={reportComment}
+      deleteComment={deleteComment}
       groupSuggestions={Array.isArray(groupSuggestions) ? groupSuggestions : []}
       user={user}
     />
