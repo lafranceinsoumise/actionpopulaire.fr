@@ -46,7 +46,7 @@ urlpatterns = [
         name="view_group_reports",
     ),
     path(
-        "groupes/<uuid:pk>/presentation/",
+        "groupes/<uuid:pk>/accueil/",
         views.SupportGroupDetailView.as_view(),
         name="view_group_info",
     ),

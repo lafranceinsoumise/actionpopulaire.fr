@@ -13,7 +13,7 @@ export const EmptyList = styled.p`
   display: flex;
   flex-flow: row nowrap;
   align-items: stretch;
-  border: 1px solid ${style.black100};
+  border: 1px solid ${style.black200};
   margin: 32px 0;
 
   @media (max-width: ${style.collapse}px) {

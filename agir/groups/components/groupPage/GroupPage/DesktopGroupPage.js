@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Switch, Route, useHistory } from "react-router-dom";
 import styled from "styled-components";
 
@@ -80,7 +80,24 @@ const IndexLinkAnchor = styled(Link)`
 
 const DesktopGroupPage = (props) => {
   const { backLink, group, groupSuggestions, allEvents } = props;
-  const { hasTabs, tabs, activeTabIndex, activeTabId } = useTabs(props, false);
+  const { hasTabs, tabs, activeTabIndex, activeTabId, onTabChange } = useTabs(
+    props,
+    false
+  );
+
+  const goToAgendaTab = useMemo(() => {
+    const agendaTab = tabs.find((tab) => tab.id === "agenda");
+    if (agendaTab && onTabChange) {
+      return () => onTabChange(agendaTab);
+    }
+  }, [tabs, onTabChange]);
+
+  const goToMessagesTab = useMemo(() => {
+    const messagesTab = tabs.find((tab) => tab.id === "messages");
+    if (messagesTab && onTabChange) {
+      return () => onTabChange(messagesTab);
+    }
+  }, [tabs, onTabChange]);
   const history = useHistory();
 
   const getMessageURL = useCallback(
@@ -155,6 +172,8 @@ const DesktopGroupPage = (props) => {
                     onClickMessage={handleClickMessage}
                     getMessageURL={getMessageURL}
                     basePath={tab.getLink()}
+                    goToAgendaTab={goToAgendaTab}
+                    goToMessagesTab={goToMessagesTab}
                   />
                 </Column>
               </Route>

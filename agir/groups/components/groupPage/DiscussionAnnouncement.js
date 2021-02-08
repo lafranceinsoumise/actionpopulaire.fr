@@ -10,7 +10,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 const StyledAnnouncement = styled.div`
   width: 100%;
   display: flex;
-  padding: 1.75rem 1rem;
+  padding: 1rem 1.75rem 1.75rem;
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-between;
@@ -35,6 +35,7 @@ const StyledAnnouncement = styled.div`
     margin: 0 0 0 1.5rem;
     display: flex;
     flex-flow: column nowrap;
+    justify-content: center;
 
     & > * {
       display: block;

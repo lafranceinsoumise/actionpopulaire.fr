@@ -70,6 +70,13 @@ const MobileGroupPage = (props) => {
     }
   }, [tabs, onTabChange]);
 
+  const goToMessagesTab = useMemo(() => {
+    const messagesTab = tabs.find((tab) => tab.id === "messages");
+    if (messagesTab && onTabChange) {
+      return () => onTabChange(messagesTab);
+    }
+  }, [tabs, onTabChange]);
+
   const history = useHistory();
 
   const getMessageURL = useCallback(
@@ -125,6 +132,7 @@ const MobileGroupPage = (props) => {
                   allEvents={allEvents}
                   hasTabs={hasTabs}
                   goToAgendaTab={goToAgendaTab}
+                  goToMessagesTab={goToMessagesTab}
                   getMessageURL={getMessageURL}
                   onClickMessage={handleClickMessage}
                 />
