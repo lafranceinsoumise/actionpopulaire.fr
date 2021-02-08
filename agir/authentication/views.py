@@ -181,17 +181,6 @@ class CheckCodeView(RedirectToMixin, FormView):
     def form_valid(self, form):
         login(self.request, form.role)
 
-        if False and not form.role.social_auth.filter(provider="facebook").exists():
-            messages.add_message(
-                request=self.request,
-                level=messages.SUCCESS,
-                message=mark_safe(
-                    "Pour vous connecter plus facilement, vous pouvez "
-                    f'<a href="{reverse("social:begin", args=["facebook"])}">associer '
-                    "votre compte Facebook</a> et votre compte France insoumise."
-                ),
-            )
-
         if form.role.person.primary_email.bounced:
             try:
                 validated_email_instance = form.role.person.emails.get_by_natural_key(
