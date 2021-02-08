@@ -43,11 +43,7 @@ export const useMessages = (group) => {
     [hasMessages, group]
   );
 
-  const { data, size, setSize, mutate } = useSWRInfinite(getMessagesEndpoint, {
-    refreshInterval: 0,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const { data, size, setSize, mutate } = useSWRInfinite(getMessagesEndpoint);
 
   const messagesCount = useMemo(
     () =>

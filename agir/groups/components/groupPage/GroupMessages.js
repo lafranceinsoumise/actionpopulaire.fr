@@ -125,7 +125,7 @@ export const GroupMessages = (props) => {
                   key={message.id}
                   message={message}
                   user={user}
-                  comments={message.comments}
+                  comments={message.comments || message.recentComments}
                   onClick={onClick}
                   onEdit={editMessage}
                   onComment={writeNewComment}
