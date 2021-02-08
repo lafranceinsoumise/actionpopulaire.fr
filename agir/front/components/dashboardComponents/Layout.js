@@ -9,6 +9,12 @@ import Navigation, {
 } from "@agir/front/dashboardComponents/Navigation";
 import Announcements from "@agir/front/dashboardComponents/Announcements";
 import Footer from "@agir/front/dashboardComponents/Footer";
+import facebookLogo from "@agir/front/genericComponents/logos/facebook.svg";
+import facebookWhiteLogo from "@agir/front/genericComponents/logos/facebook_white.svg";
+import Button from "@agir/front/genericComponents/Button";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getRoutes } from "@agir/front/globalContext/reducers";
+import { useCustomAnnouncement } from "@agir/activity/common/helpers";
 
 export const LayoutSubtitle = styled.h2`
   color: ${style.black700};
@@ -88,6 +94,64 @@ const MainContainer = styled(Container)`
   }
 `;
 
+const FacebookLoginContainer = styled.div`
+  background-color: #e8f2fe;
+  max-width: 255px;
+  border-radius: 8px;
+  padding: 24px;
+  font-size: 14px;
+  margin-bottom: 16px;
+`;
+
+const DismissMessage = styled.a`
+  &:hover {
+    color: ${style.black1000};
+  }
+  color: ${style.black1000};
+  text-decoration: underline;
+  margin-top: 16px;
+`;
+
+const FacebookLoginAd = () => {
+  const routes = useSelector(getRoutes);
+  const [announcement, dismissCallback] = useCustomAnnouncement(
+    "facebook-login-ad"
+  );
+
+  return announcement ? (
+    <FacebookLoginContainer>
+      <img
+        src={facebookLogo}
+        style={{ height: "32px", marginBottom: "6px" }}
+        alt="Facebook"
+      />
+      <h6>Facilitez vos prochaines connexions</h6>
+      <p>
+        Connectez votre compte à Facebook maintenant pour ne pas avoir à taper
+        de code la prochaine fois.
+      </p>
+      <Button
+        style={{ margin: "16px 0" }}
+        small
+        $background="#1778f2"
+        $hoverBackground="#1778f2"
+        $labelColor="#fff"
+        as="a"
+        href={routes.facebookLogin}
+      >
+        <img
+          style={{ height: "16px", marginRight: "5px" }}
+          src={facebookWhiteLogo}
+        />
+        Connecter le compte
+      </Button>
+      <DismissMessage href="#" onClick={dismissCallback}>
+        Ne plus afficher ce message
+      </DismissMessage>
+    </FacebookLoginContainer>
+  ) : null;
+};
+
 const Layout = (props) => (
   <>
     {props.hasBanner ? (
@@ -112,6 +176,7 @@ const Layout = (props) => (
           </section>
         </MainColumn>
         <SidebarColumn>
+          <FacebookLoginAd />
           <Announcements displayType="sidebar" />
           <SecondaryNavigation />
         </SidebarColumn>
