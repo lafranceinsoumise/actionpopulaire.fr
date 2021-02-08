@@ -521,14 +521,14 @@ const MessageCard = (props) => {
           {onComment ? (
             withMobileCommentField ? (
               <CommentField
-                key={comments.length}
+                key={comments && comments.length}
                 isLoading={isLoading}
                 user={user}
                 onSend={handleComment}
               />
             ) : (
               <ResponsiveLayout
-                key={comments.length}
+                key={comments && comments.length}
                 MobileLayout={CommentButton}
                 DesktopLayout={CommentField}
                 isLoading={isLoading}

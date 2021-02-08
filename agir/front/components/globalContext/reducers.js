@@ -193,7 +193,14 @@ export const messages = (state = {}, action) => {
       }
       const newState = { ...state };
       action.messages.forEach((message) => {
-        newState[message.id] = message;
+        if (message.id in newState) {
+          newState[message.id] = {
+            comments: state[message.id].comments,
+            ...message,
+          };
+        } else {
+          newState[message.id] = message;
+        }
       });
       return newState;
     }
@@ -232,7 +239,7 @@ export const messages = (state = {}, action) => {
             ...newMessage,
             comments: Array.isArray(newMessage.comments)
               ? [...newMessage.comments, action.comment]
-              : [action.comment],
+              : [...newMessage.recentComments, action.comment],
           };
           if (typeof newState[newMessage.id].commentCount === "number") {
             newState[newMessage.id].commentCount += 1;

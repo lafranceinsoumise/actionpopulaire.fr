@@ -14,20 +14,12 @@ export const messagesRefreshed = () => ({
   type: ACTION_TYPE.REFRESHED_MESSAGES_ACTION,
 });
 
-const formatMessage = (message) =>
-  message
-    ? {
-        ...message,
-        comments: message.comments || message.recentComments || [],
-      }
-    : null;
-
 export const setMessages = (data) => (dispatch) => {
   let messages = [];
   if (Array.isArray(data)) {
     data.forEach(({ results }) => {
       if (Array.isArray(results)) {
-        messages = messages.concat(results.map(formatMessage));
+        messages = messages.concat(results);
       }
     });
   }
