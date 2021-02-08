@@ -193,7 +193,7 @@ export const messages = (state = {}, action) => {
       }
       const newState = { ...state };
       action.messages.forEach((message) => {
-        if (message.id in newState) {
+        if (newState[message.id]) {
           newState[message.id] = {
             comments: state[message.id].comments,
             ...message,
@@ -291,6 +291,7 @@ export const isLoadingMessages = (state = false, action) => {
     case ACTION_TYPE.REFRESHING_MESSAGES_ACTION:
       return true;
     case ACTION_TYPE.SET_MESSAGES_ACTION:
+    case ACTION_TYPE.SET_MESSAGE_ACTION:
     case ACTION_TYPE.REFRESHED_MESSAGES_ACTION:
       return false;
     default:

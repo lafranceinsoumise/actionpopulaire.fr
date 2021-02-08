@@ -87,6 +87,7 @@ MobileInfoRoute.propTypes = DesktopInfoRoute.propTypes = {
   goToAgendaTab: PropTypes.func,
   goToMessagesTab: PropTypes.func,
   onClickMessage: PropTypes.func,
+  isLoadingMessages: PropTypes.bool,
 };
 
 const InfoRoute = (props) => (

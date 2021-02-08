@@ -138,13 +138,22 @@ AgendaRoutePreview.propTypes = {
 };
 
 export const MessagesRoutePreview = (props) => {
-  const { user, messages, goToMessagesTab, onClickMessage } = props;
+  const {
+    user,
+    messages,
+    goToMessagesTab,
+    onClickMessage,
+    isLoadingMessages,
+  } = props;
 
+  if (
+    (!isLoadingMessages && !Array.isArray(messages)) ||
+    messages.length === 0
+  ) {
+    return null;
+  }
   return (
-    <PageFadeIn
-      ready={Array.isArray(messages) && messages.length > 0}
-      wait={<Skeleton boxes={1} />}
-    >
+    <PageFadeIn ready={!isLoadingMessages} wait={<Skeleton boxes={1} />}>
       <RoutePreview>
         <h3>
           <span>Discussions</span>
@@ -180,6 +189,7 @@ MessagesRoutePreview.propTypes = {
   messages: PropTypes.arrayOf(PropTypes.object),
   goToMessagesTab: PropTypes.func,
   onClickMessage: PropTypes.func,
+  isLoadingMessages: PropTypes.bool,
 };
 
 export default RoutePreview;
