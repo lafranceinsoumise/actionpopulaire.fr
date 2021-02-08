@@ -25,6 +25,7 @@
   "REFRESHING_MESSAGES_ACTION": "refreshingMessages",
   "REFRESHED_MESSAGES_ACTION": "refreshedMessages",
   "SET_MESSAGES_ACTION": "setMessages",
+  "SET_MESSAGE_ACTION": "setMessage",
   "CREATING_MESSAGE_ACTION": "creatingMessage",
   "CREATED_MESSAGE_ACTION": "createdMessage",
   "UPDATING_MESSAGE_ACTION": "updatingMessage",

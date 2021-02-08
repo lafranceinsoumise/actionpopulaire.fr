@@ -204,6 +204,13 @@ export const messages = (state = {}, action) => {
       });
       return newState;
     }
+    case ACTION_TYPE.SET_MESSAGE_ACTION: {
+      return action.message
+        ? {
+            [action.message.id]: action.message,
+          }
+        : {};
+    }
     case ACTION_TYPE.CREATED_MESSAGE_ACTION: {
       return !action.error && action.message && action.message.id
         ? { [action.message.id]: action.message, ...state }

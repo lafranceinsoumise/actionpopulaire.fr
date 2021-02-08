@@ -29,10 +29,10 @@ export const setMessages = (data) => (dispatch) => {
   });
 };
 
-export const setMessage = (data) => (dispatch) => {
+export const setMessage = (message) => (dispatch) => {
   dispatch({
-    type: ACTION_TYPE.SET_MESSAGES_ACTION,
-    messages: data ? [data] : null,
+    type: ACTION_TYPE.SET_MESSAGE_ACTION,
+    message,
   });
 };
 
@@ -45,7 +45,7 @@ export const createMessage = (group, message) => async (dispatch) => {
     dispatch({
       type: ACTION_TYPE.CREATED_MESSAGE_ACTION,
       error: response.error,
-      message: formatMessage(response.data),
+      message: response.data,
     });
   } catch (e) {
     dispatch({
@@ -64,7 +64,7 @@ export const updateMessage = (message) => async (dispatch) => {
     dispatch({
       type: ACTION_TYPE.UPDATED_MESSAGE_ACTION,
       error: response.error,
-      message: formatMessage(response.data),
+      message: response.data,
     });
   } catch (e) {
     dispatch({
