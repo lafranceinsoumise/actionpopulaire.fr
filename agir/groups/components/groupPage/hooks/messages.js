@@ -73,13 +73,8 @@ export const useMessages = (group) => {
   }, [dispatch, data]);
 
   useEffect(() => {
-    if (
-      messages.length < MESSAGES_PAGE_SIZE &&
-      messagesCount > MESSAGES_PAGE_SIZE
-    ) {
-      mutate();
-    }
-  }, [messages, messagesCount, mutate]);
+    mutate();
+  }, [messages.length, mutate]);
 
   return {
     messages,
