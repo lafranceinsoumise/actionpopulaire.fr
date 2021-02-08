@@ -183,8 +183,8 @@ const DesktopGroupPage = (props) => {
 
         <Column width="460px">
           <GroupUserActions {...group} />
-          <GroupContactCard {...group} />
           <GroupOrders {...group} />
+          <GroupContactCard {...group} />
           {allEvents && allEvents.length > 0 ? (
             <GroupDescription {...group} />
           ) : null}

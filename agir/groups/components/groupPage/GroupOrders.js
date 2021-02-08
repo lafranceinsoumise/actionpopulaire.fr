@@ -6,6 +6,8 @@ import { parseDiscountCodes } from "@agir/groups/groupPage/utils";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRouteById } from "@agir/front/globalContext/reducers";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import Button from "@agir/front/genericComponents/Button";
 import Card from "./GroupPageCard";
 
@@ -21,6 +23,13 @@ const StyledList = styled.ul`
   }
 `;
 
+const StyledCard = styled(Card)`
+  @media (min-width: ${style.collapse}px) {
+    padding: 1.5rem;
+    border: 1px solid ${style.black200};
+  }
+`;
+
 const GroupOrders = (props) => {
   const { isManager, discountCodes } = props;
   const orderURL = useSelector((state) => getRouteById(state, "materiel"));
@@ -29,7 +38,7 @@ const GroupOrders = (props) => {
   ]);
 
   return isManager ? (
-    <Card title="Commander du matériel">
+    <StyledCard title="Commander du matériel">
       {Array.isArray(codes) && codes.length > 0 ? (
         <StyledList>
           <li>Codes de réduction :</li>
@@ -45,7 +54,7 @@ const GroupOrders = (props) => {
           Commander du matériel
         </Button>
       ) : null}
-    </Card>
+    </StyledCard>
   ) : null;
 };
 
