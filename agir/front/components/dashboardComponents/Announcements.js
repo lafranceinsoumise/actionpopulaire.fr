@@ -114,7 +114,9 @@ const Announcements = (props) => {
   const { displayType } = props;
 
   const dispatch = useDispatch();
-  const announcements = useSelector(getAnnouncements);
+  const announcements = useSelector(getAnnouncements).filter(
+    (a) => !a.customDisplay
+  );
 
   useEffect(() => {
     if (!Array.isArray(announcements)) {

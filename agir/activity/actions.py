@@ -56,13 +56,19 @@ def get_announcements(person=None):
     if person:
         return [
             a
-            for a in announcements.annotate(
+            for a in announcements.exclude(
+                activity__in=Activity.objects.filter(
+                    recipient=person, status=Activity.STATUS_INTERACTED
+                )
+            )
+            .annotate(
                 activity_id=Subquery(
                     Activity.objects.filter(
-                        recipient_id=person.id, announcement_id=OuterRef("id")
+                        recipient=person, announcement_id=OuterRef("id")
                     ).values("id")[:1]
                 )
-            ).select_related("segment")
+            )
+            .select_related("segment")
             if a.segment is None
             or a.segment.get_subscribers_queryset().filter(pk=person.id).exists()
         ]

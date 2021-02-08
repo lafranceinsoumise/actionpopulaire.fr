@@ -50,17 +50,16 @@
               </div>
 
             {% endif %}
-{% comment %}
+
             <p class="or">OU</p>
 
             <div id="facebook-login">
               <a href="{% url "social:begin" "facebook" %}" class="btn btn-default">
                 <i class="fa fa-2x fa-facebook-square"></i> Se connecter avec Facebook
               </a>
-              <p class="text-muted small">Vous devez utiliser la même adresse email sur Facebook et sur la France
-                insoumise, ou avoir déjà associé manuellement vos comptes.</p>
+              <p class="text-muted small">Vous devez utiliser la même adresse email sur Facebook et sur
+                Action&nbsp;populaire, ou avoir déjà associé manuellement vos comptes.</p>
             </div>
-{% endcomment %}
 
             {% if bookmarked_emails %}
             <div id="email-login">

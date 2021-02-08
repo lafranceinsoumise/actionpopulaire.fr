@@ -8,13 +8,19 @@ from agir.activity.models import Activity, Announcement
 class ActivityAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {"fields": ("timestamp", "type", "recipient", "status")}),
-        ("Éléments liés", {"fields": ("event", "supportgroup", "individual", "meta")}),
+        (
+            "Éléments liés",
+            {"fields": ("event", "supportgroup", "individual", "announcement", "meta")},
+        ),
         ("Création et modification", {"fields": ("created", "modified")}),
     )
     list_display = ("type", "timestamp", "recipient", "status")
     list_filter = ("type", "status")
 
-    readonly_fields = ("created", "modified")
+    readonly_fields = (
+        "created",
+        "modified",
+    )
     autocomplete_fields = (
         "recipient",
         "event",
@@ -31,7 +37,15 @@ class AnnouncementAdmin(admin.ModelAdmin):
         ("Contenu", {"fields": ("title", "link", "content", "image", "miniatures")}),
         (
             "Conditions d'affichage",
-            {"fields": ("segment", "start_date", "end_date", "priority")},
+            {
+                "fields": (
+                    "segment",
+                    "start_date",
+                    "end_date",
+                    "priority",
+                    "custom_display",
+                )
+            },
         ),
         ("Statistiques", {"fields": ("affichages", "clics")}),
     )

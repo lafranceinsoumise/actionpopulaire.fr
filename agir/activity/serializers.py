@@ -53,6 +53,7 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
 class AnnouncementSerializer(serializers.ModelSerializer):
     activityId = serializers.SerializerMethodField()
+    customDisplay = serializers.SlugField(source="custom_display")
 
     link = serializers.HyperlinkedIdentityField(view_name="activity:announcement_link")
 
@@ -88,6 +89,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             "endDate",
             "priority",
             "activityId",
+            "customDisplay",
         ]
 
 

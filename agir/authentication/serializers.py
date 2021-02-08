@@ -39,6 +39,7 @@ class SessionSerializer(serializers.Serializer):
     )
     announcements = serializers.SerializerMethodField(method_name="get_announcements")
     routes = serializers.SerializerMethodField(method_name="get_user_routes")
+    facebookLogin = serializers.SerializerMethodField(method_name="get_facebook_login")
 
     def get_user_routes(self, request):
         if request.user.is_authenticated:
@@ -116,3 +117,8 @@ class SessionSerializer(serializers.Serializer):
                 instance=get_announcements(request.user.person),
                 context={"request": request},
             ).data
+
+    def get_facebook_login(self, request):
+        request.user.is_authenticated and request.user.social_auth.filter(
+            provider="facebook"
+        ).exists()

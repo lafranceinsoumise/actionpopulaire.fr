@@ -1,8 +1,7 @@
+import re
 from unittest import mock
 from unittest.mock import patch
 
-import re
-from django.contrib.messages import get_messages
 from django.core import mail
 from django.test import TestCase
 from django.utils import timezone
