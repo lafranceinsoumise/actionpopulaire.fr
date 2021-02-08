@@ -148,6 +148,7 @@ export const Button = styled.button.attrs(
         icons[$icon]
           .toSvg({
             color: encodeURI($labelColor),
+            fill: "currentColor",
           })
           .replace("#", "%23")
         /*
@@ -178,7 +179,9 @@ Button.propTypes = {
 };
 
 Button.defaultProps = {
-  color: "default",
+  $background: style.black50,
+  $hoverBackground: style.black100,
+  $labelColor: style.black1000,
   small: false,
   block: false,
 };
