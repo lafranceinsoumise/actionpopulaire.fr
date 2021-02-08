@@ -3,6 +3,13 @@ import { useHistory, useLocation } from "react-router-dom";
 import { RouteConfig } from "@agir/front/app/routes.config";
 
 const routeConfig = {
+  info: {
+    id: "info",
+    pathname: "/groupes/:groupPk/accueil/",
+    label: "Accueil",
+    hasTab: true,
+    hasRoute: true,
+  },
   messages: {
     id: "messages",
     pathname: "/groupes/:groupPk/discussion/",
@@ -11,23 +18,13 @@ const routeConfig = {
     hasRoute: (group) =>
       group.isManager || (group.isMember && group.hasMessages),
   },
-  info: {
-    id: "info",
-    pathname: "/groupes/:groupPk/presentation/",
-    label: "Présentation",
-    hasTab: true,
-    hasRoute: (_, isMobile) => !!isMobile,
-  },
   agenda: {
     id: "agenda",
     pathname: "/groupes/:groupPk/agenda/",
     label: "Agenda",
     hasTab: true,
-    hasRoute: (group, isMobile) =>
-      !isMobile ||
-      group.isMember ||
-      group.hasUpcomingEvents ||
-      group.hasPastEvents,
+    hasRoute: (group) =>
+      group.isMember || group.hasUpcomingEvents || group.hasPastEvents,
   },
   reports: {
     id: "reports",

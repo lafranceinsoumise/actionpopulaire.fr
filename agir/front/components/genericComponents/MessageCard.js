@@ -213,9 +213,14 @@ const StyledCommentCount = styled.p`
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+  justify-content: center;
   color: ${style.primary500};
   font-size: 0.875rem;
   font-weight: 500;
+
+  @media (max-width: ${style.collapse}px) {
+    justify-content: flex-start;
+  }
 
   ${RawFeatherIcon} {
     width: 1rem;
@@ -306,7 +311,7 @@ const StyledWrapper = styled.div`
     ${Card} {
       @media (max-width: ${style.collapse}px) {
         box-shadow: none;
-        border: 1px solid ${style.black100};
+        border: 1px solid ${style.black200};
       }
     }
 
@@ -374,9 +379,10 @@ const MessageCard = (props) => {
       return url;
     }
   }, [props.messageURL]);
-  const encodedMessageURL = useMemo(() => encodeURIComponent(messageURL), [
-    messageURL,
-  ]);
+  const encodedMessageURL = useMemo(
+    () => messageURL && encodeURIComponent(messageURL),
+    [messageURL]
+  );
   const [isURLCopied, copyURL] = useCopyToClipboard(messageURL);
 
   const handleClick = useCallback(() => {
@@ -500,7 +506,7 @@ const MessageCard = (props) => {
             style={{ cursor: "pointer" }}
           >
             <RawFeatherIcon name="message-circle" color={style.primary500} />
-            &ensp;{commentCount} commentaires
+            &ensp;Voir {commentCount} commentaires
           </StyledCommentCount>
         ) : null}
         <StyledComments>

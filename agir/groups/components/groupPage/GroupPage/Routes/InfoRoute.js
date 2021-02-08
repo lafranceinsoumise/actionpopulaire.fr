@@ -1,11 +1,8 @@
 import PropTypes from "prop-types";
 import React from "react";
-import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-
+import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import GroupLocation from "@agir/groups/groupPage/GroupLocation";
 import GroupContactCard from "@agir/groups/groupPage/GroupContactCard";
@@ -14,108 +11,90 @@ import GroupLinks from "@agir/groups/groupPage/GroupLinks";
 import GroupFacts from "@agir/groups/groupPage/GroupFacts";
 import GroupDonation from "@agir/groups/groupPage/GroupDonation";
 import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
-import GroupEventList from "@agir/groups/groupPage/GroupEventList";
 import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
-const Agenda = styled.div`
-  margin: 0;
-  padding: 1.5rem 1rem 0;
-  background: ${style.black25};
+import { AgendaRoutePreview, MessagesRoutePreview } from "./RoutePreviews";
 
-  & > h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-    font-size: 1rem;
-    font-weight: 600;
+const MobileInfoRoute = (props) => {
+  const { group, groupSuggestions } = props;
+  return (
+    <>
+      {group && (group.hasUpcomingEvents || group.hasPastEvents) ? (
+        <AgendaRoutePreview {...props} />
+      ) : null}
+      {group && group.hasMessages ? <MessagesRoutePreview {...props} /> : null}
+      <GroupContactCard {...group} />
+      <GroupOrders {...group} />
+      <GroupDescription {...group} />
+      <GroupLinks {...group} />
+      <GroupFacts {...group} />
+      <GroupLocation {...group} />
+      {group.routes && group.routes.donations && (
+        <GroupDonation url={group.routes.donations} />
+      )}
+      <ShareCard title="Partager le lien du groupe" />
 
-    button {
-      background: none;
-      border: none;
-      outline: none;
-      display: flex;
-      flex-flow: row nowrap;
-      align-items: center;
-      margin-left: auto;
-      padding: 0;
-      color: ${style.primary500};
-      font-weight: inherit;
-      font-size: inherit;
+      {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
+        <div style={{ paddingTop: "2rem" }}>
+          <GroupSuggestions groups={groupSuggestions} />
+        </div>
+      ) : null}
+    </>
+  );
+};
 
-      &:hover,
-      &:focus {
-        text-decoration: underline;
-        cursor: pointer;
-      }
+const DesktopInfoRoute = (props) => {
+  const { group } = props;
 
-      & > * {
-        flex: 0 0 auto;
-      }
+  return (
+    <>
+      {group && (group.hasUpcomingEvents || group.hasPastEvents) ? (
+        <AgendaRoutePreview {...props} />
+      ) : null}
+      {group && group.hasMessages ? <MessagesRoutePreview {...props} /> : null}
+      {group &&
+      (group.hasUpcomingEvents || group.hasPastEvents || group.hasMessages) ? (
+        <>
+          <GroupLocation {...group} />
+          <ShareCard title="Partager le lien du groupe" />
+        </>
+      ) : (
+        <>
+          <GroupDescription {...group} maxHeight="auto" />
+          <ShareCard title="Inviter vos ami·es à rejoindre le groupe" />
+          <GroupLocation {...group} />
+        </>
+      )}
+    </>
+  );
+};
 
-      ${RawFeatherIcon} {
-        margin-left: 0.5rem;
-        margin-top: 1px;
-      }
-    }
-  }
-`;
-
-const InfoRoute = ({
-  upcomingEvents,
-  goToAgendaTab,
-  group,
-  groupSuggestions,
-}) => (
-  <>
-    {Array.isArray(upcomingEvents) && upcomingEvents.length > 0 ? (
-      <Agenda>
-        <h3>
-          <span>À venir</span>
-          <button onClick={goToAgendaTab}>
-            Voir tout l'agenda{" "}
-            <RawFeatherIcon
-              name="arrow-right"
-              width="1rem"
-              height="1rem"
-              strokeWidth={3}
-            />
-          </button>
-        </h3>
-        <GroupEventList events={[upcomingEvents[0]]} />
-      </Agenda>
-    ) : null}
-
-    <GroupContactCard {...group} />
-    <GroupOrders {...group} />
-    <GroupDescription {...group} />
-    <GroupLinks {...group} />
-    <GroupFacts {...group} />
-    <GroupLocation {...group} />
-    {group.routes && group.routes.donations && (
-      <GroupDonation url={group.routes.donations} />
-    )}
-    <ShareCard title="Partager le lien du groupe" />
-
-    {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
-      <div style={{ paddingTop: "2rem" }}>
-        <GroupSuggestions groups={groupSuggestions} />
-      </div>
-    ) : null}
-  </>
-);
-InfoRoute.propTypes = {
+MobileInfoRoute.propTypes = DesktopInfoRoute.propTypes = {
+  user: PropTypes.object,
   group: PropTypes.shape({
     isMember: PropTypes.bool,
     isManager: PropTypes.bool,
+    hasPastEvents: PropTypes.bool,
+    hasUpcomingEvents: PropTypes.bool,
+    hasMessages: PropTypes.bool,
     routes: PropTypes.shape({
       donations: PropTypes.string,
     }),
   }),
   upcomingEvents: PropTypes.arrayOf(PropTypes.object),
-  groupSuggestions: PropTypes.arrayOf(PropTypes.object),
+  pastEvents: PropTypes.arrayOf(PropTypes.object),
+  messages: PropTypes.arrayOf(PropTypes.object),
   goToAgendaTab: PropTypes.func,
+  goToMessagesTab: PropTypes.func,
+  onClickMessage: PropTypes.func,
 };
+
+const InfoRoute = (props) => (
+  <ResponsiveLayout
+    {...props}
+    MobileLayout={MobileInfoRoute}
+    DesktopLayout={DesktopInfoRoute}
+  />
+);
 
 export default InfoRoute;

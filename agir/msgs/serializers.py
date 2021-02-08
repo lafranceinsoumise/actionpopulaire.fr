@@ -19,7 +19,7 @@ class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 class MessageCommentSerializer(BaseMessageSerializer):
     class Meta:
         model = SupportGroupMessageComment
-        fields = ("id", "author", "text", "image")
+        fields = ("id", "author", "text", "image", "created")
 
 
 class LinkedEventField(serializers.RelatedField):

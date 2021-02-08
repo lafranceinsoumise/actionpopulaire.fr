@@ -16,11 +16,11 @@ const StyledCommentButton = styled.button`
     width: 100%;
     margin: 0;
     border-radius: 8px;
-    border: 1px solid ${style.black100};
+    border: none;
     padding: 0.5rem 0.75rem;
     text-decoration: none;
     background-color: ${({ $disabled }) =>
-      $disabled ? style.black50 : style.white};
+      $disabled ? style.black100 : style.black50};
     font-size: 0.875rem;
     line-height: 1.65;
     color: ${style.black500};
@@ -63,8 +63,8 @@ const StyledWrapper = styled.form`
     flex: 1 1 auto;
     border-radius: 8px;
     background-color: ${({ $disabled }) =>
-      $disabled ? style.black50 : "#FFFFFF"};
-    border: 1px solid ${style.black100};
+      $disabled ? style.black100 : style.black50};
+    border: none;
     flex-flow: row nowrap;
     padding: ${({ $isExpanded }) =>
       $isExpanded ? "0.75rem" : ".5rem 0.75rem"};
@@ -84,7 +84,7 @@ const StyledWrapper = styled.form`
 
     &:hover {
       ${({ $isExpanded }) =>
-        !$isExpanded ? `background-color: ${style.black50};` : ""}
+        !$isExpanded ? `background-color: ${style.black100};` : ""}
     }
   }
 

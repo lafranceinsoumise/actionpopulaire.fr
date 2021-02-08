@@ -60,13 +60,17 @@ const GroupEventList = (props) => {
   const eventList = useMemo(
     () =>
       Array.isArray(events)
-        ? events.map((event) => ({
-            ...event,
-            schedule: Interval.fromDateTimes(
-              DateTime.fromISO(event.startTime).setLocale("fr"),
-              DateTime.fromISO(event.endTime).setLocale("fr")
-            ),
-          }))
+        ? events.map((event) =>
+            event
+              ? {
+                  ...event,
+                  schedule: Interval.fromDateTimes(
+                    DateTime.fromISO(event.startTime).setLocale("fr"),
+                    DateTime.fromISO(event.endTime).setLocale("fr")
+                  ),
+                }
+              : null
+          )
         : null,
     [events]
   );
