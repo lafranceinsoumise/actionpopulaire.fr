@@ -14,7 +14,14 @@ const StyledCard = styled(Card)`
   flex-flow: column nowrap;
   align-items: stretch;
   justify-content: flex-start;
-  padding: 1.5rem;
+  padding: 0;
+  border: none;
+
+  && {
+    @media (min-width: ${style.collapse}px) {
+      margin-bottom: 2rem;
+    }
+  }
 
   @media (max-width: ${style.collapse}px) {
     padding: 1rem;
@@ -24,6 +31,7 @@ const StyledCard = styled(Card)`
     highlight
       ? `
     @media (min-width: ${style.collapse}px) {
+      padding: 1.5rem;
       border: none;
       background-color: white;
       background: linear-gradient(0, white 1.5rem, transparent 1.5rem),

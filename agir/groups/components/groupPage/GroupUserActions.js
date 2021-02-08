@@ -15,7 +15,7 @@ const StyledPanel = styled.div`
   width: 100%;
   background-color: ${style.primary100};
   padding: 1.5rem;
-  margin: 1rem 0;
+  margin: 0;
 
   @media (max-width: ${style.collapse}px) {
     display: none;
@@ -52,7 +52,7 @@ const StyledPanel = styled.div`
     }
   }
 
-  & > ${Button} {
+  ${Button} + ul {
     margin-top: 1rem;
   }
 
@@ -67,11 +67,13 @@ const StyledContent = styled.div`
   display: flex;
   align-items: flex-start;
   flex-flow: column nowrap;
+  margin-bottom: 2rem;
 
   @media (max-width: ${style.collapse}px) {
     background-color: white;
     width: 100%;
     padding: 0 1rem 1.5rem;
+    margin-bottom: 0;
     align-items: stretch;
     display: ${({ hideOnMobile }) => (hideOnMobile ? "none" : "flex")};
   }
@@ -133,6 +135,18 @@ const GroupLinks = (props) => {
       <StyledContent>
         <StyledPanel>
           <h6>Gestion du groupe</h6>
+          {routes.createEvent && (
+            <Button
+              as="a"
+              href={routes.createEvent}
+              color="primary"
+              icon="plus"
+              small
+              inline
+            >
+              Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
+            </Button>
+          )}
           <ul>
             {routes.members && (
               <li>
@@ -223,16 +237,6 @@ const GroupLinks = (props) => {
               </li>
             )}
           </ul>
-          <Button
-            as="a"
-            href={routes.createEvent}
-            color="primary"
-            icon="plus"
-            small
-            inline
-          >
-            Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
-          </Button>
         </StyledPanel>
         <Button
           as="a"

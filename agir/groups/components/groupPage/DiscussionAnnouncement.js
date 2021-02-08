@@ -28,11 +28,16 @@ const StyledAnnouncement = styled.div`
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center left;
+    margin-right: 1.5rem;
+
+    @media (max-width: ${style.collapse}px) {
+      display: none;
+    }
   }
 
   p {
     flex: 1 1 auto;
-    margin: 0 0 0 1.5rem;
+    margin: 0;
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
