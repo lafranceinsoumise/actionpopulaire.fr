@@ -21,6 +21,12 @@ export const setMessages = (messages) => (dispatch) => {
   });
 };
 
+export const clearMessages = () => (dispatch) => {
+  dispatch({
+    type: ACTION_TYPE.CLEAR_MESSAGES_ACTION,
+  });
+};
+
 export const setMessage = (message) => (dispatch) => {
   dispatch({
     type: ACTION_TYPE.SET_MESSAGE_ACTION,

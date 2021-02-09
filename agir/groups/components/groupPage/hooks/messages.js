@@ -97,6 +97,13 @@ export const useMessages = (group) => {
     messagesData && dispatch(messageActions.setMessages(messagesData));
   }, [dispatch, messagesData]);
 
+  useEffect(
+    () => () => {
+      dispatch(messageActions.clearMessages());
+    },
+    [dispatch]
+  );
+
   return {
     messages,
     loadMoreMessages,

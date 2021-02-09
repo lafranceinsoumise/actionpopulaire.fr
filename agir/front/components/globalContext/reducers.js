@@ -200,6 +200,8 @@ export const messages = (state = {}, action) => {
       });
       return newState;
     }
+    case ACTION_TYPE.CLEAR_MESSAGES_ACTION:
+      return {};
     case ACTION_TYPE.SET_MESSAGE_ACTION: {
       return action.message
         ? {
