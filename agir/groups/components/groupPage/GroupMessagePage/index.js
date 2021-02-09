@@ -89,12 +89,17 @@ const Page = ({ groupPk, messagePk }) => {
     }
   }, [group, dispatch]);
 
-  if (isSessionLoaded && group && group.isMember && message === null) {
+  if (
+    !isLoading &&
+    isSessionLoaded &&
+    group &&
+    group.isMember &&
+    message === null
+  ) {
     const redirectTo =
       group.id && routeConfig.groupDetails
         ? routeConfig.groupDetails.getLink({ groupPk: group.id })
         : routeConfig.groups.getLink();
-
     return <Redirect to={redirectTo} />;
   }
 

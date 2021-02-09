@@ -142,7 +142,7 @@ export const useMessage = (group, messagePk) => {
 
   return {
     message,
-    isLoading,
+    isLoading: typeof data === "undefined" || isLoading,
     isUpdating,
   };
 };
