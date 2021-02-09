@@ -205,7 +205,7 @@ export const EmptyMessages = ({ onClickSendMessage }) => (
       <li>
         <RawFeatherIcon name="heart" />
         <span>
-          Fini les boucles d’e-mails&nbsp;! Discustez de vos prochaines actions
+          Fini les boucles d’e-mails&nbsp;! Discutez de vos prochaines actions
           sur Action Populaire.
         </span>
       </li>
