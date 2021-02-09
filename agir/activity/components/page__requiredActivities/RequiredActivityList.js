@@ -76,8 +76,6 @@ const RequiredActivityList = () => {
 
   const tabs = useMemo(() => ["non traité", "voir tout"], []);
 
-  visibleActivities.forEach((a) => console.log(a.id, a.type, a.status));
-
   return (
     <>
       <Helmet>
