@@ -1,12 +1,6 @@
 import shortUUID from "short-uuid";
 import ACTION_TYPE from "./actionTypes";
 
-import {
-  activityStatus,
-  getUnreadCount,
-  getUninteractedCount,
-} from "@agir/activity/common/helpers";
-
 // Reducers
 export const domain = (state = "https://actionpopulaire.fr", action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
@@ -35,83 +29,6 @@ export const is2022 = (state = false, action) => {
   }
   if (action.type === ACTION_TYPE.SET_IS_2022_ACTION) {
     return true;
-  }
-  return state;
-};
-
-export const announcements = (state = [], action) => {
-  if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
-    return action.announcements || state;
-  }
-  return state;
-};
-
-export const activities = (state = [], action) => {
-  switch (action.type) {
-    case ACTION_TYPE.SET_SESSION_CONTEXT_ACTION: {
-      if (!Array.isArray(action.activities)) {
-        return state;
-      }
-      return action.activities;
-    }
-    case ACTION_TYPE.MARK_ACTIVITY_AS_READ_ACTION: {
-      if (!action.id) {
-        return state;
-      }
-      return state.map((activity) => {
-        if (activity.id !== action.id) {
-          return activity;
-        }
-        return {
-          ...activity,
-          status: activityStatus.STATUS_DISPLAYED,
-        };
-      });
-    }
-    case ACTION_TYPE.SET_ALL_ACTIVITIES_AS_READ_ACTION: {
-      return state.map((activity) => ({
-        ...activity,
-        status: activityStatus.STATUS_DISPLAYED,
-      }));
-    }
-    default:
-      return state;
-  }
-};
-
-export const requiredActionActivities = (state = [], action) => {
-  if (
-    action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION &&
-    Array.isArray(action.requiredActionActivities)
-  ) {
-    return action.requiredActionActivities;
-  }
-  if (
-    action.type === ACTION_TYPE.DISMISS_REQUIRED_ACTION_ACTIVITY_ACTION &&
-    action.id
-  ) {
-    return state.map((activity) =>
-      activity.id === action.id
-        ? {
-            ...activity,
-            status: activityStatus.STATUS_INTERACTED,
-          }
-        : activity
-    );
-  }
-  if (
-    action.type ===
-      ACTION_TYPE.UNDO_REQUIRED_ACTION_ACTIVITY_DISMISSAL_ACTION &&
-    action.id
-  ) {
-    return state.map((activity) =>
-      activity.id === action.id
-        ? {
-            ...activity,
-            status: activityStatus.STATUS_DISPLAYED,
-          }
-        : activity
-    );
   }
   return state;
 };
@@ -174,17 +91,6 @@ export const getIsSessionLoaded = (state) => state.isSessionLoaded;
 
 export const getIs2022 = (state) => state.is2022;
 
-export const getAnnouncements = (state) => state.announcements;
-
-export const getActivities = (state) => state.activities;
-export const getUnreadActivitiesCount = (state) =>
-  getUnreadCount(state.activities);
-
-export const getRequiredActionActivities = (state) =>
-  state.requiredActionActivities;
-export const getRequiredActionActivityCount = (state) =>
-  getUninteractedCount(state.requiredActionActivities);
-
 export const getUser = (state) => state.user;
 export const getIsConnected = (state) => !!state.user;
 
@@ -200,9 +106,6 @@ const reducers = {
   hasFeedbackButton,
   isSessionLoaded,
   is2022,
-  announcements,
-  activities,
-  requiredActionActivities,
   user,
   domain,
   csrfToken,

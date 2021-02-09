@@ -14,7 +14,7 @@ import facebookWhiteLogo from "@agir/front/genericComponents/logos/facebook_whit
 import Button from "@agir/front/genericComponents/Button";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
-import { useCustomAnnouncement } from "@agir/activity/common/helpers";
+import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 
 export const LayoutSubtitle = styled.h2`
   color: ${style.black700};

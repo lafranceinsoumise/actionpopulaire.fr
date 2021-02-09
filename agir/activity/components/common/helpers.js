@@ -1,13 +1,7 @@
 import axios from "@agir/lib/utils/axios";
 
 import logger from "@agir/lib/utils/logger";
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import {
-  announcements,
-  getAnnouncements,
-} from "@agir/front/globalContext/reducers";
-import { useCallback, useEffect } from "react";
-import { mutate } from "swr";
+
 const log = logger(__filename);
 
 const bulkUpdateActivityStatusEndpoint = "/api/activity/bulk/update-status/";
@@ -93,29 +87,4 @@ export const setActivitiesAsDisplayed = async (ids = []) => {
   }
 
   return result;
-};
-
-export const useCustomAnnouncement = (slug) => {
-  let announcement = useSelector(getAnnouncements).find(
-    (a) => a.customDisplay === slug
-  );
-
-  useEffect(() => {
-    if (!announcement) return;
-    setActivityAsDisplayed(announcement.activityId);
-  }, [announcement]);
-
-  let dismissCallback = useCallback(async () => {
-    if (!announcement) {
-      return;
-    }
-    await setActivityAsInteracted(announcement.activityId);
-
-    await mutate("/api/session/", async (session) => ({
-      announcements: announcements.filter((a) => a.customDisplay !== slug),
-      ...session,
-    }));
-  }, [announcement, slug]);
-
-  return [announcement, dismissCallback];
 };

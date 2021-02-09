@@ -1,15 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 
-import {
-  useDispatch,
-  useSelector,
-} from "@agir/front/globalContext/GlobalContext";
-import { setAllActivitiesAsRead } from "@agir/front/globalContext/actions";
-import {
-  getActivities,
-  getIsSessionLoaded,
-  getRoutes,
-} from "@agir/front/globalContext/reducers";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getRoutes } from "@agir/front/globalContext/reducers";
 
 import { getUnread } from "@agir/activity/common/helpers";
 
@@ -17,28 +9,25 @@ import Activities from "@agir/activity/common/Activities";
 import ActivityCard from "./ActivityCard";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import useSWR from "swr";
+import { setAllActivitiesAsRead } from "../common/actions";
 
 const ActivityList = () => {
-  const dispatch = useDispatch();
-  const activities = useSelector(getActivities);
-  const isSessionLoaded = useSelector(getIsSessionLoaded);
   const routes = useSelector(getRoutes);
+
+  let { data: session } = useSWR("/api/session/");
+  let { data: activities } = useSWR("/api/user/activities/");
   const unreadActivities = useMemo(() => getUnread(activities), [activities]);
 
   useEffect(() => {
     if (unreadActivities.length > 0) {
-      dispatch(
-        setAllActivitiesAsRead(
-          unreadActivities.map(({ id }) => id),
-          true
-        )
-      );
+      setAllActivitiesAsRead(unreadActivities.map(({ id }) => id));
     }
-  }, [dispatch, unreadActivities]);
+  }, [unreadActivities]);
 
   return (
     <PageFadeIn
-      ready={isSessionLoaded}
+      ready={session && activities}
       wait={
         <div style={{ marginTop: "32px" }}>
           <Skeleton />
