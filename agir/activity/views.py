@@ -17,11 +17,14 @@ from agir.lib.rest_framework_permissions import (
 class ActivityAPIView(RetrieveUpdateAPIView):
     queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
-    permission_classes = (GlobalOrObjectPermissions,)
+    permission_classes = (
+        IsAuthenticated,
+        GlobalOrObjectPermissions,
+    )
 
 
 class UserActivitiesAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)
+    permission_classes = (IsAuthenticated,)
     serializer_class = ActivitySerializer
 
     def get_queryset(self):
@@ -29,7 +32,7 @@ class UserActivitiesAPIView(ListAPIView):
 
 
 class UserRequiredActivitiesAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)
+    permission_classes = (IsAuthenticated,)
     serializer_class = ActivitySerializer
 
     def get_queryset(self):

@@ -8,12 +8,14 @@ from ..events.models import Event
 
 def get_activities(person):
     return (
-        Activity.objects.without_required_action()
+        activity
+        for activity in Activity.objects.without_required_action()
         .filter(recipient=person)
         .select_related("supportgroup", "individual")
         .prefetch_related(
             Prefetch("event", Event.objects.with_serializer_prefetch(person),)
         )[:40]
+        if person.role.has_perm("activity.view_activity", activity)
     )
 
 
@@ -35,10 +37,14 @@ def get_required_action_activities(person):
         status=Activity.STATUS_INTERACTED
     ).order_by("-created")[:20]
 
-    return required_action_activities.filter(
-        pk__in=[a.pk for a in unread_required_action_activities]
-        + [a.pk for a in read_required_action_activities]
-    ).order_by("-created")
+    return (
+        activity
+        for activity in required_action_activities.filter(
+            pk__in=[a.pk for a in unread_required_action_activities]
+            + [a.pk for a in read_required_action_activities]
+        ).order_by("-created")
+        if person.role.has_perm("activity.view_activity", activity)
+    )
 
 
 def get_announcements(person=None):
