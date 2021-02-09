@@ -193,14 +193,10 @@ export const messages = (state = {}, action) => {
       }
       const newState = { ...state };
       action.messages.forEach((message) => {
-        if (newState[message.id]) {
-          newState[message.id] = {
-            comments: state[message.id].comments,
-            ...message,
-          };
-        } else {
-          newState[message.id] = message;
-        }
+        newState[message.id] =
+          typeof newState[message.id] === "undefined"
+            ? message
+            : newState[message.id];
       });
       return newState;
     }
