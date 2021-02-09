@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
@@ -79,6 +79,10 @@ const NewGroupPageModal = ({ isActive, onClose }) => {
     setShouldShow(false);
     onClose && onClose();
   }, [onClose]);
+
+  useEffect(() => {
+    setShouldShow(isActive);
+  }, [isActive]);
 
   return (
     <Modal shouldShow={shouldShow} onClick={close} noScroll>

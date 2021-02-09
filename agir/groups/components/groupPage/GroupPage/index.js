@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useEffect } from "react";
 
 import GroupPageComponent from "./GroupPage";
+import NewGroupPageModal from "@agir/groups/groupPage/NewGroupPageModal";
 
 import {
   useDispatch,
@@ -17,6 +18,8 @@ import {
   getBackLink,
   getUser,
 } from "@agir/front/globalContext/reducers";
+
+import { useCustomAnnouncement } from "@agir/activity/common/helpers";
 
 import { useGroupDetail } from "@agir/groups/groupPage/hooks";
 
@@ -43,6 +46,11 @@ const GroupPage = (props) => {
     isLoadingMessages,
   } = useGroupDetail(groupPk);
 
+  const [
+    hasNewGroupPageModal,
+    onCloseNewGroupPageModal,
+  ] = useCustomAnnouncement("NewGroupPageModal");
+
   const { is2022, isManager, routes } = group || {};
 
   useEffect(() => {
@@ -63,23 +71,31 @@ const GroupPage = (props) => {
   }, [isManager, routes, dispatch]);
 
   return (
-    <GroupPageComponent
-      backLink={backLink}
-      isConnected={isSessionLoaded && isConnected}
-      isLoading={!isSessionLoaded || !group}
-      group={group}
-      allEvents={allEvents}
-      upcomingEvents={upcomingEvents}
-      pastEvents={pastEvents}
-      isLoadingPastEvents={isLoadingPastEvents}
-      loadMorePastEvents={loadMorePastEvents}
-      pastEventReports={pastEventReports}
-      messages={messages}
-      isLoadingMessages={isLoadingMessages}
-      loadMoreMessages={loadMoreMessages}
-      groupSuggestions={Array.isArray(groupSuggestions) ? groupSuggestions : []}
-      user={user}
-    />
+    <>
+      <NewGroupPageModal
+        isActive={!!hasNewGroupPageModal}
+        onClose={onCloseNewGroupPageModal}
+      />
+      <GroupPageComponent
+        backLink={backLink}
+        isConnected={isSessionLoaded && isConnected}
+        isLoading={!isSessionLoaded || !group}
+        group={group}
+        allEvents={allEvents}
+        upcomingEvents={upcomingEvents}
+        pastEvents={pastEvents}
+        isLoadingPastEvents={isLoadingPastEvents}
+        loadMorePastEvents={loadMorePastEvents}
+        pastEventReports={pastEventReports}
+        messages={messages}
+        isLoadingMessages={isLoadingMessages}
+        loadMoreMessages={loadMoreMessages}
+        groupSuggestions={
+          Array.isArray(groupSuggestions) ? groupSuggestions : []
+        }
+        user={user}
+      />
+    </>
   );
 };
 GroupPage.propTypes = {
