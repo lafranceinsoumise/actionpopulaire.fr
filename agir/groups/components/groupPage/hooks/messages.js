@@ -148,7 +148,8 @@ export const useMessage = (group, messagePk) => {
 };
 
 export const useMessageActions = (props) => {
-  const { user, group, isManager } = props;
+  const { user, group } = props;
+  const isManager = (group && group.isManager) || false;
 
   const dispatch = useDispatch();
   const isUpdating = useSelector(getIsUpdatingMessages);
@@ -248,9 +249,9 @@ export const useMessageActions = (props) => {
     messageAction,
     dismissMessageAction,
 
-    writeNewMessage,
-    editMessage,
-    confirmDelete,
+    writeNewMessage: isManager ? writeNewMessage : undefined,
+    editMessage: isManager ? editMessage : undefined,
+    confirmDelete: isManager ? confirmDelete : undefined,
     confirmReport,
     saveMessage,
 

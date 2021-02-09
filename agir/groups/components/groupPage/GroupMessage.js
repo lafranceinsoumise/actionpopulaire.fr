@@ -22,6 +22,7 @@ const StyledWrapper = styled.div`
 
 export const GroupMessage = (props) => {
   const {
+    group,
     user,
     message,
     selectedMessage,
@@ -31,7 +32,6 @@ export const GroupMessage = (props) => {
     groupURL,
     isLoading,
     isUpdating,
-    isManager,
     hasMessageModal,
     hasMessageActionModal,
     loadMoreEvents,
@@ -47,6 +47,8 @@ export const GroupMessage = (props) => {
     onDelete,
     onReport,
   } = props;
+
+  const isManager = group && group.isManager;
 
   return (
     <StyledWrapper>
@@ -100,6 +102,9 @@ export const GroupMessage = (props) => {
   );
 };
 GroupMessage.propTypes = {
+  group: PropTypes.shape({
+    isManager: PropTypes.bool,
+  }),
   user: PropTypes.object,
   message: PropTypes.object,
   selectedMessage: PropTypes.object,
