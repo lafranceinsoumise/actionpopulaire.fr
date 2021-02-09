@@ -9,6 +9,7 @@ import { timeAgo } from "@agir/lib/utils/time";
 import { formatEvent } from "@agir/events/common/utils";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
+import Link from "@agir/front/app/Link";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import Card from "@agir/front/genericComponents/Card";
 import EventCard from "@agir/front/genericComponents/EventCard";
@@ -123,7 +124,7 @@ const StyledAction = styled.div`
     -moz-appearance: none;
   }
 `;
-const StyledGroupLink = styled.a``;
+const StyledGroupLink = styled(Link)``;
 const StyledContent = styled.div`
   padding: 0;
   font-size: inherit;
@@ -492,7 +493,7 @@ const MessageCard = (props) => {
           </StyledAction>
         </StyledHeader>
         {groupURL && group && group.name ? (
-          <StyledGroupLink href={groupURL}>{group.name}</StyledGroupLink>
+          <StyledGroupLink to={groupURL}>{group.name}</StyledGroupLink>
         ) : null}
         <StyledContent>
           {text.split("\n").map((paragraph, i) => (
