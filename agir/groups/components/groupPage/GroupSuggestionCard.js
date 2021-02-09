@@ -83,11 +83,9 @@ const GroupSuggestionCard = (props) => {
       <StyledBody>
         <h4>{name}</h4>
         <p>
-          <FeatherIcon name="map-pin" small inline />
+          {(zip || city) && <FeatherIcon name="map-pin" small inline />}
           &nbsp;
-          {(zip || city) && (
-            <span>{[zip, city].filter(Boolean).join(" ")}</span>
-          )}
+          {(zip || city) && <span>{`${zip} ${city}`.trim()}</span>}
         </p>
         <Button
           as="Link"
