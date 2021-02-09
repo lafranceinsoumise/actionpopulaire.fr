@@ -310,4 +310,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return obj.organized_events.past().exclude(report_content="").exists()
 
     def get_hasMessages(self, obj):
-        return self.membership is not None
+        return (
+            self.membership is not None and obj.messages.filter(deleted=False).exists()
+        )

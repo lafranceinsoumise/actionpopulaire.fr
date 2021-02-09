@@ -30,6 +30,9 @@ export const useMessages = (group) => {
   const dispatch = useDispatch();
   const messages = useSelector(getMessages);
   const isLoading = useSelector(getIsLoadingMessages);
+  const isUpdating = useSelector(getIsUpdatingMessages);
+
+  const wasUpdating = useRef(false);
 
   const getMessagesEndpoint = useCallback(
     (pageIndex) =>
@@ -43,7 +46,9 @@ export const useMessages = (group) => {
     [hasMessages, group]
   );
 
-  const { data, size, setSize, mutate } = useSWRInfinite(getMessagesEndpoint);
+  const { data, size, setSize } = useSWRInfinite(getMessagesEndpoint, {
+    revalidateAll: true,
+  });
 
   const messagesCount = useMemo(
     () =>
@@ -51,15 +56,35 @@ export const useMessages = (group) => {
     [hasMessages, data]
   );
 
-  const loadMoreMessages = useMemo(
-    () =>
-      hasMessages && messagesCount > messages.length
-        ? () => {
-            setSize(size + 1);
-          }
-        : undefined,
-    [hasMessages, messages.length, messagesCount, setSize, size]
-  );
+  const messagesData = useMemo(() => {
+    let messages = [];
+    if (Array.isArray(data)) {
+      data.forEach(({ results }) => {
+        if (Array.isArray(results)) {
+          messages = messages.concat(results);
+        }
+      });
+    }
+    return messages;
+  }, [data]);
+
+  const loadMoreMessages = useMemo(() => {
+    return messagesCount > size * MESSAGES_PAGE_SIZE
+      ? () => {
+          setSize(size + 1);
+        }
+      : undefined;
+  }, [messagesCount, setSize, size]);
+
+  useEffect(() => {
+    // Mutate SWR data if messages length has changed through a local update
+    wasUpdating.current &&
+      setSize(Math.ceil(messages.length / MESSAGES_PAGE_SIZE));
+  }, [setSize, messages.length]);
+
+  useEffect(() => {
+    wasUpdating.current = isUpdating;
+  }, [isUpdating]);
 
   useEffect(() => {
     !isLoading &&
@@ -69,12 +94,15 @@ export const useMessages = (group) => {
   }, [isLoading, dispatch, hasMessages, data]);
 
   useEffect(() => {
-    data && dispatch(messageActions.setMessages(data));
-  }, [dispatch, data]);
+    messagesData && dispatch(messageActions.setMessages(messagesData));
+  }, [dispatch, messagesData]);
 
-  useEffect(() => {
-    mutate();
-  }, [messages.length, mutate]);
+  useEffect(
+    () => () => {
+      dispatch(messageActions.clearMessages());
+    },
+    [dispatch]
+  );
 
   return {
     messages,
@@ -120,7 +148,8 @@ export const useMessage = (group, messagePk) => {
 };
 
 export const useMessageActions = (props) => {
-  const { user, group, isManager } = props;
+  const { user, group } = props;
+  const isManager = (group && group.isManager) || false;
 
   const dispatch = useDispatch();
   const isUpdating = useSelector(getIsUpdatingMessages);
@@ -220,9 +249,9 @@ export const useMessageActions = (props) => {
     messageAction,
     dismissMessageAction,
 
-    writeNewMessage,
-    editMessage,
-    confirmDelete,
+    writeNewMessage: isManager ? writeNewMessage : undefined,
+    editMessage: isManager ? editMessage : undefined,
+    confirmDelete: isManager ? confirmDelete : undefined,
     confirmReport,
     saveMessage,
 

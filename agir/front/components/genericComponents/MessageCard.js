@@ -361,8 +361,8 @@ const MessageCard = (props) => {
   const event = useMemo(() => formatEvent(linkedEvent), [linkedEvent]);
 
   const isAuthor = author.id === user.id;
-  const canEdit = typeof onEdit === "function" && (isAuthor || isManager);
-  const canDelete = typeof onDelete === "function" && (isAuthor || isManager);
+  const canEdit = typeof onEdit === "function";
+  const canDelete = typeof onDelete === "function";
   const canReport = typeof onReport === "function" && !isAuthor;
   const hasActions = canDelete || canReport;
 

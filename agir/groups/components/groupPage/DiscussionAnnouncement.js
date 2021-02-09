@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -78,6 +78,10 @@ const DiscussionAnnouncement = ({ isActive, onClose }) => {
     setShouldShow(false);
     onClose && onClose();
   }, [onClose]);
+
+  useEffect(() => {
+    setShouldShow(isActive);
+  }, [isActive]);
 
   return shouldShow ? (
     <StyledAnnouncement>

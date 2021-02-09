@@ -14,18 +14,16 @@ export const messagesRefreshed = () => ({
   type: ACTION_TYPE.REFRESHED_MESSAGES_ACTION,
 });
 
-export const setMessages = (data) => (dispatch) => {
-  let messages = [];
-  if (Array.isArray(data)) {
-    data.forEach(({ results }) => {
-      if (Array.isArray(results)) {
-        messages = messages.concat(results);
-      }
-    });
-  }
+export const setMessages = (messages) => (dispatch) => {
   dispatch({
     type: ACTION_TYPE.SET_MESSAGES_ACTION,
     messages,
+  });
+};
+
+export const clearMessages = () => (dispatch) => {
+  dispatch({
+    type: ACTION_TYPE.CLEAR_MESSAGES_ACTION,
   });
 };
 
