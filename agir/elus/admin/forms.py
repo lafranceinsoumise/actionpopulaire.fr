@@ -1,11 +1,17 @@
 from data_france.models import CodePostal
 from django import forms
 from django.db import IntegrityError
+from django.utils import timezone
 from django.utils.html import format_html
 from django.urls import reverse
 
 from agir.elus.models import DELEGATIONS_CHOICES
 from agir.lib.data import FRANCE_COUNTRY_CODES
+from agir.people.actions.subscription import (
+    SUBSCRIPTION_TYPE_NSP,
+    SUBSCRIPTION_TYPE_LFI,
+    SUBSCRIPTION_TYPE_ADMIN,
+)
 from agir.people.models import PersonEmail, Person
 
 PERSON_FIELDS = [
@@ -42,12 +48,21 @@ class CreerMandatForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
     )
 
+    signataire_appel = forms.BooleanField(
+        label="Signataire de l'appel des élus", required=False
+    )
+
     def __init__(self, *args, initial=None, instance=None, **kwargs):
-        # set up initial values for person fields
+        # set up initial values for person fields before calling super constructor
         initial = initial or {}
         if person := instance and getattr(instance, "person", None):
             for f in PERSON_FIELDS:
-                initial[f] = getattr(person, f)
+                initial.setdefault(f, getattr(person, f))
+            initial.setdefault(
+                "signataire_appel",
+                person.meta.get("subscriptions", {}).get("NSP", {}).get("mandat")
+                is not None,
+            )
 
         super().__init__(*args, initial=initial, instance=instance, **kwargs)
 
@@ -114,6 +129,14 @@ class CreerMandatForm(forms.ModelForm):
         if email_officiel and person and email_officiel.person != person:
             cleaned_data["email_officiel"] = None
 
+        if cleaned_data.get("signataire_appel") and not cleaned_data.get(
+            "is_2022", person and person.is_2022
+        ):
+            self.add_error(
+                "signataire_appel",
+                "Impossible d'indiquer qu'un élu a signé l'appel des élus pour 2022 s'il n'est pas signataire NSP.",
+            )
+
         return cleaned_data
 
     def save(self, commit=True):
@@ -125,17 +148,45 @@ class CreerMandatForm(forms.ModelForm):
 
         if not person:
             # création d'une personne
+            now = timezone.now().isoformat()
+            meta = {
+                "subscriptions": {SUBSCRIPTION_TYPE_ADMIN: {"date": now, "how": "élus"}}
+            }
+            if self.cleaned_data.get("signataire_appel"):
+                meta["subscriptions"][SUBSCRIPTION_TYPE_NSP] = {"mandat": "manuel"}
+
             self.instance.person = Person.objects.create_person(
                 cleaned_data["new_email"],
                 **{k: v for k, v in cleaned_data.items() if k in PERSON_FIELDS},
+                meta=meta,
             )
             self.instance.email_officiel = self.instance.person.primary_email
         else:
             # On n'assigne les champs de personne QUE dans le cas on on a pas sélectionné une personne
             if "person" not in self.fields:
-                if any(f in self.changed_data for f in PERSON_FIELDS):
+                if (
+                    any(f in self.changed_data for f in PERSON_FIELDS)
+                    or "signataire_appel" in self.changed_data
+                ):
                     for f in PERSON_FIELDS:
                         setattr(person, f, cleaned_data[f])
+
+                    signataire = cleaned_data["signataire_appel"]
+                    deja_signataire = (
+                        person.meta.get("subscriptions", {})
+                        .get(SUBSCRIPTION_TYPE_NSP, {})
+                        .get("mandat")
+                        is not None
+                    )
+                    if signataire and not deja_signataire:
+                        person.meta.setdefault("subscriptions", {}).setdefault(
+                            SUBSCRIPTION_TYPE_NSP, {}
+                        )["mandat"] = "manuel"
+                    elif not signataire and deja_signataire:
+                        del person.meta["subscriptions"][SUBSCRIPTION_TYPE_NSP][
+                            "mandat"
+                        ]
+
                     person.save()
 
             if "new_email" in self.changed_data:
