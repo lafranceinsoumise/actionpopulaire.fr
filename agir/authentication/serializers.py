@@ -102,9 +102,10 @@ class SessionSerializer(serializers.Serializer):
             ).data
 
     def get_facebook_login(self, request):
-        request.user.is_authenticated and request.user.social_auth.filter(
-            provider="facebook"
-        ).exists()
+        return (
+            request.user.is_authenticated
+            and request.user.social_auth.filter(provider="facebook").exists()
+        )
 
     def get_has_unread_activities(self, request):
         if request.user.is_authenticated and request.user.person is not None:
