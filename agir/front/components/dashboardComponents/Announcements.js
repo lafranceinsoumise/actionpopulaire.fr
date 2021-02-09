@@ -1,21 +1,16 @@
 import { animated, useSpring } from "react-spring";
 import PropTypes from "prop-types";
 import React, { useEffect } from "react";
-import SwiperCore, { Pagination, A11y } from "swiper";
+import SwiperCore, { A11y, Pagination } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 import styled from "styled-components";
-
-import {
-  useDispatch,
-  useSelector,
-} from "@agir/front/globalContext/GlobalContext";
-import { setAnnouncementsAsRead } from "@agir/front/globalContext/actions";
-import { getAnnouncements } from "@agir/front/globalContext/reducers";
 
 import Announcement from "@agir/front/genericComponents/Announcement";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import "./Announcements.scss";
+import useSWR from "swr";
+import { setAnnouncementsAsRead } from "@agir/activity/common/actions";
 
 SwiperCore.use([Pagination, A11y]);
 
@@ -113,10 +108,9 @@ BannerAnnouncements.propTypes = SidebarAnnouncements.propTypes = {
 const Announcements = (props) => {
   const { displayType } = props;
 
-  const dispatch = useDispatch();
-  const announcements = useSelector(getAnnouncements).filter(
-    (a) => !a.customDisplay
-  );
+  const { data } = useSWR("/api/session/");
+  const announcements =
+    data && data.announcements.filter((a) => !a.customDisplay);
 
   useEffect(() => {
     if (!Array.isArray(announcements)) {
@@ -125,8 +119,10 @@ const Announcements = (props) => {
     const ids = announcements
       .map((announcement) => announcement.activityId)
       .filter(Boolean);
-    ids.length > 0 && dispatch(setAnnouncementsAsRead(ids));
-  }, [dispatch, announcements]);
+    ids.length > 0 && setAnnouncementsAsRead(ids);
+  }, [announcements]);
+
+  if (!announcements) return null;
 
   return displayType === "sidebar" ? (
     <SidebarAnnouncements announcements={announcements} />

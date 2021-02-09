@@ -112,9 +112,7 @@ MenuLink.propTypes = {
 };
 
 const NavigationPage = ({ active }) => {
-  const requiredActionActivityCount = useSelector(
-    getRequiredActionActivityCount
-  );
+  const requiredActionActivityCount = useRequiredActivityCount();
   const routes = useSelector(getRoutes);
   return (
     <Navigation>
