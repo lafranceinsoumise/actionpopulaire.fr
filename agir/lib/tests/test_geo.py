@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 
 import requests
 from data_france.models import Commune, Departement, Region, CodePostal
-from data_france.type_noms import TypeNom
+from data_france.typologies import TypeNom
 from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.db import transaction
 from django.db.transaction import get_connection
