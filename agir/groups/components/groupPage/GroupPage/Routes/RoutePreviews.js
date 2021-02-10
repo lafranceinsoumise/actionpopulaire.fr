@@ -75,8 +75,7 @@ const RoutePreview = styled.div`
 
     & > article {
       margin-top: 1rem;
-      border: 1px solid ${style.black100};
-      padding: 1.5rem;
+      padding: 0;
       width: 100%;
 
       @media (max-width: ${style.collapse}px) {
@@ -84,11 +83,11 @@ const RoutePreview = styled.div`
         box-shadow: ${style.elaborateShadow};
         padding: 1rem;
         background-color: ${style.white};
-      }
 
-      & > * {
-        margin: 0;
-        padding: 0;
+        & > * {
+          margin: 0;
+          padding: 0;
+        }
       }
     }
 
