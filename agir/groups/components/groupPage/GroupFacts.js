@@ -13,6 +13,7 @@ const StyledList = styled.ul`
   flex-flow: column wrap;
   list-style: none;
   padding: 0;
+  margin: 0;
   font-size: 14px;
   font-weight: 400;
 

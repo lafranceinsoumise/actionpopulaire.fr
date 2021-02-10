@@ -10,12 +10,17 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 const StyledAnnouncement = styled.div`
   width: 100%;
   display: flex;
-  padding: 1rem 1.75rem 1.75rem;
+  padding: 1rem 1.75rem;
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-between;
   background-color: ${style.secondary100};
   position: relative;
+
+  @media (max-width: ${style.collapse}px) {
+    padding: 1rem;
+    padding-right: 3rem;
+  }
 
   & > * {
     flex: 0 0 auto;
@@ -55,6 +60,10 @@ const StyledAnnouncement = styled.div`
     strong {
       font-weight: 600;
     }
+
+    a {
+      text-decoration: underline;
+    }
   }
 
   button {
@@ -68,10 +77,14 @@ const StyledAnnouncement = styled.div`
     position: absolute;
     top: 0.875rem;
     right: 1rem;
+
+    @media (max-width: ${style.collapse}px) {
+      right: 0.875rem;
+    }
   }
 `;
 
-const DiscussionAnnouncement = ({ isActive, onClose }) => {
+const DiscussionAnnouncement = ({ isActive, onClose, link }) => {
   const [shouldShow, setShouldShow] = useState(isActive);
 
   const close = useCallback(() => {
@@ -94,7 +107,12 @@ const DiscussionAnnouncement = ({ isActive, onClose }) => {
         <br />
         <span>
           Vos animateur·ices publieront des messages auxquels vous pourrez
-          répondre sur cette page.
+          répondre sur cette page.{" "}
+          {link ? (
+            <a href={link} target="_blank" rel="noopener noreferrer">
+              En savoir plus
+            </a>
+          ) : null}
         </span>
       </p>
       <button onClick={close} aria-label="Fermer ce message">
@@ -106,5 +124,6 @@ const DiscussionAnnouncement = ({ isActive, onClose }) => {
 DiscussionAnnouncement.propTypes = {
   isActive: PropTypes.bool,
   onClose: PropTypes.func,
+  link: PropTypes.string,
 };
 export default DiscussionAnnouncement;

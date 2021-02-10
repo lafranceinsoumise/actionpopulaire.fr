@@ -1,8 +1,19 @@
 import PropTypes from "prop-types";
 import React from "react";
+import styled from "styled-components";
 
 import Card from "./GroupPageCard";
 import Collapsible from "@agir/front/genericComponents/Collapsible";
+
+const StyledCard = styled(Card)`
+  p {
+    margin: 0;
+  }
+
+  p + p {
+    margin-top: 11px;
+  }
+`;
 
 const GroupDescription = (props) => {
   const { description, maxHeight = 92, routes, outlined } = props;
@@ -12,7 +23,7 @@ const GroupDescription = (props) => {
   }
 
   return (
-    <Card
+    <StyledCard
       title="Présentation"
       editUrl={routes && routes.edit}
       outlined={outlined}
@@ -23,7 +34,7 @@ const GroupDescription = (props) => {
         maxHeight={maxHeight}
         fadingOverflow
       />
-    </Card>
+    </StyledCard>
   );
 };
 
