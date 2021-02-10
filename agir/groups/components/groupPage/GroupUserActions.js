@@ -89,6 +89,7 @@ const StyledContent = styled.div`
   }
 
   p {
+    margin-top: 0.5rem;
     font-weight: 500;
     font-size: 0.813rem;
     line-height: 1.5;
@@ -104,6 +105,7 @@ const StyledContent = styled.div`
   ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 
     li {
       font-size: 0.813rem;
