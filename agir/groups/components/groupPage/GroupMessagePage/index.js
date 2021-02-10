@@ -102,35 +102,37 @@ const Page = ({ groupPk, messagePk }) => {
   }
 
   return (
-    <CenteredLayout
-      backLink={isSessionLoaded && group ? backLink : undefined}
-      $maxWidth="780px"
-      title={
-        group && !group.isMember
-          ? "Cette discussion n'est pas disponible"
-          : undefined
-      }
-      icon={group && !group.isMember ? "lock" : undefined}
-    >
-      <PageFadeIn wait={PageSkeleton} ready={isSessionLoaded && group}>
-        {group && group.isMember ? (
-          <PageFadeIn wait={PageSkeleton} ready={!isLoading}>
-            <GroupMessagePage
-              group={group}
-              user={user}
-              events={events}
-              message={message}
-              messageURL={messageURL}
-              groupURL={groupURL}
-              loadMoreEvents={loadMoreEvents}
-              isLoading={isLoading}
-            />
-          </PageFadeIn>
-        ) : (
-          <UnavailableMessagePage groupURL={groupURL} />
-        )}
-      </PageFadeIn>
-    </CenteredLayout>
+    <PageFadeIn wait={PageSkeleton} ready={isSessionLoaded && group}>
+      {isSessionLoaded && group ? (
+        <CenteredLayout
+          backLink={isSessionLoaded && group ? backLink : undefined}
+          $maxWidth="780px"
+          title={
+            group && !group.isMember
+              ? "Cette discussion n'est pas disponible"
+              : undefined
+          }
+          icon={group && !group.isMember ? "lock" : undefined}
+        >
+          {group && group.isMember ? (
+            <PageFadeIn wait={PageSkeleton} ready={!isLoading}>
+              <GroupMessagePage
+                group={group}
+                user={user}
+                events={events}
+                message={message}
+                messageURL={messageURL}
+                groupURL={groupURL}
+                loadMoreEvents={loadMoreEvents}
+                isLoading={isLoading}
+              />
+            </PageFadeIn>
+          ) : (
+            <UnavailableMessagePage groupURL={groupURL} />
+          )}
+        </CenteredLayout>
+      ) : null}
+    </PageFadeIn>
   );
 };
 Page.propTypes = {
