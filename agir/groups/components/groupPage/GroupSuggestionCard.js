@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -17,6 +18,7 @@ const StyledCard = styled(Card)`
   max-width: 397px;
   border: 1px solid ${style.black100};
   box-shadow: none;
+  cursor: pointer;
 
   @media (max-width: ${style.collapse}px) {
     max-width: 294px;
@@ -67,8 +69,15 @@ const GroupSuggestionCard = (props) => {
     iconConfiguration,
   } = props;
 
+  const history = useHistory();
+  const handleClick = React.useCallback(() => {
+    id &&
+      routeConfig.groupDetails &&
+      history.push(routeConfig.groupDetails.getLink({ groupPk: id }));
+  }, [history, id]);
+
   return (
-    <StyledCard>
+    <StyledCard onClick={handleClick}>
       <StyledMap>
         <Map
           center={
