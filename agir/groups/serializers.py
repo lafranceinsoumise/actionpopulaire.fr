@@ -197,6 +197,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             fields=[
                 "id",
                 "displayName",
+                "gender",
                 # "avatar",
             ],
         ).data
@@ -209,6 +210,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             fields=[
                 "id",
                 "displayName",
+                "gender",
                 # "avatar",
             ],
         ).data
