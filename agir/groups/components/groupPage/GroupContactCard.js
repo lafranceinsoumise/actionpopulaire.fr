@@ -45,9 +45,12 @@ const StyledContactSection = styled.p`
   line-height: 1.5;
   display: flex;
   flex-flow: column nowrap;
+  margin: 0;
 
   && strong {
     font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
   }
 
   && a {
@@ -98,8 +101,8 @@ const GroupContactCard = (props) => {
                   <RawFeatherIcon
                     name="edit-2"
                     color={style.black1000}
-                    width="0.875rem"
-                    height="0.875rem"
+                    width="1rem"
+                    height="1rem"
                   />
                 </a>
               )}

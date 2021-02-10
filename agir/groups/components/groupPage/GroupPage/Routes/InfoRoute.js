@@ -1,5 +1,8 @@
 import PropTypes from "prop-types";
 import React from "react";
+import styled from "styled-components";
+
+import style from "@agir/front/genericComponents/_variables.scss";
 
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
@@ -14,6 +17,15 @@ import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
 import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
 import { AgendaRoutePreview, MessagesRoutePreview } from "./RoutePreviews";
+
+const StyledShareCard = styled.div`
+  box-shadow: rgba(0, 35, 44, 0.5) 0px 0px 1px,
+    rgba(0, 35, 44, 0.08) 0px 2px 0px;
+
+  & > * {
+    box-shadow: none;
+  }
+`;
 
 const MobileInfoRoute = (props) => {
   const { group, groupSuggestions } = props;
@@ -32,7 +44,9 @@ const MobileInfoRoute = (props) => {
       {group.routes && group.routes.donations && (
         <GroupDonation url={group.routes.donations} />
       )}
-      <ShareCard title="Partager le lien du groupe" />
+      <StyledShareCard>
+        <ShareCard title="Partager le lien du groupe" />
+      </StyledShareCard>
 
       {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
         <div style={{ paddingTop: "2rem" }}>

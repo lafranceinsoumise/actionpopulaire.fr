@@ -19,12 +19,14 @@ const StyledCard = styled(Card)`
 
   && {
     @media (min-width: ${style.collapse}px) {
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
   }
 
   @media (max-width: ${style.collapse}px) {
     padding: 1rem;
+    box-shadow: rgba(0, 35, 44, 0.5) 0px 0px 1px,
+      rgba(0, 35, 44, 0.08) 0px 2px 0px;
   }
 
   ${({ highlight }) =>
@@ -57,7 +59,7 @@ const StyledCard = styled(Card)`
     flex-flow: row nowrap;
     align-items: center;
     height: 1.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 
     &:empty {
       display: none;
