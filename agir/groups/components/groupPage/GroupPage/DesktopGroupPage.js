@@ -184,15 +184,17 @@ const DesktopGroupPage = (props) => {
         <Column width="460px">
           <GroupUserActions {...group} />
           <GroupOrders {...group} />
-          <GroupContactCard {...group} />
-          {allEvents && allEvents.length > 0 ? (
-            <GroupDescription {...group} />
-          ) : null}
-          <GroupLinks {...group} />
-          <GroupFacts {...group} />
-          {group.routes && group.routes.donations && (
-            <GroupDonation url={group.routes.donations} />
-          )}
+          <div style={{ backgroundColor: style.black25, padding: "2rem" }}>
+            <GroupContactCard {...group} />
+            {allEvents && allEvents.length > 0 ? (
+              <GroupDescription {...group} />
+            ) : null}
+            <GroupLinks {...group} />
+            <GroupFacts {...group} />
+            {group.routes && group.routes.donations && (
+              <GroupDonation url={group.routes.donations} />
+            )}
+          </div>
         </Column>
       </Row>
 

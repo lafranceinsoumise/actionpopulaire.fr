@@ -19,6 +19,7 @@ const StyledCard = styled(Card)`
 
   && {
     @media (min-width: ${style.collapse}px) {
+      background-color: transparent;
       margin-bottom: 1.5rem;
     }
   }

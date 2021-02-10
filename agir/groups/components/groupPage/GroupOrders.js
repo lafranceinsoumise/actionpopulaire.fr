@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import { parseDiscountCodes } from "@agir/groups/groupPage/utils";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRouteById } from "@agir/front/globalContext/reducers";
@@ -21,6 +23,16 @@ const StyledList = styled.ul`
   }
 `;
 
+const StyledCard = styled(Card)`
+  && {
+    background-color: ${style.black25};
+
+    @media (max-width: ${style.collapse}px) {
+      background-color: white;
+    }
+  }
+`;
+
 const GroupOrders = (props) => {
   const { isManager, discountCodes } = props;
   const orderURL = useSelector((state) => getRouteById(state, "materiel"));
@@ -29,7 +41,7 @@ const GroupOrders = (props) => {
   ]);
 
   return isManager ? (
-    <Card title="Commander du matériel" outlined>
+    <StyledCard title="Commander du matériel" outlined>
       {Array.isArray(codes) && codes.length > 0 ? (
         <StyledList>
           <li>Codes de réduction :</li>
@@ -45,7 +57,7 @@ const GroupOrders = (props) => {
           Commander du matériel
         </Button>
       ) : null}
-    </Card>
+    </StyledCard>
   ) : null;
 };
 
