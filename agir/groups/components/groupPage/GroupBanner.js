@@ -85,6 +85,7 @@ const GroupBanner = (props) => {
       Array.isArray(location.coordinates.coordinates) ? (
         <StyledMap>
           <Map
+            zoom={11}
             center={location.coordinates.coordinates}
             iconConfiguration={iconConfiguration}
             isStatic
