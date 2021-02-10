@@ -227,11 +227,20 @@ export const useMessageActions = (props) => {
       return;
     }
     if (selectedMessage && selectedComment) {
-      shouldDismiss.current = true;
       dispatch(messageActions.deleteComment(selectedComment, selectedMessage));
     } else if (selectedMessage) {
-      shouldDismiss.current = true;
       dispatch(messageActions.deleteMessage(selectedMessage));
+    }
+  }, [dispatch, selectedMessage, selectedComment]);
+
+  const onReport = useCallback(() => {
+    if (!selectedMessage && !selectedComment) {
+      return;
+    }
+    if (selectedMessage && selectedComment) {
+      dispatch(messageActions.reportComment(selectedComment));
+    } else if (selectedMessage) {
+      dispatch(messageActions.reportMessage(selectedMessage));
     }
   }, [dispatch, selectedMessage, selectedComment]);
 
@@ -266,9 +275,11 @@ export const useMessageActions = (props) => {
     confirmDeleteComment,
     confirmReportComment,
 
-    onDelete:
-      messageAction === "delete" || (isManager && !isAuthor)
-        ? onDelete
+    onDelete: messageAction === "delete" || isManager ? onDelete : undefined,
+
+    onReport:
+      messageAction === "report" || (isManager && !isAuthor)
+        ? onReport
         : undefined,
 
     hasMessageModal: messageAction === "edit" || messageAction === "create",
