@@ -129,7 +129,11 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"abstract": False,},
+            options={
+                "abstract": False,
+                "verbose_name": "Signalement",
+                "verbose_name_plural": "Signalements",
+            },
         ),
         migrations.CreateModel(
             name="SupportGroupMessageComment",
