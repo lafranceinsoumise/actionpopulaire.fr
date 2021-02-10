@@ -15,7 +15,7 @@ const StyledBody = styled.div``;
 const StyledCard = styled(Card)`
   padding: 0;
   max-width: 397px;
-  border: 1px solid ${style.black200};
+  border: 1px solid ${style.black100};
   box-shadow: none;
 
   @media (max-width: ${style.collapse}px) {

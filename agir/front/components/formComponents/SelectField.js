@@ -91,7 +91,7 @@ const StyledField = styled.label`
   }
 
   ${StyledMenu} {
-    border: 1px solid ${style.black200};
+    border: 1px solid ${style.black100};
     box-shadow: 0px 3px 2px rgba(0, 35, 44, 0.05);
     margin-top: 0;
     border-radius: 0;

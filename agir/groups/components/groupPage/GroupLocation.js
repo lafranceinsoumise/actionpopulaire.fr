@@ -51,13 +51,6 @@ const StyledAddress = styled.div`
   }
 `;
 
-const StyledCard = styled(Card)`
-  @media (min-width: ${style.collapse}px) {
-    padding: 1.5rem;
-    border: 1px solid ${style.black200};
-  }
-`;
-
 const GroupLocation = (props) => {
   const { location, iconConfiguration, routes } = props;
 
@@ -77,7 +70,7 @@ const GroupLocation = (props) => {
   } = location;
 
   return (
-    <StyledCard title="Accès" editUrl={routes && routes.edit}>
+    <Card title="Accès" editUrl={routes && routes.edit} outlined>
       {coordinates && Array.isArray(coordinates.coordinates) ? (
         <StyledMap>
           <Map
@@ -111,7 +104,7 @@ const GroupLocation = (props) => {
           ) : null}
         </p>
       </StyledAddress>
-    </StyledCard>
+    </Card>
   );
 };
 

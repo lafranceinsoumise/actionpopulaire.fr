@@ -62,7 +62,7 @@ const EventCardContainer = styled.div`
 
   & ${Card} {
     box-shadow: none;
-    border: 1px solid ${style.black200};
+    border: 1px solid ${style.black100};
   }
 `;
 

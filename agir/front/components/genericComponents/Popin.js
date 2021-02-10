@@ -18,7 +18,7 @@ const BasePopin = styled(animated.div)`
   width: 250px;
   padding: 1rem;
   background-color: ${style.white};
-  border: 1px solid ${style.black200};
+  border: 1px solid ${style.black100};
   box-shadow: 0px 3px 2px rgba(0, 35, 44, 0.05);
 `;
 

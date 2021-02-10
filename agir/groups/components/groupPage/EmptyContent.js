@@ -41,7 +41,7 @@ const StyledEmptyContent = styled.div`
   flex-flow: row nowrap;
   padding: 30px;
   align-items: center;
-  border: 1px solid ${style.black200};
+  border: 1px solid ${style.black100};
   margin-bottom: 1.5rem;
   background-color: white;
 

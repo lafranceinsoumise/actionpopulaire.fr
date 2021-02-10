@@ -60,7 +60,7 @@ const DesktopInfoRoute = (props) => {
         </>
       ) : (
         <>
-          <GroupDescription {...group} maxHeight="auto" />
+          <GroupDescription {...group} maxHeight="auto" outlined />
           <ShareCard title="Inviter vos ami·es à rejoindre le groupe" />
           <GroupLocation {...group} />
         </>

@@ -74,7 +74,7 @@ const RoutePreview = styled.div`
 
   & > article {
     margin-top: 1rem;
-    border: 1px solid ${style.black200};
+    border: 1px solid ${style.black100};
     padding: 1.5rem;
     width: 100%;
 

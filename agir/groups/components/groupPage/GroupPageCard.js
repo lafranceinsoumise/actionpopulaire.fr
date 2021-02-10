@@ -41,6 +41,16 @@ const StyledCard = styled(Card)`
   `
       : ""}
 
+  ${({ outlined }) =>
+    outlined
+      ? `
+    @media (min-width: ${style.collapse}px) {
+      padding: 1.5rem;
+      border: 1px solid ${style.black100};
+    }
+  `
+      : ""}
+
   ${StyledHead} {
     flex: 0 0 auto;
     display: flex;
@@ -117,5 +127,6 @@ GroupPageCard.propTypes = {
   title: PropTypes.string,
   editUrl: PropTypes.string,
   highlight: PropTypes.string,
+  outlined: PropTypes.bool,
 };
 export default GroupPageCard;
