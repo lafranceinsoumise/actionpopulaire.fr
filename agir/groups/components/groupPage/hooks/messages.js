@@ -140,6 +140,13 @@ export const useMessage = (group, messagePk) => {
     data && dispatch(messageActions.setMessage(data));
   }, [dispatch, data]);
 
+  useEffect(
+    () => () => {
+      dispatch(messageActions.clearMessages());
+    },
+    [dispatch]
+  );
+
   return {
     message,
     isLoading: typeof data === "undefined" || isLoading,

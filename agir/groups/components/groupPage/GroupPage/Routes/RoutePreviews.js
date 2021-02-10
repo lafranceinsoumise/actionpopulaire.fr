@@ -187,7 +187,9 @@ export const MessagesRoutePreview = (props) => {
             <MessageCard
               user={user}
               message={messages[0]}
-              comments={messages[0].recentComments}
+              comments={
+                messages[0].comments || messages[0].recentComments || []
+              }
               onClick={onClickMessage}
             />
           )}
