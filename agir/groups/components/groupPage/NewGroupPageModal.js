@@ -85,7 +85,7 @@ const NewGroupPageModal = ({ isActive, onClose }) => {
   }, [isActive]);
 
   return (
-    <Modal shouldShow={shouldShow} onClick={close} noScroll>
+    <Modal shouldShow={shouldShow} noScroll>
       <StyledModalContent>
         <div aria-hidden="true" />
         <h3>Votre page de groupe a fait peau neuve&nbsp;!</h3>
