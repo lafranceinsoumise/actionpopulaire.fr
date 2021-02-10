@@ -161,6 +161,17 @@ const GroupLinks = (props) => {
                 <a href={routes.members}>Membres</a>
               </li>
             )}
+            {routes.settings && (
+              <li>
+                <RawFeatherIcon
+                  inline
+                  small
+                  name="file-text"
+                  color={style.primary500}
+                />
+                <a href={routes.settings}>Informations</a>
+              </li>
+            )}
             {routes.members && (
               <li>
                 <RawFeatherIcon
@@ -216,17 +227,6 @@ const GroupLinks = (props) => {
                 <a href={routes.invitation}>Inviter</a>
               </li>
             )}
-            <li>
-              <RawFeatherIcon
-                inline
-                small
-                name="info"
-                color={style.primary500}
-              />
-              <a href="https://info.actionpopulaires.fr">
-                Informations générales
-              </a>
-            </li>
             {routes.admin && (
               <li>
                 <RawFeatherIcon
