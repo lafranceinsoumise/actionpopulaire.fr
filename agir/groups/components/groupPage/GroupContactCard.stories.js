@@ -9,15 +9,15 @@ export default {
 
 const Template = (args) => {
   const {
-    referentName,
-    referentAvatar,
+    managerName,
+    managerAvatar,
     contactName,
     contactPhone,
     contactEmail,
   } = args;
-  const referents = [
+  const managers = [
     { displayName: "Isabelle Guérini" },
-    { displayName: referentName, avatar: referentAvatar },
+    { displayName: managerName, avatar: managerAvatar },
   ];
   const contact =
     contactName || contactEmail || contactPhone
@@ -27,13 +27,13 @@ const Template = (args) => {
           phone: contactPhone,
         }
       : null;
-  return <GroupContactCard referents={referents} contact={contact} />;
+  return <GroupContactCard managers={managers} contact={contact} />;
 };
 
 export const Default = Template.bind({});
 Default.args = {
-  referentName: "Serge Buchet",
-  referentAvatar: "https://www.fillmurray.com/180/180",
+  managerName: "Serge Buchet",
+  managerAvatar: "https://www.fillmurray.com/180/180",
   contactName: "Isabelle Guérini",
   contactEmail: "isabelini@gmail.com",
   contactPhone: "06 42 23 12 01",

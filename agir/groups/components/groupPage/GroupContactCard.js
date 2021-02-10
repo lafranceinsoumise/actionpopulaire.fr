@@ -9,7 +9,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import Card from "./GroupPageCard";
 
-const StyledReferentSection = styled.section`
+const StyledManagerSection = styled.section`
   margin-bottom: 1.5rem;
 
   &:empty {
@@ -59,34 +59,34 @@ const StyledContactSection = styled.p`
 `;
 
 const GroupContactCard = (props) => {
-  const { referents, contact, routes } = props;
+  const { managers, contact, routes } = props;
 
-  if (!referents && !contact) {
+  if (!managers && !contact) {
     return null;
   }
 
   return (
     <Card>
-      {Array.isArray(referents) && referents.length > 0 ? (
-        <StyledReferentSection>
+      {Array.isArray(managers) && managers.length > 0 ? (
+        <StyledManagerSection>
           <p>
-            {referents.map((referent, i) => (
+            {managers.map((manager, i) => (
               <React.Fragment key={i}>
                 {i > 0 ? " " : null}
-                <Avatar {...referent} name={referent.displayName} />
+                <Avatar {...manager} name={manager.displayName} />
               </React.Fragment>
             ))}
           </p>
           <p>
-            {referents.map((referent, i) => (
+            {managers.map((manager, i) => (
               <React.Fragment key={i}>
                 {i > 0 ? " & " : null}
-                <strong>{referent.displayName}</strong>
+                <strong>{manager.displayName}</strong>
               </React.Fragment>
             ))}
           </p>
           <p>Animateur·ices de l’équipe</p>
-        </StyledReferentSection>
+        </StyledManagerSection>
       ) : null}
       {contact ? (
         <StyledContactSection>
@@ -117,7 +117,7 @@ const GroupContactCard = (props) => {
 };
 
 GroupContactCard.propTypes = {
-  referents: PropTypes.arrayOf(
+  managers: PropTypes.arrayOf(
     PropTypes.shape({
       displayName: PropTypes.string.isRequired,
       avatar: PropTypes.string,

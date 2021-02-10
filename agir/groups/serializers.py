@@ -201,6 +201,18 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             ],
         ).data
 
+    def get_managers(self, obj):
+        return PersonSerializer(
+            obj.managers,
+            context=self.context,
+            many=True,
+            fields=[
+                "id",
+                "displayName",
+                # "avatar",
+            ],
+        ).data
+
     def get_facts(self, obj):
         facts = {
             "memberCount": obj.members_count,
