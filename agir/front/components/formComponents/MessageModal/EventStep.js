@@ -164,24 +164,10 @@ EventStepOption.propTypes = {
 const EventStep = (props) => {
   const { events, onSelectEvent, loadMoreEvents } = props;
 
-  const eventOptions = useMemo(
-    () =>
-      Array.isArray(events) && events.length > 0
-        ? [
-            {
-              id: null,
-              name: "Autre événement futur",
-            },
-            ...events,
-          ]
-        : [{ id: null, name: "Événement futur" }],
-    [events]
-  );
-
   return (
     <StyledWrapper>
       <h4>De quel événement souhaitez-vous parler ?</h4>
-      {eventOptions.map((event) => (
+      {events.map((event) => (
         <EventStepOption
           key={event.id}
           event={event}
