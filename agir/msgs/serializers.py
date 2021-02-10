@@ -1,10 +1,11 @@
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
 from agir.events.models import Event
 from agir.events.serializers import EventSerializer
 from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.serializers import FlexibleFieldsMixin
-from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
+from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment, UserReport
 from agir.people.serializers import PersonSerializer
 
 
@@ -100,3 +101,30 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "comments",
             "commentCount",
         )
+
+
+class ContentTypeChoiceField(serializers.ChoiceField):
+    def to_internal_value(self, data):
+        app_label, model = data.split(".")
+        return ContentType.objects.get_by_natural_key(app_label, model)
+
+    def to_representation(self, value):
+        return f"{value.app_label}.{value.model}"
+
+
+class UserReportSerializer(serializers.ModelSerializer):
+    content_type = ContentTypeChoiceField(
+        choices=("msgs.supportgroupmessage", "msgs.supportgroupmessagecomment",)
+    )
+
+    def validate(self, data):
+        try:
+            data["content_type"].get_object_for_this_type(pk=data["object_id"])
+        except data["content_type"].model_class.DoesNotExist:
+            raise serializers.ValidationError("Pas d'objet pour ce type et cette clé.")
+
+        return data
+
+    class Meta:
+        model = UserReport
+        fields = ("content_type", "object_id")
