@@ -94,6 +94,8 @@ const NewGroupPageModal = ({ isActive, onClose }) => {
           <a
             disabled={!routes || !routes.feedbackForm}
             href={routes && routes.feedbackForm}
+            target="_blank"
+            rel="noopener noreferrer"
           >
             vos retours
           </a>
