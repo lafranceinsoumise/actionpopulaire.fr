@@ -10,7 +10,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import Card from "./GroupPageCard";
 
-const StyledManagerSection = styled.section`
+const StyledReferentSection = styled.section`
   margin-bottom: 1.5rem;
 
   &:empty {
@@ -63,17 +63,17 @@ const StyledContactSection = styled.p`
 `;
 
 const GroupContactCard = (props) => {
-  const { managers, contact, routes } = props;
+  const { referents, contact, routes } = props;
 
-  const managerTitle = useMemo(() => {
-    if (!Array.isArray(managers) || managers.length === 0) {
+  const referentTitle = useMemo(() => {
+    if (!Array.isArray(referents) || referents.length === 0) {
       return "";
     }
-    const gender = managers.reduce(
-      (genders, manager) =>
-        !manager.gender || manager.gender === genders
+    const gender = referents.reduce(
+      (genders, referent) =>
+        !referent.gender || referent.gender === genders
           ? genders
-          : genders + manager.gender,
+          : genders + referent.gender,
       ""
     );
     return `${getGenderedWord(
@@ -81,35 +81,35 @@ const GroupContactCard = (props) => {
       "Animateur·ice",
       "Animatrice",
       "Animateur"
-    )}${managers.length > 1 ? "s" : ""}`;
-  }, [managers]);
+    )}${referents.length > 1 ? "s" : ""}`;
+  }, [referents]);
 
-  if (!managers && !contact) {
+  if (!referents && !contact) {
     return null;
   }
 
   return (
     <Card>
-      {Array.isArray(managers) && managers.length > 0 ? (
-        <StyledManagerSection>
+      {Array.isArray(referents) && referents.length > 0 ? (
+        <StyledReferentSection>
           <p>
-            {managers.map((manager, i) => (
+            {referents.map((referent, i) => (
               <React.Fragment key={i}>
                 {i > 0 ? " " : null}
-                <Avatar {...manager} name={manager.displayName} />
+                <Avatar {...referent} name={referent.displayName} />
               </React.Fragment>
             ))}
           </p>
           <p>
-            {managers.map((manager, i) => (
+            {referents.map((referent, i) => (
               <React.Fragment key={i}>
                 {i > 0 ? " & " : null}
-                <strong>{manager.displayName}</strong>
+                <strong>{referent.displayName}</strong>
               </React.Fragment>
             ))}
           </p>
-          <p>{managerTitle} de l’équipe</p>
-        </StyledManagerSection>
+          <p>{referentTitle} de l’équipe</p>
+        </StyledReferentSection>
       ) : null}
       {contact ? (
         <StyledContactSection>
@@ -140,7 +140,7 @@ const GroupContactCard = (props) => {
 };
 
 GroupContactCard.propTypes = {
-  managers: PropTypes.arrayOf(
+  referents: PropTypes.arrayOf(
     PropTypes.shape({
       displayName: PropTypes.string.isRequired,
       avatar: PropTypes.string,
