@@ -46,7 +46,7 @@ const StyledWrapper = styled.form`
   display: flex;
   max-width: 100%;
 
-  ${Avatar} {
+  & > ${Avatar} {
     flex: 0 0 auto;
     width: 2rem;
     height: 2rem;
@@ -77,14 +77,36 @@ const StyledWrapper = styled.form`
       right: 0;
       z-index: 1;
       border: none;
-      box-shadow: ${style.elaborateShadow};
       border-radius: 0;
       max-height: 50vh;
+      padding: 1rem;
+      background-color: white;
+      box-shadow: 0px -3px 3px rgba(0, 35, 44, 0.1),
+        0px 2px 0px rgba(0, 35, 44, 0.08);
+      align-items: ${({ $isExpanded }) =>
+        $isExpanded ? "flex-start" : "center"};
     }
 
     &:hover {
       ${({ $isExpanded }) =>
         !$isExpanded ? `background-color: ${style.black100};` : ""}
+
+      @media (max-width: ${style.collapse}px) {
+        background-color: white;
+      }
+    }
+
+    & > ${Avatar} {
+      display: none;
+
+      @media (max-width: ${style.collapse}px) {
+        display: ${({ $isExpanded }) => ($isExpanded ? "none" : "block")};
+        flex: 0 0 auto;
+        width: 2rem;
+        height: 2rem;
+        margin: 0;
+        margin-right: 0.5rem;
+      }
     }
   }
 
@@ -295,6 +317,7 @@ const CommentField = (props) => {
     >
       <Avatar name={user.displayName} avatar={user.avatar} />
       <StyledMessage>
+        <Avatar name={user.displayName} avatar={user.avatar} />
         <StyledField
           ref={fieldWrapperRef}
           onClick={!disabled ? handleFocus : undefined}
