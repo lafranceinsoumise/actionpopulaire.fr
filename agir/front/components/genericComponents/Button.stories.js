@@ -56,6 +56,12 @@ ConfirmedColor.args = {
   color: "confirmed",
 };
 
+export const DangerColor = Template.bind({});
+DangerColor.args = {
+  ...Default.args,
+  color: "danger",
+};
+
 export const Unavailable = Template.bind({});
 Unavailable.args = { ...Default.args, color: "unavailable" };
 

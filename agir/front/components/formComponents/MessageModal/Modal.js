@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -10,6 +10,11 @@ import ModalWrapper from "@agir/front/genericComponents/Modal";
 
 import EventStep from "./EventStep";
 import MessageStep from "./MessageStep";
+
+const getEmptyEvent = (events) => ({
+  id: null,
+  name: events && events.length ? "Autre événement futur" : "Événement futur",
+});
 
 const StyledIconButton = styled.button`
   display: flex;
@@ -129,6 +134,16 @@ const Modal = (props) => {
     message,
   } = props;
 
+  const initialMessage = useMemo(() => {
+    if (!message || !message.id || !!message.linkedEvent) {
+      return message;
+    }
+    return {
+      ...message,
+      linkedEvent: getEmptyEvent(),
+    };
+  }, [message]);
+
   const [text, setText] = useState((message && message.text) || "");
   const [hasBackButton, setHasBackButton] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(
@@ -155,19 +170,19 @@ const Modal = (props) => {
   const handleSend = useCallback(() => {
     maySend &&
       onSend({
-        ...(message || {}),
+        ...(initialMessage || {}),
         text: text.trim(),
         linkedEvent: selectedEvent,
       });
-  }, [maySend, onSend, message, text, selectedEvent]);
+  }, [maySend, onSend, initialMessage, text, selectedEvent]);
 
   useEffect(() => {
     if (shouldShow) {
-      setText((message && message.text) || "");
-      setSelectedEvent((message && message.linkedEvent) || null);
+      setText((initialMessage && initialMessage.text) || "");
+      setSelectedEvent((initialMessage && initialMessage.linkedEvent) || null);
       setHasBackButton(false);
     }
-  }, [shouldShow, message]);
+  }, [shouldShow, initialMessage]);
 
   const handleSendOnCtrlEnter = useCallback(
     (e) => {
@@ -176,6 +191,14 @@ const Modal = (props) => {
       }
     },
     [maySend, handleSend]
+  );
+
+  const eventOptions = useMemo(
+    () =>
+      Array.isArray(events) && events.length > 0
+        ? [getEmptyEvent(events), ...events]
+        : [getEmptyEvent(events)],
+    [events]
   );
 
   return (
@@ -222,7 +245,7 @@ const Modal = (props) => {
             />
           ) : (
             <EventStep
-              events={events}
+              events={eventOptions}
               onSelectEvent={handleSelectEvent}
               loadMoreEvents={loadMoreEvents}
             />

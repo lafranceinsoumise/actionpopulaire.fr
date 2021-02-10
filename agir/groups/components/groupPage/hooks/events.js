@@ -74,8 +74,7 @@ export const usePastEvents = (group) => {
 };
 
 export const usePastEventReports = (group) => {
-  const hasPastEventReports =
-    group && group.isMember && group.hasPastEventReports;
+  const hasPastEventReports = group && group.hasPastEventReports;
   const { data, error } = useSWR(
     hasPastEventReports
       ? api.getGroupPageEndpoint("getPastEventReports", {

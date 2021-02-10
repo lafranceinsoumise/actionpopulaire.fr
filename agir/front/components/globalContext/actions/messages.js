@@ -91,6 +91,25 @@ export const deleteMessage = (message) => async (dispatch) => {
   }
 };
 
+export const reportMessage = (message) => async (dispatch) => {
+  dispatch({
+    type: ACTION_TYPE.REPORTING_MESSAGE_ACTION,
+  });
+  try {
+    const response = await api.reportMessage(message);
+    dispatch({
+      type: ACTION_TYPE.REPORTED_MESSAGE_ACTION,
+      error: response.error,
+      message,
+    });
+  } catch (e) {
+    dispatch({
+      type: ACTION_TYPE.REPORTED_MESSAGE_ACTION,
+      error: e.message,
+    });
+  }
+};
+
 export const createComment = (comment, message) => async (dispatch) => {
   dispatch({
     type: ACTION_TYPE.CREATING_COMMENT_ACTION,
@@ -129,6 +148,25 @@ export const deleteComment = (comment, message) => async (dispatch) => {
       type: ACTION_TYPE.DELETED_COMMENT_ACTION,
       error: e.message,
       message,
+    });
+  }
+};
+
+export const reportComment = (comment) => async (dispatch) => {
+  dispatch({
+    type: ACTION_TYPE.REPORTING_COMMENT_ACTION,
+  });
+  try {
+    const response = await api.reportComment(comment);
+    dispatch({
+      type: ACTION_TYPE.REPORTED_COMMENT_ACTION,
+      error: response.error,
+      comment,
+    });
+  } catch (e) {
+    dispatch({
+      type: ACTION_TYPE.REPORTED_COMMENT_ACTION,
+      error: e.message,
     });
   }
 };

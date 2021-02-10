@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
-import { transparentize } from "polished";
+import { darken, transparentize } from "polished";
 import { icons } from "feather-icons";
 import Link from "@agir/front/app/Link";
 
@@ -59,6 +59,7 @@ export const buttonColors = {
   danger: {
     $background: style.redNSP,
     $labelColor: style.white,
+    $hoverBackground: darken(0.1, style.redNSP),
   },
 };
 

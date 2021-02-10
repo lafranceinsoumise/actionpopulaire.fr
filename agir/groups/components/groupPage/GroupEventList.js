@@ -14,10 +14,11 @@ import EventCard from "@agir/front/genericComponents/EventCard";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledList = styled.div`
-  padding-bottom: 1.5em;
+  padding-bottom: 1.5rem;
 
   @media (max-width: ${style.collapse}px) {
     background: ${style.black25};
+    padding-bottom: ${({ $length }) => ($length === 1 ? "0" : "1.5rem")};
   }
 
   & > h3 {
@@ -79,7 +80,7 @@ const GroupEventList = (props) => {
     return null;
   }
   return (
-    <StyledList style={{}}>
+    <StyledList $length={(eventList && eventList.length) || 0}>
       <h3>
         {!!title && (
           <PageFadeIn

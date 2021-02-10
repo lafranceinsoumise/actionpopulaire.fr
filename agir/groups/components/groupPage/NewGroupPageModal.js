@@ -85,7 +85,7 @@ const NewGroupPageModal = ({ isActive, onClose }) => {
   }, [isActive]);
 
   return (
-    <Modal shouldShow={shouldShow} onClick={close} noScroll>
+    <Modal shouldShow={shouldShow} noScroll>
       <StyledModalContent>
         <div aria-hidden="true" />
         <h3>Votre page de groupe a fait peau neuve&nbsp;!</h3>
@@ -94,6 +94,8 @@ const NewGroupPageModal = ({ isActive, onClose }) => {
           <a
             disabled={!routes || !routes.feedbackForm}
             href={routes && routes.feedbackForm}
+            target="_blank"
+            rel="noopener noreferrer"
           >
             vos retours
           </a>

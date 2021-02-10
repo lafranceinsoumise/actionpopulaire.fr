@@ -41,14 +41,14 @@ const Card = styled.div`
   font-weight: 500;
   cursor: ${({ onClick }) => (onClick ? "pointer" : "default")};
   border: 1px solid;
-  border-color: ${style.black200};
+  border-color: ${style.black100};
   transition: border-color, background-color 300ms;
 
   &:hover {
     ${({ onClick }) =>
       onClick
         ? `
-      border-color: ${style.black200};
+      border-color: ${style.black100};
     `
         : ""}
   }

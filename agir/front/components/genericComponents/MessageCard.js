@@ -9,6 +9,7 @@ import { timeAgo } from "@agir/lib/utils/time";
 import { formatEvent } from "@agir/events/common/utils";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
+import Link from "@agir/front/app/Link";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import Card from "@agir/front/genericComponents/Card";
 import EventCard from "@agir/front/genericComponents/EventCard";
@@ -123,7 +124,7 @@ const StyledAction = styled.div`
     -moz-appearance: none;
   }
 `;
-const StyledGroupLink = styled.a``;
+const StyledGroupLink = styled(Link)``;
 const StyledContent = styled.div`
   padding: 0;
   font-size: inherit;
@@ -155,10 +156,6 @@ const StyledHeader = styled.div`
     width: 2.5rem;
     height: 2.5rem;
     margin-right: 0.5rem;
-
-    @media (min-width: ${style.collapse}px) {
-      display: none;
-    }
   }
 
   h4 {
@@ -166,11 +163,7 @@ const StyledHeader = styled.div`
     flex-grow: 1;
     font-size: inherit;
     display: flex;
-    flex-flow: row nowrap;
-
-    @media (max-width: ${style.collapse}px) {
-      flex-flow: column nowrap;
-    }
+    flex-flow: column nowrap;
 
     strong {
       font-weight: 600;
@@ -180,14 +173,21 @@ const StyledHeader = styled.div`
     em {
       font-style: normal;
       font-weight: normal;
-      font-size: inherit;
       color: ${style.black500};
-      margin-left: 0.5rem;
+      margin-left: 0;
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+    }
+
+    ${StyledGroupLink} {
+      display: block;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      font-weight: normal;
+      margin-top: 0.25rem;
 
       @media (max-width: ${style.collapse}px) {
-        margin-left: 0;
-        margin-top: 0.25rem;
-        font-size: 0.875rem;
+        display: none;
       }
     }
   }
@@ -239,43 +239,28 @@ const StyledComments = styled.div`
 const StyledMessage = styled.div``;
 const StyledWrapper = styled.div`
   width: 100%;
-  padding: 2.5rem 0;
+  padding: 1.5rem;
   margin: 0;
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-start;
   background-color: white;
   scroll-margin-top: 160px;
+  border: 1px solid ${style.black100};
 
   @media (max-width: ${style.collapse}px) {
     scroll-margin-top: 120px;
+    border: none;
     padding: 1.5rem 1rem;
     box-shadow: ${style.elaborateShadow};
   }
 
-  &:first-child:last-child {
-    padding-top: 0;
-    box-shadow: none;
-  }
-
   & + & {
-    border-top: 1px solid ${style.black100};
+    margin-top: 1.5rem;
 
     @media (max-width: ${style.collapse}px) {
       padding-top: 1.5rem;
       margin-top: 1rem;
-      border-top: none;
-    }
-  }
-
-  & > ${Avatar} {
-    flex: 0 0 auto;
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-right: 1rem;
-
-    @media (max-width: ${style.collapse}px) {
-      display: none;
     }
   }
 
@@ -292,18 +277,6 @@ const StyledWrapper = styled.div`
       }
     }
 
-    ${StyledGroupLink} {
-      display: block;
-      font-size: 0.875rem;
-      line-height: 1.4;
-      font-weight: normal;
-      margin: 0;
-
-      @media (max-width: ${style.collapse}px) {
-        display: none;
-      }
-    }
-
     ${StyledContent} {
       margin-top: 0.5rem;
     }
@@ -311,7 +284,7 @@ const StyledWrapper = styled.div`
     ${Card} {
       @media (max-width: ${style.collapse}px) {
         box-shadow: none;
-        border: 1px solid ${style.black200};
+        border: 1px solid ${style.black100};
       }
     }
 
@@ -428,7 +401,6 @@ const MessageCard = (props) => {
       ref={messageCardRef}
       $withMobileCommentField={withMobileCommentField}
     >
-      <Avatar {...author} />
       <StyledMessage>
         <StyledHeader>
           <Avatar {...author} />
@@ -437,6 +409,9 @@ const MessageCard = (props) => {
             <em onClick={handleClick} style={{ cursor: "pointer" }}>
               {created ? timeAgo(created) : null}
             </em>
+            {groupURL && group && group.name ? (
+              <StyledGroupLink to={groupURL}>{group.name}</StyledGroupLink>
+            ) : null}
           </h4>
           <StyledAction>
             {encodedMessageURL ? (
@@ -491,9 +466,6 @@ const MessageCard = (props) => {
             ) : null}
           </StyledAction>
         </StyledHeader>
-        {groupURL && group && group.name ? (
-          <StyledGroupLink href={groupURL}>{group.name}</StyledGroupLink>
-        ) : null}
         <StyledContent>
           {text.split("\n").map((paragraph, i) => (
             <span key={i + "__" + paragraph}>{paragraph}</span>

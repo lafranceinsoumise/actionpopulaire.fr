@@ -41,7 +41,7 @@ const StyledEmptyContent = styled.div`
   flex-flow: row nowrap;
   padding: 30px;
   align-items: center;
-  border: 1px solid ${style.black200};
+  border: 1px solid ${style.black100};
   margin-bottom: 1.5rem;
   background-color: white;
 
@@ -205,7 +205,7 @@ export const EmptyMessages = ({ onClickSendMessage }) => (
       <li>
         <RawFeatherIcon name="heart" />
         <span>
-          Fini les boucles d’e-mails&nbsp;! Discustez de vos prochaines actions
+          Fini les boucles d’e-mails&nbsp;! Discutez de vos prochaines actions
           sur Action Populaire.
         </span>
       </li>

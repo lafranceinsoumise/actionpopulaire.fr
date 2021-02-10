@@ -89,6 +89,7 @@ const StyledContent = styled.div`
   }
 
   p {
+    margin-top: 0.5rem;
     font-weight: 500;
     font-size: 0.813rem;
     line-height: 1.5;
@@ -104,6 +105,7 @@ const StyledContent = styled.div`
   ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 
     li {
       font-size: 0.813rem;
@@ -157,6 +159,17 @@ const GroupLinks = (props) => {
                   name="users"
                 />
                 <a href={routes.members}>Membres</a>
+              </li>
+            )}
+            {routes.settings && (
+              <li>
+                <RawFeatherIcon
+                  inline
+                  small
+                  name="file-text"
+                  color={style.primary500}
+                />
+                <a href={routes.settings}>Informations</a>
               </li>
             )}
             {routes.members && (
@@ -214,17 +227,6 @@ const GroupLinks = (props) => {
                 <a href={routes.invitation}>Inviter</a>
               </li>
             )}
-            <li>
-              <RawFeatherIcon
-                inline
-                small
-                name="info"
-                color={style.primary500}
-              />
-              <a href="https://info.actionpopulaires.fr">
-                Informations générales
-              </a>
-            </li>
             {routes.admin && (
               <li>
                 <RawFeatherIcon

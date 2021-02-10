@@ -2,11 +2,11 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import { parseDiscountCodes } from "@agir/groups/groupPage/utils";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRouteById } from "@agir/front/globalContext/reducers";
-
-import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "./GroupPageCard";
@@ -24,9 +24,12 @@ const StyledList = styled.ul`
 `;
 
 const StyledCard = styled(Card)`
-  @media (min-width: ${style.collapse}px) {
-    padding: 1.5rem;
-    border: 1px solid ${style.black200};
+  && {
+    background-color: ${style.black25};
+
+    @media (max-width: ${style.collapse}px) {
+      background-color: white;
+    }
   }
 `;
 
@@ -38,7 +41,7 @@ const GroupOrders = (props) => {
   ]);
 
   return isManager ? (
-    <StyledCard title="Commander du matériel">
+    <StyledCard title="Commander du matériel" outlined>
       {Array.isArray(codes) && codes.length > 0 ? (
         <StyledList>
           <li>Codes de réduction :</li>

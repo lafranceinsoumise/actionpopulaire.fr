@@ -33,8 +33,12 @@
   "UPDATED_MESSAGE_ACTION": "updatedMessage",
   "DELETING_MESSAGE_ACTION": "deletingMessage",
   "DELETED_MESSAGE_ACTION": "deletedMessage",
+  "REPORTING_MESSAGE_ACTION": "reportingMessage",
+  "REPORTED_MESSAGE_ACTION": "reportedMessage",
   "CREATING_COMMENT_ACTION": "creatingComment",
   "CREATED_COMMENT_ACTION": "createdComment",
   "DELETING_COMMENT_ACTION": "deletingComment",
-  "DELETED_COMMENT_ACTION": "deletedComment"
+  "DELETED_COMMENT_ACTION": "deletedComment",
+  "REPORTING_COMMENT_ACTION": "reportingComment",
+  "REPORTED_COMMENT_ACTION": "reportedComment"
 }

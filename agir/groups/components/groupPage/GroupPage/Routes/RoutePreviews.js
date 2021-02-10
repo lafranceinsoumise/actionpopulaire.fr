@@ -25,74 +25,79 @@ const RoutePreview = styled.div`
     background: ${style.black25};
 
     & + & {
-      padding-top: 0;
+      border-top: 1px solid ${style.black100};
     }
   }
 
-  & > h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-    font-size: 1rem;
-    font-weight: 600;
-
-    button {
-      background: none;
-      border: none;
-      outline: none;
+  & > div {
+    & > h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
-      margin-left: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+
+      button {
+        background: none;
+        border: none;
+        outline: none;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        margin-left: 1rem;
+        padding: 0;
+        color: ${style.primary500};
+        font-weight: inherit;
+        font-size: inherit;
+
+        @media (max-width: ${style.collapse}px) {
+          margin-left: auto;
+        }
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+          cursor: pointer;
+        }
+
+        & > * {
+          flex: 0 0 auto;
+        }
+
+        ${RawFeatherIcon} {
+          margin-left: 0.5rem;
+          margin-top: 1px;
+        }
+      }
+    }
+
+    & > article {
+      margin-top: 1rem;
       padding: 0;
-      color: ${style.primary500};
-      font-weight: inherit;
-      font-size: inherit;
+      width: 100%;
 
       @media (max-width: ${style.collapse}px) {
-        margin-left: auto;
-      }
-
-      &:hover,
-      &:focus {
-        text-decoration: underline;
-        cursor: pointer;
+        border: none;
+        box-shadow: ${style.elaborateShadow};
+        padding: 1rem;
+        background-color: ${style.white};
       }
 
       & > * {
-        flex: 0 0 auto;
+        @media (max-width: ${style.collapse}px) {
+          margin: 0;
+          padding: 0;
+          padding-top: 0;
+          box-shadow: none;
+        }
       }
-
-      ${RawFeatherIcon} {
-        margin-left: 0.5rem;
-        margin-top: 1px;
-      }
-    }
-  }
-
-  & > article {
-    margin-top: 1rem;
-    border: 1px solid ${style.black200};
-    padding: 1.5rem;
-    width: 100%;
-
-    @media (max-width: ${style.collapse}px) {
-      border: none;
-      box-shadow: ${style.elaborateShadow};
-      padding: 1rem;
-      background-color: ${style.white};
     }
 
-    & > * {
-      margin: 0;
-      padding: 0;
+    & > h3 + article {
+      margin-top: 0;
     }
-  }
-
-  h3 + article {
-    margin-top: 0;
   }
 `;
 
@@ -110,15 +115,15 @@ export const AgendaRoutePreview = (props) => {
   }, [upcomingEvents, pastEvents]);
 
   return (
-    <PageFadeIn ready={!!lastEvent} wait={<Skeleton boxes={1} />}>
-      <RoutePreview>
+    <RoutePreview>
+      <PageFadeIn ready={!!lastEvent} wait={<Skeleton boxes={1} />}>
         <h3>
           <span>
             {isUpcoming ? "Événement à venir" : "Le dernier événement"}
           </span>
           {goToAgendaTab && (
             <button onClick={goToAgendaTab}>
-              Voir tout{" "}
+              Voir l'agenda{" "}
               <RawFeatherIcon
                 name="arrow-right"
                 width="1rem"
@@ -129,8 +134,8 @@ export const AgendaRoutePreview = (props) => {
           )}
         </h3>
         {lastEvent && <GroupEventList events={lastEvent} />}
-      </RoutePreview>
-    </PageFadeIn>
+      </PageFadeIn>
+    </RoutePreview>
   );
 };
 AgendaRoutePreview.propTypes = {
@@ -149,7 +154,7 @@ export const MessagesRoutePreview = (props) => {
   } = props;
 
   const [
-    hasDiscussionAnnouncement,
+    discussionAnnouncement,
     onCloseDiscussionAnnouncement,
   ] = useCustomAnnouncement("DiscussionAnnouncement");
 
@@ -160,13 +165,13 @@ export const MessagesRoutePreview = (props) => {
     return null;
   }
   return (
-    <PageFadeIn ready={!isLoadingMessages} wait={<Skeleton boxes={1} />}>
-      <RoutePreview>
+    <RoutePreview>
+      <PageFadeIn ready={!isLoadingMessages} wait={<Skeleton boxes={1} />}>
         <h3>
-          <span>Discussions</span>
+          <span>Le dernier message</span>
           {goToMessagesTab && (
             <button onClick={goToMessagesTab}>
-              Voir tout{" "}
+              Voir les discussions{" "}
               <RawFeatherIcon
                 name="arrow-right"
                 width="1rem"
@@ -177,21 +182,24 @@ export const MessagesRoutePreview = (props) => {
           )}
         </h3>
         <DiscussionAnnouncement
-          isActive={!!hasDiscussionAnnouncement}
+          isActive={!!discussionAnnouncement}
           onClose={onCloseDiscussionAnnouncement}
+          link={discussionAnnouncement && discussionAnnouncement.link}
         />
         <article>
           {messages && messages[0] && (
             <MessageCard
               user={user}
               message={messages[0]}
-              comments={messages[0].recentComments}
+              comments={
+                messages[0].comments || messages[0].recentComments || []
+              }
               onClick={onClickMessage}
             />
           )}
         </article>
-      </RoutePreview>
-    </PageFadeIn>
+      </PageFadeIn>
+    </RoutePreview>
   );
 };
 MessagesRoutePreview.propTypes = {

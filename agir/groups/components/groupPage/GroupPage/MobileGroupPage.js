@@ -42,7 +42,6 @@ const StyledTab = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     scroll-margin-top: 120px;
-    min-height: 100vh;
   }
 `;
 

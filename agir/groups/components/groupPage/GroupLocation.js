@@ -70,7 +70,7 @@ const GroupLocation = (props) => {
   } = location;
 
   return (
-    <Card title="Accès" editUrl={routes && routes.edit}>
+    <Card title="Accès" editUrl={routes && routes.edit} outlined>
       {coordinates && Array.isArray(coordinates.coordinates) ? (
         <StyledMap>
           <Map

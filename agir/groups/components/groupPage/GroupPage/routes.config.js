@@ -31,8 +31,7 @@ const routeConfig = {
     pathname: "/groupes/:groupPk/comptes-rendus/",
     label: "Comptes-rendus",
     hasTab: true,
-    hasRoute: (group) =>
-      group.isManager || (group.isMember && group.hasPastEventReports),
+    hasRoute: (group) => group.hasPastEventReports,
   },
 };
 

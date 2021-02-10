@@ -352,9 +352,13 @@ class CreateEventView(SoftLoginRequiredMixin, TemplateView):
         if person.first_name and person.last_name:
             initial["name"] = "{} {}".format(person.first_name, person.last_name)
 
-        initial_group = self.request.GET.get("group")
-        if initial_group in [g["id"] for g in groups]:
-            initial["organizerGroup"] = initial_group
+        initial_group_id = self.request.GET.get("group")
+        initial_group = next(
+            (group for group in groups if group["id"] == initial_group_id), None
+        )
+        if initial_group is not None:
+            initial["organizerGroup"] = initial_group["id"]
+            initial["forUsers"] = initial_group["forUsers"]
 
         subtype_queryset = EventSubtype.objects.filter(
             visibility=EventSubtype.VISIBILITY_ALL

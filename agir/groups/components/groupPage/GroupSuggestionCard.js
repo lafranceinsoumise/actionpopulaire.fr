@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -15,8 +16,9 @@ const StyledBody = styled.div``;
 const StyledCard = styled(Card)`
   padding: 0;
   max-width: 397px;
-  border: 1px solid ${style.black200};
+  border: 1px solid ${style.black100};
   box-shadow: none;
+  cursor: pointer;
 
   @media (max-width: ${style.collapse}px) {
     max-width: 294px;
@@ -67,8 +69,15 @@ const GroupSuggestionCard = (props) => {
     iconConfiguration,
   } = props;
 
+  const history = useHistory();
+  const handleClick = React.useCallback(() => {
+    id &&
+      routeConfig.groupDetails &&
+      history.push(routeConfig.groupDetails.getLink({ groupPk: id }));
+  }, [history, id]);
+
   return (
-    <StyledCard>
+    <StyledCard onClick={handleClick}>
       <StyledMap>
         <Map
           center={
@@ -83,11 +92,9 @@ const GroupSuggestionCard = (props) => {
       <StyledBody>
         <h4>{name}</h4>
         <p>
-          <FeatherIcon name="map-pin" small inline />
+          {(zip || city) && <FeatherIcon name="map-pin" small inline />}
           &nbsp;
-          {(zip || city) && (
-            <span>{[zip, city].filter(Boolean).join(" ")}</span>
-          )}
+          {(zip || city) && <span>{`${zip} ${city}`.trim()}</span>}
         </p>
         <Button
           as="Link"

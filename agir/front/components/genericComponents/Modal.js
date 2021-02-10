@@ -179,7 +179,7 @@ const Modal = (props) => {
 Modal.propTypes = {
   shouldShow: PropTypes.bool,
   children: PropTypes.node,
-  onClick: PropTypes.func,
+  onClose: PropTypes.func,
   noScroll: PropTypes.bool,
 };
 

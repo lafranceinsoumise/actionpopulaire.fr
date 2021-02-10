@@ -19,6 +19,8 @@ export const ENDPOINT = {
   getComments: "/api/groupes/messages/:messagePk/comments/",
   createComment: "/api/groupes/messages/:messagePk/comments/",
   deleteComment: "/api/groupes/messages/comments/:commentPk/",
+
+  report: "/api/report/",
 };
 
 export const getGroupPageEndpoint = (key, params) => {
@@ -86,6 +88,26 @@ export const deleteMessage = async (message) => {
   return result;
 };
 
+export const reportMessage = async (message) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("report");
+  const body = {
+    object_id: message.id,
+    content_type: "msgs.supportgroupmessage",
+  };
+  try {
+    const response = await axios.post(url, body);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
 export const createComment = async (messagePk, comment) => {
   const result = {
     data: null,
@@ -113,6 +135,26 @@ export const deleteComment = async (comment) => {
   const url = getGroupPageEndpoint("deleteComment", { commentPk: comment.id });
   try {
     const response = await axios.delete(url);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const reportComment = async (comment) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("report");
+  const body = {
+    object_id: comment.id,
+    content_type: "msgs.supportgroupmessagecomment",
+  };
+  try {
+    const response = await axios.post(url, body);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

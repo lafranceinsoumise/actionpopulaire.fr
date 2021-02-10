@@ -65,8 +65,6 @@ const GroupPage = (props) => {
           label: "Gestion du groupe",
         })
       );
-    } else {
-      dispatch(setTopBarRightLink(null));
     }
   }, [isManager, routes, dispatch]);
 

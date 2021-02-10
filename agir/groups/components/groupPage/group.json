@@ -23,13 +23,15 @@
     "email": "isabelini@gmail.com",
     "phone": "06 42 23 12 01"
   },
-  "referents": [
+  "managers": [
     {
-      "displayName": "Isabelle Guérini"
+      "displayName": "Isabelle Guérini",
+      "gender": "F"
     },
     {
       "displayName": "Bill Murray",
-      "avatar": "https://www.fillmurray.com/180/180"
+      "avatar": "https://www.fillmurray.com/180/180",
+      "gender": "M"
     }
   ],
   "links": [

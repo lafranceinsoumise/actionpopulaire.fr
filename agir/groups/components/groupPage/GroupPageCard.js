@@ -19,12 +19,15 @@ const StyledCard = styled(Card)`
 
   && {
     @media (min-width: ${style.collapse}px) {
-      margin-bottom: 2rem;
+      background-color: transparent;
+      margin-bottom: 1.5rem;
     }
   }
 
   @media (max-width: ${style.collapse}px) {
-    padding: 1rem;
+    padding: 1.5rem 1rem;
+    box-shadow: rgba(0, 35, 44, 0.5) 0px 0px 1px,
+      rgba(0, 35, 44, 0.08) 0px 2px 0px;
   }
 
   ${({ highlight }) =>
@@ -41,13 +44,23 @@ const StyledCard = styled(Card)`
   `
       : ""}
 
+  ${({ outlined }) =>
+    outlined
+      ? `
+    @media (min-width: ${style.collapse}px) {
+      padding: 1.5rem;
+      border: 1px solid ${style.black100};
+    }
+  `
+      : ""}
+
   ${StyledHead} {
     flex: 0 0 auto;
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
     height: 1.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 
     &:empty {
       display: none;
@@ -117,5 +130,6 @@ GroupPageCard.propTypes = {
   title: PropTypes.string,
   editUrl: PropTypes.string,
   highlight: PropTypes.string,
+  outlined: PropTypes.bool,
 };
 export default GroupPageCard;
