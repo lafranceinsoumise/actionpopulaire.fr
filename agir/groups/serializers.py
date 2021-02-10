@@ -244,7 +244,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             self.membership is not None
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
         ):
-            routes["createEvent"] = front_url("create_event")
+            routes["createEvent"] = f'{front_url("create_event")}?group={str(obj.pk)}'
             routes["settings"] = front_url("manage_group", kwargs={"pk": obj.pk})
             routes["edit"] = front_url("edit_group", kwargs={"pk": obj.pk})
             routes["members"] = front_url(
