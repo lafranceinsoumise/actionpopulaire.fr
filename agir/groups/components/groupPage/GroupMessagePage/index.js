@@ -84,8 +84,6 @@ const Page = ({ groupPk, messagePk }) => {
           label: "Gestion du groupe",
         })
       );
-    } else {
-      dispatch(setTopBarRightLink(null));
     }
   }, [group, dispatch]);
 

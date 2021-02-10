@@ -26,12 +26,18 @@ const Page = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
 
   useEffect(() => {
-    dispatch(setBackLink(routeConfig.backLink));
-    return () => {
+    isSessionLoaded &&
+      routeConfig.backLink &&
+      dispatch(setBackLink(routeConfig.backLink));
+  }, [isSessionLoaded, dispatch, routeConfig.backLink]);
+
+  useEffect(
+    () => () => {
       dispatch(setBackLink(null));
       dispatch(setTopBarRightLink(null));
-    };
-  }, [isSessionLoaded, dispatch, routeConfig.backLink]);
+    },
+    [dispatch]
+  );
 
   useMemo(() => {
     typeof window !== "undefined" && window.scrollTo && window.scrollTo(0, 0);
