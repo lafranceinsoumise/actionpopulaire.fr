@@ -253,11 +253,6 @@ const StyledWrapper = styled.div`
     border: none;
     padding: 1.5rem 1rem;
     box-shadow: ${style.elaborateShadow};
-
-    &:first-child:last-child {
-      padding-top: 0;
-      box-shadow: none;
-    }
   }
 
   & + & {

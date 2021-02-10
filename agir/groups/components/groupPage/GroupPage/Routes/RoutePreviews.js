@@ -83,10 +83,14 @@ const RoutePreview = styled.div`
         box-shadow: ${style.elaborateShadow};
         padding: 1rem;
         background-color: ${style.white};
+      }
 
-        & > * {
+      & > * {
+        @media (max-width: ${style.collapse}px) {
           margin: 0;
           padding: 0;
+          padding-top: 0;
+          box-shadow: none;
         }
       }
     }
@@ -119,7 +123,7 @@ export const AgendaRoutePreview = (props) => {
           </span>
           {goToAgendaTab && (
             <button onClick={goToAgendaTab}>
-              Voir tout{" "}
+              Voir l'agenda{" "}
               <RawFeatherIcon
                 name="arrow-right"
                 width="1rem"
@@ -164,10 +168,10 @@ export const MessagesRoutePreview = (props) => {
     <RoutePreview>
       <PageFadeIn ready={!isLoadingMessages} wait={<Skeleton boxes={1} />}>
         <h3>
-          <span>Discussions</span>
+          <span>Le dernier message</span>
           {goToMessagesTab && (
             <button onClick={goToMessagesTab}>
-              Voir tout{" "}
+              Voir les discussions{" "}
               <RawFeatherIcon
                 name="arrow-right"
                 width="1rem"
