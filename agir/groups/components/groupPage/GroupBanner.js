@@ -10,6 +10,8 @@ import Modal from "@agir/front/genericComponents/Modal";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import GroupLocation from "@agir/groups/groupPage/GroupLocation";
 
+import bannerMapBackground from "@agir/groups/groupPage/images/banner-map-background.svg";
+
 const StyledModalBody = styled.div`
   display: flex;
   flex-flow: column nowrap;
@@ -127,6 +129,10 @@ const StyledBanner = styled.div`
       clip-path: none;
       width: 100%;
       flex-basis: 155px;
+      background-image: url(${bannerMapBackground});
+      background-position: center center;
+      background-size: cover;
+      background-repeat: no-repeat;
     }
   }
 `;
@@ -153,26 +159,26 @@ const GroupBanner = (props) => {
 
   return (
     <StyledBanner>
-      {hasMap ? (
-        <>
-          <StyledMap onClick={openModal}>
-            <Map
-              zoom={11}
-              center={location.coordinates.coordinates}
-              iconConfiguration={iconConfiguration}
-              isStatic
-            />
-          </StyledMap>
-          <Modal shouldShow={shouldShowModal} onClose={closeModal} noScroll>
-            <StyledModalBody>
-              <button onClick={closeModal} aria-label="Fermer">
-                <RawFeatherIcon name="x" width="1.5rem" heigth="1.5rem" />
-              </button>
-              <GroupLocation {...props} />
-            </StyledModalBody>
-          </Modal>
-        </>
-      ) : null}
+      <StyledMap onClick={hasMap ? openModal : undefined}>
+        {hasMap && (
+          <Map
+            zoom={11}
+            center={location.coordinates.coordinates}
+            iconConfiguration={iconConfiguration}
+            isStatic
+          />
+        )}
+      </StyledMap>
+      {hasMap && (
+        <Modal shouldShow={shouldShowModal} onClose={closeModal} noScroll>
+          <StyledModalBody>
+            <button onClick={closeModal} aria-label="Fermer">
+              <RawFeatherIcon name="x" width="1.5rem" heigth="1.5rem" />
+            </button>
+            <GroupLocation {...props} />
+          </StyledModalBody>
+        </Modal>
+      )}
       <header>
         <h2>{name}</h2>
         <h4>
