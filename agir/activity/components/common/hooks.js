@@ -38,7 +38,9 @@ export const useRequiredActivityCount = () => {
 export const useCustomAnnouncement = (slug) => {
   const { data } = useSWR("/api/session/");
   const announcement =
-    data && data.announcements.find((a) => a.customDisplay === slug);
+    data &&
+    Array.isArray(data.announcements) &&
+    data.announcements.find((a) => a.customDisplay === slug);
 
   useEffect(() => {
     if (!announcement) return;
