@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import Card from "./GroupPageCard";
 import Collapsible from "@agir/front/genericComponents/Collapsible";
 
@@ -12,6 +14,17 @@ const StyledCard = styled(Card)`
 
   p + p {
     margin-top: 11px;
+  }
+
+  && a {
+    color: ${style.primary500};
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: inherit;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 `;
 

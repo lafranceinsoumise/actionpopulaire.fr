@@ -472,13 +472,13 @@ const MessageCard = (props) => {
           ))}
         </StyledContent>
         {event ? <EventCard {...event} /> : null}
-        {typeof commentCount === "number" && commentCount > 1 ? (
+        {commentCount ? (
           <StyledCommentCount
             onClick={handleClick}
             style={{ cursor: "pointer" }}
           >
             <RawFeatherIcon name="message-circle" color={style.primary500} />
-            &ensp;Voir {commentCount} commentaires
+            &ensp;Voir les {commentCount} commentaires
           </StyledCommentCount>
         ) : null}
         <StyledComments>

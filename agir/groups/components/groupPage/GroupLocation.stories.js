@@ -45,3 +45,10 @@ Default.args = {
   longitude: 49.8844,
   iconConfiguration: { color: "#49b37d", iconName: "book" },
 };
+
+export const NoMap = Template.bind({});
+NoMap.args = {
+  ...Default.args,
+  latitude: null,
+  longitude: null,
+};

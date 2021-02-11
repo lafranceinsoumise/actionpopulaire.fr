@@ -211,12 +211,5 @@ class SupportGroupDetailView(
         return super().get_context_data(**kwargs)
 
 
-class SupportGroupMessageDetailView(
-    SoftLoginRequiredMixin, SupportGroupDetailMixin, BaseDetailView, ReactBaseView
-):
+class SupportGroupMessageDetailView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
-
-    def get_context_data(self, **kwargs):
-        kwargs["export_data"] = {"pk": self.object.pk}
-
-        return super().get_context_data(**kwargs)

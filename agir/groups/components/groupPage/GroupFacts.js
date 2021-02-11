@@ -27,10 +27,6 @@ const StyledList = styled.ul`
     align-items: baseline;
     min-height: 26px;
 
-    &:nth-child(3) {
-      break-after: always;
-    }
-
     span + span {
       padding-left: 0.5rem;
     }
