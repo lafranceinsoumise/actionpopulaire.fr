@@ -7,6 +7,7 @@ const common = require("./webpack.common.js");
 const STATIC_URL = "/static";
 
 module.exports = merge.merge(common, {
+  devtool: "source-map",
   output: {
     publicPath: path.join(STATIC_URL, "components/"),
     assetModuleFilename: "files/[hash][ext][query]",
