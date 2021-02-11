@@ -57,9 +57,12 @@ def get_announcements(person=None):
         return [
             a
             for a in announcements.exclude(
-                activity__in=Activity.objects.filter(
-                    recipient=person, status=Activity.STATUS_INTERACTED
-                )
+                Q(
+                    activity__in=Activity.objects.filter(
+                        recipient=person, status=Activity.STATUS_INTERACTED
+                    )
+                ),
+                ~Q(custom_display=""),
             )
             .annotate(
                 activity_id=Subquery(
