@@ -69,13 +69,10 @@ const GroupContactCard = (props) => {
     if (!Array.isArray(referents) || referents.length === 0) {
       return "";
     }
-    const gender = referents.reduce(
-      (genders, referent) =>
-        !referent.gender || referent.gender === genders
-          ? genders
-          : genders + referent.gender,
-      ""
-    );
+    const gender = referents.reduce((genders, referent) => {
+      const gender = referent.gender || "?";
+      return gender === genders ? genders : genders + gender;
+    }, "");
     return `${getGenderedWord(
       gender,
       "Animateur·ice",

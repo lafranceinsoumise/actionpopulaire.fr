@@ -128,6 +128,7 @@ const StyledBanner = styled.div`
     @media (max-width: ${style.collapse}px) {
       clip-path: none;
       width: 100%;
+      height: 155px;
       flex-basis: 155px;
       background-image: url(${bannerMapBackground});
       background-position: center center;
