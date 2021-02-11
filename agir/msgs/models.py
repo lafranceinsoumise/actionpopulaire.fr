@@ -20,6 +20,10 @@ class UserReport(TimeStampedModel):
     object_id = models.UUIDField()
     reported_object = GenericForeignKey()
 
+    class Meta:
+        verbose_name = "Signalement"
+        verbose_name_plural = "Signalements"
+
 
 class AbstractMessage(BaseAPIResource):
     author = models.ForeignKey(
