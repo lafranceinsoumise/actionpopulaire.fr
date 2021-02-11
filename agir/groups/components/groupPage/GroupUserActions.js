@@ -74,7 +74,7 @@ const StyledContent = styled.div`
     width: 100%;
     padding: 0 1rem 1.5rem;
     margin-bottom: 0;
-    align-items: stretch;
+    align-items: center;
     display: ${({ hideOnMobile }) => (hideOnMobile ? "none" : "flex")};
   }
 
@@ -99,6 +99,7 @@ const StyledContent = styled.div`
       font-size: 0.688rem;
       font-weight: 400;
       color: ${style.black1000};
+      margin-bottom: 0;
     }
   }
 
