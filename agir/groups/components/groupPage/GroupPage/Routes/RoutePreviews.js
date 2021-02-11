@@ -118,12 +118,10 @@ export const AgendaRoutePreview = (props) => {
     <RoutePreview>
       <PageFadeIn ready={!!lastEvent} wait={<Skeleton boxes={1} />}>
         <h3>
-          <span>
-            {isUpcoming ? "Événement à venir" : "Le dernier événement"}
-          </span>
+          <span>{isUpcoming ? "Événement à venir" : "Dernier événement"}</span>
           {goToAgendaTab && (
             <button onClick={goToAgendaTab}>
-              Voir l'agenda{" "}
+              Agenda{" "}
               <RawFeatherIcon
                 name="arrow-right"
                 width="1rem"
@@ -168,10 +166,10 @@ export const MessagesRoutePreview = (props) => {
     <RoutePreview>
       <PageFadeIn ready={!isLoadingMessages} wait={<Skeleton boxes={1} />}>
         <h3>
-          <span>Le dernier message</span>
+          <span>Dernier message</span>
           {goToMessagesTab && (
             <button onClick={goToMessagesTab}>
-              Voir les discussions{" "}
+              Discussions{" "}
               <RawFeatherIcon
                 name="arrow-right"
                 width="1rem"
