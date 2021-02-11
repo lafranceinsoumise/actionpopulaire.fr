@@ -26,18 +26,17 @@ module.exports = merge.merge(common, {
     poll: 1000,
   },
   devServer: {
-    publicPath: `http://${serverName}:${port}/static/components/`,
+    dev: { publicPath: `http://${serverName}:${port}/static/components/` },
     public: `${serverName}:${port}`,
-    contentBase: path.join(__dirname, "/assets/components/"),
+    static: [path.join(__dirname, "/assets/components/")],
     compress: true,
-    hot: true,
-    hotOnly: true,
+    hot: "only",
     host: serverName === "localhost" ? "localhost" : "0.0.0.0",
     port: port,
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
-    allowedHosts: ["agir.local"], // l'appli Django est toujours sur agir.local
+    firewall: ["agir.local"], // l'appli Django est toujours sur agir.local
   },
   optimization: {
     moduleIds: "named",

@@ -22,7 +22,7 @@
       commune = JSON.parse(communeScriptElement.textContent);
     }
 
-    window['carte/map'].listMap('map', {
+    window.Agir['carte/map'].listMap('map', {
       endpoint: '{% url "carte:event_list" %}{{ querystring }}',
       listType: 'events',
       types,

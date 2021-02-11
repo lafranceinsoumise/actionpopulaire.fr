@@ -68,7 +68,7 @@ module.exports = {
   ],
   output: {
     libraryTarget: "window",
-    library: "[name]",
+    library: ["Agir", "[name]"],
     filename: "[name]-[chunkhash].js",
     path: DISTPATH,
   },
