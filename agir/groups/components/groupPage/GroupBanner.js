@@ -22,11 +22,9 @@ const StyledModalBody = styled.div`
   border-radius: 8px;
 
   @media (max-width: ${style.collapse}px) {
-    min-height: 100vh;
-    max-width: 100%;
-    margin: 0;
-    box-shadow: none;
-    border-radius: 0;
+    max-width: calc(100% - 20px);
+    margin: 10px auto 0;
+    padding-bottom: 10px;
   }
 
   && > * {
@@ -53,10 +51,6 @@ const StyledModalBody = styled.div`
   && > button + * {
     padding-top: 0;
     padding-bottom: 2.5rem;
-
-    @media (max-width: ${style.collapse}px) {
-      padding-top: 1rem;
-    }
   }
 `;
 const StyledMap = styled.div``;
