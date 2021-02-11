@@ -38,6 +38,7 @@ class LinkedEventField(serializers.RelatedField):
 
 
 class SupportGroupMessageSerializer(BaseMessageSerializer):
+    RECENT_COMMENT_LIMIT = 4
     LIST_FIELDS = (
         "id",
         "created",
@@ -70,7 +71,9 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
     comments = serializers.SerializerMethodField(read_only=True)
 
     def get_recentComments(self, obj):
-        recent_comments = obj.comments.filter(deleted=False).order_by("-created")[:1]
+        recent_comments = obj.comments.filter(deleted=False).order_by("-created")[
+            : self.RECENT_COMMENT_LIMIT
+        ]
         if recent_comments is not None:
             recent_comments = MessageCommentSerializer(
                 recent_comments, context=self.context, many=True
@@ -78,7 +81,9 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         return recent_comments
 
     def get_commentCount(self, obj):
-        return obj.comments.filter(deleted=False).count()
+        count = obj.comments.filter(deleted=False).count()
+        if count > self.RECENT_COMMENT_LIMIT:
+            return count
 
     def get_comments(self, obj):
         return MessageCommentSerializer(

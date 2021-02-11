@@ -267,9 +267,12 @@ export const messages = (state = {}, action) => {
           newState[newMessage.id] = {
             ...newMessage,
             comments: Array.isArray(newMessage.comments)
-              ? newMessage.comments.filter((c) => c.id !== action.comment.id)
-              : [],
+              ? newMessage.comments
+              : newMessage.recentComments,
           };
+          newState[newMessage.id].comments = newState[
+            newMessage.id
+          ].comments.filter((c) => c.id !== action.comment.id);
           if (typeof newState[newMessage.id].commentCount === "number") {
             newState[newMessage.id].commentCount -= 1;
           }
