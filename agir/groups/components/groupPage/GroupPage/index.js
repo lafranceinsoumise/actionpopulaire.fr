@@ -19,7 +19,7 @@ import {
   getUser,
 } from "@agir/front/globalContext/reducers";
 
-import { useCustomAnnouncement } from "@agir/activity/common/helpers";
+import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 
 import { useGroupDetail } from "@agir/groups/groupPage/hooks";
 

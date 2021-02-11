@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { useCustomAnnouncement } from "@agir/activity/common/helpers";
+import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import MessageCard from "@agir/front/genericComponents/MessageCard";
