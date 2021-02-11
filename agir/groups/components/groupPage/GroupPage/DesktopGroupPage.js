@@ -27,9 +27,10 @@ import Routes from "./Routes";
 export const DesktopGroupPageSkeleton = () => (
   <Container
     style={{
-      margin: "4rem auto",
+      margin: "0 auto 4rem",
       padding: "2rem 0 4rem",
       background: "white",
+      maxWidth: "1336px",
     }}
   >
     <Row gutter={32} style={{ marginBottom: "3.5rem" }}>
@@ -41,7 +42,7 @@ export const DesktopGroupPageSkeleton = () => (
       <Column grow>
         <Skeleton />
       </Column>
-      <Column width="460px">
+      <Column width="320px">
         <Skeleton />
       </Column>
     </Row>
@@ -125,9 +126,10 @@ const DesktopGroupPage = (props) => {
   return (
     <Container
       style={{
-        margin: "4rem auto",
+        margin: "0 auto 4rem",
         padding: "0 4rem",
         background: "white",
+        maxWidth: "1336px",
       }}
     >
       {!!backLink && (
@@ -181,7 +183,7 @@ const DesktopGroupPage = (props) => {
           })}
         </Switch>
 
-        <Column width="460px">
+        <Column width="320px">
           <GroupUserActions {...group} />
           <GroupOrders {...group} />
           <div style={{ backgroundColor: style.black25, padding: "2rem" }}>

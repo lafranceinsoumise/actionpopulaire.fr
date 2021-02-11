@@ -92,7 +92,7 @@ export const GroupMessages = (props) => {
   return (
     <StyledWrapper>
       {Array.isArray(messages) && messages.length > 0 && writeNewMessage ? (
-        <div style={{ border: `1px solid ${style.black50}` }}>
+        <div style={{ border: `1px solid ${style.black100}` }}>
           <MessageModalTrigger onClick={writeNewMessage} />
         </div>
       ) : null}
