@@ -26,7 +26,7 @@
       commune = JSON.parse(communeScriptElement.textContent);
     }
 
-    window['carte/map'].listMap('map', {
+    window.Agir['carte/map'].listMap('map', {
       endpoint: '{% url "carte:group_list" %}{{ querystring }}',
       listType: 'groups',
       types,

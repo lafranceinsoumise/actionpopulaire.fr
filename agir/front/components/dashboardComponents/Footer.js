@@ -16,7 +16,7 @@ import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import LogoAP from "@agir/front/genericComponents/LogoAP";
 
-import footerBanner from "./images/footer-banner.png";
+import footerBanner from "./images/footer-banner.jpg";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 const FooterForm = styled.div`

@@ -14,7 +14,8 @@ import facebookWhiteLogo from "@agir/front/genericComponents/logos/facebook_whit
 import Button from "@agir/front/genericComponents/Button";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
-import { useCustomAnnouncement } from "@agir/activity/common/helpers";
+import { useCustomAnnouncement } from "@agir/activity/common/hooks";
+import useSWR from "swr";
 
 export const LayoutSubtitle = styled.h2`
   color: ${style.black700};
@@ -117,8 +118,9 @@ const FacebookLoginAd = () => {
   const [announcement, dismissCallback] = useCustomAnnouncement(
     "facebook-login-ad"
   );
+  const { data: session } = useSWR("/api/session/");
 
-  return announcement ? (
+  return session && !session.facebookLogin && announcement ? (
     <FacebookLoginContainer>
       <img
         src={facebookLogo}

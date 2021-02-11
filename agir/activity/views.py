@@ -1,9 +1,11 @@
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from agir.activity.actions import get_activities, get_required_action_activities
 from agir.activity.models import Activity, Announcement
 from agir.activity.serializers import ActivitySerializer, ActivityStatusUpdateRequest
 from agir.lib.rest_framework_permissions import (
@@ -15,7 +17,26 @@ from agir.lib.rest_framework_permissions import (
 class ActivityAPIView(RetrieveUpdateAPIView):
     queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
-    permission_classes = (GlobalOrObjectPermissions,)
+    permission_classes = (
+        IsAuthenticated,
+        GlobalOrObjectPermissions,
+    )
+
+
+class UserActivitiesAPIView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ActivitySerializer
+
+    def get_queryset(self):
+        return get_activities(self.request.user.person)
+
+
+class UserRequiredActivitiesAPIView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ActivitySerializer
+
+    def get_queryset(self):
+        return get_required_action_activities(self.request.user.person)
 
 
 class AnnouncementLinkView(DetailView):

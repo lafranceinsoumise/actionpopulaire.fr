@@ -14,6 +14,6 @@
     var popupContent = '<a href="{{ FRONT_DOMAIN }}{% url "view_event" event.id %}" style="color:' + subtype.color +
       ';">{{ event.name }}</a><br />{{ event.get_display_date }}';
 
-    window['carte/map'].itemMap('map', coordinates, subtype, popupContent);
+    window.Agir['carte/map'].itemMap('map', coordinates, subtype, popupContent);
   </script>
 {% endblock %}

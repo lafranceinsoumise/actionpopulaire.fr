@@ -4,32 +4,29 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getRoutes } from "@agir/front/globalContext/reducers";
 import {
-  useDispatch,
-  useSelector,
-} from "@agir/front/globalContext/GlobalContext";
-import {
-  getIsSessionLoaded,
-  getRequiredActionActivities,
-  getRequiredActionActivityCount,
-  getRoutes,
-} from "@agir/front/globalContext/reducers";
-import {
-  dismissRequiredActionActivity,
-  undoRequiredActionActivityDismissal,
-} from "@agir/front/globalContext/actions";
-import { activityStatus, getUninteracted } from "@agir/activity/common/helpers";
+  activityStatus,
+  getUninteracted,
+  getUninteractedCount,
+} from "@agir/activity/common/helpers";
 
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import Activities from "@agir/activity/common/Activities";
 
 import {
-  LayoutTitle,
   LayoutSubtitle,
+  LayoutTitle,
 } from "@agir/front/dashboardComponents/Layout";
 import RequiredActionCard from "./RequiredActionCard";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import useSWR from "swr";
+import {
+  dismissRequiredActionActivity,
+  undoRequiredActionActivityDismissal,
+} from "@agir/activity/common/actions";
 
 const Page = styled.article`
   margin: 0;
@@ -54,27 +51,23 @@ const Counter = styled.span`
 `;
 
 const RequiredActivityList = () => {
-  const isSessionLoaded = useSelector(getIsSessionLoaded);
-  const activities = useSelector(getRequiredActionActivities);
-  const uninteractedCount = useSelector(getRequiredActionActivityCount);
   const routes = useSelector(getRoutes);
-  const dispatch = useDispatch();
+  const session = useSWR("/api/session/");
+  let { data: activities } = useSWR("/api/user/required-activities/");
+  let uninteractedCount = getUninteractedCount(activities);
 
   const [displayAll, setDisplayAll] = useState(false);
   const toggleDisplayAll = useCallback((shouldDisplayAll) => {
     setDisplayAll(Boolean(shouldDisplayAll));
   }, []);
 
-  const handleDismiss = useCallback(
-    async (id, status) => {
-      dispatch(
-        status !== activityStatus.STATUS_INTERACTED
-          ? dismissRequiredActionActivity(id)
-          : undoRequiredActionActivityDismissal(id)
-      );
-    },
-    [dispatch]
-  );
+  const handleDismiss = async (id, status) => {
+    if (status !== activityStatus.STATUS_INTERACTED) {
+      await dismissRequiredActionActivity(id);
+    } else {
+      await undoRequiredActionActivityDismissal(id);
+    }
+  };
 
   const visibleActivities = useMemo(
     () => (displayAll ? activities : getUninteracted(activities)),
@@ -82,8 +75,6 @@ const RequiredActivityList = () => {
   );
 
   const tabs = useMemo(() => ["non traité", "voir tout"], []);
-
-  visibleActivities.forEach((a) => console.log(a.id, a.type, a.status));
 
   return (
     <>
@@ -99,7 +90,7 @@ const RequiredActivityList = () => {
           Vos actions à traiter en priorité, pour ne rien oublier !
         </LayoutSubtitle>
         <PageFadeIn
-          ready={isSessionLoaded}
+          ready={session && activities}
           wait={
             <div style={{ marginTop: "32px" }}>
               <Skeleton />

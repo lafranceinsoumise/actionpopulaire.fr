@@ -82,6 +82,9 @@ class MandatQueryset(models.QuerySet):
     def potentiels(self):
         return self.exclude(statut=StatutMandat.FAUX)
 
+    def actifs(self):
+        return self.filter(dates__contains=timezone.now)
+
 
 class MandatHistoryMixin(HistoryMixin):
     def get_history_step(cls, old, new, **kwargs):

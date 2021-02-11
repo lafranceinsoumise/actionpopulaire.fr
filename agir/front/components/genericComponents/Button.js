@@ -143,7 +143,7 @@ export const Button = styled.button.attrs(
 
   ${({ disabled }) => disabled && "cursor: not-allowed;"}
 
-  ${({ $icon, $labelColor, $small }) =>
+  ${({ $icon, $iconFill, $labelColor, $small }) =>
     $icon
       ? `
     &:before {
@@ -158,7 +158,7 @@ export const Button = styled.button.attrs(
         icons[$icon]
           .toSvg({
             color: encodeURI($labelColor),
-            fill: "currentColor",
+            fill: $iconFill ? "currentColor" : "none",
           })
           .replace("#", "%23")
         /*

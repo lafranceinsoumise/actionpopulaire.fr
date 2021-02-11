@@ -10,7 +10,11 @@ export default {
 
 const Template = (args) => (
   <TestGlobalContextProvider
-    value={{ user: args.isSigned, routes: args.routes }}
+    value={{
+      isSessionLoaded: true,
+      user: args.isSigned || null,
+      routes: args.routes,
+    }}
   >
     <Footer />
   </TestGlobalContextProvider>

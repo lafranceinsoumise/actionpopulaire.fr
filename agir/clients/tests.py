@@ -1,22 +1,18 @@
 import base64
 import uuid
 
-from oauth2_provider.admin import AccessToken
-
-from django.test import TestCase
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.test import TestCase
 from django.utils import timezone
-
-from rest_framework.test import APIRequestFactory, APITestCase
+from oauth2_provider.models import AccessToken
 from rest_framework import exceptions, status
+from rest_framework.test import APIRequestFactory, APITestCase
 
 from agir.clients.authentication import AccessTokenAuthentication
 from . import models, authentication, scopes
-
-from ..people.models import Person
-from ..events.models import Event, Calendar, OrganizerConfig, CalendarItem
 from ..authentication.models import Role
+from ..people.models import Person
 
 
 class TokenTestCase(TestCase):

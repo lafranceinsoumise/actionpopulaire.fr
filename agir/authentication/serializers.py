@@ -4,12 +4,9 @@ from django.middleware.csrf import get_token
 from django.urls import reverse
 from rest_framework import serializers
 
-from agir.activity.actions import (
-    get_activities,
-    get_required_action_activities,
-    get_announcements,
-)
-from agir.activity.serializers import ActivitySerializer, AnnouncementSerializer
+from agir.activity.actions import get_announcements
+from agir.activity.models import Activity
+from agir.activity.serializers import AnnouncementSerializer
 from agir.groups.models import SupportGroup
 from agir.lib.utils import front_url
 
@@ -34,13 +31,15 @@ class SessionSerializer(serializers.Serializer):
     csrfToken = serializers.SerializerMethodField(method_name="get_csrf_token")
     user = serializers.SerializerMethodField(method_name="get_user")
     toasts = serializers.SerializerMethodField(method_name="get_toasts")
-    activities = serializers.SerializerMethodField(method_name="get_activities")
-    requiredActionActivities = serializers.SerializerMethodField(
-        method_name="get_required_action_activities"
-    )
     announcements = serializers.SerializerMethodField(method_name="get_announcements")
     routes = serializers.SerializerMethodField(method_name="get_user_routes")
     facebookLogin = serializers.SerializerMethodField(method_name="get_facebook_login")
+    hasUnreadActivities = serializers.SerializerMethodField(
+        method_name="get_has_unread_activities"
+    )
+    requiredActionActivitiesCount = serializers.SerializerMethodField(
+        method_name="get_required_action_activities_count"
+    )
 
     def get_user_routes(self, request):
         if request.user.is_authenticated:
@@ -95,22 +94,6 @@ class SessionSerializer(serializers.Serializer):
             return UserContextSerializer(instance=request.user.person).data
         return False
 
-    def get_activities(self, request):
-        if request.user.is_authenticated and request.user.person is not None:
-            return ActivitySerializer(
-                many=True,
-                instance=get_activities(request.user.person),
-                context={"request": request},
-            ).data
-
-    def get_required_action_activities(self, request):
-        if request.user.is_authenticated and request.user.person is not None:
-            return ActivitySerializer(
-                many=True,
-                instance=get_required_action_activities(request.user.person),
-                context={"request": request},
-            ).data
-
     def get_announcements(self, request):
         if request.user.is_authenticated and request.user.person is not None:
             return AnnouncementSerializer(
@@ -120,6 +103,27 @@ class SessionSerializer(serializers.Serializer):
             ).data
 
     def get_facebook_login(self, request):
-        request.user.is_authenticated and request.user.social_auth.filter(
-            provider="facebook"
-        ).exists()
+        return (
+            request.user.is_authenticated
+            and request.user.social_auth.filter(provider="facebook").exists()
+        )
+
+    def get_has_unread_activities(self, request):
+        if request.user.is_authenticated and request.user.person is not None:
+            return (
+                Activity.objects.without_required_action()
+                .filter(
+                    recipient=request.user.person, status=Activity.STATUS_UNDISPLAYED
+                )
+                .exists()
+            )
+
+    def get_required_action_activities_count(self, request):
+        if request.user.is_authenticated and request.user.person is not None:
+            return (
+                Activity.objects.with_required_action()
+                .filter(recipient=request.user.person)
+                .exclude(status=Activity.STATUS_INTERACTED)
+                .distinct()
+                .count()
+            )

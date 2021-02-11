@@ -1,9 +1,13 @@
+from datetime import timedelta
+
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.timezone import now
 from rest_framework import status
 
 from agir.activity.actions import get_announcements
 from agir.activity.models import Activity, Announcement
+from agir.events.models import Event
 from agir.mailing.models import Segment
 from agir.people.models import Person
 
@@ -66,6 +70,27 @@ class ActivityAPIViewTestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_list_own_activities(self):
+        res = self.client.get("/api/user/required-activities/")
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+
+    def test_cannot_view_own_activity_if_cannot_view_linked_event(self):
+        event = Event.objects.create(
+            name="Evenement test",
+            visibility=Event.VISIBILITY_ADMIN,
+            start_time=now(),
+            end_time=now() + timedelta(minutes=30),
+        )
+        self.own_activity.event = event
+        self.own_activity.save()
+
+        res = self.client.get("/api/user/required-activities/")
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 0)
 
 
 class AnnouncementTestCase(TestCase):
