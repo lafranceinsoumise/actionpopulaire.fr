@@ -100,11 +100,9 @@ const DiscussionAnnouncement = ({ isActive, onClose, link }) => {
     <StyledAnnouncement>
       <div aria-hidden="true" />
       <p>
-        <br />
         <strong>
           Nouveau&nbsp;: discutez de vos prochaines actions ici&nbsp;!
         </strong>
-        <br />
         <span>
           Vos animateur·ices publieront des messages auxquels vous pourrez
           répondre sur cette page.{" "}
