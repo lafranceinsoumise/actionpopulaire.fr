@@ -15,6 +15,6 @@
     var popupContent = '<a href="{{ FRONT_DOMAIN }}{% url "view_group" group.id %}" style="color:' + subtype.color +
       ';">{{ group.name }}</a>';
 
-    window['carte/map'].itemMap('map', coordinates, subtype, popupContent);
+    window.Agir['carte/map'].itemMap('map', coordinates, subtype, popupContent);
   </script>
 {% endblock %}

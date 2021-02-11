@@ -1,16 +1,14 @@
 import "ol/ol.css";
 import "./style.css";
 
-export let listMap = async function () {
-  const listMapModule = await import("./listMap");
+export async function listMap() {
+  const listMapModule = (await import("./listMap")).default;
 
-  listMap = listMapModule.default;
-  listMap.apply(null, arguments);
-};
+  listMapModule.apply(null, arguments);
+}
 
-export let itemMap = async function () {
-  const itemMapModule = await import("./itemMap");
+export async function itemMap() {
+  const itemMapModule = (await import("./itemMap")).default();
 
-  itemMap = itemMapModule.default;
-  itemMap.apply(null, arguments);
-};
+  itemMapModule.apply(null, arguments);
+}
