@@ -35,3 +35,12 @@ export const Default = Template.bind({});
 Default.args = {
   ...group,
 };
+
+export const NoMap = Template.bind({});
+NoMap.args = {
+  ...group,
+  location: {
+    ...location,
+    coordinates: null,
+  },
+};

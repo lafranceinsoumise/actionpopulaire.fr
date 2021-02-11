@@ -1,6 +1,12 @@
 import PropTypes from "prop-types";
 import React, { Suspense, useEffect, useMemo } from "react";
-import { BrowserRouter, Switch, Route, useParams } from "react-router-dom";
+import {
+  BrowserRouter,
+  Switch,
+  Route,
+  useParams,
+  useLocation,
+} from "react-router-dom";
 
 import {
   useDispatch,
@@ -24,24 +30,23 @@ const Page = (props) => {
   const routeParams = useParams();
   const dispatch = useDispatch();
   const isSessionLoaded = useSelector(getIsSessionLoaded);
+  const { pathname } = useLocation();
 
   useEffect(() => {
     isSessionLoaded &&
       routeConfig.backLink &&
       dispatch(setBackLink(routeConfig.backLink));
-  }, [isSessionLoaded, dispatch, routeConfig.backLink]);
-
-  useEffect(
-    () => () => {
-      dispatch(setBackLink(null));
-      dispatch(setTopBarRightLink(null));
-    },
-    [dispatch]
-  );
+  }, [pathname, isSessionLoaded, dispatch, routeConfig.backLink]);
 
   useMemo(() => {
     typeof window !== "undefined" && window.scrollTo && window.scrollTo(0, 0);
   }, []);
+
+  useMemo(() => {
+    dispatch(setBackLink(null));
+    dispatch(setTopBarRightLink(null));
+    //eslint-disable-next-line
+  }, [pathname]);
 
   if (!routeConfig.hasLayout) {
     return (

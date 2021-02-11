@@ -249,11 +249,13 @@ export const useMessageActions = (props) => {
   }, [isUpdating, dismissMessageAction]);
 
   const isAuthor = useMemo(() => {
-    const isSelectedMessageAuthor =
-      user && selectedMessage && selectedMessage.author.id === user.id;
-    const isSelectedCommentAuthor =
-      user && selectedComment && selectedComment.author.id === user.id;
-    return isSelectedMessageAuthor || isSelectedCommentAuthor;
+    if (!selectedMessage && !selectedComment) {
+      return false;
+    }
+    if (selectedComment) {
+      return user && selectedComment && selectedComment.author.id === user.id;
+    }
+    return user && selectedMessage && selectedMessage.author.id === user.id;
   }, [user, selectedMessage, selectedComment]);
 
   return {
