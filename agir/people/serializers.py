@@ -158,9 +158,7 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         choices=SUBSCRIPTION_TYPE_CHOICES, default=SUBSCRIPTION_TYPE_LFI, required=False
     )
 
-    email = serializers.EmailField(
-        required=True, validators=[BlackListEmailValidator()]
-    )
+    email = serializers.EmailField(required=True,)
     location_zip = serializers.RegexField(regex=r"^[0-9]{5}$", required=True)
     first_name = serializers.CharField(
         max_length=person_fields["first_name"].max_length, required=False
