@@ -1,6 +1,6 @@
 import * as proj from "ol/proj";
 import PropTypes from "prop-types";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -78,29 +78,31 @@ const Map = (props) => {
   const { center, zoom = 14, iconConfiguration, isStatic, ...rest } = props;
 
   const [isLoaded, setIsLoaded] = useState(0);
-  const mapElement = useRef();
-  const map = useRef(null);
+  const mapObject = useRef(null);
 
-  useEffect(() => {
-    if (map.current && mapElement.current) {
-      map.current.getView().setCenter(proj.fromLonLat(center));
-      map.current.getView().setZoom(zoom);
-      setIsLoaded(true);
-    } else if (mapElement.current) {
-      map.current = createMap(
-        center,
-        zoom,
-        mapElement.current,
-        iconConfiguration,
-        isStatic
-      );
-      map.current.once("postrender", () => {
+  const mapRef = useCallback(
+    (mapElement) => {
+      if (mapObject.current && mapElement) {
+        mapObject.current.getView().setCenter(proj.fromLonLat(center));
+        mapObject.current.getView().setZoom(zoom);
         setIsLoaded(true);
-      });
-    }
-  }, [center, zoom, iconConfiguration, isStatic]);
+      } else if (mapElement) {
+        mapObject.current = createMap(
+          center,
+          zoom,
+          mapElement,
+          iconConfiguration,
+          isStatic
+        );
+        mapObject.current.once("postrender", () => {
+          setIsLoaded(true);
+        });
+      }
+    },
+    [center, zoom, iconConfiguration, isStatic]
+  );
 
-  return <StyledMapWrapper ref={mapElement} $isLoaded={isLoaded} {...rest} />;
+  return <StyledMapWrapper ref={mapRef} $isLoaded={isLoaded} {...rest} />;
 };
 Map.propTypes = {
   isStatic: PropTypes.bool,
