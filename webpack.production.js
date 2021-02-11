@@ -11,6 +11,7 @@ module.exports = merge.merge(common, {
   output: {
     publicPath: path.join(STATIC_URL, "components/"),
     assetModuleFilename: "files/[hash][ext][query]",
+    devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
   },
   mode: "production",
   plugins: [
