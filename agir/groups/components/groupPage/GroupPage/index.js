@@ -8,10 +8,7 @@ import {
   useDispatch,
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
-import {
-  setIs2022,
-  setTopBarRightLink,
-} from "@agir/front/globalContext/actions";
+import { setIs2022 } from "@agir/front/globalContext/actions";
 import {
   getIsSessionLoaded,
   getIsConnected,
@@ -25,7 +22,6 @@ import { useGroupDetail } from "@agir/groups/groupPage/hooks";
 
 const GroupPage = (props) => {
   const { groupPk } = props;
-
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const isConnected = useSelector(getIsConnected);
   const backLink = useSelector(getBackLink);
@@ -51,22 +47,11 @@ const GroupPage = (props) => {
     onCloseNewGroupPageModal,
   ] = useCustomAnnouncement("NewGroupPageModal");
 
-  const { is2022, isManager, routes } = group || {};
+  const { is2022 } = group || {};
 
   useEffect(() => {
     is2022 === true && dispatch(setIs2022());
   }, [is2022, dispatch]);
-
-  useEffect(() => {
-    if (isManager && routes.settings) {
-      dispatch(
-        setTopBarRightLink({
-          href: routes.settings,
-          label: "Gestion du groupe",
-        })
-      );
-    }
-  }, [isManager, routes, dispatch]);
 
   return (
     <>

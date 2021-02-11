@@ -2,6 +2,9 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { RouteConfig } from "@agir/front/app/routes.config";
 
+import { useDispatch } from "@agir/front/globalContext/GlobalContext";
+import { setTopBarRightLink } from "@agir/front/globalContext/actions";
+
 const routeConfig = {
   info: {
     id: "info",
@@ -36,6 +39,8 @@ const routeConfig = {
 };
 
 export const useTabs = (props, isMobile = true) => {
+  7;
+  const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
 
@@ -84,8 +89,12 @@ export const useTabs = (props, isMobile = true) => {
   }, [tabs, activeRoute]);
 
   const handleTabChange = useCallback(
-    (route, params) => {
-      route && route.getLink && history.push(route.getLink(params));
+    (route, params, shouldReplace) => {
+      if (route && route.getLink) {
+        shouldReplace
+          ? history.replace(route.getLink(params))
+          : history.push(route.getLink(params));
+      }
     },
     [history]
   );
@@ -103,6 +112,18 @@ export const useTabs = (props, isMobile = true) => {
   useEffect(() => {
     shouldRedirect && handleTabChange(activeRoute);
   }, [shouldRedirect, handleTabChange, activeRoute]);
+
+  useEffect(() => {
+    const { isManager, routes } = group || {};
+    if (isManager && routes.settings) {
+      dispatch(
+        setTopBarRightLink({
+          href: routes.settings,
+          label: "Gestion du groupe",
+        })
+      );
+    }
+  }, [dispatch, group, location.pathname]);
 
   useMemo(() => {
     window.scrollTo(0, 0);
