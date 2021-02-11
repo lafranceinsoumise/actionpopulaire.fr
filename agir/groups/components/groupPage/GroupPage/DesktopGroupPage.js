@@ -186,7 +186,7 @@ const DesktopGroupPage = (props) => {
         <Column width="320px">
           <GroupUserActions {...group} />
           <GroupOrders {...group} />
-          <div style={{ backgroundColor: style.black25, padding: "2rem" }}>
+          <div style={{ backgroundColor: style.black25, padding: "1.5rem" }}>
             <GroupContactCard {...group} />
             {allEvents && allEvents.length > 0 ? (
               <GroupDescription {...group} />

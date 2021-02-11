@@ -22,6 +22,10 @@ const StyledAddress = styled.div`
   flex-flow: row nowrap;
   align-items: flex-start;
 
+  &:first-child {
+    margin-top: 0;
+  }
+
   p {
     margin-left: 0.5rem;
     margin-bottom: 0;
