@@ -199,6 +199,13 @@ const StyledWrapper = styled.form`
         outline: none;
         opacity: 0.6;
       }
+
+      &[disabled],
+      &[disabled]:hover,
+      &[disabled]:focus {
+        opacity: 1;
+        cursor: default;
+      }
     }
   }
 `;
@@ -228,6 +235,8 @@ const CommentField = (props) => {
   const [value, setValue] = useState(initialValue || "");
 
   const isExpanded = !!value || isFocused;
+
+  const maySend = !isLoading && value && value.trim().length <= 1000;
 
   const handleFocus = useCallback(() => {
     setIsFocused(true);
@@ -299,10 +308,12 @@ const CommentField = (props) => {
   const handleSend = useCallback(
     (e) => {
       e.preventDefault();
-      onSend(value);
-      hasSubmitted.current = true;
+      if (maySend) {
+        onSend(value);
+        hasSubmitted.current = true;
+      }
     },
-    [onSend, value]
+    [maySend, onSend, value]
   );
 
   useEffect(() => {
@@ -314,12 +325,12 @@ const CommentField = (props) => {
 
   const handleInputKeyDown = useCallback(
     (e) => {
-      if (value && e.ctrlKey && e.keyCode === 13) {
+      if (maySend && e.ctrlKey && e.keyCode === 13) {
         onSend(value);
         hasSubmitted.current = true;
       }
     },
-    [value, onSend]
+    [maySend, value, onSend]
   );
 
   return (
@@ -349,6 +360,8 @@ const CommentField = (props) => {
                 label={user.displayName}
                 disabled={disabled || isLoading}
                 placeholder="Écrire un commentaire"
+                maxLength={1000}
+                hasCounter={false}
               />
               <EmojiPicker
                 onOpen={handleEmojiOpen}
@@ -372,12 +385,12 @@ const CommentField = (props) => {
             ) : (
               <button
                 type="submit"
-                disabled={!value}
+                disabled={!maySend}
                 aria-label="Envoyer le commentaire"
               >
                 <RawFeatherIcon
                   name="send"
-                  color={value ? style.primary500 : style.black500}
+                  color={maySend ? style.primary500 : style.black500}
                 />
               </button>
             )}
