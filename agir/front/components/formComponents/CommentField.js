@@ -79,6 +79,8 @@ const StyledWrapper = styled.form`
       border: none;
       border-radius: 0;
       max-height: 50vh;
+      overflow: hidden;
+      overflow-y: auto;
       padding: 1rem;
       background-color: white;
       box-shadow: 0px -3px 3px rgba(0, 35, 44, 0.1),
