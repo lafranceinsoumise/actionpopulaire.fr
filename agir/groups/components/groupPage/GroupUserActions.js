@@ -109,7 +109,25 @@ const StyledPanel = styled.div`
   }
 
   && ul {
-    margin-bottom: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      font-size: 0.813rem;
+      line-height: 1.3;
+      display: flex;
+      align-items: baseline;
+
+      a {
+        color: ${style.black1000};
+        margin-left: 0.5rem;
+      }
+    }
+
+    li + li {
+      margin-top: 0.5rem;
+    }
 
     li {
       align-items: center;
