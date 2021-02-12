@@ -6,7 +6,6 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 
-import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import MessageCard from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -170,7 +169,7 @@ export const MessagesRoutePreview = (props) => {
           <span>Dernier message</span>
           {goToMessagesTab && (
             <button onClick={goToMessagesTab}>
-              Discussions{" "}
+              Messages{" "}
               <RawFeatherIcon
                 name="arrow-right"
                 width="1rem"

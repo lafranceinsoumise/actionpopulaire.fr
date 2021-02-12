@@ -175,8 +175,7 @@ const Steps = {
                 En attendant, en tant que gestionnaire du groupe vous pouvez
                 supprimer le message.
               </strong>{" "}
-              Il disparaîtra de la discussion et plus personne ne pourra le
-              voir.
+              Il disparaîtra et plus personne ne pourra le voir.
             </p>
           ) : null}
         </StyledModalBody>

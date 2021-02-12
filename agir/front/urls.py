@@ -51,12 +51,12 @@ urlpatterns = [
         name="view_group_info",
     ),
     path(
-        "groupes/<uuid:pk>/discussion/",
+        "groupes/<uuid:pk>/messages/",
         views.SupportGroupDetailView.as_view(),
         name="view_group_messages",
     ),
     path(
-        "groupes/<uuid:pk>/discussion/<uuid:message_pk>/",
+        "groupes/<uuid:pk>/messages/<uuid:message_pk>/",
         views.SupportGroupMessageDetailView.as_view(),
         name="view_group_message",
     ),

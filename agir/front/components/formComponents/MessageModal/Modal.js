@@ -11,10 +11,11 @@ import ModalWrapper from "@agir/front/genericComponents/Modal";
 import EventStep from "./EventStep";
 import MessageStep from "./MessageStep";
 
-const getEmptyEvent = (events) => ({
+const EMPTY_EVENT = {
   id: null,
-  name: events && events.length ? "Autre événement futur" : "Événement futur",
-});
+  name: "Autre",
+  type: "NULL",
+};
 
 const StyledIconButton = styled.button`
   display: flex;
@@ -140,7 +141,7 @@ const Modal = (props) => {
     }
     return {
       ...message,
-      linkedEvent: getEmptyEvent(),
+      linkedEvent: EMPTY_EVENT,
     };
   }, [message]);
 
@@ -196,8 +197,8 @@ const Modal = (props) => {
   const eventOptions = useMemo(
     () =>
       Array.isArray(events) && events.length > 0
-        ? [getEmptyEvent(events), ...events]
-        : [getEmptyEvent(events)],
+        ? [EMPTY_EVENT, ...events]
+        : [EMPTY_EVENT],
     [events]
   );
 

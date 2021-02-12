@@ -131,9 +131,9 @@ export const routeConfig = {
   }),
   groupMessage: new RouteConfig({
     id: "groupMessage",
-    pathname: "/groupes/:groupPk/discussion/:messagePk/",
+    pathname: "/groupes/:groupPk/messages/:messagePk/",
     exact: true,
-    label: "Discussion du groupe",
+    label: "Message du groupe",
     Component: GroupMessagePage,
     hideFeedbackButton: true,
   }),

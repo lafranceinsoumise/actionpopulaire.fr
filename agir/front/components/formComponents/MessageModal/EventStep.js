@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import {
   FaComments,
+  FaComment,
   FaBullhorn,
   FaExclamation,
   FaCalendar,
@@ -19,6 +20,7 @@ const EVENT_TYPE_ICONS = {
   M: FaBullhorn,
   A: FaExclamation,
   O: FaCalendar,
+  NULL: FaComment,
   default: FaCalendar,
 };
 
@@ -166,7 +168,7 @@ const EventStep = (props) => {
 
   return (
     <StyledWrapper>
-      <h4>De quel événement souhaitez-vous parler ?</h4>
+      <h4>De quoi souhaitez-vous parler&nbsp;?</h4>
       {events.map((event) => (
         <EventStepOption
           key={event.id}

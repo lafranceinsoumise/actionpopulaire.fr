@@ -84,7 +84,7 @@ const Trigger = (props) => {
         height="13px"
         strokeWidth={3}
       />
-      <span>Nouvelle discussion du groupe</span>
+      <span>Envoyer un message au groupe</span>
     </StyledButton>
   );
 };

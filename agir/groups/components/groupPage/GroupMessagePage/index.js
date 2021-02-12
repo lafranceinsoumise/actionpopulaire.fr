@@ -54,7 +54,7 @@ const Page = ({ groupPk, messagePk }) => {
       routeConfig.groupDetails &&
       routeConfig.groupDetails.getLink({
         groupPk,
-        activeTab: "discussion",
+        activeTab: "messages",
       }),
     [groupPk]
   );
@@ -109,7 +109,7 @@ const Page = ({ groupPk, messagePk }) => {
           $maxWidth="780px"
           title={
             group && !group.isMember
-              ? "Cette discussion n'est pas disponible"
+              ? "Ce message n'est pas disponible"
               : undefined
           }
           icon={group && !group.isMember ? "lock" : undefined}

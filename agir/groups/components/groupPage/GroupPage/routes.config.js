@@ -15,8 +15,8 @@ const routeConfig = {
   },
   messages: {
     id: "messages",
-    pathname: "/groupes/:groupPk/discussion/",
-    label: "Discussion",
+    pathname: "/groupes/:groupPk/messages/",
+    label: "Messages",
     hasTab: true,
     hasRoute: (group) =>
       group.isManager || (group.isMember && group.hasMessages),
