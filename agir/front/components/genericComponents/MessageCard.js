@@ -130,6 +130,7 @@ const StyledContent = styled.div`
   padding: 0;
   font-size: inherit;
   line-height: 1.65;
+  cursor: pointer;
 
   @media (max-width: ${style.collapse}px) {
     font-size: 0.875rem;
@@ -218,6 +219,7 @@ const StyledCommentCount = styled.p`
   color: ${style.primary500};
   font-size: 0.875rem;
   font-weight: 500;
+  cursor: pointer;
 
   @media (max-width: ${style.collapse}px) {
     justify-content: flex-start;
@@ -475,10 +477,7 @@ const MessageCard = (props) => {
         </StyledContent>
         {event ? <EventCard {...event} /> : null}
         {commentCount ? (
-          <StyledCommentCount
-            onClick={handleClick}
-            style={{ cursor: "pointer" }}
-          >
+          <StyledCommentCount onClick={handleClick}>
             <RawFeatherIcon name="message-circle" color={style.primary500} />
             &ensp;Voir les {commentCount} commentaires
           </StyledCommentCount>
