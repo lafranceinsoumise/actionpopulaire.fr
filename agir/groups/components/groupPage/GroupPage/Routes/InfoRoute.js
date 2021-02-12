@@ -106,9 +106,7 @@ MobileInfoRoute.propTypes = DesktopInfoRoute.propTypes = {
 const InfoRoute = (props) => (
   <>
     <Helmet>
-      <title>
-        Page du groupe : {props.group && props.group.name} - Action populaire
-      </title>
+      <title>{props.group && props.group.name} - Action populaire</title>
     </Helmet>
     <ResponsiveLayout
       {...props}
