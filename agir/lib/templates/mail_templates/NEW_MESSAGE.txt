@@ -10,7 +10,7 @@ Vous avez un nouveau message
   
 [Répondre à {{ DISPLAY_NAME }}]({{ MESSAGE_LINK }})  
   
-Vous souhaitez recevoir moins de mails de notre part : [modifier ses préférences ou se désinscrire](\[preferences_link\]). 
+Vous souhaitez recevoir moins de mails de notre part : [modifier ses préférences ou se désinscrire]({{ preferences_link }}).
 
 Ce mail a été adressé à {{ email }}.
 
