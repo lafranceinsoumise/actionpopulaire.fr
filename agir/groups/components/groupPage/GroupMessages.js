@@ -151,7 +151,7 @@ export const GroupMessages = (props) => {
                 onClick={loadMoreMessages}
                 disabled={isLoading}
               >
-                Charger plus d'actualités&ensp;
+                Charger plus de messages&ensp;
                 <RawFeatherIcon
                   name="chevron-down"
                   width="1em"
