@@ -273,17 +273,18 @@ class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
         return HttpResponseGone()
 
     def can_join(self):
-        return self.request.user.is_authenticated and (
-            (self.request.user.person.is_insoumise and not self.object.is_2022)
-            or (self.request.user.person.is_2022 and self.object.is_2022)
-        )
+        if self.object.is_2022:
+            return self.request.user.person.is_2022
+        return self.request.user.person.is_insoumise
 
     @method_decorator(login_required(login_url=reverse_lazy("short_code_login")))
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
         if not self.can_join():
-            return HttpResponseForbidden()
+            return HttpResponseRedirect(
+                f'{reverse("join")}?type={"2" if self.object.is_2022 else "I"}'
+            )
 
         if request.POST["action"] == "join":
             if self.object.is_full:
