@@ -249,6 +249,7 @@ const Modal = (props) => {
               events={eventOptions}
               onSelectEvent={handleSelectEvent}
               loadMoreEvents={loadMoreEvents}
+              hasEmailWarning={!message || !message.id}
             />
           )}
         </StyledModalBody>

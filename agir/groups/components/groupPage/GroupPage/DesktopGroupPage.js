@@ -31,6 +31,7 @@ export const DesktopGroupPageSkeleton = () => (
       padding: "2rem 0 4rem",
       background: "white",
       maxWidth: "1336px",
+      width: "100%",
     }}
   >
     <Row gutter={32} style={{ marginBottom: "3.5rem" }}>
@@ -130,6 +131,7 @@ const DesktopGroupPage = (props) => {
         padding: "0 4rem",
         background: "white",
         maxWidth: "1336px",
+        width: "100%",
       }}
     >
       {!!backLink && (
