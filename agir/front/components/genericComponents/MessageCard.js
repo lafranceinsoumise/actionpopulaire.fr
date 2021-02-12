@@ -9,6 +9,7 @@ import { timeAgo } from "@agir/lib/utils/time";
 import { formatEvent } from "@agir/events/common/utils";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
+import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import Card from "@agir/front/genericComponents/Card";
@@ -325,6 +326,7 @@ const MessageCard = (props) => {
     onReport,
     withMobileCommentField,
     scrollIn,
+    withBottomButton,
   } = props;
 
   const { group, author, text, created, linkedEvent, commentCount } = message;
@@ -466,7 +468,7 @@ const MessageCard = (props) => {
             ) : null}
           </StyledAction>
         </StyledHeader>
-        <StyledContent>
+        <StyledContent onClick={handleClick}>
           {text.split("\n").map((paragraph, i) => (
             <span key={i + "__" + paragraph}>{paragraph}</span>
           ))}
@@ -515,6 +517,13 @@ const MessageCard = (props) => {
             )
           ) : null}
         </StyledComments>
+        {withBottomButton && (
+          <div style={{ textAlign: "center" }}>
+            <Button small onClick={handleClick}>
+              Rejoindre la conversation
+            </Button>
+          </div>
+        )}
       </StyledMessage>
     </StyledWrapper>
   );
@@ -553,5 +562,6 @@ MessageCard.propTypes = {
   withMobileCommentField: PropTypes.bool,
   scrollIn: PropTypes.bool,
   isManager: PropTypes.bool,
+  withBottomButton: PropTypes.bool,
 };
 export default MessageCard;

@@ -6,6 +6,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 
+import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import MessageCard from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -193,6 +194,7 @@ export const MessagesRoutePreview = (props) => {
                 messages[0].comments || messages[0].recentComments || []
               }
               onClick={onClickMessage}
+              withBottomButton
             />
           )}
         </article>
