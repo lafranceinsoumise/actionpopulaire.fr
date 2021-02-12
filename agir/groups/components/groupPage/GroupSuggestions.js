@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import Button from "@agir/front/genericComponents/Button";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import GroupSuggestionCard from "./GroupSuggestionCard";
@@ -31,7 +32,7 @@ export const StyledWrapper = styled.div`
   }
 
   h4 {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     font-size: 1.25rem;
     line-height: 1.5;
     font-weight: 700;
@@ -40,6 +41,10 @@ export const StyledWrapper = styled.div`
       font-size: 1rem;
       font-weight: 600;
     }
+  }
+
+  ${Button} {
+    margin-bottom: 1.5rem;
   }
 
   ${Carousel} {
@@ -137,6 +142,9 @@ export const GroupSuggestions = (props) => {
     <PageFadeIn ready={Array.isArray(groups) && groups.length > 0}>
       <StyledWrapper>
         <h4>Autres groupes qui peuvent vous intéresser</h4>
+        <Button as="Link" route="groupMapPage" icon="map" small>
+          Carte des groupes
+        </Button>
         <ResponsiveLayout
           MobileLayout={GroupSuggestionCarousel}
           DesktopLayout={GroupSuggestionBlock}
