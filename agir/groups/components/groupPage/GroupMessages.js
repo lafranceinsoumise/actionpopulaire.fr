@@ -56,6 +56,15 @@ const StyledWrapper = styled.div`
   @media (max-width: ${style.collapse}px) {
     margin-top: 1rem;
   }
+
+  & > h3 {
+    margin: 0;
+    padding: 0 0 1.5rem 0;
+
+    @media (max-width: ${style.collapse}px) {
+      padding: 1.5rem 1rem;
+    }
+  }
 `;
 
 export const GroupMessages = (props) => {
@@ -91,11 +100,27 @@ export const GroupMessages = (props) => {
 
   return (
     <StyledWrapper>
-      {Array.isArray(messages) && messages.length > 0 && writeNewMessage ? (
-        <div>
+      <h3>
+        <PageFadeIn
+          ready={!isLoading && Array.isArray(messages)}
+          wait={
+            <Skeleton
+              boxes={1}
+              style={{ width: "50%", height: "2em", margin: 0 }}
+            />
+          }
+        >
+          Messages
+        </PageFadeIn>
+      </h3>
+      <PageFadeIn
+        ready={!isLoading && Array.isArray(messages)}
+        wait={<Skeleton boxes={1} style={{ height: "3.375rem", margin: 0 }} />}
+      >
+        {Array.isArray(messages) && messages.length > 0 && writeNewMessage ? (
           <MessageModalTrigger onClick={writeNewMessage} outlined />
-        </div>
-      ) : null}
+        ) : null}
+      </PageFadeIn>
       {saveMessage ? (
         <MessageModal
           shouldShow={hasMessageModal}
