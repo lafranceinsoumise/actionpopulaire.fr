@@ -25,6 +25,7 @@ from agir.groups.serializers import (
     SupportGroupDetailSerializer,
 )
 from agir.lib.pagination import APIPaginator
+from agir.groups.tasks import send_message_notification
 
 __all__ = [
     "GroupSearchAPIView",
@@ -262,7 +263,10 @@ class GroupMessagesAPIView(ListCreateAPIView):
         )
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user.person, supportgroup=self.supportgroup)
+        message = serializer.save(
+            author=self.request.user.person, supportgroup=self.supportgroup
+        )
+        send_message_notification.delay(message.pk)
 
 
 class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):

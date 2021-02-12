@@ -4,6 +4,7 @@ from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
 from django.template.loader import render_to_string
+from django.utils.html import format_html_join, format_html
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
@@ -18,6 +19,8 @@ from agir.people.models import Person
 from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
 from ..activity.models import Activity
+from ..lib.display import genrer
+from ..msgs.models import SupportGroupMessage
 
 NOTIFIED_CHANGES = {
     "name": "information",
@@ -442,4 +445,36 @@ def create_accepted_invitation_member_activity(new_membership_pk):
             )
             for r in recipients
         ]
+    )
+
+
+@emailing_task
+def send_message_notification(message_pk):
+    try:
+        message = SupportGroupMessage.objects.get(pk=message_pk)
+    except (SupportGroupMessage.DoesNotExist):
+        return
+
+    bindings = {
+        "MESSAGE_HTML": format_html_join(
+            "", "<p>{}</p>", ((p,) for p in message.text.split("\n"))
+        ),
+        "DISPLAY_NAME": message.author.get_display_name(),
+        "MESSAGE_LINK": front_url(
+            "view_group_message", args=[message.supportgroup.pk, message_pk]
+        ),
+        "AUTHOR_STATUS": format_html(
+            '{} de <a href="{}">{}</a>',
+            genrer(message.author.gender, "Animateur", "Animatrice", "Animateurice"),
+            front_url("view_group", args=[message.supportgroup.pk]),
+            message.supportgroup.name,
+        ),
+    }
+
+    send_mosaico_email(
+        code="NEW_MESSAGE",
+        subject=f"Vous avez un nouveau message de {message.author.get_display_name()}",
+        from_email=settings.EMAIL_FROM,
+        recipients=message.supportgroup.members.filter(group_notifications=True),
+        bindings=bindings,
     )

@@ -349,6 +349,8 @@ EMAIL_TEMPLATES = {
     "GROUP_ALERT_CAPACITY_21": "https://mosaico.lafranceinsoumise.fr/emails/8add9bc8-ef7a-4fc6-8591-d4bc0c8ec226.html",
     # GROUP_MAX_CAPACITY variables : GROUP_NAME, TRANSFER_LINK
     "GROUP_ALERT_CAPACITY_30": "https://mosaico.lafranceinsoumise.fr/emails/a4cb42b0-1417-446a-af66-5d8e67b2047e.html",
+    # NEW_MESSAGE variables: DISPLAY_NAME, AUTHOR_STATUS, MESSAGE_HTML, DISPLAY_NAME
+    "NEW_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/0f9f599a-1dcf-4a49-963e-56078ce9d587.html",
 }
 
 EMAIL_FROM = os.environ.get(
