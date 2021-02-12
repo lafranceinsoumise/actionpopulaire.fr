@@ -100,11 +100,11 @@ const StyledOption = styled.button`
 const StyledWarning = styled.p`
   display: flex;
   flex-flow: column nowrap;
-  background-color: ${style.secondary100};
   padding: 0.75rem;
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 0 1.5rem 1rem;
+  border: 1px solid ${style.black100};
 
   strong {
     font-weight: 600;
@@ -181,7 +181,6 @@ const EventStep = (props) => {
 
   return (
     <StyledWrapper>
-      <h4>De quoi souhaitez-vous parler&nbsp;?</h4>
       {hasEmailWarning && (
         <StyledWarning>
           <strong>
@@ -194,6 +193,7 @@ const EventStep = (props) => {
           </span>
         </StyledWarning>
       )}
+      <h4>De quoi souhaitez-vous parler&nbsp;?</h4>
       {events.map((event) => (
         <EventStepOption
           key={event.id}

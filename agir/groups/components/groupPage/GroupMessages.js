@@ -11,8 +11,11 @@ import MessageCard from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
-import MessageModalTrigger from "@agir/front/formComponents/MessageModal/Trigger";
+import MessageModalTrigger, {
+  FloatingTrigger as FloatingMessageModalTrigger,
+} from "@agir/front/formComponents/MessageModal/Trigger";
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
 
@@ -56,6 +59,15 @@ const StyledWrapper = styled.div`
   @media (max-width: ${style.collapse}px) {
     margin-top: 1rem;
   }
+
+  & > h3 {
+    margin: 0;
+    padding: 0 0 1.5rem 0;
+
+    @media (max-width: ${style.collapse}px) {
+      padding: 1.5rem 1rem 0.5rem;
+    }
+  }
 `;
 
 export const GroupMessages = (props) => {
@@ -91,11 +103,32 @@ export const GroupMessages = (props) => {
 
   return (
     <StyledWrapper>
-      {Array.isArray(messages) && messages.length > 0 && writeNewMessage ? (
-        <div>
-          <MessageModalTrigger onClick={writeNewMessage} outlined />
-        </div>
-      ) : null}
+      <h3>
+        <PageFadeIn
+          ready={!isLoading && Array.isArray(messages)}
+          wait={
+            <Skeleton
+              boxes={1}
+              style={{ width: "50%", height: "2em", margin: 0 }}
+            />
+          }
+        >
+          Messages
+        </PageFadeIn>
+      </h3>
+      <PageFadeIn
+        ready={!isLoading && Array.isArray(messages)}
+        wait={<Skeleton boxes={1} style={{ height: "3.375rem", margin: 0 }} />}
+      >
+        {Array.isArray(messages) && messages.length > 0 && writeNewMessage ? (
+          <ResponsiveLayout
+            MobileLayout={FloatingMessageModalTrigger}
+            DesktopLayout={MessageModalTrigger}
+            onClick={writeNewMessage}
+            outlined
+          />
+        ) : null}
+      </PageFadeIn>
       {saveMessage ? (
         <MessageModal
           shouldShow={hasMessageModal}

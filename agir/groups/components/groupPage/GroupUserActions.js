@@ -190,12 +190,12 @@ const StyledContent = styled.div`
     font-size: 0.813rem;
     line-height: 1.5;
     color: ${style.black500};
+    margin-bottom: 0;
 
     @media (max-width: ${style.collapse}px) {
       font-size: 0.688rem;
       font-weight: 400;
       color: ${style.black1000};
-      margin-bottom: 0;
     }
   }
 `;
@@ -362,7 +362,7 @@ const DesktopMemberActions = (props) => {
       style={{
         width: "100%",
         position: "relative",
-        margin: "0 0 1rem",
+        margin: "0",
       }}
     >
       <Button onClick={openMenu} color="default" icon="check">
