@@ -97,6 +97,19 @@ const StyledOption = styled.button`
   }
 `;
 
+const StyledWarning = styled.p`
+  display: flex;
+  flex-flow: column nowrap;
+  background-color: ${style.secondary100};
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0 1.5rem 1rem;
+
+  strong {
+    font-weight: 600;
+  }
+`;
 const StyledWrapper = styled.div`
   max-height: 360px;
   overflow-x: hidden;
@@ -164,11 +177,23 @@ EventStepOption.propTypes = {
 };
 
 const EventStep = (props) => {
-  const { events, onSelectEvent, loadMoreEvents } = props;
+  const { events, onSelectEvent, loadMoreEvents, hasEmailWarning } = props;
 
   return (
     <StyledWrapper>
       <h4>De quoi souhaitez-vous parler&nbsp;?</h4>
+      {hasEmailWarning && (
+        <StyledWarning>
+          <strong>
+            Tous vos membres recevront un e-mail avec le contenu de votre
+            message et pourront y répondre&nbsp;!
+          </strong>
+          <span>
+            (Il ne recevront pas d’e-mails pour chaque commentaire ou
+            modification de messages)
+          </span>
+        </StyledWarning>
+      )}
       {events.map((event) => (
         <EventStepOption
           key={event.id}
@@ -188,5 +213,6 @@ EventStep.propTypes = {
   events: PropTypes.arrayOf(PropTypes.object),
   onSelectEvent: PropTypes.func.isRequired,
   loadMoreEvents: PropTypes.func,
+  hasEmailWarning: PropTypes.bool,
 };
 export default EventStep;
