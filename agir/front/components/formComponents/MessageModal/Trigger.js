@@ -7,7 +7,8 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledButton = styled.button`
-  border: none;
+  border: ${({ $outlined }) =>
+    $outlined ? `1px solid ${style.primary500}` : "none"};
   margin: 0;
   text-decoration: none;
   background-color: ${style.white};
@@ -23,6 +24,11 @@ const StyledButton = styled.button`
   width: 100%;
   height: 54px;
   padding: 0.5rem;
+
+  @media (max-width: ${style.collapse}px) {
+    border: ${({ $outlined }) =>
+      $outlined ? `1px solid ${style.black100}` : "none"};
+  }
 
   &:focus,
   &:hover {
@@ -67,10 +73,10 @@ const StyledButton = styled.button`
 `;
 
 const Trigger = (props) => {
-  const { onClick } = props;
+  const { onClick, outlined } = props;
 
   return (
-    <StyledButton onClick={onClick}>
+    <StyledButton onClick={onClick} $outlined={outlined}>
       <RawFeatherIcon
         name="edit-2"
         color="white"
@@ -84,5 +90,6 @@ const Trigger = (props) => {
 };
 Trigger.propTypes = {
   onClick: PropTypes.func.isRequired,
+  outlined: PropTypes.bool,
 };
 export default Trigger;
