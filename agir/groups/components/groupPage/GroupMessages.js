@@ -11,8 +11,11 @@ import MessageCard from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
-import MessageModalTrigger from "@agir/front/formComponents/MessageModal/Trigger";
+import MessageModalTrigger, {
+  FloatingTrigger as FloatingMessageModalTrigger,
+} from "@agir/front/formComponents/MessageModal/Trigger";
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
 
@@ -62,7 +65,7 @@ const StyledWrapper = styled.div`
     padding: 0 0 1.5rem 0;
 
     @media (max-width: ${style.collapse}px) {
-      padding: 1.5rem 1rem;
+      padding: 1.5rem 1rem 0.5rem;
     }
   }
 `;
@@ -118,7 +121,12 @@ export const GroupMessages = (props) => {
         wait={<Skeleton boxes={1} style={{ height: "3.375rem", margin: 0 }} />}
       >
         {Array.isArray(messages) && messages.length > 0 && writeNewMessage ? (
-          <MessageModalTrigger onClick={writeNewMessage} outlined />
+          <ResponsiveLayout
+            MobileLayout={FloatingMessageModalTrigger}
+            DesktopLayout={MessageModalTrigger}
+            onClick={writeNewMessage}
+            outlined
+          />
         ) : null}
       </PageFadeIn>
       {saveMessage ? (
