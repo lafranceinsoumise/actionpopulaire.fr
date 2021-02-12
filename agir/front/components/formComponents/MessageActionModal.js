@@ -115,7 +115,7 @@ const Steps = {
             </Button>
           ) : null}
           <Button color="default" onClick={onClose} disabled={isLoading}>
-            {onReport ? "Annuler" : "Terminer"}
+            {onReport ? "Non merci" : "Terminer"}
           </Button>
         </StyledModalFooter>
       </>
@@ -191,7 +191,7 @@ const Steps = {
             </Button>
           ) : null}
           <Button color="default" onClick={onClose} disabled={isLoading}>
-            {onDelete ? "Annuler" : "Terminer"}
+            {onDelete ? "Non merci" : "Terminer"}
           </Button>
         </StyledModalFooter>
       </>
