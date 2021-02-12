@@ -80,17 +80,16 @@ const RoutePreview = styled.div`
 
       @media (max-width: ${style.collapse}px) {
         border: none;
-        box-shadow: ${style.elaborateShadow};
-        padding: 1rem;
-        background-color: ${style.white};
       }
 
       & > * {
         @media (max-width: ${style.collapse}px) {
           margin: 0;
-          padding: 0;
-          padding-top: 0;
-          box-shadow: none;
+          background-color: ${style.white};
+
+          & + & {
+            margin-top: 1rem;
+          }
         }
       }
     }
@@ -166,10 +165,10 @@ export const MessagesRoutePreview = (props) => {
     <RoutePreview>
       <PageFadeIn ready={!isLoadingMessages} wait={<Skeleton boxes={1} />}>
         <h3>
-          <span>Dernier message</span>
+          <span>Derniers messages</span>
           {goToMessagesTab && (
             <button onClick={goToMessagesTab}>
-              Discussions{" "}
+              Messages{" "}
               <RawFeatherIcon
                 name="arrow-right"
                 width="1rem"
@@ -185,16 +184,18 @@ export const MessagesRoutePreview = (props) => {
           link={discussionAnnouncement && discussionAnnouncement.link}
         />
         <article>
-          {messages && messages[0] && (
-            <MessageCard
-              user={user}
-              message={messages[0]}
-              comments={
-                messages[0].comments || messages[0].recentComments || []
-              }
-              onClick={onClickMessage}
-            />
-          )}
+          {Array.isArray(messages)
+            ? messages.map((message) => (
+                <MessageCard
+                  key={message.id}
+                  user={user}
+                  message={message}
+                  comments={message.comments || message.recentComments || []}
+                  onClick={onClickMessage}
+                  withBottomButton
+                />
+              ))
+            : null}
         </article>
       </PageFadeIn>
     </RoutePreview>

@@ -216,6 +216,8 @@ CommentButton.propTypes = {
 const CommentField = (props) => {
   const { user, initialValue, id, onSend, isLoading, disabled } = props;
 
+  const hasSubmitted = useRef(false);
+
   const fieldWrapperRef = useRef();
   const textFieldRef = useRef();
   const textFieldCursorPosition = useRef();
@@ -296,14 +298,23 @@ const CommentField = (props) => {
     (e) => {
       e.preventDefault();
       onSend(value);
+      hasSubmitted.current = true;
     },
     [onSend, value]
   );
+
+  useEffect(() => {
+    if (!isLoading && hasSubmitted.current) {
+      hasSubmitted.current = false;
+      setValue("");
+    }
+  }, [isLoading]);
 
   const handleInputKeyDown = useCallback(
     (e) => {
       if (value && e.ctrlKey && e.keyCode === 13) {
         onSend(value);
+        hasSubmitted.current = true;
       }
     },
     [value, onSend]

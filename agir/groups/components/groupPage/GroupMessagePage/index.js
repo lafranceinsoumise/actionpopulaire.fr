@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import PropTypes from "prop-types";
 import React, { useEffect, useMemo } from "react";
 import { Redirect } from "react-router-dom";
@@ -54,7 +55,7 @@ const Page = ({ groupPk, messagePk }) => {
       routeConfig.groupDetails &&
       routeConfig.groupDetails.getLink({
         groupPk,
-        activeTab: "discussion",
+        activeTab: "messages",
       }),
     [groupPk]
   );
@@ -102,37 +103,44 @@ const Page = ({ groupPk, messagePk }) => {
   }
 
   return (
-    <PageFadeIn wait={PageSkeleton} ready={isSessionLoaded && group}>
-      {isSessionLoaded && group ? (
-        <CenteredLayout
-          backLink={isSessionLoaded && group ? backLink : undefined}
-          $maxWidth="780px"
-          title={
-            group && !group.isMember
-              ? "Cette discussion n'est pas disponible"
-              : undefined
-          }
-          icon={group && !group.isMember ? "lock" : undefined}
-        >
-          {group && group.isMember ? (
-            <PageFadeIn wait={PageSkeleton} ready={!isLoading}>
-              <GroupMessagePage
-                group={group}
-                user={user}
-                events={events}
-                message={message}
-                messageURL={messageURL}
-                groupURL={groupURL}
-                loadMoreEvents={loadMoreEvents}
-                isLoading={isLoading}
-              />
-            </PageFadeIn>
-          ) : (
-            <UnavailableMessagePage groupURL={groupURL} />
-          )}
-        </CenteredLayout>
-      ) : null}
-    </PageFadeIn>
+    <>
+      <Helmet>
+        {group && group.name && group.isMember && (
+          <title>Message du groupe : {group.name} - Action populaire</title>
+        )}
+      </Helmet>
+      <PageFadeIn wait={PageSkeleton} ready={isSessionLoaded && group}>
+        {isSessionLoaded && group ? (
+          <CenteredLayout
+            backLink={isSessionLoaded && group ? backLink : undefined}
+            $maxWidth="780px"
+            title={
+              group && !group.isMember
+                ? "Ce message n'est pas disponible"
+                : undefined
+            }
+            icon={group && !group.isMember ? "lock" : undefined}
+          >
+            {group && group.isMember ? (
+              <PageFadeIn wait={PageSkeleton} ready={!isLoading}>
+                <GroupMessagePage
+                  group={group}
+                  user={user}
+                  events={events}
+                  message={message}
+                  messageURL={messageURL}
+                  groupURL={groupURL}
+                  loadMoreEvents={loadMoreEvents}
+                  isLoading={isLoading}
+                />
+              </PageFadeIn>
+            ) : (
+              <UnavailableMessagePage groupURL={groupURL} />
+            )}
+          </CenteredLayout>
+        ) : null}
+      </PageFadeIn>
+    </>
   );
 };
 Page.propTypes = {

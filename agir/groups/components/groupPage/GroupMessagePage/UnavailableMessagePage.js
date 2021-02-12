@@ -35,8 +35,8 @@ const UnavailableMessagePage = (props) => {
   return (
     <StyledBlock>
       <p>
-        Vous n’avez pas les droits nécessaires pour afficher cette discussion,
-        car elle est réservée aux membres du groupe.
+        Vous n’avez pas les droits nécessaires pour afficher ce message, car il
+        est réservé aux membres du groupe.
       </p>
       {groupURL ? (
         <Button color="primary" as="Link" to={groupURL}>

@@ -76,7 +76,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         ]
         if recent_comments is not None:
             recent_comments = MessageCommentSerializer(
-                recent_comments, context=self.context, many=True
+                reversed(recent_comments), context=self.context, many=True
             ).data
         return recent_comments
 
