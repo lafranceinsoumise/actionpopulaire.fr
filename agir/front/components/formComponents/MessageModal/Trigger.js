@@ -32,7 +32,6 @@ const StyledButton = styled.button`
 
   &:focus,
   &:hover {
-    border: none;
     outline: none;
     opacity: 0.8;
   }
